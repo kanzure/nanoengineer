@@ -114,11 +114,13 @@ class nullMode(anyMode):
         # this will be overwritten when modes are changing [bruce 050106]
     # needs no __init__ method; constructor takes no arguments
     def noop_method(self, *args):
-        print "fyi: nullMode noop method called -- probably ok, but please tell bruce if this ever happens!" ###
+        if platform.atom_debug:
+            print "fyi: atom_debug: nullMode noop method called -- probably ok; ignored"
         return None #e print a warning?
     def __getattr__(self, attr):
         if not attr.startswith('_'):
-            print "fyi: nullMode.__getattr__(%r) -- probably ok, but please tell bruce if this ever happens!" % attr ###
+            if platform.atom_debug:
+                print "fyi: atom_debug: nullMode.__getattr__(%r) -- probably ok; returned noop method" % attr
             return self.noop_method
         else:
             raise AttributeError, attr #e args?
@@ -131,6 +133,8 @@ class nullMode(anyMode):
     def keyPressEvent(self, e):
         pass
     def keyReleaseEvent(self, e):
+        pass
+    def bareMotion(self, e):
         pass
     pass ##e maybe needs to have some other specific methods?
 
@@ -160,7 +164,8 @@ class basicMode(anyMode):
         assert not name.startswith('('), \
             "bug: modename class constant missing from subclass %s" % self.__class__.__name__
         if self.msg_modename.startswith('('):
-            self.msg_modename = name.lower() + " mode"
+            self.msg_modename = name[0:1].upper() + name[1:].lower() + " mode"
+                # [bruce 050106 capitalized first letter above; untested ###@@@]
             if 0: # bruce 040923 never mind this suggestion
                 print "fyi: it might be better to define 'msg_modename = %r' as a class constant in %s" % \
                   (self.msg_modename, self.__class__.__name__)
@@ -445,21 +450,6 @@ class basicMode(anyMode):
            special calls should be needed... we'll see.]            
         """
         return self.default_mode_status_text
-
-    def status_msg(self, text): #bruce 041018
-        """Put a status message (for progress, warnings, etc) into the main
-        status widget -- not the mode status widget. In the future this might
-        also print or otherwise record the message and a timestamp.
-        """
-        # extrudeMode.py has its own, fancier version of this... but for now
-        # it must remain self-contained, in case Josh grabs another update
-        # of that file alone. After the conference I will combine the best
-        # features of both versions of this method. [bruce 041018]
-
-        # print first, since if there's a bug, printed output is most important,
-        # and otherwise we'll see both messages anyway.
-        print "status (%s):" % self.msg_modename, text
-        self.w.statusBar.message(text)
 
     # methods for changing to some other mode
     
@@ -1034,7 +1024,7 @@ class basicMode(anyMode):
     #  Bruce warns: I'm skeptical this belongs in basicMode; probably it will need
     #  rewriting as soon as some specific mode wants to do it differently.)
     def modifyDehydrogenate(self):
-        self.status_msg("Dehydrogenating...")
+        self.w.statusBar.message("Dehydrogenating...")
         from platform import fix_plurals
         fixmols = {} # helps count modified mols for statusbar
         if self.o.assy.selmols:
@@ -1086,7 +1076,7 @@ class basicMode(anyMode):
         if fixmols:
             self.o.assy.modified = 1 #e shouldn't we do this in lower-level methods?
             self.w.update()
-        self.status_msg(didwhat)
+        self.w.statusBar.message(didwhat)
         return
 
     def surfset(self, num):
@@ -1221,6 +1211,17 @@ class modeMixin:
             refused1 = mode._enterMode()
             assert not refused1, "default mode should never refuse"
         self.mode = mode # finally it's ok to send events to the new mode
+        
+        # bruce 050106: added this status/history message about new mode...
+        # I'm not sure this is the best place to put it, but it's the best
+        # existing single place I could find.
+        msg = "Entering %s" % mode.default_mode_status_text
+            # semi-kluge, since that text starts with "Mode: ..." by convention;
+            # also, not clear if we should use get_mode_status_text instead.
+        import MWsemantics
+        greenmsg = MWsemantics.greenmsg
+        self.win.statusBar.message( greenmsg( msg), norepeat_id = msg )
+        
         self.update_after_new_mode()
         
     def _find_mode(self, modename_or_obj = None):
