@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>298</width>
-            <height>312</height>
+            <height>315</height>
         </rect>
     </property>
     <property name="caption">
@@ -85,6 +85,9 @@
                     <property name="name">
                         <cstring>stepsperSB</cstring>
                     </property>
+                    <property name="maxValue">
+                        <number>99999</number>
+                    </property>
                     <property name="minValue">
                         <number>1</number>
                     </property>
@@ -97,7 +100,7 @@
                         <cstring>tempSB</cstring>
                     </property>
                     <property name="maxValue">
-                        <number>999</number>
+                        <number>99999</number>
                     </property>
                     <property name="value">
                         <number>300</number>

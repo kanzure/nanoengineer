@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Wed Jan 12 17:17:35 2005
+# Created: Mon Jan 17 21:43:42 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -91,13 +91,14 @@ class SimSetupDialog(QDialog):
         layout28.addWidget(self.nframesSB,1,0)
 
         self.stepsperSB = QSpinBox(self,"stepsperSB")
+        self.stepsperSB.setMaxValue(99999)
         self.stepsperSB.setMinValue(1)
         self.stepsperSB.setValue(10)
 
         layout28.addWidget(self.stepsperSB,3,0)
 
         self.tempSB = QSpinBox(self,"tempSB")
-        self.tempSB.setMaxValue(999)
+        self.tempSB.setMaxValue(99999)
         self.tempSB.setValue(300)
 
         layout28.addWidget(self.tempSB,5,0)
@@ -132,7 +133,7 @@ class SimSetupDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(298,312).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(298,315).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.MovieButton,SIGNAL("clicked()"),self.createMoviePressed)
