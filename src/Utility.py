@@ -95,7 +95,7 @@ class Node:
         return
 
     def show_in_model_tree(self): #bruce 050127
-        """Say whether this node should be shown in the model tree widget.
+        """Should this node be shown in the model tree widget?
         True for most nodes. Can be overridden by subclasses.
         [Added so that Datum Plane nodes won't be shown. Initially,
          it might not work much more generally than that.]
@@ -877,6 +877,13 @@ class Csys(DataNode):
             
         return
 
+    def show_in_model_tree(self):
+        #bruce 050128; nothing's wrong with showing them, except that they are unselectable
+        # and useless for anything except being renamed by dblclick (which can lead to bugs
+        # if the names are still used when fileIO reads the mmp file again). For Beta we plan
+        # to make them useful and safe, and then make them showable again.
+        "[overrides Node method]"
+        return False
 
     def writemmp(self, atnums, alist, f):
         v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale,       self.pov[0], self.pov[1], self.pov[2], self.zoomFactor)
@@ -980,10 +987,14 @@ class ClipboardShelfGroup(Group):
     def drag_enabled(self): return False ###k
     ## def drop_enabled(self): return False ###k bruce thinks drop on clipboard can add an item to it
     def permits_ungrouping(self): return False
+    def openable(self): # overrides Node.openable()
+        "whether tree widgets should permit the user to open/close their view of this node"
+        non_empty = (len(self.members) > 0)
+        return non_empty
     def node_icon(self, display_prefs):
         del display_prefs # unlike most Groups, we don't even care about 'open'
-        full = (len(self.members) > 0)
-        if full:
+        non_empty = (len(self.members) > 0)
+        if non_empty:
             kluge_icon = imagename_to_pixmap("clipboard-full.png")
             res = imagename_to_pixmap("clipboard-full.png")
         else:

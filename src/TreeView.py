@@ -565,7 +565,7 @@ class TreeView(QListView):
          is not worthwhile in hindsight. Fix it sometime. #e]
         """
         res = {}
-        if node.openable():
+        if node.openable(): ###e should use item_isOpen, but that's for items...
             res['openable'] = True ###@@@??? see setExpandable; and discussion in QListViewItem docs, esp about setup() function
             try:
                 node.open ###@@@ obs, will be changed
@@ -782,12 +782,18 @@ class TreeView(QListView):
         # btw what about data members (kids but not members, might not be reached here)?
         #  is it moot? ignore for now. or ask node for all members for this use... ie all possible kids, kids_if_open...
         # useful in our treemaker too i guess.
-        tw = self # tw means tree widget, i guess [taken from old code]
+        listview = self
         item = self.nodeItem(node)
         assert item
-        if do_setOpen and node.openable():
-            tw.setOpen(item, node.open) ###@@@ use a new method in place of open... if we even need this...
-        ## old: tw.setSelected(item, node.picked)
+        if do_setOpen:
+            if node.openable(): ###e needs cleanup: use node_isOpen/isOpenable split from current item_ methods
+                item.setExpandable(True) #bruce 050128 bugfix
+                    # BTW, this must be done before the setOpen,
+                    # or the openclose icon is drawn closed when there are no children!
+                listview.setOpen(item, node.open) ###@@@ use a new method in place of open... if we even need this...
+            else:
+                item.setExpandable(False) #bruce 050128 bugfix
+        ## old: listview.setSelected(item, node.picked)
         item.setSelected(node.picked)
         item.repaint()
         if hasattr(node, 'members'): # clean this up... won't be enough for PartGroup! ####@@@@
