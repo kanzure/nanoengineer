@@ -159,7 +159,7 @@ def readxyz(assy):
                         print "%s: atom %d is not matching." % (xyzFile, atomIndex)
                         return
                     
-                    newAtomsPos += [map(lambda a: a/100.0, map(float, words[1:]))]
+                    newAtomsPos += [map(float, words[1:])]
                 except ValueError:
                         print "%s: atom %d position number format error." % (xyzFile, atomIndex)
                         return
