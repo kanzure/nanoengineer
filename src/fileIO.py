@@ -400,11 +400,13 @@ def writepov(assy, filename):
 
     cdist = 6.0 ###5.0 # Camera distance
     aspect = (assy.o.width + 0.0)/(assy.o.height + 0.0)
-    zfactor = 0.4 # zoom factor
+    zfactor =  0.4 # zoom factor 
     up = V(0.0, zfactor, 0.0)
-    right = V(aspect * zfactor, 0.0, 0.0)  ##1.33
+    right = V( aspect * zfactor, 0.0, 0.0) ##1.33  
     import math
     angle = 2.0*atan2(aspect, cdist)*180.0/math.pi
+    
+    f.write("// Recommended window size: width=%d, height=%d \n\n"%(assy.o.width, assy.o.height))
 
     f.write(povheader)
 
@@ -420,7 +422,10 @@ def writepov(assy, filename):
     f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color Gray40 parallel\n}\n")
     f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color Gray40 parallel\n}\n")
     
-    eyePos = cdist * assy.o.scale*assy.o.out-assy.o.pov
+    vdist = cdist
+    if aspect < 1.0:
+            vdist = cdist / aspect
+    eyePos = vdist * assy.o.scale*assy.o.out-assy.o.pov
     # Camera info
     f.write("\ncamera {\n  location " + povpoint(eyePos)  + "\n  up " + povpoint(up) + "\n  right " + povpoint(right) + "\n  sky " + povpoint(assy.o.up) + "\n angle " + str(angle) + "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
  
@@ -440,8 +445,9 @@ def writepov(assy, filename):
     pov_near =  (nearPos[0], nearPos[1], -nearPos[2])
     pov_in = (-assy.o.out[0], -assy.o.out[1], assy.o.out[2])
     
+    ### sets the near and far clipping plane
     f.write("clipped_by { plane { " + povpoint(-assy.o.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
-    f.write("                    plane { " + povpoint(assy.o.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
+    f.write("             plane { " + povpoint(assy.o.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
     f.write("}\n\n")  
 
     f.close()

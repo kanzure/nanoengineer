@@ -1525,7 +1525,7 @@ class Bond:
             if  self.atom1.element.rcovalent < DELTA:
                     col = color2
                     isSingleCylinder = True
-            if  self.atom1.element.rcovalent < DELTA:
+            if  self.atom2.element.rcovalent < DELTA:
                     col = color1
                     isSingleCylinder = True
             if isSingleCylinder:        

@@ -147,7 +147,8 @@ class GLPane(QGLWidget, modeMixin):
 
         # clipping planes, as percentage of distance from the eye
         self.near = 0.66
-        self.far = 2.0
+        self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
+                               ## more likely sitting within the view volume
 
         # start in perspective mode
         self.ortho = 0
@@ -712,7 +713,8 @@ class GLPane(QGLWidget, modeMixin):
         glMatrixMode(GL_MODELVIEW)
         if aspect < 1.0:
              vdist /= aspect
-	glTranslatef(0.0, 0.0, - vdist)
+        
+        glTranslatef(0.0, 0.0, - vdist)
 	# bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
 	# (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
 	# We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
