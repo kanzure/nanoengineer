@@ -87,7 +87,7 @@ class molecule(Node, InvalMixin):
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0 # note: havelist is not handled by InvalMixin
-        # default place to bond this molecule -- should be a singlet
+        # default place to bond this molecule -- should be a singlet or None
         self.hotspot = None
         return # from molecule.__init__
         
@@ -1128,12 +1128,15 @@ class molecule(Node, InvalMixin):
         """Public method: Copy the molecule to a new molecule.
         Offset tells where it will go relative to the original.
         Unless cauterize = 0, replace bonds out of the molecule
-        with singlets in the copy. (This has no effect on the
+        with singlets in the copy, and if this causes the hotspot
+        to become ambiguous, set one explicitly. (This has no effect on the
         original.) If cauterize == 0, the copy has atoms with lower valence
         instead, wherever the original had outgoing bonds (not recommended).
            Note that the copy has the same assembly as self, but is not added
         added to that assembly; caller should call assy.addmol if desired.
         """
+        # bruce added cauterize feature 041116, and hotspot feature 041123.
+        # Without hotspot feature, Build mode pasting could have an exception.
         ##print "fyi debug: mol.copy on %r" % self
         # bruce 041116: note: callers seem to be mainly in model tree copy ops
         # and in depositMode.
@@ -1158,18 +1161,24 @@ class molecule(Node, InvalMixin):
                     extern_atoms_bonds.append( (a,b) ) # ok if several times for one 'a'
         if extern_atoms_bonds:
             print "fyi: mol.copy didn't copy %d extern bonds..." % len(extern_atoms_bonds)
+        copied_hotspot = self.hotspot # might be None
         if cauterize:
             # do something about non-copied bonds (might be useful for extrude)
             # [experimental code, bruce 041112]
             if extern_atoms_bonds:
                 print "... but it will make them into singlets"
+                # don't make our hotspot ambiguous, if it wasn't already
+                if not self.hotspot and len(self.singlets) == 1:
+                    # we have an implicit but unambiguous hotspot:
+                    # make it explicit in the copy [bruce 041123]
+                    copied_hotspot = self.singlets[0]
             for a,b in extern_atoms_bonds:
                 # compare to code in Bond.unbond():
                 x = atom('X', b.ubp(a) + offset, numol)
                 na = ndix[a.key]
                 numol.bond(na, x)
-        try: numol.hotspot = ndix[self.hotspot.key]
-        except AttributeError: pass
+        if copied_hotspot:
+            numol.hotspot = ndix[copied_hotspot.key]
         #e also copy (but translate by offset) user-specified axis, center, etc,
         #  if we ever have those
         if self.user_specified_center:
