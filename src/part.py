@@ -363,7 +363,7 @@ class Part(InvalMixin):
         called whenever the geometry model has been changed, like new
         parts added, parts/atoms deleted, parts moved/rotated(not view
         move/rotation), etc."""
-        self.invalidate_attrs('bbox','center')
+        self.invalidate_attrs(['bbox','center'])
         self.bbox, self.center
         return
 
