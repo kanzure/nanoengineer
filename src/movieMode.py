@@ -102,13 +102,11 @@ class movieMode(basicMode):
 
     def keyPressEvent(self, e):
         "some modes will need to override this in the future"
-        print "MOVIEMODE: keyPressEvent called"
         self.keyPress(e.key())
             
     def keyPress(self,key):
-        print "MOVIEMODE: keyPress called"
-        if key == Qt.Key_Delete:
-            print "delete key pressed while in Movie Mode"
+        if key == Qt.Key_Delete: return
+#            print "Delete key pressed while in Movie Mode"
         if key == Qt.Key_Left or key == Qt.Key_Down:
             self.o.assy.m._playFrame(self.o.assy.m.currentFrame - 1)
         if key == Qt.Key_Right or key == Qt.Key_Up:
