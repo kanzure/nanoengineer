@@ -281,17 +281,64 @@ class Node:
         ###e should inval any observers (i.e. model tree) -- not yet needed, I think [bruce 050119]
         return (True, name)
         
-    def drag_enabled(self):
-        """#doc this - whether a drag of this node can be started (for "drag and drop") ##k
+    def drag_move_ok(self): # renamed/split from drag_enabled; docstring revised 050201 #####@@@@@ honor it!
+        """Say whether a drag_move which includes this node can be started (for "drag and drop").
+        It's ok if only some drop-targets (nodes or inter-node gaps) can accept this node;
+        we'll ask the targets if they'll take a specific drag_moved list of nodes (which includes this node).
+           A tree widget asked to drag_move some selected nodes might filter them by drag_move_ok
+        to get the ones to actually move, or it might refuse the whole operation unless all are ok to move --
+        that's a UI decision, not a node semantics decision.
+        [some subclasses should override this]
+        """
+        return True
+        
+    def drag_copy_ok(self): # renamed/split from drag_enabled; docstring revised 050201 #####@@@@@ honor it!
+        """Say whether a drag_copy which includes this node can be started (for "drag and drop").
+        Same comments as for drag_move_ok apply.
         [some subclasses should override this]
         """
         return True
     
-    def drop_enabled(self):
-        """#doc this - whether "drag and drop" can drop something onto this node ##k
+    def drop_on_ok(self, drag_type, nodes): #####@@@@@ honor it!
+        """Say whether "drag and drop" can drop the given set of nodes onto this node,
+        when they are dragged in the given way ('move' or 'copy' -- nodes arg has the originals).
+        (Typically this node (if it says ok) would insert the moved or copied nodes inside itself
+        as new members, but what it actually does with them is up to it;
+        as an initial kluge before we support dropping into gaps (if we ever don't),
+        dropping onto a leaf node might simulate dropping into the same-level gap below it
+        (i.e. make a sibling, like addmember does).
         [some subclasses should override this]
         """
-        return True
+        return True #e probably change to False for leaf nodes, once we support dropping into gaps
+
+    def drop_on(self, drag_type, nodes): #####@@@@@ use it! rewrite to use copy_nodes (also the assy methods? not for alpha)
+        "Like drop_on_ok, but (assuming it's ok -- error if it's not) actually perform the drop."
+        if drag_type == 'move':
+            for node in nodes:
+                node.moveto(self) ###k guess/stub #####@@@@@
+        else:
+            for node in nodes:
+                self.addmember(node.copy(self)) ###k guess/stub #####@@@@@
+        return
+
+    def drop_under_ok(self, drag_type, nodes, after = None): #####@@@@@ honor it!
+        """Say whether it's ok to drag these nodes (using drag_type)
+        into a child-position under self,
+        either after the given child 'after'
+        or (by default) as the new first child.
+           Tree widgets can use this to offer drop-points shown in gaps
+        between existing adjacent nodes.
+        [some subclasses should override this]
+        """
+        return hasattr(self, 'addchild') # i.e. whether it's a Group!
+
+    def drop_under(self, drag_type, nodes, after = None): #e move to Group, implem subrs, use #####@@@@@
+        "#doc"
+        if drag_type == 'copy':
+            nodes = copy_nodes(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc) #####@@@@@ IMPLEM
+        for node in nodes:
+            self.addchildren(nodes, after = after) #####@@@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
+        return
 
     def node_icon(self, display_prefs):
         """#doc this
@@ -328,6 +375,16 @@ class Node:
             return
         ###@@@ the following should really use a new method on Group (or a new option to addchild)
         # and it ought to remove the node from old loc, and check for cycle_creation using is_ascendant.
+        # bruce 050201 changing it to use a new option on addchild.
+        # But I might change it back before Alpha release
+        # in case my new options have any bugs (so they only harm drag and drop, which needs them).
+        #######@@@@@@@
+        if before:
+            self.dad.addchild( node, before = self) # Insert node before self
+        else:
+            self.dad.addchild( node, after = self) # Insert node after self
+        return
+        # old code:
         m = self.dad.members
         if before: i = m.index(self) # Insert node before self
         else: i = m.index(self) + 1 # Insert node after self
@@ -360,17 +417,6 @@ class Node:
             self.addsibling( node, before = before_or_top)
         return
         
-##    def whosurdaddy(self): ###@@@ this will be replaced by using methods in subclasses of Group for self.dad
-##        """returns the name of self's daddy
-##        """
-##        daddy = self.dad
-##        try:
-##            name = daddy.name
-##        except AttributeError: #bruce 050109 bugfix
-##            name = ""
-##        name = str(name) #k needed??
-##        return name
-
     def pick(self):
         """select the object
         [extended in many subclasses, notably in Group]
@@ -615,7 +661,9 @@ class Group(Node):
         for ob in list: self.addmember(ob)
         self.open = True
 
-    def is_selection_group_container(self): #bruce 050131 for Alpha ###@@@ overirde for clipboard
+    def drag_move_ok(self): return True # same as for Node
+    def drag_copy_ok(self): return True # for my testing... maybe make it False for Alpha though ###e ####@@@@ 050201
+    def is_selection_group_container(self): #bruce 050131 for Alpha
         """Whether this group causes each of its direct members to be treated
         as a "selection group" (see another docstring for what that means,
         but note that it can be true of leaf nodes too, in spite of the name).
@@ -745,8 +793,14 @@ class Group(Node):
 
     # bruce 050113 deprecated addmember and confined it to Node; see its docstring.
         
-    def addchild(self, node, top = False): # [renamed from addmember - bruce 050113]
-        """add the given node to the bottom (default) or top of this Group's members
+    def addchild(self, node, _guard_ = 050201, top = False, after = None, before = None): # [renamed from addmember - bruce 050113]
+        """Add the given node to the end (aka. bottom) of this Group's members list,
+        or to the specified place (top aka. beginning, or after some child or index,
+        or before some child or index) if one of the named arguments is given.
+        (Behavior with more than one named argument is undefined.)
+           Other details (some of which need revision):
+        The existence of this method (as an attribute) might be used as a check
+        for whether a Node can be treated like a Group [as of 050201].
         [node should not already be in another Group, since it's not removed from one]
         [special case: legal and no effect if node is None or 0 (or anything false);
          this turns out to be needed by assy.copy/Group.copy or Jig.copy! [050131 comment]]
@@ -756,16 +810,32 @@ class Group(Node):
          -- bruce 050110]
         """
         #bruce 050110 updated docstring based on current code
+        #bruce 050201 added _guard_, after, before
+        assert _guard_ == 050201
         if not node:
-            #bruce 050131 comment: sometimes node is the number 0,
-            # since Group.copy returns that as a failure code!!!
+            #bruce 050201 comment: sometimes node was the number 0,
+            # since Group.copy returned that as a failure code!!!
+            # Or it can be None (Jig.copy, or Group.copy after I changed it).
             return
         ## self.assy.changed() # now done by changed_members below
             ###@@@ needed in addsibling too! (unless self.changed gets defined.)
             # (and what about informing the model tree, if it's displaying us?
             #  probably we need some subscription-to-changes or modtime system...)
-        if top: self.members.insert(0, node) # Insert node at the very top
-        else: self.members += [node] # Add node to the bottom
+        if top:
+            self.members.insert(0, node) # Insert node at the very top
+        elif after != None: # 0 has different meaning than None!
+            if type(after) != type(0):
+                after = self.members.index(after) # raises ValueError if not found, that's fine
+            if after == -1:
+                self.members += [node] # Add node to the bottom (.insert at -1+1 doesn't do what we want for this case)
+            else:
+                self.members.insert(after+1, node) # Insert node after the given position #k does this work for negative indices?
+        elif before != None:
+            if type(before) != type(0):
+                before = self.members.index(before) # raises ValueError if not found, that's fine
+            self.members.insert(before, node) # Insert node before the given position #k does this work for negative indices?
+        else:
+            self.members += [node] # Add node to the bottom i.e. end (default case)
         node.dad = self
         node.maintain_invariants_after_new_dad()
         node.dad.changed_members() # must be done *after* they change
@@ -778,7 +848,8 @@ class Group(Node):
             self.members.remove(obj)
         except:
             # relying on this being permitted is deprecated;
-            # therefore we don't bother to avoid our other side effects in this case [bruce 050121]
+            # therefore we don't bother to avoid our other side effects
+            # (i.e. changed_members & unpick) in this case [bruce 050121]
             if platform.atom_debug:
                 print "atom_debug: fyi: delmember finds obj not in members list" #k does this ever happen?
             pass
@@ -1150,8 +1221,9 @@ class PartGroup(Group):
     # These revised definitions are the non-kluge reason we need this subclass: ###@@@ also some for menus...
     def is_top_of_selection_group(self): return True #bruce 050131 for Alpha
     def rename_enabled(self): return False
-    def drag_enabled(self): return False #e could be made ok for copying whole thing... maybe strip the data objs tho, or upon drop
-    ## def drop_enabled(self): return False # bruce thinks dropping on it can add a child... did this prevent that?? ###k
+    def drag_move_ok(self): return False
+    # ... but drag_copy is permitted! (someday, when copying groups is permitted)
+    # drop methods should be the same as for any Group
     def permits_ungrouping(self): return False
     def node_icon(self, display_prefs):
         # same whether closed or open
@@ -1191,11 +1263,12 @@ class ClipboardShelfGroup(Group):
         # I might just do this and not bother honoring select_enabled; don't know yet.
         from HistoryWidget import redmsg
         #e if DND gets far enough, we can add " or dragged" at end of first sentence. ####@@@@
-        self.assy.w.history.message( redmsg( "Clipboard can't be selected. (Individual clipboard items can be.)" ))
+        self.assy.w.history.message( redmsg( "Clipboard can't be selected or dragged. (Individual clipboard items can be.)" ))
     def is_selection_group_container(self): return True #bruce 050131 for Alpha
     def rename_enabled(self): return False
-    def drag_enabled(self): return False ###k ####@@@@ honor this!
-    ## def drop_enabled(self): return False ###k bruce thinks drop on clipboard can add an item to it
+    def drag_move_ok(self): return False
+    def drag_copy_ok(self): return False
+    ## def drop_enabled(self): return False ###k bruce thinks drop on clipboard can add an item to it... as with any group
     def permits_ungrouping(self): return False
     def openable(self): # overrides Node.openable()
         "whether tree widgets should permit the user to open/close their view of this node"

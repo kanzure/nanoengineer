@@ -304,10 +304,22 @@ class TreeView(QListView):
                 self.paint_item( painter, self.tree_item)
         return res
 
-    def paint_item(self, painter, item): # 050126; might use this for dragging items
-        "paint the given QListViewItem (assumed to be one of ours, if this matters) on the given painter"
+    def paint_item(self, painter, item, disabled = False): # 050126; might use this for dragging items
+        """Paint the given QListViewItem (assumed to be one of ours, if this matters)
+        on the given painter, in the same way our superclass would paint it on-screen,
+        or if disabled = True, in a grayed-out way.
+           Note that this honors the current isSelected status of the item!
+        Caller must patch that before and after if it needs to be different.
+           Bug warning: font is not the same as it should be, for unknown reasons.
+           Return value: the width of what we painted (icon and text).
+           Caller should first translate or shear (etc) painter's coordinate system,
+        if desired (see enclosed debugging code for examples -- some might be useful).
+        """
         listview = self
-        colorgroup = listview.palette().inactive() # see QPalette and QColorGroup
+        if disabled:
+            colorgroup = listview.palette().inactive() # see QPalette and QColorGroup
+        else:
+            colorgroup = listview.palette().active()
             # can try these colorgroups in the widget's palette:
             # active (looks fully real);
             # disabled (text gray, icon same as active) --
@@ -323,7 +335,9 @@ class TreeView(QListView):
         # does that mean cg could have been None?
         ## colorgroup = None #k ok? no; and this one is called arg 1; seems inconsistent...
         item.paintCell( painter, colorgroup, col, width, align)
-        # now how to we paint it somewhere else, ie translate the painter coords?
+        return width
+        # (now if we had not just returned, we could try some fancier things here:)
+        # now how do we paint it somewhere else, ie translate the painter coords?
         painter.translate(20,40) ####@@@@ wrong since destructive - but works!
         ## painter.scale(1.2,1.4) # worked! on both icon and text, but made them both ugly.
         ## painter.scale(2,2) # worked; look decent tho "pixellated" (not useful for drag, I think)
@@ -336,7 +350,7 @@ class TreeView(QListView):
         ####@@@@
         item.paintCell( painter, colorgroup, col, width, align) # note: honors selected state, that might be useful too.
         # also try rotate, shear.... might even be good for dragging!
-        return
+        return # from debugging/example code -- the real return statement comes sooner
     
     ## def viewportResizeEvent(self, event):pass
         
@@ -704,13 +718,16 @@ class TreeView(QListView):
         ## done in subr: open = display_prefs.get('open',False) ###e better this way, or direct from self.display_prefs_for_node??
         item.display_prefs = display_prefs # needed when we update the icon
         item.setPixmap(0, node.node_icon( display_prefs)) ###@@@ and/or, update the icon directly when we open/close?
-        item.setDragEnabled(node.drag_enabled()) ###@@@ does this need to inherit from higher in nodetree?
-            # if so, add that later (decision might be revised anyway, vs old code)
-            # (but do figure out what old code did!)
-            # do it via dad if in nodes, or via display prefs here if in tree, or both (anding them).
-            # if we update items later then we also need to store their item parent here, or rely on this matching node.dad
-            # which is questionable esp at top of tree.
-        item.setDropEnabled(node.drop_enabled())
+        # bruce 050201: I think the following are only for when the QListView is handling the drag events,
+        # but our subclass TreeWidget is in fact handling them. So for now I will disable these (partly to test this);
+        # later we might decide to let subclass control this.
+        ##item.setDragEnabled(node.drag_enabled()) ###@@@ does this need to inherit from higher in nodetree?
+        ##    # if so, add that later (decision might be revised anyway, vs old code)
+        ##    # (but do figure out what old code did!)
+        ##    # do it via dad if in nodes, or via display prefs here if in tree, or both (anding them).
+        ##    # if we update items later then we also need to store their item parent here, or rely on this matching node.dad
+        ##    # which is questionable esp at top of tree.
+        ##item.setDropEnabled(node.drop_enabled())
         item.setRenameEnabled(0, node.rename_enabled()) ###k what is the 0 arg?
         ###@@@ also setProp even if that is also done separately; ###@@@ should that also do the icon? and even the other props here?
         # e.g. (someday) drop property might vary depending on open or not...

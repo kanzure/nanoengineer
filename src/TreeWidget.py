@@ -114,12 +114,10 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         "this must be called by our client, but only when mousebuttons remain down"
         if self.started_drag:
             # once set, this is never cleared, and if we see it in this event
-            # it means (1) this object's useful life is over, (2) we're surprised
-            # since mouse motion before mouseUp should be part of the drag and drop-or-not,
-            # not an ordinary mouse motion event. Maybe this could happen if two mouse buttons
-            # are down and one goes up? Not sure. Anyway, warn developer, then ignore it.
-            if debug_dragstuff:
-                print "fyi (bug??): drag_and_drop_handler mouseMoveEvent even after started_drag"
+            # it means (1) this object's useful life is over, (2) start_a_drag
+            # declined to start one, and we should not bother it again.
+            if debug_dragstuff: #e remove this when it works (eg for PartGroup move drag, not allowed)
+                print "fyi: drag_and_drop_handler mouseMoveEvent even after started_drag, i guess drag was declined"
                 ## (fyi: for debugging, we inlined "old_debugging_junk_not_called_now" here
                 ##  but it also had those local vars we now define below)
             return
@@ -133,7 +131,9 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
             self.started_drag = True # warning: this flag means we decided to start one,
                 # but following method sets another flag meaning it *actually* started one,
                 # and that flag (not this one) is definitive for whether a dragEnter/drop etc is
-                # assumed to have to come from us, vs. from an outside app.
+                # assumed to have to come from us, vs. from an outside app. In fact,
+                # following method might decide not to start one, and not set its flag,
+                # but our flags remains set and means "nevermind trying again".
             self.start_a_drag(event)
             if debug_dragstuff:
                 print "returned from self.start_a_drag() (after recursive event processing)"
@@ -199,6 +199,7 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         
     def start_a_drag(self, event):
         """Start (and wait for completion of) a drag-and-drop of our nodes,
+        if our client permits it (and revising our set of nodes as it requests),
         using our other parameters from __init__,
         where event is the event which made the caller decide to start the drag
         (typically mouseMove, has globalPos(); not sure if we need it for anything).
@@ -206,8 +207,14 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         occurs during this method. Since self.dragsource passes drag events into here (#e),
         method-recursion could occur in this object too.
         """
-        dragobj = self.client.advise_starting_drag_and_get_dragobj( self.drag_type, self.nodes )
+        dragobj, filtered_nodes = self.client.advise_starting_drag_and_get_dragobj( self.drag_type, self.nodes )
+        if not dragobj:
+            return
+        if filtered_nodes == None:
+            return # not really needed but it's in the API for that retval #e fix
+        
         ###@@@ we moved a lot from here into client -- does here even still need self.nodes, for example?
+        self.nodes = filtered_nodes #050201
         assert not self.doing_our_own_drag
         self.doing_our_own_drag = True
             # we or our client can examine this flag
@@ -885,7 +892,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # noop if no item.
             if item:
                 if item.object.picked:
-                    self.unpick( item, group_select_kids = group_select_kids)
+                    self.unpick( item, group_select_kids = False)
+                        #bruce 050201 need some way to unselect group and not kids; should be ok
                 else:
                     self.pick( item, group_select_kids = group_select_kids)
         elif modifier == 'Cntl':
@@ -917,12 +925,18 @@ class TreeWidget(TreeView, DebugMenuMixin):
                         # same Q for how far group_select_kids (ie Group.pick) descends?
                         # Not sure.
                     self.pick( item, group_select_kids = group_select_kids)
+                        # warning: some nodes don't let themselves become picked (e.g. Clipboard);
+                        # for them self.pick is a noop, so we can't be certain any nodes are picked now.
                 # this click might later turn out to be starting a drag
                 # of the now-selected items:
                 if permit_drag_type:
-                    self.drag_handler = self.drag_and_drop_handler( permit_drag_type, self.topmost_selected_nodes(), event)
-                    # that method will create an object to handle the drag, pass it self,
-                    # tell it how to callback to self in some ways when it starts the drag
+                    nodes = self.topmost_selected_nodes()
+                    if nodes:
+                        # this test is enough to exclude the clipboard itself, since it's unselectable
+                        # (which might not always be a good reason not to drag something! but it's ok for now)
+                        self.drag_handler = self.drag_and_drop_handler( permit_drag_type, nodes, event)
+                        # that method will create an object to handle the drag, pass it self,
+                        # tell it how to callback to self in some ways when it starts the drag
             else:
                 # no item
                 self.unpick_all()
@@ -942,6 +956,26 @@ class TreeWidget(TreeView, DebugMenuMixin):
     
     # drag and drop event handlers and helpers
     # (some might be relevant whether the dragsource is self or something external)
+
+    def filter_drag_nodes(self, drag_type, nodes):
+        """See which of the given nodes can be dragged (as a group) in the given way.
+        Return a subset of them to be actually dragged
+        (having emitted a warning, if desired, if this is not all of them),
+        or someday perhaps a processed version of them (e.g. you could pre-make copies for a 'copy' drag),
+        or None (*not* just a list [] of 0 nodes to drag! that might be possible to drag!)
+        if you want to refuse this drag (also after emitting a suitable warning).
+        """
+        if drag_type == 'move':
+            nodes_ok = filter( lambda n: n.drag_move_ok(), nodes)
+        else:
+            nodes_ok = filter( lambda n: n.drag_copy_ok(), nodes)
+        oops = len(nodes) - len(nodes_ok)
+        if oops:
+            ## msg = "some selected nodes can't be dragged that way -- try again" ###e improve msg
+            msg = "The Part can't be moved" # kluge: this is the only known case! (that I can remember...) #e generalize this
+            self.redmsg(msg)
+            return None
+        return nodes_ok # same as nodes for now, but we might change above code so it's not
 
     def drag_and_drop_handler( self, permit_drag_type, nodes, click_event):
         "this instance's way of constructing a drag_and_drop_handler with itself as dragsource"
@@ -966,22 +1000,104 @@ class TreeWidget(TreeView, DebugMenuMixin):
         to put into its QDragObject as a custom pixmap.
         If we're not yet sure how to make one, we can just return None.
         """
-        return None
+        listview = self
+        ##pixmap = QPixmap("/Nanorex/Working/cad/src/butterfly.png") # this works
+        ##print pixmap,pixmap.width(),pixmap.height(),pixmap.size(),pixmap.depth()
+        w,h = 160,130
+        pixmap = QPixmap(w,h) # should have size w,h, depth of video mode, dflt optimization
+        ##print pixmap,pixmap.width(),pixmap.height(),pixmap.size(),pixmap.depth()
+        ## pixmap.fill(Qt.red) # makes it red; what's dragged is a pretty transparent version of this, but red... (looks nice)
+        pixmap.fill() # makes it white
+        ## following would fill with this widget's bgcolor...
+        ## but it actually looks worse: very faint stripes, all faintly visible
+        ## pixmap.fill(listview,0,0)
+        p = QPainter(pixmap)
+        try:
+            self.paint_nodes(p, drag_type, nodes)
+            return pixmap
+        except:
+            p.end() # this is needed to avoid segfaults here
+            print_compact_traceback("error making drag-pixmap: ")
+            return None
+        pass
 
+    def paint_node(self, p, drag_type, node):
+        "paint one node's item into QPainter p, and translate it down by the item's height"
+        #e someday also paint the little openclose triangles if they are groups?
+        #e unselect items first, at least for copy?
+        item = self.nodeItem(node)
+        width = self.paint_item( p, item) # was 99 for one example -- note, font used was a bit too wide
+        height = item.height() # was 24
+        p.translate(0,height)
+        return width, height
+            #btw exception in above (when two subr levels up and different named vars) caused a segfault!
+            # [before we caught exception, and did p.end(), in routine creating painter p]
+            ##Qt: QPaintDevice: Cannot destroy paint device that is being painted.  Be sure to QPainter::end() painters!
+            ##NameError: global name 'item' is not defined
+            ##Segmentation fault
+            ##Exit 139
+            # This means I need to catch exceptions inside the functions that make painters!
+            # And keep the painters inside so they refdecr on the way out.
+            # (Or actually "end" them... in fact that turns out to be needed too.)
+        
+    def paint_nodes(self, p, drag_type, nodes):
+        "paint a dragobject picture of these nodes into the QPainter p; if you give up, raise an exception; return w,h used??"
+        nn = len(nodes)
+        if not nn:
+            print nodes,"no nodes??" # when i try to drag the clipboard?? because unselected.
+            # need to filter it somehow... should be done now, so this should no longer happen.
+            # also the history warning is annoying... otoh i am not *supposed* to drag it so nevermind.
+            return
+        if nn >= 1:
+            self.paint_node( p, drag_type, nodes[0])
+        if nn >= 2:
+            self.paint_node( p, drag_type, nodes[1])
+        if nn >= 4: # yes, i know 4 and 3 appear in reversed order in this code...
+            # put in "..."
+            p.drawText(0,6," ...") # y=6 is baseline. It works! Only required 5 or 6 steps of directed evolution to get it right.
+            p.translate(0,10) # room for a "..." we plan to put in above # 8 is a guess
+        if nn >= 3:
+            self.paint_node( p, drag_type, nodes[-1])
+        #e also put in the same text we'd put into the statusbar
+        text = self.get_whatting_n_items_text(drag_type, nodes)
+        w,h = 150,50 # bounding rect (hope ok if overflows pixmap, tho i think this one doesn't)
+        flags = 0 # guess
+        p.drawText(0,0,w,h,flags,text) # in this drawText version, we're supplying bounding rect, not baseline.
+            #e want smaller font, italic, colored...
+        return
+
+    def get_whatting_n_items_text(self, drag_type, nodes):
+        "return something like 'moving 1 item' or 'copying 5 items'"
+        ing_dict = { "move":"moving", "copy":"copying" }
+        whatting = ing_dict[ drag_type] # moving or copying?
+        return fix_plurals( "%s %d item(s)" % (whatting, len(nodes)) )
+            # not quite the same as the shorter text for the QDragObject itself;
+            #e might become more different in the future if we include the class
+            # when they're all nodes of the same subclass...
+    
     current_drag_type = None
     current_drag_nodes = []
+    
     def advise_starting_drag_and_get_dragobj(self, drag_type, nodes):
         """Our current drag_handler can call this to advise us
-        that it started a drag of given type on given nodes,
-        and that we should highlight the original nodes to indicate this,
+        that it wants to start a drag of given type on given nodes
+        (or whichever ones of them permit this type of drag,
+         which we should determine and returned as the "filtered_nodes"),
+        and that we should highlight the original (or filtered) nodes to indicate this,
         and that if we get any drop-related events (e.g. dragEnter, dragMove, dragLeave)
         that we should also highlight the possible drop points
         (assuming the potential drop is this drag it started).
-            Also it wants a QDragObject from us, so we have to make one and return it!
+            Also it wants a QDragObject from us, so we have to make one and return that too!
         (It will then start the drag on it in the right way... unless we decide
         to move that code from it to here, as well. #e)
+           Return value: the pair (dragobj, filtered_nodes).
+        If the dragobj is None, it means "nevermind doing the drag".
         """
-        #####@@@@@ moved from caller (next 2 paras), works here yet?
+
+        nodes_ok = self.filter_drag_nodes(drag_type, nodes)
+        if not nodes_ok: # whether None or []
+            return None, nodes_ok
+        nodes = nodes_ok
         
         # make up some text to be dragged in case the custom pixmap doesn't work or is nim
         ## text = "x\n%s %d item(s)" % ... # this results in appearance (w/o custom pixmap) of "x move 5 items..."
@@ -1005,22 +1121,20 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #####@@@@@ do the highlighting of original items...
         # btw should the sbar be done from here as well? probably yes.
         # stub for all of that:
-        ing_dict = { "move":"moving", "copy":"copying" }
-        whatting = ing_dict[ drag_type] # moving or copying?
-        sbar_text = fix_plurals( "%s %d item(s)" % (whatting, len(nodes)) ) # not quite the same as the text for the QDragObject
+
+        sbar_text = self.get_whatting_n_items_text( drag_type, nodes)
+        
         desc = sbar_text + " [not yet implemented]"
         # now everything we do with desc is wrong, needs revision, but might work for now [050131]:
         # stuff it into drag_handler (kluge, bad boundary) for use when we ask it this during update_drop_point_highlighting: 
         self.drag_handler.describe_drag = desc
         # early warning to the statusbar: probably ok, tho will normally be overwritten soon (with itself)
         self.statusbar_msg( desc + " <this suffix should not be seen>" ) ###e remove suffix when flickers
-        if debug_dragstuff and "what you want" == "something that looks really silly and annoying":
-            # also use whatting in a transient node prefix, see below
+        if 0:
+            # prototype code & suggestions for making original nodes look different...
             for node in nodes:
                 item = self.nodeItem(node)
                     #e rename? I wrongly guessed it was called self.item_for_node(node)
-                col = 0
-                item.setText( col, "%s: %s" % (whatting, node.name))
                 item.repaint() #e in the non-stub code we'll probably repaint it
                     # in a different way so it looks dim, italic, colored, or whatever --
                     # for copy, not much or at all different (esp if it still looks selected, that should be enough)
@@ -1028,7 +1142,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                     # but for move, these original nodes should look "almost missing" but with names still readable
                     # (whereas this prefix makes them less readable since more likely truncated by the right edge of the widget)
                     # (but this is at least useful for debugging, i hope! unless it itself has to be too much debugged....)
-        return dragobj
+        return dragobj, nodes
     
     def advise_ended_drag(self):#####@@@@@ call this
         "we call this ourselves - it does not do the operation on the nodes, but it resets variables" 
