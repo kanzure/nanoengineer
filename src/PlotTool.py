@@ -16,39 +16,83 @@ class PlotTool(PlotToolDialog):
     def __init__(self, assy):
         PlotToolDialog.__init__(self)
         self.assy = assy
-        self.setup()
+        if self.setup(): return
         self.exec_loop()
 
     def setup(self):
-
+        """Setup the Plot Tool dialog, including populating the combobox with plotting options.
+        """
+        # To setup the Plot Tool, we need to do the following:
+        # 1. Make sure there is a valid DPB file. This is temporary since the Plot Tool will
+        #     soon allow the user to open and plot any trace file.
+        # 2. From the DPB filename, construct the trace filename and GNUplot filename.
+        # 3. Read the header from the trace file to obtain:
+        #   - Date and time
+        #   - Trajectory (DPB) filename.  This is redundant now, but will be necessary when
+        #      Plot Tool allows the user to open and plot any trace file.
+        #   - The number of columns of data in the trace file so we can...
+        # 4. Populate the plot combobox with the graph names
+        
+        # Make sure there is a DPB file for the assy. 
+        if not self.assy.m.filename:
+            msg = "Plot Tool: No tracefile exists for this part.  To create one, run a simulation."
+            self.assy.w.history.message(redmsg(msg))
+            return 1
+        
+        # Construct the trace file name.
         print "Movie file = [", self.assy.m.filename, "]"
         fullpath, ext = os.path.splitext(self.assy.m.filename)
         self.traceFile = fullpath + "-trace.txt"
-        self.plotFile = fullpath + '.plt'
         print "Trace file = ", self.traceFile
+        
+        # Make sure the tracefile exists
+        if not os.path.exists(self.traceFile):
+            msg = "Plot Tool: Trace file [" + self.traceFile + "] is missing.  Plot aborted."
+            self.assy.w.history.message(redmsg(msg))
+            return 1
+            
+        # Construct the plot file name.
+        self.plotFile = fullpath + '.plt'
         print "Plot file = ", self.plotFile
         
-        # Get Date from trace file.
+        # Now we read specific lines of the traceFile to read parts of the header we need.
+        # I will change this soon so that we can find this header info without knowing what line they are on.
+        # Mark 050310
+        
+        # If we've opened the tracefile once during this session, we
+        # must check to see if the trace file has changed on disk.
+        # Doesn't appear to be an issue calling checkcache before getline.
+        linecache.checkcache() 
+        
+        # Get Date from trace file from line #3 in the header.
         header = linecache.getline(self.traceFile, 3)
         hlist = string.split(header, ": ")
         self.date = hlist[1][:-1]
         
-        # Get trajectory file name from trace file.
+        # Get trajectory file name from trace file from line #5 in the header.
         header = linecache.getline(self.traceFile, 5)
         hlist = string.split(header, ": ")
         self.dpbname = hlist[1][:-1]
         print "Trajectory file name = ", self.dpbname
         
-        # Get number of columns
+        # Get number of columns, located in line 14 of the header.
         hloc = 14 # Line number in file contain the "# n columns"
         header = linecache.getline(self.traceFile, hloc)
         hlist = string.split(header, " ")
         ncols = int(hlist[1])
-        
+#        print "Columns header:", header
+#        print "ncols =", ncols
+            
         # Populate the plot combobox with plotting options.
-        for i in range(ncols):
-            gname = linecache.getline(self.traceFile, hloc + 1 + i)
-            self.plotCB.insertItem(gname[2:-1])
+        if ncols:
+            for i in range(ncols):
+                gname = linecache.getline(self.traceFile, hloc + 1 + i)
+                self.plotCB.insertItem(gname[2:-1])
+            return 0
+        else: # No jigs in the part, so nothing to plot.
+            msg = "Plot Tool: No jigs in this part.  Nothing to plot."
+            self.assy.w.history.message(redmsg(msg))
+            return 1
 
     def genPlot(self):
         """Plots the selected graph using GNUplot.
@@ -67,7 +111,15 @@ class PlotTool(PlotToolDialog):
         f.write("set ylabel \"%s\"\n"%(ytitle))
         f.write("plot '%s' using 1:%d title \"%s\" with lines lt 2,\\\n"%(self.traceFile,col,title))
         f.write("       '%s' using 1:%d:(0.5) smooth acsplines title \"%s\" lt 3\n"%(self.traceFile,col,title))
-        f.write("pause -1 \"Click OK or Cancel to Quit\"")
+        if sys.platform == 'win32': 
+            # The plot will stay up until the OK or Cancel button is clicked.
+            f.write("pause mouse \"Click OK or Cancel to Quit\"") 
+        else: 
+            # "pause mouse" doesn't work on Linux as it does on Windows.
+            # I suspect this is because QProcess doesn't spawn a child, but forks a sibling process.
+            # The workaround is thus: plot will stick around for 3600 seconds (1 hr).
+            # Mark 050310
+            f.write("pause 3600")
         f.close()
         
         # filePath = the current directory NE-1 is running from.
@@ -85,10 +137,9 @@ class PlotTool(PlotToolDialog):
             self.assy.w.history.message(redmsg(msg))
             return
         
+        # Create arguments list for plotProcess.
         args = [program, self.plotFile]
 #        print "args = ", args
-
-        # Create arguments list for plotProcess.
         arguments = QStringList()
         for arg in args:
             arguments.append(arg)
