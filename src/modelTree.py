@@ -173,10 +173,20 @@ class modelTree(QListView):
         pnt = event.pos() - QPoint(0,24)
         item = self.itemAt(self.contentsToViewport(pnt))
         if item:
-            #print "Moving", self.selectedItem, "to", item.object
+            #print "Moving", self.selectedItem, " to ", item.object
             self.selectedItem.moveto(item.object)
-            self.update()
-            #self.win.assy.root.dumptree()
+            # We only need to update the GLpane in the following 2 cases:
+            #   1. The selected item is moved from the MT to the Clipboard
+            #   2. The selected item is moved from the Clipboard to the MT
+            # Since I don't know how to check for #2, I'm always updating the GLpane
+            # after a dropEvent (Yuk).  I'll bother Bruce later - he's busy now.
+            # Here is a start:
+            #if item.object.name == "Clipboard": self.win.update # Case 1
+            #elif ???: self.win.update Case 2
+            #else: self.update() # Only update the MT (this is called 95% of the time)
+            # 
+            # Mark [04-12-08]
+            self.win.update() # This will do for now.
 
     def dragMoveEvent(self, event):
         event.accept()
@@ -201,6 +211,8 @@ class modelTree(QListView):
         self.assy = self.win.assy
         self.clear()
         
+        # Note: This model tree (MT) is draw bottom to top. - Mark [04-12-08]
+        # Create the clipboard
         if self.assy.shelf.members: 
             self.assy.shelf.icon = self.clipboardFullIcon
             self.win.editPasteAction.setIconSet(QIconSet( self.clipboardFullIcon))
@@ -208,14 +220,19 @@ class modelTree(QListView):
             self.assy.shelf.icon = self.clipboardEmptyIcon
             self.win.editPasteAction.setIconSet(QIconSet( self.clipboardGrayIcon))
         
+        # Add clipboard members
         self.shelf = self.assy.shelf.upMT(self, self)
-        self.assy.shelf.setProp(self)
+        self.assy.shelf.setProp(self) # Update selected items in clipboard
         
+        # Add part group members
         self.assy.tree.name = self.assy.name
-        
         self.tree = self.assy.tree.upMT(self, self)
+        
+        # Add data members (Csys and datum planes)
         for m in self.assy.data.members[::-1]:
             m.upMT(self, self.tree)
+            
+        # Update any selected items in tree.
         self.assy.tree.setProp(self)
  
 ## Context menu handler functions
