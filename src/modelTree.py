@@ -79,8 +79,7 @@ class modelTree(QListView):
         self.connect(self, SIGNAL("collapsed(QListViewItem *)"), self.treeItemCollapsed)
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"),
                      self.rename)
-        self.connect(self, SIGNAL("currentChanged(QListViewItem *)"), self.whatCurrentItem)
-
+        
 
 
     def makemenu(self, lis): 
@@ -117,20 +116,7 @@ class modelTree(QListView):
                 listItem.setPixmap(0, self.groupCloseIcon)
 
 
-    def setTreeFocus(self, item):
-            """ Set keyboard focus on items has been last clicked"""
-            if item:
-                    self.setCurrentItem(item)
-
-    def whatCurrentItem(self, item):
-            print "Current item changes to: ", item.object
-            pass
-            
-    
     def select(self):
-        global CHANGE_FROM_TREE
-        if CHANGE_FROM_TREE:    
-                #CHANGE_FROM_TREE = False
                 items = self.selectedItems()    
         
                 self.disconnect(self, SIGNAL("selectionChanged()"), self.select)    
@@ -143,9 +129,8 @@ class modelTree(QListView):
                         item.object.pick()
                 
                 self.win.glpane.paintGL()
-                self._update()
-                #CHANGE_FROM_TREE = True
-      
+                #self._update()
+       
                 self.connect(self, SIGNAL("selectionChanged()"), self.select)
 
 
@@ -240,11 +225,7 @@ class modelTree(QListView):
     def update(self):
         """ Build the tree structure of the current model, public interface """
         self.disconnect(self, SIGNAL("selectionChanged()"), self.select)
-        global CHANGE_FROM_GL
-        if CHANGE_FROM_GL:
-                CHANGE_FROM_GL = False
-                self._update()
-                CHANGE_FROM_GL = True
+        self._update()
         self.connect(self, SIGNAL("selectionChanged()"), self.select)
 
 
