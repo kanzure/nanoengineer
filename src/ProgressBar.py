@@ -41,9 +41,9 @@ class ProgressBar( progressBarDialog ):
         self.setCaption(caption)
         self.msgLabel.setText(message)
         self.msgLabel2.setText('')
-        self.progress.setTotalSteps(nsteps)
+        self.progress.setTotalSteps(nsteps) # nsteps = final moviefile size in bytes.
         self.progress.setProgress(0)
-        self.show() # Show the Progress Box
+        self.show() # Show the progressbar dialog
 
         # Main loop
         while filesize < nsteps:
