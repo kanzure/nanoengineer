@@ -71,7 +71,7 @@ class extrudeMode(basicMode):
     def __init__(self, glpane):
         basicMode.__init__(self, glpane, 'EXTRUDE')
         self.backgroundColor = 200/256.0, 100/256.0, 100/256.0 # different than in cookieMode
-        self.gridColor = 223/256.0, 149/256.0, 0/256.0
+        ##self.gridColor = 223/256.0, 149/256.0, 0/256.0
         self.savedOrtho = 0
 	self.makeMenus()
 
@@ -233,7 +233,7 @@ class extrudeMode(basicMode):
             self.o.paintGL()
 
     def Draw(self):
-        self.griddraw()
+        ## self.griddraw()
         if self.sellist: self.pickdraw()
         if self.o.shape: self.o.shape.draw(self.o)
 
@@ -258,7 +258,6 @@ class extrudeMode(basicMode):
         glDisable(GL_CLIP_PLANE1)
         #drawer.drawaxes(5,-self.o.pov)
 
-   
     def makeMenus(self):
         self.Menu1 = self.makemenu([('Cancel', self.Flush),
                                     ('Restart', self.Restart),
