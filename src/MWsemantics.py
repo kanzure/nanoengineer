@@ -923,8 +923,8 @@ class MWsemantics(MainWindow):
         self.toolsMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
             self.history.message(greenmsg("Minimize..."))
-#           self.assy.makeMinMovie(1) # 1 = single-frame XYZ file.
-            self.assy.makeMinMovie(2) # 2 = multi-frame DPB file.
+            self.assy.makeMinMovie(1) # 1 = single-frame XYZ file.
+            #self.assy.makeMinMovie(2) # 2 = multi-frame DPB file.
         finally:
             self.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
             self.toolsSimulatorAction.setEnabled(1) # Enable "Simulator"
