@@ -813,17 +813,8 @@ def writemovie(assy, mflag = False):
     #oldCursor = QCursor(assy.w.cursor())
     #assy.w.setCursor(QCursor(Qt.WaitCursor) )
 
-        
-    # Put double quotes around filenames so spawnv can handle them properly on Win32 systems.
-    # This may create a bug on Linux and MacOS, so lets leave the quotes off.
-    # Mark 050107
-    #if sys.platform == 'win32':
-    #    outfile = '"-o%s"' % moviefile
-    #    infile = '"%s"' % mmpfile
-    #else:
-    if 1:    
-        outfile = "-o"+moviefile
-        infile = mmpfile
+    outfile = "-o"+moviefile
+    infile = mmpfile
 
     # "formarg" = File format argument
     if ext == ".dpb": formarg = ''
@@ -916,12 +907,10 @@ def writemovie(assy, mflag = False):
     
     simProcess = None    
     try:
-        # Spawn the simulator.
-        #kid = os.spawnv(os.P_NOWAIT, program, args)
+        ## Start the simulator in a different process 
         simProcess = QProcess()
         simProcess.setArguments(arguments)
         simProcess.start()
-        #simProcess.closeStdin()    
         
         # Launch the progress bar. Wait until simulator is finished
         r = assy.w.progressbar.launch( filesize,
@@ -946,8 +935,6 @@ def writemovie(assy, mflag = False):
     if r == 1: # User pressed Abort button in progress dialog.
         msg = redmsg("Simulator: Aborted.")
         assy.w.history.message(msg)         
-        # Kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
-        # - Mark 050107
         
         ##Tries to terminate the process the nice way first, so the process
         ## can do whatever clean up it requires. If the process
@@ -955,26 +942,7 @@ def writemovie(assy, mflag = False):
         ## process the hard way.
         simProcess.tryTerminate()
         QTimer.singleShot( 2000, simProcess, SLOT('kill()') )
-        return r
         
-        if sys.platform == 'win32':
-            try:    
-                import win32api
-                win32api.TerminateProcess(kid, -1)
-                win32api.CloseHandle(kid)
-            except:   
-                 print "fyi (bug?): in fileIO.writemovie(): cannot terminate process.  kid =",kid   
-                 pass 
-    
-        else:
-             try:   
-                 import signal 
-                 os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
-             except:   
-                 print "fyi (bug?): in fileIO.writemovie(): cannot kill process.  kid =",kid   
-                 pass 
-
-            
     else: # Something failed...
         msg = redmsg("Simulation failed: exit code %r " % r)
         assy.w.history.message(msg)
