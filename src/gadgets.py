@@ -15,6 +15,7 @@ from LinearMotorProp import *
 from GroundProp import *
 from StatProp import *
 from ThermoProp import *
+from HistoryWidget import redmsg
 
 Gno = 0
 def gensym(string):
@@ -439,7 +440,13 @@ class Ground(Jig):
 
 
 class Stat(Jig):
-    '''a Stat just has a list of atoms that are set to a specific temperature'''
+    '''a stat is a Langevin thermostat, which sets a molecule  to a specific temperature
+    during a simulation.
+    a thermostat includes 3 atoms:
+    - first_atom: the first atom of the molecule to which it is attached.
+    - last_atom: the last atom of the molecule to which it is attached.
+    - boxed_atom: the atom in the molecule the user selected. A box is draw around this atom.
+    '''
     
     sym = "Stat"
     mticon = []
@@ -453,6 +460,15 @@ class Stat(Jig):
         # stat is red when picked
         self.pickcolor = (1.0, 0.0, 0.0) 
         self.temp = 300
+        # first atom in the molecule (of the first atom in the list)
+        self.first_atom = min(list[0].molecule.atoms.keys())
+#        print "first_atom =", self.first_atom
+        # last atom in the molecule (of the first atom in the list)
+        self.last_atom = max(list[0].molecule.atoms.keys())
+#        print "last_atom =", self.last_atom
+        # molecule the thermostat is attached to, specified by the first atom in the list.
+        self.mol = list[0].molecule
+
         self.cntl = StatProp(self, assy.o)
     
     def edit(self):
@@ -481,19 +497,22 @@ class Stat(Jig):
         pass
 
     def getinfo(self):
-        return "[Object: Thermostat] [Name: " + str(self.name) + "] [Temp = " + str(self.temp) + "K]" + "] [Total Stats: " + str(len(self.atoms)) + "]"
+        return  "[Object: Thermostat] "\
+                    "[Name: " + str(self.name) + "] "\
+                    "[Temp = " + str(self.temp) + "K]" + "] "\
+                    "[Attached to: " + str(self.mol.name) + "] "
 
     def getstatistics(self, stats):
         stats.nstats += len(self.atoms)
 
     # Returns the MMP record for the current Stat as:
-    # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
+    # stat (name) (r, g, b) (temp) first_atom last_atom box_atom
     def __repr__(self, ndix=None):
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
-        s = "stat (%s) (%d, %d, %d) (%d) " %\
-           (self.name, color[0], color[1], color[2], int(self.temp))
+        s = "stat (%s) (%d, %d, %d) (%d) %d %d " %\
+           (self.name, color[0], color[1], color[2], int(self.temp), self.first_atom, self.last_atom )
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
@@ -503,22 +522,34 @@ class Stat(Jig):
     pass # end of class Stat
     
 class Thermo(Jig):
-    '''a thermometer just has a list of atoms whose temperature 
-    is measured during a simulation.
+    '''A thermometer measures the temperature of a molecule during a simulation.
+    a thermometer has 3 atoms:
+    - first_atom: the first atom of the molecule to which it is attached.
+    - last_atom: the last atom of the molecule to which it is attached.
+    - boxed_atom: the atom in the molecule the user selected. A box is draw around this atom.
     '''
     
     sym = "Thermo"
     mticon = []
     icon_names = ["thermo.png", "thermo-hide.png"]
 
-    # create a blank thermometer with the given list of atoms
+    # creates a thermometer for a specific atom. "list" contains only one atom.
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
         # set default color of new thermo to dark red
         self.color = self.normcolor = (0.6, 0.0, 0.2) 
         # thermo is red when picked
-        self.pickcolor = (1.0, 0.0, 0.0) 
+        self.pickcolor = (1.0, 0.0, 0.0)
+        # first atom in the molecule (of the first atom in the list)
+        self.first_atom = min(list[0].molecule.atoms.keys())
+#        print "first_atom =", self.first_atom
+        # last atom in the molecule (of the first atom in the list)
+        self.last_atom = max(list[0].molecule.atoms.keys())
+#        print "last_atom =", self.last_atom
+        # molecule the thermometer is attached to.
+        self.mol = list[0].molecule
         self.cntl = ThermoProp(self, assy.o)
+        
     
     def edit(self):
         self.cntl.setup()
@@ -546,19 +577,21 @@ class Thermo(Jig):
         pass
 
     def getinfo(self):
-        return "[Object: Thermometer] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "]"
+        return  "[Object: Thermometer] "\
+                    "[Name: " + str(self.name) + "] "\
+                    "[Attached to: " + str(self.mol.name) + "] "
 
     def getstatistics(self, stats):
         stats.nstats += len(self.atoms)
 
     # Returns the MMP record for the current Thermo as:
-    # stat (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+    # thermo (name) (r, g, b) first_atom last_atom box_atom
     def __repr__(self, ndix=None):
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
-        s = "thermo (%s) (%d, %d, %d) " %\
-           (self.name, color[0], color[1], color[2] )
+        s = "thermo (%s) (%d, %d, %d) %d %d " %\
+           (self.name, color[0], color[1], color[2], self.first_atom, self.last_atom )
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
