@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Oct 27 19:45:08 2004
+# Created: Mon Nov 1 15:37:41 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7392,12 +7392,11 @@ class MainWindow(QMainWindow):
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.fileToolbar.setPaletteBackgroundColor(QColor(230,231,230))
-        self.fileNewAction.addTo(self.fileToolbar)
         self.fileOpenAction.addTo(self.fileToolbar)
         self.fileSaveAction.addTo(self.fileToolbar)
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.editToolbar.setGeometry(QRect(96,0,188,29))
+        self.editToolbar.setGeometry(QRect(72,0,188,29))
         self.editUndoAction.addTo(self.editToolbar)
         self.editRedoAction.addTo(self.editToolbar)
         self.editCutAction.addTo(self.editToolbar)
@@ -7406,7 +7405,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(284,0,318,29))
+        self.viewToolbar.setGeometry(QRect(260,0,318,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -7422,14 +7421,14 @@ class MainWindow(QMainWindow):
         self.setViewRightAction.addTo(self.viewToolbar)
         self.gridsToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.gridsToolbar.setGeometry(QRect(602,0,101,29))
+        self.gridsToolbar.setGeometry(QRect(578,0,101,29))
         self.gridsToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.orient100Action.addTo(self.gridsToolbar)
         self.orient110Action.addTo(self.gridsToolbar)
         self.orient111Action.addTo(self.gridsToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(703,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(679,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7447,12 +7446,10 @@ class MainWindow(QMainWindow):
 
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,551,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
-        self.cookieCutterDashboard.addSeparator()
-        self.ccGraphiteAction.addTo(self.cookieCutterDashboard)
         self.cookieCutterDashboard.addSeparator()
         self.orient100Action.addTo(self.cookieCutterDashboard)
         self.orient110Action.addTo(self.cookieCutterDashboard)
@@ -7460,6 +7457,8 @@ class MainWindow(QMainWindow):
         self.cookieCutterDashboard.addSeparator()
         self.ccAddLayerAction.addTo(self.cookieCutterDashboard)
         self.cookieCutterDashboard.addSeparator()
+
+        self.textLabel1_3 = QLabel(self.cookieCutterDashboard,"textLabel1_3")
 
         self.ccLayerThicknessLineEdit = QLineEdit(self.cookieCutterDashboard,"ccLayerThicknessLineEdit")
 
@@ -7470,6 +7469,8 @@ class MainWindow(QMainWindow):
         self.toolsStartOverAction.addTo(self.cookieCutterDashboard)
         self.toolsDoneAction.addTo(self.cookieCutterDashboard)
         self.toolsCancelAction.addTo(self.cookieCutterDashboard)
+        self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.selectAtomsDashboard.setEnabled(1)
@@ -7481,28 +7482,7 @@ class MainWindow(QMainWindow):
 
         self.textLabel1 = QLabel(self.moveMolDashboard,"textLabel1")
         self.moveMolDashboard.addSeparator()
-        self.moveMolFreeAction.addTo(self.moveMolDashboard)
-        self.rotateMolFreeAction.addTo(self.moveMolDashboard)
-        self.moveRotateMolAction.addTo(self.moveMolDashboard)
-        self.moveMolDashboard.addSeparator()
         self.toolsDoneAction.addTo(self.moveMolDashboard)
-        self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
-
-        self.depositAtomDashboard.setGeometry(QRect(0,29,345,29))
-        self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
-        self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
-        self.depositAtomDashboard.addSeparator()
-
-        self.depositAtomLabel = QLabel(self.depositAtomDashboard,"depositAtomLabel")
-        self.depositAtomDashboard.addSeparator()
-
-        self.elemChangeComboBox = QComboBox(0,self.depositAtomDashboard,"elemChangeComboBox")
-        self.elemChangeComboBox.setSizeLimit(14)
-        self.depositAtomDashboard.addSeparator()
-        self.toolsBackUpAction.addTo(self.depositAtomDashboard)
-        self.toolsStartOverAction.addTo(self.depositAtomDashboard)
-        self.toolsDoneAction.addTo(self.depositAtomDashboard)
-        self.toolsCancelAction.addTo(self.depositAtomDashboard)
         self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
 
@@ -7510,21 +7490,19 @@ class MainWindow(QMainWindow):
         self.nullAction.addTo(self.selectMolDashboard)
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.modifyToolbar.setGeometry(QRect(0,0,30,294))
+        self.modifyToolbar.setGeometry(QRect(0,0,30,238))
         self.modifyToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.modifyMinimizeAction.addTo(self.modifyToolbar)
         self.modifyHydrogenateAction.addTo(self.modifyToolbar)
         self.modifyDehydrogenateAction.addTo(self.modifyToolbar)
         self.modifyPassivateAction.addTo(self.modifyToolbar)
         self.modifySetElementAction.addTo(self.modifyToolbar)
-        self.modifyCopyBondAction.addTo(self.modifyToolbar)
         self.modifyStretchMoleculeAction.addTo(self.modifyToolbar)
         self.modifySeparateAction.addTo(self.modifyToolbar)
-        self.modifyEdgeBondAction.addTo(self.modifyToolbar)
         self.modifyWeldMoleculeAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,294,30,441))
+        self.toolsToolbar.setGeometry(QRect(0,238,30,294))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
@@ -7534,20 +7512,14 @@ class MainWindow(QMainWindow):
         self.toolsDepositAtomAction.addTo(self.toolsToolbar)
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
-        self.toolsRevolveAction.addTo(self.toolsToolbar)
-        self.toolsToolbar.addSeparator()
-        self.toolsMirrorAction.addTo(self.toolsToolbar)
-        self.toolsMirrorCircularBoundaryAction.addTo(self.toolsToolbar)
         self.toolsToolbar.addSeparator()
         self.toolsAlignToCommonAxisAction.addTo(self.toolsToolbar)
-        self.toolsDeleteBondAction.addTo(self.toolsToolbar)
-        self.toolsAddBondAction.addTo(self.toolsToolbar)
         self.toolsToolbar.addSeparator()
         self.toolsMovieAction.addTo(self.toolsToolbar)
         self.toolsSimulator_Action.addTo(self.toolsToolbar)
         self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.datumDispDashboard.setGeometry(QRect(30,0,30,182))
+        self.datumDispDashboard.setGeometry(QRect(0,532,30,182))
         self.datumDispDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispDashboard)
@@ -7564,7 +7536,6 @@ class MainWindow(QMainWindow):
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
-        self.fileNewAction.addTo(self.fileMenu)
         self.fileOpenAction.addTo(self.fileMenu)
         self.fileInsertAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
@@ -7633,9 +7604,7 @@ class MainWindow(QMainWindow):
         self.modifyDehydrogenateAction.addTo(self.Modify)
         self.modifySetElementAction.addTo(self.Modify)
         self.modifySeparateAction.addTo(self.Modify)
-        self.modifyCopyBondAction.addTo(self.Modify)
         self.modifyStretchMoleculeAction.addTo(self.Modify)
-        self.modifyEdgeBondAction.addTo(self.Modify)
         self.modifyWeldMoleculeAction.addTo(self.Modify)
         self.MenuBar.insertItem(QString(""),self.Modify,8)
 
@@ -7644,8 +7613,7 @@ class MainWindow(QMainWindow):
         self.toolsCookieCutAction.addTo(self.Tools)
         self.toolsExtrudeAction.addTo(self.Tools)
         self.toolsRevolveAction.addTo(self.Tools)
-        self.toolsMirrorAction.addTo(self.Tools)
-        self.toolsMirrorCircularBoundaryAction.addTo(self.Tools)
+        self.Tools.insertSeparator()
         self.toolsAlignToCommonAxisAction.addTo(self.Tools)
         self.Tools.insertSeparator()
         self.toolsMovieAction.addTo(self.Tools)
@@ -7662,7 +7630,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1160,962).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1160,968).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7690,7 +7658,6 @@ class MainWindow(QMainWindow):
         self.connect(self.editPreferencesAction,SIGNAL("activated()"),self.editPrefs)
         self.connect(self.editRedoAction,SIGNAL("activated()"),self.editRedo)
         self.connect(self.editUndoAction,SIGNAL("activated()"),self.editUndo)
-        self.connect(self.elemChangeComboBox,SIGNAL("activated(int)"),self.elemChange)
         self.connect(self.fileClearAction,SIGNAL("activated()"),self.fileClear)
         self.connect(self.fileCloseAction,SIGNAL("activated()"),self.fileClose)
         self.connect(self.fileExitAction,SIGNAL("activated()"),self.fileExit)
@@ -8111,38 +8078,18 @@ class MainWindow(QMainWindow):
         self.helpToolbar.setLabel(self.__tr("Help Toolbar"))
         self.cookieCutterDashboard.setLabel(self.__tr("Cookie Cutter"))
         self.textLabel2.setText(self.__tr(" Cookie Cutter"))
+        self.textLabel1_3.setText(self.__tr("Thickness (Angstroms):"))
+        QToolTip.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))
+        QWhatsThis.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))
+        QToolTip.add(self.ccLayerThicknessSpinBox,self.__tr("Number of lattice cells"))
+        QWhatsThis.add(self.ccLayerThicknessSpinBox,self.__tr("Number of lattice cells"))
+        self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
         self.selectAtomsDashboard.setLabel(self.__tr("Select Atoms"))
         self.textLabel2_2.setText(self.__tr("Select Atoms"))
         self.moveMolDashboard.setLabel(self.__tr("Move Molecule"))
-        self.textLabel1.setText(self.__tr(" Move Molecule"))
-        self.depositAtomDashboard.setLabel(self.__tr("Deposit Atom"))
-        self.depositAtomLabel.setText(self.__tr("Deposit Atoms"))
-        self.elemChangeComboBox.clear()
-        self.elemChangeComboBox.insertItem(self.__tr("Hydrogen"))
-        self.elemChangeComboBox.insertItem(self.__tr("Helium"))
-        self.elemChangeComboBox.insertItem(self.__tr("Boron"))
-        self.elemChangeComboBox.insertItem(self.__tr("Carbon"))
-        self.elemChangeComboBox.insertItem(self.__tr("Nitrogen"))
-        self.elemChangeComboBox.insertItem(self.__tr("Oxygen"))
-        self.elemChangeComboBox.insertItem(self.__tr("Fluorine"))
-        self.elemChangeComboBox.insertItem(self.__tr("Neon"))
-        self.elemChangeComboBox.insertItem(self.__tr("Aluminum"))
-        self.elemChangeComboBox.insertItem(self.__tr("Silicon"))
-        self.elemChangeComboBox.insertItem(self.__tr("Phosphorus"))
-        self.elemChangeComboBox.insertItem(self.__tr("Sulfur"))
-        self.elemChangeComboBox.insertItem(self.__tr("Chlorine"))
-        self.elemChangeComboBox.insertItem(self.__tr("Argon"))
-        self.elemChangeComboBox.insertItem(self.__tr("Germanium"))
-        self.elemChangeComboBox.insertItem(self.__tr("Astatine"))
-        self.elemChangeComboBox.insertItem(self.__tr("Selenium"))
-        self.elemChangeComboBox.insertItem(self.__tr("Bromine"))
-        self.elemChangeComboBox.insertItem(self.__tr("Krypton"))
-        self.elemChangeComboBox.insertItem(self.__tr("Antimony"))
-        self.elemChangeComboBox.insertItem(self.__tr("Tellurium"))
-        self.elemChangeComboBox.insertItem(self.__tr("Iodine"))
-        self.elemChangeComboBox.insertItem(self.__tr("Xenon"))
+        self.textLabel1.setText(self.__tr("Move Chunks"))
         self.selectMolDashboard.setLabel(self.__tr("Select Molecule"))
-        self.textLabel1_2.setText(self.__tr("Select Molecules"))
+        self.textLabel1_2.setText(self.__tr("Select Chunks"))
         self.modifyToolbar.setLabel(self.__tr("Modify"))
         self.toolsToolbar.setLabel(self.__tr("Tools"))
         self.datumDispDashboard.setLabel(self.__tr("Datum Display"))

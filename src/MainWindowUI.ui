@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1160</width>
-            <height>962</height>
+            <height>968</height>
         </rect>
     </property>
     <property name="caption">
@@ -41,7 +41,6 @@
         <enum>WidgetOrigin</enum>
     </property>
     <item text="&amp;File" name="fileMenu">
-        <action name="fileNewAction"/>
         <action name="fileOpenAction"/>
         <action name="fileInsertAction"/>
         <separator/>
@@ -105,9 +104,7 @@
         <action name="modifyDehydrogenateAction"/>
         <action name="modifySetElementAction"/>
         <action name="modifySeparateAction"/>
-        <action name="modifyCopyBondAction"/>
         <action name="modifyStretchMoleculeAction"/>
-        <action name="modifyEdgeBondAction"/>
         <action name="modifyWeldMoleculeAction"/>
     </item>
     <item text="&amp;Tools" name="Tools">
@@ -115,8 +112,7 @@
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <action name="toolsRevolveAction"/>
-        <action name="toolsMirrorAction"/>
-        <action name="toolsMirrorCircularBoundaryAction"/>
+        <separator/>
         <action name="toolsAlignToCommonAxisAction"/>
         <separator/>
         <action name="toolsMovieAction"/>
@@ -144,7 +140,6 @@
         <property name="label">
             <string>File</string>
         </property>
-        <action name="fileNewAction"/>
         <action name="fileOpenAction"/>
         <action name="fileSaveAction"/>
     </toolbar>
@@ -154,7 +149,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>96</x>
+                <x>72</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -176,7 +171,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>284</x>
+                <x>260</x>
                 <y>0</y>
                 <width>318</width>
                 <height>29</height>
@@ -207,7 +202,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>602</x>
+                <x>578</x>
                 <y>0</y>
                 <width>101</width>
                 <height>29</height>
@@ -229,7 +224,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>703</x>
+                <x>679</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -274,7 +269,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>551</width>
+                <width>657</width>
                 <height>29</height>
             </rect>
         </property>
@@ -293,17 +288,29 @@
             </property>
         </widget>
         <separator/>
-        <action name="ccGraphiteAction"/>
-        <separator/>
         <action name="orient100Action"/>
         <action name="orient110Action"/>
         <action name="orient111Action"/>
         <separator/>
         <action name="ccAddLayerAction"/>
         <separator/>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1_3</cstring>
+            </property>
+            <property name="text">
+                <string>Thickness (Angstroms):</string>
+            </property>
+        </widget>
         <widget class="QLineEdit">
             <property name="name">
                 <cstring>ccLayerThicknessLineEdit</cstring>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Thickness of layer in Angstroms</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>Thickness of layer in Angstroms</string>
             </property>
         </widget>
         <widget class="QSpinBox">
@@ -313,12 +320,26 @@
             <property name="value">
                 <number>1</number>
             </property>
+            <property name="toolTip" stdset="0">
+                <string>Number of lattice cells</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>Number of lattice cells</string>
+            </property>
         </widget>
         <separator/>
         <action name="toolsBackUpAction"/>
         <action name="toolsStartOverAction"/>
         <action name="toolsDoneAction"/>
         <action name="toolsCancelAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>depositAtomDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Build Dashboard</string>
+        </property>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -352,179 +373,11 @@
                 <cstring>textLabel1</cstring>
             </property>
             <property name="text">
-                <string> Move Molecule</string>
+                <string>Move Chunks</string>
             </property>
         </widget>
-        <separator/>
-        <action name="moveMolFreeAction"/>
-        <action name="rotateMolFreeAction"/>
-        <action name="moveRotateMolAction"/>
         <separator/>
         <action name="toolsDoneAction"/>
-    </toolbar>
-    <toolbar dock="3">
-        <property name="name">
-            <cstring>depositAtomDashboard</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>29</y>
-                <width>345</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
-        <property name="backgroundOrigin">
-            <enum>WidgetOrigin</enum>
-        </property>
-        <property name="label">
-            <string>Deposit Atom</string>
-        </property>
-        <separator/>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>depositAtomLabel</cstring>
-            </property>
-            <property name="text">
-                <string>Deposit Atoms</string>
-            </property>
-        </widget>
-        <separator/>
-        <widget class="QComboBox">
-            <item>
-                <property name="text">
-                    <string>Hydrogen</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Helium</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Boron</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Carbon</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Nitrogen</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Oxygen</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Fluorine</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Neon</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Aluminum</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Silicon</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Phosphorus</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Sulfur</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Chlorine</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Argon</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Germanium</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Astatine</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Selenium</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Bromine</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Krypton</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Antimony</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Tellurium</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Iodine</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Xenon</string>
-                </property>
-            </item>
-            <property name="name">
-                <cstring>elemChangeComboBox</cstring>
-            </property>
-            <property name="sizeLimit">
-                <number>14</number>
-            </property>
-        </widget>
-        <separator/>
-        <action name="toolsBackUpAction"/>
-        <action name="toolsStartOverAction"/>
-        <action name="toolsDoneAction"/>
-        <action name="toolsCancelAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -538,7 +391,7 @@
                 <cstring>textLabel1_2</cstring>
             </property>
             <property name="text">
-                <string>Select Molecules</string>
+                <string>Select Chunks</string>
             </property>
         </widget>
         <action name="nullAction"/>
@@ -552,7 +405,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>30</width>
-                <height>294</height>
+                <height>238</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -570,10 +423,8 @@
         <action name="modifyDehydrogenateAction"/>
         <action name="modifyPassivateAction"/>
         <action name="modifySetElementAction"/>
-        <action name="modifyCopyBondAction"/>
         <action name="modifyStretchMoleculeAction"/>
         <action name="modifySeparateAction"/>
-        <action name="modifyEdgeBondAction"/>
         <action name="modifyWeldMoleculeAction"/>
     </toolbar>
     <toolbar dock="4">
@@ -583,9 +434,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>294</y>
+                <y>238</y>
                 <width>30</width>
-                <height>441</height>
+                <height>294</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -606,14 +457,8 @@
         <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
-        <action name="toolsRevolveAction"/>
-        <separator/>
-        <action name="toolsMirrorAction"/>
-        <action name="toolsMirrorCircularBoundaryAction"/>
         <separator/>
         <action name="toolsAlignToCommonAxisAction"/>
-        <action name="toolsDeleteBondAction"/>
-        <action name="toolsAddBondAction"/>
         <separator/>
         <action name="toolsMovieAction"/>
         <action name="toolsSimulator_Action"/>
@@ -624,8 +469,8 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>30</x>
-                <y>0</y>
+                <x>0</x>
+                <y>532</y>
                 <width>30</width>
                 <height>182</height>
             </rect>
@@ -3113,12 +2958,6 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>editUndo()</slot>
-    </connection>
-    <connection>
-        <sender>elemChangeComboBox</sender>
-        <signal>activated(int)</signal>
-        <receiver>MainWindow</receiver>
-        <slot>elemChange()</slot>
     </connection>
     <connection>
         <sender>fileClearAction</sender>
