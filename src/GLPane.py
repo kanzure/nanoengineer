@@ -33,6 +33,7 @@ from cookieMode import cookieMode
 from extrudeMode import extrudeMode, revolveMode
 from selectMode import *
 from depositMode import depositMode
+from movieMode import movieMode
 from modes import modeMixin
 
 import Image
@@ -105,7 +106,7 @@ class GLPane(QGLWidget, modeMixin):
 
     # constants needed by modeMixin:
     default_mode_class = selectMolsMode
-    other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode, extrudeMode, revolveMode]
+    other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode, extrudeMode, revolveMode, movieMode]
     
     def __init__(self, assem, master=None, name=None, win=None):
         
@@ -810,65 +811,6 @@ class GLPane(QGLWidget, modeMixin):
         pic = Image.new("RGB", (width, height))
         pic.putdata(buf)
         pic.save(filename, "JPEG", quality=85)
-
-    def minimize(self):
-        # Make sure some chunks are in the part.
-        if not self.assy.molecules: # Nothing in the part to minimize.
-            self.win.history.message(redmsg("Minimize: Nothing to minimize."))
-            return
-
-        minmovie = os.path.join(self.win.tmpFilePath, "minimize.dpb")
-        r = writemovie(self.assy, minmovie, 1)
-        if not r: # Minimization worked.  Start movie.
-            self.win.history.message("Minimizing...")
-            self.startmovie(minmovie)
-
-        return
-
-    def startmovie(self, filename):
-        """Start movie
-        """
-        if not os.path.exists(filename): 
-            self.win.history.message("Cannot play movie file [" + filename + "]. It does not exist.")
-            return
-        self.assy.movsetup()
-        self.xfile=open(filename,'rb')
-        self.clock = unpack('i',self.xfile.read(4))[0]
-        self.framenum = 0
-        self.win.history.message("Playing movie file [" + filename + "]  Total Frames: " + str(self.clock))
-        self.win.movieProgressBar.setTotalSteps(self.clock)
-        self.win.movieProgressBar.setProgress(0)
-        self.startTimer(30)
-
-    def pausemovie(self):
-        """Pause movie
-        """
-        self.killTimers()
-        self.win.history.message("Movie paused.")
-        self.win.moviePauseAction.setVisible(0)
-        self.win.moviePlayAction.setVisible(1)
-        
-    def playmovie(self):
-        """Continue playing movie
-        """
-        self.startTimer(30)
-        self.win.history.message("Movie continued.")
-        self.win.moviePlayAction.setVisible(0)
-        self.win.moviePauseAction.setVisible(1)
-        
-    def timerEvent(self, e):
-        self.clock -= 1
-        self.framenum += 1
-        if self.clock<0:
-            self.killTimers()
-            self.assy.movend()
-            self.win.history.message("Done playing movie.")
-            self.xfile.close()
-        else:
-            self.win.frameNumber.display(self.framenum)
-            self.win.movieProgressBar.setProgress(self.framenum)
-            self.assy.movatoms(self.xfile)
-            self.paintGL()
 
     def __str__(self):
         return "<GLPane " + self.name + ">"

@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1048</height>
+            <height>1108</height>
         </rect>
     </property>
     <property name="caption">
@@ -125,7 +125,7 @@
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <separator/>
-        <action name="toolsSimulator_Action"/>
+        <action name="toolsSimulatorAction"/>
         <action name="toolsMoviePlayerAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
@@ -382,8 +382,9 @@
             </property>
         </widget>
         <separator/>
-        <action name="moviePlayAction"/>
+        <action name="moviePlayRevAction"/>
         <action name="moviePauseAction"/>
+        <action name="moviePlayAction"/>
         <separator/>
         <widget class="QLabel">
             <property name="name">
@@ -393,9 +394,9 @@
                 <string>Frame:</string>
             </property>
         </widget>
-        <widget class="QLCDNumber">
+        <widget class="QSpinBox">
             <property name="name">
-                <cstring>frameNumber</cstring>
+                <cstring>frameNumberSB</cstring>
             </property>
             <property name="paletteForegroundColor">
                 <color>
@@ -411,8 +412,17 @@
                     <blue>0</blue>
                 </color>
             </property>
-            <property name="segmentStyle">
-                <enum>Flat</enum>
+            <property name="font">
+                <font>
+                    <pointsize>10</pointsize>
+                    <bold>1</bold>
+                </font>
+            </property>
+            <property name="prefix">
+                <string></string>
+            </property>
+            <property name="maxValue">
+                <number>999999</number>
             </property>
         </widget>
         <widget class="Spacer">
@@ -436,17 +446,9 @@
             <property name="name">
                 <cstring>movieProgressBar</cstring>
             </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>0</hsizetype>
-                    <vsizetype>0</vsizetype>
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                </sizepolicy>
-            </property>
             <property name="minimumSize">
                 <size>
-                    <width>300</width>
+                    <width>400</width>
                     <height>0</height>
                 </size>
             </property>
@@ -468,7 +470,26 @@
                 </size>
             </property>
         </widget>
-        <action name="movieDoneAction"/>
+        <action name="fileOpenMovieAction"/>
+        <action name="fileSaveMovieAction"/>
+        <widget class="Spacer">
+            <property name="name">
+                <cstring>spacer3</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </widget>
+        <action name="toolsDoneAction"/>
         <separator/>
     </toolbar>
     <toolbar dock="3">
@@ -559,7 +580,7 @@
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <separator/>
-        <action name="toolsSimulator_Action"/>
+        <action name="toolsSimulatorAction"/>
         <action name="toolsMoviePlayerAction"/>
     </toolbar>
     <toolbar dock="4">
@@ -2181,7 +2202,7 @@
         </action>
         <action>
             <property name="name">
-                <cstring>toolsSimulator_Action</cstring>
+                <cstring>toolsSimulatorAction</cstring>
             </property>
             <property name="toggleAction">
                 <bool>true</bool>
@@ -2684,7 +2705,7 @@
             <string>Play Movie</string>
         </property>
         <property name="visible">
-            <bool>false</bool>
+            <bool>true</bool>
         </property>
     </action>
     <action>
@@ -2737,6 +2758,61 @@
         </property>
         <property name="text">
             <string>Done</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>movieNextFrameAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image101</iconset>
+        </property>
+        <property name="text">
+            <string>Next</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>moviePrevFrameAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image102</iconset>
+        </property>
+        <property name="text">
+            <string>Prev</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveMovieAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image3</iconset>
+        </property>
+        <property name="text">
+            <string>Save Movie</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>moviePlayRevAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image103</iconset>
+        </property>
+        <property name="text">
+            <string>Play Reverse</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileOpenMovieAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image2</iconset>
+        </property>
+        <property name="text">
+            <string>Open Movie File</string>
         </property>
     </action>
 </actions>
@@ -3044,6 +3120,15 @@
     <image name="image100">
         <data format="XPM.GZ" length="872">789c9591d14e83301486ef798a86de11b3c1dc6817e32368bc34315e9442076c40a2f3c218dfddfe47073d38a3f6ef45bfffe384265d26e2feee4624cbe8f9688e8d15b6364f22295fbaeef5e1f1fa2d8a572be177a644165f44f14258713bf415cead3fcb94167000ae0d0294c05c214043e810600d546b04e8805a6ba5e9630bdc3a1ffa510534a949b734bb23cc106043788900f784740fe0817073c2f20b379fd811e628803da1f2450e2c08b52fe8568bb3eb7723e54fc6147337ced8b2e46e349573dc8d66e71c77dc846e6e26f7dd9cdc39e35c5dcbc93461dfb6c1cc9ef78139f03e301def03d3f33e3005ef2733ccfac9ccfbbfbce9bfccfb55f401ead0c161</data>
     </image>
+    <image name="image101">
+        <data format="XPM.GZ" length="827">789c9d8edd6ac2401085eff3144bf62e1435a9262bc54768f1b2507a31d9cde6d70aadbd28d277ef9cb1ad285950cfc9c57cf3b164a6897a5e3faa641a7dec68d75a651b7a5789fbdc6cbe5e5e57fb28ce32c55f3a57697c17c51365d5d3f6adc25cf2ace7840235302f50a0031a630a2368814bcf95b7159066345b7aa0174c51602d9871051bc17b14d80aca8f819de0e20f7bc19c170be02058f0220792a0e1855c3519cd854623e38688ca71639d0b982a68fc35461f52b391a13c1ab295f775e35cdbf5835cf86fdc492e3225a25bde1d727e5b17bcba0f9a2168e87af37bd58839c94de6fb21fa01b64db2b6</data>
+    </image>
+    <image name="image102">
+        <data format="XPM.GZ" length="827">789cd5d0cb0a82401406e0bd4f31e84ec25b5e46a247285a06d1621c1def05658b88debdf90f44252dda04757e17f39d9f41d1b5d97ab560b66b1c0731d492c94a1c989d9ffafebcd9ce2f8619044c3f7ec87c7362980e936cb9df15380b7db642818016182708d8819cf3841325982a1dba9b83c2135eaac082e823a022063ac4923845c08a482f066b627467438cf522025b62a217319811b95ed057396fe7af1b6b34e2d164322f0a55aab2aa9b36cb9e9bee653e6ac4687ee81f7cbfb9ce8c1b2a88a9ed</data>
+    </image>
+    <image name="image103">
+        <data format="XPM.GZ" length="887">789c9d90b16e8330144577bec2c21baa08a40938aafa098d3a56aa3a3886172001a22619a2aaff5edf4751803843ebcbe0738f9e6c3c0bc4dbeb8b0866def1a44fa511a6d09f22c8ce757d79ff78fef2fcf95cd82f5622f61f3c3f1446acdb26c7beb27b19f1021e800b8d002530491160cea810e086911060094c170890804aa954f16c065c910d9fbb05ea48472b9e2d186304b8637c44807b46be16b0665cf6687e71d961c398a000b68ca92d12a06654b6e05b85cef53723a5db48a9372e23a531996326b73dd1f6c6743d5131317d3f35d77e6c86fdc8e46549e43461550ddd6e74ced0ed2777bbbafae67f7ad738dea073adf345e1f49db7b6eee03670f74cb7fe65be9fbc1f7e24c5f9</data>
+    </image>
 </images>
 <connections>
     <connection>
@@ -3057,6 +3142,12 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>gridGraphite()</slot>
+    </connection>
+    <connection>
+        <sender>ccLayerThicknessLineEdit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>validateThickness()</slot>
     </connection>
     <connection>
         <sender>dispBGColorAction</sender>
@@ -3129,6 +3220,18 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>dispResetMolColor()</slot>
+    </connection>
+    <connection>
+        <sender>dispSetEltable1Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispSetEltable1()</slot>
+    </connection>
+    <connection>
+        <sender>dispSetEltable2Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispSetEltable2()</slot>
     </connection>
     <connection>
         <sender>dispTrihedronAction</sender>
@@ -3239,6 +3342,12 @@
         <slot>fileOpen()</slot>
     </connection>
     <connection>
+        <sender>fileOpenMovieAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileOpenMovie()</slot>
+    </connection>
+    <connection>
         <sender>fileSaveAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3251,10 +3360,22 @@
         <slot>fileSaveAs()</slot>
     </connection>
     <connection>
+        <sender>fileSaveMovieAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileSaveMovie()</slot>
+    </connection>
+    <connection>
         <sender>fileSetWorkDirAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>fileSetWorkDir()</slot>
+    </connection>
+    <connection>
+        <sender>frameNumberSB</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>moviePlayFrame()</slot>
     </connection>
     <connection>
         <sender>helpAboutAction</sender>
@@ -3401,6 +3522,48 @@
         <slot>modifyWeld()</slot>
     </connection>
     <connection>
+        <sender>movieDoneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieDone()</slot>
+    </connection>
+    <connection>
+        <sender>movieNextFrameAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieNextFrame()</slot>
+    </connection>
+    <connection>
+        <sender>moviePauseAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>moviePause()</slot>
+    </connection>
+    <connection>
+        <sender>moviePlayAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>moviePlay()</slot>
+    </connection>
+    <connection>
+        <sender>moviePlayRevAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>moviePlayRev()</slot>
+    </connection>
+    <connection>
+        <sender>moviePrevFrameAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>moviePrevFrame()</slot>
+    </connection>
+    <connection>
+        <sender>movieStopAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieStop()</slot>
+    </connection>
+    <connection>
         <sender>orient100Action</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3495,6 +3658,12 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>setViewHome()</slot>
+    </connection>
+    <connection>
+        <sender>setViewHomeToCurrentAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewHomeToCurrent()</slot>
     </connection>
     <connection>
         <sender>setViewLeftAction</sender>
@@ -3689,7 +3858,7 @@
         <slot>toolsSelectMolecules()</slot>
     </connection>
     <connection>
-        <sender>toolsSimulator_Action</sender>
+        <sender>toolsSimulatorAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>toolsSimulator()</slot>
@@ -3699,54 +3868,6 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>toolsStartOver()</slot>
-    </connection>
-    <connection>
-        <sender>ccLayerThicknessLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>MainWindow</receiver>
-        <slot>validateThickness()</slot>
-    </connection>
-    <connection>
-        <sender>setViewHomeToCurrentAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>setViewHomeToCurrent()</slot>
-    </connection>
-    <connection>
-        <sender>dispSetEltable1Action</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>dispSetEltable1()</slot>
-    </connection>
-    <connection>
-        <sender>dispSetEltable2Action</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>dispSetEltable2()</slot>
-    </connection>
-    <connection>
-        <sender>movieStopAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>movieStop()</slot>
-    </connection>
-    <connection>
-        <sender>moviePlayAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>moviePlay()</slot>
-    </connection>
-    <connection>
-        <sender>movieDoneAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>movieDone()</slot>
-    </connection>
-    <connection>
-        <sender>moviePauseAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>moviePause()</slot>
     </connection>
 </connections>
 <slots>
@@ -3873,6 +3994,12 @@
     <slot>movieDone()</slot>
     <slot>toolsMoviePlayer()</slot>
     <slot>moviePause()</slot>
+    <slot>movieNextFrame()</slot>
+    <slot>moviePrevFrame()</slot>
+    <slot>moviePlayFrame()</slot>
+    <slot>fileSaveMovie()</slot>
+    <slot>moviePlayRev()</slot>
+    <slot>fileOpenMovie()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

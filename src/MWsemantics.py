@@ -13,7 +13,6 @@ from GLPane import *
 import os
 import help
 from math import ceil
-from runSim import runSim
 from modelTree import *
 import platform
 
@@ -838,7 +837,12 @@ class MWsemantics(MainWindow):
     
     def modifyMinimize(self):
         """ Minimize the current assembly """
-        self.glpane.minimize()
+        # Make sure some chunks are in the part.
+        if not self.assy.molecules: # Nothing in the part to minimize.
+            self.history.message(redmsg("Minimize: Nothing to minimize."))
+            return
+        self.assy.makeMinMovie()
+#        self.glpane.minimize()
 
     def modifyHydrogenate(self):
         """ Add hydrogen atoms to each singlet in the selection """
@@ -938,52 +942,125 @@ class MWsemantics(MainWindow):
         if not self.assy.molecules: # Nothing in the part to minimize.
             self.history.message(redmsg("Simulator: Nothing to simulate."))
             return
-        self.simCntl = runSim(self.assy)
-        self.simCntl.show()
         
+        # We do this in case the we are currently in MOVIE mode.
+        # We need the current movie file object to be closed.
+        # This gets the job done.  There may be a more desirable way to
+        # do this.  Mark 050109
+        self.glpane.setMode('SELECTMOLS')
+        
+        r = self.assy.makeSimMovie()
+
+        if not r: # Movie file saved successfully.
+            msg = "Total time to create movie file: %d seconds" % self.assy.w.progressbar.duration
+            self.history.message(msg) 
+            msg = "Movie written to [" + self.assy.m.filename + "]."\
+                        "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
+            # This makes a copy of the movie tool icon to put in the HistoryWidget.
+            QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
+                        self.toolsMoviePlayerAction.iconSet().pixmap() )
+            self.history.message(msg)
+            
     # Play a movie created by the simulator.
     def toolsMoviePlayer(self):
         """Plays a DPB movie file created by the simulator.
         """
         # If no simulation has been run yet, check to see if there is a "partner" moviefile.
         # If so, go ahead and play it.
-        if not self.assy.moviename and self.assy.filename:
+        if not self.assy.m.filename and self.assy.filename:
             mfile = self.assy.filename[:-4] + ".dpb"
-            if os.path.exists(mfile): self.assy.moviename = mfile
+            if os.path.exists(mfile): self.assy.m.filename = mfile
 
         # Make sure there is a moviefile to play.
-        if not self.assy.moviename or not os.path.exists(self.assy.moviename):
+        if not self.assy.m.filename or not os.path.exists(self.assy.m.filename):
 
             msg = redmsg("Movie Player: No movie file.")
             self.history.message(msg)
+            print "MWsemantics.toolsMoviePlayer: self.assy.m.filename =",self.assy.m.filename
 
             msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
             QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
-                        self.toolsSimulator_Action.iconSet().pixmap() )
+                        self.toolsSimulatorAction.iconSet().pixmap() )
             self.history.message(msg)
             return
 
         # We have a moviefile ready to go.  It's showtime!!!
-        self.hideDashboards()
-        self.moviePauseAction.setVisible(1)
-        self.moviePlayAction.setVisible(0)
-        self.moviePlayerDashboard.show()
-        self.glpane.startmovie(self.assy.moviename)
+        self.glpane.setMode('MOVIE')
 
     # Movie Player Dashboard Slots ############
     
     def moviePause(self):
-        self.glpane.pausemovie()
+        """Pause movie.
+        """
+        self.assy.m._pause()
         
     def moviePlay(self):
-        self.glpane.playmovie()
-        
-    def movieDone(self):
-        self.moviePlayerDashboard.hide()
-        self.glpane.pausemovie()
-        self.selectMolDashboard.show()
-        self.glpane.setMode('SELECTMOLS')
+        """Play current movie foward from current position.
+        """
+        self.assy.m._play(1)
 
+    def moviePlayRev(self):
+        """Play current movie in reverse from current position.
+        """
+        self.assy.m._play(-1)
+        
+    def moviePlayFrame(self, fnum):
+        """Show frame fnum in the current movie.
+        """
+        if fnum != self.assy.m.currentFrame: 
+            self.assy.m._playFrame(fnum)
+
+    def fileOpenMovie(self):
+        """Open a movie file to play.
+        """
+        self.history.message(redmsg("Open Movie File: Not implemented yet."))
+                        
+    def fileSaveMovie(self):
+        """Save a movie of the current part.
+        """
+        if self.assy.filename: sdir = self.assy.filename
+        else: sdir = globalParms['WorkingDirectory']
+
+        sfilter = QString("Differential Position Bytes Format (*.dpb)")
+        
+        fn = QFileDialog.getSaveFileName(sdir,
+                    "Differential Position Bytes Format (*.dpb);;XYZ Format (*.xyz)",
+                    self, "IDONTKNOWWHATTHISIS",
+                    "Save As",
+                    sfilter)
+        
+        if fn:
+            fn = str(fn)
+            dir, fil, ext2 = fileparse(fn)
+            ext =str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
+            safile = dir + fil + ext # full path of "Save As" filename
+            
+            if os.path.exists(safile): # ...and if the "Save As" file exists...
+
+                # ... confirm overwrite of the existing file.
+                ret = QMessageBox.warning( self, self.name(),
+                        "The file \"" + fil + ext + "\" already exists.\n"\
+                        "Do you want to overwrite the existing file or cancel?",
+                        "&Overwrite", "&Cancel", None,
+                        0,      # Enter == button 0
+                        1 )     # Escape == button 1
+
+                if ret==1: # The user cancelled
+                    self.history.message( "Cancelled.  File not saved." )
+                    return # Cancel clicked or Alt+C pressed or Escape pressed
+            
+            if ext == '.dpb': ftype = 'DPB'
+            else: ftype = 'XYZ'
+            
+            tmpname = self.assy.m.filename
+            self.assy.m.filename = safile
+
+            r = self.assy.writemovie() # Save moviefile
+            
+            if not r: # Movie file saved successfully.
+                self.history.message( ftype + " movie file saved: " + safile)
+
+            self.assy.m.filename = tmpname
 
     ###################################
     # Slots for future tools

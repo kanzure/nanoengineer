@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jan 6 15:14:10 2005
+# Created: Mon Jan 10 10:57:31 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6870,6 +6870,127 @@ image100_data = [
 "......................",
 "......................"
 ]
+image101_data = [
+"22 22 14 1",
+". c None",
+"b c #4a4a4a",
+"# c #676767",
+"d c #888787",
+"c c #9f9f9e",
+"e c #a0a09f",
+"f c #a1a1a1",
+"g c #a2a2a1",
+"h c #a3a3a3",
+"i c #a4a4a4",
+"j c #a5a4a4",
+"k c #a6a5a5",
+"l c #a7a6a6",
+"a c #a8a7a7",
+"......................",
+"......................",
+".........#####........",
+".........#aaab........",
+".........#cddb........",
+".........#eddb........",
+".........#fddb........",
+".........#fddb........",
+"...#######gddb#####b..",
+"...#aceffghddijklaab..",
+"...#addddddddddddddb..",
+"...#addddddddddddddb..",
+"...#bbbbb#iddbbbbbbb..",
+".........#jddb........",
+".........#kddb........",
+".........#lddb........",
+".........#addb........",
+".........#addb........",
+".........bbbbb........",
+"......................",
+"......................",
+"......................"
+]
+image102_data = [
+"22 22 14 1",
+". c None",
+"a c #4a4a4a",
+"# c #676767",
+"l c #888787",
+"c c #9f9f9e",
+"d c #a0a09f",
+"e c #a1a1a1",
+"f c #a2a2a1",
+"g c #a3a3a3",
+"h c #a4a4a4",
+"i c #a5a4a4",
+"j c #a6a5a5",
+"k c #a7a6a6",
+"b c #a8a7a7",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"...################a..",
+"...#bcdeefgfghijkbba..",
+"...#blllllllllllllla..",
+"...#blllllllllllllla..",
+"...#aaaaaaaaaaaaaaaa..",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................"
+]
+image103_data = [
+"22 22 18 1",
+". c None",
+"j c #000000",
+"p c #4a4a4a",
+"# c #676767",
+"e c #686868",
+"b c #6f6f6f",
+"i c #747474",
+"f c #888787",
+"d c #9f9f9e",
+"g c #a0a09f",
+"h c #a1a1a1",
+"k c #a3a3a3",
+"l c #a4a4a4",
+"m c #a5a4a4",
+"c c #a5a5a4",
+"n c #a6a5a5",
+"o c #a7a6a6",
+"a c #a8a7a7",
+"......................",
+"......................",
+"................##....",
+"..............##ab....",
+"............##ccd#....",
+"..........e#ccffg#....",
+"........e#ccffffh#....",
+"......e#ccffffffh#....",
+"....e#ccffffffffh#....",
+"..e#ccffffffffffh#....",
+".eiiffffffffffffh#....",
+"..jjiiffffffffffk#....",
+"....jjiiffffffffl#....",
+"......jjiiffffffm#....",
+"........jjiiffffn#....",
+"..........jjiiffo#....",
+"............jjiia#....",
+"..............jjip....",
+"................jj....",
+"......................",
+"......................",
+"......................"
+]
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6977,6 +7098,9 @@ class MainWindow(QMainWindow):
         self.image98 = QPixmap(image98_data)
         self.image99 = QPixmap(image99_data)
         self.image100 = QPixmap(image100_data)
+        self.image101 = QPixmap(image101_data)
+        self.image102 = QPixmap(image102_data)
+        self.image103 = QPixmap(image103_data)
 
         if not name:
             self.setName("MainWindow")
@@ -7207,9 +7331,9 @@ class MainWindow(QMainWindow):
         self.toolsMoviePlayerAction = QAction(self.toolsModeActionGroup,"toolsMoviePlayerAction")
         self.toolsMoviePlayerAction.setToggleAction(1)
         self.toolsMoviePlayerAction.setIconSet(QIconSet(self.image76))
-        self.toolsSimulator_Action = QAction(self.toolsModeActionGroup,"toolsSimulator_Action")
-        self.toolsSimulator_Action.setToggleAction(1)
-        self.toolsSimulator_Action.setIconSet(QIconSet(self.image77))
+        self.toolsSimulatorAction = QAction(self.toolsModeActionGroup,"toolsSimulatorAction")
+        self.toolsSimulatorAction.setToggleAction(1)
+        self.toolsSimulatorAction.setIconSet(QIconSet(self.image77))
         self.toolsAddBondAction = QAction(self.toolsModeActionGroup,"toolsAddBondAction")
         self.toolsAddBondAction.setToggleAction(1)
         self.toolsAddBondAction.setIconSet(QIconSet(self.image78))
@@ -7294,7 +7418,7 @@ class MainWindow(QMainWindow):
         self.moviePauseAction.setIconSet(QIconSet(self.image99))
         self.moviePlayAction = QAction(self,"moviePlayAction")
         self.moviePlayAction.setIconSet(QIconSet(self.image100))
-        self.moviePlayAction.setVisible(0)
+        self.moviePlayAction.setVisible(1)
         self.setViewHomeToCurrentAction = QAction(self,"setViewHomeToCurrentAction")
         self.modifyAlignCommonAxisAction = QAction(self,"modifyAlignCommonAxisAction")
         self.modifyAlignCommonAxisAction.setIconSet(QIconSet(self.image75))
@@ -7302,6 +7426,16 @@ class MainWindow(QMainWindow):
         self.dispSetEltable2Action = QAction(self,"dispSetEltable2Action")
         self.movieDoneAction = QAction(self,"movieDoneAction")
         self.movieDoneAction.setIconSet(QIconSet(self.image18))
+        self.movieNextFrameAction = QAction(self,"movieNextFrameAction")
+        self.movieNextFrameAction.setIconSet(QIconSet(self.image101))
+        self.moviePrevFrameAction = QAction(self,"moviePrevFrameAction")
+        self.moviePrevFrameAction.setIconSet(QIconSet(self.image102))
+        self.fileSaveMovieAction = QAction(self,"fileSaveMovieAction")
+        self.fileSaveMovieAction.setIconSet(QIconSet(self.image3))
+        self.moviePlayRevAction = QAction(self,"moviePlayRevAction")
+        self.moviePlayRevAction.setIconSet(QIconSet(self.image103))
+        self.fileOpenMovieAction = QAction(self,"fileOpenMovieAction")
+        self.fileOpenMovieAction.setIconSet(QIconSet(self.image2))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7398,27 +7532,36 @@ class MainWindow(QMainWindow):
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
         self.moviePlayerDashboard.addSeparator()
-        self.moviePlayAction.addTo(self.moviePlayerDashboard)
+        self.moviePlayRevAction.addTo(self.moviePlayerDashboard)
         self.moviePauseAction.addTo(self.moviePlayerDashboard)
+        self.moviePlayAction.addTo(self.moviePlayerDashboard)
         self.moviePlayerDashboard.addSeparator()
 
         self.frameLabel = QLabel(self.moviePlayerDashboard,"frameLabel")
 
-        self.frameNumber = QLCDNumber(self.moviePlayerDashboard,"frameNumber")
-        self.frameNumber.setPaletteForegroundColor(QColor(170,255,0))
-        self.frameNumber.setPaletteBackgroundColor(QColor(0,0,0))
-        self.frameNumber.setSegmentStyle(QLCDNumber.Flat)
+        self.frameNumberSB = QSpinBox(self.moviePlayerDashboard,"frameNumberSB")
+        self.frameNumberSB.setPaletteForegroundColor(QColor(170,255,0))
+        self.frameNumberSB.setPaletteBackgroundColor(QColor(0,0,0))
+        frameNumberSB_font = QFont(self.frameNumberSB.font())
+        frameNumberSB_font.setPointSize(10)
+        frameNumberSB_font.setBold(1)
+        self.frameNumberSB.setFont(frameNumberSB_font)
+        self.frameNumberSB.setMaxValue(999999)
         spacer2 = QSpacerItem(10,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
         QApplication.sendPostedEvents(self.moviePlayerDashboard,QEvent.ChildInserted)
         self.moviePlayerDashboard.boxLayout().addItem(spacer2)
 
         self.movieProgressBar = QProgressBar(self.moviePlayerDashboard,"movieProgressBar")
-        self.movieProgressBar.setSizePolicy(QSizePolicy(0,0,0,0,self.movieProgressBar.sizePolicy().hasHeightForWidth()))
-        self.movieProgressBar.setMinimumSize(QSize(300,0))
+        self.movieProgressBar.setMinimumSize(QSize(400,0))
         spacer1 = QSpacerItem(22,22,QSizePolicy.Fixed,QSizePolicy.Minimum)
         QApplication.sendPostedEvents(self.moviePlayerDashboard,QEvent.ChildInserted)
         self.moviePlayerDashboard.boxLayout().addItem(spacer1)
-        self.movieDoneAction.addTo(self.moviePlayerDashboard)
+        self.fileOpenMovieAction.addTo(self.moviePlayerDashboard)
+        self.fileSaveMovieAction.addTo(self.moviePlayerDashboard)
+        spacer3 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        QApplication.sendPostedEvents(self.moviePlayerDashboard,QEvent.ChildInserted)
+        self.moviePlayerDashboard.boxLayout().addItem(spacer3)
+        self.toolsDoneAction.addTo(self.moviePlayerDashboard)
         self.moviePlayerDashboard.addSeparator()
         self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
@@ -7453,7 +7596,7 @@ class MainWindow(QMainWindow):
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
         self.toolsToolbar.addSeparator()
-        self.toolsSimulator_Action.addTo(self.toolsToolbar)
+        self.toolsSimulatorAction.addTo(self.toolsToolbar)
         self.toolsMoviePlayerAction.addTo(self.toolsToolbar)
         self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
@@ -7561,7 +7704,7 @@ class MainWindow(QMainWindow):
         self.toolsCookieCutAction.addTo(self.Tools)
         self.toolsExtrudeAction.addTo(self.Tools)
         self.Tools.insertSeparator()
-        self.toolsSimulator_Action.addTo(self.Tools)
+        self.toolsSimulatorAction.addTo(self.Tools)
         self.toolsMoviePlayerAction.addTo(self.Tools)
         self.MenuBar.insertItem(QString(""),self.Tools,9)
 
@@ -7574,11 +7717,12 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1048).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1108).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
         self.connect(self.ccGraphiteAction,SIGNAL("activated()"),self.gridGraphite)
+        self.connect(self.ccLayerThicknessLineEdit,SIGNAL("textChanged(const QString&)"),self.validateThickness)
         self.connect(self.dispBGColorAction,SIGNAL("activated()"),self.dispBGColor)
         self.connect(self.dispCPKAction,SIGNAL("activated()"),self.dispCPK)
         self.connect(self.dispCsysAction,SIGNAL("activated()"),self.dispCsys)
@@ -7591,6 +7735,8 @@ class MainWindow(QMainWindow):
         self.connect(self.dispObjectColorAction,SIGNAL("activated()"),self.dispObjectColor)
         self.connect(self.dispOpenBondsAction,SIGNAL("activated()"),self.dispOpenBonds)
         self.connect(self.dispResetMolColorAction,SIGNAL("activated()"),self.dispResetMolColor)
+        self.connect(self.dispSetEltable1Action,SIGNAL("activated()"),self.dispSetEltable1)
+        self.connect(self.dispSetEltable2Action,SIGNAL("activated()"),self.dispSetEltable2)
         self.connect(self.dispTrihedronAction,SIGNAL("activated()"),self.dispTrihedron)
         self.connect(self.dispTubesAction,SIGNAL("activated()"),self.dispTubes)
         self.connect(self.dispVdWAction,SIGNAL("activated()"),self.dispVdW)
@@ -7609,9 +7755,12 @@ class MainWindow(QMainWindow):
         self.connect(self.fileInsertAction,SIGNAL("activated()"),self.fileInsert)
         self.connect(self.fileNewAction,SIGNAL("activated()"),self.fileNew)
         self.connect(self.fileOpenAction,SIGNAL("activated()"),self.fileOpen)
+        self.connect(self.fileOpenMovieAction,SIGNAL("activated()"),self.fileOpenMovie)
         self.connect(self.fileSaveAction,SIGNAL("activated()"),self.fileSave)
         self.connect(self.fileSaveAsAction,SIGNAL("activated()"),self.fileSaveAs)
+        self.connect(self.fileSaveMovieAction,SIGNAL("activated()"),self.fileSaveMovie)
         self.connect(self.fileSetWorkDirAction,SIGNAL("activated()"),self.fileSetWorkDir)
+        self.connect(self.frameNumberSB,SIGNAL("valueChanged(int)"),self.moviePlayFrame)
         self.connect(self.helpAboutAction,SIGNAL("activated()"),self.helpAbout)
         self.connect(self.helpAssistantAction,SIGNAL("activated()"),self.helpAssistant)
         self.connect(self.helpContentsAction,SIGNAL("activated()"),self.helpContents)
@@ -7636,6 +7785,13 @@ class MainWindow(QMainWindow):
         self.connect(self.modifySetElementAction,SIGNAL("activated()"),self.modifySetElement)
         self.connect(self.modifyStretchAction,SIGNAL("activated()"),self.modifyStretch)
         self.connect(self.modifyWeldAction,SIGNAL("activated()"),self.modifyWeld)
+        self.connect(self.movieDoneAction,SIGNAL("activated()"),self.movieDone)
+        self.connect(self.movieNextFrameAction,SIGNAL("activated()"),self.movieNextFrame)
+        self.connect(self.moviePauseAction,SIGNAL("activated()"),self.moviePause)
+        self.connect(self.moviePlayAction,SIGNAL("activated()"),self.moviePlay)
+        self.connect(self.moviePlayRevAction,SIGNAL("activated()"),self.moviePlayRev)
+        self.connect(self.moviePrevFrameAction,SIGNAL("activated()"),self.moviePrevFrame)
+        self.connect(self.movieStopAction,SIGNAL("activated()"),self.movieStop)
         self.connect(self.orient100Action,SIGNAL("activated()"),self.orient100)
         self.connect(self.orient110Action,SIGNAL("activated()"),self.orient110)
         self.connect(self.orient111Action,SIGNAL("activated()"),self.orient111)
@@ -7652,6 +7808,7 @@ class MainWindow(QMainWindow):
         self.connect(self.setViewFitToWindowAction,SIGNAL("activated()"),self.setViewFitToWindow)
         self.connect(self.setViewFrontAction,SIGNAL("activated()"),self.setViewFront)
         self.connect(self.setViewHomeAction,SIGNAL("activated()"),self.setViewHome)
+        self.connect(self.setViewHomeToCurrentAction,SIGNAL("activated()"),self.setViewHomeToCurrent)
         self.connect(self.setViewLeftAction,SIGNAL("activated()"),self.setViewLeft)
         self.connect(self.setViewOrthoAction,SIGNAL("activated()"),self.setViewOrtho)
         self.connect(self.setViewPerspecAction,SIGNAL("activated()"),self.setViewPerspec)
@@ -7684,16 +7841,8 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
         self.connect(self.toolsSelectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
-        self.connect(self.toolsSimulator_Action,SIGNAL("activated()"),self.toolsSimulator)
+        self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.ccLayerThicknessLineEdit,SIGNAL("textChanged(const QString&)"),self.validateThickness)
-        self.connect(self.setViewHomeToCurrentAction,SIGNAL("activated()"),self.setViewHomeToCurrent)
-        self.connect(self.dispSetEltable1Action,SIGNAL("activated()"),self.dispSetEltable1)
-        self.connect(self.dispSetEltable2Action,SIGNAL("activated()"),self.dispSetEltable2)
-        self.connect(self.movieStopAction,SIGNAL("activated()"),self.movieStop)
-        self.connect(self.moviePlayAction,SIGNAL("activated()"),self.moviePlay)
-        self.connect(self.movieDoneAction,SIGNAL("activated()"),self.movieDone)
-        self.connect(self.moviePauseAction,SIGNAL("activated()"),self.moviePause)
 
 
     def languageChange(self):
@@ -7949,9 +8098,9 @@ class MainWindow(QMainWindow):
         self.toolsMoviePlayerAction.setText(self.__tr("Movie Player"))
         self.toolsMoviePlayerAction.setMenuText(self.__tr("&Movie Player"))
         self.toolsMoviePlayerAction.setToolTip(self.__tr("Movie Player"))
-        self.toolsSimulator_Action.setText(self.__tr("Simulator"))
-        self.toolsSimulator_Action.setMenuText(self.__tr("S&imulator"))
-        self.toolsSimulator_Action.setToolTip(self.__tr("Simulator"))
+        self.toolsSimulatorAction.setText(self.__tr("Simulator"))
+        self.toolsSimulatorAction.setMenuText(self.__tr("S&imulator"))
+        self.toolsSimulatorAction.setToolTip(self.__tr("Simulator"))
         self.toolsAddBondAction.setText(self.__tr("Add Bond"))
         self.toolsAddBondAction.setToolTip(self.__tr("Add Bond"))
         self.toolsAddBondAction.setMenuText(self.__tr("Add Bond"))
@@ -8047,6 +8196,16 @@ class MainWindow(QMainWindow):
         self.dispSetEltable2Action.setMenuText(self.__tr("Set Atom Colors to Alternate"))
         self.movieDoneAction.setText(self.__tr("Done"))
         self.movieDoneAction.setMenuText(self.__tr("Done"))
+        self.movieNextFrameAction.setText(self.__tr("Next"))
+        self.movieNextFrameAction.setMenuText(self.__tr("Next"))
+        self.moviePrevFrameAction.setText(self.__tr("Prev"))
+        self.moviePrevFrameAction.setMenuText(self.__tr("Prev"))
+        self.fileSaveMovieAction.setText(self.__tr("Save Movie"))
+        self.fileSaveMovieAction.setMenuText(self.__tr("Save Movie"))
+        self.moviePlayRevAction.setText(self.__tr("Play Reverse"))
+        self.moviePlayRevAction.setMenuText(self.__tr("Play Reverse"))
+        self.fileOpenMovieAction.setText(self.__tr("Open Movie File"))
+        self.fileOpenMovieAction.setMenuText(self.__tr("Open Movie File"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8067,6 +8226,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard.setLabel(self.__tr("Movie Player Dashboard"))
         self.textLabel1_4.setText(self.__tr("Movie Player"))
         self.frameLabel.setText(self.__tr("Frame:"))
+        self.frameNumberSB.setPrefix(QString.null)
         self.selectMolDashboard.setLabel(self.__tr("Select Molecule"))
         self.textLabel1_2.setText(self.__tr("Select Chunks"))
         self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
@@ -8459,6 +8619,24 @@ class MainWindow(QMainWindow):
 
     def moviePause(self):
         print "MainWindow.moviePause(): Not implemented yet"
+
+    def movieNextFrame(self):
+        print "MainWindow.movieNextFrame(): Not implemented yet"
+
+    def moviePrevFrame(self):
+        print "MainWindow.moviePrevFrame(): Not implemented yet"
+
+    def moviePlayFrame(self):
+        print "MainWindow.moviePlayFrame(): Not implemented yet"
+
+    def fileSaveMovie(self):
+        print "MainWindow.fileSaveMovie(): Not implemented yet"
+
+    def moviePlayRev(self):
+        print "MainWindow.moviePlayRev(): Not implemented yet"
+
+    def fileOpenMovie(self):
+        print "MainWindow.fileOpenMovie(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

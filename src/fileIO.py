@@ -528,19 +528,30 @@ def writemdl(assy, filename):
     
 
 # Write a dpb or xyz trajectory file.
-def writemovie(assy, moviefile, mflag = False):
-    """Creates a moviefile.  
-    moviefile - name of either a DPB file or an XYZ trajectory file.
+def writemovie(assy, mflag = False):
+    """Creates a moviefile.  The name of the moviefile it creates is found in
+    assy.m.filename.  The moviefile is either a DPB file or an XYZ trajectory file.
     DPB = Differential Position Bytes (binary file)
     XYZ = XYZ trajectory file (text file)
-    mflag - if True, create a minimize moviefile
+    mflag - if True, creates a minimize dpb moviefile
     """
     # Make sure some chunks are in the part.
     if not assy.molecules: # Nothing in the part to minimize.
         msg = redmsg("Can't create movie.  No chunks in part.")
         assy.w.history.message(msg)
         return -1
-            
+    
+    if mflag:
+        pid = os.getpid()
+        assy.m.filename = os.path.join(assy.w.tmpFilePath, "sim-%d.dpb" % pid)
+    
+    if assy.m.filename: moviefile = assy.m.filename
+    
+    else:
+        msg = redmsg("Can't create movie.  Empty filename.")
+        assy.w.history.message(msg)
+        return -1
+        
     # Check that the moviefile has a valid extension.
     ext = moviefile[-4:]
     if moviefile[-4:] not in ['.dpb', '.xyz']:
@@ -582,9 +593,9 @@ def writemovie(assy, moviefile, mflag = False):
         # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
         # The timestep argument "-s + (assy.timestep)" is not supported for Alpha.
         args = [program, 
-                    '-f' + str(assy.nframes), 
-                    '-t' + str(assy.temp), 
-                    '-i' + str(assy.stepsper), 
+                    '-f' + str(assy.m.totalFrames), 
+                    '-t' + str(assy.m.temp), 
+                    '-i' + str(assy.m.stepsper), 
                     str(formarg),
                     outfile, 
                     infile]
@@ -593,8 +604,8 @@ def writemovie(assy, moviefile, mflag = False):
     msg = greenmsg("Creating movie file [" + moviefile + "]")
     assy.w.history.message(msg)
 
-    # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR saveMovie!
-    # writemmp must come before computing "natoms".  This ensures that saveMovie
+    # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR writemovie()!
+    # writemmp must come before computing "natoms".  This ensures that writemovie
     # will work when creating a movie for a file without an assy.alist.  Examples of this
     # situation include:
     # 1)  The part is a PDB file.
@@ -604,8 +615,9 @@ def writemovie(assy, moviefile, mflag = False):
     # I do not know if it was intentional, but assy.alist is not created until an mmp file 
     # is created.  We are simply taking advantage of this "feature" here.
     # - Mark 050106
+    
     writemmp(assy, mmpfile, False)
-    natoms = len(assy.alist)
+    assy.m.natoms = natoms = len(assy.alist)
     print "writeMovie: natoms = ",natoms, "assy.filename =",assy.filename
             
     # We cannot to determine the exact final size of an XYZ trajectory file.
@@ -614,12 +626,21 @@ def writemovie(assy, moviefile, mflag = False):
     # even though the simulator finished writing the file.
     # - Mark 050105 
     if formarg == "-x" and not mflag:
-        filesize = assy.nframes * ((natoms * 32) + 25) # xyz filesize (estimate)
+        filesize = assy.m.totalFrames * ((natoms * 32) + 25) # xyz filesize (estimate)
     else: 
         if mflag: filesize = (max(25, int(sqrt(natoms))) * natoms * 3) + 4
-        else:      filesize = (assy.nframes * natoms * 3) + 4
+        else:      filesize = (assy.m.totalFrames * natoms * 3) + 4
          
-    if os.path.exists(moviefile): os.remove (moviefile) # Delete before spawning simulator.
+    if os.path.exists(moviefile):
+        print "assy.m.isOpen =",assy.m.isOpen
+        if assy.m.isOpen: 
+            print "closing moviefile"
+            assy.m.fileobj.close()
+            assy.m.isOpen = False
+            print "fileIO.writemovie(). assy.m.isOpen =", assy.m.isOpen
+        
+        print "deleting moviefile: [",moviefile,"]"
+        os.remove (assy.m.filename) # Delete before spawning simulator.
         
 #    print  "program = ",program
 #    print  "Spawnv args are %r" % (args,) # this %r remains (see above)

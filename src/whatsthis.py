@@ -594,14 +594,14 @@ def createWhatsThis(self):
         
         ####Simulator####
 
-        toolsSimulator_ActionText = "<u><b>Simulator</b></u><br>"\
-                       "<p><img source=\" toolsSimulator_Action\"><br> "\
+        toolsSimulatorActionText = "<u><b>Simulator</b></u><br>"\
+                       "<p><img source=\" toolsSimulatorAction\"><br> "\
                        "Creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding of the entire model.  The user determines the number of frames in the movie, the time step, and the temperature for the simulation.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsSimulator_Action",
-                                                       self. toolsSimulator_Action.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( " toolsSimulatorAction",
+                                                       self. toolsSimulatorAction.iconSet().pixmap() )
        
-        self. toolsSimulator_Action.setWhatsThis( toolsSimulator_ActionText )
+        self. toolsSimulatorAction.setWhatsThis( toolsSimulatorActionText )
         
         ##############################################
         # Dashboard Buttons

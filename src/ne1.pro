@@ -13,7 +13,9 @@
   <pyfile type="file" name="elementpixmaps.py" />
   <pyfile type="file" name="elementSelector.py" />
   <pyfile type="file" name="extrudeMode.py" />
-  <pyfile type="file" name="fileIO.py" />
+  <pyfile type="file" name="fileIO.py" >
+   <breakpoint line="541" />
+  </pyfile>
   <pyfile type="file" name="gadgets.py" />
   <pyfile type="file" name="GLPane.py" />
   <pyfile type="file" name="GroundProp.py" />
@@ -31,9 +33,7 @@
   <pyfile type="file" name="runSim.py" />
   <pyfile type="file" name="selectMode.py" />
   <pyfile type="file" name="shape.py" />
-  <pyfile type="file" name="Utility.py" >
-   <breakpoint line="356" />
-  </pyfile>
+  <pyfile type="file" name="Utility.py" />
   <uifile type="file" name="SimSetupDialog.ui" >
    <pyfile url="\SimSetupDialog.py" type="file" name="SimSetupDialog.py" />
   </uifile>
@@ -80,5 +80,12 @@
   <pyfile type="file" name="assembly.py" />
   <pyfile type="file" name="elements.py" />
   <pyfile type="file" name="HistoryMegawidget.py" />
+  <uifile type="file" name="ProgressBarDialog.ui" >
+   <pyfile url="\ProgressBarDialog.py" type="file" name="ProgressBarDialog.py" />
+  </uifile>
+  <pyfile type="file" name="ProgressBar.py" />
+  <pyfile type="file" name="movieMode.py" />
+  <pyfile type="file" name="preferences.py" />
+  <pyfile type="file" name="movie.py" />
  </project>
 </kodeproject>

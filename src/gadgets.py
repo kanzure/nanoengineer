@@ -118,6 +118,7 @@ class RotaryMotor(Jig):
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 2.0 # default cylinder radius
         self.sradius = 0.5 #default spoke radius
+        # Should self.cancelled be in RotaryMotorProp.setup? - Mark 050109
         self.cancelled = True # We will assume the user will cancel
         self.cntl = RotaryMotorProp(self, assy.o)
 

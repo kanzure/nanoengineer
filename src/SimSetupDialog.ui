@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>337</width>
-            <height>219</height>
+            <width>265</width>
+            <height>245</height>
         </rect>
     </property>
     <property name="caption">
@@ -23,144 +23,74 @@
     </property>
     <widget class="QLayoutWidget">
         <property name="name">
-            <cstring>layout10</cstring>
+            <cstring>layout8</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>12</x>
+                <x>20</x>
                 <y>10</y>
-                <width>310</width>
-                <height>138</height>
+                <width>210</width>
+                <height>169</height>
             </rect>
         </property>
-        <grid>
+        <vbox>
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
-            <widget class="QLayoutWidget" row="0" column="0">
+            <widget class="QLabel">
                 <property name="name">
-                    <cstring>layout58</cstring>
+                    <cstring>textLabel5</cstring>
                 </property>
-                <vbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Timestep
-
-
-
-
-
-
-(hundredths of
-
-
-
-
-
-
-femtosecond)</string>
-                        </property>
-                    </widget>
-                    <widget class="QSpinBox">
-                        <property name="name">
-                            <cstring>timestepSB</cstring>
-                        </property>
-                        <property name="maxValue">
-                            <number>999</number>
-                        </property>
-                        <property name="minValue">
-                            <number>1</number>
-                        </property>
-                        <property name="value">
-                            <number>10</number>
-                        </property>
-                    </widget>
-                </vbox>
+                <property name="text">
+                    <string>Total frames</string>
+                </property>
             </widget>
-            <widget class="QLayoutWidget" row="1" column="0">
+            <widget class="QSpinBox">
                 <property name="name">
-                    <cstring>layout61</cstring>
+                    <cstring>nframesSB</cstring>
                 </property>
-                <vbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel2</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Steps per Frame</string>
-                        </property>
-                    </widget>
-                    <widget class="QSpinBox">
-                        <property name="name">
-                            <cstring>stepsperSB</cstring>
-                        </property>
-                        <property name="minValue">
-                            <number>1</number>
-                        </property>
-                        <property name="value">
-                            <number>10</number>
-                        </property>
-                    </widget>
-                </vbox>
+                <property name="maxValue">
+                    <number>90000</number>
+                </property>
+                <property name="minValue">
+                    <number>10</number>
+                </property>
+                <property name="lineStep">
+                    <number>15</number>
+                </property>
+                <property name="value">
+                    <number>900</number>
+                </property>
             </widget>
-            <widget class="QLayoutWidget" row="1" column="1">
+            <widget class="QLabel">
                 <property name="name">
-                    <cstring>layout60</cstring>
+                    <cstring>textLabel2</cstring>
                 </property>
-                <vbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel5</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Total frames</string>
-                        </property>
-                    </widget>
-                    <widget class="QSpinBox">
-                        <property name="name">
-                            <cstring>nframesSB</cstring>
-                        </property>
-                        <property name="maxValue">
-                            <number>90000</number>
-                        </property>
-                        <property name="minValue">
-                            <number>30</number>
-                        </property>
-                        <property name="lineStep">
-                            <number>15</number>
-                        </property>
-                        <property name="value">
-                            <number>900</number>
-                        </property>
-                    </widget>
-                </vbox>
+                <property name="text">
+                    <string>Steps per Frame</string>
+                </property>
             </widget>
-            <widget class="QLayoutWidget" row="0" column="1">
+            <widget class="QSpinBox">
                 <property name="name">
-                    <cstring>layout9</cstring>
+                    <cstring>stepsperSB</cstring>
                 </property>
-                <vbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel3</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Temperature
+                <property name="minValue">
+                    <number>1</number>
+                </property>
+                <property name="value">
+                    <number>10</number>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel3</cstring>
+                </property>
+                <property name="text">
+                    <string>Temperature
+
+
+
+
 
 
 
@@ -168,37 +98,38 @@ femtosecond)</string>
 
 
 (Kelvins)</string>
-                        </property>
-                    </widget>
-                    <widget class="QSpinBox">
-                        <property name="name">
-                            <cstring>tempSB</cstring>
-                        </property>
-                        <property name="maxValue">
-                            <number>999</number>
-                        </property>
-                        <property name="value">
-                            <number>300</number>
-                        </property>
-                    </widget>
-                </vbox>
+                </property>
             </widget>
-        </grid>
+            <widget class="QSpinBox">
+                <property name="name">
+                    <cstring>tempSB</cstring>
+                </property>
+                <property name="maxValue">
+                    <number>999</number>
+                </property>
+                <property name="value">
+                    <number>300</number>
+                </property>
+            </widget>
+        </vbox>
     </widget>
     <widget class="QPushButton">
         <property name="name">
-            <cstring>SaveButton</cstring>
+            <cstring>MovieButton</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>13</x>
-                <y>161</y>
-                <width>99</width>
+                <x>21</x>
+                <y>191</y>
+                <width>106</width>
                 <height>29</height>
             </rect>
         </property>
         <property name="text">
-            <string>Save File</string>
+            <string>Create Movie</string>
+        </property>
+        <property name="default">
+            <bool>true</bool>
         </property>
     </widget>
     <widget class="QPushButton">
@@ -207,33 +138,14 @@ femtosecond)</string>
         </property>
         <property name="geometry">
             <rect>
-                <x>222</x>
-                <y>161</y>
-                <width>99</width>
+                <x>133</x>
+                <y>191</y>
+                <width>100</width>
                 <height>29</height>
             </rect>
         </property>
         <property name="text">
             <string>Cancel</string>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>MovieButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>118</x>
-                <y>161</y>
-                <width>98</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Create Movie</string>
         </property>
         <property name="default">
             <bool>true</bool>
@@ -247,40 +159,10 @@ femtosecond)</string>
 </images>
 <connections>
     <connection>
-        <sender>nframesSB</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>SimSetupDialog</receiver>
-        <slot>NumFramesValueChanged(int)</slot>
-    </connection>
-    <connection>
-        <sender>SaveButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SimSetupDialog</receiver>
-        <slot>saveFilePressed()</slot>
-    </connection>
-    <connection>
         <sender>MovieButton</sender>
         <signal>clicked()</signal>
         <receiver>SimSetupDialog</receiver>
         <slot>createMoviePressed()</slot>
-    </connection>
-    <connection>
-        <sender>stepsperSB</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>SimSetupDialog</receiver>
-        <slot>StepsChanged(int)</slot>
-    </connection>
-    <connection>
-        <sender>tempSB</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>SimSetupDialog</receiver>
-        <slot>TemperatureChanged(int)</slot>
-    </connection>
-    <connection>
-        <sender>timestepSB</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>SimSetupDialog</receiver>
-        <slot>TimeStepChanged(int)</slot>
     </connection>
     <connection>
         <sender>CancelButton</sender>
