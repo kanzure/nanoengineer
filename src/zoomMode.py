@@ -24,6 +24,7 @@ class zoomMode(basicMode):
     # methods related to entering this mode
     
     def Enter(self):
+        basicMode.Enter(self)
         # Set background color to the previous mode's bg color
         bg = self.backgroundColor = self.o.prevModeColor
         
@@ -31,8 +32,6 @@ class zoomMode(basicMode):
         brightness = bg[0] + bg[1] + bg[2]
         if brightness >= 1.5: self.rbwcolor = navy
         else: self.rbwcolor = white
-        
-        basicMode.Enter(self)
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
@@ -47,7 +46,23 @@ class zoomMode(basicMode):
 
     def StateDone(self):
         return None
-    
+        
+    # a safe way for now to override Done:
+    def Done(self, new_mode = None):
+        """[overrides basicMode.Done; this is deprecated, so doing it here
+        is a temporary measure for Alpha, to be reviewed by Bruce ASAP after
+        Alpha goes out; see also the removal of Done from weird_to_override
+        in modes.py. [bruce and mark 050130]
+        """
+        ## [bruce's symbol to get him to review it soon: ####@@@@]
+        if new_mode == None:
+            try:
+                m = self.o.prevMode # spelling??
+                new_mode = m
+            except:
+                pass
+        return basicMode.Done(self, new_mode)
+            
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
         self.o.setCursor(self.OldCursor) # restore cursor
@@ -115,12 +130,12 @@ class zoomMode(basicMode):
         
         self.o.gl_update()
         self.rbw = False
-        self.o.mode.Done(self.o.prevMode)
+        self.Done()
 
     def keyPress(self,key):
         # ESC - Exit/cancel zoom mode.
         if key == Qt.Key_Escape: 
-            self.o.mode.Done(self.o.prevMode)
+            self.Done()
             
     def Draw(self):
         basicMode.Draw(self)   
