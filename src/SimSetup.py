@@ -45,6 +45,7 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
             # We should set the params and filename using a Movie method, or warn it we did so,
             # or do them in its init... not yet cleaned up. ###@@@
             # self.movie is now a public attribute.
+            #bruce 050329 comment: couldn't we set .movie to None, until we learn we succeeded? ###e ###@@@
         self.setup()
         self.exec_loop()
         

@@ -34,7 +34,7 @@ class Movie:
     for setting up a new simulator run
     (even for Minimize, though it might never make a moviefile).
     """
-    # bruce 050324 comment: note that this class is misnamed --
+    #bruce 050324 comment: note that this class is misnamed --
     # it's really a SimRunnerAndResultsUser... which might
     # make and then use .xyz or .dpb results; if .dpb, it's able
     # to play the movie; if .xyz, it just makes it and uses it once
@@ -42,6 +42,11 @@ class Movie:
     # code (nonetheless it's used). Probably should split it into subclasses
     # and have one for .xyz and one for .dpb, and put that ext code
     # into one of them as methods. ###@@@
+    #bruce 050329 comment: this file is mostly about the movie-playable DPB file;
+    # probably it should turn into a subclass of SimRun, so the objects for other
+    # kinds of sim runs (eg minimize) can be different. The superclass would
+    # have most of the "writemovie" function (write sim input and run sim)
+    # as a method, with subclasses customizing it.
     def __init__(self, assembly, name=None):
         """###doc; note that this Movie might be made to hold params for a sim run,
         and then be told its filename, or to read a previously saved file;

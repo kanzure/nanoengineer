@@ -40,9 +40,12 @@ from movie import Movie
 #  For now, I renamed assy.m -> assy.current_movie, and never grab it here at all
 #  but let it be passed in instead.] ###@@@
 def writemovie(part, movie, mflag = 0):
-    """Creates a moviefile (.dpb file) or an .xyz file containing what would have
+    """Write an input file for the simulator, then run the simulator,
+    in order to create a moviefile (.dpb file), or an .xyz file containing all
+    frames(??), or an .xyz file containing what would have
     been the moviefile's final frame.  The name of the file it creates is found in
-    movie.filename. The movie is created for the atoms in the movie's alist,
+    movie.filename (it's made up here for mflag != 0, but must be inserted by caller
+    for mflag == 0 ###k). The movie is created for the atoms in the movie's alist,
     or the movie will make a new alist from part if it doesn't have one yet
     (for minimize selection, it will probably already have one when this is called ###@@@).
     (This should be thought of as a Movie method even though it isn't one yet.)
@@ -516,7 +519,7 @@ class Minimize_CommandRun(CommandRun):
         """
         #bruce 050324 made this from the Part method makeMinMovie.
         suffix = self.part.movie_suffix()
-        if suffix == None: #bruce 050316 temporary kluge
+        if suffix == None: #bruce 050316 temporary kluge; as of circa 050326 this is not used anymore
             self.w.history.message( redmsg( "Minimize is not yet implemented for clipboard items."))
             return
         #e use suffix below? maybe no need since it's ok if the same filename is reused for this.
@@ -528,8 +531,10 @@ class Minimize_CommandRun(CommandRun):
         
         movie = Movie(self.assy) # do this in writemovie? no, the other call of it needs it passed in from the dialog... #k
             # note that Movie class is misnamed since it's really a SimRunnerAndResultsUser... which might use .xyz or .dpb results
+            # (maybe rename it SimRun? ###e also, it needs subclasses for the different kinds of sim runs and their results...
+            #  or maybe it needs a subobject which has such subclasses -- not yet sure. [bruce 050329])
         
-        r = writemovie(self.part, movie, mtype)
+        r = writemovie(self.part, movie, mtype) # write input for sim, and run sim
         if r:
             # We had a problem writing the minimize file.
             # Simply return (error message already emitted by writemovie). ###k
