@@ -124,6 +124,8 @@ class MWsemantics(MainWindow):
         # and paste the atom rather than the clipboard by default
         self.pasteP = False
 
+        self.currentPov = None
+
         #Create the temporary file directory if not exist [by huaicai ~041201]
         # bruce 041202 comments about future changes to this code:
         # - we'll probably rename this, sometime before Alpha goes out,
@@ -545,8 +547,13 @@ class MWsemantics(MainWindow):
 
     def setViewHome(self):
         """Reset view to Home view"""
-        self.glpane.quat = self.assy.csys.quat # Q(1,0,0,0)
+        self.glpane.quat = Q(self.assy.csys.quat) # Q(1,0,0,0)
+        self.glpane.scale = self.assy.csys.scale
+        if self.currentPov:
+                self.glpane.pov = V(self.currentPov[0], self.currentPov[1], self.currentPov[2])
+      
         self.glpane.paintGL()
+
 
     def setViewFitToWindow(self):
         """ Fit to Window """
@@ -555,16 +562,17 @@ class MWsemantics(MainWindow):
 
         self.glpane.scale=self.assy.bbox.scale()
         self.assy.csys.scale = self.glpane.scale
-        #print "scale: ", self.glpane.scale
-        #print "pov, center: ", self.glpane.pov, self.assy.center
-        self.glpane.pov = -self.assy.center#-planeXline(-self.glpane.pov, self.glpane.out, self.assy.center, self.glpane.out)
-        #print "Again: pov, center: ", self.glpane.pov, self.assy.center
+        self.glpane.pov = -self.assy.center
         self.glpane.paintGL()
             
     def setViewHomeToCurrent(self):
         """Changes Home view to the current view.  This saves the view info in the Csys"""
-        print "MWsemantics.setViewHomeToCurrent is a stub."
-        
+        #print "MWsemantics.setViewHomeToCurrent is a stub."
+        self.assy.csys.quat = Q(self.glpane.quat)
+        self.assy.csys.scale = self.glpane.scale
+        self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
+  
+                
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
         self.glpane.ortho = 1
