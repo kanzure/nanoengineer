@@ -16,18 +16,27 @@ from chem import *
 import drawer
 
 class depositMode(basicMode):
-    """ This class is used to manually add atoms to create any structure
+    """ This class is used to manually add atoms to create any structure.
+       Users know it as "sketch mode".
     """
-    def __init__(self, glpane):
-        basicMode.__init__(self, glpane, 'DEPOSIT')
-	self.backgroundColor = 74/256.0, 187/256.0, 227/256.0
-	self.gridColor = 74/256.0, 187/256.0, 227/256.0
-	self.newMolecule = None
-	self.makeMenus()
+    
+    # class constants
+    backgroundColor = 74/256.0, 187/256.0, 227/256.0
+    gridColor = 74/256.0, 187/256.0, 227/256.0
+    modename = 'DEPOSIT' #e we can rename this to SKETCH later, when we modify MWSemantics
+    msg_modename = "sketch mode" # bruce 040923 renamed this after checking with Josh
 
-    def setMode(self):
+    # no __init__ method needed... once we confirm that the following code is obsolete [bruce 040923]
+    
+    def __init__(self, glpane):
+        basicMode.__init__(self, glpane)
+	self.newMolecule = None ##e bruce 040922: I think this is not used anywhere... but I left it in for now
+
+    # methods related to entering this mode
+    
+    def Enter(self): # bruce 040922 split setMode into Enter and show_toolbars (fyi)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        basicMode.setMode(self)
+        basicMode.Enter(self)
         self.o.assy.unpickatoms()
         self.o.assy.unpickparts()
         self.saveDisp = self.o.display
@@ -35,19 +44,60 @@ class depositMode(basicMode):
         self.o.assy.selwhat = 0
         self.new = None
         self.o.singlet = None
+        self.modified = 0 # bruce 040923 new code
+        
+    def show_toolbars(self):
         self.w.sketchAtomToolbar.show()
 
-    def Done(self):
-        basicMode.Done(self)
-        self.o.display = self.saveDisp
-        self.new = None
-        self.o.singlet = None
-        self.o.setMode('SELECT')
+    # methods related to exiting this mode [bruce 040922 made these from old Done method, and added new code; there was no Flush method]
+
+    def haveNontrivialState(self):
+        return self.modified # bruce 040923 new code
+
+    def StateDone(self):
+        return None # we never have undone state, but we have to implement this method, since our haveNontrivialState can return True
+
+    def StateCancel(self):
+        # to do this correctly, we'd need to remove the atoms we added to the assembly;
+        # we don't attempt that yet [bruce 040923, verified with Josh]
+        change_desc = "your changes are"
+            #e could use the count of changes in self.modified, to say "%d changes are", or "change is"...
+        msg = "%s Cancel not implemented -- %s still there.\nYou can only leave this mode via Done." % \
+              ( self.msg_modename, change_desc )
+        self.warning( msg, bother_user_with_dialog = 1)
+        return True # refuse the Cancel
+    
+    def hide_toolbars(self):
         self.w.sketchAtomToolbar.hide()
 
+    def restore_patches(self):
+        self.o.display = self.saveDisp
+        self.o.singlet = None
+
+    def clear(self):
+        self.new = None
+
+    # event methods
+    
     def keyPress(self,key):
-        for sym, code, num in self.w.elTab:
-            if key == code: self.w.setElement(sym)
+        ### bruce 040924: I changed self.w.elTab to elemKeyTab, since self.w.elTab doesn't exist (no other ref to elTab in the code,
+        # tho there was a month ago); but my guess at the fix is incomplete, e.g. 'H' is in elemKeyTab but not in whatever
+        # table the setElement call uses, so I added the try/except and the warning. But it turns out that if you see the warning,
+        # the failed setElement call has probably messed up your session permanently, so this partial fix is worse than just refusing...
+        # so never mind, I'll just refuse (but only if the key is found in the table -- otherwise we even catch modifier keys being pressed!).
+        from constants import elemKeyTab
+        for sym, code, num in elemKeyTab: # was self.w.elTab, but that no longer exists
+            if key == code:
+                if "what you want" is "for Atom to stop being able to add any atoms": # (I presume this is always False :-)
+                    try:
+                        self.w.setElement(sym)
+                    except:
+                        self.warning("internal error in Sketch mode keypress %r -- nothing done\n" \
+                                     "(except that you might have to quit Atom before you can make new atoms again...)" % \
+                                     ((sym, code, num),) ) # bruce 040924
+                else:
+                    self.warning("Sketch mode keypress for setElement doesn't work now -- nothing done") # bruce 040924
+        return
 
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
@@ -91,6 +141,8 @@ class depositMode(basicMode):
         """Move the selected object(s) in the plane of the screen following
         the mouse.
         """
+        # bruce 040923: we don't bother counting this motion in self.modified.
+        # It won't be undone by Cancel, and that fact won't be warned about. Someday we'll fix that.
         self.o.SaveMouse(event)
         self.picking = True
         p1, p2 = self.o.mousepoints(event)
@@ -130,14 +182,18 @@ class depositMode(basicMode):
                 self.o.assy.kill()
             if selSense == 1:
                 if self.o.singlet:
+                    self.modified += 1 # bruce 040923; partly a guess -- Josh, did I get these in the right places?
+                        # If I missed one, the mode will fail to warn that it made changes which Cancel won't undo.
                     self.attach(el, self.o.singlet)
                 elif not self.new:
+                    self.modified += 1 # bruce 040923; a guess (that this modifies something which in theory Cancel ought to undo)
                     oneUnbonded(el, self.o.assy, atomPos)
                 self.new = None
             if selSense == 2: print '????'
 
         else:
             if not self.new:
+                self.modified += 1 # bruce 040923; a guess
                 oneUnbonded(el, self.o.assy, atomPos)
             self.new = None
             
@@ -310,8 +366,8 @@ class depositMode(basicMode):
         
     def makeMenus(self):
         
-        self.Menu1 = self.makemenu([('Cancel', self.Flush),
-                                    ('Restart', self.Restart),
+        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
+                                    ('Start Over', self.StartOver),
                                     ('Backup', self.Backup),
                                     None,
                                     ('Move', self.move),
@@ -330,9 +386,12 @@ class depositMode(basicMode):
                                     ('Separate', self.o.assy.modifySeparate)])
 
     def move(self):
-        # go into move mode
-        self.Done()
-        self.o.setMode('MODIFY')
+        # go into move mode [how to do that was modified by bruce 040923]
+        self.Done(new_mode = 'MODIFY')
+##        self.Done()
+##        self.o.setMode('MODIFY')
                                     
     def skip(self):
         pass
+
+    pass # end of class depositMode
