@@ -24,14 +24,19 @@ class modelTree(QListView):
         self.assy = win.assy
 
         self.header().setClickEnabled(0, self.header().count() - 1)
-        self.setGeometry(QRect(0, 0, 150, 560))
+        self.setGeometry(QRect(0, 0, 200, 560))
         self.setSizePolicy(QSizePolicy(0,7,0,244,False))
         self.setResizePolicy(QScrollView.Manual)
         self.setShowSortIndicator(0)
         self.setAcceptDrops(True)
 
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.moleculeIcon = QPixmap(filePath + "/../images/molecule.png")
+        self.molDefaultIcon = QPixmap(filePath + "/../images/moldefault.png")
+        self.molInvisibleIcon = QPixmap(filePath + "/../images/molinvisible.png")
+        self.molVDWIcon = QPixmap(filePath + "/../images/molvdw.png")
+        self.molLinesIcon = QPixmap(filePath + "/../images/mollines.png")
+        self.molCPKIcon = QPixmap(filePath + "/../images/molcpk.png")
+        self.molTubesIcon = QPixmap(filePath + "/../images/moltubes.png")
         self.csysIcon = QPixmap(filePath + "/../images/csys.png")
         self.datumIcon = QPixmap(filePath + "/../images/datumplane.png")
         self.partIcon = QPixmap(filePath + "/../images/part.png")
@@ -53,20 +58,20 @@ class modelTree(QListView):
         self.selectedItem = None
         self.modifier = None
 
-        self.menu = self.makemenu([["Group", self.group],
-                                   ["Ungroup", self.ungroup],
-                                   None,
-                                   ["Hide", self.hide],
-                                   ["Show", self.unhide],
-                                   None,
-                                   ["Copy", self.copy],
-                                   ["Cut", self.cut],
-                                   ["Kill", self.kill],
-                                   None,
-                                   ["Properties", self.modprop],
-                                   None,
-                                   ["Expand all", self.expand],
-                                   ["Hide Tree", self.hide]])
+        # Model Tree Menu
+        self.menu = self.makemenu([
+            ["Group", self.group],
+            ["Ungroup", self.ungroup],
+            None,
+            ["Hide", self.hide],
+            ["Show", self.unhide],
+            None,
+            ["Copy", self.copy],
+            ["Cut", self.cut],
+            ["Delete", self.kill],
+            None,
+            ["Properties", self.modprop],
+            ])
         
         self.update()
         
@@ -84,9 +89,9 @@ class modelTree(QListView):
         self.connect(self, SIGNAL("expanded(QListViewItem *)"), self.treeItemExpanded)
         self.connect(self, SIGNAL("collapsed(QListViewItem *)"), self.treeItemCollapsed)
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"),
-                     self.rename)
-        
-
+                self.changename)
+        self.connect(self, SIGNAL("doubleClicked(QListViewItem*, const QPoint&, int)"),
+                self.beginrename)
 
     def makemenu(self, lis): 
         """make and return a reusable popup menu from lis,
@@ -158,10 +163,17 @@ class modelTree(QListView):
         self.menu.popup(pos, 1)
         self.update()
 
-    def rename(self, listItem, col, text):
+    def changename(self, listItem, col, text):
         if col != 0: return
         self.assy.modified = 1
         listItem.object.name = str(text)
+        
+    def beginrename(self, item, pos, col):
+        istr = str(item.text(0))
+#        print "MT.py: beginrename: selected item: ",istr
+        if col != 0: return
+        if istr in [self.assy.name, "Clipboard"]: return
+        item.startRename(0)
 
     def startDrag(self):
         if self.selectedItem:
@@ -189,7 +201,7 @@ class modelTree(QListView):
         mitem.setPixmap(0, icon)
         mitem.setDragEnabled(dnd)
         mitem.setDropEnabled(dnd)
-        mitem.setRenameEnabled(0, True)
+        mitem.setRenameEnabled(0,True)
         return mitem
     
     def update(self):
@@ -250,7 +262,6 @@ class modelTree(QListView):
         if self.selectedItem: 
             self.selectedItem.edit()
             self.update()
-                
 
     def expand(self):
         self.tree.object.apply2tree(lambda(x): x.setopen())
