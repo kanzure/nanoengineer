@@ -617,7 +617,7 @@ class TreeView(QListView):
                 print "fyi: bug in after option, this is its value:",after ###@@@
                 raise
         else:
-            item = QListViewItem(parent, node.name)
+            item = QListViewItem(parent, node.name) # constructor includes setText
             ###@@@ revise interface, pass the node, do this function in that init method, don't need this func at all, perhaps.
         item.object = node ###@@@ probably still ok to store it like this
         ###@@@ store node.tritem = item here, but in a new way? no, do it in caller.
