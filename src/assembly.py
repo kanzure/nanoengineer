@@ -59,6 +59,11 @@ class assembly:
         # 1 if there is a structural difference between assy and file
         self.modified = 0
 
+    def selectingWhat(self):
+        "return 'Atoms' or 'Molecules' to indicate what is currently being selected [by bruce 040927; might change]"
+        # bruce 040927: this seems to be wrong sometimes, e.g. when no atoms or molecules exist in the assembly... not sure.
+        return {0: "Atoms", 2: "Molecules"}[self.selwhat]
+
     # convert absolute atom positions to relative, find
     # bounding boxes, do some housekeeping
 
