@@ -42,7 +42,8 @@ def getname(str, default):
 
 # read a Protein DataBank-format file into a single molecule
 def readpdb(assy,filename):
-    l=open(filename,"r").readlines()
+    #bruce 041011: added 'U' to file mode, for universal newline support.
+    l=open(filename,"rU").readlines()
     assy.filename=filename
     alist=[]
     ndix={}
