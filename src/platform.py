@@ -102,7 +102,9 @@ def fix_plurals(text, between = 1):
         if word and word[-1].isdigit():
             # if word ends with a digit, call it a number (e.g. "(1" )
             numpos = i
-        elif word.endswith("(s)"):
+        elif word.endswith("(s)") or word.endswith("(s),"):
+            # (that condition is a kluge, should be generalized [bruce 041217])
+            suflen = ( word.endswith("(s),") and 1) or 0 # klugier and klugier
             count += 1
             if numpos >= 0 and (i-numpos) <= (between+1): # not too far back
                 # fix word for whether number is 1
@@ -114,10 +116,14 @@ def fix_plurals(text, between = 1):
                     num += cc
                     if not cc.isdigit():
                         num = ""
-                if num == "1":
-                    words[i] = words[i][:-3]
+                if suflen:
+                    words[i], suffix = words[i][:-suflen], words[i][-suflen:]
                 else:
-                    words[i] = words[i][:-3] + "s"
+                    suffix = ""
+                if num == "1":
+                    words[i] = words[i][:-3] + suffix
+                else:
+                    words[i] = words[i][:-3] + "s" + suffix
             else:
                 # error, but no change to words[i]
                 print "fyi, cosmetic bug: fix_plurals(%r) found no number close enough to affect %r" % (text,word)
