@@ -2,6 +2,8 @@
 """
 File IO functions for reading and writing PDB and MMP files
 
+Ownership: Mark Sims [2004-10-14]
+
 $Id$
 """
 from Numeric import *
