@@ -485,3 +485,15 @@ class Movie:
             return 0
         else: 
             return 2
+            
+    def get_trace_filename(self):
+        """Returns the trace filename for the current movie.
+        """
+        fullpath, ext = os.path.splitext(self.filename)
+        return fullpath + "-trace.txt"
+        
+    def get_GNUplot_filename(self):
+        """Returns the GNUplot filename for the current movie.
+        """
+        fullpath, ext = os.path.splitext(self.filename)
+        return fullpath + "-trace.plt"
