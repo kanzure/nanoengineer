@@ -5,8 +5,8 @@ CFLAGS=-O3 -g
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
 
-#EXE_DIRECTORY=../../cad/bin
-EXE_DIRECTORY=~/bin
+EXE_DIRECTORY=../../cad/bin
+#EXE_DIRECTORY=~/bin
 
 ifeq ($(PROFILING),1)
 CFLAGS+=-pg
@@ -37,6 +37,7 @@ simulator: $(SIMOBJS)
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
 		mkdir $(EXE_DIRECTORY) ;\
 	fi
+	cp simulator ~/bin
 	mv simulator $(EXE_DIRECTORY) 
 
 clean:

@@ -96,9 +96,11 @@ void makbond(int a, int b, int ord) {
 	
     bl = vlen(vdif(cur[a], cur[b]));
     sbl = bond[n].type->r0;
+    /*
     if (bl> 1.11*sbl || bl<0.89*sbl)
 	printf("Strained bond: %2f vs %2f  (%s%d-%s%d)\n",bl,sbl,
 		  element[atom[a].elt].symbol, a, element[atom[b].elt].symbol, b);
+    */
 }
 
 /** torqs are ordered so the bonds match those in bendata */
@@ -150,7 +152,7 @@ void maktorq(int a, int b) {
     theta = vang(vdif(cur[torq[Nextorq].a1],cur[torq[Nextorq].ac]),
 		 vdif(cur[torq[Nextorq].a2],cur[torq[Nextorq].ac]));
     th0=torq[Nextorq].theta0;
-	
+    /*
     if (theta> 1.25*th0 || theta<0.75*th0)
 	printf("Strained torq: %.0f vs %.0f  (%s%d-%s%d-%s%d)\n",
 		  (180.0/3.1415)*theta, (180.0/3.1415)*th0,
@@ -158,7 +160,7 @@ void maktorq(int a, int b) {
 		  element[atom[torq[Nextorq].ac].elt].symbol, torq[Nextorq].ac,
 		  element[atom[torq[Nextorq].a2].elt].symbol, torq[Nextorq].a2);
 	
-	
+    */
 	
     Nextorq++;
 }
@@ -323,7 +325,7 @@ void filred(char *filnam) {
 	    */
 	    
 	    // hack: change singlets to hydrogen
-	    if (ie == 0) ie=1;
+	    // if (ie == 0) ie=1;
 
 	    atnotab[atnum]=Nexatom;
 	    lastatom = Nexatom;
@@ -572,5 +574,16 @@ void filred(char *filnam) {
 	
     vset(Bbox[0], vsum(vec1, vcon(-100.0)));
     vset(Bbox[1], vsum(vec2, vcon(100.0)));
+
+    // center of gravity
+    vmulc(Cog,1.0/totMass);
+
+    // total velocity
+    
+    vmul2c(vec1,P,1.0/totMass);
+    for (i=1; i<Nexatom; i++) {
+	vadd(old[i],vec1);
+    }
+    
 	
 }

@@ -119,6 +119,7 @@ struct MOT Motor[100];
 
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
 double Dt= 1e-16, Dx=1e-12;
+double Dmass = 1e-27;           // units of mass vs. kg
 double Temperature = 300.0;	/* Kelvins */
 double Boltz = 1.38e-23;	/* k, in J/K */
 
@@ -133,6 +134,10 @@ double Pi = 3.1415926;
 double Kb=28.63;		/* N/m */
 double Ks=440.0;		/* N/m */
 double De=0.556, Beta = 1.989e-2; /* Morse params */
+
+//NB depends on Dx
+double Tq = 1e-3;            // since torques are given in pN*nm,
+     // force(pN) = Tq(Dx/nm)*torque(pN*nm)/r(Dx)
 
 /** pN/kg => acc in pm/s^2; mult by Dt^2 (folded into massacc) */
 
@@ -395,7 +400,7 @@ void findnobo(int a1) {
 		for (p=Space[i&SPMASK][j&SPMASK][k&SPMASK]; p; p=p->next) {
 		    a2 = p-atom;
 		    if (a2>a1 
-			&& (ToMinimize || atom[a1].part != atom[a2].part)
+			// && (ToMinimize || atom[a1].part != atom[a2].part)
 			&& !isbonded(a1,a2)) {
 			r=vlen(vdif(cur[a1],cur[a2]));
 			if (r<800.0) {
@@ -418,6 +423,7 @@ struct xyz CoM(struct xyz *list) {
 	rx=vprodc(list[j],element[atom[j].elt].mass);
 	vadd(c,rx);
     }
+    vmulc(c,Dmass/totMass);
     return c;
 }
 
@@ -443,7 +449,7 @@ static int ShotNo=0;
 void calcloop(int iters) {
 	
     double fac, pe,ke;
-    int i,j, k, loop, a1, a2, ac;
+    int i,j, k, loop, a1, a2, ac, n;
     double rsq, br, ff, m, theta, z, totorq;
     struct xyz f, v1, v2, rx, foo,bar, totforce, q1, q2;
     struct vdWbuf *nvb;
@@ -617,7 +623,39 @@ void calcloop(int iters) {
 		    vadd(force[nvb->item[j].a1],f);
 		    vsub(force[nvb->item[j].a2],f);
 		}
-			
+		
+	    // pre-force constraints
+	    for (j=0;j<Nexcon;j++) {	/* for each constraint */
+		if (Constraint[j].type == CODEmotor) { /* motor */
+					
+		    mot=Constraint[j].motor;
+
+		    if (mot->speed==0.0) { // just add torque to force
+
+			// set the center of torque each time
+			n=Constraint[j].natoms;
+			vsetc(rx, 0.0);
+			for (k=0; k<n; k++) {
+			    vadd(rx,cur[Constraint[j].atoms[k]]);
+			}
+			vmulc(rx,1.0/(double)n);
+			mot->center = rx;
+
+			ff = Tq*mot->stall/n;
+			for (k=0; k<n; k++) {
+			    a1 = Constraint[j].atoms[k];
+			    rx = vdif(cur[a1],mot->center);
+			    f  = vprodc(vx(mot->axis,uvec(rx)),ff/vlen(rx));
+			    
+			    //printf("applying torque %f to %d: other force %f\n",
+			    //       vlen(f), a1, vlen(force[a1]));
+
+			    vadd(force[a1],f);
+			}
+		    }
+		}
+	    }
+	
 	    /* convert forces to accelerations, giving new positions */
 			
 	    FoundKE = 0.0;		/* and add up total KE */
@@ -658,17 +696,7 @@ void calcloop(int iters) {
 					
 		    mot=Constraint[j].motor;
 
-		    if (mot->speed==0.0) { // just add torque to force
-
-			ff = mot->stall/Constraint[j].natoms;
-			for (k=0; k<Constraint[j].natoms; k++) {
-			    a1 = Constraint[j].atoms[k];
-			    rx = vdif(cur[a1],mot->atocent[j]);
-			    f  = vprodc(vx(mot->axis,uvec(rx)),ff/vlen(rx));
-			    vadd(force[a1],f);
-			}
-		    }
-		    else {
+		    if (mot->speed != 0.0) {
 			totorq = 0.0;
 					
 			/* input torque due to forces on each atom */
@@ -812,7 +840,7 @@ void snapshot(int n) {
 
 
 void minimize(int NumFrames, int IterPerFrame) {
-    int i, j, saveNexcon;
+    int i, j, k, saveNexcon;
     double tke, therm, mass;
     struct xyz v;
    
@@ -822,10 +850,10 @@ void minimize(int NumFrames, int IterPerFrame) {
 
     Temperature = 0.0;
 	
-    for (i=0; i<NumFrames; i++) {
+    for (i=0, k=10; i<5; i++, k*= 2) {
 	// stop atoms in their tracks
 	for (j=0; j<Nexatom; j++) old[j] = cur[j];
-	calcloop(IterPerFrame);
+	calcloop(k);
 	snapshot(0);
 	}
 }
@@ -971,6 +999,7 @@ main(int argc,char **argv)
 
     filred(buf);
     
+    
     orion();
 
     if (da) {
@@ -993,6 +1022,8 @@ main(int argc,char **argv)
     }
 
     printf(" center of mass velocity: %f\n", vlen(vdif(CoM(cur),CoM(old))));
+    printf(" center of mass: %f -- %f\n", vlen(CoM(cur)), vlen(Cog));
+    printf(" total momentum: %f\n",P);
 
     tracef = fopen(TraceFileName, "w"); 
 
