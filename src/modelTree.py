@@ -3,6 +3,9 @@
 """
 The model tree display widget
 $Id$
+
+[Owned by mark, as of 041210.]
+
 """
 
 from qt import *
@@ -151,17 +154,18 @@ class modelTree(QListView):
     def changename(self, listItem, col, text):
         if col != 0: return
         self.assy.modified = 1
+        
+        # Huaicai: the following line to make sure file name is not just space
+        text = text.stripWhiteSpace()
+        
         # Check if there is text for the listitem's name.  If not, we must force an MT update.
         # Otherwise, the name will remain blank until the next MT update.
         # Mark [04-12-07]
-        
-        ## Huaicai: the following line to make sure file name is not just space
-        text = text.stripWhiteSpace()
-        
         if text: listItem.object.name = str(text)
         else: self.update() # Force MT update.
 
     def beginrename(self, item, pos, col):
+        if not item: return
         istr = str(item.text(0))
 #        print "MT.py: beginrename: selected item: ",istr
         if col != 0: return
@@ -174,52 +178,47 @@ class modelTree(QListView):
             foo.drag()
 
     def dropEvent(self, event):
+        above = False
         pnt = event.pos() - QPoint(0,24)
-        item = self.itemAt(self.contentsToViewport(pnt))
-        if item:
-            #print "Moving", self.selectedItem, " to ", item.object
-            # mark comments [04-12-09]
-            # There is a bug when the user want to move something to the very top of the tree.
-            # To get it there, they dnd onto the last datum plane.  This will put it into the data list.
-            # This looks OK in the MT, but the item is now unselectable and cannot be removed.
-            # If saved, the MMP records written within the "Data" group.
-            self.selectedItem.moveto(item.object)
-            # mark comments [04-12-08]
-            # We only need to update the GLpane in the following 2 cases:
-            #   1. The selected item is moved from the MT to the Clipboard
-            #   2. The selected item is moved from the Clipboard to the MT
-            # Since I don't know how to check for #2, I'm always updating the GLpane
-            # after a dropEvent (Yuk).  I'll bother Bruce later - he's busy now.
-            # Here is a start:
-            #if item.object.name == "Clipboard": self.win.update # Case 1
-            #elif ???: self.win.update # Case 2
-            #else: self.update() # Only update the MT (this is called 95% of the time)
-            self.win.update() # This will do for now.
+        # mark comments [04-12-10]
+        # We need to check where we are dropping the selected item.  We cannot allow it 
+        # to be dropped into the Data group.  This is what we are checking for here.
+        # mmtop = 5 top nodes * (
+        #                treeStepSize (space b/w parent and child nodes = 20 pixels) + 
+        #                5 pixels (space b/w nodes ))
+        mttop = 5 * (self.treeStepSize() + 5) # Y pos past top 5 nodes of MT (after last datum plane node).
+#        print "modelTree.dropEvent: mttop = ",mttop
+        if pnt.y() < mttop:
+            pnt.setY(mttop) # We dropped above the first chunk (onto datum plane/csys). Mark 041210
+            above = True # If we move node, insert it above first node in MT.
+        droptarget = self.itemAt(self.contentsToViewport(pnt))
+        if droptarget:
+            sdaddy = self.selectedItem.whosurdaddy() # Selected item's daddy (source)
+            tdaddy = droptarget.object.whosurdaddy() # Drop target item's daddy (target)
+#            print "Source selected item:", self.selectedItem,", sdaddy: ", sdaddy
+#            print "Target drop item:", droptarget.object,", tdaddy: ", tdaddy
+            if sdaddy == "Data": return # selected item is in the Data group.  Do nothing.
+            if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.#    
+            if isinstance(droptarget.object, Group): above = True # If drop target is a Group
+            self.selectedItem.moveto(droptarget.object, above)
+            if sdaddy != tdaddy: 
+                if sdaddy == "Clipboard" or droptarget.object.name == "Clipboard": 
+                    self.win.update() # Selected item moved to/from clipboard. Update both MT and GLpane.
+                    return
+            self.update() # Update MT only
 
     def dragMoveEvent(self, event):
         event.accept()
 
-    def buildNode(self, obj, parent, icon, dnd=True):
-        """ build a display node in the tree widget
-        corresponding to obj (and return it)
-        """
-        mitem = QListViewItem(parent, obj.name)
-        mitem.object = obj
-        mitem.setPixmap(0, icon)
-        mitem.setDragEnabled(dnd)
-        mitem.setDropEnabled(dnd)
-        # A kludge.  Will fix for beta by implementing a "rename" method for Node class (and all sub-classes)
-        # This works for now.  Mark [04-12-07]
-        if obj.name != "Clipboard": mitem.setRenameEnabled(0,True) # kludge for Clipboard.
-        return mitem
-    
     def update(self):
-        """ Build the tree structure of the current model
+        """ Build the model tree of the current model
         """
         self.assy = self.win.assy
         self.clear()
         
-        # Note: This model tree (MT) is draw bottom to top. - Mark [04-12-08]
+        # Mark comments [04-12-08]
+        # The model tree (MT) is drawn bottom to top. - Mark [04-12-08]
+        
         # Create the clipboard
         if self.assy.shelf.members: 
             self.assy.shelf.icon = self.clipboardFullIcon
@@ -229,16 +228,16 @@ class modelTree(QListView):
             self.win.editPasteAction.setIconSet(QIconSet( self.clipboardGrayIcon))
         
         # Add clipboard members
-        self.shelf = self.assy.shelf.upMT(self, self)
+        self.shelf = self.assy.shelf.upMT(self)
         self.assy.shelf.setProp(self) # Update selected items in clipboard
         
         # Add part group members
         self.assy.tree.name = self.assy.name
-        self.tree = self.assy.tree.upMT(self, self)
+        self.tree = self.assy.tree.upMT(self)
         
         # Add data members (Csys and datum planes)
         for m in self.assy.data.members[::-1]:
-            m.upMT(self, self.tree)
+            m.upMT(self.tree)
             
         # Update any selected items in tree.
         self.assy.tree.setProp(self)
@@ -247,8 +246,9 @@ class modelTree(QListView):
 
     def group(self):
         node = self.assy.tree.hindmost()
+        if not node: return # hindmost can return "None", with no "picked" attribute. Mark 401210.
         if node.picked: return
-        new = Group(gensym("Node"), self.assy, node)
+        new = Group(gensym("Group"), self.assy, node)
         self.tree.object.apply2picked(lambda(x): x.moveto(new))
         self.update()
     

@@ -3,7 +3,7 @@
 """Classes for objects in the model.
 This file should have a more descriptive name, but that can wait.
 
-[No longer owned by bruce, as of 041129.]
+[Owned by mark, as of 041210.]
 
 $Id$
 """
@@ -33,25 +33,37 @@ class Node:
         self.icon = None
         
         # in addition, each Node should have a bounding box
+        
+    def buildNode(self, obj, parent, icon, dnd=True, rename=True):
+        """ build a display node in the tree widget
+        corresponding to obj (and return it)
+        """
+        node = QListViewItem(parent, obj.name)
+        node.object = obj
+        node.setPixmap(0, icon)
+        node.setDragEnabled(dnd)
+        node.setDropEnabled(dnd)
+        node.setRenameEnabled(0,rename)
+        return node
 
     # for a leaf node, add it to the dad node just after us
-    def addmember(self, obj):
-        if obj==self: return
+    def addmember(self, node, before=False):
+        """add leaf node after (default) or before self
+        """
+#        print "Utility.Node.addmember: adding node [",node.name,"] after/before [",self.name,"]"
+
+        if node == self: return
         m = self.dad.members
-        # mark 041209 comments:
-        # We are called by modelTree.dropEvent for DND, so we incremented i by 1
-        # to get dnd inserted after obj, needed for bug fix 140.  
-        # This inserts obj *after* self in list m.  This conflicts with bruces comments below. 
-        # Bruce's comments should stay until this is thoroughly tested by Ninad.
-        i = m.index(self) + 1
-#        i = m.index(self) # This goes with bruces comment below.  Mark 041209.
-        m.insert(i,obj)
-        # bruce 041129 comments:
-        # 1. Note that this inserts obj *before* self in the
-        # list m, but since the list is backwards relative to what's displayed
-        # in the model tree widget, it ends up "just after us" as promised.
-        # 2. Is it safe if this is called twice? I see no auto-remove then.
-        obj.dad = self.dad
+        if before: i = m.index(self) # Insert node before self
+        else: i = m.index(self) + 1 # Insert node after self
+        m.insert(i, node)
+        node.dad = self.dad
+        
+    def whosurdaddy(self):
+        """returns the name of self's daddy
+        """
+        daddy = str(self.dad.name)
+        return daddy
 
     def pick(self):
         """select the object
@@ -86,7 +98,8 @@ class Node:
         if self.picked: fn(self)
 
     def hindmost(self):
-        if self.picked: return self
+        if self.picked: 
+            return self
         return None
 
     def ungroup(self):
@@ -97,12 +110,30 @@ class Node:
         # If a member of the clipboard, update the pasteCombobox on the Build dashboard
         if self.dad.name == "Clipboard": self.assy.o.mode.UpdateDashboard() 
 
-    def moveto(self, grp):
-        """Move the node to a new parentage in the tree
+    def is_ascendant(self, obj):
+        """Is node in the subtree of nodes headed by self?
         """
-        if grp == self: return
+        pass
+        
+    def moveto(self, node, before=False):
+        """Move self to a new location in the model tree, before or after node
+        """
+#        print "Utility.Node.moveto: Moving self [", self.name,"] after/before node [",node.name, "]. Before =[",before,"]"
+        
+        if node == self: return
+            
+        # Mark comments 041210
+        # For DND, self is the selected item and obj is the item we dropped on. 
+        # If self is a group, we need to check if obj is a child of self. If so, return since we can't do that.
+        if self.is_ascendant(node): return
+#        if isinstance(self, Group): # If self is a Group...
+#            dad = obj.dad
+#            while dad:
+#                if dad == self: return # If self is a dad, grandad, etc. of obj, return.
+#                dad = dad.dad
+
         self.dad.delmember(self)
-        grp.addmember(self)
+        node.addmember(self, before)
 
     def seticon(self):
         pass
@@ -110,9 +141,9 @@ class Node:
     ## Note the icon() method is removed and replaced with the icon
     ## member variable. This can simply be set externally to change
     ## the node's icon.
-    def upMT(self, tw, parent, dnd=True):
+    def upMT(self, parent, dnd=True):
         if not self.icon: self.seticon()
-        self.tritem = tw.buildNode(self, parent, self.icon, dnd)
+        self.tritem = self.buildNode(self, parent, self.icon, dnd)
         return self.tritem
     
     def setProp(self, tw):
@@ -155,14 +186,26 @@ class Group(Node):
         self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
         # in addition, each Node should have a bounding box
 
+    def buildNode(self, obj, parent, icon, dnd=True, rename=True):
+        """ build a Group node in the tree widget
+        corresponding to obj (and return it)
+        """
+        if self.name == "Clipboard": rename = False # Do not allow the clipboard to be renamed
+        node = Node.buildNode(self, obj, parent, icon, dnd, rename)
+        return node
+        
     def setopen(self):
         self.open = True
-
-    def addmember(self, obj):
+        
+    def addmember(self, node, top=False):
+        """add leaf node to bottom (default) or top of self
+        """
+#        print "Utility.Group.addmember: adding node [",node.name,"] to the bottom/top of group [",self.name,"]"
         self.assy.modified = 1
-        self.members += [obj]
-        obj.dad = self
-        obj.assy = self.assy
+        if top: self.members.insert(0, node) # Insert node at the very top
+        else: self.members += [node] # Add node to the bottom
+        node.dad = self
+        node.assy = self.assy
 
     def delmember(self, obj):
         obj.unpick() #bruce 041029 fix bug 145
@@ -239,20 +282,27 @@ class Group(Node):
         if self.dad:
             self.dad.delmember(self)
 
+    def is_ascendant(self, node):
+        """returns True if self is an ascendant of node
+        """
+        while node:
+            if node == self: return True
+            node = node.dad
+        return False
+        
     def seticon(self):
         if self.name == self.assy.name:
             self.icon = self.partIcon
         else:
             self.icon = self.groupCloseIcon
         
-    def upMT(self, tw, parent, dnd=True):
+    def upMT(self, parent, dnd=True):
         if not self.icon: self.seticon()
-        self.tritem = tw.buildNode(self, parent, self.icon, dnd)
+        self.tritem = self.buildNode(self, parent, self.icon, dnd)
         # mark comments 041209
         # Fixed bug 140 by reversing order nodes are built.
-#        for x in self.members: # Original order
         for x in self.members[::-1]: # Reversed order (fixed bug 140) - Mark [04-12-09]
-            x.upMT(tw, self.tritem, dnd)
+            x.upMT(self.tritem, dnd)
         return self.tritem
     
     def setProp(self, tw):
@@ -306,6 +356,7 @@ class Csys(Node):
     def __init__(self, assy, name, scale, w, x = None, y = None, z = None):
         Node.__init__(self, assy, None, name)
         self.scale = scale
+        
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         self.csysIcon = QPixmap(filePath + "/../images/csys.png")
 
@@ -313,7 +364,15 @@ class Csys(Node):
             self.quat = Q(w)
         else:
             self.quat = Q(x, y, z, w)
+#        print "Utility: self.quat =",self.quat
 
+    def buildNode(self, obj, parent, icon, dnd=False, rename=False):
+        """ build a Csys node in the tree widget
+        corresponding to obj (and return it)
+        """
+        node = Node.buildNode(self, obj, parent, icon, dnd, rename)
+        return node
+        
     def seticon(self):
         self.icon = self.csysIcon
 
@@ -345,7 +404,14 @@ class Datum(Node):
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         self.datumIcon = QPixmap(filePath + "/../images/datumplane.png")
-        
+
+    def buildNode(self, obj, parent, icon, dnd=False, rename=False):
+        """ build a Datum node in the tree widget
+        corresponding to obj (and return it)
+        """
+        node = Node.buildNode(self, obj, parent, icon, dnd, rename)
+        return node
+               
     def seticon(self):
         self.icon = self.datumIcon
         
@@ -369,3 +435,23 @@ class Datum(Node):
 
     def edit(self):
         pass
+        
+class InsertHere(Node):
+    """ Current insertion point node """
+
+    def __init__(self, assy, name, pos = 0, end = True):
+        Node.__init__(self, assy, None, name)
+        self.pos = pos
+        self.end = end
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.inserthereIcon = QPixmap(filePath + "/../images/inserthere.png")
+
+    def buildNode(self, obj, parent, icon, dnd=True, rename=False):
+        """ build an Insert Here node in the tree widget
+        to indicate the insertion point in the model tree
+        """
+        node = Node.buildNode(self, obj, parent, icon, dnd, rename)
+        return node
+               
+    def seticon(self):
+        self.icon = self.inserthereIcon
