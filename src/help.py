@@ -1,5 +1,7 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-"""Help system: at the moment it just pops up a crib-note window"""
+"""Help system: at the moment it just pops up a crib-note window
+$Id$
+"""
 
 __author__ = "Josh"
 
@@ -57,12 +59,21 @@ shift left button trackballs object
 cntl left button rotates or moves object on its own axis
 double click goes back to select mode
 
+Build Mode:
+type an element's symbol or select it in the dashboard
+(H, B, C, N, O, F, A=Al, Q=Si, P, S, L=Cl)
+Left-click deposits the element in empty space or bonds it to an open bond.
+Left-drag on an atom moves the molecule.
+Shift-left-drag moves atoms or open bonds.
+Cntl-left-click deletes atoms.
+If something is selected (real or clipboard) left-click will paste it
+instead of an atom.
+
 modes to come:
 
-deposit atoms
 extrude
 revolve
-measure
+
 """))
 
 

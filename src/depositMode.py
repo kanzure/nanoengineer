@@ -13,6 +13,59 @@ from chem import *
 import drawer
 from constants import elemKeyTab
 
+def do_what_MainWindowUI_should_do(w):
+    w.depositAtomDashboard.clear()
+
+    w.depositAtomDashboard.addSeparator()
+
+    w.depositAtomLabel = QLabel(w.depositAtomDashboard,"Build")
+    w.depositAtomLabel.setText(" -- Build -- ")
+    w.depositAtomDashboard.addSeparator()
+
+    w.pasteComboBox = QComboBox(0,w.depositAtomDashboard,
+                                     "pasteComboBox")
+
+    w.depositAtomDashboard.addSeparator()
+
+    w.elemChangeComboBox = QComboBox(0,w.depositAtomDashboard,
+                                     "elemChangeComboBox")
+
+    w.depositAtomDashboard.addSeparator()
+
+    bg = QButtonGroup(w.depositAtomDashboard)
+    lay = QHBoxLayout(bg)
+    lay.setAutoAdd(True)
+    w.depositAtomDashboard.pasteRB = QRadioButton("Paste", bg)
+    w.depositAtomDashboard.atomRB = QRadioButton("Atom", bg)
+    
+    w.depositAtomDashboard.addSeparator()
+    w.toolsDoneAction.addTo(w.depositAtomDashboard)
+    w.depositAtomDashboard.setLabel("Build")
+    w.elemChangeComboBox.clear()
+    w.elemChangeComboBox.insertItem("Hydrogen")
+    w.elemChangeComboBox.insertItem("Helium")
+    w.elemChangeComboBox.insertItem("Boron")
+    w.elemChangeComboBox.insertItem("Carbon")
+    w.elemChangeComboBox.insertItem("Nitrogen")
+    w.elemChangeComboBox.insertItem("Oxygen")
+    w.elemChangeComboBox.insertItem("Fluorine")
+    w.elemChangeComboBox.insertItem("Neon")
+    w.elemChangeComboBox.insertItem("Aluminum")
+    w.elemChangeComboBox.insertItem("Silicon")
+    w.elemChangeComboBox.insertItem("Phosphorus")
+    w.elemChangeComboBox.insertItem("Sulfur")
+    w.elemChangeComboBox.insertItem("Chlorine")
+    w.elemChangeComboBox.insertItem("Argon")
+    w.elemChangeComboBox.insertItem("Germanium")
+    w.elemChangeComboBox.insertItem("Astatine")
+    w.elemChangeComboBox.insertItem("Selenium")
+    w.elemChangeComboBox.insertItem("Bromine")
+    w.elemChangeComboBox.insertItem("Krypton")
+    w.elemChangeComboBox.insertItem("Antimony")
+    w.elemChangeComboBox.insertItem("Tellurium")
+    w.elemChangeComboBox.insertItem("Iodine")
+    w.elemChangeComboBox.insertItem("Xenon")
+    w.connect(w.elemChangeComboBox,SIGNAL("activated(int)"),w.elemChange)
 
 class depositMode(basicMode):
     """ This class is used to manually add atoms to create any structure.
@@ -48,19 +101,45 @@ class depositMode(basicMode):
         self.baggage = []
         self.line = None
         self.modified = 0 # bruce 040923 new code
+        self.pastable = None
     
     # init_gui does all the GUI display when entering this mode [mark 041004]
     def init_gui(self):
 #        print "depositMode.py: init_gui(): Cursor set to DepositAtomCursor"
-        self.o.setCursor(self.w.DepositAtomCursor)  # load default cursor for MODIFY mode
-        self.w.toolsDepositAtomAction.setOn(1) # toggle on the Deposit Atoms icon
+        self.o.setCursor(self.w.DepositAtomCursor)
+        # load default cursor for MODIFY mode
+        self.w.toolsDepositAtomAction.setOn(1) # turn on the Deposit Atoms icon
+        
+        self.w.pasteComboBox.clear()
+        cx = 0
+        for ob,i in zip(self.o.assy.shelf.members,
+                        range(len(self.o.assy.shelf.members))):
+            self.w.pasteComboBox.insertItem(ob.name)
+            if ob.picked: cx = i
+            self.pastable = ob
+        self.w.pasteComboBox.setCurrentItem(cx)
+            
+        self.w.connect(self.w.pasteComboBox,SIGNAL("activated(int)"),
+                       self.setPaste)
+        self.w.connect(self.w.elemChangeComboBox,SIGNAL("activated(int)"),
+                       self.setAtom)
+        
+        if self.w.pasteP: self.w.depositAtomDashboard.pasteRB.setOn(True)
+        else: self.w.depositAtomDashboard.atomRB.setOn(True)
+            
+        self.w.connect(self.w.depositAtomDashboard.pasteRB,
+                       SIGNAL("pressed()"), self.setPaste)
+        self.w.connect(self.w.depositAtomDashboard.atomRB,
+                       SIGNAL("pressed()"), self.setAtom)
+        
         self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
 
     # methods related to exiting this mode [bruce 040922 made these from
     # old Done method, and added new code; there was no Flush method]
 
     def haveNontrivialState(self):
-        return self.modified # bruce 040923 new code
+        return False
+        #return self.modified # bruce 040923 new code
 
     def StateDone(self):
         return None
@@ -150,9 +229,11 @@ class depositMode(basicMode):
         self.o.assy.modified = 1
         if a: # if something was "lit up"
             if a.element == Singlet:
-                self.attach(el, a)
+                if self.w.pasteP and self.pastable: self.pasteBond(a)
+                elif not self.w.pasteP: self.attach(el, a)
                 self.o.selatom = None
                 self.dragmol = None
+                self.w.update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
             elif a.realNeighbors(): # part of larger molecule
@@ -173,8 +254,12 @@ class depositMode(basicMode):
             # no externs or more than 2 -- fall thru
         else:
             atomPos = self.getCoords(event)
-            self.o.selatom = oneUnbonded(el, self.o.assy, atomPos)
-            self.dragmol = self.o.selatom.molecule
+            if self.w.pasteP and self.pastable:
+                self.pasteFree(atomPos)
+                self.dragmol = None
+            elif not self.w.pasteP: 
+                self.o.selatom = oneUnbonded(el, self.o.assy, atomPos)
+                self.dragmol = self.o.selatom.molecule
         # move the molecule rigidly
         self.pivot = None
         self.pivax = None
@@ -229,7 +314,6 @@ class depositMode(basicMode):
                     self.pivot = None
                     self.pivax = None
                     self.baggage = []
-                    self.dragatom = None
                     return
                 else: # atom on a single stalk
                     self.pivot = pivatom.posn()
@@ -281,7 +365,7 @@ class depositMode(basicMode):
             quat = twistor(self.pivax, a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
-        else: # pivoting around a point
+        elif self.pivot: # pivoting around a point
             quat = Q(a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
@@ -317,6 +401,29 @@ class depositMode(basicMode):
         """ End deposit mode
 	"""
 	self.Done()
+
+    ###################################################################
+    #   Cutting and pasting                                           #
+    ###################################################################
+        
+    # paste the pastable object where the cursor is
+    def pasteBond(self, sing):
+        m = self.pastable
+        if len(m.singlets)==0: return
+        if len(m.singlets)>1 and not m.hotspot: return
+        numol = self.pastable.copy(None)
+        hs = numol.hotspot or numol.singlets[0]
+        self.o.assy.addmol(numol)
+        makeBonded(hs,sing)
+        
+        
+    # paste the pastable object where the cursor is
+    def pasteFree(self, pos):
+        numol = self.pastable.copy(None, pos)
+        
+        self.o.assy.addmol(numol)
+        
+
 
     ###################################################################
     #  Oh, ye acolytes of klugedom, feast your eyes on the following  #
@@ -461,8 +568,20 @@ class depositMode(basicMode):
                 for a in mol.findAllSinglets(pnt, mat, 10000.0, -TubeRadius):
                     a.Hydrogenate()
         self.o.paintGL()
-        
 
+
+    ## dashboard things
+        
+    def setPaste(self):
+        self.w.pasteP = True
+        self.w.depositAtomDashboard.pasteRB.setOn(True)
+        print 'pasting',self.w.pasteComboBox.currentItem()
+        
+    def setAtom(self):
+        self.w.pasteP = False
+        self.pastable = None
+        self.w.depositAtomDashboard.atomRB.setOn(True)
+        print 'set atom', self.w.Element
 
     ####################
     # utility routines
@@ -506,9 +625,9 @@ class depositMode(basicMode):
         
     def makeMenus(self):
         
-        self.Menu1 = self.makemenu([('dump', self.dump),
+        self.Menu1 = self.makemenu([('Set Hotspot', self.setHotSpot),
+                                    ('select', self.select),
                                     None,
-                                    ('Move', self.move),
                                     ('Double bond', self.skip),
                                     ('Triple bond', self.skip)
                                     ])
@@ -523,8 +642,29 @@ class depositMode(basicMode):
                                     ('Hydrogenate', self.o.assy.modifyHydrogenate),
                                     ('Separate', self.o.assy.modifySeparate)])
 
-    def move(self):
-        self.Done(new_mode = 'MODIFY')
+    def setHotSpot(self):
+        """if called on a singlet, make that singlet the hotspot for
+        the molecule.  (if there's only one, it's automatically the
+        hotspot)
+        """
+        if self.o.selatom and self.o.selatom.element == Singlet:
+            self.o.selatom.molecule.hotspot = self.o.selatom
+            new = self.o.selatom.molecule.copy(None)
+            new.move(-new.center)
+            self.o.assy.shelf.addmember(new)
+            self.o.assy.shelf.unpick()
+            new.pick()
+            self.w.pasteP = True
+            self.w.update()
+            self.init_gui()
+
+
+    def select(self):
+        if self.o.selatom:
+            self.o.assy.pickParts()
+            self.o.assy.unpickparts()
+            self.o.selatom.molecule.pick()
+            self.w.update()
                                     
     def skip(self):
         pass

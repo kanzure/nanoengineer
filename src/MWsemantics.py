@@ -42,6 +42,12 @@ class MWsemantics(MainWindow):
         # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
         import extrudeMode as _extrudeMode
         _extrudeMode.do_what_MainWindowUI_should_do(self)
+        import depositMode as _depositMode
+        _depositMode.do_what_MainWindowUI_should_do(self)
+
+        # this got lost in MainWindowUI somehow
+        self.disconnect(self.editCopyAction,SIGNAL("activated()"),self.copyDo)
+        self.connect(self.editCopyAction,SIGNAL("activated()"),self.editCopy)
         
         # Load all the custom cursors
         self.loadCursors()
@@ -81,12 +87,17 @@ class MWsemantics(MainWindow):
         self.assy.o = self.glpane
         self.assy.mt = self.mt
 
-        # We must enable keyboard focus for a widget if it processes keyboard events.
+        # We must enable keyboard focus for a widget if it processes
+        # keyboard events.
         self.setFocusPolicy(QWidget.StrongFocus)
 
-        # Start with Carbon as the default element (for Deposit Mode and the Element Selector)
+        # Start with Carbon as the default element (for Deposit Mode
+        # and the Element Selector)
         self.Element = 6
         self.setElement(6)
+        # and paste the atom rather than the clipboard by default
+        self.pasteP = False
+        
 
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]
@@ -390,19 +401,17 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
     def editCut(self):
-        print "MWsemantics.editCut(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
-	         "This function is not implemented yet, coming soon...")
+        self.assy.cut()
+        self.update()
 
     def editCopy(self):
-        print "MWsemantics.editCopy(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
-	         "This function is not implemented yet, coming soon...")
+        print 'got editCopy'
+        self.assy.copy()
+        self.update()
 
     def editPaste(self):
-        print "MWsemantics.editPaste(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
-	         "This function is not implemented yet, coming soon...")
+        self.pasteP = True
+        self.glpane.setMode('DEPOSIT')
 
     def editFind(self):
         print "MWsemantics.editFind(): Not implemented yet"
@@ -807,13 +816,18 @@ class MWsemantics(MainWindow):
         self.glpane.mode.Flush()
 
     # turn on and off an "add atom with a mouse click" mode
-    # [bruce 040927 wonders why there is code for two separate buttons for this...]
+    
+    # [bruce 040927 wonders why there is code for two separate buttons
+    # for this...]
     def addAtomStart(self):
-        ##self.modebarLabel.setText( "Mode: Sketch Atoms" ) # bruce 040927 let mode control this
+        ##self.modebarLabel.setText( "Mode: Sketch Atoms" )
+        # bruce 040927 let mode control this
+        self.pasteP = False
         self.glpane.setMode('DEPOSIT')
 
     def toolsAtomStart(self):
         ##self.modebarLabel.setText( "Mode: Sketch Atoms" )
+        self.pasteP = False
         self.glpane.setMode('DEPOSIT')
 
     # pop up set element box
@@ -828,7 +842,7 @@ class MWsemantics(MainWindow):
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]
         global elementwindow
-        if not elementwindow.isHidden():
+        if elementwindow and not elementwindow.isHidden():
            elementwindow.setDisplay(self.Element)     
            elementwindow.show()
           
@@ -907,14 +921,6 @@ class MWsemantics(MainWindow):
         print "MWsemantics.modifyDeleteBond(): Not implemented yet"
         QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
-
-    # Make a copy of the selected part (molecule)
-    # cannot copy individual atoms
-    def copyDo(self):
-        self.assy.copy()
-        self.glpane.paintGL()
-        self.mt.update()
-   
 
     # 2BDone: make a copy of the selected part, move it, and bondEdge it,
     # having unselected the original and selected the copy.

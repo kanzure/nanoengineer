@@ -178,7 +178,7 @@ class Group(Node):
     def copy(self, dad, offset):
         new = Group(self.name + "!", self.assy, dad)
         for x in self.members:
-            x.copy(new, offset)
+            self.addmember(x.copy(new, offset))
         return new
              
     def kill(self):

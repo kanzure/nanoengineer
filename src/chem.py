@@ -1051,6 +1051,8 @@ class molecule(Node):
             for b in a.bonds:
                 if b.other(a).key in ndix:
                     numol.bond(na,ndix[b.other(a).key])
+                    
+        numol.hotspot = ndix[self.hotspot.key]
         numol.curpos = self.curpos+offset
         numol.shakedown()
         numol.setDisplay(self.display)

@@ -398,23 +398,25 @@ class assembly:
             if len(new.members)==1:
                 new = new.members[0]
             self.shelf.addmember(new)
+            new.pick()
         self.w.update()
-        
 
     # copy any selected parts (molecules)
     def copy(self):
         if self.selwhat==0: return
         new = Group(gensym("Copy"),self,None)
-        self.tree.copy(new, V(10.0, 10.0, 10.0))
+        self.tree.apply2picked(lambda(x): new.addmember(x.copy(new)))
         if new.members:
             if len(new.members)==1:
                 new = new.members[0]
             self.shelf.addmember(new)
+            new.pick()
+        
+        if isinstance(new, molecule): new.move(-new.center)
         self.w.update()
 
     def paste(self, node):
         pass # to be implemented
-   
 
     # move any selected parts in space ("move" is an offset vector)
     def movesel(self, move):

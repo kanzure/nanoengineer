@@ -244,9 +244,11 @@ class modelTree(QListView):
     
     def copy(self):
         self.win.assy.copy()
+        self._update()
     
     def cut(self):
         self.win.assy.cut()
+        self._update()
     
     def kill(self):
         self.win.assy.kill()
