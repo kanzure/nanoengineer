@@ -52,7 +52,7 @@ class MoleculeProp(MoleculePropDialog):
             chunkInfoText += eleStr
             
         if nsinglets:
-            eleStr = "\nSinglets: " + str(nsinglets) + "\n"
+            eleStr = "\nOpen Bonds: " + str(nsinglets) + "\n"
             chunkInfoText += eleStr
          
         natoms -= nsinglets   
@@ -90,7 +90,7 @@ class MoleculeProp(MoleculePropDialog):
         
     def makeAtomsVisible(self):
         for a in self.mol.atoms.itervalues():
-            a.setDisplay(diDEFAULT)
+            if a.display == diINVISIBLE: a.setDisplay(diDEFAULT)
         self.mol.glpane.gl_update()
         
     def nameChanged(self):
