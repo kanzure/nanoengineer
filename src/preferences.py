@@ -1,3 +1,4 @@
+# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
 '''
 preferences.py
 
@@ -13,6 +14,8 @@ of windows and linux python, but not yet Mac python;
 but we can add it, since it's easily available from
 
   http://undefined.org/python/pimp/darwin-7.0.0-Power_Macintosh.html
+
+(package bsddb3 4.1.6)
 
 BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK! ###@@@
 (It probably is.)
