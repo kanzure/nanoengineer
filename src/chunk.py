@@ -1958,9 +1958,16 @@ def shakedown_poly_eval_evec_axis(basepos):
         axis = norm(subtract.reduce(basepos))
     else:
         ug = argsort(evals)
-        if evals[ug[0]]/evals[ug[1]] >0.95:
-            axis = evec[ug[2]]
-        else: axis = evec[ug[0]]
+        try:
+            if evals[ug[0]]/evals[ug[1]] >0.95:
+                axis = evec[ug[2]]
+            else: axis = evec[ug[0]]
+        except ZeroDivisionError:
+            # this happened in bug 452 item 18. I'll make it safe, then (separately)
+            # fix the bug which causes it in the first place. [bruce 050321]
+            if platform.atom_debug:
+                print_compact_traceback("atom_debug: ignoring ZeroDivisionError: ")
+            axis = evec[ug[0]]
 
     return polyhedron, evals, evec, axis # from shakedown_poly_evals_evec_axis
 
