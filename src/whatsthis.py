@@ -13,7 +13,7 @@ def createWhatsThis(self):
         # File Toolbar
         ##############################################
         
-        #### fileOpenAction ####
+        #### Open File ####
         
         fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)</b></p><br> "\
                         "<p><img source=\"fileopen\"><br> "\
@@ -25,7 +25,7 @@ def createWhatsThis(self):
 
         self.fileOpenAction.setWhatsThis( fileOpenText )
         
-        #### fileSaveAction ####
+        #### Save File ####
         
         fileSaveText = "<u><b>Save File</b></u>     (Ctrl + S)</b></p><br> "\
                        "<p><img source=\"filesave\"><br> "\
@@ -41,7 +41,7 @@ def createWhatsThis(self):
         # Edit Toolbar
         ##############################################
         
-        #### editUndoAction ####
+        #### Undo ####
         
         editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)</b></p><br> "\
                        "<p><img source=\"editUndo\"><br> "\
@@ -54,11 +54,12 @@ def createWhatsThis(self):
 
         self.editUndoAction.setWhatsThis( editUndoText )
         
-        #### editRedoAction ####
+        #### Redo ####
         
         editRedoText =  "<u><b>Redo</b></u>     (Ctrl + Y)</b></p><br> "\
                        "<p><img source=\"editRedo\"> <br>"\
-                       "Re-applies the actions or commands on which you have used the Undo command. <b>Currently not implemented</b>."\
+                       "Re-applies the actions or commands on which you have used "\
+                       "the Undo command. <b>Currently not implemented</b>."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editRedo",
@@ -66,45 +67,52 @@ def createWhatsThis(self):
 
         self.editRedoAction.setWhatsThis( editRedoText )
         
-         #### editCutAction ####
+         #### Cut ####
         
         editCutText =  "<u><b>Cut</b></u>     (Ctrl + X)</b></p><br> "\
                        "<p><img source=\"editCut\"><br> "\
-                       "Removes the selected object(s) and stores the cut data on the clipboard.</p>"
+                       "Removes the selected object(s) and stores the cut data on the"\
+                       "clipboard."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editCut",
                                                        self.editCutAction.iconSet().pixmap() )
 
         self.editCutAction.setWhatsThis( editCutText )
         
-        #### editCopyAction ####
+        #### Copy ####
         
         editCopyText =  "<u><b>Copy</b></u>     (Ctrl + C)</b></p><br> "\
                        "<p><img source=\"editCopy\"><br> "\
-                      "Places a copy of the selected chunk(s) on the clipboard while leaving the original chunk(s) unaffected.</p>"
+                      "Places a copy of the selected chunk(s) on the clipboard "\
+                      "while leaving the original chunk(s) unaffected."\
+                      "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editCopy",
                                                        self.editCopyAction.iconSet().pixmap() )
 
         self.editCopyAction.setWhatsThis( editCopyText )
         
-         #### editPasteAction ####
+         #### Paste ####
         
         editPasteText = "<u><b>Paste</b></u>     (Ctrl + V)</b></p><br> "\
                        "<p><img source=\"editPaste\"><br> "\
-                       "When you choose this command, you are placed in <b>Build Atom</b> mode and a copy of the top object on the clipboard is inserted where you click.</p>"
+                       "When selecting this feature, you are placed in "\
+                       "<b>Build Atom</b> mode where you may paste copies "\
+                       "of clipboard objects into the model where ever you click."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editPaste",
                                                        self.editPasteAction.iconSet().pixmap() )
 
         self.editPasteAction.setWhatsThis( editPasteText )
    
-        #### editDeleteAction ####
+        #### Delete ####
                                  
         editDeleteText =  "<u><b>Delete</b></u>     (DEL)</b></p><br> "\
                        "<p><img source=\"editDelete\"><br> "\
                        "Deletes the selected object(s).  "\
-                       "Deleted objects are not placed on the clipboard.</p>"
+                       "For this Alpha release, deleted objects are permanantly lost.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editDelete",
                                                        self.editDeleteAction.iconSet().pixmap() )
@@ -115,18 +123,18 @@ def createWhatsThis(self):
         # View Toolbar
         ##############################################
         
-        #### set Home View####
+        #### Home View ####
         
         setViewHomeActionText = "<u><b>Home</b></u>     (Home)<br>"\
                        "<p><img source=\"setViewHome\"><br> "\
-                       "When you create a new model, it appears in a default view orientation (FRONT view). When you open an existing model, it appears in the orientation it was last saved.  You can change the default orientation by selecting <b>Set home view to current view</b> from the <b>View</b> menu.</p>"
+                       "When you create a new model, it appears in a default view orientation (FRONT view). When you open an existing model, it appears in the orientation it was last saved.  You can change the default orientation by selecting <b>Set Home View to Current View</b> from the <b>View</b> menu.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewHome",
                                                        self. setViewHomeAction.iconSet().pixmap() )
 
         self.setViewHomeAction.setWhatsThis(  setViewHomeActionText )
 
-        #### Refit to window Viepw####
+        #### Fit to Window ####
         
         setViewFitToWindowActionText = "<u><b>Fit To Window</b></u><br>"\
                        "<p><img source=\"setViewFitToWindow\"><br> "\
@@ -138,11 +146,13 @@ def createWhatsThis(self):
 
         self.setViewFitToWindowAction.setWhatsThis(  setViewFitToWindowActionText )       
         
-         #### set zoom Window####
+         #### Zoom Tool ####
         
-        setzoomWindowActionText = "<u><b>Zoom Window</b></u><br>"\
+        setzoomWindowActionText = "<u><b>Zoom Tool</b></u><br>"\
                        "<p><img source=\"setzoomWindow\"><br> "\
-                       "The zoom window tool enables a closer (zoomed in) view of an area on a chunk."\
+                       "Allows the user to specify a rectangular area by holding "\
+                       "down the left button and dragging the mouse "\
+                       "to zoom into a specific area of the model."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setzoomWindow",
@@ -151,13 +161,11 @@ def createWhatsThis(self):
         self.zoomWindowAction.setWhatsThis(  setzoomWindowActionText )      
 
         
+         #### Orthographic Projection ####
         
-        
-         #### set Ortho View####
-        
-        setViewOrthoActionText = "<u><b>Orthogonal Projection</b></u><br>"\
+        setViewOrthoActionText = "<u><b>Orthographic Projection</b></u><br>"\
                        "<p><img source=\"setViewOrtho\"><br> "\
-                       "Orthogonal projection: FINAL TEXT TO BE COMPLETED."\
+                       "Sets nonperspective (or parallel) projection, with no foreshortening."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewOrtho",
@@ -165,11 +173,12 @@ def createWhatsThis(self):
 
         self.setViewOrthoAction.setWhatsThis(  setViewOrthoActionText )
 
-           #### set Perspective View####
+           #### Perspective Projection ####
         
         setViewPerspecActionText = "<u><b>Perspective Projection</b></u><br>"\
                        "<p><img source=\"setViewPerspec\"><br> "\
-                       "Perspective projection: FINAL TEXT TO BE COMPLETED."\
+                       "Set perspective projection, drawing objects slightly larger "\
+                       "that are closer to the viewer."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewPerspec",
@@ -177,33 +186,36 @@ def createWhatsThis(self):
 
         self.setViewPerspecAction.setWhatsThis(  setViewPerspecActionText )        
 
-           #### set Front View ####
+           #### Front View ####
         
         setViewFrontActionText = "<u><b>Front View</b></u><br>"\
                        "<p><img source=\"setViewFront\"><br> "\
-                       "Reorients view to Front orientation. </p>"
+                       "Reorients the model so that it is viewed from the front."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewFront",
                                                        self. setViewFrontAction.iconSet().pixmap() )
 
         self.setViewFrontAction.setWhatsThis(  setViewFrontActionText )  
 
-           #### set Back View ####
+           #### Back View ####
         
         setViewBackActionText = "<u><b>Back View</b></u><br>"\
                        "<p><img source=\"setViewBack\"><br> "\
-                       "Reorients view to Back orientation. </p>"
+                       "Reorients the model so that it is viewed from the back."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewBack",
                                                        self. setViewBackAction.iconSet().pixmap() )
 
         self.setViewBackAction.setWhatsThis(  setViewBackActionText )     
         
-                   #### set Top View ####
+                   #### Top View ####
         
         setViewTopActionText = "<u><b>Top View</b></u><br>"\
                        "<p><img source=\"setViewTop\"><br> "\
-                       "Reorients view to Top orientation. </p>"
+                       "Reorients the model so that it is viewed from the top."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewTop",
                                                        self. setViewTopAction.iconSet().pixmap() )
@@ -214,7 +226,8 @@ def createWhatsThis(self):
         
         setViewBottomActionText = "<u><b>Bottom View</b></u><br>"\
                        "<p><img source=\"setViewBottom\"><br> "\
-                       "Reorients view to Bottom orientation. </p>"
+                       "Reorients the model so that it is viewed from the bottom."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewBottom",
                                                        self. setViewBottomAction.iconSet().pixmap() )
@@ -225,7 +238,8 @@ def createWhatsThis(self):
         
         setViewLeftActionText = "<u><b>Left View</b></u><br>"\
                        "<p><img source=\"setViewLeft\"><br> "\
-                       "Reorients view to Left orientation. </p>"
+                       "Reorients the model so that it is viewed from the left side."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewLeft",
                                                        self. setViewLeftAction.iconSet().pixmap() )
@@ -236,7 +250,8 @@ def createWhatsThis(self):
         
         setViewRightActionText = "<u><b>Right View</b></u><br>"\
                        "<p><img source=\"setViewRight\"><br> "\
-                       "Reorients view to Right orientation. </p>"
+                       "Reorients the model so that it is viewed from the right side."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewRight",
                                                        self. setViewRightAction.iconSet().pixmap() )
@@ -247,29 +262,33 @@ def createWhatsThis(self):
         # Grids Toolbar
         ##############################################
         
-        #### Surface 100####
+        #### Surface 100 ####
         
         orient100ActionText = "<u><b>Surface 100</b></u><br>"\
                        "<p><img source=\"orient100Action\"><br> "\
-                       "Reorients the view to the nearest angle that would look straight into a (1,0,0) surface of a diamond lattice.</p>"
+                       "Reorients the view to the nearest angle that would "\
+                       "look straight into a (1,0,0) surface of a diamond lattice."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "orient100Action",
                                                        self.orient100Action.iconSet().pixmap() )
 
         self.orient100Action.setWhatsThis(orient100ActionText )
         
-        #### Surface 110####
+        #### Surface 110 ####
         
         orient110ActionText = "<u><b>Surface 110</b></u><br>"\
                        "<p><img source=\"orient110Action\"><br> "\
-                       "Reorients the view to the nearest angle that would look straight into a (1,1,0) surface of a diamond lattice.</p>"
+                       "Reorients the view to the nearest angle that would "\
+                       "look straight into a (1,1,0) surface of a diamond lattice."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "orient110Action",
                                                        self.orient110Action.iconSet().pixmap() )
 
         self.orient110Action.setWhatsThis(orient110ActionText )
         
-        #### Surface 111####
+        #### Surface 111 ####
 
         orient111ActionText = "<u><b>Surface 111</b></u><br>"\
                        "<p><img source=\"orient111Action\"><br> "\
@@ -284,7 +303,7 @@ def createWhatsThis(self):
         # Molecular Display toolbar
         ##############################################
         
-        ####Default####
+        #### Default  </p>"####
 
         dispDefaultActionText = "<u><b>Default</b></u><br>"\
                        "<p><img source=\"dispDefaultAction\"><br> "\
