@@ -1124,6 +1124,10 @@ class extrudeMode(basicMode):
         return self.ncopies != 1 # more or less...
 
     def StateDone(self):
+        return self._stateDoneOrCancel( cancelling = 0)
+
+    def _stateDoneOrCancel(self, cancelling = 0): #e rename? revise? #bruce 050228 to help fix bug 314 and unreported bugs
+        "common method for StateDone and StateCancel"
         ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
         # restore normal appearance
         for mol in self.molcopies:
@@ -1132,23 +1136,25 @@ class extrudeMode(basicMode):
                 mol.changeapp(0)
             except:
                 pass
-        self.finalize_product() # ... and emit status message about it
+        self.finalize_product(cancelling = cancelling)
+            # this also emits status messages and does some cleanup of broken_externs...
         return None
-
-    def finalize_product(self):
-        "if requested, make bonds and/or join units into one part"
         
-        desc = " (N = %d)" % self.ncopies  #e later, also include circle_n if different and matters; and more for other product_types
+    def finalize_product(self, cancelling = 0): #bruce 050228 adding cancelling=0 to help fix bug 314 and unreported bugs
+        "if requested, make bonds and/or join units into one part; cancelling = 1 means just do cleanup, use diff msgs"
         
-        ##self.final_msg_accum = "extrude done: "
-        self.final_msg_accum = "%s making %s%s: " % (self.msg_modename.split()[0], self.product_type, desc) # first word of modename
-        
-        msg0 = "leaving mode, finalizing product..." # if this lasts long enough to read, something went wrong
-        self.status_msg(self.final_msg_accum + msg0)
+        if not cancelling:
+            desc = " (N = %d)" % self.ncopies  #e later, also include circle_n if different and matters; and more for other product_types
+            ##self.final_msg_accum = "extrude done: "
+            self.final_msg_accum = "%s making %s%s: " % (self.msg_modename.split()[0], self.product_type, desc) # first word of modename
+            msg0 = "leaving mode, finalizing product..." # if this lasts long enough to read, something went wrong
+            self.status_msg(self.final_msg_accum + msg0)
+            print "fyi: extrude params not mentioned in statusbar: offset = %r, tol = %r" % (self.offset, self.bond_tolerance)
+        else:
+            msg = "%s cancelled (alpha warning: might not fully restore initial state)" % (self.msg_modename.split()[0],)
+            self.status_msg( msg)
 
-        print "fyi: extrude params not mentioned in statusbar: offset = %r, tol = %r" % (self.offset, self.bond_tolerance)
-
-        if self.whendone_make_bonds:
+        if self.whendone_make_bonds and not cancelling:
             # NIM - rebond base unit with its home molecule, if any [###@@@ see below]
             #  (but not if product is a closed ring, right? not sure, actually, deps on which singlets are involved)
             #e even the nim-warning msg is nim...
@@ -1166,22 +1172,27 @@ class extrudeMode(basicMode):
                 for ii in range(1, self.ncopies): # 1 thru n-1 (might be empty range, that's ok)
                     # bond unit ii with unit ii-1
                     self.make_inter_unit_bonds( self.molcopies[ii-1], self.molcopies[ii], bonds ) # uses self.basemol_singlets, etc
-                if self.product_type == "closed ring":
+                if self.product_type == "closed ring" and not cancelling:
                     # close the ring ###@@@ what about broken_externs? Need to modify bonding for ring, for this reason... ###@@@
                     self.make_inter_unit_bonds( self.molcopies[self.ncopies-1], self.molcopies[0], bonds )
                 bonds_msg = "made %d bonds per unit" % len(bonds)
                 self.status_msg(self.final_msg_accum + bonds_msg)
             self.final_msg_accum += bonds_msg
-            # merge base back into its fragmented ancestral molecule...
-            # but not until the end, for fear of messing up unit-unit bonding
-            # (could be dealt with, but easier to skirt the issue).
-            if not self.product_type == "closed ring":
-                # 041222 finally implementing this...
-                ###@@@ closed ring case has to be handled differently earlier...
-                for s1,s2 in self.broken_externs:
-                    bond_at_singlets(s1, s2, move = 0)
         
-        if self.whendone_all_one_part:
+        #bruce 050228 fix an unreported(?) bug -- do the following even when not whendone_make_bonds:
+        # merge base back into its fragmented ancestral molecule...
+        # but not until the end, for fear of messing up unit-unit bonding
+        # (could be dealt with, but easier to skirt the issue).
+        if not self.product_type == "closed ring":
+            # 041222 finally implementing this...
+            ###@@@ closed ring case has to be handled differently earlier... [but isn't yet, which is a probably-unreported bug]
+            for s1,s2 in self.broken_externs:
+                try:
+                    bond_at_singlets(s1, s2, move = 0)
+                except:#050228
+                    print_compact_traceback("error fixing some broken bond, ignored: ") # can happen in ring mode, at least
+        
+        if self.whendone_all_one_part and not cancelling:
             # rejoin base unit with its home molecule, if any -- NIM [even after 041222]
             #e even the nim-warning msg is nim...
             #e (once we do this, maybe do it even when not self.whendone_all_one_part??)
@@ -1206,7 +1217,8 @@ class extrudeMode(basicMode):
                 self.final_msg_accum += " (left units as separate parts)"
             else:
                 pass # what is there to say?
-            self.status_msg(self.final_msg_accum)
+            if not cancelling:
+                self.status_msg(self.final_msg_accum)
         return
 
     def prep_to_make_inter_unit_bonds(self):
@@ -1255,10 +1267,11 @@ class extrudeMode(basicMode):
         # can happen until we remove dup i1,i2 from bonds
         return None
         
-    def StateCancel(self):
-        self.w.extrudeSpinBox_n.setValue(1)
+    def StateCancel(self): # [bruce 050228 revised/commented this to fix bug 314]
+        self.w.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
         self.update_from_controls()
-        return self.StateDone() # closest we can come to cancelling
+        #e could also change back to rod mode, but if that is needed we'll make the subroutine do it
+        return self._stateDoneOrCancel( cancelling = 1) # closest we can come to cancelling
     
     def restore_gui(self):
         if self.is_revolve:
