@@ -706,9 +706,8 @@ class MWsemantics(MainWindow):
 
         self.glpane.setMode('ZOOM')
 
-        
     def panTool(self):
-        """Pan Tool.
+        """Pan Tool allows X-Y panning using the left mouse button.
         """
 #        self.history.message("Pan Tool not implemented yet.")
         self.glpane.prevMode= self.glpane.mode.modename
@@ -716,7 +715,17 @@ class MWsemantics(MainWindow):
 
         self.glpane.setMode('PAN')
         self.history.message("Hit the Esc key to exit Pan Tool.")
-        
+
+    def rotateTool(self):
+        """Rotate Tool allows free rotation using the left mouse button.
+        """
+#        self.history.message("Rotate Tool not implemented yet.")
+        self.glpane.prevMode= self.glpane.mode.modename
+        self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+
+        self.glpane.setMode('ROTATE')
+        self.history.message("Hit the Esc key to exit Rotate Tool.")
+                
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
         self.glpane.ortho = 1
@@ -1508,10 +1517,6 @@ class MWsemantics(MainWindow):
     def editPrefs(self):
         """ Edit square grid line distances(dx, dy, dz) in nm/angstroms """
         self.history.message(redmsg("Edit Preferences: Not implemented yet."))
- 
-    def elemChangePTable(self):
-        """ Future: element change via periodic table
-        (only elements we support) """
              
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
@@ -1701,11 +1706,12 @@ class MWsemantics(MainWindow):
         self.moviePlayerDashboard.hide()
         self.zoomDashboard.hide()
         self.panDashboard.hide()
+        self.rotateDashboard.hide()
         
         ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
         objList = self.queryList("QToolBar")
         for obj in objList:
-                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard, self.panDashboard]:
+                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard, self.panDashboard, self.rotateDashboard]:
                          self.setAppropriate(obj, False)
 
     # Import code for What's This support        
