@@ -596,10 +596,11 @@ class assembly:
     # will choke the file parser in the simulator
     def makeRotaryMotor(self, sightline):
         if not self.selatoms: return
-        self.modified = 1
-
         m=RotaryMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
+        if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
+            del(m)
+            return
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
         self.unpickatoms()
@@ -609,9 +610,11 @@ class assembly:
     # will choke the file parser in the simulator
     def makeLinearMotor(self, sightline):
         if not self.selatoms: return
-        self.modified = 1
         m = LinearMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
+        if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
+            del(m)
+            return
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
         self.unpickatoms()
@@ -620,7 +623,6 @@ class assembly:
     # same note as above
     def makeground(self):
         if not self.selatoms: return
-        self.modified = 1
         m=Ground(self, self.selatoms.values())
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
@@ -630,7 +632,6 @@ class assembly:
     # same note as above
     def makestat(self):
         if not self.selatoms: return
-        self.modified = 1
         m=Stat(self, self.selatoms.values())
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)

@@ -67,6 +67,7 @@ class LinearMotorProp(LinearMotorPropDialog):
     #################
     def accept(self):
         self.applyButtonPressed()
+        self.motor.cancelled = False
         QDialog.accept(self)
 
     #################

@@ -74,6 +74,7 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
         # and also remove self from all our atoms' a.jigs? [guess: yes]
         # [bruce question 041105; looks like a bug but i will ask josh]
         Node.kill(self)
+        self.assy.o.update()
     #e there might be other common methods to pull into here
     pass # class Jig
 
@@ -90,20 +91,21 @@ class RotaryMotor(Jig):
     def __init__(self, assy):
 ##        Node.__init__(self, assy, None, gensym("Rotary Motor."))
         Jig.__init__(self, assy, [])
-        self.torque = 0.0
-        self.speed = 0.0
+        self.torque = 0.0 # in nN * nm
+        self.speed = 0.0 # in gHz
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
-##        self.atoms = []
-##        self.molecule = None
         self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
-        self.pickcolor = (1.0, 0.0, 0.0)
+        self.pickcolor = (1.0, 0.0, 0.0) # red
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 2.0 # default cylinder radius
         self.sradius = 0.5 #default spoke radius
+        self.cancelled = True # We will assume the user will cancel
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.rmotorIcon = QPixmap(filePath + "/../images/rmotor.png")
+        self.mticon = [0,1]
+        self.mticon[0] = QPixmap(filePath + "/../images/rmotor.png")
+        self.mticon[1] = QPixmap(filePath + "/../images/rmotor-hide.png")
         
         self.cntl = RotaryMotorProp(self, assy.o)
 
@@ -161,7 +163,7 @@ class RotaryMotor(Jig):
         return self.axis
    
     def seticon(self):
-        self.icon = self.rmotorIcon
+        self.icon = self.mticon[self.hidden]
 
     def getinfo(self):
         return "[Object: Rotary Motor] [Name: " + str(self.name) + "] [Torque = " + str(self.torque) + "] [Speed = " +str(self.speed) + "]"
@@ -251,9 +253,15 @@ class LinearMotor(Jig):
         self.length = 10.0 # default length of Linear Motor box
         self.width = 2.0 # default box width
         self.sradius = 0.5 #default spoke radius
-        self.cntl = LinearMotorProp(self, assy.o)
+        self.cancelled = True # We will assume the user will cancel
+        
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.lmotorIcon = QPixmap(filePath + "/../images/lmotor.png")
+        self.mticon = [0,1]
+        self.mticon[0] = QPixmap(filePath + "/../images/lmotor.png")
+        self.mticon[1] = QPixmap(filePath + "/../images/lmotor-hide.png")
+        
+        self.cntl = LinearMotorProp(self, assy.o)
+
 
     # set the properties for a Linear Motor read from a (MMP) file
     def setProps(self, name, color, force, stiffness, center, axis):
@@ -307,7 +315,7 @@ class LinearMotor(Jig):
         return self.axis
    
     def seticon(self):
-        self.icon = self.lmotorIcon
+        self.icon = self.mticon[self.hidden]
         
     def getinfo(self):
         return "[Object: Linear Motor] [Name: " + str(self.name) + \
@@ -401,7 +409,9 @@ class Ground(Jig):
         self.pickcolor = (1.0, 0.0, 0.0) # ground is red when picked
         self.cntl = GroundProp(self, assy.o)
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.groundIcon = QPixmap(filePath + "/../images/ground.png")
+        self.mticon = [0,1]
+        self.mticon[0] = QPixmap(filePath + "/../images/ground.png")
+        self.mticon[1] = QPixmap(filePath + "/../images/ground-hide.png")
         
 ##        for a in list: a.jigs += [self]
 
@@ -431,7 +441,7 @@ class Ground(Jig):
         pass
 
     def seticon(self):
-        self.icon = self.groundIcon
+        self.icon = self.mticon[self.hidden]
         
     def getinfo(self):
         return "[Object: Ground] [Name: " + str(self.name) + "] [Total Grounds: " + str(len(self.atoms)) + "]"
@@ -487,7 +497,9 @@ class Stat(Jig):
         self.temp = 300
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.statIcon = QPixmap(filePath + "/../images/stat.png")
+        self.mticon = [0,1]
+        self.mticon[0] = QPixmap(filePath + "/../images/stat.png")
+        self.mticon[1] = QPixmap(filePath + "/../images/stat-hide.png")
         
         self.cntl = StatProp(self, assy.o)
         
@@ -519,7 +531,7 @@ class Stat(Jig):
         pass
 
     def seticon(self):
-        self.icon = self.statIcon
+        self.icon = self.mticon[self.hidden]
 
     def getinfo(self):
         return "[Object: Thermostat] [Name: " + str(self.name) + "] [Temp = " + str(self.temp) + "K]" + "] [Total Stats: " + str(len(self.atoms)) + "]"
