@@ -39,7 +39,7 @@ class FloatSpinBox(QSpinBox):
     def mapTextToValue(self):
         text = self.cleanText()
         text = str(text) # since it's a qt string
-        print "fyi: float spinbox got text %r" % text
+        ##print "fyi: float spinbox got text %r" % text
         try:
             fval = float(text)
             ival = int(fval * self.precision_angstroms) # 2-digit precision
@@ -137,10 +137,27 @@ def do_what_MainWindowUI_should_do(self):
 
 import math
 
-def reinit_extrude_controls(win):
+def reinit_extrude_controls(win, glpane = None, length = None):
     "reinitialize the extrude controls; used whenever we enter the mode; win should be the main window (MWSemantics object)"
     win.extrudeSpinBox_n.setValue(3)
-    set_extrude_controls_xyz(win, (5,5,5)) # this default should (at least) be fixed in eyespace, not modelspace as it is here
+    x,y,z = 5,5,5 # default dir in modelspace, to be used as a last resort
+    if glpane:
+        try:
+            right = win.glpane.right
+            x,y,z = right # use default direction fixed in eyespace
+            if not length:
+                length = 7.0 ######e needed?
+        except:
+            print "fyi (bug?): in extrude: x,y,z = win.glpane.right failed"
+            pass
+    if length:
+        # adjust the length to what the caller desires
+        #######, based on the extrude unit (if provided); we'll want to do this more sophisticatedly (??)
+        ##length = 7.0 ######
+        ll = math.sqrt(x*x + y*y + z*z)
+        rr = float(length) / ll
+        x,y,z = (x * rr, y * rr, z * rr)
+    set_extrude_controls_xyz(win, (x,y,z))
 
 def set_extrude_controls_xyz_nolength(win, (x,y,z) ):
     win.extrudeSpinBox_x.setFloatValue(x)
@@ -194,6 +211,7 @@ class extrudeMode(basicMode):
     backgroundColor = 200/256.0, 100/256.0, 100/256.0 # different than in cookieMode
     modename = 'EXTRUDE'
     default_mode_status_text = "Mode: Extrude"
+    keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
 
     # default initial values
     ###
@@ -237,7 +255,8 @@ class extrudeMode(basicMode):
         return self.o.mode == self ###k 041009
         
     def Enter(self):
-        reinit_extrude_controls(self.w)
+        self.clear() ##e see comment there
+        reinit_extrude_controls(self.w, self.o, length = 7.0)
         basicMode.Enter(self)
         ###
         # find out what's selected, which if ok will be the repeating unit we will extrude... explore its atoms, bonds, externs...
@@ -281,7 +300,8 @@ class extrudeMode(basicMode):
         ### and change the scaleas needed for that. or show the copies that are not visible somehow, like an arrow pointing to them...
         import __main__
         __main__.mode = self
-        print "extrude debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
+        print "fyi: extrude debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
+        print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
         #### .assy
 
     def asserts(self):
@@ -346,7 +366,7 @@ class extrudeMode(basicMode):
                     motion = (offset_wanted - self.offset)*ii
                     mol0 = self.molcopies[ii]
                     ##print "moving %r by %r" % (mol0, motion) #debug
-                    mol0.move(motion)
+                    mol0.move(motion) #### does this change picked state????
             self.offset = offset_wanted
         # now delete or make copies as needed (but don't adjust view until the end)
         while self.ncopies > ncopies_wanted:
@@ -365,10 +385,18 @@ class extrudeMode(basicMode):
             ii = self.ncopies
             self.ncopies = ii + 1
             newmols = assy_copy(self.assy, [self.basemol], offset = self.offset * ii)
-            self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
             new = newmols[0]
+            if self.keeppicked:
+                pass ## done later: self.basemol.pick()
+            else:
+                ## self.basemol.unpick()
+                new.unpick() # undo side effect of assy_copy
             self.molcopies.append(new)
             self.asserts()
+        if self.keeppicked:
+            self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
+        else:
+            self.basemol.unpick() # do this even if no copies made (matters e.g. when entering the mode) 
         ####
         pass
         # now we'd adjust view, or make drawing show if stuff is out of view; make atom overlaps transparent or red; etc...
@@ -377,6 +405,8 @@ class extrudeMode(basicMode):
         return
         
     def init_gui(self):
+        self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
+        self.w.toolsExtrudeAction.setOn(1) # make the Extrude tool icon look pressed (and the others not)
         self.w.extrudeDashboard.show()
 
     # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
@@ -414,6 +444,76 @@ class extrudeMode(basicMode):
 ##        self.o.paintGL()
 
     # mouse events ### wrong -- i should let you drag one of the repeated units; see code in move mode which does similar
+
+    def bareMotion_from_depositMode(self, event): # not called, just here for guidance; comments might be useful back in its source
+        "maintain special color of a singlet during mouseover"
+        doPaint = 0 # whether we will need to repaint
+        if self.o.singlet: # the singlet which was specially colored during last call of Draw, if any
+            self.o.singlet.molecule.changeapp()
+            self.o.singlet = None
+            doPaint = 1 # could optimize this; now it will repaint for every motion remaining on the same singlet
+        p1, p2 = self.o.mousepoints(event)
+        z = norm(p1-p2)
+        x = cross(self.o.up,z)
+        y = cross(z,x)
+        mat = transpose(V(x,y,z))
+        for mol in self.o.assy.molecules:
+            if mol.display != diINVISIBLE:
+                a = mol.findSinglets(p2, mat, TubeRadius, -TubeRadius) # None, or one singlet (I think)
+                if a:
+                    mol.changeapp()
+                    self.o.singlet = a
+                    doPaint = 1
+                    break
+        if doPaint: self.o.paintGL() # notices self.o.singlet, for that atom uses LEDon for color
+
+    def bareMotion_XXX(self, event): ######@@@
+        "maintain special color of our handles, etc, during mouseover"
+        doPaint = 0 # whether we will need to repaint
+        if self.moused_over: # the handle which was specially colored during last call of Draw, if any
+            self.moused_over = None
+            doPaint = 1 # could optimize this; now it will repaint for every motion remaining on the same handle
+        p1, p2 = self.o.mousepoints(event)
+        z = norm(p1-p2)
+        x = cross(self.o.up,z)
+        y = cross(z,x)
+        mat = transpose(V(x,y,z))
+        for key,val in self.mergeables:
+            ######e must try pos and neg versions
+            dist, wid = orthodist(p1, v, p2)
+            if mol.display != diINVISIBLE:
+                a = mol.findSinglets(p2, mat, TubeRadius, -TubeRadius) # None, or one singlet (I think)
+                if a:
+                    mol.changeapp()
+                    self.moused_over = a
+                    doPaint = 1
+                    break
+        if doPaint: self.o.paintGL() # notices self.moused_over, for that atom uses LEDon for color
+
+    ## this is just here for guidance, not called:
+    # point is some point on the line of sight
+    # matrix is a rotation matrix with z along the line of sight,
+    # positive z out of the plane
+    # return positive points only, sorted by distance
+    def findSinglets_from_molecule(self, point, matrix, radius, cutoff):
+        if not self.singlets: return None
+        v = dot(self.singlpos-point,matrix)
+        r = sqrt(v[:,0]**2 + v[:,1]**2)
+        i = argmax(v[:,2] - 100000.0*(r>radius))
+        if r[i]>radius: return None
+        if v[i,2]<cutoff: return None
+        return self.singlets[i]
+
+    def findHandles(self, point, matrix, radius, cutoff):
+        "find the handles which might intersect the mouseray, if caller passes max possible handle radius"
+        # better be fast -- called on every mousemove!
+        if not self.handles: return []
+        v = dot(self.handlpos-point,matrix) ###### handlpos, handles -- see code in shakedown which makes these for mol
+        r = sqrt(v[:,0]**2 + v[:,1]**2)
+        i = argmax(v[:,2] - 100000.0*(r>radius))
+        if r[i]>radius: return []
+        if v[i,2]<cutoff: return []
+        return self.singlets[i] # not just one... need to sort. find the related guy that sorts.
     
     def leftDown(self, event):
         pass##self.StartDraw(event, 1)
@@ -442,10 +542,18 @@ class extrudeMode(basicMode):
     def leftCntlUp(self, event):
         pass##self.EndDraw(event)
 
+    mergeables = {} # in case not yet initialized when we Draw (maybe not needed)
+    moused_over = None
 
+    def clear(self): ###e should modes.py also call this before calling Enter? until it does, call it in Enter ourselves
+        self.mergeables = {}
+        self.moused_over = None
+    
     def Draw(self): ### wrong
         basicMode.Draw(self) # axes, if displayed
         self.o.assy.draw(self.o) ##### copied from selectMode.draw(). But the code inside this looks pretty weird!!!
+        if self.mergeables:
+            draw_mergeables(self.mergeables, self.o)
    
     def makeMenus(self): ### not yet reviewed for extrude mode
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
@@ -472,11 +580,39 @@ class extrudeMode(basicMode):
                                     None,
                                     ('Move', self.move),
                                     ('Copy', self.copy),
+                                    ('debug: EXTRUDE-UPDATE', self.extrude_update),####experimental
+                                    ('debug: EXTRUDE-RELOAD', self.extrude_reload),####experimental
                                     None,
                                     ('Menu2', self.Menu2),
                                     ('Menu3', self.Menu3) ])
         return
-        
+
+    def extrude_update(self):
+        print "extrude_update"
+        try:
+            explore(self.basemol, self.basemol, self) ###e arg order; make it a method
+        except:
+            raise # let Qt print traceback, for now
+        print "extrude_update done"
+        return ### for now
+
+    def extrude_reload(self):
+        """for debugging: try to reload extrudeMode.py and patch your glpane
+        to use it, so no need to restart Atom. Might not always work.
+        [But it did work at least once!]
+        """
+        print "extrude_reload: here goes...."
+        self.o.other_mode_classes.remove(self.__class__)
+        import extrudeMode
+        reload(extrudeMode)
+        from extrudeMode import extrudeMode
+        ## self.o.modetab['EXTRUDE'] = extrudeMode
+        self.o.other_mode_classes.append(extrudeMode)
+        print "about to reinit modes"
+        self.o._reinit_modes()
+        print "done with reinit modes, now see if you are using the reloaded mode"
+        return
+    
     def copy(self):
         print 'NYI'
 
@@ -546,4 +682,157 @@ def assy_extrude_unit(assy):
         print 'assy.molecules is',`assy.molecules` #debug
         return False, "nothing selected, and not exactly one mol in all; stub code gives up" #e someday might merge multiple mols...
     pass
+
+# ==
+
+#e between two molecules, find overlapping atoms/bonds ("bad") or singlets ("good") -- as a function of all possible offsets
+# (in future, some cases of overlapping atoms might be ok, since those atoms could be merged into one)
+
+# ==
+
+def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None):
+    """figure out whether singlets s1 and s2, presumed to be in different
+    molecules (or in different copies, if now in the same molecule), could
+    reasonably be merged (replaced with one actual bond), if s2.molecule was
+    moved by approximately offset2 (or considering all possible offset2's
+     if this arg is not supplied); and if so, what would be the ideal offset
+    (slightly different from offset2) after this merging.
+    Return (False, None, None) or (True, ideal_offset2, error_offset2),
+    where error_offset2 gives the radius of a sphere of reasonable offset2
+    values, centered around ideal_offset2.
+    """
+    #e once this works, we might need to optimize it,
+    # since it redoes a lot of the same work
+    # when called repeatedly for the same extrudable unit.
+    res_bad = (False, None, None)
+    a1 = singlet_atom(s1)
+    a2 = singlet_atom(s2)
+    e1 = a1.element
+    e2 = a2.element
+    r1 = e1.rcovalent
+    r2 = e2.rcovalent
+    dir1 = norm(s1.posn()-a1.posn())
+    dir2 = norm(s2.posn()-a2.posn())
+    # the open bond directions (from their atoms) should point approximately
+    # opposite to each other -- per Josh suggestion, require them to be
+    # within 60 deg. of collinear.
+    closeness = - dot(dir1, dir2) # ideal is 1.0, terrible is -1.0
+    if closeness < 0.5: #e we might want to adjust this parameter
+        return res_bad
+    # ok, we'll merge. Just figure out the offset. At the end, compare to offset2.
+    # For now, we'll just bend the half-bonds by the same angle to make them
+    # point at each other, ignoring other bonds on their atoms.
+    new_dir1 = norm( (dir1 - dir2) / 2 )
+    new_dir2 = - new_dir1 #e needed?
+    a1_a2_offset = (r1 + r2) * new_dir1 # ideal offset, just between the atoms
+    a1_a2_offset_now = a2.posn() - a1.posn() # present offset between atoms
+    ideal_offset2 = a1_a2_offset - a1_a2_offset_now # required shift of a2
+    error_offset2 = (r1 + r2) / 2.0 # josh's guess (replaces 1.0 from the initial tests)
+    if offset2:
+        if vlen(offset2 - ideal_offset2) > error_offset2:
+            return res_bad
+    return (True, ideal_offset2, error_offset2)
+    
+
+# This is a copy of depositMode.findSpot (which should have been a function, not a method)
+# which I [bruce 041011] made in case Josh's major rewrite of depositMode (ongoing, as I type)
+# modifies or removes this in some way I don't anticipate. (Also, since his is a method,
+#  and I have no depositMode instance handy.)
+# When he's done, we should perhaps merge that method and this function.
+# Unless I no longer use this function, having used it only for guidance in new code.
+
+# given an element and a singlet, find the place an atom of the
+# element would like to be if bonded at the singlet
+def my_findSpot(el, singlet):
+    assert 0, "not presently used, i think"
+    obond = singlet.bonds[0]
+    a1 = obond.other(singlet)
+    cr = el.rcovalent
+    pos = singlet.posn() + cr*norm(singlet.posn()-a1.posn())
+    return pos
+
+# ==
+
+def singlet_atom(singlet):
+    "return the atom a singlet is bonded to"
+    obond = singlet.bonds[0]
+    atom = obond.other(singlet)
+    assert atom.element != Singlet, "bug: a singlet is bonded to another singlet!!"
+    return atom
+
+
+# detect reloading
+try:
+    _already_loaded
+except:
+    ##print "fyi: loading extrudeMode.py for first time" # (i mean, for the first time since I added this line of code)
+    _already_loaded = 1
+else:
+    print "reloading extrudeMode.py"
+pass
+
+###### experimental
+extrude_loop_debug = 0
+
+def explore(mol1, mol2, self):
+    "self is a mode obj"
+    sings1 = mol_singlets(mol1) 
+    sings2 = mol_singlets(mol2)
+    ##e quadratic, slow alg; worry about too many singlets
+    mergeables = {}
+    for i1 in range(len(sings1)):
+        for i2 in range(len(sings2)):
+            ###e not needed if i2 > i1, results are negative of swapped i1,i2
+            # (but for i1 == i2 we do the calc -- no guarantee mol1 is identical to mol2.)
+            if i2 > i1:
+                continue
+            s1 = sings1[i1]
+            s2 = sings2[i2]
+            (ok, ideal, err) = mergeable_singlets_Q_and_offset(s1, s2)
+            if extrude_loop_debug:
+                print "extrude loop %d, %d got %r" % (i1, i2, (ok, ideal, err))
+            #### more code, once we test the above
+            if ok:
+                mergeables[(i1,i2)] = (ideal, err)
+    print "len(mergeables) = %d" % len(mergeables)
+    self.mergeables = mergeables
+
+draw_mergeables_debug = 0
+
+def draw_mergeables(mergeables, glpane):
+    color = (0.5,0.5,0.5)
+    radius = 0.33
+    detailLevel = 0 # just an icosahedron
+    drawer.drawsphere(purple, V(0,0,0), radius * 2, detailLevel) # show the center -- make this draggable??
+    if draw_mergeables_debug:
+        print "draw_mergeables, number of them is %d" % len(mergeables)
+    for (i1,i2),(ideal,error) in mergeables.items():
+        ##print "draw_mergeables",(i1,i2),(ideal,error) #####
+        
+        pos = ideal
+        ## radius = error
+        
+        
+          #e (i might prefer an octahedron, or a miniature-convex-hull-of-extrude-unit)
+        drawer.drawsphere(color, pos, radius, detailLevel)
+        drawer.drawsphere(color, - pos, radius, detailLevel)
+    pass####
+
+def mol_singlets(mol):
+    "return a sequence of the singlets of molecule mol"
+    #e see also mol.singlpos, an array of the singlet positions,
+    # which could speed up our "explore" method for a specific offset2
+    try:
+        return mol.singlets
+    except AttributeError:
+        if not mol.atoms:
+            print "fyi, mol_singlets(mol) returns [] since mol %r has no atoms" % (mol,)
+            return []
+        else:
+            mol.shakedown() # this sets singlets = array(singlets, PyObject),
+             # but only if mol has any atoms
+            return mol.singlets
+    pass
+
+
 
