@@ -1053,16 +1053,16 @@ class MWsemantics(MainWindow):
             
         # Disable Minimize, Simulator and Movie Player during the minimize function.
         self.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
-        self.toolsSimulatorAction.setEnabled(0) # Disable "Simulator" 
-        self.toolsMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
+        self.simSetupAction.setEnabled(0) # Disable "Simulator" 
+        self.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
             self.history.message(greenmsg("Minimize..."))
             self.assy.makeMinMovie(1) # 1 = single-frame XYZ file.
             #self.assy.makeMinMovie(2) # 2 = multi-frame DPB file.
         finally:
             self.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
-            self.toolsSimulatorAction.setEnabled(1) # Enable "Simulator"
-            self.toolsMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
+            self.simSetupAction.setEnabled(1) # Enable "Simulator"
+            self.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
         self.history.message("Done")
 
     def modifyHydrogenate(self):
@@ -1362,7 +1362,7 @@ class MWsemantics(MainWindow):
             self.history.message(msg)
             msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
             QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
-                        self.toolsSimulatorAction.iconSet().pixmap() )
+                        self.simSetupAction.iconSet().pixmap() )
             self.history.message(msg)
             return
         

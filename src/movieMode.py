@@ -33,7 +33,7 @@ class movieMode(basicMode):
 
         # Disable some action items in the main window.
         self.w.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
-        self.w.toolsSimulatorAction.setEnabled(0) # Disable "Simulator"
+        self.w.simSetupAction.setEnabled(0) # Disable "Simulator"
         self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
         self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save As"
         self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
@@ -66,7 +66,7 @@ class movieMode(basicMode):
     def restore_gui(self):
         self.w.moviePlayerDashboard.hide()
         self.w.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
-        self.w.toolsSimulatorAction.setEnabled(1) # Enable "Simulator"
+        self.w.simSetupAction.setEnabled(1) # Enable "Simulator"
         self.w.fileSaveAction.setEnabled(1) # Enable "File Save"
         self.w.fileSaveAsAction.setEnabled(1) # Enable "File Save"
         self.w.fileOpenAction.setEnabled(1) # Enable "File Open"
