@@ -466,7 +466,7 @@ void calcloop(int iters) {
     double modrag = 0.001;
 
     orionp = iters;
-    iters = iters/innerIters;
+
     iters = max(iters,1);
 
     deltaTframe = 1.0/iters;
