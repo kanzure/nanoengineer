@@ -871,8 +871,8 @@ class extrudeMode(basicMode):
             self.molcopies.append(new)
             c, q = self.want_center_and_quat(ii)
             mol_set_center_and_quat(self.molcopies[ii], c, q)
-            print "basemol quat %r, unit ii=%d quat %r, after setting it, wanted %r" % \
-                  (self.basemol.quat, ii, self.molcopies[ii].quat, q) ###################debug ninad's bug 041019
+##            print "basemol quat %r, unit ii=%d quat %r, after setting it, wanted %r" % \
+##                  (self.basemol.quat, ii, self.molcopies[ii].quat, q) ###################debug ninad's bug 041019
             self.asserts()
         if self.keeppicked:
             self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
