@@ -116,6 +116,7 @@ class modelTree(QListView):
 
     def rename(self, listItem, col, text):
         if col != 0: return
+        self.win.assy.modified = 1
         listItem.object.name = str(text)
 
     def startDrag(self):

@@ -113,11 +113,13 @@ class Group(Node):
     def addmember(self, obj):
         self.members += [obj]
         obj.dad = self
+        self.assy.modified = 1
         obj.assy = self.assy
 
     def delmember(self, obj):
         try:
             self.members.remove(obj)
+            self.assy.modified = 1
         except: pass
 
     def pick(self):

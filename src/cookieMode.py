@@ -184,7 +184,7 @@ class cookieMode(basicMode):
             self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight,
                                Slab(-self.o.pov, self.o.out, 7))
 
-        # This is a kludge, to get exclusive (replace) selection working - Mark and Huaicai [04
+        # This is a kludge, to get a new (replace) selection working - Mark and Huaicai [04-10-4]
         if self.selSense == 2:
             self.o.shape.curves = []
             self.selSense = 1

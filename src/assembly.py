@@ -163,15 +163,11 @@ class assembly:
     # to draw, just draw everything inside
     def draw(self, win):
         self.tree.draw(self.o, self.o.display)
-           
-    # write to a povray file: draw each molecule in the part
-    def povwrite(self, file, win):
-        for mol in self.molecules:
-            mol.povwrite(file, win)
 
     # make a new molecule using a cookie-cut shape
     def molmake(self,shap):
-        mol = molecule(self, gensym("Cookie"))
+        self.modified = 1 # The file and the part are now out of sync.
+        mol = molecule(self, gensym("Cookie."))
         ndx={}
         hashAtomPos
         bbhi, bblo = shap.bbox.data

@@ -43,42 +43,48 @@ class MWsemantics(MainWindow):
         import extrudeMode as _extrudeMode
         _extrudeMode.do_what_MainWindowUI_should_do(self)
         
-        #Load cursors
+        # Load all the custom cursors
         self.loadCursors()
         
-        #Hide all dashboards
+        # Hide all dashboards
         self.hideDashboards()
-                
+        
+        # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         self.createStatusBars()
         
         windowList += [self]
         if name == None:
             self.setName("Atom")
 
-	# start with empty window
+	    # start with empty window 
         self.assy = assembly(self, "Empty")
+        
+        # Set the caption to the name of the current (default) part - Mark [2004-10-11]
+        self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.name + "]"))
 
+        # Create the splitter between glpane and the model tree
         splitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
-
+        
+        # Create the model tree widget
         self.mt = self.modelTreeView = modelTree(splitter, self)
         self.modelTreeView.setMinimumSize(0, 0)
         
+        # Create the glpane - where all the action is!
         self.glpane = GLPane(self.assy, splitter, "glpane", self)
 
+        # Some final splitter setup
         splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)       
         splitter.setOpaqueResize(False)
-        
         self.setCentralWidget(splitter)
         
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
         self.assy.mt = self.mt
 
+        # We must enable keyboard focus for a widget if it processes keyboard events.
         self.setFocusPolicy(QWidget.StrongFocus)
 
-        self.update_mode_status()
-
-        # start with Carbon
+        # Start with Carbon as the default element (for Deposit Mode and the Element Selector)
         self.Element = 6
         self.setElement(6)
 
@@ -181,30 +187,44 @@ class MWsemantics(MainWindow):
         assy.name = fil
         assy.filename = fn
 
-        self.setCaption(self.trUtf8("Atom: " + assy.name))
+        self.setCaption(self.trUtf8("Atom - " + "[" + assy.filename + "]"))
 
         self.glpane.scale=self.assy.bbox.scale()
         self.glpane.paintGL()
         self.mt.update()
 
     def fileOpen(self):
-        self.__clear()
-        
+        if self.assy.modified:
+            ret = QMessageBox.information( self, "Atom",
+                "The part contains unsaved changes\n"
+                "Do you want to save the changes before opening a new part?",
+                "&Save", "&Discard", "Cancel",
+                0,      # Enter == button 0
+                2 )     # Escape == button 2
+            
+            if ret==0: self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
+
         wd = globalParms['WorkingDirectory']
-        fn = QFileDialog.getOpenFileName(wd, "Molecular machine parts (*.mmp);;Molecules (*.pdb);;Molecular parts assemblies (*.mpa);; All of the above (*.pdb *.mmp *.mpa)",
-                                         self )
+        fn = QFileDialog.getOpenFileName(wd, 
+                "Molecular machine parts (*.mmp);;Molecules (*.pdb);; All of the above (*.pdb *.mmp)",
+                self )
+        
         fn = str(fn)
         if not os.path.exists(fn): return
-        if fn[-3:] == "pdb":
-            readpdb(self.assy,fn)
+        
+        self.__clear() # Clear the part - we're loading a new file.
+
         if fn[-3:] == "mmp":
             readmmp(self.assy,fn)
+        if fn[-3:] == "pdb":
+            readpdb(self.assy,fn)
 
         dir, fil, ext = fileparse(fn)
         self.assy.name = fil
         self.assy.filename = fn
 
-        self.setCaption(self.trUtf8("Atom: " + self.assy.name))
+        self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
 
         self.glpane.scale=self.assy.bbox.scale()
         self.glpane.paintGL()
@@ -217,6 +237,8 @@ class MWsemantics(MainWindow):
                 fn = str(self.assy.filename)
                 dir, fil, ext = fileparse(fn)
                 writemmp(self.assy, dir + fil + ".mmp")
+                self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
+                self.assy.modified = 0 # The file and the part are now the same.
             else: self.fileSaveAs()
 
     def fileSaveAs(self):
@@ -224,32 +246,30 @@ class MWsemantics(MainWindow):
             if self.assy.filename:
                 dir, fil, ext = fileparse(self.assy.filename)
             else: dir, fil = "./", self.assy.name
-            
-	    fileDialog = QFileDialog(dir, "Molecular machine parts (*.mmp);;Molecules (*.pdb);;POV-Ray (*.pov)", self, "Save File As", 1)
-            if self.assy.filename:
-                fileDialog.setSelection(fil)
 
-            fileDialog.setMode(QFileDialog.AnyFile)
-	    fn = None
-            if fileDialog.exec_loop() == QDialog.Accepted:
-            	fn = fileDialog.selectedFile()
+        fn = QFileDialog.getSaveFileName(dir,
+                    "Molecular machine parts (*.mmp);;Molecules (*.pdb);;POV-Ray (*.pov)", 
+                    self,
+                    "SaveDialog",
+                    "Save As")
             
-            if fn:
-                fn = str(fn)
-                dir, fil, ext = fileparse(fn)
-                ext = fileDialog.selectedFilter()
-                ext = str(ext)
-                if ext[-4:-1] == "mmp":
-                    writemmp(self.assy, dir + fil + ".mmp")
-                    self.assy.filename = dir + fil + ".mmp"
-                    self.assy.modified = 0
-                elif ext[-4:-1] == "pdb":
-                    writepdb(self.assy, dir + fil + ".pdb")
-                    self.assy.filename = dir + fil + ".pdb"
-                    self.assy.modified = 0
-                elif ext[-4:-1] == "pov":
-#                    self.glpane.povwrite(dir + fil + ".pov")
-                    writepov(self.assy, dir + fil + ".pov")
+        print "QFileDialog: filename = ", fn
+            
+        if fn:
+            fn = str(fn)
+            dir, fil, ext = fileparse(fn)
+            ext = str(ext)
+            if fn[-3:] == "mmp":
+                self.assy.name = fil
+                self.assy.filename = fn
+                writemmp(self.assy, fn) # write the MMP file
+                self.assy.modified = 0 # The file and the part are now the same.
+                self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
+                print "MMP saved: filename = ", self.assy.filename
+            if fn[-3:] == "pdb":
+                writepdb(self.assy, dir + fil + ".pdb")
+            if fn[-3:] == "pov":
+                writepov(self.assy, dir + fil + ".pov")
 
     def fileImage(self):
         if self.assy:
@@ -288,6 +308,7 @@ class MWsemantics(MainWindow):
     def __clear(self):
         # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Empty")
+        self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.name + "]"))
         self.glpane.setAssy(self.assy)
         self.assy.mt = self.mt
 

@@ -53,7 +53,6 @@ class modifyMode(basicMode):
         """Move the selected object(s) in the plane of the screen following
         the mouse.
         """
-
         self.o.SaveMouse(event)
         self.picking = True
         p1, p2 = self.o.mousepoints(event)

@@ -269,7 +269,7 @@ class basicMode(anyMode):
         return None
 
     def init_gui(self):
-        "subclasses with toolbars should override this to show them all"
+        "subclasses use this to set up UI stuff like dashboards, cursors, toggle icons, etc."
         pass
 
     def update_mode_status_text(self):        
@@ -503,7 +503,7 @@ class basicMode(anyMode):
         self.clear() # clear our internal state, if any
         
     def restore_gui(self):
-        "subclasses with toolbars should hide them all"
+        "subclasses use this to restore UI stuff like dashboards, cursors, toggle icons, etc."
         pass
 
     def restore_patches(self):

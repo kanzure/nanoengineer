@@ -758,40 +758,6 @@ class GLPane(QGLWidget, modeMixin):
         if filename[-3:] == "pov": self.povwrite(filename, width, height)
         else:  self.jpgwrite(filename, width, height)
 
-    def povwrite(self, filename):
-        aspect = (self.width*1.0)/(self.height*1.0)
-        f=open(filename,"w")
-        f.write(povheader)
-
-        f.write("background { color rgb " +
-                povpoint(self.mode.backgroundColor*V(1,1,-1)) +
-                "}\n")
-
-        light1 = self.out + self.left + self.up
-        light2 = self.right + self.up
-        light3 = self.right + self.down + self.out/2.0
-        f.write("light_source {" + povpoint(light1) +
-                " color Gray50 parallel}\n")
-        f.write("light_source {" + povpoint(light2) +
-                " color Gray25 parallel}\n")
-        f.write("light_source {" + povpoint(light3) +
-                " color Gray25 parallel}\n")
-        
-
-        f.write("camera {\n location " +
-                povpoint(3.0*self.scale*self.out-self.pov) +
-                "\nup " + povpoint(0.7 * self.up) +
-                "\nright " + povpoint(0.7 * aspect*self.right) +
-                "\nsky " + povpoint(self.up) +
-                "\nlook_at " + povpoint(-self.pov) +
-                "\n}\n")
-        
-        self.assy.povwrite(f, self) # write all the atoms and bonds in the parts
-
-        f.close()
-        print "povray +P +W" + str(width) + " +H" +str(height)  + " +A " + filename
-
-        
     def jpgwrite(self, filename, width, height):
 
         buf = array(glReadPixelsub(0, 0, width, height, GL_RGB))

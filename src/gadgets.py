@@ -34,7 +34,7 @@ class RotaryMotor(Node):
 
 # create a blank Rotary Motor not connected to anything    
     def __init__(self, assy):
-        Node.__init__(self, assy, None, gensym("Rotary Motor"))
+        Node.__init__(self, assy, None, gensym("Rotary Motor."))
         self.torque = 0.0
         self.speed = 0.0
         self.center = V(0,0,0)
@@ -144,7 +144,7 @@ class LinearMotor(Node):
 
 # create a blank Linear Motor not connected to anything
     def __init__(self, assy):
-        Node.__init__(self, assy, None, gensym("Linear Motor"))
+        Node.__init__(self, assy, None, gensym("Linear Motor."))
         
         self.force = 0.0
         self.stiffness = 0.0
@@ -266,7 +266,7 @@ class Ground(Node):
 
 # create a blank Ground with an empty list of atoms
     def __init__(self, assy, list):
-        Node.__init__(self, assy, None, gensym("Ground"))
+        Node.__init__(self, assy, None, gensym("Ground."))
         self.atoms =list
         # should really split ground if attached to more than one mol
         self.molecule = list[0].molecule
@@ -322,7 +322,7 @@ class Stat(Node):
 
 # create a blank Stat with an empty list of atoms, set to 300K
     def __init__(self, assy, list):
-        Node.__init__(self, assy, None, gensym("Stat"))
+        Node.__init__(self, assy, None, gensym("Stat."))
         self.atoms =list
         # should really split stat if attached to more than one mol
         self.molecule = list[0].molecule

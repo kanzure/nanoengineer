@@ -992,7 +992,7 @@ class molecule(Node):
 def oneUnbonded(elem, assy, pos):
     """[bruce comment 040928:] create one unbonded atom, of element elem,
     at position pos, in its own new molecule."""
-    mol = molecule(assy, gensym('Clicked'))
+    mol = molecule(assy, gensym('Molecule.'))
     a = atom(elem.symbol, pos, mol)
     r = elem.rcovalent
     if elem.bonds and elem.bonds[0][2]:
