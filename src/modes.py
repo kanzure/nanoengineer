@@ -548,14 +548,16 @@ class basicMode(anyMode):
         return
 
     def Abandon(self):
-        """This is only used when we have to Cancel whether or not
-           this is ok to do now -- someday it should never be called.
+        """This is only used when we are forced to Cancel, whether or not this
+           is ok (with the user) to do now -- someday it should never be called.
            Basically, every call of this is by definition a bug -- but
            one that can't be fixed in the mode-related code alone.
+           [But it would be easy to fix in the file-opening code, once we
+           agree on how.]
         """
         if self.haveNontrivialState():
             msg = "%s with changes is being forced to abandon those changes!\n" \
-                  "Sorry, no choice for now (yes, I know that's a bug)." % (self.msg_modename,)
+                  "Sorry, no choice for now." % (self.msg_modename,)
             self.o.warning( msg, bother_user_with_dialog = 1 )
         # don't do self._exitMode(), since it sets a new mode and
         #ultimately asks glpane to update for that... which is
