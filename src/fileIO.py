@@ -291,12 +291,15 @@ def _addMolecule(mol, assy, group):
         except for record types: atom, bond, shaft and csys, datum, walls,
         kelvin. This adds the previous molecule to its group.
         """
-        assy.addmol(mol)
-            #bruce 050321 suspects addmol is no longer needed
-            # (in fact I'm not even sure _addMolecule itself is still needed --
-            #  it might now be ok to just store the empty mol in the right group
-            #  when it's initially made; figure this out sometime. ###k)
-        mol.moveto(group)
+        group.addchild(mol) # bruce 050322: try just doing this; seems to work;
+            # if no bugs are reported, we can probably do this at start of mol record
+            # and remove the need for all the existing calls of this routine.
+##        assy.addmol(mol)
+##            #bruce 050321 suspects addmol is no longer needed
+##            # (in fact I'm not even sure _addMolecule itself is still needed --
+##            #  it might now be ok to just store the empty mol in the right group
+##            #  when it's initially made; figure this out sometime. ###k)
+##        mol.moveto(group)
         return None #bruce 050228
 
 def _readmmp(assy, filename, isInsert = False):

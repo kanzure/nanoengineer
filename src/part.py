@@ -477,9 +477,11 @@ class Part(InvalMixin):
             # just call mol.moveto when you're done, like fileIO does.   
         ## done in addchild->changed_dad->inherit_part->Part.add:
         ## self.invalidate_attrs(['natoms','molecules']) # this also invals bbox and center, via molecules
+        
         #bruce 050321 disabling the following debug code, since not yet ok for all uses of _readmmp;
-        # btw does readmmp even need to call addmol anymore?? #####@@@@@ #k
-        if 0 and platform.atom_debug:
+        # btw does readmmp even need to call addmol anymore??
+        #bruce 050322 now readmmp doesn't call addmol so I'll try reenabling this:
+        if 1 and platform.atom_debug:
             self.assy.checkparts()
 
     def ensure_toplevel_group(self): #bruce 050228, 050309
