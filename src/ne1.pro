@@ -13,9 +13,7 @@
   <pyfile type="file" name="elementpixmaps.py" />
   <pyfile type="file" name="elementSelector.py" />
   <pyfile type="file" name="extrudeMode.py" />
-  <pyfile type="file" name="fileIO.py" >
-   <breakpoint line="541" />
-  </pyfile>
+  <pyfile type="file" name="fileIO.py" />
   <pyfile type="file" name="gadgets.py" />
   <pyfile type="file" name="GLPane.py" />
   <pyfile type="file" name="GroundProp.py" />
