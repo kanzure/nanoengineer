@@ -16,7 +16,8 @@ from mdldata import *
 from HistoryWidget import redmsg # bruce 050107
 
 nampat=re.compile("\\(([^)]*)\\)")
-csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
+old_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
+new_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 datumpat = re.compile("datum \((.+)\) \((\d+), (\d+), (\d+)\) (.*) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
 keypat=re.compile("\S+")
 molpat = re.compile("mol \(.*\) (\S\S\S)")
@@ -381,13 +382,33 @@ def _readmmp(assy, filnam, isInsert = False):
              
         elif key=="csys": # Coordinate System
             if not isInsert: #Skip this record if inserting
-                m=re.match(csyspat,card)
-                name=m.group(1)
-                wxyz = A(map(float, [m.group(2), m.group(3),
+                ###Huaicai 1/27/05, new file format with home view 
+                ### and last view information        
+                m = new_csyspat.match(card)
+                if m:        
+                        name = m.group(1)
+                        wxyz = A(map(float, [m.group(2), m.group(3),
                                  m.group(4), m.group(5)]))
-                scale=float(m.group(6))
-                assy.csys = Csys(assy, name, scale, wxyz)
-                opengroup.addmember(assy.csys)
+                        scale=float(m.group(6))
+                        pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
+                        zoomFactor = float(m.group(10))
+                        if (name == "HomeView"):
+                                assy.homeCsys = Csys(assy, name, scale, pov, zoomFactor, wxyz)
+                                opengroup.addmember(assy.homeCsys)
+                        elif (name == "LastView"):                         
+                                assy.lastCsys = Csys(assy, name, scale, pov, zoomFactor, wxyz)
+                                opengroup.addmember(assy.lastCsys)
+                else:
+                  m = old_csyspat.match(card)
+                  if m:
+                        name=m.group(1)
+                        wxyz = A(map(float, [m.group(2), m.group(3),
+                                 m.group(4), m.group(5)]))
+                        scale=float(m.group(6))
+                        assy.homeCsys = Csys(assy, "HomeView", scale, V(0,0,0), 1.0, wxyz)
+                        opengroup.addmember(assy.homeCsys)
+                        assy.lastCsys = Csys(assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
+                        opengroup.addmember(assy.lastCsys)
 
         elif key=="datum": # Datum object
             if not isInsert: #Skip this record if inserting
@@ -469,8 +490,12 @@ def workaround_for_bug_296(assy):
 
 # write all molecules, motors, grounds into an MMP file
 def writemmp(assy, filename, addshelf = True):
-
+    
     workaround_for_bug_296( assy)
+    
+    ##Huaicai 1/27/05, save the last view before mmp 
+    ## file saving
+    assy.o.saveLastView(assy)  
     
     f = open(filename,"w")
     atnums = {}

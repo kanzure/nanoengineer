@@ -168,11 +168,7 @@ class MWsemantics(MainWindow):
         # and paste the atom rather than the clipboard by default
         self.pasteP = False
         
-        # Huaicai 12/14/04, the following property should be really a property of Csys, which
-        # stores the center view point of the current home view. This needs to change when
-        # we update the mmp file format
-        self.currentPov = V(0.0, 0.0, 0.0)
-
+        
         # bruce 050104 moved find_or_make_Nanorex_prefs_directory to an earlier time
         
         self.initialised = 1
@@ -314,6 +310,7 @@ class MWsemantics(MainWindow):
             self.glpane.paintGL()
             self.mt.mt_update()
 
+
     def fileOpen(self):
         
         self.history.message(greenmsg("Open File:"))
@@ -351,16 +348,16 @@ class MWsemantics(MainWindow):
             return
 
         if fn:
-            # I know we are clearing twice if the file was saved above.
-            # This is desidered behavior - Mark [2004-10-11]
-            self.__clear()  
+            self.__clear()
                 
             fn = str(fn)
             if not os.path.exists(fn): return
 
+            isMMPFile = False
             if fn[-3:] == "mmp":
                 readmmp(self.assy,fn)
                 self.history.message("MMP file opened: [" + fn + "]")
+                isMMPFile = True
                 
             if fn[-3:] in ["pdb","PDB"]:
                 readpdb(self.assy,fn)
@@ -375,11 +372,13 @@ class MWsemantics(MainWindow):
 
             # Huaicai 12/14/04, set the initial orientation to the file's home view orientation 
             # when open a file; set the home view scale = current fit-in-view scale  
-            self.glpane.quat = Q( self.assy.csys.quat)
-            self.setViewFitToWindow()
-            self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
-            self.assy.csys.scale = self.glpane.scale
+            if isMMPFile:
+                    self.glpane.setInitialView(self.assy)
+            else: ###PDB or other file format        
+                self.setViewFitToWindow()
+                
             self.mt.mt_update()
+
 
     def fileSave(self):
         
@@ -667,32 +666,35 @@ class MWsemantics(MainWindow):
     def setViewHome(self):
         """Reset view to Home view"""
         self.history.message(greenmsg("Current View: HOME"))
-        self.glpane.quat = Q(self.assy.csys.quat) 
-        self.glpane.scale = self.assy.csys.scale
-        self.glpane.pov = V(self.currentPov[0], self.currentPov[1], self.currentPov[2])
-      
+        self.glpane.quat = Q(self.assy.homeCsys.quat) 
+        self.glpane.scale = self.assy.homeCsys.scale
+        self.glpane.pov = V(self.assy.homeCsys.pov[0], self.assy.homeCsys.pov[1], self.assy.homeCsys.pov[2])
+        self.glpane.zoomFactor = self.assy.homeCsys.zoomFactor
+        
         self.glpane.paintGL()
 
 
     def setViewFitToWindow(self):
         """ Fit to Window """
         #Recalculate center and bounding box for the assembly    
-        
 #        self.history.message(greenmsg("Fit to Window:"))
         
         self.assy.computeBoundingBox()     
 
         self.glpane.scale=self.assy.bbox.scale()
-        self.glpane.pov = -self.assy.center
+        self.glpane.pov = V(-self.assy.center[0], -self.assy.center[1], -self.assy.center[2]) 
         self.glpane.setZoomFactor(1.0)
         self.glpane.paintGL()
+
             
     def setViewHomeToCurrent(self):
         """Changes Home view to the current view.  This saves the view info in the Csys"""
         self.history.message(greenmsg("Set Home View to Current View:"))
-        self.assy.csys.quat = Q(self.glpane.quat)
-        self.assy.csys.scale = self.glpane.scale
-        self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
+        self.assy.homeCsys.quat = Q(self.glpane.quat)
+        self.assy.homeCsys.scale = self.glpane.scale
+        self.assy.homeCsys.pov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
+        self.assy.homeCsys.zoomFactor = self.glpane.zoomFactor 
+        
         self.assy.changed() # Csys record changed in assy.  Mark [041215]
         
     def zoomWindow(self):

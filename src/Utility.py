@@ -862,21 +862,26 @@ class DataNode(Node):
 class Csys(DataNode):
     """ Information for coordinate system"""
 
-    def __init__(self, assy, name, scale, w, x = None, y = None, z = None):
+    def __init__(self, assy, name, scale, pov, zoomFactor, w, x = None, y = None, z = None):
         self.const_icon = imagename_to_pixmap("csys.png")
         Node.__init__(self, assy, None, name)
         self.scale = scale
+        assert type(pov) == type(V(1, 0, 0))
+        self.pov = V(pov[0], pov[1], pov[2])
+        self.zoomFactor = zoomFactor
         
         if not x and not y and not z:
             self.quat = Q(w)
         else:
             self.quat = Q(x, y, z, w)
+            
         return
 
+
     def writemmp(self, atnums, alist, f):
-        v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale)
+        v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale,       self.pov[0], self.pov[1], self.pov[2], self.zoomFactor)
         f.write("csys (" + self.name +
-                ") (%f, %f, %f, %f) (%f)\n" % v)
+                ") (%f, %f, %f, %f) (%f) (%f, %f, %f) (%f)\n" % v)
 
     def copy(self, dad=None):
         print "can't copy a csys"

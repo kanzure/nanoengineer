@@ -190,9 +190,25 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         drawer.setup()
 
         self.setAssy(assem)
-
-        return # from GLPane.__init__
         
+        return # from GLPane.__init__
+   
+    def setInitialView(self, assy):
+        """Huaicai 1/27/05: part of the code of this method comes
+            from original setAssy() method. This method can be called after setAssy() has been called, for example, when open a mmp file. Set the initial view  """   
+        self.quat = Q(assy.lastCsys.quat)
+        self.scale = assy.lastCsys.scale
+        self.pov = V(assy.lastCsys.pov[0], assy.lastCsys.pov[1], assy.lastCsys.pov[2])
+        self.zoomFactor = assy.lastCsys.zoomFactor
+    
+    def saveLastView(self, assy):
+        """ Huaicai 1/27/05: before mmp file saving, this method should be called to save the last view user has, which will be used as the initial view when it is opened again. """    
+        assy.lastCsys.quat = Q(self.quat)
+        assy.lastCsys.scale = self.scale
+        assy.lastCsys.pov = V(self.pov[0], self.pov[1], self.pov[2])
+        assy.lastCsys.zoomFactor = self.zoomFactor
+            
+            
     def setAssy(self, assem):
         """[bruce comment 040922] This is called from self.__init__,
         and from MWSemantics.__clear when user asks to open a new
@@ -212,9 +228,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         
         assem.o = self
         self.assy = assem
-        self.quat = self.assy.csys.quat
-        self.scale = self.assy.csys.scale
-
+        
+        self.setInitialView(assem)
+        
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() 
 
@@ -356,6 +372,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glEnable(GL_CULL_FACE)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
+      
 
     def fix_buttons(self, but, when):
         return fix_buttons_helper(self, but, when)
@@ -698,6 +715,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         """for debugging"""
         print " pov: ", self.pov
         print " quat ", self.quat
+
 
     def __str__(self):
         return "<GLPane " + self.name + ">"
