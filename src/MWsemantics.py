@@ -494,7 +494,6 @@ class MWsemantics(MainWindow):
         self.update()
 
     def editCopy(self):
-        print 'got editCopy'
         self.assy.copy()
         self.update()
 
@@ -942,7 +941,7 @@ class MWsemantics(MainWindow):
 
     # pop up set element box
     def modifySetElement(self):
-        print self.Element    
+#        print "modifySetElement: Current Element = ", self.Element    
         global elementwindow
         if not elementwindow:
             elementwindow = elementSelector(self)
@@ -1259,11 +1258,16 @@ class MWsemantics(MainWindow):
         self.statusBar().addWidget(self.msgbarLabel,1,1)
 
         # Mark - Set up mode bar (right) in status bar area.        
+        self.dispbarLabel = QLabel(self, "dispbarLabel")
+        self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        
+        self.statusBar().addWidget(self.dispbarLabel,0,1)
+        
+        # Mark - Set up mode bar (right) in status bar area.        
         self.modebarLabel = QLabel(self, "modebarLabel")
         self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
         
         self.statusBar().addWidget(self.modebarLabel,0,1)
-        #self.update_mode_status() # bruce 040927            
         
     def hideDashboards(self):
         self.cookieCutterDashboard.hide()
