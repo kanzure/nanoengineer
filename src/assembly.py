@@ -84,9 +84,10 @@ class assembly:
 
     # to draw, just draw everything inside
     def draw(self, win):
-
-        for mol in self.molecules:
-            mol.draw(win, self.drawLevel)
+        global assyList
+        for part in assyList:
+            for mol in part.molecules:
+                 mol.draw(win, self.drawLevel)
            
     # write a povray file: just draw everything inside
     def povwrite(self,file,win):

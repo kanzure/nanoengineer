@@ -87,16 +87,17 @@ class MWsemantics(MainWindow):
                                          self )
         fn = str(fn)
         if not os.path.exists(fn): return
+        assy = assembly(self, "Empty")
         if fn[-3:] == "pdb":
-            self.assy.readpdb(fn)
+            assy.readpdb(fn)
         if fn[-3:] == "mmp":
-            self.assy.readmmp(fn)
+            assy.readmmp(fn)
 
         dir, fil, ext = fileparse(fn)
-        self.assy.name = fil
-        self.assy.filename = fn
+        assy.name = fil
+        assy.filename = fn
 
-        self.setCaption(self.trUtf8("Atom: " + self.assy.name))
+        self.setCaption(self.trUtf8("Atom: " + assy.name))
 
 	#update the model tree
         self.modelTreeView.updateModelTree()

@@ -127,7 +127,7 @@ class modelTree(QListView):
                    self.treeItems[item] = g
                    gIndex += 1
 
-        item = QListViewItem(rootItem, "Insert Here")
+        item = QListViewItem(self, "Insert Here")
         item.setPixmap(0, self.insertHereIcon)
         item.setDragEnabled(True)
         item.setDropEnabled(False)
