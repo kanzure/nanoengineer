@@ -25,6 +25,8 @@ from MainWindowUI import MainWindow
 
 from assistant import AssistantWindow
 
+from AboutDialog import AboutDialog
+
 helpwindow = None
 elementwindow = None
 windowList = []
@@ -833,8 +835,11 @@ class MWsemantics(MainWindow):
         self.assistant.openNE1Assistant()
 	         
     def helpAbout(self):
-        QMessageBox.information(self, self.name() + " User Notice:", 
-	         "This function is not implemented yet, coming soon...")
+        cntl = AboutDialog() # About NE-1 Dialog
+        cntl.exec_loop()
+        
+#        QMessageBox.information(self, self.name() + " User Notice:", 
+#	         "This function is not implemented yet, coming soon...")
 	         
     def helpWhatsThis(self):
         QWhatsThis.enterWhatsThisMode ()
