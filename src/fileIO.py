@@ -576,15 +576,21 @@ def writemovie(assy, mflag = False):
     QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
     #oldCursor = QCursor(assy.w.cursor())
     #assy.w.setCursor(QCursor(Qt.WaitCursor) )
-    
+
     # "formarg" = File format argument
     if ext == ".dpb": formarg = ''
     else: formarg = "-x"
         
     # Put double quotes around filenames so spawnv can handle them properly on Win32 systems.
-    outfile = '"-o%s"' % moviefile
-    infile = '"%s"' % mmpfile
-    #print "infile = ",infile," outfile =",outfile
+    # This may create a bug on Linux and MacOS, so lets leave the quotes off.
+    # Mark 050107
+    if sys.platform == 'win32':
+        outfile = '"-o%s"' % moviefile
+        infile = '"%s"' % mmpfile
+    else:
+        outfile = "-o"+moviefile
+        infile = mmpfile
+
 
     if mflag: # "args" = arguments for the simulator to minimize.
         args = [program, '-m', outfile, infile]

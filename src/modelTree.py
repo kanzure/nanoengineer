@@ -41,7 +41,7 @@ class modelTree(QListView):
         self.setSelectionMode(QListView.Extended)
         self.selectedItem = None
         self.modifier = None
-
+        
         # Single Item Selected Menu
         self.singlemenu = self.makemenu([
             ["Hide", self.hide],
@@ -473,4 +473,3 @@ class modelTree(QListView):
 
     
     pass # end of class modelTree
-
