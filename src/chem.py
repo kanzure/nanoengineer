@@ -388,9 +388,12 @@ class atom:
         return dist
 
     def getinfo(self):
-        # Return information about the selected atom for the msgbar [mark 2004-10-14]
+        # Return information about the selected atom for the msgbar
+        # [mark 2004-10-14]
         xyzstr = self.posn()
-        ainfo = "Atom #" + str (self.key ) + " [" + self.element.name + "] [X = " + str(xyzstr[0]) + "] [Y = " + str(xyzstr[1]) + "] [Z = " + str(xyzstr[2]) + "]"
+        ainfo = ("Atom #" + str (self.key ) + " [" + self.element.name +
+                 "] [X = " + str(xyzstr[0]) + "] [Y = " + str(xyzstr[1]) +
+                 "] [Z = " + str(xyzstr[2]) + "]")
         return ainfo
 
     def pick(self):
@@ -401,7 +404,8 @@ class atom:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
             self.molecule.changeapp()
-            # Print information about the selected atom in the msgbar [mark 2004-10-14]
+            # Print information about the selected atom in the msgbar
+            # [mark 2004-10-14]
             self.molecule.assy.w.msgbarLabel.setText(self.getinfo())
                 
     def unpick(self):
@@ -554,12 +558,15 @@ class bond:
         else: return self.c2 + off
 
     # "break" is a python keyword
-    def bust(self):
+    def bust(self, mol = None):
         self.atom1.unbond(self)
         self.atom2.unbond(self)
-        self.atom1.molecule.shakedown()
+        # a non-null mol is being thrown away, no need to update it
+        if mol != self.atom1.molecule:
+            self.atom1.molecule.shakedown()
         if self.atom1.molecule != self.atom2.molecule:
-            self.atom2.molecule.shakedown()
+            if mol != self.atom2.molecule:
+                self.atom2.molecule.shakedown()
 
     def rebond(self, old, new):
         # intended for use on singlets, other uses may have bugs
@@ -658,6 +665,9 @@ class bond:
 
     def __str__(self):
         return str(self.atom1) + " <--> " + str(self.atom2)
+
+    def __repr__(self):
+        return str(self.atom1) + "::" + str(self.atom2)
 
 
 # I use "molecule" and "part" interchangeably throughout the program.
@@ -990,6 +1000,8 @@ class molecule(Node):
             self.assy.molecules.remove(self)
             self.assy.modified = 1
         except ValueError: pass
+        for b in self.externs:
+            b.bust(self)
 
     # point is some point on the line of sight
     # matrix is a rotation matrix with z along the line of sight,

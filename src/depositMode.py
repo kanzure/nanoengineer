@@ -635,6 +635,7 @@ class depositMode(basicMode):
         
         self.Menu1 = self.makemenu([('Set Hotspot', self.setHotSpot),
                                     ('select', self.select),
+                                    ("dump", self.dump),
                                     None,
                                     ('Double bond', self.skip),
                                     ('Triple bond', self.skip)
@@ -681,9 +682,10 @@ class depositMode(basicMode):
         if self.o.selatom:
             m = self.o.selatom.molecule
             print "mol", m.name, len(m.atoms), len(m.atlist), len(m.curpos)
+            print 'externs', m.externs
             for a in m.atlist:
                 print a
                 for b in a.bonds:
-                    print b
+                    print '   ', b
 
     pass # end of class depositMode
