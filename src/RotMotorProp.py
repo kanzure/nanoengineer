@@ -1,28 +1,31 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
-from RotMotorPropDialog import *
+from RotaryMotorPropDialog import *
 from VQT import V
 
-class RotMotorProp(RotMotorPropDialog):
+class RotMotorProp(rotaryMotorPropDialog):
     def __init__(self, rotMotor):
-        RotMotorPropDialog.__init__(self)
+        rotaryMotorPropDialog.__init__(self)
         self.motor = rotMotor
 
-        self.torque.setText(str(rotMotor.torque))
-        self.speed.setText(str(rotMotor.speed))
-        self.aX.setText(str(rotMotor.axis[0]))
-        self.aY.setText(str(rotMotor.axis[1]))
-        self.aZ.setText(str(rotMotor.axis[2]))
+        self.torqueLineEdit.setText(str(rotMotor.torque))
+        self.speedLineEdit.setText(str(rotMotor.speed))
+        self.axLineEdit.setText(str(rotMotor.axis[0]))
+        self.ayLineEdit.setText(str(rotMotor.axis[1]))
+        self.azLineEdit.setText(str(rotMotor.axis[2]))
 
-        self.cX.setText(str(rotMotor.center[0]))
-        self.cY.setText(str(rotMotor.center[1]))
-        self.cZ.setText(str(rotMotor.center[2]))
+        self.cxLineEdit.setText(str(rotMotor.center[0]))
+        self.cyLineEdit.setText(str(rotMotor.center[1]))
+        self.czLineEdit.setText(str(rotMotor.center[2]))
         
+        strList = map(lambda i: rotMotor.atoms[i].element.symbol + str(i),
+                                                range(0, len(rotMotor.atoms)))
+        self.atomsComboBox.insertStrList(strList, 0)
         
-        strList = map(lambda i: rotMotor.atoms[i].element.symbol + str(i), 
-                                                 range(0, len(rotMotor.atoms)))
-        self.atomsList.insertStrList(strList, 0)
-        
+
+    #################
+    # OK Button
+    #################
 
     def accept(self):
         self.motor.torque = float(str(self.torque.text()))
@@ -37,9 +40,10 @@ class RotMotorProp(RotMotorPropDialog):
 
         QDialog.accept(self)
 
+    #################
+    # Cancel Button
+    #################
+
     def reject(self):
 	
         QDialog.reject(self)
-
-         
-

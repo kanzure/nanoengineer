@@ -110,7 +110,11 @@ class modelTree(QListView):
                  self.hiddenItems += [self.selectedTreeItem]
                  self.selectedTreeItem.setVisible(False)            
             elif id == 3: # Properties
-                  pass
+                rotaryMotor = self.treeItems[self.selectedTreeItem]
+                rMotorDialog = RotMotorProp(rotaryMotor)
+                rMotorDialog.show()
+                rMotorDialog.exec_loop()
+#                  pass
                   
     def processInsertHereMenu(self, id):
             if id == 0: #Paste
