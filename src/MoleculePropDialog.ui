@@ -1,0 +1,276 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>MoleculePropDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>MoleculePropDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>282</width>
+            <height>280</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Molecule Properties</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <spacer>
+        <property name="name">
+            <cstring>spacer2</cstring>
+        </property>
+        <property name="orientation">
+            <enum>Vertical</enum>
+        </property>
+        <property name="sizeType">
+            <enum>Expanding</enum>
+        </property>
+        <property name="sizeHint">
+            <size>
+                <width>20</width>
+                <height>16</height>
+            </size>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>131</x>
+                <y>215</y>
+                <width>20</width>
+                <height>16</height>
+            </rect>
+        </property>
+    </spacer>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>12</y>
+                <width>42</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Name:</string>
+        </property>
+        <property name="alignment">
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>39</y>
+                <width>42</width>
+                <height>17</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Atoms:</string>
+        </property>
+        <property name="alignment">
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+    </widget>
+    <spacer>
+        <property name="name">
+            <cstring>spacer1</cstring>
+        </property>
+        <property name="orientation">
+            <enum>Vertical</enum>
+        </property>
+        <property name="sizeType">
+            <enum>Expanding</enum>
+        </property>
+        <property name="sizeHint">
+            <size>
+                <width>20</width>
+                <height>113</height>
+            </size>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>23</x>
+                <y>62</y>
+                <width>20</width>
+                <height>113</height>
+            </rect>
+        </property>
+    </spacer>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>181</y>
+                <width>42</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Jigs:</string>
+        </property>
+        <property name="alignment">
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>nameLineEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>60</x>
+                <y>12</y>
+                <width>210</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>LineEditPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Sunken</enum>
+        </property>
+        <property name="text">
+            <string></string>
+        </property>
+    </widget>
+    <widget class="QTextBrowser">
+        <property name="name">
+            <cstring>atomsTextBrowser</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>60</x>
+                <y>39</y>
+                <width>210</width>
+                <height>136</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QComboBox">
+        <property name="name">
+            <cstring>jigsComboBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>60</x>
+                <y>184</y>
+                <width>122</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>7</hsizetype>
+                <vsizetype>0</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>propPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>188</x>
+                <y>181</y>
+                <width>82</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Properties...</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>okPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>238</y>
+                <width>82</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;OK</string>
+        </property>
+        <property name="accel">
+            <string>Alt+O</string>
+        </property>
+        <property name="autoDefault">
+            <bool>true</bool>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>cancelPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>100</x>
+                <y>238</y>
+                <width>82</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Cancel</string>
+        </property>
+        <property name="accel">
+            <string>Alt+C</string>
+        </property>
+        <property name="autoDefault">
+            <bool>true</bool>
+        </property>
+        <property name="default">
+            <bool>false</bool>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>applyPushButton</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>188</x>
+                <y>238</y>
+                <width>82</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Apply</string>
+        </property>
+    </widget>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1025">789ca5d1d96a834014c6f17b9f628877a1986862164a1fa1d0cb42e9c52c1ab398d52c52faeecdff3468da545ae8f984e1c7619ce3d869abe7a747d5ee78bb421753ab6ca6b7aaedf6795ebebc3ebc79ad28523c4315b6eebcd64459e5879ac0038c348146e8085cc35e97c09d30263087f180c0855013a8e12024d0c251d7f6b58599f07c8e91574d8523678c9cbb11a6046ee1580a3aa1496327e796c284c0149a7e3a4c64e63db45d027d61647b368247e180c004ba90c095500a1630e91338134ac1254c6302e7c2318127614260209412fe58ffeaf8da68bf5aae3bda3aab934496af1de35c6a261359beedc9a6197b589acf995d77e68b7c79196ab5ded49d7aa27af767a79e28a8f0d9a9270a2a5cf6541305157e3be75cdb5d71e9ec0fc7c6ef39ddde5b5936dd9bd64df7763de51ffe4ff33fbdedbcdf7b1ffd8bea24</data>
+    </image>
+</images>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
