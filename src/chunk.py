@@ -91,13 +91,22 @@ class molecule(Node, InvalMixin):
         self.hotspot = None
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.molDefaultIcon = QPixmap(filePath + "/../images/moldefault.png")
-        self.molInvisibleIcon = QPixmap(filePath + "/../images/molinvisible.png")
-        self.molVDWIcon = QPixmap(filePath + "/../images/molvdw.png")
-        self.molLinesIcon = QPixmap(filePath + "/../images/mollines.png")
-        self.molCPKIcon = QPixmap(filePath + "/../images/molcpk.png")
-        self.molTubesIcon = QPixmap(filePath + "/../images/moltubes.png")
-        
+        self.mticon = []
+        self.mticon.append(QPixmap(filePath + "/../images/moldefault.png"))
+        self.mticon.append(QPixmap(filePath + "/../images/molinvisible.png"))
+        self.mticon.append(QPixmap(filePath + "/../images/molvdw.png"))
+        self.mticon.append(QPixmap(filePath + "/../images/mollines.png"))
+        self.mticon.append(QPixmap(filePath + "/../images/molcpk.png"))
+        self.mticon.append(QPixmap(filePath + "/../images/moltubes.png"))
+
+        self.hideicon = []
+        self.hideicon.append(QPixmap(filePath + "/../images/moldefault-hide.png"))
+        self.hideicon.append(QPixmap(filePath + "/../images/molinvisible-hide.png"))
+        self.hideicon.append(QPixmap(filePath + "/../images/molvdw-hide.png"))
+        self.hideicon.append(QPixmap(filePath + "/../images/mollines-hide.png"))
+        self.hideicon.append(QPixmap(filePath + "/../images/molcpk-hide.png"))
+        self.hideicon.append(QPixmap(filePath + "/../images/moltubes-hide.png"))
+                        
         return # from molecule.__init__
         
     def bond(self, at1, at2):
@@ -974,6 +983,7 @@ class molecule(Node, InvalMixin):
         self.display = disp
         self.havelist = 0
         self.seticon()
+        self.assy.modified = 1
         self.assy.mt.update()
         
     def changeapp(self):
@@ -983,12 +993,8 @@ class molecule(Node, InvalMixin):
         self.havelist = 0
 
     def seticon(self):
-        if self.display == diDEFAULT: self.icon = self.molDefaultIcon
-        elif self.display == diINVISIBLE: self.icon = self.molInvisibleIcon
-        elif self.display == diVDW: self.icon = self.molVDWIcon
-        elif self.display == diLINES: self.icon = self.molLinesIcon
-        elif self.display == diCPK: self.icon = self.molCPKIcon
-        elif self.display == diTUBES: self.icon = self.molTubesIcon
+        if self.hidden: self.icon = self.hideicon[self.display]
+        else: self.icon = self.mticon[self.display]
         
     def getinfo(self):
         # Return information about the selected moledule for the msgbar [mark 2004-10-14]
