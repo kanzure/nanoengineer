@@ -12,6 +12,7 @@ from modelTree import *
 from constants import *
 from elementSelector import *
 from fileIO import *
+from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
 helpwindow = None
@@ -81,14 +82,53 @@ class MWsemantics(MainWindow):
         # Mark - Set up mode bar (right) in status bar area.        
         self.modebarLabel = QLabel(self, "modebarLabel")
         self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.modebarLabel.setText( "Mode: Select Molecules" )
         
         self.statusBar().addWidget(self.modebarLabel,0,1)
+        self.update_mode_status() # bruce 040927
 
         # start with Carbon
         self.Element = 6
         self.setElement(6)
-       
+
+    def update_mode_status(self, mode_obj = None):
+        """[by bruce 040927]
+        Update the text shown in self.modebarLabel (if that widget exists yet).
+        Get the text to use from mode_obj if supplied, otherwise from the current
+        mode object (self.glpane.mode). (The mode object has to be supplied
+        when the currently stored one is incorrect, during a mode transition.) #####doit
+
+        This method needs to be called whenever the mode status text might need to change.
+        See a comment in the method to find out what code should call it.
+        """
+        # There are at least 3 general ways we could be sure to call this method often enough;
+        # the initial implementation of 040927 uses (approximately) way #1:
+        # 
+        # (1) Call it after any user-event-handler that might change what the mode status text should be.
+        # This is reasonable, but has the danger that we might forget about some kind of user-event that
+        # ought to change it. (As of 040927, we call this method from this file (after tool button actions
+        # related to selection), and from the mode code (after mode changes).)
+        # 
+        # (2) Call it after any user-event at all (except for mouse-move or mouse-drag).
+        # This would probably be best (##e so do it!), since it's simple, won't miss anything, and is probably efficient enough.
+        # (But if we ever support text-editing, we might have to exclude keypress/keyrelease from this, for efficiency.)
+        # 
+        # (3) Call it after any internal change which might affect the mode-status text. This would have to include, at least,
+        # any change to (the id of) self.glpane, self.glpane.mode, self.glpane.assy, or (the value of) self.glpane.assy.selwhat,
+        # regardless of the initial cause of that change. The problems with this method are: it's complicated; we might miss a
+        # necessary update call; we'd have to be careful for efficiency to avoid too many calls after a single user event
+        # (e.g. one for which we iterate over all atoms and "select parts" redundantly for each one); or we'd have to make
+        # many calls permissible, by separating this method into an "update-needed" notice (just setting a flag),
+        # and a "do-update" function, which does the update only when the flag is set. But if we did the latter,
+        # it would be simpler and probably faster to just dispense with the flag and always update, i.e. to use method (2).
+        try:
+            widget = self.modebarLabel
+        except AttributeError:
+            pass # this is normal, before the widget exists
+        else:
+            mode_obj = mode_obj or self.glpane.mode
+            text = mode_obj.get_mode_status_text()
+            widget.setText( text )
+
     ###################################
     # functions from the "File" menu
     ###################################
@@ -397,12 +437,14 @@ class MWsemantics(MainWindow):
     ###############################################################
 
     def selectAtoms(self):
-        self.modebarLabel.setText( "Mode: Select Atoms" )
+        ##self.modebarLabel.setText( "Mode: Select Atoms" ) # bruce 040927 let mode and/or assy control this
         self.assy.selectAtoms()
+        self.update_mode_status() # bruce 040927
 
     def selectParts(self):
-        self.modebarLabel.setText( "Mode: Select Molecules" )
+        ##self.modebarLabel.setText( "Mode: Select Molecules" )
         self.assy.selectParts()
+        self.update_mode_status() # bruce 040927
     
     def selectAll(self):
         """Select all parts if nothing selected.
@@ -411,9 +453,11 @@ class MWsemantics(MainWindow):
         in which some atoms are selected.
         """
         self.assy.selectAll()
+        self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectNone(self):
         self.assy.selectNone()
+        self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectInvert(self):
         """If some parts are selected, select the other parts instead.
@@ -422,12 +466,14 @@ class MWsemantics(MainWindow):
         (And unselect all currently selected atoms.)
         """
         self.assy.selectInvert()
+        self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectConnected(self):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """
         self.assy.selectConnected()
+        self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
 
     def selectDoubly(self):
@@ -437,6 +483,7 @@ class MWsemantics(MainWindow):
         one bond and have no other bonds.
         """
         self.assy.selectDoubly()
+        self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     ###################################
     # Functions from the "Make" menu
@@ -594,12 +641,12 @@ class MWsemantics(MainWindow):
 
     # get into cookiecutter mode
     def toolsCookieCut(self):
-        self.modebarLabel.setText( "Mode: Cookie Cutter" )
+        ##self.modebarLabel.setText( "Mode: Cookie Cutter" ) # bruce 040927 let mode control this
         self.glpane.setMode('COOKIE')
 
     # get into Extrude mode
     def toolsExtrude(self):
-        self.modebarLabel.setText( "Mode: Extrude" )
+        ##self.modebarLabel.setText( "Mode: Extrude" ) # bruce 040927 let mode control this
         self.glpane.setMode('EXTRUDE')
 
     # Mirror Tool
@@ -636,12 +683,13 @@ class MWsemantics(MainWindow):
         self.glpane.mode.Flush()
 
     # turn on and off an "add atom with a mouse click" mode
+    # [bruce 040927 wonders why there is code for two separate buttons for this...]
     def addAtomStart(self):
-        self.modebarLabel.setText( "Mode: Sketch Atoms" )
+        ##self.modebarLabel.setText( "Mode: Sketch Atoms" ) # bruce 040927 let mode control this
         self.glpane.setMode('DEPOSIT')
 
     def toolsAtomStart(self):
-        self.modebarLabel.setText( "Mode: Sektch Atoms" )
+        ##self.modebarLabel.setText( "Mode: Sketch Atoms" )
         self.glpane.setMode('DEPOSIT')
 
     # pop up set element box

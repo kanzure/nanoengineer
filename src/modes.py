@@ -64,6 +64,7 @@ from shape import *
 from assembly import *
 import re
 from constants import *
+from debug import print_compact_traceback
 
 _debug_keys = 0 # set this to 1 in a debugger, to see certain debug printouts [bruce 040924]
 
@@ -76,6 +77,10 @@ class anyMode:
     backgroundColor = 0.0, 0.0, 0.0
     modename = "(bug: missing modename 1)" # internal name of mode, e.g. 'DEPOSIT', only seen by users in "debug" error messages
     msg_modename = "(bug: unknown mode)" # name of mode to be shown to users, as a phrase, e.g. 'sketch mode'
+
+    def get_mode_status_text(self):
+        return "(bug: mode status text)" # I think this will never be shown [bruce 040927]
+    
     pass
 
 
@@ -109,6 +114,7 @@ class basicMode(anyMode):
     # If they have an __init__ method, it must call basicMode.__init__.
     modename = "(bug: missing modename)"
     msg_modename = "(bug: unknown mode)"
+    default_mode_status_text = "(bug: missing mode status text)"
     
     def __init__(self, glpane):
         """This is called at least once, per type of mode (i.e. per specific basicMode subclass), per glpane instance,
@@ -175,6 +181,7 @@ class basicMode(anyMode):
                 print "fyi: late refusal by %r, better if it had been in refuseEnter" % self # (but sometimes it might be necessary)
         if not refused:
             self.show_toolbars()
+            self.update_mode_status_text()
         # caller (our glpane) will set its self.mode to point to us, but only if we return false
         return refused
 
@@ -203,6 +210,35 @@ class basicMode(anyMode):
     def show_toolbars(self):
         "subclasses with toolbars should override this to show them all"
         pass
+
+    def update_mode_status_text(self):
+        """##### new method, bruce 040927; here is my guess at its doc [maybe already obs?]:
+           Update the mode-status widget to show the currently correct mode-status text for this mode.
+           Subclasses should not override this; its main purpose is to know how to do this in the environment of any mode.
+           This is called by the standard mode-entering code when it's sure we're entering a new mode,
+           and whenever it suspects the correct status text might have changed (e.g. after certain user events #nim).
+           It can also be called by modes themselves when they think the correct text might have changed.
+           To actually *specify* that text, they should do whatever they need to do (which might differ for each mode)
+           to change the value which would be returned by their mode-specific method get_mode_status_text().
+        #"""
+        self.w.update_mode_status( mode_obj = self)
+            # fyi: this gets the text from self.get_mode_status_text();
+            # mode_obj = self is needed in case glpane.mode == nullMode at the moment.
+        
+    def get_mode_status_text(self):
+        """##### new method, bruce 040927; doc is tentative [maybe already obs?]; btw this overrides an AnyMode method:
+           Return the correct text to show right now in the mode-status widget
+           (e.g. "Mode: Sketch Atoms", "Mode: Select Molecules").
+           The default implementation is suitable for modes in which this text never varies,
+           assuming they properly define the class constant default_mode_status_text;
+           other modes will need to override this method to compute that text in the correct way,
+           and will *also* need to ensure that their update_mode_status_text() method is called
+           whenever the correct mode status text might have changed,
+           if it might not be called often enough by default.
+           [### but how often it's called by default is not yet known -- e.g. if we do it after
+            every button or menu event, maybe no special calls should be needed... we'll see.]
+        """
+        return self.default_mode_status_text
 
     # methods for changing to some other mode
     
