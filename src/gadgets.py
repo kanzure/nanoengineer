@@ -38,8 +38,8 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
             # but is apparently required to be always nonempty for others
         if atomlist:
             #e should really split this jig if attached to more than one mol
-            self.molecule = atomlist[0].molecule
-            self.molecule.gadgets += [self]
+            ## self.molecule = atomlist[0].molecule
+            ## self.molecule.gadgets += [self]
               # note: mol.gadgets is never used, as of sometime before 041105,
               # probably as of josh's fix to bug 85 on 041026 [bruce 041105]
             for a in atomlist:
@@ -48,7 +48,7 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
                 ##    print "fyi: bug? %r has atoms from different chunks" % self
                 a.jigs += [self]
         else:
-            self.molecule = None
+            pass ## self.molecule = None
         #e it might make sense to init other attrs here too, like color
         return
     def setAtoms(self, atomlist):
