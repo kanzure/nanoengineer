@@ -900,6 +900,14 @@ class MWsemantics(MainWindow):
         elementColorsWin.setDisplay(self.Element)
         elementColorsWin.show()
 
+    def dispLighting(self):
+        """Allows user to change lighting brightness.
+        """
+        self.history.message(greenmsg("Lighting:"))
+
+        from LightingTool import LightingTool
+        self.lightcntl = LightingTool(self.glpane) # Open Lighting Tool dialog
+        
     ###############################################################
     # Select Toolbar Slots
     ###############################################################
