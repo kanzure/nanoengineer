@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Mar 22 23:38:10 2005
+# Created: Wed Mar 23 11:49:44 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5033,6 +5033,40 @@ image111_data = \
     "\xc8\xaf\x2e\xd3\x27\xe2\x3f\xb6\xea\xe5\xc8\xf6" \
     "\x10\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
+image112_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x48\x49\x44\x41\x54\x78\x9c\xed\x93\x31\x8a\xc2" \
+    "\x40\x14\x86\xbf\x2c\x1b\xaf\x60\xe3\x11\x9c\x03" \
+    "\x4c\x29\x36\x16\x61\xb0\x88\x8d\xb5\x45\x4e\x24" \
+    "\x21\xa4\x4e\x6d\xe3\x19\xd2\x9b\x23\xa4\x13\x22" \
+    "\x06\x06\x0b\x13\x71\x8b\x25\xb3\x13\x12\xe3\x0a" \
+    "\xdb\x2c\xf8\xc1\x83\x37\xbc\x2f\x3f\x33\x0f\x02" \
+    "\x6f\xfe\x2d\x8e\x7d\x10\x42\xdc\x87\xe4\x20\x08" \
+    "\x08\xc3\xf0\xb5\x60\x21\xc4\x3d\x08\x02\xc6\xe3" \
+    "\x71\xaf\xb8\x58\x2c\x90\x52\x32\xe4\x00\x4c\xa7" \
+    "\x53\x56\xab\x15\x9f\x76\xe8\x7c\x3e\xef\x95\x27" \
+    "\x93\x89\x09\x7d\xe4\x34\x9e\xe7\x79\x3f\x37\x16" \
+    "\x42\xdc\x0f\x87\xc3\xd3\xe7\x3d\x63\x36\x9b\x01" \
+    "\x50\x14\xc5\xf7\x8d\x01\xf2\x3c\xe7\x76\xbb\xf5" \
+    "\x7e\x70\x3c\x1e\xd9\x6c\x36\xec\xf7\xfb\x41\xc7" \
+    "\xe6\xa3\x69\xaa\xaa\xe2\x7a\xbd\x9a\x52\x4a\x99" \
+    "\xbe\xcf\xb1\xe7\xb6\xd3\x09\x76\x5d\x97\xd1\x68" \
+    "\x64\x0a\xc0\xf7\x7d\xd3\xa7\x69\x6a\x1c\xdf\xf7" \
+    "\x01\x3a\xbe\x8d\x59\x45\x55\x55\x2c\x97\xcb\x8e" \
+    "\xa0\x94\x22\x8e\x63\xa4\x94\xec\x76\xbb\x96\xa3" \
+    "\x94\x32\x7d\x1c\xc7\x8f\x83\x93\x24\x31\x83\xf5" \
+    "\x7a\x0d\x40\x92\x24\x9c\xcf\xe7\x96\x63\xcf\x1a" \
+    "\x1a\xa7\xb3\x8a\xcb\xe5\x82\xd6\xda\x14\x40\x14" \
+    "\x45\x68\xad\x29\xcb\x92\x34\x4d\x8d\x13\x45\x11" \
+    "\x40\xcb\x2f\xcb\xb2\x3f\xb8\xae\xeb\x56\x6d\xb7" \
+    "\xdb\xd6\x59\x4a\x39\x38\xaf\xeb\xba\x7f\x15\x5a" \
+    "\x6b\x4e\xa7\x53\x67\xc7\x36\xbf\x71\x8a\xa2\x20" \
+    "\xcb\x32\xc7\xfc\x20\x83\xf6\x0b\x64\x59\xe6\x3c" \
+    "\xb7\xde\xfc\x05\x5f\xdf\xac\xe3\x8a\x5d\xa4\x52" \
+    "\x1d\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
+    "\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -5221,6 +5255,8 @@ class MainWindow(QMainWindow):
         self.image110.loadFromData(image110_data,"PNG")
         self.image111 = QPixmap()
         self.image111.loadFromData(image111_data,"PNG")
+        self.image112 = QPixmap()
+        self.image112.loadFromData(image112_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -5600,6 +5636,8 @@ class MainWindow(QMainWindow):
         self.selecttestAction = QAction(self,"selecttestAction")
         self.dispResetAtomsDisplayAction = QAction(self,"dispResetAtomsDisplayAction")
         self.dispShowInvisAtomsAction = QAction(self,"dispShowInvisAtomsAction")
+        self.toolsFuseChunksAction = QAction(self,"toolsFuseChunksAction")
+        self.toolsFuseChunksAction.setIconSet(QIconSet(self.image112))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -5795,7 +5833,7 @@ class MainWindow(QMainWindow):
         self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,257,30,188))
+        self.toolsToolbar.setGeometry(QRect(0,257,30,215))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
@@ -5805,16 +5843,17 @@ class MainWindow(QMainWindow):
         self.toolsDepositAtomAction.addTo(self.toolsToolbar)
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
+        self.toolsFuseChunksAction.addTo(self.toolsToolbar)
         self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.datumDispDashboard.setGeometry(QRect(0,445,30,68))
+        self.datumDispDashboard.setGeometry(QRect(0,472,30,68))
         self.datumDispDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispDashboard)
         self.dispCsysAction.addTo(self.datumDispDashboard)
         self.simToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.simToolbar.setGeometry(QRect(0,513,30,95))
+        self.simToolbar.setGeometry(QRect(0,540,30,95))
         self.simToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.simSetupAction.addTo(self.simToolbar)
         self.simMoviePlayerAction.addTo(self.simToolbar)
@@ -5920,6 +5959,7 @@ class MainWindow(QMainWindow):
         self.toolsDepositAtomAction.addTo(self.Tools)
         self.toolsCookieCutAction.addTo(self.Tools)
         self.toolsExtrudeAction.addTo(self.Tools)
+        self.toolsFuseChunksAction.addTo(self.Tools)
         self.MenuBar.insertItem(QString(""),self.Tools,10)
 
         self.Jigs = QPopupMenu(self)
@@ -6077,6 +6117,7 @@ class MainWindow(QMainWindow):
         self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
         self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectConnectedAction,SLOT("setDisabled(bool)"))
         self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectDoublyAction,SLOT("setDisabled(bool)"))
+        self.connect(self.toolsFuseChunksAction,SIGNAL("activated()"),self.toolsFuseChunks)
 
 
     def languageChange(self):
@@ -6441,6 +6482,7 @@ class MainWindow(QMainWindow):
         self.selecttestAction.setMenuText(self.__tr("test"))
         self.dispResetAtomsDisplayAction.setText(self.__tr("Reset Atoms Display"))
         self.dispShowInvisAtomsAction.setText(self.__tr("Show Invisible Atoms"))
+        self.toolsFuseChunksAction.setText(self.__tr("Fuse Chunks"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -6949,6 +6991,9 @@ class MainWindow(QMainWindow):
 
     def dispShowInvisAtoms(self):
         print "MainWindow.dispShowInvisAtoms(): Not implemented yet"
+
+    def toolsFuseChunks(self):
+        print "MainWindow.toolsFuseChunks(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

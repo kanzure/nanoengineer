@@ -137,6 +137,7 @@
         <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
+        <action name="toolsFuseChunksAction"/>
     </item>
     <item text="&amp;Jigs" name="Jigs">
         <action name="jigsMotorAction"/>
@@ -285,7 +286,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>679</width>
+                <width>681</width>
                 <height>29</height>
             </rect>
         </property>
@@ -455,6 +456,11 @@
             </item>
             <item>
                 <property name="text">
+                    <string>Sulfur</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
                     <string>Chlorine</string>
                 </property>
             </item>
@@ -524,7 +530,7 @@
             <rect>
                 <x>0</x>
                 <y>29</y>
-                <width>1034</width>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -833,7 +839,7 @@
                 <x>0</x>
                 <y>257</y>
                 <width>30</width>
-                <height>188</height>
+                <height>215</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -854,6 +860,7 @@
         <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
+        <action name="toolsFuseChunksAction"/>
     </toolbar>
     <toolbar dock="4">
         <property name="name">
@@ -862,7 +869,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>445</y>
+                <y>472</y>
                 <width>30</width>
                 <height>68</height>
             </rect>
@@ -890,7 +897,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>513</y>
+                <y>540</y>
                 <width>30</width>
                 <height>95</height>
             </rect>
@@ -3331,6 +3338,17 @@
             <string>Show Invisible Atoms</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>toolsFuseChunksAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image112</iconset>
+        </property>
+        <property name="text">
+            <string>Fuse Chunks</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -3668,6 +3686,9 @@
     </image>
     <image name="image111">
         <data format="PNG" length="325">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000010c49444154789cd5954d0e82301085df184f003d4259c285f4202eea4aa31b8f811762ab37d07885e7420bfda118101736994c288f6f266f4a2a24f18bb50080aaaa66a72fe606fe1f5815601a2c62be2de0833be02e5928515415e031df538035008024cab2244910f0b30df7b9d318bb77c876549a2b57370c7673cf9ed25ce59af13b72d4f0b6102148b179f3d8d6f7abf82a6b55dbf1ab2b93ccef8e724d9e32c3a0535fef59e17c9cf2fb9419df4bc7e750ef7bec8ac30192c835636062a831382cf08e7650a12ea14f83834e07a13db11c3a06aa407be0ef17c890365cd171b3ffba8512a8c74223b085d97cbbe03c050aa0b3c28501384f81f582a776f6113ce7f5d4348dc8af2ed327e23fb6eae5c8f6100000000049454e44ae426082</data>
+    </image>
+    <image name="image112">
+        <data format="PNG" length="385">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000014849444154789ced93318ac2401486bf2c1baf60e3119c034c29361661b0888db5454e2421a44e6de319d29b23a4132206060b13718b25b31312e30adb2cf8c18337bc2f3f330f026ffe2d8e7d1042dc87e4200808c3f0b56021c43d0802c6e371afb8582c905232e4004ca75356ab159f76e87c3eef95279389097de4349ee7793f371642dc0f87c3d3e73d63369b015014c5f78d01f23ce776bbf57e703c1ed96c36ecf7fb41c7e6a369aaaae27abd9a524a99becfb1e7b6d309765d97d168640ac0f77dd3a7696a1cdff7013abe8d594555552c97cb8ea094228e63a494ec76bb96a394327d1cc78f8393243183f57a0d4092249ccfe79663cf1a1aa7b38acbe582d6da1440144568ad29cb92344d8d13451140cb2fcbb23fb8aeeb566db7dbd6594a3938afebba7f155a6b4ea75367c736bf718aa220cb32c7fc2083f60b6459e63cb7defc055fdface38a5da4521d0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -4445,6 +4466,12 @@
         <receiver>selectDoublyAction</receiver>
         <slot>setDisabled(bool)</slot>
     </connection>
+    <connection>
+        <sender>toolsFuseChunksAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsFuseChunks()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4590,6 +4617,7 @@
     <slot>dispLighting()</slot>
     <slot>dispResetAtomsDisplay()</slot>
     <slot>dispShowInvisAtoms()</slot>
+    <slot>toolsFuseChunks()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
