@@ -2,8 +2,6 @@
 """
 cookieMode.py -- cookie cutter mode.
 
-This file is no longer owned by Bruce; probably not by anyone. 041008
-
 $Id$
 """
 
