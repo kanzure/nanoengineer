@@ -33,6 +33,14 @@ if not (os.path.isdir("/Users/bruce") and os.path.isdir("/Huge")):
 if debug_dragstuff:
     print "\n * * * * Running with debug_dragstuff set. \nExpect lots of output if you drag in the model tree!\n"
 
+# For some reason I want this module to be independent of Numeric for now:
+
+def pair_plus((x0,y0),(x1,y1)):
+    return x0+x1,y0+y1
+
+def pair_minus((x0,y0),(x1,y1)):
+    return x0-x1,y0-y1
+
 # These drag_handler classes might turn out to be generally useful for all kinds
 # of Qt widgets, so they might be moved to some other file like widgets.py or a
 # new file. But for now, they are specific to being used inside this kind
@@ -306,18 +314,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"), self.slot_itemRenamed)
 
-        # To highlight the correct items/gaps under potential drop-points during drag and drop,
-        # we need to be told when autoscrolling occurs, since Qt neglects to send us new dragMove events
-        # when the global cursor position doesn't change, even though the position within the contents
-        # does change due to Qt's own autoscrolling!
         self.connect(self, SIGNAL("contentsMoving(int, int)"), self.slot_contentsMoving)
 
         return # from TreeWidget.__init__
-
-    ###e refile:
-    def slot_contentsMoving(self, x, y):
-        if debug_dragstuff:
-            print 'got signal "contentsMoving(int, int)" with args %r, %r' % (x,y)
 
     # helper functions
     
@@ -964,7 +963,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         whatting = ing_dict[ drag_type] # moving or copying?
         sbar_text = fix_plurals( "%s %d item(s)" % (whatting, len(nodes)) ) # not quite the same as the text for the QDragObject
         self.statusbar_msg( sbar_text + " [not yet implemented]")
-        if debug_dragstuff:
+        if debug_dragstuff and "what you want" == "something that looks really silly and annoying":
             # also use whatting in a transient node prefix, see below
             for node in nodes:
                 item = self.nodeItem(node)
@@ -988,49 +987,266 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.current_drag_nodes = []
         return
 
+    # About tracking the position of a drag from outside (contentsDragEnter/Move/Leave/Drop):
+    # we don't track a pos from dragEnter since we're not sure it supplies one and since
+    # the "duplicate Enter bug" worries me. We track the pos from contentsDragMove, given
+    # in contents coords, but only valid at the then-current contents position
+    # (and until the next dragMove or dragLeave). When it comes we have to record
+    # what it was and what the contents position was. And we track changing contents
+    # positions, reported separately during a scroll (most importantly, during an
+    # autoscroll done by Qt during the drag event). All these events call a common
+    # updater for drop-point highlighting, update_drop_point_highlighting, which combines
+    # all this recorded info to know where to highlight (and remembers where it drew last
+    # time so it can un-highlight). It should only be called during a drag, and it can ask
+    # the listview what item is under various points near the drag-point.
+
+    # This is the last reported scroll position (topleft contents pos which is visible
+    # according to scrolling), reported by the contentsMoving signal.
+    last_scrollpos = (0,0)
+
+    # This is the last *reported* dragMoveEvent position, as a pair (x,y) in contents coords,
+    # or None when there's been a dragLeave since then.
+    last_dragMove_cpos = None
+
+    # And this is the value of scrollpos at the same time we set self.last_dragMove_cpos.
+    # (Its value when last_dragMove_cpos is None is undefined, i.e. should not be cared about.)
+    last_dragMove_scrollpos = (0,0)
+
+    # And this is the last "ok flag" for a drag enter or move event, set False by a dragLeave;
+    # not sure if this is needed, but maybe it's anded with whether last_dragMove_cpos is set... #doc
+    last_dragMove_ok = False
+    
     def contentsDragEnterEvent(self, event):
-##    def dragEnterEvent(self, event):
-##        ########@@@@@@@
-##        print "contentsDragEnterEvent ignoring"#DO NOT COMMIT - this doesn't prevent our getting the dragMoves!
-##         # and we still don't ever get the non-contents dragEnter!
-##         # what if we stop accepting drops in the viewport?
-##        event.ignore()
-##        return
-        # warning: for unknown reasons, this is called twice when i'd expect it to be called once.
+        # warning: for unknown reasons, this is sometimes called twice when i'd expect it to be called once.
         if debug_dragstuff:
             print_compact_stack("contentsDragEnterEvent stack (fyi): ")
-            ## print "to highlight during move, i need to know: what type is the viewport? find out" # i did...
-        ok = QTextDrag.canDecode(event)
+        ok = QTextDrag.canDecode(event) # this code is duplicated elsewhere
         event.accept(ok)
+        self.last_dragMove_ok = ok
         # the Qt docs warn that actually looking at the text might be slow (requires talking to the external app
         # if it came from one), so using the text to find out whether the source is external would not be a good idea.
         # For a dragMoveEvent, it subclasses DropEvent and thus might have a "source" we can look at... don't know.
         if debug_dragstuff:
-            print "ok = %r" % ok
-        #e maybe do same highlighting as dragmove... but maybe not, if we have that dup-enter bug that the canvas had
+            print "enter: ok = %r" % ok
+        #e maybe do same highlighting as dragmove... but not for now,
+        # since we have that dup-enter bug that the canvas had
         return
 
     def dragEnterEvent(self,event):
         if debug_dragstuff:
             print "dragEnterEvent happened too! SHOULD NOT HAPPEN" # unless we are not accepting drops on the viewport
+
+    # To highlight the correct items/gaps under potential drop-points during drag and drop,
+    # we need to be told when autoscrolling occurs, since Qt neglects to send us new dragMove events
+    # when the global cursor position doesn't change, even though the position within the contents
+    # does change due to Qt's own autoscrolling!
+    do_update_drop_point_highlighting_in_next_viewportPaintEvent = False
+    def slot_contentsMoving(self, x, y):
+        """[Called by the Qt signal whose doc says:
+        "This signal is emitted just before the contents are moved
+         to position (x, y)." But this wording is misleading --
+        it's actually the position of the topleft visible part of the
+        contents (in contents coords), as determined by the scrollbars.
+        """
+##        if debug_dragstuff:
+##            print 'got signal "contentsMoving(int, int)" with args %r, %r' % (x,y)
+        ## self.last_scrollpos = (x,y) # hmm, the doc says they haven't been moved *yet*...
+        # and come to think of it, the visible stuff must look ok, only exposed stuff need be drawn... draw nothing now!
+        # will this fix my 1-pixel (or more) drawing errors?? [050130 9:27pm -- not 050129; do some today cmts mistakenly say that?]
+##        if self.last_dragMove_cpos and self.last_dragMove_ok:
+##            self.update_drop_point_highlighting(  ) ### need future_scrollpos = (x,y) ???
+        self.update_drop_point_highlighting( undo_only = True) #050130 945pm try undo_only on hunch that undoing later is clipped --
+            # yes! now no blue remains that should not... but not all new blue gets drawn that should!
+            # and i can confirm that the only blue that does is what's in the autoscroll newly exposed rect.
+            # (which might be bigger than otherwise due to my printing some debug text "drew in green" each time around.)
+            # evidence: as the autoscroll accelerates the edge-pos of what's drawn crawls thru my blue symbol at its mouse-fixed posn.
+            # solution: read up on Qt painter clipping and find out how to defeat it.
+            # (since deffering the update til even later (after the next viewportPaintEvent, not inside it)
+            # might never get it done if these autoscroll repaints use up all the time until the autoscroll is completed.)
+            # ... or i could do the drawing in self, not self.viewport()... and then i need to do more clipping, not less.
+            # ... or I could forget drawing, and do it all by changing what the items look like and repainting them....
+            #  indicating a gap by doing it to two items in a row. hmm.... that might be tolerable for now.
+            # ok, if clipping doesn't work soon, I'll do that (for alpha). [050130 955pm]
+            # ... * * * * [now ~10:20p, after a break]
+            # actually i thought of a simpler and better way to any of that -- just disable drop-highlighting and dropping
+            # during autoscroll! (ie from time of scroll to time of next real mouse motion.)
+            # this eliminates the technical problems, and it's also probably best for the user (to disallow drop then)
+            # since they could not possibly drop in the right place during the accelerating, poorly-speed-designed autoscroll!
+            # (which they might not have even wanted anyway if they were aiming for something near the bottom of the visible part.)
+            # it might be better to reenable it after a short time of no scrolling (and a timer would make this possible),
+            # but it's ok to wait for more mouse motion provided we explain the situation (what happened and what we're waiting for)
+            # in a statusbar message (ideally somewhere more visible, but that will do for now).
+            # we could do this by posting an event (trusting autoscroll to use up all the event loop)
+            # and reenable after "zero time delay", but I can't assume autoscroll uses it all up, so that won't work.
+            # so until I add a timer, just do what it says above, which means, no highlight-drawing in viewportPaintEvent at all!
+            # only undo/do in dragMove, and undo only (plus statusbar) in the warning about upcoming scroll.
+            # ... so, i'll implement that tomorrow. for now i'll just debug-gate the blue/white drawing code.
+        self.last_scrollpos = (x,y)
+        ###... this is not yet right, since, as soon as the scroll *does* happen (ie by the time of that paintevent)
+        # it is also necessary to undo the old drawing... whereever it was, not just in that rect.
+        # and then to redo it in the new pos, priorly visible or in that exposed rect.
+        # basically we wish this signal came after the new pos was valid... well, not reallty...
+        # before it for influencing viewportPaint, after it for drawing over whatever is visible at that time.
+        # so can we defer the updating? probably....
+        self.do_update_drop_point_highlighting_in_next_viewportPaintEvent = True
+        # if this works, then we probably didn't even need the signal,
+        # we could just measure scrollpos in that event
+        # which we might as well do anyway as a check.
+        #####@@@@@ 050130 940pm
+        return
     
     def contentsDragMoveEvent(self, event):
-##    def dragMoveEvent(self, event):
-        # we can re-accept it (they suggest letting this depend on event.pos())... don't know if we need to... let's do:
-        ok = QTextDrag.canDecode(event)
-        ## event.accept(ok) -- do this below, first read this advice from Qt:
-        # here is some advice from Qt docs on doing this if you're autoscrolling (which we evidently are):
-        #   void QDragMoveEvent::accept ( const QRect & r ) 
-        #   If the rectangle is empty, then drag move events will be sent continuously.
-        #   This is useful if the source is scrolling in a timer event. 
-        ## Qt docs also say: QRect::QRect () -- Constructs an invalid rectangle.
-        # Unfortunately this advice doesn't work -- I can't get it to keep sending more events like this as it autoscrolls.
-        if ok:
-            ## event.accept(QRect()) # this doesn't work, we still get none of these events during the autoscroll.
-            event.accept(QRect(2,2,-1,-1)) # no bad effect but not the good one i want either
-        else:
-            event.ignore()
+        # we can re-accept it (they suggest letting this depend on event.pos())...
+        # don't know if we need to, but all their doc examples do... so we will.
+        ok = QTextDrag.canDecode(event) # this code is duplicated elsewhere
+        event.accept(ok)
+            # note: using an "empty rect" arg did not cause "continuous dragMove events"
+            # like the Qt docs promised it would... for details, see comments near here
+            # in cvs rev. 1.19 [committed 050129] of this file. (Maybe some dragMove
+            # events were coming but not contentDragMove? I doubt it but who knows.)
+        self.last_dragMove_ok = ok
+        ## gpos = event.globalPos() # AttributeError: globalPos
+        pos = event.pos()
+##        if debug_dragstuff:
+##            print "drag move pos:",tupleFromQPoint(pos) # this is in contents area coords. it autoscrolls but is not resent then!
+        self.last_dragMove_cpos = tupleFromQPoint(pos)
+        self.last_dragMove_scrollpos = self.last_scrollpos
+        self.update_drop_point_highlighting() # call whether or not self.last_dragMove_ok in case it just changed to False somehow
+        return
+        
+    def contentsDragLeaveEvent(self, event):
+        if debug_dragstuff:
+            print "contentsDragLeaveEvent, event == %r" % event
+        # the following code is similar in dragLeave and Drop, not sure if identical
+        self.last_dragMove_ok = False # not needed right now, but might matter
+            # after the next dragEnter but before the next dragMove
+        self.last_dragMove_cpos = None
+        self.update_drop_point_highlighting()
+        return
+    
+    def dragLeaveEvent(self, event):
+        if debug_dragstuff:
+            print "dragLeaveEvent, event == %r, SHOULD NOT HAPPEN" % event
+        #e remove highlighting from dragmove
 
+    true_dragMove_cpos = None
+    def update_drop_point_highlighting(self, undo_only = False):
+        #k undo_only might not be needed once a clipping issue is solved -- see call that uses/used it, comments near it
+        """Maintain highlighting of possible drop points, which should exist whenever
+        self.last_dragMove_cpos and self.last_dragMove_ok, based on a drag position
+        determined by several last_xxx variables as explained in a comment near them.
+        Do new highlighting and undo old highlighting, by direct drawing and/or
+        invalidation (QWidget.update).
+           Note that some of the same drawing also needs
+        to be done by our custom viewportPaintEvent on top of whatever our superclass
+        would draw, even if we draw in the same place here -- this routine's drawing
+        works for things already visible, viewportPaintEvent's for things uncovered
+        by scrolling, and we're not always sure which is which, nor would it be practical
+        to fully divide the work even if we were.
+           So, this routine records what drawing needs to happen (of the "do" type, not
+        the "undo" type), and calls a common routine to do it, also called by
+        viewportPaintEvent if its rect might overlap that drawing (which is always
+        small in vertical extent, since near the drop point -- at least for now).
+           But for "undo" drawing it's different... I guess viewportPaintEvent needn't do
+        any "undo drawing" since what its super method draws is "fully undone" already.
+           Oh, one more thing -- the "original nodes" also look different (during a move),
+        and this is "do" drawing which changes less often, is done even when the dragged
+        point is outside the widget, and has a large vertical extent -- so don't do it
+        in this routine! It too needs doing when it happens and in viewportPaintEvent,
+        and undoing when that happens (but not in viewportPaintEvent), but is done by some
+        other routine. ####@@@@ write it!
+           If in the future we highlight all inactive drop points as well as the one active
+        one, that too (the inactive ones) would be done separately for the same reasons.
+        """
+        undo_true_dragMove_cpos = self.true_dragMove_cpos # undo whatever was done for this pos
+            # that only works if we're sure the items have not moved,
+            # otherwise we'd need to record not just this position
+            # but whatever drawing we did due to it; should be ok for now
+        if self.last_dragMove_cpos and self.last_dragMove_ok:
+            # some drop-point highlighting is wanted; figure out where.
+            # if we felt like importing Numeric (and even VQT) we could do something like this:
+            ## correction = self.last_scrollpos - self.last_dragMove_scrollpos
+            ## self.true_dragMove_cpos = self.last_dragMove_cpos + correction
+            # but instead:
+            correction = pair_minus( self.last_scrollpos, self.last_dragMove_scrollpos )
+            self.true_dragMove_cpos = pair_plus( self.last_dragMove_cpos, correction )
+##            if debug_dragstuff:
+##                print "correction = %d - %d = %d; true = lastmovecpos %d + correction = %d" % (
+##                    self.last_scrollpos[1], self.last_dragMove_scrollpos[1], correction[1],
+##                    self.last_dragMove_cpos[1], self.true_dragMove_cpos[1] )
+        else:
+            self.true_dragMove_cpos = None
+        if not debug_dragstuff: return
+        ###stub for debugging: draw white to undo and blue to do, of a symbol just showing where this point is.
+        # always undo first, in case there's an overlap! (might never happen once we're doing real highlighting, not sure)
+        # for real highlighting some of it will be redrawing of items in different ways, instead of new drawing.
+        painter = QPainter(self.viewport(), True) # this might not end up drawing in enough places... draws in viewport coords; False###e
+        # fyi: the following method knows about true_dragMove_cpos perhaps being None, draws nothing in that case
+        self.draw_stubsymbol_at_cpos_in_viewport(painter, undo_true_dragMove_cpos, color = Qt.white, blot = 1) #e should use backgroundcolor from a palette
+        if not undo_only:
+            self.draw_stubsymbol_at_cpos_in_viewport(painter, self.true_dragMove_cpos, color = Qt.blue) #e should use highlight color from a palette
+
+    def draw_stubsymbol_at_cpos_in_viewport(self, painter, cpos, color = Qt.red, blot = False):
+        if cpos == None:
+            # warning: other code in this file just says "if cpos",
+            # so if we switch to Numeric, watch out for (0,0) being false!
+            return
+        cx,cy = cpos
+        dx,dy = self.last_scrollpos
+        x = cx - dx
+        y = cy - dy
+##        if debug_dragstuff:
+##            print "drawing (white or blue or ...) at vpos:",x,y
+        if not blot:
+            self.drawbluething( painter, (x,y), color)
+        else:
+            # blotbluething doesn't work, so just be quick and dirty here:
+##            for i in [-1,0,+1]:
+##                for j in [-1,0,1]:
+##                    self.drawbluething( painter, (x+i,y+j), color)
+            self.drawbluething( painter, (x,y), color) #050130 9:33pm #####@@@@@
+        return
+
+    # this debug func overrides the one in TreeView so I can extend it here
+    def drawbluething(self, painter, pos = (0,0), color = Qt.blue): # bruce 050110 taken from my local canvas_b2.py
+        "[for debugging] draw a recognizable symbol in the given QPainter, at given position, of given color"
+        p = painter # caller should have called begin on the widget, assuming that works
+        p.setPen(QPen(color, 3)) # 3 is pen thickness
+        w,h = 100,9 # bbox rect size of what we draw (i think)
+        x,y = pos # topleft of what we draw
+        p.drawEllipse(x,y,h,h)
+        fudge_up = 1 # 1 for h = 9, 2 for h = 10
+        p.drawLine(x+h, y+h/2 - fudge_up, x+w, y+h/2 - fudge_up)
+
+    def blotbluething(self, painter, pos = (0,0), color = Qt.white): #k doesn't work
+        "[for debugging] blot out what drawbluething drew, with 1 pixel margin as well"
+        p = painter # caller should have called begin on the widget, assuming that works
+        p.setPen(QPen(color, 6)) # 6 is pen thickness, at least half of 11, our height in the end, below
+        w,h = 100,9 # bbox rect size of what we draw (i think)
+        w += 1 # correct bug in above
+        w += 2; h += 2 # margin
+        x,y = pos # topleft of what we draw
+        x -= 1; y -= 1 # margin
+        p.drawRect(x,y,h,h)
+
+    def viewportPaintEvent(self, event):
+        "[overrides TreeView.viewportPaintEvent]"
+##        if debug_dragstuff:
+##            print "TreeWidget.viewportPaintEvent"
+        super = TreeView # the class, not the module
+        res = super.viewportPaintEvent(self, event)
+        cpos = self.true_dragMove_cpos
+        if cpos:
+            painter = QPainter(self.viewport(), True)
+            self.draw_stubsymbol_at_cpos_in_viewport(painter, cpos, color = Qt.green) # i think we're depending on clip to event.rect()
+                # should use highlightcolor; for debug use diff color than when drawn in the other place that can draw this
+            if debug_dragstuff:
+                print "drew in green"
+        if self.do_update_drop_point_highlighting_in_next_viewportPaintEvent: #####@@@@@ 050130 [a fairly self-documenting flag]
+            self.do_update_drop_point_highlighting_in_next_viewportPaintEvent = False
+            self.update_drop_point_highlighting()
+        return res
+    
         #e change highlighting/indicating of possible drop points (gaps or items) (e.g. darken icons of items)
         #e should we also change whether we accept the drop or not based on where it is? [i think not. surely not for alpha.]
         # - do we want to?
@@ -1039,10 +1255,6 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # ...also is it possible to actually examine the text being offered, to decide whether to accept it?
         # (that way we can tell if it's from inside or outside this app. this would not be needed for alpha.)
         
-        ## gpos = event.globalPos() # AttributeError: globalPos
-        pos = event.pos()
-        if debug_dragstuff:
-            print "drag move pos:",tupleFromQPoint(pos) # this is in contents area coords. it autoscrolls but is not resent then!
         # [later solved that: get a contentsMoving signal.]
         # so i'd better use the advice above about returning the empty rect!
 ##        # following is not right, we want to try doing this inside the contents.
@@ -1060,22 +1272,17 @@ class TreeWidget(TreeView, DebugMenuMixin):
         x,y=wpos.x(),wpos.y() # this works, scrolled or not, at least with unclipped = True
         listview.drawbluething( painter, (x,y)) # guess: this wants viewport coords (ie those of widget). yes.
         listview.update() #k needed?
-        
-    def contentsDragLeaveEvent(self, event):
-        if debug_dragstuff:
-            print "contentsDragLeaveEvent, event == %r" % event
-        #e remove highlighting from dragmove
-    def dragLeaveEvent(self, event):
-        if debug_dragstuff:
-            print "dragLeaveEvent, event == %r, SHOULD NOT HAPPEN" % event
-        #e remove highlighting from dragmove
 
     def contentsDropEvent(self, event):
         if debug_dragstuff:
             print "contentsDropEvent, event == %r" % event
-##    def dropEvent(self, event):
-##        if debug_dragstuff:
-##            print "dropEvent, event == %r" % event
+
+        # the following code is similar in dragLeave and Drop, not sure if identical
+        self.last_dragMove_ok = False # not needed right now, but might matter
+            # after the next dragEnter but before the next dragMove
+        self.last_dragMove_cpos = None
+        self.update_drop_point_highlighting()
+
         oktext = QTextDrag.canDecode(event)
             #e in future even this part (choice of dropped data type to look for)
             # should be delegated to the current drag_handler if it recognizes it

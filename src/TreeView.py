@@ -275,10 +275,10 @@ class TreeView(QListView):
         # - doesn't prevent its top column label from being drawn
         # - doesn't prevent regular PaintEvent from happening.
 
-        if self.debug_dragstuff: #####@@@@@ KLUGE: this is defined only by a subclass TreeWidget
-            rect = event.rect() # QPaintEvent method: the rect we need to update ###k do we see these during autoscroll? Yes! Good.
-            print "viewportPaintEvent with rect:",rect.left(),rect.top(),rect.width(),rect.height() #####@@@@@
-            # we might just override this in TreeWidget so it can do its extra drawing on top, during drag & drop.
+##        if self.debug_dragstuff: #####@@@@@ KLUGE: this is defined only by a subclass TreeWidget
+##            rect = event.rect() # QPaintEvent method: the rect we need to update ###k do we see these during autoscroll? Yes! Good.
+##            print "viewportPaintEvent with rect:",rect.left(),rect.top(),rect.width(),rect.height() #####@@@@@
+##            # we might just override this in TreeWidget so it can do its extra drawing on top, during drag & drop.
         self.update_state_iff_needed( event)
 
         # Let QListView draw its standard contents 
