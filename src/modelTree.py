@@ -113,8 +113,7 @@ class modelTree(QListView):
                   parentItem = self.selectedTreeItem.parent()
                   parentItem.takeItem(self.selectedTreeItem)
             elif id == 1: #Rename
-                  jig = self.treeItems[self.selectedTreeItem]
-                  jig.name = self.selectedTreeItem.startRename(0)
+                  self.selectedTreeItem.startRename(0)
             elif id == 2: #Hide/Unhide
                  self.hiddenItems += [self.selectedTreeItem]
                  self.selectedTreeItem.setVisible(False)            
@@ -184,7 +183,7 @@ class modelTree(QListView):
         
         self.jigPopupMenu = QPopupMenu()
         self.jigPopupMenu.insertItem("Delete", 0)
-        #self.jigPopupMenu.insertItem("Rename", 1)
+        self.jigPopupMenu.insertItem("Rename", 1)
         self.jigPopupMenu.insertItem("Hide/Unhide", 2)
         self.jigPopupMenu.insertItem("Properites...", 3)
         self.connect(self.jigPopupMenu, SIGNAL("activated(int)"), self.processJigMenu)

@@ -205,7 +205,8 @@ class LinearMotor:
         blue = float (qBlue(self.color.rgb())) / 255.0
         col = (red, green, blue)
         
-        glColor3fv(col)
+#        glColor3fv(col)
+        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, col)
         glTranslatef(self.center[0], self.center[1], self.center[2])
         glRotate(-acos(self.axis[2])*180.0/pi, self.axis[1], -self.axis[0], 0.0)
         glScale(2.0, 2.0, 10.0)
