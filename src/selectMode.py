@@ -126,7 +126,7 @@ class selectMode(basicMode):
 
     def elemSet(self,elem):
         # elem is an element number
-        self.w.setElement(elem)
+        self.w.setElement(elem) # bruce comment 040922 -- this line is an inlined version of the superclass method.
         # change selected atoms to the element selected
         if self.o.assy.selatoms:
             for a in self.o.assy.selatoms.itervalues():
@@ -135,17 +135,21 @@ class selectMode(basicMode):
        
 
     def Draw(self):
+        # bruce comment 040922: code is almost identical with modifyMode.Draw;
+        # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
         basicMode.Draw(self)   
         #self.griddraw()
         if self.sellist: self.pickdraw()
         self.o.assy.draw(self.o)
 
-    def griddraw(self):
-        """ draws point-of-view axes
-        """
-        drawer.drawaxes(5,-self.o.pov)
+## bruce 040922 zapped this since it seems obsolete:
+##    def griddraw(self):
+##        """ draws point-of-view axes
+##        """
+##        drawer.drawaxes(5,-self.o.pov)
 
     def makeMenus(self):
+        
         self.Menu1 = self.makemenu([('All', self.o.assy.selectAll),
                                     ('None', self.o.assy.selectNone),
                                     ('Invert', self.o.assy.selectInvert),

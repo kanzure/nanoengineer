@@ -158,6 +158,12 @@ class GLPane(QGLWidget):
         self.setAssy(assem)
 
     def setAssy(self, assem):
+        """[bruce comment 040922]
+        This is called from self.__init__, and from MWSemantics.__clear when user asks to open a new file, etc.
+        Apparently, it is supposed to forget whatever is happening now, and reinitialize the entire GLPane.
+        However, it does nothing to leave the current mode, if any; my initial guess [040922 1035am] is that that's a bug.
+        I also wonder if it ought to do some of the other things now in __init__, e.g. setting some display prefs to their defaults.
+        """
         assem.o = self
         self.assy = assem
 
@@ -174,7 +180,12 @@ class GLPane(QGLWidget):
 
         
     def setMode(self, mode):
-        """give the modename as a string.
+        """[bruce comment 040922]
+        This is called from methods in MWsemantics.py when the user clicks on a button to go into a new mode.
+        Note that the current mode might or might not be the default, and if not, needs to be exited gracefully,
+        and/or given the option to refuse to change modes.
+        Probably the tools ought to indicate the current mode, but this doesn't yet seem to be attempted.
+        The mode argument should be the modename as a string, e.g. 'SELECT', 'DEPOSIT', 'COOKIE'.
         """
         self.modetab[mode].setMode()
         self.paintGL()

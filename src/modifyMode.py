@@ -25,6 +25,7 @@ class modifyMode(basicMode):
         self.dragdist = 0.0
 
     def Done(self):
+        # bruce comment 040922: there is no dashboard, but this happens, for example, if you double-click on the background.
         self.o.setMode('SELECT')
 
     def leftDown(self, event):
@@ -139,15 +140,17 @@ class modifyMode(basicMode):
         self.Done()
         
     def Draw(self):
+        # bruce comment 040922: code is almost identical with selectMode.Draw
         basicMode.Draw(self)
         # self.griddraw()
         if self.sellist: self.pickdraw()
         if self.o.assy: self.o.assy.draw(self.o)
 
-    def griddraw(self):
-        """ draws point-of-view axes
-        """
-        drawer.drawaxes(5,-self.o.pov)
+## bruce 040922 zapped this since it seems obsolete:
+##    def griddraw(self):
+##        """ draws point-of-view axes
+##        """
+##        drawer.drawaxes(5,-self.o.pov)
 
     def makeMenus(self):
         
