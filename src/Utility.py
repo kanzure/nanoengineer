@@ -130,8 +130,8 @@ class Node:
         if not foundselgroup:
             # found a "picked dad"
             assert ours.picked
-            if platform.atom_debug:
-                print "atom_debug: fyi: change_current_selgroup_to_include_self returns early with picked dad %r" % node_name(ours)
+##            if platform.atom_debug:
+##                print "atom_debug: fyi: change_current_selgroup_to_include_self returns early with picked dad %r" % node_name(ours)
             return # no need to change (important optimization for recursive picking in groups)
         if not ours:
             if platform.atom_debug:

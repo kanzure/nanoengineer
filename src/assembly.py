@@ -23,6 +23,8 @@ from movie import *
 from gadgets import *
 from Utility import *
 from HistoryWidget import greenmsg, redmsg
+from platform import fix_plurals
+
 
 # number of atoms for detail level 0
 HUGE_MODEL = 20000
@@ -731,16 +733,35 @@ class assembly:
 
     def cut(self):
         self.w.history.message(greenmsg("Cut:"))
-        if self.selwhat==0: return
+        if self.selwhat==0:
+            self.w.history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
+            return
         new = Group(gensym("Copy"),self,None)
-        self.tree.apply2picked(lambda(x): x.moveto(new))
-            ###@@@ bruce 050131 inference from recalled bug report:
+        if self.tree.picked:
+            #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
+            # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
+            # (No such restriction will be required for assy.copy, even when it copies entire groups.)
+            self.tree.unpick_top()
+            ## self.w.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
+            self.w.history.message("Can't cut the entire Part; copying its toplevel Group, cutting its members.") #bruce 050201
+            # new code to handle this case [bruce 050201]
+            self.tree.apply2picked(lambda(x): x.moveto(new))
+            use = new
+            use.name = self.tree.name # not copying any other properties of the Group (if it has any)
+            new = Group(gensym("Copy"),self,None)
+            new.addmember(use)
+        else:
+            self.tree.apply2picked(lambda(x): x.moveto(new))
+            # bruce 050131 inference from recalled bug report:
             # this must fail in some way that addmember handles, or tolerate jigs/groups but shouldn't;
             # one difference is that for chunks it would leave them in assy.molecules whereas copy would not;
             # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
-            # like bug 278! Because findpick (etc) uses assy.molecules.
+            # like bug 278! Because findpick (etc) uses assy.molecules. So I fixed this with sanitize_for_clipboard, below.
+        
+        self.changed() # bruce 050131 resisted temptation to make this conditional on new.members; 050201 moved it earlier
         
         if new.members:
+            nshelf_before = len(self.shelf.members) #bruce 050201
             for ob in new.members:
                 # bruce 050131 try fixing bug 278 in a limited, conservative way
                 # (which won't help the underlying problem in other cases like drag & drop, sorry),
@@ -750,8 +771,11 @@ class assembly:
                 # if the new member is a molecule, move it to the center of its space
                 if isinstance(ob, molecule): ob.move(-ob.center)
             ## ob.pick() # bruce 050131 removed this
-        
-        self.changed() # bruce 050131 resisted temptation to make this conditional on new.members
+            nshelf_after = len(self.shelf.members) #bruce 050201
+            self.w.history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
+                ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
+        else:
+            self.w.history.message(redmsg("Nothing to cut.")) #bruce 050201
         
         self.w.win_update()
 
@@ -787,7 +811,7 @@ class assembly:
             self.w.history.message(redmsg("Copying selected atoms is not yet supported.")) #bruce 050131
             return
         new = Group(gensym("Copy"),self,None)
-        # x is each node in the tree that is picked.
+        # x is each node in the tree that is picked. [bruce 050201 comment: it's ok if self.tree is picked.]
         # [bruce 050131 comments (not changing it in spite of bugs):
         #  the x's might be chunks, jigs, groups... but maybe not all are supported for copy.
         #  In fact, Group.copy returns 0 and Jig.copy returns None, and addmember tolerates that
@@ -798,6 +822,7 @@ class assembly:
         self.tree.apply2picked(lambda(x): new.addmember(x.copy(new)))
         
         if new.members:
+            nshelf_before = len(self.shelf.members) #bruce 050201
             for ob in (new.members):
                 self.sanitize_for_clipboard(ob) # not needed on 050131 but will be needed soon, and harmless
                 self.shelf.addmember(ob) # add new member(s) to the clipboard
@@ -805,6 +830,11 @@ class assembly:
                 # if the new member is a molecule, move it to the center of its space
                 if isinstance(ob, molecule): ob.move(-ob.center)
             ## ob.pick() # bruce 050131 removed this
+            nshelf_after = len(self.shelf.members) #bruce 050201
+            self.w.history.message( fix_plurals("Copied %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
+                ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
+        else:
+            self.w.history.message(redmsg("Nothing to Copy.")) #bruce 050201
 
         self.w.win_update()
 
@@ -1139,7 +1169,6 @@ class assembly:
                 numolist+=[numol]
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
-        from platform import fix_plurals
         msg = fix_plurals("Separate created %d new chunk(s)" % len(numolist))
         self.w.history.message(msg)
         self.w.win_update() #e do this in callers instead?
