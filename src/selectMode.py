@@ -4,7 +4,7 @@ from modes import *
 class selectMode(basicMode):
     def __init__(self, glpane):
         basicMode.__init__(self, glpane, 'SELECT')
-        self.backgroundColor = 217/256.0, 214/256.0, 160/256.0
+        self.backgroundColor = 190/256.0, 229/256.0, 239/256.0
         self.gridColor = (0.0, 0.0, 0.6)
         self.makeMenus()
         self.picking = 0

@@ -5,7 +5,7 @@ from qt import SIGNAL, QFileDialog
 from GLPane import *
 import os
 import help
-import icons
+from runSim import runSim
 
 from constants import *
 from chem import fullnamePeriodicTable
@@ -33,7 +33,7 @@ class MWsemantics(MainWindow):
             self.setName("Atom")
 
 	# start with empty window
-        self.assy = assembly(self)
+        self.assy = assembly(self, "Empty")
 
         self.frame4 = QFrame(self.centralWidget(),"frame4")
         self.frame4.setSizePolicy(QSizePolicy(3,3,0,0,False))
@@ -53,6 +53,8 @@ class MWsemantics(MainWindow):
         self.frame4Layout.addWidget(self.glpane)
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
+
+        self.setFocusPolicy(QWidget.StrongFocus)
         
         self.Element = 'C'
         self.elTab = [('C', Qt.Key_C, 0),
@@ -76,12 +78,12 @@ class MWsemantics(MainWindow):
         """If this window is empty (has no assembly), do nothing.
         Else create a new empty one.
         """
-        if self.assy:
-            foo = MWsemantics()
-            foo.show()
+        foo = MWsemantics()
+        foo.show()
 
     def fileOpen(self):
-
+        self.clear()
+        
         wd = globalParms['WorkingDirectory']
         fn = QFileDialog.getOpenFileName(wd, "Molecular machine parts (*.mmp);;Molecules (*.pdb);;Molecular parts assemblies (*.mpa);; All of the above (*.pdb *.mmp *.mpa)",
                                          self )
@@ -91,6 +93,10 @@ class MWsemantics(MainWindow):
             self.assy.readpdb(fn)
         if fn[-3:] == "mmp":
             self.assy.readmmp(fn)
+
+        dir, fil, ext = fileparse(fn)
+        self.assy.name = fil
+        self.assy.filename = fn
 
         self.setCaption(self.trUtf8("Atom: " + self.assy.name))
 
@@ -112,7 +118,8 @@ class MWsemantics(MainWindow):
                 dir, fil, ext = fileparse(self.assy.filename)
             else: dir, fil = "./", self.assy.name
             
-	    fileDialog = QFileDialog(dir, "Molecular machine parts (*.mmp);;Molecules (*.pdb)", 								        self, "Save File As", 1)
+	    fileDialog = QFileDialog(dir, "Molecular machine parts (*.mmp);;Molecules (*.pdb)",
+                                     self, "Save File As", 1)
             if self.assy.filename:
                 fileDialog.setSelection(fil)
 
@@ -143,6 +150,25 @@ class MWsemantics(MainWindow):
 
     def fileExit(self):
         pass
+
+    def fileClear(self):
+        self.__clear()
+        self.glpane.paintGL()
+
+
+    def fileClose(self):
+        self.fileSave()
+        self.__clear()
+
+    def fileSetWorkDir(self):
+	""" Sets working directory (need dialogue window) """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def __clear(self):
+        self.glpane.assy = self.assy = assembly(self)
+        self.assy.o = self.glpane
+
 
     ###################################
     # functions from the "Edit" menu
@@ -566,22 +592,8 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
  
     def elemChangePTable(self):
-        """ Future: element change via periodic table (only elements we support) """
-
-    def fileClear(self):
-        """ Closes part without Save (Clears the graphics window) """
-	QMessageBox.warning(self, "ATOM User Notice:", 
-	         "This function is not implemented yet, coming soon...")
-
-    def fileClose(self):
-	""" Closes part with Save (leaves the graphics window empty) """
-	QMessageBox.warning(self, "ATOM User Notice:", 
-	         "This function is not implemented yet, coming soon...")
-
-    def fileSetWorkDir(self):
-	""" Sets working directory (need dialogue window) """
-	QMessageBox.warning(self, "ATOM User Notice:", 
-	         "This function is not implemented yet, coming soon...")
+        """ Future: element change via periodic table
+        (only elements we support) """
 
     def modifyMinimize(self):
         """ Minimize """
@@ -589,9 +601,8 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
     def toolsSimulator(self):
-	""" Open simulator dialog window """
-	QMessageBox.warning(self, "ATOM User Notice:", 
-	         "This function is not implemented yet, coming soon...")
+        self.simCntl = runSim(self.assy)
+        self.simCntl.show()
 
     def viewFitToWindow(self):
         """ Fit to Window """
