@@ -16,6 +16,8 @@ def readpdb(assy,filename):
     alist=[]
     ndix={}
     mol=molecule(assy, filename)
+    assy.orderedItemsList += [mol]
+        
     for card in l:
         key=card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
