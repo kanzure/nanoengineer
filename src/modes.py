@@ -852,9 +852,7 @@ class basicMode(anyMode):
         else:
             h=self.o.height+0.0
             self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
-            #The above line of code can't do zoom for orthographic projection, should use the
-            # scale variable instead. Huaicai 10/18/04
-                
+ 
         self.picking = 0
         self.o.paintGL()
 

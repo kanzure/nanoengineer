@@ -62,19 +62,28 @@ class modifyMode(basicMode):
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0
-
+        
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        if wZ[0][0] >= 1.0: 
+                junk, self.movingPoint = self.o.mousepoints(event)
+        else:        
+                self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
+        
     def leftDrag(self, event):
         """Move the selected object(s) in the plane of the screen following
         the mouse.
         """
-        w=self.o.width+0.0
-        h=self.o.height+0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
         self.dragdist += vlen(deltaMouse)
-        move = self.o.quat.unrot(self.o.scale * deltaMouse/(h*0.5))
-        self.o.assy.movesel(move)
+        
+        p1, p2 = self.o.mousepoints(event)
+        point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
+        self.o.assy.movesel(point - self.movingPoint)
         self.o.paintGL()
+        self.movingPoint = point
         self.o.SaveMouse(event)
 
     def leftUp(self, event):

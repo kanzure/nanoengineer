@@ -76,7 +76,6 @@ class zoomMode(basicMode):
     def leftUp(self, event):
         """"Compute the final rubber band window ending point, do zoom"""
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
-        p1 = A(gluUnProject(cWxy[0], cWxy[1], 0.0)) 
         zoomX = (abs(cWxy[0] - self.pWxy[0]) + 0.0) / (self.o.width + 0.0)
         zoomY = (abs(cWxy[1] - self.pWxy[1]) + 0.0) / (self.o.height + 0.0)
               
@@ -88,9 +87,14 @@ class zoomMode(basicMode):
         
         assert winCenterZ[0][0] >= 0.0 and winCenterZ[0][0] <= 1.0
         if winCenterZ[0][0] >= 1.0:  ### window center touches nothing
-                junk, zoomCenter = self.o.mousepoints(event)
-                #zoomFactor = 1.0
-        else:                 
+                 p1 = A(gluUnProject(winCenterX, winCenterY, 0.0))
+                 p2 = A(gluUnProject(winCenterX, winCenterY, 1.0))
+
+                 los = self.o.lineOfSight
+                 k = dot(los, -self.o.pov - p1) / dot(los, p2 - p1)
+
+                 zoomCenter = p1 + k*(p2-p1)
+        else:
                 zoomCenter = A(gluUnProject(winCenterX, winCenterY, winCenterZ[0][0]))
         self.o.pov = V(-zoomCenter[0], -zoomCenter[1], -zoomCenter[2]) 
         
