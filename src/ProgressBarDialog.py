@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ProgressBarDialog.ui'
 #
-# Created: Mon Jan 3 15:04:28 2005
+# Created: Wed Jan 5 00:06:45 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -379,20 +379,24 @@ class progressBarDialog(QDialog):
         self.setIcon(self.image0)
 
 
-        self.msgLabel = QLabel(self,"msgLabel")
-        self.msgLabel.setGeometry(QRect(12,13,278,17))
-        self.msgLabel.setAlignment(QLabel.AlignCenter)
-
         self.progress = QProgressBar(self,"progress")
         self.progress.setGeometry(QRect(12,36,278,25))
         self.progress.setTotalSteps(0)
 
         self.abortPB = QPushButton(self,"abortPB")
-        self.abortPB.setGeometry(QRect(111,69,82,29))
+        self.abortPB.setGeometry(QRect(111,99,82,29))
+
+        self.msgLabel = QLabel(self,"msgLabel")
+        self.msgLabel.setGeometry(QRect(10,10,260,20))
+        self.msgLabel.setAlignment(QLabel.AlignCenter)
+
+        self.msgLabel2 = QLabel(self,"msgLabel2")
+        self.msgLabel2.setGeometry(QRect(10,70,260,20))
+        self.msgLabel2.setAlignment(QLabel.AlignCenter)
 
         self.languageChange()
 
-        self.resize(QSize(298,129).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(298,152).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.abortPB,SIGNAL("clicked()"),self.abort)
@@ -400,8 +404,9 @@ class progressBarDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Minimize"))
-        self.msgLabel.setText(self.__tr("Calculating.  Please wait..."))
         self.abortPB.setText(self.__tr("Abort"))
+        self.msgLabel.setText(self.__tr("Calculating.  Please wait..."))
+        self.msgLabel2.setText(QString.null)
 
 
     def abort(self):
