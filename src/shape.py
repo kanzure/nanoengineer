@@ -226,9 +226,9 @@ class shape:
                     if (i+j+k+ioff)%2:
                         abc=V(i,j,k)*sp
                         if self.isin(abc):
-                            drawsphere(color, abc, 0.7)
+                            drawsphere(color, abc, 0.7, 2)
                         if self.isin(abc+sp2):
-                            drawsphere(color, abc+sp2, 0.7)
+                            drawsphere(color, abc+sp2, 0.7, 2)
         glEndList()
         self.havelist = 1
 

@@ -45,9 +45,12 @@ def subdivide(tri,deep):
                subdivide((d,b,e), deep-1) + subdivide((f,e,c), deep-1)
     else: return [tri]
 
-ocdec=[]
-for i in icosix:
-    ocdec+=subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),2)
+## Get the specific detail level of triangles approximation of a sphere 
+def getSphereTriangles(level):
+	ocdec=[]
+	for i in icosix:
+	    ocdec+=subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),level)
+	return ocdec
 
 # generate two circles in space as 13-gons,
 # one rotated half a segment with respect to the other
@@ -88,24 +91,33 @@ for x in range(-n, n):
 
 DiGridSp = 2*n*sp
 
-SphereList = CylList = GridList = CapList = CubeList = None
+sphereList = []
+numSphereSizes = 3
+CylList = GridList = CapList = CubeList = None
 
 def setup():
-    global SphereList, CylList, GridList, CapList, CubeList
-    SphereList = glGenLists(3)
-    glNewList(SphereList, GL_COMPILE)
-    glBegin(GL_TRIANGLES)
-    for tri in ocdec:
-        glNormal3fv(tri[0])
-        glVertex3fv(tri[0])
-        glNormal3fv(tri[1])
-        glVertex3fv(tri[1])
-        glNormal3fv(tri[2])
-        glVertex3fv(tri[2])
-    glEnd()
-    glEndList()
+    global CylList, GridList, CapList, CubeList
+    global sphereList
 
-    CylList = SphereList + 1
+    listbase = glGenLists(numSphereSizes + 4)
+
+    for i in range(numSphereSizes):
+        sphereList += [listbase+i]
+        glNewList(sphereList[i], GL_COMPILE)
+        glBegin(GL_TRIANGLES)
+        ocdec = getSphereTriangles(i)
+        for tri in ocdec:
+            glNormal3fv(tri[0])
+            glVertex3fv(tri[0])
+            glNormal3fv(tri[1])
+            glVertex3fv(tri[1])
+            glNormal3fv(tri[2])
+            glVertex3fv(tri[2])
+        glEnd()
+        glEndList()
+
+
+    CylList = listbase+numSphereSizes
     glNewList(CylList, GL_COMPILE)
     glBegin(GL_TRIANGLES)
     for i in range(len(circle)):
@@ -157,14 +169,15 @@ def setup():
     glEnd()
     glEndList()
 
-def drawsphere(color, pos, radius, picked=0):
-    global SphereList
+def drawsphere(color, pos, radius, detailLevel, picked=0):
+
     if picked: glPolygonMode(GL_FRONT, GL_LINE)
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
-    glCallList(SphereList)
+    glCallList(sphereList[detailLevel])
+
     glPopMatrix()
     if picked: glPolygonMode(GL_FRONT, GL_FILL)
 

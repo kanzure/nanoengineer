@@ -216,7 +216,7 @@ class atom:
         lis = map((lambda b: b.other(self).element.symbol), self.bonds)
         print self.element.name, lis
 
-    def draw(self, win, dispdef, col):
+    def draw(self, win, dispdef, col, level):
         """draw the atom depending on whether it is picked
         and its (possibly inherited) display mode
         An atom's display mode overrides the inherited one from
@@ -227,7 +227,7 @@ class atom:
         disp, rad = self.howdraw(dispdef)
         pos = self.xyz
         if disp in [diVDW, diCPK]:
-            drawsphere(color, pos, rad, self.picked)
+            drawsphere(color, pos, rad, level, self.picked)
         if self.picked:
             drawwirecube(PickedColor, pos, rad)
         
@@ -466,7 +466,7 @@ class molecule:
         self.havelist = 0
         
 
-    def draw(self, win):
+    def draw(self, win, level):
         """draw all the atoms, using the atom's, molecule's,
         or GLPane's display mode in that order of preference
         Use the hash table drawn to draw each bond only once,
@@ -487,6 +487,7 @@ class molecule:
         # cache molecule display as GL list
         if self.havelist:
             glCallList(self.displist)
+
         else:
             glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
 
@@ -496,7 +497,7 @@ class molecule:
             drawn = {}
 
             for atm in self.atoms.itervalues():
-                atm.draw(win, disp, self.color)
+                atm.draw(win, disp, self.color, level)
                 for bon in atm.bonds:
                     if bon.key not in drawn:
                         drawn[bon.key] = bon
@@ -667,4 +668,4 @@ class molecule:
 
 
     def __str__(self):
-        return "<Molecule of " + self.filename + " at " + `self.center` + ">"
+        return "<Molecule of " + self.name + ">"

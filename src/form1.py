@@ -540,7 +540,7 @@ class Form1(QMainWindow):
         self.setCaption(self.trUtf8("Atom: " + self.assy.name))
 
         self.glpane.scale=1.5*max(self.assy.bboxhi[0], self.assy.bboxhi[1])
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
 
     def fileSave(self):
@@ -600,16 +600,25 @@ class Form1(QMainWindow):
 
     # this will pop up a new window onto the same assembly
     def dispNewView(self):
-        print "Form1.dispNewView(): Not implemented yet"
+	if self.assy:
+            foo = Form1()
+	    foo.assy = foo.glpane.assy = self.assy
+            foo.assy.windows += [foo]
+	    foo.glpane.scale=1.5*max(foo.assy.bboxhi[0], foo.assy.bboxhi[1])
+	    for mol in foo.glpane.assy.molecules:
+	        mol.changeapp()
+	    foo.show()
+            self.assy.updateDisplays()
+	
 
     # GLPane.ortho is checked in GLPane.paintGL
     def dispOrtho(self):
         self.glpane.ortho = 1
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     def dispPerspec(self):
         self.glpane.ortho = 0
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # set display formats in whatever is selected,
     # or the GLPane global default if nothing is
@@ -643,7 +652,7 @@ class Form1(QMainWindow):
             for ob in self.assy.molecules:
                 if ob.display == diDEFAULT:
                     ob.changeapp()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
         
 
     # set the color of the selected part(s) (molecule)
@@ -655,7 +664,7 @@ class Form1(QMainWindow):
             for ob in self.assy.selmols:
                 ob.setcolor(c)
         else: self.glpane.backgroundColor = c
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
         
 
     # functions from the "Grid" menu
@@ -664,15 +673,15 @@ class Form1(QMainWindow):
 
     def gridNone(self):
         self.glpane.griddraw=nogrid
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     def gridSquare(self):
         self.glpane.griddraw=rectgrid
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     def gridDiamond(self):
         self.glpane.griddraw=diamondgrid
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     def gridGraphite(self):
         print "Form1.gridGraphite(): Not implemented yet"
@@ -684,17 +693,17 @@ class Form1(QMainWindow):
     # along one axis
     def orient100(self):
         self.glpane.quat = Q(1,0,0,0)
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # halfway between two axes
     def orient110(self):
         self.glpane.quat = Q(V(1,0,1),V(0,0,1))
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # equidistant from three axes
     def orient111(self):
         self.glpane.quat = Q(V(1,1,1),V(0,0,1))
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # functions from the "Select" menu
 
@@ -720,14 +729,14 @@ class Form1(QMainWindow):
             for m in mollist:
                 for a in m.atoms.itervalues():
                     a.pick()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
 
     def selectNone(self):
         if not self.assy: return
         self.assy.unpickatoms()
         self.assy.unpickparts()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
 
     def selectInvert(self):
@@ -752,7 +761,7 @@ class Form1(QMainWindow):
                 for a in m.atoms.itervalues():
                     if a.picked: a.unpick()
                     else: a.pick()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     def selectConnected(self):
         """Select any atom that can be reached from any currently
@@ -760,7 +769,7 @@ class Form1(QMainWindow):
         """
         if not self.assy: return
         self.assy.marksingle()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
@@ -770,7 +779,7 @@ class Form1(QMainWindow):
         """
         if not self.assy: return
         self.assy.markdouble()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # Functions from the "Make" menu
 
@@ -780,7 +789,7 @@ class Form1(QMainWindow):
     def makeGround(self):
         if not self.assy: return
         self.assy.makeground()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     def makeHandle(self):
         print "Form1.makeHandle(): Not implemented yet"
@@ -788,7 +797,7 @@ class Form1(QMainWindow):
     def makeMotor(self):
         if not self.assy: return
         self.assy.makemotor(self.glpane.lineOfSight)
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     def makeBearing(self):
         print "Form1.makeBearing(): Not implemented yet"
@@ -810,7 +819,7 @@ class Form1(QMainWindow):
         if not self.assy: return
         for m in self.assy.selmols:
             m.passivate()
-            self.glpane.paintGL()
+            self.assy.updateDisplays()
 
     # add hydrogen atoms to each dangling bond
     # currently only works for carbon
@@ -822,13 +831,13 @@ class Form1(QMainWindow):
         elif self.assy.selatoms:
             for a in self.assy.selatoms.itervalues():
                 a.hydrogenate(self.assy)
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # form a new part (molecule) with whatever atoms are selected
     def modifySeparate(self):
         if not self.assy: return
         self.assy.separate()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # Functions from the "Help" menu
 
@@ -850,14 +859,14 @@ class Form1(QMainWindow):
         self.glpane.ortho = 1
         self.glpane.mode = 1
         self.glpane.griddraw=diamondgrid
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # "push down" one nanometer to cut out the next layer
     def cookieLayer(self):
         if self.glpane.shape:
             t = self.glpane.shape.curves[-1].thick
             self.glpane.zpush(t[1] - t[0])
-            self.glpane.paintGL()
+            self.assy.updateDisplays()
 
     # fill the shape created in the cookiecutter with actual
     # carbon atoms in a diamond lattice (including bonds)
@@ -872,7 +881,7 @@ class Form1(QMainWindow):
         self.glpane.ortho = 0
         self.glpane.mode = 0
         self.glpane.griddraw=nogrid
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # the elements combobox:
     # change selected atoms to the element selected
@@ -881,7 +890,7 @@ class Form1(QMainWindow):
         if self.assy.selatoms:
             for a in self.assy.selatoms.itervalues():
                 a.mvElement(str(string))
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # some unimplemented buttons:
 
@@ -914,7 +923,7 @@ class Form1(QMainWindow):
     def copyDo(self):
         if not self.assy: return
         self.assy.copy()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # 2BDone: make a copy of the selected part, move it, and bondEdge it,
     # having unselected the original and selected the copy.
@@ -927,7 +936,7 @@ class Form1(QMainWindow):
     def killDo(self):
         if not self.assy: return
         self.assy.kill()
-        self.glpane.paintGL()
+        self.assy.updateDisplays()
 
     # utility functions
 

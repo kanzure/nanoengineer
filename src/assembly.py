@@ -12,6 +12,11 @@ from drawer import segstart, drawsegment, segend, drawwirecube
 from shape import *
 from chem import *
 
+# number of atoms for detail level 0
+HUGE_MODEL = 20000
+# number of atoms for detail level 1
+LARGE_MODEL = 5000
+
 # the class for groups of parts (molecules)
 # currently only one level, but should be recursive
 class assembly:
@@ -26,7 +31,7 @@ class assembly:
         # list of chem.molecule's
         self.molecules=[]
         # list of the atoms, only valid just after read or write
-        self.alist = None
+        self.alist = [] #None
         # filename if this was read from a file
         self.filename= None
         # the name if any
@@ -39,12 +44,15 @@ class assembly:
         self.selatoms={}
         # list of selected molecules
         self.selmols=[]
+        # level of detail to draw
+        self.drawLevel = 2
         # currently unimplemented
         self.selmotors=[]
         self.undolist=[]
 
     # convert absolute atom positions to relative, find
     # bounding boxes, do some housekeeping
+
     def addmol(self,mol):
         mol.shakedown()
         self.bboxhi = maximum(self.bboxhi, mol.bboxhi+mol.center)
@@ -52,11 +60,36 @@ class assembly:
         self.center = (self.bboxhi+self.bboxlo)/2
         self.molecules += [mol]
 
-    # to draw, just draw everything inside
-    def draw(self,win):
+        self.setDrawLevel()
+        
+    ## Calculate the number of atoms in an assembly, which is used to
+    ## control the detail level of sphere subdivision
+    def setDrawLevel(self):
+
+        num = 0
         for mol in self.molecules:
-            mol.draw(win)
-            
+	    num += len(mol.atoms)
+        self.drawLevel = 2
+	if num > LARGE_MODEL: self.drawLevel = 1
+	if num > HUGE_MODEL: self.drawLevel = 0
+
+
+    # to draw, just draw everything inside
+    ## get the number of atoms to decide what detail level of subdivison we'll use
+    def draw(self, win):
+
+        for mol in self.molecules:
+            mol.draw(win, self.drawLevel)
+
+    # update all the displays we're connected to
+    def updateDisplays(self):
+        mollist = []
+        for m in self.molecules:
+            if m.havelist == 0: mollist += [m]
+        for win in self.windows:
+            for m in mollist: m.changeapp()
+            win.glpane.paintGL()
+           
     # write a povray file: just draw everything inside
     def povwrite(self,file,win):
         for mol in self.molecules:
@@ -314,10 +347,16 @@ class assembly:
                 self.killmol(m)
             self.selmols=[]
 
+        self.setDrawLevel()
+
+
     # actually remove a given molecule from the list
     def killmol(self, mol):
         try: self.molecules.remove(mol)
         except ValueError: pass
+
+        self.setDrawLevel()
+
 
     def __str__(self):
         return "<Assembly of " + self.filename + ">"
@@ -412,6 +451,8 @@ class assembly:
                 numol.pick()
                 # need to redo the old one too
                 mol.shakedown()
+
+          
 
 
 def povpoint(p):

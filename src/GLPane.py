@@ -20,6 +20,7 @@ import operator
 import struct
 from povheader import povheader
 
+paneno = 0
 #  ... what a Pane ...
 
 class GLPane(QGLWidget):
@@ -28,10 +29,13 @@ class GLPane(QGLWidget):
 
     def __init__(self, assem, master=None, name=None):
         QGLWidget.__init__(self,master,name)
-
+        global paneno
+        self.name = str(paneno)
+        paneno += 1
         self.initialised = 0
         self.assy = assem
         self.mode = 0
+        
 
         # The background color
         self.backgroundColor = 34/256.0, 148/256.0, 137/256.0
@@ -194,7 +198,7 @@ class GLPane(QGLWidget):
         self.prevvec = nuvec
         (p1, p2) = self.mousepoints(event)
         piecepick(self, p1, p2)
-        self.paintGL()
+        self.assy.updateDisplays()
 
     def EndPick(self, event):
         """Close a selection curve and do the selection
@@ -203,7 +207,7 @@ class GLPane(QGLWidget):
         (p1, p2) = self.mousepoints(event)
 
         pieceendpick(self, p1, p2)
-        self.paintGL()
+        self.assy.updateDisplays()
 
 
     def SelPart(self, event):
@@ -213,7 +217,7 @@ class GLPane(QGLWidget):
 
         self.assy.pickpart(p1,norm(p2-p1))
 
-        self.paintGL()
+        self.assy.updateDisplays()
 
     def SelAtom(self, event):
         """Select the atom the cursor is on.
@@ -222,7 +226,7 @@ class GLPane(QGLWidget):
 
         self.assy.pickatom(p1,norm(p2-p1))
 
-        self.paintGL()
+        self.assy.updateDisplays()
 
     def StartSelRot(self, event):
         """Setup a trackball action on each selected part.
@@ -236,7 +240,7 @@ class GLPane(QGLWidget):
         self.SaveMouse(event)
         q = self.trackball.update(self.MousePos[0],self.MousePos[1], self.quat)
         self.assy.rotsel(q)
-        self.paintGL()
+        self.assy.updateDisplays()
 
     def SelHoriz(self, event):
         """Move the selected object(s) on an imaginary tabletop
@@ -248,7 +252,7 @@ class GLPane(QGLWidget):
         move = self.scale * deltaMouse/(h*0.5)
         move = dot(move, self.quat.matrix3)
         self.assy.movesel(move)
-        self.paintGL()
+        self.assy.updateDisplays()
         self.SaveMouse(event)
 
     def SelVert(self, event):
@@ -261,7 +265,7 @@ class GLPane(QGLWidget):
         move = self.scale * deltaMouse/(h*0.5)
         move = dot(move, self.quat.matrix3)
         self.assy.movesel(move)
-        self.paintGL()
+        self.assy.updateDisplays()
         self.SaveMouse(event)
 
 
@@ -468,8 +472,10 @@ class GLPane(QGLWidget):
         if self.clock<0: self.killTimers()
         else:
             self.assy.movatoms(self.xfile)
-            self.paintGL()
+            self.assy.updateDisplays()
 
+    def __str__(self):
+        return "<GLPane " + self.name + ">"
 
 
 def povpoint(p):
