@@ -49,6 +49,8 @@ Elno = 0
 
 Gno = 0
 def gensym(string):
+    # warning, there is also a function like this in gadgets.py
+    # but with its own global counter!
     """return string appended with a unique number"""
     global Gno
     Gno += 1

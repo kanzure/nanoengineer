@@ -17,6 +17,8 @@ from StatProp import *
 
 Gno = 0
 def gensym(string):
+    # warning, there is also a function like this in chem.py
+    # but with its own global counter!
     """return string appended with a unique number"""
     global Gno
     Gno += 1
