@@ -569,6 +569,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         but = event.stateAfter()
         #k I'm guessing this event comes in place of a mousePressEvent; test
         #this [bruce 040917]
+        #print "Double clicked: ", but
+        
         but = self.fix_buttons(but, 'press')
         if but & leftButton:
             self.mode.leftDouble(event)
@@ -590,7 +592,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         but = event.stateAfter()
         but = self.fix_buttons(but, 'press')
         
-        #print "Button pressed: ", but
+        print "Button pressed: ", but
         
         if but & leftButton:
             if but & shiftButton:
@@ -622,6 +624,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.debug_event(event, 'mouseReleaseEvent')
         but = event.state()
         but = self.fix_buttons(but, 'release')
+        
+        print "Button released: ", but
         
         if but & leftButton:
             if but & shiftButton:
@@ -655,7 +659,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         ##self.debug_event(event, 'mouseMoveEvent')
         but = event.state()
         but = self.fix_buttons(but, 'move')
-
+        
         if but & leftButton:
             if but & shiftButton:
                 self.mode.leftShiftDrag(event)
@@ -750,7 +754,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         #e someday: if self.display == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.display = disp
-        self.win.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
+        ##Huaicai 3/29/05: Add the condition to fix bug 477
+        if self.mode.modename == 'COOKIE':
+            self.win.dispbarLabel.setText("    ")
+        else:    
+            self.win.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
         for mol in self.assy.molecules:
             if mol.display == diDEFAULT: mol.changeapp(1)
 
