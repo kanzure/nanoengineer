@@ -35,7 +35,7 @@
 
 RET=0
 
-for dir in tests/minimize ; do
+for dir in tests/minimize tests/dynamics ; do
     for i in $dir/*.test; do
 	echo Running $i
 	base=`basename $i .test`

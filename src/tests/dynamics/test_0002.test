@@ -1,0 +1,2 @@
+# ground, thermostat, and thermometer test
+PROGRAM simulator -f100 -t300 -i10 -x test_0002.mmp
