@@ -65,9 +65,11 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from struct import unpack
 
-from drawer import drawsphere, drawcylinder, drawline, drawaxes
-from drawer import segstart, drawsegment, segend, drawwirecube
-from shape import *
+##bruce 050222 thinks the following are not needed here anymore:
+##from drawer import drawsphere, drawcylinder, drawline, drawaxes
+##from drawer import segstart, drawsegment, segend, drawwirecube
+##from shape import *
+
 from chem import *
 from movie import *
 from gadgets import *
@@ -80,9 +82,6 @@ from platform import fix_plurals
 HUGE_MODEL = 20000
 # number of atoms for detail level 1
 LARGE_MODEL = 5000
-
-def hashAtomPos(pos):
-        return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
 
 class assembly:
     def __init__(self, win, nm = None):
@@ -407,48 +406,8 @@ class assembly:
     def draw(self, win):
         self.tree.draw(self.o, self.o.display)
     
-    # make a new molecule using a cookie-cut shape
-    def molmake(self,shap):
-        self.changed() # The file and the part are now out of sync.
-        mol = molecule(self, gensym("Cookie."))
-        ndx={}
-        hashAtomPos 
-        bbhi, bblo = shap.bbox.data
-        # Widen the grid enough to get bonds that cross the box
-        griderator = genDiam(bblo-1.6, bbhi+1.6)
-        pp=griderator.next()
-        while (pp):
-            pp0 = pp1 = None
-            if shap.isin(pp[0]):
-                pp0h = hashAtomPos(pp[0])
-                if pp0h not in ndx:
-                    pp0 = atom("C", pp[0], mol)
-                    ndx[pp0h] = pp0
-                else: pp0 = ndx[pp0h]
-            if shap.isin(pp[1]):
-                pp1h = hashAtomPos(pp[1])
-                if pp1h not in ndx:
-                    pp1 = atom("C", pp[1], mol)
-                    ndx[pp1h] = pp1
-                else: pp1 = ndx[pp1h]
-            if pp0 and pp1: mol.bond(pp0, pp1)
-            elif pp0:
-                x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
-                mol.bond(pp0, x)
-            elif pp1:
-                x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
-                mol.bond(pp1, x)
-            pp=griderator.next()
-
-        #Added by huaicai to fixed some bugs for the 0 atoms molecule 09/30/04
-        if len(mol.atoms) > 0:  
-            self.addmol(mol)
-            self.unpickatoms()
-            self.unpickparts()
-            self.selwhat = 2
-            mol.pick()
-            self.mt.mt_update()
-
+    # == movie support code
+    
     def savebasepos(self):
         """Copy current atom positions into an array.
         """

@@ -64,7 +64,7 @@ class cookieMode(basicMode):
 
     def StateDone(self):
         if self.o.shape:
-            self.o.assy.molmake(self.o.shape)
+            molmake(self.o.assy, self.o.shape) #bruce 050222 revised this call
         self.o.shape = None
         return None
 
@@ -326,3 +326,64 @@ class cookieMode(basicMode):
         except: pass
         
     pass # end of class cookieMode
+
+# == helper functions
+
+def hashAtomPos(pos):
+        return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
+
+# make a new molecule using a cookie-cut shape
+
+# [bruce 050222 changed this from an assembly method to a cookieMode function
+#  (since it's about cookies made from diamond, like this file),
+#  and moved it from assembly.py to cookieMode.py, but changed nothing else
+#  except renaming self->assy and adding some comments.]
+
+def molmake(assy,shap):
+    assy.changed() # The file and the part are now out of sync.
+        #bruce 050222 comment: this is not needed, since it's done by addmol
+    mol = molecule(assy, gensym("Cookie."))
+    ndx={}
+    hashAtomPos #bruce 050222 comment: this line is probably a harmless typo, should be removed
+    bbhi, bblo = shap.bbox.data
+    # Widen the grid enough to get bonds that cross the box
+    griderator = genDiam(bblo-1.6, bbhi+1.6)
+    pp=griderator.next()
+    while (pp):
+        pp0 = pp1 = None
+        if shap.isin(pp[0]):
+            pp0h = hashAtomPos(pp[0])
+            if pp0h not in ndx:
+                pp0 = atom("C", pp[0], mol)
+                ndx[pp0h] = pp0
+            else: pp0 = ndx[pp0h]
+        if shap.isin(pp[1]):
+            pp1h = hashAtomPos(pp[1])
+            if pp1h not in ndx:
+                pp1 = atom("C", pp[1], mol)
+                ndx[pp1h] = pp1
+            else: pp1 = ndx[pp1h]
+        if pp0 and pp1: mol.bond(pp0, pp1)
+        elif pp0:
+            x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
+            mol.bond(pp0, x)
+        elif pp1:
+            x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
+            mol.bond(pp1, x)
+        pp=griderator.next()
+
+    #Added by huaicai to fixed some bugs for the 0 atoms molecule 09/30/04
+    # [bruce 050222 comment: I think Huaicai added the condition, not the body,
+    #  i.e. before that it was effectively "if 1".]
+    if len(mol.atoms) > 0:
+        #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
+        assy.addmol(mol)
+        assy.unpickatoms()
+        assy.unpickparts()
+        assy.selwhat = 2
+        mol.pick()
+        assy.mt.mt_update()
+
+    return # from molmake
+
+# end
