@@ -46,11 +46,12 @@ class Part:
     as the chunks/jigs they contain); each Part has a toplevel node self.tree,
     and a reference to the shared (per-assy) clipboard to use, self.shelf [###k].
     """
-
+    
     def __init__(self, assy):
         self.assy = assy
 
-        ###e need: tree, root(??)
+        ###e need: tree, root(??) -- both refer to a new attr called topnode or so...
+        assert 0, "need tree & root to refer to topnode"
         # _modified??
         # coord sys stuff? data? lastCsys homeCsys xy yz zx
         # name? no, at least not yet, until there's a Part Tree Widget.
@@ -82,6 +83,14 @@ class Part:
         self.waals = None
 
         return # from Part.__init__
+
+    def immortal(self):
+        """Should this Part be undeletable from the UI (by cut or delete operations)?
+        When true, delete will delete its members (leaving it empty but with its topnode still present),
+        and cut will cut its members and move them into a copy of its topnode, which is left still present.
+        [can be overridden in subclasses]
+        """
+        return False # simplest value used as default
 
     # attrnames to delegate to self.assy (ideally for writing as well as reading, until all using-code is upgraded)
     assy_attrs = ['w','o','mt']
@@ -367,12 +376,12 @@ class Part:
     def prin(self):
         for a in self.selatoms.itervalues():
             a.prin()
-
-######@@@@@@ GOT TO HERE
             
     #bruce 050131/050201 for Alpha (really for bug 278 and maybe related ones):
     # sanitize_for_clipboard, for cut and copy and other things that add clipboard items
     # ####@@@@ need to use in sethotspot too??
+
+    #####@@@@@ fate of sanitize_for_clipboard, for assy/part split: [see notes]
     
     def sanitize_for_clipboard(self, ob): 
         """Prepare ob for addition to the clipboard as a new toplevel item;
@@ -426,6 +435,9 @@ class Part:
                 self.sanitize_for_clipboard_0(m)
         return
 
+    # == #####@@@@@ cut/copy/paste/kill will all be revised to handle bonds better (copy or break them as appropriate)
+    # incl jig-atom connections too
+    
     # bruce 050131/050201 revised these Cut and Copy methods to fix some Alpha bugs;
     # they need further review after Alpha, and probably could use some merging. ###@@@
     # See also assy.kill (Delete operation).
@@ -438,20 +450,26 @@ class Part:
             self.w.history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
             ## return #bruce 050201-bug370: don't return yet, in case some jigs were selected too.
             # note: we will check selatoms again, below, to know whether we emitted this message
-        new = Group(gensym("Copy"),self,None)
+        new = Group(gensym("Copy"), self.assy, None)
             # bruce 050201 comment: this group is usually, but not always, used only for its members list
-        if self.tree.picked:
+        if self.immortal() and self.tree.picked:
+            ###@@@ design note: this is an issue for the partgroup but not for clips... what's the story?
+            ### Answer: some parts can be deleted by being entirely cut (top node too) or killed, others can't.
+            ### This is not a properly of the node, so much as of the Part, I think.... not clear since 1-1 corr.
+            ### but i'll go with that guess. immortal parts are the ones that can't be killed in the UI.
+            
             #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
             # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
             # (No such restriction will be required for assy.copy, even when it copies entire groups.)
             self.tree.unpick_top()
             ## self.w.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
+            ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
             self.w.history.message("Can't cut the entire Part; copying its toplevel Group, cutting its members.") #bruce 050201
             # new code to handle this case [bruce 050201]
             self.tree.apply2picked(lambda(x): x.moveto(new))
             use = new
             use.name = self.tree.name # not copying any other properties of the Group (if it has any)
-            new = Group(gensym("Copy"),self,None)
+            new = Group(gensym("Copy"), self.assy, None)
             new.addmember(use)
         else:
             self.tree.apply2picked(lambda(x): x.moveto(new))
@@ -461,9 +479,8 @@ class Part:
             # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
             # like bug 278! Because findpick (etc) uses assy.molecules. So I fixed this with sanitize_for_clipboard, below.
         
-        self.changed() # bruce 050131 resisted temptation to make this conditional on new.members; 050201 moved it earlier
-        
         if new.members:
+            self.changed() # bruce 050201 doing this earlier; 050223 made it conditional on new.members
             nshelf_before = len(self.shelf.members) #bruce 050201
             for ob in new.members:
                 # bruce 050131 try fixing bug 278 in a limited, conservative way
@@ -486,7 +503,7 @@ class Part:
 
     # copy any selected parts (molecules) [making a new clipboard item... #doc #k]
     #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
-    #  Bruce's comments (based on reading the code, not all verified by test):
+    #  Bruce's comments (based on reading the code, not all verified by test): [###obs comments]
     #    0. If groups are not allowed in the clipboard (bug 213 doesn't say,
     #  but why else would it have been a bug to have added a group there?),
     #  then this is only a partial fix, since if a group is one of the
@@ -504,7 +521,7 @@ class Part:
             #bruce 050201-bug370: revised this in same way as for assy.cut (above)
             self.w.history.message(redmsg("Copying selected atoms is not yet supported.")) #bruce 050131
             ## return
-        new = Group(gensym("Copy"),self,None)
+        new = Group(gensym("Copy"), self.assy, None)
             # bruce 050201 comment: this group is always (so far) used only for its members list
         # x is each node in the tree that is picked. [bruce 050201 comment: it's ok if self.tree is picked.]
         # [bruce 050131 comments (not changing it in spite of bugs):
@@ -542,27 +559,10 @@ class Part:
     def paste(self, node):
         pass # to be implemented
 
-    def unselect_clipboard_items(self): #bruce 050131 for Alpha
-        "to be called before operations which are likely to fail when any clipboard items are selected"
-        self.set_current_selection_group( self.tree)
-
-    # move any selected parts in space ("move" is an offset vector)
-    def movesel(self, move):
-        for mol in self.selmols:
-            self.changed()
-            mol.move(move)
- 
- 
-    # rotate any selected parts in space ("rot" is a quaternion)
-    def rotsel(self, rot):
-        for mol in self.selmols:
-            self.changed()
-            mol.rot(rot)
-             
-
-    def kill(self): # bruce 041118 simplified this after shakedown changes
+    def kill(self):
+        "delete everything selected in this Part [except the top node, if we're an immortal Part]"
         #bruce 050201 for Alpha: revised this to fix bug 370
-        "delete whatever is selected from this assembly [except the PartGroup node itself]"
+        ## "delete whatever is selected from this assembly " #e use this in the assy version of this method, if we need one
         self.w.history.message(greenmsg("Delete:"))
         ###@@@ #e this also needs a results-message, below.
         if self.selatoms:
@@ -570,27 +570,44 @@ class Part:
             for a in self.selatoms.values():
                 a.kill()
             self.selatoms = {} # should be redundant
-        if 1:
-            ## bruce 050201 removed the condition "self.selwhat == 2 or self.selmols"
-            # since selected jigs no longer force selwhat to be 2.
-            # (Maybe they never did, but my guess is they did; anyway I think they shouldn't.)
-            # self.changed() is not needed since removing Group members should do it (I think),
-            # and would be wrong here if nothing was selected.
+        
+        ## bruce 050201 removed the condition "self.selwhat == 2 or self.selmols"
+        # (previously used to decide whether to kill all picked nodes in self.tree)
+        # since selected jigs no longer force selwhat to be 2.
+        # (Maybe they never did, but my guess is they did; anyway I think they shouldn't.)
+        # self.changed() is not needed since removing Group members should do it (I think),
+        # and would be wrong here if nothing was selected.
+        if self.immortal():
             self.tree.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
-            self.tree.apply2picked(lambda o: o.kill())
-            # Also kill anything picked in the clipboard
-            # [revised by bruce 050131 for Alpha, see cvs rev 1.117 for historical comments]
-            self.shelf.apply2picked(lambda o: o.kill()) # kill by Mark(?), 11/04
+        self.tree.apply2picked(lambda o: o.kill())
+## no longer needed after assy/Part split:
+##        # Also kill anything picked in the clipboard
+##        # [revised by bruce 050131 for Alpha, see cvs rev 1.117 for historical comments]
+##        self.shelf.apply2picked(lambda o: o.kill()) # kill by Mark(?), 11/04
+        self.update_after_big_changes()
+        
+    def update_after_big_changes(self): #e rename, use more, revise, make inval/update method (this is inval)
         self.setDrawLevel() #e should this update bbox too?? or more? [bruce 050214 comment]
         return
 
+    # ==
 
-##    # actually remove a given molecule from the list [no longer used]
-##    def killmol(self, mol):
-##        mol.kill()
-##        self.setDrawLevel()
+    ###@@@ move/rot should be extended to apply to jigs too (and fit into some naming convention)
+    
+    # move any selected parts in space ("move" is an offset vector)
+    def movesel(self, move):
+        for mol in self.selmols:
+            self.changed()
+            mol.move(move)
+ 
+    # rotate any selected parts in space ("rot" is a quaternion)
+    def rotsel(self, rot):
+        for mol in self.selmols:
+            self.changed()
+            mol.rot(rot)
 
-
+    # == these are event handlers which do their own full UI updates at the end
+    
     # bruce 050201 for Alpha:
     #    Like I did to fix bug 370 for Delete (and cut and copy),
     # make Hide and Unhide work on jigs even when in selatoms mode.
@@ -609,7 +626,7 @@ class Part:
         self.root.apply2picked(lambda x: x.unhide())
         self.w.win_update()
 
-    #bond atoms (cheap hack)
+    #bond atoms (cheap hack) #e is still used? should it be more accessible?
     def Bond(self):
         if not self.selatoms: return
         aa=self.selatoms.values()
@@ -622,17 +639,22 @@ class Part:
             self.o.gl_update()
 
     #unbond atoms (cheap hack)
+    #bruce 050223 revised in minor ways; didn't test since it's not user-accessible now.
+    # BTW we could add this for all bonds between selected atoms,
+    # per recent Delete Bonds discussion.
     def Unbond(self):
         if not self.selatoms: return
-        self.changed()
         aa=self.selatoms.values()
         if len(aa)==2:
+            self.changed()
             #bruce 041028 bugfix: add [:] to copy following lists,
             # since bust will modify them during the iteration
             for b1 in aa[0].bonds[:]:
                 for b2 in aa[1].bonds[:]:
-                    if b1 == b2: b1.bust()
-        self.o.gl_update()
+                    if b1 == b2:
+                        b1.bust()
+                        break #bruce 050223 precaution
+            self.o.gl_update()
 
     #stretch a molecule
     def Stretch(self):
@@ -644,7 +666,7 @@ class Part:
             m.stretch(1.1)
         self.o.gl_update()
 
-    #weld selected molecules together
+    #weld selected molecules together  ###@@@ no update -- does caller do it?? [bruce 050223]
     def weld(self):
         #bruce 050131 comment: might now be safe for clipboard items
         # since all selection is now forced to be in the same one;
@@ -658,7 +680,6 @@ class Part:
         for m in self.selmols[1:]:
             mol.merge(m)
 
-
     def align(self):
         if len(self.selmols) < 2:
             self.w.history.message(redmsg("need two or more selected chunks to align")) #bruce 050131
@@ -671,15 +692,9 @@ class Part:
         for m in self.selmols:
             m.rot(Q(m.getaxis(),ax))
         self.o.gl_update()
-                  
-
-    #############
-
-    def __str__(self):
-        return "<Assembly of " + self.filename + ">"
-
+    
     def computeBoundingBox(self):
-        """Compute the bounding box for the assembly. This should be
+        """Compute the bounding box for this Part. This should be
         called whenever the geometry model has been changed, like new
         parts added, parts/atoms deleted, parts moved/rotated(not view
         move/rotation), etc."""
@@ -688,6 +703,8 @@ class Part:
         for mol in self.molecules:
               self.bbox.merge(mol.bbox)
         self.center = self.bbox.center()
+
+    #####@@@@@ movie funcs not yet reviewed for assy/part split
         
     # makes a simulation movie
     def makeSimMovie(self):
@@ -721,7 +738,9 @@ class Part:
             if self.m._setup(): return
             self.m._play()
             self.m._close()
-        
+
+    # == jig makers
+    
     def makeRotaryMotor(self, sightline):
         """Creates a Rotary Motor connected to the selected atoms.
         There is a limit of 30 atoms.  Any more will choke the file parser
@@ -732,7 +751,7 @@ class Part:
         m=RotaryMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
-            del(m)
+            del(m) #bruce comment 050223: this statement has no effect.
             return
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
@@ -748,7 +767,7 @@ class Part:
         m = LinearMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
-            del(m)
+            del(m) #bruce comment 050223: this statement has no effect.
             return
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
@@ -785,7 +804,9 @@ class Part:
         m=Thermo(self, self.selatoms.values())
         m.atoms[0].molecule.dad.addmember(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
-        
+
+    # == helpers for SelectConnected and SelectDoubly
+    
     # select all atoms connected by a sequence of bonds to
     # an already selected one
     def marksingle(self):
@@ -824,7 +845,6 @@ class Part:
                 if len(a.bonds) == 1 and a.neighbors()[0].picked:
                     a.pick()
 
-
     # compared to that, the doubly-connected components algo is hairy.
     # cf Gibbons: Algorithmic Graph Theory, Cambridge 1985
     def blocks(self, atom):
@@ -847,10 +867,11 @@ class Part:
                     self.stack = self.stack[:pop]
                 self.p[atom] = min(self.p[atom], self.p[a2])
 
+    # == more operations on selection, full event handlers with history and update
+    
     def modifyDeleteBonds(self):
         """Delete all bonds between selected and unselected atoms or chunks
         """
-        
         if not self.selatoms and not self.selmols: # optimization, and different status msg
             msg = redmsg("Delete Bonds: Nothing selected")
             self.w.history.message(msg)
@@ -934,7 +955,7 @@ class Part:
         self.w.win_update() #e do this in callers instead?
 
     def copySelatomFrags(self):
-        #bruce 041116, combining modifySeparate and mol.copy; for extrude
+        #bruce 041116, combining modifySeparate and mol.copy; intended for extrude, not yet used but should be
         """
            For each molecule (named N) containing any selected atoms,
            copy the selected atoms of N to make a new molecule named N-frag
@@ -984,8 +1005,7 @@ class Part:
             new = newmols[id(old)]
             res.append( (new,old) )
         return res
-        
-
+    
     # change surface atom types to eliminate dangling bonds
     # a kludgey hack
     # bruce 041215 added some comments.
@@ -1009,14 +1029,25 @@ class Part:
     def modifyDehydrogenate(self):
         self.o.mode.modifyDehydrogenate()
 
-    # write moviefile
+    # write moviefile #####@@@@@ not yet reviewed for assy/part split
     def writemovie(self, mflag = 0):
         from fileIO import writemovie
         return writemovie(self, mflag)
 
-    # read xyz file.
+    # read xyz file. #####@@@@@ not yet reviewed for assy/part split
     def readxyz(self):
         from fileIO import readxyz
         return readxyz(self)
                     
-    # end of class assembly
+    # end of class Part
+
+# subclasses of Part
+
+class MainPart(Part):
+    def immortal(self): return True
+    pass
+
+class ClipboardItemPart(Part):
+    pass
+
+# end
