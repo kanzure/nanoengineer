@@ -418,11 +418,13 @@ class depositMode(basicMode):
     def keyPress(self,key):
         # bruce comment 041220:
         # doesn't call basicMode method, so Delete key is not active. Good??
+        # bruce 050128: no, not good. And it shows selection anyway... so do it below.
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.KillCursor)
         for sym, code, num in elemKeyTab:
             if key == code:
                 self.w.setElement(num) ###@@@ does this update our own spinbox too??
+        basicMode.keyPress(self,key) # bruce 050128
         return
 
     def keyRelease(self,key):
