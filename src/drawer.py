@@ -72,24 +72,25 @@ cap1n=(0.0, 0.0, 1.0)
 drum0.reverse()
 
 # a chunk of diamond grid, to be tiled out in 3d
-digrid=[]
-n=2
-sp=1.7586
-sp2=sp/2.0
-# note that these are balanced about 0 (range vs. x+sp)
-for x in range(-n, n):
-    for y in range(-n, n):
-        for z in range(-n, n):
-            if (x+y+z+1)%2:
-                a=x*sp
-                b=y*sp
-                c=z*sp
-                digrid += [((a,b,c), (a+sp2, b+sp2, c+sp2))]
-                digrid += [((a+sp2, b+sp2, c+sp2), (a+sp,b+sp,c))]
-                digrid += [((a,b+sp,c+sp), (a+sp2, b+sp2, c+sp2))]
-                digrid += [((a+sp2, b+sp2, c+sp2), (a+sp,b,c+sp))]
 
-DiGridSp = 2*n*sp
+sp0 = 0.0
+sp1=1.52/sqrt(3.0)
+sp2=2.0*sp1
+sp3=3.0*sp1
+sp4=4.0*sp1
+
+digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
+        [[sp2, sp2, sp0], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp4, sp0]],
+        [[sp2, sp0, sp2], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp4, sp2, sp2]],
+        [[sp2, sp0, sp2], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp0, sp2, sp2]],
+        [[sp0, sp2, sp2], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp2, sp4, sp2]],
+        [[sp2, sp4, sp2], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp2, sp2]],
+        [[sp4, sp0, sp4], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp2, sp2, sp4]],
+        [[sp2, sp2, sp4], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
+
+digrid = A(digrid)
+
+DiGridSp = sp4
 
 sphereList = []
 numSphereSizes = 3
@@ -267,19 +268,31 @@ def drawaxes(n,point):
     glEnable(GL_LIGHTING)
     glPopMatrix()
 
+def genDiam(bblo, bbhi):
+    for i in range(int(floor(bblo[0]/DiGridSp)),
+                   int(ceil(bbhi[0]/DiGridSp))):
+        for j in range(int(floor(bblo[1]/DiGridSp)),
+                       int(ceil(bbhi[1]/DiGridSp))):
+            for k in range(int(floor(bblo[2]/DiGridSp)),
+                           int(ceil(bbhi[2]/DiGridSp))):
+                off = V(i*DiGridSp, j*DiGridSp, k*DiGridSp)
+                for p in digrid:
+                    yield p[0]+off, p[1]+off
+    yield None
 
-def drawgrid(x):
+def drawgrid(scale, center):
+    
     #draw grid
-    glColor3f(0.5, 0.5, 1.0)
     glDisable(GL_LIGHTING)
-    x1 = y1 = z1 = -x
-    x2 = y2 = z2 = x
-    i1 = int(floor((x1+DiGridSp*0.5)/DiGridSp))
-    i2 = int(ceil((x2+DiGridSp*0.5)/DiGridSp))
-    j1 = int(floor((y1+DiGridSp*0.5)/DiGridSp))
-    j2 = int(ceil((y2+DiGridSp*0.5)/DiGridSp))
-    k1 = int(floor((z1+DiGridSp*0.5)/DiGridSp))
-    k2 = int(ceil((z2+DiGridSp*0.5)/DiGridSp))
+
+    bblo = center-scale
+    bbhi = center + scale
+    i1 = int(floor(bblo[0]/DiGridSp))
+    i2 = int(ceil(bbhi[0]/DiGridSp))
+    j1 = int(floor(bblo[1]/DiGridSp))
+    j2 = int(ceil(bbhi[1]/DiGridSp))
+    k1 = int(floor(bblo[2]/DiGridSp))
+    k2 = int(ceil(bbhi[2]/DiGridSp))
     glPushMatrix()
     glTranslate(i1*DiGridSp,  j1*DiGridSp, k1*DiGridSp)
     for i in range(i1, i2):
@@ -295,3 +308,18 @@ def drawgrid(x):
         glTranslate(DiGridSp, 0.0, 0.0)
     glPopMatrix()
     glEnable(GL_LIGHTING)
+
+
+def drawrectangle(pt1, pt2, rt, up, color):
+    glColor3f(color[0], color[1], color[2])
+    glDisable(GL_LIGHTING)
+    c2 = pt1 + rt*dot(rt,pt2-pt1)
+    c3 = pt1 + up*dot(up,pt2-pt1)
+    glBegin(GL_LINE_LOOP)
+    glVertex(pt1[0],pt1[1],pt1[2])
+    glVertex(c2[0],c2[1],c2[2])
+    glVertex(pt2[0],pt2[1],pt2[2])
+    glVertex(c3[0],c3[1],c3[2])
+    glEnd()
+    glEnable(GL_LIGHTING)
+    

@@ -5,7 +5,6 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from OpenGL.GLE import *
 import math
-from math import asin
 
 import os,sys
 from time import time
@@ -15,6 +14,7 @@ from shape import *
 from assembly import *
 import re
 from constants import *
+from modes import *
 
 import Image
 import operator
@@ -24,11 +24,55 @@ from povheader import povheader
 paneno = 0
 #  ... what a Pane ...
 
+normalBackground = 217/256.0, 214/256.0, 160/256.0
+
+normalGridLines = (0.0, 0.0, 0.6)
+
+pi2 = pi/2.0
+pi3 = pi/3.0
+pi4 = pi/4.0
+xquats = [Q(1,0,0,0), Q(V(0,0,1),pi2), Q(V(0,0,1),pi), Q(V(0,0,1),-pi2),
+          Q(V(0,0,1),pi4), Q(V(0,0,1),3*pi4),
+          Q(V(0,0,1),-pi4), Q(V(0,0,1),-3*pi4)]
+pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),pi), Q(V(0,1,0),-pi2), 
+          Q(V(1,0,0),pi2), Q(V(1,0,0),-pi2)]
+
+quats100 = []
+for q in pquats:
+    for q1 in xquats:
+        quats100 += [q+q1]
+
+rq = Q(V(0,1,0),pi2)
+pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
+          Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4),
+          Q(V(1,0,0),pi4), Q(V(1,0,0),3*pi4),
+          Q(V(1,0,0),-pi4), Q(V(1,0,0),-3*pi4),
+          rq+Q(V(1,0,0),pi4), rq+Q(V(1,0,0),3*pi4),
+          rq+Q(V(1,0,0),-pi4), rq+Q(V(1,0,0),-3*pi4)]
+
+quats110 = []
+for q in pquats:
+    for q1 in xquats:
+        quats110 += [q+q1]
+
+cq = Q(V(1,0,0),0.615479708)
+xquats = [Q(1,0,0,0), Q(V(0,0,1),pi3), Q(V(0,0,1),2*pi3), Q(V(0,0,1),pi),
+          Q(V(0,0,1),-pi3), Q(V(0,0,1),-2*pi3)]
+pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
+          Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4)]
+
+quats111 = []
+for q in pquats:
+    for q1 in xquats:
+        quats111 += [q+cq+q1, q-cq+q1]
+
+allQuats = quats100 + quats110 + quats111
+
 class GLPane(QGLWidget):
     """Mouse input and graphics output in the main view window.
     """
 
-    def __init__(self, assem, master=None, name=None):
+    def __init__(self, assem, master=None, name=None, form1=None):
         QGLWidget.__init__(self,master,name)
         global paneno
         self.name = str(paneno)
@@ -39,7 +83,8 @@ class GLPane(QGLWidget):
         
 
         # The background color
-        self.backgroundColor = 34/256.0, 148/256.0, 137/256.0
+        self.backgroundColor = normalBackground
+        self.gridColor = normalGridLines
 
         self.trackball = Trackball(10,10)
         self.quat = Q(1, 0, 0, 0)
@@ -65,7 +110,14 @@ class GLPane(QGLWidget):
         self.sellist = None
         self.shape = None
 
+        # 1 for selecting, 0 for deselecting, 2 for selecting parts
+        self.selSense = 1
+        # 0 if selecting as lasso, 1 if as rectangle
+        self.selLassRect = 1
+
         self.picking = False
+
+        self.setMouseTracking(True)
 
         # default display form for objects in the window
         # even tho there is only one assembly to a window,
@@ -76,6 +128,25 @@ class GLPane(QGLWidget):
         self.makeCurrent()
 
         drawer.setup()
+
+        self.scm = form1.selectMenu
+        self.form1 = form1
+
+        # set up the interaction mode
+        self.modetab={}
+        
+        selectMode(self)
+        cookieMode(self)
+        modifyMode(self)
+
+        self.setMode('SELECT')
+
+        
+    def setMode(self, mode):
+        """give the modename as a string.
+        """
+        self.modetab[mode].setMode()
+        self.paintGL()
 
     # return space vectors corresponding to various directions
     # relative to the screen
@@ -122,47 +193,111 @@ class GLPane(QGLWidget):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-    def mousePressEvent(self, e):
+    def mouseDoubleClickEvent(self, event):
+        but = event.stateAfter()
+        if but & leftButton:
+            self.mode.leftDouble(event)
+        if but & midButton:
+            self.mode.middleDouble(event)
+        if but & rightButton:
+            self.mode.rightDouble(event)
+
+    def mousePressEvent(self, event):
         """Dispatches mouse press events depending on shift and
         control key state.
         """
-        but = e.stateAfter()
-        if but & shiftButton:
-            if but & leftButton: self.StartPick(e)
-            if but & rightButton: self.SelAtom(e)
-            if but & midButton: self.SelPart(e)
-        elif but & cntlButton:
-            if but & leftButton: self.StartSelRot(e)
-            if but & rightButton: self.SaveMouse(e)
-            if but & midButton: self.SaveMouse(e)
-        else:
-            if but & leftButton: self.StartRotate(e)
-            if but & rightButton: self.SaveMouse(e)
-            if but & midButton: self.SaveMouse(e)
+        but = event.stateAfter()
+        
+        if but & leftButton:
+            if but & shiftButton:
+                self.mode.leftShiftDown(event)
+            elif but & cntlButton:
+                self.mode.leftCntlDown(event)
+            else:
+                self.mode.leftDown(event)
 
-    def mouseReleaseEvent(self, e):
+        if but & midButton:
+            if but & shiftButton:
+                self.mode.middleShiftDown(event)
+            elif but & cntlButton:
+                self.mode.middleCntlDown(event)
+            else:
+                self.mode.middleDown(event)
+
+        if but & rightButton:
+            if but & shiftButton:
+                self.mode.rightShiftDown(event)
+            elif but & cntlButton:
+                self.mode.rightCntlDown(event)
+            else:
+                self.mode.rightDown(event)         
+
+    def mouseReleaseEvent(self, event):
         """Only used to detect the end of a freehand selection curve.
         """
-        if self.picking:
-            self.picking = False
-            self.EndPick(e)
+        but = event.state()
+        
+        if but & leftButton:
+            if but & shiftButton:
+                self.mode.leftShiftUp(event)
+            elif but & cntlButton:
+                self.mode.leftCntlUp(event)
+            else:
+                self.mode.leftUp(event)
 
-    def mouseMoveEvent(self, e):
+        if but & midButton:
+            if but & shiftButton:
+                self.mode.middleShiftUp(event)
+            elif but & cntlButton:
+                self.mode.middleCntlUp(event)
+            else:
+                self.mode.middleUp(event)
+
+        if but & rightButton:
+            if but & shiftButton:
+                self.mode.rightShiftUp(event)
+            elif but & cntlButton:
+                self.mode.rightCntlUp(event)
+            else:
+                self.mode.rightUp(event)         
+
+
+    def mouseMoveEvent(self, event):
         """Dispatches mouse motion events depending on shift and
         control key state.
         """
-        but = e.state()
-        if but & shiftButton:
-            if but & leftButton: self.ContinPick(e)
-        elif but & cntlButton:
-            if but & leftButton: self.SelRotate(e)
-            if but & rightButton: self.SelVert(e)
-            if but & midButton: self.SelHoriz(e)
-        else:
-            if but & leftButton: self.Rotate(e)
-            if but & rightButton: self.Pan(e)
-            if but & midButton: self.Zoom(e)
+        but = event.state()
 
+        if but & leftButton:
+            if but & shiftButton:
+                self.mode.leftShiftDrag(event)
+            elif but & cntlButton:
+                self.mode.leftCntlDrag(event)
+            else:
+                self.mode.leftDrag(event)
+
+        elif but & midButton:
+            if but & shiftButton:
+                self.mode.middleShiftDrag(event)
+            elif but & cntlButton:
+                self.mode.middleCntlDrag(event)
+            else:
+                self.mode.middleDrag(event)
+
+        elif but & rightButton:
+            if but & shiftButton:
+                self.mode.rightShiftDrag(event)
+            elif but & cntlButton:
+                self.mode.rightCntlDrag(event)
+            else:
+                self.mode.rightDrag(event)
+
+        else:
+            self.mode.bareMotion(event)
+
+    def wheelEvent(self, event):
+        self.mode.Wheel(event)
+        
     def mousepoints(self,event):
         """Returns a pair (tuple) of points (arrays) that lie under
         the mouse pointer at the near and far clipping planes.
@@ -170,67 +305,16 @@ class GLPane(QGLWidget):
         x = event.pos().x()
         y = self.height - event.pos().y()
 
-        p1 = A(gluUnProject(x, y, 0.))
-        p2 = A(gluUnProject(x, y, 1.))
+        p1 = A(gluUnProject(x, y, 0.0))
+        p2 = A(gluUnProject(x, y, 1.0))
+        
+        k = (dot(self.lineOfSight,  (- self.pov) - p1) /
+             dot(self.lineOfSight, p2 - p1))
+
+        p1 = A(gluUnProject(x, y, 0.01))
+        p2 = p1 + k*(p2-p1)
         return (p1, p2)
 
-    def StartPick(self, event):
-        """Start a selection curve
-        """
-        self.picking = 1
-        self.SaveMouse(event)
-        self.prevvec = None
-        self.totangle = 0.0
-
-        (p1, p2) = self.mousepoints(event)
-        startpiecepick(self, p1, p2)
-
-
-    def ContinPick(self, event):
-        """Add another segment to a selection curve
-        """
-        x = event.pos().x()
-        y = self.height - event.pos().y()
-
-        # sum the differences in heading angles to tell handedness of curve
-        xy = V(x, y)
-        oxy = V(self.MousePos[0], self.height-self.MousePos[1])
-        nuvec = norm(xy-oxy)
-        if self.prevvec:
-            # note this is wrong if angle is sharper than pi/2
-            self.totangle += asin(dot(nuvec,V(-self.prevvec[1],self.prevvec[0])))
-        self.prevvec = nuvec
-        (p1, p2) = self.mousepoints(event)
-        piecepick(self, p1, p2)
-        self.assy.updateDisplays()
-
-    def EndPick(self, event):
-        """Close a selection curve and do the selection
-        """
-
-        (p1, p2) = self.mousepoints(event)
-
-        pieceendpick(self, p1, p2)
-        self.assy.updateDisplays()
-
-
-    def SelPart(self, event):
-        """Select the part containing the atom the cursor is on.
-        """
-        (p1, p2) = self.mousepoints(event)
-
-        self.assy.pickpart(p1,norm(p2-p1))
-
-        self.assy.updateDisplays()
-
-    def SelAtom(self, event):
-        """Select the atom the cursor is on.
-        """
-        (p1, p2) = self.mousepoints(event)
-
-        self.assy.pickatom(p1,norm(p2-p1))
-
-        self.assy.updateDisplays()
 
     def StartSelRot(self, event):
         """Setup a trackball action on each selected part.
@@ -246,88 +330,35 @@ class GLPane(QGLWidget):
         self.assy.rotsel(q)
         self.assy.updateDisplays()
 
-    def SelHoriz(self, event):
-        """Move the selected object(s) on an imaginary tabletop
-        following the mouse as if you'd pushed the screen over backwards.
-        """
-        w=self.width+0.0
-        h=self.height+0.0
-        deltaMouse = V(event.pos().x() - self.MousePos[0], 0.0, event.pos().y() - self.MousePos[1])
-        move = self.scale * deltaMouse/(h*0.5)
-        move = dot(move, self.quat.matrix3)
-        self.assy.movesel(move)
-        self.assy.updateDisplays()
-        self.SaveMouse(event)
-
-    def SelVert(self, event):
-        """Move the selected object(s) in the plane of the screen following
-        the mouse.
-        """
-        w=self.width+0.0
-        h=self.height+0.0
-        deltaMouse = V(event.pos().x() - self.MousePos[0], self.MousePos[1] - event.pos().y(), 0.0)
-        move = self.scale * deltaMouse/(h*0.5)
-        move = dot(move, self.quat.matrix3)
-        self.assy.movesel(move)
-        self.assy.updateDisplays()
-        self.SaveMouse(event)
-
-
     def SaveMouse(self, event):
         """Extracts mouse position from event and saves it.
         (localizes the API-specific code for extracting the info)
         """
         self.MousePos = V(event.pos().x(), event.pos().y())
 
+    def snapquat100(self):
+        self.snapquat(quats100)
 
-    def StartRotate(self, event):
-        """Initialize the screen (point of view) trackball.
-        """
-        self.SaveMouse(event)
-        self.trackball.start(self.MousePos[0],self.MousePos[1])
+    def snapquat110(self):
+        self.snapquat(quats110)
 
-    def Rotate(self, event):
-        """Incremental virtual trackball motion (point of view)
-        """
-        self.SaveMouse(event)
-        q = self.trackball.update(self.MousePos[0],self.MousePos[1])
-        self.quat += q 
+    def snapquat111(self):
+        self.snapquat(quats111)
+
+    def snap2trackball(self):
+        self.snapquat(allQuats)
+
+    def snapquat(self, qlist):
+        q1 = self.quat
+        a=1.1
+        for q2 in qlist:
+            a2 = vlen((q2-q1).axis)
+            if a2 < a:
+                a = a2
+                q = q2
+        self.quat = Q(q)
         self.paintGL()
-
-
-    def zpush(self, dist):
-        """Helper dunction for Zoom
-        """
-        dist = dot(V(0, 0, dist), self.quat.matrix3)
-        self.pov -= dist
-
-
-    def Zoom(self, event):
-        """push scene away (mouse goes up) or pull (down)
-           widen field of view (right) or narrow (left)
-
-        """
-        h=self.height+0.0
-        w=self.width+0.0
-        dist = self.scale * 2.0 * (self.MousePos[1]+0.0-event.pos().y())/h
-        self.zpush(dist)
-        swell = 1.0 + (event.pos().x()-self.MousePos[0]+0.0)/w
-        self.scale *= swell
-        self.paintGL()
-        self.SaveMouse(event)
-
-    def Pan(self, event):
-        """Move point of view so that objects appear to follow
-        the mouse on the screen.
-        """
-        w=self.width+0.0 
-        h=self.height+0.0
-        deltaMouse = V(event.pos().x() - self.MousePos[0], self.MousePos[1] - event.pos().y(), 0.0)
-        move = self.scale * deltaMouse/(h*0.5)
-        move = dot(move, self.quat.matrix3)
-        self.pov += move
-        self.paintGL()
-        self.SaveMouse(event)
+            
 
     def paintGL(self):
         """the main screen-drawing function.
@@ -343,7 +374,7 @@ class GLPane(QGLWidget):
         h=self.height
         aspect = (w+0.0)/(h+0.0)
         glViewport(0, 0, w, h)
-        c=self.backgroundColor
+        c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -373,10 +404,8 @@ class GLPane(QGLWidget):
 
         glTranslatef(self.pov[0], self.pov[1], self.pov[2])
 
-        self.griddraw(self)
-        if self.sellist: self.pickdraw(self)
-        if self.shape and self.mode: self.shape.draw(self)
-        if self.assy: self.assy.draw(self)
+        # draw according to mode
+        self.mode.Draw()
         glFlush()                           # Tidy up
         self.swapBuffers()
 
@@ -401,22 +430,17 @@ class GLPane(QGLWidget):
         glDisable(GL_COLOR_MATERIAL)
         glLoadIdentity()
 
-    def griddraw(self, *dummy):
-        """This finction is replaced with whatever grid-drawing
-        function is appropriate to the current mode.
-        """
-        drawer.drawaxes(5,-self.pov)
 
-    def pickdraw(self, *dummy):
+    def pickdraw(self):
         """Draw the (possibly unfinished) freehand selection curve.
         """
+        color = logicColor(self.selSense)
         pl = zip(self.sellist[:-1],self.sellist[1:])
-        if self.totangle<0:
-            for pp in pl:
-                drawer.drawline((0.0,0.0,1.0),pp[0],(0.0,0.0,1.0),pp[1])
-        else:
-            for pp in pl:
-                drawer.drawline((1.0,0.0,0.0),pp[0],(1.0,0.0,0.0),pp[1])
+        for pp in pl:
+            drawer.drawline(color,pp[0],color,pp[1])
+        if self.selLassRect:
+            drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
+                                 self.up, self.right, color)
 
 
     def resizeGL(self, width, height):
@@ -429,6 +453,84 @@ class GLPane(QGLWidget):
             self.initialised = 1
         self.trackball.rescale(width, height)
         self.paintGL()
+
+    #################
+        # UI fns
+    #################
+
+    # functions from the "Display" menu
+
+    # this will pop up a new window onto the same assembly
+    def dispNewView(self):
+        foo = Form1()
+        foo.assy = foo.glpane.assy = self.assy
+        foo.assy.windows += [foo]
+        foo.glpane.scale=1.5*max(foo.assy.bboxhi[0], foo.assy.bboxhi[1])
+        for mol in foo.glpane.assy.molecules:
+            mol.changeapp()
+        foo.show()
+        self.assy.updateDisplays()
+	
+
+    # GLPane.ortho is checked in GLPane.paintGL
+    def dispOrtho(self):
+        self.ortho = 1
+        self.paintGL()
+
+    def dispPerspec(self):
+        self.ortho = 0
+        self.paintGL()
+
+    # set display formats in whatever is selected,
+    # or the GLPane global default if nothing is
+    def dispDefault(self):
+        self.setdisplay(diDEFAULT)
+
+    def dispInvis(self):
+        self.setdisplay(diINVISIBLE)
+
+    def dispVdW(self):
+        self.setdisplay(diVDW)
+
+    def dispCPK(self):
+        self.setdisplay(diCPK)
+
+    def dispLines(self):
+        self.setdisplay(diLINES)
+
+    def setdisplay(self, form):
+        if self.assy.selatoms:
+            for ob in self.assy.selatoms.itervalues():
+                ob.display = form
+                ob.molecule.changeapp()
+            self.assy.updateDisplays()
+        elif self.assy and self.assy.selmols:
+            for ob in self.assy.selmols:
+                ob.display = form
+                ob.changeapp()
+            self.assy.updateDisplays()
+        else:
+            if self.display == form: return
+            self.display = form
+            for ob in self.assy.molecules:
+                if ob.display == diDEFAULT:
+                    ob.changeapp()
+            self.paintGL()
+        
+
+    # set the color of the selected part(s) (molecule)
+    # or the background color if no part is selected.
+    # atom colors cannot be changed singly
+    def dispColor(self):
+        c = self.colorchoose()
+        if self.assy and self.assy.selmols:
+            for ob in self.assy.selmols:
+                ob.setcolor(c)
+            self.assy.updateDisplays()
+        else: self.mode.backgroundColor = c
+        self.paintGL()
+        
+
 
     def xdump(self):
         """for debugging"""
@@ -512,54 +614,13 @@ def povpoint(p):
     # note z reversal -- povray is left-handed
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
 
-def pppoint(o,p1,p2):
-    """Return the point where the segment from p1 to p2 intersects
-    the plane through the center of view parallel to the screen.
-    """
-    k = dot(o.normal,  - o.pov - p2) / dot(o.normal, p1 - p2)
-    return k*p1 + (1-k)*p2
-
-def startpiecepick(o,p1,p2):
-    """Set up the screen normal vector and initalize the
-    point list for a freehand selection curve.
-    """
-    o.normal = dot(V(0, 0, 1), o.quat.matrix3)
-    o.sellist = [pppoint(o,p1,p2)]
-
-def piecepick(o,p1,p2):
-    """Add a point to a selection curve.
-    """
-    p = pppoint(o,p1,p2)
-    o.sellist += [p]
-
-def pieceendpick(o,p1,p2):
-    """Close the selection curve (by adding the first point to the end).
-    If cookie-cutting, add the curve to the shape (creating the shape
-    if this is the first curve). Otherwise, select or unselect immediately
-    (selection curves are not accumulated).
-    """
-    piecepick(o,p1,p2)
-    o.sellist += [o.sellist[0]]
-    if o.mode:
-        if not o.shape: o.shape=shape(o.sellist, -o.pov, o.normal, o.totangle)
-        else: o.shape.pickline(o.sellist, -o.pov, o.normal, o.totangle)
-    else:
-        o.shape=shape(o.sellist, -o.pov, o.normal, o.totangle)
-        if o.assy: o.shape.select(o.assy)
-    o.sellist = []
-
-
-def nogrid(o):
-    """Assigned as griddraw for no grid (only draws point-of-view axes)
-    """
-    drawer.drawaxes(5,-o.pov)
 
 def rectgrid(o):
     """Assigned as griddraw for a rectangular grid that is always parallel
     to the screen.
     """
     drawer.drawaxes(5,-o.pov)
-    glColor3f(0.5, 0.5, 1.0)
+    glColor3fv(self.gridColor)
     n=int(ceil(1.5*o.scale))
     # the grid is in eyespace
     glPushMatrix()
@@ -576,23 +637,3 @@ def rectgrid(o):
     glEnd()
     glEnable(GL_LIGHTING)
     glPopMatrix()
-
-def diamondgrid(o):
-    """Assigned as griddraw for a diamond lattice grid that is fixed in
-    space but cut out into a slab one nanometer thick parallel to the screen
-    (and is equivalent to what the cookie-cutter will cut).
-    """
-    # the grid is in modelspace but the clipping planes are in eyespace
-    glPushMatrix()
-    q = o.quat
-    glTranslatef(-o.pov[0], -o.pov[1], -o.pov[2])
-    glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
-    glClipPlane(GL_CLIP_PLANE0, (0.0, 0.0, -1.0, 2.7))
-    glClipPlane(GL_CLIP_PLANE1, (0.0, 0.0, 1.0, 3.7))
-    glEnable(GL_CLIP_PLANE0)
-    glEnable(GL_CLIP_PLANE1)
-    glPopMatrix()
-    drawer.drawgrid(1.5*o.scale)
-    glDisable(GL_CLIP_PLANE0)
-    glDisable(GL_CLIP_PLANE1)
-    drawer.drawaxes(5,-o.pov)

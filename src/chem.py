@@ -4,6 +4,7 @@
 __author__ = "Josh"
 
 from VQT import *
+from LinearAlgebra import *
 import string
 import re
 from OpenGL.GL import *
@@ -447,21 +448,41 @@ class molecule:
 
     def shakedown(self):
         """Find center and bounding box for atoms, and set each one's
-        xyz to be relative to the center
+        xyz to be relative to the center and find principal axes
         """
         self.bboxhi=V(-1000,-1000,-1000)
         self.bboxlo=V(1000,1000,1000)
+        totpos = V(0,0,0)
         for a in self.atoms.itervalues():
             a.xyz = a.posn()
+            totpos += a.xyz
             self.bboxhi = maximum(self.bboxhi, a.xyz)
             self.bboxlo = minimum(self.bboxlo, a.xyz)
         self.bboxhi += 1.5
         self.bboxlo -= 1.5
-        self.center = (self.bboxhi+self.bboxlo)/2.0
-        for a in self.atoms.itervalues():
-            a.xyz -= self.center
+        self.center = totpos/len(self.atoms)
         self.bboxhi -= self.center
         self.bboxlo -= self.center
+        # make the positions relative to the center
+        # and compute inertia tensor
+        tensor = zeros((3,3),Float)
+        for a in self.atoms.itervalues():
+            a.xyz -= self.center
+            rsq = dot(a.xyz, a.xyz)
+            m= - multiply.outer(a.xyz, a.xyz)
+            m[0,0] += rsq
+            m[1,1] += rsq
+            m[2,2] += rsq
+            tensor += m
+        self.eval, self.evec = eigenvectors(tensor)
+
+        # Pick a principal axis: if square or circular, the axle;
+        # otherwise the long axis (this is a heuristic)
+        ug = argsort(self.eval)
+        if self.eval[ug[0]]/self.eval[ug[1]] >0.95:
+            self.axis = self.evec[ug[2]]
+        else: self.axis = self.evec[ug[0]]
+            
         # may have changed appearance of the molecule
         self.havelist = 0
         
@@ -534,7 +555,10 @@ class molecule:
         self.center += offs
 
     def rot(self, q):
-        self.quat += q 
+        self.quat += q
+
+    def getaxis(self):
+        return self.quat.rot(self.axis)
 
     def setcolor(self, color):
         """change the molecule's color

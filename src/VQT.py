@@ -49,7 +49,7 @@ class Q:
     def __init__(self, x, y=None, z=None, w=None):
         # 4 numbers
         if w != None: self.vec=V(x,y,z,w)
-        elif y and type(y) in numTypes:
+        elif type(y) in numTypes:
             # axis vector and angle
             v = (x / vlen(x)) * sin(y*0.5)
             self.vec = V(cos(y*0.5), v[0], v[1], v[2])
@@ -117,6 +117,9 @@ class Q:
             return self.__dict__['matrix4']
         else:
             raise AttributeError, 'Attribute "%s" not found' % name
+        
+    def __getitem__(self, num):
+        return self.vec[num]
 
     def setangle(self, theta):
         """Set the quaternion's rotation to theta (destructive modification).
@@ -211,7 +214,7 @@ class Q:
         return 'Q(%g, %g, %g, %g)' % (self.w, self.x, self.y, self.z)
 
     def __str__(self):
-        a= "<q:%6.2f @ " % (2.0*acos(self.w)*360/pi)
+        a= "<q:%6.2f @ " % (2.0*acos(self.w)*180/pi)
         l = sqrt(self.x**2 + self.y**2 + self.z**2)
         if l:
             z=V(self.x, self.y, self.z)/l
@@ -284,5 +287,27 @@ class Trackball:
             quat = Q(1,0,0,0)
         self.oldmouse = newmouse
         return quat
+
+
+def planeXline(ppt, pv, lpt, lv):
+    """find the intersection of a line (point lpt, vector lv)
+    with a plane (point ppt, normal pv)
+    return None is (almost) parallel
+    """
+    d=dot(lv,pv)
+    if abs(d)<0.000001: return None
+    return lpt+lv*(dot(ppt-lpt,pv)/d)
+
+def cat(a,b):
+    """concatenate two arrays (the NumPy version is a mess)
+    """
+    if not a: return b
+    if not b: return a
+    r1 = shape(a)
+    r2 = shape(b)
+    if len(r1) == len(r2): return concatenate((a,b))
+    if len(r1)<len(r2):
+        return concatenate((reshape(a,(1,)+r1), b))
+    else: return concatenate((a,reshape(b,(1,)+r2)))
 
 __author__ = "Josh"

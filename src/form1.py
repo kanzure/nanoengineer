@@ -6,6 +6,7 @@ from qt import QMainWindow, QPixmap, QWidget, QFrame, QPushButton
 from qt import QGroupBox, QComboBox, QAction, QMenuBar, QPopupMenu
 from qt import SIGNAL, QFileDialog
 from GLPane import *
+import os
 import help
 import icons
 
@@ -28,7 +29,7 @@ class Form1(QMainWindow):
         QMainWindow.__init__(self,parent,name,fl)
         
         # start with empty window
-        self.assy = None
+        self.assy = assembly(self)
         windowList += [self]
 
         # loads of gruesome boilerplate for UI
@@ -139,12 +140,6 @@ class Form1(QMainWindow):
         self.comboBox1.insertItem(self.trUtf8("Chlorine"))
         self.comboBox1.setGeometry(QRect(10,150,110,22))
 
-        frame4Layout.addWidget(self.groupBox1)
-
-        self.glpane = GLPane(self.assy, self.frame4, "glpane")
-
-        frame4Layout.addWidget(self.glpane)
-        Form1Layout.addWidget(self.frame4)
 
         self.fileNewAction = QAction(self,"fileNewAction")
         self.fileNewAction.setIconSet(QIconSet(image0))
@@ -434,6 +429,13 @@ class Form1(QMainWindow):
         self.helpMenu.insertSeparator()
         self.helpAboutAction.addTo(self.helpMenu)
         self.MenuBar.insertItem(self.trUtf8("&Help"),self.helpMenu)
+        
+        frame4Layout.addWidget(self.groupBox1)
+
+        self.glpane = GLPane(self.assy, self.frame4, "glpane", self)
+
+        frame4Layout.addWidget(self.glpane)
+        Form1Layout.addWidget(self.frame4)
 
         self.connect(self.fileNewAction,SIGNAL("activated()"),self.fileNew)
         self.connect(self.fileOpenAction,SIGNAL("activated()"),self.fileOpen)
@@ -529,14 +531,15 @@ class Form1(QMainWindow):
             foo.show()
 
     def fileOpen(self):
-        fn = QFileDialog.getOpenFileName("../molecules",
-                                         "Molecular machine parts (*.mmp);;Molecules (*.pdb);;Molecular parts assemblies (*.mpa);; All of the above (*.pdb *.mmp *.mpa)",
+
+        wd = globalParms['WorkingDirectory']
+        fn = QFileDialog.getOpenFileName(wd, "Molecular machine parts (*.mmp);;Molecules (*.pdb);;Molecular parts assemblies (*.mpa);; All of the above (*.pdb *.mmp *.mpa)",
                                          self )
         fn = str(fn)
+        if not os.path.exists(fn): return
         if not self.assy:
             dir, fil, ext = fileparse(fn)
-            self.assy = assembly(fil)
-            self.assy.windows += [self]
+            self.assy = assembly(self, fil)
             self.glpane.assy = self.assy
         if fn[-3:] == "pdb":
             self.assy.readpdb(fn)
@@ -698,18 +701,15 @@ class Form1(QMainWindow):
 
     # along one axis
     def orient100(self):
-        self.glpane.quat = Q(1,0,0,0)
-        self.assy.updateDisplays()
+        self.glpane.snapquat100()
 
     # halfway between two axes
     def orient110(self):
-        self.glpane.quat = Q(V(1,0,1),V(0,0,1))
-        self.assy.updateDisplays()
+        self.glpane.snapquat110()
 
     # equidistant from three axes
     def orient111(self):
-        self.glpane.quat = Q(V(1,1,1),V(0,0,1))
-        self.assy.updateDisplays()
+        self.glpane.snapquat111()
 
     # functions from the "Select" menu
 
@@ -719,31 +719,10 @@ class Form1(QMainWindow):
         If some atoms are selected, select all atoms in the parts
         in which some atoms are selected.
         """
-        if not self.assy: return
-        if not (self.assy.selmols or self.assy.selatoms):
-            for m in self.assy.molecules:
-                m.pick()
-        elif self.assy.selmols:
-            for m in self.assy.selmols[:]:
-                for a in m.atoms.itervalues():
-                    a.pick()
-            self.assy.unpickparts()
-        else:
-            mollist = []
-            for a in self.assy.selatoms.itervalues():
-                if a.molecule not in mollist: mollist.append(a.molecule)
-            for m in mollist:
-                for a in m.atoms.itervalues():
-                    a.pick()
-        self.assy.updateDisplays()
-
+        self.assy.selectAll()
 
     def selectNone(self):
-        if not self.assy: return
-        self.assy.unpickatoms()
-        self.assy.unpickparts()
-        self.assy.updateDisplays()
-
+        self.assy.selectNone()
 
     def selectInvert(self):
         """If some parts are selected, select the other parts instead.
@@ -751,31 +730,14 @@ class Form1(QMainWindow):
         atoms in parts in which there are currently some selected atoms.
         (And unselect all currently selected atoms.)
         """
-        if not self.assy: return
-        if not (self.assy.selmols or self.assy.selatoms):
-            for m in self.assy.molecules:
-                m.pick()
-        elif self.assy.selmols:
-            for m in self.assy.molecules:
-                if m.picked: m.unpick()
-                else: m.pick()
-        else:
-            mollist = []
-            for a in self.assy.selatoms.itervalues():
-                if a.molecule not in mollist: mollist.append(a.molecule)
-            for m in mollist:
-                for a in m.atoms.itervalues():
-                    if a.picked: a.unpick()
-                    else: a.pick()
-        self.assy.updateDisplays()
+        self.assy.selectInvert()
 
     def selectConnected(self):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """
-        if not self.assy: return
-        self.assy.marksingle()
-        self.assy.updateDisplays()
+        self.assy.selectConnected()
+
 
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
@@ -783,9 +745,7 @@ class Form1(QMainWindow):
         bonds. Also select atoms that are connected to this group by
         one bond and have no other bonds.
         """
-        if not self.assy: return
-        self.assy.markdouble()
-        self.assy.updateDisplays()
+        self.assy.selectDoubly()
 
     # Functions from the "Make" menu
 
@@ -868,10 +828,7 @@ class Form1(QMainWindow):
 
     # set up cookiecutter mode
     def cookieCut(self):
-        self.glpane.ortho = 1
-        self.glpane.mode = 1
-        self.glpane.griddraw=diamondgrid
-        self.assy.updateDisplays()
+        self.glpane.setMode('COOKIE')
 
     # "push down" one nanometer to cut out the next layer
     def cookieLayer(self):
@@ -883,17 +840,7 @@ class Form1(QMainWindow):
     # fill the shape created in the cookiecutter with actual
     # carbon atoms in a diamond lattice (including bonds)
     def cookieBake(self):
-        if self.glpane.shape:
-            if not self.assy:
-                self.assy = self.glpane.assy = assembly()
-                self.setCaption(self.trUtf8("Atom: " + self.assy.name))
-            self.assy.molmake(self.glpane.shape)
-            self.glpane.shape = None
-
-        self.glpane.ortho = 0
-        self.glpane.mode = 0
-        self.glpane.griddraw=nogrid
-        self.assy.updateDisplays()
+        self.glpane.mode.Done()
 
     # the elements combobox:
     # change selected atoms to the element selected

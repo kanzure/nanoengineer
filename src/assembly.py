@@ -18,17 +18,20 @@ HUGE_MODEL = 20000
 # number of atoms for detail level 1
 LARGE_MODEL = 5000
 
+def hashAtomPos(pos):
+    return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
+
 # the class for groups of parts (molecules)
 # currently only one level, but should be recursive
 class assembly:
-    def __init__(self, nm=None):
+    def __init__(self, win, nm=None):
         # nothing is done with this now, but should have a
         # control for browsing/managing the list
         global assyList
         assyList += [self]
         # the Form1's displaying this assembly. 
         # breaks currently if there is more than 1!
-        self.windows = []
+        self.windows = [win]
         # list of chem.molecule's
         self.molecules=[]
         # list of the atoms, only valid just after read or write
@@ -100,35 +103,26 @@ class assembly:
     def molmake(self,shap):
         mol = molecule(self, gensym("handrawn"))
         ndx={}
-        sp=1.7586
-        sp2 = sp * 0.5
-        lo = floor(shap.bboxlo / sp)
-        ilo = map(int, lo)
-        ioff = (sum(ilo)+1) % 2
-        lo = sp * lo
-        ihi = map(int, ceil(shap.bboxhi / sp))
-        for i in range(ilo[0], ihi[0]+1):
-            for j in range(ilo[1], ihi[1]+1):
-                for k in range(ilo[2], ihi[2]+1):
-                    if (i+j+k+ioff)%2:
-                        abc=V(i,j,k)*sp
-                        a1=None
-                        if shap.isin(abc):
-                            a1 = atom("C", abc, mol)
-                            ndx[(i,j,k)]=a1
-                            try: q = ndx[(i+1,j,k)]
-                            except KeyError: pass
-                            else: mol.bond(a1,q)
-                            try: q = ndx[(i,j+1,k)]
-                            except KeyError: pass
-                            else: mol.bond(a1,q)
-                            try: q = ndx[(i,j,k+1)]
-                            except KeyError: pass
-                            else: mol.bond(a1,q)
-                        if shap.isin(abc+sp2):
-                            a2 = atom("C", abc+sp2, mol)
-                            ndx[(i+1,j+1,k+1)]=a2
-                            if a1: mol.bond(a1,a2)
+        hashAtomPos
+        bbhi, bblo = shap.bbox.data
+        griderator = genDiam(bblo, bbhi)
+        pp=griderator.next()
+        while (pp):
+            pp0 = pp1 = None
+            if shap.isin(pp[0]):
+                pp0h = hashAtomPos(pp[0])
+                if pp0h not in ndx:
+                    pp0 = atom("C", pp[0], mol)
+                    ndx[pp0h] = pp0
+                else: pp0 = ndx[pp0h]
+            if shap.isin(pp[1]):
+                pp1h = hashAtomPos(pp[1])
+                if pp1h not in ndx:
+                    pp1 = atom("C", pp[1], mol)
+                    ndx[pp1h] = pp1
+                else: pp1 = ndx[pp1h]
+            if pp0 and pp1: mol.bond(pp0, pp1)
+            pp=griderator.next()
         self.addmol(mol)
         mol.pick()
 
@@ -221,10 +215,6 @@ class assembly:
                 fxyz = A(map(float, [m.group(8), m.group(9), m.group(10)]))
                 prevmotor = LinearMotor(self)
                 prevmotor.setCenter(fxyz, stiffness, cxyz, axyz)
-            elif key == "lins": # Shaft for linear model
-                list = map(int, re.findall("\d+", card[6:]))
-                list = map((lambda n: ndix[n]), list)
-                prevmotor.setShaft(list)
             
             elif key == "grou":
                 if mol:
@@ -278,7 +268,86 @@ class assembly:
             a.xyz += A(unpack('bbb',file.read(3)))*0.01
         for m in self.molecules:
             m.changeapp()
-        
+
+
+    #########################
+
+            # user interface
+
+    #########################
+
+    # functions from the "Select" menu
+
+    def selectAll(self):
+        """Select all parts if nothing selected.
+        If some parts are selected, select all atoms in those parts.
+        If some atoms are selected, select all atoms in the parts
+        in which some atoms are selected.
+        """
+        if not (self.selmols or self.selatoms):
+            for m in self.molecules:
+                m.pick()
+        elif self.selmols:
+            for m in self.selmols[:]:
+                for a in m.atoms.itervalues():
+                    a.pick()
+            self.unpickparts()
+        else:
+            mollist = []
+            for a in self.selatoms.itervalues():
+                if a.molecule not in mollist: mollist.append(a.molecule)
+            for m in mollist:
+                for a in m.atoms.itervalues():
+                    a.pick()
+        self.updateDisplays()
+
+
+    def selectNone(self):
+        self.unpickatoms()
+        self.unpickparts()
+        self.updateDisplays()
+
+
+    def selectInvert(self):
+        """If some parts are selected, select the other parts instead.
+        If some atoms are selected, select all currently unselected
+        atoms in parts in which there are currently some selected atoms.
+        (And unselect all currently selected atoms.)
+        """
+        if not (self.selmols or self.selatoms):
+            for m in self.molecules:
+                m.pick()
+        elif self.selmols:
+            for m in self.molecules:
+                if m.picked: m.unpick()
+                else: m.pick()
+        else:
+            mollist = []
+            for a in self.selatoms.itervalues():
+                if a.molecule not in mollist: mollist.append(a.molecule)
+            for m in mollist:
+                for a in m.atoms.itervalues():
+                    if a.picked: a.unpick()
+                    else: a.pick()
+        self.updateDisplays()
+
+    def selectConnected(self):
+        """Select any atom that can be reached from any currently
+        selected atom through a sequence of bonds.
+        """
+        self.marksingle()
+        self.updateDisplays()
+
+    def selectDoubly(self):
+        """Select any atom that can be reached from any currently
+        selected atom through two or more non-overlapping sequences of
+        bonds. Also select atoms that are connected to this group by
+        one bond and have no other bonds.
+        """
+        self.markdouble()
+        self.updateDisplays()
+
+
 
     # dumb hack: find which atom the cursor is pointing at by
     # checking every atom...
@@ -295,6 +364,27 @@ class assembly:
                         distance=dist
                         atom=a
         return atom
+
+    # make something selected
+    def pick(self, p1, v1):
+        a = self.findpick(p1, v1)
+        if a and self.selmols: a.molecule.pick()
+        elif a: a.pick()
+
+    # make something unselected
+    def unpick(self, p1, v1):
+        a = self.findpick(p1, v1)
+        if a and self.selmols: a.molecule.unpick()
+        elif a: a.unpick()
+
+    # make something unselected
+    def onlypick(self, p1, v1):
+        if self.selmols:
+            self.unpickparts()
+            self.pickpart(p1, v1)
+        else:
+            self.unpickatoms()
+            self.pick(p1, v1)
 
     # make an atom selected: deselects all parts
     def pickatom(self, p1, v1):
@@ -375,6 +465,37 @@ class assembly:
 
         self.setDrawLevel()
 
+    #bond atoms (cheap hack)
+    def Bond(self):
+        if not self.selatoms: return
+        aa=self.selatoms.values()
+        if len(aa)==2:
+            aa[0].molecule.bond(aa[0], aa[1])
+        aa[0].molecule.changeapp()
+        aa[1].molecule.changeapp()
+        self.updateDisplays()
+
+    #unbond atoms (cheap hack)
+    def Unbond(self):
+        if not self.selatoms: return
+        aa=self.selatoms.values()
+        if len(aa)==2:
+            aa[0].unbond(aa[1])
+        aa[0].molecule.changeapp()
+        aa[1].molecule.changeapp()
+        self.updateDisplays()
+
+    #stretch a molecule
+    def Stretch(self):
+        if not self.selmols: return
+        for m in self.selmols:
+            for a in m.atoms.itervalues():
+                a.xyz *= 1.1
+            m.changeapp()
+        self.updateDisplays()
+    
+
+    #############
 
     def __str__(self):
         return "<Assembly of " + self.filename + ">"
@@ -476,7 +597,9 @@ class assembly:
                 self.addmol(numol)
                 numol.shakedown()
                 numol.pick()
-                # need to redo the old one too
-                mol.shakedown()
-
+                # need to redo the old one too, unless we removed all its atoms
+                if mol.atoms:
+                    mol.shakedown()
+                else:
+                    self.killmol(mol)
           
