@@ -40,7 +40,12 @@ def orthodist(p1, v1, p2):
     return (dist, wid)
 
 class Q:
-
+    """Q(W, x, y, z) is the quaternion with axis vector x,y,z
+    and sin(theta/2) = W
+    (e.g. Q(1,0,0,0) is no rotation)
+    Q(V(x,y,z), theta) is what you probably want.
+    Q(vector, vector) gives the quat that rotates between them
+    """
     def __init__(self, x, y=None, z=None, w=None):
         # 4 numbers
         if w != None: self.vec=V(x,y,z,w)
