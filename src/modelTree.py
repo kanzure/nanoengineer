@@ -239,13 +239,13 @@ class modelTree(QListView):
  
     def update(self):
         """ Build the tree structure of the current model, public interface """
-        #self.disconnect(self, SIGNAL("selectionChanged()"), self.select)
+        self.disconnect(self, SIGNAL("selectionChanged()"), self.select)
         global CHANGE_FROM_GL
         if CHANGE_FROM_GL:
                 CHANGE_FROM_GL = False
                 self._update()
                 CHANGE_FROM_GL = True
-        #self.connect(self, SIGNAL("selectionChanged()"), self.select)
+        self.connect(self, SIGNAL("selectionChanged()"), self.select)
 
 
 ## Context menu handler functions
@@ -280,4 +280,3 @@ class modelTree(QListView):
     def expand(self):
         self.root.object.apply2tree(lambda(x): x.setopen())
         self._update()
-
