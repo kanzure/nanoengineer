@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Wed Feb 9 14:47:36 2005
+# Created: Fri Mar 11 12:24:43 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -10,52 +10,46 @@
 
 from qt import *
 
-image0_data = [
-"22 22 14 1",
-". c None",
-"a c #000000",
-"l c #0000ff",
-"e c #13ff07",
-"# c #8e8c82",
-"i c #95f284",
-"d c #a1ff9c",
-"b c #aca899",
-"j c #e03f3a",
-"h c #ece9d8",
-"f c #edfe2c",
-"k c #ff0000",
-"g c #ff9999",
-"c c #ffffff",
-"......................",
-"......................",
-"......................",
-"......................",
-"..#aaaaaaaaaaaaaaa#...",
-"..abbbbbbbbbbbbbbba...",
-"..abcccccccccccccba...",
-"..abcccdeeffaghchba...",
-"..abccieddfbajgccba...",
-"..abcdedcccabgkgcba...",
-"..abceecccbacckkcba...",
-"..abceecccabcckkcba...",
-"..ablllllllllllllba...",
-"..ablllllllllllllba...",
-"..abbbbbbbbbbbbbbba...",
-"..#aaaaaaaaaaaaaaa#...",
-".........aaa..........",
-".........aaa..........",
-".......aaaaaaa........",
-"......................",
-"......................",
-"......................"
-]
+image0_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x40\x49\x44\x41\x54\x78\x9c\xd5\x95\x31\x4b\xc3" \
+    "\x40\x18\x86\x9f\x4f\x3a\x74\x71\x6a\x71\x75\x74" \
+    "\xea\x2e\x37\xfb\x0f\x1a\x68\x26\x97\x42\x32\x14" \
+    "\x97\xe2\xdc\x21\xe2\x16\xb2\x45\x68\xc0\x41\x07" \
+    "\x89\x12\xc1\x1f\x20\x88\xcb\xe1\x5f\x70\x74\x15" \
+    "\x5a\x10\x97\x6e\xe7\x50\x92\xd4\x26\xb6\x49\xa5" \
+    "\x43\x5f\x38\x72\xf7\x91\x3c\xbc\xbc\xdf\xdd\x45" \
+    "\xb4\xd6\x6c\x43\x7b\x5b\xa1\xee\x24\xb8\x91\x4e" \
+    "\xde\xf4\xb3\x19\x9e\x8f\x36\x06\x05\xbe\xc7\xb1" \
+    "\x3a\x91\x74\x2d\x69\xf3\x94\x52\x26\x89\xc7\x1b" \
+    "\x83\x2d\xdb\x45\x6b\x9d\x81\x1b\xcb\x2f\x74\x7b" \
+    "\x4e\x6d\xe8\xe3\x7d\x54\xa8\xad\xcc\xf8\x96\x6b" \
+    "\xda\x34\x69\xd3\x64\x6a\x3a\x4c\x4d\x07\x11\x81" \
+    "\x28\x62\xf2\xf9\x0e\x90\x3d\x2b\x83\xaf\xbe\x2f" \
+    "\x19\x32\x20\x20\x24\x20\x04\xe0\xe5\xe1\x0c\x80" \
+    "\x8f\xbb\x1b\x5a\x4f\xaf\x00\xb4\x0e\x8e\x4a\xbf" \
+    "\x2f\x44\x91\x3a\x1d\xed\x5f\x10\x10\x72\x4a\x7f" \
+    "\x5e\x94\x3e\x96\x2d\x24\xf1\x98\xc3\x2f\xc0\x75" \
+    "\xe7\x75\xa7\x3c\xba\x52\xc7\x43\x06\x00\x39\x94" \
+    "\x3c\xc7\x6e\xcf\xc9\x61\x29\xbc\x2a\xb8\x4c\x96" \
+    "\xed\x52\x67\xd7\x14\xc0\x22\x30\x91\x19\x13\x99" \
+    "\x21\x42\x36\xc0\x60\xd9\x4e\x5e\xc3\xcc\x87\x14" \
+    "\xa1\xb5\x1c\xd7\x55\xa1\x79\x49\x5c\xdc\x93\xff" \
+    "\x02\x07\xbe\x87\x65\xff\xdd\x8c\x75\x0a\x7c\xef" \
+    "\xd7\x5a\xaa\xdc\xc7\x4a\x29\x93\xce\x17\x8f\xed" \
+    "\x2a\x6d\x2d\xe3\x95\x8e\x17\x9d\x2e\x6b\x9d\xf3" \
+    "\x4a\x51\x6c\xa2\xdd\xfb\x83\xfc\x00\xc2\x71\x5d" \
+    "\x46\x4b\x9b\x9c\x29\x00\x00\x00\x00\x49\x45\x4e" \
+    "\x44\xae\x42\x60\x82"
 
 class SimSetupDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
-        self.image0 = QPixmap(image0_data)
-
+        self.image0 = QPixmap()
+        self.image0.loadFromData(image0_data,"PNG")
         if not name:
             self.setName("SimSetupDialog")
 
@@ -145,7 +139,7 @@ class SimSetupDialog(QDialog):
         self.textLabel5.setText(self.__tr("Total frames:"))
         self.textLabel2.setText(self.__tr("Steps per Frame (0.1 femtosecond):"))
         self.textLabel3.setText(self.__tr("Temperature (Kelvins):"))
-        self.MovieButton.setText(self.__tr("Create Movie"))
+        self.MovieButton.setText(self.__tr("Run Simulation"))
         self.CancelButton.setText(self.__tr("Cancel"))
 
 

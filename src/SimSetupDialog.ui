@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>SimSetupDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -144,7 +144,7 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Create Movie</string>
+                        <string>Run Simulation</string>
                     </property>
                     <property name="default">
                         <bool>true</bool>
@@ -173,7 +173,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="827">789cb5d1c14ac4301006e07b9f22b4b7226e9bae98203ec28a47413c4c273369b7bb0aeb7a10f1ddcda455ba610b5ef6a7877cfd49d2a4ab523d3d6e54b9cade8f70ec5161070755ba8ffdfef3f9e5fe2bcbb556e1a9d7aaceafb2fc5aa17a787b2519431817558c70f74b662109eb86b9ba15164243068d16f6427bc3daac854e0835b345611b8960ac156e855435dc80b08b44b2ce0839d231e9387710865da7aff223ad1d97c29192789cb3b94453c0698abf06dad3c0acc179d2c6113183efb04b9a9e9ce316b63e9de3c88579d0fac1270d51dc007118ce35b26adaece6f967b374d2e5db9912de2ddcf55233ad74a17ffa7d97fd00268bc9a3</data>
+        <data format="PNG" length="377">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000014049444154789cd595314bc34018869f4f3a74716a717574ea2e37fb0f1a68269742321497e2dc21e216b24568c041078912c11f2088cbe15f7074155a10976ee75092d426b649a5435f3872f7913cbcbcdfdd45b4d66c437b5ba1ee24b8914edef4b3199e8f360605bec7b13a91742d69f394522689c71b832ddb456b9d811bcb2f747b4e6de8e37d54a8adccf8966bda3469d3646a3a4c4d0711812862f2f90e903d2b83afbe2f19322020242004e0e5e10c808fbb1b5a4faf00b40e8e4abf2f44913a1ded5f1010724a7f5e943e962d24f198c32fc075e775a73cba52c743060039943cc76ecfc96129bc2ab84c96ed5267d714c0223091191399214236c060d94e5ec3cc8714a1b51cd755a179495cdc93ff0207be8765ffdd8c750a7cefd75aaadcc74a2993ce178fed2a6d2de3958e179d2e6b9df34a516ca2ddfb83fc00c2715d464b9b9c290000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
