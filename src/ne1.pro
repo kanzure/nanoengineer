@@ -79,7 +79,6 @@
   </uifile>
   <pyfile type="file" name="assembly.py" />
   <pyfile type="file" name="elements.py" />
-  <pyfile type="file" name="HistoryMegawidget.py" />
   <uifile type="file" name="ProgressBarDialog.ui" >
    <pyfile url="\ProgressBarDialog.py" type="file" name="ProgressBarDialog.py" />
   </uifile>
@@ -87,5 +86,6 @@
   <pyfile type="file" name="movieMode.py" />
   <pyfile type="file" name="preferences.py" />
   <pyfile type="file" name="movie.py" />
+  <pyfile type="file" name="HistoryWidget.py" />
  </project>
 </kodeproject>
