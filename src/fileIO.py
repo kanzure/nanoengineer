@@ -1,4 +1,10 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# 10/4 currently being owned by Josh
+"""
+File IO functions for reading and writing PDB and MMP files
+
+$Id$
+"""
 from Numeric import *
 from VQT import *
 from string import *
