@@ -514,7 +514,7 @@ class GLPane(QGLWidget):
         if self.clock<0: self.killTimers()
         else:
             self.assy.movatoms(self.xfile)
-            self.assy.updateDisplays()
+            self.paintGL()
 
     def __str__(self):
         return "<GLPane " + self.name + ">"

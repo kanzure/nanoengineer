@@ -39,12 +39,12 @@ class cookieMode(basicMode):
     def Backup(self):
         if self.o.shape:
             self.o.shape.undo()
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
         
     def Restart(self):
         if self.o.shape:
             self.o.shape.clear()
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
         
 
     def leftDown(self, event):
@@ -98,7 +98,7 @@ class cookieMode(basicMode):
         self.selLassRect = self.pickLineLength < 2*netdist
 
         self.pickLinePrev = p1
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
     
     def leftUp(self, event):
         self.EndDraw(event)
@@ -142,7 +142,7 @@ class cookieMode(basicMode):
             self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense)
         self.sellist = []
 
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
 
     def middleUp(self,event):
         if self.cookieQuat:

@@ -29,8 +29,8 @@ class assembly:
         # control for browsing/managing the list
         global assyList
         assyList += [self]
-        # the MWsemantics's displaying this assembly. 
-        self.windows = [win]
+        # the MWsemantics displaying this assembly. 
+        self.w = win
         # list of chem.molecule's
         self.molecules=[]
         # list of the atoms, only valid just after read or write
@@ -82,15 +82,6 @@ class assembly:
 
         for mol in self.molecules:
             mol.draw(win, self.drawLevel)
-
-    # update all the displays we're connected to
-    def updateDisplays(self):
-        mollist = []
-        for m in self.molecules:
-            if m.havelist == 0: mollist += [m]
-        for win in self.windows:
-            for m in mollist: m.changeapp()
-            win.glpane.paintGL()
            
     # write a povray file: just draw everything inside
     def povwrite(self,file,win):
@@ -341,13 +332,13 @@ class assembly:
             for m in self.molecules:
                 for a in m.atoms.itervalues():
                     a.pick()
-        self.updateDisplays()
+        self.o.paintGL()
 
 
     def selectNone(self):
         self.unpickatoms()
         self.unpickparts()
-        self.updateDisplays()
+        self.o.paintGL()
 
 
     def selectInvert(self):
@@ -370,14 +361,14 @@ class assembly:
                 for a in m.atoms.itervalues():
                     if a.picked: a.unpick()
                     else: a.pick()
-        self.updateDisplays()
+        self.o.paintGL()
 
     def selectConnected(self):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """
         self.marksingle()
-        self.updateDisplays()
+        self.o.paintGL()
 
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
@@ -386,7 +377,7 @@ class assembly:
         one bond and have no other bonds.
         """
         self.markdouble()
-        self.updateDisplays()
+        self.o.paintGL()
 
     def selectAtoms(self):
         lis = self.selmols[:]
@@ -396,7 +387,7 @@ class assembly:
                 for a in mol.atoms.itervalues():
                     a.pick()
         self.selwhat = 0
-        self.updateDisplays()
+        self.o.paintGL()
             
     def selectParts(self):
         lis = self.selatoms.values()
@@ -405,7 +396,7 @@ class assembly:
             for a in lis:
                 a.molecule.pick()
         self.selwhat = 2
-        self.updateDisplays()
+        self.o.paintGL()
 
 
     # dumb hack: find which atom the cursor is pointing at by
@@ -531,7 +522,7 @@ class assembly:
             aa[0].molecule.bond(aa[0], aa[1])
         aa[0].molecule.changeapp()
         aa[1].molecule.changeapp()
-        self.updateDisplays()
+        self.o.paintGL()
 
     #unbond atoms (cheap hack)
     def Unbond(self):
@@ -541,14 +532,14 @@ class assembly:
             for b1 in aa[0].bonds:
                 for b2 in aa[1].bonds:
                     if b1 == b2: b1.bust()
-        self.updateDisplays()
+        self.o.paintGL()
 
     #stretch a molecule
     def Stretch(self):
         if not self.selmols: return
         for m in self.selmols:
             m.stretch(1.1)
-        self.updateDisplays()
+        self.o.paintGL()
     
 
     #############
@@ -658,7 +649,7 @@ class assembly:
                     mol.shakedown()
                 else:
                     self.killmol(mol)
-        self.updateDisplays()
+        self.o.paintGL()
 
     # change surface atom types to eliminate dangling bonds
     # a kludgey hack
@@ -667,7 +658,7 @@ class assembly:
             m.passivate()
         for a in self.selatoms.itervalues():
             a.Hydrogenate()
-        self.updateDisplays()
+        self.o.paintGL()
 
     # add hydrogen atoms to each dangling bond
     def modifyHydrogenate(self):
@@ -677,4 +668,4 @@ class assembly:
         elif self.selatoms:
             for a in self.selatoms.itervalues():
                 a.Hydrogenate()
-        self.updateDisplays()
+        self.o.paintGL()

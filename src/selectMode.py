@@ -59,7 +59,7 @@ class selectMode(basicMode):
         self.selLassRect = self.pickLineLength < 2*netdist
 
         self.pickLinePrev = p1
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
 
     def leftUp(self, event):
         self.EndPick(event, 1)
@@ -83,7 +83,7 @@ class selectMode(basicMode):
             if selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
             if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
             if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
-            self.o.assy.updateDisplays()
+            self.o.paintGL()
             return
 
         self.sellist += [p1]
@@ -103,7 +103,7 @@ class selectMode(basicMode):
 
         self.sellist = []
 
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
 
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.

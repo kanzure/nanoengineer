@@ -102,7 +102,7 @@ class depositMode(basicMode):
 
         self.o.SaveMouse(event)
 
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
 
     def leftUp(self, event):
         self.EndPick(event, 1)
@@ -135,7 +135,7 @@ class depositMode(basicMode):
                 oneUnbonded(el, self.o.assy, atomPos)
             self.new = None
             
-        self.o.assy.updateDisplays()                  
+        self.o.paintGL()                  
 
     def leftDouble(self, event):
         """ End deposit mode
@@ -168,7 +168,7 @@ class depositMode(basicMode):
             self.bond4(el,pl)
         else: print "too many bonds!"
         mol.shakedown()
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
 
     # given an element and a singlet, find the place an atom of the
     # element would like to be if bonded at the singlet

@@ -35,7 +35,7 @@ class modifyMode(basicMode):
         self.dragdist += vlen(deltaMouse)
         move = self.o.quat.unrot(self.o.scale * deltaMouse/(h*0.5))
         self.o.assy.movesel(move)
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
         self.o.SaveMouse(event)
 
     def leftUp(self, event):
@@ -56,7 +56,7 @@ class modifyMode(basicMode):
             if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
             if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
             
-            self.o.assy.updateDisplays()
+            self.o.paintGL()
      
     def leftShiftDown(self, event):
         """Setup a trackball action on each selected part.
@@ -79,7 +79,7 @@ class modifyMode(basicMode):
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1],
                                     self.o.quat)
         self.o.assy.rotsel(q)
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
 
     def leftShiftUp(self, event):
         self.EndPick(event, 0)
@@ -117,7 +117,7 @@ class modifyMode(basicMode):
 
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
-        self.o.assy.updateDisplays()
+        self.o.paintGL()
 
     
     def leftCntlUp(self, event):

@@ -29,14 +29,17 @@ class MWsemantics(MainWindow):
         MainWindow.__init__(self, parent, name, fl)
         
         windowList += [self]
-	# start with empty window
-        self.assy = assembly(self)
         if name == None:
             self.setName("Atom")
 
+	# start with empty window
+        self.assy = assembly(self)
+
         self.glpane = GLPane(self.assy, self.frame4, "glpane", self)   
         self.frame4Layout.addWidget(self.glpane)
-
+        # do here to avoid a circular dependency
+        self.assy.o = self.glpane
+        
         self.Element = 'C'
         self.elTab = [('C', Qt.Key_C, 0),
                       ('H', Qt.Key_H, 1),
@@ -78,7 +81,7 @@ class MWsemantics(MainWindow):
         self.setCaption(self.trUtf8("Atom: " + self.assy.name))
 
         self.glpane.scale=self.assy.bbox.scale()
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
 
     def fileSave(self):
@@ -162,19 +165,6 @@ class MWsemantics(MainWindow):
     # functions from the "Display" menu
     ###################################
 
-    # this will pop up a new window onto the same assembly
-    def windowNewWindow(self):
-	if self.assy:
-            foo = MWsemantics()
-	    foo.assy = foo.glpane.assy = self.assy
-            foo.assy.windows += [foo]
-	    foo.glpane.scale=self.glpane.scale
-	    for mol in foo.glpane.assy.molecules:
-	        mol.changeapp()
-	    foo.show()
-            self.assy.updateDisplays()
-	
-
     # GLPane.ortho is checked in GLPane.paintGL
     def viewOrtho(self):
         self.glpane.ortho = 1
@@ -214,7 +204,7 @@ class MWsemantics(MainWindow):
         else:
             if self.glpane.display == form: return
             self.glpane.setDisplay(form)
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
         
 
     # set the color of the selected part(s) (molecule)
@@ -226,7 +216,7 @@ class MWsemantics(MainWindow):
             for ob in self.assy.selmols:
                 ob.setcolor(c)
         else: self.glpane.backgroundColor = c
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
         
 
     ###################################
@@ -238,15 +228,15 @@ class MWsemantics(MainWindow):
 
     def gridNone(self):
         self.glpane.griddraw=nogrid
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
     def gridSquare(self):
         self.glpane.griddraw=rectgrid
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
     def gridDiamond(self):
         self.glpane.griddraw=diamondgrid
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
     def gridGraphite(self):
         print "MWsemantics.gridGraphite(): Not implemented yet"
@@ -317,7 +307,7 @@ class MWsemantics(MainWindow):
     # they don't do much in Atom itself
     def makeGround(self):
         self.assy.makeground()
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
     def makeHandle(self):
         print "MWsemantics.makeHandle(): Not implemented yet"
@@ -326,11 +316,11 @@ class MWsemantics(MainWindow):
 
     def makeMotor(self):
         self.assy.makemotor(self.glpane.lineOfSight)
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
     def makeLinearMotor(self):
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
 
     def makeBearing(self):
@@ -403,7 +393,7 @@ class MWsemantics(MainWindow):
     def toolsCCAddLayer(self):
         if self.glpane.shape:
             self.glpane.pov -= self.glpane.shape.pushdown()
-            self.assy.updateDisplays()
+            self.glpane.paintGL()
 
     # fill the shape created in the cookiecutter with actual
     # carbon atoms in a diamond lattice (including bonds)
@@ -423,7 +413,7 @@ class MWsemantics(MainWindow):
         if self.assy.selatoms:
             for a in self.assy.selatoms.itervalues():
                 a.mvElement(fullnamePeriodicTable[str(string)])
-            self.assy.updateDisplays()
+            self.glpane.paintGL()
         else:
             el = fullnamePeriodicTable[str(string)].symbol
             self.setElement(el)
@@ -480,7 +470,7 @@ class MWsemantics(MainWindow):
     # cannot copy individual atoms
     def copyDo(self):
         self.assy.copy()
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
     # 2BDone: make a copy of the selected part, move it, and bondEdge it,
     # having unselected the original and selected the copy.
@@ -494,7 +484,7 @@ class MWsemantics(MainWindow):
     # delete selected parts or atoms
     def killDo(self):
         self.assy.kill()
-        self.assy.updateDisplays()
+        self.glpane.paintGL()
 
     # utility functions
 
