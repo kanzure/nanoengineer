@@ -118,6 +118,11 @@ tetra2 = A([[-1,0,0], [0.342, -0.9396, 0]])
 straight = A([[-1,0,0], [1,0,0]])
 flat = A([[-0.5,0.866,0], [-0.5,-0.866,0], [1,0,0]])
 
+onebond = A([[1,0,0]]) # for use with valence-1 elements
+# [bruce 041119-23; Josh has reviewed "onebond", and approves it in principle]
+#e [note that this one-bond-direction is in model space; it might be better to
+#   change the code that deposits "onebond" atoms to always use screen-right]
+
 
 #      sym   name          mass    rVdW  color
 #      [[Nbonds, radius, angle] ...]
@@ -125,7 +130,7 @@ Mendeleev=[ \
  elem("X", "Singlet",      0.001,  1.1,  [0.8, 0.0, 0.0],
       [[1, 0, None]]),
  elem("H",  "Hydrogen",    1.6737, 1.2,  [0.0, 0.6, 0.6],
-      [[1, 30, None]]),
+      [[1, 30, onebond]]),
  elem("He", "Helium",      6.646,  1.4,  [1.0, 0.27, 0.67],
       None),
  elem("Li", "Lithium",    11.525,  4.0,  [0.0, 0.5, 0.5],
@@ -141,7 +146,7 @@ Mendeleev=[ \
  elem("O",  "Oxygen",     26.565,  1.74, [0.6, 0.2, 0.2],
       [[2, 66, oxy2], [1, 55, None]]),
  elem("F",  "Fluorine",   31.545,  1.65, [0.0, 0.8, 0.34],
-      [[1, 64, None]]),
+      [[1, 64, onebond]]),
  elem("Ne", "Neon",       33.49,   1.82, [0.92, 0.25, 0.62],
       None),
  elem("Na", "Sodium",     38.1726, 4.0,  [0.0, 0.4, 0.4],
@@ -157,7 +162,7 @@ Mendeleev=[ \
  elem("S",  "Sulfur",     53.233,  2.11, [1.0, 0.65, 0.0],
       [[2, 104, tetra2]]),
  elem("Cl", "Chlorine",   58.867,  2.03, [0.25, 0.35, 0.0],
-      [[1, 99, None]]),
+      [[1, 99, onebond]]),
  elem("Ar", "Argon",      66.33,   1.88, [0.85, 0.24, 0.57],
       None),
  # not used after this
@@ -194,7 +199,7 @@ Mendeleev=[ \
  elem("Se", "Selenium",  131.106,  2.1,  [0.9, 0.35, 0.0],
       [[6, 120, tetra2]]),
  elem("Br", "Bromine",   132.674,  2.0,  [0.0, 0.4, 0.3],
-      [[1, 119, None]]),
+      [[1, 119, onebond]]),
  elem("Kr", "Krypton",   134.429,  1.9,  [0.78, 0.21, 0.53],
       None)]
 
@@ -205,7 +210,7 @@ appendix = [
  elem("Te", "Tellurium",  131.106,  2.1,  [0.9, 0.35, 0.0],
       [[2, 120, tetra2]]),
  elem("I", "Iodine",   132.674,  2.0,  [0.0, 0.5, 0.0],
-      [[1, 119, None]]),
+      [[1, 119, onebond]]),
  elem("Xe", "Xenon",   134.429,  1.9,  [0.78, 0.21, 0.53],
       None)]
 
@@ -1221,7 +1226,8 @@ class Bond:
         [bruce, 041104, thinks that leads to some bugs in bond looks.]
         Bonds are drawn only in certain display modes (CPK, LINES, TUBES).
         The display mode is inherited from the atoms or molecule (as passed in
-         via dispdef from the calling molecule -- this is probably a bug ###e).
+         via dispdef from the calling molecule -- this might cause bugs if some
+         callers change display mode but don't set havelist = 0, but maybe they do).
         Lines or tubes change color from atom to atom, and are red in the middle
         for long bonds. CPK bonds are drawn in the calling molecule's color or
         in the constant bondColor (which is light gray).
