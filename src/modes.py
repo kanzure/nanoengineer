@@ -172,7 +172,8 @@ class basicMode(anyMode):
                   (self.msg_modename, self.__class__.__name__)
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
-        weird_to_override = ['Done', 'Cancel', 'Flush', 'StartOver', 'Restart',
+        ####@@@@ bruce 050130 removing 'Done' temporarily; see panMode.Done for why
+        weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
                              'userSetMode', '_exitMode', 'Abandon', '_cleanup']
             # not 'modifyTransmute', 'keyPress', they are normal to override;
             # not 'pickdraw', 'Wheel', they are none of my business;
