@@ -328,10 +328,16 @@ class atom:
         
         """
         #bruce 041104,041112 revised docstring
+        #bruce 041130 made this return copies of its data, using unary '+',
+        # to ensure caller's version does not change if the atom's version does,
+        # or vice versa. Before this change, some new code to compare successive
+        # posns of the same atom was getting a reference to the curpos[index]
+        # array element, even though this was part of a longer array, so it
+        # always got two refs to the same mutable data (which compared equal)! 
         if self.xyz != 'no':
-            return self.xyz #bruce 041124: this should return a copy, use '+' ###@@@
+            return + self.xyz
         else:
-            return self.molecule.curpos[self.index] ###@@@ ditto
+            return + self.molecule.curpos[self.index]
 
     def baseposn(self): #bruce 041107 night
         """Like posn, but return the mol-relative position.
@@ -348,7 +354,8 @@ class atom:
         # was added, ie whenever any atom still stores its own .xyz.
         basepos = self.molecule.basepos
         # that might have set or changed self.index; it's now definitely valid.
-        return basepos[self.index]
+        # bruce 041130 added unary '+' (see atom.posn comment for the reason).
+        return + basepos[self.index]
     
     def setposn(self, pos):
         """set the atom's absolute position,
@@ -356,6 +363,8 @@ class atom:
         (public method; ok for atoms in frozen molecules too)
         """
         # fyi: called from depositMode, but not (yet?) from movie-playing. [041110]
+        # bruce 041130 added unary '+' (see atom.posn comment for the reason).
+        pos = + pos
         if self.xyz != 'no':
             # bruce 041108 added xyz check, rather than asserting we don't need it;
             # this might never happen
