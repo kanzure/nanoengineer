@@ -29,6 +29,7 @@ class fusechunksMode(modifyMode):
     ways_of_bonding = {} # Number of bonds each singlet found
     bondable_pairs_atoms = [] # List of atom pairs that have been bonded.
     tol = 1.0 # tol is the distance (in Angstroms) between two bondable singlets.
+    rfactor = .75 # TO BE DOCUMENTED
     
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
@@ -40,8 +41,7 @@ class fusechunksMode(modifyMode):
         # If only one chunk is selected when coming in, make it the selected_chunk.
         # If more than one chunk is selected, unselect them all.
         if len(self.o.assy.selmols) == 1: 
-            self.selected_chunk = self.o.assy.selmols[0]
-            self.find_bondable_pairs() # Find bondable pairs of singlets
+            self.setup_selected_chunk()
         else:
             self.o.assy.unpickparts()
             self.selected_chunk = None
@@ -95,7 +95,7 @@ class fusechunksMode(modifyMode):
         """Move the selected chunk in the plane of the screen following
         the mouse.
         """
-        if not self.selected_chunk: return
+        if not self.o.assy.selmols: return
         
         # Need to look at moving all this back into modifyMode.leftDrag
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -109,6 +109,7 @@ class fusechunksMode(modifyMode):
         
         self.o.assy.movesel(point - self.movingPoint)
         
+        # This is the only line that is different from modifyMode.leftDrag.
         self.find_bondable_pairs() # Find bondable pairs of singlets
 
         self.o.gl_update()
@@ -119,7 +120,7 @@ class fusechunksMode(modifyMode):
         """move chunk along its axis (mouse goes up or down)
            rotate around its axis (left-right)
         """
-        if not self.selected_chunk: return
+        if not self.o.assy.selmols: return
             
         self.o.setCursor(self.w.MoveRotateMolCursor)
         
@@ -135,7 +136,8 @@ class fusechunksMode(modifyMode):
             ma = mol.getaxis()
             mol.move(dx*ma)
             mol.rot(Q(ma,-dy))
-            
+        
+        # This is the only line that is different from modifyMode.leftShiftDrag.    
         self.find_bondable_pairs() # Find bondable pairs of singlets
 
         self.dragdist += vlen(deltaMouse)
@@ -145,7 +147,7 @@ class fusechunksMode(modifyMode):
     def leftCntlDrag(self, event):
         """Do an incremental trackball action on each selected part.
         """
-        if not self.selected_chunk: return
+        if not self.o.assy.selmols: return
         
         self.o.setCursor(self.w.RotateMolCursor)
         
@@ -159,6 +161,7 @@ class fusechunksMode(modifyMode):
                                     self.o.quat)
         self.o.assy.rotsel(q)
 
+        # This is the only line that is different from modifyMode.leftCntlDrag.
         self.find_bondable_pairs() # Find bondable pairs of singlets
         
         self.o.gl_update()
@@ -168,7 +171,7 @@ class fusechunksMode(modifyMode):
         pass
                 
     def EndPick(self, event, selSense):
-        """Pick if click.  Only one chunk can be selected .
+        """Pick or unpick if click.  Only one chunk can be selected.
         """
         if not self.picking: return
         self.picking = False
@@ -189,11 +192,17 @@ class fusechunksMode(modifyMode):
             else:  # Pick a new chunk
                 self.o.assy.onlypick_at_event(event)
                 if self.o.assy.selmols: 
-                    self.selected_chunk = self.o.assy.selmols[0]
-                    self.find_bondable_pairs() # Find bondable pairs of singlets
+                    self.setup_selected_chunk()
              
             self.w.win_update()
-                    
+
+    def setup_selected_chunk(self):
+        '''Sets up the selected chunk for finding bondable pairs of singlets.
+        '''
+        self.selected_chunk = self.o.assy.selmols[0]
+        self.selected_chunk_rad = self.selected_chunk.bbox.scale() * self.rfactor
+        self.find_bondable_pairs() # Find bondable pairs of singlets
+        
     def Draw(self):
         
         modifyMode.Draw(self)
@@ -214,52 +223,56 @@ class fusechunksMode(modifyMode):
                 drawline(self.bondcolor, s1.posn(), s2.posn()) 
 
     def find_bondable_pairs(self):
-        '''Checks the open bonds of the select chunk to see if they are close enough
-        to bond with any other open bonds in the part.
+        '''Checks the open bonds of the selected chunk to see if they are close enough
+        to bond with any other open bonds in the part.  Hidden chunks are skipped.
         '''
         self.bondable_pairs = []
         self.ways_of_bonding = {}
         
-        # Loop through all the molecules in the part to search for bondable pairs of singlets.
-        for mol in self.o.assy.molecules:
-            if self.selected_chunk != mol: # Not itself
-            
-                # An opportunity exists right here for a major optimization.
-                # Something like this:
-                # if vlen (self.selected_chunk.center - mol.center) < self.selected_chunk.slen + mol.slen + tol:
-                # where slen is the distance from the chunk's center to its furthest singlet.
-                
-                # Main loop
-                for a1 in self.selected_chunk.atoms.itervalues():
-                    if a1.element == Singlet:
-                        s1 = a1
-                        for a2 in mol.atoms.itervalues():
-                            if a2.element == Singlet:
-                                s2 = a2
-
-                                # The code Bruce provided doesn't work:
-                                # ok = mergeable_singlets_Q_and_offset(s1, s2, offset, self.tol)
-                                # if ok:
-                                # ok is always non-zero.  Ask Bruce if he knows why...
-                                
-                                # I substituted the line below in place of mergeable_singlets_Q_and_offset,
-                                # which compares the distance between s1 and s2.  If the distance
-                                # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
-                                # a proper use of tol, but it work for now.   Mark 050327
-                                if vlen (s1.posn() - s2.posn()) <= self.tol:
-                                    
-                                    self.bondable_pairs.append( (s1,s2) ) # Add this pair to the list
-            
-                                    # Now increment ways_of_bonding for each of the two singlets.
-                                    if s1.key in self.ways_of_bonding:
-                                        self.ways_of_bonding[s1.key] += 1
-                                    else:
-                                        self.ways_of_bonding[s1.key] = 1
-                                    if s2.key in self.ways_of_bonding:
-                                        self.ways_of_bonding[s2.key] += 1
-                                    else:
-                                        self.ways_of_bonding[s2.key] = 1
+        # Get center of the selected chunk.
+        self.selected_chunk_ctr = self.selected_chunk.bbox.center()
         
+        # Loop through all the chunks in the part to search for bondable pairs of singlets.
+        for mol in self.o.assy.molecules:
+            if self.selected_chunk == mol: continue # Skip itself
+            if mol.hidden: continue # Skip hidden chunks
+
+            # Skip this chunk if it's bounding box does not overlap the selected chunk's bbox.
+            mol_ctr = mol.bbox.center()
+            mol_rad = mol.bbox.scale()* self.rfactor
+            if vlen (mol_ctr - self.selected_chunk_ctr) > mol_rad + self.selected_chunk_rad:
+                # Skip this chunk.
+                # print "Skipped ", mol.name
+                continue
+            else:
+
+                # Loop through all the singlets in the selected chunk.
+                for s1 in self.selected_chunk.singlets:
+                    # Loop through all the singlets in this chunk.
+                    for s2 in mol.singlets:
+                        
+                        # I substituted the line below in place of mergeable_singlets_Q_and_offset,
+                        # which compares the distance between s1 and s2.  If the distance
+                        # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
+                        # a proper use of tol, but it work for now.   Mark 050327
+                        if vlen (s1.posn() - s2.posn()) <= self.tol:
+                            
+                        # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset, self.tol)
+                        # if ok:
+                        # we can ignore ideal and err, we know s1, s2 can bond at this tol
+                                    
+                            self.bondable_pairs.append( (s1,s2) ) # Add this pair to the list
+            
+                            # Now increment ways_of_bonding for each of the two singlets.
+                            if s1.key in self.ways_of_bonding:
+                                self.ways_of_bonding[s1.key] += 1
+                            else:
+                                self.ways_of_bonding[s1.key] = 1
+                            if s2.key in self.ways_of_bonding:
+                                self.ways_of_bonding[s2.key] += 1
+                            else:
+                                self.ways_of_bonding[s2.key] = 1
+                                    
         # Update tolerance label and status bar msgs.
         nbonds = len(self.bondable_pairs)
         tol_str = lambda_tol_nbonds(self.tol, nbonds)
