@@ -161,8 +161,8 @@ int IterPerFrame=10;
 int NumFrames=100;
 int DumpAsText=0;
 
-char OutFileName[80];
-char TraceFileName[80];
+char OutFileName[1024];
+char TraceFileName[1024];
 
 // for writing the differential position and trace files
 FILE *outf, *tracef;
@@ -1183,7 +1183,7 @@ main(int argc,char **argv)
     struct xyz p, foo;
     double therm = 0.645;
 	
-    char buf[80], *filename, *ofilename, *tfilename, *c;
+    char buf[1024], *filename, *ofilename, *tfilename, *c;
 	
     double x,y,z, end, theta;
 
