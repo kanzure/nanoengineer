@@ -1,7 +1,10 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
 """
-assembly.py -- provides class assembly, a set of molecules (plus selection state) to be shown in one glpane.
+assembly.py -- provides class assembly, a set of molecules
+(plus selection state) to be shown in one glpane.
+
+Temporarily owned by bruce 041104 for shakedown inval/update code.
 
 $Id$
 """

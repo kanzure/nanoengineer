@@ -1,6 +1,9 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
 """Classes for elements, atoms, bonds, molecules
+
+Temporarily owned by bruce 041104 for shakedown inval/update code.
+
 $Id$
 """
 __author__ = "Josh"

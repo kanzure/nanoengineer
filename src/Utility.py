@@ -3,6 +3,8 @@
 """Classes for objects in the model.
 This file should have a more descriptive name, but that can wait.
 
+Temporarily owned by bruce 041104 for shakedown inval/update code.
+
 $Id$
 """
 
