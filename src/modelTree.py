@@ -102,6 +102,8 @@ class modelTree(QListView):
                  
                  parentItem = self.selectedTreeItem.parent()
                  parentItem.takeItem(self.selectedTreeItem)
+                 del self.treeItems[self.selectedTreeItem]
+                 
             elif id == 3: #Rename
                  self.selectedTreeItem.startRename(0)
             elif id == 4: #Hide/Unhide
@@ -117,6 +119,7 @@ class modelTree(QListView):
             if id == 0: #Delete
                   parentItem = self.selectedTreeItem.parent()
                   parentItem.takeItem(self.selectedTreeItem)
+                  del self.treeItems[self.selectedTreeItem]
             elif id == 1: #Rename
                   self.selectedTreeItem.startRename(0)
             elif id == 2: #Hide/Unhide
@@ -214,14 +217,14 @@ class modelTree(QListView):
     
             
     def treeItemChanged(self, listItem):
-          if self.lastSelectedItem:
-             modelItem = self.treeItems[self.lastSelectedItem]
-             if isinstance(modelItem, molecule):
-                modelItem.setSelectionState(self, modelItem, False)
+          if self.lastSelectedItem and self.treeItems.has_key(self.lastSelectedItem):
+             model = self.treeItems[self.lastSelectedItem]
+             if isinstance(model, molecule):
+                model.setSelectionState(self, model, False)
  
-          modelItem = self.treeItems[listItem]
-          if isinstance(modelItem, molecule): 
-                modelItem.setSelectionState(self,  modelItem, True)
+          model = self.treeItems[listItem]
+          if isinstance(model, molecule): 
+                model.setSelectionState(self,  model, True)
 
           self.lastSelectedItem = listItem          
             
@@ -499,6 +502,8 @@ class modelTree(QListView):
         item = self.objectToTreeItems[obj]
         parentItem = item.parent()
         parentItem.takeItem(item)
+        
+        del self.treeItems[item]
         
         ## Save model tree operations into assembly.orderedItemsList 
         self.saveModelTree()
