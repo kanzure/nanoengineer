@@ -1276,7 +1276,7 @@ class MWsemantics(MainWindow):
     def movieInfo(self):
         """Prints information about the current movie to the history widget.
         """
-#        print "MW: MoviwInfo called"
+#        print "MW: MovieInfo called"
         self.history.message(greenmsg("Movie Information"))
         self.assy.current_movie._info()
         
@@ -1288,6 +1288,9 @@ class MWsemantics(MainWindow):
         # way so far). ####@@@@
         # Also it should be moved into movieMode.py.
         self.history.message(greenmsg("Open Movie File:"))
+        assert self.assy.current_movie
+            # (since (as a temporary kluge) we create an empty one, if necessary, before entering
+            #  Movie Mode, of which this is a dashboard method [bruce 050328])
         if self.assy.current_movie.currentFrame != 0:
             self.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
             return
