@@ -55,7 +55,7 @@ def find_hotspot_for_pasting(obj):
     """
     if not isinstance(obj, molecule):
         return False, "only chunks can be pastable" #e for now
-    fix_bad_hotspot(obj)
+##    fix_bad_hotspot(obj)
     if len(obj.singlets) == 0:
         return False, "no open bonds in %r (only pastable in empty space)" % obj.name
     elif len(obj.singlets) > 1 and not obj.hotspot:
@@ -64,12 +64,13 @@ def find_hotspot_for_pasting(obj):
         return True, obj.hotspot or obj.singlets[0]
     pass
 
-def fix_bad_hotspot(mol): # bug workaround [guessing it'll fix a bug I noticed, but this is speculative so far -- bruce 050121]
-    if mol.hotspot and (mol.hotspot not in mol.singlets):
-        if platform.atom_debug:
-            print "atom_debug: fix_bad_hotspot removed a bad hotspot from %r" % mol
-        mol.hotspot = None
-    return
+    #bruce 050217: fix_bad_hotspot won't be needed anymore, since I'm making mol.hotspot use getattr to fix other bugs
+##def fix_bad_hotspot(mol): # bug workaround [guessing it'll fix a bug I noticed, but this is speculative so far -- bruce 050121]
+##    if mol.hotspot and (mol.hotspot not in mol.singlets):
+##        if platform.atom_debug:
+##            print "atom_debug: fix_bad_hotspot removed a bad hotspot from %r" % mol
+##        mol.hotspot = None
+##    return
 
 def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.clear()
@@ -951,10 +952,16 @@ class depositMode(basicMode):
         # So now it does [041123].
         hs = numol.hotspot or numol.singlets[0] #e should use find_hotspot_for_pasting again
         bond_at_singlets(hs,sing) # this will move hs.molecule (numol) to match
+        # bruce 050217 comment: hs is now an invalid hotspot for numol, and that
+        # used to cause bug 312, but this is now fixed in getattr every time the
+        # hotspot is retrieved (since it can become invalid in many other ways too),
+        # so there's no need to explicitly forget it here.
         self.o.assy.addmol(numol) # do this last, in case it computes bbox
         return numol, "copy of %r" % self.pastable.name
         
     # paste the pastable object where the cursor is (at pos)
+    # warning: some of the following comment is obsolete (read all of it for the details)
+    # ###@@@ should clean up this comment and code
     # - bruce 041206 fix bug 222 by recentering it now --
     # in fact, even better, if there's a hotspot, put that at pos.
     # - bruce 050121 fixing bug in feature of putting hotspot on water
@@ -967,7 +974,9 @@ class depositMode(basicMode):
     # ... bruce 050124: that feature bothers me, decided to remove it completely.
     def pasteFree(self, pos):
         numol = self.pastable.copy(None)
-        fix_bad_hotspot(numol) # works around some possible bugs in other code
+        #bruce 050217 fix_bad_hotspot no longer needed
+        # [#e should we also remove the hotspot copied by mol.copy? I don't think so.]
+##        fix_bad_hotspot(numol) # works around some possible bugs in other code
         cursor_spot = numol.center
 ##        if numol.hotspot:
 ##            cursor_spot = numol.hotspot.posn()
@@ -978,7 +987,6 @@ class depositMode(basicMode):
         numol.move(pos - cursor_spot)
         self.o.assy.addmol(numol)
         return numol, "copy of %r" % self.pastable.name
-        
 
 
     ###################################################################
@@ -1293,7 +1301,7 @@ class depositMode(basicMode):
         hotspot) [... and copy mol onto the clipboard...]
         """
         if self.o.selatom and self.o.selatom.element == Singlet:
-            self.o.selatom.molecule.hotspot = self.o.selatom
+            self.o.selatom.molecule.set_hotspot( self.o.selatom)
             
             ###e in future, if that mol is on the clipboard, don't copy it there!
             # but that can't happen until we can display clipboard items in glpane.

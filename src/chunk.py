@@ -38,6 +38,10 @@ from inval import InvalMixin
 # since we need to ensure it's always done by the end of any user event.)
 
 class molecule(Node, InvalMixin):
+
+    # class constants to serve as default values of attributes
+    _hotspot = None
+    
     def __init__(self, assembly, name = None):
         # note [bruce 041116]:
         # new molecules are NOT automatically added to assembly.
@@ -96,11 +100,51 @@ class molecule(Node, InvalMixin):
         self.displist = glGenLists(1)
         self.havelist = 0 # note: havelist is not handled by InvalMixin
         self.haveradii = 0 # ditto
-        # default place to bond this molecule -- should be a singlet or None
-        self.hotspot = None
-                        
-        return # from molecule.__init__
         
+        # hotspot: default place to bond this molecule when pasted;
+        # should be a singlet in this molecule, or None.
+        ## old code: self.hotspot = None
+        # (As of bruce 050217 (to fix bug 312)
+        # this is computed by getattr each time it's needed,
+        # using self._hotspot iff it's still valid, forgetting it otherwise.
+        # This is needed since code which removes or kills singlets, or transmutes
+        # them, does not generally invalidate the hotspot explicitly,
+        # but it does copy or keep it
+        # (e.g. in mol.copy or merge) even when doing so is questionable.)
+        #    BTW, we don't presently save the hotspot in the mmp file,
+        # which is a reported bug which we hope to fix soon.
+        
+        return # from molecule.__init__
+
+    def set_hotspot(self, hotspot): #bruce 050217
+        # make sure no other code forgot to call us and set it directly
+        assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
+        self._hotspot = hotspot
+        assert self.hotspot == hotspot, "getattr bug, or specified hotspot is invalid"
+        assert not 'hotspot' in self.__dict__.keys(), "bug in getattr for hotspot"
+        return
+    
+    def _get_hotspot(self): #bruce 050217; used by getattr
+        hs = self._hotspot
+        if not hs: return None
+        if hs.is_singlet() and hs.molecule == self:
+            # hs should be a valid hotspot; if you see no bug, return it
+            if hs.killed(): # this also checks whether its key is in self.atoms
+                # bug detected
+                if platform.atom_debug:
+                    print "_get_hotspot sees killed singlet still claiming to be in this molecule"
+                # fall thru
+            else:
+                # return a valid hotspot.
+                # (Note: if there is no hotspot but exactly one singlet,
+                # some callers treat that singlet as the hotspot,
+                # but others don't want that feature, so it would be
+                # wrong to do that here.)
+                return hs
+        # hs is not valid (this is often not a bug); forget about it and return None
+        self._hotspot = None
+        return None
+    
     # bruce 041202/050109 revised the icon code; see longer comment about
     # Jig.init_icons for explanation; this might be moved into class Node later
     mticon_names = [
@@ -767,8 +811,9 @@ class molecule(Node, InvalMixin):
                     # (fyi, this doesn't use color arg as of 041206)
             pass
 
-            if platform.atom_debug and self.hotspot:
-                self.overdraw_hotspot(glpane, disp)
+            if self.hotspot: # note, as of 050217 that can have side effects in getattr
+                if platform.atom_debug:
+                    self.overdraw_hotspot(glpane, disp)
 
         except:
             print_compact_traceback("exception in molecule.draw, continuing: ")
@@ -1590,7 +1635,7 @@ class molecule(Node, InvalMixin):
                 na = ndix[a.key]
                 numol.bond(na, x)
         if copied_hotspot:
-            numol.hotspot = ndix[copied_hotspot.key]
+            numol.set_hotspot( ndix[copied_hotspot.key])
         #e also copy (but translate by offset) user-specified axis, center, etc,
         #  if we ever have those
         if self.user_specified_center:
