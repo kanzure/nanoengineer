@@ -14,6 +14,8 @@ class GroundProp(GroundPropDialog):
     def setup(self):
         ground = self.ground
         
+        self.ground.originalColor = self.ground.color
+        
         self.nameLineEdit.setText(ground.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
@@ -57,6 +59,7 @@ class GroundProp(GroundPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
+	    self.ground.color = self.ground.originalColor
 
     #################
     # Apply Button

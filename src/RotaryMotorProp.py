@@ -14,6 +14,8 @@ class RotaryMotorProp(RotaryMotorPropDialog):
     def setup(self):
         rotMotor = self.motor
         
+        self.motor.originalColor = self.motor.color
+        
         self.nameLineEdit.setText(rotMotor.name)
         self.colorPixmapLabel.setPaletteBackgroundColor(
             QColor(int(rotMotor.color[0]*255), 
@@ -69,6 +71,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
+	    self.motor.color = self.motor.originalColor
 
     #################
     # Apply Button

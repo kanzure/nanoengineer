@@ -14,6 +14,8 @@ class LinearMotorProp(LinearMotorPropDialog):
     def setup(self):
         linearMotor = self.motor
         
+        self.motor.originalColor = self.motor.color
+        
         self.nameLineEdit.setText(linearMotor.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
@@ -72,7 +74,8 @@ class LinearMotorProp(LinearMotorPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
-
+	    self.motor.color = self.motor.originalColor
+        
     #################
     # Apply Button
     #################	

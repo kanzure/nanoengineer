@@ -14,6 +14,8 @@ class StatProp(StatPropDialog):
     def setup(self):
         stat = self.stat
         
+        self.stat.originalColor = self.stat.color
+        
         self.nameLineEdit.setText(stat.name)
         self.tempSpinBox.setValue(stat.temp)
 
@@ -58,6 +60,7 @@ class StatProp(StatPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
+	    self.stat.color = self.stat.originalColor
 
     #################
     # Apply Button
