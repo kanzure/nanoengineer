@@ -84,7 +84,7 @@ class motor:
                      2.0, self.picked, 1)
         for a in self.atoms:
             drawcylinder(col, self.center,
-                         a.molecule.atpos[a.index], 0.5, self.picked)
+                         a.molecule.basepos[a.index], 0.5, self.picked)
             
     # write on a povray file
     def povwrite(self, file, dispdef):
@@ -194,7 +194,7 @@ class LinearMotor:
 
         for a in self.atoms:
             drawcylinder(col, self.center,
-                         a.molecule.atpos[a.index], 0.15, self.picked)
+                         a.molecule.basepos[a.index], 0.15, self.picked)
             
     # write on a povray file
     def povwrite(self, file, dispdef):
@@ -237,7 +237,7 @@ class ground:
         col=(0, 0, 0)
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
-            drawwirecube(col, a.molecule.atpos[a.index], rad)
+            drawwirecube(col, a.molecule.basepos[a.index], rad)
             
     # write on a povray file
     def povwrite(self, file, dispdef):

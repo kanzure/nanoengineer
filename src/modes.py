@@ -30,7 +30,7 @@ class basicMode:
     def setMode(self):
         self.prevmode = self.o.mode
         self.o.mode = self
-        pass
+	self.picking = False
 
     def Restart(self):
         print self.modename,  "Restart not implemented yet"

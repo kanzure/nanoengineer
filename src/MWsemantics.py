@@ -37,6 +37,8 @@ class MWsemantics(MainWindow):
         if name == None:
             self.setName("Atom")
 
+        self.Element = 'C'
+
 
         self.glpane = GLPane(self.assy, self.frame4, "glpane", self)
         
@@ -184,38 +186,33 @@ class MWsemantics(MainWindow):
     # set display formats in whatever is selected,
     # or the GLPane global default if nothing is
     def dispDefault(self):
-        self.setdisplay(diDEFAULT)
+        self.setDisplay(diDEFAULT)
 
     def dispInvis(self):
-        self.setdisplay(diINVISIBLE)
+        self.setDisplay(diINVISIBLE)
 
     def dispVdW(self):
-        self.setdisplay(diVDW)
+        self.setDisplay(diVDW)
 
     def dispTubes(self):
-        self.setdisplay(diTUBES)
+        self.setDisplay(diTUBES)
 
     def dispCPK(self):
-        self.setdisplay(diCPK)
+        self.setDisplay(diCPK)
 
     def dispLines(self):
-        self.setdisplay(diLINES)
+        self.setDisplay(diLINES)
 
-    def setdisplay(self, form):
+    def setDisplay(self, form):
         if self.assy and self.assy.selatoms:
             for ob in self.assy.selatoms.itervalues():
-                ob.display = form
-                ob.molecule.changeapp()
+                ob.setDisplay(form)
         elif self.assy and self.assy.selmols:
             for ob in self.assy.selmols:
-                ob.display = form
-                ob.changeapp()
+                ob.setDisplay(form)
         else:
             if self.glpane.display == form: return
-            self.glpane.display = form
-            for ob in self.assy.molecules:
-                if ob.display == diDEFAULT:
-                    ob.changeapp()
+            self.glpane.setDisplay(form)
         self.assy.updateDisplays()
         
 
@@ -415,6 +412,13 @@ class MWsemantics(MainWindow):
     def toolsDone(self):
         self.glpane.mode.Done()
 
+    # turn on and off an "add atom with a mouse click" mode
+    def addAtomStart(self):
+        self.glpane.setMode('DEPOSIT')
+    
+    def addAtomDone(self):
+        self.glpane.mode.Done()
+
     # the elements combobox:
     # change selected atoms to the element selected
     def elemChange(self, string):
@@ -423,45 +427,38 @@ class MWsemantics(MainWindow):
                 a.mvElement(fullnamePeriodicTable[str(string)])
             self.assy.updateDisplays()
         else:
-            self.assy.DesiredElement = fullnamePeriodicTable[str(string)].symbol
+            self.Element = fullnamePeriodicTable[str(string)].symbol
 
     def setCarbon(self):
-        self.assy.DesiredElement = "C"
+        self.Element = "C"
         self.comboBox1.setCurrentItem(0)
 
     def setHydrogen(self):
-        self.assy.DesiredElement = "H"
+        self.Element = "H"
         self.comboBox1.setCurrentItem(1)
 
     def setOxygen(self):
-        self.assy.DesiredElement = "O"
+        self.Element = "O"
         self.comboBox1.setCurrentItem(2)
 
     def setNitrogen(self):
-        self.assy.DesiredElement = "N"
+        self.Element = "N"
         self.comboBox1.setCurrentItem(3)
 
     def setBoron(self):
-        self.assy.DesiredElement = "B"
+        self.Element = "B"
         self.comboBox1.setCurrentItem(4)
+
+
+    # Play a movie from the simulator
+    def toolsMovie(self):
+        dir, fil, ext = fileparse(self.assy.filename)
+        self.glpane.startmovie(dir + fil + ".dpb")
 
     
     ###################################
     # some unimplemented buttons:
     ###################################
-
-    # turn on and off an "add atom with a mouse click" mode
-    def addAtomStart(self):
-        self.glpane.setMode('DEPOSIT')
-    
-    def addAtomDone(self):
-        self.glpane.mode.Done()
-
-    # create bonds where reasonable within selection
-    def toolsMovie(self):
-        dir, fil, ext = fileparse(self.assy.filename)
-        self.glpane.startmovie(dir + fil + ".dpb")
-
     # create bonds where reasonable between selected and unselected
     def bondEdge(self):
         print "MWsemantics.bondEdge(): Not implemented yet"

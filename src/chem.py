@@ -69,6 +69,13 @@ class elem:
         self.rcovalent = bn and bn[0][1]/100.0
         self.bonds = bn
         self.color = col
+        self.base = None
+        self.quats = []
+        if bn and bn[0][2]:
+            s = bn[0][2][0]
+            self.base = s
+            for v in bn[0][2][1:]:
+                self.quats += [Q(s,v)]
 
     def __repr__(self):
         return "<Element: " + self.symbol + "(" + self.name + ")>"
@@ -77,8 +84,8 @@ class elem:
 uvec = norm(V(1,1,1))
 tetra4 = uvec * A([[1,1,1], [-1,1,-1], [-1,-1,1], [1,-1,-1]])
 tetra3 = uvec * A([[-1,1,-1], [-1,-1,1], [1,-1,-1]])
-oxy2 = A([[-1,0,0], [0.2588, -0.9659]])
-tetra2 = A([[-1,0,0], [0.342, -0.9396]])
+oxy2 = A([[-1,0,0], [0.2588, -0.9659, 0]])
+tetra2 = A([[-1,0,0], [0.342, -0.9396, 0]])
 straight = A([[-1,0,0], [1,0,0]])
 flat = A([[-0.5,0.866,0], [-0.5,-0.866,0], [1,0,0]])
 
@@ -86,16 +93,16 @@ flat = A([[-0.5,0.866,0], [-0.5,-0.866,0], [1,0,0]])
 #      sym   name          mass    rVdW  color
 #      [[Nbonds, radius, angle] ...]
 Mendeleev=[ \
- elem("X", "Singlet",      0.001,  1.1,  [1.0, 0.0, 0.0],
+ elem("X", "Singlet",      0.001,  1.1,  [0.8, 0.0, 0.0],
       [[1, 0, None]]),
  elem("H",  "Hydrogen",    1.6737, 1.2,  [0.0, 0.6, 0.6],
       [[1, 30, None]]),
  elem("He", "Helium",      6.646,  1.4,  [1.0, 0.27, 0.67],
       None),
  elem("Li", "Lithium",    11.525,  4.0,  [0.0, 0.5, 0.5],
-      [[1, 152, 'IONIC']]),
+      [[1, 152, None]]),
  elem("Be", "Beryllium",  14.964,  3.0,  [0.98, 0.67, 1.0],
-      [[2, 114, 'IONIC']]),
+      [[2, 114, None]]),
  elem("B",  "Boron",      17.949,  2.0,  [0.3, 0.3, 1.0],
       [[3, 90, flat]]),
  elem("C",  "Carbon",     19.925,  1.84, [0.04, 0.2, 0.0],
@@ -109,12 +116,12 @@ Mendeleev=[ \
  elem("Ne", "Neon",       33.49,   1.82, [0.92, 0.25, 0.62],
       None),
  elem("Na", "Sodium",     38.1726, 4.0,  [0.0, 0.4, 0.4],
-      [[1, 186, 'IONIC']]),
+      [[1, 186, None]]),
  elem("Mg", "Magnesium",  40.356,  3.0,  [0.88, 0.6, 0.9],
-      [[2, 160, 'IONIC']]),
+      [[2, 160, None]]),
  elem("Al", "Aluminum",   44.7997, 2.5,  [0.5, 0.5, 0.9],
-      [[3, 143, 109.5]]),
- elem("Si", "Silicon",    46.6245, 2.25, [0.04, 0.3, 0.0],
+      [[3, 143, flat]]),
+ elem("Si", "Silicon",    46.6245, 2.25, [0.2, 0.2, 0.2],
       [[4, 117, tetra4]]),
  elem("P",  "Phosphorus", 51.429,  2.11, [0.73, 0.32, 0.87],
       [[3, 110, tetra3]]),
@@ -133,23 +140,23 @@ Mendeleev=[ \
  elem("Ti", "Titanium",   79.534,  3.5,  [0.417, 0.417, 0.511],
       [[4, 147, tetra4]]),
  elem("V",  "Vanadium",   84.584,  3.3,  [0.417, 0.417, 0.511],
-      [[5, 132, 'METAL']]),
+      [[5, 132, None]]),
  elem("Cr", "Chromium",   86.335,  3.1,  [0.417, 0.417, 0.511],
-      [[6, 125, 'METAL']]),
+      [[6, 125, None]]),
  elem("Mn", "Manganese",  91.22,   3.0,  [0.417, 0.417, 0.511],
-      [[7, 112, 'METAL']]),
+      [[7, 112, None]]),
  elem("Fe", "Iron",       92.729,  3.0,  [0.417, 0.417, 0.511],
-      [[3, 124, 'METAL']]),
+      [[3, 124, None]]),
  elem("Co", "Cobalt",     97.854,  3.0,  [0.417, 0.417, 0.511],
-      [[3, 125, 'METAL']]),
+      [[3, 125, None]]),
  elem("Ni", "Nickel",     97.483,  3.0,  [0.417, 0.417, 0.511],
-      [[3, 125, 'METAL']]),
+      [[3, 125, None]]),
  elem("Cu", "Copper",    105.513,  3.0,  [0.417, 0.417, 0.511],
-      [[2, 128, 'METAL']]),
+      [[2, 128, None]]),
  elem("Zn", "Zinc",      108.541,  2.9,  [0.417, 0.417, 0.511],
-      [[2, 133, 'METAL']]),
+      [[2, 133, None]]),
  elem("Ga", "Gallium",   115.764,  2.7,  [0.6, 0.6, 0.8],
-      [[3, 135, 'METAL']]),
+      [[3, 135, None]]),
  elem("Ge", "Germanium", 120.53,   2.5,  [0.447, 0.49, 0.416],
       [[4, 122, tetra4]]),
  elem("As", "Arsenic",   124.401,  2.2,  [0.6, 0.26, 0.7],
@@ -193,7 +200,7 @@ class atom:
         # element-type object
         self.element=PeriodicTable[sym]
         # location, which will be set relative to its molecule's center
-        self.xyz=dot(where-mol.center,mol.quat.matrix3)
+        self.xyz=where
         # list of bond objects
         self.bonds=[]
         # whether the atom is selected, see also assembly.selatoms
@@ -211,11 +218,9 @@ class atom:
         by calculating rotation and translation offset from molecule
         """
         if self.xyz != 'no':
-            p=self.xyz
+            return self.xyz
         else:
-            p=self.molecule.atpos[self.index]
-        p=dot(self.molecule.quat.matrix3, p)
-        return p + self.molecule.center
+            return self.molecule.curpos[self.index]
 
     def __repr__(self):
         return self.element.symbol + str(self.key)
@@ -238,14 +243,25 @@ class atom:
         """
         color = col or self.element.color
         disp, rad = self.howdraw(dispdef)
-        pos = self.molecule.atpos[self.index]
+        # note use of basepos since it's being drawn under
+        # rotation/translation of molecule
+        pos = self.molecule.basepos[self.index]
         if disp in [diVDW, diCPK]:
-            drawsphere(color, pos, rad, level, self.picked)
+            drawsphere(color, pos, rad, level)
+        rad *= 1.1
         if disp == diTUBES:
             if len(self.bonds)<4:
-                drawsphere(color, pos, rad, level, self.picked)
+                if self == win.singlet:
+                    drawsphere(LEDon, pos, rad, level)
+                else:
+                    drawsphere(color, pos, rad, level)
+            rad *= 1.8
         if self.picked:
-            drawwirecube(PickedColor, pos, rad)
+            drawwiresphere(PickedColor, pos, rad)
+
+    def setDisplay(self, disp):
+        self.display = disp
+        self.molecule.changeapp()
         
 
     def howdraw(self, dispdef):
@@ -264,6 +280,8 @@ class atom:
         if disp == diCOVALENT: rad = self.element.rcovalent
         return (disp, rad)
 
+
+
     def povwrite(self, file, dispdef, col):
         color = col or self.element.color
         color = color * V(1,1,-1)
@@ -280,6 +298,7 @@ class atom:
         This is a royal kludge, needs to be replaced by something
         that uses the screen representation
         """
+        if self.element == Singlet: return None
         if not r: r=self.element.rvdw*0.7
         if self.picked and not iPic: return None
         dist, wid = orthodist(p1, v1, self.posn())
@@ -290,6 +309,7 @@ class atom:
     def pick(self):
         """make the atom selected
         """
+        if self.element == Singlet: return
         if not self.picked:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
@@ -298,6 +318,7 @@ class atom:
     def unpick(self):
         """make the atom unselected
         """
+        if self.element == Singlet: return
         if self.picked:
             self.picked = 0
             del self.molecule.assy.selatoms[self.key]
@@ -315,23 +336,24 @@ class atom:
         """remove bond b from the atom.
         called from atom.kill of the other atom.
         """
-        try: self.bonds.remove(b)
-        except ValueError:
-            for bx in self.bonds[:]:
-                a = bx.other(self)
-                if a == b:
-                    self.bonds.remove(bx)
-                    b.unbond(bx)
-        self.molecule.changeapp()
+        # the caller needs to do a shakedown
+        self.bonds.remove(b)
+        if self.element == Singlet: return
+        x = atom('X', b.ubp(self), self.molecule)
+        self.molecule.bond(self, x)
 
     def hopmol(self, numol):
         """move this atom to molecule numol
         """
+        if self.molecule == numol: return
         nxyz = self.posn()
         del self.molecule.atoms[self.key]
         self.xyz = nxyz
         self.molecule = numol
         numol.atoms[self.key] = self
+        for a in self.neighbors():
+            if a.element == Singlet:
+                a.hopmol(numol)
         # both molecules change!
         self.molecule.changeapp()
         numol.changeapp()
@@ -356,9 +378,12 @@ class atom:
         try: del self.molecule.atoms[self.key]
         except KeyError: pass
         for b in self.bonds:
-            b.other(self).unbond(b)
-        # may have changed appearance of the molecule
-        self.molecule.changeapp()
+            n = b.other(self)
+            n.unbond(b)
+            if n.element == Singlet: n.kill()
+            
+        # may have changed appearance of the molecule ;-)
+        self.molecule.shakedown()
 
     def Hydrogenate(self):
         """ if this is a singlet, change it to a hydrogen
@@ -366,7 +391,7 @@ class atom:
         if not self.element == Singlet: return
         o = self.bonds[0].other(self)
         self.mvElement(Hydrogen)
-        self.molecule.atpos[self.index] += Hydrogen.rcovalent * norm(self.molecule.atpos[self.index] - o.molecule.atpos[o.index])
+        self.molecule.basepos[self.index] += Hydrogen.rcovalent * norm(self.molecule.basepos[self.index] - o.molecule.basepos[o.index])
 
 class bondtype:
     """not implemented
@@ -395,8 +420,8 @@ class bond:
         self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key)
 
     def setup(self):
-        self.a1pos = self.atom1.molecule.atpos[self.atom1.index]
-        self.a2pos = self.atom2.molecule.atpos[self.atom2.index]
+        self.a1pos = self.atom1.molecule.basepos[self.atom1.index]
+        self.a2pos = self.atom2.molecule.basepos[self.atom2.index]
         if self.atom1.molecule != self.atom2.molecule:
             self.a1pos = self.atom1.posn()
             self.a2pos = self.atom2.posn()
@@ -410,6 +435,33 @@ class bond:
             self.center = None
         else:
             self.center = (self.c1 + self.c2) /2.0
+
+    def other(self, at):
+        """Given one atom the bond is connected to, return the other one
+        """
+        if self.atom1 == at: return self.atom2
+        return self.atom1
+
+    def ubp(self, atom):
+        """ unbond point """
+        if self.atom1.molecule != self.atom2.molecule:
+            off = V(0,0,0)
+        else: off = atom.molecule.center
+        if atom==self.atom1: return self.c1 + off
+        else: return self.c2 + off
+
+    # "break" is a python keyword
+    def bust(self):
+        self.atom1.unbond(self)
+        self.atom2.unbond(self)
+        self.atom1.molecule.shakedown()
+        if self.atom1.molecule != self.atom2.molecule:
+            self.atom2.molecule.shakedown()
+
+    def rebond(self, old, new):
+        if self.atom1 == old: self.atom1 = new
+        if self.atom2 == old: self.atom2 = new
+        self.__init__(self.atom1, self.atom2)
         
 
     def __eq__(self, ob):
@@ -471,12 +523,6 @@ class bond:
                        "," + povpoint(self.atom2.posn()) + ")\n")
 
 
-    def other(self, at):
-        """Given one atom the bond is connected to, return the other one
-        """
-        if self.atom1 == at: return self.atom2
-        return self.atom1
-
 # I use "molecule" and "part" interchangeably throughout the program.
 # this is the class intended to represent rigid collections of
 # atoms bonded together, but it's quite possible to make a molecule
@@ -529,23 +575,34 @@ class molecule:
             self.center = V(0,0,0)
             self.quat = Q(1,0,0,0)
             self.axis = V(1,0,0)
-            self.atpos = []
+            self.basepos = self.curpos = []
             return
         atpos = []
+        singlets = []
+        singlpos = []
         for a,i in zip(self.atoms.values(),range(len(self.atoms))):
-            atpos += [a.posn()]
+            pos = a.posn()
+            atpos += [pos]
             a.index = i
             a.xyz = 'no'
+            if a.element == Singlet:
+                 singlets += [a]
+                 singlpos += [pos]
         atpos = A(atpos)
+        
+
         self.bbox = BBox(atpos)
         self.center = add.reduce(atpos)/len(self.atoms)
         self.quat = Q(1,0,0,0)  # since all atoms are in place 
 
         # make the positions relative to the center
-        self.atpos = atpos-self.center
+        self.basepos = atpos-self.center
+        self.curpos = atpos
+        self.singlets = array(singlets, PyObject)
+        self.singlpos = array(singlpos, PyObject)
         # and compute inertia tensor
         tensor = zeros((3,3),Float)
-        for p in self.atpos:
+        for p in self.basepos:
             rsq = dot(p, p)
             m= - multiply.outer(p, p)
             m[0,0] += rsq
@@ -557,7 +614,7 @@ class molecule:
         # find a tight bounding box, not necessarily square to space,
         # for drawing the pick box
         bv = transpose(self.evec)
-        pts = dot(self.atpos, bv)
+        pts = dot(self.basepos, bv)
         
         bbhi = maximum.reduce(pts) + 1.0
         bblo = minimum.reduce(pts) - 1.0
@@ -595,13 +652,14 @@ class molecule:
         self.havelist = 0
         
 
-    def draw(self, win, level):
+    def draw(self, o, level):
         """draw all the atoms, using the atom's, molecule's,
         or GLPane's display mode in that order of preference
         Use the hash table drawn to draw each bond only once,
         as each one will be referenced from two atoms
         If the molecule itself is selected, draw its
         bounding box as a wireframe
+        o is a GLPane
         """
 
         # put it in its place
@@ -617,8 +675,9 @@ class molecule:
             drawlinelist(PickedColor, self.bbLines)
             
         if self.display != diDEFAULT: disp = self.display
-        else: disp = win.display
-        
+        else: disp = o.display
+        #print dispNames[o.display], dispNames[self.display], dispNames[disp]
+
         # cache molecule display as GL list
         if self.havelist:
             glCallList(self.displist)
@@ -631,25 +690,25 @@ class molecule:
             self.externs = []
 
             for atm in self.atoms.itervalues():
-                atm.draw(win, disp, self.color, level)
+                atm.draw(o, disp, self.color, level)
                 for bon in atm.bonds:
                     if bon.key not in drawn:
                         if bon.other(atm).molecule != self:
                             self.externs += [bon]
                         else:
                             drawn[bon.key] = bon
-                            bon.draw(win, disp, self.color, level)
+                            bon.draw(o, disp, self.color, level)
 
 
             for g in self.gadgets:
-                g.draw(win, disp)
+                g.draw(o, disp)
 
             glEndList()
             self.havelist = 1
         glPopMatrix()
 
         for bon in self.externs:
-            bon.draw(win, disp, self.color, level)
+            bon.draw(o, disp, self.color, level)
 
     # write a povray file: just draw everything inside
     def povwrite(self,file, win):
@@ -670,11 +729,22 @@ class molecule:
 
     def move(self, offs):
         self.center += offs
+        self.curpos = self.center + dot(self.basepos,
+                                        transpose(self.quat.matrix3))
         for bon in self.externs: bon.setup()
 
     def rot(self, q):
         self.quat += q
+        self.curpos = self.center + dot(self.basepos,
+                                        transpose(self.quat.matrix3))
         for bon in self.externs: bon.setup()
+
+    def stretch(self, factor):
+        self.basepos *= 1.1
+        self.curpos = self.center + dot(self.basepos,
+                                        transpose(self.quat.matrix3))
+        self.changeapp()
+
 
     def getaxis(self):
         return self.quat.rot(self.axis)
@@ -683,6 +753,10 @@ class molecule:
         """change the molecule's color
         """
         self.color = color
+        self.havelist = 0
+
+    def setDisplay(self, disp):
+        self.display = disp
         self.havelist = 0
         
     def changeapp(self):
@@ -708,6 +782,18 @@ class molecule:
             # may have changed appearance of the molecule
             self.havelist = 0
 
+    # point is some point on the line of sight
+    # matrix is a rotation matrix with z along the line of sight,
+    # positive z out of the plane
+    def findSinglets(self, point, matrix, radius):
+        if not self.singlets: return None
+        v = dot(self.singlpos-point,matrix)
+        r = sqrt(A(v[:,0]**2) + A(v[:,1]**2))
+        i = argmax(A(v[:,2]) - 100000.0*(r>radius))
+        if r[i]>radius: return None
+        return self.singlets[i]
+        
+
     def copy(self, offset):
         """Copy the molecule to a new molecule.
         offset tells where it will go relative to the original.
@@ -725,10 +811,9 @@ class molecule:
             for b in a.bonds:
                 if b.other(a).key in ndix:
                     numol.bond(na,ndix[b.other(a).key])
-        numol.center=self.center + offset
-        numol.atpos =self.atpos+0.0
+        numol.curpos =self.curpos+offset
         numol.shakedown()
-        numol.display = self.display
+        numol.setDisplay(self.display)
         self.unpick()
         numol.pick()
         return numol
@@ -759,6 +844,25 @@ class molecule:
         for a in self.atoms.values():
             a.Hydrogenate()
 
+
+    def __str__(self):
+        return "<Molecule of " + self.name + ">"
+
+def oneUnbonded(elem, assy, pos):
+    mol = molecule(assy, gensym('Clicked'))
+    a = atom(elem.symbol, pos, mol)
+    r = elem.rcovalent
+    if elem.bonds and elem.bonds[0][2]:
+        for dp in elem.bonds[0][2]:
+            x = atom('X', pos+r*dp, mol)
+            mol.bond(a,x)
+    assy.addmol(mol)
+
+    return mol
+    
+                     
+# this code knows where to place missing bonds in carbon
+# sure to be used later
 
         
 ##         # length of Carbon-Hydrogen bond
@@ -815,6 +919,3 @@ class molecule:
 ##                     b=atom("H", a.xyz+lCHb*v, self)
 ##                     self.bond(a,b)
 
-
-    def __str__(self):
-        return "<Molecule of " + self.name + ">"

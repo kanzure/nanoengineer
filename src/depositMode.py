@@ -1,59 +1,41 @@
 from Numeric import *
 from modes import *
 from VQT import *
+from chem import *
 
 class depositMode(basicMode):
     """ This class is used to manually add atoms to create any structure
     """
     def __init__(self, glpane):
         basicMode.__init__(self, glpane, 'DEPOSIT')
-	self.backgroundColor = 174/256.0, 255/256.0, 247/256.0
-	self.gridColor = 52/256.0, 129/256.0, 26/256.0
+	self.backgroundColor = 74/256.0, 187/256.0, 227/256.0
+	self.gridColor = 74/256.0, 187/256.0, 227/256.0
 	self.newMolecule = None
 	
 	self.makeMenus()
-	self.picking = False
-	
-    ### Operational functions(interface/public functions)
-    def leftDown(self, event):
-        """ Press left mouse button down to add an atom
-	""" 
-	atomPos = self.getCoords(event)
-            
-        if not self.newMolecule:
-            self.newMolecule = molecule(self.o.assy)
-            self.o.assy.addmol(self.newMolecule)
-        newAtom = atom(self.o.assy.DesiredElement,
-                       atomPos, self.newMolecule)
-        self.newMolecule.shakedown()
-        self.o.assy.updateDisplays()
 
- 
+    def setMode(self):
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        basicMode.setMode(self)
+        self.o.assy.unpickatoms()
+        self.o.assy.unpickparts()
+        self.saveDisp = self.o.display
+        self.o.setDisplay(diTUBES)
+        self.o.assy.selwhat = 0
+        self.new = None
+        self.o.singlet = None
+
     def Done(self):
-        self.o.setMode(self.prevmode.modename)
-                  
-
-    def leftDouble(self, event):
-        """ End deposit mode
-	"""
-	self.Done()
-
-    def Draw(self):
-        """ Draw a sketch plane to indicate where the new atoms will sit
-	on by default Make the sketch plane translucent
-	"""
-        self.rectgrid()
-        if self.sellist: self.pickdraw()
-        self.o.assy.draw(self.o)
-
-
+        basicMode.Done(self)
+        self.o.display = self.saveDisp
+        self.new = None
+        self.o.singlet = None
+        self.o.setMode('SELECT')
 
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
 	with window coordinates(int x, int y) 
 	"""
-	# Transfer x, y into OpenGL format of Window coordinates
-
         x = event.pos().x()
         y = self.o.height - event.pos().y()
 
@@ -66,31 +48,144 @@ class depositMode(basicMode):
              dot(self.o.lineOfSight, p2 - p1))
 
         return p1+k*(p2-p1)
-        
 
-                             
-    def rectgrid(self):
-        """Assigned as griddraw for a rectangular grid that is always parallel
-	to the screen.
+    def bareMotion(self, event):
+        doPaint = 0
+        if self.o.singlet:
+            self.o.singlet.molecule.changeapp()
+            self.o.singlet = None
+            doPaint = 1
+        p1, p2 = self.o.mousepoints(event)
+        mat = transpose(V(self.o.right,self.o.up,norm(p1-p2)))
+        for mol in self.o.assy.molecules:
+            if mol.display != diINVISIBLE:
+                a = mol.findSinglets(p2, mat, TubeRadius)
+                if a:
+                    mol.changeapp()
+                    self.o.singlet = a
+                    doPaint = 1
+                    break
+        if doPaint: self.o.paintGL()        
+	
+    def leftDown(self, event):
+        """Move the selected object(s) in the plane of the screen following
+        the mouse.
+        """
+        self.o.SaveMouse(event)
+        self.picking = True
+        p1, p2 = self.o.mousepoints(event)
+        self.dragdist = 0.0
+
+    def leftDrag(self, event):
+        """ Press left mouse button down to add an atom
 	"""
+        atomPos = self.getCoords(event)
+        if not self.new:
+            el =  PeriodicTable[self.w.Element]
+            self.new = oneUnbonded(el, self.o.assy, atomPos)
+        
+        w=self.o.width+0.0
+        h=self.o.height+0.0
+        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                       self.o.MousePos[1] - event.pos().y(), 0.0)
+        self.dragdist += vlen(deltaMouse)
+        dist = atomPos - self.new.center
+        self.new.move(dist)
 
-	glColor3fv(self.gridColor)
-	n=int(ceil(1.5*self.o.scale))
+        self.o.SaveMouse(event)
+
+        self.o.assy.updateDisplays()
+
+    def leftUp(self, event):
+        self.EndPick(event, 1)
+        
+    def EndPick(self, event, selSense):
+        """bond atom if it's close to something
+        """
+        if not self.picking: return
+        self.picking = False
+        el =  PeriodicTable[self.w.Element]
+
+        atomPos = self.getCoords(event)
+        p1, p2 = self.o.mousepoints(event)
+
+        if self.dragdist<7:
+            # didn't move much, call it a click
+            if selSense == 0:
+                self.o.assy.pick(p1,norm(p2-p1))
+                self.o.assy.kill()
+            if selSense == 1:
+                if self.o.singlet:
+                    self.attach(el, self.o.singlet)
+                elif not self.new:
+                    oneUnbonded(el, self.o.assy, atomPos)
+                self.new = None
+            if selSense == 2: print '????'
+
+        else:
+            if not self.new:
+                oneUnbonded(el, self.o.assy, atomPos)
+            self.new = None
+            
+        self.o.assy.updateDisplays()                  
+
+    def leftDouble(self, event):
+        """ End deposit mode
+	"""
+	self.Done()
+
+    def attach(self, el, singlet):
+        obond = singlet.bonds[0]
+        a1 = obond.other(singlet)
+        cr = el.rcovalent
+        pos = singlet.posn() + cr*norm(singlet.posn()-a1.posn())
+        mol = a1.molecule
+        a = atom(el.symbol, pos, mol)
+        obond.rebond(singlet, a)
+        del mol.atoms[singlet.key]
+        r = singlet.posn() - pos
+        if el.base:
+            rq = Q(r,el.base)
+            for q in el.quats:
+                q = rq + q - rq
+                x = atom('X', pos+q.rot(r), mol)
+                mol.bond(a,x)
+        mol.shakedown()
+        self.o.assy.updateDisplays()                  
+
+
+    def Draw(self):
+        """ Draw a sketch plane to indicate where the new atoms will sit
+	by default
+	"""
+        if self.sellist: self.pickdraw()
+        self.o.assy.draw(self.o)
+        self.surface()
+
+                           
+    def surface(self):
+        """The water's surface
+	"""
+	glDisable(GL_LIGHTING)
+	glColor4fv(self.gridColor + (0.6,))
+        glEnable(GL_BLEND)
+        
 	# the grid is in eyespace
 	glPushMatrix()
 	q = self.o.quat
 	glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
 	glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
-	glDisable(GL_LIGHTING)
-	glBegin(GL_LINES)
-	for x in range(-n, n+1):
-	    glVertex(x,n,0)
-	    glVertex(x,-n,0)
-	    glVertex(n,x,0)
-	    glVertex(-n,x,0)
+        x = 1.5*self.o.scale
+	glBegin(GL_QUADS)
+        glVertex(-x,-x,0)
+        glVertex(x,-x,0)
+        glVertex(x,x,0)
+        glVertex(-x,x,0)
 	glEnd()
-	glEnable(GL_LIGHTING)
 	glPopMatrix()
+        glDisable(GL_BLEND)
+	glEnable(GL_LIGHTING)
+        return
 
         
     def makeMenus(self):
@@ -99,12 +194,15 @@ class depositMode(basicMode):
                                     ('Restart', self.Restart),
                                     ('Backup', self.Backup),
                                     None,
-                                    ('Carbon', self.w.setCarbon),
+                                    ('Move', self.move),
+                                    ('Double bond', self.skip),
+                                    ('Triple bond', self.skip)
+                                    ])
+        
+        self.Menu2 = self.makemenu([('Carbon', self.w.setCarbon),
                                     ('Hydrogen', self.w.setHydrogen),
                                     ('Oxygen', self.w.setOxygen),
-                                    ('Nitrogen', self.w.setNitrogen)])
-        
-        self.Menu2 = self.makemenu([('Move', self.move)
+                                    ('Nitrogen', self.w.setNitrogen)
                                     ])
         
         self.Menu3 = self.makemenu([('Passivate', self.o.assy.modifyPassivate),
@@ -113,6 +211,7 @@ class depositMode(basicMode):
 
     def move(self):
         # go into move mode
+        self.Done()
         self.o.setMode('MODIFY')
                                     
     def skip(self):

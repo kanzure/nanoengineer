@@ -170,9 +170,8 @@ def setup():
     glEnd()
     glEndList()
 
-def drawsphere(color, pos, radius, detailLevel, picked=0):
+def drawsphere(color, pos, radius, detailLevel):
 
-    if picked: glPolygonMode(GL_FRONT, GL_LINE)
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
@@ -180,7 +179,20 @@ def drawsphere(color, pos, radius, detailLevel, picked=0):
     glCallList(sphereList[detailLevel])
 
     glPopMatrix()
-    if picked: glPolygonMode(GL_FRONT, GL_FILL)
+
+
+def drawwiresphere(color, pos, radius, detailLevel=1):
+
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    glPolygonMode(GL_FRONT, GL_LINE)
+    glPushMatrix()
+    glTranslatef(pos[0], pos[1], pos[2])
+    glScale(radius,radius,radius)
+    glCallList(sphereList[detailLevel])
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+    glPolygonMode(GL_FRONT, GL_FILL)
 
 def drawcylinder(color, pos1, pos2, radius, picked=0, capped=0):
     global CylList, CapList

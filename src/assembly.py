@@ -54,8 +54,6 @@ class assembly:
         self.selmotors=[]
         self.undolist=[]
 
-        self.DesiredElement = Carbon.symbol
-
     # convert absolute atom positions to relative, find
     # bounding boxes, do some housekeeping
 
@@ -164,9 +162,11 @@ class assembly:
     # Write a single molecule into a Protein DataBank-format file 
     def writepdb(self, filename):
         f = open(filename, "w")
-        
-        atomsTable = {} #Atom object is the key, the atomIndex is the value  
-        connectList = [] #Each element of the list is a list of atoms connected with the 1rst atom
+        # Atom object is the key, the atomIndex is the value  
+        atomsTable = {}
+        # Each element is a list of atoms connected with the 1rst atom
+        connectList = []
+
         atomIndex = 1
 
         for mol in self.selmols:
@@ -217,8 +217,8 @@ class assembly:
                 if mol: self.addmol(mol)
                 m=re.search("(\(\s+\))", card[8:])
                 mol=molecule(self, m and m.group(1))
-                try: mol.display = dispNames.index(card[5:8])
-                except ValueError: mol.display = diDEFAULT
+                try: mol.setDisplay(dispNames.index(card[5:8]))
+                except ValueError: mol.setDisplay(diDEFAULT)
             elif key == "atom":
                 m=re.match("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)"
                            ,card)
@@ -315,7 +315,7 @@ class assembly:
         if not self.alist: return
         for a in self.alist:
             #print unpack('bbb',file.read(3))
-            a.molecule.atpos[a.index] += A(unpack('bbb',file.read(3)))*0.01
+            a.molecule.curpos[a.index] += A(unpack('bbb',file.read(3)))*0.01
         for m in self.molecules:
             m.changeapp()
 
@@ -538,16 +538,16 @@ class assembly:
         if not self.selatoms: return
         aa=self.selatoms.values()
         if len(aa)==2:
-            aa[0].unbond(aa[1])
+            for b1 in aa[0].bonds:
+                for b2 in aa[1].bonds:
+                    if b1 == b2: b1.bust()
         self.updateDisplays()
 
     #stretch a molecule
     def Stretch(self):
         if not self.selmols: return
         for m in self.selmols:
-            m.atpos *= 1.1
-            m.shakedown()
-            m.changeapp()
+            m.stretch(1.1)
         self.updateDisplays()
     
 

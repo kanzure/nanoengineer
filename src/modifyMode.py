@@ -6,7 +6,10 @@ class modifyMode(basicMode):
         self.backgroundColor = 255/256.0, 174/256.0, 247/256.0
         self.gridColor = 52/256.0, 129/256.0, 26/256.0
         self.makeMenus()
-	self.picking = False
+
+    def setMode(self):
+        basicMode.setMode(self)
+        self.o.assy.selectParts()
         self.dragdist = 0.0
 
     def Done(self):

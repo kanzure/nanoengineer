@@ -271,6 +271,9 @@ class Q:
     def rot(self,v):
         return matrixmultiply(self.matrix3,v)
 
+    def unrot(self,v):
+        return matrixmultiply(v,self.matrix3)
+
 # project a point from a tangent plane onto a unit sphere
 def proj2sphere(x, y):
     d = sqrt(x*x + y*y)

@@ -127,6 +127,7 @@ class GLPane(QGLWidget):
         # this is here in anticipation of being able to have
         # multiple windows on the same assembly
         self.display = diVDW
+        self.singlet = None
 
         self.makeCurrent()
 
@@ -346,6 +347,11 @@ class GLPane(QGLWidget):
                 q = q2
         self.quat = Q(q)
         self.paintGL()
+
+    def setDisplay(self, disp):
+        for mol in self.assy.molecules:
+            if mol.display == diDEFAULT: mol.changeapp()
+        self.display = disp
             
 
     def paintGL(self):

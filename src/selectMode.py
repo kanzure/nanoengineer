@@ -135,17 +135,20 @@ class selectMode(basicMode):
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
                                     ('Move', self.move),
+                                    None,
                                     ('Bond', self.o.assy.Bond),
                                     ('Unbond', self.o.assy.Unbond),
+                                    None,
+                                    ('Separate', self.o.assy.modifySeparate),
                                     ('Stretch', self.o.assy.Stretch)])
         
-        self.Menu3 = self.makemenu([('Default', self.w.dispDefault),
+        self.Menu3 = self.makemenu([('Invisible', self.w.dispInvis),
+                                    None,
+                                    ('Default', self.w.dispDefault),
                                     ('Lines', self.w.dispLines),
                                     ('CPK', self.w.dispCPK),
                                     ('Tubes', self.w.dispTubes),
                                     ('VdW', self.w.dispVdW),
-                                    None,
-                                    ('Invisible', self.w.dispInvis),
                                     None,
                                     ('Color', self.w.dispObjectColor)])
 
