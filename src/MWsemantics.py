@@ -55,6 +55,9 @@ class MWsemantics(MainWindow):
         self.assy.o = self.glpane
 
         self.setFocusPolicy(QWidget.StrongFocus)
+
+        self.cookieCutterToolbar.hide()
+        self.sketchAtomToolbar.hide()
         
         self.Element = 'C'
         self.elTab = [('C', Qt.Key_C, 0),

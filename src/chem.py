@@ -374,6 +374,7 @@ class atom:
     def kill(self):
         """kill an atom: remove it from molecule.atoms,
         and remove bonds to it from its neighbors
+        caller is responsible for shakedown
         """
         try: del self.molecule.atoms[self.key]
         except KeyError: pass
@@ -381,9 +382,6 @@ class atom:
             n = b.other(self)
             n.unbond(b)
             if n.element == Singlet: n.kill()
-            
-        # may have changed appearance of the molecule ;-)
-        self.molecule.shakedown()
 
     def Hydrogenate(self):
         """ if this is a singlet, change it to a hydrogen

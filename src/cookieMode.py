@@ -21,9 +21,12 @@ class cookieMode(basicMode):
         self.Rubber = None
         self.o.snap2trackball()
 
+        self.w.cookieCutterToolbar.show()
+
     def Flush(self):
         self.o.shape = None
 
+        self.w.cookieCutterToolbar.hide()
         self.o.ortho = self.savedOrtho
         self.o.setMode('SELECT')
 
@@ -33,6 +36,7 @@ class cookieMode(basicMode):
             self.o.assy.molmake(self.o.shape)
             self.o.shape = None
 
+        self.w.cookieCutterToolbar.hide()
         self.o.ortho = self.savedOrtho
         self.o.setMode('SELECT')
 

@@ -24,6 +24,7 @@ class depositMode(basicMode):
         self.o.assy.selwhat = 0
         self.new = None
         self.o.singlet = None
+        self.w.sketchAtomToolbar.show()
 
     def Done(self):
         basicMode.Done(self)
@@ -31,6 +32,7 @@ class depositMode(basicMode):
         self.new = None
         self.o.singlet = None
         self.o.setMode('SELECT')
+        self.w.sketchAtomToolbar.hide()
 
     def keyPress(self,key):
         for sym, code, num in self.w.elTab:

@@ -512,9 +512,13 @@ class assembly:
     # delete whatever is selected
     def kill(self):
         if self.selatoms:
+            changedMols = []
             for a in self.selatoms.values():
+                m = a.molecule
+                if m not in changedMols: changedMols += [m]
                 a.kill()
             self.selatoms={}
+            for m in changedMols: m.shakedown()
         if self.selmols:
             for m in self.selmols:
                 self.killmol(m)
