@@ -708,7 +708,9 @@ class MWsemantics(MainWindow):
         self.history.message(greenmsg("Recentert View:"))
         self.glpane.pov = V(0,0,0)
         #bCenter = V(self.assy.center[0], self.assy.center[1], self.assy.center[2]) 
-        self.glpane.scale += vlen(self.assy.center)
+        self.assy.computeBoundingBox()     
+        self.glpane.scale=(self.assy.bbox.scale() * 0.5) + vlen(self.assy.center)
+#        self.glpane.scale += vlen(self.assy.center)
         self.glpane.gl_update()
         self.assy.changed()
                 
@@ -1343,12 +1345,14 @@ class MWsemantics(MainWindow):
                 # file extention in assy.m.filename.  To make this work for now, we
                 # need to temporarily save assy.m.filename of the current movie (dpb) file,
                 # change the name, write the xyz file, then restore the dpb filename.
+                self.assy.m._pause() # To fix bug 358.  Mark  050201
                 tmpname = self.assy.m.filename #save the dpb filename of the current movie file.
                 self.assy.m.filename = safile # the name of the XYZ file the user wants to save.
                 r = self.assy.writemovie() # Save the XYZ moviefile
                 if not r: # Movie file saved successfully.
                     self.history.message("XYZ trajectory movie file saved: " + safile)
                 self.assy.m.filename = tmpname # restore the dpb filename.
+                self.assy.m._setup(0) # To fix bug 358.  Mark  050201
 
     ###################################
     # Slots for future tools

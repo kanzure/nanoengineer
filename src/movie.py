@@ -66,7 +66,7 @@ class Movie:
         
 # movie methods ##########################
 
-    def _setup(self):
+    def _setup(self, hflag = True):
         """Setup this movie for playing
         """
         if DEBUG1: print "movie._setup() called. filename = [" + self.filename + "]"
@@ -121,7 +121,7 @@ class Movie:
         flabel = "Frame (" + str(self.totalFrames) + " total):"
         self.assy.w.frameLabel.setText(flabel) # Spinbox label
 
-        self._info()
+        if hflag: self._info()
         
         return 0
         
