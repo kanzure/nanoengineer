@@ -1273,12 +1273,12 @@ class MWsemantics(MainWindow):
         # Mark - Set up mode bar (right) in status bar area.        
         self.dispbarLabel = QLabel(self.statusBar, "dispbarLabel")
         self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.statusBar.addWidget(self.dispbarLabel, 0)
+        self.statusBar.addWidget(self.dispbarLabel, 0, True)
         
         # Mark - Set up mode bar (right) in status bar area.        
         self.modebarLabel = QLabel(self.statusBar, "modebarLabel")
         self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.statusBar.addWidget(self.modebarLabel, 0)
+        self.statusBar.addWidget(self.modebarLabel, 0, True)
 
               
         
