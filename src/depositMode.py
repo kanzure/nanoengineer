@@ -611,7 +611,7 @@ class depositMode(basicMode):
         # bruce 041123 added return values (and guessed docstring).
         m = self.pastable
         if len(m.singlets)==0:
-            return None, "no open bonds in %r (only pasteable in empty space)" % m.name
+            return None, "no open bonds in %r (only pastable in empty space)" % m.name
         if len(m.singlets)>1 and not m.hotspot:
             return None, "%r has %d open bonds, but none has been set as its hotspot" % (m.name, len(m.singlets))
         numol = self.pastable.copy(None)
@@ -626,10 +626,18 @@ class depositMode(basicMode):
         self.o.assy.addmol(numol) # do this last, in case it computes bbox
         return numol, "copy of %r" % m.name
         
-    # paste the pastable object where the cursor is
+    # paste the pastable object where the cursor is (at pos)
+    # bruce 041206 fix bug 222 by recentering it now --
+    # in fact, even better, if there's a hotspot, put that at pos.
     def pasteFree(self, pos):
-        numol = self.pastable.copy(None, pos)
-        
+        numol = self.pastable.copy(None)
+        if numol.hotspot:
+            cursor_spot = numol.hotspot.posn()
+        elif len(numol.singlets):
+            cursor_spot = numol.singlets[0].posn()
+        else:
+            cursor_spot = numol.center
+        numol.move(pos - cursor_spot)
         self.o.assy.addmol(numol)
         return numol, "copy of %r" % self.pastable.name
         
@@ -932,7 +940,7 @@ class depositMode(basicMode):
         if self.o.selatom and self.o.selatom.element == Singlet:
             self.o.selatom.molecule.hotspot = self.o.selatom
             new = self.o.selatom.molecule.copy(None) # None means no assembly
-            new.move(-new.center)
+            new.move(-new.center) # perhaps no longer needed [bruce 041206]
             self.o.assy.shelf.setopen() #bruce 041124 change: open clipboard
             # bruce 041124 change: add new after the other members, not before,
             # so the order will (at least sometimes) match what's in the spinbox.
