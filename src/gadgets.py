@@ -40,8 +40,9 @@ class Jig(Node):
         "each subclass needs to call this"
         self.init_icons()
         Node.__init__(self, assy, gensym("%s." % self.sym))
-        self.atoms = atomlist # this is always [] for some subclasses
+        self.atoms = list(atomlist) # this is always [] for some subclasses
             # but is apparently required to be always nonempty for others
+            # bruce 050316: copy it (precaution in case caller modifies it later)
         if atomlist:
             #e should we split this jig if attached to more than one mol??
             # not necessarily, tho the code to update its appearance
@@ -78,7 +79,8 @@ class Jig(Node):
     def setAtoms(self, atomlist):
         if self.atoms:
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
-        self.atoms = atomlist
+            #e remove them? would need to prevent recursive kill.
+        self.atoms = list(atomlist) # bruce 050316: copy the list
         for a in atomlist:
             a.jigs += [self]
             
@@ -104,7 +106,7 @@ class Jig(Node):
     
     def kill(self):
         # bruce 050215 modified this to remove self from our atoms' jiglists, via rematom
-        for atm in self.atoms:
+        for atm in self.atoms[:]: #bruce 050316: copy the list (presumably a bugfix)
             self.rematom(atm) # the last one removed kills the jig recursively!
         Node.kill(self) # might happen twice, that's ok
 
@@ -131,6 +133,16 @@ class Jig(Node):
         #bruce 050208 made this default method. Is it ever called, in any subclasses??
         pass
 
+    def break_interpart_bonds(self): #bruce 050316 fix the jig analog of bug 371
+        "[overrides Node method]"
+        #e this should be a "last resort", i.e. it's often better if interpart bonds
+        # could split the jig in two, or pull it into a new Part.
+        # But that's NIM (as of 050316) so this is needed to prevent some old bugs.
+        for atm in self.atoms[:]:
+            if self.part != atm.molecule.part:
+                self.rematom(atm) # this might kill self, if we remove them all
+        return
+    
     #e there might be other common methods to pull into here
 
     pass # end of class Jig

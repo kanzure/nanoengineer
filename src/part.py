@@ -1311,7 +1311,7 @@ class Part(InvalMixin):
         """
         if not self.selatoms: return
         if len(self.selatoms) > 30: return
-        m=RotaryMotor(self)
+        m = RotaryMotor(self.assy)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
             del(m) #bruce comment 050223: this statement has no effect.
@@ -1327,7 +1327,7 @@ class Part(InvalMixin):
         """
         if not self.selatoms: return
         if len(self.selatoms) > 30: return
-        m = LinearMotor(self)
+        m = LinearMotor(self.assy)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
             del(m) #bruce comment 050223: this statement has no effect.
@@ -1345,7 +1345,7 @@ class Part(InvalMixin):
         # [bruce 050210 modified docstring]
         if not self.selatoms: return
         if len(self.selatoms) > 30: return
-        m=Ground(self, self.selatoms.values())
+        m = Ground(self.assy, self.selatoms.values())
         mol = self.selatoms.values()[0].molecule
         mol.dad.addchild(m)
         self.unpickatoms()
@@ -1355,7 +1355,7 @@ class Part(InvalMixin):
         """
         if not self.selatoms: return
         if len(self.selatoms) != 1: return
-        m=Stat(self, self.selatoms.values())
+        m = Stat(self.assy, self.selatoms.values())
         m.atoms[0].molecule.dad.addchild(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
         
@@ -1364,7 +1364,7 @@ class Part(InvalMixin):
         """
         if not self.selatoms: return
         if len(self.selatoms) != 1: return
-        m=Thermo(self, self.selatoms.values())
+        m = Thermo(self.assy, self.selatoms.values())
         m.atoms[0].molecule.dad.addchild(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
 

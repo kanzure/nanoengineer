@@ -45,3 +45,8 @@ Files: lots
 Summary: assembly/Part split -- clipboard items can be viewed or changed 
 much like the main part.
 
+Name: Bruce Smith
+Date: 3/16/2005
+Files: gadgets.py
+Summary: fix the jig analog of bug 371
+
