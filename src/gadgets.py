@@ -63,15 +63,8 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
             # subclass), return now -- we load them once per subclass.
             return
         # the following runs once per Atom session per Jig subclass.
-        from os.path import dirname, abspath
-        filePathParent = dirname(dirname(abspath(sys.argv[0])))
         for name in self.icon_names: #e could use a key/value dict instead...
-            try:
-                pixmap = QPixmap(os.path.join(filePathParent, name))
-            except:
-                print "bug: failed to load icon %r" % name
-                pixmap = None # stub, will cause later crash -- improve this
-            self.mticon.append(pixmap)
+            self.mticon.append( imagename_to_pixmap( name))
         return
         
     def seticon(self):
@@ -111,7 +104,7 @@ class RotaryMotor(Jig):
     
     sym = "Rotary Motor"
     mticon = []
-    icon_names = ["images/rmotor.png", "images/rmotor-hide.png"]
+    icon_names = ["rmotor.png", "rmotor-hide.png"]
 
     # create a blank Rotary Motor not connected to anything    
     def __init__(self, assy):
@@ -249,7 +242,7 @@ class LinearMotor(Jig):
 
     sym = "Linear Motor"
     mticon = []
-    icon_names = ["images/lmotor.png", "images/lmotor-hide.png"]
+    icon_names = ["lmotor.png", "lmotor-hide.png"]
 
     # create a blank Linear Motor not connected to anything
     def __init__(self, assy):
@@ -395,7 +388,7 @@ class Ground(Jig):
 
     sym = "Ground"
     mticon = []
-    icon_names = ["images/ground.png", "images/ground-hide.png"]
+    icon_names = ["ground.png", "ground-hide.png"]
 
     # create a blank Ground with the given list of atoms
     def __init__(self, assy, list):
@@ -475,7 +468,7 @@ class Stat(Jig):
     
     sym = "Stat"
     mticon = []
-    icon_names = ["images/stat.png", "images/stat-hide.png"]
+    icon_names = ["stat.png", "stat-hide.png"]
 
     # create a blank Stat with the given list of atoms, set to 300K
     def __init__(self, assy, list):

@@ -41,9 +41,13 @@ def imagename_to_pixmap(imagename): #bruce 050108
     except KeyError:
         if not _pixmap_image_path:
             # This runs once per Atom session (unless this directory is missing).
+            #
             # (We don't run it until needed, in case something modifies
             #  sys.argv[0] during init (we want the modified form in that case).
-            #  As of 050108 this is not known to ever happen.)
+            #  As of 050108 this is not known to ever happen. Another reason:
+            #  if we run it when this module is imported, we get the error message
+            #  "QPaintDevice: Must construct a QApplication before a QPaintDevice".)
+            #
             # We assume sys.argv[0] looks like .../cad/src/xxx.py
             # and we want .../cad/images.
             from os.path import dirname, abspath
@@ -52,6 +56,8 @@ def imagename_to_pixmap(imagename): #bruce 050108
             assert os.path.isdir(_pixmap_image_path), "missing pixmap directory: \"%s\"" % _pixmap_image_path
         iconpath = os.path.join( _pixmap_image_path, imagename)
         icon = QPixmap(iconpath)
+            # missing file prints a warning but doesn't cause an exception,
+            # just makes a null icon [i think #k]
         _pixmaps[imagename] = icon
         return icon
     pass

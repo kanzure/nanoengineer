@@ -15,7 +15,6 @@ __author__ = "Josh"
 from chem import *
 
 from debug import print_compact_stack, print_compact_traceback
-
 from inval import InvalMixin
 
 
@@ -98,19 +97,19 @@ class molecule(Node, InvalMixin):
     # bruce 041202 revised the following icon code; see longer comment about
     # Jig.init_icons for explanation; this might be moved into class Node later
     mticon_names = [
-	"images/moldefault.png",
-	"images/molinvisible.png",
-	"images/molvdw.png",
-	"images/mollines.png",
-	"images/molcpk.png",
-	"images/moltubes.png" ]
+	"moldefault.png",
+	"molinvisible.png",
+	"molvdw.png",
+	"mollines.png",
+	"molcpk.png",
+	"moltubes.png" ]
     hideicon_names = [
-        "images/moldefault-hide.png",
-        "images/molinvisible-hide.png",
-        "images/molvdw-hide.png",
-        "images/mollines-hide.png",
-        "images/molcpk-hide.png",
-        "images/moltubes-hide.png" ]
+        "moldefault-hide.png",
+        "molinvisible-hide.png",
+        "molvdw-hide.png",
+        "mollines-hide.png",
+        "molcpk-hide.png",
+        "moltubes-hide.png" ]
     mticon = []
     hideicon = []
     def init_icons(self):
@@ -121,22 +120,10 @@ class molecule(Node, InvalMixin):
         if self.mticon or self.hideicon:
             return
         # the following runs once per Atom session.
-        from os.path import dirname, abspath
-        filePathParent = dirname(dirname(abspath(sys.argv[0])))
         for name in self.mticon_names:
-            try:
-                pixmap = QPixmap(os.path.join(filePathParent, name))
-            except:
-                print "bug: failed to load icon %r" % name
-                pixmap = None # stub, will cause later crash -- improve this
-            self.mticon.append(pixmap)
+            self.mticon.append( imagename_to_pixmap( name))
         for name in self.hideicon_names:
-            try:
-                pixmap = QPixmap(os.path.join(filePathParent, name))
-            except:
-                print "bug: failed to load icon %r" % name
-                pixmap = None
-            self.hideicon.append(pixmap)
+            self.hideicon.append( imagename_to_pixmap( name))
         return
     def seticon(self):
         if self.hidden:
