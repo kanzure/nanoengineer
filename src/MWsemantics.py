@@ -277,10 +277,17 @@ class MWsemantics(MainWindow):
         foo.show()
 
     def fileInsert(self):
+        
+        self.history.message(greenmsg("Insert File:"))
+         
         wd = globalParms['WorkingDirectory']
         fn = QFileDialog.getOpenFileName(wd,
                 "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All of the above (*.pdb *.mmp)",
                 self )
+                
+        if not fn:
+             self.history.message("Cancelled")
+             return
         
         if fn:
             fn = str(fn)
@@ -311,6 +318,9 @@ class MWsemantics(MainWindow):
             self.mt.mt_update()
 
     def fileOpen(self):
+        
+        self.history.message(greenmsg("Open File:"))
+        
         if self.assy.has_changed():
             ret = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
@@ -327,7 +337,9 @@ class MWsemantics(MainWindow):
             ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
             elif ret==1: pass#self.__clear() 
             
-            elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
+            elif ret==2: 
+                self.history.message("Cancelled.")
+                return # Cancel clicked or Alt+C pressed or Escape pressed
 
         # Determine what directory to open.
         if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
@@ -336,6 +348,10 @@ class MWsemantics(MainWindow):
         fn = QFileDialog.getOpenFileName(odir,
                 "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
                 self )
+                
+        if not fn:
+            self.history.message("Cancelled.")
+            return
 
         if fn:
             # I know we are clearing twice if the file was saved above.
@@ -347,9 +363,11 @@ class MWsemantics(MainWindow):
 
             if fn[-3:] == "mmp":
                 readmmp(self.assy,fn)
+                self.history.message("MMP file opened: [" + fn + "]")
                 
             if fn[-3:] in ["pdb","PDB"]:
                 readpdb(self.assy,fn)
+                self.history.message("PDB file opened: [" + fn + "]")
 
             dir, fil, ext = fileparse(fn)
             self.assy.name = fil
@@ -367,6 +385,9 @@ class MWsemantics(MainWindow):
             self.mt.mt_update()
 
     def fileSave(self):
+        
+        self.history.message(greenmsg("Save File:"))
+        
         #Huaicai 1/6/05: by returning a boolean value to say if it is really 
         # saved or not, user may choose "Cancel" in the "File Save" dialog          
         if self.assy:
@@ -436,7 +457,7 @@ class MWsemantics(MainWindow):
                     writepdb(self.assy, safile)
                 except:
                     print "MWsemantics.py: saveFile(): error writing file" + safile
-                    self.history.message( "Problem saving file: " + safile )
+                    self.history.message(redmsg( "Problem saving file: " + safile ))
                 else:
                     self.assy.filename = safile
                     self.assy.name = fil
@@ -450,7 +471,7 @@ class MWsemantics(MainWindow):
                     writepov(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file " + safile
-                    self.history.message( "Problem saving file: " + safile )
+                    self.history.message(redmsg( "Problem saving file: " + safile ))
                 else:
                     self.history.message( "POV-Ray file saved: " + safile )
             
@@ -459,7 +480,7 @@ class MWsemantics(MainWindow):
                     writemdl(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file " + safile
-                    self.history.message( "Problem saving file: " + safile )
+                    self.history.message(redmsg( "Problem saving file: " + safile ))
                 else:
                     self.history.message( "MDL file saved: " + safile )
             
@@ -468,7 +489,7 @@ class MWsemantics(MainWindow):
                     self.glpane.image(safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file" + safile
-                    self.history.message( "Problem saving file: " + safile )
+                    self.history.message(redmsg( "Problem saving file: " + safile ))
                 else:
                     self.history.message( "JPEG file saved: " + safile )
 
@@ -477,7 +498,7 @@ class MWsemantics(MainWindow):
                     writemmp(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file" + safile
-                    self.history.message( "Problem saving file: " + safile )
+                    self.history.message(redmsg( "Problem saving file: " + safile ))
                 else:
                     self.assy.filename = safile
                     self.assy.name = fil
@@ -487,7 +508,7 @@ class MWsemantics(MainWindow):
                     self.mt.mt_update()
             
             else: # This should never happen.
-                self.history.message( "MWSemantics.py: fileSaveAs() - File Not Saved.")
+                self.history.message( "MWSemantics.py: fileSaveAs() - File Not Saved. Unknown extension:" + ext)
 
     def closeEvent(self,ce): # via File > Exit or clicking X titlebar button
         
@@ -515,6 +536,9 @@ class MWsemantics(MainWindow):
             ce.ignore()
 
     def fileClose(self):
+        
+        self.history.message(greenmsg("Close File:"))
+        
         isFileSaved = True
         if self.assy.has_changed():
             ret = QMessageBox.warning( self, self.name(),
@@ -524,8 +548,13 @@ class MWsemantics(MainWindow):
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
+            print "ret =",ret
             if ret==0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
-            elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
+            elif ret==1:
+                self.history.message("Changes discarded.")
+            elif ret==2: 
+                self.history.message("Cancelled.")
+                return # Cancel clicked or Alt+C pressed or Escape pressed
         
         if isFileSaved: 
                 self.__clear()
@@ -538,10 +567,17 @@ class MWsemantics(MainWindow):
         # .ne1rc contains one line - the "Working Directory"
         # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
         # Mark [2004-10-13]
+        
+        self.history.message(greenmsg("Set Working Directory:"))
+        
         wd = globalParms['WorkingDirectory']
         wdstr = "Current Working Directory - [" + wd  + "]"
         wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", wdstr, 1 )
         
+        if not wd:
+            self.history.message("Cancelled.")
+            return
+            
         if wd:
             wd = str(wd)
             wd = os.path.normpath(wd)
@@ -553,7 +589,8 @@ class MWsemantics(MainWindow):
             try:
                 f=open(rc,'w')
             except:
-                print "Trouble opening file: [", f, "]"
+                print "Trouble opening file: [", rc, "]"
+                self.history.message( redmsg( "Trouble opening file [" + rc + "]" ))
             else:
                 f.write(wd)
                 f.close()
@@ -577,15 +614,18 @@ class MWsemantics(MainWindow):
         self.history.message(redmsg("Redo: Not implemented yet."))
 
     def editCut(self):
+        self.history.message(greenmsg("Cut:"))
         self.assy.cut()
         self.win_update()
 
     def editCopy(self):
+        self.history.message(greenmsg("Copy:"))
         self.assy.copy()
         self.win_update()
 
     def editPaste(self):
         if self.assy.shelf.members:
+            self.history.message(greenmsg("Paste:"))
             self.pasteP = True
             self.glpane.setMode('DEPOSIT')
             
@@ -593,6 +633,7 @@ class MWsemantics(MainWindow):
     def killDo(self):
         """ Deletes selected atoms, chunks, jigs and groups.
         """
+        self.history.message(greenmsg("Delete:"))
         self.assy.kill()
         self.glpane.paintGL()
         self.mt.mt_update()
@@ -617,6 +658,9 @@ class MWsemantics(MainWindow):
     def setViewFitToWindow(self):
         """ Fit to Window """
         #Recalculate center and bounding box for the assembly    
+        
+#        self.history.message(greenmsg("Fit to Window:"))
+        
         self.assy.computeBoundingBox()     
 
         self.glpane.scale=self.assy.bbox.scale()
@@ -625,6 +669,7 @@ class MWsemantics(MainWindow):
             
     def setViewHomeToCurrent(self):
         """Changes Home view to the current view.  This saves the view info in the Csys"""
+        self.history.message(greenmsg("Set Home View to Current View:"))
         self.assy.csys.quat = Q(self.glpane.quat)
         self.assy.csys.scale = self.glpane.scale
         self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
@@ -774,10 +819,12 @@ class MWsemantics(MainWindow):
         If some atoms are selected, select all atoms in the parts
         in which some atoms are selected.
         """
+        self.history.message(greenmsg("Select All:"))
         self.assy.selectAll()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectNone(self):
+        self.history.message(greenmsg("Select None:"))
         self.assy.selectNone()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
@@ -788,6 +835,7 @@ class MWsemantics(MainWindow):
         all atoms selected). (And unselect all currently selected
         parts or atoms.)
         """
+        self.history.message(greenmsg("Invert Selection:"))
         # assy method revised by bruce 041217 after discussion with Josh
         self.assy.selectInvert()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
@@ -799,6 +847,7 @@ class MWsemantics(MainWindow):
         if not self.assy.selatoms:
             self.history.message(redmsg("Select Connected: No atom(s) selected."))
             return
+        self.history.message(greenmsg("Select Connected:"))
         self.assy.selectConnected()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
@@ -812,6 +861,7 @@ class MWsemantics(MainWindow):
         if not self.assy.selatoms:
             self.history.message(redmsg("Select Doubly: No atom(s) selected."))
             return
+        self.history.message(greenmsg("Select Doubly:"))
         self.assy.selectDoubly()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
@@ -820,18 +870,34 @@ class MWsemantics(MainWindow):
     ###################################
 
     def makeGround(self):
+        if not self.assy.selatoms:
+            self.history.message(redmsg("Ground: You must first select an atom(s) you want to ground."))
+            return
+        self.history.message(greenmsg("Ground: "))
         self.assy.makeground()
         self.win_update()
         
     def makeStat(self):
+        if not self.assy.selatoms:
+            self.history.message(redmsg("Thermostat: You must first select an atom(s) you want to associate with a thermostat."))
+            return
+        self.history.message(greenmsg("Thermostat: "))
         self.assy.makestat()
         self.win_update()
 
     def makeMotor(self):
+        if not self.assy.selatoms:
+            self.history.message(redmsg("Rotary Motor: You must first select an atom(s) to create a rotary motor."))
+            return
+        self.history.message(greenmsg("Rotary Motor: "))
         self.assy.makeRotaryMotor(self.glpane.lineOfSight)
         self.win_update()
 
     def makeLinearMotor(self):
+        if not self.assy.selatoms:
+            self.history.message(redmsg("Linear Motor: You must first select an atom(s) to create a linear motor."))
+            return
+        self.history.message(greenmsg("Linear Motor: "))
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
         self.win_update()
 
@@ -845,38 +911,46 @@ class MWsemantics(MainWindow):
         if not self.assy.molecules: # Nothing in the part to minimize.
             self.history.message(redmsg("Minimize: Nothing to minimize."))
             return
+            
+        self.history.message(greenmsg("Minimize:"))
         self.assy.makeMinMovie()
-#        self.glpane.minimize()
 
     def modifyHydrogenate(self):
         """ Add hydrogen atoms to each singlet in the selection """
+        self.history.message(greenmsg("Hydrogenate:"))
         self.assy.modifyHydrogenate()
         
     # remove hydrogen atoms from selected atoms/molecules
     def modifyDehydrogenate(self):
         """ Remove all hydrogen atoms from the selection """
+        self.history.message(greenmsg("Dehydrogenate:"))
         self.assy.modifyDehydrogenate()
         
     def modifyPassivate(self):
         """ Passivate the selection by changing surface atoms to eliminate singlets """
+        self.history.message(greenmsg("Passivate:"))
         self.assy.modifyPassivate()
     
     def modifyStretch(self):
         """ Stretch/expand the selected chunk(s) """
+        self.history.message(greenmsg("Stretch:"))
         self.assy.Stretch()
         
     def modifySeparate(self):
         """ Form a new chunk from the selected atoms """
+        self.history.message(greenmsg("Separate:"))
         self.assy.modifySeparate()
 
     # bring molecules together and bond unbonded sites
     def modifyWeld(self):
         """ Create a single chunk from two of more selected chunks """
+        self.history.message(greenmsg("Weld:"))
         self.assy.weld()
         self.win_update()
 
     def modifyAlignCommonAxis(self):
         """ Align selected chunks by rotating them """
+        self.history.message(greenmsg("Align to Common Axis:"))
         self.assy.align()
         self.win_update()
         
@@ -901,6 +975,7 @@ class MWsemantics(MainWindow):
         cntl.exec_loop()
              
     def helpWhatsThis(self):
+        self.history.message(greenmsg("What's This:"))
         QWhatsThis.enterWhatsThisMode ()
 
 
@@ -947,11 +1022,7 @@ class MWsemantics(MainWindow):
             self.history.message(redmsg("Simulator: Nothing to simulate."))
             return
         
-        # We do this in case the we are currently in MOVIE mode.
-        # We need the current movie file object to be closed.
-        # This gets the job done.  There may be a more desirable way to
-        # do this.  Mark 050109
-        self.glpane.setMode('SELECTMOLS')
+        self.history.message(greenmsg("Simulator:"))
         
         r = self.assy.makeSimMovie()
 
@@ -964,6 +1035,8 @@ class MWsemantics(MainWindow):
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.toolsMoviePlayerAction.iconSet().pixmap() )
             self.history.message(msg)
+        else:
+            self.history.message("Cancelled.")
             
     # Play a movie created by the simulator.
     def toolsMoviePlayer(self):
@@ -981,6 +1054,7 @@ class MWsemantics(MainWindow):
 
         # It's showtime!!!
         self.glpane.setMode('MOVIE')
+        self.moviePlay()
 
  #### Movie Player Dashboard Slots ############
 
@@ -1031,13 +1105,13 @@ class MWsemantics(MainWindow):
         """Prints information about the current movie to the history widget.
         """
 #        print "MW: MoviwInfo called"
-        self.assy.w.history.message(greenmsg("Movie Information"))
+        self.history.message(greenmsg("Movie Information"))
         self.assy.m._info()
         
     def fileOpenMovie(self):
         """Open a movie file to play.
         """
-        self.assy.w.history.message(greenmsg("Open Movie File:"))
+        self.history.message(greenmsg("Open Movie File:"))
         if self.assy.m.currentFrame != 0:
             self.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
             return
@@ -1051,20 +1125,33 @@ class MWsemantics(MainWindow):
                 self )
 
         if not fn:
-            self.assy.w.history.message("Cancelled.")
+            self.history.message("Cancelled.")
             return
-        else:            
-            fn = str(fn)
-            if not os.path.exists(fn): return
+        
+        fn = str(fn)
 
-#            print "fileOpenMovie(): Loading movie file ", fn
-#            print "fileOpenMovie(). self.assy.m.isOpen =", self.assy.m.isOpen
-            if self.assy.m.isOpen: self.assy.m._close()
-            self.assy.m.filename = fn
-            self.assy.m._setup()
+        # Check if this movie file is valid
+        r = self.assy.m._checkMovieFile(fn)
+        
+        if r == 1:
+            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
+            self.history.message(msg)
+            return
+        
+        elif r == 2: 
+            msg = redmsg("Movie file [" + fn + "] not valid for the current part.")
+            self.history.message(msg)
+            if self.assy.m.isOpen:
+                msg = "Movie file [" + self.assy.m.filename + "] still open."
+                self.history.message(msg)
+            return
+
+        if self.assy.m.isOpen: self.assy.m._close()
+        self.assy.m.filename = fn
+        self.assy.m._setup()
 
     def fileSaveMovie(self):
-        """Save a movie of the current part.
+        """Save a copy of the current movie file loaded in the Movie Player.
         """
 
         # Make sure there is a moviefile to save.
@@ -1078,7 +1165,7 @@ class MWsemantics(MainWindow):
             self.history.message(msg)
             return
         
-        self.assy.w.history.message(greenmsg("Save Movie File:"))
+        self.history.message(greenmsg("Save Movie File:"))
         
         if self.assy.filename: sdir = self.assy.filename
         else: sdir = globalParms['WorkingDirectory']
@@ -1092,7 +1179,7 @@ class MWsemantics(MainWindow):
                     sfilter)
         
         if not fn:
-            self.assy.w.history.message("Cancelled.")
+            self.history.message("Cancelled.")
             return
         else:
             fn = str(fn)
@@ -1120,6 +1207,7 @@ class MWsemantics(MainWindow):
                 self.assy.m._close()
                 import shutil
                 shutil.copy(self.assy.m.filename, safile)
+                self.history.message("DPB movie file saved: " + safile)
                 self.assy.m._setup()
                 
             else: 

@@ -42,21 +42,18 @@ class movieMode(basicMode):
         self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
         self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
         self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
+        self.w.editDeleteAction.setEnabled(0) # Disable "Delete"
         
         # MP dashboard initialization.
         self.w.frameNumberSB.setValue(self.o.assy.m.currentFrame) # SB = Spinbox
         self.w.moviePlayActiveAction.setVisible(0)
         self.w.moviePlayRevActiveAction.setVisible(0)
+        self.w.moviePlayerDashboard.show()
         
         if self.o.assy.m.filename: # We have a movie file ready.  It's showtime!
-            self.o.assy.m._controls(1) # Movie control buttons are enabled.
             self.o.assy.m._setup() # Cue movie.
         else:
             self.o.assy.m._controls(0) # Movie control buttons are disabled.
-        
-        self.w.moviePlayerDashboard.show()
-        
-        
 
     # methods related to exiting this mode [bruce 040922 made these from
     # old Done method, and added new code; there was no Flush method]
@@ -85,6 +82,7 @@ class movieMode(basicMode):
         self.w.fileOpenAction.setEnabled(1) # Enable "File Open"
         self.w.fileCloseAction.setEnabled(1) # Enable "File Close"
         self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
+        self.w.editDeleteAction.setEnabled(1) # Enable "Delete"
 
 
     def makeMenus(self):
@@ -100,18 +98,17 @@ class movieMode(basicMode):
         if self.sellist: self.pickdraw()
         self.o.assy.draw(self.o)
         
-    # other dashboard methods
-    
-
-        
     # mouse and key events
-    
+
+    def keyPressEvent(self, e):
+        "some modes will need to override this in the future"
+        print "MOVIEMODE: keyPressEvent called"
+        self.keyPress(e.key())
+            
     def keyPress(self,key):
+        print "MOVIEMODE: keyPress called"
         if key == Qt.Key_Delete:
-            print "delete key"
-            pass
-        if key == Qt.Key_End:
-            pass
+            print "delete key pressed while in Movie Mode"
         if key == Qt.Key_Left or key == Qt.Key_Down:
             self.o.assy.m._playFrame(self.o.assy.m.currentFrame - 1)
         if key == Qt.Key_Right or key == Qt.Key_Up:

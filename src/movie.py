@@ -13,6 +13,7 @@ import os, sys
 from struct import unpack
 from runSim import runSim
 from qt import Qt, qApp, QApplication, QCursor, SIGNAL
+from HistoryWidget import redmsg
 
 ADD = 1
 SUBTRACT = 0
@@ -27,9 +28,6 @@ class Movie:
     """
     Movie object.
     """
-    
-    name = "" # for use before __init__ runs (used in __str__ of subclasses)
-    
     def __init__(self, assembly, name=None):
         self.assy = assembly
         # for future use: name of the movie that appears in the modelTree. 
@@ -73,10 +71,21 @@ class Movie:
         """
         if DEBUG1: print "movie._setup() called. filename = [" + self.filename + "]"
         
-        if not os.path.exists(self.filename): 
-            self.assy.w.history.message("Cannot play movie file [" + self.filename + "]. It does not exist.")
+        r = self._checkMovieFile()
+        
+        if r == 1:
+            msg = redmsg("Cannot play movie file [" + self.filename + "]. It does not exist.")
+            self.assy.w.history.message(msg)
             return
         
+        elif r == 2: 
+            msg = redmsg("Movie file [" + self.filename + "] not valid for the current part")
+            self.assy.w.history.message(msg)
+            self._controls(0) # Disable movie control buttons.
+            return
+            
+        self._controls(1) # Enable movie control buttons.
+            
         # movesetup freezes all the atoms in the model in preparation for playing the movie.
         # when leaving MOVIE mode, we'll need to unfreeze all the atoms by calling movend().
         self.assy.movsetup()
@@ -421,12 +430,40 @@ class Movie:
     def _info(self):
         """Print info about movie
         """
+        if DEBUG0: print "movie._info() called."
         if not self.filename:
             self.assy.w.history.message("No movie file loaded.")
             return
-        self.assy.w.history.message("  Filename: [" + self.filename + "]")
-        self.assy.w.history.message("  Number of Frames: " + str(self.totalFrames))
-        self.assy.w.history.message("  Number of Atoms: " + str(self.natoms))
+        self.assy.w.history.message("Filename: [" + self.filename + "]")
+        msg = "Number of Frames: " + str(self.totalFrames) + ".  Number of Atoms: " + str(self.natoms)
+        self.assy.w.history.message(msg)
 #        self.assy.w.history.message("Temperature:" + str(self.temp) + "K")
 #        self.assy.w.history.message("Steps per Frame:" + str(self.stepsper))
 #        self.assy.w.history.message("Time Step:" + str(self.stepsper))
+
+    def _checkMovieFile(self, filename=""):
+        """Returns 0 if filename is a valid movie file for the current part.
+        Returns 1 if filename does not exist.
+        Returns 2 if the movie file does not match the part.
+        """
+        if DEBUG1: print "movie._checkMovieFile() called. filename = ", filename
+        
+        if filename:
+            if not os.path.exists(filename): return 1
+        else:
+            filename = self.filename
+        
+        filesize = os.path.getsize(filename)
+        
+        f=open(filename,'rb')
+        
+        # Read header (4 bytes) from file containing the number of frames in the movie.
+        nframes = unpack('i',f.read(4))[0]
+        f.close()
+        
+        natoms = int(filesize/(nframes*3))
+        
+        if natoms == len(self.assy.alist): 
+            return 0
+        else: 
+            return 2
