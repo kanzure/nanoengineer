@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>1110</width>
-            <height>884</height>
+            <width>1115</width>
+            <height>958</height>
         </rect>
     </property>
     <property name="caption">
@@ -33,7 +33,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>1110</width>
+            <width>1115</width>
             <height>33</height>
         </rect>
     </property>
@@ -66,6 +66,7 @@
     <item text="&amp;View" name="unnamed">
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
+        <action name="setViewReorientAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
@@ -106,6 +107,7 @@
         <action name="modifySeparateAction"/>
         <action name="modifyStretchMoleculeAction"/>
         <action name="modifyWeldMoleculeAction"/>
+        <action name="modifyAlignCommonAxisAction"/>
     </item>
     <item text="&amp;Tools" name="Tools">
         <action name="toolsDepositAtomAction"/>
@@ -113,10 +115,8 @@
         <action name="toolsExtrudeAction"/>
         <action name="toolsRevolveAction"/>
         <separator/>
-        <action name="toolsAlignToCommonAxisAction"/>
-        <separator/>
-        <action name="toolsMovieAction"/>
         <action name="toolsSimulator_Action"/>
+        <action name="toolsMovieAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
         <action name="helpContentsAction"/>
@@ -337,14 +337,6 @@
     </toolbar>
     <toolbar dock="3">
         <property name="name">
-            <cstring>depositAtomDashboard</cstring>
-        </property>
-        <property name="label">
-            <string>Build Dashboard</string>
-        </property>
-    </toolbar>
-    <toolbar dock="3">
-        <property name="name">
             <cstring>selectAtomsDashboard</cstring>
         </property>
         <property name="enabled">
@@ -383,6 +375,66 @@
     </toolbar>
     <toolbar dock="3">
         <property name="name">
+            <cstring>moviePlayerDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Movie Player Dashboard</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1_4</cstring>
+            </property>
+            <property name="text">
+                <string>Movie Player</string>
+            </property>
+        </widget>
+        <separator/>
+        <action name="moviePlayAction"/>
+        <action name="movieStopAction"/>
+        <separator/>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>frameLabel</cstring>
+            </property>
+            <property name="text">
+                <string>Frame:</string>
+            </property>
+        </widget>
+        <widget class="QLCDNumber">
+            <property name="name">
+                <cstring>frameNumber</cstring>
+            </property>
+        </widget>
+        <widget class="Spacer">
+            <property name="name">
+                <cstring>spacer1</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>6</width>
+                    <height>22</height>
+                </size>
+            </property>
+        </widget>
+        <widget class="QSlider">
+            <property name="name">
+                <cstring>movieSlider</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+        </widget>
+        <separator/>
+        <action name="toolsDoneAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
             <cstring>selectMolDashboard</cstring>
         </property>
         <property name="label">
@@ -398,6 +450,14 @@
         </widget>
         <action name="nullAction"/>
     </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>depositAtomDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Build Dashboard</string>
+        </property>
+    </toolbar>
     <toolbar dock="4">
         <property name="name">
             <cstring>modifyToolbar</cstring>
@@ -407,7 +467,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>30</width>
-                <height>238</height>
+                <height>266</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -428,6 +488,7 @@
         <action name="modifyStretchMoleculeAction"/>
         <action name="modifySeparateAction"/>
         <action name="modifyWeldMoleculeAction"/>
+        <action name="modifyAlignCommonAxisAction"/>
     </toolbar>
     <toolbar dock="4">
         <property name="name">
@@ -436,9 +497,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>238</y>
+                <y>266</y>
                 <width>30</width>
-                <height>294</height>
+                <height>259</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -460,10 +521,8 @@
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <separator/>
-        <action name="toolsAlignToCommonAxisAction"/>
-        <separator/>
-        <action name="toolsMovieAction"/>
         <action name="toolsSimulator_Action"/>
+        <action name="toolsMovieAction"/>
     </toolbar>
     <toolbar dock="4">
         <property name="name">
@@ -472,7 +531,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>532</y>
+                <y>525</y>
                 <width>30</width>
                 <height>182</height>
             </rect>
@@ -2073,13 +2132,13 @@
                 <iconset>image76</iconset>
             </property>
             <property name="text">
-                <string>Movie</string>
+                <string>Movie Player</string>
             </property>
             <property name="menuText">
-                <string>&amp;Movie</string>
+                <string>&amp;Movie Player</string>
             </property>
             <property name="toolTip">
-                <string>Movie</string>
+                <string>Movie Player</string>
             </property>
         </action>
         <action>
@@ -2527,6 +2586,88 @@
             <string>What's This</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>movieRewindAction</cstring>
+        </property>
+        <property name="text">
+            <string>Rewind</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>movieStopAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image98</iconset>
+        </property>
+        <property name="text">
+            <string>Stop</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>movieStepFwdAction</cstring>
+        </property>
+        <property name="text">
+            <string>+1 Frame</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>movieStepBkwdAction</cstring>
+        </property>
+        <property name="text">
+            <string>-1 Frame</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>moviePauseAction</cstring>
+        </property>
+        <property name="text">
+            <string>Pause</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>moviePlayAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image99</iconset>
+        </property>
+        <property name="text">
+            <string>Play</string>
+        </property>
+        <property name="toolTip">
+            <string>Play Movie</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>setViewReorientAction</cstring>
+        </property>
+        <property name="text">
+            <string>Reorient</string>
+        </property>
+        <property name="menuText">
+            <string>R&amp;eorient</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyAlignCommonAxisAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image75</iconset>
+        </property>
+        <property name="text">
+            <string>Align to Common Axis</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Align to Common Axis</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -2563,7 +2704,7 @@
         <data format="XPM.GZ" length="2798">789cb5d5594f1b491007f0773e8545bda1d53ff81a7bb4da07830103b603b92059edc34cf78c0ff0812f3051befb5677554f56c24428d2aa78e0a7aeaeea6be0dd41e9f6aa573a78b7b75c25ab91299961b2281dd8f564b2fdfb9fbfbeefed572a25fe291f46a5cafe1f7bfbd7ab9229f567d3cc81fa0caa945d785f78c72ebc2f9dabb10bef9e73ade2c21913e77ae2c28f2fc48d6a947ab7c4b169d6bc8f9ca3aa0b3fbfaf4e35ff4c5cccdf8813db34de1def34e4c3881b3cc38fb7d5a918f78525ff46dcaca9576a23a627715cd3f53e8a131b7b63edecba69fd8d3af41b1496fa6d7153f78f86b8a86f0bcbfe9ec5493d16cfc5695dfad34c6d651ca9f7cffdbd173743fd441cd64f0f85a5fe489c6a3fd4d5613c0d4eeade43b189747c1b2ce3683abbeebadf5a702ae343716c743d53313f1febc7bfa843bf1371581f9d06ebf8581df257e2b01eba57675a5fea19177e7c109cfa712271aceba58938b13a6ec4a13fba62ee27f53fa9b51fe5c1ba7f7f1f71cd85f7545cdcf73ad8f8ef137762de9fd4ef898b7e51b0d63f52877e65b10de3c785657eacced4fe7b77b763236fab36fa3e1ec5a9d5f341b0e4d3526c42bd4ab0eee7505cf4fb28ce1aea6fc146fa7f76e6d3e115fafa5d7112cebf254eeb328e6a70967b9f8b437fba13db4ceb2fc5453f7f5ffcfac2795f046bbd0fe2a2df486c42bd2bb18dd46375e89f89b99fccf7ef2dadbbf0eea8add6bf16db4cbd1067b9de8fafc7b7a1ef13cf6213e50defadd846b9acff569c3574fe833ad7fa5fc57943cfdb9f9f894cd8cf93982748fdb9386f64dee4df97c978ff52ef4c9d69ff9938cff53cfdf7ec5627f5ae576f8fdfcf0721410ac391c222fb753e720c30c408638e3bdcf31c7a3d9fb3279862c631c70316586285f5ae1e727fd8e091f3e678c216cf68e108c768e3e4957ccb2b39e5fc337470ce71814b74d143ffe59ae4ff01ae7825d7f8c0753fe213d7ff8c2ffcfb0deccefc016ef115df380e51460555d4504784069aafe48f798f87885126a04a4409a564c8be92bfc115655cb94c395a34409d8634a231afe7c58ee5ef35d7bae3dc2eddd384a634a339c7032d90efcce7bba225ad38525aa3461b7ae478da75037a5f2758d196525ec93359aedde23882a563ae95edc8cf90529b4ee894c6bcf2844f66e2ce1239cf9afc7755c5fbc9b8479fdabcc71b3aa38ee4d039d7b9a04b1ecb5ebe677ea1964712ead2f9cf8aac1ecfd10a6f79ffdc7b4d7dee92bcfd7be1bd5ff29ccedbbf2f90dbfbfffefdfef873ef5fce01d04a</data>
     </image>
     <image name="image11">
-        <data format="XPM.GZ" length="691">789c8dd0c10e82300c06e0fb9ea2a1376260a2e8c1f8081a8f26c64357357a4013c58331bebb1427c818910608ffbe31d6c521ac570b086375cb293f31f091ae10eeee59f6d86ce74f15240914570ac360a08208189697f35ede8bb9805a4f521a4934551c4ba42aa61251e254d341eb721d6f39825d82886d29c7d03e1d2906ecdd96aa9aff71a097444d70fbe9ea94a43c426498d99047046aaac502b35df0472c7c3fea25e6afb476d0bdb7b22163c8d3cfe70cfca7d33cb7d74cbd018c8a8dbf</data>
+        <data format="XPM.GZ" length="727">789c8d90cb0ac2301045f7fd8a90d9156963b52a889fa0b814c4459ee8a20a5a1722febb9dd2863c5af492847b730899993c2587fd96a479f2a8797d91449ef99da4ea5955afe369f34e68519066adc8944e129a114976b7ab466f1c2f1ccf1daf1b0f8c2d4a3ec3a86c9c639436961801e39271c358fbd7a0020263040062d2de4177060480773b2656fe3f01f88b643ef0ab16a8817e8490281191e65e69ad953431418048f8a4075a4b19920ef48ffe22ea27092b18af2dcb4cd39052b655773aed0c443c8350f4b34ebec7849dd6</data>
     </image>
     <image name="image12">
         <data format="XPM.GZ" length="1040">789c8dd2db6e82401405d077be82e89b691406e492a69fd0a48f4d9a3e30336714ef038862d37faffb68ad784bf73192958d330c71d073dfdf5edddec029abacca95abc659e1f6f47a3e6f3e3e5fbe9c8e102e3e89eb779e9c0eb9caed7a1c700e0a2f14690c8e8f0cd20cec32fd304c25b8624a2193085c80411cc4590a4ec150844211a8c1a1c08013303291d11a54609c60c00d984418306752421482124c7d0c5882998f012d33c580199303ce4099c854f24615a8423554bc72c18c55a2f8f88669b4a70c58833ac4802366a6a5e695774ca5b556e09ac9011ba6214ff3525b900405c46fa3cf8c28263eef12341c6e6f869b6e26552b9acc889b719e4f5a99d2ecb0da7cba38658959912db8a1eb94d5a1b1eb9a63ebe3f5b2b1646f3776bf8abd6e4c6d7883fdb5dd58c2bd872f7bdeec17fa6bc05373f1ccfffacdfd7d1e3cdb83f3dc7907dab6b3393577df75dfcc6c799163333245d54e51fcfe43b6cd6e749e5dd3f97e767e00795c3a17</data>
@@ -2822,6 +2963,12 @@
     </image>
     <image name="image97">
         <data format="XPM.GZ" length="661">789c7dd2c10e82300c00d0fbbea261376240f168fc048d4713e3a1418d1ed044f1608cffeed6b2b52340c361e3adaceb2873d8ef369097e6d5627baba1bee213f2d3bb693e87e3fa6bb2aa02f72c6191cd4c56400ddbc7fdecc7d68ded9cc24fd14f2f14b47230a6c58e8b22e4088291d0726090401e10993a61425ecd148468583c8d882325b20f11178c496d214b365342e71088e7498f54a81e444ac5bd5349d435d56bdb2b40eec74a1ba4b6a24f698e7c4eedd3dd8d4def76e23ff8adcc1f5d5a8961</data>
+    </image>
+    <image name="image98">
+        <data format="XPM.GZ" length="992">789ca5d1cb6a83401805e0bd4f31e84e4a624c8c86d24768e9b250ba181d271ae3255e124ae9bb77ceaf4609994dfa1f17f3cd6160069736fb787f65f6d2685adea6118b125e335b7479fefdf9f5f26398aecbf0796c653e19e68245ecad2c62ac855a5b0e0d7801371c0123d0a3014370eb2320274a04ac407f838016512260090641e00774b6204a15ba86047752857802b9c39d1d9ddd8fe474c984b842c094e88eac07ba3d0fc4b58a0b3657aec18c480f065ba237f238d0ebd911b7d800f381db9e67a28f0d3026066a83debbb83bff682c1e5e278ac4ace1b1dc27e9213be66a0a21a62694e53495403536276d933cd0d4daa6d13699b669b54da76dceda26d63597a29acdbc11b733fd1f7d735b3df8b77f9f8d3fa4be0340</data>
+    </image>
+    <image name="image99">
+        <data format="XPM.GZ" length="887">789ca591cd4e83401485f73cc584d911d302b6308df111342e4d8c8be1670a949f46ebc218dfdd39571de6125d34bd87c57ce7e386495847e2f1e14e44ebe0f5a44f6d29ca46bf88a87a1b86f7a7e7db8f204c53619f448924bc0ac29528c5fd34d638f7f62c631ae011b8d1085002b31c016a4283003b60be418006a894ca15bd5c0277c6863e540375ace31dedee091304d810a636842de135023c10d2b58003e1f617ab1fdc7ee34898a1004e84b92d326041a86c41975cfd39971829ff33ba583ab753561577ced4c670e7ccde18eeb8f19d338d31dc39d31a375d277d7398fbbe673b03ef3d33f2de3313ef3d53f07e36c7453f9b657fd99f3bcb7cde045fc79fbe97</data>
     </image>
 </images>
 <connections>
@@ -3473,6 +3620,12 @@
         <receiver>MainWindow</receiver>
         <slot>helpWhatsThis()</slot>
     </connection>
+    <connection>
+        <sender>modifyAlignCommonAxisAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyAlignCommonAxis()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3588,6 +3741,7 @@
     <slot>modifyDehydrogenate()</slot>
     <slot>helpWhatsThis()</slot>
     <slot>helpAssistant()</slot>
+    <slot>modifyAlignCommonAxis()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

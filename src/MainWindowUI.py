@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Nov 5 10:43:15 2004
+# Created: Fri Nov 5 17:39:48 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -1350,33 +1350,36 @@ image10_data = [
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
 image11_data = [
-"22 22 5 1",
+"22 22 8 1",
 ". c None",
-"c c #0065a3",
-"b c #0065a4",
-"a c #0065a5",
+"f c None",
+"b c None",
+"a c None",
+"e c #0065a3",
+"d c #0065a4",
+"c c #0065a5",
 "# c #70af00",
 "......................",
 "...........#..........",
 "..........###.........",
 ".....##...###...##....",
-".....####.###.####....",
+".....####a###a####....",
 ".....#############....",
 "......###########.....",
 "......###########.....",
 ".......#########......",
-"......................",
-".........aaaaa........",
-".......aabcccba.......",
-".......abcccccba......",
-"......abcccccccaa.....",
-"......accccccccba.....",
-"......accccccccba.....",
-"......abcccccccba.....",
-"......abccccccca......",
-".......abcccccba......",
-"........aabbbaa.......",
-".........aaaa.........",
+".........bbbbb........",
+".......bbcccccb.......",
+"......bccdeeedcf......",
+"......bcdeeeeedcb.....",
+".....bcdeeeeeeecc.....",
+".....bceeeeeeeedcb....",
+".....bceeeeeeeedcb....",
+".....bcdeeeeeeedcb....",
+".....bcdeeeeeeecb.....",
+"......bcdeeeeedcb.....",
+".......fccdddccb......",
+"........bccccbb.......",
 "......................"
 ]
 image12_data = [
@@ -6937,6 +6940,99 @@ image97_data = [
 ".......##.............",
 "......................"
 ]
+image98_data = [
+"22 22 25 1",
+". c None",
+"d c #000000",
+"w c #4a4a4a",
+"c c #555555",
+"b c #676767",
+"a c #6f6f6f",
+"p c #747474",
+"# c #7f7f7f",
+"o c #888787",
+"n c #8f8f8e",
+"f c #9f9f9e",
+"q c #a0a09f",
+"g c #a0a0a0",
+"h c #a1a1a1",
+"i c #a2a1a1",
+"r c #a2a2a1",
+"j c #a3a3a2",
+"s c #a3a3a3",
+"k c #a4a4a4",
+"t c #a5a4a4",
+"l c #a5a5a4",
+"u c #a6a5a5",
+"m c #a6a6a5",
+"v c #a7a6a6",
+"e c #a8a7a7",
+"......................",
+"......................",
+"......................",
+"...#abbbbbbbbbbccd....",
+"...aefghijklmmmmndd...",
+"...bfooooooooooopddd..",
+"...bqooooooooooopddd..",
+"...bhooooooooooopddd..",
+"...bhooooooooooopddd..",
+"...brooooooooooopddd..",
+"...bsooooooooooopddd..",
+"...bkooooooooooopddd..",
+"...btooooooooooopddd..",
+"...buooooooooooopddd..",
+"...bvooooooooooopddd..",
+"...beooooooooooopddd..",
+"...wnppppppppppppddd..",
+"...ddddddddddddddddd..",
+"....dddddddddddddddd..",
+".....ddddddddddddddd..",
+"......................",
+"......................"
+]
+image99_data = [
+"22 22 18 1",
+". c None",
+"l c #000000",
+"p c #4a4a4a",
+"# c #676767",
+"a c #6f6f6f",
+"j c #747474",
+"f c #888787",
+"c c #9f9f9e",
+"e c #a0a09f",
+"g c #a1a1a1",
+"h c #a2a2a1",
+"i c #a3a3a3",
+"k c #a4a4a4",
+"m c #a5a4a4",
+"d c #a5a5a4",
+"n c #a6a5a5",
+"o c #a7a6a6",
+"b c #a8a7a7",
+"......................",
+"......................",
+"......................",
+"....##................",
+"....ab##..............",
+"....#cdd##............",
+"....#effdd##..........",
+"....#gffffdd##........",
+"....#gffffffdd##......",
+"....#hffffffffdd##....",
+"....#iffffffffffjj#...",
+"....#kffffffffjjll....",
+"....#mffffffjjll......",
+"....#nffffjjll........",
+"....#offjjll..........",
+"....#bjjll............",
+"....pjll..............",
+"....ll................",
+"......................",
+"......................",
+"......................",
+"......................"
+]
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -7041,6 +7137,8 @@ class MainWindow(QMainWindow):
         self.image95 = QPixmap(image95_data)
         self.image96 = QPixmap(image96_data)
         self.image97 = QPixmap(image97_data)
+        self.image98 = QPixmap(image98_data)
+        self.image99 = QPixmap(image99_data)
 
         if not name:
             self.setName("MainWindow")
@@ -7348,6 +7446,17 @@ class MainWindow(QMainWindow):
         self.dispResetMolColorAction = QAction(self,"dispResetMolColorAction")
         self.helpWhatsThisAction = QAction(self,"helpWhatsThisAction")
         self.helpWhatsThisAction.setIconSet(QIconSet(self.image97))
+        self.movieRewindAction = QAction(self,"movieRewindAction")
+        self.movieStopAction = QAction(self,"movieStopAction")
+        self.movieStopAction.setIconSet(QIconSet(self.image98))
+        self.movieStepFwdAction = QAction(self,"movieStepFwdAction")
+        self.movieStepBkwdAction = QAction(self,"movieStepBkwdAction")
+        self.moviePauseAction = QAction(self,"moviePauseAction")
+        self.moviePlayAction = QAction(self,"moviePlayAction")
+        self.moviePlayAction.setIconSet(QIconSet(self.image99))
+        self.setViewReorientAction = QAction(self,"setViewReorientAction")
+        self.modifyAlignCommonAxisAction = QAction(self,"modifyAlignCommonAxisAction")
+        self.modifyAlignCommonAxisAction.setIconSet(QIconSet(self.image75))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7432,8 +7541,6 @@ class MainWindow(QMainWindow):
         self.toolsStartOverAction.addTo(self.cookieCutterDashboard)
         self.toolsDoneAction.addTo(self.cookieCutterDashboard)
         self.toolsCancelAction.addTo(self.cookieCutterDashboard)
-        self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
-
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.selectAtomsDashboard.setEnabled(1)
@@ -7446,14 +7553,36 @@ class MainWindow(QMainWindow):
         self.textLabel1 = QLabel(self.moveMolDashboard,"textLabel1")
         self.moveMolDashboard.addSeparator()
         self.toolsDoneAction.addTo(self.moveMolDashboard)
+        self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
+
+        self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
+        self.moviePlayerDashboard.addSeparator()
+        self.moviePlayAction.addTo(self.moviePlayerDashboard)
+        self.movieStopAction.addTo(self.moviePlayerDashboard)
+        self.moviePlayerDashboard.addSeparator()
+
+        self.frameLabel = QLabel(self.moviePlayerDashboard,"frameLabel")
+
+        self.frameNumber = QLCDNumber(self.moviePlayerDashboard,"frameNumber")
+        spacer1 = QSpacerItem(6,22,QSizePolicy.Fixed,QSizePolicy.Minimum)
+        QApplication.sendPostedEvents(self.moviePlayerDashboard,QEvent.ChildInserted)
+        self.moviePlayerDashboard.boxLayout().addItem(spacer1)
+
+        self.movieSlider = QSlider(self.moviePlayerDashboard,"movieSlider")
+        self.movieSlider.setOrientation(QSlider.Horizontal)
+        self.moviePlayerDashboard.addSeparator()
+        self.toolsDoneAction.addTo(self.moviePlayerDashboard)
         self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
 
         self.textLabel1_2 = QLabel(self.selectMolDashboard,"textLabel1_2")
         self.nullAction.addTo(self.selectMolDashboard)
+        self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.modifyToolbar.setGeometry(QRect(0,0,30,238))
+        self.modifyToolbar.setGeometry(QRect(0,0,30,266))
         self.modifyToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.modifyMinimizeAction.addTo(self.modifyToolbar)
         self.modifyHydrogenateAction.addTo(self.modifyToolbar)
@@ -7463,9 +7592,10 @@ class MainWindow(QMainWindow):
         self.modifyStretchMoleculeAction.addTo(self.modifyToolbar)
         self.modifySeparateAction.addTo(self.modifyToolbar)
         self.modifyWeldMoleculeAction.addTo(self.modifyToolbar)
+        self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,238,30,294))
+        self.toolsToolbar.setGeometry(QRect(0,266,30,259))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
@@ -7476,13 +7606,11 @@ class MainWindow(QMainWindow):
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
         self.toolsToolbar.addSeparator()
-        self.toolsAlignToCommonAxisAction.addTo(self.toolsToolbar)
-        self.toolsToolbar.addSeparator()
-        self.toolsMovieAction.addTo(self.toolsToolbar)
         self.toolsSimulator_Action.addTo(self.toolsToolbar)
+        self.toolsMovieAction.addTo(self.toolsToolbar)
         self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.datumDispDashboard.setGeometry(QRect(0,532,30,182))
+        self.datumDispDashboard.setGeometry(QRect(0,525,30,182))
         self.datumDispDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispDashboard)
@@ -7495,7 +7623,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1110,33))
+        self.MenuBar.setGeometry(QRect(0,0,1115,33))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
@@ -7526,6 +7654,7 @@ class MainWindow(QMainWindow):
         self.unnamed = QPopupMenu(self)
         self.setViewHomeAction.addTo(self.unnamed)
         self.setViewFitToWindowAction.addTo(self.unnamed)
+        self.setViewReorientAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.setViewOrthoAction.addTo(self.unnamed)
         self.setViewPerspecAction.addTo(self.unnamed)
@@ -7569,6 +7698,7 @@ class MainWindow(QMainWindow):
         self.modifySeparateAction.addTo(self.Modify)
         self.modifyStretchMoleculeAction.addTo(self.Modify)
         self.modifyWeldMoleculeAction.addTo(self.Modify)
+        self.modifyAlignCommonAxisAction.addTo(self.Modify)
         self.MenuBar.insertItem(QString(""),self.Modify,8)
 
         self.Tools = QPopupMenu(self)
@@ -7577,10 +7707,8 @@ class MainWindow(QMainWindow):
         self.toolsExtrudeAction.addTo(self.Tools)
         self.toolsRevolveAction.addTo(self.Tools)
         self.Tools.insertSeparator()
-        self.toolsAlignToCommonAxisAction.addTo(self.Tools)
-        self.Tools.insertSeparator()
-        self.toolsMovieAction.addTo(self.Tools)
         self.toolsSimulator_Action.addTo(self.Tools)
+        self.toolsMovieAction.addTo(self.Tools)
         self.MenuBar.insertItem(QString(""),self.Tools,9)
 
         self.helpMenu = QPopupMenu(self)
@@ -7593,7 +7721,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1110,884).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,958).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7704,6 +7832,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.modifyDehydrogenateAction,SIGNAL("activated()"),self.modifyDehydrogenate)
         self.connect(self.helpWhatsThisAction,SIGNAL("activated()"),self.helpWhatsThis)
+        self.connect(self.modifyAlignCommonAxisAction,SIGNAL("activated()"),self.modifyAlignCommonAxis)
 
 
     def languageChange(self):
@@ -7956,9 +8085,9 @@ class MainWindow(QMainWindow):
         self.toolsAlignToCommonAxisAction.setText(self.__tr("Align To Common Axis"))
         self.toolsAlignToCommonAxisAction.setMenuText(self.__tr("A&lign To Common Axis"))
         self.toolsAlignToCommonAxisAction.setToolTip(self.__tr("Align To Common Axis"))
-        self.toolsMovieAction.setText(self.__tr("Movie"))
-        self.toolsMovieAction.setMenuText(self.__tr("&Movie"))
-        self.toolsMovieAction.setToolTip(self.__tr("Movie"))
+        self.toolsMovieAction.setText(self.__tr("Movie Player"))
+        self.toolsMovieAction.setMenuText(self.__tr("&Movie Player"))
+        self.toolsMovieAction.setToolTip(self.__tr("Movie Player"))
         self.toolsSimulator_Action.setText(self.__tr("Simulator"))
         self.toolsSimulator_Action.setMenuText(self.__tr("S&imulator"))
         self.toolsSimulator_Action.setToolTip(self.__tr("Simulator"))
@@ -8034,6 +8163,23 @@ class MainWindow(QMainWindow):
         self.dispResetMolColorAction.setMenuText(self.__tr("&Reset Object Color"))
         self.helpWhatsThisAction.setText(self.__tr("What's This"))
         self.helpWhatsThisAction.setMenuText(self.__tr("What's This"))
+        self.movieRewindAction.setText(self.__tr("Rewind"))
+        self.movieRewindAction.setMenuText(self.__tr("Rewind"))
+        self.movieStopAction.setText(self.__tr("Stop"))
+        self.movieStopAction.setMenuText(self.__tr("Stop"))
+        self.movieStepFwdAction.setText(self.__tr("+1 Frame"))
+        self.movieStepFwdAction.setMenuText(self.__tr("+1 Frame"))
+        self.movieStepBkwdAction.setText(self.__tr("-1 Frame"))
+        self.movieStepBkwdAction.setMenuText(self.__tr("-1 Frame"))
+        self.moviePauseAction.setText(self.__tr("Pause"))
+        self.moviePauseAction.setMenuText(self.__tr("Pause"))
+        self.moviePlayAction.setText(self.__tr("Play"))
+        self.moviePlayAction.setToolTip(self.__tr("Play Movie"))
+        self.moviePlayAction.setMenuText(self.__tr("Play"))
+        self.setViewReorientAction.setText(self.__tr("Reorient"))
+        self.setViewReorientAction.setMenuText(self.__tr("R&eorient"))
+        self.modifyAlignCommonAxisAction.setText(self.__tr("Align to Common Axis"))
+        self.modifyAlignCommonAxisAction.setMenuText(self.__tr("&Align to Common Axis"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8048,13 +8194,16 @@ class MainWindow(QMainWindow):
         QWhatsThis.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))
         QToolTip.add(self.ccLayerThicknessSpinBox,self.__tr("Number of lattice cells"))
         QWhatsThis.add(self.ccLayerThicknessSpinBox,self.__tr("Number of lattice cells"))
-        self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
         self.selectAtomsDashboard.setLabel(self.__tr("Select Atoms"))
         self.textLabel2_2.setText(self.__tr("Select Atoms"))
         self.moveMolDashboard.setLabel(self.__tr("Move Molecule"))
         self.textLabel1.setText(self.__tr("Move Chunks"))
+        self.moviePlayerDashboard.setLabel(self.__tr("Movie Player Dashboard"))
+        self.textLabel1_4.setText(self.__tr("Movie Player"))
+        self.frameLabel.setText(self.__tr("Frame:"))
         self.selectMolDashboard.setLabel(self.__tr("Select Molecule"))
         self.textLabel1_2.setText(self.__tr("Select Chunks"))
+        self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
         self.modifyToolbar.setLabel(self.__tr("Modify"))
         self.toolsToolbar.setLabel(self.__tr("Tools"))
         self.datumDispDashboard.setLabel(self.__tr("Datum Display"))
@@ -8414,6 +8563,9 @@ class MainWindow(QMainWindow):
 
     def helpAssistant(self):
         print "MainWindow.helpAssistant(): Not implemented yet"
+
+    def modifyAlignCommonAxis(self):
+        print "MainWindow.modifyAlignCommonAxis(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

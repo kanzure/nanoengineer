@@ -706,7 +706,16 @@ class MWsemantics(MainWindow):
     # stretch selected molecule(s)    
     def modifyStretchMolecule(self):
         self.assy.Stretch()
+        
+    # bring molecules together and bond unbonded sites
+    def modifyWeldMolecule(self):
+        self.assy.weld()
+        self.update()
 
+    def modifyAlignCommonAxis(self):
+        self.assy.align()
+        self.update()
+        
     ###################################
     # Functions from the "Help" menu
     ###################################
@@ -918,14 +927,6 @@ class MWsemantics(MainWindow):
     # some unimplemented buttons:
     ###################################
 
-    # bring molecules together and bond unbonded sites
-    def modifyWeldMolecule(self):
-        self.assy.weld()
-        self.update()
-
-    def toolsAlignToCommonAxis(self):
-        self.assy.align()
-        self.update()
     
     # create bonds where reasonable between selected and unselected
     def modifyEdgeBond(self):
@@ -1204,6 +1205,7 @@ class MWsemantics(MainWindow):
         self.selectMolDashboard.hide()
         self.selectAtomsDashboard.hide()
         self.moveMolDashboard.hide()
+        self.moviePlayerDashboard.hide()
 
     # Import code for What's This support        
     from whatsthis import createWhatsThis
