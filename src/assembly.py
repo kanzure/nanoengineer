@@ -806,11 +806,9 @@ class assembly:
         # Minimization worked.  Start the movie.
         if not r:
             self.m.currentFrame = 0
-            self.m._setup()
+            if self.m._setup(): return
             self.m._play()
             self.m._close()
-
-        return
         
     # makes a motor connected to the selected atoms
     # note I don't check for a limit of 25 atoms, but any more
