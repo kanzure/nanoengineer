@@ -7,11 +7,15 @@ it comes with a test file 'butterfly.png' which needs to be next to it for it to
 
 it's made from a PyQt example which was made from a Qt example
 and might be partly copyright by one or both of them.
+it was made from examples3/canvas/canvas.py in a PyQt distro, which had no copyright notice,
+but a nearby example, examples3/dirview.py, has a copyright from Trolltech which says
+"This example program may be used, distributed and modified without limitation."
 
 $Id$
 
 if it's here in cad/src, that's just so it can import some code modules from our product
-and/or be shared with other developers for testing.
+and/or be shared with other developers for testing. It need not be distributed with our product,
+but if it is this doesn't seem to be a problem.
 
 it's a main program, just run it with "python <filename>"
 or whatever is needed for your python installation to start it with a GUI
@@ -69,16 +73,78 @@ class ImageItem(QCanvasRectangle):
     def drawShape(self,p):
         p.drawPixmap( self.x(), self.y(), self.pixmap )
 
-    def bruce_start_drag(self, dragsource): # drag and drop this image!
-        print "bruce_start_drag" # this prints... hmm, it used to, now it doesn.t. oh, works on butterfly, not hexagon.
-        print "again"
-        dragobj = QImageDrag( self.image, dragsource)
-        ## the source has to be a QWidget -- not the canvas! TypeError: argument 2 of QImageDrag() has an invalid type
-        print "made dragobj, now will set its pixmap to display during the drag",dragobj
-        # warning, there is self.pixmap but that's the butterfly... hmm, would it work? let's try it:
-        pixmap = self.pixmap
-        dragobj.setPixmap(pixmap)
-        print "set the pixmap"
+    def bruce_start_drag(self, dragsource): # drag and (don't bother to) drop this image!
+        print "bruce_start_drag"
+        
+        if 0:
+            # use QImageDrag
+            print 'making: dragobj = QImageDrag( self.image, dragsource)'
+            dragobj = QImageDrag( self.image, dragsource)
+            ## the source has to be a QWidget -- not the canvas! TypeError: argument 2 of QImageDrag() has an invalid type
+            print "made dragobj"
+        else:
+            # use QTextDrag
+            print 'making: dragobj = QTextDrag( "copying 5 items", dragsource)'
+            dragobj = QTextDrag( "copying 5 items", dragsource)
+            print "made it"
+        
+        if 0:
+            print "not setting a custom pixmap this time"
+            pass # don't set a custom pixmap
+        elif 1:
+            # set a custom pixmap
+            print "now will set its pixmap to display during the drag",dragobj
+            # warning, there is self.pixmap but that's the butterfly... hmm, would it work? let's try it:
+            pixmap = self.pixmap
+            dragobj.setPixmap(pixmap)
+            print "set the pixmap to (presumably) the butterfly:",pixmap
+
+        if 1:
+            # try to modify the one Qt made for us to use? no, that fails (null pixmap), so:
+            # try to modify the one we set, above.
+            print "will try to modify the pixmap we just told Qt to use..."
+            pixmap = dragobj.pixmap()
+            print "this is the pixmap object:",pixmap # it's different id than the one we set, probably setPixmap copies it
+            print "this is another get of that, is it same id?",dragobj.pixmap() # no! i guess it copies on get, at least.
+            # let's hope we own it! try this twice to find out... i mean click on two butterflys in a row...
+            # hmm, can we draw on it?
+            p = painter = QPainter(pixmap)
+                # if we never did dragobj.setPixmap ourselves, then [for QImageDrag or QTextDrag] we get
+                #   QPainter::begin: Cannot paint null pixmap
+            color = Qt.blue
+            p.setPen(QPen(color, 3)) # 3 is pen thickness
+            w,h = 100,9
+            x,y = pos = (0,0)
+            x += int(time.time()) % 10 # randomize coords
+            y += int(time.time()*10.0) % 10
+            p.drawEllipse(x,y,h,h) # this worked, various sizes of butterfly got this blue circle (same size) in topleft corner
+            print "after drawing, pixmap is ",pixmap
+            ## this is needed:
+            del p, painter
+            print "after del p,painter, pixmap is ",pixmap
+            ## since without it we got (various ones of these, I guess randomly): [btw that checksum on free, verify on malloc is a clever idea! ###@@@]
+            #
+            ##Qt: QPaintDevice: Cannot destroy paint device that is being painted.  Be sure to QPainter::end() painters!
+            ##Segmentation fault
+            ##Exit 139
+            #
+            ##Qt: QPaintDevice: Cannot destroy paint device that is being painted.  Be sure to QPainter::end() painters!
+            ##*** malloc[1008]: error for object 0x9abb0d0: Incorrect checksum for freed object - object was probably modified after being freed; break at szone_error
+            ##Segmentation fault
+            ##Exit 139
+
+            dragobj.setPixmap(pixmap) # needed?? yes!
+            print "setting pixmap back into dragobj, might not be needed"
+            """
+making: dragobj = QTextDrag( "copying 5 items", dragsource)
+made it
+will try to modify the pixmap Qt made for us to use...
+this is the pixmap object: <__main__.qt.QPixmap object at 0x88bd0>
+QPainter::begin: Cannot paint null pixmap
+QPainter::setPen: Will be reset by begin()
+            """
+            pass
+        
         wantdel = dragobj.dragCopy()
             # during this call, we do recursive event processing, including the expected dragEnter event, and moves and drop,
             # plus another *initial* unexpected dragEnter event, different event object. To debug those, print the stack!
