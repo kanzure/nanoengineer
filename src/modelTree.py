@@ -174,7 +174,13 @@ class modelTree(QListView):
         item = self.itemAt(self.contentsToViewport(pnt))
         if item:
             #print "Moving", self.selectedItem, " to ", item.object
+            # mark comments [04-12-09]
+            # There is a bug when the user want to move something to the very top of the tree.
+            # To get it there, they dnd onto the last datum plane.  This will put it into the data list.
+            # This looks OK in the MT, but the item is now unselectable and cannot be removed.
+            # If saved, the MMP records written within the "Data" group.
             self.selectedItem.moveto(item.object)
+            # mark comments [04-12-08]
             # We only need to update the GLpane in the following 2 cases:
             #   1. The selected item is moved from the MT to the Clipboard
             #   2. The selected item is moved from the Clipboard to the MT
@@ -182,10 +188,8 @@ class modelTree(QListView):
             # after a dropEvent (Yuk).  I'll bother Bruce later - he's busy now.
             # Here is a start:
             #if item.object.name == "Clipboard": self.win.update # Case 1
-            #elif ???: self.win.update Case 2
+            #elif ???: self.win.update # Case 2
             #else: self.update() # Only update the MT (this is called 95% of the time)
-            # 
-            # Mark [04-12-08]
             self.win.update() # This will do for now.
 
     def dragMoveEvent(self, event):

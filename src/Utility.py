@@ -38,7 +38,13 @@ class Node:
     def addmember(self, obj):
         if obj==self: return
         m = self.dad.members
-        i = m.index(self)
+        # mark 041209 comments:
+        # We are called by modelTree.dropEvent for DND, so we incremented i by 1
+        # to get dnd inserted after obj, needed for bug fix 140.  
+        # This inserts obj *after* self in list m.  This conflicts with bruces comments below. 
+        # Bruce's comments should stay until this is thoroughly tested by Ninad.
+        i = m.index(self) + 1
+#        i = m.index(self) # This goes with bruces comment below.  Mark 041209.
         m.insert(i,obj)
         # bruce 041129 comments:
         # 1. Note that this inserts obj *before* self in the
@@ -242,7 +248,10 @@ class Group(Node):
     def upMT(self, tw, parent, dnd=True):
         if not self.icon: self.seticon()
         self.tritem = tw.buildNode(self, parent, self.icon, dnd)
-        for x in self.members:
+        # mark comments 041209
+        # Fixed bug 140 by reversing order nodes are built.
+#        for x in self.members: # Original order
+        for x in self.members[::-1]: # Reversed order (fixed bug 140) - Mark [04-12-09]
             x.upMT(tw, self.tritem, dnd)
         return self.tritem
     
