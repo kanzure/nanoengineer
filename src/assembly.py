@@ -56,6 +56,8 @@ class assembly:
         # currently unimplemented
         self.selmotors=[]
         self.undolist=[]
+        # 1 if there is a structural difference between assy and file
+        self.modified = 0
 
     # convert absolute atom positions to relative, find
     # bounding boxes, do some housekeeping
@@ -493,6 +495,7 @@ class assembly:
     # copy any selected parts (molecules)
     def copy(self):
         if self.selmols:
+            self.modified = 1
             offset = V(10.0, 10.0, 10.0)
             nulist=[]
             for mol in self.selmols[:]:
@@ -503,16 +506,19 @@ class assembly:
     # move any selected parts in space ("move" is an offset vector)
     def movesel(self, move):
         for mol in self.selmols:
+            self.modified = 1
             mol.move(move)
 
     # rotate any selected parts in space ("rot" is a quaternion)
     def rotsel(self, rot):
         for mol in self.selmols:
+            self.modified = 1
             mol.rot(rot)
 
     # delete whatever is selected
     def kill(self):
         if self.selatoms:
+            self.modified = 1
             changedMols = []
             for a in self.selatoms.values():
                 m = a.molecule
@@ -521,6 +527,7 @@ class assembly:
             self.selatoms={}
             for m in changedMols: m.shakedown()
         if self.selmols:
+            self.modified = 1
             for m in self.selmols:
                 self.killmol(m)
             self.selmols=[]
@@ -530,7 +537,9 @@ class assembly:
 
     # actually remove a given molecule from the list
     def killmol(self, mol):
-        try: self.molecules.remove(mol)
+        try:
+            self.molecules.remove(mol)
+            self.modified = 1
         except ValueError: pass
 
         self.setDrawLevel()
@@ -538,6 +547,7 @@ class assembly:
     #bond atoms (cheap hack)
     def Bond(self):
         if not self.selatoms: return
+        self.modified = 1
         aa=self.selatoms.values()
         if len(aa)==2:
             aa[0].molecule.bond(aa[0], aa[1])
@@ -548,6 +558,7 @@ class assembly:
     #unbond atoms (cheap hack)
     def Unbond(self):
         if not self.selatoms: return
+        self.modified = 1
         aa=self.selatoms.values()
         if len(aa)==2:
             for b1 in aa[0].bonds:
@@ -557,6 +568,7 @@ class assembly:
 
     #stretch a molecule
     def Stretch(self):
+        self.modified = 1
         if not self.selmols: return
         for m in self.selmols:
             m.stretch(1.1)
@@ -573,6 +585,7 @@ class assembly:
     # will choke the file parser in the simulator
     def makemotor(self, sightline):
         if not self.selatoms: return
+        self.modified = 1
         m=motor(self)
         m.findcenter(self.selatoms.values(), sightline)
         self.unpickatoms()
@@ -584,6 +597,7 @@ class assembly:
     # will choke the file parser in the simulator
     def makeLinearMotor(self, sightline):
         if not self.selatoms: return
+        self.modified = 1
         m = LinearMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
         self.unpickatoms()
@@ -594,6 +608,7 @@ class assembly:
     # same note as above
     def makeground(self):
         if not self.selatoms: return
+        self.modified = 1
         m=ground(self, self.selatoms.values())
         self.unpickatoms()
 
@@ -682,17 +697,21 @@ class assembly:
     # a kludgey hack
     def modifyPassivate(self):
         for m in self.selmols:
+            self.modified = 1
             m.passivate()
         for a in self.selatoms.itervalues():
+            self.modified = 1
             a.Hydrogenate()
         self.o.paintGL()
 
     # add hydrogen atoms to each dangling bond
     def modifyHydrogenate(self):
         if self.selmols:
+            self.modified = 1
             for m in self.selmols:
                 m.Hydrogenate()
         elif self.selatoms:
+            self.modified = 1
             for a in self.selatoms.itervalues():
                 a.Hydrogenate()
         self.o.paintGL()

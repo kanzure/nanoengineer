@@ -138,8 +138,12 @@ class MWsemantics(MainWindow):
                 ext = str(ext)
                 if ext[-4:-1] == "mmp":
                     self.assy.writemmp(dir + fil + ".mmp")
+                    self.assy.filename = dir + fil + ".mmp"
+                    self.assy.modified = 0
                 elif ext[-4:-1] == "pdb":
                     self.assy.writepdb(dir + fil + ".pdb")
+                    self.assy.filename = dir + fil + ".pdb"
+                    self.assy.modified = 0
 
     def fileImage(self):
         if self.assy:
@@ -162,7 +166,7 @@ class MWsemantics(MainWindow):
 
 
     def fileClose(self):
-        self.fileSave()
+        if self.assy.modified: self.fileSave()
         self.__clear()
 
     def fileSetWorkDir(self):
