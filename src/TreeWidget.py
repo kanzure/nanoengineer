@@ -278,12 +278,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
         creates all columns but only known to work for one column.
         most of its code only bothers trying to support one column.
         """
+        self.debug_dragstuff = debug_dragstuff # so TreeView.py can see it [KLUGE! clean up sometime.]
         ###@@@ review all init args & instvars, here vs subclasses
         TreeView.__init__(self, parent, win, name, columns = columns, size = size) # stores self.win
 
         #e maybe subclass should tell us whether to do this...
         # of the following, old mtree had first only, canvas example has 2nd only, dirview example has both. [050128]
-##        self.setAcceptDrops(True) #k this one probably not needed, try it both ways (see if we have duplicate-enter bug) ####@@@@
+##        self.setAcceptDrops(True) #k apparently not needed; removed 050129 late,
+        ## do we still have duplicate-enter bug since then?? ####k ####@@@@
         self.viewport().setAcceptDrops(True)
             #####@@@@@@ btw trying only this one for first time, same as 1st time with this one at all and with scroll signal
         # btw see "dragAutoScroll" property in QScrollView docs. dflt true. that's why we have to accept drops on viewport.
@@ -304,10 +306,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"), self.slot_itemRenamed)
 
-        # experiment, 050129: can we be told when autoscrolling occurs while we're (not) receiving contentsDragMoveEvents? yes!
+        # To highlight the correct items/gaps under potential drop-points during drag and drop,
+        # we need to be told when autoscrolling occurs, since Qt neglects to send us new dragMove events
+        # when the global cursor position doesn't change, even though the position within the contents
+        # does change due to Qt's own autoscrolling!
         self.connect(self, SIGNAL("contentsMoving(int, int)"), self.slot_contentsMoving)
-        # KLUGE: clean up!
-        self.debug_dragstuff = debug_dragstuff # so TreeView.py can see it
 
         return # from TreeWidget.__init__
 
