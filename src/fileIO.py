@@ -553,7 +553,8 @@ def writemovie(assy, moviefile, mflag = False):
 
     # We always save the current part to an MMP file.  In the future, we may want to check
     # if assy.filename is an MMP file and use it if assy.modified = 0.
-    mmpfile = os.path.join(assy.w.tmpFilePath, "simulate.mmp")
+    pid = os.getpid()
+    mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
         
     # filePath = the current directory NE-1 is running from.
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -578,7 +579,7 @@ def writemovie(assy, moviefile, mflag = False):
         outfile = "-o"+moviefile
         infile = mmpfile
         
-    print "infile = ",infile," outfile =",outfile
+#    print "infile = ",infile," outfile =",outfile
 
     if mflag: # "args" = arguments for the simulator to minimize.
         args = [program, '-m', outfile, infile]
@@ -654,13 +655,20 @@ def writemovie(assy, moviefile, mflag = False):
         # Kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
         # - Mark 050107
         if sys.platform == 'win32':
-            import win32api
-            win32api.TerminateProcess(kid, -1)
-            win32api.CloseHandle(kid)
+            try:
+                import win32api
+                win32api.TerminateProcess(kid, -1)
+                win32api.CloseHandle(kid)
+            except:
+                print "fyi (bug?): in fileIO.writemovie(): cannot terminate process.  kid =",kid
+                pass
         else:
-            import signal
-            os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
-            
+            try:
+                import signal
+                os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
+            except:
+                print "fyi (bug?): in fileIO.writemovie(): cannot kill process.  kid =",kid
+                pass
             
     else: # Something failed...
         msg = "<span style=\"color:#ff0000\">Simulation failed: exit code %r </span>" % r
