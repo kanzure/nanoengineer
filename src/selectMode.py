@@ -114,7 +114,7 @@ class selectMode(basicMode):
     def Draw(self):
         self.griddraw()
         if self.sellist: self.pickdraw()
-        if self.o.assy: self.o.assy.draw(self.o)
+        self.o.assy.draw(self.o)
 
     def griddraw(self):
         """ draws point-of-view axes

@@ -528,20 +528,15 @@ class molecule:
 
         self.bbLines = dot(cubeLines*(bbhi-c) + c, self.evec)
         
-##         self.pickcent = c[0]*self.evec[0]+c[1]*self.evec[1]+c[2]*self.evec[2]
-##         self.pickscale = (bbhi-bblo)/2.0
-##         # watch out for left-handed spaces
-
-##         v= self.evec[0], self.evec[1], cross(self.evec[0], self.evec[1])
-
-##         self.pickquat = Q(v[0], v[1], v[2])
-
         # Pick a principal axis: if square or circular, the axle;
         # otherwise the long axis (this is a heuristic)
-        ug = argsort(self.eval)
-        if self.eval[ug[0]]/self.eval[ug[1]] >0.95:
-            self.axis = self.evec[ug[2]]
-        else: self.axis = self.evec[ug[0]]
+        if len(atpos)<=1:
+            self.axis = V(1,0,0)
+        else:
+            ug = argsort(self.eval)
+            if self.eval[ug[0]]/self.eval[ug[1]] >0.95:
+                self.axis = self.evec[ug[2]]
+            else: self.axis = self.evec[ug[0]]
             
         # may have changed appearance of the molecule
 

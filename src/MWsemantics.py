@@ -380,11 +380,12 @@ class MWsemantics(MainWindow):
     # the elements combobox:
     # change selected atoms to the element selected
     def elemChange(self, string):
-        if not self.assy: return
         if self.assy.selatoms:
             for a in self.assy.selatoms.itervalues():
                 a.mvElement(fullnamePeriodicTable[str(string)])
-        self.assy.updateDisplays()
+            self.assy.updateDisplays()
+        else:
+            self.assy.DesiredElement = fullnamePeriodicTable[str(string)].symbol
 
     ###################################
     # some unimplemented buttons:
@@ -392,10 +393,10 @@ class MWsemantics(MainWindow):
 
     # turn on and off an "add atom with a mouse click" mode
     def addAtomStart(self):
-        print "MWsemantics.addAtomStart(): Not implemented yet"
+        self.glpane.setMode('DEPOSIT')
     
     def addAtomDone(self):
-        print "MWsemantics.addAtomDone(): Not implemented yet"
+        self.glpane.mode.Done()
 
     # create bonds where reasonable within selection
     def movie(self):

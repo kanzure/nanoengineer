@@ -54,6 +54,8 @@ class assembly:
         self.selmotors=[]
         self.undolist=[]
 
+        self.DesiredElement = Carbon.symbol
+
     # convert absolute atom positions to relative, find
     # bounding boxes, do some housekeeping
 

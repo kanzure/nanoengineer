@@ -18,6 +18,7 @@ from constants import *
 from modifyMode import *
 from cookieMode import *
 from selectMode import *
+from depositMode import *
 
 import Image
 import operator
@@ -140,6 +141,7 @@ class GLPane(QGLWidget):
         selectMode(self)
         cookieMode(self)
         modifyMode(self)
+        depositMode(self)
 
         self.setMode('SELECT')
 
@@ -313,8 +315,8 @@ class GLPane(QGLWidget):
         k = (dot(self.lineOfSight,  (- self.pov) - p1) /
              dot(self.lineOfSight, p2 - p1))
 
-        p1 = A(gluUnProject(x, y, 0.01))
         p2 = p1 + k*(p2-p1)
+        p1 = A(gluUnProject(x, y, 0.01))
         return (p1, p2)
 
 
