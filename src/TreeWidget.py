@@ -23,6 +23,10 @@ allButtons = (leftButton|midButton|rightButton) #e should be defined in same fil
 
 from platform import tupleFromQPoint, fix_plurals
 
+# but platform thinks "# def qpointFromTuple - not needed"; for now, don't argue, just do it here:
+def QPointFromTuple((x,y)):
+    return QPoint(x,y)
+
 debug_dragstuff = 0 # DO NOT COMMIT with 1. - at least not for the alpha-release version (see below)
     # to enable this at runtime, type the following into the "run py code" menu item's dialog:
     # import TreeWidget@@@TreeWidget.debug_dragstuff = 1
@@ -343,6 +347,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return makemenu_helper(self, lis)    
 
     # mouse event handlers (except for drag & drop, those are farther below)
+
+    # helper variable for knowing if you might be inside an external-source drag, not now in the widget...
+    # might need revision to store more than just the last single event of all types together... #####@@@@@ revise, use [050201]
+    last_event_type = "none" #k or imitate some other one?
     
     def contentsMouseDoubleClickEvent(self, event):
         "[called by Qt]"
@@ -352,6 +360,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     def contentsMousePressEvent(self, event, dblclick = 0):
         "[called by Qt, or by our own contentsMouseDoubleClickEvent]"
+        self.last_event_type = "press"
         
         # figure out position and item of click (before doing any side effects)
         #e this might be split into a separate routine if it's useful during drag
@@ -426,6 +435,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     drag_handler = None # this can be set by selection_click()
     def contentsMouseMoveEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
+        self.last_event_type = "move"
         # This method might be needed, to prevent QListView's version of it from messing us up,
         # even if it had no body. Anyway, now it does have one.
         # Note that it is not called by Qt for a dragMoveEvent,
@@ -442,6 +452,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     
     def contentsMouseReleaseEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
+        self.last_event_type = "release"
         # This method might be needed, to prevent QListView version of it from messing us up,
         # even if it does nothing.
         # (At least, without it, QListView emits its "clicked" signal.)
@@ -455,6 +466,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     def enterEvent(self, event): ####e #####@@@@@ should this (and Leave) call our drag_handler??
         "[should be called by Qt when mouse enters this widget]"
+        self.last_event_type = "enter"
         # [Qt doc says this method is on QWidget; there doesn't seem to be a "contentsEnterEvent".]
         # erase any statusbar messages that might be left over from other widgets
         # (eg advice from Build mode in glpane)
@@ -1040,6 +1052,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     last_dragMove_ok = False
     
     def contentsDragEnterEvent(self, event):
+        self.last_event_type = "dragenter"
         # warning: for unknown reasons, this is sometimes called twice when i'd expect it to be called once.
 ##        if debug_dragstuff:
 ##            print_compact_stack("contentsDragEnterEvent stack (fyi): ")
@@ -1056,6 +1069,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return
 
     def dragEnterEvent(self,event):
+        self.last_event_type = "dragenter" #k ok to do this here and for contentsDragEnter both??
         if debug_dragstuff:
             print "dragEnterEvent happened too! SHOULD NOT HAPPEN" # unless we are not accepting drops on the viewport
 
@@ -1071,6 +1085,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         it's actually the position of the topleft visible part of the
         contents (in contents coords), as determined by the scrollbars.
         """
+        ## want one of these?? self.last_event_type = "slot_contentsMoving"
         self.last_scrollpos = (x,y)
         
         # Now, in case we're in a drag (after a dragMove), reset the drag position
@@ -1097,6 +1112,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return
     
     def contentsDragMoveEvent(self, event):
+        self.last_event_type = "dragmove"
         # we can re-accept it (they suggest letting this depend on event.pos())...
         # don't know if we need to, but all their doc examples do... so we will.
         ok = QTextDrag.canDecode(event) # this code is duplicated elsewhere
@@ -1116,6 +1132,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return
         
     def contentsDragLeaveEvent(self, event):
+        self.last_event_type = "dragleave"
 ##        if debug_dragstuff:
 ##            print "contentsDragLeaveEvent, event == %r" % event
         # the following code is similar in dragLeave and Drop and slot_contentsMoving,
@@ -1128,12 +1145,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return
     
     def dragLeaveEvent(self, event):
+        self.last_event_type = "dragleave" ###k ok here too?
         if debug_dragstuff:
             print "dragLeaveEvent, event == %r, SHOULD NOT HAPPEN" % event
         #e remove highlighting from dragmove
 
     true_dragMove_cpos = None
     drop_disabled_because = ""
+    
     def update_drop_point_highlighting(self, undo_only = False):
         #k undo_only might not be needed once a clipping issue is solved -- see call that uses/used it, comments near it
         """###OBS - some of this is wrong since we no longer use viewportPaintEvent as much -- 050131.
@@ -1185,6 +1204,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.true_dragMove_cpos = None
             ####@@@@ the following is only valid if a dragLeave (I think) was the last event we had in the app! (or so)
             # now, this shows up even for a "copy" event which moves the scrollbar! #####@@@@@
+            # use self.last_event_type somehow (revise it so we can)#####@@@@@
             substatus = " -- " + self.drop_disabled_because
                 # substatus is independent of whether drag is initiated in this widget
         # now figure out where the drag came from and what it means, to mention in statsubar
@@ -1194,6 +1214,73 @@ class TreeWidget(TreeView, DebugMenuMixin):
         else:
             desc = "drag from outside tree widget" #e subclass should supply widget description
         self.statusbar_msg( desc + substatus )
+
+        # now it's time to figure out where we are, if anywhere, and what drop points we would hit
+
+        listview = self
+        cpos = self.true_dragMove_cpos # None or a tuple
+        if cpos:
+            x,y = cpos
+            ## not needed: item = self.itemAtCposXY(x,y) # item you might want to drop on directly, or None
+            # How to detect the mouse pointing at a gap:
+            # a gap lies between (the rows of) adjacent items-or-None (but never both None);
+            # the items touch so the gap (as a mouse-target) overlaps each one by some amount;
+            # if we imagine it extends y_up into top item and y_down into bottom item,
+            # then it can be looked for by letting mouse drag around a dual-point AFM :-)
+            # whose points are that much down and up (in reverse order) from its own position...
+            # that is, look for a top item y_down above your pos, and for a bottom one y_up below your pos.
+            # Usually y_down == y_up, but that's no excuse to fail to reverse them in this code!
+            # In fact, to support hysteresis and/or mouse-hotspot-corrections
+            # we might make them vary a bit, per gap,
+            # and then they'll differ when looked for above and below one item -- different gaps...
+            # BTW, the item found above tells us (mostly) what two gaps to look for...
+            # not if it's None, though...
+            #    For now, to simplify this, just look a fixed amount up or down,
+            # and see one item in both places (then drop onto that item, regardless of x I think? not sure)
+            # or see two items-or-Nones (only bottom one can be None, since we leave no empty space at top --
+            # not true, the top point could look above the top item, but we don't permit a drop there).
+            # Then you want to drop between them; x position determines desired depth (closest icon-column-
+            # centerline of permissible drop-depths), can be as left as either item (above or below gap)
+            # or as right as either item or as hypothetical children of top item if that one is openable.
+            # (No ambiguity if that matches depth of bottom item! And useful for becoming top child of closed
+            # items, since drop directly on item makes you bottom child. Sbar message should say where you'd drop. ###e)
+
+            # Find the items-or-Nones above and below the gap (if same, you're over that item, not a gap):
+            ###e should change from hardcoded constants below... sorry, the deadline approaches...
+            top = self.itemAtCposXY(x,y-3) #e these constants will probably need subjective adjustment, maybe hysteresis
+            bottom = self.itemAtCposXY(x,y+3)
+            return #####@@@@@
+            if top == bottom:
+                if top:
+                    # dropping inside item top
+                    where = "dropping inside item %r" % top.object.name
+                else:
+                    # dropping into empty space
+                    where = "dropping into empty space"
+            elif not top:
+                # too high to drop (it's above all items, at least for now with no big gaps in the display)
+                where = "too high, above highest item %r" % bottom.object.name
+            else:
+                # dropping into the gap between items top (not None) and bottom (maybe None);
+                # use x position to figure out desired depth
+                where = "somewhere in gap between items %r and %r..." % (top.object.name, bottom.object.name)
+                dtop = self.itemDepth(top) # in units of integers not pixels?? or floats but where 1.0 is the level-change in x?
+                    # or ints but where the level-change is known to us??
+                dbottom = self.itemDepth(bottom)
+                dmouse = self.itemDepthForCposX(x) # depth of the mouse itself (float, 1.0 means "size of one level")
+                mindepth = min(dtop, dbottom) # leftmost possible drop-point (larger depths are innermore ie to the right)
+                maxdepth = max(dtop, bottom) # rightmost, not yet counting "new child of top"
+                maybe_new_child_of_top = False # change below
+                if 0 and self.isItemOpenable(top): #### 0 in case attrname is wrong, i need to commit now #####@@@@@ where i am is here
+                    maybe_new_child_of_top = True ### 050201 433pm
+                    dtop_child = dtop + 1
+                    if dtop_child > xxx: pass ####
+                pass ####@@@@@ stubbly here...
+
+        listview.itemAt
+        ###
+
+        # now undo old drawing and do new drawing. #####@@@@@
         
         if not debug_dragstuff: return  #e remove soon, when next stuff is not a stub
         
@@ -1206,6 +1293,18 @@ class TreeWidget(TreeView, DebugMenuMixin):
         if not undo_only:
             self.draw_stubsymbol_at_cpos_in_viewport(painter, self.true_dragMove_cpos, color = Qt.blue) #e should use highlight color from a palette
 
+    def itemDepth(self,item):
+        return 2.0 #stub #####@@@@@
+    def itemAtCposXY(self, x, y):
+        ####WRONG, does not check for too far to left or right, on openclose, etc...
+        ### USE AS STUB but then split out the code from contentsMousePress
+        # and use that instead of direct itemAt. #####@@@@@
+        #e also, for DND or seldrag we might want both the item-row and whether we're really in it... for now, assume not...
+        # but worry about where user will point mouse for gaps if i draw an arrow to the left of the items pointing to them,
+        # or a circle just outside the icon level...
+        vpos = self.contentsToViewport(QPoint(x,y)) # or QPointFromTuple((x,y)) #k or i bet QPoint could be left out entirely
+        return self.itemAt(vpos) # might be None
+    
     def draw_stubsymbol_at_cpos_in_viewport(self, painter, cpos, color = Qt.red, blot = False):
         if cpos == None:
             # warning: other code in this file just says "if cpos",
@@ -1256,7 +1355,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         super = TreeView # the class, not the module
         res = super.viewportPaintEvent(self, event)
         cpos = self.true_dragMove_cpos
-        if cpos:
+        if cpos and debug_dragstuff:
             painter = QPainter(self.viewport(), True)
             self.draw_stubsymbol_at_cpos_in_viewport(painter, cpos, color = Qt.green) # i think we're depending on clip to event.rect()
                 # should use highlightcolor; for debug use diff color than when drawn in the other place that can draw this
@@ -1294,6 +1393,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         listview.update() #k needed?
         
     def contentsDropEvent(self, event):
+        self.last_event_type = "drop"
         if debug_dragstuff:
             print "contentsDropEvent, event == %r" % event
 
@@ -1314,6 +1414,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.drop_disabled_because = "drop ignored since in autoscroll" # will be zapped by redmsg anyway
         else:
             self.drop_disabled_because = "<bug if you see this>" # only shows up when disabled... clean this up!
+                #####@@@@@ this comes out when you click and scroll, e.g. if copy in cmenu extends contents height... not in any drag
         self.update_drop_point_highlighting()
 
         if disabled:
