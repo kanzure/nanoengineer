@@ -40,10 +40,8 @@ class PlotTool(PlotToolDialog):
             return 1
         
         # Construct the trace file name.
-        print "Movie file = [", self.assy.m.filename, "]"
-        fullpath, ext = os.path.splitext(self.assy.m.filename)
-        self.traceFile = fullpath + "-trace.txt"
-        print "Trace file = ", self.traceFile
+        self.traceFile = self.assy.m.get_trace_filename()
+#        print "PlotTool: Trace file = ", self.traceFile
         
         # Make sure the tracefile exists
         if not os.path.exists(self.traceFile):
@@ -51,9 +49,9 @@ class PlotTool(PlotToolDialog):
             self.assy.w.history.message(redmsg(msg))
             return 1
             
-        # Construct the plot file name.
-        self.plotFile = fullpath + '.plt'
-        print "Plot file = ", self.plotFile
+        # Construct the GNUplot filename.
+        self.plotFile = self.assy.m.get_GNUplot_filename()
+#        print "Plot file = ", self.plotFile
         
         # Now we read specific lines of the traceFile to read parts of the header we need.
         # I will change this soon so that we can find this header info without knowing what line they are on.
@@ -73,10 +71,10 @@ class PlotTool(PlotToolDialog):
         header = linecache.getline(self.traceFile, 5)
         hlist = string.split(header, ": ")
         self.dpbname = hlist[1][:-1]
-        print "Trajectory file name = ", self.dpbname
+#        print "Trajectory file name = ", self.dpbname
         
         # Get number of columns, located in line 14 of the header.
-        hloc = 14 # Line number in file contain the "# n columns"
+        hloc = 12 # Line number in file contain the "# n columns"
         header = linecache.getline(self.traceFile, hloc)
         hlist = string.split(header, " ")
         ncols = int(hlist[1])
@@ -88,30 +86,45 @@ class PlotTool(PlotToolDialog):
             for i in range(ncols):
                 gname = linecache.getline(self.traceFile, hloc + 1 + i)
                 self.plotCB.insertItem(gname[2:-1])
-            return 0
         else: # No jigs in the part, so nothing to plot.
             msg = "Plot Tool: No jigs in this part.  Nothing to plot."
             self.assy.w.history.message(redmsg(msg))
             return 1
+        
+        self.lastplot = 0
 
     def genPlot(self):
-        """Plots the selected graph using GNUplot.
+        """Generates GNUplot plotfile, then calls self.runGNUplot.
         """
         col = self.plotCB.currentItem() + 2 # Column number to plot
 #        print "Selected plot # column =", col, "\n"
+        
+        # If this plot was the same as the last plot, just run GNUplot on the plotfile.
+        # This allows us to edit the current plotfile in a text editor via "Open GNUplot File"
+        # and replot without overwriting it.
+        if col == self.lastplot: 
+            self.runGNUplot(self.plotFile)
+            return
+        else:
+            self.lastplot = col
+            
         title = str(self.plotCB.currentText()) # Legend title
         tlist = string.split(title, ":")
         ytitle = str(tlist[1]) # Y Axis title
         
         # Write GNUplot file
         f = open(self.plotFile,"w")
-        if sys.platform == 'darwin': f.write("set terminal aqua\n") # GNUplot for Mac needs this.
-        f.write("set title \"Trajectory file: %s\\n Created %s\"\n"%(self.dpbname,self.date))
+        
+        if sys.platform == 'darwin': 
+            f.write("set terminal aqua\n") # GNUplot for Mac needs this.
+            
+        f.write("set title \"Trace file: %s\\n Created: %s\"\n"%(self.traceFile,self.date))
         f.write("set key left box\n")
         f.write("set xlabel \"time  (picoseconds)\"\n")
         f.write("set ylabel \"%s\"\n"%(ytitle))
         f.write("plot '%s' using 1:%d title \"%s\" with lines lt 2,\\\n"%(self.traceFile,col,title))
         f.write("       '%s' using 1:%d:(0.5) smooth acsplines title \"%s\" lt 3\n"%(self.traceFile,col,title))
+        
         if sys.platform == 'win32': 
             # The plot will stay up until the OK or Cancel button is clicked.
             f.write("pause mouse \"Click OK or Cancel to Quit\"") 
@@ -121,8 +134,14 @@ class PlotTool(PlotToolDialog):
             # The workaround is thus: plot will stick around for 3600 seconds (1 hr).
             # Mark 050310
             f.write("pause 3600")
-        f.close()
         
+        f.close()
+
+        self.runGNUplot(self.plotFile)
+
+    def runGNUplot(self, plotfile):
+        """Sends plotfile to GNUplot.
+        """        
         # filePath = the current directory NE-1 is running from.
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         
@@ -132,25 +151,29 @@ class PlotTool(PlotToolDialog):
         else:
             program = os.path.normpath(filePath + '/../bin/gnuplot')
         
-        # Make sure GNUplot exists
+        # Make sure GNUplot executable exists
         if not os.path.exists(program):
             msg = "Plot Tool: GNUplot [" + program + "] is missing.  Plot aborted."
             self.assy.w.history.message(redmsg(msg))
             return
         
         # Create arguments list for plotProcess.
-        args = [program, self.plotFile]
+#        args = [program, self.plotFile]
+        args = [program, plotfile]
 #        print "args = ", args
         arguments = QStringList()
         for arg in args:
             arguments.append(arg)
-
+        
         # Run GNUplot as a separate process
         plotProcess = None
         try:
             plotProcess = QProcess()
             plotProcess.setArguments(arguments)
-            if not plotProcess.start(): print "GNUplot failed to run"
+            if not plotProcess.start(): 
+                self.assy.w.history.message(redmsg("GNUplot failed to run!"))
+            else: 
+                self.assy.w.history.message("Running GNUplot file: " + plotfile)
             
         except: # We had an exception.
             print"exception in GNUplot; continuing: "
@@ -158,3 +181,23 @@ class PlotTool(PlotToolDialog):
                 print "Killing process"
                 plotProcess.kill()
                 plotProcess = None
+                
+    def openTraceFile(self):
+        """Opens the current tracefile in an editor.
+        """
+        if sys.platform == 'win32': 
+            os.system("notepad.exe " + self.traceFile)
+        elif sys.platform == 'darwin':
+            os.system("/usr/bin/open " + self.traceFile)
+        else:
+            print "PlotTool.openTraceFile: Not implemented yet for Linux"
+
+    def openGNUplotFile(self):
+        """Opens the current GNUplot file in an editor.
+        """
+        if sys.platform == 'win32': 
+            os.system("notepad.exe " + self.plotFile)
+        elif sys.platform == 'darwin':
+            os.system("/usr/bin/open " + self.plotFile)
+        else:
+            print "PlotTool.openGNUplotFile: Not implemented yet for Linux"
