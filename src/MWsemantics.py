@@ -147,7 +147,14 @@ class MWsemantics(MainWindow):
               #bruce 041202 fixed minor bug in next line; removed return statement
               print_compact_traceback("exception in creating temporary directory: %r" % self.tmpFilePath)
         
+        ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
+        objList = self.queryList("QToolBar")
+        for obj in objList:
+                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.modifyToolbar, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard]:
+                         self.setAppropriate(obj, False)
+   
         return # from MWsemantics.__init__
+
 
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]
@@ -846,72 +853,13 @@ class MWsemantics(MainWindow):
 
     ######################################################
     # functions for toggling (hiding/unhiding) toolbars  #
+    ###Removed by Huaicai 12/08/04, they are not used.
     ######################################################
-
-    def toggleFileTbar(self):
-        if self.fileToolbar.isVisible():
-            self.fileToolbar.hide()
-        else:
-            self.fileToolbar.show()
-
-    def toggleEditTbar(self):
-        if self.editToolbar.isVisible():
-            self.editToolbar.hide()
-        else:
-            self.editToolbar.show()
-
-    def toggleViewTbar(self):
-        if self.viewToolbar.isVisible():
-            self.viewToolbar.hide()
-        else:
-            self.viewToolbar.show()
-
-    def toggleGridTbar(self):
-        if self.gridToolbar.isVisible():
-            self.gridToolbar.hide()
-        else:
-            self.gridToolbar.show()
-
-    def toggleModelDispTbar(self):
-        if self.modelDispToolbar.isVisible():
-            self.modelDispToolbar.hide()
-        else:
-            self.modelDispToolbar.show()
-
-    def toggleSelectTbar(self):
-        if self.selectToolbar.isVisible():
-            self.selectToolbar.hide()
-        else:
-            self.selectToolbar.show()
-
-    def toggleModifyTbar(self):
-        if self.modifyToolbar.isVisible():
-            self.modifyToolbar.hide()
-        else:
-            self.modifyToolbar.show()
-
-    def toggleToolsTbar(self):
-        if self.toolsToolbar.isVisible():
-            self.toolsToolbar.hide()
-        else:
-            self.toolsToolbar.show()
-
-    def toggleDatumDispTbar(self):
-        if self.datumDispToolbar.isVisible():
-            self.datumDispToolbar.hide()
-        else:
-            self.datumDispToolbar.show()
-
-    def toggleSketchAtomTbar(self):
-        if self.sketchAtomToolbar.isVisible():
-            self.sketchAtomToolbar.hide()
-        else:
-            self.sketchAtomToolbar.show()
-
+    
+    
     ###############################################################
     # functions from the buttons down the right side of the display
     ###############################################################
-
     def toolsSelectAtoms(self):
         self.glpane.setMode('SELECTATOMS')
 

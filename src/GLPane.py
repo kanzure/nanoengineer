@@ -803,8 +803,8 @@ class GLPane(QGLWidget, modeMixin):
             # spawnv() has problems on Windows, so changing working directory to it
             oldWorkingDir = os.getcwd()
             os.chdir(tmpFilePath)
-            args = [filePath + '/../bin test/simulator', '-m ',  "minimize.mmp"]
-            r = os.spawnv(os.P_WAIT, filePath + '/../bin test/simulator', args)
+            args = [filePath + '/../bin/simulator', '-m ',  "minimize.mmp"]
+            r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
             os.chdir(oldWorkingDir)
         except:
             print_compact_traceback("exception in minimize; continuing: ")
