@@ -14,9 +14,7 @@
   <pyfile type="file" name="elementSelector.py" />
   <pyfile type="file" name="extrudeMode.py" />
   <pyfile type="file" name="fileIO.py" />
-  <pyfile type="file" name="gadgets.py" >
-   <breakpoint line="40" />
-  </pyfile>
+  <pyfile type="file" name="gadgets.py" />
   <pyfile type="file" name="GLPane.py" />
   <pyfile type="file" name="GroundProp.py" />
   <pyfile type="file" name="help.py" />
@@ -87,5 +85,13 @@
   <pyfile type="file" name="preferences.py" />
   <pyfile type="file" name="movie.py" />
   <pyfile type="file" name="HistoryWidget.py" />
+  <pyfile type="file" name="zoomMode.py" />
+  <pyfile type="file" name="node_indices.py" />
+  <uifile type="file" name="ThermoPropDialog.ui" >
+   <pyfile url="\ThermoPropDialog.py" type="file" name="ThermoPropDialog.py" />
+  </uifile>
+  <pyfile type="file" name="ThermoProp.py" />
+  <pyfile type="file" name="panMode.py" />
+  <pyfile type="file" name="rotateMode.py" />
  </project>
 </kodeproject>
