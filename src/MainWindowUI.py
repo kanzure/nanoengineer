@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sat Oct 9 08:54:43 2004
+# Created: Mon Oct 11 12:24:01 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7474,25 +7474,27 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(284,0,217,29))
+        self.viewToolbar.setGeometry(QRect(284,0,231,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
+        self.viewToolbar.addSeparator()
         self.setViewOrthoAction.addTo(self.viewToolbar)
         self.setViewPerspecAction.addTo(self.viewToolbar)
+        self.viewToolbar.addSeparator()
         self.setViewFrontAction.addTo(self.viewToolbar)
         self.setViewTopAction.addTo(self.viewToolbar)
         self.setViewRightAction.addTo(self.viewToolbar)
         self.gridsToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.gridsToolbar.setGeometry(QRect(501,0,101,29))
+        self.gridsToolbar.setGeometry(QRect(515,0,101,29))
         self.gridsToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.orient100Action.addTo(self.gridsToolbar)
         self.orient110Action.addTo(self.gridsToolbar)
         self.orient111Action.addTo(self.gridsToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(602,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(616,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7585,17 +7587,20 @@ class MainWindow(QMainWindow):
         self.modifyWeldMoleculeAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,294,30,413))
+        self.toolsToolbar.setGeometry(QRect(0,294,30,434))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
+        self.toolsToolbar.addSeparator()
         self.toolsMoveMoleculeAction.addTo(self.toolsToolbar)
+        self.toolsToolbar.addSeparator()
         self.toolsDepositAtomAction.addTo(self.toolsToolbar)
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
         self.toolsRevolveAction.addTo(self.toolsToolbar)
         self.toolsMirrorAction.addTo(self.toolsToolbar)
         self.toolsMirrorCircularBoundaryAction.addTo(self.toolsToolbar)
+        self.toolsToolbar.addSeparator()
         self.toolsAlignToCommonAxisAction.addTo(self.toolsToolbar)
         self.toolsDeleteBondAction.addTo(self.toolsToolbar)
         self.toolsAddBondAction.addTo(self.toolsToolbar)
@@ -7655,7 +7660,6 @@ class MainWindow(QMainWindow):
 
         self.unnamed = QPopupMenu(self)
         self.setViewHomeAction.addTo(self.unnamed)
-        self.setViewRecenterAction.addTo(self.unnamed)
         self.setViewFitToWindowAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.setViewOrthoAction.addTo(self.unnamed)
@@ -7740,7 +7744,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,917).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,926).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -8222,8 +8226,8 @@ class MainWindow(QMainWindow):
             self.MenuBar.findItem(3).setText(self.__tr("&File"))
         if self.MenuBar.findItem(4):
             self.MenuBar.findItem(4).setText(self.__tr("&Edit"))
-        self.unnamed.changeItem(self.unnamed.idAt(7),self.__tr("Orientations"))
-        self.unnamed.changeItem(self.unnamed.idAt(9),self.__tr("&Toolbars"))
+        self.unnamed.changeItem(self.unnamed.idAt(6),self.__tr("Orientations"))
+        self.unnamed.changeItem(self.unnamed.idAt(8),self.__tr("&Toolbars"))
         if self.MenuBar.findItem(5):
             self.MenuBar.findItem(5).setText(self.__tr("&View"))
         if self.MenuBar.findItem(6):

@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>917</height>
+            <height>926</height>
         </rect>
     </property>
     <property name="caption">
@@ -73,7 +73,6 @@
     </item>
     <item text="&amp;View" name="unnamed">
         <action name="setViewHomeAction"/>
-        <action name="setViewRecenterAction"/>
         <action name="setViewFitToWindowAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
@@ -201,7 +200,7 @@
             <rect>
                 <x>284</x>
                 <y>0</y>
-                <width>217</width>
+                <width>231</width>
                 <height>29</height>
             </rect>
         </property>
@@ -213,8 +212,10 @@
         </property>
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
+        <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
+        <separator/>
         <action name="setViewFrontAction"/>
         <action name="setViewTopAction"/>
         <action name="setViewRightAction"/>
@@ -225,7 +226,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>501</x>
+                <x>515</x>
                 <y>0</y>
                 <width>101</width>
                 <height>29</height>
@@ -247,7 +248,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>602</x>
+                <x>616</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -595,7 +596,7 @@
                 <x>0</x>
                 <y>294</y>
                 <width>30</width>
-                <height>413</height>
+                <height>434</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -610,13 +611,16 @@
         </property>
         <action name="toolsSelectMoleculesAction"/>
         <action name="toolsSelectAtomsAction"/>
+        <separator/>
         <action name="toolsMoveMoleculeAction"/>
+        <separator/>
         <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <action name="toolsRevolveAction"/>
         <action name="toolsMirrorAction"/>
         <action name="toolsMirrorCircularBoundaryAction"/>
+        <separator/>
         <action name="toolsAlignToCommonAxisAction"/>
         <action name="toolsDeleteBondAction"/>
         <action name="toolsAddBondAction"/>
