@@ -45,6 +45,9 @@ def fileparse(name):
     return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
 
 class MWsemantics(MainWindow):
+    
+    initialised = 0 #bruce 041222
+    
     def __init__(self, parent = None, name = None):
 	
         global windowList
@@ -152,6 +155,9 @@ class MWsemantics(MainWindow):
            except :
               #bruce 041202 fixed minor bug in next line; removed return statement
               print_compact_traceback("exception in creating temporary directory: %r" % self.tmpFilePath)
+
+        self.initialised = 1
+        self.update() # bruce 041222
    
         return # from MWsemantics.__init__
 
@@ -228,6 +234,8 @@ class MWsemantics(MainWindow):
     ##################################################
 
     def update(self):
+        if not self.initialised:
+            return #bruce 041222
         self.glpane.paintGL()
         self.mt.update()
         
