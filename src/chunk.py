@@ -1417,8 +1417,8 @@ def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
         # Comments by bruce 041123, related to fix for bug #150:
         #
         # Move m1 to an ideal position for bonding to m2, but [as bruce's fix
-        # to comment #2 of bug 150, per Josh suggestion; note that this bug will
-        # be split and what we're fixing will get a new bug number] only if it
+        # to comment #1 of bug 150, per Josh suggestion; note that this bug will
+        # be split and what we're fixing might get a new bug number] only if it
         # has no external bonds except the one we're about to make. (Even a bond
         # to the other of m1 or m2 will disqualify it, since that bond might get
         # messed up by a motion. This might be a stricter limit than Josh meant
