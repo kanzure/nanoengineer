@@ -381,23 +381,29 @@ def writepov(assy, filename):
     atnums['NUM'] = 0
     assy.alist = []
 
-    aspect = (assy.o.width*1.0)/(assy.o.height*1.0)
+    cdist = 5.0 # Camera distance
+    zfactor = 0.4 # zoom factor
+    up = V(0.0, zfactor, 0.0)
+    right = V(1.33 * zfactor, 0.0, 0.0)
 
     f.write(povheader)
 
-    f.write("background { color rgb " + povpoint(assy.o.mode.backgroundColor*V(1,1,-1)) + "}\n")
+    # Background color
+    f.write("background {\n  color rgb " + povpoint(assy.o.mode.backgroundColor*V(1,1,-1)) + "\n}\n")
 
-    light1 = assy.o.out + assy.o.left + assy.o.up
-    light2 = assy.o.right + assy.o.up
+    light1 = (assy.o.out + assy.o.left + assy.o.up) * 10.0
+    light2 = (assy.o.right + assy.o.up) * 10.0
     light3 = assy.o.right + assy.o.down + assy.o.out/2.0
-    f.write("light_source {" + povpoint(light1) + " color Gray50 parallel}\n")
-    f.write("light_source {" + povpoint(light2) + " color Gray25 parallel}\n")
-    f.write("light_source {" + povpoint(light3) + " color Gray25 parallel}\n")
-        
-    f.write("camera {\n location " + povpoint(3.0*assy.o.scale*assy.o.out-assy.o.pov) + "\nup " + povpoint(0.7 * assy.o.up) + "\nright " + povpoint(0.7 * aspect*assy.o.right) + "\nsky " + povpoint(assy.o.up) + "\nlook_at " + povpoint(-assy.o.pov) + "\n}\n")
-        
-#    self.assy.povwrite(f, self) # write all the atoms and bonds in the parts
+    
+    # Light sources
+    f.write("\nlight_source {\n  " + povpoint(light1) + "\n  color Gray10 parallel\n}\n")
+    f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color Gray40 parallel\n}\n")
+    f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color Gray40 parallel\n}\n")
+    
+    # Camera info
+    f.write("\ncamera {\n  location " + povpoint(cdist * assy.o.scale*assy.o.out-assy.o.pov) + "\n  up " + povpoint(up) + "\n  right " + povpoint(right) + "\n  sky " + povpoint(assy.o.up) + "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
+ 
+    # Write atoms and bonds in the part
     assy.tree.writepov(f, assy.o.display)
 
     f.close()
-    print "povray +P +W" + str(assy.o.width) + " +H" +str(assy.o.height)  + " +A " + filename

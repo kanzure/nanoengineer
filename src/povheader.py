@@ -13,11 +13,35 @@ povheader = """
 #declare White   = rgb 1;
 #declare Black   = rgb 0;
 
-#declare Gray25 = White*0.25;
-#declare Gray50 = White*0.50;
-#declare Gray75 = White*0.75;
+#declare Gray10 = White * 0.9;
+#declare Gray25 = White  *0.75;
+#declare Gray40 = White  *0.60;
+#declare Gray50 = White * 0.50;
+#declare Gray75 = White * 0.25;
 
-
+// LIGHTBULB: for debugging light sources for POV-Ray images - Mark
+#declare Lightbulb = union {
+    merge {
+      sphere { <0,0,0>,1 }
+      cylinder {
+        <0,0,1>, <0,0,0>, 1
+        scale <0.35, 0.35, 1.0>
+        translate  0.5*z
+      }
+      texture {
+        pigment {color rgb <1, 1, 1>}
+        finish {ambient .8 diffuse .6}
+      }
+    }
+    cylinder {
+      <0,0,1>, <0,0,0>, 1
+      scale <0.4, 0.4, 0.5>
+      translate  1.5*z
+    }
+    rotate -90*x
+    scale .5
+}
+  
 #declare Atomic =
 finish {
     ambient 0.4
