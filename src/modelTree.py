@@ -460,13 +460,15 @@ class modelTree(QListView):
                 aboveItem = atItem.itemAbove()
                 if aboveItem != parentItem:
                         sItem = aboveItem.nextSibling()
-                        while  sItem!= atItem and aboveItem != self.rootItem:
+                        while  sItem!= atItem and aboveItem != parentItem:
                                 aboveItem = aboveItem.itemAbove()
                                 sItem = aboveItem.nextSibling()
                  
-                        if aboveItem != self.rootItem:
+                        if aboveItem != parentItem:
                                 mitem.moveItem(aboveItem)
-                 
+                                
+        ## Save model tree operations into assembly.orderedItemsList 
+        self.saveModelTree()         
                    
             
     def updateModelTree(self):        
