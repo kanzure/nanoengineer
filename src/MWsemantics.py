@@ -1,4 +1,10 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+'''
+MWsemantics.py provides the main window class, MWsemantics.
+
+$Id$
+'''
+
 import qt
 from qt import QMainWindow, QPixmap, QWidget, QFrame, QPushButton
 from qt import QGroupBox, QComboBox, QAction, QMenuBar, QPopupMenu
@@ -1138,12 +1144,27 @@ class MWsemantics(MainWindow):
             QBitmap(filePath + "/../images/RotateMolCursor-bm.bmp"),
             -1, -1)
                         
-        # Create "DepositAtomCursor" cursor
-        self.DepositAtomCursor = QCursor(
+        # Create "DepositAtomCursor" cursor [differently for Mac or non-Mac]
+        import platform
+        if not platform.is_macintosh():
+          # use original code
+          self.DepositAtomCursor = QCursor(
             QBitmap(filePath + "/../images/DepositAtomCursor.bmp"),
             QBitmap(filePath + "/../images/DepositAtomCursor-bm.bmp"),
             0, 32)
-                        
+            #bruce 041104 note: 32 is beyond the pixel array; 31 might be better
+        else:
+          # bruce 041104 bugfix for Mac, whose hotspot can't be (0,31) since
+          # that acts like (0,15) or so; in fact, by experiment, hotspot (x,y)
+          # acts like ( min(x,15), min(y,15) ) (exact value of upper limit is
+          # a guess); so a workaround is to invert the cursor and the desired
+          # hotspot in y (though we might decide to just do this on all
+          # platforms, for a uniform look):
+          self.DepositAtomCursor = QCursor(
+            QBitmap(filePath + "/../images/DepositAtomCursor.bmp").xForm(QWMatrix(1,0,0,-1, 0,0)),
+            QBitmap(filePath + "/../images/DepositAtomCursor-bm.bmp").xForm(QWMatrix(1,0,0,-1, 0,0)),
+            0, 0)
+        
         # Create "KillCursor" cursor
         self.KillCursor = QCursor(
             QBitmap(filePath + "/../images/KillCursor.bmp"),
@@ -1184,3 +1205,6 @@ class MWsemantics(MainWindow):
 
     # Import code for What's This support        
     from whatsthis import createWhatsThis
+
+    # end of class MWsemantics
+
