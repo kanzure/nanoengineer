@@ -75,13 +75,13 @@ class PlotTool(PlotToolDialog):
         
         # "program" is the full path to the GNUplot executable. 
         if sys.platform == 'win32': 
-            program = os.path.normpath(filePath + '/../bin/pgnuplot.exe')
+            program = os.path.normpath(filePath + '/../bin/wgnuplot.exe')
         else:
-            program = os.path.normpath(filePath + '/../bin/pgnuplot')
+            program = os.path.normpath(filePath + '/../bin/gnuplot')
         
         # Make sure GNUplot exists
         if not os.path.exists(program):
-            msg = "GNUplot [" + program + "] is missing.  Plot aborted."
+            msg = "Plot Tool: GNUplot [" + program + "] is missing.  Plot aborted."
             self.assy.w.history.message(redmsg(msg))
             return
         
