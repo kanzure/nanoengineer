@@ -766,67 +766,73 @@ class Part(InvalMixin):
     # they need further review after Alpha, and probably could use some merging. ###@@@
     # See also assy.kill (Delete operation).
     
-    def cut(self): #####@@@@@ use MovingBondedNodes here (if i can...)
-        self.w.history.message(greenmsg("Cut:"))
-        if self.selatoms:
-            #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
-            # changed condition to not use selwhat, since jigs can be selected even in Select Atoms mode
-            self.w.history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
-            ## return #bruce 050201-bug370: don't return yet, in case some jigs were selected too.
-            # note: we will check selatoms again, below, to know whether we emitted this message
-        new = Group(gensym("Copy"), self.assy, None)
-            # bruce 050201 comment: this group is usually, but not always, used only for its members list
-        if self.immortal() and self.tree.picked:
-            ###@@@ design note: this is an issue for the partgroup but not for clips... what's the story?
-            ### Answer: some parts can be deleted by being entirely cut (top node too) or killed, others can't.
-            ### This is not a properly of the node, so much as of the Part, I think.... not clear since 1-1 corr.
-            ### but i'll go with that guess. immortal parts are the ones that can't be killed in the UI.
-            
-            #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
-            # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
-            # (No such restriction will be required for assy.copy, even when it copies entire groups.)
-            self.tree.unpick_top()
-            ## self.w.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
-            ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
-            self.w.history.message("Can't cut the entire Part; copying its toplevel Group, cutting its members.") #bruce 050201
-            # new code to handle this case [bruce 050201]
-            self.tree.apply2picked(lambda(x): x.moveto(new))
-            use = new
-            use.name = self.tree.name # not copying any other properties of the Group (if it has any)
+    def cut(self):
+        eh = begin_event_handler("Cut") #####@@@@@  this supercedes the plan to use MovingBondedNodes here (if i can...)
+        try:
+            self.w.history.message(greenmsg("Cut:"))
+            if self.selatoms:
+                #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
+                # changed condition to not use selwhat, since jigs can be selected even in Select Atoms mode
+                self.w.history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
+                ## return #bruce 050201-bug370: don't return yet, in case some jigs were selected too.
+                # note: we will check selatoms again, below, to know whether we emitted this message
             new = Group(gensym("Copy"), self.assy, None)
-            new.addmember(use)
-        else:
-            self.tree.apply2picked(lambda(x): x.moveto(new))
-            # bruce 050131 inference from recalled bug report:
-            # this must fail in some way that addmember handles, or tolerate jigs/groups but shouldn't;
-            # one difference is that for chunks it would leave them in assy.molecules whereas copy would not;
-            # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
-            # like bug 278! Because findpick (etc) uses assy.molecules. So I fixed this with sanitize_for_clipboard, below.
-        
-        if new.members:
-            self.changed() # bruce 050201 doing this earlier; 050223 made it conditional on new.members
-            nshelf_before = len(self.shelf.members) #bruce 050201
-            for ob in new.members[:]:
-                # [bruce 050302 copying that members list, to fix bug 360 item 8, like I fixed
-                #  bug 360 item 5 in "copy" 2 weeks ago. It's silly that I didn't look for the same
-                #  bug in this method too, when I fixed it in copy.]
-                # bruce 050131 try fixing bug 278 in a limited, conservative way
-                # (which won't help the underlying problem in other cases like drag & drop, sorry),
-                # based on the theory that chunks remaining in assy.molecules is the problem:
-                self.sanitize_for_clipboard(ob)
-                self.shelf.addmember(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
-                # if the new member is a molecule, move it to the center of its space
-                if isinstance(ob, molecule): ob.move(-ob.center)
-            ## ob.pick() # bruce 050131 removed this
-            nshelf_after = len(self.shelf.members) #bruce 050201
-            self.w.history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
-                ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
-        else:
-            if not self.selatoms:
-                #bruce 050201-bug370: we don't need this if the message for selatoms already went out
-                self.w.history.message(redmsg("Nothing to cut.")) #bruce 050201
-        
-        self.w.win_update()
+                # bruce 050201 comment: this group is usually, but not always, used only for its members list
+            if self.immortal() and self.tree.picked:
+                ###@@@ design note: this is an issue for the partgroup but not for clips... what's the story?
+                ### Answer: some parts can be deleted by being entirely cut (top node too) or killed, others can't.
+                ### This is not a properly of the node, so much as of the Part, I think.... not clear since 1-1 corr.
+                ### but i'll go with that guess. immortal parts are the ones that can't be killed in the UI.
+                
+                #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
+                # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
+                # (No such restriction will be required for assy.copy, even when it copies entire groups.)
+                self.tree.unpick_top()
+                ## self.w.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
+                ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
+                self.w.history.message("Can't cut the entire Part; copying its toplevel Group, cutting its members.") #bruce 050201
+                # new code to handle this case [bruce 050201]
+                self.tree.apply2picked(lambda(x): x.moveto(new))
+                use = new
+                use.name = self.tree.name # not copying any other properties of the Group (if it has any)
+                new = Group(gensym("Copy"), self.assy, None)
+                new.addmember(use)
+            else:
+                self.tree.apply2picked(lambda(x): x.moveto(new))
+                # bruce 050131 inference from recalled bug report:
+                # this must fail in some way that addmember handles, or tolerate jigs/groups but shouldn't;
+                # one difference is that for chunks it would leave them in assy.molecules whereas copy would not;
+                # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
+                # like bug 278! Because findpick (etc) uses assy.molecules. So I fixed this with sanitize_for_clipboard, below.
+
+            #e much of the following might someday be done automatically by end_event_handler and by methods in a Cut command object
+            
+            if new.members:
+                self.changed() # bruce 050201 doing this earlier; 050223 made it conditional on new.members
+                nshelf_before = len(self.shelf.members) #bruce 050201
+                for ob in new.members[:]:
+                    # [bruce 050302 copying that members list, to fix bug 360 item 8, like I fixed
+                    #  bug 360 item 5 in "copy" 2 weeks ago. It's silly that I didn't look for the same
+                    #  bug in this method too, when I fixed it in copy.]
+                    # bruce 050131 try fixing bug 278 in a limited, conservative way
+                    # (which won't help the underlying problem in other cases like drag & drop, sorry),
+                    # based on the theory that chunks remaining in assy.molecules is the problem:
+                    self.sanitize_for_clipboard(ob)
+                    self.shelf.addmember(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
+                    # if the new member is a molecule, move it to the center of its space
+                    if isinstance(ob, molecule): ob.move(-ob.center)
+                ## ob.pick() # bruce 050131 removed this
+                nshelf_after = len(self.shelf.members) #bruce 050201
+                self.w.history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
+                    ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
+            else:
+                if not self.selatoms:
+                    #bruce 050201-bug370: we don't need this if the message for selatoms already went out
+                    self.w.history.message(redmsg("Nothing to cut.")) #bruce 050201
+        finally:
+            end_event_handler(eh)
+            self.w.win_update() ###stub of how this relates to ending the handler
+        return
 
     # copy any selected parts (molecules) [making a new clipboard item... #doc #k]
     #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
@@ -1364,6 +1370,37 @@ class ClipboardItemPart(Part):
     pass
 
 # ==
+
+def process_changed_dads_fix_parts:
+    """Grab (and reset) the global set of nodes with possibly-changed dads,
+    and use this info (and our memory from prior times we ran??)
+    to fix Parts of all affected nodes.
+    If this should someday coexist with other things to do with the
+    same set of nodes with changed dads (at the same time, since it's reset),
+    then how these interact is unclear; probably we'll be put into an order
+    or nesting with those, become methods of an object, and not do our own grab/reset.
+    """
+    nodes = changed.dads.grab_and_reset_changed_objects()
+    ##e future: also know their old dads, so we can see if the dads really changed. Not very important, not done yet.
+    # A node with a new dad might have a new Part, and any of its children might have one.
+    # By the time we run, they all already have their new dad, so we can figure out what Part they and kids should have.
+    # So one easy scheme is just to invalidate the Part for all nodes that might have it wrong. #####@@@@@ not sure...
+    # And then, when done, recompute them all? We do want to *actually finish* moving nodes from their old to new Parts,
+    # and when that's done, checking them all for external bonds that have become interspace bonds and need to be broken
+    # or (maybe) need to induce new Parts to merge.
+    for node in topmost_nodes(nodes):
+        # this includes nodes that got moved, but perhaps also some "deleted"
+        # nodes no longer in the tree at all. This might be a good place to destroy
+        # the latter kind! But to avoid bugs, it's safer to do that later (or never).
+        # But we detect them right away, to avoid bugs in other methods like find_selection_group.
+        if not node.valid():
+            continue #e someday, destroy it later (unless we want to keep it around for undo-related purposes)
+        sg = node.find_selection_group()
+        
+        pass#####@@@@@
+# ==
+
+# this might be obs before it's ever used; or maybe we'll still want it, not sure yet. [050303 comment]
 
 from Utility import MovingNodes
 
