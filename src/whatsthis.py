@@ -45,7 +45,8 @@ def createWhatsThis(self):
         
         editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)</b></p><br> "\
                        "<p><img source=\"editUndo\"><br> "\
-                       "Reverses the last edit or command to the active part. <b>Currently not implemented</b>."\
+                       "Reverses the last edit or command to the active part. "\
+                       "<b>Currently not implemented</b>."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editUndo",
@@ -136,6 +137,22 @@ def createWhatsThis(self):
                                                        self. setViewFitToWindowAction.iconSet().pixmap() )
 
         self.setViewFitToWindowAction.setWhatsThis(  setViewFitToWindowActionText )       
+        
+         #### set zoom Window####
+        
+        setzoomWindowActionText = "<u><b>Zoom Window</b></u><br>"\
+                       "<p><img source=\"setzoomWindow\"><br> "\
+                       "The zoom window tool enables a closer (zoomed in) view of an area on a chunk."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setzoomWindow",
+                                                       self.zoomWindowAction.iconSet().pixmap() )
+
+        self.zoomWindowAction.setWhatsThis(  setzoomWindowActionText )      
+
+        
+        
+        
          #### set Ortho View####
         
         setViewOrthoActionText = "<u><b>Orthogonal Projection</b></u><br>"\
@@ -705,15 +722,31 @@ def createWhatsThis(self):
         
         ####Thermostat####
 
-        jigsStatActionText = "<u><b>Stat</b></u><br>"\
+        jigsStatActionText = "<u><b>Thermostat</b></u><br>"\
                        "<p><img source=\"jigsStatAction\"><br> "\
-                       "Allows you to set the temperature (in Kelvin) of the selected atom(s) for the simulator."\
+                       "Attaches a Langevin Thermostat to the selected atoms."\
+                       " A Langevin thermostat sets the temperature (in Kelvin)"\
+                       " of the selected atom(s) for the simulator."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsStatAction",
                                                        self.jigsStatAction.iconSet().pixmap() )
        
         self.jigsStatAction.setWhatsThis(jigsStatActionText ) 
+
+        ####Thermometer####
+
+        jigsThermoActionText = "<u><b>Thermometer</b></u><br>"\
+                       "<p><img source=\"jigsThermoAction\"><br> "\
+                       "Attaches a thermometer to the selected atoms. "\
+                       "The temperate for the atom(s) will be recorded and "\
+                       " written to a trace file during a simulation run."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsThermoAction",
+                                                       self.jigsThermoAction.iconSet().pixmap() )
+       
+        self.jigsThermoAction.setWhatsThis(jigsThermoActionText ) 
         
         ##############################################
         # Display
