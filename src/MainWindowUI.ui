@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1213</height>
+            <height>1222</height>
         </rect>
     </property>
     <property name="caption">
@@ -114,6 +114,7 @@
         <action name="modifyHydrogenateAction"/>
         <action name="modifyDehydrogenateAction"/>
         <action name="modifySetElementAction"/>
+        <action name="modifyDeleteBondAction"/>
         <action name="modifySeparateAction"/>
         <action name="modifyStretchAction"/>
         <action name="modifyWeldAction"/>
@@ -578,7 +579,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>30</width>
-                <height>266</height>
+                <height>294</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -596,6 +597,7 @@
         <action name="modifyDehydrogenateAction"/>
         <action name="modifyPassivateAction"/>
         <action name="modifySetElementAction"/>
+        <action name="modifyDeleteBondAction"/>
         <action name="modifyStretchAction"/>
         <action name="modifySeparateAction"/>
         <action name="modifyWeldAction"/>
@@ -608,7 +610,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>266</y>
+                <y>294</y>
                 <width>30</width>
                 <height>259</height>
             </rect>
@@ -642,9 +644,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>525</y>
+                <y>553</y>
                 <width>30</width>
-                <height>182</height>
+                <height>70</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -661,11 +663,7 @@
             <string>Datum Display</string>
         </property>
         <action name="dispTrihedronAction"/>
-        <action name="dispOpenBondsAction"/>
-        <action name="dispDatumPlanesAction"/>
-        <action name="dispDatumLinesAction"/>
         <action name="dispCsysAction"/>
-        <action name="dispGridAction"/>
     </toolbar>
 </toolbars>
 <actions>
@@ -1926,6 +1924,9 @@
         <property name="text">
             <string>Dehydrogenate</string>
         </property>
+        <property name="menuText">
+            <string>&amp;Dehydrogenate</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -2844,6 +2845,20 @@
         </property>
         <property name="text">
             <string>Rotate Tool</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyDeleteBondAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image76</iconset>
+        </property>
+        <property name="text">
+            <string>Delete Bond</string>
+        </property>
+        <property name="menuText">
+            <string>Delete &amp;Bond</string>
         </property>
     </action>
 </actions>
@@ -3903,6 +3918,12 @@
         <receiver>MainWindow</receiver>
         <slot>rotateTool()</slot>
     </connection>
+    <connection>
+        <sender>modifyDeleteBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyDeleteBond()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4040,6 +4061,7 @@
     <slot>panTool()</slot>
     <slot>panDone()</slot>
     <slot>rotateTool()</slot>
+    <slot>modifyDeleteBond()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sat Feb 5 14:08:03 2005
+# Created: Tue Feb 8 03:10:37 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7282,6 +7282,8 @@ class MainWindow(QMainWindow):
         self.rotateToolAction = QAction(self,"rotateToolAction")
         self.rotateToolAction.setToggleAction(1)
         self.rotateToolAction.setIconSet(QIconSet(self.image108))
+        self.modifyDeleteBondAction = QAction(self,"modifyDeleteBondAction")
+        self.modifyDeleteBondAction.setIconSet(QIconSet(self.image76))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7440,20 +7442,21 @@ class MainWindow(QMainWindow):
 
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.modifyToolbar.setGeometry(QRect(0,0,30,266))
+        self.modifyToolbar.setGeometry(QRect(0,0,30,294))
         self.modifyToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.modifyMinimizeAction.addTo(self.modifyToolbar)
         self.modifyHydrogenateAction.addTo(self.modifyToolbar)
         self.modifyDehydrogenateAction.addTo(self.modifyToolbar)
         self.modifyPassivateAction.addTo(self.modifyToolbar)
         self.modifySetElementAction.addTo(self.modifyToolbar)
+        self.modifyDeleteBondAction.addTo(self.modifyToolbar)
         self.modifyStretchAction.addTo(self.modifyToolbar)
         self.modifySeparateAction.addTo(self.modifyToolbar)
         self.modifyWeldAction.addTo(self.modifyToolbar)
         self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,266,30,259))
+        self.toolsToolbar.setGeometry(QRect(0,294,30,259))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
@@ -7468,15 +7471,11 @@ class MainWindow(QMainWindow):
         self.toolsMoviePlayerAction.addTo(self.toolsToolbar)
         self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.datumDispDashboard.setGeometry(QRect(0,525,30,182))
+        self.datumDispDashboard.setGeometry(QRect(0,553,30,70))
         self.datumDispDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispDashboard)
-        self.dispOpenBondsAction.addTo(self.datumDispDashboard)
-        self.dispDatumPlanesAction.addTo(self.datumDispDashboard)
-        self.dispDatumLinesAction.addTo(self.datumDispDashboard)
         self.dispCsysAction.addTo(self.datumDispDashboard)
-        self.dispGridAction.addTo(self.datumDispDashboard)
 
 
         self.MenuBar = QMenuBar(self,"MenuBar")
@@ -7560,6 +7559,7 @@ class MainWindow(QMainWindow):
         self.modifyHydrogenateAction.addTo(self.Modify)
         self.modifyDehydrogenateAction.addTo(self.Modify)
         self.modifySetElementAction.addTo(self.Modify)
+        self.modifyDeleteBondAction.addTo(self.Modify)
         self.modifySeparateAction.addTo(self.Modify)
         self.modifyStretchAction.addTo(self.Modify)
         self.modifyWeldAction.addTo(self.Modify)
@@ -7589,7 +7589,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1213).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1222).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7713,6 +7713,7 @@ class MainWindow(QMainWindow):
         self.connect(self.panToolAction,SIGNAL("activated()"),self.panTool)
         self.connect(self.panDoneAction,SIGNAL("activated()"),self.panDone)
         self.connect(self.rotateToolAction,SIGNAL("activated()"),self.rotateTool)
+        self.connect(self.modifyDeleteBondAction,SIGNAL("activated()"),self.modifyDeleteBond)
 
 
     def languageChange(self):
@@ -7913,7 +7914,7 @@ class MainWindow(QMainWindow):
         self.fileInsertAction.setText(self.__tr("Inser&t..."))
         self.fileInsertAction.setMenuText(self.__tr("Inser&t..."))
         self.modifyDehydrogenateAction.setText(self.__tr("Dehydrogenate"))
-        self.modifyDehydrogenateAction.setMenuText(self.__tr("Dehydrogenate"))
+        self.modifyDehydrogenateAction.setMenuText(self.__tr("&Dehydrogenate"))
         self.toggleGridsTbarAction.setText(self.__tr("Grids"))
         self.toggleGridsTbarAction.setMenuText(self.__tr("Grids"))
         self.dispCPKAction.setText(self.__tr("CPK"))
@@ -8063,6 +8064,8 @@ class MainWindow(QMainWindow):
         self.panDoneAction.setMenuText(self.__tr("Done"))
         self.rotateToolAction.setText(self.__tr("Rotate Tool"))
         self.rotateToolAction.setMenuText(self.__tr("Rotate Tool"))
+        self.modifyDeleteBondAction.setText(self.__tr("Delete Bond"))
+        self.modifyDeleteBondAction.setMenuText(self.__tr("Delete &Bond"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8518,6 +8521,9 @@ class MainWindow(QMainWindow):
 
     def rotateTool(self):
         print "MainWindow.rotateTool(): Not implemented yet"
+
+    def modifyDeleteBond(self):
+        print "MainWindow.modifyDeleteBond(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

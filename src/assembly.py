@@ -1245,6 +1245,45 @@ class assembly:
                     self.stack = self.stack[:pop]
                 self.p[atom] = min(self.p[atom], self.p[a2])
 
+    def modifyDeleteBonds(self):
+        """Delete all bonds between selected and unselected atoms or chunks
+        """
+        
+        if not self.selatoms and not self.selmols: # optimization, and different status msg
+            msg = redmsg("Nothing selected")
+            self.w.history.message(msg)
+            return
+        
+        cutbonds = 0
+        
+        # Delete bonds between selected atoms and their neighboring atoms that are not selected.
+        for a in self.selatoms.values():
+            for b in a.bonds[:]:
+                neighbor = b.other(a)
+                if neighbor.element != Singlet:
+                    if not neighbor.picked:
+                        b.bust()
+                        a.pick()
+                        cutbonds += 1
+
+        # Delete bonds between selected chunks and chunks that are not selected.
+        for mol in self.selmols[:]:
+            # "externs" contains a list of bonds between this chunk and a different chunk
+            for b in mol.externs:
+                # atom1 and atom2 are the connect atoms in the bond
+                if int(b.atom1.molecule.picked) + int(b.atom2.molecule.picked) == 1: 
+                    b.bust()
+                    cutbonds += 1
+                    
+        msg = fix_plurals("%d bond(s) deleted" % cutbonds)
+        self.w.history.message(msg)
+        
+        if self.selatoms and cutbonds:
+            self.modifySeparate() # Separate the selected atoms into a new chunk
+        else:
+            self.w.win_update() #e do this in callers instead?
+        
+                
     # separate selected atoms into a new molecule
     # (one new mol for each existing one containing any selected atoms)
     # do not break bonds

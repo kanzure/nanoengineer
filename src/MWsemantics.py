@@ -1060,6 +1060,11 @@ class MWsemantics(MainWindow):
         self.history.message(greenmsg("Passivate:"))
         self.assy.modifyPassivate()
     
+    def modifyDeleteBond(self):
+        """ Delete all bonds between selected and unselected atoms or chunks"""
+        self.history.message(greenmsg("Delete Bonds:"))
+        self.assy.modifyDeleteBonds()
+            
     def modifyStretch(self):
         """ Stretch/expand the selected chunk(s) """
         self.history.message(greenmsg("Stretch:"))
