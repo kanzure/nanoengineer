@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>LinearMotorPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>599</width>
-            <height>541</height>
+            <height>544</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -754,7 +754,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="292">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000eb49444154789ccd94310e83300c45bfabce1e39854f90899191a3720a9fc03b0b130b5206c4e60e6d69aa36156941ea973244b15f7e123ba4aa3842a743a87f0f0e213833fbee60001011a4f073a9b3dc9abb8388702f062aa98a711cdf82dbb605009819628c04143aaeaa8a7286532850e8b84837b0dfc71e73557d80a769f234a074def7fd139c5415210437b397d3ccf3bce9d4695c5dd750555a1f6f18866ce2b22c9b3648e35670d3349b92b7eab0aa585b9a99fd53677d0566661791bd98006e772c226bafe75cab6aaeebf2603303d135afebba1fbd26e0182399998bc8a7ffa048c757c5deba0034429dc71bf23cce0000000049454e44ae426082</data>
+        <data format="XPM.GZ" length="782">789cad90bd0ac2301485f73e45e8dd8ad81f1c0ae223288e8238dca64dda4105ad8388ef6e4e5aabd8d422784e03f9f84872691888cd7a2982d03bd75c5752c8924f22c82ffbfd75bb5bdc3c3f4984f9e258c4fec4f3a7428ad5f150604f664f910db002728a0225308b5060693145811a282314a82c320a64603e4381854585027360a15060065436764267fe6688070dd487a12619f58cb4719d197be7359bb9b9b75a939bfdfb2a8c6a0c23aa8bd6fa69ca26b24b45dd3bbd8cfe37a601c33464cc7f6a2f779c6946fae19d2fb339cd7dee3d00fe5b9e89</data>
     </image>
 </images>
 <connections>
@@ -829,6 +829,12 @@
         <signal>clicked()</signal>
         <receiver>LinearMotorPropDialog</receiver>
         <slot>changeLinearMotorColor()</slot>
+    </connection>
+    <connection>
+        <sender>nameLineEdit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>LinearMotorPropDialog</receiver>
+        <slot>propertyChanged()</slot>
     </connection>
 </connections>
 <tabstops>

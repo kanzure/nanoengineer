@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/RotaryMotorPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Thu Dec 9 14:04:38 2004
+# Created: Fri Dec 24 03:13:42 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -243,7 +243,7 @@ class RotaryMotorPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(338,318).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(338,324).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
@@ -252,6 +252,7 @@ class RotaryMotorPropDialog(QDialog):
         self.connect(self.torqueLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
         self.connect(self.speedLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
         self.connect(self.colorSelectorPushButton,SIGNAL("clicked()"),self.changeRotaryMotorColor)
+        self.connect(self.nameLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
 
         self.setTabOrder(self.torqueLineEdit,self.speedLineEdit)
         self.setTabOrder(self.speedLineEdit,self.okPushButton)

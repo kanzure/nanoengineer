@@ -83,10 +83,15 @@ class MoleculeProp(MoleculePropDialog):
         
     def nameChanged(self):
         self.applyPushButton.setEnabled(True)
-                
-    def applyButtonClicked(self):    
-        self.mol.name = str(self.nameLineEdit.text())
-        self.applyPushButton.setEnabled(False)            
+
+    def applyButtonClicked(self):
+        text =  QString(self.nameLineEdit.text())        
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text: self.mol.name = str(text)
+        self.nameLineEdit.setText(self.mol.name)
+        self.mol.assy.w.update() # Update model tree
+        self.mol.assy.modified = 1
+        self.applyPushButton.setEnabled(False) 
 
     def accept(self):
         self.applyButtonClicked()    

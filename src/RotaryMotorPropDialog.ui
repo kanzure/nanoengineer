@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>338</width>
-            <height>318</height>
+            <height>324</height>
         </rect>
     </property>
     <property name="caption">
@@ -386,6 +386,12 @@
         <signal>clicked()</signal>
         <receiver>RotaryMotorPropDialog</receiver>
         <slot>changeRotaryMotorColor()</slot>
+    </connection>
+    <connection>
+        <sender>nameLineEdit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>RotaryMotorPropDialog</receiver>
+        <slot>propertyChanged()</slot>
     </connection>
 </connections>
 <tabstops>

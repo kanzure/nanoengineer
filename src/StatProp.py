@@ -66,8 +66,16 @@ class StatProp(StatPropDialog):
     # Apply Button
     #################	
     def applyButtonPressed(self):
-        self.stat.name = self.nameLineEdit.text()
+
         self.stat.temp = self.tempSpinBox.value()
+        
+        text =  QString(self.nameLineEdit.text())        
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text: self.stat.name = str(text)
+        self.nameLineEdit.setText(self.stat.name)
+        self.stat.assy.w.update() # Update model tree
+        self.stat.assy.modified = 1
+        
         self.applyPushButton.setEnabled(False)
 	
     def propertyChanged(self):

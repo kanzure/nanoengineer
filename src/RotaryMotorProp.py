@@ -22,20 +22,8 @@ class RotaryMotorProp(RotaryMotorPropDialog):
                          int(rotMotor.normcolor[1]*255), 
                          int(rotMotor.normcolor[2]*255)))
 
-
         self.torqueLineEdit.setText(str(rotMotor.torque))
         self.speedLineEdit.setText(str(rotMotor.speed))
-#        self.axLineEdit.setText(str(rotMotor.axis[0]))
-#        self.ayLineEdit.setText(str(rotMotor.axis[1]))
-#        self.azLineEdit.setText(str(rotMotor.axis[2]))
-
-#        self.cxLineEdit.setText(str(rotMotor.center[0]))
-#        self.cyLineEdit.setText(str(rotMotor.center[1]))
-#        self.czLineEdit.setText(str(rotMotor.center[2]))
-        
-#        strList = map(lambda i: rotMotor.atoms[i].element.symbol + str(i),
-#                                                range(0, len(rotMotor.atoms)))
-#        self.atomsComboBox.insertStrList(strList, 0)
 
         self.lengthLineEdit.setText(str(rotMotor.length)) # motor length
         self.radiusLineEdit.setText(str(rotMotor.radius)) # motor radius
@@ -79,22 +67,21 @@ class RotaryMotorProp(RotaryMotorPropDialog):
     #################	
     def applyButtonPressed(self):
         
-        self.motor.name = self.nameLineEdit.text()
         self.motor.torque = float(str(self.torqueLineEdit.text()))
         self.motor.speed = float(str(self.speedLineEdit.text()))
-#        self.motor.axis[0] = float(str(self.axLineEdit.text()))
-#        self.motor.axis[1] = float(str(self.ayLineEdit.text()))
-#        self.motor.axis[2] = float(str(self.azLineEdit.text()))
-
-#        self.motor.center[0] = float(str(self.cxLineEdit.text()))
-#        self.motor.center[1] = float(str(self.cyLineEdit.text()))
-#        self.motor.center[2] = float(str(self.czLineEdit.text()))
 
         self.motor.length = float(str(self.lengthLineEdit.text())) # motor length
         self.motor.radius = float(str(self.radiusLineEdit.text())) # motor radius
         self.motor.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
-                
+
+        text =  QString(self.nameLineEdit.text())        
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text: self.motor.name = str(text)
+        self.nameLineEdit.setText(self.motor.name)
+        self.motor.assy.w.update() # Update model tree
+        self.motor.assy.modified = 1
+               
         self.applyPushButton.setEnabled(False)
-	
+
     def propertyChanged(self):
-        self.applyPushButton.setEnabled(True)	
+        self.applyPushButton.setEnabled(True)

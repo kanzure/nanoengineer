@@ -82,7 +82,6 @@ class LinearMotorProp(LinearMotorPropDialog):
     #################	
     def applyButtonPressed(self):
         
-        self.motor.name = self.nameLineEdit.text()
         self.motor.force = float(str(self.forceLineEdit.text()))
         self.motor.stiffness = float(str(self.stiffnessLineEdit.text()))
 
@@ -97,7 +96,14 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.motor.length = float(str(self.lengthLineEdit.text())) # motor length
         self.motor.width = float(str(self.widthLineEdit.text())) # motor width
         self.motor.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
-                
+        
+        text =  QString(self.nameLineEdit.text())        
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text: self.motor.name = str(text)
+        self.nameLineEdit.setText(self.motor.name)
+        self.motor.assy.w.update() # Update model tree
+        self.motor.assy.modified = 1
+                        
         self.applyPushButton.setEnabled(False)
 	
     def propertyChanged(self):

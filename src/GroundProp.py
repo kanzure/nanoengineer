@@ -66,7 +66,12 @@ class GroundProp(GroundPropDialog):
     #################	
     def applyButtonPressed(self):
         
-        self.ground.name = self.nameLineEdit.text()
+        text =  QString(self.nameLineEdit.text())        
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text: self.ground.name = str(text)
+        self.nameLineEdit.setText(self.ground.name)
+        self.ground.assy.w.update() # Update model tree
+        self.ground.assy.modified = 1
 
         self.applyPushButton.setEnabled(False)
 	

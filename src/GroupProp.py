@@ -24,4 +24,8 @@ class GroupProp(GroupPropDialog):
 	    QDialog.reject(self)
 
     def nameChanged(self):
-        self.group.name = str(self.nameLineEdit.text())
+        text =  QString(self.nameLineEdit.text())        
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text:
+            self.group.name = str(text)
+            self.group.assy.modified = 1
