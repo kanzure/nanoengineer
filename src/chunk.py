@@ -1214,7 +1214,30 @@ class molecule(Node, InvalMixin):
         self.havelist = 0
         self.haveradii = 0
         self.assy.changed()
-        
+
+    def show_invisible_atoms(self):
+        """Resets the display mode for each invisible (diINVISIBLE) atom 
+        to diDEFAULT display mode, rendering them visible again.
+        It returns the number of invisible atoms found.
+        """
+        n = 0
+        for a in self.atoms.itervalues():
+            if a.display == diINVISIBLE: 
+                a.setDisplay(diDEFAULT)
+                n += 1
+        return n
+
+    def set_atoms_display(self, display):
+        """Changes the display setting to 'display' for all atoms in this chunk.
+        It returns the number of atoms which had their display mode changed.
+        """
+        n = 0
+        for a in self.atoms.itervalues():
+                if a.display != display:
+                    a.setDisplay(display)
+                    n += 1
+        return n
+            
     def changeapp(self, atoms):
         """call when you've changed appearance of the molecule
         (but you don't need to call it if only the external bonds look different).
