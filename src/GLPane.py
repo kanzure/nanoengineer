@@ -714,13 +714,15 @@ class GLPane(QGLWidget, modeMixin):
         # code, not sure if this works for Mac---Huaicai 10/10, 04
         if sys.platform in ['darwin', 'win32']:
                 glDisable(GL_LIGHTING)
+                glDisable(GL_DEPTH_TEST)
                 glPushMatrix()
                 font = QFont(QString("Times"), 16, QFont.Bold)
                 self.qglColor(QColor(0, 0, 0))
-                self.renderText(5.0, -0.35, 0.0, QString("x"), font)
-                self.renderText(-0.35, 5.05, 0.0, QString("y"), font)
-                self.renderText(0.0, -0.35, 5.05, QString("z"), font)
+                self.renderText(5.3, 0.0, 0.0, QString("x"), font)
+                self.renderText(0.0, 4.8, 0.0, QString("y"), font)
+                self.renderText(0.0, 0.0, 5.0, QString("z"), font)
                 glPopMatrix()
+                glEnable(GL_DEPTH_TEST)
                 glEnable(GL_LIGHTING)
         
         glLoadIdentity()

@@ -163,7 +163,7 @@ class assembly:
     # to draw, just draw everything inside
     def draw(self, win):
         self.tree.draw(self.o, self.o.display)
-
+    
     # make a new molecule using a cookie-cut shape
     def molmake(self,shap):
         self.modified = 1 # The file and the part are now out of sync.
@@ -502,7 +502,7 @@ class assembly:
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
         self.unpickatoms()
-
+      
     # makes a Linear Motor connected to the selected atoms
     # note I don't check for a limit of 25 atoms, but any more
     # will choke the file parser in the simulator

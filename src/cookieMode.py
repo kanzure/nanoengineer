@@ -172,9 +172,16 @@ class cookieMode(basicMode):
                 self.selLassRect = 0
 
                 self.Rubber = True
-
+        
                 return
-
+            else: # Check if Rubber selection area is too small, like just a double click, don't do anything. Huaicai 10/16/04
+                totalLen = reduce(lambda x, y: x+y, map(lambda m: vlen(m[0]-m[1]),  
+                                                                                        zip(self.sellist[:-1], self.sellist[1:])))
+                if totalLen/self.o.scale < 0.03: #No really sth selected, do nothing
+                       self.Rubber = False
+                       self.sellist = []
+                       return
+      
         self.Rubber = 0
         self.sellist += [p1]
         self.sellist += [self.sellist[0]]
