@@ -333,11 +333,17 @@ class Trackball:
         self.oldmouse = newmouse
         return quat
 
+def ptonline(xpt, lpt, ldr):
+    """return the point on a line (point lpt, direction ldr)
+    nearest to point xpt
+    """
+    ldr = norm(ldr)
+    return dot(xpt-lpt,ldr)*ldr + lpt
 
 def planeXline(ppt, pv, lpt, lv):
     """find the intersection of a line (point lpt, vector lv)
     with a plane (point ppt, normal pv)
-    return None is (almost) parallel
+    return None if (almost) parallel
     """
     d=dot(lv,pv)
     if abs(d)<0.000001: return None

@@ -16,15 +16,15 @@ from constants import elemKeyTab
 
 class depositMode(basicMode):
     """ This class is used to manually add atoms to create any structure.
-       Users know it as "sketch mode".
+       Users know it as "Build mode".
     """
     
     # class constants
     backgroundColor = 74/256.0, 187/256.0, 227/256.0
     gridColor = 74/256.0, 187/256.0, 227/256.0
     modename = 'DEPOSIT' 
-    msg_modename = "Deposit mode" 
-    default_mode_status_text = "Mode: Deposit"
+    msg_modename = "Build mode" 
+    default_mode_status_text = "Mode: Build"
 
     def __init__(self, glpane):
         basicMode.__init__(self, glpane)
@@ -41,6 +41,11 @@ class depositMode(basicMode):
         self.o.assy.selwhat = 0
         self.new = None
         self.o.selatom = None
+        self.dragatom = None
+        self.pivot = None
+        self.pivax = None
+        self.baggage = []
+        self.line = None
         self.modified = 0 # bruce 040923 new code
     
     # init_gui does all the GUI display when entering this mode [mark 041004]
@@ -109,7 +114,7 @@ class depositMode(basicMode):
 
         return p1+k*(p2-p1)
 
-    def bareMotion(self, event):
+    def bareMotion(self, event, singOnly=False):
         doPaint = 0
         if self.o.selatom:
             self.o.selatom.molecule.changeapp()
@@ -123,59 +128,135 @@ class depositMode(basicMode):
         for mol in self.o.assy.molecules:
             if mol.display != diINVISIBLE:
                 a = mol.findatoms(p2, mat, TubeRadius, -TubeRadius)
-                if a:
+                # can't use findSinglets
+                if a and (a.element==Singlet or not singOnly):
                     mol.changeapp()
                     self.o.selatom = a
                     doPaint = 1
                     break
-        if doPaint: self.o.paintGL()        
+        if doPaint: self.o.paintGL()
 	
     def leftDown(self, event):
         """If there's nothing nearby, deposit a new atom.
         If cursor is on a singlet, deposit an atom bonded to it.
         If it is a real atom, drag it around.
         """
-        self.o.SaveMouse(event)
-        self.picking = True
-        p1, p2 = self.o.mousepoints(event)
-        self.dragdist = 0.0
         a = self.o.selatom
         el =  PeriodicTable[self.w.Element]
+        self.modified = 1
+        self.o.assy.modified = 1
         if a: # if something was "lit up"
-            self.modified = 1             
             if a.element == Singlet:
-                self.attach(el, self.o.selatom)
+                self.attach(el, a)
             # else we've grabbed an atom
         else:
             atomPos = self.getCoords(event)
-            self.selatom = oneUnbonded(el, self.o.assy, atomPos)
+            self.o.selatom = oneUnbonded(el, self.o.assy, atomPos)
+
+        for n in self.o.selatom.neighbors():
+            if n.element == Singlet:
+                self.baggage += [n]
         self.w.update()
                         
 
     def leftDrag(self, event):
-        """ 
+        """ drag the new atom around
 	"""
-       
-        w=self.o.width+0.0
-        h=self.o.height+0.0
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y(), 0.0)
-        self.dragdist += vlen(deltaMouse)
-
-        self.o.SaveMouse(event)
-
+        if not self.o.selatom: return
+        a = self.o.selatom
+        p1, p2 = self.o.mousepoints(event)
+        v2 = norm(p2-p1)
+        px = ptonline(a.posn(), p1, v2)
+        delta = px - a.posn()
+##         a.setposn(px)
+##         for at in self.baggage:
+##             at.setposn(at.posn()+delta)
         self.o.paintGL()
 
     def leftUp(self, event):
-        atomPos = self.getCoords(event)
-        p1, p2 = self.o.mousepoints(event)
-
+        if not self.o.selatom: return
+        self.o.selatom.molecule.shakedown()
+        self.baggage = []
+        self.bareMotion(event)
+	
+    def leftShiftDown(self, event):
+        """If there's nothing nearby, do nothing If cursor is on a
+        singlet, drag it around, rotating the atom it's bonded to if
+        possible.  If it is a real atom, drag it around.
+        """
+        a = self.o.selatom
+        if not a: return
+        # now, if something was "lit up"
+        self.modified = 1
+        self.o.assy.modified = 1
+        if a.element == Singlet:
+            pivatom = a.neighbors()[0]
+            neigh = pivatom.realNeighbors()
+            self.baggage = pivatom.singNeighbors()
+            self.baggage.remove(a)
+            if neigh:
+                if len(neigh)>1:
+                    self.pivot = None
+                    self.pivax = None
+                    self.baggage = []
+                else: # atom on a single stalk
+                    self.pivot = pivatom.posn()
+                    self.pivax = norm(self.pivot-neigh[0].posn())
+            else: # no real neighbors
+                self.pivot = pivatom.posn()
+                self.pivax = None
+        else: # we've grabbed an atom
+            self.pivot = None
+            self.pivax = None
+            self.baggage = a.singNeighbors()
+        self.dragatom = a
         self.w.update()
+                        
+
+    def leftShiftDrag(self, event):
+        """ drag the new atom around
+	"""
+        if not self.dragatom: return
+        a = self.dragatom
+        p1, p2 = self.o.mousepoints(event)
+        v2 = norm(p2-p1)
+        px = ptonline(a.posn(), p1, v2)
+        
+        if a.element != Singlet and not self.pivot:
+            # no pivot, just dragging it around
+            delta = px - a.posn()
+            a.setposn(px)
+            for at in self.baggage:
+                at.setposn(at.posn()+delta)
+        elif self.pivax: # pivoting around an axis
+            quat = twistor(self.pivax, a.posn()-self.pivot, px-self.pivot)
+            for at in [a]+self.baggage:
+                at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
+        else: # pivoting around a point
+            quat = Q(a.posn()-self.pivot, px-self.pivot)
+            for at in [a]+self.baggage:
+                at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
+        self.bareMotion(event, True)
+        if a.element == Singlet:
+            self.line = [a.posn(), px]
+        self.o.paintGL()
+
+    def leftShiftUp(self, event):
+        if not self.dragatom: return
+        self.dragatom.molecule.shakedown()
+        self.baggage = []
+        self.line = None
+        self.bareMotion(event, True)
+        if self.o.selatom and self.o.selatom != self.dragatom:
+            makeBonded(self.dragatom, self.o.selatom)
+        self.o.paintGL()
+        
 
     ## delete with cntl-left mouse
     def leftCntlDown(self, event):
         a = self.o.selatom
         if a:
+            # this may change hybridization someday
             if a.element == Singlet: return
             m = a.molecule
             a.kill()
@@ -230,8 +311,8 @@ class depositMode(basicMode):
         a1 = obond.other(singlet)
         mol = a1.molecule
         a = atom(el.symbol, pos, mol)
+        self.o.selatom = a
         obond.rebond(singlet, a)
-        del mol.atoms[singlet.key]
         if el.base:
             # There is at least one other bond
             # this rotates the atom to match the bond formed above
@@ -259,11 +340,10 @@ class depositMode(basicMode):
 
         mol = s1.molecule
         a = atom(el.symbol, pos, mol)
+        self.o.selatom = a
 
         s1.bonds[0].rebond(s1, a)
-        del mol.atoms[s1.key]
         s2.bonds[0].rebond(s2, a)
-        del mol.atoms[s2.key]
 
         # this rotates the atom to match the bonds formed above
         r = s1.posn() - pos           
@@ -289,13 +369,11 @@ class depositMode(basicMode):
 
         mol = s1.molecule
         a = atom(el.symbol, pos, mol)
+        self.o.selatom = a
 
         s1.bonds[0].rebond(s1, a)
-        del mol.atoms[s1.key]
         s2.bonds[0].rebond(s2, a)
-        del mol.atoms[s2.key]
         s3.bonds[0].rebond(s3, a)
-        del mol.atoms[s3.key]
 
         opos = pos + el.rcovalent*norm(pos-opos)
         x = atom('X', opos, mol)
@@ -311,23 +389,19 @@ class depositMode(basicMode):
 
         mol = s1.molecule
         a = atom(el.symbol, pos, mol)
+        self.o.selatom = a
 
         s1.bonds[0].rebond(s1, a)
-        del mol.atoms[s1.key]
         s2.bonds[0].rebond(s2, a)
-        del mol.atoms[s2.key]
         s3.bonds[0].rebond(s3, a)
-        del mol.atoms[s3.key]
         s4.bonds[0].rebond(s4, a)
-        del mol.atoms[s3.key]
-
 
     def Draw(self):
         """ Draw a sketch plane to indicate where the new atoms will sit
 	by default
 	"""
 	basicMode.Draw(self)
-        if self.sellist: self.pickdraw()
+        if self.line: drawline(white, self.line[0], self.line[1])
         self.o.assy.draw(self.o)
         self.surface()
 
@@ -383,8 +457,8 @@ class depositMode(basicMode):
         pass
 
     def dump(self):
-        if self.selatom:
-            m = self.selatom.molecule
+        if self.o.selatom:
+            m = self.o.selatom.molecule
             print "mol", m.name, len(m.atoms), len(m.atlist), len(m.curpos)
             for a in m.atlist:
                 print a
@@ -392,3 +466,4 @@ class depositMode(basicMode):
                     print b
 
     pass # end of class depositMode
+

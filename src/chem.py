@@ -247,6 +247,17 @@ class atom:
         else:
             return self.molecule.curpos[self.index]
 
+    def setposn(self, pos):
+        """set the atom's position. after doing this you have to get the
+        atom positions back in to the molecule's basepos somehow
+        assume this won't be called during molecule setup (no xyz check)
+        """
+        self.molecule.curpos[self.index] = pos
+        pos = self.molecule.quat.unrot(pos - self.molecule.center)
+        self.molecule.basepos[self.index] = pos
+        for b in self.bonds: b.setup()
+        self.molecule.changeapp()
+
     def __repr__(self):
         return self.element.symbol + str(self.key)
 
@@ -267,7 +278,6 @@ class atom:
         element-dependent one
         """
 
-        
         color = col or self.element.color
         disp, rad = self.howdraw(dispdef)
         # note use of basepos since it's being drawn under
@@ -391,6 +401,9 @@ class atom:
         # the caller needs to do a shakedown
         self.bonds.remove(b)
         if self.element == Singlet: return
+        # normally replace an atom with a singlet,
+        # but don't replace a singlet with a singlet
+        if b.other(self).element == Singlet: return
         x = atom('X', b.ubp(self), self.molecule)
         self.molecule.bond(self, x)
 
@@ -414,6 +427,17 @@ class atom:
         """return a list of the atoms bonded to this one
         """
         return map((lambda b: b.other(self)), self.bonds)
+
+    def realNeighbors(self):
+        """return a list of the atoms not singlets bonded to this one
+        """
+        return filter(lambda a: a.element != Singlet, self.neighbors())
+              
+    def singNeighbors(self):
+        """return a list of the atoms not singlets bonded to this one
+        """
+        return filter(lambda a: a.element == Singlet, self.neighbors())
+              
 
     def mvElement(self, elt):
         """Change the element type of this atom to element elt
@@ -509,6 +533,8 @@ class bond:
             self.atom2.molecule.shakedown()
 
     def rebond(self, old, new):
+        # intended for use on singlets, other uses may have bugs
+        if len(old.bonds) == 1: del old.molecule.atoms[old.key]
         if self.atom1 == old: self.atom1 = new
         if self.atom2 == old: self.atom2 = new
         new.bonds += [self]
@@ -865,7 +891,10 @@ class molecule(Node):
         """call when you've changed appearance of the molecule
         """ 
         self.havelist = 0
-    
+
+    def seticon(self, treewidget):
+        self.icon = treewidget.moleculeIcon
+
     def pick(self):
         """select the molecule.
         """
@@ -891,9 +920,6 @@ class molecule(Node):
             self.assy.molecules.remove(self)
             self.assy.modified = 1
         except ValueError: pass
-
-    def icon(self, treewidget):
-        return treewidget.moleculeIcon
 
     # point is some point on the line of sight
     # matrix is a rotation matrix with z along the line of sight,
@@ -992,6 +1018,24 @@ class molecule(Node):
     def __str__(self):
         return "<Molecule of " + self.name + ">"
 
+    def dump(self):
+        print self, len(self.atoms), 'atoms,', len(self.singlets), 'singlets'
+        for a in self.atlist:
+            print a
+            for b in a.bonds:
+                print b
+
+    def merge(self, mol):
+        """merge the given molecule into this one.
+        assume they are in the same assy.
+        """
+        pairlis = []
+        ndix = {}
+        for a in mol.atoms.itervalues():
+            a.hopmol(self)
+        self.shakedown()
+        mol.kill()
+
 def oneUnbonded(elem, assy, pos):
     """[bruce comment 040928:] create one unbonded atom, of element elem,
     at position pos, in its own new molecule."""
@@ -1005,8 +1049,30 @@ def oneUnbonded(elem, assy, pos):
     assy.addmol(mol)
 
     return a
+
+def makeBonded(s1, s2):
+    """s1 and s2 are singlets; make a bond between their real atoms in
+    their stead. If they are in different molecules, move s1's to
+    match the bond. Set its center to the bond point and its axis to
+    the line of the bond.
+    """
+    b1 = s1.bonds[0]
+    b2 = s2.bonds[0]
+    a1 = b1.other(s1)
+    a2 = b2.other(s2)
+    m1 = s1.molecule
+    m2 = s2.molecule
+    if m1 != m2: # move the molecule
+        m1.rot(Q(a1.posn()-s1.posn(), s2.posn()-a2.posn()))
+        m1.move(s2.posn()-s1.posn())
+    s1.kill()
+    s2.kill()
+    m1.bond(a1,a2)
+    m1.shakedown()
+    m2.shakedown()
+
+    # caller must take care of redisplay
     
-                     
 # this code knows where to place missing bonds in carbon
 # sure to be used later
 
