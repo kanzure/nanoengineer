@@ -154,6 +154,10 @@ class modelTree(QListView):
         # Check if there is text for the listitem's name.  If not, we must force an MT update.
         # Otherwise, the name will remain blank until the next MT update.
         # Mark [04-12-07]
+        
+        ## Huaicai: the following line to make sure file name is not just space
+        text = text.stripWhiteSpace()
+        
         if text: listItem.object.name = str(text)
         else: self.update() # Force MT update.
 
