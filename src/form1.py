@@ -312,6 +312,10 @@ class Form1(QMainWindow):
         self.makeMotorAction.setText(self.trUtf8("Motor"))
         self.makeMotorAction.setMenuText(self.trUtf8("Motor"))
 
+        self.makeLinearMotorAction = QAction(self,"makeLinearMotorAction")
+        self.makeLinearMotorAction.setText(self.trUtf8("Linear Motor"))
+        self.makeLinearMotorAction.setMenuText(self.trUtf8("Linear Motor"))
+
         self.makeBearingAction = QAction(self,"makeBearingAction")
         self.makeBearingAction.setText(self.trUtf8("Bearing"))
         self.makeBearingAction.setMenuText(self.trUtf8("Bearing"))
@@ -411,6 +415,7 @@ class Form1(QMainWindow):
         self.makeMenu.insertSeparator()
 
         self.makeMotorAction.addTo(self.makeMenu)
+        self.makeLinearMotorAction.addTo(self.makeMenu)
         self.makeBearingAction.addTo(self.makeMenu)
         self.makeSpringAction.addTo(self.makeMenu)
         self.makeDynoAction.addTo(self.makeMenu)
@@ -480,6 +485,7 @@ class Form1(QMainWindow):
         self.connect(self.makeHandleAction,SIGNAL("activated()"),
                      self.makeHandle)
         self.connect(self.makeMotorAction,SIGNAL("activated()"),self.makeMotor)
+	self.connect(self.makeLinearMotorAction,SIGNAL("activated()"),self.makeLinearMotor)
         self.connect(self.makeBearingAction,SIGNAL("activated()"),
                      self.makeBearing)
         self.connect(self.makeSpringAction,SIGNAL("activated()"),
@@ -798,6 +804,12 @@ class Form1(QMainWindow):
         if not self.assy: return
         self.assy.makemotor(self.glpane.lineOfSight)
         self.assy.updateDisplays()
+
+    def makeLinearMotor(self):
+        if not self.assy: return
+        self.assy.makeLinearMotor(self.glpane.lineOfSight)
+        self.assy.updateDisplays()
+
 
     def makeBearing(self):
         print "Form1.makeBearing(): Not implemented yet"

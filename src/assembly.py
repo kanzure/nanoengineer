@@ -371,6 +371,15 @@ class assembly:
         m.findcenter(self.selatoms.values(), sightline)
         self.unpickatoms()
 
+    # makes a Linear Motor connected to the selected atoms
+    # note I don't check for a limit of 25 atoms, but any more
+    # will choke the file parser in the simulator
+    def makeLinearMotor(self, sightline):
+        if not self.selatoms: return
+        m = LinearMotor(self)
+        m.findCenter(self.selatoms.values(), sightline)
+        self.unpickatoms()
+
     # makes all the selected atoms grounded
     # same note as above
     def makeground(self):
