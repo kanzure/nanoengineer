@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>947</height>
+            <height>950</height>
         </rect>
     </property>
     <property name="caption">
@@ -50,8 +50,6 @@
         <separator/>
         <action name="fileSaveAction"/>
         <action name="fileSaveAsAction"/>
-        <separator/>
-        <action name="fileImageAction"/>
         <separator/>
         <action name="fileExitAction"/>
         <separator/>

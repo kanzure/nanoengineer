@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Oct 14 12:32:05 2004
+# Created: Thu Oct 14 16:08:58 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7569,8 +7569,6 @@ class MainWindow(QMainWindow):
         self.fileSaveAction.addTo(self.fileMenu)
         self.fileSaveAsAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
-        self.fileImageAction.addTo(self.fileMenu)
-        self.fileMenu.insertSeparator()
         self.fileExitAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.MenuBar.insertItem(QString(""),self.fileMenu,3)
@@ -7658,7 +7656,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,947).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,950).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)

@@ -244,7 +244,7 @@ class MWsemantics(MainWindow):
 
         sfilter = QString("")   
         fn = QFileDialog.getSaveFileName(self.assy.filename,
-                    "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov)",
+                    "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov);;JPEG (*.jpg)",
                     self, "IDONTKNOWWHATTHISIS",
                     "Save As",
                     sfilter)
@@ -272,6 +272,15 @@ class MWsemantics(MainWindow):
                 else:
                     self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
             
+            elif ext == ".jpg": # Write JPEG file
+                try:
+                    self.glpane.image(dir + fil + ext)
+                except:
+                    print "MWsemantics.py: fileSaveAs(): error writing file" + dir + fil + ext
+                    self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
+                else:
+                    self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
+
             elif ext == ".mmp" : # Write MMP file.
                 self.assy.filename = dir + fil + ext
                 self.assy.name = fil
@@ -289,18 +298,19 @@ class MWsemantics(MainWindow):
             else: # This should never happen.
                 self.msgbarLabel.setText( "MWSemantics.py: fileSaveAs() - File Not Saved.")
 
-    def fileImage(self):
-        if self.assy:
-            if self.assy.filename:
-                fn = str(self.assy.filename)
-                dir, fil, ext = fileparse(fn)
-            else: dir, fil, ext = "./", "Picture", "jpg"
-        fn = QFileDialog.getSaveFileName(dir + fil + ".jpg",
-                                         "JPEG images (*.jpg *.jpeg",
-                                         self )
-        if fn:
-            fn = str(fn)
-            self.glpane.image(fn)
+#    def fileImage(self):
+#        if self.assy:
+#            if self.assy.filename:
+#                fn = str(self.assy.filename)
+#                dir, fil, ext = fileparse(fn)
+#            else: dir, fil, ext = "./", "Picture", "jpg"
+#        fn = QFileDialog.getSaveFileName(dir + fil + ".jpg",
+#                                         "JPEG images (*.jpg *.jpeg",
+#                                         self )
+#        if fn:
+#            fn = str(fn)
+#            self.glpane.image(fn)
+#
 
     def fileExit(self):
         if self.assy.modified:
