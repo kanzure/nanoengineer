@@ -93,10 +93,10 @@
         <action name="dispCPKAction"/>
         <action name="dispVdWAction"/>
         <separator/>
-        <action name="dispResetChunkColorAction"/>
-        <action name="dispResetChunkDisplyAction"/>
-        <action name="dispShowInvisAtomsAction"/>
         <action name="dispObjectColorAction"/>
+        <action name="dispResetChunkColorAction"/>
+        <action name="dispResetAtomsDisplayAction"/>
+        <action name="dispShowInvisAtomsAction"/>
         <separator/>
         <action name="dispBGColorAction"/>
         <separator/>
@@ -272,7 +272,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>640</width>
+                <width>637</width>
                 <height>29</height>
             </rect>
         </property>
@@ -358,6 +358,108 @@
             </property>
             <property name="text">
                 <string>Select Atoms</string>
+            </property>
+        </widget>
+        <separator/>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>SAFilter</cstring>
+            </property>
+            <property name="text">
+                <string>Filter:</string>
+            </property>
+        </widget>
+        <widget class="QComboBox">
+            <item>
+                <property name="text">
+                    <string>Hydrogen</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Helium</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Boron</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Carbon</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Nitrogen</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Oxygen</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Fluorine</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Neon</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Aluminum</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Silicon</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Chlorine</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Argon</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Germanium</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Arsenic</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Selenium</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Bromine</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Krypton</string>
+                </property>
+            </item>
+            <property name="name">
+                <cstring>SAFilterList</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
             </property>
         </widget>
         <separator/>
@@ -3106,10 +3208,10 @@
     </action>
     <action>
         <property name="name">
-            <cstring>dispResetChunkDisplyAction</cstring>
+            <cstring>dispResetAtomsDisplayAction</cstring>
         </property>
         <property name="text">
-            <string>Reset Chunk Display</string>
+            <string>Reset Atoms Display</string>
         </property>
     </action>
     <action>
@@ -4211,16 +4313,28 @@
         <slot>dispLighting()</slot>
     </connection>
     <connection>
-        <sender>dispResetChunkDisplyAction</sender>
+        <sender>dispResetAtomsDisplayAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>dispResetChunkDisplay()</slot>
+        <slot>dispResetAtomsDisplay()</slot>
     </connection>
     <connection>
         <sender>dispShowInvisAtomsAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>dispShowInvisAtoms()</slot>
+    </connection>
+    <connection>
+        <sender>SAFilter</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>selectConnectedAction</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>SAFilter</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>selectDoublyAction</receiver>
+        <slot>setDisabled(bool)</slot>
     </connection>
 </connections>
 <slots>
@@ -4365,7 +4479,7 @@
     <slot>simMoviePlayer()</slot>
     <slot>simSetup()</slot>
     <slot>dispLighting()</slot>
-    <slot>dispResetChunkDisplay()</slot>
+    <slot>dispResetAtomsDisplay()</slot>
     <slot>dispShowInvisAtoms()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>

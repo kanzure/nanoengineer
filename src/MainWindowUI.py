@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Mar 17 09:43:02 2005
+# Created: Thu Mar 17 21:32:47 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5598,7 +5598,7 @@ class MainWindow(QMainWindow):
         self.simPlotToolAction.setIconSet(QIconSet(self.image111))
         self.dispLightingAction = QAction(self,"dispLightingAction")
         self.selecttestAction = QAction(self,"selecttestAction")
-        self.dispResetChunkDisplyAction = QAction(self,"dispResetChunkDisplyAction")
+        self.dispResetAtomsDisplayAction = QAction(self,"dispResetAtomsDisplayAction")
         self.dispShowInvisAtomsAction = QAction(self,"dispShowInvisAtomsAction")
 
 
@@ -5652,7 +5652,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,640,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,637,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -5682,6 +5682,12 @@ class MainWindow(QMainWindow):
         self.selectAtomsDashboard.setEnabled(1)
 
         self.textLabel2_2 = QLabel(self.selectAtomsDashboard,"textLabel2_2")
+        self.selectAtomsDashboard.addSeparator()
+
+        self.SAFilter = QCheckBox(self.selectAtomsDashboard,"SAFilter")
+
+        self.SAFilterList = QComboBox(0,self.selectAtomsDashboard,"SAFilterList")
+        self.SAFilterList.setEnabled(1)
         self.selectAtomsDashboard.addSeparator()
         self.modifySetElementAction.addTo(self.selectAtomsDashboard)
         self.moveMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
@@ -5859,10 +5865,10 @@ class MainWindow(QMainWindow):
         self.dispCPKAction.addTo(self.unnamed)
         self.dispVdWAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
-        self.dispResetChunkColorAction.addTo(self.unnamed)
-        self.dispResetChunkDisplyAction.addTo(self.unnamed)
-        self.dispShowInvisAtomsAction.addTo(self.unnamed)
         self.dispObjectColorAction.addTo(self.unnamed)
+        self.dispResetChunkColorAction.addTo(self.unnamed)
+        self.dispResetAtomsDisplayAction.addTo(self.unnamed)
+        self.dispShowInvisAtomsAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.dispBGColorAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
@@ -6053,8 +6059,10 @@ class MainWindow(QMainWindow):
         self.connect(self.simMoviePlayerAction,SIGNAL("activated()"),self.simMoviePlayer)
         self.connect(self.simPlotToolAction,SIGNAL("activated()"),self.simPlot)
         self.connect(self.dispLightingAction,SIGNAL("activated()"),self.dispLighting)
-        self.connect(self.dispResetChunkDisplyAction,SIGNAL("activated()"),self.dispResetChunkDisplay)
+        self.connect(self.dispResetAtomsDisplayAction,SIGNAL("activated()"),self.dispResetAtomsDisplay)
         self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
+        self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectConnectedAction,SLOT("setDisabled(bool)"))
+        self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectDoublyAction,SLOT("setDisabled(bool)"))
 
 
     def languageChange(self):
@@ -6417,7 +6425,7 @@ class MainWindow(QMainWindow):
         self.dispLightingAction.setMenuText(self.__tr("Lighting..."))
         self.selecttestAction.setText(self.__tr("test"))
         self.selecttestAction.setMenuText(self.__tr("test"))
-        self.dispResetChunkDisplyAction.setText(self.__tr("Reset Chunk Display"))
+        self.dispResetAtomsDisplayAction.setText(self.__tr("Reset Atoms Display"))
         self.dispShowInvisAtomsAction.setText(self.__tr("Show Invisible Atoms"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
@@ -6434,6 +6442,25 @@ class MainWindow(QMainWindow):
         QWhatsThis.add(self.ccLayerThicknessSpinBox,self.__tr("Number of lattice cells"))
         self.selectAtomsDashboard.setLabel(self.__tr("Select Atoms"))
         self.textLabel2_2.setText(self.__tr("Select Atoms"))
+        self.SAFilter.setText(self.__tr("Filter:"))
+        self.SAFilterList.clear()
+        self.SAFilterList.insertItem(self.__tr("Hydrogen"))
+        self.SAFilterList.insertItem(self.__tr("Helium"))
+        self.SAFilterList.insertItem(self.__tr("Boron"))
+        self.SAFilterList.insertItem(self.__tr("Carbon"))
+        self.SAFilterList.insertItem(self.__tr("Nitrogen"))
+        self.SAFilterList.insertItem(self.__tr("Oxygen"))
+        self.SAFilterList.insertItem(self.__tr("Fluorine"))
+        self.SAFilterList.insertItem(self.__tr("Neon"))
+        self.SAFilterList.insertItem(self.__tr("Aluminum"))
+        self.SAFilterList.insertItem(self.__tr("Silicon"))
+        self.SAFilterList.insertItem(self.__tr("Chlorine"))
+        self.SAFilterList.insertItem(self.__tr("Argon"))
+        self.SAFilterList.insertItem(self.__tr("Germanium"))
+        self.SAFilterList.insertItem(self.__tr("Arsenic"))
+        self.SAFilterList.insertItem(self.__tr("Selenium"))
+        self.SAFilterList.insertItem(self.__tr("Bromine"))
+        self.SAFilterList.insertItem(self.__tr("Krypton"))
         self.moveMolDashboard.setLabel(self.__tr("Move Chunks"))
         self.textLabel1.setText(self.__tr("Move Chunks"))
         self.moviePlayerDashboard.setLabel(self.__tr("Movie Player Dashboard"))
@@ -6899,8 +6926,8 @@ class MainWindow(QMainWindow):
     def dispLighting(self):
         print "MainWindow.dispLighting(): Not implemented yet"
 
-    def dispResetChunkDisplay(self):
-        print "MainWindow.dispResetChunkDisplay(): Not implemented yet"
+    def dispResetAtomsDisplay(self):
+        print "MainWindow.dispResetAtomsDisplay(): Not implemented yet"
 
     def dispShowInvisAtoms(self):
         print "MainWindow.dispShowInvisAtoms(): Not implemented yet"
