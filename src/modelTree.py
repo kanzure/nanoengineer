@@ -31,26 +31,11 @@ class modelTree(QListView):
         self.setAcceptDrops(True)
 
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.molDefaultIcon = QPixmap(filePath + "/../images/moldefault.png")
-        self.molInvisibleIcon = QPixmap(filePath + "/../images/molinvisible.png")
-        self.molVDWIcon = QPixmap(filePath + "/../images/molvdw.png")
-        self.molLinesIcon = QPixmap(filePath + "/../images/mollines.png")
-        self.molCPKIcon = QPixmap(filePath + "/../images/molcpk.png")
-        self.molTubesIcon = QPixmap(filePath + "/../images/moltubes.png")
-        self.csysIcon = QPixmap(filePath + "/../images/csys.png")
-        self.datumIcon = QPixmap(filePath + "/../images/datumplane.png")
-        self.partIcon = QPixmap(filePath + "/../images/part.png")
-        self.rmotorIcon = QPixmap(filePath + "/../images/rotarymotor.png")
-        self.lmotorIcon = QPixmap(filePath + "/../images/linearmotor.png")
-        self.insertHereIcon = QPixmap(filePath + "/../images/inserthere.png")
-        self.groundIcon = QPixmap(filePath + "/../images/ground.png")
-        self.statIcon = QPixmap(filePath + "/../images/stat.png")
         self.groupOpenIcon = QPixmap(filePath + "/../images/group-expanded.png")
         self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
         self.clipboardFullIcon = QPixmap(filePath + "/../images/clipboard-full.png")
         self.clipboardEmptyIcon = QPixmap(filePath + "/../images/clipboard-empty.png")
         self.clipboardGrayIcon = QPixmap(filePath + "/../images/clipboard-gray.png")
-        self.statIcon = QPixmap(filePath + "/../images/stat.png")
         
         self.setSorting(-1)
         self.setRootIsDecorated(1)
@@ -64,7 +49,7 @@ class modelTree(QListView):
             ["Ungroup", self.ungroup],
             None,
             ["Hide", self.hide],
-            ["Show", self.unhide],
+            ["Unhide", self.unhide],
             None,
             ["Copy", self.copy],
             ["Cut", self.cut],

@@ -173,6 +173,7 @@ class GLPane(QGLWidget, modeMixin):
         # this is here in anticipation of being able to have
         # multiple windows on the same assembly
         self.display = default_display_mode #bruce 041129
+        self.win.dispbarLabel.setText( "Default Display: " + dispLabel[self.display] )
         self.singlet = None
         self.selatom = None # josh 10/11 supports deposit
 
@@ -622,6 +623,7 @@ class GLPane(QGLWidget, modeMixin):
         #e someday: if self.display == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.display = disp
+        self.assy.w.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
         for mol in self.assy.molecules:
             if mol.display == diDEFAULT: mol.changeapp()
 
