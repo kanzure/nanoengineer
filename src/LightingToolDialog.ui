@@ -1,0 +1,581 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>LightingToolDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>LightingToolDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>411</width>
+            <height>470</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Lighting</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget" row="3" column="0">
+            <property name="name">
+                <cstring>layout22</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Save</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancelPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QFrame" row="0" column="0">
+            <property name="name">
+                <cstring>frame1_2</cstring>
+            </property>
+            <property name="frameShape">
+                <enum>Box</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+            <property name="margin">
+                <number>0</number>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="0" column="1">
+                    <property name="name">
+                        <cstring>layout34</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>light1CB</cstring>
+                            </property>
+                            <property name="text">
+                                <string>On</string>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout33</cstring>
+                            </property>
+                            <grid>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLCDNumber" row="0" column="1">
+                                    <property name="name">
+                                        <cstring>ambLight1LCD</cstring>
+                                    </property>
+                                    <property name="smallDecimalPoint">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="segmentStyle">
+                                        <enum>Flat</enum>
+                                    </property>
+                                    <property name="value" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="intValue" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                                <widget class="QSlider" row="0" column="0">
+                                    <property name="name">
+                                        <cstring>ambLight1SL</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>100</number>
+                                    </property>
+                                    <property name="lineStep">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Below</enum>
+                                    </property>
+                                    <property name="tickInterval">
+                                        <number>10</number>
+                                    </property>
+                                </widget>
+                                <widget class="QSlider" row="1" column="0">
+                                    <property name="name">
+                                        <cstring>diffuseLight1SL</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>100</number>
+                                    </property>
+                                    <property name="lineStep">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Below</enum>
+                                    </property>
+                                    <property name="tickInterval">
+                                        <number>10</number>
+                                    </property>
+                                </widget>
+                                <widget class="QLCDNumber" row="1" column="1">
+                                    <property name="name">
+                                        <cstring>diffuseLight1LCD</cstring>
+                                    </property>
+                                    <property name="smallDecimalPoint">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="segmentStyle">
+                                        <enum>Flat</enum>
+                                    </property>
+                                    <property name="value" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="intValue" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                            </grid>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QLayoutWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>layout35</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel2_4</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Light Source #1:</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_4</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Ambient Brightness:</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_3_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Diffuse Brightness:</string>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QFrame" row="1" column="0">
+            <property name="name">
+                <cstring>frame5</cstring>
+            </property>
+            <property name="frameShape">
+                <enum>Box</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="0" column="1">
+                    <property name="name">
+                        <cstring>layout37</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>light2CB</cstring>
+                            </property>
+                            <property name="text">
+                                <string>On</string>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout36</cstring>
+                            </property>
+                            <grid>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QSlider" row="0" column="0">
+                                    <property name="name">
+                                        <cstring>ambLight2SL</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>100</number>
+                                    </property>
+                                    <property name="lineStep">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Below</enum>
+                                    </property>
+                                    <property name="tickInterval">
+                                        <number>10</number>
+                                    </property>
+                                </widget>
+                                <widget class="QLCDNumber" row="1" column="1">
+                                    <property name="name">
+                                        <cstring>diffuseLight2LCD</cstring>
+                                    </property>
+                                    <property name="smallDecimalPoint">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="segmentStyle">
+                                        <enum>Flat</enum>
+                                    </property>
+                                    <property name="value" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="intValue" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                                <widget class="QLCDNumber" row="0" column="1">
+                                    <property name="name">
+                                        <cstring>ambLight2LCD</cstring>
+                                    </property>
+                                    <property name="smallDecimalPoint">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="segmentStyle">
+                                        <enum>Flat</enum>
+                                    </property>
+                                    <property name="value" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                                <widget class="QSlider" row="1" column="0">
+                                    <property name="name">
+                                        <cstring>diffuseLight2SL</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>100</number>
+                                    </property>
+                                    <property name="lineStep">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Below</enum>
+                                    </property>
+                                    <property name="tickInterval">
+                                        <number>10</number>
+                                    </property>
+                                </widget>
+                            </grid>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QLayoutWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>layout38</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel2_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Light Source #2</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Ambient Brightness:</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_3_3</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Diffuse Brightness:</string>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QFrame" row="2" column="0">
+            <property name="name">
+                <cstring>frame6</cstring>
+            </property>
+            <property name="frameShape">
+                <enum>Box</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="0" column="1">
+                    <property name="name">
+                        <cstring>layout40</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>light3CB</cstring>
+                            </property>
+                            <property name="text">
+                                <string>On</string>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout39</cstring>
+                            </property>
+                            <grid>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QSlider" row="1" column="0">
+                                    <property name="name">
+                                        <cstring>diffuseLight3SL</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>100</number>
+                                    </property>
+                                    <property name="lineStep">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Below</enum>
+                                    </property>
+                                    <property name="tickInterval">
+                                        <number>10</number>
+                                    </property>
+                                </widget>
+                                <widget class="QLCDNumber" row="1" column="1">
+                                    <property name="name">
+                                        <cstring>diffuseLight3LCD</cstring>
+                                    </property>
+                                    <property name="smallDecimalPoint">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="segmentStyle">
+                                        <enum>Flat</enum>
+                                    </property>
+                                    <property name="value" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="intValue" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                                <widget class="QLCDNumber" row="0" column="1">
+                                    <property name="name">
+                                        <cstring>ambLight3LCD</cstring>
+                                    </property>
+                                    <property name="smallDecimalPoint">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="segmentStyle">
+                                        <enum>Flat</enum>
+                                    </property>
+                                    <property name="value" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                                <widget class="QSlider" row="0" column="0">
+                                    <property name="name">
+                                        <cstring>ambLight3SL</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>100</number>
+                                    </property>
+                                    <property name="lineStep">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Below</enum>
+                                    </property>
+                                    <property name="tickInterval">
+                                        <number>10</number>
+                                    </property>
+                                </widget>
+                            </grid>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QLayoutWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>layout41</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel2_3</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Light Source #3</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_2_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Ambient Brightness:</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_3_3_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Diffuse Brightness:</string>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+            </grid>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>okPB</sender>
+        <signal>clicked()</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>cancelPB</sender>
+        <signal>clicked()</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>ambLight1SL</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>valueChangedAmbient1()</slot>
+    </connection>
+    <connection>
+        <sender>diffuseLight1SL</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>valueChangedDiffuse1()</slot>
+    </connection>
+    <connection>
+        <sender>diffuseLight2SL</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>valueChangedDiffuse2()</slot>
+    </connection>
+    <connection>
+        <sender>diffuseLight3SL</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>valueChangedDiffuse3()</slot>
+    </connection>
+    <connection>
+        <sender>ambLight2SL</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>valueChangedAmbient2()</slot>
+    </connection>
+    <connection>
+        <sender>ambLight3SL</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>valueChangedAmbient3()</slot>
+    </connection>
+    <connection>
+        <sender>light1CB</sender>
+        <signal>clicked()</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>setLights()</slot>
+    </connection>
+    <connection>
+        <sender>light2CB</sender>
+        <signal>clicked()</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>setLights()</slot>
+    </connection>
+    <connection>
+        <sender>light3CB</sender>
+        <signal>clicked()</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>setLights()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>valueChangedAmbient1()</slot>
+    <slot>valueChangedDiffuse1()</slot>
+    <slot>valueChangedAmbient2()</slot>
+    <slot>valueChangedAmbient3()</slot>
+    <slot>valueChangedDiffuse2()</slot>
+    <slot>valueChangedDiffuse3()</slot>
+    <slot>setLights()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
