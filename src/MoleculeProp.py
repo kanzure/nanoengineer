@@ -34,12 +34,12 @@ class MoleculeProp(MoleculePropDialog):
         
         self.atomsTextBrowser.setText(totalAtomsStr)
         
-        gIndex = 1
-        for g in mol.gadgets:
-                self.jigsComboBox.insertItem(g.__class__.__name__ + str(gIndex))
-                gIndex += 1
         
-        if gIndex > 1: 
+        for g in mol.gadgets:
+                self.jigsComboBox.insertItem(g.name)
+                
+        
+        if len(mol.gadgets) > 0: 
                 self.propPushButton.setEnabled(True)        
     
     def nameChanged(self):
@@ -56,14 +56,20 @@ class MoleculeProp(MoleculePropDialog):
         
         if isinstance(g, motor):
               rMotorDialog = RotaryMotorProp(g, glpane)
-              rMotorDialog.exec_loop()
+              if rMotorDialog.exec_loop() ==QDialog.Accepted:
+                      self.jigsComboBox.setCurrentText(g.name)
+                      glpane.win.modelTreeView.updateTreeItem(g)
+                      
         elif isinstance(g, LinearMotor):
               lMotorDialog = LinearMotorProp(g, glpane)
-              lMotorDialog.exec_loop()
+              if lMotorDialog.exec_loop() == QDialog.Accepted:
+                      self.jigsComboBox.setCurrentText(g.name)
+                      glpane.win.modelTreeView.updateTreeItem(g)
         elif isinstance(g, ground):
               groundDialog = GroundProp(g,  glpane)
               if groundDialog.exec_loop() == QDialog.Accepted:
-                      glpane.win.modelTreeView.updateModelTree()
+                      self.jigsComboBox.setCurrentText(g.name)
+                      glpane.win.modelTreeView.updateTreeItem(g)
             
     def accept(self):
         self.applyButtonClicked()    

@@ -97,6 +97,9 @@ class modelTree(QListView):
                  self.itemToPaste = self.selectedTreeItem
                  self.pasteMode = self.CUT
             elif id == 2: #Delete
+                 mol = self.treeItems[self.selectedTreeItem]
+                 self.win.assy.killmol(mol)
+                 
                  parentItem = self.selectedTreeItem.parent()
                  parentItem.takeItem(self.selectedTreeItem)
             elif id == 3: #Rename
@@ -107,7 +110,8 @@ class modelTree(QListView):
             elif id == 5: # Properties
                  molDialog = MoleculeProp(self.treeItems[self.selectedTreeItem])
                  if molDialog.exec_loop() == QDialog.Accepted:
-                         self.updateModelTree()
+                         mol = self.treeItems[self.selectedTreeItem]
+                         self.updateTreeItem(mol, self.selectedTreeItem)
                   
     def processJigMenu(self, id):
             if id == 0: #Delete
@@ -123,15 +127,15 @@ class modelTree(QListView):
                 if isinstance(jig, motor):
                         rMotorDialog = RotaryMotorProp(jig, self.win.glpane)
                         if rMotorDialog.exec_loop() == QDialog.Accepted:
-                                self.updateModelTree()
+                                self.updateTreeItem(jig, self.selectedTreeItem)
                 elif isinstance(jig, LinearMotor):
                         lMotorDialog = LinearMotorProp(jig, self.win.glpane)
                         if lMotorDialog.exec_loop() == QDialog.Accepted:
-                                self.updateModelTree()
+                                self.updateTreeItem(jig, self.selectedTreeItem)
                 elif isinstance(jig, ground):
                         groundDialog = GroundProp(jig, self.win.glpane)
                         if groundDialog.exec_loop() == QDialog.Accepted:
-                                self.updateModelTree()
+                                self.updateTreeItem(jig, self.selectedTreeItem)
 
     def processInsertHereMenu(self, id):
             if id == 0: #Paste
@@ -403,8 +407,7 @@ class modelTree(QListView):
                 gIndex = 1
                 mol.gadgets.reverse()
                 for g in mol.gadgets:
-
-#                   item = TreeListViewItem(mitem, g.__class__.__name__ + str(gIndex))
+                   g.name = g.__class__.__name__ + str(gIndex)
                    item = TreeListViewItem(mitem, g.name)
                    item.setItemObject(g)
 
@@ -443,8 +446,8 @@ class modelTree(QListView):
                 group.members.reverse()             
                                            
 
-    def addTreeItem(self, obj):
-        """create new model object, like molecule"""
+    def addObject(self, obj):
+        """add new model object, like molecule or jig"""
         atItem =  self.objectToTreeItems[self.insertHereIcon]
         parentItem = atItem.parent()
         if isinstance(obj, molecule):
@@ -466,10 +469,53 @@ class modelTree(QListView):
                  
                         if aboveItem != parentItem:
                                 mitem.moveItem(aboveItem)
-                                
+        else: # This should be for a jig
+                mol = obj.molecule
+                gIndex = len(mol.gadgets)
+                parentItem = self.objectToTreeItems[mol]
+                obj.name += str(gIndex)
+                item = TreeListViewItem(parentItem, obj.name)                        
+                item.setItemObject(obj)
+
+                if isinstance(obj, ground):
+                      item.setPixmap(0, self.groundIcon)
+                elif isinstance(obj, motor):
+                      item.setPixmap(0, self.rmotorIcon)
+                elif isinstance(obj, LinearMotor):
+                      item.setPixmap(0, self.lmotorIcon)
+                         
+                item.setDragEnabled(False)
+                item.setDropEnabled(False)
+                item.setRenameEnabled(0, False)
+                self.treeItems[item] = obj
+                self.objectToTreeItems[obj] = item
+                
         ## Save model tree operations into assembly.orderedItemsList 
         self.saveModelTree()         
                    
+     
+    def deleteObject(self, obj):
+        """ Delete object like molecule/jig """ 
+        item = self.objectToTreeItems[obj]
+        parentItem = item.parent()
+        parentItem.takeItem(item)
+        
+        ## Save model tree operations into assembly.orderedItemsList 
+        self.saveModelTree()
+                
+     
+    def updateTreeItem(self, obj,  item = None):
+        """Update the specified tree item instead of the whole tree
+            obj is the molecule or jig to be updated
+            item is the corresponding tree item for the molecule/jig
+        """
+        if item and isinstance(item, QListViewItem):
+                item.setText(0, obj.name)
+        elif obj:
+                item = self.objectToTreeItems[obj]
+                item.setText(0, obj.name)
+              
+         
             
     def updateModelTree(self):        
         """ Build the tree structure of the current model """

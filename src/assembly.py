@@ -145,7 +145,7 @@ class assembly:
         self.selwhat = 2
         mol.pick()
         
-        self.w.modelTreeView.addTreeItem(mol)
+        self.w.modelTreeView.addObject(mol)
 
 
     # set up to run a movie or minimization
@@ -350,6 +350,7 @@ class assembly:
                 numol=mol.copy(offset)
                 nulist += [numol]
                 self.molecules += [numol]
+                self.w.modelTreeView.addObject(numol)
 
     # move any selected parts in space ("move" is an offset vector)
     def movesel(self, move):
@@ -378,6 +379,7 @@ class assembly:
             self.modified = 1
             for m in self.selmols:
                 self.killmol(m)
+                self.w.modelTreeView.deleteObject(m)
             self.selmols=[]
 
         self.setDrawLevel()
@@ -438,7 +440,7 @@ class assembly:
         m.findcenter(self.selatoms.values(), sightline)
         self.unpickatoms()
 
-	self.w.modelTreeView.updateModelTree()
+	self.w.modelTreeView.addObject(m)
 
     # makes a Linear Motor connected to the selected atoms
     # note I don't check for a limit of 25 atoms, but any more
@@ -450,7 +452,7 @@ class assembly:
         m.findCenter(self.selatoms.values(), sightline)
         self.unpickatoms()
 
-	self.w.modelTreeView.updateModelTree()
+	self.w.modelTreeView.addObject(m)
 
     # makes all the selected atoms grounded
     # same note as above
@@ -460,7 +462,7 @@ class assembly:
         m=ground(self, self.selatoms.values())
         self.unpickatoms()
 
-	self.w.modelTreeView.updateModelTree()
+	self.w.modelTreeView.addObject(m)
 
     # select all atoms connected by a sequence of bonds to
     # an already selected one
@@ -534,11 +536,13 @@ class assembly:
                 self.addmol(numol)
                 numol.shakedown()
                 numol.pick()
+                self.w.modelTreeView.addObject(numol)
                 # need to redo the old one too, unless we removed all its atoms
                 if mol.atoms:
                     mol.shakedown()
                 else:
                     self.killmol(mol)
+                    self.w.modelTreeView.deleteObject(mol)
         self.o.paintGL()
 
     # change surface atom types to eliminate dangling bonds

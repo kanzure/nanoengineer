@@ -940,7 +940,7 @@ def oneUnbonded(elem, assy, pos):
             mol.bond(a,x)
     assy.addmol(mol)
 
-    assy.w.modelTreeView.addTreeItem(mol)
+    assy.w.modelTreeView.addObject(mol)
 
     return mol
     
