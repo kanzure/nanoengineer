@@ -7,8 +7,11 @@ in order to fix mode-related bugs by revising the interface between modes.py,
 all specific modes, and GLPane.py. During this period, please consult Bruce
 before any changes to these files.
 
+Mostly by Josh; partly revised by Bruce, 040922.
+
 $Id$
 """
+
 from qt import *
 from qtgl import *
 from OpenGL.GL import *
@@ -27,11 +30,13 @@ from shape import *
 from assembly import *
 import re
 from constants import *
-from modifyMode import *
-from cookieMode import cookieMode # fyi: was 'import *' before bruce 040920
+
+from modifyMode import modifyMode
+from cookieMode import cookieMode # fyi: was 'import *' before bruce 040920; same with some other modes here, 040922
 from extrudeMode import extrudeMode
-from selectMode import *
-from depositMode import *
+from selectMode import selectMode
+from depositMode import depositMode
+from modes import modeMixin
 
 import Image
 import operator
@@ -91,17 +96,28 @@ allQuats = quats100 + quats110 + quats111
 debug_menu_enabled = 1 # enable the undocumented debug menu by default [bruce 040920]
 debug_events = 0 # set this to 1 to print info about most mouse events
 
-class GLPane(QGLWidget):
+class GLPane(QGLWidget, modeMixin):
     """Mouse input and graphics output in the main view window.
     """
+    # Note: external code expects self.mode to always be a working mode object, which has certain callable methods.
+    # Our modes themselves expect certain other attributes (like self.default_mode, self.modetab) to be present.
+    # This is all set up and maintained by our mixin class, modeMixin. [bruce 040922]
+
+    # constants needed by modeMixin:
+    default_mode_class = selectMode
+    other_mode_classes = [modifyMode, depositMode, cookieMode, extrudeMode]
+    
     def __init__(self, assem, master=None, name=None, win=None):
+        
+        self.win = win # bruce 040922 moved this earlier in __init__
+
+        modeMixin._init1(self)
+        
         QGLWidget.__init__(self,master,name)
         global paneno
         self.name = str(paneno)
         paneno += 1
         self.initialised = 0
-
-        self.mode = 0
 
         self.debug_menu = self.makemenu( self.debug_menu_items() )
 
@@ -133,15 +149,18 @@ class GLPane(QGLWidget):
         self.ortho = 0
 
         # not selecting anything currently
-        self.sellist = None
         self.shape = None
 
-        # 1 for selecting, 0 for deselecting, 2 for selecting parts
-        self.selSense = 1
-        # 0 if selecting as lasso, 1 if as rectangle
-        self.selLassRect = 1
-
-        self.picking = False
+##        ## bruce 040923 zapped the following members, since I think they are now only used in mode objects.
+##
+##        self.sellist = None
+##
+##        # 1 for selecting, 0 for deselecting, 2 for selecting parts
+##        self.selSense = 1
+##        # 0 if selecting as lasso, 1 if as rectangle
+##        self.selLassRect = 1
+##
+##        self.picking = False 
 
         self.setMouseTracking(True)
 
@@ -156,43 +175,84 @@ class GLPane(QGLWidget):
 
         drawer.setup()
 
-        self.win = win
-
         self.setAssy(assem)
 
+        ## self.win.statusBar().message("self.win.statusBar", 2000) # this works, but is shown for only about 1/2 sec [bruce 040924]
+        ## self.win.statusBar().message("self.win.statusBar") # this works too; leaves it there until a tooltip writes over it
+        ## but note that other statusbar msgs I'm emitting are going away almost instantly -- it's not a reliable place to make sure
+        ## the user sees something! [bruce 040924]
+        
     def setAssy(self, assem):
         """[bruce comment 040922]
         This is called from self.__init__, and from MWSemantics.__clear when user asks to open a new file, etc.
         Apparently, it is supposed to forget whatever is happening now, and reinitialize the entire GLPane.
-        However, it does nothing to leave the current mode, if any; my initial guess [040922 1035am] is that that's a bug.
-        I also wonder if it ought to do some of the other things now in __init__, e.g. setting some display prefs to their defaults.
+        However, it does nothing to cleanly leave the current mode, if any; my initial guess [040922 1035am] is that that's a bug.
+        (As of 040922 I didn't yet try to fix that... only to emit a warning when it happens. Any fix requires modifying our callers.)
+        I also wonder if setAssy ought to do some of the other things now in __init__, e.g. setting some display prefs to their defaults.
+        Yet another bug (in how it's called now): user is evidently not given any chance to save unsaved changes,
+        or get back to current state if the openfile fails... tho I'm not sure I'm right about that, since I didn't test it.
         """
         assem.o = self
         self.assy = assem
 
-        # set up the interaction mode
-        self.modetab={}
-        
-        selectMode(self)
-        cookieMode(self)
-        extrudeMode(self)
-        modifyMode(self)
-        depositMode(self)
+        self._reinit_modes() # defined in modeMixin [bruce 040922]; requires self.assy
 
-        self.setMode('SELECT')
+    # "callback methods" from modeMixin:
 
-        
-    def setMode(self, mode):
-        """[bruce comment 040922]
-        This is called from methods in MWsemantics.py when the user clicks on a button to go into a new mode.
-        Note that the current mode might or might not be the default, and if not, needs to be exited gracefully,
-        and/or given the option to refuse to change modes.
-        Probably the tools ought to indicate the current mode, but this doesn't yet seem to be attempted.
-        The mode argument should be the modename as a string, e.g. 'SELECT', 'DEPOSIT', 'COOKIE'.
-        """
-        self.modetab[mode].setMode()
+    def update_after_new_mode(self):
+        "do whatever updates are needed after self.mode might have changed (ok if this is called more than needed)"
+        self.win.modelTreeView.updateModelTree() #bruce comment 040922: I'm not positive this is the right place to do this...
+        ###e also update tool-icon visual state in the toolbar
         self.paintGL()
 
+    # def setMode(self, modename) -- moved to modeMixin [bruce 040922]
+    
+    # ==
+
+    def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
+        """[experimental method by bruce 040922]
+        
+           Show a warning to the user, without interrupting them (i.e. not in a dialog)
+           unless bother_user_with_dialog is true,
+           or unless ensure_visible is true and there's no other way to be sure they'll see the message.
+           (If neither of these options is true, we might merely print the message to stdout.)
+
+           In the future, this might go into a status bar in the window, if we can be sure it will remain visible long enough.
+           For now, that won't work, since some status bar messages I emit are vanishing almost instantly,
+           and I can't yet predict which ones will do that.
+           Due to that problem and since the stdout/stderr output might be hidden from the user,
+           ensure_visible implies bother_user_with_dialog for now.
+           (And when we change that, we have to figure out whether all the calls that no longer use dialogs are still ok.)
+
+           In the future, all these messages will also probably get timestamped and recorded in a log file,
+           in addition to whereever they're shown now.
+
+           This is an experimental method, not yet uniformly used (most uses are in modes.py),
+           and it's likely to be revised a few times in API as well as in implemention. [bruce 040924]
+        """
+        use_status_bar = 0 # always 0, for now
+        use_dialog = bother_user_with_dialog
+        
+        if ensure_visible:
+            prefix = "WARNING"
+            use_dialog = 1 ###e for now, and during debugging -- status bar would be ok when we figure out how to guarantee it lasts
+        else:
+            prefix = "warning"
+        str = str[0].upper() + str[1:] # capitalize the sentence
+        msg = "%s: %s" % (prefix,str,)
+        ###e add a timestamp prefix, at least for the printed one
+        
+        print msg # always print it so there's a semi-permanent record they can refer to
+        
+        if use_status_bar: # do this first
+            self.win.statusBar().message( msg)
+            assert 0 # this never happens for now
+        if use_dialog:
+            # use this only when it's worth interrupting the user to make sure they noticed the message.. see docstring for details
+            ##e also linebreak it if it's very long? i might hope that some arg to the messagebox could do this...
+            QMessageBox.warning(self, prefix, msg) # args are title, content
+        return
+        
     # return space vectors corresponding to various directions
     # relative to the screen
     def __getattr__(self, name):
@@ -481,12 +541,32 @@ class GLPane(QGLWidget):
         if not self.initialised: return
 
         ##start=time.time()
+
+        ###e bruce 040923: I'd like to reset the OpenGL state completely, here, incl the stack depths, to mitigate some bugs. How??
+        # Note that there might be some openGL init code earlier which I'll have to not mess up. Incl displaylists in drawer.setup.
+        # A kluge would be to popmatrix once (for modelview), or a lot, catching exception in case it failed...
+        # so I do that below.
      
         c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
 	glMatrixMode(GL_MODELVIEW)
+
+	# restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923, to partly mitigate the effect of certain drawing bugs]
+	# btw I don't know for sure whether this causes a significant speed hit for some OpenGL implementations... test sometime. #e
+	depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH) # this is normally 1 (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
+	if depth > 1:
+            print "apparent bug: glGetInteger(GL_MODELVIEW_STACK_DEPTH) = %r in GLPane.paintGL" % depth
+            print "workaround: pop it back to depth 1"
+            while depth > 1:
+                depth -= 1
+                glPopMatrix()
+            newdepth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
+            if newdepth != 1:
+                print "hmm, after depth-1 pops we should have reached depth 1, but instead reached depth %r" % newdepth
+            pass	
+	
 	glLoadIdentity()
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -622,13 +702,26 @@ class GLPane(QGLWidget):
         pic.save(filename, "JPEG", quality=85)
 
     def minimize(self):
-        writemmp(self.assy, "minimize.mmp")
-        s = getoutput("simulator -m minimize.mmp")
-        if s[:8] != "Minimize":
+        from debug import print_compact_traceback
+        self.win.statusBar().message("Minimizing...")  # Initial message [mark 040924 via bruce]
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # Put up the hourglass cursor. [mark 040924 via bruce]
+        try:
+            writemmp(self.assy, "minimize.mmp")
+            s = getoutput("simulator -m minimize.mmp")
+            # s might or might not start with "Minimize" -- if not, it's used as an error message
+        except:
+            print_compact_traceback("exception in minimize; continuing: ") # bruce 040924
+            s = "internal error (traceback printed elsewhere)"
+            assert not s.startswith("Minimize")
+        QApplication.restoreOverrideCursor()  # Restore the cursor [mark 040924 via bruce]
+        if s.startswith("Minimize"):
+            self.win.statusBar().message("Error...", 2000)
             QMessageBox.warning(self, "Minimization Failed:", s)
         else:
+            self.win.statusBar().message("Done.", 2000) # Final message for 2 seconds [mark 040924 via bruce]
+                # [Question for Mark: is it right to put this before the movie? -- bruce]
             self.startmovie("minimize.dpb")
-
+        return
 
     def startmovie(self,filename):
         self.assy.movsetup()
