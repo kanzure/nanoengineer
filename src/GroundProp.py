@@ -22,12 +22,12 @@ class GroundProp(GroundPropDialog):
     # Change ground color
     #########################
     def changeGroundColor(self):
-        color = QColorDialog.getColor(QColor("linen"), self, "ColorDialog")
-        self.colorPixmapLabel.setPaletteBackgroundColor(color)
-        
-        self.ground.molecule.havelist = 0
-        self.ground.color = color
-        self.glpane.paintGL()
+        color = QColorDialog.getColor(QColor(self.ground.color), self, "ColorDialog")
+        if color.isValid():
+            self.colorPixmapLabel.setPaletteBackgroundColor(color)
+            self.ground.color = color
+            self.ground.molecule.havelist = 0
+            self.glpane.paintGL()
 
     #################
     # OK Button

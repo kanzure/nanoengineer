@@ -373,19 +373,29 @@ class MWsemantics(MainWindow):
         print 'setdisplay', a0
 
 
-    # set the color of the selected part(s) (molecule)
-    # or the background color if no part is selected.
+    # set the color of the selected molecule
     # atom colors cannot be changed singly
     def dispObjectColor(self):
-        c = self.colorchoose()
-        for ob in self.assy.selmols:
-            ob.setcolor(c)
-        self.glpane.paintGL()
+        c = QColorDialog.getColor(QColor(100,100,100), self, "choose")
+        if c.isValid():
+            molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
+            for ob in self.assy.selmols:
+                ob.setcolor(molcolor)
+            self.glpane.paintGL()
 
 
     def dispBGColor(self):
-        self.glpane.mode.backgroundColor = self.colorchoose()
-        self.glpane.paintGL()
+        
+        # get r, g, b values of current background color
+        r = int (self.glpane.mode.backgroundColor[0] * 255)
+        g = int (self.glpane.mode.backgroundColor[1] * 255)
+        b = int (self.glpane.mode.backgroundColor[2] * 255) 
+
+        # allow user to select a new background color and set it.
+        c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
+        if c.isValid():
+            self.glpane.mode.backgroundColor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
+            self.glpane.paintGL()
 
     def dispGrid(self):
         print "MWsemantics.dispGrid(): Not implemented yet"
@@ -626,14 +636,12 @@ class MWsemantics(MainWindow):
     ###############################################################
 
     def toolsSelectAtoms(self):
-        self.glpane.assy.selwhat = 0
         self.glpane.setMode('SELECT')
-        #self.assy.selectAtoms()
+        self.assy.selectAtoms() # Update display with selected atoms
  
     def toolsSelectMolecules(self):
-        #self.assy.selectParts()
-        self.glpane.assy.selwhat = 2
         self.glpane.setMode('SELECT')
+        self.assy.selectParts() # Update display with selected molecules
 
     def toolsSelectJigs(self):
         print "MWsemantics.toolsSelectJigs(): Not implemented yet"
@@ -811,9 +819,12 @@ class MWsemantics(MainWindow):
 
     # utility functions
 
-    def colorchoose(self):
-        c = QColorDialog.getColor(QColor(100,100,100), self, "choose")
-        return c.red()/256.0, c.green()/256.0, c.blue()/256.0
+    def colorchoose(self, r, g, b): # r, g, b is the default color displayed in the QColorDialog window.
+        color = QColorDialog.getColor(QColor(r, g, b), self, "choose")
+        if color.isValid():
+            return color.red()/256.0, color.green()/256.0, color.blue()/256.0
+        else:
+            return r/256.0, g/256.0, b/256.0
 
 
     def keyPressEvent(self, e):

@@ -45,12 +45,12 @@ class LinearMotorProp(LinearMotorPropDialog):
     # Change motor color
     #########################
     def changeLinearMotorColor(self):
-        color = QColorDialog.getColor(QColor("linen"), self, "ColorDialog")
-        self.colorPixmapLabel.setPaletteBackgroundColor(color)
-        
-        self.motor.molecule.havelist = 0
-        self.motor.color = color
-        self.glpane.paintGL()
+        color = QColorDialog.getColor(QColor(self.motor.color), self, "ColorDialog")
+        if color.isValid():
+            self.colorPixmapLabel.setPaletteBackgroundColor(color)
+            self.motor.color = color
+            self.motor.molecule.havelist = 0
+            self.glpane.paintGL()
 
     def accept(self):           # OK Button
         self.applyButtonPressed()  

@@ -325,7 +325,10 @@ class assembly:
     def pick(self, p1, v1):
         a = self.findpick(p1, v1)
         if a and self.selwhat: a.molecule.pick()
-        elif a: a.pick()
+        elif a:
+            a.pick()
+            # Print information about the selected atom in the msgbar [mark 041005]
+            self.w.msgbarLabel.setText( "Atom #" + str (a.index ) + ", " + a.element.name)
 
     # make something unselected
     def unpick(self, p1, v1):
