@@ -49,7 +49,8 @@ moldisp: $(DISPOBJS)
 	$(CC) -o moldisp $(LDFLAGS) -lGL -lGLU -lglut $(DISPOBJS)
 
 clean:
-	rm -f mol *.o *.so *~ TAGS fmc.mmp
+	rm -f mol moldisp molsim
+	rm -f *.o *.so *~ TAGS fmc.mmp dumpstruct.xyz
 	rm -rf html latex
 
 TAGS:

@@ -40,17 +40,6 @@ void snapshot(int n) {
 		fprintf(outf, "%g ", avg[i].y);
 		fprintf(outf, "%g\n", avg[i].z);
 	}
-
-// For now, don't worry about bonds
-
-//	for (j=0; j<Nexbon; j++) {
-//		if (atom[bond[j].an1].disp==1 || atom[bond[j].an2].disp==1) {
-//			glVertex3d(avg[bond[j].an1].x,
-//				   avg[bond[j].an1].y,avg[bond[j].an1].z);
-//			glVertex3d(avg[bond[j].an2].x,
-//				   avg[bond[j].an2].y,avg[bond[j].an2].z);
-//		}
-//	}
 }
 
 
@@ -80,6 +69,7 @@ void display_mainloop() {
 		calcloop(15);
 		snapshot(x);
 	}
+	printf("\n");
 }
 
 /*

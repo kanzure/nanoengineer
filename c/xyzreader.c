@@ -34,15 +34,6 @@ struct A atom[NATOMS];
 
 struct B bond[4*NATOMS];
 
-/* a bending bond -- points to two bonds */
-/* dirX is 1 if bX->an1 is the common atom */
-struct Q {
-	struct B *b1, *b2;
-	int dir1, dir2;
-	int a1, a2, ac;
-	struct angben *type;
-};
-struct Q torq[6*NATOMS];
 
 struct atomtype element[NUMELTS]={
 	{0.001,  1.0,  0.130, 1, {0.0, 0.0, 0.0, 1.0}, "LP"},     /*  0 Lone Pair */
@@ -120,6 +111,7 @@ void makatom(int elem, struct xyz posn) {
 
 /** file reading */
 
+int done = 0;
 
 void xyz_frame_read(void) {
 	
@@ -128,9 +120,13 @@ void xyz_frame_read(void) {
 	struct xyz vec1, vec2;
 
 	Nexatom = 0;   // overwrite any old atoms
-	
 	fgets(buf, 127, inf);
-	sscanf(buf, "%d", &n);   // get the number of atoms
+	j = sscanf(buf, "%d", &n);   // get the number of atoms
+	if (j == 0) {
+		// end of file!
+		done = 1;
+		return;
+	}
 	fgets(buf, 127, inf);  // ignore next line of input
 	for (i = 0; i < n; i++) {
 		char element_name[4];
@@ -138,6 +134,10 @@ void xyz_frame_read(void) {
 		element_name[0] = '\0';
 		fgets(buf, 127, inf);
 		j = sscanf(buf, "%s %lf %lf %lf", element_name, &vec1.x, &vec1.y, &vec1.z);
+		if (j < 4) {
+			done = 1;
+			return;
+		}
 		// look up the index for this element
 		ord = 0;   // if unknown, call it a lone pair
 		for (j = 0; j < NUM_ELEMENTS_KNOWN; j++) {
@@ -159,6 +159,12 @@ void xyz_frame_read(void) {
 	Center.x /= Nexatom;
 	Center.y /= Nexatom;
 	Center.z /= Nexatom;
+	for (i = 0; i < Nexatom; i++) {
+		avg[i].x -= Center.x;
+		avg[i].y -= Center.y;
+		avg[i].z -= Center.z;
+	}
+	Center.x = Center.y = Center.z = 0.0;
 
 	/* find bounding box */
 
@@ -200,6 +206,8 @@ s -- snapshot\n");
 	
 	// calcloop(((key == 'z') ? 1 : 5));
 	xyz_frame_read();
+	if (done)
+		exit(0);
 	display();
 }
 
