@@ -78,7 +78,7 @@ for x in lines:
         for x in connections:
             thisguy.bond(atoms[x])
 
-print "part bns foobar"
+print "part vdw foobar"
 for k in atoms.keys():
     print atoms[k].mmpAtom()
 print "end"
