@@ -911,14 +911,27 @@ class MWsemantics(MainWindow):
         if not self.assy.selatoms:
             self.history.message(redmsg("Ground: You must first select an atom(s) you want to ground."))
             return
+        
+        # Make sure that no more than 25 atoms are selected.
+        nsa = len(self.assy.selatoms)
+        if nsa > 25: 
+            self.history.message(redmsg("Ground: " + str(nsa) +" atoms selected.  The limit is 25.  Try again."))
+            return
+        
         self.history.message(greenmsg("Ground: "))
         self.assy.makeground()
         self.win_update()
         
     def makeStat(self):
         if not self.assy.selatoms:
-            self.history.message(redmsg("Thermostat: You must first select an atom(s) you want to associate with a thermostat."))
+            self.history.message(redmsg("Thermostat: You must select an atom on the molecule you want to associate with a thermostat."))
             return
+        
+        # Make sure only one atom is selected.
+        if len(self.assy.selatoms) != 1: 
+            self.history.message(redmsg("Thermometer: To create a Langevin thermostat, only one atom may be selected.  Try again."))
+            return
+            
         self.history.message(greenmsg("Thermostat: "))
         self.assy.makestat()
         self.win_update()
@@ -926,8 +939,14 @@ class MWsemantics(MainWindow):
         
     def makeThermo(self):
         if not self.assy.selatoms:
-            self.history.message(redmsg("Thermometer: You must first select an atom(s) you want to associate with a thermometer."))
+            self.history.message(redmsg("Thermometer: You must select an atom on the molecule you want to associate with a thermometer."))
             return
+        
+        # Make sure only one atom is selected.
+        if len(self.assy.selatoms) != 1: 
+            self.history.message(redmsg("Thermometer: To create a thermometer, only one atom may be selected.  Try again."))
+            return
+        
         self.history.message(greenmsg("Thermometer: "))
         self.assy.makethermo()
         self.win_update()
@@ -936,6 +955,13 @@ class MWsemantics(MainWindow):
         if not self.assy.selatoms:
             self.history.message(redmsg("Rotary Motor: You must first select an atom(s) to create a rotary motor."))
             return
+        
+        # Make sure that no more than 25 atoms are selected.
+        nsa = len(self.assy.selatoms)
+        if nsa > 25: 
+            self.history.message(redmsg("Linear Motor: " + str(nsa) + " atoms selected.  The limit is 25.  Try again."))
+            return
+        
         self.history.message(greenmsg("Rotary Motor: "))
         self.assy.makeRotaryMotor(self.glpane.lineOfSight)
         self.win_update()
@@ -944,6 +970,13 @@ class MWsemantics(MainWindow):
         if not self.assy.selatoms:
             self.history.message(redmsg("Linear Motor: You must first select an atom(s) to create a linear motor."))
             return
+        
+        # Make sure that no more than 25 atoms are selected.
+        nsa = len(self.assy.selatoms)
+        if nsa > 25: 
+            self.history.message(redmsg("Linear Motor: " + str(nsa) + " atoms selected.  The limit is 25.  Try again."))
+            return
+        
         self.history.message(greenmsg("Linear Motor: "))
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
         self.win_update()
