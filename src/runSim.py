@@ -10,7 +10,7 @@ class runSim(SimSetupDialog):
     def __init__(self, assy):
         SimSetupDialog.__init__(self)
         self.assy = assy
-        self.nframes = 300
+        self.nframes = 900
         self.temp = 300
         self.stepsper = 10
         self.timestep = 10
