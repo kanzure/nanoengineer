@@ -12,6 +12,7 @@ from VQT import *
 from chem import *
 import drawer
 from constants import elemKeyTab
+import platform
 
 def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.clear()
@@ -642,7 +643,12 @@ class depositMode(basicMode):
     # make a new atom of el.
     # bond the new atom to it, and any other ones around you'd
     # expect it to form bonds with
-    # [bruce comment 041115: only bonds to singlets in same molecule; why?]
+    # [bruce comment 041115: only bonds to singlets in same molecule; why?
+    #  more info 041203:
+    #  answer from josh: that's a bug, but we won't fix it for alpha.
+    #  bruce thinks it has a recent bug number (eg 220-230) but forgets what it is.
+    # ]
+    
     # bruce 041123 new features:
     # return the new atom and a description of it, or None and the reason we made nothing.
     def attach(self, el, singlet):
@@ -650,11 +656,21 @@ class depositMode(basicMode):
             return (None, "%s makes no bonds; can't attach one to an open bond" % el.name)
         spot = self.findSpot(el, singlet)
         pl = []
+        rl = [] # real neighbors of singlets in pl [for bug 232 fix]
         mol = singlet.molecule
         cr = el.rcovalent
 
         for s in mol.nearSinglets(spot, cr*1.5):
-            pl += [(s, self.findSpot(el, s))]
+            #bruce 041203 quick fix for bug 232:
+            # don't include two singlets on the same real atom!
+            # (This is not ideal -- we should pick the best one to keep,
+            #  not just the first one. How should we decide which is best?? #e)
+            real = s.singlet_neighbor()
+            if real not in rl:
+                pl += [(s, self.findSpot(el, s))]
+                rl += [real]
+            elif platform.atom_debug:
+                print "fyi (ATOM_DEBUG): depositMode.attach refrained from causing bug232 by bonding twice to %r" % real
 
         n = min(el.numbonds, len(pl))
         if n == 1:
