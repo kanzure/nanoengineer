@@ -394,13 +394,14 @@ class molecule(Node, InvalMixin):
     # atom in there has a valid .index (into curpos or basepos), so I won't.
     #
     # Note that it would be illegal to pretend we're dependent on self.atlist
-    # in the rule above, but to use self.atoms.values() in this code, since
+    # in _inputs_for_singlets, but to use self.atoms.values() in this code, since
     # this could lead to self.singlets existing while self.atlist did not,
     # making invals of self.atlist, which see it missing so think they needn't
     # invalidate self.singlets, to be wrong. [##e I should make sure to document
     # this problem in general, since it affects all recompute methods that don't
     # always access (and thus force recompute of) all their declared inputs.]
-
+    # [addendum, 050219: not only that, but self.atoms.values() has indeterminate
+    #  order, which for all we know might be different each time it's constructed.]
     _inputs_for_singlets = ['atlist']
     def _recompute_singlets(self):
         # (Filter always returns a python list, even if atlist is a Numeric.array
@@ -485,12 +486,11 @@ class molecule(Node, InvalMixin):
     #
     # (We will not bother to have them check whether they
     # are working with singlets, and if not, avoid invalidating
-    # variables related to singlets -- since I removed those variables
-    # entirely from the inval system. To add this, we would modify
+    # variables related to singlets. To add this, we would modify
     # the rules here so that invalidating atlist did not automatically
     # invalidate singlets (the list), etc... doing this right would
     # require a bit of thought, but is easy enough if we need it...
-    # note that it requires checking elements when atoms are transmuted,
+    # note that it would require checking elements when atoms are transmuted,
     # as well as checks for singlets in addatom/delatom/setatomposn.)
 
     _inputs_for_atlist = [] # only invalidated directly, by addatom/delatom
