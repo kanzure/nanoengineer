@@ -52,20 +52,19 @@ class runSim(SimSetupDialog):
             ext =str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
             safile = dir + fil + ext # full path of "Save As" filename
             
-            if self.assy.filename != safile: # If the current part name and "Save As" filename are not the same...
-                if os.path.exists(safile): # ...and if the "Save As" file exists...
+            if os.path.exists(safile): # ...and if the "Save As" file exists...
 
-                    # ... confirm overwrite of the existing file.
-                    ret = QMessageBox.warning( self, self.name(),
+                # ... confirm overwrite of the existing file.
+                ret = QMessageBox.warning( self, self.name(),
                         "The file \"" + fil + ext + "\" already exists.\n"\
                         "Do you want to overwrite the existing file or cancel?",
                         "&Overwrite", "&Cancel", None,
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 
-                    if ret==1: # The user cancelled
-                        self.assy.w.statusBar.message( "Cancelled.  File not saved." )
-                        return # Cancel clicked or Alt+C pressed or Escape pressed
+                if ret==1: # The user cancelled
+                    self.assy.w.statusBar.message( "Cancelled.  File not saved." )
+                    return # Cancel clicked or Alt+C pressed or Escape pressed
             
             self.mext = ext
             natoms = len(self.assy.alist)
@@ -77,14 +76,24 @@ class runSim(SimSetupDialog):
             else: # XYZ file format
                 ftype = 'XYZ'
                 self.fileform = '-x'
-                filesize = (self.nframes * natoms * 3) + 4 # XYZ SIZE: THIS IS WRONG
+                # Based on the way simulator.c writes an XYZ trajectory file, 
+                # it is impossible to determine the exact final size.
+                # This formula is an estimate.  "filesize" should never be larger than the
+                # actual final size of the XYZ file, or the progress bar will never hit 100%.
+                # Mark 050105 
+                filesize = self.nframes * ((natoms * 32) + 25) # Estimated final size.
+#                self.assy.w.statusBar.message("XYZ filesize =" + str(int( filesize)))
 
-            self.hide()
+            self.hide() # Hide simulator dialog window.
             
             r = self.saveMovie(safile, filesize)
             
             if not r: # Movie file saved successfully.
                 self.assy.w.statusBar.message( ftype + " file saved: " + safile)
+
+            # For debugging purposes only   - Mark 050105             
+#            filesize = os.path.getsize(safile)
+#            self.assy.w.statusBar.message("Final XYZ filesize =" + str(int( filesize)))
 
 
     def createMoviePressed(self):
@@ -115,7 +124,8 @@ class runSim(SimSetupDialog):
         basename = os.path.basename(moviefile)
         
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        self.assy.w.statusBar.message("<span style=\"color:#006600\">Simulator: Calculating...</span>")
+        msg = "<span style=\"color:#006600\">Simulator: Creating movie file [" + moviefile + "]</span>"
+        self.assy.w.statusBar.message(msg)
         
         try:
             if self.assy.modified: writemmp(self.assy, self.assy.filename, False)
