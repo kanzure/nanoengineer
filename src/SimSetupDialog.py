@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Fri Mar 11 12:24:43 2005
+# Created: Fri Mar 11 16:08:26 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -121,13 +121,13 @@ class SimSetupDialog(QDialog):
         CancelButton_font.setPointSize(9)
         CancelButton_font.setBold(1)
         self.CancelButton.setFont(CancelButton_font)
-        self.CancelButton.setDefault(1)
+        self.CancelButton.setDefault(0)
         layout27.addWidget(self.CancelButton)
         SimSetupDialogLayout.addLayout(layout27)
 
         self.languageChange()
 
-        self.resize(QSize(310,321).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(347,321).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.MovieButton,SIGNAL("clicked()"),self.createMoviePressed)

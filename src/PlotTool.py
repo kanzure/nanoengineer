@@ -74,7 +74,7 @@ class PlotTool(PlotToolDialog):
 #        print "Trajectory file name = ", self.dpbname
         
         # Get number of columns, located in line 14 of the header.
-        hloc = 12 # Line number in file contain the "# n columns"
+        hloc = 14 # Line number in file contain the "# n columns"
         header = linecache.getline(self.traceFile, hloc)
         hlist = string.split(header, " ")
         ncols = int(hlist[1])
