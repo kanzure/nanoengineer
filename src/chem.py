@@ -45,7 +45,7 @@ def povpoint(p):
 
 
 class elem:
-    """one of these for each element type"""
+    """one of these for each element type -- warning, order of creation matters, since it sets eltnum member!"""
     def __init__(self, sym, n, m, rv, col, bn):
         """called from a table in the source
         
@@ -868,7 +868,7 @@ class molecule(QObject):
     # return the singlets in the given sphere
     # sorted by increasing distance from the center
     def nearSinglets(self, point, radius):
-        if not self.singlets: return None
+        if not self.singlets: return None ## bruce comment 040928: returning None will cause caller's for loop to crash...
         v = self.singlpos-point
         r = sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2)
         p= r<=radius
@@ -930,6 +930,7 @@ class molecule(QObject):
         return "<Molecule of " + self.name + ">"
 
 def oneUnbonded(elem, assy, pos):
+    "[bruce comment 040928:] create one unbonded atom, of element elem, at position pos, in its own new molecule."
     mol = molecule(assy, gensym('Clicked'))
     a = atom(elem.symbol, pos, mol)
     r = elem.rcovalent
