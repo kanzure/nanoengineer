@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>PartPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -76,6 +76,9 @@
                                         </property>
                                         <property name="text">
                                             <string></string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignLeft</set>
                                         </property>
                                         <property name="readOnly">
                                             <bool>true</bool>
@@ -184,7 +187,7 @@
                     <property name="minimumSize">
                         <size>
                             <width>0</width>
-                            <height>30</height>
+                            <height>0</height>
                         </size>
                     </property>
                     <property name="text">
@@ -207,7 +210,7 @@
                     <property name="minimumSize">
                         <size>
                             <width>0</width>
-                            <height>30</height>
+                            <height>0</height>
                         </size>
                     </property>
                     <property name="text">
@@ -229,7 +232,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="950">789ca5d1cd6ac2401885e17dae62707652d446a595d24b287459285d8c93c9246a3426e9a294de7bfb7ee3cf18dc14cfc9e6e1f091a0e3a17a7b7d51c371d276a62badb28569d430fbacaaaff78fe7ef6490a62a3cf783bb646094553acd28f47036a13087f329854bb8985368a1b114b67039a1b011ce28dc090d859dd05158413ba5702f7ca0d0091714d6427931dc0a1d851b984d295c0b1f295c0917149642092c8439851aba94c20ce6330a474289f06a6e5cb439e762d166690fc92e166ddc31a33c5ea221f33e5a2e2e7c7c63cedfe47d1edf182d298ac2f9de8d3e4eae7f5396ab902b3761f8cfcd7abd09a9fa379bed21bbfecdb6de87347f37c6464b5d5721ed61382dddf177b63e0ca7258abde1dffe794a7e017bb2ed05</data>
+        <data format="PNG" length="336">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000011749444154789cb5d53d8a85301405e0e3f87403295c84602958da0929b5b775176ec455a5b4b513b4120413719a51f4e54f61bc95e486cfc34d20ceb66d78a37e5e51df843fa666d7751ba5f436c61873acf08e56558520088c6096654892e4b2a68477b4691a6bca388e511485b42ec14fd0300c91a6a9b27739bca749cbb204001042cc8929a5608c59510047524208866130c37fa995d0baaec777dff7175485dfbec7aeeb4a6b3a549998730e001042587f664a2cc19ee71961dff76f259646c1393f52ab6a591665e2efd28ee20efe78c6261400e67996125b67cc398710e272bd6c89dbb6455dd766783f34d3add87b6734cf73e7bc4782a769c2388e5af45c3a14009cf3d31445d1a3774a874af07fd66b4fd32f903fb8bfe751f33f0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>

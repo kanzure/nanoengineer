@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\GroupPropDialog.ui'
+# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/GroupPropDialog.ui'
 #
-# Created: Thu Dec 9 13:19:29 2004
+# Created: Thu Dec 9 14:04:25 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

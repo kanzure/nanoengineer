@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\ElementSelectorDialog.ui'
+# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/ElementSelectorDialog.ui'
 #
-# Created: Thu Dec 9 13:19:15 2004
+# Created: Thu Dec 9 14:04:22 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

@@ -43,6 +43,7 @@ class runSim(SimSetupDialog):
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         oldWorkingDir = os.getcwd()
         os.chdir(tmpFilePath)
+
         try:
             self.assy.w.msgbarLabel.setText("Calculating...")
             #if self.assy.modified: writemmp(self.assy, self.assy.filename)

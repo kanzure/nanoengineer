@@ -139,6 +139,7 @@ class MWsemantics(MainWindow):
         #   directory and is writable. If we someday routinely create
         #   a new file in it for each session, that will be a good-
         #   enough test.
+
         self.tmpFilePath = os.path.normpath(os.path.expanduser("~/atom_tmp/"))
         if not os.path.exists(self.tmpFilePath):
            try :

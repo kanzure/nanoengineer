@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\StatPropDialog.ui'
+# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/StatPropDialog.ui'
 #
-# Created: Thu Dec 9 13:20:06 2004
+# Created: Thu Dec 9 14:12:26 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,6 +32,7 @@ class StatPropDialog(QDialog):
         self.nameLineEdit.setEnabled(1)
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
+        self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
         layout110.addWidget(self.nameLineEdit)
         StatPropDialogLayout.addLayout(layout110)
 
@@ -86,23 +87,23 @@ class StatPropDialog(QDialog):
         spacer15 = QSpacerItem(20,110,QSizePolicy.Minimum,QSizePolicy.Expanding)
         StatPropDialogLayout.addItem(spacer15)
 
-        layout116 = QHBoxLayout(None,10,6,"layout116")
+        layout116 = QHBoxLayout(None,0,6,"layout116")
 
         self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setMinimumSize(QSize(0,30))
+        self.okPushButton.setMinimumSize(QSize(0,0))
         self.okPushButton.setAutoDefault(1)
         self.okPushButton.setDefault(1)
         layout116.addWidget(self.okPushButton)
 
         self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setMinimumSize(QSize(0,30))
+        self.cancelPushButton.setMinimumSize(QSize(0,0))
         self.cancelPushButton.setAutoDefault(1)
         self.cancelPushButton.setDefault(0)
         layout116.addWidget(self.cancelPushButton)
 
         self.applyPushButton = QPushButton(self,"applyPushButton")
         self.applyPushButton.setEnabled(0)
-        self.applyPushButton.setMinimumSize(QSize(0,30))
+        self.applyPushButton.setMinimumSize(QSize(0,0))
         layout116.addWidget(self.applyPushButton)
         StatPropDialogLayout.addLayout(layout116)
 

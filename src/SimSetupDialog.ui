@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>SimSetupDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>290</width>
-            <height>330</height>
+            <width>408</width>
+            <height>487</height>
         </rect>
     </property>
     <property name="caption">
@@ -187,8 +187,19 @@ femtosecond)</string>
             <property name="name">
                 <cstring>FileFormatWidget</cstring>
             </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>1</verstretch>
+                </sizepolicy>
+            </property>
             <property name="title">
                 <string>File Format</string>
+            </property>
+            <property name="alignment">
+                <set>AlignVCenter</set>
             </property>
             <widget class="QRadioButton">
                 <property name="name">
@@ -197,8 +208,8 @@ femtosecond)</string>
                 <property name="geometry">
                     <rect>
                         <x>20</x>
-                        <y>20</y>
-                        <width>190</width>
+                        <y>60</y>
+                        <width>221</width>
                         <height>22</height>
                     </rect>
                 </property>
@@ -219,8 +230,8 @@ femtosecond)</string>
                 <property name="geometry">
                     <rect>
                         <x>20</x>
-                        <y>40</y>
-                        <width>190</width>
+                        <y>120</y>
+                        <width>221</width>
                         <height>22</height>
                     </rect>
                 </property>
@@ -239,6 +250,9 @@ femtosecond)</string>
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
+                </property>
+                <property name="spacing">
+                    <number>26</number>
                 </property>
                 <widget class="QPushButton">
                     <property name="name">
@@ -265,7 +279,7 @@ femtosecond)</string>
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="830">789cadd1b16ac3301006e0dd4f21accd94c696d344a2f4110a1d0ba58374ba931c274b9b0ea5f4ddab9393e2880432e4c7367cfed159b6178d787d7916cda2fadcdbfd0002a2fd108dffdaedbedfde9f7eaa5a29918e6e29bafaaeaa9d0021db1ce6f648222632bb9ea85d332d53a306ad9803d33c90d24ba667da8ec8001332c16a63981b26b63df596799fb9c235ae983113d078cda44c4fa8f2a891993671d8649868cc34594ee4e4c96773a346ce1beb4e63ff1b07a771b346ce53361e91c8852863d10ce83d81db84728d479fd6390863281ac4fc0029c7f15cc353cb663bcf95cda537bdfc75e294742f5d653aaf6d0e93e254dcea9f1e9bdfc7ea0f79efc943</data>
+        <data format="PNG" length="413">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000016449444154789ccd95b14ac3501486bf5bc476d125a5da2e8e75e9d31830934ba119c4c50770a8b8856c155270d041a244f00dc4b7d0d1e506c516d4a538781c42d2a4694b5b5bf08743ee3d37f9f839f7dc1ba543cd2a545809f5df82abdb5599b8a8438d0e35aed31660e1709db6c42c1d6a54bc79b56a4d02df5bd8bd69d9e850ab78be36fac2de7e6b6ee8dd4d37979b5ae32b2e2853a24c89be34e84b03a51474bbf4de9e0192e7cce0f3af338e39c4a5834b078087db23005eae2f31ee1f01302af5b1dfe74a113b3dd938c5a5c301cd28a99a989622f03d763e00db8ef2ad09a58b771190c0f74444c490a2185294b402df1360988028526be9ae98b98f4dcb669eaec98195829e1ad05303942209104cab35cc2151a83c742c7859ca6d5ee0e77bf24f60d769635af6c220d76967e6c9915e2f7c4ebc50ca5bbbc9f8fdf529191b957ae6807cff6c26155f598da73a4e3b1d55da3964dd66c0cbd6fffc834cd32f40a4bb2c1283bf940000000049454e44ae426082</data>
     </image>
 </images>
 <connections>

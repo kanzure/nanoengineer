@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>MoleculePropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -56,6 +56,9 @@
                     </property>
                     <property name="text">
                         <string></string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignLeft</set>
                     </property>
                 </widget>
             </hbox>
@@ -177,6 +180,9 @@
                             <property name="text">
                                 <string>...</string>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Change color</string>
+                            </property>
                         </widget>
                     </hbox>
                 </widget>
@@ -231,7 +237,7 @@
                     <property name="minimumSize">
                         <size>
                             <width>0</width>
-                            <height>30</height>
+                            <height>0</height>
                         </size>
                     </property>
                     <property name="text">
@@ -254,7 +260,7 @@
                     <property name="minimumSize">
                         <size>
                             <width>0</width>
-                            <height>30</height>
+                            <height>0</height>
                         </size>
                     </property>
                     <property name="text">
@@ -280,7 +286,7 @@
                     <property name="minimumSize">
                         <size>
                             <width>0</width>
-                            <height>30</height>
+                            <height>0</height>
                         </size>
                     </property>
                     <property name="text">
@@ -296,7 +302,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="1037">789ca5d1db4ec2401405d0f77ec584be1123b45084183f41e3a389f1e1cca594425b2ee56afc77d9bb0551216a3c9b64ba72329dc3b4d5544f8ff7aad9f216a59423a34c2273d5b4cb2cdb3ebfdcbd7a8d3054f8f555d0b8f21ad7caa8872277781eee9ffd4010700d8682809ab40838033b6d042cc908017330ea2160460a020ad80b10d080fdb6e98a0113727f8ee6ab4664df6acd73e7648c800b70c0022da9e3c8f2dc1de91030067537be719c79059a3602fa64683a260437640f011d6803049c922c7009ba2e028e49165880718480137280805bd221604ab2f881ced6bf3abe68f18fcb69478c35e21c97cf1d6d6dac87432e5ff624a3047bb09c39274db98c4f3b932c2fd2aaa6b3f947a7de50553d5ed5e144874e3d5ed5e144874e3d5ebd07131df754e3fd74cebe16e5b2eeacd69b8bff67fbfdde76bb4bf72672e9de8ecbefbecf5fbef6dbadf70efd53faf5</data>
+        <data format="PNG" length="477">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001a449444154789cb595c16a1a5114863f1ba9adf3082eb24e3208e205a5340f70c9d2079099e04692e226efe1a28b9499cec565573e83dc205d5ce842284253bb3279846671e5765114536f460bfa2fe7e77c1ccef9ef99c2783ce6107a7510ea21c145df47bbb04e650a630c4208a238a278542c6cf3b676ac32c5f1e5051fbe7ee1f8f20295298220704110389fe793176c8ca1523b0540d405c618a4944829bddecea31042f0f8f317afdfbee1f1f71342087abd1e00fd7e7fc3f3a9e08b9b6f8ee7efcf01d0779a7fbdf02c643a9d1672c1f57add455184b516a514e572d9db11c06c36a3d56ad16eb769341acfc0ab19db85754992382104a55289abebab5c28c0fc614ead5623cb329224717661dd0678d76daf2baf6605de75dbebcaab59a5c297846dcaab592d2f2f092fc99790e52bf4c66d3299b8344d190e87542a9517c1a3d1886eb74b9aa600fe54acebe4f484300c915212c731fa4e3feb328e63aad52a83c180db4fb7349bcd0d86f7e52db7fdeee30df36fdf519f15f73feeff82b5def0763e42be6d6badd15aefff56743a9d65576eafb7e27fefb117bc0f1decd7f407c962268671cd8a6c0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
