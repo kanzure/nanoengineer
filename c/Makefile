@@ -35,16 +35,27 @@ SUFFIXES: .c .h .o ;
 .c.o:
 	$(CC) -c $(CFLAGS) -o $@ $(@:.o=.c)
 
-OBJS=mol.o lin-alg.o $(DISPLAY).o
+CFILES=mol.c lin-alg.c $(DISPLAY).c
+HFILES=mol.h
+OBJS=$(CFILES:.c=.o)
 
 mol: $(OBJS)
 	$(CC) -o mol $(LDFLAGS) $(OBJS)
 
 clean:
-	rm -f mol *.o *.so *~
+	rm -f mol *.o *.so *~ TAGS fmc.mmp
 	rm -rf html latex
 
-HERE := $(shell pwd)
+TAGS: $(CFILES) $(HFILES)
+	etags *.c *.h
+
+fmc.mmp: ../samples/fineMotion970116.pdb ../samples/pdb2mmp.py
+	(cd ../samples/; ./pdb2mmp.py < fineMotion970116.pdb) > fmc.mmp
+
+# I have no idea why this doesn't work. GLUT programs don't like to be
+# called from a Makefile. Go figure.
+#tryit: mol fmc.mmp
+#	./mol fmc.mmp
 
 doxy:
 	doxygen Doxyfile

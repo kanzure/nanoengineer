@@ -94,7 +94,8 @@ char *elname[NUMELTS]=
 	 "Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu",
 	 "Zn","Ga","Ge","As","Se""Br","Kr"};
 
-struct bsdata bstab[]={
+static struct bsdata bstab[]={
+	// order,atom1,atom2   springConstant  nominalDist, nomAngle, angularSpring
 	bondrec(1,1,6,  460.0, 111.3, 0.671, 1.851),	/* H-C */
 	bondrec(1,1,7,  460.0, 102.3, 0.721, 1.851),	/* H-N XXX */
 	bondrec(1,1,8,  460.0,  94.2, 0.753, 1.747),	/* H-O */
@@ -128,8 +129,17 @@ struct bsdata bstab[]={
 	bondrec(4,6,9,  510.0, 139.2, 0.900, 1.700),	/* C-F XXX */
 	bondrec(4,6,16, 321.3, 173.5, 0.800, 1.750),	/* C-S XXX */
 
-	bondrec(10,0,0, 0.0, 0.0, 0.0, 0.0)		/* end record */
+	/* Next are some kludges Will put in just to make the
+	 * fine motion controller work. Numbers are guaranteed
+	 * to be bogus.
+	 */
+	bondrec(1,8,14, 321.3, 173.5, 0.800, 1.750),	/* O-Si XXX */
+	bondrec(1,7,14, 321.3, 173.5, 0.800, 1.750),	/* N-Si XXX */
+	bondrec(1,7,16, 321.3, 173.5, 0.800, 1.750),	/* N-S  XXX */
 };
+
+#define BSTABSIZE  (sizeof(bstab) / sizeof(struct bsdata))
+
 /* NB -- XXX means De and beta are guesses */
 
 
@@ -168,7 +178,7 @@ void bondump() {		/* gather bond statistics */
 		histo[btyp][k]++;
 	}
 
-	for (i=0; i<50; i++) if (totno[i]) {
+	for (i=0; i<BSTABSIZE; i++) if (totno[i]) {
 		printf("Bond type %s-%s, %d occurences, mean %.2f pm:\n",
 		       elname[bstab[i].a1], elname[bstab[i].a2], totno[i],
 		       means[i]/(double)totno[i]);
@@ -185,12 +195,14 @@ void bondump() {		/* gather bond statistics */
 
 
 struct angben bendata[]={
+	// atom,order,atom,order,atom,  length,  radians
 	benrec(6,1,6,1,6, 450, 1.911),	/* C-C-C */
 	benrec(6,1,6,1,1, 360, 1.909),	/* C-C-H */
 	benrec(1,1,6,1,1, 320, 1.909),	/* H-C-H */
 	benrec(6,1,6,1,9, 650, 1.911),	/* C-C-F */
 	benrec(9,1,6,1,9, 1070, 1.869),	/* F-C-F */
-	benrec(6,4,6,4,6, 450, 2.046),	/* C-Csp2-C */
+	// benrec(6,4,6,4,6, 450, 2.046),	/* C-Csp2-C   4?? */
+	benrec(6,2,6,2,6, 450, 2.046),	/* C-Csp2-C */
 	benrec(6,1,6,2,6, 550, 2.119),	/* C-C=C */
 	benrec(1,1,6,2,6, 360, 2.094),	/* C=C-H */
 	benrec(6,1,6,3,6, 200, 3.142),	/* C-C-=C */
@@ -229,8 +241,43 @@ struct angben bendata[]={
 	benrec(6,1,16,1,6, 720, 1.902),	/* C-S-C */
 	benrec(14,1,16,1,14, 720, 1.902),	/* Si-S-Si XXX */
 
-	benrec(10,10,10,10,10, 0, 0.0)        /* end record */
+	/* Next are some kludges Will put in just to make the
+	 * fine motion controller work. Numbers guaranteed wrong.
+	 */
+	benrec(7,1,16,1,6, 720, 1.902),
+	benrec(6,1,8,1,14, 720, 1.902),
+	benrec(8,1,14,1,6, 720, 1.902),
+	benrec(8,1,14,1,1, 720, 1.902),
+	benrec(6,1,14,1,1, 720, 1.902),
+	benrec(8,1,14,1,8, 720, 1.902),
+	benrec(9,1,6,1,7, 720, 1.902),
+	benrec(7,1,14,1,8, 720, 1.902),
+	benrec(6,1,16,1,14, 720, 1.902),
+	benrec(16,1,14,1,8, 720, 1.902),
+	benrec(16,1,14,1,7, 720, 1.902),
+	benrec(14,1,7,1,14, 720, 1.902),
+	benrec(14,1,7,1,6, 720, 1.902),
+	benrec(7,1,14,1,7, 720, 1.902),
+	benrec(8,1,6,1,16, 720, 1.902),
+	benrec(1,1,6,1,16, 720, 1.902),
+	benrec(6,1,6,1,14, 720, 1.902),
+	benrec(16,1,6,1,14, 720, 1.902),
+	benrec(8,1,6,1,9, 720, 1.902),
+	benrec(7,1,16,1,7, 720, 1.902),
+	benrec(16,1,7,1,16, 720, 1.902),
+	benrec(16,1,7,1,14, 720, 1.902),
+	benrec(14,1,8,1,7, 720, 1.902),
+	benrec(1,1,14,1,7, 720, 1.902),
+	benrec(14,1,14,1,7, 720, 1.902),
+	benrec(14,1,14,1,6, 720, 1.902),
+	benrec(7,1,14,1,6, 720, 1.902),
+	benrec(14,1,6,1,1, 720, 1.902),
+	benrec(14,1,14,1,8, 720, 1.902),
+	benrec(14,1,6,1,8, 720, 1.902),
+	benrec(14,1,6,1,7, 720, 1.902),
 };
+
+#define BENDATASIZE  (sizeof(bendata) / sizeof(struct angben))
 
 void pangben(struct angben *ab) {
 	printf("Bend between %d / %d: kb=%.2f, th0=%.2f\n\
@@ -243,16 +290,18 @@ void pangben(struct angben *ab) {
 
 int findbond(int btyp) {
 	int i;
-	if (btyp<0) btyp = - btyp;
-	for (i=0; bstab[i].typ<btyp; i++);
-	if (bstab[i].typ == btyp) return i;
+	if (btyp < 0)
+		btyp = -btyp;
+	for (i=0; i < BSTABSIZE; i++)
+		if (bstab[i].typ == btyp)
+			return i;
 	printf("Bond type %d not found\n",btyp);
 	return -1;
 }
 
 int findtorq(int btyp1, int btyp2) {
 	int i;
-	for (i=0; bendata[i].b1typ<100000; i++) {
+	for (i=0; i < BENDATASIZE; i++) {
 
 		if  (iabs(bendata[i].b1typ) == iabs(btyp1) &&
 		     iabs(bendata[i].b2typ) == iabs(btyp2)) return i;
@@ -484,7 +533,7 @@ void bondinit() {
 	double end, m, rxsq;
 	struct dtab *tables,*t2;
 
-	for (i=0; bstab[i].ord<10; i++) {
+	for (i=0; i < BSTABSIZE; i++) {
 
 		R0 = bstab[i].r0;
 		bstab[i].start = square(R0*0.5);
@@ -499,7 +548,7 @@ void bondinit() {
 		bstab[i].table = tables;
 	}
 
-	for (i=0;bendata[i].b1typ<100000;i++) {
+	for (i = 0; i < BENDATASIZE; i++) {
 		/* find the two bondtypes for this bendtype */
 		b1=findbond(bendata[i].b1typ);
 		b2=findbond(bendata[i].b2typ);
