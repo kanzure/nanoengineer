@@ -74,7 +74,7 @@ class MWsemantics(MainWindow):
 #            self.setName("Atom") 
 
 	    # start with empty window 
-        self.assy = assembly(self, "Empty")
+        self.assy = assembly(self, "Untitled")
         
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
         self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
@@ -286,7 +286,7 @@ class MWsemantics(MainWindow):
                 dir, fil = "./", self.assy.name
                 sdir = globalParms['WorkingDirectory']
         else:
-            print "MWsemantics.py: fileSaveAs(): Part is Empty - nothing to save"
+            print "MWsemantics.py: fileSaveAs(): Part is empty - nothing to save"
             return
 
         sfilter = QString("")   
@@ -408,7 +408,7 @@ class MWsemantics(MainWindow):
         	    
     def __clear(self):
         # assyList refs deleted by josh 10/4
-        self.assy = assembly(self, "Empty")
+        self.assy = assembly(self, "Untitled")
         self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
         self.msgbarLabel.setText( " " )
         self.glpane.setAssy(self.assy)
