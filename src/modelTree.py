@@ -1,11 +1,8 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-# 10/11 currently being owned by Huaicai
 """
-The model tree display widget
+The model tree display widget.
+
 $Id$
-
-[Owned by mark, as of 041210.]
-
 """
 
 from qt import *
@@ -15,9 +12,6 @@ from gadgets import *
 from Utility import *
 from selectMode import selectMode
 import sys, os
-
-CHANGE_FROM_TREE = True
-CHANGE_FROM_GL = True
 
 class modelTree(QListView):
     def __init__(self, parent, win):
@@ -144,6 +138,9 @@ class modelTree(QListView):
         # user clicked on an item, or on blank part of model tree (confirmed by
         # experiment). Event (with mod keys flags) would be useful,
         # but is evidently not available (maybe it could be, in some other way?)
+        # [addendum, 041227: it might be sufficient to wrap this with a subclass
+        #  which defines an "event" method to process all events, making a note
+        #  of their flags, then handing it off to the superclass event method. ###@@@]
         if item:
             if item.object.name == self.assy.name:
                 return
@@ -222,10 +219,17 @@ class modelTree(QListView):
         clippicked = self.assy.shelf.nodespicked() #Number of nodes picked in the clipboard
 #        print "MT.menuReq: selectedItem = ",self.selectedItem
 #        print "treepicked =",treepicked,", clippicked =",clippicked
-        if treepicked == 0 and clippicked == 0: return ###@@@ why == 0? are these numbers??? bools?
-        if clippicked: self.clipboardmenu.popup(pos, 1) ###@@@ could be bad for depositmode's use of this
-        elif treepicked == 1: self.singlemenu.popup(pos, 1)
-        elif treepicked > 1: self.multimenu.popup(pos, 1)
+        if treepicked == 0 and clippicked == 0:
+            return
+        if clippicked:
+             ###@@@ bruce 041227 comment: this test being first could be bad
+            # for depositmode's current use of clipboard selection; but that use
+            # is slated to be changed.
+            self.clipboardmenu.popup(pos, 1)
+        elif treepicked == 1:
+            self.singlemenu.popup(pos, 1)
+        elif treepicked > 1:
+            self.multimenu.popup(pos, 1)
         self.update()
 
     def changename(self, listItem, col, text):
@@ -294,6 +298,10 @@ class modelTree(QListView):
         """ Build the model tree of the current model
         """
         self.assy = self.win.assy
+        
+        ###e bruce comment 041227: this might be a good place to record the
+        # current scroll position so it can later be set to something similar.
+        
         self.clear()
         
         # Mark comments [04-12-08]
@@ -321,6 +329,9 @@ class modelTree(QListView):
             
         # Update any selected items in tree.
         self.assy.tree.setProp(self)
+
+        ###e bruce comment 041227: this would be a good place to set the scroll
+        # position to what it ought to be (to fix bug 177). ###@@@
  
 ## Context menu handler functions
 
@@ -363,3 +374,5 @@ class modelTree(QListView):
     def expand(self):
         self.tree.object.apply2tree(lambda(x): x.setopen())
         self.update()
+
+    # end of class modelTree
