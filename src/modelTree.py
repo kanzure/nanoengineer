@@ -55,6 +55,9 @@ class modelTree(QListView):
         self.menu = self.makemenu([["Group", self.group],
                                    ["Ungroup", self.ungroup],
                                    None,
+                                   ["Hide", self.hide],
+                                   ["Show", self.unhide],
+                                   None,
                                    ["Copy", self.copy],
                                    ["Cut", self.cut],
                                    ["Kill", self.kill],
@@ -143,12 +146,9 @@ class modelTree(QListView):
             self.modifier = 'Cntl'
         if e.key() == Qt.Key_Shift:
             self.modifier = 'Shift'
-        print "key pressed"
         
     def keyReleaseEvent(self, key):
         self.modifier = None
-        print "key released"
-
 
     def menuReq(self, listItem, pos, col):
         """ Context menu items function handler for the Model Tree View """
@@ -221,6 +221,12 @@ class modelTree(QListView):
     def ungroup(self):
         self.tree.object.apply2picked(lambda(x): x.ungroup())
         self.update()
+
+    def hide(self):
+        self.assy.Hide()
+        
+    def unhide(self):
+        self.assy.Unhide()
     
     def copy(self):
         self.assy.copy()
@@ -236,9 +242,9 @@ class modelTree(QListView):
     
     def modprop(self):
         if self.selectedItem: 
-                self.selectedItem.edit()
-                self.update()
-            
+            self.selectedItem.edit()
+            self.update()
+                
 
     def expand(self):
         self.tree.object.apply2tree(lambda(x): x.setopen())

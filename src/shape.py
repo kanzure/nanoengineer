@@ -401,12 +401,13 @@ class shape:
         c=self.curves[0]
         if c.logic == 1:
             for mol in assy.molecules:
-                if mol.display == diINVISIBLE: continue
+                if mol.hidden: continue
                 for a in mol.atoms.itervalues():
                     if a.display == diINVISIBLE: continue
                     if c.isin(a.posn()): a.pick()
         elif c.logic == 2:
             for mol in assy.molecules:
+                if mol.hidden: continue
                 for a in mol.atoms.itervalues():
                     if (c.isin(a.posn()) and
                         a.molecule.display != diINVISIBLE and
@@ -428,8 +429,9 @@ class shape:
         #---next element in the looplist will not go into the loop
         
         c=self.curves[0]
-        if c.logic == 2: # drag selection: unselect any selected molecule not in the area, 
-                               # modified by Huaicai to fix the selection bug 10/05/04
+        if c.logic == 2:
+            # drag selection: unselect any selected molecule not in the area, 
+            # modified by Huaicai to fix the selection bug 10/05/04
             for m in assy.selmols[:]:
                 #for a in m.atoms.values():
                       #if not c.isin(a.posn()): 
@@ -438,7 +440,7 @@ class shape:
                             
         if c.logic == 1 or c.logic == 2 : # shift drag selection
             for mol in assy.molecules:
-                if mol.display == diINVISIBLE: continue
+                if mol.hidden: continue
                 for a in mol.atoms.itervalues():
                     if a.display == diINVISIBLE: continue
                     if c.isin(a.posn()): 

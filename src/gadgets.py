@@ -133,6 +133,7 @@ class RotaryMotor(Node):
     # Rotary Motor is drawn as a cylinder along the axis,
     #  with a spoke to each atom
     def draw(self, win, dispdef):
+        if self.hidden: return
         drawcylinder(self.color,
                     self.center + (self.length / 2.0) * self.axis,
                     self.center - (self.length / 2.0) * self.axis,
@@ -144,6 +145,7 @@ class RotaryMotor(Node):
     # rmotor(<cap-point>, <base-point>, cylinder-radius, <r, g, b>)
     # spoke(<cap-point>, <base-point>, scylinder-radius, <r, g, b>)
     def povwrite(self, file, dispdef):
+        if self.hidden: return
         c = self.posn()
         a = self.axen()
         print "gadgets.py: povwrite(): writing rotar motor record"
@@ -279,6 +281,7 @@ class LinearMotor(Node):
     # drawn as a gray box along the axis,
     # with a thin cylinder to each atom 
     def draw(self, win, dispdef):
+        if self.hidden: return
         drawbrick(self.color, self.center, self.axis, self.length, self.width, self.width)
         for a in self.atoms:
             drawcylinder(self.color, self.center, a.posn(), self.sradius)
@@ -297,6 +300,7 @@ class LinearMotor(Node):
     # lmotor(<cap-point>, <base-point>, box-width, <r, g, b>)
     # spoke(<cap-point>, <base-point>, sbox-radius, <r, g, b>)
     def povwrite(self, file, dispdef):
+        if self.hidden: return
         c = self.posn()
         a = self.axen()
         print "gadgets.py: povwrite(): writing lmotor record"
@@ -359,7 +363,7 @@ class Ground(Node):
 
     # it's drawn as a wire cube around each atom (default color = black)
     def draw(self, win, dispdef):
-
+        if self.hidden: return
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
@@ -367,6 +371,7 @@ class Ground(Node):
     # Write "ground" record to POV-Ray file in the format:
     # ground(<box-center>,box-radius,<r, g, b>)
     def povwrite(self, file, dispdef):
+        if self.hidden: return
         if self.picked: c = self.normcolor
         else: c = self.color
         for a in self.atoms:
@@ -448,6 +453,7 @@ class Stat(Node):
 
     # it's drawn as a wire cube around each atom (default color = blue)
     def draw(self, win, dispdef):
+        if self.hidden: return
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
@@ -455,6 +461,7 @@ class Stat(Node):
     # Write "stat" record to POV-Ray file in the format:
     # stat(<box-center>,box-radius,<r, g, b>)
     def povwrite(self, file, dispdef):
+        if self.hidden: return
         if self.picked: c = self.normcolor
         else: c = self.color
         for a in self.atoms:

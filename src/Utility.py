@@ -23,6 +23,7 @@ class Node:
         self.dad = parent
         if self.dad: self.dad.addmember(self)
         self.picked = False
+        self.hidden = False
         self.icon = None
         # in addition, each Node should have a bounding box
 
@@ -45,6 +46,13 @@ class Node:
         """
         if self.picked:
             self.picked = False
+
+    def hide(self):
+        self.hidden = True
+        self.unpick()
+        
+    def unhide(self):
+        self.hidden = False
 
     def apply2all(self, fn):
         fn(self)
@@ -216,6 +224,7 @@ class Group(Node):
             x.dumptree(depth+1)
 
     def draw(self, o, dispdef):
+        if self.hidden: return
         for ob in self.members:
             ob.draw(o, dispdef)
 
@@ -226,6 +235,7 @@ class Group(Node):
         f.write("egroup (" + self.name + ")\n")
         
     def writepov(self, f, dispdef):
+        if self.hidden: return
         for x in self.members:
             print "Utility.py: writepov: member name = [",x.name,"]"
             x.povwrite(f, dispdef)

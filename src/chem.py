@@ -1006,8 +1006,8 @@ class molecule(Node):
         bounding box as a wireframe
         o is a GLPane
         """
-        
-        self.glpane = o # this is needed for the edit method - Mark [2004-10-13]
+        if self.hidden: return
+        self.glpane = o # needed for the edit method - Mark [2004-10-13]
         
         #Tried to fix some bugs by Huaicai 09/30/04
         if len(self.atoms) == 0:
@@ -1093,6 +1093,7 @@ class molecule(Node):
 
     # write to a povray file:  draw the atoms and bonds inside a molecule
     def povwrite(self, file, disp):
+        if self.hidden: return
 #    def povwrite(self, file, win):
 
         if self.display != diDEFAULT: disp = self.display
@@ -1209,10 +1210,7 @@ class molecule(Node):
         """
         if self.picked:
             Node.unpick(self)
-            try:
-                self.assy.selmols.remove(self)
-            except ValueError: #bruce 041029 precaution
-                print_compact_traceback("fyi: mol.unpick: mol %r not in self.assy.selmols" % self)
+            if self in self.assy.selmols: self.assy.selmols.remove(self)
             # may have changed appearance of the molecule
             self.havelist = 0
             # self.assy.w.msgbarLabel.setText(" ")

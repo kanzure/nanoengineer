@@ -165,14 +165,13 @@ class selectMode(basicMode):
                                     ('Doubly', self.o.assy.selectDoubly),
                                     None,
                                     ('Atoms', self.w.toolsSelectAtoms),#self.o.assy.selectAtoms),
-                                    ('Parts', self.w.toolsSelectMolecules)])#self.o.assy.selectParts)])
+                                    ('Chunks', self.w.toolsSelectMolecules)])#self.o.assy.selectParts)])
         
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
                                     ('Move', self.move),
                                     None,
-                                    ('Bond', self.o.assy.Bond),
-                                    ('Unbond', self.o.assy.Unbond),
+                                    ('Hide', self.o.assy.Hide),
                                     None,
                                     ('Separate', self.o.assy.modifySeparate),
                                     ('Stretch', self.o.assy.Stretch)])

@@ -331,7 +331,7 @@ class assembly:
         atom=None
         for mol in self.molecules:
             disp = self.o.display
-            if mol.display == diINVISIBLE and not iInv: continue
+            if mol.hidden and not iInv: continue
             if mol.display != diDEFAULT: disp = mol.display
             for a in mol.atoms.itervalues():
                 if a.display == diINVISIBLE and not iInv: continue
@@ -473,6 +473,19 @@ class assembly:
     def killmol(self, mol):
         mol.kill()
         self.setDrawLevel()
+
+
+    def Hide(self):
+        "Hide all selected chunks"
+        if self.selwhat == 2:
+            self.tree.apply2picked(lambda x: x.hide())
+            self.w.update()
+
+    def Unhide(self):
+        "Hide all selected chunks"
+        if self.selwhat == 2:
+            self.tree.apply2picked(lambda x: x.unhide())
+            self.w.update()
 
     #bond atoms (cheap hack)
     def Bond(self):

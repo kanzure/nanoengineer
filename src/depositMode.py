@@ -220,7 +220,7 @@ class depositMode(basicMode):
         y = cross(z,x)
         mat = transpose(V(x,y,z))
         for mol in self.o.assy.molecules:
-            if mol.display != diINVISIBLE:
+            if not mol.hidden:
                 a = mol.findatoms(p2, mat, TubeRadius, -TubeRadius)
                 # can't use findSinglets
                 if a and (a.element==Singlet or not singOnly):
@@ -581,7 +581,7 @@ class depositMode(basicMode):
         mat = transpose(V(x,y,z))
 
         for mol in self.o.assy.molecules:
-            if mol.display != diINVISIBLE:
+            if not mol.hidden:
                 for a in mol.findAllSinglets(pnt, mat, 10000.0, -TubeRadius):
                     a.Hydrogenate()
         self.o.paintGL()
