@@ -6,7 +6,7 @@ $Id$
 """
 
 from modes import *
-from chem import molecule
+from chunk import molecule
 
 class selectMode(basicMode):
     "the default mode of GLPane"
@@ -113,14 +113,13 @@ class selectMode(basicMode):
         self.sellist += [self.sellist[0]]
         self.o.backlist += [p2]
         self.o.backlist += [self.o.backlist[0]]
-        self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight)
+        self.o.shape=SelectionShape(self.o.right, self.o.up, self.o.lineOfSight)
         eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov        
         if self.selLassRect:
-            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,
-                             eye=(not self.o.ortho) and eyeball)
+            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,  (not self.o.ortho) and eyeball)
         else:
             self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
-                             eye=(not self.o.ortho) and eyeball)
+                             (not self.o.ortho) and eyeball)
         
         self.o.shape.select(self.o.assy)
         self.o.shape = None
@@ -204,7 +203,7 @@ class selectMode(basicMode):
             fixit3(('Select Chunks'), self.w.toolsSelectMolecules),
             fixit3(('Select Atoms'), self.w.toolsSelectAtoms),
             ('Move Chunks', self.w.toolsMoveMolecule), 
-            ('Build Atoms', self.w.toolsAtomStart),
+            ('Build Atoms', self.w.toolsBuildAtoms),
             ]
         
         self.Menu_spec_shift = [
