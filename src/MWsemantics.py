@@ -38,6 +38,14 @@ eCCBtab2 = {}
 for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
 
+def greenmsg(text):
+    """Display text in green in the HistoryMegawidget"""
+    return "<span style=\"color:#006600\">" + text + "</span>"
+    
+def redmsg(text):
+    """Display text in red in the HistoryMegawidget"""
+    return "<span style=\"color:#ff0000\">" + text + "</span>"
+    
 def fileparse(name):
     """breaks name into directory, main name, and extension in a tuple.
     fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
@@ -546,14 +554,10 @@ class MWsemantics(MainWindow):
     ###################################
 
     def editUndo(self):
-        print "MWsemantics.editUndo(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Undo: Not implemented yet.</span>")
 
     def editRedo(self):
-        print "MWsemantics.editRedo(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Redo: Not implemented yet.</span>")
 
     def editCut(self):
         self.assy.cut()
@@ -569,9 +573,7 @@ class MWsemantics(MainWindow):
             self.glpane.setMode('DEPOSIT')
 
     def editFind(self):
-        print "MWsemantics.editFind(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Find: Not implemented yet.</span>")
 
     ###################################
     # functions from the "View" menu
@@ -579,6 +581,7 @@ class MWsemantics(MainWindow):
 
     def setViewHome(self):
         """Reset view to Home view"""
+        self.statusBar.message(greenmsg("Current View: HOME"))
         self.glpane.quat = Q(self.assy.csys.quat) 
         self.glpane.scale = self.assy.csys.scale
         self.glpane.pov = V(self.currentPov[0], self.currentPov[1], self.currentPov[2])
@@ -612,26 +615,32 @@ class MWsemantics(MainWindow):
         self.glpane.paintGL()
 
     def setViewBack(self):
+        self.statusBar.message(greenmsg("Current View: BACK"))
         self.glpane.quat = Q(V(0,1,0),pi)
         self.glpane.paintGL()
 
     def setViewBottom(self):
+        self.statusBar.message(greenmsg("Current View: BOTTOM"))
         self.glpane.quat = Q(V(1,0,0),-pi/2)
         self.glpane.paintGL()
 
     def setViewFront(self):
+        self.statusBar.message(greenmsg("Current View: FRONT"))
         self.glpane.quat = Q(1,0,0,0)
         self.glpane.paintGL()
 
     def setViewLeft(self):
+        self.statusBar.message(greenmsg("Current View: LEFT"))
         self.glpane.quat = Q(V(0,1,0),pi/2)
         self.glpane.paintGL()
 
     def setViewRight(self):
+        self.statusBar.message(greenmsg("Current View: RIGHT"))
         self.glpane.quat = Q(V(0,1,0),-pi/2)
         self.glpane.paintGL()
 
     def setViewTop(self):
+        self.statusBar.message(greenmsg("Current View: TOP"))
         self.glpane.quat = Q(V(1,0,0),pi/2)
         self.glpane.paintGL()
 
@@ -729,7 +738,6 @@ class MWsemantics(MainWindow):
         QMessageBox.information(self, self.name() + " User Notice:",
              "This function is not implemented yet, coming soon...")
         
-
     def gridGraphite(self):
         print "MWsemantics.gridGraphite(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
@@ -796,6 +804,9 @@ class MWsemantics(MainWindow):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """
+        if not self.assy.selatoms:
+            self.statusBar.message("<span style=\"color:#ff0000\">Select Connected: No atom(s) selected.</span>")
+            return
         self.assy.selectConnected()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
@@ -806,6 +817,9 @@ class MWsemantics(MainWindow):
         bonds. Also select atoms that are connected to this group by
         one bond and have no other bonds.
         """
+        if not self.assy.selatoms:
+            self.statusBar.message("<span style=\"color:#ff0000\">Select Doubly: No atom(s) selected.</span>")
+            return
         self.assy.selectDoubly()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
@@ -844,6 +858,7 @@ class MWsemantics(MainWindow):
     def makeSpring(self):
         QMessageBox.information(self, self.name() + " User Notice:", 
              "This function is not implemented yet, coming soon...")
+    
     def makeDyno(self):
         print "MWsemantics.makeDyno(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
@@ -915,9 +930,6 @@ class MWsemantics(MainWindow):
     def helpAbout(self):
         cntl = AboutDialog() # About NE-1 Dialog
         cntl.exec_loop()
-        
-#        QMessageBox.information(self, self.name() + " User Notice:", 
-#            "This function is not implemented yet, coming soon...")
              
     def helpWhatsThis(self):
         QWhatsThis.enterWhatsThisMode ()
@@ -954,15 +966,11 @@ class MWsemantics(MainWindow):
 
     # Mirror Tool
     def toolsMirror(self):
-        print "MWsemantics.toolsMirror(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:", 
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Mirror Tool: Not implemented yet.</span>")
              
     # Mirror Circular Boundary Tool
     def toolsMirrorCircularBoundary(self):
-        print "MWsemantics.toolsMirrorCircularBoundary(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:", 
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Mirror Circular Boundary Tool: Not implemented yet.</span>")
 
     # "push down" one nanometer to cut out the next layer
     def toolsCCAddLayer(self):
@@ -1044,11 +1052,22 @@ class MWsemantics(MainWindow):
 
  # Play a movie from the simulator
     def toolsMovie(self):
-        if not self.assy.filename: 
-            self.statusBar.message("No part.  Cannot play movie file.")
+        if not self.assy.filename:
+            self.statusBar.message("<span style=\"color:#ff0000\">Movie Player: Cannot play movie - no part.</span>")
             return
         dir, fil, ext = fileparse(self.assy.filename)
-        self.glpane.startmovie(dir+fil+'.dpb') 
+        dpbfile = dir+fil+'.dpb'
+        if os.path.exists(dpbfile):
+            self.glpane.startmovie(dpbfile)
+        else:
+            msg = "<span style=\"color:#ff0000\">Movie Player: "\
+                        "Movie file [" + dpbfile + "] does not exist.</span>"
+            self.statusBar.message(msg)
+
+            msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
+            QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
+                        self.toolsSimulator_Action.iconSet().pixmap() )
+            self.statusBar.message(msg)
     
     ###################################
     # some unimplemented buttons:
@@ -1122,23 +1141,19 @@ class MWsemantics(MainWindow):
 
     def dispDatumLines(self):
         """ Toggle on/off datum lines """
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Display Datum Lines: Not implemented yet.</span>")
 
     def dispDatumPlanes(self):
         """ Toggle on/off datum planes """
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Display Datum Planes: Not implemented yet.</span>")
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Display Radicals: Not implemented yet.</span>")
 
     def editPrefs(self):
-        """ Edit square grid line distances(dx, dy, dz) in nm/angtroms """
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
+        """ Edit square grid line distances(dx, dy, dz) in nm/angstroms """
+        self.statusBar.message("<span style=\"color:#ff0000\">Edit Preferences: Not implemented yet.</span>")
  
     def elemChangePTable(self):
         """ Future: element change via periodic table
@@ -1149,14 +1164,19 @@ class MWsemantics(MainWindow):
         self.glpane.minimize()
 
     def toolsSimulator(self):
+        if not self.assy.molecules: # Nothing in the part to minimize.
+            self.statusBar.message("<span style=\"color:#ff0000\">Simulator: Nothing to simulate.</span>")
+            return
+        if not self.assy.alist: # Nothing in the part to minimize.
+            self.statusBar.message("<span style=\"color:#ff0000\">Simulator: File must be saved before running a simulation.</span>")
+            return
         self.simCntl = runSim(self.assy)
         self.simCntl.show()
 
         
     def setViewRecenter(self):
         """ Fit to Window """
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
+        self.statusBar.message("<span style=\"color:#ff0000\">Recenter View: Not implemented yet.</span>")
              
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
