@@ -122,6 +122,78 @@ homes = [
 '..#aaa#.#aabb#..',
 '..#####.######..',
 '................']
+mainicon_data = [
+"22 22 47 1",
+"t c #0065a3",
+"z c #0065a4",
+"H c #0166a4",
+"s c #0266a5",
+"C c #0367a5",
+"u c #0568a5",
+"D c #0568a6",
+"L c #0568a7",
+"y c #0669a7",
+"r c #0769a7",
+"v c #0c6ca8",
+"G c #0e6da9",
+"n c #0f6ea9",
+"# c #120906",
+"J c #126faa",
+"l c #1370aa",
+"m c #1470ab",
+"K c #1772ab",
+"I c #2077ae",
+"O c #2278af",
+"N c #257aaf",
+"B c #297cb0",
+"b c #359103",
+"k c #3784b5",
+"R c #3a86b5",
+"o c #3c87b6",
+"c c #469903",
+"d c #4f9e03",
+"e c #5aa403",
+"f c #61a702",
+"q c #68a0c2",
+"g c #68ab01",
+"E c #6ea3c4",
+"a c #70af00",
+"Q c #71a5c5",
+"S c #75a7c6",
+"M c #87b1cb",
+"x c #93b8cf",
+"w c #96bacf",
+"j c #a3c1d3",
+"p c #b0c8d7",
+"i c #bdd0da",
+"P c #bdd0db",
+"F c #bed1db",
+"h c #c2d3dc",
+"A c #cdd9df",
+". c #ffffff",
+".....................#",
+".....................#",
+".aaaaaaaaaaaaaaaaaaa.#",
+"..b...aaaaaaaaa......#",
+"..c...aaaaaaaaa......#",
+"..d...aaaaaaaaa......#",
+"..e...aaaaaaaaa......#",
+"..f...aaaaaaaaa......#",
+"..g......hih.........#",
+"..g....jklmnop.......#",
+"..g...qrstttuvw......#",
+"..g..xyztttttzlA.....#",
+".....BCtttttttDE.....#",
+"....FGttttttttHI.....#",
+"....iJttttttttzK.....#",
+"....hGztttttttzB.....#",
+".....outttttttLM.....#",
+".....pvztttttHN......#",
+"......wlDHzHyOP......#",
+".......AQRoRS........#",
+".....................#",
+"######################"
+]
 
 class AssistantWindow(QMainWindow):
     def __init__(self,home_,_path,parent=None,name=None,fl=0):
@@ -141,6 +213,9 @@ class AssistantWindow(QMainWindow):
         self.mBookmarks = {}
         self.readHistory()
         self.readBookmarks()
+        
+        self.mainicon = QPixmap(mainicon_data)
+        self.setIcon(self.mainicon)
 
         self.browser = QTextBrowser(self)
 
