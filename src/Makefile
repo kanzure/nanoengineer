@@ -1,26 +1,11 @@
-PYFILES=MainWindowUI.py ElementSelectorDialog.py SimSetupDialog.py GroundPropDialog.py LinearMotorPropDialog.py RotaryMotorPropDialog.py
+UIFILES = $(wildcard *.ui)
+MANUAL_EDITED_FILES = ElementSelectorDialog.py
+PYFILES0 = $(UIFILES:.ui=.py)
 
-atom:	$(PYFILES)
+PYFILES = $(filter-out $(MANUAL_EDITED_FILES), $(PYFILES0))
 
-MainWindowUI.py: MainWindowUI.ui
-	pyuic MainWindowUI.ui > MainWindowUI.py
+all : $(PYFILES) 
+$(PYFILES) : %.py : %.ui
+	pyuic $< -o $@ 
 
-ElementSelectorDialog.py: ElementSelectorDialog.ui
-	pyuic ElementSelectorDialog.ui > ElementSelectorDialog.py
 
-SimSetupDialog.py: SimSetupDialog.ui
-	pyuic SimSetupDialog.ui > SimSetupDialog.py
-
-# Jig Property Dialogs
-
-GroundPropDialog.py: GroundPropDialog.ui
-	pyuic GroundPropDialog.ui > GroundPropDialog.py
-
-LinearMotorPropDialog.py: LinearMotorPropDialog.ui
-	pyuic LinearMotorPropDialog.ui > LinearMotorPropDialog.py
-
-RotaryMotorPropDialog.py: RotaryMotorPropDialog.ui
-	pyuic RotaryMotorPropDialog.ui > RotaryMotorPropDialog.py
-
-clean:
-	rm $(PYFILES)
