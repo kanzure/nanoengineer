@@ -346,10 +346,27 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def makemenu(self, lis):
         return makemenu_helper(self, lis)    
 
+    def item_x_edges(self, item):
+        """Given a QListViewItem of ours (not None(??) or opts so None seems all to left of openclose, etc??),
+        return a tuple of interesting x coords related to its appearance (within column 0 only).
+        These are:
+        - col0 left edge
+        - openclose left edge (even if it's not openable -- this is what it would be if it had been openable),
+        - openclose right edge == icon left edge (actually not the true edge but what to use for a hit-test),
+        - icon centerline (ideal mousepos for a drop onto that item's depth vs. a child or parent's depth),
+        - 
+        - ... ###
+        between 
+        """
+        ####@@@@ #e will split from below
+        # this is where i am now 710pm 050201
+
+    
     # mouse event handlers (except for drag & drop, those are farther below)
 
     # helper variable for knowing if you might be inside an external-source drag, not now in the widget...
     # might need revision to store more than just the last single event of all types together... #####@@@@@ revise, use [050201]
+
     last_event_type = "none" #k or imitate some other one?
     
     def contentsMouseDoubleClickEvent(self, event):
@@ -1271,7 +1288,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 mindepth = min(dtop, dbottom) # leftmost possible drop-point (larger depths are innermore ie to the right)
                 maxdepth = max(dtop, bottom) # rightmost, not yet counting "new child of top"
                 maybe_new_child_of_top = False # change below
-                if 0 and self.isItemOpenable(top): #### 0 in case attrname is wrong, i need to commit now #####@@@@@ where i am is here
+                if 0 and self.isItemOpenable(top): #### 0 in case attrname is wrong, i need to commit now #####@@@@@ where i am #2
                     maybe_new_child_of_top = True ### 050201 433pm
                     dtop_child = dtop + 1
                     if dtop_child > xxx: pass ####
@@ -1294,7 +1311,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.draw_stubsymbol_at_cpos_in_viewport(painter, self.true_dragMove_cpos, color = Qt.blue) #e should use highlight color from a palette
 
     def itemDepth(self,item):
-        return 2.0 #stub #####@@@@@
+        return 2.0 #stub #####@@@@@ use item.depth()
     def itemAtCposXY(self, x, y):
         ####WRONG, does not check for too far to left or right, on openclose, etc...
         ### USE AS STUB but then split out the code from contentsMousePress
