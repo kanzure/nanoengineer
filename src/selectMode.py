@@ -216,7 +216,23 @@ class selectMode(basicMode):
             ('Tubes', self.w.dispTubes),
             ('VdW', self.w.dispVdW),
             None,
-            ('Color', self.w.dispObjectColor) ]
+            ('Color', self.w.dispObjectColor),
+            None,
+            ('element display prefs - set to defaults', self.eltable1),
+            ('element display prefs - set to alternate', self.eltable2),
+            ]
+
+    def eltable1(self):
+        "set global atom radius/color table to choice 1 (the default)"
+        import elements
+        elements.set_element_table(1, self.o.assy)
+        self.o.paintGL()
+
+    def eltable2(self):
+        "set global atom radius/color table to choice 2"
+        import elements
+        elements.set_element_table(2, self.o.assy)
+        self.o.paintGL()
 
     def move(self):
         # we must set OldCursor to the MoveSelectCursor before going into move mode.
