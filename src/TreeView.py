@@ -34,8 +34,8 @@ from platform import fix_buttons_helper
 from widgets import makemenu_helper
 from debug import DebugMenuMixin
 
-# from somewhere import noop
-def noop(*args,**kws): pass
+### from somewhere import noop
+##def noop(*args,**kws): pass
 
 class TreeView(QListView):
     needs_update_state = 0
@@ -156,7 +156,7 @@ class TreeView(QListView):
         if item == self.shelf: print indent + " (mt.shelf)"
         if item == self.tree: print indent + " (mt.tree)"
         if item.object.name == self.assy.name:
-            print indent + " (part item, i guess: item.object.name == self.assy.name)"
+            print indent + " (old code would think this is a part item: item.object.name == self.assy.name)"
         dad = item.object.dad
         if dad:
             dadlen = len(dad.members)

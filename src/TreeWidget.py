@@ -117,9 +117,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         if item:
             ## self.bruce_print_item(item) # debug
-            if item.object.name == self.assy.name:
-                self.dprint("select returns early since item.object.name == self.assy.name")
+            if isinstance(item, PartGroup):
+                self.dprint("select returns early since item is the PartGroup") #k (but why can't we select it?)
                 return
+            if item.object.name == self.assy.name:
+                self.dprint("select would have returned early since item.object.name == self.assy.name; but it doesn't now")
+                # don't return
         
         self.win.assy.unpickatoms() ####@@@@ belongs in the subclass
         
@@ -374,17 +377,21 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return oldname
     
     def maybe_beginrename(self, item, pos, col):
-        "calls the Qt method necessary to start in-place editing of the given item's name."
+        """Calls the Qt method necessary to start in-place editing of the given item's name.
+        Meant to be called as an event-response; presently called for double-click on the name. ###@@@ not yet exactly then
+        """
         self.dprint("maybe_beginrename(%r, %r, %r)"%(item,pos,col))
         if not item: return
         if col != 0: return
-        if not item.renameEnabled(col): return ####@@@@ 050119 exper
+        if not item.renameEnabled(col): return ####@@@@ 050119 exper; should be enough to stop renaming of Clipboard ###test
         istr = str(item.text(0))
-        if istr in [self.assy.name, "Clipboard"]: return
+        ## now done by rename disabled in their node subclasses: ###@@@ test
+        ## if istr in [self.assy.name, "Clipboard"]: return
         msg = "(renaming %r -- complete this by pressing Return, or cancel it by pressing Escape)" % istr
-        self.win.history.transient_msg( msg) # seems to work... [when it was .message with transient_id]
-        print msg ###@@@ # this happened even for a Datum plane object for which the rename does not work...
-        self.renaming_this_item = item # so we can accept renaming if user clicks elsewhere [untested]
+        self.win.history.transient_msg( msg)
+            # this happened even for a Datum plane object for which the rename does not work... does it still? ###@@@
+            # bug: that message doesn't go away if user cancels the rename.
+        self.renaming_this_item = item # so we can accept renaming if user clicks outside the editfield for the name
         item.startRename(0)
 
     # drag and drop (ALL DETAILS ARE WRONG AND OBS ###@@@)
@@ -419,12 +426,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
             above = True # If we move node, insert it above first node in MT.
         droptarget = self.itemAt(self.contentsToViewport(pnt))
         if droptarget:
-            sdaddy = self.last_selected_node.whosurdaddy() # Selected item's daddy (source)
-            tdaddy = droptarget.object.whosurdaddy() # Drop target item's daddy (target)
-#            print "Source selected item:", self.last_selected_node,", sdaddy: ", sdaddy
-#            print "Target drop item:", droptarget.object,", tdaddy: ", tdaddy
-            if sdaddy == "Data": return # selected item is in the Data group.  Do nothing.
-            if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.    
+# bruce 050121 removing all these obs special cases, even tho not yet replaced with revised ones,
+# since these entire routines are all wrong and will be totally replaced.
+##            sdaddy = self.last_selected_node.whosurdaddy() # Selected item's daddy (source)
+##            tdaddy = droptarget.object.whosurdaddy() # Drop target item's daddy (target)
+###            print "Source selected item:", self.last_selected_node,", sdaddy: ", sdaddy
+###            print "Target drop item:", droptarget.object,", tdaddy: ", tdaddy
+##            if sdaddy == "Data": return # selected item is in the Data group.  Do nothing.
+##            if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.    
             if isinstance(droptarget.object, Group): above = True # If drop target is a Group
             self.last_selected_node.moveto(droptarget.object, above)
 #            if sdaddy != tdaddy: 
