@@ -102,6 +102,10 @@ class Node:
             self.dad.addmember(self)
         return
 
+    def redmsg(self, msg): #bruce 050203
+        from HistoryWidget import redmsg
+        self.assy.w.history.message( redmsg( msg ))
+
     def select_enabled(self): #bruce 050131 for Alpha ###@@@ use it
         """Whether model tree should permit selection of this node (and all its members).
         [To be overridden by Nodes it would be unsafe for the user to *ever* select.
@@ -312,15 +316,28 @@ class Node:
         return True #e probably change to False for leaf nodes, once we support dropping into gaps
 
     def drop_on(self, drag_type, nodes): #####@@@@@ used in doit, is it safe?
-        #e rewrite to use copy_nodes? (also rewrite the assy methods? not for alpha)
+        #e rewrite to use copy_nodes (nim)? (also rewrite the assy methods? not for alpha)
         "Like drop_on_ok, but (assuming it's ok -- error if it's not) actually perform the drop."
+        res = [] #bruce 050203: return any new nodes this creates (toplevel only, for copied groups)
         if drag_type == 'move':
             for node in nodes[::-1]:
                 node.moveto(self) ###k guess/stub #####@@@@@
         else:
             for node in nodes[::-1]:
-                self.addmember(node.copy(self)) ###k guess/stub #####@@@@@
-        return
+                nc = node.copy(self)
+                if nc: # can be None if the copy is refused (since nim for that Node subclass, as for Group as of 050203)
+                    res.append(nc)
+                    self.addmember(nc) ###k guess/stub #####@@@@@
+        #bruce 050203: adding a quick bugfix for clipboard-DND bugs
+        # which was written 050202 and intended for Alpha-1, but didn't make it in.
+        # In the future this might be optimized to only call update_mols when necessary,
+        # and/or some of what update_mols does might be done more incrementally and more generally.
+        self.assy.update_mols()
+        #end bruce 050203 addition
+        return res
+
+    #bruce 050203: these drop_unders were not used for Alpha-1 -- no time to support dropping into gaps.
+    # (they are not yet fully implemented, either.)
 
     def drop_under_ok(self, drag_type, nodes, after = None): #####@@@@@ honor it!
         """Say whether it's ok to drag these nodes (using drag_type)
@@ -586,7 +603,9 @@ class Node:
         # For DND, self is the selected item and obj is the item we dropped on. 
         # If self is a group, we need to check if obj is a child of self. If so, return since we can't do that.
         if self.is_ascendant(node): return
-        self.dad.delmember(self)
+        if self.dad:
+            #bruce 050203 needed to add this condition due to grouping by Clipboard.drop_on
+            self.dad.delmember(self)
         node.addmember(self, before)
 
     def nodespicked(self):
@@ -844,6 +863,8 @@ class Group(Node):
 
     def delmember(self, obj):
         obj.unpick() #bruce 041029 fix bug 145
+            # [bruce 050203 review: still needed, to keep killed obj out of selmols,
+            #  unless we revise things enough to let us invalidate selmols here, or the like.]
         ## self.assy.changed() # now done by changed_members below
         try:
             self.members.remove(obj)
@@ -1006,8 +1027,7 @@ class Group(Node):
     def copy(self, dad):
         ###@@@ need to review all copy methods for inconsistent semantics
         # (internal like mol.copy, or menu-event-handlers?)
-        from HistoryWidget import redmsg
-        self.assy.w.history.message( redmsg("Groups cannot yet be copied"))
+        self.redmsg("Groups cannot yet be copied")
             ###@@@ should remove that limitation
         return None # bruce 050131 changed this from "return 0"
     
@@ -1262,14 +1282,26 @@ class ClipboardShelfGroup(Group):
     def select_enabled(self): return False #bruce 050131 for Alpha -- not yet used, maybe not needed
     def pick(self): #bruce 050131 for Alpha
         # I might just do this and not bother honoring select_enabled; don't know yet.
-        from HistoryWidget import redmsg
-        #e if DND gets far enough, we can add " or dragged" at end of first sentence. ####@@@@
-        self.assy.w.history.message( redmsg( "Clipboard can't be selected or dragged. (Individual clipboard items can be.)" ))
+        self.redmsg( "Clipboard can't be selected or dragged. (Individual clipboard items can be.)" )
     def is_selection_group_container(self): return True #bruce 050131 for Alpha
     def rename_enabled(self): return False
     def drag_move_ok(self): return False
     def drag_copy_ok(self): return False
     ## def drop_enabled(self): return False ###k bruce thinks drop on clipboard can add an item to it... as with any group
+    #
+    def drop_on(self, drag_type, nodes):
+        #bruce 050203: nodes dropped onto the clipboard come from one "space"
+        # and ought to stay that way by default; user can drag them one-at-a-time if desired.
+        # (In theory this grouping need only be done for the subsets of them which are bonded;
+        #  for now that's too hard -- maybe not for long, similar to bug 371.)
+        if len(nodes) > 1 and drag_type == 'move': ####@@@@ desired for copy too, but below implem would be wrong for that...
+            ###e import gensym?? make it a global name?
+            new = Group("Grouped nodes", self.assy, None) ###k review last arg ####@@@@
+            for node in nodes[::-1]:
+                node.moveto(new) ####@@@@ guess, same as in super.drop_on (move here, regardless of drag_type? no, not correct!)
+            nodes = [new] # a new length-1 list of nodes
+            self.assy.w.history.message( "Grouped some nodes to keep them in one space" ) ###e improve text
+        return Group.drop_on(self, drag_type, nodes)
     def permits_ungrouping(self): return False
     def openable(self): # overrides Node.openable()
         "whether tree widgets should permit the user to open/close their view of this node"
@@ -1310,8 +1342,7 @@ class RootGroup(Group):
     """
     def select_enabled(self): return False #bruce 050131 for Alpha -- should never matter
     def pick(self): #bruce 050131 for Alpha
-        from HistoryWidget import redmsg
-        self.assy.w.history.message( redmsg( "Internal error: tried to select assy.root (ignored)" ))
+        self.redmsg( "Internal error: tried to select assy.root (ignored)" )
     #e does this need to differ from a Group? maybe in some dnd/rename attrs...
     # or maybe not, since only its kids are shown ###@@@
     # (we do use the fact that it differs in class from a Group

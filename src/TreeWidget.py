@@ -1408,7 +1408,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             bugmsg = 1
         actualmsg = desc + substatus
         if bugmsg:
-            if platform.atom_debug:
+            if debug_dragstuff:
                 print "alpha wanted to put this into statusbar but it's probably a bug, so not doing that:"
                 print " " + actualmsg
             actualmsg = " " # sigh... in fact, don't put it there since it erases our results msg.
@@ -1735,19 +1735,46 @@ class TreeWidget(TreeView, DebugMenuMixin):
             shouldwarn = (s1 != s2)
             n1 = node_name(s1) # destination
             n2 = node_name(s2) # source
-            if shouldwarn:
+            if shouldwarn and 0: #bruce 050203 removing this since I think I fixed the bugs it warns about (mostly anyway, not 371)
                 msgw = "alpha warning: drag between clipboard items and the part often causes bugs; doing it anyway, from %r to %r" % (n2,n1)
                 self.redmsg( msgw)
         except:
             pass
-        node.drop_on(drag_type, nodes) # implems untested! well, now tested for a day or so, for assy.tree ... 050202
+        copiednodes = node.drop_on(drag_type, nodes) # implems untested! well, now tested for a day or so, for assy.tree ... 050202
+        #bruce 050203: copiednodes is a list of copied nodes made by drop_on (toplevel only, when groups are copied).
+        # for a move, it's []. We use it to select the copies, below.
+
+        ###e careful, "node" is a variable we will use below in some messages -- fix this!
+        # my loop trashed it bfr i renamed it node1. #####@@@@@
+        
+        #bruce 050203 cause moved nodes to remain picked; for copied nodes, we want the copies not originals to be picked
+        # but that's not so easy so saving it for later, but meanwhile, should we at least unpick the originals?? ####
+        # (We'll unpick all, for move, in case not all nodes participated for some reason.)
+        if drag_type == 'move':
+            self.unpick_all()
+             # pick the moved nodes -- this is not yet right if they were grouped by the clipboard! hmm.... ####@@@@
+            for node1 in nodes:
+                node1.pick()
+        else:
+            self.unpick_all()
+            # pick the copies (even if they are in the clipboard? for now, yes.)
+            # note, the rule about selection limited to only one clipboard item
+            # makes only the last one end up picked, and a warning come out!
+            # We should probably make the clipboard consolidate dropped nodes
+            # (for move or copy) into one Group.
+            for node1 in copiednodes:
+                node1.pick()
+            
         ## print "did it!"
         # ... too common for a history message, i guess...
         msg = "dragged and dropped %d item(s) onto %r" % (len(nodes), node_name(node))
             #e should be more specific about what happened to them... ask the target node itself??
         msg = fix_plurals(msg)
         self.statusbar_msg( msg)
-        self.mt_update()
+        ## bruce 050203: mt_update is not enough, in case selection changed
+        ## (which can happen as a side effect of nodes moving under new dads in the tree)
+        ## self.mt_update()
+        self.win.win_update()
         return
     
     # key event handlers
