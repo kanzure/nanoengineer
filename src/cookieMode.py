@@ -38,7 +38,8 @@ class cookieMode(basicMode):
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
-        self.o.setCursor(QCursor(Qt.ArrowCursor))
+        self.o.setCursor(self.w.CookieCursor)
+        self.w.toolsCookieCutAction.setOn(1) # toggle on the Cookie Cutter icon
         self.w.cookieCutterDashboard.show()
 
     # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
@@ -79,7 +80,19 @@ class cookieMode(basicMode):
 ##            self.o.shape.clear()
 ##        self.o.paintGL()
         
-    # mouse events
+    # mouse and key events
+    
+    def keyPress(self,key):
+        basicMode.keyPress(self, key)
+        if key == Qt.Key_Shift:
+            self.o.setCursor(self.w.CookieAddCursor)
+        if key == Qt.Key_Control:
+            self.o.setCursor(self.w.CookieSubtractCursor)
+                                
+    def keyRelease(self,key):
+        basicMode.keyRelease(self, key)
+        if key == Qt.Key_Shift or key == Qt.Key_Control:
+            self.o.setCursor(self.w.CookieCursor)
     
     def leftDown(self, event):
 #        self.shape.curves

@@ -954,31 +954,35 @@ class MWsemantics(MainWindow):
             QBitmap(filePath + "/../images/SelectMolsSubtractCursor-bm.bmp"),
             0, 0)
         
-        # Create "SelectAddCursor" cursor
-        self.SelectAddCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectAddCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAddCursor-bm.bmp"),
-            0, 0)
+        # Create "CookieCursor" cursor
+        self.CookieCursor = QCursor(
+            QBitmap(filePath + "/../images/CookieCursor.bmp"),
+            QBitmap(filePath + "/../images/CookieCursor-bm.bmp"),
+            -1, -1)
+                    
+        # Create "CookieAddCursor" cursor
+        self.CookieAddCursor = QCursor(
+            QBitmap(filePath + "/../images/CookieAddCursor.bmp"),
+            QBitmap(filePath + "/../images/CookieAddCursor-bm.bmp"),
+            -1, -1)
 
-        # Create "SelectSubtractCursor" cursor
-        self.SelectSubtractCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectSubtractCursor-bm.bmp"),
-            0, 0)
+        # Create "CookieSubtractCursor" cursor
+        self.CookieSubtractCursor = QCursor(
+            QBitmap(filePath + "/../images/CookieSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/CookieSubtractCursor-bm.bmp"),
+            -1, -1)
             
         # Create "RotateCursor" cursor
         self.RotateCursor = QCursor(
             QBitmap(filePath + "/../images/RotateCursor.bmp"),
             QBitmap(filePath + "/../images/RotateCursor-bm.bmp"),
             0, 0)
-
             
         # Create "RotateZCursor" cursor
         self.RotateZCursor = QCursor(
             QBitmap(filePath + "/../images/RotateZCursor.bmp"),
             QBitmap(filePath + "/../images/RotateZCursor-bm.bmp"),
             0, 0)
-
             
         # Create "MoveCursor" cursor
         self.MoveCursor = QCursor(

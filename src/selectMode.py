@@ -32,13 +32,9 @@ class selectMode(basicMode):
         self.StartPick(event, 2) # new selection (replace)
     
     def leftCntlDown(self, event):
-#        self.w.OldCursor = QCursor(self.o.cursor())
-#        self.o.setCursor(self.w.SelectSubtractCursor)
         self.StartPick(event, 0) # subtract from selection
 
     def leftShiftDown(self, event):
-#        self.w.OldCursor = QCursor(self.o.cursor())
-#        self.o.setCursor(self.w.SelectAddCursor)
         self.StartPick(event, 1) # add to selection
 
 
@@ -88,11 +84,9 @@ class selectMode(basicMode):
         self.EndPick(event, 2)
     
     def leftCntlUp(self, event):
-#        self.o.setCursor(self.w.OldCursor)
         self.EndPick(event, 0)
     
     def leftShiftUp(self, event):
-#        self.o.setCursor(self.w.OldCursor)
         self.EndPick(event, 1)
 
     def EndPick(self, event, selSense):
