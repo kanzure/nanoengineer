@@ -312,9 +312,10 @@ class GLPane(QGLWidget):
 
         p1 = A(gluUnProject(x, y, 0.0))
         p2 = A(gluUnProject(x, y, 1.0))
+
+        los = self.lineOfSight
         
-        k = (dot(self.lineOfSight,  (- self.pov) - p1) /
-             dot(self.lineOfSight, p2 - p1))
+        k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
 
         p2 = p1 + k*(p2-p1)
         p1 = A(gluUnProject(x, y, 0.01))

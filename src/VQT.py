@@ -88,9 +88,19 @@ class Q:
             if dot(y, cross(x, v)) > 0.0:
                 theta = 2.0 * pi - theta
             w=cos(theta*0.5)
+            vl = vlen(v)
+            # null rotation
             if w==1.0: self.vec=V(1, 0, 0, 0)
+            # opposite pole
+            elif vl<0.000001:
+                ax1 = cross(x,V(1,0,0))
+                ax2 = cross(x,V(0,1,0))
+                if vlen(ax1)>vlen(ax2):
+                    self.vec = norm(V(0, ax1[0],ax1[1],ax1[2]))
+                else:
+                    self.vec = norm(V(0, ax2[0],ax2[1],ax2[2]))
             else:
-                s=sqrt(1-w**2)/vlen(v)
+                s=sqrt(1-w**2)/vl
                 self.vec=V(w, v[0]*s, v[1]*s, v[2]*s)
         elif type(x) in numTypes:
             # just one number

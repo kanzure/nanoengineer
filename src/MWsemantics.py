@@ -25,9 +25,6 @@ def fileparse(name):
 class MWsemantics(MainWindow):
     def __init__(self,parent = None, name = None, fl = 0):
 	
-        ### Added by Huaicai
-        #self.glpane = GLPane(self.assy)	
-
         global windowList
         MainWindow.__init__(self, parent, name, fl)
         
@@ -52,8 +49,6 @@ class MWsemantics(MainWindow):
                       ('P', Qt.Key_P, 8),
                       ('S', Qt.Key_S, 9),
                       ('Cl', Qt.Key_L, 10)]
-
-
 
 
     ###################################

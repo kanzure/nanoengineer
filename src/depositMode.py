@@ -36,8 +36,6 @@ class depositMode(basicMode):
         for sym, code, num in self.w.elTab:
             if key == code: self.w.setElement(sym)
 
-
-
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
 	with window coordinates(int x, int y) 
@@ -68,7 +66,7 @@ class depositMode(basicMode):
         mat = transpose(V(x,y,z))
         for mol in self.o.assy.molecules:
             if mol.display != diINVISIBLE:
-                a = mol.findSinglets(p2, mat, TubeRadius)
+                a = mol.findSinglets(p2, mat, TubeRadius, -TubeRadius)
                 if a:
                     mol.changeapp()
                     self.o.singlet = a
@@ -144,6 +142,10 @@ class depositMode(basicMode):
 	"""
 	self.Done()
 
+    ###################################################################
+    #  Oh, ye acolytes of klugedom, feast your eyes on the following  #
+    ###################################################################
+
     # singlet is supposedly the lit-up singlet we're pointing to.
     # bond the new atom to it, and any other ones around you'd
     # expect it to form bonds with
@@ -160,7 +162,7 @@ class depositMode(basicMode):
         if el.base:
             # There is at least one other bond
             # this rotates the atom to match the bond formed above
-            r = singlet.posn() - pos
+            r = singlet.posn() - pos           
             rq = Q(r,el.base)
             more = list(mol.nearSinglets(pos, cr+2.0*TubeRadius))
             # don't redo the one we started with

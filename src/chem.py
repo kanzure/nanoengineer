@@ -280,8 +280,6 @@ class atom:
         
         return (disp, rad)
 
-
-
     def povwrite(self, file, dispdef, col):
         color = col or self.element.color
         color = color * V(1,1,-1)
@@ -787,12 +785,14 @@ class molecule:
     # point is some point on the line of sight
     # matrix is a rotation matrix with z along the line of sight,
     # positive z out of the plane
-    def findSinglets(self, point, matrix, radius):
+    # return positive points only, sorted by distance
+    def findSinglets(self, point, matrix, radius, cutoff):
         if not self.singlets: return None
         v = dot(self.singlpos-point,matrix)
-        r = sqrt(A(v[:,0]**2) + A(v[:,1]**2))
-        i = argmax(A(v[:,2]) - 100000.0*(r>radius))
+        r = sqrt(v[:,0]**2 + v[:,1]**2)
+        i = argmax(v[:,2] - 100000.0*(r>radius))
         if r[i]>radius: return None
+        if v[i,2]<cutoff: return None
         return self.singlets[i]
 
     def nearSinglets(self, point, radius):
