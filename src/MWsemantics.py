@@ -46,11 +46,10 @@ class MWsemantics(MainWindow):
         splitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
 
         self.modelTreeView = modelTree(splitter, self)
-        self.modelTreeView.setMinimumSize(150, 480)
+        self.modelTreeView.setMinimumSize(150, 0)
         
         
         self.glpane = GLPane(self.assy, splitter, "glpane", self)
-        self.glpane.setMinimumSize(800, 780)   
 
         splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)       
         splitter.setOpaqueResize(True)
