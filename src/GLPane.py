@@ -813,6 +813,7 @@ class GLPane(QGLWidget, modeMixin):
         return
 
     def startmovie(self,filename):
+        self.win.msgbarLabel.setText("Playing " + filename)
         self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
