@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jan 13 12:17:53 2005
+# Created: Sat Jan 15 11:58:05 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -216,53 +216,51 @@ image1_data = [
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
 image2_data = [
-"22 22 26 1",
+"22 22 24 1",
 ". c None",
 "# c #000000",
-"j c #131813",
-"k c #1e221e",
-"h c #2a4628",
-"u c #30502e",
-"v c #3a6238",
-"p c #404040",
-"e c #447442",
-"w c #474747",
-"g c #4f854c",
-"r c #527d50",
-"t c #589454",
+"h c #131813",
+"i c #1e221e",
+"f c #2a4628",
+"s c #30502e",
+"t c #3a6238",
+"n c #404040",
+"c c #447442",
+"u c #474747",
+"e c #4f854c",
+"p c #527d50",
+"r c #589454",
 "a c #618560",
-"i c #666666",
-"s c #68af64",
-"f c #68b064",
-"l c #6a6a6a",
-"m c #717171",
-"n c #7f7f7f",
-"o c #808080",
+"g c #666666",
+"q c #68af64",
+"d c #68b064",
+"j c #6a6a6a",
+"k c #717171",
+"l c #7f7f7f",
+"m c #808080",
 "b c #86c083",
-"q c #8d8d8d",
-"x c #929292",
-"d c #ababab",
-"c c #ffffff",
+"o c #8d8d8d",
+"v c #929292",
 "......................",
 ".####################.",
-".#abcccccccccccccdbe#.",
-".#bfcccccccccccccdfg#.",
-".#bhcciiiiiiiciicdfg#.",
-".#bhcccccccccccccdfg#.",
-".#bfcciiiiiiiciicdfg#.",
-".#bfcccccccccccccdfg#.",
-".#bfcciiiciiiciicdfg#.",
-".#bfcccccccccccccdfg#.",
-".#bfcccccccccccccdfg#.",
-".#bfddddddddddddddfg#.",
-".#bffffffffffffffffg#.",
-".#bfj############kfg#.",
-".#bf#lmmmmmmmmmmn#fg#.",
-".#bf#moooooopppoq#fg#.",
-".#bf#moooooopppoq#fg#.",
-".#bf#moooooopppoq#fg#.",
-".#rs#moooooopppoq#tu#.",
-".##v#nqqqqqqwwwqx#u##.",
+".#ab..............bc#.",
+".#bd..............de#.",
+".#bf..ggggggg.gg..de#.",
+".#bf..............de#.",
+".#bd..ggggggg.gg..de#.",
+".#bd..............de#.",
+".#bd..ggg.ggg.gg..de#.",
+".#bd..............de#.",
+".#bd..............de#.",
+".#bdddddddddddddddde#.",
+".#bdddddddddddddddde#.",
+".#bdh############ide#.",
+".#bd#jkkkkkkkkkkl#de#.",
+".#bd#kmmmmmmnnnmo#de#.",
+".#bd#kmmmmmmnnnmo#de#.",
+".#bd#kmmmmmmnnnmo#de#.",
+".#pq#kmmmmmmnnnmo#rs#.",
+".##t#loooooouuuov#s##.",
 "..##################..",
 "......................"
 ]
@@ -6987,6 +6985,48 @@ image105_data = [
 "......................",
 "......................"
 ]
+image106_data = [
+"22 21 18 1",
+". c None",
+"p c #000080",
+"g c #0065a2",
+"k c #0066a2",
+"# c #0066a3",
+"h c #0065a3",
+"a c #0065a3",
+"c c #0065a3",
+"b c #0065a3",
+"d c #0065a3",
+"e c #21807f",
+"m c #22817e",
+"n c #23827d",
+"l c #2d8a72",
+"o c #2e8b72",
+"j c #35916a",
+"i c #50a74e",
+"f c #d2ff00",
+"......................",
+".......#abbbba#.......",
+".....#cdddddddda#.....",
+"....#dddddddddddd#....",
+"...#ddddddeedddddd#...",
+"..#ddddddeffedddddd#..",
+"..bddddddeffedddddda..",
+".#ddddddddeeddddddddg.",
+".addddddddddddddddddh.",
+".bddddddefffdddddddda.",
+".bdddddddeffddddddddb.",
+".bdddddddeffddddddddb.",
+".adddddddeffdddddddda.",
+".#bddddddeffdddddddd#.",
+"..addddddeffeddddddb..",
+"..#dddddiffffjdddddk..",
+"...bbddddlmnoddddd#...",
+"...#bdddddddddddd#p...",
+".....#adddddddda#.....",
+".......#abbbba#.......",
+"......................"
+]
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -7099,6 +7139,7 @@ class MainWindow(QMainWindow):
         self.image103 = QPixmap(image103_data)
         self.image104 = QPixmap(image104_data)
         self.image105 = QPixmap(image105_data)
+        self.image106 = QPixmap(image106_data)
 
         if not name:
             self.setName("MainWindow")
@@ -7435,6 +7476,8 @@ class MainWindow(QMainWindow):
         self.moviePlayRevAction.setIconSet(QIconSet(self.image105))
         self.fileOpenMovieAction = QAction(self,"fileOpenMovieAction")
         self.fileOpenMovieAction.setIconSet(QIconSet(self.image1))
+        self.movieInfoAction = QAction(self,"movieInfoAction")
+        self.movieInfoAction.setIconSet(QIconSet(self.image106))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7489,7 +7532,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,718,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7533,6 +7576,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard.addSeparator()
         self.fileOpenMovieAction.addTo(self.moviePlayerDashboard)
         self.fileSaveMovieAction.addTo(self.moviePlayerDashboard)
+        self.movieInfoAction.addTo(self.moviePlayerDashboard)
         self.moviePlayerDashboard.addSeparator()
         self.movieResetAction.addTo(self.moviePlayerDashboard)
         self.moviePlayRevActiveAction.addTo(self.moviePlayerDashboard)
@@ -7616,7 +7660,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1115,37))
+        self.MenuBar.setGeometry(QRect(0,0,1115,33))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
@@ -7720,7 +7764,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1117).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1138).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7845,6 +7889,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
+        self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
 
 
     def languageChange(self):
@@ -8205,6 +8250,8 @@ class MainWindow(QMainWindow):
         self.moviePlayRevAction.setMenuText(self.__tr("Play Reverse"))
         self.fileOpenMovieAction.setText(self.__tr("Open Movie File"))
         self.fileOpenMovieAction.setMenuText(self.__tr("Open Movie File"))
+        self.movieInfoAction.setText(self.__tr("Movie Information"))
+        self.movieInfoAction.setMenuText(self.__tr("Movie Information"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8636,6 +8683,9 @@ class MainWindow(QMainWindow):
 
     def movieSlider(self):
         print "MainWindow.movieSlider(): Not implemented yet"
+
+    def movieInfo(self):
+        print "MainWindow.movieInfo(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

@@ -295,10 +295,6 @@ class assembly:
         for m in self.molecules:
             m._savedbasepos = + m.basepos
             
-#        if not self.alist: return
-#        for a in self.alist:
-#            self.copybasepos = + a.molecule.basepos
-            
     def restorebasepos(self):
         """Restore atom positions copied earlier by savebasepos().
         """
@@ -308,11 +304,7 @@ class assembly:
         # curpos are same object):
         for m in self.molecules:
             m.basepos = m.curpos = + m._savedbasepos
-        
-#        if not self.alist: return
-#        for a in self.alist:
-#            a.molecule.basepos[a.index] = self.copybasepos[a.index]
-        
+
         for b in self.blist.itervalues():
             b.setup_invalidate()
             
@@ -322,6 +314,10 @@ class assembly:
     def deletebasepos(self):
         """Erase the savedbasepos array.  It takes a lot of room.
         """
+#        if not self.molecules._savedbasepos:
+#            print "assembly.deletebasepos(): NO _SAVEBASEPOS TO DELETE."
+#            return
+            
         for m in self.molecules:
             del m._savedbasepos
             

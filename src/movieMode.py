@@ -32,26 +32,31 @@ class movieMode(basicMode):
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
         
-        # We have a moviefile ready to go.  It's showtime!!!
         self.w.toolsMoviePlayerAction.setOn(1) # toggle on the Movie Player icon
-#       self.w.frameNumberLCD.display(self.o.assy.currentFrame)
-        self.w.frameNumberSB.setValue(self.o.assy.m.currentFrame) # SB = Spinbox
-#        self.w.frameNumberSL.setMaxValue(self.o.assy.m.totalFrames)
-#        self.w.frameNumberSL.setValue(self.o.assy.m.currentFrame) # SL = Slider
-        
-        self.w.moviePlayActiveAction.setVisible(0)
-        self.w.moviePlayRevActiveAction.setVisible(0)
-        self.w.moviePlayerDashboard.show()
-        
+
+        # Display some action items in the main window.
         self.w.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
         self.w.toolsSimulatorAction.setEnabled(0) # Disable "Simulator"
         self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
-        self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save"
+        self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save As"
         self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
         self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
         self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
         
-        self.o.assy.m._setup() # Cue movie.
+        # MP dashboard initialization.
+        self.w.frameNumberSB.setValue(self.o.assy.m.currentFrame) # SB = Spinbox
+        self.w.moviePlayActiveAction.setVisible(0)
+        self.w.moviePlayRevActiveAction.setVisible(0)
+        
+        if self.o.assy.m.filename: # We have a movie file ready.  It's showtime!
+            self.o.assy.m._controls(1) # Movie control buttons are enabled.
+            self.o.assy.m._setup() # Cue movie.
+        else:
+            self.o.assy.m._controls(0) # Movie control buttons are disabled.
+        
+        self.w.moviePlayerDashboard.show()
+        
+        
 
     # methods related to exiting this mode [bruce 040922 made these from
     # old Done method, and added new code; there was no Flush method]

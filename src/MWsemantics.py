@@ -969,26 +969,17 @@ class MWsemantics(MainWindow):
     def toolsMoviePlayer(self):
         """Plays a DPB movie file created by the simulator.
         """
+        if not self.assy.molecules: # No model.
+            self.history.message(redmsg("Movie Player: Need a model."))
+            return
+            
         # If no simulation has been run yet, check to see if there is a "partner" moviefile.
         # If so, go ahead and play it.
         if not self.assy.m.filename and self.assy.filename:
             mfile = self.assy.filename[:-4] + ".dpb"
             if os.path.exists(mfile): self.assy.m.filename = mfile
 
-        # Make sure there is a moviefile to play.
-        if not self.assy.m.filename or not os.path.exists(self.assy.m.filename):
-
-            msg = redmsg("Movie Player: No movie file.")
-            self.history.message(msg)
-            print "MWsemantics.toolsMoviePlayer: self.assy.m.filename =",self.assy.m.filename
-
-            msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
-            QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
-                        self.toolsSimulatorAction.iconSet().pixmap() )
-            self.history.message(msg)
-            return
-
-        # We have a moviefile ready to go.  It's showtime!!!
+        # It's showtime!!!
         self.glpane.setMode('MOVIE')
 
  #### Movie Player Dashboard Slots ############
@@ -1035,16 +1026,60 @@ class MWsemantics(MainWindow):
 #        print "MW: MovieSlider called"
         if fnum == self.assy.m.currentFrame: return
         self.assy.m._playSlider(fnum)
-        
+
+    def movieInfo(self):
+        """Prints information about the current movie to the history widget.
+        """
+#        print "MW: MoviwInfo called"
+        self.assy.w.history.message(greenmsg("Movie Information"))
+        self.assy.m._info()
         
     def fileOpenMovie(self):
         """Open a movie file to play.
         """
-        self.history.message(redmsg("Open Movie File: Not implemented yet."))
-                        
+        self.assy.w.history.message(greenmsg("Open Movie File:"))
+        if self.assy.m.currentFrame != 0:
+            self.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
+            return
+        
+        # Determine what directory to open.
+        if self.assy.m.filename: odir, fil, ext = fileparse(self.assy.m.filename)
+        else: odir = globalParms['WorkingDirectory']
+
+        fn = QFileDialog.getOpenFileName(odir,
+                "Differential Position Bytes Format (*.dpb)",
+                self )
+
+        if not fn:
+            self.assy.w.history.message("Cancelled.")
+            return
+        else:            
+            fn = str(fn)
+            if not os.path.exists(fn): return
+
+#            print "fileOpenMovie(): Loading movie file ", fn
+#            print "fileOpenMovie(). self.assy.m.isOpen =", self.assy.m.isOpen
+            if self.assy.m.isOpen: self.assy.m._close()
+            self.assy.m.filename = fn
+            self.assy.m._setup()
+
     def fileSaveMovie(self):
         """Save a movie of the current part.
         """
+
+        # Make sure there is a moviefile to save.
+        if not self.assy.m.filename or not os.path.exists(self.assy.m.filename):
+            
+            msg = redmsg("Open Movie File: No movie file to save.")
+            self.history.message(msg)
+            msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
+            QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
+                        self.toolsSimulatorAction.iconSet().pixmap() )
+            self.history.message(msg)
+            return
+        
+        self.assy.w.history.message(greenmsg("Save Movie File:"))
+        
         if self.assy.filename: sdir = self.assy.filename
         else: sdir = globalParms['WorkingDirectory']
 
@@ -1056,7 +1091,10 @@ class MWsemantics(MainWindow):
                     "Save As",
                     sfilter)
         
-        if fn:
+        if not fn:
+            self.assy.w.history.message("Cancelled.")
+            return
+        else:
             fn = str(fn)
             dir, fil, ext2 = fileparse(fn)
             ext =str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
@@ -1076,18 +1114,25 @@ class MWsemantics(MainWindow):
                     self.history.message( "Cancelled.  File not saved." )
                     return # Cancel clicked or Alt+C pressed or Escape pressed
             
-            if ext == '.dpb': ftype = 'DPB'
-            else: ftype = 'XYZ'
-            
-            tmpname = self.assy.m.filename
-            self.assy.m.filename = safile
-
-            r = self.assy.writemovie() # Save moviefile
-            
-            if not r: # Movie file saved successfully.
-                self.history.message( ftype + " movie file saved: " + safile)
-
-            self.assy.m.filename = tmpname
+            if ext == '.dpb':
+#                print "fileSaveMovie(): Saving movie file", safile
+#                print "fileSaveMovie(). self.assy.m.isOpen =", self.assy.m.isOpen
+                self.assy.m._close()
+                import shutil
+                shutil.copy(self.assy.m.filename, safile)
+                self.assy.m._setup()
+                
+            else: 
+                # writemovie() in fileIO.py creates either an dpb or xyz file based on the 
+                # file extention in assy.m.filename.  To make this work for now, we
+                # need to temporarily save assy.m.filename of the current movie (dpb) file,
+                # change the name, write the xyz file, then restore the dpb filename.
+                tmpname = self.assy.m.filename #save the dpb filename of the current movie file.
+                self.assy.m.filename = safile # the name of the XYZ file the user wants to save.
+                r = self.assy.writemovie() # Save the XYZ moviefile
+                if not r: # Movie file saved successfully.
+                    self.history.message("XYZ trajectory movie file saved: " + safile)
+                self.assy.m.filename = tmpname # restore the dpb filename.
 
     ###################################
     # Slots for future tools
