@@ -36,6 +36,8 @@ class zoomMode(basicMode):
         ## Set RBW color as the same as bg color, then it will draw as black
         self.rbwcolor = bg
         
+        self.glStatesChanged = False
+        
         
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
@@ -53,6 +55,7 @@ class zoomMode(basicMode):
         return None
         
     # a safe way for now to override Done:
+    ## Huaicai: This method must be called to safely exit this mode    
     def Done(self, new_mode = None):
         """[overrides basicMode.Done; this is deprecated, so doing it here
         is a temporary measure for Alpha, to be reviewed by Bruce ASAP after
@@ -68,7 +71,14 @@ class zoomMode(basicMode):
             except:
                 pass
         
-        self.o.redrawGL = True
+        ## If OpenGL states changed during this mode, we need to restore
+        ## them before exit. Currently, only the leftDown() will change that.
+        if self.glStatesChanged:
+            self.o.redrawGL = True
+            glDisable(GL_COLOR_LOGIC_OP)
+            glEnable(GL_LIGHTING)
+            glEnable(GL_DEPTH_TEST)
+        
         return basicMode.Done(self, new_mode)
         
             
@@ -98,6 +108,8 @@ class zoomMode(basicMode):
         glEnable(GL_COLOR_LOGIC_OP)
         glLogicOp(GL_XOR)
         
+        self.glStatesChanged = True
+        
         
     def computePoints(self):
           """Compute the left bottom(point2) and right top (point3) """
@@ -113,12 +125,12 @@ class zoomMode(basicMode):
         
         if self.point2 and self.point3: #Erase the previous rubber window
             drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
-            self.o.swapBuffers()  #Update display 
-           
+          
         self.pPrev = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
         ##draw the new rubber band
         self.computePoints()
         drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        glFlush()
         self.o.swapBuffers() #Update display
         
         
@@ -136,15 +148,12 @@ class zoomMode(basicMode):
         ##like a double click, a single line rubber band, skip zoom
         DELTA = 1.0E-5
         if self.pWxy[0] == cWxy[0] or self.pWxy[1] == cWxy[1] or zoomFactor < DELTA: 
-                glDisable(GL_COLOR_LOGIC_OP)
-                glEnable(GL_LIGHTING)
-                glEnable(GL_DEPTH_TEST)
-        
                 self.o.mode.Done(self.o.prevMode)
                 return
         
         ##Erase the last rubber-band window
         drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        glFlush()
         self.o.swapBuffers()
         
         winCenterX = (cWxy[0] + self.pWxy[0]) / 2.0
@@ -182,9 +191,6 @@ class zoomMode(basicMode):
         ##plane change as scale too.
         self.o.scale *= zoomFactor
        
-        glDisable(GL_COLOR_LOGIC_OP)
-        glEnable(GL_LIGHTING)
-        glEnable(GL_DEPTH_TEST)
         self.Done()
 
     def keyPress(self,key):
