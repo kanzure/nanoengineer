@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1138</height>
+            <height>1141</height>
         </rect>
     </property>
     <property name="caption">
@@ -182,7 +182,7 @@
             <rect>
                 <x>260</x>
                 <y>0</y>
-                <width>318</width>
+                <width>347</width>
                 <height>29</height>
             </rect>
         </property>
@@ -194,6 +194,7 @@
         </property>
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
+        <action name="zoomWindowAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
@@ -211,7 +212,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>578</x>
+                <x>607</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -2813,6 +2814,39 @@
             <string>Movie Information</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>zoomWindowAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image107</iconset>
+        </property>
+        <property name="text">
+            <string>Zoom Window</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>panWindowAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image108</iconset>
+        </property>
+        <property name="text">
+            <string>Action</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>rotateWindowAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image109</iconset>
+        </property>
+        <property name="text">
+            <string>Action</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -3134,7 +3168,16 @@
         <data format="XPM.GZ" length="887">789c9d90b16e8330144577bec2c21baa08a40938aafa098d3a56aa3a3886172001a22619a2aaff5edf4751803843ebcbe0738f9e6c3c0bc4dbeb8b0866def1a44fa511a6d09f22c8ce757d79ff78fef2fcf95cd82f5622f61f3c3f1446acdb26c7beb27b19f1021e800b8d002530491160cea810e086911060094c170890804aa954f16c065c910d9fbb05ea48472b9e2d186304b8637c44807b46be16b0665cf6687e71d961c398a000b68ca92d12a06654b6e05b85cef53723a5db48a9372e23a531996326b73dd1f6c6743d5131317d3f35d77e6c86fdc8e46549e43461550ddd6e74ced0ed2777bbbafae67f7ad738dea073adf345e1f49db7b6eee03670f74cb7fe65be9fbc1f7e24c5f9</data>
     </image>
     <image name="image106">
-        <data format="XPM.GZ" length="861">789c8592cd4e84301080ef3c45b3bd11b34b8b408df111341e4d8c8729a50bbb0b6c743d18e3bbcbb4a55030eb9ce6cb47a6f3c32e262fcf8f24de451f17b83425296b7827b1fa6cdbafd7b787ef68c339e18c3041d8e626da6c49499efaaec2fc3ce434194224887b8b79061cf1e830b7483da688b5ffd8208458862843542156889c89a4d088ad412e58619aec0ca682170af1645009284c57bdc14a488b07c434bb63392036885902c5ad29a51115d73a31f36eff8c99a1208700ba34b4542e9c1b0d55b3a033e344554dca9a51683d296be4d28033fe91b19a527b6b40ada2b6662aa67deb8141351af99f81b571d5a85c19eae681e53c32dc4133f4a60f263dfabd4953efd476fd626ffe25f7c839b88f5fc4e23e576ebafe0f7eeea35ff227de26</data>
+        <data format="XPM.GZ" length="801">789cad92cd4e84301080ef3c45436fc4ecb665a1351b1f41e3d1c478185abab07f26ba1e8cf1dd65a6055696a807e7345fbf32d34e5966ece1fe9665cbe4f504a7d632dbc00bcbdcdbe1f0fef874f391a44a3125995c31995e25e9825976f77cac31df7739175d1881e80296052844183047dc442c83e50392ad109534427bc4965019a9a9d19630374a3bc486d019d0546a47589b2aa047cc8b6b5902628d5808d02b2a65119df25ed09917b371663850f0a989eba3ebcd99882a9a28aa6a54c1f4c2da5105035303d10c4dfa6a002e1898896fa62b66e70daa7f30fcd2f0dfee133faabbb3594fe966985bd8d8b4db5d3f9cc944fb26fb3fbdcf0f6f7af91f7cae932f39e9cebf</data>
+    </image>
+    <image name="image107">
+        <data format="XPM.GZ" length="2413">789ca5d4c94e1c311006e0fb3cc508df5054f4ee6e4539645fd9b292443978659d611b0224cabbc7fd573121401aa43008f1c96557d92ecfd2e278636d79bcb8343a9e99d9b61bbb2d73345ef42793c9f9d76f0f7e8e168a629c7edbf477e1de68617d3676e395fd69e8412a4165f8e9ad267f9bcc95f1bdde455b3af17eefaa6b82c47f87436d740edbde755e47ddc2110e4dd144f859efa6d35dc7f10eb6da763cbe097bad5b581df4d69989926f0a17da75151cd86d65389f87eb561b0b7fe9ddd65d670dbc06379db13cbed5bb6b4cedf87c2662ed7178f416ee6c1738ff366c6de11dbc23d69eeb5f17b7127f043b6b247e170e693dae3f13db50c2c7707499f8476f9359eb3b18f761f2b43ed777283632fe521c24ff3bb6cb8386f3b9f9bc667099ccf93ab84af979fca1b81617709dcce7f70a6e5c1b707e0afd65b435b2bfe7ecf97a27b0713a70bd8fc42ef07da3ff124de0f37a0f7b17630d3fee6d335f46aef7f5dc1e7e02e7be88dc5f255cf93a72fe17709dd6e3f379036bdf46bebf0fe24e7c0ab7a95ede9f657b2df99761ebadc43f855dca87fdab293bc692cf6b058e3e70bd0afde7b2948fefe7239c8742d65b85cb7400dcbf155ca5f97c5e783f2e751fcf57e84f672f4c9fd8a191f56ad8874a7c0ea76e890d8cf7ed4befc51b70152ef687f7e875a825bf17b7525f03b7c1c938de873741cbf9b7b0bd18a7cfb00f3ef27debdea99a4ce6e37d873c8da35f14de4f684210133b96128fef9bb47acdeb297c9fc43c3652df993872fcfaecee9fcbf1a4c8c847dd1e8f384b8e3c85feffe1f814116993b6689b766897f66872f30c8e472553daa7033aa4233aa6199ddc5c95c41bfa4ea77446e7f4831ed2237a4c4fe8e94d19e6f1cfe839bda097f48a5ed31b5aa6155a1d8c5fa3757a4befe83d7da08ff48936e8f360fc17ca28a7824aaaa8a68634b503f1fd7ebbcbd18a86f6db67504a196595535e0515d5e6d0795edc97da52db6a47edf22dabbde17e50933ffd80f8e9f519ffeeb714bf7f7dc6507fa6190757670cf7f3f519b7f5ffd519b7bf97bf67dce57d5d9e71b7f7f8e72efee7fdde29fed7fdd16f038490c3</data>
+    </image>
+    <image name="image108">
+        <data format="XPM.GZ" length="947">789c8dd14b6e83301006e03da7b0f00e550e8fd087aa1ea1559795aa2ecc0081244002745155bd7bf1d8e3b4e044b12ce0d3cfd8835905ecedf599052b6f18e55803834af62cc83f9be6ebfde3e9dbf3e398e919f9379e2f18b097ae2dd473373df33009a7a1d818c69a1cb9a674b08c157bcb54f1609929d68691ae2d9129716bb8d694c85bdaa8b27c50cc0c4d5723f28e6a73e43dd51e8911b2354c740ac86c5a2c51dc21735ab94096f4f25e314ac234c2b3da289638f0189d6396f07389e4993b9100205d0980c8d5c5910851e0d5d54171b6375826667910162629816a3678ab28e1305b0db84e3840bd85d3d8ed8137baa65dd474b40fc0bf040e57f476e17b2e274073998038bacf5a7d970d66fbf4c3e977cf3a18ff74f0f3e8fd024dd7bf9b</data>
+    </image>
+    <image name="image109">
+        <data format="XPM.GZ" length="2173">789ccdd4494fdb401c86f17b3e85856fa8fae338cea6aa0776c2be6f550f8eed2c401248c2ae7ef7cefb446aa9492a4ea87ea8c4cf1e3bf1ccd08579ef7c7fc79b5f288cc6f1b89b7849271e7af3e97daff7fcfdc7b7d7c25c187aeea752f5c2b92f85b983b19778bb837e26d896831f650aefc8e540e110470a577145e10aae291ce344e1b65c09147ec0a1c20d1c293cc41cd8c7b1c2673851f8502e9694ec4f3ebfa4b85ecc5de779a54871bdc9fb070adfe3a2c22dcc818f704de15a6efecef9fca2c2a7b9f97bc9cdcf5d6e3e9673efd797030edcc3a1c2379817c003cc02e26b5c55b8836b0aafe258e1326e2afc8453c5fc19ce14d72f714be163e63b50781173e0310e150efe5e1f8b300b809f7145e16d5c5338c57585377053e14d9c285cc2a9c2fb3853784f667a27df3fc11c38c365852f300b88af705de1139c287c8b3385ebb8a5f01afb93033fe244e115dc52789dfdc786c64b980d870f727f0fa3dc7edcc57585bb385593ff2c3ede678d37ffcf398bad6989a59659cbda33c677267758d7aeecda6eac677df76fe0cedfdadd94f17d77656823d36f63bbb70777eec11eedc9f9d95ea68c9fb4684b6f3fdf966dc556dd1dc3a9e307b6f6fe1d6ddd36663e3fb5c687e6a7ffbbcd7fddf1bfaeefac6c8b1598b4fd91e7db8e9bff19e3dd7aee4eb9638fddf16ebcb5dd4ed8b783dce843b7e6b39e7fe4ee38b6133bb533ed593bb70bbbb4c08a164efffe6e44c9edce278bdc9e89acecbe496215ae5467bdafd5acee9b7bdeb1effbf19bf38d4f58af9f5f0bbf00847e4149</data>
     </image>
 </images>
 <connections>
@@ -3876,6 +3919,12 @@
         <receiver>MainWindow</receiver>
         <slot>movieInfo()</slot>
     </connection>
+    <connection>
+        <sender>zoomWindowAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>zoomWindow()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4008,6 +4057,7 @@
     <slot>movieReset()</slot>
     <slot>movieSlider()</slot>
     <slot>movieInfo()</slot>
+    <slot>zoomWindow()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sat Jan 15 11:58:05 2005
+# Created: Wed Jan 19 09:21:51 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6986,46 +6986,288 @@ image105_data = [
 "......................"
 ]
 image106_data = [
-"22 21 18 1",
+"22 21 14 1",
 ". c None",
-"p c #000080",
-"g c #0065a2",
-"k c #0066a2",
-"# c #0066a3",
-"h c #0065a3",
+"l c #000080",
+"d c #0065a2",
 "a c #0065a3",
-"c c #0065a3",
-"b c #0065a3",
-"d c #0065a3",
-"e c #21807f",
-"m c #22817e",
-"n c #23827d",
-"l c #2d8a72",
-"o c #2e8b72",
-"j c #35916a",
-"i c #50a74e",
-"f c #d2ff00",
+"g c #0066a2",
+"# c #0066a3",
+"b c #21807f",
+"i c #22817e",
+"j c #23827d",
+"h c #2d8a72",
+"k c #2e8b72",
+"f c #35916a",
+"e c #50a74e",
+"c c #d2ff00",
 "......................",
-".......#abbbba#.......",
-".....#cdddddddda#.....",
-"....#dddddddddddd#....",
-"...#ddddddeedddddd#...",
-"..#ddddddeffedddddd#..",
-"..bddddddeffedddddda..",
-".#ddddddddeeddddddddg.",
-".addddddddddddddddddh.",
-".bddddddefffdddddddda.",
-".bdddddddeffddddddddb.",
-".bdddddddeffddddddddb.",
-".adddddddeffdddddddda.",
-".#bddddddeffdddddddd#.",
-"..addddddeffeddddddb..",
-"..#dddddiffffjdddddk..",
-"...bbddddlmnoddddd#...",
-"...#bdddddddddddd#p...",
-".....#adddddddda#.....",
-".......#abbbba#.......",
+".......#aaaaaa#.......",
+".....#aaaaaaaaaa#.....",
+"....#aaaaaaaaaaaa#....",
+"...#aaaaaabbaaaaaa#...",
+"..#aaaaaabccbaaaaaa#..",
+"..aaaaaaabccbaaaaaaa..",
+".#aaaaaaaabbaaaaaaaad.",
+".aaaaaaaaaaaaaaaaaaaa.",
+".aaaaaaabcccaaaaaaaaa.",
+".aaaaaaaabccaaaaaaaaa.",
+".aaaaaaaabccaaaaaaaaa.",
+".aaaaaaaabccaaaaaaaaa.",
+".#aaaaaaabccaaaaaaaa#.",
+"..aaaaaaabccbaaaaaaa..",
+"..#aaaaaeccccfaaaaag..",
+"...aaaaaahijkaaaaa#...",
+"...#aaaaaaaaaaaaa#l...",
+".....#aaaaaaaaaa#.....",
+".......#aaaaaa#.......",
 "......................"
+]
+image107_data = [
+"22 22 82 2",
+"Qt c None",
+".# c #000000",
+"#m c #000000",
+".a c #000000",
+"#l c #283c00",
+"#o c #496e00",
+".v c #4e5a71",
+".b c #515f78",
+".f c #5e626f",
+".F c #697991",
+".c c #6b7b9f",
+".g c #6d778f",
+"#p c #70af00",
+".n c #727c94",
+".e c #7284a8",
+".d c #7587ab",
+".Z c #8599ba",
+".P c #869abb",
+".h c #96a5ce",
+".m c #96a7d2",
+".R c #99b9e0",
+".i c #9bb2dc",
+".j c #9bb7df",
+".Q c #9bb8e0",
+".r c #9cbadc",
+".k c #9eb9e4",
+".0 c #9ebbe3",
+".s c #9fc0e3",
+".z c #a0bbd9",
+".l c #a1b8e2",
+".q c #a1bad9",
+".I c #a1bee0",
+".S c #a1c1e7",
+".1 c #a1c1e8",
+".t c #a3c1e3",
+".9 c #a4c0e8",
+".A c #a4c5e8",
+".2 c #a5c5eb",
+".J c #a6c8ee",
+"## c #a7bae4",
+".G c #a7c0e8",
+".u c #aac7e9",
+".B c #aaccef",
+"#a c #accaec",
+".T c #adcff5",
+".C c #b0d3f3",
+".K c #b0d3fd",
+".D c #b1d2f1",
+".3 c #b4d5f8",
+".H c #b5cff0",
+".L c #b7d8ff",
+".U c #b7d9ff",
+".w c #b8c7ee",
+"#b c #b8d7f3",
+".M c #bbdbff",
+".E c #bcd5f4",
+"#n c #bcff3b",
+".N c #bfdefd",
+"#h c #c0d9f7",
+".V c #c1e2ff",
+".O c #c3dcfa",
+".4 c #c4deff",
+"#c c #c7dff7",
+"#i c #cbdff7",
+".W c #cbe6ff",
+".5 c #cde4ff",
+".y c #cee0f6",
+".o c #d3ddf6",
+".X c #d4ebff",
+".p c #d7e5ff",
+"#d c #d7e8fa",
+".6 c #d8ecff",
+"#j c #dae7f8",
+".8 c #dbecff",
+".Y c #ddedfc",
+".7 c #e0f0ff",
+"#e c #e1edf9",
+"#k c #e6eef9",
+"#. c #e6f3ff",
+"#f c #ecf5fc",
+"#g c #f1f6fa",
+".x c #f1ffff",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQt.#.a.a.a.a.#QtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQt.a.a.b.c.d.e.a.aQtQtQtQtQtQtQtQtQtQtQt",
+"QtQt.a.f.g.h.i.j.k.l.m.aQtQtQtQtQtQtQtQtQtQt",
+"Qt.#.a.n.o.p.q.r.s.t.u.a.#QtQtQtQtQtQtQtQtQt",
+"Qt.a.v.w.x.y.z.A.B.C.D.E.aQtQtQtQtQtQtQtQtQt",
+"Qt.a.F.G.H.I.J.K.L.M.N.O.aQtQtQtQtQtQtQtQtQt",
+"Qt.a.P.Q.R.S.T.U.V.W.X.Y.aQtQtQtQtQtQtQtQtQt",
+"Qt.a.Z.0.1.2.3.4.5.6.7.8.aQtQtQtQtQtQtQtQtQt",
+"Qt.#.a.9.2.3.4.5.6.7#..a.#QtQtQtQtQtQtQtQtQt",
+"QtQt.a###a#b#c#d#e#f#g.aQtQtQtQtQtQtQtQtQtQt",
+"QtQtQt.a.a#h#i#j#k.a.a.a#lQtQtQtQtQtQtQtQtQt",
+"QtQtQtQt#m.a.a.a.a.#.a.a#n#lQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQt.a#o#n#lQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQt.a#p#n#lQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQt.a#p#n#lQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQt.a#p#n#lQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.a#p#n#lQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.a#p#n#lQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.a#lQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
+]
+image108_data = [
+"22 22 22 1",
+". c None",
+"o c #030000",
+"m c #030200",
+"# c #040000",
+"s c #040002",
+"r c #040005",
+"p c #04000b",
+"i c #040100",
+"f c #050100",
+"j c #050400",
+"a c #060000",
+"h c #060009",
+"b c #060200",
+"t c #070400",
+"d c #080000",
+"q c #080010",
+"n c #080300",
+"c c #0b0603",
+"k c #0d0200",
+"e c #0f0300",
+"l c #13051e",
+"g c #ffffff",
+"......................",
+"...........#..........",
+"..........a#b.........",
+".........accca........",
+"........cc.d.cc.......",
+"........c..e..c.......",
+"...........e..........",
+"...........c..........",
+"....cc.....c.....cc...",
+"...fc......c.g....ch..",
+"..#c.......c.......c#.",
+".#ccijcccccccccccklc#m",
+"..nc.......c.......co.",
+"...cc......c......cp..",
+"....cc.....c.....cc...",
+"...........c..........",
+"...........c..........",
+"........c..c..c.......",
+"........cc.q.cc.......",
+".........#cccc........",
+"..........rs#.........",
+"...........t.........."
+]
+image109_data = [
+"22 22 67 2",
+"Qt c None",
+".K c #4e4e4e",
+".M c #505050",
+".2 c #545454",
+".7 c #565656",
+".6 c #585858",
+".a c #5c5c5c",
+".g c #606060",
+".v c #626262",
+".I c #646464",
+".r c #666666",
+".# c #6a6a6a",
+".W c #6c6c6c",
+".R c #131313",
+"#a c #535353",
+".1 c #131313",
+"## c #343434",
+".b c #404040",
+".u c #414141",
+".f c #444444",
+".S c #484848",
+".8 c #4e4e4e",
+".X c #515151",
+".V c #545454",
+".z c #5c5c5c",
+".q c #626262",
+".C c #6c6c6c",
+".n c #000000",
+".m c #020202",
+".l c #040404",
+".o c #050505",
+".k c #070707",
+".h c #080808",
+".E c #0a0a0a",
+".5 c #0b0b0b",
+".x c #0d0d0d",
+"#. c #0e0e0e",
+".Z c #0f0f0f",
+".T c #101010",
+".A c #111111",
+".t c #121212",
+".0 c #131313",
+".4 c #141414",
+".y c #161616",
+".L c #181818",
+".d c #191919",
+".H c #1b1b1b",
+".J c #1c1c1c",
+".3 c #1d1d1d",
+".P c #1e1e1e",
+".O c #202020",
+".c c #222222",
+".e c #252525",
+".Y c #262626",
+".j c #292929",
+".U c #2c2c2c",
+".p c #2e2e2e",
+".9 c #2f2f2f",
+".F c #333333",
+".w c #3c3c3c",
+".D c #3f3f3f",
+".G c #434343",
+".B c #454545",
+".Q c #535353",
+".s c #545454",
+".N c #595959",
+".i c #5d5d5d",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQt.#QtQtQtQtQt.a.b.c.d.e.f.gQtQtQtQtQtQtQt",
+"QtQt.h.#QtQt.i.j.k.l.m.n.m.o.h.p.qQtQtQtQtQt",
+"QtQt.n.h.r.s.t.n.t.u.vQt.v.w.x.n.y.zQtQtQtQt",
+"QtQt.n.n.n.n.A.BQtQtQtQtQtQt.C.D.E.y.rQtQtQt",
+"QtQt.n.n.n.o.FQtQtQtQtQtQtQtQtQt.G.HQtQtQtQt",
+"QtQt.n.n.n.n.d.IQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQt.n.n.n.n.n.J.IQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQt.K.x.n.n.n.n.LQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.M.E.n.n.n.LQt",
+"QtQtQtQtQt.w.NQtQtQtQtQtQtQtQtQt.O.m.n.n.LQt",
+"QtQtQtQt.g.t.P.QQtQtQtQtQtQtQt.R.A.n.n.n.LQt",
+"QtQtQtQtQt.S.t.T.U.V.WQt.#.X.Y.Z.0.1.2.n.LQt",
+"QtQtQtQtQtQt.X.3.l.x.4.y.4.5.m.c.6QtQt.7.LQt",
+"QtQtQtQtQtQtQtQt.8.9#..n.T###aQtQtQtQtQt.IQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
 
 class MainWindow(QMainWindow):
@@ -7140,6 +7382,9 @@ class MainWindow(QMainWindow):
         self.image104 = QPixmap(image104_data)
         self.image105 = QPixmap(image105_data)
         self.image106 = QPixmap(image106_data)
+        self.image107 = QPixmap(image107_data)
+        self.image108 = QPixmap(image108_data)
+        self.image109 = QPixmap(image109_data)
 
         if not name:
             self.setName("MainWindow")
@@ -7478,6 +7723,12 @@ class MainWindow(QMainWindow):
         self.fileOpenMovieAction.setIconSet(QIconSet(self.image1))
         self.movieInfoAction = QAction(self,"movieInfoAction")
         self.movieInfoAction.setIconSet(QIconSet(self.image106))
+        self.zoomWindowAction = QAction(self,"zoomWindowAction")
+        self.zoomWindowAction.setIconSet(QIconSet(self.image107))
+        self.panWindowAction = QAction(self,"panWindowAction")
+        self.panWindowAction.setIconSet(QIconSet(self.image108))
+        self.rotateWindowAction = QAction(self,"rotateWindowAction")
+        self.rotateWindowAction.setIconSet(QIconSet(self.image109))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7496,10 +7747,11 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(260,0,318,29))
+        self.viewToolbar.setGeometry(QRect(260,0,347,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
+        self.zoomWindowAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewOrthoAction.addTo(self.viewToolbar)
         self.setViewPerspecAction.addTo(self.viewToolbar)
@@ -7512,7 +7764,7 @@ class MainWindow(QMainWindow):
         self.setViewRightAction.addTo(self.viewToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(578,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(607,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7764,7 +8016,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1138).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1141).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7890,6 +8142,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
+        self.connect(self.zoomWindowAction,SIGNAL("activated()"),self.zoomWindow)
 
 
     def languageChange(self):
@@ -8252,6 +8505,12 @@ class MainWindow(QMainWindow):
         self.fileOpenMovieAction.setMenuText(self.__tr("Open Movie File"))
         self.movieInfoAction.setText(self.__tr("Movie Information"))
         self.movieInfoAction.setMenuText(self.__tr("Movie Information"))
+        self.zoomWindowAction.setText(self.__tr("Zoom Window"))
+        self.zoomWindowAction.setMenuText(self.__tr("Zoom Window"))
+        self.panWindowAction.setText(self.__tr("Action"))
+        self.panWindowAction.setMenuText(self.__tr("Action"))
+        self.rotateWindowAction.setText(self.__tr("Action"))
+        self.rotateWindowAction.setMenuText(self.__tr("Action"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8686,6 +8945,9 @@ class MainWindow(QMainWindow):
 
     def movieInfo(self):
         print "MainWindow.movieInfo(): Not implemented yet"
+
+    def zoomWindow(self):
+        print "MainWindow.zoomWindow(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
