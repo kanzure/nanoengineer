@@ -696,13 +696,14 @@ class TreeView(QListView):
     def update_open_selected_in_itemtree(self, item, do_setOpen = True, do_invisible_nodes = True):
         ###@@@ change to also update text, icon? anything but structure... rename??
         ###@@@ this implem is temporary and wrong:
-        self.update_items_from_nodes_open_selected(self, item.object, do_setOpen = do_setOpen, do_invisible_nodes = do_invisible_nodes)
+        self.update_items_from_nodes_open_selected(item.object, do_setOpen = do_setOpen, do_invisible_nodes = do_invisible_nodes)
         
-    def update_items_from_nodes_open_selected(self, node, do_setOpen = True, do_invisible_nodes = True):
+    def update_items_from_nodes_open_selected(self, node, _guard_ = None, do_setOpen = True, do_invisible_nodes = True):
         # bruce 050110 temporary; deprecated, only call from above method and not for long! ###@@@
         """set the properties in the model tree widget to match
         those in the tree datastructure #redoc
         """
+        assert _guard_ == None # this makes sure we don't supply too many positional arguments!
         # bruce 050110 made this from the old Node.setProp and Group.setProp methods,
         # deprecated now (removed asap).
         # this will pull them into this file;
