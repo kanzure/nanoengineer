@@ -270,7 +270,7 @@ def _readmmp(assy, filename, isInsert = False):
         assy.filename = filename
     mol = None # the current molecule being built, if any [bruce comment 050228]
     ndix = {}
-    assy.alist = [] # bruce 050322 comment: this should be removed soon ####@@@@
+##    assy.alist = [] # bruce 050325 removed this
     AddAtoms = True
     #assy.tree = Group("Root", assy, None)
     groupstack = [] #stack to store (group, name) tuples
@@ -332,8 +332,8 @@ def _readmmp(assy, filename, isInsert = False):
                 try: a.setDisplay(dispNames.index(disp.group(1)))
                 except ValueError: pass
                     
-            if AddAtoms: 
-                assy.alist += [a]
+##            if AddAtoms: 
+##                assy.alist += [a]
             
             ndix[n]=a
             prevatom=a
@@ -720,11 +720,13 @@ def insertmmp(assy, filename): #bruce 050302 using some subrs split from readmmp
         assy.tree.addmember(grouplist[1])
     return
 
-def workaround_for_bug_296(assy):
-    """If needed, move jigs in assy.tree to later positions
+def workaround_for_bug_296(assy, onepart = None):
+    """If needed, move jigs in assy.tree and each assy.shelf member to later positions
     (and emit appropriate messages about this),
     since current mmp file format requires jigs to come after
     all chunks whose atoms they connect to.
+    If onepart is provided, then do this only for the node (if any)
+    whose part is onepart.
     """
     # bruce 050111 temp fix for bug 296 (maybe enough for Alpha)
     # bruce 050202 adds:
@@ -732,20 +734,39 @@ def workaround_for_bug_296(assy):
     # but decided not to commit it for Alpha. It's in a diff -c, mailed to cad
     # for inclusion as a bug296 comment, for testing and use after Alpha.
     # It might as well be put in as soon as anyone has time, after Alpha goes out.
+    # bruce 050325: I finally put that in, and then further modified this code,
+    # e.g. adding onepart option.
     def errfunc(msg):
         "local function for error message output"
         assy.w.history.message( redmsg( msg))
     try:
         from node_indices import move_jigs_if_needed
-        count = move_jigs_if_needed(assy.tree, errfunc) # (this does the work)
+        count = 0
+        if onepart == assy.tree.part or not onepart:
+            count = move_jigs_if_needed(assy.tree, errfunc) # (this does the work)
+        shelf_extra = ""
+        try:
+            #bruce 050202 extension to fix it in shelf too [not committed until 050325]
+            count2 = 0
+            for m in assy.shelf.members:
+                count1 = 0
+                if onepart == m.part or not onepart:
+                    count1 = move_jigs_if_needed(m, errfunc)
+                count += count1 # important to count these now in case of exception in next loop iteration
+                count2 += count1
+            if count2:
+                shelf_extra = "of which %d were in clipboard, " % count2
+        except:
+            print_compact_traceback("bug in workaround_for_bug_296 for some shelf item: ")
+            shelf_extra = ""
         if count:
             from platform import fix_plurals
             movedwhat = fix_plurals( "%d jig(s)" % count)
-            warning = "Warning: moved %s within model tree, " \
-              "to work around limitation in Alpha mmp file format" % movedwhat
+            warning = "Warning: moved %s within model tree, %s" \
+              "to work around limitation in Alpha mmp file format" % (movedwhat, shelf_extra)
             assy.w.history.message( redmsg( warning))
     except:
-        print_compact_traceback("bug in bug-296 bugfix in fileIO.writemmp: ")
+        print_compact_traceback("bug in bug-296 bugfix in fileIO.writemmpfile_assy or _part: ")
     return
 
 class writemmp_mapping: #bruce 050322, to help with minimize selection and other things
@@ -763,8 +784,8 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.assy = assy
         self.atnums = atnums = {}
         atnums['NUM'] = 0 # kluge from old code, kept for now
-            #e soon, change atnums to store strings, and keep 'NUM' as separate instvar
-        self.alist = [] # might be removed later; used only as an initial compatibility kluge (grabbed by client code)
+            #e soon change atnums to store strings, and keep 'NUM' as separate instvar
+##        self.alist = [] # might be removed later; used only as an initial compatibility kluge (grabbed by client code)
         self.options = options
         self.sim = options.get('sim', False) # simpler file just for the simulator?
         self.min = options.get('min', False) # even more simple, just for minimize?
@@ -812,11 +833,11 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         """
         # code moved here from old atom.writemmp in chem.py
         atnums = self.atnums
-        alist = self.alist
+##        alist = self.alist
         assert atom.key not in atnums # new assertion, bruce 030522
         atnums['NUM'] += 1 # old kluge, to be removed
         num = atnums['NUM']
-        alist.append(atom) #k needed??
+##        alist.append(atom) #k needed??
         atnums[atom.key] = num
         assert str(num) == self.encode_atom(atom)
         return str(num)
@@ -847,21 +868,34 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         return disp
     pass # end of class writemmp_mapping
 
-# write all molecules, motors, grounds into an MMP file
-# bruce 050322 revised to use mapping;
-# soon should remove its set of assy.alist, but didn't yet.
-def writemmp(assy, filename, addshelf = True):
+# bruce 050322 revised to use mapping; 050325 split, removed assy.alist set
+def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with writemmpfile_part
+    """Write everything in this assy (chunks, jigs, Groups,
+    for both tree and shelf unless addshelf = False)
+    into a new MMP file of the given filename.
+    Should be called via the assy method writemmpfile.
+    """
+    #bruce 050325 renamed this from writemmp
+    # to avoid confusion with Node.writemmp.
+    # Also, there's now an assy method which calls it ###@@@doit
+    # and a sister function for Parts which has a Part method.
+
+    assy.update_parts() #bruce 050325 precaution
     
-    workaround_for_bug_296( assy)
+    if addshelf:
+        workaround_for_bug_296( assy)
+    else:
+        workaround_for_bug_296( assy, onepart == assy.tree.part)
     
     ##Huaicai 1/27/05, save the last view before mmp 
     ## file saving
-    assy.o.saveLastView(assy)  
+    assy.o.saveLastView(assy)
     
     fp = open(filename, "w")
 
     mapping = writemmp_mapping(assy) ###e should pass sim or min options when used that way...
-    assy.alist = mapping.alist # initial compatibility kluge (preserve same bugs as before) ####@@@@
+    ## assy.alist = mapping.alist # (empty list which will grow during writemmp methods)
+    ##    # initial compatibility kluge (preserve same bugs as before)
     mapping.set_fp(fp)
 
     try:
@@ -880,18 +914,46 @@ def writemmp(assy, filename, addshelf = True):
         raise
     else:
         mapping.close()
-    return
+    return # from writemmpfile_assy
+
+def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
+    "write an mmp file for a single Part"
+    node = part.topnode
+    assert part == node.part
+    part.assy.update_parts() #bruce 050325 precaution
+    if part != node.part and platform.atom_debug:
+        print "atom_debug: bug?: part changed during writemmpfile_part, using new one"
+    part = node.part
+    assy = part.assy
+    #e assert node is tree or shelf member? is there a method for that already? is_topnode?
+    workaround_for_bug_296( assy, onepart = part)
+    assy.o.saveLastView(assy)
+    fp = open(filename, "w")
+    mapping = writemmp_mapping(assy)
+    mapping.set_fp(fp)
+    try:
+        mapping.write_header() ###e header should differ in this case
+        ##e header or end comment or both should say which Part we wrote
+        node.writemmp(mapping)
+        mapping.write("end molecular machine part " + assy.name + "\n")
+    except:
+        mapping.close(error = True)
+        raise
+    else:
+        mapping.close()
+    return # from writemmpfile_part
 
 def povpoint(p):
     # note z reversal -- povray is left-handed
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
         
 # Create a POV-Ray file
-def writepov(assy, filename):
+def writepovfile(assy, filename):
     f = open(filename,"w")
-    atnums = {}
-    atnums['NUM'] = 0
-    assy.alist = []
+    ## bruce 050325 removed this (no effect except on assy.alist which is bad now)
+    ## atnums = {}
+    ## atnums['NUM'] = 0
+    ## assy.alist = [] 
 
     cdist = 6.0 ###5.0 # Camera distance
     aspect = (assy.o.width + 0.0)/(assy.o.height + 0.0)
@@ -949,8 +1011,8 @@ def writepov(assy, filename):
     
 
 # Create an MDL file - by Chris Phoenix and Mark for John Burch [04-12-03]
-def writemdl(assy, filename):
-    assy.alist = []
+def writemdlfile(assy, filename):
+    alist = [] #bruce 050325 changed assy.alist to localvar alist
     natoms = 0
     # Specular values keyed by atom color 
     # Only Carbon, Hydrogen and Silicon supported here
@@ -976,7 +1038,7 @@ def writemdl(assy, filename):
     
     # Write atoms with spline coordinates
     f.write("Splines=%d\n"%(13*natoms))
-    assy.tree.writemdl(assy.alist, f, assy.o.display)
+    assy.tree.writemdl(alist, f, assy.o.display)
     
     # Write the GROUP information
     # Currently, each atom is 

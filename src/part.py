@@ -110,33 +110,15 @@ class Part(InvalMixin):
         # e.g. molecules, bbox, center, drawLevel
 
         # not here: alist, selatoms, selmols - they're all done by a _recompute_xxx
-        
-        ## moved from assy init, not yet edited for here; some of these will be inval/update vars ###@@@
-##        # list of chem.molecule's
-##        self.molecules=[]
-        # list of the atoms, only valid just after read or write
-        #####@@@@@ wrong, just for testing: let alist be seen in assy:
-        ## self.alist = [] #None
-        
-##        # to be shrunk, see addmol
-##        self.bbox = BBox()
-##        self.center = V(0,0,0)
-
-##        # dictionary of selected atoms (indexed by atom.key)
-##        self.selatoms={}
-##        # list of selected molecules
-##        self.selmols=[]
-##        # level of detail to draw
-##        self.drawLevel = 2
-        
+                
         # movie ID, for future use. [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]
         ## self.movieID=0
         # ppa = previous picked atoms. ###@@@ not sure per-part; should reset when change mode or part
         self.ppa2 = self.ppa3 = None
         
         ### Some information needed for the simulation or coming from mmp file
-        self.temperature = 300
-        self.waals = None
+        ## self.temperature = 300 # for now this is an attr of assy
+        ## self.waals = None ## bruce 050325 removed since nowhere used
 
         if platform.atom_debug:
             print "atom_debug: fyi: created Part:", self
@@ -150,6 +132,12 @@ class Part(InvalMixin):
         except:
             topnodename = "<topnode??>"
         return "<%s %#x %s (%d nodes)>" % (classname, id(self), topnodename, self.nodecount)
+
+    # == updaters (###e refile??)
+
+    def gl_update(self):
+        "update whatever glpane is showing this part (more than one, if necessary)"
+        self.assy.o.gl_update()
     
     # == membership maintenance
 
@@ -277,7 +265,7 @@ class Part(InvalMixin):
         # use a set_selwhat method if we need one, but for now we just assign
         # directly to self.assy.selwhat.
     assy_attrs_temporary = ['changed'] # tolerable, but might be better to track per-part changes, esp. re movies #####@@@@@
-    assy_attrs_review = ['shelf']
+    assy_attrs_review = ['shelf', 'current_movie']
         #e in future, we'll split out our own methods for some of these, incl .changed
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat).
     assy_attrs_all = assy_attrs + assy_attrs_temporary + assy_attrs_review
@@ -293,26 +281,9 @@ class Part(InvalMixin):
 
     # == attributes which should be invalidated and recomputed as needed (both inval and recompute methods follow)
 
-##    #bruce 050202 for Alpha: help fix things up after a DND move in/out of assy.tree. ###@@@ revise docstring for self being a Part
-##    def update_mols(self):
-##        """[Semi-private method]
-##        Caller is telling us that it might have moved molecules
-##        into or out of assy.tree (assy == self)
-##        without properly updating assy.molecules list (which causes lots of bugs if not fixed),
-##        or (less important but still matters) our bbox, center, or drawLevel.
-##           Rather than not tolerating such callers (for Alpha),
-##        just thank them for the info and take the time now to fix things up
-##        by rescanning assy.tree and remaking assy.molecules (etc) from scratch.
-##           See also sanitize_for_clipboard, related but sort of an inverse,
-##        perhaps not needed as much if this is called enough.
-##           Note: neither this method nor sanitize_for_clipboard (which do need to be merged,
-##        see also changed_dad which needs to help them know how much needs doing and/or help do it)
-##        yet does enough. E.g. see bug 371 about bonds between main model and clipboard items.
-##        """
-##        self.invalidate_attr('molecules') # note: this also invals bbox, center, drawLevel
-
     _inputs_for_molecules = [] # only invalidated directly #####@@@@@ need to do it in any other places too?
     def _recompute_molecules(self):
+        "recompute self.molecules as a list of this part's chunks, IN ARBITRARY AND NONDETERMINISTIC ORDER."
         self.molecules = 333 # not a sequence - detect bug of touching or using this during this method
         seen = {} # values will be new list of mols
         def func(n):
@@ -329,14 +300,22 @@ class Part(InvalMixin):
             # warning: not in the same order as they are in the tree!
             # even if it was, it might elsewhere be incrementally updated.
         return
-    
-    ###### what called this? it had a diff name...
-    def update_content_summaries(): #bruce 050228 split this from other methods #####@@@@@ wrong, change each method to inval, use _get
-        "[private method] recompute bbox and drawLevel attributes"
-        assert 0 # not needed i hope
-        self.setDrawLevel()
-        self.computeBoundingBox()
-        return
+
+    def nodes_in_mmpfile_order(self, nodeclass = None): #bruce 050325 to help with movie writing; might not be needed
+        """Return a list of leaf nodes in this part (only of the given class, if provided)
+        in the same order as they appear in its nodetree (depth first),
+        which should be the same order they'd be written into an mmp file,
+        unless something reorders them first (as happens for certain jigs
+        in workaround_for_bug_296, as of 050325).
+        See also _recompute_alist.
+        """
+        res = []
+        def func(n):
+            if not nodeclass or isinstance(n, nodeclass):
+                res.append(n)
+            return # from func only
+        self.topnode.apply2all( func)
+        return res
 
     _inputs_for_natoms = ['molecules']
     def _recompute_natoms(self):
@@ -376,9 +355,10 @@ class Part(InvalMixin):
 
     _inputs_for_alist = [] # only invalidated directly. Not sure if we'll inval this whenever we should, or before uses. #####@@@@@
     def _recompute_alist(self):
-        """Return a list of all atoms in this Part, in the same order in which they
+        """Recompute self.alist, a list of all atoms in this Part, in the same order in which they
         were read from, or would be written to, an mmp file --
         namely, tree order for chunks, atom.key order within chunks.
+        See also nodes_in_mmpfile_order.
         """
         #bruce 050228 changed chunk.writemmp to make this possible,
         # by writing atoms in order of atom.key,
@@ -532,115 +512,6 @@ class Part(InvalMixin):
         glEnable(GL_LIGHTING)
         return
     
-    # == movie support code
-    
-    def savebasepos(self):
-        """Copy current atom positions into an array.
-        """
-        # save a copy of each chunk's basepos array 
-        # (in the chunk itself, why not -- it's the most convenient place)
-        for m in self.molecules:
-            m._savedbasepos = + m.basepos
-            
-    def restorebasepos(self):
-        """Restore atom positions copied earlier by savebasepos().
-        """
-        # restore that later (without erasing it, so no need to save it 
-        # again right now)
-        # (only valid when every molecule is "frozen", i.e. basepos and 
-        # curpos are same object):
-        for m in self.molecules:
-            #bruce 050210 fixing "movie reset" bug reported by Josh for Alpha-2
-            assert m.basepos is m.curpos
-            m.basepos = m.curpos = m.atpos = + m._savedbasepos
-            m.changed_attr('atpos', skip = ('basepos',) )
-
-        for b in self.blist.itervalues():
-            b.setup_invalidate()
-            
-        for m in self.molecules:
-            m.changeapp(0)
-
-    def deletebasepos(self):
-        """Erase the savedbasepos array.  It takes a lot of room.
-        """
-#        if not self.molecules._savedbasepos:
-#            print "assembly.deletebasepos(): NO _SAVEBASEPOS TO DELETE."
-#            return
-            
-        for m in self.molecules:
-            del m._savedbasepos
-            
-    # set up to run a movie or minimization
-    def movsetup(self):
-        for m in self.molecules:
-            m.freeze()
-        self.blist = {}
-        for a in self.alist:
-            for b in a.bonds:
-                self.blist[b.key]=b
-        pass
-
-    # move the atoms one frame as for movie or minimization
-    # .dpb file is in units of 16 pm
-    # units here are angstroms
-    def movatoms(self, file, addpos = True):
-        if not self.alist: return
-        ###e bruce 041104 thinks this should first check whether the
-        # molecules involved have been updated in an incompatible way
-        # (which might change the indices of atoms); otherwise crashes
-        # might occur. It might be even worse if a shakedown would run
-        # during this replaying! (This is just a guess; I haven't tested
-        # it or fully analyzed all related code, or checked whether
-        # those dangerous mods are somehow blocked during the replay.)
-        for a in self.alist:
-            # (assuming mol still frozen, this will change both basepos and
-            #  curpos since they are the same object; it won't update or
-            #  invalidate other attrs of the mol, however -- ok?? [bruce 041104])
-            if addpos: a.molecule.basepos[a.index] += A(unpack('bbb',file.read(3)))*0.01
-            else: a.molecule.basepos[a.index] -= A(unpack('bbb',file.read(3)))*0.01
-            
-            # Debugging code - Mark 050107
-#            pt =str(A(a.molecule.basepos[a.index]))
-#            msg = "atompos: " + str(a.index) + "," + pt
-#            self.w.history.message(msg)
-#            print "assembly.movatoms:",msg
-            
-        for b in self.blist.itervalues():
-            b.setup_invalidate()
-            
-        for m in self.molecules:
-            m.changeapp(0)
-
-    # regularize the atoms' new positions after the motion
-    def movend(self):
-        # terrible hack for singlets in simulator, which treats them as H
-        for a in self.alist:
-            if a.element==Singlet: a.snuggle()
-        for m in self.molecules:
-            m.unfreeze()
-        self.o.gl_update()
-
-
-    def moveAtoms(self, newPositions):
-        """Huaicai 1/20/05: Move a list of atoms to newPosition. After 
-            all atoms moving, bond updated, update display once.
-           <parameter>newPosition is a list of atom absolute position, the list order is the same as self.alist """
-           
-        if len(newPositions) != len(self.alist): #bruce 050225 added some parameters to this error message
-            print "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
-                  (len(newPositions), len(self.alist))
-            return
-        for a, newPos in zip(self.alist, newPositions):
-                a.setposn(A(newPos))
-        self.o.gl_update()                
-
-    #####@@@@@ as of 050225 1109pm we get (end of minimize):
-    # The number of atoms from XYZ file (18) is not matching with that of the current model (0)
-    # guess: the file writer puts the alist into the assy not here into the part. (and writes from the assy too, regardless of cur part)
-
-    #####@@@@@ end "newly pulled in 050225"
-
     # functions from the "Select" menu
     # [these are called to change the set of selected things in this part,
     #  when it's the current part; these are event handlers which should
@@ -914,66 +785,7 @@ class Part(InvalMixin):
     def prin(self):
         for a in self.selatoms.itervalues():
             a.prin()
-            
-##    #bruce 050131/050201 for Alpha (really for bug 278 and maybe related ones):
-##    # sanitize_for_clipboard, for cut and copy and other things that add clipboard items
-##    # ####@@@@ need to use in sethotspot too??
-##
-##    #####@@@@@ fate of sanitize_for_clipboard, for assy/part split: [see notes]
-##    
-##    def sanitize_for_clipboard(self, ob): 
-##        """Prepare ob for addition to the clipboard as a new toplevel item;
-##        should be called just before adding ob to shelf, OR for entire toplevel items already in shelf
-##        (or both; should be ok, though slower, to call more than once per item).
-##        NOT SURE IF OK to call when ob still has a dad in its old location.
-##        (Nor if it ever is thus called, tho i doubt it.)
-##        """
-##        self.sanitize_for_clipboard_0( ob) # recursive version handles per-chunk, per-group issues
-##        #e now do things for the shelf-item as a whole, if any, e.g. fix bug 371 about interspace bonds
-##        #e 050202: someday, should we do a version of the jig-moving workaround_for_bug_296?
-##        # that function itself is not reviewed for safety when called from here,
-##        # but it might be ok, tho better to consolidate its messages into one
-##        # (as in the "extension of that fix to the clipboard" it now comments about).
-##        if 0 and platform.atom_debug: #bruce 050215 this is indeed None for mols copied by mol.copy
-##            print "atom_debug: fyi: sanitize_for_clipboard sees selgroup of ob is %r" % ob.find_selection_group()
-##            ###e if this is None, then I'll have an easy way to break bonds from this item to stuff in the main model (bug 371)
-##            #e i.e. break_wormholes() or break_interspace_bonds()
-##        return
-##    
-##    def sanitize_for_clipboard_0(self, ob): #bruce 050131 for Alpha (really for bug 278 and maybe related ones)
-##        """[private method:]
-##        The recursive part of sanitize_for_clipboard:
-##        keep clipboard items (or chunks inside them) out of assy.molecules,
-##        so they can't be selected from glpane
-##        """
-##        #e should we do ob.unpick_top() as well?
-##        if ob.assy != self: #bruce 050202, and replaced ob.assy.molecules with self.molecules
-##            ob.assy = self # for now! in beta this might be its selgroup.
-##            if platform.atom_debug:
-##                print "sanitize_for_clipboard_0: node had wrong assy! fixed it:", ob
-##                print "btw self is",self
-##        if isinstance(ob, molecule):
-##            if self.selatoms:
-##                # bruce 050201 for Alpha: worry about selected atoms in chunks in clipboard
-##                # [no bugs yet reported on this, but maybe it could happen #k]
-##                #e someday ought to print atom_debug warning if this matters, to find out...
-##                try:
-##                    for atm in ob.atoms.values():
-##                        atm.unpick()
-##                except:
-##                    print_compact_traceback("sanitize_for_clipboard_0 ignoring error unpicking atoms: ")
-##                    pass
-##            try:
-##                self.molecules.remove(ob)
-##                # note: don't center the molecule here -- that's only appropriate
-##                # for each toplevel cut object as a whole!
-##            except:
-##                pass
-##        elif isinstance(ob, Group): # or any subclass! e.g. the Clipboard itself (deprecated to call this on that tho).
-##            for m in ob.members:
-##                self.sanitize_for_clipboard_0(m)
-##        return
-
+    
     # == #####@@@@@ cut/copy/paste/kill will all be revised to handle bonds better (copy or break them as appropriate)
     # incl jig-atom connections too
     
@@ -1165,10 +977,6 @@ class Part(InvalMixin):
         if self.immortal():
             self.topnode.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
         self.topnode.apply2picked(lambda o: o.kill())
-## no longer needed after assy/Part split:
-##        # Also kill anything picked in the clipboard
-##        # [revised by bruce 050131 for Alpha, see cvs rev 1.117 for historical comments]
-##        self.shelf.apply2picked(lambda o: o.kill()) # kill by Mark(?), 11/04
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
         return
 
@@ -1589,6 +1397,12 @@ class Part(InvalMixin):
         if n: self.changed()
         return n
 
+    ###e refile these new methods:
+
+    def writemmpfile(self, filename):
+        from fileIO import writemmpfile_part
+        writemmpfile_part( self, filename)
+    
     # end of class Part
 
 # subclasses of Part
@@ -1600,7 +1414,6 @@ class MainPart(Part):
     def movie_suffix(self):
         "what suffix should we use in movie filenames? None means don't permit making them."
         return ""
-    assy_attrs_all = ['current_movie'] + Part.assy_attrs_all #####@@@@@ temporary kluge, i hope [050316]
     pass
 
 class ClipboardItemPart(Part):
@@ -1608,10 +1421,18 @@ class ClipboardItemPart(Part):
         #e abbreviate long names...
         return "%s (%s)" % (self.topnode.name, self.location_name())
     def location_name(self):
-        return "clipboard item %d" % ( self.assy.shelf.members.index(self.topnode) + 1, )
+        return "clipboard item %d" % ( self.clipboard_item_number(), )
+    def clipboard_item_number(self):
+        "this can be different every time..."
+        return self.assy.shelf.members.index(self.topnode) + 1
     def movie_suffix(self):
         "what suffix should we use in movie filenames? None means don't permit making them."
-        return None
+        ###e stub -- not a good choice, since it changes and thus is reused...
+        # it might be better to assign serial numbers to each newly made Part that needs one for this purpose...
+        # actually I should store part numbers in the file, and assign new ones as 1 + max of existing ones in shelf.
+        # then use them in dflt topnode name and in glpane text (unless redundant) and in this movie suffix.
+        # but this stub will work for now. Would it be better to just return ""? Not sure. Probably not.
+        return "-%d" % ( self.clipboard_item_number(), )
     pass
 
 # ==

@@ -97,15 +97,9 @@ from part import Part # this must come after the SELWHAT constants! #e move them
 
 
 class assembly:
-
-    # default values of instance variables
-    ## .part is now computed by __getattr__
-##    part = None # the current Part, or None
-    
-    def __init__(self, win, name = None):
-
-##        self.parts = {} # a dict from node ids to Parts
-        
+    """#doc
+    """
+    def __init__(self, win, name = None):        
         # ignore changes to this assembly during __init__;
         # this will be set back to 0 at the end of __init__:
         self._modified = 1 
@@ -155,30 +149,41 @@ class assembly:
         # [bruce 050308 change: new code should use SELWHAT_ATOMS and SELWHAT_CHUNKS
         #  instead of hardcoded constants, and never do boolean tests of selwhat]
         self.selwhat = SELWHAT_CHUNKS
-
-        ####@@@@ set up the Parts
         
         #bruce 050131 for Alpha:
         from Utility import kluge_patch_assy_toplevel_groups
         kluge_patch_assy_toplevel_groups( self)
         self.update_parts() #bruce 050309 for assy/part split
-##        self.fix_parts() #bruce 050302 for assy/part split
-
-##        #####@@@@@ make a part, just for testing:
-##        self.part = Part(self)
 
         # 1 if there is a structural difference between assy and file
         self._modified = 0 # note: this was set to 1 at start of __init__
         
         # the current version of the MMP file format
-        # this is set in fileIO.writemmp. Mark 050130
+        # this is set in fileIO.writemmpfile_assy. Mark 050130
+        # [bruce 050325 comments: the code that sets it might be moved or renamed now;
+        #  it's not clear to me what this means
+        #  (eg if you read an old file does this indicate that old file's format?)
+        #  or why it needs to be set here at all.]
         self.mmpformat = ''
 
-        ###@@@ this belongs in Part, most likely, but the menu item maker in movieMode needs it here for now...
-        # the Movie object.
-        # [bruce 050324 extensively revising movie code for assy/part split and to permit multiple movies]
-        ## self.m = Movie(self)
-        self.current_movie = Movie(self) #######@@@@@@@ should be None, with new ones to be made as needed
+        self.temperature = 300 # bruce 050325 have to put this back here for now
+
+        # bruce 050325 revising Movie code for assy/part split and other reasons.
+        # Now it works like this: there can be several active Movie objects,
+        # but if one is playing or is the one to be played by default (e.g. the last one made),
+        # then it's stored here in assy.current_movie; otherwise that's None. However, unlike before,
+        # each movie object knows the alist which is correct for it (or, thinks it knows,
+        #  since with old .dpb format it could easily be wrong unless we made it in this session),
+        # and in principle old movies can be replayed (but only in the same session)
+        # as long as their alist atoms still exist,
+        # even if they've been reordered or new ones made, etc
+        # (though we might enforce their being all in one Part, and later, add more conditions).
+        # For movies made in prior sessions (actually it's worse -- made from prior opened files),
+        # we still depend on our guess that the atom order is the same as in the current Part
+        # when the moviefile is loaded, checked only by number of atoms. When we have new .dpb format
+        # we can improve that.
+        self.current_movie = None
+            # before 050325 this was called self.m and was always the same Movie object (per assy)
 
         return # from assembly.__init__
 
@@ -202,48 +207,6 @@ class assembly:
     
     # == Parts
     
-##    def fix_parts(self): #####@@@@@ still needs: answer docstring Qs; implem Part.destroy()
-##        #bruce 050302... this is pretty confused, and probably fundamentally wrongheaded. Even when to call it is unclear.
-##        """[private]
-##        After init or after a file is read (which replaces self.tree and self.shelf with new Groups),
-##        and after the caller has given those toplevel Groups the right subclasses
-##        (using kluge_patch_assy_toplevel_groups, or the equivalent),
-##        fix up the node -> Part mapping, and destroy any no-longer-used Parts.
-##            Also, if some new clipboard items have been created, make new Parts for each one.
-##        [Not clear whether, in that case, we'll also break interspace bonds.
-##        Not clear whether this func (or some code from it) gets involved when
-##        nodes are moved or copied between Parts.]
-##        """
-##        oldparts = self.parts # a dict from node-ids to Parts
-##        self.parts = newparts = {}
-##        for node in [self.tree] + self.shelf.members:
-##            # for each node which should have its own Part, use old part or make a new one #####@@@@@ use correct Part subclass
-##            #####@@@@@ ###e is it right to key them on node, not on position in this assy? what about movie filename persistence?
-##            # The answer might be different for main part vs others. Guess: main Part should change only when filename does....
-##            key = node_id(node)
-##            try:
-##                part = oldparts.pop(key)
-##            except KeyError:
-##                from part import MainPart, ClipboardItemPart
-##                partclass = (node == self.tree) and MainPart or ClipboardItemPart
-##                part = partclass(self, node)
-##            assert part
-##            assert isinstance(part, Part)
-##            newparts[key] = part
-##        for oldpart in oldparts.values():
-##            oldpart.destroy() ###e is this ok? someday worry about whether some other assy might use it, or whatever...
-##                #####@@@@@ also - is it supposed to destroy the nodes in that part, too? in theory this is bad... removing cycles might be good...
-##                # what we need to destroy is the topnodes... if we can tell nodes have no dad, we might want to remove...
-##                # one problem is that assy.data, tree, shelf are trashed (in fileIO), maybe need destroying instead.
-##                # Not only that -- maybe those need to turn into official "part slots" or so! ie slots for nodes which make
-##                # a Part for whatever topnode they hold, making a new one when that node is reset.
-##                # To think about this, think about what kind of node clipboard is, when dropped on....
-##                # alternatively: maybe every node *either* gets fed a part to be in from its dad, *or* has to make its own.
-##                # we continuously update this, but when it's wrong, store the node in that move-tracker object i started writing...
-##                # then at the end, fix all those objects. Maybe this helps with assy init and file read, too. and insertmmp.
-##                # [050302 eve comment]
-##        return
-
     def update_parts(self):
         """For every node in this assy, make sure it's in the correct Part,
         creating new parts if necessary. [See also checkparts method.] 
@@ -448,6 +411,9 @@ class assembly:
         # now the Part situation should be ok, no need for assy.update_parts
         return
 
+    def set_current_part(self, part):
+        self.set_current_selgroup( part.topnode)
+    
     def set_current_selgroup(self, node): #bruce 050131 for Alpha; heavily revised 050315; might need options wrt history msg, etc
         "Set our current selection group to node, which should be a valid one. [public method; no retval]"
         assert node
@@ -525,9 +491,6 @@ class assembly:
 
         return # from current_selgroup_changed
 
-##    def is_nonstd_selection_group(self, node):
-##        return node and node != self.tree
-
     # == general attribute code
     
     # attrnames to delegate to the current part
@@ -543,7 +506,9 @@ class assembly:
 ##        print "dir(Part) = ",dir(Part)
     #####@@@@@ for both of the following:
     part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
-    part_attrs_review = ['alist','ppa2','ppa3','temperature','waals','data','homeCsys','lastCsys','xy','yz','zx']
+    part_attrs_review = ['ppa2','ppa3','data','homeCsys','lastCsys','xy','yz','zx']
+        ###@@@ bruce 050325 removed 'alist', now all legit uses of that are directly on Part or Movie
+        ### similarly removed 'temperature' (now on assy like it was),'waals' (never used)
         #e in future, we'll split out our own methods for some of these, incl .changed
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat)
     part_attrs_all = part_attrs + part_attrs_temporary + part_attrs_review
@@ -552,31 +517,25 @@ class assembly:
         if attr.startswith('_'): # common case, be fast
             raise AttributeError, attr
         elif attr == 'part':
-##            try:
-                sg = self.current_selgroup() # this fixes it if possible; should always be a node but maybe with no Part during init
-                ## return self.parts[node_id(sg)]
-                if 1:
-                    # open all containing nodes below assy.root (i.e. the clipboard, if we're a clipboard item)
-                    containing_node = sg.dad
-                    while containing_node and containing_node != self.root:
-                        containing_node.open = True
-                        containing_node = containing_node.dad
-                part = self.selgroup_part(sg)
-                if not part:
-                    #e [this IS REDUNDANT with debug prints inside selgroup_part] [which for debugging are now asserts #####@@@@@]
-                    # no point in trying to fix it -- if that was possible, current_selgroup() did it.
-                    # if it has no bugs, the only problem it couldn't fix would be assy.tree.part being None.
-                    # (which might happen during init, and trying to make a part for it might infrecur or otherwise be bad.)
-                    # so if following debug print gets printed, we might extend it to check whether that "good excuse" is the case.
-                    if platform.atom_debug:
-                        print_compact_stack("atom_debug: fyi: assy.part getattr finds selgroup problem: ")
-                    return None
-                return part
-##            except:
-##                # as of 050315 this seems unlikely, and its fallback is also redundant with current_selgroup()'s fallback; remove?? #e
-##                print_compact_traceback("bug: exception getting assy.part; switching to main part (might worsen the bug): ")
-##                self.set_current_selgroup(self.tree)
-##                return self.tree.part
+            sg = self.current_selgroup() # this fixes it if possible; should always be a node but maybe with no Part during init
+            ## return self.parts[node_id(sg)]
+            if 1:
+                # open all containing nodes below assy.root (i.e. the clipboard, if we're a clipboard item)
+                containing_node = sg.dad
+                while containing_node and containing_node != self.root:
+                    containing_node.open = True
+                    containing_node = containing_node.dad
+            part = self.selgroup_part(sg)
+            if not part:
+                #e [this IS REDUNDANT with debug prints inside selgroup_part] [which for debugging are now asserts #####@@@@@]
+                # no point in trying to fix it -- if that was possible, current_selgroup() did it.
+                # if it has no bugs, the only problem it couldn't fix would be assy.tree.part being None.
+                # (which might happen during init, and trying to make a part for it might infrecur or otherwise be bad.)
+                # so if following debug print gets printed, we might extend it to check whether that "good excuse" is the case.
+                if platform.atom_debug:
+                    print_compact_stack("atom_debug: fyi: assy.part getattr finds selgroup problem: ")
+                return None
+            return part
         elif attr in self.part_attrs_all:
             # delegate to self.part
             try:
@@ -665,7 +624,7 @@ class assembly:
 ##            # This will probably not make Alpha.  It is intended to be used in the future
 ##            # as a way to validate movie files.  assy.movieID is handed off to the simulator
 ##            # as an argument (-b) where it writes the number in the movie (.dpb) file header.
-##            # (see writemovie() in fileIO.py.) [writemovie is now in runSim.py, and might be renamed -- bruce 050325]
+##            # (see writemovie() in runSim.py [note: it might be renamed -- bruce 050325])
 ##            # The number is then compared to assy.movieID when the movie file is opened
 ##            # at a later time. This check will be done in movie._checkMovieFile().
 ##            # Mark - 050116
@@ -684,15 +643,6 @@ class assembly:
         """
         self._modified = 0
 
-# bruce 050201: this is not currently used. If confirmed, zap it in a few days.
-##    def selectingWhat(self):
-##        """return 'Atoms' or 'Molecules' to indicate what is currently
-##        being selected [by bruce 040927; might change]
-##        """
-##        # bruce 040927: this seems to be wrong sometimes,
-##        # e.g. when no atoms or molecules exist in the assembly... not sure.
-##        return {0: "Atoms", 2: "Molecules"}[self.selwhat]
-
     # ==
     
     ## bruce 050308 disabling checkpicked for assy/part split; they should be per-part
@@ -701,62 +651,14 @@ class assembly:
         if always_print: print "fyi: checkpicked() is disabled until assy/part split is completed"
         return
     
-##    def checkpicked(self, always_print = 0):
-##        """check whether every atom and molecule has its .picked attribute
-##        set correctly. Fix errors, too. [bruce 040929]
-##        Note that this only checks molecules in assy.tree, not assy.shelf,
-##        since self.molecules only includes those. [bruce 050201 comment]
-##        """
-##        if always_print: print "fyi: checkpicked()..."
-##        self.checkpicked_atoms(always_print = 0)
-##        self.checkpicked_mols(always_print = 0)
-##        # maybe do in order depending on selwhat, right one first?? probably doesn't matter.
-##        #e we ought to call this really often and see when it prints something,
-##        # so we know what causes the selection bugs i keep hitting.
-##        # for now see menu1 in select mode (if i committed my debug hacks in there)
-##        
-##    def checkpicked_mols(self, always_print = 1):
-##        "checkpicked, just for molecules [bruce 040929]"
-##        if always_print: print "fyi: checkpicked_mols()..."
-##        for mol in self.molecules:
-##            wantpicked = (mol in self.selmols)
-##            if mol.picked != wantpicked:
-##                print "mol %r.picked was %r, should be %r (fixing)" % (mol, mol.picked, wantpicked)
-##                mol.picked = wantpicked
-##        return
-##
-##    def checkpicked_atoms(self, always_print = 1):
-##        "checkpicked, just for atoms [bruce 040929]"
-##        if always_print: print "fyi: checkpicked_atoms()..."
-##        lastmol = None
-##        for mol in self.molecules:
-##            for atom in mol.atoms.values(): ##k
-##                wantpicked = (atom.key in self.selatoms) ##k
-##                if atom.picked != wantpicked:
-##                    if mol != lastmol:
-##                        lastmol = mol
-##                        print "in mol %r:" % mol
-##                    print "atom %r.picked was %r, should be %r (fixing)" % (atom, atom.picked, wantpicked)
-##                    atom.picked = wantpicked
-##        return
-
-    #####@@@@@ newly made up 050225
-    
-##    def update_mols(self):
-##        "call update_mols on all our parts"
-##        #####@@@@@stub
-##        for part in self.parts.values():
-##            part.update_mols()
-##        return
-
     # ==
-
-##    def unselect_clipboard_items(self): #bruce 050131 for Alpha
-##        "to be called before operations which are likely to fail when any clipboard items are selected"
-##        self.set_current_selgroup( self.tree)
 
     def __str__(self):
         return "<Assembly of " + self.filename + ">"
+
+    def writemmpfile(self, filename):
+        from fileIO import writemmpfile_assy
+        writemmpfile_assy( self, filename, addshelf = True)
 
     pass # end of class assembly
 

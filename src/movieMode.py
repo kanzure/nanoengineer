@@ -80,10 +80,15 @@ class movieMode(basicMode):
     def makeMenus(self):
         self.Menu_spec = [
             ('Cancel', self.Cancel),
-            ('Reset Movie', self.o.assy.current_movie._reset), ###@@@ fix this when .current_movie. can change
+            ('Reset Movie', self.ResetMovie),
+            
             ('Done', self.Done)
          ]
-                
+
+    def ResetMovie(self): #bruce 050325
+        if self.o.assy.current_movie:
+            self.o.assy.current_movie._reset() # since .current_movie can change
+        
     def Draw(self):
         basicMode.Draw(self)
         self.o.assy.draw(self.o)

@@ -475,7 +475,7 @@ class MWsemantics(MainWindow):
             
         elif ext == ".pov": # Write POV-Ray file
             try:
-                writepov(self.assy, safile)
+                writepovfile(self.assy, safile)
             except:
                 print "MWsemantics.py: saveFile(): error writing file " + safile
                 self.history.message(redmsg( "Problem saving file: " + safile ))
@@ -484,7 +484,7 @@ class MWsemantics(MainWindow):
             
         elif ext == ".mdl": # Write MDL file
             try:
-                writemdl(self.assy, safile)
+                writemdlfile(self.assy, safile)
             except:
                 print "MWsemantics.py: saveFile(): error writing file " + safile
                 self.history.message(redmsg( "Problem saving file: " + safile ))
@@ -514,7 +514,7 @@ class MWsemantics(MainWindow):
         elif ext == ".mmp" : # Write MMP file
             try:
                 tmpname = os.path.join(dir, '~' + fil + '.m~')
-                writemmp(self.assy, tmpname)
+                self.assy.writemmpfile(tmpname)
             except:
                 print "MWsemantics.py: fileSaveAs(): error writing file" + safile
                 self.history.message(redmsg( "Problem saving file: " + safile ))
@@ -1354,7 +1354,8 @@ class MWsemantics(MainWindow):
         """
 
         # Make sure there is a moviefile to save.
-        if not self.assy.current_movie.filename or not os.path.exists(self.assy.current_movie.filename):
+        if not self.assy.current_movie or not self.assy.current_movie.filename \
+          or not os.path.exists(self.assy.current_movie.filename):
             
             msg = redmsg("Open Movie File: No movie file to save.")
             self.history.message(msg)
@@ -1420,14 +1421,18 @@ class MWsemantics(MainWindow):
                 self.assy.current_movie._setup()
                 
             else: 
-                # writemovie() in fileIO.py creates either an dpb or xyz file based on the 
-                # file extention in assy.current_movie.filename.  To make this work for now, we
+                # writemovie() in runSim.py creates either an dpb or xyz file based on the 
+                # file extension in assy.current_movie.filename.  To make this work for now, we
                 # need to temporarily save assy.current_movie.filename of the current movie (dpb) file,
                 # change the name, write the xyz file, then restore the dpb filename.
+                # [bruce 050325 comment: I doubt this could have ever worked, but I don't know.
+                #  For now I'm not revising it much. BTW it should be moved to some other file. ###@@@]
                 self.assy.current_movie._pause() # To fix bug 358.  Mark  050201
                 tmpname = self.assy.current_movie.filename #save the dpb filename of the current movie file.
                 self.assy.current_movie.filename = safile # the name of the XYZ file the user wants to save.
-                r = writemovie(self.assy, self.assy.m) # Save the XYZ moviefile [bruce 050324 revised this]
+                r = writemovie(self.part, self.assy.current_movie) # Save the XYZ moviefile
+                    # [bruce 050325 revised this but it looks wrong anyway, what about mflag??
+                    #  Besides, it runs the sim, so it will do a minimize... maybe it never worked, I don't know.]
                 if not r: # Movie file saved successfully.
                     self.history.message("XYZ trajectory movie file saved: " + safile)
                 self.assy.current_movie.filename = tmpname # restore the dpb filename.

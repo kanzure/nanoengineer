@@ -34,13 +34,13 @@ class PlotTool(PlotToolDialog):
         # 4. Populate the plot combobox with the graph names
         
         # Make sure there is a DPB file for the assy. 
-        if not self.assy.m.filename:
+        if not self.assy.current_movie or not self.assy.current_movie.filename:
             msg = "Plot Tool: No tracefile exists for this part.  To create one, run a simulation."
             self.assy.w.history.message(redmsg(msg))
             return 1
         
         # Construct the trace file name.
-        self.traceFile = self.assy.m.get_trace_filename()
+        self.traceFile = self.assy.current_movie.get_trace_filename()
 #        print "PlotTool: Trace file = ", self.traceFile
         
         # Make sure the tracefile exists
@@ -50,7 +50,7 @@ class PlotTool(PlotToolDialog):
             return 1
             
         # Construct the GNUplot filename.
-        self.plotFile = self.assy.m.get_GNUplot_filename()
+        self.plotFile = self.assy.current_movie.get_GNUplot_filename()
 #        print "Plot file = ", self.plotFile
         
         # Now we read specific lines of the traceFile to read parts of the header we need.

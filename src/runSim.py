@@ -18,15 +18,16 @@ partly cleaned up by Bruce, who also put some of it into subclasses
 of the experimental CommandRun class.
 '''
 
-from debug import print_compact_traceback ## bruce 050325 removing import *
-import os, sys ## bruce 050324 removing: import re, signal
-## from constants import * ## bruce 050325 removing
+from debug import print_compact_traceback
+import platform
+import os, sys
 from math import sqrt
-from fileIO import writemmp
 from SimSetup import SimSetup
 from qt import QApplication, QCursor, Qt, QStringList, QProcess
+from movie import Movie
 # more imports lower down
 
+#obs comment:
 # Run the simulator and tell it to create a dpb or xyz trajectory file.
 # [bruce 050324 moved this here from fileIO.py. It should be renamed to run_simulator,
 #  since it does not always try to write a movie, but always tries to run the simulator.
@@ -38,11 +39,13 @@ from qt import QApplication, QCursor, Qt, QStringList, QProcess
 #  to accept the movie to use as an argument; and, perhaps, mainly called by a Movie method.
 #  For now, I renamed assy.m -> assy.current_movie, and never grab it here at all
 #  but let it be passed in instead.] ###@@@
-def writemovie(assy, movie, mflag = 0):
+def writemovie(part, movie, mflag = 0):
     """Creates a moviefile (.dpb file) or an .xyz file containing what would have
     been the moviefile's final frame.  The name of the file it creates is found in
-    movie.filename. The movie is created for the atoms in the movie's Part,
-    and using the movie's alist [not yet, still using assy.alist for now ####@@@@].
+    movie.filename. The movie is created for the atoms in the movie's alist,
+    or the movie will make a new alist from part if it doesn't have one yet
+    (for minimize selection, it will probably already have one when this is called ###@@@).
+    (This should be thought of as a Movie method even though it isn't one yet.)
     DPB = Differential Position Bytes (binary file)
     XYZ = XYZ trajectory file (text file)
     mflag:
@@ -50,29 +53,54 @@ def writemovie(assy, movie, mflag = 0):
         1 = run the simulator with -m and -x flags, creating a single-frame XYZ file.
         2 = run the simulator with -m flags, creating a multi-frame DPB moviefile.
     """
+    #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
+    assy = part.assy
     tmpFilePath = assy.w.tmpFilePath
     history = assy.w.history
     win = assy.w
-    part = movie.part ###@@@ need to use this in writemmp below
-    
-    # Make sure some chunks are in the part.
-    if not part.molecules: # Nothing in the part to minimize.
-        msg = redmsg("Can't create movie.  No chunks in part.") #####@@@@@ is this redundant with callers? yes for simSetup, don't know about minimize
-        history.message(msg)
-        return -1
+    movie.alist_fits_entire_part = False # conservative case
+    ###@@@ need to use part in writemmp below
+
+    if not movie.alist:
+        # we don't yet know what atoms to minimize. Use the ones in part.
+        # in future this might be different or always be done by caller...
+        # Make sure some chunks are in the part.
+        if not part.molecules: # Nothing in the part to minimize.
+            msg = redmsg("Can't create movie.  No chunks in part.")
+                #####@@@@@ is this redundant with callers? yes for simSetup,
+                # don't know about minimize, or the weird fileSave call in MWsem.
+            history.message(msg)
+            return -1
+        movie.set_alist_from_entire_part(part) ###@@@ needs improvement, see comments in it
+        for atm in movie.alist:
+            assert atm.molecule.part == part ###@@@ remove when works
+        movie.alist_fits_entire_part = True # permits optims... but note it won't be valid
+            # anymore if the part changes! it's temporary... not sure it deserves to be an attr
+            # rather than local var or retval.
+    else:
+        # movie already knows what to minimize...
+        # assert they're all in this Part.
+        assert 0 # [might happen with mimimize selection, but doesn't yet happen - bruce 050325]
+            # if this assert fails it might mean we reused this movie obj w/o meaning to...
+            # should check that some other way even after this case can happen legit...
+        for atm in movie.alist:
+            assert atm.molecule.part == part
     
     # "pid" = process id.  
     # We use the PID to create unique filenames for this instance of the program,
     # so that if we run more than one program at the same time, we don't use
     # the same temporary file names.
+    # [We don't yet make this include a Part-specific suffix -- bruce 050325 comment]
     pid = os.getpid()
-
-    ## movie = assy.current_movie
     
     if mflag == 1: # single-frame XYZ file
+        if movie.filename and platform.atom_debug:
+            print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
         movie.filename = os.path.join(tmpFilePath, "sim-%d.xyz" % pid)
         
     if mflag == 2: #multi-frame DPB file
+        if movie.filename and platform.atom_debug:
+            print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
         movie.filename = os.path.join(tmpFilePath, "sim-%d.dpb" % pid)
     
     if movie.filename: 
@@ -133,122 +161,137 @@ def writemovie(assy, movie, mflag = 0):
     #oldCursor = QCursor(win.cursor())
     #win.setCursor(QCursor(Qt.WaitCursor) )
 
-    outfile = "-o"+moviefile
-    infile = mmpfile
+    try: #bruce 050325 added this, to always restore cursor
 
-    # "formarg" = File format argument
-    if ext == ".dpb": formarg = ''
-    else: formarg = "-x"
-    
-    # "args" = arguments for the simulator.
-    if mflag: 
-        args = [program, '-m', str(formarg), traceFile, outfile, infile]
-    else: 
-        # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
-        # The timestep argument "-s + (assy.timestep)" is not supported for Alpha.
-        args = [program, 
-                    '-f' + str(movie.totalFramesRequested),
-                    '-t' + str(movie.temp), 
-                    '-i' + str(movie.stepsper), 
-                    '-r',
-                    str(formarg),
-                    traceFile,
-                    outfile,
-                    infile]
+        outfile = "-o"+moviefile
+        infile = mmpfile
 
-    # Tell user we're creating the movie file...
-#    msg = "Creating movie file [" + moviefile + "]"
-#    history.message(msg)
+        # "formarg" = File format argument
+        if ext == ".dpb": formarg = ''
+        else: formarg = "-x"
+        
+        # "args" = arguments for the simulator.
+        if mflag: 
+            args = [program, '-m', str(formarg), traceFile, outfile, infile]
+        else: 
+            # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
+            # The timestep argument "-s + (movie.timestep)" is not supported for Alpha.
+            args = [program, 
+                        '-f' + str(movie.totalFramesRequested),
+                        '-t' + str(movie.temp), 
+                        '-i' + str(movie.stepsper), 
+                        '-r',
+                        str(formarg),
+                        traceFile,
+                        outfile,
+                        infile]
 
-    # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR writemovie()!
-    # writemmp must come before computing "natoms".  This ensures that writemovie
-    # will work when creating a movie for a file without an assy.alist.  Examples of this
-    # situation include:
-    # 1)  The part is a PDB file.
-    # 2) We have chunks, but no assy.alist.  This happens when the user opens a 
-    #      new part, creates something and simulates before saving as an MMP file.
-    # 
-    # I do not know if it was intentional, but assy.alist is not created until an mmp file 
-    # is created.  We are simply taking advantage of this "feature" here.
-    # - Mark 050106
+        # Tell user we're creating the movie file...
+    #    msg = "Creating movie file [" + moviefile + "]"
+    #    history.message(msg)
 
-    writemmp(assy, mmpfile, False) ###@@@ this should be the Part in this function, not assy -- will be changed.
-    movie.natoms = natoms = len(assy.alist)
-#    print "writeMovie: natoms = ",natoms, "assy.filename =",assy.filename
+        if movie.alist_fits_entire_part:
+            part.writemmpfile( mmpfile)
+        else:
+            assert 0 # can't yet happen (until minimize selection) and won't yet work 
+            # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
+            # But beware, this might only be ok right away for minimize, not simulate (since for sim it has to write all jigs as well).
+            write_mmpfile_for_sim( movie.alist, mmpfile) ###e new func below? won't yet work for clips with jigs, i think...
+
+##        # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR writemovie()!
+##        # writemmp must come before computing "natoms".  This ensures that writemovie
+##        # will work when creating a movie for a file without an assy.alist.  Examples of this
+##        # situation include:
+##        # 1)  The part is a PDB file.
+##        # 2) We have chunks, but no assy.alist.  This happens when the user opens a 
+##        #      new part, creates something and simulates before saving as an MMP file.
+##        # 
+##        # I do not know if it was intentional, but assy.alist is not created until an mmp file 
+##        # is created.  We are simply taking advantage of this "feature" here.
+##        # - Mark 050106
+##
+##    ##    writemmp(assy, mmpfile, False) ###@@@ this should be the Part in this function, not assy -- will be changed.
+
+        movie.natoms = natoms = len(movie.alist)
+        ###@@@ why does that trash a movie param? who needs that param? it's now redundant with movie.alist
+                        
+        # We cannot determine the exact final size of an XYZ trajectory file.
+        # This formula is an estimate.  "filesize" must never be larger than the
+        # actual final size of the XYZ file, or the progress bar will never hit 100%,
+        # even though the simulator finished writing the file.
+        # - Mark 050105 
+        if formarg == "-x":
+            # Single shot minimize.
+            if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
+                filesize = natoms * 16 # single-frame xyz filesize (estimate)
+                pbarCaption = "Minimize"
+                pbarMsg = "Minimizing..."
+            # Write XYZ trajectory file.
+            else:
+                filesize = movie.totalFramesRequested * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
+                pbarCaption = "Save File"
+                pbarMsg = "Saving XYZ trajectory file " + os.path.basename(moviefile) + "..."
+        else: 
+            # Multiframe minimize
+            if mflag:
+                filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
+                pbarCaption = "Minimize"
+            # Simulate
+            else:
+                filesize = (movie.totalFramesRequested * natoms * 3) + 4
+                pbarCaption = "Simulator"
+                pbarMsg = "Creating movie file " + os.path.basename(moviefile) + "..."
+                msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
+                        + ", Steps per Frame: " + str(movie.stepsper)\
+                        + ", Temperature: " + str(movie.temp)
+                history.message(msg)
+
+        # We can't overwrite an existing moviefile, so delete it if it exists.
+        if os.path.exists(moviefile):
+            print "movie.isOpen =",movie.isOpen
+            if movie.isOpen: 
+                print "closing moviefile"
+                movie.fileobj.close()
+                movie.isOpen = False
+                print "writemovie(): movie.isOpen =", movie.isOpen
             
-    # We cannot determine the exact final size of an XYZ trajectory file.
-    # This formula is an estimate.  "filesize" must never be larger than the
-    # actual final size of the XYZ file, or the progress bar will never hit 100%,
-    # even though the simulator finished writing the file.
-    # - Mark 050105 
-    if formarg == "-x":
-        # Single shot minimize.
-        if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
-            filesize = natoms * 16 # single-frame xyz filesize (estimate)
-            pbarCaption = "Minimize"
-            pbarMsg = "Minimizing..."
-        # Write XYZ trajectory file.
-        else:
-            filesize = movie.totalFramesRequested * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
-            pbarCaption = "Save File"
-            pbarMsg = "Saving XYZ trajectory file " + os.path.basename(moviefile) + "..."
-    else: 
-        # Multiframe minimize
-        if mflag:
-            filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
-            pbarCaption = "Minimize"
-        # Simulate
-        else:
-            filesize = (movie.totalFramesRequested * natoms * 3) + 4
-            pbarCaption = "Simulator"
-            pbarMsg = "Creating movie file " + os.path.basename(moviefile) + "..."
-            msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
-                    + ", Steps per Frame: " + str(movie.stepsper)\
-                    + ", Temperature: " + str(movie.temp)
-            history.message(msg)
+            print "deleting moviefile: [",moviefile,"]"
+            os.remove (movie.filename) # Delete before spawning simulator.
 
-    # We can't overwrite an existing moviefile, so delete it if it exists.
-    if os.path.exists(moviefile):
-        print "movie.isOpen =",movie.isOpen
-        if movie.isOpen: 
-            print "closing moviefile"
-            movie.fileobj.close()
-            movie.isOpen = False
-            print "writemovie(): movie.isOpen =", movie.isOpen
+        # These are useful when debugging the simulator.     
+        print  "program = ",program
+        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
         
-        print "deleting moviefile: [",moviefile,"]"
-        os.remove (movie.filename) # Delete before spawning simulator.
+        arguments = QStringList()
+        for arg in args:
+            arguments.append(arg)
+        
+        simProcess = None    
+        try:
+            ## Start the simulator in a different process 
+            simProcess = QProcess()
+            simProcess.setArguments(arguments)
+            simProcess.start()
+            
+            # Launch the progress bar. Wait until simulator is finished
+            r = win.progressbar.launch( filesize,
+                            moviefile, 
+                            pbarCaption, 
+                            pbarMsg, 
+                            1)
+            
+        except: # We had an exception.
+            print_compact_traceback("exception in simulation; continuing: ")
+            if simProcess:
+                #simProcess.tryTerminate()
+                simProcess.kill()
+                simProcess = None
+            
+            r = -1 # simulator failure
 
-    # These are useful when debugging the simulator.     
-    print  "program = ",program
-    print  "Spawnv args are %r" % (args,) # this %r remains (see above)
-    
-    arguments = QStringList()
-    for arg in args:
-        arguments.append(arg)
-    
-    simProcess = None    
-    try:
-        ## Start the simulator in a different process 
-        simProcess = QProcess()
-        simProcess.setArguments(arguments)
-        simProcess.start()
-        
-        # Launch the progress bar. Wait until simulator is finished
-        r = win.progressbar.launch( filesize,
-                        moviefile, 
-                        pbarCaption, 
-                        pbarMsg, 
-                        1)
-        
-    except: # We had an exception.
-        print_compact_traceback("exception in simulation; continuing: ")
-        if simProcess:
-            #simProcess.tryTerminate()
-            simProcess.kill()
-            simProcess = None
-        
-        r = -1 # simulator failure
+    except: #bruce 050325
+        print_compact_traceback("bug in simulator-calling code: ")
+        r = -11111
         
     QApplication.restoreOverrideCursor() # Restore the cursor
     #win.setCursor(oldCursor)
@@ -349,11 +392,9 @@ class CommandRun: # bruce 050324; mainly a stub for future use when we have a CL
         self.part = win.assy.part
             # current Part (when the command is invoked), on which most commands will operate
         self.history = win.history # where this command can write history messages
-        self.glpane = win.assy.o
+        self.glpane = win.assy.o #e or let it be accessed via part??
         return
     # end of class CommandRun
-
-#####@@@@@ movie funcs not yet reviewed much for assy/part split
 
 class simSetup_CommandRun(CommandRun):
     """Class for single runs of the simulator setup command; create it
@@ -369,27 +410,33 @@ class simSetup_CommandRun(CommandRun):
         
         self.history.message(greenmsg("Simulator:"))
 
-        previous_movie = self.assy.current_movie ###@@@ should be previous_sim_movie since params for that are what we want
-            # should be used for default sim params; actually reused entirely ###@@@ fix
-        self.assy.current_movie = None
+        ###@@@ we could permit this in movie player mode if we'd now tell that mode to stop any movie it's now playing
+        # iff it's the current mode.
+
+        previous_movie = self.assy.current_movie
+            # might be None; will be used only for default param values for new Movie
+        self.assy.current_movie = None # (this is restored on error)
 
         self.movie = None
-        r = self.makeSimMovie( previous_movie) # should store self.movie as the one it made, or leave it as None
+        r = self.makeSimMovie( previous_movie) # will store self.movie as the one it made, or leave it as None if cancelled
         movie = self.movie
-        self.assy.current_movie = movie or previous_movie
+        self.assy.current_movie = movie or previous_movie # (this restores assy.current_movie if there was an error)
 
-        if not r: # Movie file saved successfully.
+        if not r: # Movie file saved successfully; movie is a newly made Movie object just for the new file
             assert movie
             # if duration took at least 10 seconds, print msg.
             self.progressbar = self.win.progressbar
             if self.progressbar.duration >= 10.0: 
-                spf = "%.2f" % (self.progressbar.duration / movie.totalFramesRequested) #e should read and use totalFramesActual
+                spf = "%.2f" % (self.progressbar.duration / movie.totalFramesRequested)
+                    ###e bug in this if too few frames were written; should read and use totalFramesActual
                 estr = self.progressbar.hhmmss_str(self.progressbar.duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 self.history.message(msg) 
             msg = "Movie written to [" + movie.filename + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
             # This makes a copy of the movie tool icon to put in the HistoryWidget.
+            #e (Is there a way to make that act like a button, so clicking on it in history plays that movie?
+            #   If so, make sure it plays the correct one even if new ones have been made since then!)
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.win.toolsMoviePlayerAction.iconSet().pixmap() )
             self.history.message(msg)
@@ -397,6 +444,7 @@ class simSetup_CommandRun(CommandRun):
             self.win.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
         else:
+            assert not movie
             self.history.message("Cancelled.")
         return
 
@@ -410,22 +458,22 @@ class simSetup_CommandRun(CommandRun):
             return -1
         ###@@@ else use suffix below!
         
-        self.simcntl = SimSetup(self.assy, previous_movie) # Open SimSetup dialog [and run it until user dismisses it]
-            # [bruce comment 050324: this uses assy.current_movie and sets its params and filename;
-            #  I'm changing it to look at previous_movie for those, and it should make a new one ###@@@
-            #  but for now it just reuses that one; the one it uses is in its .movie when it returns.]
+        self.simcntl = SimSetup(self.part, previous_movie, suffix) # Open SimSetup dialog [and run it until user dismisses it]
+            # [bruce 050325: this now uses previous_movie for params and makes a new self.movie,
+            #  never seeing or touching assy.current_movie]
+        movie = self.simcntl.movie # always a Movie object, even if user cancelled the dialog
         
-        movie = self.simcntl.movie
-            #######@@@@@@@ bruce 050324 added this line and changed below self.m to movie;
-            # note also that assy.m has been renamed to assy.current_movie
-        
-        if movie.cancelled: return -1 # user hit Cancel button in SimSetup Dialog.
-        r = writemovie(self.assy, movie) #######@@@@@@@ bruce 050324 comment: pass movie; should do following in that function too
-        # Movie file created.  Initialize.
+        if movie.cancelled:
+            # user hit Cancel button in SimSetup Dialog. No history msg went out; caller will do that.
+            movie.destroy()
+            return -1 
+        r = writemovie(self.part, movie) ###@@@ bruce 050324 comment: maybe should do following in that function too
         if not r: 
-            movie.IsValid = True # Movie is valid.
+            # Movie file created. Initialize. ###@@@ bruce 050325 comment: following mods private attrs, needs cleanup.
+            movie.IsValid = True # Movie is valid.###@@@ bruce 050325 Q: what exactly does this (or should this) mean?
             movie.currentFrame = 0
-            self.movie = movie # bruce 050324 added this; should we do it if r, as well?? ###@@@
+            self.movie = movie # bruce 050324 added this
+            # it's up to caller to store self.movie in self.assy.current_movie if it wants to.
         return r
 
     pass # end of class simSetup_CommandRun
@@ -471,24 +519,38 @@ class Minimize_CommandRun(CommandRun):
         if suffix == None: #bruce 050316 temporary kluge
             self.w.history.message( redmsg( "Minimize is not yet implemented for clipboard items."))
             return
-        ###@@@ else use suffix below! or should we? not sure. maybe no need.
+        #e use suffix below? maybe no need since it's ok if the same filename is reused for this.
 
-        movie = self.assy.current_movie ####@@@@ should make a new Movie instead... but do overwrite the last temp file it made
-            # note that this class is misnamed since it's really a SimRunnerAndResultsUser... which might use .xyz or .dpb results
+        # bruce 050325 change: don't use or modify self.assy.current_movie,
+        # since we're not making a movie and don't want to prevent replaying
+        # the one already stored from some sim run.
+        # [this is for mtype == 1 (always true now) and might affect writemovie ###@@@ #k.]
         
-        r = writemovie(self.assy, movie, mtype) # Writemovie informs user if there was a problem.
-        if r: return # We had a problem writing the minimize file.  Simply return.
+        movie = Movie(self.assy) # do this in writemovie? no, the other call of it needs it passed in from the dialog... #k
+            # note that Movie class is misnamed since it's really a SimRunnerAndResultsUser... which might use .xyz or .dpb results
+        
+        r = writemovie(self.part, movie, mtype)
+        if r:
+            # We had a problem writing the minimize file.
+            # Simply return (error message already emitted by writemovie). ###k
+            return
         
         if mtype == 1:  # Load single-frame XYZ file.
-            newPositions = readxyz( movie.filename, movie.part.alist ) ###@@@ should be movie.alist
+            newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]
             if newPositions:
-                self.part.moveAtoms(newPositions)#####@@@@@ needs to be a movie method since movie knows list of atoms to move
-                    ###@@@ but for now i just make it work like before, so it's a Part or Assy method...
+                movie.moveAtoms(newPositions)
                 # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
                 self.part.changed() # Mark - bugfix 386
-            ###e else print error message; readxyz doesn't yet do so
+                self.part.gl_update()
+            else:
+                pass #e print error message; or make readxyz do so ###@@@
         else: # Play multi-frame DPB movie file.
-            #######@@@@@@@ bruce 050324 comment: can this still happen? is it correct (what about changing mode?)
+            ###@@@ bruce 050324 comment: can this still happen? [no] is it correct [probably not]
+            # (what about changing mode to movieMode, does it ever do that?) [don't know]
+            # I have not reviewed this and it's obviously not cleaned up (since it modifies private movie attrs).
+            # But I will have this change the current movie, which would be correct in theory, i think, and might be needed
+            # before trying to play it (or might be a side effect of playing it, this is not reviewed either).
+            self.assy.current_movie = movie
             movie.currentFrame = 0
             # If _setup() returns a non-zero value, something went wrong loading the movie.
             if movie._setup(): return
@@ -496,6 +558,23 @@ class Minimize_CommandRun(CommandRun):
             movie._close()
         return
     pass # end of class Minimize_CommandRun
+
+# ==
+
+##write_mmpfile_for_sim( alist, filename): #bruce 050325 #####@@@@@ need this, not done, review calls and all code after calls...
+##    """Write an MMP file specifically for the simulator,
+##    containing only the atoms in alist
+##    (which should all be in the same Part, but this might not be checked),
+##    and containing only the jigs which attach to those atoms
+##    (which must each be splittable if they also attach to other atoms).
+##       For now [050325], this might not be fully implemented,
+##    so we might fall back to writing the full assy (only ok for the MainPart)
+##    or emit a redmsg saying we can't do this for this Part,
+##    and then raise an exception (since we have no retval).
+##    """
+##    part = alist[0].molecule.part
+##    part.write_mmpfile_for_sim( alist, filename) # works differently in diff part classes, perhaps (more reliable in main part?)
+##    return
 
 # end
 

@@ -870,7 +870,7 @@ class Node:
 ##        # bruce comment 050108/050210: this is used for Jigs. It uses __repr__ nonstandardly!
 ##        f.write(self.__repr__(atnums))
         
-#    def writemdl(self, atnum, alist, f, dispdef):
+#    def writemdl(self, alist, f, dispdef):
 #        pass
 
     def writepov(self, file, dispdef): #bruce 050208 added Node default method

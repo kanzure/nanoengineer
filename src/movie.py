@@ -13,9 +13,11 @@ import os, sys
 from struct import unpack
 from qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from HistoryWidget import redmsg
+from VQT import A
+import platform
 
-ADD = 1
-SUBTRACT = 0
+ADD = True
+SUBTRACT = False
 FWD = 1
 REV = -1
 DEBUG0 = 0
@@ -43,6 +45,8 @@ class Movie:
     def __init__(self, assembly, name=None):
         self.assy = assembly
         self.win = self.assy.w
+        self.glpane = self.assy.o ##e if in future there's more than one glpane, recompute this whenever starting to play the movie
+        
         ## self.history = self.assy.w.history ###@@@ might not work, might need getattr, until we remake Movies as needed
         # for future use: name of the movie that appears in the modelTree. 
         self.name = name or "" # assumed to be a string by some code
@@ -86,15 +90,77 @@ class Movie:
         self.timestep = 10
             # Note [bruce 050325]: varying the timestep is not yet supported,
             # and this attribute is not presently used in the cad code.
+        # bruce 050324 added these:
+        self.alist = None # list of atoms for which this movie was made, if this has yet been defined
         
 ##        # bruce 050324 added this: #### NOT YET, IT WON'T WORK UNTIL WE DELAY CREATION OF THIS OBJECT
 ##        self.part = self.assy.part # movie is assumed valid only for the current part at its time of creation
         return
     
     def __getattr__(self, attr): # temporary kluge ###@@@
-        if attr == 'part': return self.assy.tree.part
+        if attr == 'part':
+            if self.alist:
+                return self.alist[0].molecule.part # not checked for consistency, but correct if anything is
+            assert 0, "part needed before alist" ### can this happen? if it does, return cur part??? main part??? depends on why...
         if attr == 'history': return self.assy.w.history
         raise AttributeError, attr
+
+    def destroy(self): #bruce 050325
+        # so far only to be called before file is made; should work either way and _close if necessary.
+        # for now, just break cycles.
+        self.win = self.assy = self.part = self.alist = self.history = self.fileobj = None
+
+    def set_alist(self, alist): #bruce 050325
+        """Verify this list of atoms is legal (as an alist to make a movie from),
+        and set it as this movie's alist. This only makes sense before making a moviefile,
+        or after reading one we didn't make in the same session (or whose alist we lost)
+        and figuring out somehow what existing atoms it should apply to.
+        But nothing is checked about whether this alist fits the movie file,
+        if we have one, and/or the other params we have --
+        that's assumed done by the caller.
+        """
+        alist = list(alist) # make our own copy (in case caller modifies its copy), and ensure type is list
+        atm0 = alist[0]
+        assert atm0.molecule.part
+        for atm in alist:
+            assert atm.molecule.part == atm0.molecule.part
+        # all atoms have the same Part, which is not None, and there's at least one atom.
+        self.alist = alist
+        return
+
+    def set_alist_from_entire_part(self, part):
+        """Set self.alist to a list of all atoms of the given Part,
+        in the order in which they would be written to a new mmp file.
+        """
+        # force recompute of part.alist, since it's not yet invalidated when it needs to be
+        part.alist = None
+        del part.alist
+        ## self.alist = part.alist
+        alist = part.alist # this recomputes it
+        self.set_alist(alist) #e could optimize (bypass checks in that method)
+        return
+        
+##        ##(In the future we might change that to the order in which they
+##        ## were last written to an actual file, if they ever were,
+##        ## and if the set of atoms has not changed since then. ###e)
+##        ##The right soln is to save alist when we load or save part,
+##        ##then when we get this new one, check if atoms in it are same,
+##        ##and if so use the saved one instead. [not always legal re jigs, see below]
+##        # Check by sorting list of keys.
+##        ##Or could we acually use that order in alist? only if we use it to write atoms to sim...
+##        ##maybe we can, we'll see. In fact, I'm sure we can, since sim does not care
+##        # about chunks, groups, atom order... oh, one exception -- it requires
+##        # some jigs to be on contiguous sets of atoms.
+##        # even so we could come close... or we might just let those jigs be on too many atoms. ###e
+##        res = []
+##        for mol in part.molecules: #e check >= 1? with atoms? ###WRONG, order of mols is arb.
+##            lis = mol.atoms_in_mmp_file_order(): ###k
+##                ###e worry about singlets re bug 254
+##                ###e or let new code in minimize selection handle this
+##            res.extend(lis)
+##        ###e split into a part method to get alist, and our own set_alist method
+##        self.set_alist(res) #e could optimize (bypass checks in that method)
+##        return None
         
 # movie methods ##########################
 
@@ -124,10 +190,10 @@ class Movie:
             
         # movesetup freezes all the atoms in the model in preparation for playing the movie.
         # when leaving MOVIE mode, we'll need to unfreeze all the atoms by calling movend().
-        self.assy.movsetup()
+        self.movsetup()
         
         # Save current atom positions.  This allows _reset() to quickly reload frame 0.
-        if self.currentFrame == 0: self.assy.savebasepos() 
+        if self.currentFrame == 0: self.savebasepos() 
         
         # Open movie file.
         self.fileobj=open(self.filename,'rb')
@@ -182,12 +248,12 @@ class Movie:
         if not self.isOpen: return
         self._pause(0) 
         self.fileobj.close() # Close the movie file.
-        self.assy.movend() # Unfreeze atoms.
+        self.movend() # Unfreeze atoms.
         if self.startFrame != self.currentFrame: self.assy.changed()
         
         # Delete the array containing the original atom positions for the model.
         # We no longer need them since the movie file is closed.
-#        self.assy.deletebasepos() 
+#        self.deletebasepos() 
         
     def _play(self, direction = FWD):
         """Start playing movie from the current frame.
@@ -310,13 +376,13 @@ class Movie:
 #                print msg
 
                 # adding 1 frame (of XYZ positions from the movie file) to the current atom positions
-                self.assy.movatoms(self.fileobj, ADD)
+                self.movatoms(self.fileobj, ADD)
                 
                 # Skip n frames.
                 for n in range(self.win.skipSB.value()):
                     if self.currentFrame != fnum:
                         self.currentFrame += inc
-                        self.assy.movatoms(self.fileobj, ADD)
+                        self.movatoms(self.fileobj, ADD)
              
             # Backward one frame   
             else: 
@@ -331,7 +397,7 @@ class Movie:
 #                print msg
 
                 # subtracting 1 frame (of XYZ positions from the movie file) from the current atom positions
-                self.assy.movatoms(self.fileobj, SUBTRACT)
+                self.movatoms(self.fileobj, SUBTRACT)
                 self.fileobj.seek( filepos ) # reset the file position in case we play forward next time.
                 
                 # Skip n frames.
@@ -340,14 +406,14 @@ class Movie:
                         self.currentFrame += inc
                         filepos = (self.currentFrame * self.natoms * 3) + 4
                         self.fileobj.seek( filepos )
-                        self.assy.movatoms(self.fileobj, SUBTRACT)
+                        self.movatoms(self.fileobj, SUBTRACT)
                         self.fileobj.seek( filepos ) # reset the file position in case we play forward next time.
             
             # update the GLPane and dashboard widgets each frame
             if self.showEachFrame:
                 self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
                 self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
-                self.assy.o.gl_update()
+                self.glpane.gl_update()
             else:
                 self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
                 self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
@@ -377,7 +443,7 @@ class Movie:
             QApplication.restoreOverrideCursor() # Restore the cursor
             self.waitCursor = False
         self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
-        self.assy.o.gl_update()
+        self.glpane.gl_update()
 
         if DEBUG0: print "movie._playFrame(): Calling _pause"
         self._pause(0) # Force pause. Takes care of variable and dashboard maintenance.
@@ -415,13 +481,13 @@ class Movie:
             self.currentFrame += inc
 
             # Forward one frame
-            if inc == FWD: self.assy.movatoms(self.fileobj)
+            if inc == FWD: self.movatoms(self.fileobj, ADD)
              
             # Backward one frame   
             else: 
                 filepos = (self.currentFrame * self.natoms * 3) + 4
                 self.fileobj.seek( filepos )
-                self.assy.movatoms(self.fileobj, 0)
+                self.movatoms(self.fileobj, SUBTRACT)
                 
         # End of loop
         
@@ -434,7 +500,7 @@ class Movie:
             self.waitCursor = False
 
         self.win.frameNumberSB.setValue(self.currentFrame) # Update spinbox
-        self.assy.o.gl_update()
+        self.glpane.gl_update()
 
                 
     def _reset(self):
@@ -444,7 +510,8 @@ class Movie:
         if self.currentFrame == 0: return
         
         # Restore atom positions.
-        self.assy.restorebasepos()
+        self.restorebasepos()
+            ###@@@ bruce 050325 question: how do we know they were ever saved?
         
         self.currentFrame = 0
             
@@ -456,7 +523,7 @@ class Movie:
         self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
         self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
         self._pause(0)
-        self.assy.o.gl_update()
+        self.glpane.gl_update()
         
     def _moveToEnd(self):
         """
@@ -505,6 +572,113 @@ class Movie:
         fullpath, ext = os.path.splitext(self.filename)
         return fullpath + "-plot.txt"
 
+    # == low-level movie-playing methods [revised, and moved out of class Part, by bruce 050325]
+
+    ###@@@ need: self.molecules
+
+    # set up to play a movie
+    def movsetup(self):
+        self.blist = blist = {}
+        moldict = {}
+        for a in self.alist:
+            for b in a.bonds:
+                blist[b.key]=b
+            m = a.molecule
+            moldict[id(m)] = m
+        self.molecules = moldict.values()
+        self.part = part = self.molecules[0].part
+        for m in self.molecules:
+            if not m.part == part:
+                # check them all before freezing any (does this cover killed atoms too? I think so.)
+                self.history.message( redmsg( "Can't play movie, since not all its atoms are still in the same Part" ))
+                assert 0 # not sure how well this will be caught... #e should use retval, fix caller ####@@@@
+        self.assy.set_current_part(part) ###@@@ ok here?? should also do this whenever movie dashboard is used, i think...
+        for m in self.molecules:
+            m.freeze()        
+        return
+
+    def savebasepos(self):
+        """Copy current atom positions into an array.
+        """
+        # save a copy of each chunk's basepos array 
+        # (in the chunk itself, why not -- it's the most convenient place)
+        # [only ok if at most one movie can be playing at once, for one chunk ##k]
+        for m in self.molecules:
+            m._savedbasepos = + m.basepos
+            
+    def restorebasepos(self):
+        """Restore atom positions copied earlier by savebasepos().
+        """
+        # restore that later (without erasing it, so no need to save it 
+        # again right now)
+        # (only valid when every molecule is "frozen", i.e. basepos and 
+        # curpos are same object):
+        for m in self.molecules:
+            #bruce 050210 fixing "movie reset" bug reported by Josh for Alpha-2
+            assert m.basepos is m.curpos
+            m.basepos = m.curpos = m.atpos = + m._savedbasepos
+            m.changed_attr('atpos', skip = ('basepos',) )
+
+        for b in self.blist.itervalues():
+            b.setup_invalidate()
+            
+        for m in self.molecules:
+            m.changeapp(0)
+
+    def deletebasepos(self):
+        """Erase the savedbasepos array.  It takes a lot of room.
+        """
+        for m in self.molecules:
+            del m._savedbasepos
+            
+    # move the atoms one frame as for movie or minimization
+    # .dpb file is in units of 0.01 Angstroms
+    # units here are angstroms
+    def movatoms(self, file, addpos = ADD):
+        "#doc [callers can pass ADD (True) or SUBTRACT (False) for addpos]"
+        if not self.alist: return
+        ###e bruce 041104 thinks this should first check whether the
+        # molecules involved have been updated in an incompatible way
+        # (which might change the indices of atoms); otherwise crashes
+        # might occur. It might be even worse if a shakedown would run
+        # during this replaying! (This is just a guess; I haven't tested
+        # it or fully analyzed all related code, or checked whether
+        # those dangerous mods are somehow blocked during the replay.)
+        for a in self.alist:
+            # (assuming mol still frozen, this will change both basepos and
+            #  curpos since they are the same object; it won't update or
+            #  invalidate other attrs of the mol, however -- ok?? [bruce 041104])
+            if addpos: a.molecule.basepos[a.index] += A(unpack('bbb',file.read(3)))*0.01
+            else: a.molecule.basepos[a.index] -= A(unpack('bbb',file.read(3)))*0.01
+                    
+        for b in self.blist.itervalues():
+            b.setup_invalidate()
+            
+        for m in self.molecules:
+            m.changeapp(0)
+
+    # regularize the atoms' new positions after the motion
+    def movend(self):
+        # terrible hack for singlets in simulator, which treats them as H
+        for a in self.alist:
+            if a.is_singlet(): a.snuggle()
+        for m in self.molecules:
+            m.unfreeze()
+        self.glpane.gl_update()
+
+    def moveAtoms(self, newPositions): # used when reading xyz files
+        """Huaicai 1/20/05: Move a list of atoms to newPosition. After 
+            all atoms moving, bond updated, update display once.
+           <parameter>newPosition is a list of atom absolute position, the list order is the same as self.alist """
+           
+        if len(newPositions) != len(self.alist): #bruce 050225 added some parameters to this error message
+            print "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
+                  (len(newPositions), len(self.alist))
+            return
+        for a, newPos in zip(self.alist, newPositions):
+                a.setposn(A(newPos))
+        self.glpane.gl_update()
+
     pass # end of class Movie
 
 def _checkMovieFile(part, filename, history = None):
@@ -544,10 +718,16 @@ def _checkMovieFile(part, filename, history = None):
     fp.close()
     
     natoms = int(filesize/(nframes*3))
+
+    #######@@@@@@@ kluge to work around bug in part.natoms not being invalidated enough:
+    part.natoms = None
+    del part.natoms # force recompute
     
     if natoms == part.natoms: ## bruce 050324 changed this from natoms == len(self.assy.alist)
         return 0
     else:
+        if platform.atom_debug:
+            print "atom_debug: not natoms == part.natoms, %d %d" % (natoms, part.natoms)
         if print_errors:
             msg = redmsg("Movie file [" + filename + "] not valid for the current part.")
             history.message(msg)

@@ -25,51 +25,56 @@ from movie import Movie
 
 class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
     "dialog class for setting up a simulator run"
-    def __init__(self, assy, previous_movie):
-        "use previous_movie for default values; make a new movie and store it as movie ###@@@ not yet, reuse same one for now"
+    def __init__(self, part, previous_movie, suffix = ""):
+        "use previous_movie for default values; on success or failure, make a new Movie and store it as self.movie"
         SimSetupDialog.__init__(self)
-        self.assy = assy
-        self.previous_movie = previous_movie or Movie() # used only for its parameter settings
-        self.movie = self.previous_movie ## assy.current_movie
-            #######@@@@@@@ bruce 050324 comments:
-            # We should make a new Movie here instead (but only when we return with success).
-            # But we might want to use default param settings from prior movie.
+        ## self.part = part
+            # not yet needed, though in future we might display info
+            # about this Part in the dialog, to avoid confusion
+            # if it's not the main Part.
+        self.assy = part.assy # used only for assy.filename
+        self.suffix = suffix
+        self.previous_movie = previous_movie or Movie(self.assy) # used only for its parameter settings
+        self.movie = Movie(self.assy) # public attr used by client code after we return; always a Movie even on failure.
+            # (we need it here since no extra method runs on failure, tho that could probably be fixed) 
+            # bruce 050325 changes:
+            # We make a new Movie here (but only when we return with success).
+            # But we use default param settings from prior movie.
             # Caller should pass info about default filename (including uniqueness
-            #  when on selection or in clipboard item).
+            #  when on selection or in clipboard item) -- i.e. the suffix.
             # We should set the params and filename using a Movie method, or warn it we did so,
-            # or do them in its init....
+            # or do them in its init... not yet cleaned up. ###@@@
             # self.movie is now a public attribute.
-            # I renamed assy.m to assy.current_movie.
         self.setup()
         self.exec_loop()
         
     def setup(self):
         self.movie.cancelled = True # We will assume the user will cancel
-        #bruce 050324: shouldn't these be calling setValue, not assigning to it? See if it fixes bug...
+        #bruce 050324: fixed KnownBug item 27 by making these call setValue, not assign to it:
         self.nframesSB.setValue( self.previous_movie.totalFramesRequested )
         self.tempSB.setValue( self.previous_movie.temp )
         self.stepsperSB.setValue( self.previous_movie.stepsper )
 #        self.timestepSB.setValue( self.previous_movie.timestep ) # Not supported in Alpha
     
     def createMoviePressed(self):
-        """Creates a DPB (movie) file of the current part.  
-        The part does not have to be saved
-        as an MMP file first, as it used to.
+        """Creates a DPB (movie) file of the current part.
+        [Actually only saves the params and filename which should be used
+         by the client code (in writemovie?) to create that file.]
+        The part does not have to be saved as an MMP file first, as it used to.
         """
-        #######@@@@@@@ bruce 050324 comment: docstring says it creates the file
-        # but it only sets up self.movie to say how to create it (incl the default filename)
-        # and the dialog's caller should then create the file. Not sure if/when user can rename the file.
+        ###@@@ bruce 050324 comment: Not sure if/when user can rename the file.
         QDialog.accept(self)
-        self.movie.cancelled = False
+        self.movie.cancelled = False # This is the only way caller can tell we succeeded.
         self.movie.totalFramesRequested = self.nframesSB.value()
         self.movie.temp = self.tempSB.value()
         self.movie.stepsper = self.stepsperSB.value()
 #        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
-        
+
+        suffix = self.suffix
         if self.assy.filename: # Could be an MMP or PDB file.
-            self.movie.filename = self.assy.filename[:-4] + '.dpb'
+            self.movie.filename = self.assy.filename[:-4] + suffix + '.dpb'
         else: 
-            self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled.dpb")
+            self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled%s.dpb" % suffix)
         return
 
     pass # end of class SimSetup
