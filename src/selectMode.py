@@ -131,8 +131,10 @@ class selectMode(basicMode):
         self.move() # go into move mode # bruce 040923: we use to inline the same code as is in this method
 
     
-    # bruce 041215: elemSet should be renamed modifyTransmute, and moved #e
-    def elemSet(self,elem): 
+    # bruce 041216: renamed elemSet to modifyTransmute, added force option,
+    # made it work on selected chunks as well as selected atoms
+    # [that last part is undiscussed, we might remove it]
+    def modifyTransmute(self, elem, force = False): 
         # elem is an element number
         # make it current in the element selector dialog
         self.w.setElement(elem) # bruce comment 040922 -- this line is an inlined version of the superclass method.
@@ -140,14 +142,22 @@ class selectMode(basicMode):
         # [bruce 041215: this should probably be made available for any modes
         #  in which "selected atoms" are permitted, not just Select modes. #e]
         if self.o.assy.selatoms:
-            for a in self.o.assy.selatoms.values():
-                a.Transmute(PeriodicTable[elem])
+            for atm in self.o.assy.selatoms.values():
+                atm.Transmute(PeriodicTable[elem], force = force)
                 # bruce 041215 fix bug 131 by replacing low-level mvElement call
                 # with new higher-level method Transmute. Note that singlets
                 # can't be selected, so the fact that Transmute does nothing to
                 # them is not (presently) relevant.
             #e status message?
+            # (Presently a.Transmute makes one per "error or refusal".)
             self.o.paintGL()
+        elif self.o.assy.selmols and not force: # too dangerous with force!
+            for mol in self.o.assy.selmols[:]:
+                for atm in mol.atoms.values():
+                    atm.Transmute(PeriodicTable[elem], force = force)
+                        # this might run on some killed singlets; should be ok
+            self.o.paintGL()
+        return
        
 
     def Draw(self):

@@ -83,9 +83,10 @@ class elem:
         col = color (RGB, 0-1)
         bn = bonding info: list of triples:
              # of bonds in this form
-             covalent radius
-             angle between bonds in degrees
+             covalent radius (units of 0.01 Angstrom)
+             info about angle between bonds, as an array of vectors
         """
+        # bruce 041216 modified the above docstring
         global Elno
         self.eltnum = Elno
         Elno += 1
@@ -95,6 +96,10 @@ class elem:
         self.mass = m
         self.rvdw = rv
         self.rcovalent = bn and bn[0][1]/100.0
+            # bruce 041216 comment:
+            # this is None for nonbonding elements like Helium, but most bonding
+            # code will fail unless it's a number, so it's necessary to avoid
+            # ever making a bond to a nonbonding element.
         self.bonds = bn
         self.numbonds = bn and bn[0][0]
         self.base = None
@@ -1029,19 +1034,32 @@ class atom:
         print "atom.update_everything() does nothing"
         return
 
-    def Transmute(self, elt): #bruce 041215, written to fix bug 131
+    def Transmute(self, elt, force = False): #bruce 041215, written to fix bug 131
         """[Public method, does all needed invalidations:]
         If this is a real atom, change its element type to elt (not Singlet),
         and replace its singlets (if any) with new ones (if any are needed)
         to match the desired number of bonds for the new element type.
         Never remove real bonds, even if there are too many. Don't change
         bond lengths (except to replaced singlets) or atom positions.
+        If there are too many real bonds for the new element type, refuse
+        to transmute unless force is True.
         """
         if self.element == Singlet:
             return
         if self.element == elt and len(self.bonds) == elt.numbonds:
             # leave existing singlet positions alone, if right number
             return
+        nbonds = len(self.realNeighbors())
+        if nbonds > elt.numbonds:
+            # transmuting would break valence rules
+            if force:
+                msg = "warning: Transmute broke valence rules, made (e.g.) %s with %d bonds" % (elt.name, nbonds)
+                self.molecule.assy.w.msgbarLabel.setText(msg)
+                # fall through
+            else:
+                msg = "warning: Transmute refused to make (e.g.) a %s with %d bonds" % (elt.name, nbonds)
+                self.molecule.assy.w.msgbarLabel.setText(msg)
+                return
         # in all other cases, replace all singlets with 0 or more new ones
         for atm in self.singNeighbors():
             atm.kill()
@@ -1182,7 +1200,7 @@ class atom:
                 # fix unreported unverified bug (self at center of its neighbors):
                 if platform.atom_debug:
                     print "fyi: atom_debug: self at center of its neighbors (more or less)",self,self.bonds
-                dir = cross(s1pos-pos,s2pos-pos) ###@@@ need to test this!
+                dir = norm(cross(s1pos-pos,s2pos-pos)) ###@@@ need to test this!
             opos = pos + el.rcovalent*dir
             mol = self.molecule
             x = atom('X', opos, mol)
@@ -1435,12 +1453,17 @@ class Bond:
             self.a1pos = self.atom1.baseposn()
             self.a2pos = self.atom2.baseposn()
         vec = self.a2pos - self.a1pos
-        len = 0.98 * vlen(vec)
+        leng = 0.98 * vlen(vec)
         vec = norm(vec)
-        self.c1 = self.a1pos + vec*self.atom1.element.rcovalent
-        self.c2 = self.a2pos - vec*self.atom2.element.rcovalent
-        self.toolong = (len > self.atom1.element.rcovalent + self.atom2.element.rcovalent)
-        self.center = (self.c1 + self.c2) /2.0 # before 041112 this was None when self.toolong
+        # don't crash for Helium, etc (whose rcovalent is None), just consider
+        # the entire bond to be too long (since it's a bug to make it)
+        # [bruce 041216]
+        rcov1 = (self.atom1.element.rcovalent or 0.0)
+        rcov2 = (self.atom2.element.rcovalent or 0.0)
+        self.c1 = self.a1pos + vec*rcov1
+        self.c2 = self.a2pos - vec*rcov2
+        self.toolong = (leng > rcov1 + rcov2)
+        self.center = (self.c1 + self.c2) / 2.0 # before 041112 this was None when self.toolong
         return
 
     def __getattr__(self, attr): # bond.__getattr__ #bruce 041104

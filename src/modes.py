@@ -167,7 +167,7 @@ class basicMode(anyMode):
         # (after this works I might remove it, we'll see)
         weird_to_override = ['Done', 'Cancel', 'Flush', 'StartOver', 'Restart',
                              'userSetMode', '_exitMode', 'Abandon', '_cleanup']
-            # not 'elemSet', 'keyPress', they are normal to override;
+            # not 'modifyTransmute', 'keyPress', they are normal to override;
             # not 'pickdraw', 'Wheel', they are none of my business;
             # not 'makemenu' since no relation to new mode changes per se.
             # [bruce 040924]
@@ -905,9 +905,11 @@ class basicMode(anyMode):
         self.o.paintGL()
 
     # [remaining methods not yet analyzed by bruce 040922]
-    
-    def elemSet(self,elem): # bruce 040923: fyi: overridden in selectMode
-        self.w.setElement(elem)
+
+    # bruce 041216: renamed elemSet to modifyTransmute, added force option
+    # (fyi: this is overridden in selectMode)
+    def modifyTransmute(self, elem, force = False):
+        self.w.setElement(elem) # doesn't use force option
 
     def keyPress(self,key): # bruce 040923: fyi: overridden in depositMode
         if _debug_keys:

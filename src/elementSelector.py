@@ -1,3 +1,9 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+'''
+elementSelector.py
+
+$Id$
+'''
 
 from ElementSelectorDialog import *
 from elementpixmaps import *
@@ -130,4 +136,7 @@ class elementSelector(ElementSelectorDialog):
             self.pixmapLabel1.setPixmap(self.image54)  # Set pixmap to xenon (all elements without a pixmap get this)
 
     def transmutePressed(self):
-        self.w.glpane.mode.elemSet(self.w.Element)
+        self.w.glpane.mode.modifyTransmute(self.w.Element, force = True)
+        # bruce 041216: renamed elemSet to modifyTransmute, added force option
+
+    # end of class elementSelector
