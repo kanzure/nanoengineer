@@ -922,8 +922,20 @@ def writemovie(assy, mflag = False):
     # is an MMP file and use it if not assy.has_changed().
     mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
     
-    # Trace file that saves the output for thermostats and thermometers.
-    traceFile = "-q"+ os.path.join(assy.w.tmpFilePath, "sim-%d-trace.txt" % pid)    
+    # Trace file that saves the simulation parameters and the output for jigs.
+    # We don't want to write a tracefile when sminimizing the part (mflag != 0).
+    # This would overwrite an important tracefile from a previous simulation run.
+    # We also shouldn't create a tracefile if there are not jigs in the file.
+    # The trace file will be the same as the movie filename, but with "-trace.txt" tacked on.
+    # Mark 2005-03-08
+    if mflag:
+        traceFile = ""
+    else: 
+        fullpath, e = os.path.splitext(moviefile)
+        traceFile = "-q" + fullpath + "-trace.txt"
+
+    # This was the old tracefile - obsolete as of 2005-03-08 - Mark
+#    traceFile = "-q"+ os.path.join(assy.w.tmpFilePath, "sim-%d-trace.txt" % pid) 
 
     # filePath = the current directory NE-1 is running from.
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -990,7 +1002,7 @@ def writemovie(assy, mflag = False):
     assy.m.natoms = natoms = len(assy.alist)
 #    print "writeMovie: natoms = ",natoms, "assy.filename =",assy.filename
             
-    # We cannot to determine the exact final size of an XYZ trajectory file.
+    # We cannot determine the exact final size of an XYZ trajectory file.
     # This formula is an estimate.  "filesize" must never be larger than the
     # actual final size of the XYZ file, or the progress bar will never hit 100%,
     # even though the simulator finished writing the file.
