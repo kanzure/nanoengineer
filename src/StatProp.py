@@ -14,6 +14,7 @@ class StatProp(StatPropDialog):
     def setup(self):
         stat = self.stat
         
+        self.newcolor = self.stat.normcolor
         self.stat.originalColor = self.stat.normcolor
         
         self.nameLineEdit.setText(stat.name)
@@ -23,10 +24,6 @@ class StatProp(StatPropDialog):
             QColor(int(stat.normcolor[0]*255), 
                          int(stat.normcolor[1]*255), 
                          int(stat.normcolor[2]*255)))
-
-        strList = map(lambda i: stat.atoms[i].element.symbol + str(i),
-                                                range(0, len(stat.atoms)))
-        self.atomsComboBox.insertStrList(strList, 0)
 
         self.applyPushButton.setEnabled(False)
         
@@ -44,9 +41,8 @@ class StatProp(StatPropDialog):
                         
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.stat.color = self.stat.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
-            self.glpane.paintGL()
-
+            self.newcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.applyPushButton.setEnabled(True)
 
     #################
     # OK Button
@@ -60,7 +56,8 @@ class StatProp(StatPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
-	    self.stat.normcolor = self.stat.originalColor
+	    self.stat.color = self.stat.normcolor = self.stat.originalColor
+	    self.glpane.paintGL()
 
     #################
     # Apply Button
@@ -75,6 +72,9 @@ class StatProp(StatPropDialog):
         self.nameLineEdit.setText(self.stat.name)
         self.stat.assy.w.update() # Update model tree
         self.stat.assy.modified = 1
+        
+        self.stat.color = self.stat.normcolor = self.newcolor        
+        self.glpane.paintGL()
         
         self.applyPushButton.setEnabled(False)
 	

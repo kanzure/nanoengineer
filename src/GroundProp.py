@@ -14,6 +14,7 @@ class GroundProp(GroundPropDialog):
     def setup(self):
         ground = self.ground
         
+        self.newcolor = self.ground.normcolor
         self.ground.originalColor = self.ground.normcolor
         
         self.nameLineEdit.setText(ground.name)
@@ -23,13 +24,8 @@ class GroundProp(GroundPropDialog):
                          int(ground.normcolor[1]*255), 
                          int(ground.normcolor[2]*255)))
 
-        strList = map(lambda i: ground.atoms[i].element.symbol + str(i),
-                                                range(0, len(ground.atoms)))
-        self.atomsComboBox.insertStrList(strList, 0)
-
         self.applyPushButton.setEnabled(False)
         
-
     #########################
     # Change linear ground color
     #########################
@@ -43,11 +39,10 @@ class GroundProp(GroundPropDialog):
                         
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.ground.color = self.ground.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
-            self.glpane.paintGL()
+            self.newcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.applyPushButton.setEnabled(True)
 
-
-    #################
+    #############################
     # OK Button
     #################
     def accept(self):
@@ -59,7 +54,8 @@ class GroundProp(GroundPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
-	    self.ground.normcolor = self.ground.originalColor
+	    self.ground.color = self.ground.normcolor = self.ground.originalColor
+	    self.glpane.paintGL()
 
     #################
     # Apply Button
@@ -72,6 +68,9 @@ class GroundProp(GroundPropDialog):
         self.nameLineEdit.setText(self.ground.name)
         self.ground.assy.w.update() # Update model tree
         self.ground.assy.modified = 1
+
+        self.ground.color = self.ground.normcolor = self.newcolor        
+        self.glpane.paintGL()
 
         self.applyPushButton.setEnabled(False)
 	
