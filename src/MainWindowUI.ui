@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>953</height>
+            <height>956</height>
         </rect>
     </property>
     <property name="caption">
@@ -178,7 +178,7 @@
             <rect>
                 <x>284</x>
                 <y>0</y>
-                <width>231</width>
+                <width>318</width>
                 <height>29</height>
             </rect>
         </property>
@@ -195,7 +195,10 @@
         <action name="setViewPerspecAction"/>
         <separator/>
         <action name="setViewFrontAction"/>
+        <action name="setViewBackAction"/>
         <action name="setViewTopAction"/>
+        <action name="setViewBottomAction"/>
+        <action name="setViewLeftAction"/>
         <action name="setViewRightAction"/>
     </toolbar>
     <toolbar dock="2">
@@ -204,7 +207,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>515</x>
+                <x>602</x>
                 <y>0</y>
                 <width>101</width>
                 <height>29</height>
@@ -226,7 +229,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>616</x>
+                <x>703</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>

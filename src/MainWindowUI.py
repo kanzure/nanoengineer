@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Oct 15 11:37:55 2004
+# Created: Sat Oct 16 15:41:07 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7406,7 +7406,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(284,0,231,29))
+        self.viewToolbar.setGeometry(QRect(284,0,318,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -7415,18 +7415,21 @@ class MainWindow(QMainWindow):
         self.setViewPerspecAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewFrontAction.addTo(self.viewToolbar)
+        self.setViewBackAction.addTo(self.viewToolbar)
         self.setViewTopAction.addTo(self.viewToolbar)
+        self.setViewBottomAction.addTo(self.viewToolbar)
+        self.setViewLeftAction.addTo(self.viewToolbar)
         self.setViewRightAction.addTo(self.viewToolbar)
         self.gridsToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.gridsToolbar.setGeometry(QRect(515,0,101,29))
+        self.gridsToolbar.setGeometry(QRect(602,0,101,29))
         self.gridsToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.orient100Action.addTo(self.gridsToolbar)
         self.orient110Action.addTo(self.gridsToolbar)
         self.orient111Action.addTo(self.gridsToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(616,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(703,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7657,7 +7660,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,953).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,956).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
