@@ -3,17 +3,19 @@
  
 VERSION/INFO:
  
-  This is nanoENGINEER-1 version 1.0 Alpha as of February 2rd 2005.
+  This is nanoENGINEER-1 v0.0.4 (Alpha 4) as of March 14, 2005.
   See the COPYRIGHT section for distribution and copyright notices.
   Send all bug reports and questions for nanoENGINEER-1 to 
   support@nanorex.com.
+
+  For the most recent version of this file, check 
+  http://www.nanorex.com/README.htm
 
 
 MINIMUM SYSTEM REQUIREMENTS:
 
   Linux:
     1 GHz Intel/AMD processor or equivalent 
-    Mandrake 10.0 or higher
     512 MB RAM
     300 MB available disk space
     3D graphics accelerator card
@@ -35,19 +37,12 @@ MINIMUM SYSTEM REQUIREMENTS:
 
 INSTALLATION:
 
-  Linux: 
-    Get the ne-1a.rpm package installer and simply run it.
-
-  MacOS:
-    Get the ne-1a.pkg package installer and simply run it.
-
-  Windows:
-    Get the setup.exe package installer and simply run it.
+    Simply run the package installer for your system type.
 
 
 UNSUPPORTED/BUGS:
 
-  Please see the file KnownBugs.
+  Please see the file http://www.nanorex.com/KnownBugs.htm
 
 
 COPYRIGHT:
@@ -63,11 +58,8 @@ COPYRIGHT:
   use or performance of this software.
 
   Please see the file LICENSE (distributed in the same directory as 
-  this file)for the license covering nanoENGINEER-1, since this depends 
+  this file) for the license covering nanoENGINEER-1, since this depends 
   on the platform and how the entire program was distributed. If no 
   file named LICENSE was distributed in this file's directory, then 
   all rights for use or distribution of nanoENGINEER-1 are reserved by 
   Nanorex.
- 
-
-
