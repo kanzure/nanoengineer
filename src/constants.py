@@ -30,6 +30,7 @@ green = (0.0, 1.0, 0.0)
 purple = (1.0, 0.0, 1.0)
 white = (1.0,1.0,1.0)
 gray = (0.5, 0.5, 0.5)
+navy = (0.0, 0.09, 0.44)
 
 LEDoff = (0.8, 0.0, 0.0)
 LEDon = (1.0, 0.5, 0.5)
@@ -43,7 +44,7 @@ globalParms['WorkingDirectory'] = "."
 
 def logicColor(logic):
     if logic==0: return orange
-    if logic==1: return aqua
+    if logic==1: return navy
     if logic==2: return yellow
 
 assyList = []
