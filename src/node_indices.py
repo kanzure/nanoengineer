@@ -162,11 +162,6 @@ def move_one_node(node, root, newpos):
     # so we can use the node or group
     # as a fixed marker, so when we remove node, this marker
     # doesn't move even though indices move.
-    # That can't be done only when the newpos is in an empty group
-    # (or when there is no such pos, but that's an error),
-    # in which case, have an exception
-    # (since I'm lazy and this case should never arise yet -- to fix
-    #  it we need a third option of using the group as the marker).
     try:
         marker = node_at(root, newpos)
         where = 'before'
