@@ -239,6 +239,7 @@ class MWsemantics(MainWindow):
                 writemmp(self.assy, dir + fil + ".mmp")
                 self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
                 self.assy.modified = 0 # The file and the part are now the same.
+                self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
             else: self.fileSaveAs()
 
     def fileSaveAs(self):
@@ -252,32 +253,48 @@ class MWsemantics(MainWindow):
                     self,
                     "SaveDialog",
                     "Save As")
-        
-#        fn = str(fn) + ".mmp" # TEMPORARY FIX - Mark
-            
-        print "QFileDialog: filename = ", fn
-            
+
         if fn:
             fn = str(fn)
             dir, fil, ext = fileparse(fn)
             ext = str(ext)
-            if not ext: ext = ".mmp"
+
+            if ext == ".pdb": # Write PDB file.
+                try:
+                    writepdb(self.assy, dir + fil + ext)
+                except:
+                    print "MWsemantics.py: fileSaveAs(): error writing file" + dir + fil + ext
+                    self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
+                else:
+                    self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
             
-#            print "QFileDialog: filename = ", fn
-#            print "QFileDialog: ext = ", ext
+            if ext == ".pov": # Write POV-Ray file
+                try:
+                    writepov(self.assy, dir + fil + ext)
+                except:
+                    print "MWsemantics.py: fileSaveAs(): error writing file" + dir + fil + ext
+                    self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
+                else:
+                    self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
             
-            if ext == ".mmp":
+            else: # Write MMP file.
+                if not ext: # This is a kludge until I figure out the SIGNAL for selectFilter.
+                    ext = ".mmp"
+                    self.assy.filename = fn + ext
+                else:
+                    self.assy.filename = fn
+                print "MWSematics.py: filename =", self.assy.filename #DEBUG
                 self.assy.name = fil
-                self.assy.filename = fn + ".mmp"
-                writemmp(self.assy, self.assy.filename) # write the MMP file
-                self.assy.modified = 0 # The file and the part are now the same.
-                self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
-                print "MMP saved: ", self.assy.filename
-                self.msgbarLabel.setText( "MMP saved: " + self.assy.filename )
-            if ext == ".pdb":
-                writepdb(self.assy, dir + fil + ".pdb")
-            if ext == ".pov":
-                writepov(self.assy, dir + fil + ".pov")
+                try:
+                    writemmp(self.assy, dir + fil + ext)
+                except:
+                    print "MWsemantics.py: fileSaveAs(): error writing file" + dir + fil + ext
+                    self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
+                else:
+                    self.assy.modified = 0 # The file and the part are now the same.
+                    self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
+                    self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
+                    self.assy.modified = 0 # The file and the part are now the same.
 
     def fileImage(self):
         if self.assy:
@@ -298,10 +315,19 @@ class MWsemantics(MainWindow):
         self.__clear()
         self.modelTreeView.update()
         self.update()
-        
 
     def fileClose(self):
-        if self.assy.modified: self.fileSave()
+        if self.assy.modified:
+            ret = QMessageBox.information( self, "Atom",
+                "The part contains unsaved changes\n"
+                "Do you want to save the changes before closing this part?",
+                "&Save", "&Discard", "Cancel",
+                0,      # Enter == button 0
+                2 )     # Escape == button 2
+            
+            if ret==0: self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
+
         self.__clear()
         self.update()
 
