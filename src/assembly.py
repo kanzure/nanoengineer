@@ -870,7 +870,10 @@ class assembly:
         
         if new.members:
             nshelf_before = len(self.shelf.members) #bruce 050201
-            for ob in new.members:
+            for ob in new.members[:]:
+                # [bruce 050302 copying that members list, to fix bug 360 item 8, like I fixed
+                #  bug 360 item 5 in "copy" 2 weeks ago. It's silly that I didn't look for the same
+                #  bug in this method too, when I fixed it in copy.]
                 # bruce 050131 try fixing bug 278 in a limited, conservative way
                 # (which won't help the underlying problem in other cases like drag & drop, sorry),
                 # based on the theory that chunks remaining in assy.molecules is the problem:
