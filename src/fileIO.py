@@ -102,7 +102,6 @@ def writepdb(assy, filename):
 
             f.write("\n")
 
-
     for aList in connectList:
         f.write("CONECT")
         for a in aList:
@@ -114,15 +113,15 @@ def writepdb(assy, filename):
     f.close()   
 
 
-# read a Molecular Machine Part-format file into maybe multiple molecules
-def readmmp(assy,filnam):
+def _readmmp(assy, filnam, isInsert = False):
+    """The routine to actually reading a mmp file and save data into data structure """
     #bruce 041011: added 'U' to file mode, for universal newline support.
     l=open(filnam,"rU").readlines() 
     assy.filename=filnam
     mol = None
     ndix={}
     assy.alist = []
-    assy.tree = Group("Root", assy, None)
+    #assy.tree = Group("Root", assy, None)
     groupstack = []
     grouplist = []
     opengroup = None
@@ -135,7 +134,7 @@ def readmmp(assy,filnam):
         if key == "group": # Group of Molecules and/or Groups
             name = getname(card, "Grp")
             if name == "Shelf": name = "Clipboard" # kludge to get rid of Shelf name
-            opengroup = Group(name, assy, assy.tree)
+            opengroup = Group(name, assy, opengroup)#assy.tree)
             if not groupstack: grouplist += [opengroup]
             groupstack = [(opengroup, name)] + groupstack
 
@@ -295,48 +294,65 @@ def readmmp(assy,filnam):
             prevmotor.setShaft(list)
 
         elif key=="csys": # Coordinate System
-            m=re.match(csyspat,card)
-            name=m.group(1)
-            wxyz = A(map(float, [m.group(2), m.group(3),
+            if not isInsert: #Skip this record if inserting
+                m=re.match(csyspat,card)
+                name=m.group(1)
+                wxyz = A(map(float, [m.group(2), m.group(3),
                                  m.group(4), m.group(5)]))
-            scale=float(m.group(6))
-            assy.csys = Csys(assy, name, scale, wxyz)
-            opengroup.addmember(assy.csys)
+                scale=float(m.group(6))
+                assy.csys = Csys(assy, name, scale, wxyz)
+                opengroup.addmember(assy.csys)
 
         elif key=="datum": # Datum object
-            if mol:
-                assy.addmol(mol)
-                mol.moveto(opengroup)
-                mol = None
-            m=re.match(datumpat,card)
-            if not m:
-                print card
-                continue
-            name=m.group(1)
-            type=m.group(5)
-            col = tuple(map(int, [m.group(2), m.group(3), m.group(4)]))
-            vec1 = A(map(float, [m.group(6), m.group(7), m.group(8)]))
-            vec2 = A(map(float, [m.group(9), m.group(10), m.group(11)]))
-            vec3 = A(map(float, [m.group(12), m.group(13), m.group(14)]))
-            new = Datum(assy,name,type,vec1,vec2,vec3)
-            opengroup.addmember(new)
-            new.rgb = col
+            if not isInsert: #Skip this record if inserting
+                if mol:
+                        assy.addmol(mol)
+                        mol.moveto(opengroup)
+                        mol = None
+                m=re.match(datumpat,card)
+                if not m:
+                        print card
+                        continue
+                name=m.group(1)
+                type=m.group(5)
+                col = tuple(map(int, [m.group(2), m.group(3), m.group(4)]))
+                vec1 = A(map(float, [m.group(6), m.group(7), m.group(8)]))
+                vec2 = A(map(float, [m.group(9), m.group(10), m.group(11)]))
+                vec3 = A(map(float, [m.group(12), m.group(13), m.group(14)]))
+                new = Datum(assy,name,type,vec1,vec2,vec3)
+                opengroup.addmember(new)
+                new.rgb = col
             
         elif key=="waals": # van der Waals Interactions
             pass # code was wrong -- to be implemented later
             
         elif key=="kelvin":  # Temperature in Kelvin
-            m = re.match("kelvin (\d+)",card)
-            n = int(m.group(1))
-            assy.temperature = n
-        
-#        else:
-#            print "fileIO.py: readMMP() found unrecognized record \"", key, "\""
+            if not isInsert: #Skip this record if inserting
+                m = re.match("kelvin (\d+)",card)
+                n = int(m.group(1))
+                assy.temperature = n
+    
+    return grouplist        
+            
 
-    if len(grouplist) != 3: print "wrong number of top-level groups"
-    else: assy.data, assy.tree, assy.shelf = grouplist
+# read a Molecular Machine Part-format file into maybe multiple molecules
+def readmmp(assy, filnam):
+    """Reading a mmp file to create a new model """
+    groupList = _readmmp(assy, filnam)
+
+    if len(groupList) != 3: print "wrong number of top-level groups"
+    else: assy.data, assy.tree, assy.shelf = groupList
     assy.data.open = assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
+    
+    
+def insertmmp(assy, fileName):
+    """Reading a mmp file and insert the part into the existing model """    
+    groupList  = _readmmp(assy, fileName, isInsert = True)
+    
+    if len(groupList) != 3: print "wrong number of top-level groups"
+    assy.tree.addmember(groupList[1])
+    
             
 # write all molecules, motors, grounds into an MMP file
 def writemmp(assy, filename):

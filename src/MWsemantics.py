@@ -194,11 +194,11 @@ class MWsemantics(MainWindow):
             if not os.path.exists(fn): return
 
             if fn[-3:] == "mmp":
-                print " MWsemantics.py: fileInsert(): inserting MMP file: ", fn
-#                insertmmp(self.assy,fn)
+                #print " MWsemantics.py: fileInsert(): inserting MMP file: ", fn
+                insertmmp(self.assy, fn)
             if fn[-3:] == "pdb":
-                print " MWsemantics.py: fileInsert(): inserting PDB file: ", fn
-#                insertpdb(self.assy,fn)
+                #print " MWsemantics.py: fileInsert(): inserting PDB file: ", fn
+                readpdb(self.assy, fn)
 
             self.assy.modified = 1 # The file and the part are not the same
 
