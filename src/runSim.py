@@ -38,7 +38,7 @@ class runSim(SimSetupDialog):
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
        
-        args = [filePath + '/../bin test/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper),  "simulate.mmp"]
+        args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper),  "simulate.mmp"]
         
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         oldWorkingDir = os.getcwd()
@@ -46,7 +46,7 @@ class runSim(SimSetupDialog):
         try:
             self.assy.w.msgbarLabel.setText("Calculating...")
             #if self.assy.modified: writemmp(self.assy, self.assy.filename)
-            r = os.spawnv(os.P_WAIT, filePath + '/../bin test/simulator', args)
+            r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
         except:
             print_compact_traceback("exception in simulation; continuing: ")
             s = "internal error (traceback printed elsewhere)"
