@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1159</height>
+            <height>1168</height>
         </rect>
     </property>
     <property name="caption">
@@ -68,8 +68,10 @@
     </item>
     <item text="&amp;View" name="unnamed">
         <action name="setViewHomeAction"/>
-        <action name="setViewFitToWindowAction"/>
         <action name="setViewHomeToCurrentAction"/>
+        <action name="setViewFitToWindowAction"/>
+        <action name="zoomWindowAction"/>
+        <action name="panWindowAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
@@ -161,7 +163,7 @@
             <rect>
                 <x>72</x>
                 <y>0</y>
-                <width>188</width>
+                <width>130</width>
                 <height>29</height>
             </rect>
         </property>
@@ -181,9 +183,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>260</x>
+                <x>202</x>
                 <y>0</y>
-                <width>347</width>
+                <width>376</width>
                 <height>29</height>
             </rect>
         </property>
@@ -196,6 +198,7 @@
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
         <action name="zoomWindowAction"/>
+        <action name="panWindowAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
@@ -213,7 +216,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>607</x>
+                <x>578</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -726,10 +729,16 @@
         <property name="accel">
             <string>Ctrl+Z</string>
         </property>
+        <property name="visible">
+            <bool>false</bool>
+        </property>
     </action>
     <action>
         <property name="name">
             <cstring>editRedoAction</cstring>
+        </property>
+        <property name="on">
+            <bool>false</bool>
         </property>
         <property name="iconSet">
             <iconset>image5</iconset>
@@ -742,6 +751,9 @@
         </property>
         <property name="accel">
             <string>Ctrl+Y</string>
+        </property>
+        <property name="visible">
+            <bool>false</bool>
         </property>
     </action>
     <action>
@@ -2001,7 +2013,7 @@
                 <string>Orthographic Projection</string>
             </property>
             <property name="menuText">
-                <string>Or&amp;thographic Projection</string>
+                <string>Orthographic Projection</string>
             </property>
             <property name="toolTip">
                 <string>Orthographic Projection</string>
@@ -2024,7 +2036,7 @@
                 <string>Perspective Projection</string>
             </property>
             <property name="menuText">
-                <string>&amp;Perspective Projection</string>
+                <string>Perspective Projection</string>
             </property>
             <property name="toolTip">
                 <string>Perspective Projection</string>
@@ -2736,6 +2748,9 @@
         <property name="text">
             <string>Zoom Tool</string>
         </property>
+        <property name="menuText">
+            <string>&amp;Zoom Tool</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -2745,7 +2760,10 @@
             <iconset>image105</iconset>
         </property>
         <property name="text">
-            <string>Action</string>
+            <string>Pan Tool</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Pan Tool</string>
         </property>
     </action>
     <action>
@@ -3091,7 +3109,7 @@
         <data format="XPM.GZ" length="2413">789ca5d4594f55311007f0773ec50d7d2366387b4f637c10f7050417048c0f5d59ef65bb2868fceef6fc674414bc90c805925f3ad34edbe95d5c186dac2e8f1616e74ea776baeb477ec79e8c16c2d9787cf1e9f383ef73f35535cabf7dfe3f7f6f6e7e6d3af2a395c3491c402a4315f819acc683abbef66cb270a8bba6c4f8e1e0c67451e291df84367409f15fe0d85a8d787283dbb24dba87131cbb4ae29f0eee8c3686e33decb4333cbe0d07ad7b581d0dd6854d52df04aeb4370d1cd97d6379bd00b7bdb60ec6fefaca54ae83b7e0d61867e155b833d6215e61ff7db485af31be33d874b6f57c7e6f61e34ce47a7661e7aae0e13db10ebc9f35712ff127b07756e2f7e198e7e3fd14621779fd5338f942fc6db02d9c0b063e80cb3c3f2e9b8ec556c65f88a3acff8eedcba8e1f2d27c7e53b8cee6f50cdce4f579fca1b81557709bcde7fd12ee7c1ff9bc9ec1fa32ff0cb65e47ae6f49ec23df37fa27d3463e9ff770f029b5f0a3c1ae0875e2fa5e5d3ac08fe1325489fbab876bdf04de6f0de7064e5ccf73b8cdf3f3f9bc8675e813dfdf07b1117f85fb5c3ff6a73c3b68ae47e13e9cf35de0fa96d9c149fe13d8e7f571df6ac24ea9e6f35b815388bc1f85fef2455e9feb5f87cb58f17c0afde96bef64bd37ec7c60dcdf0ddce4f9381eefc3e7eee4f914fa35678be9233b76526f0b87d8882fe0dc4d89df13be1f421d8278036ee2affde2fd061d5b593f8a7ba9af83fbe8651cef21d8a8e57e36e11043e27ed083f3ea85c4e3fb2596791cfda408ee522de3f83ec9b3b7927f3e389529f1f8daf4ee9fabf1a4c8e63ffcbf3d1eb18e3c058a43ceecf81c91689b766897f6689f0e687cf31a1c8f2a26744847744c27744a533abbb92a89b7f485bed2395dd0377a484bf4881ed3939b6aba9cff293da3e7f4825ed22b7a4dcbb4426f66ccaf6895d6e82dbda3f7f481d6e9236dd0e6cc7ab6a8a0922aaaa9a1963ad2d4cfacc792b91a9d0f40fd7bfe214359e59457414595d4b6da99759e92a1d4aeda53fbea60983b7b7c6b3ffcf15193eb19ffeeb71c7f783d63567fe68ca3bf3366f7f3f58cdbfaffef8cdbdfcb9f1977795f5733eef61e7fdfc5ffbcdf3bc5ffb83ff71383ad88db</data>
     </image>
     <image name="image105">
-        <data format="XPM.GZ" length="947">789c8dd14b6e83301006e03da7b0f00e550e8fd087aa1ea1559795aa2ecc0081244002745155bd7bf1d8e3b4e044b12ce0d3cfd8835905ecedf599052b6f18e55803834af62cc83f9be6ebfde3e9dbf3e398e919f9379e2f18b097ae2dd473373df33009a7a1d818c69a1cb9a674b08c157bcb54f1609929d68691ae2d9129716bb8d694c85bdaa8b27c50cc0c4d5723f28e6a73e43dd51e8911b2354c740ac86c5a2c51dc21735ab94096f4f25e314ac234c2b3da289638f0189d6396f07389e4993b9100205d0980c8d5c5910851e0d5d54171b6375826667910162629816a3678ab28e1305b0db84e3840bd85d3d8ed8137baa65dd474b40fc0bf040e57f476e17b2e274073998038bacf5a7d970d66fbf4c3e977cf3a18ff74f0f3e8fd024dd7bf9b</data>
+        <data format="XPM.GZ" length="887">789c9dd1dd6a83301407f07b9f2278eea468d476eb287d848d5e16462fe23156dbaa65eb2e46e9bbcf7cd68c08a541243ffee49c634c22b2ddbc932809be2fecd220c19a7d91a8fc69dbdfcfddfa1a84594686275d92349c05614c907cf41d17fbc3b0079ad38c5241909c53aad85b66829de542f0645908a266aace56920bc35a73aec8245f4ca3d65236da5bbe09169a7ac8b3e4ab29554a2e4da9a366aec8258be1742ed84856268dbdebc104a61206853f6188c87c09625c8a97b70f9f9cc097e028c1715239c9fe9e003ad5104c021cb16eb85dc80fe6ccf1df19bcf701a7cfe9a1d99efa52d5974fdc1b0c77ddfaab75fdf8d7397dce9313382bbcad823fff7bafd4</data>
     </image>
     <image name="image106">
         <data format="XPM.GZ" length="1487">789cadd34b4fe2601886e13dbfa2811d99602907219359202aa28288a8e86416e56ba1282d02e5e464fefb703f4e0c4d5899796f16bdf2a6078b1c65ad7ea765658f528bd88dc7c632813bb7b2de320cb73f7ffdf89d4a3b8eb5fb942a563efd2d95ce59c66a4f239fe368779cb13530141d8213b148702a9608be8ac70403b142b02eba049fc401c1b5e81174449fe0833824d885799be056d4c058740876c402c1be5824b811cb042fc50a414fac123c1707042f4443f051f408b6459f600bea45ea998da881be5822782f9609be88558277a221f826fa04f3e290e0292c6860412c125c8986e08938243880fab6f5cc4b51ef0e9e89ba161c8a1af82e9608de8a15824dd1277805f57fa41bf5c43cc11bb1407021ead2d016cb049fc50ac16bb14ad0150dc1b1e8111cc1b24d7026ea6b800db148702e6a60467409d64443fa891d9caf6f323a7607c6f387a3c426d8adc62faf93300aa7c1db6c6f1305f3451cc5cb596eb65a471b776fb39bedfbc7556a27f5cd7c7f333dfdbcf7d979f21caf71e8d9d844178d039bfffb0ef6a7b9e6a69787ceb9aa2737abebcf552bdcdf8ce2f6cdbf45679b3ce736eede2d6ab94ceffea1d35924eed37b9cacfb9bfe53689e73393bf904cdbc13750b1f176d7ced2ffdf33df51726d735b8</data>
@@ -3809,6 +3827,12 @@
         <receiver>MainWindow</receiver>
         <slot>makeThermo()</slot>
     </connection>
+    <connection>
+        <sender>panWindowAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>panWindow()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3943,6 +3967,7 @@
     <slot>movieInfo()</slot>
     <slot>zoomWindow()</slot>
     <slot>makeThermo()</slot>
+    <slot>panWindow()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jan 27 14:34:47 2005
+# Created: Fri Jan 28 14:15:34 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6547,51 +6547,47 @@ image104_data = [
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
 image105_data = [
-"22 22 22 1",
+"22 22 18 1",
 ". c None",
-"o c #030000",
-"m c #030200",
+"j c #030200",
 "# c #040000",
-"s c #040002",
-"r c #040005",
-"p c #04000b",
-"i c #040100",
+"o c #040002",
+"n c #040005",
+"l c #04000b",
+"c c #040100",
 "f c #050100",
-"j c #050400",
+"h c #050400",
 "a c #060000",
-"h c #060009",
+"m c #060002",
+"g c #060009",
 "b c #060200",
-"t c #070400",
+"p c #070400",
 "d c #080000",
-"q c #080010",
-"n c #080300",
-"c c #0b0603",
-"k c #0d0200",
-"e c #0f0300",
-"l c #13051e",
-"g c #ffffff",
+"k c #080300",
+"e c #0b0603",
+"i c #0f0300",
 "......................",
-"...........#..........",
-"..........a#b.........",
-".........accca........",
-"........cc.d.cc.......",
-"........c..e..c.......",
-"...........e..........",
-"...........c..........",
-"....cc.....c.....cc...",
-"...fc......c.g....ch..",
-"..#c.......c.......c#.",
-".#ccijcccccccccccklc#m",
-"..nc.......c.......co.",
-"...cc......c......cp..",
-"....cc.....c.....cc...",
-"...........c..........",
-"...........c..........",
-"........c..c..c.......",
-"........cc.q.cc.......",
-".........#cccc........",
-"..........rs#.........",
-"...........t.........."
+"......................",
+".........#............",
+"........a#b...........",
+".......accca..........",
+"......cc.d.cc.........",
+".........e............",
+".........e............",
+"...c.....e.....c......",
+"..fc.....e.....cg.....",
+".#c......e......c#....",
+"#ecchieeeeeeeeeecej...",
+".kc......e......cc....",
+"..#c.....e.....cl.....",
+"...c.....e.....c......",
+".........e............",
+".........e............",
+"......cc.e.cc.........",
+".......#cccm..........",
+"........no#...........",
+".........p............",
+"......................"
 ]
 image106_data = [
 "22 22 58 1",
@@ -6842,8 +6838,11 @@ class MainWindow(QMainWindow):
         self.fileExitAction = QAction(self,"fileExitAction")
         self.editUndoAction = QAction(self,"editUndoAction")
         self.editUndoAction.setIconSet(QIconSet(self.image4))
+        self.editUndoAction.setVisible(0)
         self.editRedoAction = QAction(self,"editRedoAction")
+        self.editRedoAction.setOn(0)
         self.editRedoAction.setIconSet(QIconSet(self.image5))
+        self.editRedoAction.setVisible(0)
         self.editCutAction = QAction(self,"editCutAction")
         self.editCutAction.setEnabled(1)
         self.editCutAction.setIconSet(QIconSet(self.image6))
@@ -7164,7 +7163,7 @@ class MainWindow(QMainWindow):
         self.fileSaveAction.addTo(self.fileToolbar)
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.editToolbar.setGeometry(QRect(72,0,188,29))
+        self.editToolbar.setGeometry(QRect(72,0,130,29))
         self.editUndoAction.addTo(self.editToolbar)
         self.editRedoAction.addTo(self.editToolbar)
         self.editCutAction.addTo(self.editToolbar)
@@ -7173,11 +7172,12 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(260,0,347,29))
+        self.viewToolbar.setGeometry(QRect(202,0,376,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
         self.zoomWindowAction.addTo(self.viewToolbar)
+        self.panWindowAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewOrthoAction.addTo(self.viewToolbar)
         self.setViewPerspecAction.addTo(self.viewToolbar)
@@ -7190,7 +7190,7 @@ class MainWindow(QMainWindow):
         self.setViewRightAction.addTo(self.viewToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(607,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(578,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7373,8 +7373,10 @@ class MainWindow(QMainWindow):
 
         self.unnamed = QPopupMenu(self)
         self.setViewHomeAction.addTo(self.unnamed)
-        self.setViewFitToWindowAction.addTo(self.unnamed)
         self.setViewHomeToCurrentAction.addTo(self.unnamed)
+        self.setViewFitToWindowAction.addTo(self.unnamed)
+        self.zoomWindowAction.addTo(self.unnamed)
+        self.panWindowAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.setViewOrthoAction.addTo(self.unnamed)
         self.setViewPerspecAction.addTo(self.unnamed)
@@ -7448,7 +7450,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1159).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1168).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7569,6 +7571,7 @@ class MainWindow(QMainWindow):
         self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
         self.connect(self.zoomWindowAction,SIGNAL("activated()"),self.zoomWindow)
         self.connect(self.jigsThermoAction,SIGNAL("activated()"),self.makeThermo)
+        self.connect(self.panWindowAction,SIGNAL("activated()"),self.panWindow)
 
 
     def languageChange(self):
@@ -7788,10 +7791,10 @@ class MainWindow(QMainWindow):
         self.dispVdWAction.setMenuText(self.__tr("VdW"))
         self.setPerspectiveActionGroup.setText(self.__tr("ActionGroup"))
         self.setViewOrthoAction.setText(self.__tr("Orthographic Projection"))
-        self.setViewOrthoAction.setMenuText(self.__tr("Or&thographic Projection"))
+        self.setViewOrthoAction.setMenuText(self.__tr("Orthographic Projection"))
         self.setViewOrthoAction.setToolTip(self.__tr("Orthographic Projection"))
         self.setViewPerspecAction.setText(self.__tr("Perspective Projection"))
-        self.setViewPerspecAction.setMenuText(self.__tr("&Perspective Projection"))
+        self.setViewPerspecAction.setMenuText(self.__tr("Perspective Projection"))
         self.setViewPerspecAction.setToolTip(self.__tr("Perspective Projection"))
         self.setPerspectiveActionGroup.setMenuText(self.__tr("ActionGroup"))
         self.toolsModeActionGroup.setText(self.__tr("ActionGroup"))
@@ -7910,9 +7913,9 @@ class MainWindow(QMainWindow):
         self.movieInfoAction.setText(self.__tr("Movie Information"))
         self.movieInfoAction.setMenuText(self.__tr("Movie Information"))
         self.zoomWindowAction.setText(self.__tr("Zoom Tool"))
-        self.zoomWindowAction.setMenuText(self.__tr("Zoom Tool"))
-        self.panWindowAction.setText(self.__tr("Action"))
-        self.panWindowAction.setMenuText(self.__tr("Action"))
+        self.zoomWindowAction.setMenuText(self.__tr("&Zoom Tool"))
+        self.panWindowAction.setText(self.__tr("Pan Tool"))
+        self.panWindowAction.setMenuText(self.__tr("&Pan Tool"))
         self.rotateWindowAction.setText(self.__tr("Action"))
         self.rotateWindowAction.setMenuText(self.__tr("Action"))
         self.jigsThermoAction.setText(self.__tr("Thermometer"))
@@ -8359,6 +8362,9 @@ class MainWindow(QMainWindow):
 
     def makeThermo(self):
         print "MainWindow.makeThermo(): Not implemented yet"
+
+    def panWindow(self):
+        print "MainWindow.panWindow(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
