@@ -848,7 +848,6 @@ class basicMode(anyMode):
         fixmols = {}
         if self.o.assy.selmols:
             counta = countm = 0
-            ## didwhat = "Dehydrogenated %d molecule(s)" % len(self.o.assy.selmols) 
             for m in self.o.assy.selmols:
                 changed = m.Dehydrogenate()
                 # note: this might have removed all atoms from m! Fixed below.
@@ -860,14 +859,14 @@ class basicMode(anyMode):
                     # is in a different molecule, which therefore might need a
                     # shakedown... I have not tried to fix that, and I'm not
                     # sure it's a bug (since Dehydrogenate did changeapp on it,
-                    # and maybe that's enough).
+                    # and maybe that's enough -- this needs review).
             if counta:
                 didwhat = "Dehydrogenate: removed %d atom(s) from %d molecule(s)" \
                           % (counta, countm)
                 if len(self.o.assy.selmols) > countm:
                     didwhat += \
                         " (%d selected molecule(s) had no hydrogens)" \
-                        % (len(self.o.assy.selmols) - countm) #test again; has bug, see debug output next time
+                        % (len(self.o.assy.selmols) - countm)
                 didwhat = fix_plurals(didwhat)
             else:
                 didwhat = "Dehydrogenate: selected molecules contain no hydrogens"
@@ -906,9 +905,6 @@ class basicMode(anyMode):
                     mol.shakedown()
                 else:
                     mol.kill()
-                #e bruce comment 041018:
-                # someday we might optimize this by only doing shakedown
-                # on the molecules that actually changed. [low priority optim]
             self.w.update()
         self.status_msg(didwhat)
         return
