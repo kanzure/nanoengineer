@@ -31,6 +31,8 @@ class handleWithHandleSet:
 class HandleSet:
     "maintain a set of spheres, able to be efficiently(#e) intersected with a ray, or a 3d point"
     color = (0.5,0.5,0.5) # default color (gray50)
+    radius_multiplier = 1.0 # this might be patched to some other value by our owner;
+     # should affect all internal computations using radii, but not returned radii inside handle tuples ######NIM
     def __init__(self):
         self.origin = V(0,0,0) # changed from this only by certain subclasses, in practice
         self.handles = [] # list of (pos,radius,info) tuples
@@ -50,23 +52,35 @@ class HandleSet:
     def move(self, offset):
         self.origin = self.origin + offset
         ## warning: this would be wrong (due to destructive mod of a vector): self.origin += motion
-    def draw(self, glpane, offset = V(0,0,0), color = None):
+    def draw(self, glpane, offset = V(0,0,0), color = None, info = {}):
         "draw our spheres (in practice we'll need to extend this for different sets...)"
+##        self.radius_multiplier = 1.0 # this might be changed by certain subclass's process_optional_info method
+##        self.process_optional_info(info) # might reset instvars that affect following code... (kluge?)
         color = color or self.color
-        detailLevel = 0 # just an icosahedron
+        ##detailLevel = 0 # just an icosahedron
+        detailLevel = 1 # easier to click on this way
         ##radius = 0.33 # the one we store might be too large? no, i guess it's ok.
         #e (i might prefer an octahedron, or a miniature-convex-hull-of-extrude-unit)
         offset = offset + self.origin
+        radius_multiplier = self.radius_multiplier
         for (pos,radius,info) in self.handles:
-            pos = pos + offset
-            drawer.drawsphere(color, pos, radius, detailLevel)
+            drawer.drawsphere(color, pos + offset, radius * radius_multiplier, detailLevel)
+##    def process_optional_info(self, info):
+##        "some subclasses should override this to let info affect draw method"
+##        pass
     def findHandles_containing(self, point):
         "return a list of all the handles (in arbitrary order) which (as balls) contain the given 3d point"
         res = []
         for (pos,radius,info) in self.handles: #e revise this code if we cluster them, esp with bigger radius
-            if vlen(point - pos) <= radius:
+            if vlen(point - pos) <= radius * self.radius_multiplier:
                 res.append((pos,radius,info))
         return res
+##    def findHandles_near(self, point, radius = None):
+##        """return a list (in arbitrary order) of pairs (dist, handle) for all the handles
+##           which are near the given point (within the given radius (default very large###e???),
+##           *or* within their own sphere-radius). ####### WRONG CODE
+##        """
+##        assert 0
     def findHandles_exact(self, p1, p2, cutoff = 0.0, backs_ok = 1, offset = V(0,0,0)):
         """return a list of (dist, handle) pairs, in arbitrary order,
         which includes, for each handle (spherical surface) hit by the ray from p1 thru p2,
@@ -85,9 +99,11 @@ class HandleSet:
         ## is this modifying the vector in-place, causing a bug?? offset += self.origin # treat our handles' pos as relative to this
         ## I don't know, but one of the three instances of += was doing this!!! probably i was resetting the atom or mol pos....
         offset = offset + self.origin # treat our handles' pos as relative to this
+        radius_multiplier = self.radius_multiplier
         for (pos,radius,info) in hh:
             ## bug in this? pos += offset
             pos = pos + offset
+            radius *= radius_multiplier
             dist, wid = orthodist(p1, v, pos)
             if radius >= wid: # the ray hits the sphere
                 delta = sqrt(radius*radius - wid*wid)
@@ -103,6 +119,7 @@ class HandleSet:
         """return None, or the frontmost (dist, handle) pair, as computed by findHandles_exact;
         but turn the handle into a pyobj for convenience of caller.
         """
+        #####k i don't know if retval needs self.radius_multiplier...
         #e will we need to let caller know whether it was the front or back surface we hit?
         # or even the exact position on the sphere? if so, add more data to the returned pair.
         dhdh = self.findHandles_exact(p1, p2, cutoff, backs_ok, offset = offset)
@@ -127,8 +144,12 @@ class HandleSet:
     def leftDown_status_msg( self, handle, copy_id):
         "subclasses should override this"
         return ""
-    def handle_setpos( self, ind, newpos): ###nim
-        assert 0, "handle_setpos nim; would patch our arrays to change pos of just one handle"
+    def handle_setpos( self, ind, newpos):
+        "patch our arrays to change pos of just one handle"
+        (pos,radius,info) = self.handles[ind]
+        pos = newpos
+        self.handles[ind] = (pos,radius,info)
+        self.handlpos[ind] = pos #e might fail if we ever make self.compile() do something
         pass
     pass
 
@@ -193,6 +214,9 @@ class niceoffsetsHandleSet(HandleSet): #e this really belongs in extrudeMode.py,
         return "overlapped open bonds base#%d and rep#%d" % (i1,i2)
     def click_handle( self, handle, copy_id):
         self.target.click_nice_offset_handle(handle)
+##    def process_optional_info(self, info):
+##        bond_tolerance = info.get('bond_tolerance',1.0)
+##        self.radius_multiplier = bond_tolerance # affects draw() method
     pass
 
 

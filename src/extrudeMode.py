@@ -13,6 +13,8 @@ Stub file for Extrude mode. It's getting less and less identical to cookieMode.
 
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
+from platform import *
+
 from modes import *
 from qt import QSpinBox, QDoubleValidator
 
@@ -60,78 +62,198 @@ class FloatSpinBox(QSpinBox):
         self.setValue( int( fval * self.precision_angstroms ) )
     pass
 
+class TogglePrefCheckBox(QCheckBox):
+    def __init__(self, *args, **kws):
+        self.sense = kws.pop('sense', True) # whether checking the box makes our value (seen by callers) True or False
+        self.default = kws.pop('default', True) # whether our default value (*not* default checked-state) is True or False
+        self.tooltip = kws.pop('tooltip', "") # tooltip to show ###e NIM
+        # public attributes:
+        self.attr = kws.pop('attr', None) # name of mode attribute (if any) which this should set
+        self.repaintQ = kws.pop('repaintQ', False) # whether mode might need to repaint if this changes
+        assert not kws, "keyword arguments are not supported by QCheckBox"
+        QCheckBox.__init__(self, *args)
+        #e set tooltip - how? see .py file made from .ui to find out (qt assistant didn't say).
+    def value(self):
+        if self.isChecked():
+            return self.sense
+        else:
+            return not self.sense
+    def setValue(self, bool1):
+        if self.sense:
+            self.setChecked( bool1)
+        else:
+            self.setChecked( not bool1)
+    def initValue(self):
+        self.setValue(self.default)
+    pass
+        
 MAX_NCOPIES = 100 # max number of extrude-unit copies. Should be larger. ####e
 
 # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
 # (FYI: I will remove this, and the call to this, after MainWindowUI does the same stuff.
 #  But first I will be editing this function a lot to get the dashboard contents that I need.)
 def do_what_MainWindowUI_should_do(self):
-        "self should be the main MWSemantics object -- at the moment this is a function, not a method"
+    "self should be the main MWSemantics object -- at the moment this is a function, not a method"
 
-        from qt import SIGNAL, QToolBar, QLabel, QLineEdit, QSpinBox
+    ##print "extrude debug: do_what_MainWindowUI_should_do"
 
-        # 2. make a toolbar to be our dashboard, similar to the cookieCutterToolbar
-        # (based on the code for cookieCutterToolbar in MainWindowUI)
+    from qt import SIGNAL, QToolBar, QLabel, QLineEdit, QSpinBox
 
-        self.extrudeDashboard = QToolBar(QString(""),self,Qt.DockBottom)
-        self.extrudeToolbar = self.extrudeDashboard # bruce 041007 so I don't have to rename this in MWsemantics.py yet
+    # 2. make a toolbar to be our dashboard, similar to the cookieCutterToolbar
+    # (based on the code for cookieCutterToolbar in MainWindowUI)
 
-        self.extrudeDashboard.setGeometry(QRect(0,0,515,29)) ### will probably be wrong once we modify the contents
-        self.extrudeDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
+    self.extrudeDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+    self.extrudeToolbar = self.extrudeDashboard # bruce 041007 so I don't have to rename this in MWsemantics.py yet
 
-        self.textLabel_extrude_toolbar = QLabel(self.extrudeDashboard,"textLabel_extrude_toolbar")
-        self.textLabel_extrude_toolbar.setText(self._MainWindow__tr("Extrude Mode (stub)")) # see note below about __tr
+    self.extrudeDashboard.setGeometry(QRect(0,0,515,29)) ### will probably be wrong once we modify the contents
+    self.extrudeDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
-        self.extrudeDashboard.addSeparator()
+    self.textLabel_extrude_toolbar = QLabel(self.extrudeDashboard,"textLabel_extrude_toolbar")
+    # below was "Extrude Mode", in two places in the file ########
+    self.textLabel_extrude_toolbar.setText(self._MainWindow__tr("Extrude")) # see note below about __tr
 
-        def insertlabel(text):
-            label = QLabel(self.extrudeDashboard, "extrude_label_"+text.strip())
-            label.setText(self._MainWindow__tr(text))
-            #e don't bother retaining it (ok??)
-        insertlabel(" N ")
-        self.extrudeSpinBox_n = QSpinBox(self.extrudeDashboard, "extrudeSpinBox_n")
-        self.extrudeSpinBox_n.setRange(1,MAX_NCOPIES)
-        self.extrudeDashboard.addSeparator()
-        insertlabel(" X ") # number of spaces is intentionally different on different labels
-        self.extrudeSpinBox_x = FloatSpinBox(self.extrudeDashboard, "extrudeSpinBox_x")
-        insertlabel("  Y ")
-        self.extrudeSpinBox_y = FloatSpinBox(self.extrudeDashboard, "extrudeSpinBox_y")
-        insertlabel("  Z ")
-        self.extrudeSpinBox_z = FloatSpinBox(self.extrudeDashboard, "extrudeSpinBox_z")
-        self.extrudeDashboard.addSeparator()
-        insertlabel(" length ") # units?
-        self.extrudeSpinBox_length = FloatSpinBox(self.extrudeDashboard, "extrudeSpinBox_length", for_a_length = 1)
+    self.extrudeDashboard.addSeparator()
 
-        reinit_extrude_controls(self)
+    # make it convenient to revise nested vbox, hbox structures for the UI
+    where = [self.extrudeDashboard]
+    def parent_now():
+        "put things inside this instead of self.extrudeDashboard"
+        return where[-1]
+    def begin(thing): # start a QVBox or QHBox
+        box = thing(parent_now())
+        where.append(box)
+        return 1 # so you can say "if begin(): ..." if you want to use python indentation
+    def end():
+        where.pop()
+    
+    def insertlabel(text):
+        label = QLabel(parent_now(), "extrude_label_"+text.strip()) # [parent, name
+        label.setText(self._MainWindow__tr(text)) # initial text
+        return label # caller doesn't usually need this, except to vary the text
+
+    insertlabel(" N ")
+    self.extrudeSpinBox_n = QSpinBox(self.extrudeDashboard, "extrudeSpinBox_n")
+    self.extrudeSpinBox_n.setRange(1,MAX_NCOPIES)
+    self.extrudeDashboard.addSeparator()
+
+    if begin(QVBox):
+        if begin(QHBox):
+            insertlabel(" X ") # number of spaces is intentionally different on different labels
+            self.extrudeSpinBox_x = FloatSpinBox(parent_now(), "extrudeSpinBox_x")
+        end()
+        if begin(QHBox):
+            insertlabel(" Z ")
+            self.extrudeSpinBox_z = FloatSpinBox(parent_now(), "extrudeSpinBox_z")
+        end()
+    end()
+    if begin(QVBox):
+        if begin(QHBox):
+            insertlabel("      Y ")
+            self.extrudeSpinBox_y = FloatSpinBox(parent_now(), "extrudeSpinBox_y")
+        end()
+        if begin(QHBox):
+            insertlabel(" length ") # units?
+            self.extrudeSpinBox_length = FloatSpinBox(parent_now(), "extrudeSpinBox_length", for_a_length = 1)
+        end()
+    end()
+
+    self.extrudeDashboard.addSeparator()
+
+    # == prefs things, don't work on reload if at end, don't know why
+
+    if begin(QVBox):
+        if begin(QHBox):
+            insertlabel("show: ")
+            # these have keyword args of sense (dflt True), in case you
+            # rename them in a way which inverts meaning of True/False,
+            # and default, to specify the initial value of the program
+            # value (not nec. that of the checkbox, if sense = False!).
+            self.extrudePref1 = TogglePrefCheckBox("whole model", parent_now(), "extrudePref1",
+                                                   default = False, attr = 'show_whole_model', repaintQ = True )
+            self.extrudePref2 = TogglePrefCheckBox("bond-offset spheres", parent_now(), "extrudePref2",
+                                                   default = True,  attr = 'show_bond_offsets', repaintQ = True )
+        end()
+        if begin(QHBox):
+            insertlabel("when done: ")
+            # these only affect what we do at the end -- no repaint needed
+            self.extrudePref3 = TogglePrefCheckBox("all one part", parent_now(), "extrudePref3", attr = 'whendone_all_one_part')
+            self.extrudePref4 = TogglePrefCheckBox("relax bonds", parent_now(), "extrudePref4", attr = 'whendone_relax_bonds')
+        end()
+    end()
+
+#e smaller font? how?
+#e tooltips?
+
+##        if begin(QHBox):
+##            if begin(QVBox):
+##                self.extrudePref1 = QCheckBox("show whole model,", parent_now(), "extrudePref1")
+##                self.extrudePref2 = QCheckBox("bond-offset spheres", parent_now(), "extrudePref2") 
+##            end()
+##            if begin(QVBox):
+##                self.extrudePref3 = QCheckBox("one mol. when done", parent_now(), "extrudePref3")
+##                self.extrudePref4 = QCheckBox("relax bonds when done", parent_now(), "extrudePref4")
+##            end()
+##        end()
+
+##        self.extrudePref2.setChecked(False)
+##        self.extrudePref3.setChecked(True)
+##        print "self.extrudePref2.isChecked()",self.extrudePref2.isChecked()
+##        print "self.extrudePref3.isChecked()",self.extrudePref3.isChecked()
         
-        self.extrudeDashboard.addSeparator()
+    self.extrudeDashboard.addSeparator()
 
-        # dashboard tools shared with other modes
-        self.toolsBackUpAction.addTo(self.extrudeDashboard) #e want this??
-        self.toolsStartOverAction.addTo(self.extrudeDashboard)
-        self.toolsDoneAction.addTo(self.extrudeDashboard)
-        self.toolsCancelAction.addTo(self.extrudeDashboard)
+    if begin(QVBox):
+        fmt_f_d = "tolerance: %0.2f => %d bonds"
+        lbl = insertlabel(fmt_f_d % (1.0, 0) ) # text varies
+        self.extrudeBondCriterionLabel = lbl
+        self.extrudeBondCriterionLabel_fmt_f_d = fmt_f_d
+        self.extrudeBondCriterionSlider_dflt = dflt = 100
+        # int minValue, int maxValue, int pageStep, int value, orientation, parent, name:
+        self.extrudeBondCriterionSlider = QSlider(0,300,5,dflt,Qt.Horizontal,parent_now()) # 100 = the built-in criterion
+    end()
+    ##lbl = insertlabel("<nnn>") # display of number of bonds, not editable
+    ##self.extrudeBondCriterion_ResLabel = lbl
 
-        # note: python name-mangling would turn __tr, within class MainWindow, into _MainWindow__tr (I think... seems to be right)
-        self.extrudeDashboard.setLabel(self._MainWindow__tr("Extrude Mode"))
-        
-        # fyi: caller hides the toolbar, we don't need to
-        return
+    self.extrudeDashboard.addSeparator()
+    
+    # == dashboard tools shared with other modes [did not test removing these wrt missing things at end bug, since exc caused]
+    self.toolsBackUpAction.addTo(self.extrudeDashboard) #e want this??
+    self.toolsStartOverAction.addTo(self.extrudeDashboard)
+    self.toolsDoneAction.addTo(self.extrudeDashboard)
+    self.toolsCancelAction.addTo(self.extrudeDashboard)
+
+    # note: python name-mangling would turn __tr, within class MainWindow, into _MainWindow__tr (I think... seems to be right)
+    self.extrudeDashboard.setLabel(self._MainWindow__tr("Extrude")) # "Extrude Mode" was wider than I liked... space is tight
+
+    # stuff *after* the dashboard... make it on the right? prefs settings. experimental.
+    # QCheckBox::QCheckBox ( const QString & text, QWidget * parent, const char * name = 0 )
+
+    ##print "extrude debug: do_what_MainWindowUI_should_do 3"
+
+    # slider (& all else) failed to appear when it was created here, don't know why
+    
+    # fyi: caller hides the toolbar, we don't need to
+
+    reinit_extrude_controls(self) # moved to end, will that fix the reload issues??
+    
+    return
 
 import math
 
-def reinit_extrude_controls(win, glpane = None, length = None):
+def reinit_extrude_controls(win, glpane = None, length = None, attr_target = None):
     "reinitialize the extrude controls; used whenever we enter the mode; win should be the main window (MWSemantics object)"
-    win.extrudeSpinBox_n.setValue(3)
+    self = win
+    self.extrudeSpinBox_n.setValue(3)
     x,y,z = 5,5,5 # default dir in modelspace, to be used as a last resort
     if glpane:
+        # use it to set direction
         try:
-            right = win.glpane.right
+            right = glpane.right
             x,y,z = right # use default direction fixed in eyespace
             if not length:
                 length = 7.0 ######e needed?
         except:
-            print "fyi (bug?): in extrude: x,y,z = win.glpane.right failed"
+            print "fyi (bug?): in extrude: x,y,z = glpane.right failed"
             pass
     if length:
         # adjust the length to what the caller desires
@@ -141,20 +263,49 @@ def reinit_extrude_controls(win, glpane = None, length = None):
         rr = float(length) / ll
         x,y,z = (x * rr, y * rr, z * rr)
     set_extrude_controls_xyz(win, (x,y,z))
+    self.extrude_pref_toggles = [self.extrudePref1, self.extrudePref2, self.extrudePref3, self.extrudePref4]
+    for toggle in self.extrude_pref_toggles:
+        if attr_target and toggle.attr: # do this first, so the attrs needed by the slot functions are there
+            setattr(attr_target, toggle.attr, toggle.default) # this is the only place I initialize those attrs!
+    for toggle in self.extrude_pref_toggles:
+        ##toggle.setChecked(True) ##### stub; change to use its sense & default if it has one -- via a method on it
+        toggle.initValue() # this might call the slot function!
 
+    #e bonding-slider, and its label, showing tolerance, and # of bonds we'd make at current offset
+    tol = self.extrudeBondCriterionSlider_dflt / 100.0
+    set_bond_tolerance_and_number_display( win, tol)
+    set_bond_tolerance_slider( win, tol)
+    return
+
+def set_bond_tolerance_and_number_display(win, tol, num = -1): #e -1 indicates not yet known ###e '?' would look nicer
+    self = win
+    fmt_f_d = self.extrudeBondCriterionLabel_fmt_f_d
+    self.extrudeBondCriterionLabel.setText(fmt_f_d % (tol,num))
+    
+def set_bond_tolerance_slider(win, tol):
+    self = win
+    self.extrudeBondCriterionSlider.setValue(int(tol * 100)) # this will send signals!
+    
+def get_bond_tolerance_slider_val(win):
+    self = win
+    ival = self.extrudeBondCriterionSlider.value()
+    return ival / 100.0
+    
 def set_extrude_controls_xyz_nolength(win, (x,y,z) ):
-    win.extrudeSpinBox_x.setFloatValue(x)
-    win.extrudeSpinBox_y.setFloatValue(y)
-    win.extrudeSpinBox_z.setFloatValue(z)
+    self = win
+    self.extrudeSpinBox_x.setFloatValue(x)
+    self.extrudeSpinBox_y.setFloatValue(y)
+    self.extrudeSpinBox_z.setFloatValue(z)
 
 def set_extrude_controls_xyz(win, (x,y,z) ):
     set_extrude_controls_xyz_nolength( win, (x,y,z) )
     update_length_control_from_xyz(win)
 
 def get_extrude_controls_xyz(win):
-    x = win.extrudeSpinBox_x.floatValue()
-    y = win.extrudeSpinBox_y.floatValue()
-    z = win.extrudeSpinBox_z.floatValue()
+    self = win
+    x = self.extrudeSpinBox_x.floatValue()
+    y = self.extrudeSpinBox_y.floatValue()
+    z = self.extrudeSpinBox_z.floatValue()
     return (x,y,z)
 
 suppress_valuechanged = 0
@@ -164,9 +315,10 @@ def call_while_suppressing_valuechanged(func):
     old_suppress_valuechanged = suppress_valuechanged
     suppress_valuechanged = 1
     try:
-        func()
+        res = func()
     finally:
         suppress_valuechanged = old_suppress_valuechanged
+    return res
 
 def update_length_control_from_xyz(win):
     x,y,z = get_extrude_controls_xyz(win)
@@ -174,7 +326,8 @@ def update_length_control_from_xyz(win):
     if ll < 0.1: # prevent ZeroDivisionError
         set_controls_minimal(win)
         return
-    call_while_suppressing_valuechanged( lambda: win.extrudeSpinBox_length.setFloatValue(ll) )
+    self = win
+    call_while_suppressing_valuechanged( lambda: self.extrudeSpinBox_length.setFloatValue(ll) )
     
 def update_xyz_controls_from_length(win):
     x,y,z = get_extrude_controls_xyz(win)
@@ -182,7 +335,7 @@ def update_xyz_controls_from_length(win):
     if ll < 0.1: # prevent ZeroDivisionError
         set_controls_minimal(win)
         return
-    length = win.extrudeSpinBox_length.floatValue()
+    length = self.extrudeSpinBox_length.floatValue()
     rr = float(length) / ll
     call_while_suppressing_valuechanged( lambda: set_extrude_controls_xyz_nolength( win, (x * rr, y * rr, z * rr) ) )
 
@@ -190,9 +343,10 @@ def set_controls_minimal(win): #e would be better to try harder to preserve xyz 
     ll = 0.1 # kluge, but prevents ZeroDivisionError
     x = y = 0.0
     z = ll
+    self = win
     call_while_suppressing_valuechanged( lambda: set_extrude_controls_xyz_nolength( win, (x, y, z) ) )
-    call_while_suppressing_valuechanged( lambda: win.extrudeSpinBox_length.setFloatValue(ll) )
-    # obs? this is not working as I expected, but it does seem to prevent that
+    call_while_suppressing_valuechanged( lambda: self.extrudeSpinBox_length.setFloatValue(ll) )
+    ### obs comment?: this is not working as I expected, but it does seem to prevent that
     # ZeroDivisionError after user sets xyz each to 0 by typing in them
 
 # ==
@@ -240,7 +394,59 @@ class extrudeMode(basicMode):
         self.w.connect(self.w.extrudeSpinBox_z,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
         self.w.connect(self.w.extrudeSpinBox_length,SIGNAL("valueChanged(int)"),self.length_value_changed) # needs its own slot
 
+        for toggle in self.w.extrude_pref_toggles:
+            self.w.connect(toggle, SIGNAL("stateChanged(int)"), self.toggle_value_changed)
+
+        slider = self.w.extrudeBondCriterionSlider
+        self.w.connect(slider, SIGNAL("valueChanged(int)"), self.slider_value_changed)
         return
+
+    bond_tolerance = -1.0 # initial value can't agree with slider
+    def slider_value_changed(self):
+        if not self.now_using_this_mode_object():
+            return
+        old = self.bond_tolerance
+        new = get_bond_tolerance_slider_val(self.w)
+        if new != old:
+            self.needs_repaint = 1 # almost certain, from bond-offset spheres and/or bondable singlet colors
+            self.bond_tolerance = new
+            # one of the hsets has a radius_multiplier which must be patched to self.bond_tolerance
+            # (kluge? not compared to what I was doing a few minutes ago...)
+            try:
+                hset = self.nice_offsets_handleset
+            except AttributeError:
+                print "must be too early to patch self.nice_offsets_handleset -- could be a problem, it will miss this event #####" #######@@@
+            else:
+                hset.radius_multiplier = self.bond_tolerance
+            set_bond_tolerance_and_number_display(self.w, self.bond_tolerance) # number of resulting bonds not yet known, will be set later
+            self.recompute_bonds() ######### re-updates set_bond_tolerance_and_number_display when done
+            self.repaint_if_needed()
+        return
+            
+    def toggle_value_changed(self):
+        if not self.now_using_this_mode_object():
+            return
+        self.needs_repaint = 0
+        for toggle in self.w.extrude_pref_toggles:
+            val = toggle.value()
+            attr = toggle.attr
+            repaintQ = toggle.repaintQ
+            if attr:
+                old = getattr(self,attr,val)
+                if old != val:
+                    setattr(self, attr, val)
+                    if repaintQ:
+                        self.needs_repaint = 1
+            else:
+                # bad but tolerable: a toggle with no attr, but repaintQ,
+                # forces repaint even when some *other* toggle changes!
+                # (since we don't bother to figure out whether it changed)
+                if repaintQ:
+                    self.needs_repaint = 1
+                    print "shouldn't happen in current code - needless repaint"
+            pass
+        self.repaint_if_needed()
+        ##print "self.w.extrudePref1.isChecked() = %r" % self.w.extrudePref1.isChecked()
 
     def now_using_this_mode_object(self): ###e refile this in modes.py basicMode?
         "return true if the glpane is presently using this mode object (not just a mode object with the same name!)"
@@ -250,7 +456,7 @@ class extrudeMode(basicMode):
         self.status_msg("entering extrude mode...")
           # this msg won't last long enough to be seen, if all goes well
         self.clear() ##e see comment there
-        reinit_extrude_controls(self.w, self.o, length = 7.0)
+        reinit_extrude_controls(self.w, self.o, length = 7.0, attr_target = self)
         basicMode.Enter(self)
         assy = self.o.assy
         self.assy = assy #k i assume this never changes during one use of this mode!
@@ -370,7 +576,7 @@ class extrudeMode(basicMode):
             ii = self.ncopies - 1
             self.ncopies = ii
             old = self.molcopies.pop(ii)
-            old.unpick() # work around a bug in assy.killmol [041009]
+            old.unpick() # work around a bug in assy.killmol [041009] ##### that's fixed now -- verify, and remove this
             self.assy.killmol(old)
             self.asserts()
         while self.ncopies < ncopies_wanted:
@@ -419,6 +625,13 @@ class extrudeMode(basicMode):
         if 1:
             pass ## print "extrude fyi: recompute_offset_specific_data"
         # recompute what singlets to show in diff color, what bonds to consider making or breaking, what nice offsets to show(no)
+
+        # kluge:
+        try:
+            hset2 = self.nice_offsets_handle
+            hset2.handle_setpos( 1, self.offset )
+        except:
+            print "fyi: hset2 kluge failed" ###
         
         # basic idea: see which nice-offset-handles contain the offset, count them, and recolor singlets they come from.
         # move this into a method... find handles with a point in them...
@@ -428,12 +641,16 @@ class extrudeMode(basicMode):
         hh = tuple(hh)
         if hh != self.bonds_for_current_offset:
             msg = "new set of %d nice bonds: %r" % (len(hh), hh)
-            ## self.status_msg(msg) -- don't obscure the scan msg yet #######
+            print msg ## self.status_msg(msg) -- don't obscure the scan msg yet #######
             self.bonds_for_current_offset = hh
         for (pos,radius,info) in hh:
             pass # print pos ######
         return #e do more?
 
+    def recompute_bonds(self):
+        ##print "recompute_bonds NIM"
+        pass ######
+    
     # ==
 
     # These methods recompute things that depend on other things named in the methodname.
@@ -445,7 +662,7 @@ class extrudeMode(basicMode):
         "recompute things which depend on the choice of rep unit (for now we use self.basemol to hold that)"
         # for now we use self.basemol,
         #e but later we might not split it from a larger mol, but have a separate mol for it
-        self.draw_nice_offsets_handlesets = [] # for now, assume no other function wants to keep things in this list
+        self.show_bond_offsets_handlesets = [] # for now, assume no other function wants to keep things in this list
         hset = self.basemol_atoms_handleset = repunitHandleSet(target = self)
         for atom in self.basemol.atoms.itervalues():
             # make a handle for it... to use in every copy we show
@@ -456,16 +673,18 @@ class extrudeMode(basicMode):
             hset.addHandle(pos, radius, info)
         self.basemol_singlets = mol_singlets(self.basemol)
         hset = self.nice_offsets_handleset = niceoffsetsHandleSet(target = self)
+        hset.radius_multiplier = abs(self.bond_tolerance) # kluge -- might be -1 or 1 initially! (sorry, i'm in a hurry)
           # note: hset is used to test offsets via self.nice_offsets_handleset,
-          # but is drawn and click-tested due to being in self.draw_nice_offsets_handlesets
+          # but is drawn and click-tested due to being in self.show_bond_offsets_handlesets
         # make a handle just for dragging self.nice_offsets_handleset
         hset2 = self.nice_offsets_handle = draggableHandle_HandleSet( \
                     motion_callback = self.nice_offsets_handleset.move ,
                     statusmsg = "use purple center to drag the clickable suggested-offset display"
                 )
         hset2.addHandle( V(0,0,0), 0.66, None)
-        self.draw_nice_offsets_handlesets.extend([hset,hset2])
-           # (use of this list is conditioned on self.draw_nice_offsets)
+        hset2.addHandle( self.offset, 0.17, None) # kluge: will be kept patched with current offset
+        self.show_bond_offsets_handlesets.extend([hset,hset2])
+           # (use of this list is conditioned on self.show_bond_offsets)
         ##e quadratic, slow alg; should worry about too many singlets
         # (rewritten from the obs functions explore, bondable_singlet_pairs_proto1)
         # note: this code will later be split out, and should not assume mol1 == mol2.
@@ -473,7 +692,9 @@ class extrudeMode(basicMode):
         mergeables = self.mergeables = {}
         sings1 = sings2 = self.basemol_singlets
         for i1 in range(len(sings1)):
-            self.status_msg("scanning all pairs of open bonds... %d/%d done" % (i1, len(sings1)) ) # this is our slowness warning
+            self.status_msg("scanning all pairs of open bonds... %d/%d done" % (i1, len(sings1)) ,
+                             suppress_rapidfire_repeats = "scanning all pairs"
+                            ) # this is our slowness warning
             ##e should correct that message for effect of i2 < i1 optim, by reporting better numbers...
             for i2 in range(len(sings2)):
                 if i2 < i1:
@@ -508,7 +729,7 @@ class extrudeMode(basicMode):
                 print "fyi: singlet %d is mergeable with itself (should never happen for extrude; ok for revolve)" % i1
             # handle has dual purposes: click to change the offset to the ideal,
             # or find (i1,i2) from an offset inside the (pos, radius) ball.
-        msg = "scanned %d open-bond pairs; %d mergeable at some offset" % \
+        msg = "scanned %d open-bond pairs; %d pairs could bond at some offset (as shown by bond-offset spheres)" % \
               ( len(sings1) * len(sings2) , len(hset.handles) )
         self.status_msg(msg)
         return
@@ -564,22 +785,50 @@ class extrudeMode(basicMode):
             self.repaint_if_needed() # (sometimes the click method already did the repaint, so this doesn't)
         return
 
-    def status_msg(self, text):
+    _last_status_text = ""
+    _last_status_now = ""
+    _last_status_counter = 0
+    def status_msg(self, text, suppress_rapidfire_repeats = None):
         import time
-        print "statusbar: %r: " % time.asctime(), text
-        assert type(text) in [type(""), type(u"")]
+        now = time.asctime()
+        suppress_print = 0
+        if suppress_rapidfire_repeats:
+            # consider not printing it (or using \r rather than \n??), but always put it into the statusbar!
+            if self._last_status_text.startswith(suppress_rapidfire_repeats) and self._last_status_now == now:
+                suppress_print = 1
+            self._last_status_text = text
+            self._last_status_now = now
+        else:
+            self._last_status_text = "" # only compress when they are adjacent
+        if not suppress_print:
+            if self._last_status_counter:
+##                sys.stdout.write("\n") # \n after 1 or more "."s #### right place? need flush?
+##                sys.stdout.flush() #### this is still not coming out soon enough -- why? never mind for now ##########
+                self._last_status_counter = 0 #### wrong place
+            print "statusbar: %r:" % now, text
+        else:
+            if 0: #### experiment -- didn't work
+                print "statusbar: %r: " % now, text.replace('\n','\r')
+            else:
+                if not self._last_status_counter:
+                    ## sys.stdout.write("statusbar: %r: %s... -- suppressing repeated msgs" % (now, suppress_rapidfire_repeats))
+                    print "statusbar: %r: %s... -- suppressing repeated msgs at same time" % (now, suppress_rapidfire_repeats)
+                self._last_status_counter = self._last_status_counter + 1
+##                sys.stdout.write(".")
+##                sys.stdout.flush()
+        assert type(text) in [type(""), type(u"")] # only after we print it...
         self.w.msgbarLabel.setText(text)
 
-    draw_nice_offsets_handlesets = [] # (default value) the handlesets to be visible iff self.draw_nice_offsets
+    show_bond_offsets_handlesets = [] # (default value) the handlesets to be visible iff self.show_bond_offsets
     
     def touchedThing(self, event):
         "return None or the thing touched by this event"
         p1, p2 = self.o.mousepoints(event) # (no side effect. p1 is just beyond near clipping plane; p2 in center of view plane)
         ##print "touchedthing for p1 = %r, p2 = %r" % (p1,p2)
         res = [] # (dist, handle) pairs, arb. order, but only the frontmost one from each handleset
-        if self.draw_nice_offsets:
-            for hset in self.draw_nice_offsets_handlesets:
-                dh = hset.frontDistHandle(p1, p2) # dh = (dist, handle)
+        if self.show_bond_offsets:
+            for hset in self.show_bond_offsets_handlesets:
+                dh = hset.frontDistHandle(p1, p2) # dh = (dist, handle)  #######@@@ needs to use bond_tolerance, or get patched
                 if dh:
                     res.append(dh)
         #e scan other handlesets here, if we have any
@@ -706,21 +955,23 @@ class extrudeMode(basicMode):
         self.dragdist = 0.0
         self.have_offset_specific_data = 0 #### also clear that data
         #e lots more ivars too
+        return
 
-    draw_whole_model = 1 ### try 0; make it a pref
-    draw_nice_offsets = 1 # make it a pref
+    ## toggle attrs, no need to init:
+    ## show_whole_model, show_bond_offsets
     
     def Draw(self):
         basicMode.Draw(self) # draw axes, if displayed
-        if self.draw_whole_model:
+        if self.show_whole_model:
             self.o.assy.draw(self.o)
         else:
             for mol in self.molcopies:
                 #e use per-repunit drawing styles...
                 dispdef = molecule_dispdef(mol, self.o) # not needed, since...
                 mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
-        if self.draw_nice_offsets:
-            for hset in self.draw_nice_offsets_handlesets:
+        if self.show_bond_offsets:
+            for hset in self.show_bond_offsets_handlesets:
+                # one of the hsets' radius_multiplier was patched to self.bond_tolerance... ####NIM ###@@@
                 try:
                     hset.draw(self.o)
                 except:
@@ -729,7 +980,7 @@ class extrudeMode(basicMode):
 ##            draw_mergeables(self.mergeables, self.o)
         return
    
-    def makeMenus(self): ### not yet reviewed for extrude mode
+    def makeMenus(self): ### mostly not yet reviewed for extrude mode
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
                                     ('Separate', self.o.assy.modifySeparate),
@@ -754,22 +1005,27 @@ class extrudeMode(basicMode):
                                     None,
                                     ('Move', self.move),
                                     ('Copy', self.copy),
-                                    ('debug: EXTRUDE-UPDATE (obsolete!)', self.extrude_update),####experimental
+                                    ## ('debug: EXTRUDE-UPDATE (obsolete!)', self.extrude_update),
                                     ('debug: EXTRUDE-RELOAD', self.extrude_reload),####experimental
                                     None,
-                                    ('Menu2', self.Menu2),
-                                    ('Menu3', self.Menu3) ])
+                                    # note: use platform.py functions so names work on Mac or non-Mac,
+                                    # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
+                                    # or   "Control-Command Menu" vs. "Right-Control Menu".
+                                    # [bruce 041014]
+                                    ('%s-%s Menu' % (context_menu_prefix(), shift_name()), self.Menu2),
+                                    ('%s-%s Menu' % (context_menu_prefix(), control_name()), self.Menu3),
+                                   ])
         return
 
-    def extrude_update(self):
-        print "extrude_update -- this is obs, might mess up other stuff"
-        try:
-            ## explore(self.basemol, self.basemol, self) ###e arg order; make it a method
-            self.mergeables = bondable_singlet_pairs_proto1(self.basemol, self.basemol)
-        except:
-            raise # let Qt print traceback, for now
-        print "extrude_update done"
-        return ### for now
+##    def extrude_update(self):
+##        print "extrude_update -- this is obs, might mess up other stuff"
+##        try:
+##            ## explore(self.basemol, self.basemol, self) ###e arg order; make it a method
+##            self.mergeables = bondable_singlet_pairs_proto1(self.basemol, self.basemol)
+##        except:
+##            raise # let Qt print traceback, for now
+##        print "extrude_update done"
+##        return ### for now
 
     def extrude_reload(self):
         """for debugging: try to reload extrudeMode.py and patch your glpane
@@ -782,7 +1038,11 @@ class extrudeMode(basicMode):
             self.update_from_controls()
             print "reset ncopies to 1, to avoid dialog from Abandon, and ease next use of the mode"
         except:
-            print("exception discarded from resetting ncopies to 1")#e msg
+            print_compact_traceback("exc in resetting ncopies to 1 and updating, ignored: ")
+        try:
+            self.restore_gui()
+        except:
+            print_compact_traceback("exc in self.restore_gui(), ignored: ")
         try:
             self.o.other_mode_classes.remove(self.__class__)
         except ValueError:
@@ -791,12 +1051,16 @@ class extrudeMode(basicMode):
         reload(handles)
         import extrudeMode
         reload(extrudeMode)
-        from extrudeMode import extrudeMode
+        from extrudeMode import extrudeMode, do_what_MainWindowUI_should_do
+        try:
+            do_what_MainWindowUI_should_do(self.w) # remake interface (dashboard), in case it's different [041014]
+        except:
+            print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
         ## self.o.modetab['EXTRUDE'] = extrudeMode
         self.o.other_mode_classes.append(extrudeMode)
         print "about to reinit modes"
         self.o._reinit_modes()
-        print "done with reinit modes, now see if you are using the reloaded mode"
+        print "done with reinit modes, now see if you can select the reloaded mode"
         return
     
     def copy(self):
