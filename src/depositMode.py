@@ -32,6 +32,12 @@ class depositMode(basicMode):
         self.o.singlet = None
         self.o.setMode('SELECT')
 
+    def keyPress(self,key):
+        for sym, code, num in self.w.elTab:
+            if key == code: self.w.setElement(sym)
+
+
+
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
 	with window coordinates(int x, int y) 

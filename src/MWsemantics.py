@@ -37,13 +37,23 @@ class MWsemantics(MainWindow):
         if name == None:
             self.setName("Atom")
 
-        self.Element = 'C'
-
-
-        self.glpane = GLPane(self.assy, self.frame4, "glpane", self)
-        
-	
+        self.glpane = GLPane(self.assy, self.frame4, "glpane", self)   
         self.frame4Layout.addWidget(self.glpane)
+
+        self.Element = 'C'
+        self.elTab = [('C', Qt.Key_C, 0),
+                      ('H', Qt.Key_H, 1),
+                      ('O', Qt.Key_O, 2),
+                      ('N', Qt.Key_N, 3),
+                      ('B', Qt.Key_B, 4),
+                      ('F', Qt.Key_F, 5),
+                      ('Al', Qt.Key_A, 6),
+                      ('Si', Qt.Key_I, 7),
+                      ('P', Qt.Key_P, 8),
+                      ('S', Qt.Key_S, 9),
+                      ('Cl', Qt.Key_L, 10)]
+
+
 
 
     ###################################
@@ -65,10 +75,6 @@ class MWsemantics(MainWindow):
                                          self )
         fn = str(fn)
         if not os.path.exists(fn): return
-        if not self.assy:
-            dir, fil, ext = fileparse(fn)
-            self.assy = assembly(self, fil)
-            self.glpane.assy = self.assy
         if fn[-3:] == "pdb":
             self.assy.readpdb(fn)
         if fn[-3:] == "mmp":
@@ -315,7 +321,6 @@ class MWsemantics(MainWindow):
     # describe records to send to the simulator
     # they don't do much in Atom itself
     def makeGround(self):
-        if not self.assy: return
         self.assy.makeground()
         self.assy.updateDisplays()
 
@@ -325,12 +330,10 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
     def makeMotor(self):
-        if not self.assy: return
         self.assy.makemotor(self.glpane.lineOfSight)
         self.assy.updateDisplays()
 
     def makeLinearMotor(self):
-        if not self.assy: return
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
         self.assy.updateDisplays()
 
@@ -427,27 +430,29 @@ class MWsemantics(MainWindow):
                 a.mvElement(fullnamePeriodicTable[str(string)])
             self.assy.updateDisplays()
         else:
-            self.Element = fullnamePeriodicTable[str(string)].symbol
+            el = fullnamePeriodicTable[str(string)].symbol
+            self.setElement(el)
 
     def setCarbon(self):
-        self.Element = "C"
-        self.comboBox1.setCurrentItem(0)
+        self.setElement("C")
 
     def setHydrogen(self):
-        self.Element = "H"
-        self.comboBox1.setCurrentItem(1)
+        self.setElement("H")
 
     def setOxygen(self):
-        self.Element = "O"
-        self.comboBox1.setCurrentItem(2)
+        self.setElement("O")
 
     def setNitrogen(self):
-        self.Element = "N"
-        self.comboBox1.setCurrentItem(3)
+        self.setElement("N")
 
     def setBoron(self):
-        self.Element = "B"
-        self.comboBox1.setCurrentItem(4)
+        self.setElement("B")
+
+    def setElement(self, elt):
+        # element specified as chemical symbol
+        self.Element = elt
+        for sym, key, num in self.elTab:
+            if elt == sym: self.comboBox1.setCurrentItem(num)
 
 
     # Play a movie from the simulator
@@ -479,7 +484,6 @@ class MWsemantics(MainWindow):
     # Make a copy of the selected part (molecule)
     # cannot copy individual atoms
     def copyDo(self):
-        if not self.assy: return
         self.assy.copy()
         self.assy.updateDisplays()
 
@@ -494,7 +498,6 @@ class MWsemantics(MainWindow):
 
     # delete selected parts or atoms
     def killDo(self):
-        if not self.assy: return
         self.assy.kill()
         self.assy.updateDisplays()
 
@@ -506,10 +509,7 @@ class MWsemantics(MainWindow):
 
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Delete:
-            self.killDo()
-
-
+        self.glpane.mode.keyPress(e.key())
 
     ##############################################################
     # Some future slot functions for the UI                      #

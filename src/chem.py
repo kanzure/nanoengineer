@@ -277,7 +277,7 @@ class atom:
         rad = self.element.rvdw
         if disp != diVDW: rad=rad*CPKvdW
         if disp == diTUBES: rad = TubeRadius
-        if disp == diCOVALENT: rad = self.element.rcovalent
+        
         return (disp, rad)
 
 

@@ -201,6 +201,10 @@ class basicMode:
         if but & cntlButton: dScale *= 2.0
         self.o.scale *= 1.0 + dScale * event.delta()
         self.o.paintGL()
+
+    def keyPress(self,key):
+        if key == Qt.Key_Delete:
+            self.w.killDo()
     
     def Done(self):
         pass
