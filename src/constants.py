@@ -94,3 +94,4 @@ elemKeyTab =  [('H', Qt.Key_H, 1),
                ('P', Qt.Key_P, 15),
                ('S', Qt.Key_S, 16),
                ('Cl', Qt.Key_L, 17)]
+               

@@ -794,8 +794,9 @@ class GLPane(QGLWidget, modeMixin):
             self.win.msgbarLabel.setText("Calculating...")
             import os, sys
             filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-            writemmp(self.assy, "minimize.mmp")
-            pipe = os.popen(filePath + "/../bin/simulator -m minimize.mmp")
+            tmpFilePath = self.win.tmpFilePath 
+            writemmp(self.assy, tmpFilePath + "minimize.mmp")
+            pipe = os.popen(filePath + "/../bin/simulator -m " + tmpFilePath + "minimize.mmp")
             s = pipe.read()
             r = pipe.close() # false (0) means success, true means failure
             # bruce 041101 wonders whether .close() retval being exitcode is
@@ -808,7 +809,7 @@ class GLPane(QGLWidget, modeMixin):
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
             self.win.msgbarLabel.setText("Minimizing...")
-            self.startmovie("minimize.dpb")
+            self.startmovie(tmpFilePath + "minimize.dpb")
         else:
             if not s: #bruce 041101
                 s = "exit code %r" % r

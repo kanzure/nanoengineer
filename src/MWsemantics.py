@@ -121,6 +121,16 @@ class MWsemantics(MainWindow):
         self.setElement(6)
         # and paste the atom rather than the clipboard by default
         self.pasteP = False
+
+        #Create the temporary file directory if not exist
+        self.tmpFilePath = os.path.expanduser("~/atom_tmp/")
+        if not os.path.exists(self.tmpFilePath):
+           try :
+              os.mkdir(self.tmpFilePath)
+           except :
+              print_compact_traceback("exception in creating temporary directory: ", self.tmpFilePath)
+              return
+        
         
 
     def update_mode_status(self, mode_obj = None):
@@ -970,7 +980,7 @@ class MWsemantics(MainWindow):
 
     # Play a movie from the simulator
     def toolsMovie(self):
-        if not self.assy.filename: self.assy.filename="simulate.mmp"
+        if not self.assy.filename: self.assy.filename=self.tmpFilePath + "simulate.mmp"
         dir, fil, ext = fileparse(self.assy.filename)
 #        print "playing", dir+fil+'.dpb'
         self.glpane.startmovie(dir+fil+'.dpb')

@@ -44,7 +44,7 @@ if __name__=='__main__':
         f=open(rc,'r')
         globalParms['WorkingDirectory'] = os.path.normpath(f.readline())
         f.close()
-        
+                        
     QApplication.setColorSpec(QApplication.CustomColor)
     app=QApplication(sys.argv)
     app.connect(app,SIGNAL("lastWindowClosed ()"),app.quit)
