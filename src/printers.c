@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include "simulator.h"
 
@@ -300,17 +301,67 @@ void pcon(FILE *f, int i) {
     }
 }
 
-void printargs(FILE *f, int argc, char **argv)
+void printheader(FILE *f, char *ifile, char *ofile, char *tfile, 
+                 int na, int MMPKey, int DPBKey, int nf, int spf, double temp)
 {
-    int i;
+    int i, ncols;
     
-    fprintf(f, "# simulator trace output\n");
-    fprintf(f, "# program arguments:\n");
-    fprintf(f, "# ");
-    for (i=0; i<argc; i++) {
-        fprintf(f, "%s ", argv[i]);
+    struct tm *ptr;
+    time_t tm;
+    tm = time(NULL);
+    ptr = localtime(&tm);
+    
+    fprintf(f, "# nanoENGINEER-1 Simulator Trace File\n");
+    fprintf(f, "#\n");
+    fprintf(f, "# Date and Time: %s", asctime(ptr));
+    fprintf(f, "# Input File:%s\n", ifile);
+    fprintf(f, "# Output File: %s\n", ofile);
+    fprintf(f, "# Trace File: %s\n", tfile);
+    fprintf(f, "# Number of Atoms: %d\n", na);
+    fprintf(f, "# MMP Key: %d\n", MMPKey);
+    fprintf(f, "# DPB Key: %d\n", DPBKey);
+    fprintf(f, "# Number of Frames: %d\n", nf);
+    fprintf(f, "# Steps per Frame: %d\n", spf);
+    fprintf(f, "# Temperature: %.1f\n", temp);
+    fprintf(f, "# \n");
+    
+    ncols = 0;
+    
+    for (i=0; i<Nexcon; i++) {
+   	    ncols += 1;
+	    if (Constraint[i].type==CODEmotor) ncols += 1;
+	    if (Constraint[i].type==CODElmotor) ncols += 1;
     }
-    fprintf(f, "\n#\n");
+        
+    fprintf(f, "# %d columns:\n", ncols);
+    
+    for (i=0; i<Nexcon; i++) {
+        switch (Constraint[i].type) {
+               
+               case CODEground:
+                    fprintf(f, "# %s: torque (nn-nm)\n",Constraint[i].name); 
+                    break;
+                    
+               case CODEtemp:
+                    fprintf(f, "# %s: temperature (K)\n",Constraint[i].name);
+                    break;
+                    
+               case CODEstat:
+                    fprintf(f, "# %s: energy added (zJ)\n",Constraint[i].name);
+                    break;
+                    
+               case CODElmotor:
+                    fprintf(f, "# %s: force (pN)\n",Constraint[i].name);
+                    fprintf(f, "# %s: stiffness (N/m)\n",Constraint[i].name);
+                    break;
+               
+               case CODEmotor:
+                    fprintf(f, "# %s: speed (GHz)\n",Constraint[i].name);
+                    fprintf(f, "# %s: torque (nn-nm)\n",Constraint[i].name);
+                    break;
+        }
+    }    
+    fprintf(f, "#\n");
 }
 
 
