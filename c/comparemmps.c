@@ -29,6 +29,15 @@ FILE *pOutFile;
 # define LINMOT 6
 # define SHAFT 7
 # define BEARING 8
+# define SHOW 9
+
+
+
+int gSpaceAtom[]= { 2,3,2,2,0}; // This array is defining the 'empty spaces' between the two 
+								 // entries , in a line starting with 'atom' :-)
+
+char * gStringArray[]= {"def", "nil", "lin", "cpk", "tub", "mix", "vdw"};//These are the valid codes 
+																		//after 'show' word in mmp file
 
 int parse(char * psCnt)
 {
@@ -48,20 +57,28 @@ int parse(char * psCnt)
 		 return SHAFT;
 	 else if (0==strncmp(psCnt,"bearing",7))
 		 return BEARING;
-	 else return 0;
+	 else if (0==strncmp(psCnt,"show",4))
+		 return SHOW;
+	 return 0;
 }
 
 
 void main (int argc, char *argv[])
 {
 	int i;
+	int check1,check2; //required in case SHOW
+	int nExit;
+
 	char filename1[100],filename2[100];
 	char buf1[128],buf2[128];
 
 	char *pBuf1= buf1;
 	char *pBuf2=buf2;
-	char *pEnd;
-	int nExit = 0;
+	
+	char *psTok1;//used as StiringTokens
+	char *psTok2;
+
+	
 	long l1, l2;
 	
 	char *pFile1;
@@ -69,7 +86,9 @@ void main (int argc, char *argv[])
 
 	pOutFile=fopen ("mmpsCompared.txt","w");
 	fprintf(pOutFile,"***\tProgram for comparing two mmp files\t***\n\n");
-	fprintf(pOutFile,"This file shows the differences between two files\n\n");
+	fprintf(pOutFile,"Small differences in atom positions are ignored (Tolerence=5)\n");
+	fprintf(pOutFile,"Differences in theh 'show' mode are ignored but still check for valid codes such as lin, vdw etc.:\n\n");
+	fprintf(pOutFile,"This file shows the differences between following mmp files:\n\n");
 	fprintf(pOutFile,"File1: %s\t File2: %s\n\n\n",argv[1],argv[2]);
 
 
@@ -90,91 +109,150 @@ void main (int argc, char *argv[])
 	file2=fopen(filename2,"r");
 
 	i=0;
+
 printf("BEFORE the while loop /n");
 
 	pFile1 = fgets(buf1,127,file1);
 	pFile2 = fgets(buf2,127,file2);
 	
-
-
 	while(pFile1 || pFile2)
 	{	
+		pBuf1 = buf1;
+		pBuf2 = buf2;
+
 		printf("IN the while loop /n");
 
 		switch (parse(pBuf1))
 		{
 			case PART :
-				{						
-					pBuf1+=5;
-					pBuf2+=5;
-					
-					printf("");
-
-					pBuf1-=5;
-					pBuf2-=5;
-
-
+				{	
 					break;
 				}
-			case BOND :
+		/*	case BOND :
 				{
-					nExit=1;
+					nExit=0; //To get out of while loop in case a mismatch is found
+							//so that no further checking is required. (nExit =1) 
+
+					pBuf1+=4;
+					pBuf2+=4;
+
+					psTok1=strtok(pBuf1," ");
+					psTok2=strtok(pBuf2," ");
+					
+					while(psTok1!=NULL && psTok2!=NULL && nExit==0)
+					{
+					
+						if(0!= strcmp(psTok1,psTok2))
+						{
+							
+							fprintf(pOutFile,"==\n");
+							fprintf(pOutFile,"file 1 : %sfile 2 : %s",buf1,buf2);
+							nExit=1;					
+						}
+						//Get the next tokens					
+						psTok1=strtok(NULL," ");					
+						psTok2=strtok(NULL," ");
+					}
+					break;
+				}*/
+
+				case BOND :
+				{
+					nExit=0; //To get out of while loop in case a mismatch is found
+							//so that no further checking is required. (nExit =1) 
+
+					pBuf1+=4;
+					pBuf2+=4;
+
+					psTok1=strtok(pBuf1," ");
+					psTok2=strtok(pBuf2," ");
+					
+					for(psTok1, psTok2;
+					psTok1!=NULL, psTok2!=NULL; psTok1=strtok(NULL," "),psTok2=strtok(NULL," "))
+					{
+					
+						if(0!= strcmp(psTok1,psTok2))
+						{							
+							fprintf(pOutFile,"==\n");
+							fprintf(pOutFile,"file 1 : %sfile 2 : %s",buf1,buf2);
+							break;					
+						}
+						
+					}
 					break;
 				}
+			
 			case ATOM :
 				{
 					pBuf1+=5;
 					pBuf2+=5;
 
-					//while()
-					l1= strtol(pBuf1,&pBuf1,2);
-					l2 = strtol(pBuf2,&pBuf2,2);
-					if (l1 !=l2) 
+					for (i=0;i<5;i++)
 					{
-						nExit =1;
-						fprintf(pOutFile,"==\n");
-						fprintf(pOutFile,"file 1 : %sfile 2 : %s",buf1,buf2);
-						fprintf(pOutFile,"==\n");
-						break;
-					}
-					pBuf1+=2;
-					pBuf2+=2;
-	/*				l1= strtol(pBuf1,&pBuf1,2);
-					l2 = strtol(pBuf2,&pBuf2,2);
-					if(l1 != l2)
-					{
-						nExit=1;
-						fprintf(pOutFile,"file 1 : %s, \tfile 2 : %s \n",buf1,buf2);
-						break;
+						l1= strtol(pBuf1,&pBuf1,10);
+						l2 = strtol(pBuf2,&pBuf2,10);
+						if (l1 !=l2 && i<2) 
+						{
+							fprintf(pOutFile,"==\n");
+							fprintf(pOutFile,"file 1 : %sfile 2 : %s",buf1,buf2);
+							break;
+						}
+						else if (i>=2 && labs(l1-l2) >10)
+						{
+							fprintf(pOutFile,"==\n");
+							fprintf(pOutFile,"file 1 : %sfile 2 : %s",buf1,buf2);
+							break;
 
-					} */
-					
+						}
+						pBuf1+=gSpaceAtom[i];
+						pBuf2+=gSpaceAtom[i];
+					}
+	
 					break ;
 				}
 			case GRND :
 				{
-					nExit=1;
 					break;
 				}
 			case MOTOR :
 				{
-					nExit=1;
 					break;
 				}
 			case LINMOT :
 				{
-					nExit=1;
 					break;
 				}
 			case SHAFT :
 				{
-					nExit=1;
 					break;
 				}
 			case BEARING :
 				{
-					nExit=1;
 					break;
+				}
+			case SHOW :
+				{
+					pBuf1+=5;
+					pBuf2+=5;
+
+					 psTok1=strtok(pBuf1," ");
+					 psTok2=strtok(pBuf2," ");
+
+					 check1=check2=0;
+					
+					 for (i=0;i<7;i++)
+						{
+							if (0==strncmp(psTok1,gStringArray[i], strlen(gStringArray[i]))) check1=1;
+							if (0==strncmp(psTok2,gStringArray[i], strlen(gStringArray[i]))) check2=1;
+						}
+
+					if(check1!=1 || check2!=1)
+					{
+						fprintf(pOutFile,"==\n");
+						fprintf(pOutFile,"file 1 : %sfile 2 : %s",buf1,buf2);
+						break;					
+					}
+					break;				
 				}
 		}
 		
