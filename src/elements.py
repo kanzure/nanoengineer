@@ -387,6 +387,9 @@ def set_element_table(num, assy): # called from some menu items in select modes
     # now inval havelist and selradii, even in clipboard ###@@@
     for mol in assy.molecules: ### does this include clipboard mols?? does it need to (maybe they're fixed on copy back)? ###@@@
         mol.changeapp(1)
+    
+    assy.o.makeCurrent()
+    assy.o.gl_update()    
     return
     
 def setCurrentElemTable(num):

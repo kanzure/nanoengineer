@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Fri Feb 25 11:53:54 2005
+# Created: Fri Feb 25 16:34:42 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -122,27 +122,28 @@ class ElementSelectorDialog(QDialog):
 
         ElementSelectorDialogLayout = QVBoxLayout(self,11,6,"ElementSelectorDialogLayout")
 
-        layout18 = QHBoxLayout(None,0,6,"layout18")
+        layout18 = QHBoxLayout(None,0,3,"layout18")
 
         layout17 = QVBoxLayout(None,0,0,"layout17")
 
         self.elemInfoLabel = QLabel(self,"elemInfoLabel")
-        self.elemInfoLabel.setSizePolicy(QSizePolicy(5,5,0,1,self.elemInfoLabel.sizePolicy().hasHeightForWidth()))
-        self.elemInfoLabel.setMinimumSize(QSize(80,0))
+        self.elemInfoLabel.setSizePolicy(QSizePolicy(0,5,0,1,self.elemInfoLabel.sizePolicy().hasHeightForWidth()))
+        self.elemInfoLabel.setMinimumSize(QSize(70,0))
         self.elemInfoLabel.setPaletteBackgroundColor(QColor(227,211,231))
         self.elemInfoLabel.setTextFormat(QLabel.RichText)
         self.elemInfoLabel.setAlignment(QLabel.AlignCenter)
         layout17.addWidget(self.elemInfoLabel)
 
         self.elemColorLabel = QLabel(self,"elemColorLabel")
-        self.elemColorLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.elemColorLabel.sizePolicy().hasHeightForWidth()))
-        self.elemColorLabel.setMinimumSize(QSize(80,50))
+        self.elemColorLabel.setSizePolicy(QSizePolicy(0,5,0,0,self.elemColorLabel.sizePolicy().hasHeightForWidth()))
+        self.elemColorLabel.setMinimumSize(QSize(70,50))
         self.elemColorLabel.setTextFormat(QLabel.RichText)
         self.elemColorLabel.setAlignment(QLabel.AlignCenter)
         layout17.addWidget(self.elemColorLabel)
         layout18.addLayout(layout17)
 
         self.elementFrame = QFrame(self,"elementFrame")
+        self.elementFrame.setEnabled(0)
         self.elementFrame.setSizePolicy(QSizePolicy(5,5,0,0,self.elementFrame.sizePolicy().hasHeightForWidth()))
         self.elementFrame.setMinimumSize(QSize(120,0))
         self.elementFrame.setFrameShape(QFrame.Box)
@@ -154,6 +155,8 @@ class ElementSelectorDialog(QDialog):
         layout11 = QVBoxLayout(None,0,6,"layout11")
 
         self.redSlider = QSlider(self,"redSlider")
+        self.redSlider.setEnabled(1)
+        self.redSlider.setSizePolicy(QSizePolicy(3,0,0,0,self.redSlider.sizePolicy().hasHeightForWidth()))
         self.redSlider.setPaletteForegroundColor(QColor(255,0,0))
         self.redSlider.setMaxValue(255)
         self.redSlider.setOrientation(QSlider.Horizontal)
@@ -163,13 +166,12 @@ class ElementSelectorDialog(QDialog):
         layout10 = QHBoxLayout(None,0,6,"layout10")
 
         self.textLabel2 = QLabel(self,"textLabel2")
-        self.textLabel2.setMaximumSize(QSize(60,32767))
+        self.textLabel2.setMaximumSize(QSize(40,32767))
         self.textLabel2.setPaletteBackgroundColor(QColor(255,0,0))
         layout10.addWidget(self.textLabel2)
 
         self.redSpinBox = QSpinBox(self,"redSpinBox")
-        self.redSpinBox.setEnabled(0)
-        self.redSpinBox.setSizePolicy(QSizePolicy(1,0,0,0,self.redSpinBox.sizePolicy().hasHeightForWidth()))
+        self.redSpinBox.setEnabled(1)
         self.redSpinBox.setFocusPolicy(QSpinBox.ClickFocus)
         self.redSpinBox.setMaxValue(255)
         layout10.addWidget(self.redSpinBox)
@@ -179,6 +181,8 @@ class ElementSelectorDialog(QDialog):
         layout11_2 = QVBoxLayout(None,0,6,"layout11_2")
 
         self.greenSlider = QSlider(self,"greenSlider")
+        self.greenSlider.setEnabled(1)
+        self.greenSlider.setSizePolicy(QSizePolicy(3,0,0,0,self.greenSlider.sizePolicy().hasHeightForWidth()))
         self.greenSlider.setPaletteForegroundColor(QColor(0,255,0))
         self.greenSlider.setMaxValue(255)
         self.greenSlider.setOrientation(QSlider.Horizontal)
@@ -188,12 +192,12 @@ class ElementSelectorDialog(QDialog):
         layout10_2 = QHBoxLayout(None,0,6,"layout10_2")
 
         self.textLabel2_2 = QLabel(self,"textLabel2_2")
-        self.textLabel2_2.setMaximumSize(QSize(60,32767))
+        self.textLabel2_2.setMaximumSize(QSize(40,32767))
         self.textLabel2_2.setPaletteBackgroundColor(QColor(0,255,0))
         layout10_2.addWidget(self.textLabel2_2)
 
         self.greenSpinBox = QSpinBox(self,"greenSpinBox")
-        self.greenSpinBox.setEnabled(0)
+        self.greenSpinBox.setEnabled(1)
         self.greenSpinBox.setFocusPolicy(QSpinBox.ClickFocus)
         self.greenSpinBox.setMaxValue(255)
         layout10_2.addWidget(self.greenSpinBox)
@@ -203,6 +207,8 @@ class ElementSelectorDialog(QDialog):
         layout11_3 = QVBoxLayout(None,0,6,"layout11_3")
 
         self.blueSlider = QSlider(self,"blueSlider")
+        self.blueSlider.setEnabled(1)
+        self.blueSlider.setSizePolicy(QSizePolicy(3,0,0,0,self.blueSlider.sizePolicy().hasHeightForWidth()))
         self.blueSlider.setPaletteForegroundColor(QColor(0,0,255))
         self.blueSlider.setMaxValue(255)
         self.blueSlider.setOrientation(QSlider.Horizontal)
@@ -212,12 +218,12 @@ class ElementSelectorDialog(QDialog):
         layout10_3 = QHBoxLayout(None,0,6,"layout10_3")
 
         self.textLabel2_3 = QLabel(self,"textLabel2_3")
-        self.textLabel2_3.setMaximumSize(QSize(60,32767))
+        self.textLabel2_3.setMaximumSize(QSize(40,32767))
         self.textLabel2_3.setPaletteBackgroundColor(QColor(0,0,255))
         layout10_3.addWidget(self.textLabel2_3)
 
         self.blueSpinBox = QSpinBox(self,"blueSpinBox")
-        self.blueSpinBox.setEnabled(0)
+        self.blueSpinBox.setEnabled(1)
         self.blueSpinBox.setFocusPolicy(QSpinBox.ClickFocus)
         self.blueSpinBox.setMaxValue(255)
         layout10_3.addWidget(self.blueSpinBox)
@@ -225,63 +231,17 @@ class ElementSelectorDialog(QDialog):
         layout16.addLayout(layout11_3)
         layout18.addLayout(layout16)
         ElementSelectorDialogLayout.addLayout(layout18)
-
+        
         self.elementGroupBox = QGroupBox(self,"elementGroupBox")
         self.elementGroupBox.setPaletteForegroundColor(QColor(0,0,0))
         self.elementGroupBox.setPaletteBackgroundColor(QColor(208,203,231))
         self.elementGroupBox.setFrameShadow(QGroupBox.Raised)
         self.elementGroupBox.setLineWidth(1)
 
-        LayoutWidget = QWidget(self.elementGroupBox,"layout22")
-        LayoutWidget.setGeometry(QRect(-22,10,524,54))
-        layout22 = QHBoxLayout(LayoutWidget,11,6,"layout22")
+        layout22 = QGridLayout(self.elementGroupBox,5,6,0,2,"layout22")
 
-        self.pushButton5_2 = QPushButton(LayoutWidget,"pushButton5_2")
-        self.pushButton5_2.setPaletteBackgroundColor(QColor(208,203,231))
-        pushButton5_2_font = QFont(self.pushButton5_2.font())
-        pushButton5_2_font.setBold(1)
-        self.pushButton5_2.setFont(pushButton5_2_font)
-        self.pushButton5_2.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton5_2.setToggleButton(0)
-        self.pushButton5_2.setAutoDefault(0)
-        self.pushButton5_2.setFlat(1)
-        layout22.addWidget(self.pushButton5_2)
-
-        self.pushButton5_2_2 = QPushButton(LayoutWidget,"pushButton5_2_2")
-        self.pushButton5_2_2.setPaletteBackgroundColor(QColor(208,203,231))
-        pushButton5_2_2_font = QFont(self.pushButton5_2_2.font())
-        pushButton5_2_2_font.setBold(1)
-        self.pushButton5_2_2.setFont(pushButton5_2_2_font)
-        self.pushButton5_2_2.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton5_2_2.setToggleButton(0)
-        self.pushButton5_2_2.setAutoDefault(0)
-        self.pushButton5_2_2.setFlat(1)
-        layout22.addWidget(self.pushButton5_2_2)
-
-        self.pushButton5_2_3 = QPushButton(LayoutWidget,"pushButton5_2_3")
-        self.pushButton5_2_3.setPaletteBackgroundColor(QColor(208,203,231))
-        pushButton5_2_3_font = QFont(self.pushButton5_2_3.font())
-        pushButton5_2_3_font.setBold(1)
-        self.pushButton5_2_3.setFont(pushButton5_2_3_font)
-        self.pushButton5_2_3.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton5_2_3.setToggleButton(0)
-        self.pushButton5_2_3.setAutoDefault(0)
-        self.pushButton5_2_3.setFlat(1)
-        layout22.addWidget(self.pushButton5_2_3)
-
-        self.pushButton5_2_4 = QPushButton(LayoutWidget,"pushButton5_2_4")
-        self.pushButton5_2_4.setPaletteBackgroundColor(QColor(208,203,231))
-        pushButton5_2_4_font = QFont(self.pushButton5_2_4.font())
-        pushButton5_2_4_font.setBold(1)
-        self.pushButton5_2_4.setFont(pushButton5_2_4_font)
-        self.pushButton5_2_4.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton5_2_4.setToggleButton(0)
-        self.pushButton5_2_4.setAutoDefault(0)
-        self.pushButton5_2_4.setFlat(1)
-        layout22.addWidget(self.pushButton5_2_4)
-
-        self.pushButton1 = QPushButton(LayoutWidget,"pushButton1")
-        self.pushButton1.setSizePolicy(QSizePolicy(1,1,0,0,self.pushButton1.sizePolicy().hasHeightForWidth()))
+        self.pushButton1 = QPushButton(self.elementGroupBox,"pushButton1")
+        self.pushButton1.setSizePolicy(QSizePolicy(1,0,0,0,self.pushButton1.sizePolicy().hasHeightForWidth()))
         pushButton1_font = QFont(self.pushButton1.font())
         pushButton1_font.setBold(1)
         self.pushButton1.setFont(pushButton1_font)
@@ -290,9 +250,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton1.setOn(0)
         self.pushButton1.setAutoDefault(0)
         self.pushButton1.setDefault(0)
-        layout22.addWidget(self.pushButton1)
 
-        self.pushButton2 = QPushButton(LayoutWidget,"pushButton2")
+        layout22.addWidget(self.pushButton1,0,4)
+
+        self.pushButton2 = QPushButton(self.elementGroupBox,"pushButton2")
         self.pushButton2.setEnabled(1)
         self.pushButton2.setSizePolicy(QSizePolicy(1,0,0,0,self.pushButton2.sizePolicy().hasHeightForWidth()))
         pushButton2_font = QFont(self.pushButton2.font())
@@ -301,22 +262,20 @@ class ElementSelectorDialog(QDialog):
         self.pushButton2.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton2.setToggleButton(1)
         self.pushButton2.setAutoDefault(0)
-        layout22.addWidget(self.pushButton2)
 
-        LayoutWidget_2 = QWidget(self.elementGroupBox,"layout23")
-        LayoutWidget_2.setGeometry(QRect(-20,72,558,54))
-        layout23 = QHBoxLayout(LayoutWidget_2,11,6,"layout23")
+        layout22.addWidget(self.pushButton2,0,5)
 
-        self.pushButton5 = QPushButton(LayoutWidget_2,"pushButton5")
+        self.pushButton5 = QPushButton(self.elementGroupBox,"pushButton5")
         pushButton5_font = QFont(self.pushButton5.font())
         pushButton5_font.setBold(1)
         self.pushButton5.setFont(pushButton5_font)
         self.pushButton5.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton5.setToggleButton(1)
         self.pushButton5.setAutoDefault(0)
-        layout23.addWidget(self.pushButton5)
 
-        self.pushButton6 = QPushButton(LayoutWidget_2,"pushButton6")
+        layout22.addWidget(self.pushButton5,1,0)
+        
+        self.pushButton6 = QPushButton(self.elementGroupBox,"pushButton6")
         pushButton6_font = QFont(self.pushButton6.font())
         pushButton6_font.setBold(1)
         self.pushButton6.setFont(pushButton6_font)
@@ -324,36 +283,40 @@ class ElementSelectorDialog(QDialog):
         self.pushButton6.setToggleButton(1)
         self.pushButton6.setOn(1)
         self.pushButton6.setAutoDefault(0)
-        layout23.addWidget(self.pushButton6)
 
-        self.pushButton7 = QPushButton(LayoutWidget_2,"pushButton7")
+        layout22.addWidget(self.pushButton6,1,1)
+
+        self.pushButton7 = QPushButton(self.elementGroupBox,"pushButton7")
         pushButton7_font = QFont(self.pushButton7.font())
         pushButton7_font.setBold(1)
         self.pushButton7.setFont(pushButton7_font)
         self.pushButton7.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton7.setToggleButton(1)
         self.pushButton7.setAutoDefault(0)
-        layout23.addWidget(self.pushButton7)
 
-        self.pushButton8 = QPushButton(LayoutWidget_2,"pushButton8")
+        layout22.addWidget(self.pushButton7,1,2)
+
+        self.pushButton8 = QPushButton(self.elementGroupBox,"pushButton8")
         pushButton8_font = QFont(self.pushButton8.font())
         pushButton8_font.setBold(1)
         self.pushButton8.setFont(pushButton8_font)
         self.pushButton8.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton8.setToggleButton(1)
         self.pushButton8.setAutoDefault(0)
-        layout23.addWidget(self.pushButton8)
 
-        self.pushButton9 = QPushButton(LayoutWidget_2,"pushButton9")
+        layout22.addWidget(self.pushButton8,1,3)
+        
+        self.pushButton9 = QPushButton(self.elementGroupBox,"pushButton9")
         pushButton9_font = QFont(self.pushButton9.font())
         pushButton9_font.setBold(1)
         self.pushButton9.setFont(pushButton9_font)
         self.pushButton9.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton9.setToggleButton(1)
         self.pushButton9.setAutoDefault(0)
-        layout23.addWidget(self.pushButton9)
 
-        self.pushButton10 = QPushButton(LayoutWidget_2,"pushButton10")
+        layout22.addWidget(self.pushButton9,1,4)
+        
+        self.pushButton10 = QPushButton(self.elementGroupBox,"pushButton10")
         self.pushButton10.setEnabled(1)
         pushButton10_font = QFont(self.pushButton10.font())
         pushButton10_font.setBold(1)
@@ -361,13 +324,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton10.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton10.setToggleButton(1)
         self.pushButton10.setAutoDefault(0)
-        layout23.addWidget(self.pushButton10)
 
-        LayoutWidget_3 = QWidget(self.elementGroupBox,"layout27")
-        LayoutWidget_3.setGeometry(QRect(20,130,624,58))
-        layout27 = QHBoxLayout(LayoutWidget_3,11,6,"layout27")
-
-        self.pushButton13 = QPushButton(LayoutWidget_3,"pushButton13")
+        layout22.addWidget(self.pushButton10,1,5)
+        
+        self.pushButton13 = QPushButton(self.elementGroupBox,"pushButton13")
         pushButton13_font = QFont(self.pushButton13.font())
         pushButton13_font.setPointSize(9)
         pushButton13_font.setBold(1)
@@ -375,36 +335,40 @@ class ElementSelectorDialog(QDialog):
         self.pushButton13.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton13.setToggleButton(1)
         self.pushButton13.setAutoDefault(0)
-        layout27.addWidget(self.pushButton13)
 
-        self.pushButton14 = QPushButton(LayoutWidget_3,"pushButton14")
+        layout22.addWidget(self.pushButton13,2,0)
+        
+        self.pushButton14 = QPushButton(self.elementGroupBox,"pushButton14")
         pushButton14_font = QFont(self.pushButton14.font())
         pushButton14_font.setBold(1)
         self.pushButton14.setFont(pushButton14_font)
         self.pushButton14.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton14.setToggleButton(1)
         self.pushButton14.setAutoDefault(0)
-        layout27.addWidget(self.pushButton14)
 
-        self.pushButton15 = QPushButton(LayoutWidget_3,"pushButton15")
+        layout22.addWidget(self.pushButton14,2,1)
+        
+        self.pushButton15 = QPushButton(self.elementGroupBox,"pushButton15")
         pushButton15_font = QFont(self.pushButton15.font())
         pushButton15_font.setBold(1)
         self.pushButton15.setFont(pushButton15_font)
         self.pushButton15.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton15.setToggleButton(1)
         self.pushButton15.setAutoDefault(0)
-        layout27.addWidget(self.pushButton15)
 
-        self.pushButton16 = QPushButton(LayoutWidget_3,"pushButton16")
+        layout22.addWidget(self.pushButton15,2,2)
+
+        self.pushButton16 = QPushButton(self.elementGroupBox,"pushButton16")
         pushButton16_font = QFont(self.pushButton16.font())
         pushButton16_font.setBold(1)
         self.pushButton16.setFont(pushButton16_font)
         self.pushButton16.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton16.setToggleButton(1)
         self.pushButton16.setAutoDefault(0)
-        layout27.addWidget(self.pushButton16)
 
-        self.pushButton17 = QPushButton(LayoutWidget_3,"pushButton17")
+        layout22.addWidget(self.pushButton16,2,3)
+
+        self.pushButton17 = QPushButton(self.elementGroupBox,"pushButton17")
         self.pushButton17.setBackgroundOrigin(QPushButton.WindowOrigin)
         pushButton17_font = QFont(self.pushButton17.font())
         pushButton17_font.setBold(1)
@@ -412,33 +376,20 @@ class ElementSelectorDialog(QDialog):
         self.pushButton17.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton17.setToggleButton(1)
         self.pushButton17.setAutoDefault(0)
-        layout27.addWidget(self.pushButton17)
 
-        self.pushButton18 = QPushButton(LayoutWidget_3,"pushButton18")
+        layout22.addWidget(self.pushButton17,2,4)
+        
+        self.pushButton18 = QPushButton(self.elementGroupBox,"pushButton18")
         self.pushButton18.setEnabled(1)
         pushButton18_font = QFont(self.pushButton18.font())
         pushButton18_font.setBold(1)
         self.pushButton18.setFont(pushButton18_font)
         self.pushButton18.setToggleButton(1)
         self.pushButton18.setAutoDefault(0)
-        layout27.addWidget(self.pushButton18)
 
-        LayoutWidget_4 = QWidget(self.elementGroupBox,"layout25")
-        LayoutWidget_4.setGeometry(QRect(-40,190,592,54))
-        layout25 = QHBoxLayout(LayoutWidget_4,11,6,"layout25")
+        layout22.addWidget(self.pushButton18,2,5)
 
-        self.pushButton5_2_5 = QPushButton(LayoutWidget_4,"pushButton5_2_5")
-        self.pushButton5_2_5.setPaletteBackgroundColor(QColor(208,203,231))
-        pushButton5_2_5_font = QFont(self.pushButton5_2_5.font())
-        pushButton5_2_5_font.setBold(1)
-        self.pushButton5_2_5.setFont(pushButton5_2_5_font)
-        self.pushButton5_2_5.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton5_2_5.setToggleButton(0)
-        self.pushButton5_2_5.setAutoDefault(0)
-        self.pushButton5_2_5.setFlat(1)
-        layout25.addWidget(self.pushButton5_2_5)
-
-        self.pushButton32 = QPushButton(LayoutWidget_4,"pushButton32")
+        self.pushButton32 = QPushButton(self.elementGroupBox,"pushButton32")
         self.pushButton32.setEnabled(1)
         pushButton32_font = QFont(self.pushButton32.font())
         pushButton32_font.setBold(1)
@@ -447,9 +398,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton32.setToggleButton(1)
         self.pushButton32.setOn(0)
         self.pushButton32.setAutoDefault(0)
-        layout25.addWidget(self.pushButton32)
 
-        self.pushButton33 = QPushButton(LayoutWidget_4,"pushButton33")
+        layout22.addWidget(self.pushButton32,3,1)
+        
+        self.pushButton33 = QPushButton(self.elementGroupBox,"pushButton33")
         self.pushButton33.setEnabled(1)
         pushButton33_font = QFont(self.pushButton33.font())
         pushButton33_font.setBold(1)
@@ -457,9 +409,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton33.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton33.setToggleButton(1)
         self.pushButton33.setAutoDefault(0)
-        layout25.addWidget(self.pushButton33)
 
-        self.pushButton34 = QPushButton(LayoutWidget_4,"pushButton34")
+        layout22.addWidget(self.pushButton33,3,2)
+
+        self.pushButton34 = QPushButton(self.elementGroupBox,"pushButton34")
         self.pushButton34.setEnabled(1)
         pushButton34_font = QFont(self.pushButton34.font())
         pushButton34_font.setBold(1)
@@ -467,9 +420,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton34.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton34.setToggleButton(1)
         self.pushButton34.setAutoDefault(0)
-        layout25.addWidget(self.pushButton34)
 
-        self.pushButton35 = QPushButton(LayoutWidget_4,"pushButton35")
+        layout22.addWidget(self.pushButton34,3,3)
+        
+        self.pushButton35 = QPushButton(self.elementGroupBox,"pushButton35")
         self.pushButton35.setEnabled(1)
         pushButton35_font = QFont(self.pushButton35.font())
         pushButton35_font.setBold(1)
@@ -477,9 +431,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton35.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton35.setToggleButton(1)
         self.pushButton35.setAutoDefault(0)
-        layout25.addWidget(self.pushButton35)
 
-        self.pushButton36 = QPushButton(LayoutWidget_4,"pushButton36")
+        layout22.addWidget(self.pushButton35,3,4)
+        
+        self.pushButton36 = QPushButton(self.elementGroupBox,"pushButton36")
         self.pushButton36.setEnabled(1)
         pushButton36_font = QFont(self.pushButton36.font())
         pushButton36_font.setBold(1)
@@ -487,35 +442,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton36.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton36.setToggleButton(1)
         self.pushButton36.setAutoDefault(0)
-        layout25.addWidget(self.pushButton36)
 
-        LayoutWidget_5 = QWidget(self.elementGroupBox,"layout26")
-        LayoutWidget_5.setGeometry(QRect(-29,250,536,54))
-        layout26 = QHBoxLayout(LayoutWidget_5,11,6,"layout26")
+        layout22.addWidget(self.pushButton36,3,5)
 
-        self.pushButton5_2_6 = QPushButton(LayoutWidget_5,"pushButton5_2_6")
-        self.pushButton5_2_6.setPaletteBackgroundColor(QColor(208,203,231))
-        pushButton5_2_6_font = QFont(self.pushButton5_2_6.font())
-        pushButton5_2_6_font.setBold(1)
-        self.pushButton5_2_6.setFont(pushButton5_2_6_font)
-        self.pushButton5_2_6.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton5_2_6.setToggleButton(0)
-        self.pushButton5_2_6.setAutoDefault(0)
-        self.pushButton5_2_6.setFlat(1)
-        layout26.addWidget(self.pushButton5_2_6)
-
-        self.pushButton5_2_7 = QPushButton(LayoutWidget_5,"pushButton5_2_7")
-        self.pushButton5_2_7.setPaletteBackgroundColor(QColor(208,203,231))
-        pushButton5_2_7_font = QFont(self.pushButton5_2_7.font())
-        pushButton5_2_7_font.setBold(1)
-        self.pushButton5_2_7.setFont(pushButton5_2_7_font)
-        self.pushButton5_2_7.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton5_2_7.setToggleButton(0)
-        self.pushButton5_2_7.setAutoDefault(0)
-        self.pushButton5_2_7.setFlat(1)
-        layout26.addWidget(self.pushButton5_2_7)
-
-        self.pushButton51 = QPushButton(LayoutWidget_5,"pushButton51")
+        self.pushButton51 = QPushButton(self.elementGroupBox,"pushButton51")
         self.pushButton51.setEnabled(0)
         pushButton51_font = QFont(self.pushButton51.font())
         pushButton51_font.setBold(1)
@@ -523,9 +453,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton51.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton51.setToggleButton(1)
         self.pushButton51.setAutoDefault(0)
-        layout26.addWidget(self.pushButton51)
 
-        self.pushButton52 = QPushButton(LayoutWidget_5,"pushButton52")
+        layout22.addWidget(self.pushButton51,4,2)
+
+        self.pushButton52 = QPushButton(self.elementGroupBox,"pushButton52")
         self.pushButton52.setEnabled(0)
         pushButton52_font = QFont(self.pushButton52.font())
         pushButton52_font.setBold(1)
@@ -533,9 +464,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton52.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton52.setToggleButton(1)
         self.pushButton52.setAutoDefault(0)
-        layout26.addWidget(self.pushButton52)
 
-        self.pushButton53 = QPushButton(LayoutWidget_5,"pushButton53")
+        layout22.addWidget(self.pushButton52,4,3)
+
+        self.pushButton53 = QPushButton(self.elementGroupBox,"pushButton53")
         self.pushButton53.setEnabled(0)
         pushButton53_font = QFont(self.pushButton53.font())
         pushButton53_font.setBold(1)
@@ -543,9 +475,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton53.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton53.setToggleButton(1)
         self.pushButton53.setAutoDefault(0)
-        layout26.addWidget(self.pushButton53)
 
-        self.pushButton54 = QPushButton(LayoutWidget_5,"pushButton54")
+        layout22.addWidget(self.pushButton53,4,4)
+
+        self.pushButton54 = QPushButton(self.elementGroupBox,"pushButton54")
         self.pushButton54.setEnabled(0)
         pushButton54_font = QFont(self.pushButton54.font())
         pushButton54_font.setBold(1)
@@ -553,7 +486,10 @@ class ElementSelectorDialog(QDialog):
         self.pushButton54.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton54.setToggleButton(1)
         self.pushButton54.setAutoDefault(0)
-        layout26.addWidget(self.pushButton54)
+
+        layout22.addWidget(self.pushButton54,4,5)
+
+        #ElementSelectorDialogLayout.addLayout(layout22)
         ElementSelectorDialogLayout.addWidget(self.elementGroupBox)
 
         layout21 = QVBoxLayout(None,0,13,"layout21")
@@ -595,7 +531,7 @@ class ElementSelectorDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(489,740).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(150,200).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okButton,SIGNAL("clicked()"),self.ok)
@@ -608,7 +544,7 @@ class ElementSelectorDialog(QDialog):
         self.connect(self.blueSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderBlue)
         self.connect(self.greenSlider,SIGNAL("valueChanged(int)"),self.changeSpinGreen)
         self.connect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
-        self.connect(self.cancelButton,SIGNAL("clicked()"),self.cancel)
+        self.connect(self.cancelButton,SIGNAL("clicked()"),self.reject)
 
         self.setTabOrder(self.redSlider,self.redSpinBox)
         self.setTabOrder(self.redSpinBox,self.greenSlider)
@@ -621,16 +557,6 @@ class ElementSelectorDialog(QDialog):
         self.setTabOrder(self.loadColorsPB,self.saveColorsPB)
         self.setTabOrder(self.saveColorsPB,self.okButton)
         self.setTabOrder(self.okButton,self.cancelButton)
-        self.setTabOrder(self.cancelButton,self.pushButton13)
-        self.setTabOrder(self.pushButton13,self.pushButton14)
-        self.setTabOrder(self.pushButton14,self.pushButton15)
-        self.setTabOrder(self.pushButton15,self.pushButton16)
-        self.setTabOrder(self.pushButton16,self.pushButton17)
-        self.setTabOrder(self.pushButton17,self.pushButton18)
-        self.setTabOrder(self.pushButton18,self.pushButton51)
-        self.setTabOrder(self.pushButton51,self.pushButton52)
-        self.setTabOrder(self.pushButton52,self.pushButton53)
-        self.setTabOrder(self.pushButton53,self.pushButton54)
 
 
     def languageChange(self):
@@ -640,60 +566,29 @@ class ElementSelectorDialog(QDialog):
         self.textLabel2.setText(QString.null)
         self.textLabel2_2.setText(QString.null)
         self.textLabel2_3.setText(QString.null)
-        self.elementGroupBox.setTitle(QString.null)
-        self.pushButton5_2.setText(QString.null)
-        self.pushButton5_2_2.setText(QString.null)
-        self.pushButton5_2_3.setText(QString.null)
-        self.pushButton5_2_4.setText(QString.null)
-        self.pushButton1.setText(self.__tr("1\n"
-"H"))
-        self.pushButton2.setText(self.__tr("2\n"
-"He"))
-        self.pushButton5.setText(self.__tr("5\n"
-"B"))
-        self.pushButton6.setText(self.__tr("6\n"
-"C"))
-        self.pushButton7.setText(self.__tr("7\n"
-"N"))
-        self.pushButton8.setText(self.__tr("8\n"
-"O"))
-        self.pushButton9.setText(self.__tr("9\n"
-"F"))
-        self.pushButton10.setText(self.__tr("10\n"
-"Ne"))
-        self.pushButton13.setText(self.__tr("13\n"
-"Al"))
-        self.pushButton14.setText(self.__tr("14\n"
-"Si"))
-        self.pushButton15.setText(self.__tr("15\n"
-"P"))
-        self.pushButton16.setText(self.__tr("16\n"
-"S"))
-        self.pushButton17.setText(self.__tr("17\n"
-"Cl"))
-        self.pushButton18.setText(self.__tr("18\n"
-"Ar"))
-        self.pushButton5_2_5.setText(QString.null)
-        self.pushButton32.setText(self.__tr("32\n"
-"Ge"))
-        self.pushButton33.setText(self.__tr("33\n"
-"As"))
-        self.pushButton34.setText(self.__tr("34\n"
-"Se"))
-        self.pushButton35.setText(self.__tr("35\n"
-"Br"))
-        self.pushButton36.setText(self.__tr("36\n"
-"Kr"))
-        self.pushButton5_2_6.setText(QString.null)
-        self.pushButton5_2_7.setText(QString.null)
-        self.pushButton51.setText(self.__tr("51\n"
-"Sb"))
-        self.pushButton52.setText(self.__tr("52\n"
-"Te"))
-        self.pushButton53.setText(self.__tr("53\n"
-"I"))
-        self.pushButton54.setText(self.__tr("54\n"
-"Xe"))
+        self.pushButton52.setText(self.__tr("Te"))
+        self.pushButton35.setText(self.__tr("Br"))
+        self.pushButton5.setText(self.__tr("B"))
+        self.pushButton17.setText(self.__tr("Cl"))
+        self.pushButton32.setText(self.__tr("Ge"))
+        self.pushButton51.setText(self.__tr("Sb"))
+        self.pushButton2.setText(self.__tr("He"))
+        self.pushButton10.setText(self.__tr("Ne"))
+        self.pushButton14.setText(self.__tr("Si"))
+        self.pushButton33.setText(self.__tr("As"))
+        self.pushButton34.setText(self.__tr("Se"))
+        self.pushButton36.setText(self.__tr("Kr"))
+        self.pushButton1.setText(self.__tr("H"))
+        self.pushButton53.setText(self.__tr("I"))
+        self.pushButton54.setText(self.__tr("Xe"))
+        self.pushButton9.setText(self.__tr("F"))
+        self.pushButton16.setText(self.__tr("S"))
+        self.pushButton18.setText(self.__tr("Ar"))
+        self.pushButton6.setText(self.__tr("C"))
+        self.pushButton15.setText(self.__tr("P"))
+        self.pushButton7.setText(self.__tr("N"))
+        self.pushButton8.setText(self.__tr("O"))
+        self.pushButton13.setText(self.__tr("Al"))
         self.loadColorsPB.setText(self.__tr("Load Colors ..."))
         QToolTip.add(self.loadColorsPB,self.__tr("Load element colors from an external text file."))
         self.transmuteCheckBox.setText(self.__tr("Keep Bonds"))
@@ -737,9 +632,6 @@ class ElementSelectorDialog(QDialog):
 
     def changeSliderGreen(self,a0):
         print "ElementSelectorDialog.changeSliderGreen(int): Not implemented yet"
-
-    def cancel(self):
-        print "ElementSelectorDialog.cancel(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("ElementSelectorDialog",s,c)

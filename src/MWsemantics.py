@@ -1442,12 +1442,18 @@ class MWsemantics(MainWindow):
     def modifySetElement(self):
 #        print "modifySetElement: Current Element = ", self.Element    
         global elementwindow
-        #Huaicai 2/24/05: Create a new element selector window each time, so 
-        #it will be easier to always start from the same states.
-        #if not elementwindow: 
+        #Huaicai 2/24/05: Create a new element selector window each time,  
+        #so it will be easier to always start from the same states.
+        # Make sure only a single element window is shown
+        if elementwindow and elementwindow.isShown(): return 
+        
         elementwindow = elementSelector(self)
         elementwindow.setDisplay(self.Element)
         elementwindow.show()
+        
+        #After the element window is shown, disable menu element colors prefs changes
+        self.dispSetEltable1Action.setEnabled(False)
+        self.dispSetEltable2Action.setEnabled(False)
         
 
     def elemChange(self, a0):

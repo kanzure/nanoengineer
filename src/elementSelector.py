@@ -26,14 +26,15 @@ elementAMU = { 1 : "1.008", 2 : "4.003",
 
 class elementSelector(ElementSelectorDialog):
     def __init__(self, win):
-        ElementSelectorDialog.__init__(self, win)
+        ElementSelectorDialog.__init__(self, win, None, 0, Qt.WStyle_Customize | Qt.WStyle_NormalBorder | Qt.WStyle_Title | Qt.WStyle_SysMenu)
         self.w = win
         self.fileName = None
         self.isElementModified = False
         self.isFileSaved = False
-        self.elemTable = elements.elemprefs().deepCopy(elements.elemtables[3])
+        self.oldTable = elements.elemprefs().deepCopy(elements.elemtables[3])
+        self.elemTable = elements.elemtables[3]
         
-        self.elementGroupBox.setColumnLayout(5, Qt.Vertical)
+        #self.elementGroupBox.setColumnLayout(5, Qt.Vertical)
         
         buttons = [(self.pushButton1, 1), (self.pushButton2, 2), (self.pushButton5, 5), (self.pushButton6, 6), (self.pushButton7,7), (self.pushButton8, 8), (self.pushButton9, 9), (self.pushButton10, 10), (self.pushButton13, 13), (self.pushButton14, 14), (self.pushButton15, 15), (self.pushButton16, 16), (self.pushButton17, 17), (self.pushButton18, 18), (self.pushButton32,32), (self.pushButton33, 33), (self.pushButton34, 34), (self.pushButton35, 35), (self.pushButton36, 36), (self.pushButton51, 51), (self.pushButton52, 52), (self.pushButton53, 53), (self.pushButton54, 54)]
         
@@ -43,11 +44,20 @@ class elementSelector(ElementSelectorDialog):
         for button in buttons: self.buttonGroup.insert(button[0], button[1])
         self.connect(self.buttonGroup, SIGNAL("clicked(int)"), self.setElementInfo)
          
-        self.elemGLPane = ElementView(self.elementFrame, "element glPane", self.w.glpane)
+        self.elemGLPane = ElementView(self.elementFrame, "element glPane", None)#self.w.glpane)
         # Put the GL widget inside the frame
         flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
         flayout.addWidget(self.elemGLPane,1)
-
+        
+        #self.resize(150, 200)
+        
+    def closeEvent(self, e):
+        """When user closes dialog by clicking the 'X' button on the dialog title bar, this method
+            is called
+        """
+        self.ok()
+         
+    
     def disConnectChangingControls(self):
         self.disconnect(self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
         self.disconnect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
@@ -105,6 +115,8 @@ class elementSelector(ElementSelectorDialog):
         b = int(self.color[2]*255 + 0.5)
         self.elemColorLabel.setPaletteBackgroundColor(QColor(r, g, b)) 
         
+        elements.set_element_table(3, self.w.assy)
+ 
  
     def transmutePressed(self):
         force = self.transmuteCheckBox.isChecked()
@@ -226,27 +238,25 @@ class elementSelector(ElementSelectorDialog):
             if ret == QMessageBox.Yes:
                 self.write_element_rgb_table()
         
-        # If element modified or external file loaded, use it 
-        if self.isElementModified or self.fileName:  
-            elements.elemtables[3].deepCopy(self.elemTable)
-            elements.set_element_table(3, self.w.assy)    
+        #Before the element window closes, enable menu element colors prefs changes
+        self.w.dispSetEltable1Action.setEnabled(True)
+        self.w.dispSetEltable2Action.setEnabled(True)
         
-        #self.fileName = None
-        #self.isElementModified = False
-        #self.isFileSaved = False    
         self.accept()
         
         
-    def cancel(self):
+    def reject(self):
         # If elements modified or external file loaded, restore
         # current pref to originial since our dialog is reused 
-        #if self.isElementModified or self.fileName:  
-        #    self.elemTable.deepCopy(elements.elemtables[3])
+        if self.isElementModified or self.fileName:  
+            self.elemTable.deepCopy(self.oldTable)
+            elements.set_element_table(3, self.w.assy)
         
-        #self.fileName = None
-        #self.isElementModified = False
-        #self.isFileSaved = False    
-        self.reject()
+        #Before the element window closes, enable menu element colors prefs changes
+        self.w.dispSetEltable1Action.setEnabled(True)
+        self.w.dispSetEltable2Action.setEnabled(True)
+        
+        QDialog.reject(self)
     
 
 class ElementView(ThumbView):
@@ -259,7 +269,10 @@ class ElementView(ThumbView):
         self.rad = -1.0 ##Initial value when no element selected
         self.level = 2
         
-        
+    #def mousePressEvent(self, event):   
+    #     print " Mouse pressed in color selector window."
+    #     event.ignore()
+         
     def drawModel(self):
         """The method for element drawing """
         if self.rad >= 0.0 :
@@ -273,7 +286,8 @@ class ElementView(ThumbView):
            glEnable(GL_LIGHTING)
             
     def refreshDisplay(self, newColor, newRad):
-        """Display the new element """    
+        """Display the new element """   
+        self.makeCurrent() 
         self.color = newColor
         self.rad = newRad
         self.updateGL()
