@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>976</height>
+            <height>979</height>
         </rect>
     </property>
     <property name="caption">
@@ -3144,7 +3144,7 @@
         <sender>fileExitAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>fileExit()</slot>
+        <slot>close()</slot>
     </connection>
     <connection>
         <sender>fileImageAction</sender>

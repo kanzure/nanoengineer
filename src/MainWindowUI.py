@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Nov 8 18:01:09 2004
+# Created: Thu Nov 11 15:22:27 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7638,7 +7638,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,976).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,979).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7668,7 +7668,7 @@ class MainWindow(QMainWindow):
         self.connect(self.editUndoAction,SIGNAL("activated()"),self.editUndo)
         self.connect(self.fileClearAction,SIGNAL("activated()"),self.fileClear)
         self.connect(self.fileCloseAction,SIGNAL("activated()"),self.fileClose)
-        self.connect(self.fileExitAction,SIGNAL("activated()"),self.fileExit)
+        self.connect(self.fileExitAction,SIGNAL("activated()"),self,SLOT("close()"))
         self.connect(self.fileImageAction,SIGNAL("activated()"),self.fileImage)
         self.connect(self.fileInsertAction,SIGNAL("activated()"),self.fileInsert)
         self.connect(self.fileNewAction,SIGNAL("activated()"),self.fileNew)
