@@ -686,6 +686,8 @@ class molecule(Node):
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0
+        # default place to bond this molecule -- should be a singlet
+        self.hotspot = None
         
           
     def bond(self, at1, at2):
@@ -734,8 +736,9 @@ class molecule(Node):
         self.curpos = atpos
         self.atlist = array(atlist, PyObject)
         self.singlets = array(singlets, PyObject)
-        self.singlpos = array(singlpos)
-        self.singlbase = self.singlpos - self.center
+        if self.singlets:
+            self.singlpos = array(singlpos)
+            self.singlbase = self.singlpos - self.center
 
         # find extrema in many directions
         xtab = dot(self.basepos, polyXmat)
@@ -789,7 +792,8 @@ class molecule(Node):
         self.center = V(0,0,0)
         self.quat = Q(1,0,0,0)  
         self.basepos = self.curpos # reference == same object
-        self.singlbase = self.singlpos # ditto
+        if self.singlets:
+            self.singlbase = self.singlpos # ditto
 
     def unfreeze(self):
         """ to be done at the end of minimization or simulation"""
@@ -1008,10 +1012,9 @@ class molecule(Node):
         i=argsort(compress(p,r))
         return take(compress(p,self.singlets),i)
 
-    def copy(self, dad, offset):
+    def copy(self, dad=None, offset=V(0,0,0)):
         """Copy the molecule to a new molecule.
         offset tells where it will go relative to the original.
-        There should be a rotation parameter but there isn't.
         """
         pairlis = []
         ndix = {}
@@ -1024,11 +1027,9 @@ class molecule(Node):
             for b in a.bonds:
                 if b.other(a).key in ndix:
                     numol.bond(na,ndix[b.other(a).key])
-        numol.curpos =self.curpos+offset
+        numol.curpos = self.curpos+offset
         numol.shakedown()
         numol.setDisplay(self.display)
-        self.unpick()
-        numol.pick()
         numol.dad = dad
         return numol
 
