@@ -449,16 +449,21 @@ def segend():
     glEnd()
     glEnable(GL_LIGHTING)
 
-def drawaxes(n,point):
+def drawaxes(n,point,coloraxes=False):
+    from constants import blue, red, green
     glPushMatrix()
     glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
-    glColor3f(0.0, 0.0, 0.6)
+    if coloraxes: glColor3f(red[0], red[1], red[2])
+    else: glColor3f(blue[0], blue[1], blue[2])
     glBegin(GL_LINES)
     glVertex(n,0,0)
     glVertex(-n,0,0)
+    glColor3f(blue[0], blue[1], blue[2])
     glVertex(0,n,0)
     glVertex(0,-n,0)
+    if coloraxes: glColor3f(green[0], green[1], green[2])
+    else: glColor3f(blue[0], blue[1], blue[2])
     glVertex(0,0,n)
     glVertex(0,0,-n)
     glEnd()
