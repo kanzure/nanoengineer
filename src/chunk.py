@@ -43,6 +43,8 @@ class molecule(Node, InvalMixin):
         # note: new molecules are NOT automatically added to assembly.
         # this has to be done separately (if desired) by assembly.addmol
         # (or the equivalent). [comment by bruce 041116]
+        if not self.mticon:
+            self.init_icons()
         self.init_InvalMixin()
         Node.__init__(self, assembly, dad, nam or gensym("Chunk."))
         
@@ -89,26 +91,58 @@ class molecule(Node, InvalMixin):
         self.havelist = 0 # note: havelist is not handled by InvalMixin
         # default place to bond this molecule -- should be a singlet or None
         self.hotspot = None
-        
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.mticon = []
-        self.mticon.append(QPixmap(filePath + "/../images/moldefault.png"))
-        self.mticon.append(QPixmap(filePath + "/../images/molinvisible.png"))
-        self.mticon.append(QPixmap(filePath + "/../images/molvdw.png"))
-        self.mticon.append(QPixmap(filePath + "/../images/mollines.png"))
-        self.mticon.append(QPixmap(filePath + "/../images/molcpk.png"))
-        self.mticon.append(QPixmap(filePath + "/../images/moltubes.png"))
-
-        self.hideicon = []
-        self.hideicon.append(QPixmap(filePath + "/../images/moldefault-hide.png"))
-        self.hideicon.append(QPixmap(filePath + "/../images/molinvisible-hide.png"))
-        self.hideicon.append(QPixmap(filePath + "/../images/molvdw-hide.png"))
-        self.hideicon.append(QPixmap(filePath + "/../images/mollines-hide.png"))
-        self.hideicon.append(QPixmap(filePath + "/../images/molcpk-hide.png"))
-        self.hideicon.append(QPixmap(filePath + "/../images/moltubes-hide.png"))
                         
         return # from molecule.__init__
         
+    # bruce 041202 revised the following icon code; see longer comment about
+    # Jig.init_icons for explanation; this might be moved into class Node later
+    mticon_names = [
+	"images/moldefault.png",
+	"images/molinvisible.png",
+	"images/molvdw.png",
+	"images/mollines.png",
+	"images/molcpk.png",
+	"images/moltubes.png" ]
+    hideicon_names = [
+        "images/moldefault-hide.png",
+        "images/molinvisible-hide.png",
+        "images/molvdw-hide.png",
+        "images/mollines-hide.png",
+        "images/molcpk-hide.png",
+        "images/moltubes-hide.png" ]
+    mticon = []
+    hideicon = []
+    def init_icons(self):
+        # see also the same-named, related method in class Jig.
+        """each subclass must define mticon = [] and hideicon = [] as class constants...
+        but molecule is the only subclass, for now.
+        """
+        if self.mticon or self.hideicon:
+            return
+        # the following runs once per Atom session.
+        from os.path import dirname, abspath
+        filePathParent = dirname(dirname(abspath(sys.argv[0])))
+        for name in self.mticon_names:
+            try:
+                pixmap = QPixmap(os.path.join(filePathParent, name))
+            except:
+                print "bug: failed to load icon %r" % name
+                pixmap = None # stub, will cause later crash -- improve this
+            self.mticon.append(pixmap)
+        for name in self.hideicon_names:
+            try:
+                pixmap = QPixmap(os.path.join(filePathParent, name))
+            except:
+                print "bug: failed to load icon %r" % name
+                pixmap = None
+            self.hideicon.append(pixmap)
+        return
+    def seticon(self):
+        if self.hidden:
+            self.icon = self.hideicon[self.display]
+        else:
+            self.icon = self.mticon[self.display]
+    
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to atom at2.
         Error if at1 == at2 (causes printed warning and does nothing).
@@ -984,17 +1018,13 @@ class molecule(Node, InvalMixin):
         self.havelist = 0
         self.seticon()
         self.assy.modified = 1
-        self.assy.mt.update()
+        self.assy.mt.update() ###e this is too expensive; needs revision. ###@@@ [bruce 041202 comment]
         
     def changeapp(self):
         """call when you've changed appearance of the molecule
         (but you don't need to call it if only the external bonds look different)
         """ 
         self.havelist = 0
-
-    def seticon(self):
-        if self.hidden: self.icon = self.hideicon[self.display]
-        else: self.icon = self.mticon[self.display]
         
     def getinfo(self):
         # Return information about the selected moledule for the msgbar [mark 2004-10-14]
