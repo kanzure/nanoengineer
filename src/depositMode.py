@@ -745,7 +745,9 @@ class depositMode(basicMode):
         maxpl = el.numbonds
         
         for mol in searchmols:
-          for s in mol.nearSinglets(spot, cr*1.5):
+          for s in mol.nearSinglets(spot, cr * 1.9):
+              #bruce 041216 changed 1.5 to 1.9 above (it's a heuristic);
+              # see email discussion (ninad, bruce, josh)
             #bruce 041203 quick fix for bug 232:
             # don't include two singlets on the same real atom!
             # (It doesn't matter which one we pick, in terms of which atom we'll
