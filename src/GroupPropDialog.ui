@@ -1,0 +1,142 @@
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<class>GroupPropDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>GroupPropDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>314</width>
+            <height>133</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Group Properties</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>4</x>
+                <y>22</y>
+                <width>50</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Name:</string>
+        </property>
+        <property name="alignment">
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>nameLineEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>60</x>
+                <y>22</y>
+                <width>220</width>
+                <height>23</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>LineEditPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Sunken</enum>
+        </property>
+        <property name="text">
+            <string></string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>okPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>73</x>
+                <y>79</y>
+                <width>82</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;OK</string>
+        </property>
+        <property name="accel">
+            <string>Alt+O</string>
+        </property>
+        <property name="autoDefault">
+            <bool>true</bool>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>cancelPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>161</x>
+                <y>79</y>
+                <width>82</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Cancel</string>
+        </property>
+        <property name="accel">
+            <string>Alt+C</string>
+        </property>
+        <property name="autoDefault">
+            <bool>true</bool>
+        </property>
+        <property name="default">
+            <bool>false</bool>
+        </property>
+    </widget>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1310">789cb5d15b4fe2401806e07b7e450377c4d49ea7938d172a2a1e50e4ca64e3c51c0515b11c44dcec7fb7df3b2d74a397ebfb119227efcc34d3ee77bdbbe1c0ebeeb7164bb19c284f8dc5dcebead574baf97d7ff0a7d58e22affc259917b6f75aedbea7bc4e96d210d74416d2100b62ce69886f442e990cc131a84b0ae22b5184ccb8b607a62c0e34f18928c39cbbf61ae434c45bd0721e819aa8521aa202332edcdef32df1dc1b9071152ae206e4228870850e68441445c46347591e4d3c016dd966c411518734c45390c93c09885350489b61af0011e20034324a62e23bd14432767c7454618aa38e40264d8af60cb452b8c517441b9884e182124c69880b90d9c07d941548ef0e5798835aa70c0f5a8256b15412878e9ab92b3cd7cc13e25545cbd05e3a9ad87156b15a3ca9281d1f1c6d9c63b1adc9c1c38a8c63f14b456919d154b46ef1474d81fbfa35ad05bfcd0f359d32427ed374e84f69f9a551be29e32bc46dad1bfb40c16235c6d6ba993caa5d9e74a3795653df7fc19e99ff5a349ab95a982acbd5dbbad1bc6f3e0eab1c1df79acdc9a999b8ccce54bf79daf985b974b91a8cfbd78de6c60cebdcf6d6a35d237a8df40bb16ba42ed6db14cd9bfa528cb6f9e7edfcef2ff7b5f9fbabf50962432d0c</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>okPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>GroupPropDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>cancelPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>GroupPropDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>nameLineEdit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>GroupPropDialog</receiver>
+        <slot>nameChanged()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>nameChanged()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
