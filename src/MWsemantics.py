@@ -589,6 +589,8 @@ class MWsemantics(MainWindow):
         c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
         if c.isValid():
             self.glpane.mode.backgroundColor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
+            # bruce 041118 comment: the above is not enough, since mode objects are remade
+            # at arbitrary times (presently whenever a new file is loaded).
             self.glpane.paintGL()
 
     def dispGrid(self):
