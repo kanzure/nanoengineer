@@ -1120,8 +1120,26 @@ class MWsemantics(MainWindow):
         self.assistant.openNE1Assistant()
              
     def helpAbout(self):
-        aboutinfo = "nanoENGINEER-1 v0.0.4 (Alpha)\n\nCopyright (C) 2005, Nanorex, Inc.\n\nwww.nanoengineer-1.com"
-        QMessageBox.about ( self, "About nanoENGINEER-1", aboutinfo)
+        """Displays information about this version of nanoENGINEER-1
+        """
+        product = "nanoENGINEER-1 "
+        version = "v0.0.4 (Alpha)" # This should come from __version__
+        date = "Date: March 14, 2005" # This should come from __vdate__ or something similar
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        installdir = "Running from: " + filePath
+        copyright = "Copyright (C) 2005, Nanorex, Inc."
+        website = "www.nanoengineer-1.com"
+        aboutstr = product + version \
+                       + "\n\n" \
+                       + date \
+                       + "\n\n" \
+                       + installdir \
+                       + "\n\n" \
+                       + copyright \
+                       + "\n\n" \
+                       + website
+                      
+        QMessageBox.about ( self, "About nanoENGINEER-1", aboutstr)
              
     def helpWhatsThis(self):
         self.history.message(greenmsg("What's This:"))
