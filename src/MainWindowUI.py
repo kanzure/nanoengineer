@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Jan 31 13:01:15 2005
+# Created: Mon Jan 31 23:39:39 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -986,7 +986,7 @@ image10_data = [
 "......................"
 ]
 image11_data = [
-"22 22 20 1",
+"22 22 15 1",
 ". c None",
 "e c #000000",
 "j c #204297",
@@ -998,14 +998,9 @@ image11_data = [
 "d c #525252",
 "h c #6f6fdd",
 "c c #787878",
-"r c #868686",
 "g c #8e8ee4",
 "b c #919191",
-"n c #a9a9a9",
 "a c #aaaaaa",
-"q c #cfd0cf",
-"p c #d4d4d4",
-"o c #dddddd",
 "l c #ffffff",
 "......................",
 "......................",
@@ -1013,19 +1008,19 @@ image11_data = [
 ".fgghhhhhhhhhhhhhhie..",
 ".jikkkkkkkkkklklklme..",
 ".eeeeeeeeeeeeeeeeeee..",
-".enoppppppnpppppppne..",
-".enopppppnenppppppne..",
-".enoppppneeenpppppne..",
-".enopqpqeeeeeqpqppne..",
-".enoneppppeppppenpne..",
-".enneeppppeppppeenne..",
-".eneeeeeeeeeeeeeeene..",
-".enneeppppeppppeenne..",
-".enoneppppeppppenpne..",
-".enopqpqeeeeeqpqppne..",
-".enoppppneeenpppppne..",
-".enopppppnenppppppne..",
-".ednnnnnnnnnnnnnnnre..",
+".e.................e..",
+".e........e........e..",
+".e.......eee.......e..",
+".e......eeeee......e..",
+".e...e....e....e...e..",
+".e..ee....e....ee..e..",
+".e.eeeeeeeeeeeeeee.e..",
+".e..ee....e....ee..e..",
+".e...e....e....e...e..",
+".e......eeeee......e..",
+".e.......eee.......e..",
+".e........e........e..",
+".e.................e..",
 ".eeeeeeeeeeeeeeeeeee..",
 "......................",
 "......................"
@@ -3766,13 +3761,13 @@ image49_data = [
 "......................"
 ]
 image50_data = [
-"22 22 25 1",
+"22 22 20 1",
 ". c None",
 "d c #000000",
-"r c #000100",
+"o c #000100",
 "m c #010000",
-"v c #010100",
-"t c #010200",
+"r c #010100",
+"p c #010200",
 "i c #204297",
 "e c #20439a",
 "# c #21449b",
@@ -3781,16 +3776,11 @@ image50_data = [
 "h c #4242ce",
 "c c #525252",
 "g c #6f6fdd",
-"q c #757575",
-"u c #757675",
+"n c #757575",
+"q c #757675",
 "b c #787878",
-"w c #868686",
 "f c #8e8ee4",
 "a c #919191",
-"n c #a9a9a9",
-"s c #cfd0cf",
-"p c #d4d4d4",
-"o c #dddddd",
 "k c #ffffff",
 "......................",
 "......................",
@@ -3798,19 +3788,19 @@ image50_data = [
 ".effgggggggggggggghd..",
 ".ihjjjjjjjjjjkjkjkld..",
 ".dddddddddmddddddddd..",
-".dnoppppppmpppppppnd..",
-".dnoppppqmrrqpppppnd..",
-".dnopppmpprppmppppnd..",
-".dnopsrppprppprsppnd..",
-".dnopqpppptppppuppnd..",
-".dnopmppppppppprppnd..",
-".dnmmmrrvpppmmddmmnd..",
-".dnopmpppppppppmppnd..",
-".dnopqpppprppppqppnd..",
-".dnopsrppprpppmsppnd..",
-".dnoppprpprppmppppnd..",
-".dnoppppqmrrqpppppnd..",
-".dcnnnnnnndnnnnnnnwd..",
+".d........m........d..",
+".d......nmoon......d..",
+".d.....m..o..m.....d..",
+".d....o...o...o....d..",
+".d...n....p....q...d..",
+".d...m.........o...d..",
+".d.mmmoor...mmddmm.d..",
+".d...m.........m...d..",
+".d...n....o....n...d..",
+".d....o...o...m....d..",
+".d.....o..o..m.....d..",
+".d......nmoon......d..",
+".d........d........d..",
 ".dddddddddmddddddddd..",
 "......................",
 "......................"
@@ -7107,6 +7097,7 @@ class MainWindow(QMainWindow):
         self.setViewHomeAction = QAction(self,"setViewHomeAction")
         self.setViewHomeAction.setIconSet(QIconSet(self.image49))
         self.setViewRecenterAction = QAction(self,"setViewRecenterAction")
+        self.setViewRecenterAction.setEnabled(1)
         self.setViewRecenterAction.setIconSet(QIconSet(self.image50))
         self.jigsLinearMotorAction = QAction(self,"jigsLinearMotorAction")
         self.jigsLinearMotorAction.setIconSet(QIconSet(self.image51))
@@ -7598,7 +7589,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1204).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1207).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
