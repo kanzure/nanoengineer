@@ -11,7 +11,6 @@ __author__ = "Mark"
 
 import os, sys
 from struct import unpack
-from runSim import runSim
 from qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from HistoryWidget import redmsg
 
@@ -28,8 +27,18 @@ class Movie:
     """
     Movie object.
     """
+    # bruce 050324 comment: note that this class is misnamed --
+    # it's really a SimRunnerAndResultsUser... which might
+    # make and then use .xyz or .dpb results; if .dpb, it's able
+    # to play the movie; if .xyz, it just makes it and uses it once
+    # and presently doesn't even do it in methods, but in external
+    # code (nonetheless it's used). Probably should split it into subclasses
+    # and have one for .xyz and one for .dpb, and put that ext code
+    # into one of them as methods. ###@@@
     def __init__(self, assembly, name=None):
         self.assy = assembly
+        self.win = self.assy.w
+        ## self.history = self.assy.w.history ###@@@ might not work, might need getattr, until we remake Movies as needed
         # for future use: name of the movie that appears in the modelTree. 
         self.name = name or "" # assumed to be a string by some code
         # the name of the movie file
@@ -65,6 +74,12 @@ class Movie:
         self.temp = 300
         self.stepsper = 10
         self.timestep = 10
+##        # bruce 050324 added this: #### NOT YET, IT WON'T WORK UNTIL WE DELAY CREATION OF THIS OBJECT
+##        self.part = self.assy.part # movie is assumed valid only for the current part at its time of creation
+    def __getattr__(self, attr): # temporary kluge ###@@@
+        if attr == 'part': return self.assy.tree.part
+        if attr == 'history': return self.assy.w.history
+        raise AttributeError, attr
         
 # movie methods ##########################
 
@@ -73,16 +88,20 @@ class Movie:
         """
         if DEBUG1: print "movie._setup() called. filename = [" + self.filename + "]"
         
-        r = self._checkMovieFile()
+        # Check if this movie's movie file is valid
+        # [bruce 050324 made _checkMovieFile a function, made it require filename,
+        #  and made it print the history messages which I've commented out below.]
+        ## r = self._checkMovieFile()
+        part = self.part
+        r = _checkMovieFile(part, self.filename, self.history)
         
         if r == 1:
-            msg = redmsg("Cannot play movie file [" + self.filename + "]. It does not exist.")
-            self.assy.w.history.message(msg)
+##            msg = redmsg("Cannot play movie file [" + self.filename + "]. It does not exist.")
+##            self.history.message(msg)
             return r
-        
         elif r == 2: 
-            msg = redmsg("Movie file [" + self.filename + "] not valid for the current part.")
-            self.assy.w.history.message(msg)
+##            msg = redmsg("Movie file [" + self.filename + "] not valid for the current part.")
+##            self.history.message(msg)
             self._controls(0) # Disable movie control buttons.
             return r
             
@@ -111,17 +130,17 @@ class Movie:
         filepos = (self.currentFrame * self.natoms * 3) + 4
         self.fileobj.seek( filepos )
 
-        self.assy.w.frameNumberSL.setMaxValue(self.totalFrames)      
-        self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
+        self.win.frameNumberSL.setMaxValue(self.totalFrames)      
+        self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
         
-#        self.assy.w.movieProgressBar.setTotalSteps(self.totalFrames) # Progress bar
-#        self.assy.w.movieProgressBar.setProgress(self.currentFrame)
+#        self.win.movieProgressBar.setTotalSteps(self.totalFrames) # Progress bar
+#        self.win.movieProgressBar.setProgress(self.currentFrame)
 
-        self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
-        self.assy.w.frameNumberSB.setMaxValue(self.totalFrames)
+        self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
+        self.win.frameNumberSB.setMaxValue(self.totalFrames)
 
         flabel = "Frame (" + str(self.totalFrames) + " total):"
-        self.assy.w.frameLabel.setText(flabel) # Spinbox label
+        self.win.frameLabel.setText(flabel) # Spinbox label
 
         if hflag: self._info()
         
@@ -135,11 +154,11 @@ class Movie:
             msg = "Movie Ready: Number of Frames: " + str(self.totalFrames) + \
                     ", Current Frame:" +  str(self.currentFrame) +\
                     ", Number of Atoms:" + str(self.natoms)
-            self.assy.w.history.message(msg)
+            self.history.message(msg)
 
             filepos = self.fileobj.tell() # Current file position
             msg = "Current frame:" + str(self.currentFrame) + ", filepos =" + str(filepos)
-            self.assy.w.history.message(msg)
+            self.history.message(msg)
 
     def _close(self):
         """Close movie file and adjust atom positions.
@@ -167,7 +186,7 @@ class Movie:
         self.playDirection = direction
         
         if self.currentFrame == 0: 
-            self.assy.w.history.message("Playing movie file [" + self.filename + "]")
+            self.history.message("Playing movie file [" + self.filename + "]")
             self._continue(0)
         else:
             self._continue()
@@ -181,7 +200,7 @@ class Movie:
         # In case the movie is already playing (usually the other direction).
         self._pause(0) 
         
-        if hflag: self.assy.w.history.message("Movie continued: " + playDirection[ self.playDirection ])
+        if hflag: self.history.message("Movie continued: " + playDirection[ self.playDirection ])
         
         self.showEachFrame = True
 
@@ -197,13 +216,13 @@ class Movie:
         self.isPaused = True
         self.showEachFrame = False
         self.moveToEnd = False
-        self.assy.w.moviePlayActiveAction.setVisible(0)
-        self.assy.w.moviePlayAction.setVisible(1)
-        self.assy.w.moviePlayRevActiveAction.setVisible(0)
-        self.assy.w.moviePlayRevAction.setVisible(1)
-#        self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
-#        self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
-        if hflag: self.assy.w.history.message("Movie paused.")
+        self.win.moviePlayActiveAction.setVisible(0)
+        self.win.moviePlayAction.setVisible(1)
+        self.win.moviePlayRevActiveAction.setVisible(0)
+        self.win.moviePlayRevAction.setVisible(1)
+#        self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
+#        self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
+        if hflag: self.history.message("Movie paused.")
 
     def _playFrame(self, fnum):
         """Main method for movie playing (except for slider control).
@@ -229,12 +248,12 @@ class Movie:
         # "inc" is the frame increment (FWD = 1, REV = -1) .
         if fnum > self.currentFrame: 
             inc = FWD
-            self.assy.w.moviePlayActiveAction.setVisible(1)
-            self.assy.w.moviePlayAction.setVisible(0)
+            self.win.moviePlayActiveAction.setVisible(1)
+            self.win.moviePlayAction.setVisible(0)
         else: 
             inc = REV
-            self.assy.w.moviePlayRevActiveAction.setVisible(1)
-            self.assy.w.moviePlayRevAction.setVisible(0)
+            self.win.moviePlayRevActiveAction.setVisible(1)
+            self.win.moviePlayRevAction.setVisible(0)
 
         # This addresses the situation when the movie file is large (> 1000 frames)
         # and the user drags the slider quickly, creating a large delta between
@@ -249,9 +268,9 @@ class Movie:
                 if delta > 1000:
                     self.waitCursor = True
                     QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-                    self.assy.w.history.message(playDirection[ inc ] + "ing to frame " + str(fnum) + ".  You may select Pause at any time.")
+                    self.history.message(playDirection[ inc ] + "ing to frame " + str(fnum) + ".  You may select Pause at any time.")
                 else:
-                    self.assy.w.history.message(playDirection[ inc ] + "ing to frame " + str(fnum))
+                    self.history.message(playDirection[ inc ] + "ing to frame " + str(fnum))
             
         if DEBUG0: print "BEGIN LOOP: fnum = ", fnum, ", currentFrame =", self.currentFrame, ", inc =",inc
     
@@ -272,14 +291,14 @@ class Movie:
 #                filepos = self.fileobj.tell()
 #                msg = "FWD Frame:" + str(self.currentFrame) + ", filepos =" + str(filepos) + ", inc =" + str(inc)
 #                msg += ", natoms =" + str(self.natoms)
-#                self.assy.w.history.message(msg)
+#                self.history.message(msg)
 #                print msg
 
                 # adding 1 frame (of XYZ positions from the movie file) to the current atom positions
                 self.assy.movatoms(self.fileobj, ADD)
                 
                 # Skip n frames.
-                for n in range(self.assy.w.skipSB.value()):
+                for n in range(self.win.skipSB.value()):
                     if self.currentFrame != fnum:
                         self.currentFrame += inc
                         self.assy.movatoms(self.fileobj, ADD)
@@ -293,7 +312,7 @@ class Movie:
 #                filepos = self.fileobj.tell()
 #                msg = "REV Frame:" + str(self.currentFrame) + ", filepos =" + str(filepos) + ", inc =" + str(inc)
 #                msg += ", natoms =" + str(self.natoms)
-#                self.assy.w.history.message(msg)
+#                self.history.message(msg)
 #                print msg
 
                 # subtracting 1 frame (of XYZ positions from the movie file) from the current atom positions
@@ -301,7 +320,7 @@ class Movie:
                 self.fileobj.seek( filepos ) # reset the file position in case we play forward next time.
                 
                 # Skip n frames.
-                for n in range(self.assy.w.skipSB.value()):
+                for n in range(self.win.skipSB.value()):
                     if self.currentFrame != fnum:
                         self.currentFrame += inc
                         filepos = (self.currentFrame * self.natoms * 3) + 4
@@ -311,20 +330,20 @@ class Movie:
             
             # update the GLPane and dashboard widgets each frame
             if self.showEachFrame:
-                self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
-                self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
+                self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
+                self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
                 self.assy.o.gl_update()
             else:
-                self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
-                self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
+                self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
+                self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
                 
                         
             # Updating MP dashboard widgets will slow down slider control.
             # Only update when "Move To End" button 
             if self.moveToEnd:
-#                self.assy.w.movieProgressBar.setProgress(self.currentFrame) # Progress bar
-                self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
-                self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
+#                self.win.movieProgressBar.setProgress(self.currentFrame) # Progress bar
+                self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
+                self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
             
             # Pause was pressed while playing movie.    
 #            if self.isPaused: 
@@ -342,7 +361,7 @@ class Movie:
         if self.waitCursor: 
             QApplication.restoreOverrideCursor() # Restore the cursor
             self.waitCursor = False
-        self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
+        self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
         self.assy.o.gl_update()
 
         if DEBUG0: print "movie._playFrame(): Calling _pause"
@@ -370,7 +389,7 @@ class Movie:
         else: inc = REV
         
         if abs(fnum - self.currentFrame) > 1000:
-            self.assy.w.history.message("Advancing to frame " + str(fnum) + ". Please wait...")
+            self.history.message("Advancing to frame " + str(fnum) + ". Please wait...")
             self.waitCursor = True
             QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         
@@ -399,7 +418,7 @@ class Movie:
             QApplication.restoreOverrideCursor() # Restore the cursor
             self.waitCursor = False
 
-        self.assy.w.frameNumberSB.setValue(self.currentFrame) # Update spinbox
+        self.win.frameNumberSB.setValue(self.currentFrame) # Update spinbox
         self.assy.o.gl_update()
 
                 
@@ -418,9 +437,9 @@ class Movie:
         filepos = (self.currentFrame * self.natoms * 3) + 4
         self.fileobj.seek( filepos )
         
-#        self.assy.w.movieProgressBar.setProgress(self.currentFrame) # Progress bar
-        self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
-        self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
+#        self.win.movieProgressBar.setProgress(self.currentFrame) # Progress bar
+        self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
+        self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
         self._pause(0)
         self.assy.o.gl_update()
         
@@ -436,56 +455,29 @@ class Movie:
     def _controls(self, On = True):
         """Enable or disable movie controls.
         """
-        self.assy.w.movieResetAction.setEnabled(On)
-        self.assy.w.moviePlayRevAction.setEnabled(On)
-        self.assy.w.moviePauseAction.setEnabled(On)
-        self.assy.w.moviePlayAction.setEnabled(On)
-        self.assy.w.movieMoveToEndAction.setEnabled(On)
-        self.assy.w.frameNumberSL.setEnabled(On)
-        self.assy.w.frameNumberSB.setEnabled(On)
-        self.assy.w.fileSaveMovieAction.setEnabled(On)
+        self.win.movieResetAction.setEnabled(On)
+        self.win.moviePlayRevAction.setEnabled(On)
+        self.win.moviePauseAction.setEnabled(On)
+        self.win.moviePlayAction.setEnabled(On)
+        self.win.movieMoveToEndAction.setEnabled(On)
+        self.win.frameNumberSL.setEnabled(On)
+        self.win.frameNumberSB.setEnabled(On)
+        self.win.fileSaveMovieAction.setEnabled(On)
         
     def _info(self):
         """Print info about movie
         """
         if DEBUG0: print "movie._info() called."
         if not self.filename:
-            self.assy.w.history.message("No movie file loaded.")
+            self.history.message("No movie file loaded.")
             return
-        self.assy.w.history.message("Filename: [" + self.filename + "]")
+        self.history.message("Filename: [" + self.filename + "]")
         msg = "Number of Frames: " + str(self.totalFrames) + ".  Number of Atoms: " + str(self.natoms)
-        self.assy.w.history.message(msg)
-#        self.assy.w.history.message("Temperature:" + str(self.temp) + "K")
-#        self.assy.w.history.message("Steps per Frame:" + str(self.stepsper))
-#        self.assy.w.history.message("Time Step:" + str(self.stepsper))
+        self.history.message(msg)
+#        self.history.message("Temperature:" + str(self.temp) + "K")
+#        self.history.message("Steps per Frame:" + str(self.stepsper))
+#        self.history.message("Time Step:" + str(self.stepsper))
 
-    def _checkMovieFile(self, filename=""):
-        """Returns 0 if filename is a valid movie file for the current part.
-        Returns 1 if filename does not exist.
-        Returns 2 if the movie file does not match the part.
-        """
-        if DEBUG1: print "movie._checkMovieFile() called. filename = ", filename
-        
-        if filename:
-            if not os.path.exists(filename): return 1
-        else:
-            filename = self.filename
-        
-        filesize = os.path.getsize(filename) - 4
-        
-        f=open(filename,'rb')
-        
-        # Read header (4 bytes) from file containing the number of frames in the movie.
-        nframes = unpack('i',f.read(4))[0]
-        f.close()
-        
-        natoms = int(filesize/(nframes*3))
-        
-        if natoms == len(self.assy.alist): 
-            return 0
-        else: 
-            return 2
-            
     def get_trace_filename(self):
         """Returns the trace filename for the current movie.
         """
@@ -497,3 +489,54 @@ class Movie:
         """
         fullpath, ext = os.path.splitext(self.filename)
         return fullpath + "-plot.txt"
+
+    pass # end of class Movie
+
+def _checkMovieFile(part, filename, history = None):
+    """Returns 0 if filename is (or might be) a valid movie file for the specified part.
+    Returns 1 if filename does not exist.
+    Returns 2 if the movie file does not match the part.
+    If history arg is provided, prints error messages to it
+    (whenever return value is not zero).
+    """
+    #bruce 050324 made this a separate function, since it's not about a specific
+    # Movie instance, just about a Part and a filename. Both args are now required,
+    # and a new optional arg "history" is both where and whether to print errors
+    # (both existing calls have been changed to pass it).
+    # This function only checks number of atoms, and assumes all atoms of the Part
+    # must be involved in the movie (in an order known to the Part, not checked,
+    # though the order can easily be wrong).
+    # It is not yet updated to handle the "new dpb format" (ie it doesn't get help
+    # from either file keys or movie ids or atom positions) or movies made from
+    # a possible future "simulate selection" operation.
+    print_errors = not not history
+    
+    if DEBUG1: print "movie._checkMovieFile() function called. filename = ", filename
+    
+    assert filename #bruce 050324
+    if not os.path.exists(filename):
+        if print_errors:
+            msg = redmsg("Cannot play movie file [" + filename + "]. It does not exist.")
+            history.message(msg)
+        return 1
+    
+    filesize = os.path.getsize(filename) - 4
+    
+    fp = open(filename,'rb')
+    
+    # Read header (4 bytes) from file containing the number of frames in the movie.
+    nframes = unpack('i',fp.read(4))[0]
+    fp.close()
+    
+    natoms = int(filesize/(nframes*3))
+    
+    if natoms == part.natoms: ## bruce 050324 changed this from natoms == len(self.assy.alist)
+        return 0
+    else:
+        if print_errors:
+            msg = redmsg("Movie file [" + filename + "] not valid for the current part.")
+            history.message(msg)
+        return 2
+    pass
+
+# end

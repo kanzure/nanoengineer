@@ -24,7 +24,7 @@ from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
 from assistant import AssistantWindow
-from HistoryWidget import greenmsg, redmsg # [moved by bruce 050107]
+from HistoryWidget import greenmsg, redmsg    
 
 helpwindow = None
 elementSelectorWin = None
@@ -1067,27 +1067,13 @@ class MWsemantics(MainWindow):
     # Modify Toolbar Slots
     ###################################
 
-    def modifyMinimize(self):
-        """ Minimize the current assembly """
-        # Make sure some chunks are in the part.
-        if not self.assy.molecules: # Nothing in the part to minimize.
-            self.history.message(redmsg("Minimize: Nothing to minimize."))
-            return
-            
-        # Disable Minimize, Simulator and Movie Player during the minimize function.
-        self.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
-        self.simSetupAction.setEnabled(0) # Disable "Simulator" 
-        self.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
-        try:
-            self.history.message(greenmsg("Minimize..."))
-            self.assy.makeMinMovie(1) # 1 = single-frame XYZ file.
-            #self.assy.makeMinMovie(2) # 2 = multi-frame DPB file.
-        finally:
-            self.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
-            self.simSetupAction.setEnabled(1) # Enable "Simulator"
-            self.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
-        self.history.message("Done")
-
+    def modifyMinimize(self): #bruce 050324 moved most of this into new class Minimize_CommandRun
+        """Minimize the current Part"""
+        from runSim import Minimize_CommandRun
+        cmdrun = Minimize_CommandRun( self)
+        cmdrun.run()
+        return
+  
     def modifyHydrogenate(self):
         """ Add hydrogen atoms to each singlet in the selection """
         self.history.message(greenmsg("Hydrogenate:"))
@@ -1212,34 +1198,13 @@ class MWsemantics(MainWindow):
     def toolsExtrude(self):
         self.glpane.setMode('EXTRUDE')
     
-    def simSetup(self):
+    def simSetup(self): #bruce 050324 moved most of this into new class simSetup_CommandRun
         """Creates a movie of a molecular dynamics simulation.
         """
-        if not self.assy.molecules: # Nothing in the part to minimize.
-            self.history.message(redmsg("Simulator: Nothing to simulate."))
-            return
-        
-        self.history.message(greenmsg("Simulator:"))
-        
-        r = self.assy.makeSimMovie()
-
-        if not r: # Movie file saved successfully.
-            # if duration took at least 10 seconds, print msg.
-            if self.assy.w.progressbar.duration >= 10.0: 
-                spf = "%.2f" % (self.assy.w.progressbar.duration/self.assy.m.totalFrames)
-                estr = self.assy.w.progressbar.hhmmss_str(self.assy.w.progressbar.duration)
-                msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
-                self.history.message(msg) 
-            msg = "Movie written to [" + self.assy.m.filename + "]."\
-                        "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
-            # This makes a copy of the movie tool icon to put in the HistoryWidget.
-            QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
-                        self.toolsMoviePlayerAction.iconSet().pixmap() )
-            self.history.message(msg)
-            self.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
-            self.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
-        else:
-            self.history.message("Cancelled.")
+        from runSim import simSetup_CommandRun
+        cmdrun = simSetup_CommandRun( self)
+        cmdrun.run()
+        return
 
     def simPlot(self):
         """Opens the Plot Tool dialog.
@@ -1249,10 +1214,10 @@ class MWsemantics(MainWindow):
             return
             
         # Check to see if a DPB file has been created.
-        if not self.assy.m.filename and self.assy.filename:
+        if not self.assy.current_movie.filename and self.assy.filename:
             mfile = self.assy.filename[:-4] + ".dpb"
             if os.path.exists(mfile): 
-                self.assy.m.filename = mfile
+                self.assy.current_movie.filename = mfile
             else:
                 self.history.message(redmsg("Plot Tool: No simulation has been run yet."))
                 return
@@ -1260,7 +1225,10 @@ class MWsemantics(MainWindow):
         self.history.message(greenmsg("Plot Tool:"))
                 
         from PlotTool import PlotTool
-        self.plotcntl = PlotTool(self.assy) # Open Plot Tool dialog
+        self.plotcntl = PlotTool(self.assy) # Open Plot Tool dialog [and wait until it's dismissed]
+        # [bruce comment 050324: self.plotcntl is never used. Conceivably, keeping it matters
+        #  due to its refcount, but I doubt it.]
+        return
 
     def simMoviePlayer(self):
         """Plays a DPB movie file created by the simulator.
@@ -1272,9 +1240,9 @@ class MWsemantics(MainWindow):
         # If no simulation has been run yet, check to see if there is a "partner" moviefile.
         # If so, go ahead and play it.  If not, go ahead and start the MP anyway.  The
         # user may want to load some other DPB file.
-        if not self.assy.m.filename and self.assy.filename:
+        if not self.assy.current_movie.filename and self.assy.filename:
             mfile = self.assy.filename[:-4] + ".dpb"
-            if os.path.exists(mfile): self.assy.m.filename = mfile
+            if os.path.exists(mfile): self.assy.current_movie.filename = mfile
 
         # It's showtime!!!
         self.glpane.setMode('MOVIE')
@@ -1286,62 +1254,62 @@ class MWsemantics(MainWindow):
         """Play current movie foward from current position.
         """
 #        print "MW: MoviePlay called"
-        self.assy.m._play(1)
+        self.assy.current_movie._play(1)
 
     def moviePause(self):
         """Pause movie.
         """
 #        print "MW: MoviePause called"
-        self.assy.m._pause()
+        self.assy.current_movie._pause()
 
     def moviePlayRev(self):
         """Play current movie in reverse from current position.
         """
-        self.assy.m._play(-1)
+        self.assy.current_movie._play(-1)
 
     def movieReset(self):
         """Move current frame position to frame 0 (beginning) of the movie.
         """
 #        print "MW: MovieReset called"
-        self.assy.m._reset()
+        self.assy.current_movie._reset()
     
     def movieMoveToEnd(self):
         """Move frame position to the last frame (end) of the movie.
         """
 #        print "MW: movieMoveToEnd called"
-        self.assy.m._moveToEnd()
+        self.assy.current_movie._moveToEnd()
                             
     def moviePlayFrame(self, fnum):
         """Show frame fnum in the current movie.
         """
 #        print "MW: MoviePlayFrame called"
-        if fnum == self.assy.m.currentFrame: return
-        self.assy.m._playFrame(fnum)
+        if fnum == self.assy.current_movie.currentFrame: return
+        self.assy.current_movie._playFrame(fnum)
                             
     def movieSlider(self, fnum):
         """Show frame fnum in the current movie.
         """
 #        print "MW: MovieSlider called"
-        if fnum == self.assy.m.currentFrame: return
-        self.assy.m._playSlider(fnum)
+        if fnum == self.assy.current_movie.currentFrame: return
+        self.assy.current_movie._playSlider(fnum)
 
     def movieInfo(self):
         """Prints information about the current movie to the history widget.
         """
 #        print "MW: MoviwInfo called"
         self.history.message(greenmsg("Movie Information"))
-        self.assy.m._info()
+        self.assy.current_movie._info()
         
     def fileOpenMovie(self):
         """Open a movie file to play.
         """
         self.history.message(greenmsg("Open Movie File:"))
-        if self.assy.m.currentFrame != 0:
+        if self.assy.current_movie.currentFrame != 0:
             self.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
             return
         
         # Determine what directory to open.
-        if self.assy.m.filename: odir, fil, ext = fileparse(self.assy.m.filename)
+        if self.assy.current_movie.filename: odir, fil, ext = fileparse(self.assy.current_movie.filename)
         else: odir = globalParms['WorkingDirectory']
 
         fn = QFileDialog.getOpenFileName(odir,
@@ -1355,31 +1323,34 @@ class MWsemantics(MainWindow):
         fn = str(fn)
 
         # Check if this movie file is valid
-        r = self.assy.m._checkMovieFile(fn)
+        # [bruce 050324 made that a function and made it print the history messages
+        #  which I've commented out below.]
+        ## r = self.assy.current_movie._checkMovieFile(fn)
+        from movie import _checkMovieFile
+        r = _checkMovieFile(self.assy.part, fn, self.history)
         
         if r == 1:
-            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
-            self.history.message(msg)
+##            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
+##            self.history.message(msg)
             return
-        
         elif r == 2: 
-            msg = redmsg("Movie file [" + fn + "] not valid for the current part.")
-            self.history.message(msg)
-            if self.assy.m.isOpen:
-                msg = "Movie file [" + self.assy.m.filename + "] still open."
+##            msg = redmsg("Movie file [" + fn + "] not valid for the current part.")
+##            self.history.message(msg)
+            if self.assy.current_movie.isOpen:
+                msg = "Movie file [" + self.assy.current_movie.filename + "] still open."
                 self.history.message(msg)
             return
 
-        if self.assy.m.isOpen: self.assy.m._close()
-        self.assy.m.filename = fn
-        self.assy.m._setup()
+        if self.assy.current_movie.isOpen: self.assy.current_movie._close()
+        self.assy.current_movie.filename = fn
+        self.assy.current_movie._setup()
 
     def fileSaveMovie(self):
         """Save a copy of the current movie file loaded in the Movie Player.
         """
 
         # Make sure there is a moviefile to save.
-        if not self.assy.m.filename or not os.path.exists(self.assy.m.filename):
+        if not self.assy.current_movie.filename or not os.path.exists(self.assy.current_movie.filename):
             
             msg = redmsg("Open Movie File: No movie file to save.")
             self.history.message(msg)
@@ -1427,13 +1398,13 @@ class MWsemantics(MainWindow):
             
             if ext == '.dpb':
 #                print "fileSaveMovie(): Saving movie file", safile
-#                print "fileSaveMovie(). self.assy.m.isOpen =", self.assy.m.isOpen
-                self.assy.m._close()
+#                print "fileSaveMovie(). self.assy.current_movie.isOpen =", self.assy.current_movie.isOpen
+                self.assy.current_movie._close()
                 import shutil
-                shutil.copy(self.assy.m.filename, safile)
+                shutil.copy(self.assy.current_movie.filename, safile)
                 
                 # Get the trace file name.
-                tfile1 = self.assy.m.get_trace_filename()
+                tfile1 = self.assy.current_movie.get_trace_filename()
         
                 # Copy the tracefile
                 if os.path.exists(tfile1): 
@@ -1442,21 +1413,21 @@ class MWsemantics(MainWindow):
                     shutil.copy(tfile1, tfile2)
 
                 self.history.message("DPB movie file saved: " + safile)
-                self.assy.m._setup()
+                self.assy.current_movie._setup()
                 
             else: 
                 # writemovie() in fileIO.py creates either an dpb or xyz file based on the 
-                # file extention in assy.m.filename.  To make this work for now, we
-                # need to temporarily save assy.m.filename of the current movie (dpb) file,
+                # file extention in assy.current_movie.filename.  To make this work for now, we
+                # need to temporarily save assy.current_movie.filename of the current movie (dpb) file,
                 # change the name, write the xyz file, then restore the dpb filename.
-                self.assy.m._pause() # To fix bug 358.  Mark  050201
-                tmpname = self.assy.m.filename #save the dpb filename of the current movie file.
-                self.assy.m.filename = safile # the name of the XYZ file the user wants to save.
-                r = self.assy.writemovie() # Save the XYZ moviefile
+                self.assy.current_movie._pause() # To fix bug 358.  Mark  050201
+                tmpname = self.assy.current_movie.filename #save the dpb filename of the current movie file.
+                self.assy.current_movie.filename = safile # the name of the XYZ file the user wants to save.
+                r = writemovie(self.assy, self.assy.m) # Save the XYZ moviefile [bruce 050324 revised this]
                 if not r: # Movie file saved successfully.
                     self.history.message("XYZ trajectory movie file saved: " + safile)
-                self.assy.m.filename = tmpname # restore the dpb filename.
-                self.assy.m._setup(0) # To fix bug 358.  Mark  050201
+                self.assy.current_movie.filename = tmpname # restore the dpb filename.
+                self.assy.current_movie._setup(0) # To fix bug 358.  Mark  050201
 
     ###################################
     # Slots for future tools

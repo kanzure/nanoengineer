@@ -129,11 +129,8 @@ class Part(InvalMixin):
 ##        # level of detail to draw
 ##        self.drawLevel = 2
         
-        # the Movie object. ###@@@ might need revision for use in clipboard item parts... esp when it uses filename...
-        ###@@@ doesn't work yet, one reason being the menu items in movieMode.py... for now this is in assy:
-        ## self.m=Movie(self)
-        # movie ID, for future use.
-        self.movieID=0
+        # movie ID, for future use. [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]
+        ## self.movieID=0
         # ppa = previous picked atoms. ###@@@ not sure per-part; should reset when change mode or part
         self.ppa2 = self.ppa3 = None
         
@@ -1279,51 +1276,6 @@ class Part(InvalMixin):
             m.rot(Q(m.getaxis(),ax))
         self.o.gl_update()
 
-    #####@@@@@ movie funcs not yet reviewed much for assy/part split
-        
-    # makes a simulation movie
-    def makeSimMovie(self):
-        if self.__class__ != MainPart: #bruce 050316 temporary kluge
-            self.w.history.message( redmsg( "Simulator is not yet implemented for clipboard items."))
-            return -1
-        
-        self.simcntl = runSim(self.assy) # Open SimSetup dialog
-        if self.m.cancelled: return -1 # user hit Cancel button in SimSetup Dialog.
-        r = self.writemovie()
-        # Movie created.  Initialize.
-        if not r: 
-            self.m.IsValid = True # Movie is valid.
-            self.m.currentFrame = 0
-        return r
-
-    # makes a minimize movie
-    def makeMinMovie(self,mtype = 2):
-        """Minimize the part and display the results.
-        mtype:
-            1 = tell writemovie() to create a single-frame XYZ file.
-            2 = tell writemovie() to create a multi-frame DPB moviefile.
-        """
-        if self.__class__ != MainPart: #bruce 050316 temporary kluge
-            self.w.history.message( redmsg( "Minimize is not yet implemented for clipboard items."))
-            return
-        
-        r = self.writemovie(mtype) # Writemovie informs user if there was a problem.
-        if r: return # We had a problem writing the minimize file.  Simply return.
-        
-        if mtype == 1:  # Load single-frame XYZ file.
-            newPositions = self.readxyz()
-            if newPositions:
-                self.moveAtoms(newPositions)
-                # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
-                self.changed() # Mark - bugfix 386
-            
-        else: # Play multi-frame DPB movie file.
-            self.m.currentFrame = 0
-            # If _setup() returns a non-zero value, something went wrong loading the movie.
-            if self.m._setup(): return
-            self.m._play()
-            self.m._close()
-
     # == jig makers
     
     def makeRotaryMotor(self, sightline):
@@ -1615,16 +1567,6 @@ class Part(InvalMixin):
     def modifyDehydrogenate(self):
         self.o.mode.modifyDehydrogenate()
 
-    # write moviefile #####@@@@@ not yet reviewed for assy/part split
-    def writemovie(self, mflag = 0):
-        from fileIO import writemovie
-        return writemovie(self.assy, mflag) #####@@@@@  self ->self.assy -- guess
-
-    # read xyz file. #####@@@@@ not yet reviewed for assy/part split
-    def readxyz(self):
-        from fileIO import readxyz
-        return readxyz(self.assy) #####@@@@@  self ->self.assy -- guess
-
     def resetAtomsDisplay(self):
         """Resets the display mode for each atom in the selected chunks 
         to default display mode.
@@ -1655,7 +1597,10 @@ class MainPart(Part):
     def immortal(self): return True
     def location_name(self):
         return "main part"
-    assy_attrs_all = ['m'] + Part.assy_attrs_all #####@@@@@ temporary kluge, i hope [050316]
+    def movie_suffix(self):
+        "what suffix should we use in movie filenames? None means don't permit making them."
+        return ""
+    assy_attrs_all = ['current_movie'] + Part.assy_attrs_all #####@@@@@ temporary kluge, i hope [050316]
     pass
 
 class ClipboardItemPart(Part):
@@ -1664,6 +1609,9 @@ class ClipboardItemPart(Part):
         return "%s (%s)" % (self.topnode.name, self.location_name())
     def location_name(self):
         return "clipboard item %d" % ( self.assy.shelf.members.index(self.topnode) + 1, )
+    def movie_suffix(self):
+        "what suffix should we use in movie filenames? None means don't permit making them."
+        return None
     pass
 
 # ==

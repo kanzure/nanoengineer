@@ -45,22 +45,22 @@ class movieMode(basicMode):
         self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
         
         # MP dashboard initialization.
-        self.w.frameNumberSB.setValue(self.o.assy.m.currentFrame) # SB = Spinbox
+        self.w.frameNumberSB.setValue(self.o.assy.current_movie.currentFrame) # SB = Spinbox
         self.w.moviePlayActiveAction.setVisible(0)
         self.w.moviePlayRevActiveAction.setVisible(0)
         self.w.moviePlayerDashboard.show()
         
-        if self.o.assy.m.filename: # We have a movie file ready.  It's showtime!
-            self.o.assy.m._setup() # Cue movie.
+        if self.o.assy.current_movie.filename: # We have a movie file ready.  It's showtime!
+            self.o.assy.current_movie._setup() # Cue movie.
         else:
-            self.o.assy.m._controls(0) # Movie control buttons are disabled.
+            self.o.assy.current_movie._controls(0) # Movie control buttons are disabled.
 
     def haveNontrivialState(self):
-        self.o.assy.m._close()
+        self.o.assy.current_movie._close()
         return False
 
     def StateDone(self):
-        self.o.assy.m._close()
+        self.o.assy.current_movie._close()
         return None
 
     def restore_gui(self):
@@ -80,7 +80,7 @@ class movieMode(basicMode):
     def makeMenus(self):
         self.Menu_spec = [
             ('Cancel', self.Cancel),
-            ('Reset Movie', self.o.assy.m._reset),
+            ('Reset Movie', self.o.assy.current_movie._reset), ###@@@ fix this when .current_movie. can change
             ('Done', self.Done)
          ]
                 
@@ -97,10 +97,10 @@ class movieMode(basicMode):
         
         # Left or Down arrow keys - advance back one frame
         if key == Qt.Key_Left or key == Qt.Key_Down:
-            self.o.assy.m._playFrame(self.o.assy.m.currentFrame - 1)
+            self.o.assy.current_movie._playFrame(self.o.assy.current_movie.currentFrame - 1)
         
         # Right or Up arrow keys - advance forward one frame
         if key == Qt.Key_Right or key == Qt.Key_Up:
-            self.o.assy.m._playFrame(self.o.assy.m.currentFrame +1)
+            self.o.assy.current_movie._playFrame(self.o.assy.current_movie.currentFrame +1)
         
         return

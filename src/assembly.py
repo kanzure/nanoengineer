@@ -176,7 +176,9 @@ class assembly:
 
         ###@@@ this belongs in Part, most likely, but the menu item maker in movieMode needs it here for now...
         # the Movie object.
-        self.m = Movie(self)
+        # [bruce 050324 extensively revising movie code for assy/part split and to permit multiple movies]
+        ## self.m = Movie(self)
+        self.current_movie = Movie(self) #######@@@@@@@ should be None, with new ones to be made as needed
 
         return # from assembly.__init__
 
@@ -541,7 +543,7 @@ class assembly:
 ##        print "dir(Part) = ",dir(Part)
     #####@@@@@ for both of the following:
     part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
-    part_attrs_review = ['alist','m','movieID','ppa2','ppa3','temperature','waals','data','homeCsys','lastCsys','xy','yz','zx']
+    part_attrs_review = ['alist','ppa2','ppa3','temperature','waals','data','homeCsys','lastCsys','xy','yz','zx']
         #e in future, we'll split out our own methods for some of these, incl .changed
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat)
     part_attrs_all = part_attrs + part_attrs_temporary + part_attrs_review
@@ -657,17 +659,19 @@ class assembly:
             #  is permitted to reset this flag to 0.]
             
             self.w.history.message("(fyi: part now has unsaved changes)") #e revise terminology?
-            
-            # Regenerate the movie ID.
-            # This will probably not make Alpha.  It is intended to be used in the future
-            # as a way to validate movie files.  assy.movieID is handed off to the simulator
-            # as an argument (-b) where it writes the number in the movie (.dpb) file header.
-            # (see writemovie() in fileIO.py.)
-            # The number is then compared to assy.movieID when the movie file is opened
-            # at a later time. This check will be done in movie._checkMovieFile().
-            # Mark - 050116
-            import random
-            self.movieID = random.randint(0,4000000000) # 4B is good enough
+
+            ## [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]
+##            # Regenerate the movie ID.
+##            # This will probably not make Alpha.  It is intended to be used in the future
+##            # as a way to validate movie files.  assy.movieID is handed off to the simulator
+##            # as an argument (-b) where it writes the number in the movie (.dpb) file header.
+##            # (see writemovie() in fileIO.py.)
+##            # [moved to runSim, which will be renamed SimSetup.py, and writemovie will be renamed too -- bruce 050324]
+##            # The number is then compared to assy.movieID when the movie file is opened
+##            # at a later time. This check will be done in movie._checkMovieFile().
+##            # Mark - 050116
+##            import random
+##            self.movieID = random.randint(0,4000000000) # 4B is good enough
             
             pass
         # If you think you need to add a side-effect *here* (which runs every
