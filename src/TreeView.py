@@ -372,9 +372,11 @@ class TreeView(QListView):
         # This creates the problem for Windows.
         # Mark - 050205
 #        painter.drawPixmap ( 1, 1, iconpixmap) 
+
+        painter.drawRect ( 2, 2, 22, 22 )
         text = item.text(col) 
         w, h = 160, item.height() # bounding rect
-        painter.drawText(24,1,w,h,0,text) 
+        painter.drawText(26,4,w,h,0,text) 
         return
     
     ## def viewportResizeEvent(self, event):pass
