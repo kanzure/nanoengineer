@@ -561,7 +561,7 @@ class bond:
 # molecules
 class molecule(QObject):
     def __init__(self, assembly, nam=None):
-        QObject.__init__(self, nam)
+        QObject.__init__(self)
         self.assy = assembly
         # name doesn't get used yet, except as a comment
         # in mmp file output, but could be used to name
@@ -981,3 +981,4 @@ def oneUnbonded(elem, assy, pos):
 ##                     v = - norm(b+c+d)
 ##                     b=atom("H", a.xyz+lCHb*v, self)
 ##                     self.bond(a,b)
+
