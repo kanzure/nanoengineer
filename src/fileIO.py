@@ -12,6 +12,7 @@ import re
 from chem import *
 from gadgets import *
 from Utility import *
+from povheader import povheader
 
 nampat=re.compile("\\(([^)]*)\\)")
 csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
@@ -350,3 +351,35 @@ def writemmp(assy, filename):
                      
     f.write("end molecular machine part " + assy.name + "\n")
     f.close()
+
+def povpoint(p):
+    # note z reversal -- povray is left-handed
+    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
+        
+# Create a POV-Ray file
+def writepov(assy, filename):
+    f = open(filename,"w")
+    atnums = {}
+    atnums['NUM'] = 0
+    assy.alist = []
+
+    aspect = (assy.o.width*1.0)/(assy.o.height*1.0)
+
+    f.write(povheader)
+
+    f.write("background { color rgb " + povpoint(assy.o.mode.backgroundColor*V(1,1,-1)) + "}\n")
+
+    light1 = assy.o.out + assy.o.left + assy.o.up
+    light2 = assy.o.right + assy.o.up
+    light3 = assy.o.right + assy.o.down + assy.o.out/2.0
+    f.write("light_source {" + povpoint(light1) + " color Gray50 parallel}\n")
+    f.write("light_source {" + povpoint(light2) + " color Gray25 parallel}\n")
+    f.write("light_source {" + povpoint(light3) + " color Gray25 parallel}\n")
+        
+    f.write("camera {\n location " + povpoint(3.0*assy.o.scale*assy.o.out-assy.o.pov) + "\nup " + povpoint(0.7 * assy.o.up) + "\nright " + povpoint(0.7 * aspect*assy.o.right) + "\nsky " + povpoint(assy.o.up) + "\nlook_at " + povpoint(-assy.o.pov) + "\n}\n")
+        
+#    self.assy.povwrite(f, self) # write all the atoms and bonds in the parts
+    assy.tree.writepov(f, assy.o.display)
+
+    f.close()
+    print "povray +P +W" + str(assy.o.width) + " +H" +str(assy.o.height)  + " +A " + filename

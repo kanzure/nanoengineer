@@ -743,10 +743,8 @@ class GLPane(QGLWidget, modeMixin):
         if filename[-3:] == "pov": self.povwrite(filename, width, height)
         else:  self.jpgwrite(filename, width, height)
 
-    def povwrite(self, filename, width, height):
-
-        aspect = (width*1.0)/(height*1.0)
-            
+    def povwrite(self, filename):
+        aspect = (self.width*1.0)/(self.height*1.0)
         f=open(filename,"w")
         f.write(povheader)
 
@@ -773,7 +771,7 @@ class GLPane(QGLWidget, modeMixin):
                 "\nlook_at " + povpoint(-self.pov) +
                 "\n}\n")
         
-        self.assy.povwrite(f, self)
+        self.assy.povwrite(f, self) # write all the atoms and bonds in the parts
 
         f.close()
         print "povray +P +W" + str(width) + " +H" +str(height)  + " +A " + filename

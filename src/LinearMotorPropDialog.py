@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\LinearMotorPropDialog.ui'
 #
-# Created: Tue Sep 28 13:16:52 2004
+# Created: Sun Oct 10 13:31:47 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -56,16 +56,13 @@ class LinearMotorPropDialog(QDialog):
         if not name:
             self.setName("LinearMotorPropDialog")
 
+        self.setSizePolicy(QSizePolicy(5,5,0,0,self.sizePolicy().hasHeightForWidth()))
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
 
-        self.alignAxiPushButtons = QPushButton(self,"alignAxiPushButtons")
-        self.alignAxiPushButtons.setEnabled(0)
-        self.alignAxiPushButtons.setGeometry(QRect(193,226,164,29))
-
         self.groupBox3_3 = QGroupBox(self,"groupBox3_3")
-        self.groupBox3_3.setGeometry(QRect(23,99,164,119))
+        self.groupBox3_3.setGeometry(QRect(23,169,164,119))
 
         self.textLabel1_4_3_3 = QLabel(self.groupBox3_3,"textLabel1_4_3_3")
         self.textLabel1_4_3_3.setGeometry(QRect(11,77,16,21))
@@ -89,12 +86,12 @@ class LinearMotorPropDialog(QDialog):
         self.cxLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.cxLineEdit.setFrameShadow(QLineEdit.Sunken)
 
-        self.moveCenterPushButton = QPushButton(self,"moveCenterPushButton")
-        self.moveCenterPushButton.setEnabled(0)
-        self.moveCenterPushButton.setGeometry(QRect(23,226,164,29))
+        self.alignAxiPushButtons = QPushButton(self,"alignAxiPushButtons")
+        self.alignAxiPushButtons.setEnabled(0)
+        self.alignAxiPushButtons.setGeometry(QRect(193,296,164,29))
 
         self.groupBox3_2_2 = QGroupBox(self,"groupBox3_2_2")
-        self.groupBox3_2_2.setGeometry(QRect(193,99,164,119))
+        self.groupBox3_2_2.setGeometry(QRect(193,169,164,119))
 
         self.textLabel1_4_3_2_2 = QLabel(self.groupBox3_2_2,"textLabel1_4_3_2_2")
         self.textLabel1_4_3_2_2.setGeometry(QRect(11,77,16,22))
@@ -116,68 +113,94 @@ class LinearMotorPropDialog(QDialog):
         self.axLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.axLineEdit.setFrameShadow(QLineEdit.Sunken)
 
-        self.atomsTextLabel = QLabel(self,"atomsTextLabel")
-        self.atomsTextLabel.setGeometry(QRect(211,41,52,21))
-        self.atomsTextLabel.setMouseTracking(0)
-
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setGeometry(QRect(214,70,50,20))
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.moveCenterPushButton = QPushButton(self,"moveCenterPushButton")
+        self.moveCenterPushButton.setEnabled(0)
+        self.moveCenterPushButton.setGeometry(QRect(23,296,164,29))
 
         self.stiffnessTextLabel = QLabel(self,"stiffnessTextLabel")
-        self.stiffnessTextLabel.setGeometry(QRect(11,70,68,23))
+        self.stiffnessTextLabel.setGeometry(QRect(3,70,60,23))
         self.stiffnessTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         self.forceTextLabel = QLabel(self,"forceTextLabel")
-        self.forceTextLabel.setGeometry(QRect(11,41,54,23))
+        self.forceTextLabel.setGeometry(QRect(5,41,60,23))
         forceTextLabel_font = QFont(self.forceTextLabel.font())
         self.forceTextLabel.setFont(forceTextLabel_font)
         self.forceTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
+        self.atomsTextLabel = QLabel(self,"atomsTextLabel")
+        self.atomsTextLabel.setGeometry(QRect(6,100,60,21))
+        self.atomsTextLabel.setMouseTracking(0)
+        self.atomsTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
         self.nameTextLabel = QLabel(self,"nameTextLabel")
-        self.nameTextLabel.setGeometry(QRect(17,10,47,21))
+        self.nameTextLabel.setGeometry(QRect(11,10,47,21))
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
+        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
+        self.nameLineEdit.setGeometry(QRect(74,10,191,21))
+        self.nameLineEdit.setReadOnly(0)
+
+        self.atomsComboBox = QComboBox(0,self,"atomsComboBox")
+        self.atomsComboBox.setGeometry(QRect(74,100,85,21))
+
+        self.colorTextLabel = QLabel(self,"colorTextLabel")
+        self.colorTextLabel.setGeometry(QRect(195,130,50,20))
+        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        self.textLabel1_2_2 = QLabel(self,"textLabel1_2_2")
+        self.textLabel1_2_2.setGeometry(QRect(191,100,90,20))
+        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        self.textLabel1 = QLabel(self,"textLabel1")
+        self.textLabel1.setGeometry(QRect(191,40,90,20))
+        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
+        self.colorSelectorPushButton.setEnabled(1)
+        self.colorSelectorPushButton.setGeometry(QRect(301,130,30,22))
+
+        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
+        self.colorPixmapLabel.setGeometry(QRect(251,130,40,22))
+        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(175,175,175))
+        self.colorPixmapLabel.setScaledContents(1)
+
+        self.okPushButton = QPushButton(self,"okPushButton")
+        self.okPushButton.setGeometry(QRect(23,355,105,29))
+        self.okPushButton.setAutoDefault(1)
+        self.okPushButton.setDefault(1)
+
         self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setGeometry(QRect(146,284,108,29))
+        self.cancelPushButton.setGeometry(QRect(134,355,106,29))
         self.cancelPushButton.setAutoDefault(1)
 
         self.applyPushButton = QPushButton(self,"applyPushButton")
         self.applyPushButton.setEnabled(0)
-        self.applyPushButton.setGeometry(QRect(270,284,108,29))
+        self.applyPushButton.setGeometry(QRect(246,355,105,29))
         self.applyPushButton.setAutoDefault(1)
         self.applyPushButton.setDefault(0)
 
-        self.stiffnessLineEdit = QLineEdit(self,"stiffnessLineEdit")
-        self.stiffnessLineEdit.setGeometry(QRect(81,70,108,23))
-
-        self.atomsComboBox = QComboBox(0,self,"atomsComboBox")
-        self.atomsComboBox.setGeometry(QRect(269,41,85,21))
-
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(22,284,108,29))
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
-
         self.forceLineEdit = QLineEdit(self,"forceLineEdit")
-        self.forceLineEdit.setGeometry(QRect(81,41,108,23))
+        self.forceLineEdit.setGeometry(QRect(75,41,100,23))
 
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setGeometry(QRect(270,70,40,22))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(175,175,175))
-        self.colorPixmapLabel.setScaledContents(1)
+        self.stiffnessLineEdit = QLineEdit(self,"stiffnessLineEdit")
+        self.stiffnessLineEdit.setGeometry(QRect(75,70,100,23))
 
-        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
-        self.colorSelectorPushButton.setEnabled(1)
-        self.colorSelectorPushButton.setGeometry(QRect(320,70,30,22))
+        self.textLabel1_2 = QLabel(self,"textLabel1_2")
+        self.textLabel1_2.setGeometry(QRect(191,70,90,20))
+        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
-        self.nameLineEdit.setGeometry(QRect(80,10,191,21))
-        self.nameLineEdit.setReadOnly(0)
+        self.sradiusLineEdit = QLineEdit(self,"sradiusLineEdit")
+        self.sradiusLineEdit.setGeometry(QRect(291,100,60,23))
+
+        self.widthLineEdit = QLineEdit(self,"widthLineEdit")
+        self.widthLineEdit.setGeometry(QRect(291,70,60,23))
+
+        self.lengthLineEdit = QLineEdit(self,"lengthLineEdit")
+        self.lengthLineEdit.setGeometry(QRect(290,40,60,23))
 
         self.languageChange()
 
-        self.resize(QSize(400,345).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(380,396).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
@@ -199,31 +222,34 @@ class LinearMotorPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Linear Motor Properties"))
-        self.alignAxiPushButtons.setText(self.__tr("Align Axis"))
-        self.alignAxiPushButtons.setAccel(QString.null)
         self.groupBox3_3.setTitle(self.__tr("Center Coordinates"))
         self.textLabel1_4_3_3.setText(self.__tr("Z:"))
         self.textLabel1_4_2_3.setText(self.__tr("Y:"))
         self.textLabel1_4_5.setText(self.__tr("X:"))
-        self.moveCenterPushButton.setText(self.__tr("Move Center"))
-        self.moveCenterPushButton.setAccel(QString.null)
+        self.alignAxiPushButtons.setText(self.__tr("Align Axis"))
+        self.alignAxiPushButtons.setAccel(QString.null)
         self.groupBox3_2_2.setTitle(self.__tr("Axis Vector"))
         self.textLabel1_4_3_2_2.setText(self.__tr("Z:"))
         self.textLabel1_4_4_2.setText(self.__tr("X:"))
         self.textLabel1_4_2_2_2.setText(self.__tr("Y:"))
-        self.atomsTextLabel.setText(self.__tr("Atoms:"))
-        self.colorTextLabel.setText(self.__tr("Color:"))
+        self.moveCenterPushButton.setText(self.__tr("Move Center"))
+        self.moveCenterPushButton.setAccel(QString.null)
         self.stiffnessTextLabel.setText(self.__tr("Stiffness:"))
         self.forceTextLabel.setText(self.__tr("Force:"))
+        self.atomsTextLabel.setText(self.__tr("Atoms:"))
         self.nameTextLabel.setText(self.__tr("Name:"))
+        self.nameLineEdit.setText(QString.null)
+        self.colorTextLabel.setText(self.__tr("Color:"))
+        self.textLabel1_2_2.setText(self.__tr("Spoke Radius:"))
+        self.textLabel1.setText(self.__tr("Motor Length:"))
+        self.colorSelectorPushButton.setText(self.__tr("..."))
+        self.okPushButton.setText(self.__tr("&OK"))
+        self.okPushButton.setAccel(self.__tr("Alt+O"))
         self.cancelPushButton.setText(self.__tr("&Cancel"))
         self.cancelPushButton.setAccel(self.__tr("Alt+C"))
         self.applyPushButton.setText(self.__tr("&Apply"))
         self.applyPushButton.setAccel(self.__tr("Alt+A"))
-        self.okPushButton.setText(self.__tr("&OK"))
-        self.okPushButton.setAccel(self.__tr("Alt+O"))
-        self.colorSelectorPushButton.setText(self.__tr("..."))
-        self.nameLineEdit.setText(QString.null)
+        self.textLabel1_2.setText(self.__tr("Motor Width:"))
 
 
     def applyButtonPressed(self):

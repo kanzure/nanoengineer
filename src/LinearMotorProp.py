@@ -23,6 +23,7 @@ class LinearMotorProp(LinearMotorPropDialog):
                          
         self.stiffnessLineEdit.setText(str(linearMotor.stiffness))
         self.forceLineEdit.setText(str(linearMotor.force))
+        
         self.axLineEdit.setText(str(linearMotor.axis[0]))
         self.ayLineEdit.setText(str(linearMotor.axis[1]))
         self.azLineEdit.setText(str(linearMotor.axis[2]))
@@ -34,6 +35,10 @@ class LinearMotorProp(LinearMotorPropDialog):
         strList = map(lambda i: linearMotor.atoms[i].element.symbol + str(i),
                                                 range(0, len(linearMotor.atoms)))
         self.atomsComboBox.insertStrList(strList, 0)
+        
+        self.lengthLineEdit.setText(str(linearMotor.length)) # motor length
+        self.widthLineEdit.setText(str(linearMotor.width)) # motor width
+        self.sradiusLineEdit.setText(str(linearMotor.sradius)) # spoke radius
 
         self.applyPushButton.setEnabled(False)
         
@@ -76,6 +81,7 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.motor.name = self.nameLineEdit.text()
         self.motor.force = float(str(self.forceLineEdit.text()))
         self.motor.stiffness = float(str(self.stiffnessLineEdit.text()))
+        
         self.motor.axis[0] = float(str(self.axLineEdit.text()))
         self.motor.axis[1] = float(str(self.ayLineEdit.text()))
         self.motor.axis[2] = float(str(self.azLineEdit.text()))
@@ -84,6 +90,10 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.motor.center[1] = float(str(self.cyLineEdit.text()))
         self.motor.center[2] = float(str(self.czLineEdit.text()))
         
+        self.motor.length = float(str(self.lengthLineEdit.text())) # motor length
+        self.motor.width = float(str(self.widthLineEdit.text())) # motor width
+        self.motor.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
+                
         self.applyPushButton.setEnabled(False)
 	
     def propertyChanged(self):

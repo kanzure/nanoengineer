@@ -34,6 +34,10 @@ class RotaryMotorProp(RotaryMotorPropDialog):
                                                 range(0, len(rotMotor.atoms)))
         self.atomsComboBox.insertStrList(strList, 0)
 
+        self.lengthLineEdit.setText(str(rotMotor.length)) # motor length
+        self.radiusLineEdit.setText(str(rotMotor.radius)) # motor radius
+        self.sradiusLineEdit.setText(str(rotMotor.sradius)) # spoke radius
+        
         self.applyPushButton.setEnabled(False)
         
 
@@ -81,7 +85,11 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.motor.center[0] = float(str(self.cxLineEdit.text()))
         self.motor.center[1] = float(str(self.cyLineEdit.text()))
         self.motor.center[2] = float(str(self.czLineEdit.text()))
-        
+
+        self.motor.length = float(str(self.lengthLineEdit.text())) # motor length
+        self.motor.radius = float(str(self.radiusLineEdit.text())) # motor radius
+        self.motor.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
+                
         self.applyPushButton.setEnabled(False)
 	
     def propertyChanged(self):

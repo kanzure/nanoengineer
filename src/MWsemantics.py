@@ -248,9 +248,8 @@ class MWsemantics(MainWindow):
                     self.assy.filename = dir + fil + ".pdb"
                     self.assy.modified = 0
                 elif ext[-4:-1] == "pov":
-                    w = self.glpane.width
-                    h = self.glpane.height
-                    self.glpane.povwrite(dir + fil + ".pov", w, h)
+#                    self.glpane.povwrite(dir + fil + ".pov")
+                    writepov(self.assy, dir + fil + ".pov")
 
     def fileImage(self):
         if self.assy:

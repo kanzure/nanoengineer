@@ -1,5 +1,6 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from OpenGL.GL import *
+import OpenGL.GLUT as glut
 import math
 from VQT import *
 
@@ -332,22 +333,16 @@ def drawrectangle(pt1, pt2, rt, up, color):
     glVertex(c3[0],c3[1],c3[2])
     glEnd()
     glEnable(GL_LIGHTING)
-    
-def drawbrick(pos, len, q, color):
-    glPolygonMode(GL_FRONT, GL_LINE)
-    glPolygonMode(GL_BACK, GL_LINE)
-    glDisable(GL_LIGHTING)
-    glDisable(GL_CULL_FACE)
-    glColor3fv(color)
+
+# Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
+def drawbrick(color, center, axis, l, h, w):
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
     glPushMatrix()
-    glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
-    glTranslatef(pos[0], pos[1], pos[2])
-    glScale(len[0], len[1], len[2])
-    glCallList(CubeList)
+    glTranslatef(center[0], center[1], center[2])
+    glRotate(-acos(axis[2])*180.0/pi, axis[1], -axis[0], 0.0)
+    glScale(h, w, l)
+    glut.glutSolidCube(1.0)
     glPopMatrix()
-    glEnable(GL_CULL_FACE)
-    glEnable(GL_LIGHTING)
-    glPolygonMode(GL_FRONT, GL_FILL)
     
 def drawlinelist(color,lines):
     glDisable(GL_LIGHTING)

@@ -323,7 +323,7 @@ class atom:
         if len(bl) > 0:
             f.write("bond1 " + " ".join(map(str,bl)) + "\n")
 
-
+    # write to a povray file:  draw a single atom
     def povwrite(self, file, dispdef, col):
         color = col or self.element.color
         color = color * V(1,1,-1)
@@ -555,6 +555,7 @@ class bond:
                 else:
                     drawsphere(black, self.c2, TubeRadius, level)
 
+    # write to a povray file:  draw a single bond
     def povwrite(self, file, dispdef, col):
         disp=max(self.atom1.display, self.atom2.display)
         if disp == diDEFAULT: disp= dispdef
@@ -797,11 +798,13 @@ class molecule(Node):
         for a in self.atoms.itervalues():
             a.writemmp(atnums, alist, f)
 
-    # write a povray file: just draw everything inside
-    def povwrite(self,file, win):
+    # write to a povray file:  draw the atoms and bonds inside a molecule
+    def povwrite(self, file, disp):
+#    def povwrite(self, file, win):
 
         if self.display != diDEFAULT: disp = self.display
-        else: disp = win.display
+#        else: disp = win.display
+#        disp = self.display
         
         drawn = {}
         for atm in self.atoms.itervalues():

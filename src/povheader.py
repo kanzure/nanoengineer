@@ -25,22 +25,39 @@ finish {
     phong 0.3
 }
 
-#macro rmotor(p1,p2)
-  cylinder { p1, p2, 2
-   pigment { Gray50 }
+#macro rmotor(p1, p2, rad, col)
+  cylinder { p1, p2, rad
+   pigment { rgb col }
+   finish {Atomic}
    }
 #end
 
-#macro lmotor(p1,p2) 
-   cylinder { p1, p2, 2
-    pigment { Green }
+#macro lmotor(p1, p2, w, col) 
+  box { p1 + w,  p2 - w
+    pigment { rgb col }
+    finish {Atomic}
     }
 #end
   
-#macro spoke(p1,p2)
-  cylinder { p1, p2, 0.5
-   pigment { Gray50 }
+#macro spoke(p1, p2, rad, col)
+  cylinder { p1, p2, rad
+   pigment { rgb col }
+   finish {Atomic}
    }
+#end
+
+#macro ground(pos, rad, col) 
+  box { pos - rad*0.95,  pos + rad*0.95
+    pigment { rgb col }
+    finish {Atomic}
+    }
+#end
+
+#macro stat(pos, rad, col) 
+  box { pos - rad*0.95,  pos + rad*0.95
+    pigment { rgb col }
+    finish {Atomic}
+    }
 #end
   
 #macro atom(pos, rad, col) 
@@ -93,20 +110,6 @@ finish {
 #macro line(pos1, pos2) 
   cylinder {pos1, pos2, 0.05
     pigment { Black }
-    }
-#end
-
-#macro ground(pos, rad) 
-  box { pos - rad*0.95,  pos + rad*0.95
-    pigment { Black }
-    finish {Atomic}
-    }
-#end
-
-#macro stat(pos, rad) 
-  box { pos - rad*0.95,  pos + rad*0.95
-    pigment { Blue }
-    finish {Atomic}
     }
 #end
 

@@ -89,7 +89,7 @@ class Node:
 
     def writemmp(self, atnums, alist, f):
         f.write(self.__repr__(atnums))
-        
+
     def draw(self, o, dispdef):
         pass
 
@@ -212,6 +212,12 @@ class Group(Node):
         for x in self.members:
             x.writemmp(atnums, alist, f)
         f.write("egroup (" + self.name + ")\n")
+        
+#    def writepov(self, atnums, alist, f, dispdef):
+    def writepov(self, f, dispdef):
+        for x in self.members:
+            print "Utility: writepov() member = ", x.name
+            x.povwrite(f, dispdef)
 
     def __str__(self):
         return "<group " + self.name +">"

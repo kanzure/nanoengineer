@@ -180,6 +180,7 @@ class modelTree(QListView):
     
     def kill(self):
         self.win.assy.kill()
+        self.update()
     
     def modprop(self):
         if self.selectedItem: self.selectedItem.edit()            

@@ -164,7 +164,7 @@ class assembly:
     def draw(self, win):
         self.tree.draw(self.o, self.o.display)
            
-    # write a povray file: just draw everything inside
+    # write to a povray file: draw each molecule in the part
     def povwrite(self, file, win):
         for mol in self.molecules:
             mol.povwrite(file, win)
@@ -503,7 +503,7 @@ class assembly:
         if not self.selatoms: return
         self.modified = 1
         m=RotaryMotor(self)
-        m.findcenter(self.selatoms.values(), sightline)
+        m.findCenter(self.selatoms.values(), sightline)
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
         self.unpickatoms()
