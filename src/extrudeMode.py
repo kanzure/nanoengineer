@@ -1849,17 +1849,29 @@ def assy_extrude_unit(assy, really_make_mol = 1):
 
 cosine_of_permitted_noncollinearity = 0.5 #e we might want to adjust this parameter
 
-def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None):
-    """figure out whether singlets s1 and s2, presumed to be in different
+def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
+    """Figure out whether singlets s1 and s2, presumed to be in different
     molecules (or in different copies, if now in the same molecule), could
     reasonably be merged (replaced with one actual bond), if s2.molecule was
     moved by approximately offset2 (or considering all possible offset2's
      if this arg is not supplied); and if so, what would be the ideal offset
     (slightly different from offset2) after this merging.
-    Return (False, None, None) or (True, ideal_offset2, error_offset2),
+       Return (False, None, None) or (True, ideal_offset2, error_offset2),
     where error_offset2 gives the radius of a sphere of reasonable offset2
     values, centered around ideal_offset2.
+       The tol option, default 1.0, can be given to adjust
+    the error_offset2 (by multiplying the standard value), both for returning
+    it and for deciding whether to return (False,...) or (True,...).
+    Larger tol values make it more likely that s1,s2 are considered bondable.
+       To perform actual bonding, see chunk.bond_at_singlets. But note that
+    it is quite possible for the same s1 to be considered bondable to more
+    than one s2 (or vice versa), even for tol = 1.0 and especially for larger
+    tol values.
     """
+    #bruce 050324 added tol option [###@@@ untested] for use by Mark in Fuse Chunks;
+    # it's not yet used in extrudeMode, but could be if we changed to
+    # recalculating bondable pairs more often, e.g. to fix bugs in ring mode.
+    
     ###e if anyone ever passes offset2, we should take a tolerance arg to
     ###e multiply the error offset, i suppose [bruce 041109]
     #e someday we might move this to a more general file
@@ -1892,6 +1904,7 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None):
     a1_a2_offset_now = a2.posn() - a1.posn() # present offset between atoms
     ideal_offset2 = a1_a2_offset - a1_a2_offset_now # required shift of a2
     error_offset2 = (r1 + r2) / 2.0 # josh's guess (replaces 1.0 from the initial tests)
+    error_offset2 *= tol # bruce 050324 new feature, untested ###@@@
     if offset2:
         if vlen(offset2 - ideal_offset2) > error_offset2:
             return res_bad
