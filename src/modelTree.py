@@ -55,8 +55,12 @@ class modelTree(QListView):
                                    ["Expand all", self.expand],
                                    ["Hide Tree", self.hide]])
         self.update()
-
-        self.connect(self, SIGNAL("contextMenuRequested(QListViewItem*, const QPoint&,int)"),
+        
+        # Mark and Huaicai - commented this out - causing a bug for context menu display
+        # Fixed with the signal to "rightButtonPressed"
+        #self.connect(self, SIGNAL("contextMenuRequested(QListViewItem*, const QPoint&,int)"),
+        #             self.menuReq)
+        self.connect(self, SIGNAL("rightButtonPressed(QListViewItem*,const QPoint&,int)"),
                      self.menuReq)
         self.connect(self, SIGNAL("clicked(QListViewItem *)"),
                      self.select)
@@ -100,12 +104,14 @@ class modelTree(QListView):
 
     def select(self, item):
         if not item: return
+        print "MT.py: select(): item.object = ", item.object
         self.win.assy.unpickatoms()
         self.win.assy.unpickparts()
         self.win.assy.selwhat = 2
         item.object.pick()
         self.selectedItem = item.object
         self.win.update()
+        print "MT.py: after highlighting: self.selectedItem = ", self.selectedItem
 
     def menuReq(self, listItem, pos, col):
         """ Context menu items function handler for the Model Tree View """
@@ -184,6 +190,7 @@ class modelTree(QListView):
         self.update()
     
     def modprop(self):
+        print "self.selectedItem = ", self.selectedItem
         if self.selectedItem: self.selectedItem.edit()            
 
     def expand(self):
