@@ -448,10 +448,18 @@ class assembly:
                 m = a.molecule
                 if m not in changedMols: changedMols += [m]
                 a.kill()
+                # note: as of 041029 a.kill also invalidates externs if necessary,
+                # which affects not only m but molecules of neighbor atoms,
+                # which means this list of changed mols is not large enough.
+                # However, I think this doesn't matter anymore, since I added
+                # code today to recompute invalid externs whenever needed.
+                # So the only mols to worry about here are the ones we remove
+                # atoms from, and these are taken care of here. [bruce 041029]
             self.selatoms={}
             for m in changedMols:
                 if len(m.atoms) == 0:
                     self.killmol(m)
+                    #e (this is quadratic in number of mols, due to setDrawLevel)
                 else:
                     m.shakedown()
 
