@@ -148,5 +148,7 @@ Summary: fix bug 433 (now ok to read empty pdb files)
 
 Name: Mark Sims
 Date: 3/24/2005
-Files: LightingToolDialog
-Summary: Added "Restore Defaults" button.
+Files: LightingToolDialog, MainWindow
+Summary: 
+ - Fixed bug 473, added "Restore Defaults" button
+ - Fixed bug 463, added "Sulfur" to SA Filter
