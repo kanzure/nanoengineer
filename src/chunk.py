@@ -368,7 +368,12 @@ class molecule(Node, InvalMixin):
         self.atpos
         # we must access self.atpos, since we depend on it in our inval rules
         # (if that's too slow, then anyone invalling atpos must inval this too #e)
-        return A( map( lambda atm: atm.posn(), self.singlets ) )
+        singlets = self.singlets
+        if len(singlets):
+            # this might have been None (a bug) for no singlets #bruce 041206
+            return A( map( lambda atm: atm.posn(), self.singlets ) )
+        else:
+            return []
         #bruce 041119 added "or []" to fix a bug - try recompute everything for no-sing mol...
         # but bruce 041123 removed "or []" again, for fear of singlpos = A([[0.0,0.0,0.0]])
         # being false (which it would be, though it's an unlikely value of singlpos).
