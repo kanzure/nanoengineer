@@ -18,20 +18,28 @@ class FloatSpinBox(QSpinBox):
     "spinbox for a coordinate in angstroms -- permits negatives, floats"
     range_angstroms = 1000.0 # value can go to +- this many angstroms
     precision_angstroms = 100 # with this many detectable units per angstrom
+    min_length = 0.1 # prevent problems with 0 or negative lengths provided by user
+    max_length = 2 * range_angstroms # longer than possible from max xyz inputs
     def __init__(self, *args, **kws):
+        #k why was i not allowed to put 'for_a_length = 0' into this arglist??
+        for_a_length = kws.pop('for_a_length',0)
         assert not kws, "keyword arguments are not supported by QSpinBox"
         QSpinBox.__init__(self, *args) #k #e note, if the args can affect the range, we'll mess that up below
         ## self.setValidator(0) # no keystrokes are prevented from being entered
             ## TypeError: argument 1 of QSpinBox.setValidator() has an invalid type -- hmm, manual didn't think so -- try None? #e
         self.setValidator( QDoubleValidator( - self.range_angstroms, self.range_angstroms, 2, self ))
             # QDoubleValidator has a bug: it turns 10.2 into 10.19! But mostly it works. Someday we'll need our own. [bruce 041009]
-        self.setRange( - int(self.range_angstroms * self.precision_angstroms),
-                         int(self.range_angstroms * self.precision_angstroms) )
+        if not for_a_length:
+            self.setRange( - int(self.range_angstroms * self.precision_angstroms),
+                             int(self.range_angstroms * self.precision_angstroms) )
+        else:
+            self.setRange( int(self.min_length * self.precision_angstroms),
+                           int(self.max_length * self.precision_angstroms) )
         self.setSteps( self.precision_angstroms, self.precision_angstroms * 10 ) # set linestep and pagestep
     def mapTextToValue(self):
         text = self.cleanText()
-        print "fyi: float spinbox got text %r" % text # what datatype is this?
-        text = str(text) # in case it's a qt string
+        text = str(text) # since it's a qt string
+        print "fyi: float spinbox got text %r" % text
         try:
             fval = float(text)
             ival = int(fval * self.precision_angstroms) # 2-digit precision
@@ -92,22 +100,22 @@ def do_what_MainWindowUI_should_do(self):
         ##self.extrudeLineEdit = QLineEdit(self.extrudeDashboard,"extrudeLineEdit")
         # these need labels; some of them need float values
         def insertlabel(text):
-            label = QLabel(self.extrudeDashboard,"extrude_label_"+text.strip())
+            label = QLabel(self.extrudeDashboard, "extrude_label_"+text.strip())
             label.setText(self._MainWindow__tr(text))
             #e don't bother retaining it (ok??)
         insertlabel(" N ")
-        self.extrudeSpinBox_n = QSpinBox(self.extrudeDashboard,"extrudeSpinBox_n")
+        self.extrudeSpinBox_n = QSpinBox(self.extrudeDashboard, "extrudeSpinBox_n")
         self.extrudeSpinBox_n.setRange(1,MAX_NCOPIES)
         self.extrudeDashboard.addSeparator()
         insertlabel(" X ") # number of spaces is intentionally different on different labels
-        self.extrudeSpinBox_x = FloatSpinBox(self.extrudeDashboard,"extrudeSpinBox_x")
+        self.extrudeSpinBox_x = FloatSpinBox(self.extrudeDashboard, "extrudeSpinBox_x")
         insertlabel("  Y ")
-        self.extrudeSpinBox_y = FloatSpinBox(self.extrudeDashboard,"extrudeSpinBox_y")
+        self.extrudeSpinBox_y = FloatSpinBox(self.extrudeDashboard, "extrudeSpinBox_y")
         insertlabel("  Z ")
-        self.extrudeSpinBox_z = FloatSpinBox(self.extrudeDashboard,"extrudeSpinBox_z")
+        self.extrudeSpinBox_z = FloatSpinBox(self.extrudeDashboard, "extrudeSpinBox_z")
         self.extrudeDashboard.addSeparator()
         insertlabel(" length ") # units?
-        self.extrudeSpinBox_length = FloatSpinBox(self.extrudeDashboard,"extrudeSpinBox_length")
+        self.extrudeSpinBox_length = FloatSpinBox(self.extrudeDashboard, "extrudeSpinBox_length", for_a_length = 1)
 
         reinit_extrude_controls(self)
         
@@ -169,6 +177,11 @@ def update_xyz_controls_from_length(win):
     x,y,z = get_extrude_controls_xyz(win)
     ll = math.sqrt(x*x + y*y + z*z)
     length = win.extrudeSpinBox_length.floatValue()
+##    # handle negative lengths -- but this is not yet right,
+##    # since we do want negative ratio the first time the length gets negative...
+##    length = math.abs(length) ###untested
+##      # if user decrs length until negative, pretend it's positive internally
+##      # (it will become positive when recomputed after user changes something else)
     rr = float(length) / ll
     ## if rr != 1.0: #e sensible? works to prevent infloop? (i doubt it, due to truncation to 2-digit precision)
     call_while_suppressing_valuechanged( lambda: set_extrude_controls_xyz_nolength( win, (x * rr, y * rr, z * rr) ) )
@@ -385,7 +398,10 @@ class extrudeMode(basicMode):
 ##        return None
     
     def restore_gui(self):
+        ##self.w.setFocus() ######bruce 041010 experimental bugfix (see email to cad list, same day) [now in modes.py]
+         ###### if it works, move it into caller of basicMode.restore_gui(), before this call, or somewhere similar
         self.w.extrudeDashboard.hide()
+        ##self.w.setFocus() ###### do it again, just to be safe, since i'm not sure whether better to do it before or after
 
 ##    def restore_patches(self): ### wrong
 ##        self.o.shape = None
@@ -432,13 +448,6 @@ class extrudeMode(basicMode):
         self.o.assy.draw(self.o) ##### copied from selectMode.draw(). But the code inside this looks pretty weird!!!
    
     def makeMenus(self): ### not yet reviewed for extrude mode
-        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
-                                    ('Start Over', self.StartOver),
-                                    ('Backup', self.Backup),
-                                    None,
-                                    ('Move', self.move),
-                                    ('Copy', self.copy)])
-        
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
                                     ('Separate', self.o.assy.modifySeparate),
@@ -456,6 +465,18 @@ class extrudeMode(basicMode):
                                     None,
                                     ('Color', self.w.dispObjectColor)])
 
+        #bruce 041010 experiment -- try letting those other menus also be submenus of this one
+        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
+                                    ('Start Over', self.StartOver),
+                                    ('Backup', self.Backup),
+                                    None,
+                                    ('Move', self.move),
+                                    ('Copy', self.copy),
+                                    None,
+                                    ('Menu2', self.Menu2),
+                                    ('Menu3', self.Menu3) ])
+        return
+        
     def copy(self):
         print 'NYI'
 
