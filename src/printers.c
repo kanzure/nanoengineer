@@ -112,9 +112,20 @@ void pa(FILE *f, int i) {
 	v=vlen(vdif(positions[i],old_positions[i]));
 	fprintf(f, "\n   V=%.2f, mV^2=%.6f, pos=", v,1e-4*v*v/atom[i].massacc);
 	pv(f, positions[i]);
-        pvt(f, old_positions[i]);
+        fprintf(f, " oldpos=");
+        pv(f, old_positions[i]);
+        fprintf(f, " force=");
+	pvt(f, force[i]);
 	fprintf(f, "   mass = %f, massacc=%e\n", element[atom[i].elt].mass,
 	       atom[i].massacc);
+    }
+}
+
+void printAllAtoms(FILE *f) 
+{
+    int i;
+    for (i=0; i<Nexatom; i++) {
+        pa(f, i);
     }
 }
 

@@ -1064,6 +1064,7 @@ void snapshot(int n) {
 static void min_debug(char *label, double rms, int frameNumber) 
 {
     fprintf(stderr, "---------------- %s -- frame %d\nrms: %f\n", label, frameNumber, rms);
+    printAllAtoms(stderr);
     printAllBonds(stderr);
 }
 
@@ -1113,7 +1114,7 @@ void minshot(int final, double rms, double hifsq, int frameNumber, char *callLoc
 	fflush(outf);
     }
 
-    fprintf(tracef,"%.2f %.2f\n", rms, sqrt(hifsq));
+    fprintf(tracef,"%d %.2f %.2f\n", frameNumber, rms, sqrt(hifsq));
     if (final) {
         printf("final RMS gradient=%f after %d iterations\n", rms, frameNumber);
         if (!DumpAsText && frameNumber != NumFrames) {

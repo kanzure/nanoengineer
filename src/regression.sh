@@ -1,23 +1,50 @@
 #!/bin/sh
 
+# run regression tests
+#
+# how to make a regression test:
+#
+# Inside one of the directories listed below, you need to create three files.
+# I'm going to call them test_000X.* here.  Just number them sequentially
+# although that doesn't really matter.
+#
+# The first file is the input data file for the test run.  It will
+# usually be called test_000X.mmp.  If it's called something else, or
+# there are more than one of them (or zero of them), you can specify
+# that using the INPUT directive in the .test file.
+#
+# The second file is the test description file: test_000X.test.
+# This file describes the inputs, outputs, and program arguments
+# for the test.  The default values should be fine for minimizer tests.
+# For dynamics runs you'll need to specify the program arguments:
+#
+# PROGRAM simulator -f900 -x test_000X.mmp
+#
+# See runtest.sh for a complete description.
+#
+# The third file is the expected output.  Generate this using
+# runtest.sh like this (in the test directory):
+#
+# ../../runtest.sh test_000X.test > test_000X.out
+#
+# You can change the list of output files to be included
+# using the OUTPUT directive in the .test file.
+#
+# Check this file to make sure the output looks reasonable, then
+# rerun regression.sh before checking in the test_000X.* files.
+
 RET=0
-TMPDIR=/tmp/regress$$
 
-trap 'rm -rf $TMPDIR' 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 18 19 20 21 22 23 24 25 26 27 28 29 30 31
-
-for i in tests/minimize/*.mmp; do
-    base=`basename $i .mmp`
-    rm -rf $TMPDIR
-    mkdir $TMPDIR
-    cp $i $TMPDIR
-    ./simulator -m -x $TMPDIR/$base.mmp > $TMPDIR/$base.stdout 2> $TMPDIR/$base.stderr
-    for j in tests/minimize/$base.*; do
-	file=`basename $j`
-	if cmp -s tests/minimize/$file $TMPDIR/$file; then
-	    true
+for dir in tests/minimize ; do
+    for i in $dir/*.test; do
+	echo Running $i
+	base=`basename $i .test`
+	out=$dir/$base.out
+	./runtest.sh $i > $out.new
+	if cmp -s $out $out.new ; then
+	    rm $out.new
 	else
-	    echo Test failed: $file
-	    diff tests/minimize/$file $TMPDIR/$file
+	    echo Test failed: $i 1>&2
 	    RET=1
 	fi
     done
