@@ -38,7 +38,7 @@ class cookieMode(basicMode):
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
-        self.o.setCursor(self.w.SelectCursor)
+        self.o.setCursor(QCursor(Qt.ArrowCursor))
         self.w.cookieCutterDashboard.show()
 
     # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]

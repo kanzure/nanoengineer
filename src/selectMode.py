@@ -2,10 +2,7 @@
 """
 selectMode.py -- the default mode for Atom's main model view.
 
-BRUCE IS TEMPORARILY OWNING ALL MODE FILES for a few days starting 040922,
-in order to fix mode-related bugs by revising the interface between modes.py,
-all specific modes, and GLPane.py. During this period, please consult Bruce
-before any changes to these files.
+Ownership: Mark owns this file as of 2004-10-10.
 
 $Id$
 """
@@ -19,34 +16,17 @@ class selectMode(basicMode):
     # class constants
     backgroundColor = 190/256.0, 229/256.0, 239/256.0
     gridColor = (0.0, 0.0, 0.6)
-    #modename = 'SELECT'
-    # no default_mode_status_text, since it varies
-    
+
     # default initial values
     savedOrtho = 0
-
-    # no __init__ method needed -- i [bruce 040923] think the following is redundant with basicMode.Enter, which we inherit:
-##    
-##    def __init__(self, glpane):
-##        basicMode.__init__(self, glpane)
-##        self.picking = 0
-
-#    def get_mode_status_text(self):
-        # bruce 040927; ###k is this queried often enough??
-#        try:
-#            what = self.o.assy.selectingWhat() # 'Atoms' or 'Molecules'
-            # bruce 040927: this seems to be wrong sometimes, e.g. when no atoms or molecules exist in the assembly... not sure.
-#        except:
-#            what = '...' # hopefully this will never show up...
-#        return "Mode: Select %s" % what
     
-    # init_gui handles all the GUI display when entering this mode [mark 041004]    
+    # init_gui handles all the GUI display when entering a mode    
     def init_gui(self):
-        self.o.setCursor(self.w.SelectCursor)
+        pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
 
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
-        pass
+        pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
    
     def leftDown(self, event):
         self.StartPick(event, 2) # new selection (replace)
@@ -54,13 +34,11 @@ class selectMode(basicMode):
     def leftCntlDown(self, event):
         self.w.OldCursor = QCursor(self.o.cursor())
         self.o.setCursor(self.w.SelectSubtractCursor)
-        
         self.StartPick(event, 0) # subtract from selection
 
     def leftShiftDown(self, event):
         self.w.OldCursor = QCursor(self.o.cursor())
         self.o.setCursor(self.w.SelectAddCursor)
-        
         self.StartPick(event, 1) # add to selection
 
 
@@ -235,10 +213,8 @@ class selectMolsMode(selectMode):
     
         def init_gui(self):
             selectMode.init_gui(self)
-            
-            #self.o.assy.selwhat = 2
-            # mark - toggle the select molecule tools icon on
-            self.w.toolsSelectMoleculesAction.setOn(1)
+            self.o.setCursor(self.w.SelectMolsCursor)
+            self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Molecule" tools icon
             self.w.selectMolDashboard.show() 
             
         def restore_gui(self):
@@ -255,11 +231,9 @@ class selectAtomsMode(selectMode):
             
         def init_gui(self):
             selectMode.init_gui(self)
-            
-            #self.o.assy.selwhat = 0
-            self.w.selectAtomsDashboard.show()
+            self.o.setCursor(self.w.SelectAtomsCursor)
+            self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Molecule" tools icon
+            self.w.selectMolDashboard.show() 
             
         def restore_gui(self):
             self.w.selectAtomsDashboard.hide()
-   
-         

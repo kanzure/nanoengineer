@@ -160,7 +160,7 @@ class modifyMode(basicMode):
         self.EndPick(event, 1)
 
     def leftDouble(self, event):
-        self.w.OldCursor = self.w.SelectCursor
+        self.w.OldCursor = self.w.SelectMolsCursor
         self.Done() # bruce 040923: how to do this need not change
         # (tho josh in bug#15 asks us to change the functionality -- not yet done ###e)
         

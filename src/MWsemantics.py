@@ -915,10 +915,16 @@ class MWsemantics(MainWindow):
 
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-        # Create "SelectCursor" cursor
-        self.SelectCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectCursor-bm.bmp"),
+        # Create "SelectAtomsCursor" cursor
+        self.SelectAtomsCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsCursor-bm.bmp"),
+            0, 0)
+        
+        # Create "SelectMolsCursor" cursor
+        self.SelectMolsCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectMolsCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectMolsCursor-bm.bmp"),
             0, 0)
         
         # Create "SelectAddCursor" cursor
