@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sat Oct 16 15:41:07 2004
+# Created: Sun Oct 17 01:33:32 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7660,7 +7660,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,956).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,959).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7693,6 +7693,7 @@ class MainWindow(QMainWindow):
         self.connect(self.fileCloseAction,SIGNAL("activated()"),self.fileClose)
         self.connect(self.fileExitAction,SIGNAL("activated()"),self.fileExit)
         self.connect(self.fileImageAction,SIGNAL("activated()"),self.fileImage)
+        self.connect(self.fileInsertAction,SIGNAL("activated()"),self.fileInsert)
         self.connect(self.fileNewAction,SIGNAL("activated()"),self.fileNew)
         self.connect(self.fileOpenAction,SIGNAL("activated()"),self.fileOpen)
         self.connect(self.fileSaveAction,SIGNAL("activated()"),self.fileSave)
@@ -7769,7 +7770,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsSimulator_Action,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.fileInsertAction,SIGNAL("activated()"),self.fileInsert)
+        self.connect(self.modifyDehydrogenateAction,SIGNAL("activated()"),self.modifyDehydrogenate)
 
 
     def languageChange(self):
@@ -8489,6 +8490,9 @@ class MainWindow(QMainWindow):
 
     def fileInsert(self):
         print "MainWindow.fileInsert(): Not implemented yet"
+
+    def modifyDehydrogenate(self):
+        print "MainWindow.modifyDehydrogenate(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

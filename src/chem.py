@@ -501,6 +501,11 @@ class atom:
         self.mvElement(Hydrogen)
         self.molecule.basepos[self.index] += Hydrogen.rcovalent * norm(self.molecule.basepos[self.index] - o.molecule.basepos[o.index])
 
+    def Dehydrogenate(self):
+        """ if this is a hydrogen atom, kill it
+        """
+        if self.element == Hydrogen : self.kill()
+
 class bondtype:
     """not implemented
     """
@@ -1085,6 +1090,9 @@ class molecule(Node):
                 elif valence == 1: a.element = Hydrogen
                 elif valence == 2: a.element = Oxygen
                 elif valence == 3: a.element = Nitrogen
+                elif valence == 4: # single atom with 4 valences - Mark [2004-10-16]
+                    for atm in a.neighbors(): 
+                        atm.Hydrogenate() 
         # will have changed appearance of the molecule
         self.havelist = 0
 
@@ -1098,7 +1106,15 @@ class molecule(Node):
         self.havelist = 0
         for a in self.atoms.values():
             a.Hydrogenate()
-
+            
+    def Dehydrogenate(self):
+        """remove hydrogen atoms from selected molecule.
+        """
+        # will change appearance of the molecule
+        self.havelist = 0
+        for a in self.atoms.values():
+            a.Dehydrogenate()
+            
     def edit(self):
         cntl = MoleculeProp(self)    
         cntl.exec_loop()

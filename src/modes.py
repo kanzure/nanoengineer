@@ -816,10 +816,25 @@ class basicMode(anyMode):
         elif self.o.assy.selatoms:
             self.o.assy.modified = 1
             for a in self.o.assy.selatoms.itervalues():
-                a.Hydrogenate()
+                for atm in a.neighbors():
+                    atm.Hydrogenate()
         self.o.paintGL()
 
-
+    # remove hydrogen atoms from each selected atom/molecule
+    def modifyDehydrogenate(self):
+        if self.o.assy.selmols:
+            self.o.assy.modified = 1
+            for m in self.o.assy.selmols:
+                m.Dehydrogenate()
+                m.shakedown()
+        elif self.o.assy.selatoms:
+            self.o.assy.modified = 1
+            for a in self.o.assy.selatoms.itervalues():
+                for atm in a.neighbors():
+                    atm.Dehydrogenate()
+                    a.molecule.shakedown()
+        self.o.paintGL()
+        
     pass # end of class basicMode
 
 # ===

@@ -227,6 +227,7 @@ class Group(Node):
         
     def writepov(self, f, dispdef):
         for x in self.members:
+            print "Utility.py: writepov: member name = [",x.name,"]"
             x.povwrite(f, dispdef)
 
     def __str__(self):

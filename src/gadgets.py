@@ -132,6 +132,7 @@ class RotaryMotor(Node):
     def povwrite(self, file, dispdef):
         c = self.posn()
         a = self.axen()
+        print "gadgets.py: povwrite(): writing rotar motor record"
         file.write("rmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + povpoint(c-(self.length / 2.0)*a)  + "," + str (self.radius) +
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
         for a in self.atoms:
@@ -280,6 +281,7 @@ class LinearMotor(Node):
     def povwrite(self, file, dispdef):
         c = self.posn()
         a = self.axen()
+        print "gadgets.py: povwrite(): writing lmotor record"
         file.write("lmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + 
                     povpoint(c-(self.length / 2.0)*a)  + "," + str (self.width / 2.0) + 
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
@@ -317,7 +319,8 @@ class Ground(Node):
         self.molecule = list[0].molecule
         self.molecule.gadgets += [self]
         self.picked = 0
-        self.color = self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
+        self.color = (0.0, 0.0, 0.0)
+        self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
         self.pickcolor = (1.0, 0.0, 0.0) # ground is red when picked
         self.cntl = GroundProp(self, assy.o)
         
@@ -340,9 +343,8 @@ class Ground(Node):
         else: c = self.color
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
-            file.write("ground(" + povpoint(a.posn()) + "," +
-                str(rad) + ",<" + 
-                str(self.c[0]) + "," + str(self.c[1]) + "," + str(self.c[2]) + ">)\n")
+            grec = "ground(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
+            file.write(grec)
 
     def move(self, offset):
         pass
@@ -415,12 +417,12 @@ class Stat(Node):
     # Write "stat" record to POV-Ray file in the format:
     # stat(<box-center>,box-radius,<r, g, b>)
     def povwrite(self, file, dispdef):
-        c = self.color
+        if self.picked: c = self.normcolor
+        else: c = self.color
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
-            file.write("stat(" + povpoint(a.posn()) + "," +
-                str(rad) + ",<" + 
-                str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
+            srec = "stat(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
+            file.write(srec)
 
     def move(self, offset):
         pass

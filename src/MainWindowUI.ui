@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>956</height>
+            <height>959</height>
         </rect>
     </property>
     <property name="caption">
@@ -3137,6 +3137,12 @@
         <slot>fileImage()</slot>
     </connection>
     <connection>
+        <sender>fileInsertAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileInsert()</slot>
+    </connection>
+    <connection>
         <sender>fileNewAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3593,10 +3599,10 @@
         <slot>toolsStartOver()</slot>
     </connection>
     <connection>
-        <sender>fileInsertAction</sender>
+        <sender>modifyDehydrogenateAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>fileInsert()</slot>
+        <slot>modifyDehydrogenate()</slot>
     </connection>
 </connections>
 <slots>
@@ -3710,6 +3716,7 @@
     <slot>makeStat()</slot>
     <slot>dispResetMolColor()</slot>
     <slot>fileInsert()</slot>
+    <slot>modifyDehydrogenate()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -298,7 +298,7 @@ class MWsemantics(MainWindow):
                 try:
                     writepov(self.assy, dir + fil + ext)
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file" + dir + fil + ext
+                    print "MWsemantics.py: fileSaveAs(): error writing file " + dir + fil + ext
                     self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
                 else:
                     self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
@@ -670,6 +670,10 @@ class MWsemantics(MainWindow):
     # add hydrogen atoms to each dangling bond
     def modifyHydrogenate(self):
         self.assy.modifyHydrogenate()
+        
+    # remove hydrogen atoms from selected atoms/molecules
+    def modifyDehydrogenate(self):
+        self.assy.modifyDehydrogenate()
 
     # form a new part (molecule) with whatever atoms are selected
     def modifySeparate(self):

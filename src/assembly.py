@@ -644,10 +644,16 @@ class assembly:
             m.passivate()
         for a in self.selatoms.itervalues():
             self.modified = 1
-            a.Hydrogenate()
+            for atm in a.neighbors():
+                atm.Hydrogenate()
         self.o.paintGL()
 
     # add hydrogen atoms to each dangling bond
     # ultimately we'll have the button call directly
     def modifyHydrogenate(self):
         self.o.mode.modifyHydrogenate()
+        
+    # remove hydrogen atoms from every selected atom/molecule
+    # ultimately we'll have the button call directly
+    def modifyDehydrogenate(self):
+        self.o.mode.modifyDehydrogenate()
