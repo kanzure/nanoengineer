@@ -103,11 +103,12 @@ def fix_plurals(text, between = 1):
         print """fyi, possible cosmetic bug: fix_plurals(%r) got text with no "(s)", has no effect""" % (text,)
     return " ".join(words)
 
-# end
+# == test code
 
 if __name__ == "__main__":
-    print fix_plurals('Dehydrogenate: removed 4 atom(s) from 1 molecule(s) (1 selected molecule(s) had no hydrogens)')
-    
-'''
-    fyi, cosmetic bug: fix_plurals('Dehydrogenate: removed 4 atom(s) from 1 molecule(s) (1 selected molecule(s) had no hydrogens)') found no number close enough to affect 'molecule(s)'
-'''
+    msg = 'Dehydrogenate: removed 4 atom(s) from 1 molecule(s) (1 selected molecule(s) had no hydrogens)'
+    msg2 = 'Dehydrogenate: removed 4 atoms from 1 molecule (1 selected molecule had no hydrogens)'
+    assert fix_plurals(msg) == msg2
+    print "test done"
+
+# end
