@@ -373,14 +373,21 @@ class assembly:
                 m = a.molecule
                 if m not in changedMols: changedMols += [m]
                 a.kill()
+                if len(m.atoms) == 0:
+                        self.killmol(m)
+                        self.w.modelTreeView.deleteObject(m)
+                        
             self.selatoms={}
             for m in changedMols: m.shakedown()
+            
         if self.selmols:
             self.modified = 1
             for m in self.selmols:
                 self.killmol(m)
                 self.w.modelTreeView.deleteObject(m)
             self.selmols=[]
+    
+
 
         self.setDrawLevel()
 
