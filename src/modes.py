@@ -46,8 +46,8 @@ class basicMode:
         self.o.setMode(self.prevmode.modename)
     
     def Draw(self):
-        pass#drawer.drawaxes(5,-self.o.pov)
-
+        if self.o.cSysToggleButton: drawer.drawaxes(5, -self.o.pov)
+     
     def leftDown(self, event):
         pass
     

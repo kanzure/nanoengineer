@@ -490,7 +490,6 @@ class GLPane(QGLWidget):
         glTranslatef(self.pov[0], self.pov[1], self.pov[2])
 
         # draw according to mode
-        if self.cSysToggleButton: drawer.drawaxes(5, -self.pov)
         self.mode.Draw()
         glFlush()                           # Tidy up
         self.swapBuffers()

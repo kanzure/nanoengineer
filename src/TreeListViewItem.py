@@ -5,6 +5,9 @@ from qt import *
 class TreeListViewItem(QListViewItem):
         def __init__(self, parent, label):
                 QListViewItem.__init__(self, parent, label)
+        
+        def setItemObject(self, obj):
+                self.obj = obj
                 
         def startRename(self, col):
                 self.setRenameEnabled(col, True)
@@ -21,6 +24,8 @@ class TreeListViewItem(QListViewItem):
                 if self.text(col).isEmpty():
                         self.setText(col, oldText)
                         self.startRename(col)
+                else:
+                        self.obj.name = str(self.text(col))        
                         
         def cancelRename(self, col):
                 QListViewItem.cancelRename(self, col)        

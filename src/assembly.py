@@ -212,7 +212,7 @@ class assembly:
             key=card[:4]
             if key=="part":
                 if mol: self.addmol(mol)
-                m=re.search("(\(\s+\))", card[8:])
+                m=re.search("\((.+)\)", card[8:])
                 mol=molecule(self, m and m.group(1))
                 try: mol.setDisplay(dispNames.index(card[5:8]))
                 except ValueError: mol.setDisplay(diDEFAULT)

@@ -267,6 +267,7 @@ class depositMode(basicMode):
         """ Draw a sketch plane to indicate where the new atoms will sit
 	by default
 	"""
+	basicMode.Draw(self)
         if self.sellist: self.pickdraw()
         self.o.assy.draw(self.o)
         self.surface()
@@ -325,4 +326,3 @@ class depositMode(basicMode):
                                     
     def skip(self):
         pass
-

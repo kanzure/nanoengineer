@@ -245,6 +245,7 @@ class modelTree(QListView):
 
         for mol in assy.molecules:
                 mitem = TreeListViewItem(rootItem, mol.name)
+                mitem.setItemObject(mol)
                 mitem.setPixmap(0, self.moleculeIcon)
                 mitem.setDragEnabled(False)
                 mitem.setDropEnabled(True)
@@ -258,6 +259,7 @@ class modelTree(QListView):
                 gIndex = 1
                 for g in mol.gadgets:
                    item = TreeListViewItem(mitem, g.__class__.__name__ + str(gIndex))
+                   item.setItemObject(g)
                    if isinstance(g, ground):
                       item.setPixmap(0, self.groundIcon)
                    elif isinstance(g, motor):
@@ -291,6 +293,7 @@ class modelTree(QListView):
         self.treeItems[item] = None
         
         item = TreeListViewItem(rootItem, "Csys")
+        
         item.setPixmap(0, self.csysIcon)
         item.setDragEnabled(False)
         item.setDropEnabled(False)

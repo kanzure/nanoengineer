@@ -167,6 +167,7 @@ class cookieMode(basicMode):
             self.o.paintGL()
 
     def Draw(self):
+        basicMode.Draw(self)    
         self.griddraw()
         if self.sellist: self.pickdraw()
         if self.o.shape: self.o.shape.draw(self.o)
