@@ -1122,6 +1122,7 @@ class assembly:
             newPositions = self.readxyz()
             if newPositions:
                 self.moveAtoms(newPositions)
+                self.changed() # Mark - bugfix 386
             
         else: # Play multi-frame DPB movie file.
             self.m.currentFrame = 0
