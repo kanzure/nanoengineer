@@ -21,21 +21,7 @@ __author__ = "bruce"
 
 from qt import *
 import sys, os, time
-import platform # for atom_debug
-
-def mkdirs_in_filename(filename):
-    """Make all directories needed for the directory part of this filename,
-    if nothing exists there. Never make the filename itself (even if it's
-    intended to be a directory, which we have no way of knowing anyway).
-    If something other than a directory exists at one of the dirs we might
-    otherwise make, we don't change it, which will probably lead to errors
-    in this function or in the caller, which is fine.
-    """
-    dir, file = os.path.split(filename)
-    if not os.path.exists(dir):
-        mkdirs_in_filename(dir)
-        os.mkdir(dir)
-    return
+import platform # for atom_debug, and more
 
 class message:
     """Stores one message for a history."""
@@ -139,7 +125,7 @@ class HistoryMegawidget:
             # user wants history saved; save it or print it.
             try:
                 if mkdirs: # this is optional, for safety
-                    mkdirs_in_filename(filename)
+                    platform.mkdirs_in_filename(filename)
                 ff = open(filename, "a")
             except:
                 print "bug warning: couldn't make history file %r; printing to sys.__stderr__ instead" % filename

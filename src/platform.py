@@ -3,11 +3,32 @@
 platform.py -- module for platform-specific code,
 especially for such code that needs to be called from various other modules.
 
+Also includes some other code that might conceivably vary by platform,
+but mainly is here since it had no better place to live.
+
 $Id$
 """
 
 import sys, os, time
 from qt import Qt
+
+# file utilities
+
+def mkdirs_in_filename(filename):
+    """Make all directories needed for the directory part of this filename,
+    if nothing exists there. Never make the filename itself (even if it's
+    intended to be a directory, which we have no way of knowing anyway).
+    If something other than a directory exists at one of the dirs we might
+    otherwise make, we don't change it, which will probably lead to errors
+    in this function or in the caller, which is fine.
+    """
+    dir, file = os.path.split(filename)
+    if not os.path.exists(dir):
+        mkdirs_in_filename(dir)
+        os.mkdir(dir)
+    return
+
+# event code
 
 def is_macintosh():
     #e we might need to update this, since I suspect some mac pythons
@@ -89,7 +110,27 @@ def middle_button_prefix():
 #  since not specific to one window, might be needed before main window init,
 #  and the directory names might become platform-specific.)
 
+_tmpFilePath = None
+
 def find_or_make_Nanorex_prefs_directory():
+    """
+    Find or make the directory ~/Nanorex, in which we will store
+    preferences, temporary files, etc.
+    If it doesn't exist and can't be made, try using /tmp.
+    [#e Future: for Windows that backup dir should be something other than /tmp.
+     And for all OSes, we should use a more conventional place to store prefs
+     if there is one (certainly there is on Mac).]
+    """
+    global _tmpFilePath
+    if _tmpFilePath:
+        return _tmpFilePath # already chosen, always return the same one
+    _tmpFilePath = _find_or_make_prefsdir_0()
+    assert _tmpFilePath
+    return _tmpFilePath
+
+def _find_or_make_prefsdir_0():
+    """private helper function for find_or_make_Nanorex_prefs_directory"""
+    
     #Create the temporary file directory if not exist [by huaicai ~041201]
     # bruce 041202 comments about future changes to this code:
     # - we'll probably rename this, sometime before Alpha goes out,
@@ -105,7 +146,6 @@ def find_or_make_Nanorex_prefs_directory():
     #   directory and is writable. If we someday routinely create
     #   a new file in it for each session, that will be a good-
     #   enough test.
-
     tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/"))
     if not os.path.exists(tmpFilePath):
         from debug import print_compact_traceback
@@ -122,7 +162,8 @@ def find_or_make_Nanorex_prefs_directory():
     return tmpFilePath
 
 def make_history_filename():
-    """Return a suitable name for a new history file (not an existing filename).
+    """[private method for history init code]
+    Return a suitable name for a new history file (not an existing filename).
     The filename contains the current time, so should be called once per history
     (probably once per process), not once per window when we have more than one.
     This filename could also someday be used as a "process name", valid forever,
