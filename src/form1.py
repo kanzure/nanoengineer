@@ -436,7 +436,7 @@ class Form1(QMainWindow):
         self.connect(self.fileSaveAsAction,SIGNAL("activated()"),
                      self.fileSaveAs)
         self.connect(self.fileImageAction,SIGNAL("activated()"),self.fileImage)
-        self.connect(self.fileExitAction,SIGNAL("activated()"),self.fileExit)
+        # fileExitAction connected in atom.py (main program)
         self.connect(self.editUndoAction,SIGNAL("activated()"),self.editUndo)
         self.connect(self.editRedoAction,SIGNAL("activated()"),self.editRedo)
         self.connect(self.editCutAction,SIGNAL("activated()"),self.editCut)
@@ -575,9 +575,6 @@ class Form1(QMainWindow):
                                          self )
         fn = str(fn)
         self.glpane.image(fn)
-
-    def fileExit(self):
-        print "Form1.fileExit(): Not implemented yet"
 
     # functions from the "Edit" menu
 
@@ -937,3 +934,7 @@ class Form1(QMainWindow):
         c = QColorDialog.getColor(QColor(100,100,100), self, "choose")
         return c.red()/256.0, c.green()/256.0, c.blue()/256.0
 
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Delete:
+            self.killDo()
