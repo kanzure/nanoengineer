@@ -380,8 +380,11 @@ class MWsemantics(MainWindow):
             
             # Write ~/.atomrc file with new Working Directory
             rc = os.path.expanduser("~/.atomrc")
-            if os.path.exists(rc):
+            try:
                 f=open(rc,'w')
+            except:
+                print "Trouble opening file: [", f, "]"
+            else:
                 f.write(wd)
                 f.close()
         	    
