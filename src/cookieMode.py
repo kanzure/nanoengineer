@@ -56,6 +56,9 @@ class cookieMode(basicMode):
         self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
         self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
         
+        # Hide the modify toolbar
+        self.w.modifyToolbar.hide()
+        
 # methods related to exiting this mode [bruce 040922 made these
 # from old Done and Flush methods]
 
@@ -86,6 +89,9 @@ class cookieMode(basicMode):
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
         self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
+        
+        # Show the modify toolbar
+        self.w.modifyToolbar.show()
         
     def restore_patches(self):
         self.o.ortho = self.savedOrtho
