@@ -3,7 +3,7 @@
 '''
 inval.py -- simple invalidation/update system for attributes within an object
 
-Temporarily owned by bruce 041112 for shakedown inval/update code.
+This file is owned by bruce.
 
 $Id$
 '''
