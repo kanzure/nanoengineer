@@ -1,6 +1,7 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
 from modes import *
+from chem import molecule
 
 class selectMode(basicMode):
     def __init__(self, glpane):
@@ -158,10 +159,12 @@ class selectMode(basicMode):
         self.o.setMode('MODIFY')
 
     def changeModelSelection(self, trigger, target, state):
+          """ slot function to respond to model selection change
+          """
           if self == trigger:
                return
           
-          if target.__class__.__name__ == 'molecule':
+          if isinstance(target, molecule):
                    if state:
                         target.pick()
                    else:

@@ -146,8 +146,7 @@ class MWsemantics(MainWindow):
                 dir, fil, ext = fileparse(self.assy.filename)
             else: dir, fil = "./", self.assy.name
             
-	    fileDialog = QFileDialog(dir, "Molecular machine parts (*.mmp);;Molecules (*.pdb)",
-                                     self, "Save File As", 1)
+	    fileDialog = QFileDialog(dir, "Molecular machine parts (*.mmp);;Molecules (*.pdb);;POV-Ray (*.pov)", self, "Save File As", 1)
             if self.assy.filename:
                 fileDialog.setSelection(fil)
 
@@ -169,6 +168,10 @@ class MWsemantics(MainWindow):
                     self.assy.writepdb(dir + fil + ".pdb")
                     self.assy.filename = dir + fil + ".pdb"
                     self.assy.modified = 0
+                elif ext[-4:-1] == "pov":
+                    w = self.glpane.width
+                    h = self.glpane.height
+                    self.glpane.povwrite(dir + fil + ".pov", w, h)
 
     def fileImage(self):
         if self.assy:

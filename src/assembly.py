@@ -90,9 +90,9 @@ class assembly:
                  mol.draw(win, self.drawLevel)
            
     # write a povray file: just draw everything inside
-    def povwrite(self,file,win):
+    def povwrite(self, file, win):
         for mol in self.molecules:
-            mol.povwrite(file,win)
+            mol.povwrite(file, win)
 
     # make a new molecule using a cookie-cut shape
     def molmake(self,shap):
