@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ElementSelectorDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Wed Jan 12 18:41:39 2005
+# Created: Sun Jan 30 14:29:28 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -11,37 +11,48 @@
 from qt import *
 
 image0_data = [
-"22 22 8 1",
+"22 22 19 1",
 ". c None",
+"a c #00f2d3",
+"p c #02ba8d",
+"d c #05ab11",
 "# c #2d2d2d",
-"e c #b4b5b4",
-"c c #bfc0bf",
-"b c #c2c3c2",
-"f c #c8c9c8",
-"a c #d2d2d2",
-"d c #dbdcdb",
+"g c #39fda3",
+"c c #4090fc",
+"i c #808080",
+"h c #aa9bf5",
+"j c #ad46fc",
+"l c #adfa5a",
+"q c #c0c0c0",
+"f c #cb0c03",
+"n c #cd00f2",
+"b c #d1c7f5",
+"m c #dfdc01",
+"e c #f3b3f5",
+"k c #fcd846",
+"o c #ffa31f",
 "......................",
-"......................",
-"......................",
-".###.............###a.",
-".#b#.............#b#cd",
-".#b#.........#####b#ef",
-".#b#.........#b#b#b#ef",
-".#b###########b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".###################ef",
-".aceeeeeeeeeeeeeeeeeef",
-"..d###############dddf",
-"...#bbbbbbbbbbbbb#a...",
-"...###############ca..",
-"...#bbbbbbbbbbbbb#ef..",
-"...###############ef..",
-"...aceeeeeeeeeeeeeef..",
-"...dddffffffffffffff.."
+"..............#######.",
+"..............#aa#bb#.",
+"..............#aa#bb#.",
+"..............#aa#bb#.",
+"..###################.",
+"..#cc#dd#ee#ff#gg#bb#.",
+"..#cc#dd#ee#ff#gg#bb#.",
+"..#cc#dd#ee#ff#gg#bb#.",
+"..###################.",
+"..#hh#ii#jj#kk#ll#bb#.",
+"..#hh#ii#jj#kk#ll#bb#.",
+"..#hh#ii#jj#kk#ll#bb#.",
+"..###################.",
+".....#mm#nn#oo#pp#bb#.",
+".....#mm#nn#oo#pp#bb#.",
+".....#mm#nn#oo#pp#bb#.",
+".....################.",
+"........#qq#qq#qq#qq#.",
+"........#qq#qq#qq#qq#.",
+"........#qq#qq#qq#qq#.",
+"........#############."
 ]
 
 class ElementSelectorDialog(QDialog):
@@ -388,7 +399,7 @@ class ElementSelectorDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(348,486).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(348,489).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
