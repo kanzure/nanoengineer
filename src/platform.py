@@ -72,9 +72,11 @@ class atomEvent:
     #e more methods might be needed here
     pass
 
-#e there might be other code mentioning "darwin" which should be moved here... maybe also modifier keys in constants.py...
+#e there might be other code mentioning "darwin" which should be
+#  moved here... maybe also modifier keys in constants.py...
 
-# Use these names for our modifier keys and for how to get the context menu, in messages visible to the user.
+# Use these names for our modifier keys and for how to get the context menu,
+# in messages visible to the user.
 
 def shift_name():
     "name of Shift modifier key"
@@ -112,28 +114,43 @@ def middle_button_prefix():
 def fix_buttons_helper(self, but, when):
     """
     Every mouse event's button and modifier key flags should be
-    filtered through this method (actually just a function).
+    filtered through this method (actually just a "method helper function").
 
     Arguments:
+    
     - self can be the client object; we use it only for storing state
-      between calls, namely, self._saved_buttons.
-      The caller should init it to 0 [#e fix this].
-    - 'but' should be the flags from event.stateAfter() or perhaps
-      event.state() ###k ###doc more
-    - 'when' should be ###doc
+      between calls, namely, self._fix_buttons_saved_buttons.
+      The caller need no longer init that to 0.
+      
+    - 'but' should be the flags from event.stateAfter() or
+      event.state(), whichever ones would have the correct set of
+      mousebuttons -- this depends on the type of event; see the
+      usage in GLPane for an example.
+      
+    - 'when' should be 'press', 'move', or 'release', according
+      to how this function should treat the buttons and modifier keys --
+      it will record them for press, and then maintain the same
+      ones (in its return value) for move or release, regardless
+      of what the real modifier keys and buttons did.
 
-    Returns: a new version of 'but' which is simpler to use correctly
-    (as described below).
-       
-    This "method helper function" does two things:
+    Returns: a new version of 'but' which is simpler for client code
+    to use correctly (as described below).
 
-    1. Store those flags from a mouse-press, and reuse them on the
+    Known bugs [as of 050113]: reportedly prints warnings, and perhaps
+    has wrong results, when dialogs intercept some "release" events.
+    (Or am I confusing these rumors with ones about key-releases?)
+    Should be easy to fix given a repeatable example.
+    
+    More details: this function does two things:
+
+    1. Store all button and modifier-key flags from a mouse-press,
+    and reuse them on the
     subsequent mouse-drag and mouse-release events (but not on
     pure mouse-moves), so the caller can just switch on the flags
     to process the event, and will always call properly paired
     begin/end routines (this matters if the user releases or
     presses a modifier key during the middle of a drag; it's
-    common to release a mod key then);
+    common to release a modifier key then).
 
     2. On the Mac, remap
     Option+leftButton to middleButton, so that the Option key
@@ -152,6 +169,9 @@ def fix_buttons_helper(self, but, when):
     if when == 'move' and (but & allButtons):
         when = 'drag'
     assert when in ['move','press','drag','release']
+
+    if not hasattr(self, '_fix_buttons_saved_buttons'):
+        self._fix_buttons_saved_buttons = 0
     
     # 1. bugfix: make mod keys during drag and button-release the
     # same as on the initial button-press.  Do the same with mouse
@@ -160,18 +180,19 @@ def fix_buttons_helper(self, but, when):
     # modkey/mousebutton combinations in part 2 below!
     
     if when == 'press':
-        self._saved_buttons = but & allFlags
+        self._fix_buttons_saved_buttons = but & allFlags
         # we'll reuse this button/modkey state during the same
         # drag and release
-        if _debug and self._saved_buttons != but:
-            print "fyi, debug: fix_buttons: some event flags unsaved: %d - %d = 0x%x" % (but, self._saved_buttons, but - self._saved_buttons)
+        if _debug and self._fix_buttons_saved_buttons != but:
+            print "fyi, debug: fix_buttons: some event flags unsaved: %d - %d = 0x%x" % (
+                but, self._fix_buttons_saved_buttons, but - self._fix_buttons_saved_buttons)
             # fyi: on Mac I once got 2050 - 2 = 0x800 from this statement;
             # don't know what flag 0x800 means; shouldn't be a problem
     elif when in ['drag','release']:
-        if (self._saved_buttons & allButtons):
+        if (self._fix_buttons_saved_buttons & allButtons):
             but0 = but
             but &= ~allFlags
-            but |= self._saved_buttons
+            but |= self._fix_buttons_saved_buttons
             # restore the modkeys and mousebuttons from the mousepress
             if _debug and but0 != but:
                 print "fyi, debug: fix_buttons rewrote but0 0x%x to but 0x%x" % (but0, but) #works
@@ -195,13 +216,14 @@ def fix_buttons_helper(self, but, when):
             #happens; instead the above code pretends the same
             #mouse button was down during the entire drag.
             
-            print "warning: Qt gave us two mouseReleases without a mousePress; ignoring this if we can, but it might cause bugs"
+            print "warning: Qt gave us two mouseReleases without a mousePress;"
+            print " ignoring this if we can, but it might cause bugs"
             pass # don't modify 'but'
     else:
         pass # pure move (no mouse buttons down):
              #  don't revise the event flags
     if when == 'release':
-        self._saved_buttons = 0
+        self._fix_buttons_saved_buttons = 0
     
     # 2. let the Mac's Alt/Option mod key simulate middle mouse button.
     if sys.platform in ['darwin']:

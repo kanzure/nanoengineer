@@ -355,7 +355,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-    _saved_buttons = 0 # needed by fix_buttons_helper
     def fix_buttons(self, but, when):
         return fix_buttons_helper(self, but, when)
 
