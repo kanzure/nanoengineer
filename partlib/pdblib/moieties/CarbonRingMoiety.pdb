@@ -1,0 +1,41 @@
+ATOM      1  C                   1.377  -2.003  -2.960
+ATOM      2  C                   0.008  -2.429  -2.989
+ATOM      3  C                  -1.281  -2.005  -3.019
+ATOM      4  C                  -2.108  -0.835  -3.026
+ATOM      5  C                  -2.104   0.522  -3.023
+ATOM      6  C                  -1.249   1.670  -2.992
+ATOM      7  X                   0.007  -3.193  -2.897
+ATOM      8  X                  -2.836  -1.073  -2.946
+ATOM      9  X                  -1.742  -2.616  -2.943
+ATOM     10  X                   1.814  -2.630  -2.865
+ATOM     11  X                   2.901  -1.141  -2.818
+ATOM     12  X                   2.922   0.748  -2.816
+ATOM     13  X                   1.844   2.245  -2.819
+ATOM     14  X                   0.055   2.849  -2.869
+ATOM     15  X                  -1.701   2.286  -2.902
+ATOM     16  X                  -2.829   0.769  -2.947
+ATOM     17  C                   0.043   2.086  -2.964
+ATOM     18  C                   1.399   1.627  -2.931
+ATOM     19  C                   2.194   0.525  -2.924
+ATOM     20  C                   2.177  -0.906  -2.930
+CONECT    1   20    2   10
+CONECT    2    1    3    7
+CONECT    3    2    4    9
+CONECT    4    3    5    8
+CONECT    5    4    6   16
+CONECT    6    5   15   17
+CONECT    7    2
+CONECT    8    4
+CONECT    9    3
+CONECT   10    1
+CONECT   11   20
+CONECT   12   19
+CONECT   13   18
+CONECT   14   17
+CONECT   15    6
+CONECT   16    5
+CONECT   17    6   14   18
+CONECT   18   17   19   13
+CONECT   19   20   12   18
+CONECT   20   19    1   11
+END
