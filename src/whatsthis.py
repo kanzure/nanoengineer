@@ -716,26 +716,37 @@ def createWhatsThis(self):
 
         #### Movie Player ####
 
-        toolsMoviePlayerActionText = "<u><b>Movie Player</b></u><br>"\
-                       "<p><img source=\" toolsMoviePlayerAction\"><br> "\
+        simMoviePlayerActionText = "<u><b>Movie Player</b></u><br>"\
+                       "<p><img source=\" simMoviePlayerAction\"><br> "\
                        "Plays the most recent trajectory (movie) file created by the <b>Simulator</b>.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsMoviePlayerAction",
-                                                       self. toolsMoviePlayerAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( " simMoviePlayerAction",
+                                                       self. simMoviePlayerAction.iconSet().pixmap() )
        
-        self. toolsMoviePlayerAction.setWhatsThis( toolsMoviePlayerActionText )  
+        self. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )  
         
         #### Simulator ####
 
-        toolsSimulatorActionText = "<u><b>Simulator</b></u><br>"\
-                       "<p><img source=\" toolsSimulatorAction\"><br> "\
+        simSetupActionText = "<u><b>Simulator</b></u><br>"\
+                       "<p><img source=\" simSetupAction\"><br> "\
                        "Creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding of the entire model.  The user determines the number of frames in the movie, the time step, and the temperature for the simulation.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsSimulatorAction",
-                                                       self. toolsSimulatorAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( " simSetupAction",
+                                                       self. simSetupAction.iconSet().pixmap() )
        
-        self. toolsSimulatorAction.setWhatsThis( toolsSimulatorActionText )
-        
+        self. simSetupAction.setWhatsThis( simSetupActionText )
+
+        #### Plot Tool ####
+
+        simPlotToolActionText = "<u><b>Plot Tool</b></u><br>"\
+                       "<p><img source=\" simPlotToolAction\"><br> "\
+                       "Plots a simulator trace file using GNUplot.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( " simPlotToolAction",
+                                                       self. simPlotToolAction.iconSet().pixmap() )
+       
+        self. simPlotToolAction.setWhatsThis( simPlotToolActionText )
+                
         ##############################################
         # Dashboard Buttons
         ##############################################
