@@ -16,6 +16,7 @@ from drawer import *
 from shape import *
 
 from constants import *
+from qt import *
 
 CPKvdW = 0.25
 
@@ -558,8 +559,9 @@ class bond:
 # atoms bonded together, but it's quite possible to make a molecule
 # object with unbonded atoms, and with bonds to atoms in other
 # molecules
-class molecule:
+class molecule(QObject):
     def __init__(self, assembly, nam=None):
+        QObject.__init__(self, nam)
         self.assy = assembly
         # name doesn't get used yet, except as a comment
         # in mmp file output, but could be used to name
@@ -585,6 +587,15 @@ class molecule:
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0
+        
+        modelTree = self.assy.w.modelTreeView
+        QObject.connect(self, PYSIGNAL("modelSelectionChanged"), modelTree.changeModelSelection)
+          
+        selMode = self.assy.o.modetab['SELECT']
+        QObject.connect(self, PYSIGNAL("modelSelectionChanged"), selMode.changeModelSelection)
+
+    def setSelectionState(self, trigger, target, state):
+           self.emit(PYSIGNAL("modelSelectionChanged"), (trigger, target, state))
 
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to at2
@@ -970,4 +981,3 @@ def oneUnbonded(elem, assy, pos):
 ##                     v = - norm(b+c+d)
 ##                     b=atom("H", a.xyz+lCHb*v, self)
 ##                     self.bond(a,b)
-

@@ -31,14 +31,18 @@ class modelTree(QListView):
         self.mousePressed = 0
 
 	    # Dictionary stores the pair of (tree item, real model object)
-        self.treeItems = {} 
+        self.treeItems = {}
+        self.objectToTreeItems = {} # Dictionary for pair of (real model object, tree item) 
     	self.selectedTreeItem = None
+        self.lastSelectedItem = None
         
         self.setSorting(-1)
         self.setRootIsDecorated(1)
         self.connect(self, 
                 SIGNAL("rightButtonPressed(QListViewItem*,const QPoint&,int)"), 
                                                      self.processRightButton)
+        self.connect(self, SIGNAL("selectionChanged(QListViewItem *)"), self.treeItemChanged)
+
 
     	self.updateModelTree()        
 
@@ -56,6 +60,26 @@ class modelTree(QListView):
         rMotorDialog.exec_loop()    
 
 
+    def treeItemChanged(self, listItem):
+          if self.lastSelectedItem:
+             modelItem = self.treeItems[self.lastSelectedItem]
+             if modelItem.__class__.__name__ == 'molecule':
+                modelItem.setSelectionState(self, modelItem, False)
+ 
+          modelItem = self.treeItems[listItem]
+          if modelItem.__class__.__name__ == 'molecule':
+                modelItem.setSelectionState(self,  modelItem, True)
+
+          self.lastSelectedItem = listItem          
+            
+ 
+    def changeModelSelection(self, trigger, target, state):
+          if self == trigger:  #don't respond if it is triggered by itself
+               return
+          # Find the corresponding tree item for the target and set the state
+          if target.__class__.__name__ == 'molecule':
+               item = self.objectToTreeItems[target]
+               self.setSelected(item, state)
 	
     def processRightButton(self, listItem, pos, col):
         """ Context menu items function handler for the Model Tree View """
@@ -94,7 +118,8 @@ class modelTree(QListView):
         for assy in assyList:
             rootItem = QListViewItem(self, assy.name)
             rootItem.setPixmap(0, self.assemblyIcon)
-            self.treeItems[rootItem] = None
+            self.treeItems[rootItem] = assy
+            self.objectToTreeItems[assy] = rootItem
 
             item = QListViewItem(rootItem, "Csys")
     	    item.setPixmap(0, self.csysIcon)
@@ -114,6 +139,7 @@ class modelTree(QListView):
                 mitem.setDragEnabled(False)
                 mitem.setDropEnabled(True)
                 self.treeItems[mitem] = mol
+                self.objectToTreeItems[mol] = mitem
 
                 item = QListViewItem(mitem, "Total %d atoms" % len(mol.atoms))
                 self.treeItems[item] = None
@@ -125,6 +151,7 @@ class modelTree(QListView):
                    item.setDragEnabled(False)
                    item.setDropEnabled(True)
                    self.treeItems[item] = g
+                   self.objectToTreeItems[g] = item
                    gIndex += 1
 
         item = QListViewItem(self, "Insert Here")

@@ -157,3 +157,14 @@ class selectMode(basicMode):
         # go into move mode
         self.o.setMode('MODIFY')
 
+    def changeModelSelection(self, trigger, target, state):
+          if self == trigger:
+               return
+          
+          if target.__class__.__name__ == 'molecule':
+                   if state:
+                        target.pick()
+                   else:
+                        target.unpick()
+
+                   self.o.updateGL()

@@ -470,7 +470,10 @@ class assembly:
         self.unpickatoms()
         if not self.selmols: self.selmols = []
         a = self.findpick(p1, v1)
-        if a: a.molecule.pick()
+        if a: 
+              a.molecule.pick()
+              if (self.o.mode == self.o.modetab["SELECT"]) :
+                    a.molecule.setSelectionState(self.o.mode, a.molecule, True)
 
     # deselect any selected atoms
     def unpickatoms(self):
@@ -478,6 +481,8 @@ class assembly:
             for a in self.selatoms.itervalues():
                 a.picked = 0
                 a.molecule.changeapp()
+                if (self.o.mode == self.o.modetab["SELECT"]) :
+                    a.molecule.setSelectionState(self.o.mode, a.molecule, True)
             self.selatoms = {}
 
     # deselect any selected molecules
