@@ -1006,15 +1006,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
         w,h = 160,130
         
         if 1:
-            if 0: # Mark emailed me this:
-                    # Mark's new pixmap size
-                    # h = height of nodes plus one more row for "moving 1 item" text
-                    w,h = 160,(len(nodes) + 1) * 24
             # but that's not good if len(nodes) is large, so use the following;
             # note that it depends on the details of hardcoded stuff in other functions
             # and those don't even have comments warning about that! ####@@@@
             # [bruce 050202 10:20am]:
-            h = max(1,min(3,len(nodes))) * 24 + 24 # the last 24 is a guess for the text at the bottom
+            item = self.nodeItem(nodes[0]) # Grab a node to find out it's height
+            ih = item.height()
+            h = max(1,min(3,len(nodes))) * ih + ih # the last 24 is a guess for the text at the bottom
+
             if len(nodes)>3:
                 h += 10 # for the "..."
             pass
@@ -1022,11 +1021,29 @@ class TreeWidget(TreeView, DebugMenuMixin):
         pixmap = QPixmap(w,h) # should have size w,h, depth of video mode, dflt optimization
         ##print pixmap,pixmap.width(),pixmap.height(),pixmap.size(),pixmap.depth()
         ## pixmap.fill(Qt.red) # makes it red; what's dragged is a pretty transparent version of this, but red... (looks nice)
-        pixmap.fill() # makes it white
+
+        # CAREFUL: calling pixmap.fill() with no arguments creates problems
+        # on Windows and Linux.  Text will not be drawn.  Be sure to include
+        # a QColor argument so that the QPainter's setPen color can work 
+        # as expected.  Mark 050205
+        #
+        #pixmap.fill() # makes pixmap white, but text can't be drawn
+
+        ## pixmap.fill(listview,0,0)
         ## following would fill with this widget's bgcolor...
         ## but it actually looks worse: very faint stripes, all faintly visible
-        ## pixmap.fill(listview,0,0)
+        
         p = QPainter(pixmap)
+        
+        # Nice blue that matches selection background
+        if sys.platform == 'win32':
+            selcolor = QColor(49,106,197)
+        else:
+            selcolor = QColor(33,68,156)
+
+        pixmap.fill(selcolor) # Pixmap backgroup color
+        p.setPen(Qt.white) # Text color
+            
         try:
             self.paint_nodes(p, drag_type, nodes)
             return pixmap
@@ -1075,8 +1092,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.paint_node( p, drag_type, nodes[-1])
         #e also put in the same text we'd put into the statusbar
         text = self.get_whatting_n_items_text(drag_type, nodes)
-        w,h = 150,50 # bounding rect (hope ok if overflows pixmap, tho i think this one doesn't)
+        w,h = 160,24 # bounding rect (hope ok if overflows pixmap, tho i think this one doesn't)
         flags = 0 # guess
+        p.setPen(Qt.yellow)
         p.drawText(0,0,w,h,flags,text) # in this drawText version, we're supplying bounding rect, not baseline.
             #e want smaller font, italic, colored...
         return
@@ -1917,4 +1935,3 @@ class TreeWidget(TreeView, DebugMenuMixin):
     pass # end of class TreeWidget
 
 # end
-
