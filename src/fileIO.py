@@ -787,9 +787,12 @@ def writemovie(assy, mflag = False):
         print "writeMovie: " + msg
         return -1
 
-    # We always save the current part to an MMP file.  In the future, we may want to check
-    # if assy.filename is an MMP file and use it if not assy.has_changed().
+    # We always save the current part to an MMP file before starting
+    # the simulator.  In the future, we may want to check if assy.filename
+    # is an MMP file and use it if not assy.has_changed().
     mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
+    
+    # Trace file that saves the output for thermostats and thermometers.
     traceFile = "-q"+ os.path.join(assy.w.tmpFilePath, "sim-%d-trace.txt" % pid)    
 
     # filePath = the current directory NE-1 is running from.
@@ -803,7 +806,7 @@ def writemovie(assy, mflag = False):
     
     # Make sure the simulator exists
     if not os.path.exists(program):
-        msg = redmsg("Simulator [" + program + "] does not exit.  Simluation aborted.")
+        msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
         assy.w.history.message(msg)
         return -1
 
@@ -832,8 +835,8 @@ def writemovie(assy, mflag = False):
                     '-t' + str(assy.m.temp), 
                     '-i' + str(assy.m.stepsper), 
                     str(formarg),
-		    traceFile, 
-                    outfile, 
+                    traceFile,
+                    outfile,
                     infile]
 
     # Tell user we're creating the movie file...
@@ -926,8 +929,9 @@ def writemovie(assy, mflag = False):
         print_compact_traceback("exception in simulation; continuing: ")
         if simProcess:
             #simProcess.tryTerminate()
-	    simProcess.kill()
+            simProcess.kill()
             simProcess = None
+        
         r = -1 # simulator failure
         
     QApplication.restoreOverrideCursor() # Restore the cursor
@@ -945,6 +949,9 @@ def writemovie(assy, mflag = False):
         ## process the hard way.
         #simProcess.tryTerminate()
         #QTimer.singleShot( 2000, simProcess, SLOT('kill()') )
+        
+        # The above does not work, so we'll hammer the process with SIGKILL.
+        # This works.  Mark 050210
         simProcess.kill()
         
     else: # Something failed...
