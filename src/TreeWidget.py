@@ -102,42 +102,86 @@ class TreeWidget(TreeView, DebugMenuMixin):
     # event processing & selection ###@@@ some obs, or move down...
     
     def select(self, item): ###@@@ soon to be obs, i think, or to be inlined... and some belongs in the subclass.
-        
+        "item is a list view item or none"
         # bruce comment 041220: this is called when widget signals that
         # user clicked on an item, or on blank part of model tree (confirmed by
         # experiment). Event (with mod keys flags) would be useful...
         # 
         self.dprint("select called")
         
-        if item:
-            if isinstance(item, PartGroup):
-                self.dprint("select returns early since item is the PartGroup") #k (but why can't we select it?)
-                return
-            if item.object.name == self.assy.name:
-                self.dprint("select would have returned early since item.object.name == self.assy.name; but it doesn't now")
-                # don't return
+##        if item:
+##            if isinstance(item, PartGroup):
+##                self.dprint("select returns early since item is the PartGroup") #k (but why can't we select it?)
+##                return
+##            if item.object.name == self.assy.name:
+##                self.dprint("select would have returned early since item.object.name == self.assy.name; but it doesn't now")
+##                # don't return
         
-        self.win.assy.unpickatoms() ####@@@@ belongs in the subclass
-        
-        if not self.modifier:
-            # bruce comment 041220: some bugs are caused by this [i.e. self.modifier - 050124] being wrong,
-            # e.g. bug 263 (my comment #3 in there explains the likely cause).
-            self.win.assy.unpickparts()
-        
-        if item: 
-            if self.modifier == 'Cntl':
-                item.object.unpick()
-                self.last_selected_node = None
-            else:
-                item.object.pick()
-                self.last_selected_node = item.object
-                ###@@@ why only the one item? [bruce question 041220]
+##        self.win.assy.unpickatoms() # belongs in the subclass... in fact, no reason to ever do this [bruce 050124]
 
-##        self.dprint("select is calling win_update")
-##        self.win.win_update()
-##        self.dprint("select done calling win_update, returning")
-        ####@@@@ maybe this will help:
-        self.update_selection_highlighting()
+        # Note: the following behavior uses Shift and Control sort of like the
+        # GLPane (and original modelTree) do, but in some ways imitates the Mac
+        # and/or the QListView behavior; in general the Mac behavior is probably
+        # better (IMHO) and maybe we should imitate it more. (For example, I'm
+        # very skeptical of the goodness of applying pick or unpick to entire
+        # subtrees as the default behavior; for now I refrained from changing
+        # that, but added a new mod-key-pair ShiftCntl to permit defeating it.)
+        # [bruce 050124]
+
+        #e This needs some way to warn the user of what happens in subtrees
+        # they can't see (when nodes are openable but closed, or even just with
+        # their kids scrolled out of sight). Probably best is to always show
+        # sel state of kids in some manner, right inside each Group's item. #e
+
+        # warning: in future the pick and unpick methods we're calling here
+        # might call incremental updaters back in this module or treeview!
+        
+        if self.modifier == 'ShiftCntl': # bruce 050124 new behavior [or use Option key? #e]  ####@@@@ IMPLEM passing this in
+            # toggle the sel state of the clicked item ONLY (no effect on members);
+            # noop if no item.
+            if item:
+                if item.object.picked:
+                    item.object.unpick_top()
+                else:
+                    item.object.pick_top()
+                print "update nim"
+        elif self.modifier == 'Cntl':
+            # unselect the clicked item (and all its members); noop if no item.
+            if item:
+                item.object.unpick()
+                print "update nim"
+        elif self.modifier == 'Shift':
+            # Mac would select a range... but I will just add to the selection,
+            # for now (this item and all its members); noop for no item.
+            if item:
+                # whether or not item.object.picked -- this matters
+                # for groups with not all picked contents!
+                item.object.pick()
+                print "update nim"
+        else:
+            # no modifier (among shift and control anyway)...
+            if item:
+                if item.object.picked:
+                    # must be noop when item already picked, in case we're
+                    # starting a drag of multiple items
+                    pass
+                else:
+                    # deselect all items except this one
+                    for node in self.topnodes:
+                        node.unpick()
+##                    ###e (within the "current space"??? maybe not, maybe the whole tree... not sure)
+##                    ####@@@@ also make that a barrier for descending into selstate of members? yes... not sure; not yet i guess
+##                    ## item.object.assy.unpickparts() ####@@@@ this will change somehow... really should use our own top nodes! topnodes
+                    item.object.pick()
+                    print "update nim"
+            else:
+                # no item
+                for node in self.topnodes:
+                    node.unpick()
+                print "update nim"
+        # that should do it!
+        
+        self.update_selection_highlighting() ####@@@@ does this work?
         return
 
     def update_select_mode(self): #bruce 050124; this should become a mode-specific method and be used more generally.
@@ -250,7 +294,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         ###@@@ correct item to be None if we were not really on the item acc'd to above,
         ### or do this in following function according to event position...
-        self.selection_click(item, pos, col, permit_drag = False) 
+        } self.selection_click(item, pos, col, permit_drag = False) 
         
         set = self.current_selection_set() # a list of items?? might be a more structured thing someday... and/or made of nodes...
             # but i think it's items for now, since some ops really involve them as items more than as nodes...
@@ -664,31 +708,36 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # changed is implemented.)
             return
 
-        if (but & allButtons) != leftButton:
-            # ignore middle button, and ignore certain bugs in the above code
+        # if buttons are not what we expect, return now (thus avoiding bad effects
+        # from some possible bugs in the above code)
+        if (but & allButtons) is not in [leftButton, middleButton]:
+            # (note, this is after fix_buttons, so on Mac this means click or option-click)
             return
 
-        # kluge: set self.modifier for compatibility with old code
-        if but & shiftButton:
-            self.modifier = 'Shift'
+        drag_would_copy = but & middleButton # good for Mac, don't know about others
+        drag_type = (drag_would_copy and 'copy') or 'move'
+
+        # set modifier (NOT self.modifier!) for compatibility with old code's select() routine
+        if but & (shiftButton|cntlButton):
+            modifier = 'ShiftCntl' # (except this one is new)
+        elif but & shiftButton:
+            modifier = 'Shift'
         elif but & cntlButton:
-            self.modifier = 'Cntl'
+            modifier = 'Cntl'
         else:
-            self.modifier = None
-        
-        # kluge: try to use old code, see how much it can handle
+            modifier = None
+
+        self.selection_click( item, part, modifier, permit_drag_type = drag_type )
         ####@@@@ some or all of its behavior might belong in a subclass -- not sure
-            
-        self.select(item) ###@@@
         
         return # from clicked
 
-    def contentsMouseMoveEvent(self, event):
+    def contentsMouseMoveEvent(self, event): ###e extend for drag & drop; use fix_buttons
         "[overrides QListView method]"
         # This method might be needed, to prevent QListView from messing us up.
         pass
     
-    def contentsMouseReleaseEvent(self, event):
+    def contentsMouseReleaseEvent(self, event): ###e extend for drag & drop; use fix_buttons
         "[overrides QListView method]"
         # This method might be needed, to prevent QListView from messing us up.
         # (At least, without it, QListView emits its "clicked" signal.)
