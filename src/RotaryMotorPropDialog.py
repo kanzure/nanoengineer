@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/RotaryMotorPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Mon Sep 27 18:53:48 2004
+# Created: Tue Sep 28 10:01:51 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

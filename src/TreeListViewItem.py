@@ -16,6 +16,8 @@ class TreeListViewItem(QListViewItem):
                 name = self.text(col)
                 if name == "":
                         QListViewItem.startRename(self, col)
+                else:
+                        return name
                         
         def okRename(self, col):
                 oldText = self.text(col)

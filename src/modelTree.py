@@ -61,7 +61,6 @@ class modelTree(QListView):
                 SIGNAL("rightButtonPressed(QListViewItem*,const QPoint&,int)"), 
                                                      self.processRightButton)
         self.connect(self, SIGNAL("selectionChanged(QListViewItem *)"), self.treeItemChanged)
-   
         self.connect(self, SIGNAL("expanded(QListViewItem *)"), self.treeItemExpanded)
         self.connect(self, SIGNAL("collapsed(QListViewItem *)"), self.treeItemCollapsed) 
   
@@ -78,28 +77,16 @@ class modelTree(QListView):
               assy.csys.quat = self.win.glpane.quat
 
     def processTreeMenu(self, id):
-          if id == 0: #Collapse 
-             child = self.firstChild()
-             while child != None:
-                      self.setOpen(child, False)
-                      child = child.itemBelow()        
-                       
-          elif id ==1: # Expand
-             child = self.firstChild()
-             while child != None:
-                      self.setOpen(child, True)
-                      child = child.itemBelow()        
-          
-          elif id == 2: # Hide
-               pass    
-          elif id == 3: # Unhide All"
-               for item in self.hiddenItems:
-                    item.setVisible(True)
-                    
-               self.hiddenItems = []
-                     
-          elif id == 4: # Filter                    
-               pass
+        if id == 0: #Collapse
+            self.collapseTree() 
+        elif id ==1: # Expand
+            self.expandTree()
+        elif id == 2: # Hide
+            pass    
+        elif id == 3: # Unhide All"
+            self.unhideTree()
+        elif id == 4: # Filter
+            pass
                
     def processMolMenu(self, id):
             if id == 0: #Copy
@@ -126,23 +113,26 @@ class modelTree(QListView):
                   parentItem = self.selectedTreeItem.parent()
                   parentItem.takeItem(self.selectedTreeItem)
             elif id == 1: #Rename
-                  self.selectedTreeItem.startRename(0)
+                  jig = self.treeItems[self.selectedTreeItem]
+                  jig.name = self.selectedTreeItem.startRename(0)
             elif id == 2: #Hide/Unhide
                  self.hiddenItems += [self.selectedTreeItem]
                  self.selectedTreeItem.setVisible(False)            
             elif id == 3: # Properties
                 jig = self.treeItems[self.selectedTreeItem]
                 if isinstance(jig, motor):
-                        rMotorDialog = RotaryMotorProp(jig, self.win.glpane, self.selectedTreeItem.text(0))
-                        rMotorDialog.exec_loop()
+                        rMotorDialog = RotaryMotorProp(jig, self.win.glpane)
+                        if rMotorDialog.exec_loop() == QDialog.Accepted:
+                         self.updateModelTree()
                 elif isinstance(jig, LinearMotor):
-                        lMotorDialog = LinearMotorProp(jig, self.win.glpane, self.selectedTreeItem.text(0))
-                        lMotorDialog.exec_loop()
+                        lMotorDialog = LinearMotorProp(jig, self.win.glpane)
+                        if lMotorDialog.exec_loop() == QDialog.Accepted:
+                         self.updateModelTree()
                 elif isinstance(jig, ground):
-                        groundDialog = GroundProp(jig)
-                        groundDialog.exec_loop()
+                        GroundDialog = GroundProp(jig, self.win.glpane)
+                        if GroundDialog.exec_loop() == QDialog.Accepted:
+                         self.updateModelTree()
 
-                  
     def processInsertHereMenu(self, id):
             if id == 0: #Paste
                   hereItem = self.objectToTreeItems[self.insertHereIcon]
@@ -402,7 +392,11 @@ class modelTree(QListView):
                 gIndex = 1
                 mol.gadgets.reverse()
                 for g in mol.gadgets:
-                   item = QListViewItem(mitem, g.__class__.__name__ + str(gIndex))
+
+#                   item = TreeListViewItem(mitem, g.__class__.__name__ + str(gIndex))
+                   item = TreeListViewItem(mitem, g.name)
+                   item.setItemObject(g)
+
                    if isinstance(g, ground):
                       item.setPixmap(0, self.groundIcon)
                    elif isinstance(g, motor):
@@ -518,6 +512,96 @@ class modelTree(QListView):
         self.treeItems[item] = None
         self.objectToTreeItems[self.csysIcon] = item
 
+        self.expandTree() # added by mark 9/28/2004
+             
+
+    def contentsDragEnterEvent(self, e):
+    #     e.accept(True)
+        self.oldCurrent = self.currentItem()
+        
+        i = self.itemAt(self.contentsToViewport(e.pos()))
+        if i:
+            self.dropItem = i
+        
+
+    def contentsDragMoveEvent(self, e):
+        vp = self.contentsToViewport(e.pos())
+        i = self.itemAt( vp )
+
+        if  i and i.dropEnabled():
+            self.setSelected( i, True )
+            e.accept()
+            e.acceptAction()
+        else:
+           e.ignore()
+
+
+    def contentsDragLeaveEvent(self, e):
+        #autoopen_timer->stop();
+        self.dropItem = 0          
+        
+        self.setCurrentItem( self.oldCurrent )
+        self.setSelected( self.oldCurrent, True )
+
+
+
+    def contentsDropEvent(self, e ):
+          item = self.itemAt(self.contentsToViewport(e.pos()))
+          if not item or not item.parent() or not item.dropEnabled():
+             return
+
+          self.oldCurrent.moveItem(item)
+
+
+    def contentsMousePressEvent(self, e ):
+        QListView.contentsMousePressEvent(self, e)
+        p = QPoint(self.contentsToViewport(e.pos()))
+        item = self.itemAt( p )
+        if item and self.objectToTreeItems[self.insertHereIcon] == item:
+            if self.rootIsDecorated(): i = 1
+            else: i = 0
+
+        # if the user clicked into the root decoration of the item, don't try to start a drag!
+            if ( p.x() > self.header().sectionPos(self.header().mapToIndex(0)) +
+                   self.treeStepSize() * ( item.depth() + i) + self.itemMargin() or
+                   p.x() < self.header().sectionPos(self.header().mapToIndex(0))):
+              self.presspos = e.pos()
+              self.mousePressed = True
+              self.oldCurrent = item
+
+
+
+    def contentsMouseMoveEvent(self, e ):
+       if (self.mousePressed):# and
+                #(self.presspos - e.pos()).manhattanLength() > QApplication. startDragDistance()) :
+            self.mousePressed = False
+            item = self.itemAt( self.contentsToViewport(self.presspos) )
+            if item:
+                ud = QDragObject(self.viewport())
+                ud.drag()
+                
+
+    def contentsMouseReleaseEvent(self, e ):
+        self.mousePressed = False
+
+# added these basic methods for expanding, collapsing and unhiding the model tree. - mark 9/28/04
+        
+    def expandTree(self):
+        child = self.firstChild()
+        while child != None:
+            self.setOpen(child, True)
+            child = child.itemBelow()
+
+    def collapseTree(self):            
+        child = self.firstChild()
+        while child != None:
+            self.setOpen(child, False)
+            child = child.itemBelow()
+            
+    def unhideTree(self):
+        for item in self.hiddenItems:
+            item.setVisible(True)
+            self.hiddenItems = []
 
     def saveGroupItems(self, obj, item):
             child = item.firstChild()
@@ -532,7 +616,6 @@ class modelTree(QListView):
                        obj.members += [cObj]
                             
                 child = child.nextSibling()
-                            
 
     def saveModelTree(self):
         """ Update the information  for the model tree operation """
@@ -549,4 +632,3 @@ class modelTree(QListView):
                       assy.orderedItemsList += [obj]
                       
                 it = it.nextSibling()
-                      

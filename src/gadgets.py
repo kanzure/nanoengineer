@@ -27,6 +27,7 @@ class motor:
         self.picked=0
         self.molecule = None
         self.color = QColor(128,128,128) # set default color of rotary motor to gray
+        self.name = QString("Rotary Motor") # default name of rotary motor
 
     # for a motor read from a file, the "motor" record
     def setcenter(self, torq, spd, cntr, xs):
@@ -138,6 +139,7 @@ class LinearMotor:
         self.picked = 0
         self.molecule = None
         self.color = QColor(128,128,128) # set default color of linear motor to gray
+        self.name = QString("Linear Motor") # default name of linear motor
     
     # for a linear motor read from a file, the "linear motor" record
     def setCenter(self, force, stiffness, center, axis):
@@ -247,11 +249,19 @@ class ground:
         # should really split ground if attached to more than one mol
         self.molecule = list[0].molecule
         self.molecule.gadgets += [self]
+        self.color = QColor(0,0,0) # set default color of ground to black
+        self.name = QString("Ground") # default name of linear motor
         
 
-    # it's drawn as a black wire cube around each atom
+    # it's drawn as a wire cube around each atom (default color = black)
     def draw(self, win, dispdef):
-        col=(0, 0, 0)
+
+        # mark - added color support
+        red = float (qRed(self.color.rgb())) / 255.0
+        green = float (qGreen(self.color.rgb())) / 255.0
+        blue = float (qBlue(self.color.rgb())) / 255.0
+        col = (red, green, blue)
+        
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(col, a.molecule.basepos[a.index], rad)

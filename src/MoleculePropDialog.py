@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/MoleculePropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MoleculePropDialog.ui'
 #
-# Created: Wed Sep 22 12:15:02 2004
+# Created: Tue Sep 28 10:07:24 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -135,7 +135,7 @@ class MoleculePropDialog(QDialog):
     def propClickedButton(self):
         print "MoleculePropDialog.propClickedButton(): Not implemented yet"
 
-    def nameChanged(self, str):
+    def nameChanged(self):
         print "MoleculePropDialog.nameChanged(): Not implemented yet"
 
     def __tr(self,s,c = None):

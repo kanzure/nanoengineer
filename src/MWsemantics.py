@@ -258,7 +258,7 @@ class MWsemantics(MainWindow):
 
     def fileSetWorkDir(self):
 	""" Sets working directory (need dialogue window) """
-	QMessageBox.warning(self, "ATOM User Notice:", 
+	modifyAlignToCommonAxismodifyAlignToCommonAxisQMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def __clear(self):
@@ -274,32 +274,32 @@ class MWsemantics(MainWindow):
 
     def editUndo(self):
         print "MWsemantics.editUndo(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editRedo(self):
         print "MWsemantics.editRedo(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editCut(self):
         print "MWsemantics.editCut(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editCopy(self):
         print "MWsemantics.editCopy(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editPaste(self):
         print "MWsemantics.editPaste(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editFind(self):
         print "MWsemantics.editFind(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     ###################################
@@ -390,19 +390,18 @@ class MWsemantics(MainWindow):
 
 
     def dispBGColor(self):
-        c = self.colorchoose()
-        self.glpane.backgroundColor = c
+        self.glpane.mode.backgroundColor = self.colorchoose()
         self.glpane.paintGL()
 
     def dispGrid(self):
         print "MWsemantics.dispGrid(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
         
 
     def gridGraphite(self):
         print "MWsemantics.gridGraphite(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     #######################################
@@ -435,16 +434,6 @@ class MWsemantics(MainWindow):
     # functions from the "Select" menu
     ###############################################################
 
-    def selectAtoms(self):
-        ##self.modebarLabel.setText( "Mode: Select Atoms" ) # bruce 040927 let mode and/or assy control this
-        self.assy.selectAtoms()
-        self.update_mode_status() # bruce 040927
-
-    def selectParts(self):
-        ##self.modebarLabel.setText( "Mode: Select Molecules" )
-        self.assy.selectParts()
-        self.update_mode_status() # bruce 040927
-    
     def selectAll(self):
         """Select all parts if nothing selected.
         If some parts are selected, select all atoms in those parts.
@@ -497,7 +486,7 @@ class MWsemantics(MainWindow):
 
     def makeHandle(self):
         print "MWsemantics.makeHandle(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def makeMotor(self):
@@ -518,12 +507,12 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
     def makeDyno(self):
         print "MWsemantics.makeDyno(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def makeHeatsink(self):
         print "MWsemantics.makeHeatsink(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     ###################################
@@ -554,7 +543,7 @@ class MWsemantics(MainWindow):
 
     def helpIndex(self):
         print "MWsemantics.helpIndex(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
     def helpAbout(self):
         QMessageBox.warning(self, "ATOM User Notice:", 
@@ -638,6 +627,17 @@ class MWsemantics(MainWindow):
     # functions from the buttons down the right side of the display
     ###############################################################
 
+    def toolsSelectAtoms(self):
+        self.modebarLabel.setText( "Mode: Select Atoms" )
+        self.assy.selectAtoms()
+
+    def toolsSelectMolecules(self):
+        self.modebarLabel.setText( "Mode: Select Molecules" )
+        self.assy.selectParts()
+
+    def toolsMoveMolecule(self):
+        self.assy.o.setMode('MODIFY')
+            
     # get into cookiecutter mode
     def toolsCookieCut(self):
         ##self.modebarLabel.setText( "Mode: Cookie Cutter" ) # bruce 040927 let mode control this
@@ -742,10 +742,15 @@ class MWsemantics(MainWindow):
     # bring molecules together and bond unbonded sites
     def modifyWeldMolecule(self):
         print "MWsemantics.modifyWeldMolecule(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
- 
-    def modifyAlignToCommonAxis(self):
+
+    def toolsRevolve(self):
+        print "MWsemantics.toolsRevolve(): Not implemented yet"
+        QMessageBox.warning(self, "ATOM User Notice:", 
+             "This function is not implemented yet, coming soon...")  
+              
+    def toolsAlignToCommonAxis(self):
         print "MWsemantics.modifyAlignToCommonAxis(): Not implemented yet"
         QMessageBox.warning(self, "ATOM User Notice:", 
              "This function is not implemented yet, coming soon...")        
@@ -753,13 +758,13 @@ class MWsemantics(MainWindow):
     # create bonds where reasonable between selected and unselected
     def modifyEdgeBond(self):
         print "MWsemantics.modifyEdgeBond(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
         
     # create bonds where reasonable between selected and unselected
-    def modifyAddBond(self):
+    def toolsAddBond(self):
         print "MWsemantics.modifyAddBond(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # Turn on or off the axis icon
@@ -773,9 +778,9 @@ class MWsemantics(MainWindow):
         self.glpane.paintGL()
 
     # break bonds between selected and unselected atoms
-    def modifyDeleteBond(self):
+    def toolsDeleteBond(self):
         print "MWsemantics.modifyDeleteBond(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # Make a copy of the selected part (molecule)
@@ -790,7 +795,7 @@ class MWsemantics(MainWindow):
     # between copying and bondEdging it.
     def modifyCopyBond(self):
         print "MWsemantics.modifyCopyBond(): Not implemented yet"
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # delete selected parts or atoms
@@ -814,22 +819,22 @@ class MWsemantics(MainWindow):
 
     def dispDatumLines(self):
         """ Toggle on/off datum lines """
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def dispDatumPlanes(self):
         """ Toggle on/off datum planes """
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editPrefs(self):
         """ Edit square grid line distances(dx, dy, dz) in nm/angtroms """
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
  
     def elemChangePTable(self):
@@ -838,7 +843,7 @@ class MWsemantics(MainWindow):
 
     def modifyMinimize(self):
         """ Minimize the current assembly """
-	self.glpane.minimize()
+        self.glpane.minimize()
 
     def toolsSimulator(self):
         self.simCntl = runSim(self.assy)
@@ -846,10 +851,10 @@ class MWsemantics(MainWindow):
 
     def setViewFitToWindow(self):
         """ Fit to Window """
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
         
     def setViewRecenter(self):
         """ Fit to Window """
-	QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")

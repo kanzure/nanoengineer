@@ -4,18 +4,16 @@ from RotaryMotorPropDialog import *
 from VQT import V
 
 class RotaryMotorProp(RotaryMotorPropDialog):
-    def __init__(self, rotMotor, glpane, name):
+    def __init__(self, rotMotor, glpane):
 
         RotaryMotorPropDialog.__init__(self)
         self.motor = rotMotor
         self.glpane = glpane
 
-
-        self.nameLineEdit.setText(name)
+        self.nameLineEdit.setText(rotMotor.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(rotMotor.color)
         
-
         self.torqueLineEdit.setText(str(rotMotor.torque))
         self.speedLineEdit.setText(str(rotMotor.speed))
         self.axLineEdit.setText(str(rotMotor.axis[0]))
@@ -42,23 +40,26 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.motor.molecule.havelist = 0
         self.motor.color = color
         self.glpane.paintGL()
-        
 
     #################
     # OK Button
     #################
     def accept(self):
-        self.applyButtonPressed()    
+        self.applyButtonPressed()
         QDialog.accept(self)
 
     #################
     # Cancel Button
     #################
-
     def reject(self):
-	QDialog.reject(self)
-	
+	    QDialog.reject(self)
+
+    #################
+    # Apply Button
+    #################	
     def applyButtonPressed(self):
+        
+        self.motor.name = self.nameLineEdit.text()
         self.motor.torque = float(str(self.torqueLineEdit.text()))
         self.motor.speed = float(str(self.speedLineEdit.text()))
         self.motor.axis[0] = float(str(self.axLineEdit.text()))
@@ -68,8 +69,8 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.motor.center[0] = float(str(self.cxLineEdit.text()))
         self.motor.center[1] = float(str(self.cyLineEdit.text()))
         self.motor.center[2] = float(str(self.czLineEdit.text()))
-	
-	self.applyPushButton.setEnabled(False)
+        
+        self.applyPushButton.setEnabled(False)
 	
     def propertyChanged(self):
         self.applyPushButton.setEnabled(True)	
