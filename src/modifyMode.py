@@ -194,12 +194,10 @@ class modifyMode(basicMode):
             ('Hide', self.o.assy.Hide),
             None,
             # bruce 041217 added the following (rather than just Done)
-            ('Select Atoms', self.w.toolsSelectAtoms), 
+            #bruce 051213 added 'checked' and reordered these to conform with toolbar.
             ('Select Chunks', self.w.toolsSelectMolecules),
-            ('(Move Chunks)', self.w.toolsMoveMolecule),
-                # The parens are an experiment. A checkmark would be better.
-                # We should merge this with fixit() in selectMode.py by making
-                # that an accessible utility in basicMode. #e
+            ('Select Atoms', self.w.toolsSelectAtoms), 
+            ('Move Chunks', self.w.toolsMoveMolecule, 'checked'),
             ('Build Atoms', self.w.toolsAtomStart),
          ]
 

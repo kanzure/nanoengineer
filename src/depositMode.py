@@ -957,10 +957,11 @@ class depositMode(basicMode):
                 #e bruce 041217 thinks Select needs a more explicit name
             None,
             # bruce 041217 added the following, rather than just Done:
-            ('Select Atoms', self.w.toolsSelectAtoms), 
+            #bruce 051213 added 'checked' and reordered these to conform with toolbar.
             ('Select Chunks', self.w.toolsSelectMolecules),
+            ('Select Atoms', self.w.toolsSelectAtoms), 
             ('Move Chunks', self.w.toolsMoveMolecule),
-            ('(Build Atoms)', self.skip),
+            ('Build Atoms', self.skip, 'checked'),
         ]
 
         self.debug_Menu_spec = [

@@ -177,8 +177,7 @@ class selectMode(basicMode):
             if self.default_mode_status_text == "Mode: " + text:
                 # this menu item indicates the current mode --
                 # add a checkmark and disable it [bruce 050112]
-                 ###e need to put this into Move and Build modes too...
-                return text, func, 'checked', 'disabled'
+                return text, func, 'checked'
             else:
                 return text, func
         
@@ -197,8 +196,9 @@ class selectMode(basicMode):
             # modes they enter, and added Move Chunks too. (It was already
             # present but in a different menu. I left it there, too, for the
             # sake of existing users. But it would be better to remove it.)
-            fixit3(('Select Atoms'), self.w.toolsSelectAtoms),
+            #bruce 051213 reordered these to conform with toolbar.
             fixit3(('Select Chunks'), self.w.toolsSelectMolecules),
+            fixit3(('Select Atoms'), self.w.toolsSelectAtoms),
             ('Move Chunks', self.w.toolsMoveMolecule), 
             ('Build Atoms', self.w.toolsAtomStart),
             ]
