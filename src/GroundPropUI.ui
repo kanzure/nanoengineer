@@ -1,0 +1,252 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>GroundPropForm</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>GroundPropForm</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>285</width>
+            <height>118</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Ground Properties</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <property name="sizeGripEnabled">
+        <bool>true</bool>
+    </property>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout31</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>260</width>
+                <height>23</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>nameTextLabel</cstring>
+                </property>
+                <property name="text">
+                    <string>Name:</string>
+                </property>
+                <property name="alignment">
+                    <set>AlignVCenter|AlignRight</set>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>nameLineEdit</cstring>
+                </property>
+                <property name="frameShape">
+                    <enum>LineEditPanel</enum>
+                </property>
+                <property name="frameShadow">
+                    <enum>Sunken</enum>
+                </property>
+                <property name="text">
+                    <string></string>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout30</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>80</y>
+                <width>260</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>okPushButton</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;OK</string>
+                </property>
+                <property name="accel">
+                    <string>Alt+O</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>true</bool>
+                </property>
+                <property name="default">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>cancelPushButton</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;Cancel</string>
+                </property>
+                <property name="accel">
+                    <string>Alt+C</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>true</bool>
+                </property>
+                <property name="default">
+                    <bool>false</bool>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>applyPushButton</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>false</bool>
+                </property>
+                <property name="text">
+                    <string>Apply</string>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout32</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>40</y>
+                <width>133</width>
+                <height>23</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>atomsTextLabel</cstring>
+                </property>
+                <property name="mouseTracking">
+                    <bool>false</bool>
+                </property>
+                <property name="text">
+                    <string>Atoms:</string>
+                </property>
+                <property name="buddy" stdset="0">
+                    <cstring>comboBox2</cstring>
+                </property>
+            </widget>
+            <widget class="QComboBox">
+                <property name="name">
+                    <cstring>atomsComboBox</cstring>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>colorTextLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>151</x>
+                <y>41</y>
+                <width>36</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Color:</string>
+        </property>
+        <property name="alignment">
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>colorPixmapLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>193</x>
+                <y>41</y>
+                <width>40</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+            </color>
+        </property>
+        <property name="scaledContents">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>colorSelectorPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>242</x>
+                <y>41</y>
+                <width>30</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>...</string>
+        </property>
+    </widget>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1145">789cb5d14b6fda401405e03dbfc2821daa08e01728ca0230b0aad465a52a8bf19d318f00c930769c49d5ff5ece214949e32c738f379f8ec69a6b5f75839f3fbe07ddab962b55b99140d6ea187475b5dffb5fb737bf5bede130383d611c0cdadf5a6d1b48d0e973c047709022604d8e1150488d8007709823e01369107001867d04dc933102ae4941c092d40898811107ccc918010b30d608a8c1244ca2240437a44e4cc2f6194cfb08e8c91001e72f8cce7c2093344d1370479ab448b9d13d381a20e0910c47d1886727a446c029592060058ef3b18cf9ad1ca84469c5f557a45646f1ec0ccca33cceb9be01259644b8be22531909ff518754928b02b7a416237cd59234520857b8034d6252c3057b60c1211be7bfa6f349a372d1a6b1c98bd57ad3d46c6575b7db379ed1ebdde1beb1310ff6b86dbe9bb3ee935b7f7563ad3d5c34e5c96f4df5ee4cf5f8d654b5bb68dc53f5da1c7a9ed5b971b5ef95ff6ee0ebe7899bdae96ce24fc5bbbbf9bace329b65f5b9b8bcb5f316e3ddc77d66f3855dcc674d9b2e9d77cbe66f7039ed3fd7adbff38bffe8</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>cancelPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>GroundPropForm</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>okPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>GroundPropForm</receiver>
+        <slot>accept()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>cancelPushButton</tabstop>
+</tabstops>
+<slots>
+    <slot>applyButtonPressed()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
