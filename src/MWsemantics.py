@@ -1044,15 +1044,21 @@ class MWsemantics(MainWindow):
         self.setElement(7)
 
     # Play a movie from the simulator
-    def toolsMovie(self):
-        if not self.assy.filename: 
-                self.assy.filename=os.path.join(self.tmpFilePath, "simulate.mmp")
+#    def toolsMovie(self):
+#        if not self.assy.filename: 
+#                self.assy.filename=os.path.join(self.tmpFilePath, "simulate.mmp")
                 
-        dir, fil, ext = fileparse(self.assy.filename)
+#        dir, fil, ext = fileparse(self.assy.filename)
         # Huaicai 12/07/04. Change the path to the temporary directory, that's where
         # *.dpb file stays now 
-        self.glpane.startmovie(os.path.join(self.tmpFilePath, 'simulate.dpb'))
+#        self.glpane.startmovie(os.path.join(self.tmpFilePath, 'simulate.dpb'))
 
+ # Play a movie from the simulator
+    def toolsMovie(self):
+        #if not self.assy.filename: self.assy.filename="simulate.mmp"
+        dir, fil, ext = fileparse(self.assy.filename)
+        #print "playing", dir+fil+'.dpb'
+        self.glpane.startmovie(dir+fil+'.dpb') 
     
     ###################################
     # some unimplemented buttons:

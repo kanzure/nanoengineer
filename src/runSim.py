@@ -27,36 +27,42 @@ class runSim(SimSetupDialog):
     def GoPressed(self):
         QDialog.accept(self)
         import os, sys
-        tmpFilePath = self.assy.w.tmpFilePath
-        if not self.assy.filename: 
-                self.assy.filename= os.path.join(tmpFilePath, "simulate.mmp")
         
-        #By writting the current model into simulate.mmp under ~/nanorex, no matter
-        # if it is a *.pdb, a *.mmp with model change or not, we'll make sure the
-        #writing of the *.dpb file will only go to the temporary directory, 
-        # otherwise user may get write permission problem.  ---Huaicai 12/07/04
-        writemmp(self.assy, os.path.join(tmpFilePath, "simulate.mmp"))
+        #If a new model, save first
+        if not self.assy.alist:
+            QMessageBox.critical(self, "Error", "You must save the current model before simulation.")
+            return
         
+        #If the current file directory is not writable or file name has space in it, warn user
+        fPath, fName = os.path.split(self.assy.filename)
+        if not os.access(fPath, os.W_OK):
+            QMessageBox.critical(self, "Error", "You need to make sure you have write permission in the opened file directory.")
+            return
+        
+        import re    
+        m = re.search(' +',  self.assy.filename)
+        if  m:
+            QMessageBox.critical(self, "Errors", "You need to make sure you don't have file name/path with space in it.")
+            return
+                
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
        
-        args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper),  str(self.fileform),  "simulate.mmp"]
+        args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper),  str(self.fileform),  self.assy.filename]
         
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        oldWorkingDir = os.getcwd()
-        os.chdir(tmpFilePath)
-
+        
         try:
             self.assy.w.statusBar.message("Calculating...")
-            #if self.assy.modified: writemmp(self.assy, self.assy.filename)
+            if self.assy.modified: writemmp(self.assy, self.assy.filename)
             r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
+            s = None
         except:
             print_compact_traceback("exception in simulation; continuing: ")
             s = "internal error (traceback printed elsewhere)"
             r = -1 # simulate failure
-        os.chdir(oldWorkingDir)    
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
-            self.assy.w.statusBar.message("Movie written to "+ os.path.join(tmpFilePath, "simulate" + self.mext))
+            self.assy.w.statusBar.message("Movie written to "+self.assy.filename[:-3]+'dpb')
         else:
             if not s: s = "exit code %r" % r
             self.assy.w.statusBar.message("Simulation Failed!") ##e include s?
@@ -79,3 +85,4 @@ class runSim(SimSetupDialog):
         else: # XYZ file format
             self.fileform = '-x'
             self.mext = '.xyz'
+
