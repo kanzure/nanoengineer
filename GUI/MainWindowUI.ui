@@ -24,33 +24,6 @@
     <property name="usesBigPixmaps">
         <bool>false</bool>
     </property>
-    <widget class="QFrame">
-        <property name="name">
-            <cstring>mainFrame</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>660</width>
-                <height>500</height>
-            </rect>
-        </property>
-        <property name="sizePolicy">
-            <sizepolicy>
-                <hsizetype>2</hsizetype>
-                <vsizetype>2</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-            </sizepolicy>
-        </property>
-        <property name="frameShape">
-            <enum>NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Plain</enum>
-        </property>
-    </widget>
 </widget>
 <menubar>
     <property name="name">
@@ -61,7 +34,7 @@
             <x>0</x>
             <y>0</y>
             <width>1062</width>
-            <height>33</height>
+            <height>25</height>
         </rect>
     </property>
     <item text="&amp;File" name="fileMenu">
@@ -101,7 +74,7 @@
         <action name="setViewFitToWindowAction"/>
         <separator/>
         <action name="viewDefviewAction"/>
-        <item text="&amp;Default Views" name="PopupMenuEditor_32" accel="">
+        <item text="&amp;Default Views" name="popupMenu_32" accel="">
             <action name="setViewFrontAction"/>
             <action name="setViewBackAction"/>
             <action name="setViewTopAction"/>
@@ -114,7 +87,7 @@
         <action name="setViewPerspecAction"/>
         <separator/>
         <action name="viewToolbarsAction"/>
-        <item text="&amp;Toolbars" name="PopupMenuEditor_43" accel="">
+        <item text="&amp;Toolbars" name="popupMenu_43" accel="">
             <action name="toggleFileTbarAction"/>
             <action name="toggleEditTbarAction"/>
             <action name="toggleViewTbarAction"/>
@@ -305,7 +278,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>516</width>
+                <width>563</width>
                 <height>29</height>
             </rect>
         </property>
