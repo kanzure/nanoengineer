@@ -12,6 +12,7 @@ from qt import SIGNAL, SLOT, QListView, QListViewItem, QFileDialog
 from GLPane import *
 import os
 import help
+from math import ceil
 import assistant
 from runSim import runSim
 from modelTree import *
@@ -67,6 +68,11 @@ class MWsemantics(MainWindow):
         
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         self.createStatusBars()
+        
+        # Create validator(s)
+        maxd = self.ccLayerThicknessSpinBox.maxValue() * 3.5103 # Maximum value allowed
+        self.vd = QDoubleValidator( 0.0, maxd , 4, self ) # 4 decimal places
+        self.ccLayerThicknessLineEdit.setValidator (self.vd)
         
         windowList += [self]
         if name == None:
@@ -1070,6 +1076,12 @@ class MWsemantics(MainWindow):
         QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 	         
+    def validateThickness(self, s):
+        if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
+        
+#    def updateThickness(self)
+#        self.ccLayerThicknessSpinBox.setValue(ceil(float(str(self.ccLayerThicknessLineEdit.text()))))
+
 #######  Load Cursors #########################################
     def loadCursors(self):
 

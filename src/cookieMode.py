@@ -303,10 +303,12 @@ class cookieMode(basicMode):
 
     def setthick(self, num):
         self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)
-        self.w.ccLayerThicknessLineEdit.setText(`self.thickness`)
+        s = "%3.4f" % (self.thickness)
+        self.w.ccLayerThicknessLineEdit.setText(s)
 
     def setthicktext(self, text):
-        try: 
+        try:
+#            if self.w.vd.validate( text, 0 )[0] != 2: self.w.ccLayerThicknessLineEdit.setText(s[:-1])
             self.thickness = float(str(text))
         except: pass
         

@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>964</height>
+            <height>973</height>
         </rect>
     </property>
     <property name="caption">
@@ -319,8 +319,14 @@
             <property name="name">
                 <cstring>ccLayerThicknessSpinBox</cstring>
             </property>
-            <property name="value">
+            <property name="maxValue">
+                <number>25</number>
+            </property>
+            <property name="minValue">
                 <number>1</number>
+            </property>
+            <property name="value">
+                <number>2</number>
             </property>
             <property name="toolTip" stdset="0">
                 <string>Number of lattice cells</string>
@@ -2698,7 +2704,7 @@
         <data format="XPM.GZ" length="1280">789c65d14f4fe2601804f03b9fa2811bd960690b42367b10458b15e1b889d9c3fbaf056a152908c5ec775f66de762971c6cbcf49e069b96a3bbfe753a77dd5c8b762bb548e5a888dd3d6bb2c2b5efefcfa6a343dcf39fd0581d36dfe68341347392d4fa36006062e0a2ec0610f0527a0704557705d920a059f48236261c0948ca52b62f00e942e0a3e92be0ca40fde92010ace4bf62c6f488182cfa441c1908c952bf94505a87c141c91d728189103355403704b0e51f0ada4b09c927c42302e292dc7a4544a49f0481a149c817caf1e78207d145c910314dc93431494a4d44af39315a9b4d67ccf0f2403ea92c6322763145c5b1ad7d280a66b3cc35fff9ef4505090be090c8f6c913dd337fcf53b64df5c9b3ef849f281c11dc9801b3246c10f30eea2e02b19a0e03bc9f08b9096e87424a2b411f8c7ffe5a43839479e170c8b659955927269d92559accabc6649fac6c72d97f72a59b5d8619d7c6c903cdf7e5b769fc87e5f5fea571d0ec579b9b8ea78bc392f17578d46b7b5a57e5551dc6119dbe53eb7c1779f3e1283b4cbc3de060b9286b25c56071b5cb598a4691a966f34391c6d70d5e4318a22592dc7910dae7ac24fa1ab655ad8e0aa50da776297e7ea414f574517cb396978b1ccc2795ae5746f6d91b37154a51aec22d65a56d19d6af9fbb3f10f8db35f4c</data>
     </image>
     <image name="image9">
-        <data format="XPM.GZ" length="2958">789cb5d5c96ee3461006e0bb9f4270dd8ca086cd264512831cbcaff2be6826c8a1b979dfe535c8bb4fd75f2d66642b418020faedc387aa66b3a96eeacb5c6fb83be8cd7d99791cb9d179d5abcedc436fae7ebabe7efbedf75fff98998de39eff33a6df8b677f9999dd1bf5aadef6ed4d23e0170f8af081e98397c5b191c0e5649d36514f24a8bfc2a90436702d41ff506c23097c04db3837ea6338899d9a47c19529e04bb54dadce57c17d097c02677e3c16cb0b6a097c03e7716b703fecd412ccbf0f97be6ee143b8b251702d4e2209c663fd89b1d660bd74005bdb377a3f176a09fc0c17b630988faf829b58fbd761675da8eb7ca5045e831bdb84e7f1284e2309bc049749a6eba32d71eeb2d856a83fc165e773b504be869b2c0ff335e22296c0399c4a603cafa29ff52df6070de02ccbd47cd059c7e37916799687fa5e67d409eb2b5c56847eec8fa2cc5ce87f53e73655efc295afebf885e03278bbb37e7f78fe45dd793db80afdf770e3adf545b8edfc125c075f0437c178fe2eeabcd319fb951e6033aef34e67adb7c16d187fd959eb4e9d4761ffe3bcb8785c67ab1ed7e935d884f381e7e16c377e186c82079db5ff1b9c744e82e3d01f75d6fa77381d5f8f4e3b6b7d35d886f386fdeffaddf834d8062f06a76ac2fbc765de7a9ef57966127803cef3248cef078fc7af06d7a93eff7bb5049e870b099cc12eefeb7c341fdca6babea7ce7a1eeed4f281dfe132af1298b45e1651aaf783f3e7aac284f1855a823ace9fab7d5dfbf17e764d11ab3986dbce5bc136d5fbc5f92a2309ea2bb029d254d777ab96c067305e3830bebf3295c0d89f655f82ebebf59c04c6fbb76c2430d65f59098cefa7ca2430e6af0a098cf38ce5ebf5f0fb53351218e7bfb61298e15c02e3f7a22e2430de8f353e30deff752b81f1be6b62098cdf933691c0781e2d3efae3f9ef33d9cfc48e4ba462faa7fed05973c32d9ff2199ff385f7e5c751daefbbaff89a6f7cf72ddff1bdcf033ff2889ff8995fa6f4bff21bbffbebcdfb1916ba94bcc84bbc3ca5bfe4155ee5b570efe3acf3066f4ede51d7bfc503dee61ddee53ddee703ff7fc8477ccc277fdb3fe46ffcdd8f1a72c4665a26fa63b69c70ca7dce7c2de76232c493fd44e4fcb5532aa59bf8432aaa3ff437d4b2a5533f83a1b34fa93ff59fd3055df290ae7cff35dd4ce4764aff1dddd303d660e891461399d6ff44cff44297f4eafb99de26f23ea57f9e16689196fc0cc6772c4f64654aff2aadd13ad6607cc7c6cfe14feba54ddaa2016dfb3bdaf1fdbbfe0e7ecedea7eb13edd3011dd2111dfbfe934fdf96efd67df1d7fea761d86553f7c27817fdb7f3f83ff4fff975e6070f8eb4ff</data>
+        <data format="XPM.GZ" length="2926">789cb5d5c96ee3461006e0bb9f4270dd8ca086649322892007effb6e6b3c0a72e06acbfb22af41de3d5d7f95989147090204e16f1f3e5435d94db2a92f0bbdb383dddec297b9a771311e55bdeaa278ec2dd4cf3737efbffef6cbef73f351d4f37f6118f7a2f99fe6e60fc7bdaab77777db08983c28c0012f8ba35022a64d3896a0fe0227127808d712f40fc42e90c0c7b08bb2507d02c751a1e6277315e6f0a5da254eaf57c27d097c0aa77e3c16c31f6a097c0367511b623e5ca825b8fe015cfaba838fe0ca05665c2f0e24188ff5c7a17321d64b87b073fd50e733524be06738777988ebf195b989b47f1d2e5c61f50a2e25f01adcb8c6eec7a3380924f0125cc6a9ae8fb6c4599146ae427d0c979d2fd412f81a6ed2ccae578bf34802f7e14402e37ee5fdb4eff47dd886d33455f361671d8ffb99676966f5fdcea813d69717696efd783ff2322dacff559db944bd0757beaee33fcca579a7b33e3fac3faf3baf9b2bebbf831b6fad2fc26de767736dbe303766dcff22e8bcdb19ef2bddc3e1a4cebb9db55e9b5b1b3feaac75566781bdffd82f4534a973a89ed4e9c51cdafec0fd285c377e600ecddb9db5ff2b1c778ecc91f57febacf53338999c8f9ace5a5f353bdb6fd8cf45bf1befcccebc684ed484ef51917aeb7e7e504be00d38cb621b1f9b27e357cd75a2f75f9f472681dfe15c02277091f5f57af46e6e135ddf5367dd0f776a39e037b8ccaa18a65b751e243a9f73b8ca431b9faa25a863ff17b5afeb7a72b8c9237300b79db7cc2ed1f9627f958104f51538cc9344d777ab96c0980f3e37fa7c5b3891c0789e655f82f3ebf90a098cef6fd94860acbf721218cfa74a2530bec7552e81b19fb17c3d1f7e6faa460263ffd74e82f9647026411ddfc33a97c0783f6a1c30be6f752b81f1fd6d22098cdf833696c0587f8b437f1cff7da6fb99b8f0ff9292e99ffaadb3e29a1b6ef99c2f78e47df97994f6fbca155ff38defbee53bbef779e0477ee2313f4f8fb0fe177ee5373feadd5fe1a30bf1222ff1f2ccf3aff02aafd9dc2759e70dde9c797ee22ddee61ddee53ddee7033ef4ff477ccc277cfab7fd03feca677ed480bff17056a6fa030e3962c73127bed6e7f453b24ffd39b13fb7234277361d2aa89ceea78a6a0ea9f1571852fb43ca1ffacfe982463ca04bdf7f45d753b999d17f4b77748f350ce9811ea732abff89c6f44c237af1f3cfe8752a6f33fadfe9831669c95f61e83b96a7b232a37f95d6681d6b18fa8e8defc3e79ffb6993b6689b76fc8c767dff9e9fc1f7d99f71fe033aa4233aa613df7ffaf96949b7be177fbdff34b0b76ce6bb30798bfedb7efc1ffafff879ee4fb40eafbc</data>
     </image>
     <image name="image10">
         <data format="XPM.GZ" length="2798">789cb5d5594f1b491007f0773e8545bda1d53ff81a7bb4da07830103b603b92059edc34cf78c0ff0812f3051befb5677554f56c24428d2aa78e0a7aeaeea6be0dd41e9f6aa573a78b7b75c25ab91299961b2281dd8f564b2fdfb9fbfbeefed572a25fe291f46a5cafe1f7bfbd7ab9229f567d3cc81fa0caa945d785f78c72ebc2f9dabb10bef9e73ade2c21913e77ae2c28f2fc48d6a947ab7c4b169d6bc8f9ca3aa0b3fbfaf4e35ff4c5cccdf8813db34de1def34e4c3881b3cc38fb7d5a918f78525ff46dcaca9576a23a627715cd3f53e8a131b7b63edecba69fd8d3af41b1496fa6d7153f78f86b8a86f0bcbfe9ec5493d16cfc5695dfad34c6d651ca9f7cffdbd173743fd441cd64f0f85a5fe489c6a3fd4d5613c0d4eeade43b189747c1b2ce3683abbeebadf5a702ae343716c743d53313f1febc7bfa843bf1371581f9d06ebf8581df257e2b01eba57675a5fea19177e7c109cfa712271aceba58938b13a6ec4a13fba62ee27f53fa9b51fe5c1ba7f7f1f71cd85f7545cdcf73ad8f8ef137762de9fd4ef898b7e51b0d63f52877e65b10de3c785657eacced4fe7b77b763236fab36fa3e1ec5a9d5f341b0e4d3526c42bd4ab0eee7505cf4fb28ce1aea6fc146fa7f76e6d3e115fafa5d7112cebf254eeb328e6a70967b9f8b437fba13db4ceb2fc5453f7f5ffcfac2795f046bbd0fe2a2df486c42bd2bb18dd46375e89f89b99fccf7ef2dadbbf0eea8add6bf16db4cbd1067b9de8fafc7b7a1ef13cf6213e50defadd846b9acff569c3574fe833ad7fa5fc57943cfdb9f9f894cd8cf93982748fdb9386f64dee4df97c978ff52ef4c9d69ff9938cff53cfdf7ec5627f5ae576f8fdfcf0721410ac391c222fb753e720c30c408638e3bdcf31c7a3d9fb3279862c631c70316586285f5ae1e727fd8e091f3e678c216cf68e108c768e3e4957ccb2b39e5fc337470ce71814b74d143ffe59ae4ff01ae7825d7f8c0753fe213d7ff8c2ffcfb0deccefc016ef115df380e51460555d4504784069aafe48f798f87885126a04a4409a564c8be92bfc115655cb94c395a34409d8634a231afe7c58ee5ef35d7bae3dc2eddd384a634a339c7032d90efcce7bba225ad38525aa3461b7ae478da75037a5f2758d196525ec93359aedde23882a563ae95edc8cf90529b4ee894c6bcf2844f66e2ce1239cf9afc7755c5fbc9b8479fdabcc71b3aa38ee4d039d7b9a04b1ecb5ebe677ea1964712ead2f9cf8aac1ecfd10a6f79ffdc7b4d7dee92bcfd7be1bd5ff29ccedbbf2f90dbfbfffefdfef873ef5fce01d04a</data>
@@ -3189,16 +3195,22 @@
         <slot>helpAbout()</slot>
     </connection>
     <connection>
+        <sender>helpAssistantAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>helpAssistant()</slot>
+    </connection>
+    <connection>
         <sender>helpContentsAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>helpContents()</slot>
     </connection>
     <connection>
-        <sender>helpAssistantAction</sender>
+        <sender>helpWhatsThisAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>helpAssistant()</slot>
+        <slot>helpWhatsThis()</slot>
     </connection>
     <connection>
         <sender>jigsBearingAction</sender>
@@ -3255,10 +3267,22 @@
         <slot>makeStat()</slot>
     </connection>
     <connection>
+        <sender>modifyAlignCommonAxisAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyAlignCommonAxis()</slot>
+    </connection>
+    <connection>
         <sender>modifyCopyBondAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>modifyCopyBond()</slot>
+    </connection>
+    <connection>
+        <sender>modifyDehydrogenateAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyDehydrogenate()</slot>
     </connection>
     <connection>
         <sender>modifyEdgeBondAction</sender>
@@ -3609,22 +3633,10 @@
         <slot>toolsStartOver()</slot>
     </connection>
     <connection>
-        <sender>modifyDehydrogenateAction</sender>
-        <signal>activated()</signal>
+        <sender>ccLayerThicknessLineEdit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyDehydrogenate()</slot>
-    </connection>
-    <connection>
-        <sender>helpWhatsThisAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>helpWhatsThis()</slot>
-    </connection>
-    <connection>
-        <sender>modifyAlignCommonAxisAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>modifyAlignCommonAxis()</slot>
+        <slot>validateThickness()</slot>
     </connection>
 </connections>
 <slots>
@@ -3742,6 +3754,8 @@
     <slot>helpWhatsThis()</slot>
     <slot>helpAssistant()</slot>
     <slot>modifyAlignCommonAxis()</slot>
+    <slot>validateThickness()</slot>
+    <slot>updateThinkness()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Nov 8 09:30:10 2004
+# Created: Mon Nov 8 16:26:56 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -1032,142 +1032,140 @@ image8_data = [
 ".apdbbbbbbbbbd........"
 ]
 image9_data = [
-"22 22 116 2",
+"22 22 114 2",
 "Qt c None",
-".w c #000000",
 ".# c #000000",
-".E c #212121",
-".b c #000000",
-"#K c #242424",
-".x c #252525",
-".1 c #2d2d2d",
-"#X c #303030",
-"#U c #332810",
-"#V c #342a10",
-".t c #342c19",
-".k c #343534",
-".c c #363636",
-".W c #372a12",
-".B c #373737",
-".n c #382f1d",
+".C c #212121",
+"#I c #242424",
+".v c #252525",
+".Z c #2d2d2d",
+"#V c #303030",
+"#S c #332810",
+"#T c #342a10",
+".s c #342c19",
+".j c #343534",
+".b c #363636",
+".U c #372a12",
+".z c #373737",
+".m c #382f1d",
 ".a c #383838",
-"#R c #3b2f13",
-"#T c #3c3013",
-"#d c #404040",
-".K c #413315",
-"#S c #433616",
-".j c #434343",
-".v c #493918",
-".l c #493e26",
-".I c #4a3a18",
-".d c #4b4b4b",
-".H c #4e3e19",
-".s c #505050",
-".D c #5b471d",
-"#L c #8a723c",
-".u c #8b723c",
-".i c #8b8b8b",
-".m c #8e784b",
-".e c #929292",
-".8 c #959595",
-".R c #967631",
-"#M c #977731",
-".S c #977732",
-".T c #987831",
-".Q c #987832",
-"#H c #9a7932",
-".U c #9b7a31",
-".y c #9b8351",
-".P c #9c7a32",
-"#B c #9c7b32",
-"#N c #9c7b33",
-"#v c #9d7b33",
-"#I c #9d7c32",
-"#q c #9e7c33",
-"#C c #9f7c33",
-"#w c #9f7d33",
-"#j c #9f7e33",
-"#D c #a07e33",
-"#O c #a07e34",
-"#r c #a17e33",
-".O c #a17e34",
-"#f c #a17f33",
-"#k c #a17f34",
-"#a c #a18034",
-".V c #a27f34",
-".3 c #a28034",
-"#x c #a28136",
-".N c #a38034",
-".X c #a38134",
-".M c #a38136",
-".Y c #a48136",
-".4 c #a48234",
-".0 c #a48236",
-".Z c #a58134",
-"#g c #a58136",
-".G c #a58338",
-"#l c #a68236",
-".5 c #a68336",
-".C c #a68536",
-"#b c #a78537",
-".r c #a7a7a7",
-".J c #a88436",
-".6 c #a88536",
-"#G c #a88d53",
-".q c #a8a8a8",
-".A c #a9a9a9",
-".7 c #aa8637",
-"#A c #aa8f54",
-"#u c #aa8f55",
-".p c #aaaaaa",
-".z c #ab8c4a",
-"#p c #ab9056",
-"#i c #ac9155",
-".9 c #acacac",
-"#e c #ad9156",
-"## c #ae9256",
-".2 c #af9256",
-".L c #af9357",
-"#Q c #b0b0b0",
-".F c #b19559",
-".o c #b1b1b1",
-".h c #b4b4b4",
-".g c #b5b5b5",
-".f c #b6b6b6",
-"#F c #bababa",
-"#W c #bebebe",
-"#z c #c3c3c3",
-"#J c #c7c7c7",
-"#o c #c9c9c9",
-"#P c #cacaca",
-"#E c #cecece",
-"#y c #d3d3d3",
-"#. c #d8d8d8",
-"#t c #d9d9d9",
-"#s c #dddddd",
-"#n c #dfdfdf",
-"#m c #e2e2e2",
-"#c c #f4f4f4",
-"#h c #ffffff",
+"#P c #3b2f13",
+"#R c #3c3013",
+"#b c #404040",
+".I c #413315",
+"#Q c #433616",
+".i c #434343",
+".u c #493918",
+".k c #493e26",
+".G c #4a3a18",
+".c c #4b4b4b",
+".F c #4e3e19",
+".r c #505050",
+".B c #5b471d",
+"#J c #8a723c",
+".t c #8b723c",
+".h c #8b8b8b",
+".l c #8e784b",
+".d c #929292",
+".6 c #959595",
+".P c #967631",
+"#K c #977731",
+".Q c #977732",
+".R c #987831",
+".O c #987832",
+"#F c #9a7932",
+".S c #9b7a31",
+".w c #9b8351",
+".N c #9c7a32",
+"#z c #9c7b32",
+"#L c #9c7b33",
+"#t c #9d7b33",
+"#G c #9d7c32",
+"#o c #9e7c33",
+"#A c #9f7c33",
+"#u c #9f7d33",
+"#h c #9f7e33",
+"#B c #a07e33",
+"#M c #a07e34",
+"#p c #a17e33",
+".M c #a17e34",
+"#d c #a17f33",
+"#i c #a17f34",
+"#. c #a18034",
+".T c #a27f34",
+".1 c #a28034",
+"#v c #a28136",
+".L c #a38034",
+".V c #a38134",
+".K c #a38136",
+".W c #a48136",
+".2 c #a48234",
+".Y c #a48236",
+".X c #a58134",
+"#e c #a58136",
+".E c #a58338",
+"#j c #a68236",
+".3 c #a68336",
+".A c #a68536",
+"## c #a78537",
+".q c #a7a7a7",
+".H c #a88436",
+".4 c #a88536",
+"#E c #a88d53",
+".p c #a8a8a8",
+".y c #a9a9a9",
+".5 c #aa8637",
+"#y c #aa8f54",
+"#s c #aa8f55",
+".o c #aaaaaa",
+".x c #ab8c4a",
+"#n c #ab9056",
+"#g c #ac9155",
+".7 c #acacac",
+"#c c #ad9156",
+".9 c #ae9256",
+".0 c #af9256",
+".J c #af9357",
+"#O c #b0b0b0",
+".D c #b19559",
+".n c #b1b1b1",
+".g c #b4b4b4",
+".f c #b5b5b5",
+".e c #b6b6b6",
+"#D c #bababa",
+"#U c #bebebe",
+"#x c #c3c3c3",
+"#H c #c7c7c7",
+"#m c #c9c9c9",
+"#N c #cacaca",
+"#C c #cecece",
+"#w c #d3d3d3",
+".8 c #d8d8d8",
+"#r c #d9d9d9",
+"#q c #dddddd",
+"#l c #dfdfdf",
+"#k c #e2e2e2",
+"#a c #f4f4f4",
+"#f c #ffffff",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQt.#.a.b.b.b.c.#QtQtQtQtQtQtQtQtQtQt",
-"QtQt.#.a.b.d.e.f.g.h.i.j.b.k.#QtQtQtQtQtQtQt",
-"Qt.#.l.m.n.e.o.p.q.q.r.s.t.u.v.wQtQtQtQtQtQt",
-"Qt.x.y.z.b.A.d.B.B.B.B.B.b.C.D.EQtQtQtQtQtQt",
-"Qt.b.F.G.H.b.b.b.b.b.b.b.I.J.K.#QtQtQtQtQtQt",
-"Qt.b.L.M.N.O.P.Q.R.S.R.T.U.V.W.#QtQtQtQtQtQt",
-"Qt.b.L.X.Y.Z.M.X.0.1.1.1.1.1.1.1.1.1.1.1QtQt",
-"Qt.b.2.3.4.5.6.7.1.8.9.9.9.9.9.9.9.9#..1QtQt",
-"Qt.b###a.M.5#b.1.8#.#.#.#.#.#.#.#.#c#d.1QtQt",
-"Qt.b#e#f.3#g.5.1#h#h#h#h#h#h#h#h#h#d#d.1QtQt",
-"Qt.b#i#j#k.X#l.1#m#n#n#n#n#n#n#n#o#d#d.1QtQt",
-"Qt.b#p#q#r.3.4.1#s#t#t#t#t#t#t#t#o#d#d.1QtQt",
-"Qt.b#u#v#w#k#x.1#.#y#y#y#y#y#y#y#z#d#d.1QtQt",
-"Qt.b#A#B#C#D.3.1#y#E#E#E#E#E#E#E#F#d#d.1QtQt",
-"Qt.b#G#H#I#j#k.1#E#J#J#J#J#J#J#J.h#d#d.1QtQt",
-"Qt#K#L#M#N#w#O.1#P#z#z#z#z#z#z#z#Q#d#d.1QtQt",
-"Qt.##R#S#T#U#V.1#W.9.9.9.9.9.9.9.9#d.1.#QtQt",
-"QtQt.##X.b.b.b.1.1.1.1.1.1.1.1.1.1.1.#QtQtQt",
+"QtQtQtQtQt.#.a.#.#.#.b.#QtQtQtQtQtQtQtQtQtQt",
+"QtQt.#.a.#.c.d.e.f.g.h.i.#.j.#QtQtQtQtQtQtQt",
+"Qt.#.k.l.m.d.n.o.p.p.q.r.s.t.u.#QtQtQtQtQtQt",
+"Qt.v.w.x.#.y.c.z.z.z.z.z.#.A.B.CQtQtQtQtQtQt",
+"Qt.#.D.E.F.#.#.#.#.#.#.#.G.H.I.#QtQtQtQtQtQt",
+"Qt.#.J.K.L.M.N.O.P.Q.P.R.S.T.U.#QtQtQtQtQtQt",
+"Qt.#.J.V.W.X.K.V.Y.Z.Z.Z.Z.Z.Z.Z.Z.Z.Z.ZQtQt",
+"Qt.#.0.1.2.3.4.5.Z.6.7.7.7.7.7.7.7.7.8.ZQtQt",
+"Qt.#.9#..K.3##.Z.6.8.8.8.8.8.8.8.8#a#b.ZQtQt",
+"Qt.##c#d.1#e.3.Z#f#f#f#f#f#f#f#f#f#b#b.ZQtQt",
+"Qt.##g#h#i.V#j.Z#k#l#l#l#l#l#l#l#m#b#b.ZQtQt",
+"Qt.##n#o#p.1.2.Z#q#r#r#r#r#r#r#r#m#b#b.ZQtQt",
+"Qt.##s#t#u#i#v.Z.8#w#w#w#w#w#w#w#x#b#b.ZQtQt",
+"Qt.##y#z#A#B.1.Z#w#C#C#C#C#C#C#C#D#b#b.ZQtQt",
+"Qt.##E#F#G#h#i.Z#C#H#H#H#H#H#H#H.g#b#b.ZQtQt",
+"Qt#I#J#K#L#u#M.Z#N#x#x#x#x#x#x#x#O#b#b.ZQtQt",
+"Qt.##P#Q#R#S#T.Z#U.7.7.7.7.7.7.7.7#b.Z.#QtQt",
+"QtQt.##V.#.#.#.Z.Z.Z.Z.Z.Z.Z.Z.Z.Z.Z.#QtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
@@ -7528,7 +7526,9 @@ class MainWindow(QMainWindow):
         self.ccLayerThicknessLineEdit = QLineEdit(self.cookieCutterDashboard,"ccLayerThicknessLineEdit")
 
         self.ccLayerThicknessSpinBox = QSpinBox(self.cookieCutterDashboard,"ccLayerThicknessSpinBox")
-        self.ccLayerThicknessSpinBox.setValue(1)
+        self.ccLayerThicknessSpinBox.setMaxValue(25)
+        self.ccLayerThicknessSpinBox.setMinValue(1)
+        self.ccLayerThicknessSpinBox.setValue(2)
         self.cookieCutterDashboard.addSeparator()
         self.toolsBackUpAction.addTo(self.cookieCutterDashboard)
         self.toolsStartOverAction.addTo(self.cookieCutterDashboard)
@@ -7714,7 +7714,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,964).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,973).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7753,8 +7753,9 @@ class MainWindow(QMainWindow):
         self.connect(self.fileSaveAsAction,SIGNAL("activated()"),self.fileSaveAs)
         self.connect(self.fileSetWorkDirAction,SIGNAL("activated()"),self.fileSetWorkDir)
         self.connect(self.helpAboutAction,SIGNAL("activated()"),self.helpAbout)
-        self.connect(self.helpContentsAction,SIGNAL("activated()"),self.helpContents)
         self.connect(self.helpAssistantAction,SIGNAL("activated()"),self.helpAssistant)
+        self.connect(self.helpContentsAction,SIGNAL("activated()"),self.helpContents)
+        self.connect(self.helpWhatsThisAction,SIGNAL("activated()"),self.helpWhatsThis)
         self.connect(self.jigsBearingAction,SIGNAL("activated()"),self.makeBearing)
         self.connect(self.jigsDynoAction,SIGNAL("activated()"),self.makeDyno)
         self.connect(self.jigsGroundAction,SIGNAL("activated()"),self.makeGround)
@@ -7764,7 +7765,9 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsMotorAction,SIGNAL("activated()"),self.makeMotor)
         self.connect(self.jigsSpringAction,SIGNAL("activated()"),self.makeSpring)
         self.connect(self.jigsStatAction,SIGNAL("activated()"),self.makeStat)
+        self.connect(self.modifyAlignCommonAxisAction,SIGNAL("activated()"),self.modifyAlignCommonAxis)
         self.connect(self.modifyCopyBondAction,SIGNAL("activated()"),self.modifyCopyBond)
+        self.connect(self.modifyDehydrogenateAction,SIGNAL("activated()"),self.modifyDehydrogenate)
         self.connect(self.modifyEdgeBondAction,SIGNAL("activated()"),self.modifyEdgeBond)
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
         self.connect(self.modifyMinimizeAction,SIGNAL("activated()"),self.modifyMinimize)
@@ -7823,9 +7826,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsSimulator_Action,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.modifyDehydrogenateAction,SIGNAL("activated()"),self.modifyDehydrogenate)
-        self.connect(self.helpWhatsThisAction,SIGNAL("activated()"),self.helpWhatsThis)
-        self.connect(self.modifyAlignCommonAxisAction,SIGNAL("activated()"),self.modifyAlignCommonAxis)
+        self.connect(self.ccLayerThicknessLineEdit,SIGNAL("textChanged(const QString&)"),self.validateThickness)
 
 
     def languageChange(self):
@@ -8559,6 +8560,12 @@ class MainWindow(QMainWindow):
 
     def modifyAlignCommonAxis(self):
         print "MainWindow.modifyAlignCommonAxis(): Not implemented yet"
+
+    def validateThickness(self):
+        print "MainWindow.validateThickness(): Not implemented yet"
+
+    def updateThinkness(self):
+        print "MainWindow.updateThinkness(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
