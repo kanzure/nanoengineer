@@ -531,8 +531,8 @@ def writemdl(assy, filename):
 def writemovie(assy, moviefile, mflag = False):
     """Creates a moviefile.  
     moviefile - name of either a DPB file or an XYZ trajectory file.
-                    A DPB file is a binary trajectory file. 
-                    An XYZ file is a text file.
+    DPB = Differential Position Bytes (binary file)
+    XYZ = XYZ trajectory file (text file)
     mflag - if True, create a minimize moviefile
     """
     # Make sure some chunks are in the part.
@@ -560,8 +560,12 @@ def writemovie(assy, moviefile, mflag = False):
     program = os.path.normpath(filePath + '/../bin/simulator')
 
     # Change cursor to Wait (hourglass) cursor
+    ##Huaicai 1/10/05, it's more appropriate to change the cursor
+    ## for the main window, not for the progressbar window
     QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-
+    #oldCursor = QCursor(assy.w.cursor())
+    #assy.w.setCursor(QCursor(Qt.WaitCursor) )
+    
     # "formarg" = File format argument
     if ext == ".dpb": formarg = ''
     else: formarg = "-x"
@@ -569,7 +573,7 @@ def writemovie(assy, moviefile, mflag = False):
     # Put double quotes around filenames so spawnv can handle them properly on Win32 systems.
     outfile = '"-o%s"' % moviefile
     infile = '"%s"' % mmpfile
-    print "infile = ",infile," outfile =",outfile
+    #print "infile = ",infile," outfile =",outfile
 
     if mflag: # "args" = arguments for the simulator to minimize.
         args = [program, '-m', outfile, infile]
@@ -636,6 +640,7 @@ def writemovie(assy, moviefile, mflag = False):
         r = -1 # simulator failure
         
     QApplication.restoreOverrideCursor() # Restore the cursor
+    #assy.w.setCursor(oldCursor)
         
     if not r: return r # Main return
         
@@ -645,12 +650,22 @@ def writemovie(assy, moviefile, mflag = False):
         # Kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
         # - Mark 050107
         if sys.platform == 'win32':
-            import win32api
-            win32api.TerminateProcess(kid, -1)
-            win32api.CloseHandle(kid)
+            try:    
+                import win32api
+                win32api.TerminateProcess(kid, -1)
+                win32api.CloseHandle(kid)
+            except:   
+                 print "fyi (bug?): in fileIO.writemovie(): cannot terminate process.  kid =",kid   
+                 pass 
+    
         else:
-            os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
-            
+             try:   
+                 import signal 
+                 os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
+             except:   
+                 print "fyi (bug?): in fileIO.writemovie(): cannot kill process.  kid =",kid   
+                 pass 
+
             
     else: # Something failed...
         msg = redmsg("Simulation failed: exit code %r " % r)

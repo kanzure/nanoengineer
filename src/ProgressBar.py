@@ -12,7 +12,10 @@ from ProgressBarDialog import *
 
 class ProgressBar( progressBarDialog ):
     def __init__(self):
-        progressBarDialog.__init__(self)
+        ### Huaicai 1/10/05: make the dialog as a modal dialog, 
+        ### otherwise, if the user close the main window, it will get 
+        ### "RuntimeError: underlying C/C++ object has been deleted   
+        progressBarDialog.__init__(self, None, None, True)
         
         self.duration = 0 # Seconds that the progress bar takes to complete
 
