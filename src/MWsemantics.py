@@ -412,7 +412,12 @@ class MWsemantics(MainWindow):
         else: sfilter = QString("Molecular machine parts (*.mmp)")
         
         fn = QFileDialog.getSaveFileName(sdir,
-                    "Molecular Machine Part (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov);;Model MDL (*.mdl);;JPEG (*.jpg)",
+                    "Molecular Machine Part (*.mmp);;"\
+                    "Protein Data Bank (*.pdb);;"\
+                    "POV-Ray (*.pov);;"\
+                    "Model MDL (*.mdl);;"\
+                    "JPEG (*.jpg);;"\
+                    "Portable Network Graphics (*.png)",
                     self, "IDONTKNOWWHATTHISIS",
                     "Save As",
                     sfilter)
@@ -467,7 +472,7 @@ class MWsemantics(MainWindow):
                 try:
                     writepov(self.assy, safile)
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file " + safile
+                    print "MWsemantics.py: saveFile(): error writing file " + safile
                     self.history.message(redmsg( "Problem saving file: " + safile ))
                 else:
                     self.history.message( "POV-Ray file saved: " + safile )
@@ -476,20 +481,31 @@ class MWsemantics(MainWindow):
                 try:
                     writemdl(self.assy, safile)
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file " + safile
+                    print "MWsemantics.py: saveFile(): error writing file " + safile
                     self.history.message(redmsg( "Problem saving file: " + safile ))
                 else:
                     self.history.message( "MDL file saved: " + safile )
             
             elif ext == ".jpg": # Write JPEG file
                 try:
-                    self.glpane.image(safile)
+                    image = self.glpane.grabFrameBuffer()
+                    image.save(safile, "JPEG")
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file" + safile
+                    print "MWsemantics.py: saveFile(): error writing file" + safile
                     self.history.message(redmsg( "Problem saving file: " + safile ))
                 else:
                     self.history.message( "JPEG file saved: " + safile )
-
+            
+            elif ext == ".png": # Write PNG file
+                try:
+                    image = self.glpane.grabFrameBuffer()
+                    image.save(safile, "PNG")
+                except:
+                    print "MWsemantics.py: saveFile(): error writing file" + safile
+                    self.history.message(redmsg( "JPEGProblem saving file: " + safile ))
+                else:
+                    self.history.message( "PNG file saved: " + safile )
+                    
             elif ext == ".mmp" : # Write MMP file
                 try:
                     writemmp(self.assy, safile)
@@ -1056,8 +1072,11 @@ class MWsemantics(MainWindow):
         r = self.assy.makeSimMovie()
 
         if not r: # Movie file saved successfully.
-            msg = "Total time to create movie file: %d seconds" % self.assy.w.progressbar.duration
-            self.history.message(msg) 
+            # if duration took at least 10 seconds, print msg.
+            if self.assy.w.progressbar.duration >= 10.0: 
+                msg = "Total time to create movie file: "
+                estr = self.assy.w.progressbar.hhmmss_str(self.assy.w.progressbar.duration)
+                self.history.message(msg + estr) 
             msg = "Movie written to [" + self.assy.m.filename + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
             # This makes a copy of the movie tool icon to put in the HistoryWidget.
