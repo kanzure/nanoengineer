@@ -378,6 +378,12 @@ void printWarning(FILE *f, char *s)
     fprintf(f, "# Warning: %s\n", s);
 }
 
+void doneExit(FILE *f, char *s, int exitvalue) 
+{
+    fprintf(f, "# Done: %s\n", s);
+    exit(exitvalue);
+}
+
 void headcon(FILE *f) {
     struct MOT *mot;
     int i, j;

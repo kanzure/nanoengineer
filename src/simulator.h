@@ -379,6 +379,7 @@ extern void pb(FILE *f, int i);
 extern void printAllBonds(FILE *f);
 extern void printError(FILE *f, char *s);
 extern void printWarning(FILE *f, char *s);
+extern void doneExit(FILE *f, char *s, int exitvalue);
 extern void pq(FILE *f, int i);
 extern void pvdw(FILE *f, struct vdWbuf *buf, int n);
 extern void makatom(int elem, struct xyz posn);

@@ -30,6 +30,11 @@ struct xyz average_positions[NATOMS];
 struct xyz position_arrays[3*NATOMS];
 struct xyz *old_positions, *new_positions, *positions; // these point into position_arrays
 
+/* steepest descent terminates when rms_force is below this value (in picoNewtons) */
+#define RMS_CUTOVER (50.0)
+/* additionally, sqrt(max_forceSquared) must be less than this: */
+#define MAX_CUTOVER (RMS_CUTOVER * 3.0)
+#define MAX_CUTOVER_SQUARED (MAX_CUTOVER * MAX_CUTOVER)
 
 struct xyz Center, Bbox[2];
 
@@ -316,6 +321,62 @@ void bondinit() {
 	bstab[i].table = tables;
     }
 	
+}
+
+void testInterpolateBondStretch(int ord, int a1, int a2)
+{
+    int i;
+    double start;
+    double scale;
+    double *t1, *t2;
+    double rSquared;
+    double lowR, highR;
+    double lowRSquare;
+    double highRSquare;
+    double epsilon;
+    int steps;
+    int k;
+    double fac;
+    double func;
+    
+    i = findbond(bontyp(ord, a1, a2));
+
+    R0 = bstab[i].r0;
+    Ks = bstab[i].ks;
+    De = bstab[i].de;
+    Beta = bstab[i].beta;
+    printf("# R0: %e Ks: %e De: %e Beta: %e\n", R0, Ks, De, Beta);
+    
+    /* table setup for stretch, to be moved out of loop */
+    start=bstab[i].start;
+    scale=bstab[i].scale;
+    t1=bstab[i].table->t1;
+    t2=bstab[i].table->t2;
+
+    printf("# start: %e scale: %e\n", start, scale);
+
+    lowR = R0 * 0.496;
+    highR = R0 * 1.5;
+    steps = 10000;
+    lowRSquare = lowR * lowR;
+    highRSquare = highR * highR;
+    //highRSquare = TABLEN * scale * 1.5 + start;
+    epsilon = (highRSquare - lowRSquare) / steps ;
+
+    for (rSquared=lowRSquare; rSquared<highRSquare; rSquared += epsilon) {
+        k=(int)(rSquared-start)/scale;
+        if (k<0) {
+            fac=t1[0]+rSquared*t2[0];
+        } else if (k>=TABLEN) {
+            fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*t2[TABLEN-1];
+        } else {
+            fac=t1[k]+rSquared*t2[k];
+        }
+        // table lookup equivalent to: fac=lippmor(rSquared)
+        func = lippmor(rSquared);
+        printf("%e %e %e\n", sqrt(rSquared), fac, func);
+    }
+    exit(0);
 }
 
 void vdWsetup() {
@@ -1070,7 +1131,7 @@ double movcon = 4e-4;
   Minimize via adaptive steepest descent.
   
   Will do a maximum of steepestDescentFrames iterations.  Returns true
-  if rms_force has dropped below 50 pN before the iteration limit is
+  if rms_force has dropped below RMS_CUTOVER pN before the iteration limit is
   reached.
 */
 int
@@ -1107,8 +1168,8 @@ minimizeSteepestDescent(int steepestDescentFrames,
     }
     minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "1");
 
-    // adaptive stepsize steepest descents until RMS gradient is under 50
-    for (; *frameNumber < steepestDescentFrames && rms_force>50.0 && !interrupted;) {
+    // adaptive stepsize steepest descents until RMS gradient is under RMS_CUTOVER
+    while (*frameNumber < steepestDescentFrames && !interrupted) {
 	last_sum_forceSquared = sum_forceSquared;
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
@@ -1124,6 +1185,10 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	rms_force = sqrt(sum_forceSquared/Nexatom);
 
 	minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "2");
+
+        if (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED) {
+            break;
+        }
         
 	xxx = sqrt(last_sum_forceSquared); // == previous rms_force * sqrt(Nexatom)
 	yyy = sum_force_dot_old_force/xxx;
@@ -1142,7 +1207,8 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	}
 	tmp = old_positions; old_positions=positions; positions=tmp;
     }
-    if (rms_force <= 50.0) {
+    if (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED) {
+        fprintf(tracef, "# Switching to Conjugate-Gradient\n");
         return 1;
     } else {
 	minshot(1, rms_force, max_forceSquared, (*frameNumber)++, "SDfinal");
@@ -1309,7 +1375,7 @@ static void usage()
    -q -- trace file name (otherwise trace)\n\
    -Dn -- turn on debugging flag n (see simulator.h)\n\
    filename -- if no ., add .mmp to read, .dpb to write\n");
-    exit(0);
+    exit(1);
 }
 
 
@@ -1358,7 +1424,7 @@ main(int argc,char **argv)
 		n = atoi(argv[i]+2);
 		if (n>NATOMS) {
 		    fprintf(stderr, "n too high = %d\n",n);
-		    exit(0);
+		    exit(1);
 		}
 		break;
 	    case 'm':
@@ -1407,7 +1473,7 @@ main(int argc,char **argv)
         usage();
     }
 
-    if (ToMinimize) printf("Minimize\n");
+    //if (ToMinimize) printf("Minimize\n");
 
     if (strchr(filename, '.')) {
         sprintf(buf, "%s", filename);
@@ -1452,7 +1518,7 @@ main(int argc,char **argv)
 
     bondinit();
     vdWsetup();
-	
+    //testInterpolateBondStretch(1, 6, 6);
 
     filred(buf);
     
@@ -1556,12 +1622,7 @@ main(int argc,char **argv)
 	 */
     }
 
-    fclose(outf);
-    fclose(tracef);
-    printf("\n");
-	
-    return 0;
-	
+    doneExit(tracef, "", 0);
 }
 
 /*
