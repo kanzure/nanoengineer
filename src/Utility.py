@@ -122,6 +122,16 @@ class Node:
             assert self.dad == parent
         return
 
+    def is_group(self): #bruce 050216
+        """Is self a Group node (i.e. an instance of Group or a subclass)?
+        This is almost as deprecated as isinstance(self, Group),
+        but not quite, since this would work if Utility was reloaded but that would not!
+        (This doesn't yet matter in practice since there are probably other big obstacles
+         to reloading Utility during debugging.)
+        [overridden in Group]
+        """
+        return False # for a leaf node
+    
     def redmsg(self, msg): #bruce 050203
         from HistoryWidget import redmsg
         ###@@@ we ought to make this work even after assy set to None in Node.kill!
@@ -324,7 +334,7 @@ class Node:
         """
         return True
     
-    def drop_on_ok(self, drag_type, nodes): #####@@@@@ honor it!
+    def drop_on_ok(self, drag_type, nodes):
         """Say whether "drag and drop" can drop the given set of nodes onto this node,
         when they are dragged in the given way ('move' or 'copy' -- nodes arg has the originals).
         (Typically this node (if it says ok) would insert the moved or copied nodes inside itself
@@ -334,6 +344,14 @@ class Node:
         (i.e. make a sibling, like addmember does).
         [some subclasses should override this]
         """
+        #bruce 050216 add exception for cycle-forming request ###@@@ needs testing
+        # (to fix bug 360 item 6 comment 9, which had been fixed in the old MT's DND code too)
+        if drag_type == 'move':
+            for node in nodes:
+                if (node != self and node.is_ascendant(self)) or (node == self and node.is_group()):
+                    print "fyi: refusing drag-move since it would form a cycle"
+                        #e should change retval-spec and get this into a redmsg
+                    return False
         return True #e probably change to False for leaf nodes, once we support dropping into gaps
 
     def drop_on(self, drag_type, nodes): ###@@@ needs a big cleanup
@@ -415,31 +433,13 @@ class Node:
             # bruce comment 010510: looks like an error, and not nearly the
             # only one possible... maybe we should detect more errors too,
             # and either work around them (as this does) or report them.
+            #bruce comment 050216: probably no longer needed since probably done in addchild
             return
-        ###@@@ the following should really use a new method on Group (or a new option to addchild)
-        # and it ought to remove the node from old loc, and check for cycle_creation using is_ascendant.
-        # bruce 050201 changing it to use a new option on addchild.
-        # But I might change it back before Alpha release
-        # in case my new options have any bugs (so they only harm drag and drop, which needs them).
-        #######@@@@@@@
         if before:
             self.dad.addchild( node, before = self) # Insert node before self
         else:
             self.dad.addchild( node, after = self) # Insert node after self
         return
-##        # old code:
-##        m = self.dad.members
-##        if before: i = m.index(self) # Insert node before self
-##        else: i = m.index(self) + 1 # Insert node after self
-##        m.insert(i, node)
-##        node.dad = self.dad
-##        node.changed_dad()
-##        node.dad.changed_members()
-##        return
-##        # bruce comment 010510: this method does not remove it from other Groups it might be in
-##        # (i.e. from prior node.dad if that's not None).
-##        # If those are never again used, that won't matter. If they are, bugs might ensue,
-##        # because they might assume the members' dads point to themselves -- I'm not sure.
     
     def addmember(self, node, before_or_top = False):
         """
@@ -666,7 +666,7 @@ class Node:
 
     def is_ascendant(self, node): # implem corrected by bruce 050121; was "return None"
         """Is node in the subtree of nodes headed by self?
-        [Optimization of Group.is_ascendant; see its docstring for more info.]
+        [Optimization of Group.is_ascendant for leaf nodes; see its docstring for more info.]
         """
         return self == node # only correct for self being a leaf node
 
@@ -686,16 +686,6 @@ class Node:
         # not the named arg 'before' of addchild! Btw we *do* need to call addmember
         # (with its dual personality dependending on node being leaf or not)
         # for now, while DND uses drop_on groups to mean drop_under them.
-        
-##        if node == self: return # not needed -- optimization of is_ascendant special case
-##            
-##        # Mark comments 041210
-##        # For DND, self is the selected item and obj is the item we dropped on. 
-##        # If self is a group, we need to check if obj is a child of self. If so, return since we can't do that.
-##        if self.is_ascendant(node): return
-##        if self.dad:
-##            #bruce 050203 needed to add this condition due to grouping by Clipboard.drop_on
-##            self.dad.delmember(self)
         node.addmember(self, before_or_top = before) # this needs to be addmember, not addchild or addsibling
 
     def nodespicked(self):
@@ -773,6 +763,10 @@ class Group(Node):
         for ob in list: self.addmember(ob)
         self.open = True
 
+    def is_group(self):
+        """[overrides Node method; see its docstring]"""
+        return True
+    
     def drag_move_ok(self): return True # same as for Node
     def drag_copy_ok(self): return True # for my testing... maybe make it False for Alpha though ###e ####@@@@ 050201
     def is_selection_group_container(self): #bruce 050131 for Alpha
@@ -1217,8 +1211,11 @@ class Group(Node):
             m.kill()
         Node.kill(self)
 
-    def is_ascendant(self, node): #e rename nodetree_contains?
-        """Returns True iff self is an ascendant of node,
+    def is_ascendant(self, node):
+            #e rename nodetree_contains? is_ancestor? (tho true of self too)
+            #e or just contains? (no, not obvious arg is a node)
+        """[overrides Node.is_ascendant, which is a very special case of the same semantics]
+        Returns True iff self is an ascendant of node,
         i.e. if the subtree of nodes headed by self contains node.
         (node must be a Node or None (for None we return False);
          thus it's legal to call this for node being any node's dad.)
