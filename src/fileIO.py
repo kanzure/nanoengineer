@@ -114,7 +114,8 @@ def writepdb(assy, filename):
 
 
 def _readmmp(assy, filnam, isInsert = False):
-    """The routine to actually reading a mmp file and save data into data structure """
+    """The routine to actually reading a mmp file and save data
+    into data structure """
     #bruce 041011: added 'U' to file mode, for universal newline support.
     l=open(filnam,"rU").readlines() 
     assy.filename=filnam
@@ -133,14 +134,12 @@ def _readmmp(assy, filnam, isInsert = False):
 
         if key == "group": # Group of Molecules and/or Groups
             name = getname(card, "Grp")
-            if name == "Shelf": name = "Clipboard" # kludge to get rid of Shelf name
             opengroup = Group(name, assy, opengroup)#assy.tree)
             if not groupstack: grouplist += [opengroup]
             groupstack = [(opengroup, name)] + groupstack
 
         if key == "egroup": # Group of Molecules and/or Groups
             name = getname(card, "Grp")
-            if name == "Shelf": name = "Clipboard" # kludge to get rid of Shelf name
             curgrp, curnam = groupstack[0]
             if name != curnam:
                 print "mismatched group records:", name, curnam
@@ -338,13 +337,13 @@ def _readmmp(assy, filnam, isInsert = False):
 # read a Molecular Machine Part-format file into maybe multiple molecules
 def readmmp(assy, filnam):
     """Reading a mmp file to create a new model """
-    groupList = _readmmp(assy, filnam)
-
-    if len(groupList) != 3: print "wrong number of top-level groups"
-    else: assy.data, assy.tree, assy.shelf = groupList
+    grouplist = _readmmp(assy, filnam)
+    if len(grouplist) != 3: print "wrong number of top-level groups"
+    else: assy.data, assy.tree, assy.shelf = grouplist
+    assy.shelf.name = "Clipboard"
     assy.data.open = assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
-    
+
     
 def insertmmp(assy, fileName):
     """Reading a mmp file and insert the part into the existing model """    
@@ -353,7 +352,6 @@ def insertmmp(assy, fileName):
     if len(groupList) != 3: print "wrong number of top-level groups"
     assy.tree.addmember(groupList[1])
     
-            
 # write all molecules, motors, grounds into an MMP file
 def writemmp(assy, filename):
     f = open(filename,"w")

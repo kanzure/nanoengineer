@@ -20,6 +20,7 @@ class modelTree(QListView):
         QListView.__init__(self,parent,"modelTreeView")
         self.addColumn("Model Tree")
         self.win = win
+        self.assy = win.assy
 
         self.header().setClickEnabled(0, self.header().count() - 1)
         self.setGeometry(QRect(0, 0, 131, 560))
@@ -66,7 +67,8 @@ class modelTree(QListView):
         
         self._update()
         
-        # Mark and Huaicai - commented this out - causing a bug for context menu display
+        # Mark and Huaicai - commented this out -
+        # causing a bug for context menu display
         # Fixed with the signal to "rightButtonPressed"
         if sys.platform != 'win32':
                 self.connect(self, SIGNAL("contextMenuRequested(QListViewItem*, const QPoint&,int)"),
@@ -104,7 +106,7 @@ class modelTree(QListView):
         itemObj = listItem.object
         if isinstance(itemObj, Group):
             itemObj.open = True
-            if listItem not in [self.root, self.shelf]:
+            if listItem not in [self.tree, self.shelf]:
                 listItem.setPixmap(0, self.groupOpenIcon)
 
 
@@ -112,7 +114,7 @@ class modelTree(QListView):
         itemObj = listItem.object
         if isinstance(itemObj, Group):
             itemObj.open = False
-            if listItem not in [self.root, self.shelf]:
+            if listItem not in [self.tree, self.shelf]:
                 listItem.setPixmap(0, self.groupCloseIcon)
 
 
@@ -121,9 +123,9 @@ class modelTree(QListView):
         
                 self.disconnect(self, SIGNAL("selectionChanged()"), self.select)    
 
-                self.win.assy.unpickatoms()
-                self.win.assy.unpickparts()
-                self.win.assy.selwhat = 2
+                self.assy.unpickatoms()
+                self.assy.unpickparts()
+                self.assy.selwhat = 2
         
                 for item in items:
                         item.object.pick()
@@ -149,7 +151,7 @@ class modelTree(QListView):
 
     def rename(self, listItem, col, text):
         if col != 0: return
-        self.win.assy.modified = 1
+        self.assy.modified = 1
         listItem.object.name = str(text)
 
     #def startDrag(self):
@@ -164,7 +166,7 @@ class modelTree(QListView):
     #        print "Moving", self.selectedItem, "to", item.object
     #        self.selectedItem.moveto(item.object)
     #        self.update()
-    #        self.win.assy.model.dumptree()
+    #        self.assy.model.dumptree()
 
     #def dragMoveEvent(self, event):
     #    event.accept()
@@ -196,31 +198,21 @@ class modelTree(QListView):
         
         
     def _update(self):
-        """ Build the tree structure of the current model, internal function """
+        """ Build the tree structure of the current model,
+        internal function
+        """
+        self.assy = self.win.assy
         self.clear()
         
-        if self.win.assy.shelf.members:
-                self.win.assy.shelf.icon = self.clipboardFullIcon
-        else:
-                self.win.assy.shelf.icon = self.clipboardEmptyIcon
-        self.shelf = self.win.assy.shelf.upMT(self, self)
-        self.win.assy.shelf.setProp(self)
-                
+        if self.assy.shelf.members: self.assy.shelf.icon = self.clipboardFullIcon
+        else: self.assy.shelf.icon = self.clipboardEmptyIcon
+        self.shelf = self.assy.shelf.upMT(self, self)
+        self.assy.shelf.setProp(self)
         
-        rootGroup = Group(self.win.assy.name, self.win.assy, None)
-        rootGroup.icon = self.partIcon
-        
-        for m in self.win.assy.tree.members[::-1]:
-                oldDad = m.dad
-                rootGroup.addmember(m)
-                m.dad = oldDad
-                 
-        for m in self.win.assy.data.members[::-1]:
-                rootGroup.addmember(m)
-                 
-        self.root = rootGroup.upMT(self, self)
-        rootGroup.setProp(self)           
-
+        self.tree = self.assy.tree.upMT(self, self)
+        for m in self.assy.data.members[::-1]:
+            m.upMT(self, self.tree)
+        self.assy.tree.setProp(self)
  
     def update(self):
         """ Build the tree structure of the current model, public interface """
@@ -232,26 +224,26 @@ class modelTree(QListView):
 ## Context menu handler functions
 
     def group(self):
-        node = self.root.object.hindmost()
+        node = self.assy.tree.hindmost()
         if node.picked: return
-        new = Group(gensym("Node"), self.win.assy, node)
-        self.root.object.apply2picked(lambda(x): x.moveto(new))
+        new = Group(gensym("Node"), self.assy, node)
+        self.tree.object.apply2picked(lambda(x): x.moveto(new))
         self._update()
     
     def ungroup(self):
-        self.root.object.apply2picked(lambda(x): x.ungroup())
+        self.tree.object.apply2picked(lambda(x): x.ungroup())
         self._update()
     
     def copy(self):
-        self.win.assy.copy()
+        self.assy.copy()
         self._update()
     
     def cut(self):
-        self.win.assy.cut()
+        self.assy.cut()
         self._update()
     
     def kill(self):
-        self.win.assy.kill()
+        self.assy.kill()
         self._update()
     
     def modprop(self):
@@ -261,5 +253,5 @@ class modelTree(QListView):
             
 
     def expand(self):
-        self.root.object.apply2tree(lambda(x): x.setopen())
+        self.tree.object.apply2tree(lambda(x): x.setopen())
         self._update()

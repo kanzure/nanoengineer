@@ -412,7 +412,7 @@ class atom:
             self.picked = 0
             del self.molecule.assy.selatoms[self.key]
             self.molecule.changeapp()
-            self.molecule.assy.w.msgbarLabel.setText(" ")
+            #self.molecule.assy.w.msgbarLabel.setText(" ")
 
     def copy(self, numol):
         """create a copy of the atom
@@ -980,7 +980,7 @@ class molecule(Node):
             self.assy.selmols.remove(self)
             # may have changed appearance of the molecule
             self.havelist = 0
-            self.assy.w.msgbarLabel.setText(" ")
+            # self.assy.w.msgbarLabel.setText(" ")
 
     def kill(self):
         self.unpick()

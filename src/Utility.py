@@ -4,7 +4,6 @@
 """Classes for objects in the model.
 This file should have a more descriptive name, but that can wait.
 
-
 $Id$
 """
 
@@ -203,7 +202,8 @@ class Group(Node):
             ob.setProp(tw)
 
     def edit(self):
-        if self.name == self.assy.name: # the part properties menu item has been selected
+        if self.name == self.assy.name:
+            # the part properties menu item has been selected
             cntl = PartProp(self.assy)    
             cntl.exec_loop()
             self.assy.mt.update()
