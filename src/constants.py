@@ -37,14 +37,16 @@ debugButtons = cntlButton | shiftButton | altButton
 # on the mac, this really means command-shift-alt
 
 
+## These are arranged in order of increasing thickness of the bond representation
+## Josh 11/2
 diDEFAULT = 0
 diINVISIBLE = 1
-diLINES = 2
-diCPK = 3
-diTUBES = 4
-diVDW = 5
+diVDW = 2
+diLINES = 3
+diCPK = 4
+diTUBES = 5
 
-dispNames = ["def", "inv", "lin", "cpk", "tub", "vdw"]
+dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
 
 TubeRadius = 0.3
 
