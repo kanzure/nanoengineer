@@ -71,17 +71,12 @@ class elementSelector(ElementSelectorDialog):
    
     # called as a slot from button push
     def setElementInfo(self,value):
-        self.w.glpane.mode.elemSet(value)
+        self.w.setElement(value)
 
     def setDisplay(self, value):
-
-        print "set display value",value
-        # Set element number
-        self.elementNumberLabel.setText(str(value))
-        # Set element symbol
-        self.elementSymbolLabel.setText(elementSymbol[ value ])
-        # Set element AMU
-        self.amuLabel.setText(elementAMU[ value ])
+        self.elementNumberLabel.setText(str(value)) # Set element number
+        self.elementSymbolLabel.setText(elementSymbol[ value ]) # Set element symbol
+        self.amuLabel.setText(elementAMU[ value ]) # Set element AMU
         # Set element frame color
         self.elementFrame.setPaletteBackgroundColor(QColor(r[value],g[value],b[value])) 
  
