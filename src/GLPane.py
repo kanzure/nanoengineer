@@ -814,7 +814,8 @@ class GLPane(QGLWidget, modeMixin):
         else:
             self.win.statusBar().message("Done.", 2000)
             # Final message for 2 seconds [mark 040924 via bruce]
-                # [Question for Mark: is it right to put this before the movie? -- bruce]
+                # [Question for Mark: is it right to put this
+                #  before the movie? -- bruce]
             self.startmovie("minimize.dpb")
         return
 
@@ -840,12 +841,21 @@ class GLPane(QGLWidget, modeMixin):
 #bruce 040909-16 moved this method from basicMode to GLPane,
 # leaving a delegator for it in basicMode.
         """make and return a reusable popup menu from lis,
-        which gives pairs of command names and callables
+        which gives pairs of command names and callables,
+        or None for a separator.
+        New feature [bruce 041010]:
+        the "callable" can instead be a QPopupMenu object,
+        to be used as a submenu.
         """
         win = self
         menu = QPopupMenu(win)
         for m in lis:
-            if m:
+            if m and isinstance(m[1], QPopupMenu):
+                #bruce 041010 added this case
+                menu.insertItem( win.trUtf8(m[0]), m[1] )
+                    # (similar code might work for other case too, not sure)
+                    #e (maybe letting m[1] be a list would be nice too)
+            elif m:
                 act = QAction(win,m[0]+'Action')
                 act.setText(win.trUtf8(m[0]))
                 act.setMenuText(win.trUtf8(m[0]))
