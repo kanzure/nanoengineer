@@ -73,6 +73,7 @@ class MWsemantics(MainWindow):
         self.hideDashboards()
         
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
+        # (see also self.set_status_text())
         self.createStatusBars()
         
         # Create Assistant - Mark 11-23-2004
@@ -94,8 +95,12 @@ class MWsemantics(MainWindow):
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
         self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
 
+        # Create the vertical-splitter between history area (at bottom)
+        # and main area (mtree and glpane) [history is new as of 041223]
+        vsplitter = QSplitter(Qt.Vertical, self, "vContentsWindow")
+        
         # Create the splitter between glpane and the model tree
-        splitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
+        splitter = QSplitter(Qt.Horizontal, vsplitter, "ContentsWindow")
         
         # Create the model tree widget
         self.mt = self.modelTreeView = modelTree(splitter, self)
@@ -107,14 +112,27 @@ class MWsemantics(MainWindow):
         # Some final splitter setup
         splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)
         splitter.setOpaqueResize(False)
-        self.setCentralWidget(splitter)
+
+        # Create the history area at the bottom
+        from HistoryMegawidget import HistoryMegawidget
+        self.history = HistoryMegawidget(vsplitter) # not a Qt widget, but its owner;
+            # use self.history.widget for Qt calls that need the widget itself
+        
+        # ... and some final vsplitter setup
+        # guesses... ###@@@ bruce 041223
+        vsplitter.setResizeMode(self.history.widget, QSplitter.KeepSize)
+        vsplitter.setOpaqueResize(False)
+        self.setCentralWidget(vsplitter) # this was required (what exactly does it do?)
         
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
         self.assy.mt = self.mt
 
         # We must enable keyboard focus for a widget if it processes
-        # keyboard events.
+        # keyboard events. [Note added by bruce 041223: I don't know if this is
+        # needed for this window; it's needed for some subwidgets, incl. glpane,
+        # and done in their own code. This window forwards its own key events to
+        # the glpane. This doesn't prevent other subwidgets from having focus.]
         self.setFocusPolicy(QWidget.StrongFocus)
         
         # Create the "What's This?" online help system.
@@ -161,6 +179,8 @@ class MWsemantics(MainWindow):
    
         return # from MWsemantics.__init__
 
+    def set_status_text(self, text, **options):
+        self.history.set_status_text( text, **options)
 
     #def resizeEvent(self, event):
      #   print "why I am changing size? ", event
@@ -1275,7 +1295,11 @@ class MWsemantics(MainWindow):
             
     def createStatusBars(self):
         self.statusBar = self.statusBar()
-            
+        # bruce comment 041223: it's bad to reuse this Qt-defined method name
+        # for an attribute! I'll remove this as soon as practical.
+
+        # (see also self.set_status_text())
+
         # Mark - Set up primary (left) message bar in status bar area.
         #self.msgbarLabel = QLabel(self.statusBar, "msgbarLabel")
         #self.msgbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
@@ -1292,9 +1316,17 @@ class MWsemantics(MainWindow):
         self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
         self.statusBar.addWidget(self.modebarLabel, 0, True)
 
-              
+        # bruce 041223 temporary compatibility kluge:
+        # replace self.statusBar with a compatibility object, just until all
+        # other files' uses of it (including everyone's local mods which are
+        # not yet committed) are changed.
+        class nullclass: pass
+        self.statusBar = nullclass()
+            # that could be anything whose message attribute we can overwrite!
+        self.statusBar.message = self.set_status_text
         
-        
+        return
+    
     def hideDashboards(self):
         self.cookieCutterDashboard.hide()
         self.extrudeDashboard.hide()
