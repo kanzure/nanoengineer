@@ -636,12 +636,14 @@ class MWsemantics(MainWindow):
     ###############################################################
 
     def toolsSelectAtoms(self):
+        self.assy.selwhat = 0    
         self.glpane.setMode('SELECT')
-        self.assy.selectAtoms() # Update display with selected atoms
+        #self.assy.selectAtoms() # Update display with selected atoms
  
     def toolsSelectMolecules(self):
+        self.assy.selwhat = 2    
         self.glpane.setMode('SELECT')
-        self.assy.selectParts() # Update display with selected molecules
+        #self.assy.selectParts() # Update display with selected molecules
 
     def toolsSelectJigs(self):
         print "MWsemantics.toolsSelectJigs(): Not implemented yet"
