@@ -11,6 +11,7 @@ from qt import *
 import time
 import sys, os, string, linecache
 from HistoryWidget import redmsg, greenmsg
+from movie import find_saved_movie #bruce 050329 fix bug 499
 
 class PlotTool(PlotToolDialog):
     def __init__(self, assy, movie): #bruce 050326 added movie arg

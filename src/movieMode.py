@@ -120,6 +120,7 @@ def simMoviePlayer(assy):
     # moved here from MWsemantics method, and fixed bugs I recently put into it 
     # (by rewriting it from original and from rewritten simPlot function)
     # [bruce 050327]
+    from movie import find_saved_movie, Movie #bruce 050329 precaution (in case of similar bug to bug 499)
     history = assy.w.history
     win = assy.w
     if not assy.molecules: # No model, so no movie could be valid for current part.
