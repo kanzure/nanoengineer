@@ -796,10 +796,13 @@ class GLPane(QGLWidget, modeMixin):
         pic.save(filename, "JPEG", quality=85)
 
     def minimize(self):
+        #bruce 041215 fixed some bugs and changed some error messages
+        # in the case when the simulator executable is not found.
+        # Bugs included uncaught exception (rather than error message)
+        # which could also fail to restore the current working directory.
         from debug import print_compact_traceback
-        ## bruce 041101 removed this since it's immediately overwritten below:
-        ## self.win.msgbarLabel.setText( "Minimizing...")
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # hourglass
+        s = ""; args = ['bugifseen']; r = program = 'bugifseen'
         try:
             self.win.msgbarLabel.setText("Calculating...")
             import os, sys
@@ -810,23 +813,33 @@ class GLPane(QGLWidget, modeMixin):
             #Huaicai 12/07/04, if path name for "minimize.mmp" has space, 
             # spawnv() has problems on Windows, so changing working directory to it
             oldWorkingDir = os.getcwd()
-            os.chdir(tmpFilePath)
-            args = [filePath + '/../bin/simulator', '-m ',  "minimize.mmp"]
-            r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
-            os.chdir(oldWorkingDir)
+            program = os.path.normpath(filePath + '/../bin/simulator')
+            args = [program, '-m ',  "minimize.mmp"]
+            if os.path.exists(program):
+                try:
+                    os.chdir(tmpFilePath)
+                    r = os.spawnv(os.P_WAIT, program, args)
+                finally:
+                    os.chdir(oldWorkingDir)
+            else:
+                r = 'program not found'
+                s = "simulator not found at %r; installation error?" % program
         except:
             print_compact_traceback("exception in minimize; continuing: ")
+            print "note: spawnv args were %r" % (args,)
             s = "internal error (traceback printed elsewhere)"
-            ## assert not s.startswith("Minimize") # obsolete [bruce 041101]
-            r = -1 # simulate failure [bruce 041101 bugfix]
+            r = -1 # simulate failure
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
             self.win.msgbarLabel.setText("Minimizing...")
             self.startmovie(os.path.join(tmpFilePath, "minimize.dpb"))
         else:
-            if not s: #bruce 041101
+            if not s:
                 s = "exit code %r" % r
-            self.win.msgbarLabel.setText("Minimization Failed!") ##e include s?
+            print "Minimization Failed:", s
+            print "note: spawnv args were %r" % (args,)
+            print " in the temporary working directory %r" % (tmpFilePath,)
+            self.win.msgbarLabel.setText("Minimization Failed! (%s)" % (s,))
             QMessageBox.warning(self, "Minimization Failed:", s)
         return
 
