@@ -74,7 +74,7 @@ class modelTree(QListView):
               self.selectedTreeItem.startRename(0)
           else: # Set current view as default view
               assy = self.win.assy
-              assy.csys.quat = self.win.glpane.quat
+              assy.csys.quat = Q(self.win.glpane.quat)
 
     def processTreeMenu(self, id):
         if id == 0: #Collapse
@@ -169,7 +169,7 @@ class modelTree(QListView):
         
         self.csysPopupMenu = QPopupMenu()
         self.csysPopupMenu.insertItem("Rename", 0)
-        self.csysPopupMenu.insertItem("Set Default View", 1)
+        self.csysPopupMenu.insertItem("Set Home View", 1)
         self.connect(self.csysPopupMenu, SIGNAL("activated(int)"), self.processCsysMenu)
         
         self.molPopupMenu = QPopupMenu()
