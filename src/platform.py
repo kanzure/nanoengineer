@@ -6,7 +6,7 @@ especially for such code that needs to be called from various other modules.
 $Id$
 """
 
-import sys
+import sys, os
 from qt import Qt
 
 def is_macintosh():
@@ -60,6 +60,29 @@ def middle_button_prefix():
     else:
         return "Middle" # refers to middle mouse button
     pass
+
+
+# When we start, figure out whether user wants to enable general debugging code
+# which turns on extra internal error checking (perhaps slowing down the code).
+# There is no need to document this, since it is intended for developers familiar
+# with the python code.
+# I put this into platform.py in case the way of initializing it is platform-specific.
+# If we think of a more sensible place to put this, we can move it. [bruce 041103]
+
+try:
+    atom_debug # don't disturb it if already set (e.g. by .atom-debug-rc)
+except:
+    try:
+        atom_debug = os.environ['ATOM_DEBUG'] # as a string; suggest "1" or "0"
+    except:
+        atom_debug = 0
+    try:
+        atom_debug = int(atom_debug)
+    except:
+        pass
+    atom_debug = not not atom_debug
+if atom_debug:
+    print "fyi: user has requested ATOM_DEBUG feature; extra debugging code enabled; might be slower"
 
 # here are some functions involving user messages, which don't really belong in
 # this file, but there is not yet a better place for them. [bruce 041018]
