@@ -544,8 +544,7 @@ class GLPane(QGLWidget, modeMixin):
 
         ###e bruce 040923: I'd like to reset the OpenGL state completely, here, incl the stack depths, to mitigate some bugs. How??
         # Note that there might be some openGL init code earlier which I'll have to not mess up. Incl displaylists in drawer.setup.
-        # A kluge would be to popmatrix once (for modelview), or a lot, catching exception in case it failed...
-        # so I do that below.
+        # What I ended up doing is just to measure the stack depth and pop it 0 or more times to make the depth 1 -- see below.
      
         c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
@@ -554,7 +553,8 @@ class GLPane(QGLWidget, modeMixin):
 	glMatrixMode(GL_MODELVIEW)
 
 	# restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923, to partly mitigate the effect of certain drawing bugs]
-	# btw I don't know for sure whether this causes a significant speed hit for some OpenGL implementations... test sometime. #e
+	# btw I don't know for sure whether this causes a significant speed hit for some OpenGL implementations (esp. X windows)...
+	# test sometime. #e
 	depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH) # this is normally 1 (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
 	if depth > 1:
             print "apparent bug: glGetInteger(GL_MODELVIEW_STACK_DEPTH) = %r in GLPane.paintGL" % depth
