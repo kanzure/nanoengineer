@@ -663,8 +663,13 @@ class depositMode(basicMode):
         for s in mol.nearSinglets(spot, cr*1.5):
             #bruce 041203 quick fix for bug 232:
             # don't include two singlets on the same real atom!
-            # (This is not ideal -- we should pick the best one to keep,
-            #  not just the first one. How should we decide which is best?? #e)
+            # (It doesn't matter which one we pick, in terms of which atom we'll
+            #  bond to, but it might affect the computation in the bonding
+            #  method of where to put the new atom, so ideally we'd do something
+            #  more principled than just using the findSpot output from the first
+            #  singlet in the list for a given real atom -- e.g. maybe we should
+            #  average the spots computed for all singlets of the same real atom.
+            #  But this is good enough for now.)
             real = s.singlet_neighbor()
             if real not in rl:
                 pl += [(s, self.findSpot(el, s))]
