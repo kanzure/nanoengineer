@@ -175,7 +175,7 @@ class GLPane(QGLWidget, modeMixin):
         self.display = default_display_mode #bruce 041129
         self.win.dispbarLabel.setText( "Default Display: " + dispLabel[self.display] )
         self.singlet = None
-        self.selatom = None # josh 10/11 supports deposit
+        self.selatom = None # josh 10/11/04 supports depositMode
 
         self.makeCurrent()
 
