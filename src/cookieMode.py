@@ -90,7 +90,9 @@ class cookieMode(basicMode):
         
         # Hide the modify toolbar
         self.w.modifyToolbar.hide()
-      
+        
+        #Show the Cookie Selection Dashboard
+        self.w.cookieSelectDashboard.show()
       
     def setGridLineColor(self, c):
         """Set the grid Line color to c. c is an object of QColor """
@@ -135,6 +137,10 @@ class cookieMode(basicMode):
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
         self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
+        
+        #Hide the Cookie Selection Dashboard
+        self.w.cookieSelectDashboard.hide()
+        
         # Show the modify toolbar
         self.w.modifyToolbar.show()
         
