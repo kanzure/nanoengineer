@@ -515,8 +515,24 @@ def _readmmp(assy, filnam, isInsert = False):
 def readmmp(assy, filnam):
     """Reading a mmp file to create a new model """
     grouplist = _readmmp(assy, filnam)
-    if len(grouplist) != 3: print "wrong number of top-level groups"
-    else: assy.data, assy.tree, assy.shelf = grouplist
+
+    if len(grouplist) == 2:
+        #bruce 050217 upward-compatible reader extension (needs no mmpformat-record change):
+        # permit missing 3rd group, so we can read mmp files written as input for the simulator
+        # (and since there is no good reason not to!)
+        grouplist.append( Group("Clipboard", assy, None) )
+        assert len(grouplist) == 3
+        assy.w.history.message( "(fyi: this mmp file was written as input for the simulator, and contains no clipboard items)" )
+        
+    if len(grouplist) != 3:
+        print "wrong number of top-level groups"
+        #bruce 050217: also emit a user-visible error message
+        # (It says the program treats the file as empty;
+        #  I think this is accurate, but I'm not 100% sure)
+        assy.w.history.message( redmsg( "mmp file format error: wrong number of top-level groups; treating file as empty" ))
+        #e it would be nice to have an "error return" here...
+    else:
+        assy.data, assy.tree, assy.shelf = grouplist
     assy.shelf.name = "Clipboard"
     assy.data.open = assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
