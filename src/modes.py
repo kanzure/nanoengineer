@@ -616,12 +616,8 @@ class basicMode(anyMode):
     def keyPress(self,key): # bruce 040923: fyi: overridden in depositMode
         if _debug_keys:
             print "fyi: basicMode.keyPress(%r)" % (key,)
-        if sys.platform == 'darwin':
-            ###bruce 040924 temp fix, should be revised once we understand relation to other systems (see my email to josh & ninad):
-            if key == 4099:
-                if _debug_keys:
-                    print "fyi: mac bugfix: remapping key %d (actual delete key) to key %d (Qt.Key_Delete)" % (key, Qt.Key_Delete)
-                key = Qt.Key_Delete
+        from platform import filter_key
+        key = filter_key(key, debug_keys = _debug_keys) # fix platform-specific bugs in keycode # (bruce 040929 -- split from here into separate function)
         if key == Qt.Key_Delete:
             if _debug_keys:
                 print "fyi: treating that as Qt.Key_Delete"
