@@ -1190,35 +1190,40 @@ class Part(InvalMixin):
         self.topnode.apply2picked(lambda x: x.unhide())
         self.w.win_update()
 
-    #bond atoms (cheap hack) #e is still used? should it be more accessible?
-    def Bond(self):
-        if not self.selatoms: return
-        aa=self.selatoms.values()
-        if len(aa)==2:
-            self.changed()
-            aa[0].molecule.bond(aa[0], aa[1])
-            #bruce 041028 bugfix: bring following lines inside the 'if'
-            aa[0].molecule.changeapp(0)
-            aa[1].molecule.changeapp(0)
-            self.o.gl_update()
-
-    #unbond atoms (cheap hack)
-    #bruce 050223 revised in minor ways; didn't test since it's not user-accessible now.
-    # BTW we could add this for all bonds between selected atoms,
-    # per recent Delete Bonds discussion.
-    def Unbond(self):
-        if not self.selatoms: return
-        aa=self.selatoms.values()
-        if len(aa)==2:
-            self.changed()
-            #bruce 041028 bugfix: add [:] to copy following lists,
-            # since bust will modify them during the iteration
-            for b1 in aa[0].bonds[:]:
-                for b2 in aa[1].bonds[:]:
-                    if b1 == b2:
-                        b1.bust()
-                        break #bruce 050223 precaution
-            self.o.gl_update()
+    ##bruce 050317 removing Bond and Unbond since no longer user accessible
+    ## and probably unsafe anyway (no valence maintenance) and obsolete.
+    ## They used to be menu commands. (BTW Bond is now also the name of a class.)
+    ## But the code can stay to remind us we'll need something like Unbond
+    ## for any set of selected atoms, sometime.
+##    #bond atoms (cheap hack) #e is still used? should it be more accessible?
+##    def Bond(self):
+##        if not self.selatoms: return
+##        aa=self.selatoms.values()
+##        if len(aa)==2:
+##            self.changed()
+##            aa[0].molecule.bond(aa[0], aa[1])
+##            #bruce 041028 bugfix: bring following lines inside the 'if'
+##            aa[0].molecule.changeapp(0)
+##            aa[1].molecule.changeapp(0)
+##            self.o.gl_update()
+##
+##    #unbond atoms (cheap hack)
+##    #bruce 050223 revised in minor ways; didn't test since it's not user-accessible now.
+##    # BTW we could add this for all bonds between selected atoms,
+##    # per recent Delete Bonds discussion.
+##    def Unbond(self):
+##        if not self.selatoms: return
+##        aa=self.selatoms.values()
+##        if len(aa)==2:
+##            self.changed()
+##            #bruce 041028 bugfix: add [:] to copy following lists,
+##            # since bust will modify them during the iteration
+##            for b1 in aa[0].bonds[:]:
+##                for b2 in aa[1].bonds[:]:
+##                    if b1 == b2:
+##                        b1.bust()
+##                        break #bruce 050223 precaution
+##            self.o.gl_update()
 
     #stretch a molecule
     def Stretch(self):
