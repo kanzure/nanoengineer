@@ -1449,7 +1449,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             ###e should change from hardcoded constants below... sorry, the deadline approaches...
             top = self.itemAtCposXY(x,y-3) #e these constants will probably need subjective adjustment, maybe hysteresis
             bottom = self.itemAtCposXY(x,y+3)
-            return #####@@@@@
+##050309            return #####@@@@@
             if top == bottom:
                 if top:
                     # dropping inside item top
@@ -1463,19 +1463,22 @@ class TreeWidget(TreeView, DebugMenuMixin):
             else:
                 # dropping into the gap between items top (not None) and bottom (maybe None);
                 # use x position to figure out desired depth
-                where = "somewhere in gap between items %r and %r..." % (top.object.name, bottom.object.name)
-                dtop = self.itemDepth(top) # in units of integers not pixels?? or floats but where 1.0 is the level-change in x?
-                    # or ints but where the level-change is known to us??
-                dbottom = self.itemDepth(bottom)
-                dmouse = self.itemDepthForCposX(x) # depth of the mouse itself (float, 1.0 means "size of one level")
-                mindepth = min(dtop, dbottom) # leftmost possible drop-point (larger depths are innermore ie to the right)
-                maxdepth = max(dtop, bottom) # rightmost, not yet counting "new child of top"
-                maybe_new_child_of_top = False # change below
-                if 0 and self.isItemOpenable(top): #### 0 in case attrname is wrong, i need to commit now #####@@@@@ where i am #2
-                    maybe_new_child_of_top = True ### 050201 433pm
-                    dtop_child = dtop + 1
-                    if dtop_child > xxx: pass ####
-                pass ####@@@@@ stubbly here...
+                if bottom:
+                    where = "somewhere in gap between items %r and %r..." % (top.object.name, bottom.object.name)
+                    dtop = self.itemDepth(top) # in units of integers not pixels?? or floats but where 1.0 is the level-change in x?
+                        # or ints but where the level-change is known to us??
+                    dbottom = self.itemDepth(bottom)
+    ##050309                dmouse = self.itemDepthForCposX(x) # depth of the mouse itself (float, 1.0 means "size of one level")
+                    mindepth = min(dtop, dbottom) # leftmost possible drop-point (larger depths are innermore ie to the right)
+                    maxdepth = max(dtop, bottom) # rightmost, not yet counting "new child of top"
+                    maybe_new_child_of_top = False # change below
+                    if 0 and self.isItemOpenable(top): #### 0 in case attrname is wrong, i need to commit now #####@@@@@ where i am #2
+                        maybe_new_child_of_top = True ### 050201 433pm
+                        dtop_child = dtop + 1
+                        if dtop_child > xxx: pass ####
+                    pass ####@@@@@ stubbly here...
+                else:
+                    where = "under last item %r" % (top.object.name,)
 
         listview.itemAt
         ### got about this far when the alpha deadline hit...
@@ -1490,6 +1493,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         painter = QPainter(self.viewport(), True) # this might not end up drawing in enough places... draws in viewport coords; False###e
         # fyi: the following method knows about true_dragMove_cpos perhaps being None, draws nothing in that case
         self.draw_stubsymbol_at_cpos_in_viewport(painter, undo_true_dragMove_cpos, color = Qt.white, blot = 1) #e should use backgroundcolor from a palette
+        ###e also redraw any items (incl open/close icons) we might have just drawn over... or make sure we never draw over them.
         if not undo_only:
             self.draw_stubsymbol_at_cpos_in_viewport(painter, self.true_dragMove_cpos, color = Qt.blue) #e should use highlight color from a palette
 
@@ -1516,6 +1520,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         y = cy - dy
 ##        if debug_dragstuff:
 ##            print "drawing (white or blue or ...) at vpos:",x,y
+        # 050309 hacks:
+        x = 3
+        # end 050309 hacks
         if not blot:
             self.drawbluething( painter, (x,y), color)
         else:
@@ -1532,6 +1539,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         p = painter # caller should have called begin on the widget, assuming that works
         p.setPen(QPen(color, 3)) # 3 is pen thickness
         w,h = 100,9 # bbox rect size of what we draw (i think)
+        # 050309 hacks:
+        w = 14
+        # end 050309 hacks
         x,y = pos # topleft of what we draw
         p.drawEllipse(x,y,h,h)
         fudge_up = 1 # 1 for h = 9, 2 for h = 10
@@ -1726,20 +1736,22 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.redmsg( "drop refused by %r" % node_name(targetnode) )
             return
 
-        #bruce 050202 last minute change:
-        # first guess if a bug will happen...
-        #bruce 050216 comment: note that this belongs in the subclass, not here. ###@@@
-        try:
-            s1 = targetnode.find_selection_group()
-            s2 = nodes[0].find_selection_group()
-            shouldwarn = (s1 != s2)
-            n1 = node_name(s1) # destination
-            n2 = node_name(s2) # source
-            if shouldwarn and 0: #bruce 050203 removing this since I think I fixed the bugs it warns about (mostly anyway, not 371)
-                msgw = "alpha warning: drag between clipboard items and the part often causes bugs; doing it anyway, from %r to %r" % (n2,n1)
-                self.redmsg( msgw)
-        except:
-            pass
+        ## no longer needed [030516]
+##        #bruce 050202 last minute change:
+##        # first guess if a bug will happen...
+##        #bruce 050216 comment: note that this belongs in the subclass, not here. ###@@@
+##        try:
+##            s1 = targetnode.find_selection_group()
+##            s2 = nodes[0].find_selection_group()
+##            shouldwarn = (s1 != s2)
+##            n1 = node_name(s1) # destination
+##            n2 = node_name(s2) # source
+##            if shouldwarn and 0: #bruce 050203 removing this since I think I fixed the bugs it warns about (mostly anyway, not 371)
+##                msgw = "alpha warning: drag between clipboard items and the part often causes bugs; doing it anyway, from %r to %r" % (n2,n1)
+##                self.redmsg( msgw)
+##        except:
+##            pass
+        
         copiednodes = targetnode.drop_on(drag_type, nodes) # implems untested! well, now tested for a day or so, for assy.tree ... 050202
         #bruce 050203: copiednodes is a list of copied nodes made by drop_on (toplevel only, when groups are copied).
         # for a move, it's []. We use it to select the copies, below.
@@ -1752,9 +1764,21 @@ class TreeWidget(TreeView, DebugMenuMixin):
             #bruce 050216: don't do this if they were moved into the clipboard.
             # Note that this behavior should be subclass-specific, as should any knowledge of "the clipboard" at all!
             # This needs review and cleanup -- maybe all this selection behavior needs to ask nodes what to do.
+            # bruce 030516: it's now safe (and good) to do this even for nodes dragged into the clipboard --
+            # provided there was only one node created there! This should be true, since they'll be grouped.
+            # *BUT* how do we find that node (the group made to hold them)? Or, just pick the moved ones inside it?
             if not targetnode.in_clipboard():
                 for node1 in nodes:
                     node1.pick()
+            else:
+                # 050316
+##                if platform.atom_debug:
+##                    print "atom_debug: fyi: copiednodes might be [] or [newgroup], it's:",copiednodes # it's []
+                for node1 in nodes:
+                    node1.pick() # I think these are now guaranteed to be in one selection group...
+                    # if not, we would not want to do this, or we'd want to suppress history messages from it.
+                # in future we might also pick the group created to hold them, if any -- not sure. maybe best not to.
+            pass
         else:
             self.unpick_all()
             # obs comment:
@@ -1769,6 +1793,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             #  So I no longer pick the copies if in the clipboard.
             #  I also wonder if I should instead pick the originals then, or always??
             #  Not for now.]
+            # [050316: this should be reconsidered now that picking in clipboard is safer...] #####@@@@@
             if not targetnode.in_clipboard():
                 for node1 in copiednodes:
                     node1.pick()
@@ -1832,7 +1857,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # to unpick; that's ok for now. [bruce 050128]
 ##        item.object.unpick() #bruce 050128 precautionary change -- undo the picking done by the first click of the double-click
 ##        ###e probably need to update the display too? not sure. ####@@@@
-##        if item.object.picked: print "didn't wpork!"######@@@@@@
+##        if item.object.picked: print "didn't work!"####@@@@
 ##        else: print "did work!"
         if col != 0: return
         if not item.renameEnabled(col):

@@ -278,6 +278,12 @@ class DebugMenuMixin:
             ('enable ATOM_DEBUG', self._debug_enable_atom_debug ),
             ('disable ATOM_DEBUG', self._debug_disable_atom_debug ),
             ('choose font', self._debug_choose_font),
+        ] )
+        if self._debug_win:
+            res.extend( [
+                ('call update_parts()', self._debug_update_parts ),
+            ] )
+        res.extend( [
             ('print self', self._debug_printself),
         ] )
         return res
@@ -296,6 +302,10 @@ class DebugMenuMixin:
         histfunc = self._debug_history().message
         load_window_pos_size( win, keyprefix, histmessage = histfunc)
 
+    def _debug_update_parts(self):
+        win = self._debug_win
+        win.assy.update_parts()
+        
     def _debug_choose_font(self): #bruce 050304 experiment; works; could use toString/fromString to store it in prefs...
         oldfont = self.font()
         from qt import QFontDialog

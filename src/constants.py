@@ -95,8 +95,6 @@ def logicColor(logic):
     if logic==1: return navy
     if logic==2: return yellow
 
-assyList = []
-
 elemKeyTab =  [('H', Qt.Key_H, 1),
                ('B', Qt.Key_B, 5),
                ('C', Qt.Key_C, 6),

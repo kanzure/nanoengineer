@@ -231,7 +231,7 @@ class depositMode(basicMode):
 
         return # the caller will now call update_gui(); we rely on that [bruce 050122]
     
-    def update_gui(self): #bruce 050121 heavily revised this
+    def update_gui(self): #bruce 050121 heavily revised this [called by basicMode.UpdateDashboard]
         """can be called many times during the mode;
         should be called only by code in modes.py
         """
@@ -258,6 +258,15 @@ class depositMode(basicMode):
         return
 
     def update_gui_0(self): #bruce 050121 split this out and heavily revised it
+        # [Warning, bruce 050316: when this runs, new clipboard items might not yet have
+        # their own Part, or the correct Part! So this code should not depend
+        # on the .part member of any nodes it uses. If this matters, a quick
+        # (but inefficient) fix would be to call that method right here...
+        # except that it might not be legal to do so! Instead, we'd probably need
+        # to arrange to do the actual updating (this method) only at the end of
+        # the current user event. We'll need that ability pretty soon for other
+        # reasons (probably for Undo), so it's ok if we need it a bit sooner.]
+        
         # update the contents of self.w.pasteComboBox
         # to match the set of pastable objects on the clipboard,
         # which is cached in pastables_list for use when spinbox is "spun",
@@ -1339,7 +1348,9 @@ class depositMode(basicMode):
             #  of how this code changed as the storage order of Group.members changed
             #  (but out of sync, so that bugs often existed).]
             
-            self.o.assy.shelf.addmember(new) # adds at the end
+            self.o.assy.shelf.addchild(new) # adds at the end
+            self.o.assy.update_parts() # bruce 050316; needed when adding clipboard items.
+                # Is this soon enough for UpdateDashboard?? or does it matter if it comes first? #####@@@@@
             
             # bruce 050121 don't change selection anymore; it causes too many bugs
             # to have clipboard items selected. Once my new model tree code is
@@ -1350,7 +1361,7 @@ class depositMode(basicMode):
             self.w.pasteP = True
             self.pastable = new # do this again, to influence the following:
             self.UpdateDashboard()
-                # (also called by shelf.addmember(), but only after my home mods
+                # (also called by shelf.addchild(), but only after my home mods
                 #  to Utility.py get committed, i.e. not yet -- bruce 050121)
 
             self.w.mt.mt_update() # since clipboard changed

@@ -141,8 +141,19 @@ class Part(InvalMixin):
         self.temperature = 300
         self.waals = None
 
+        if platform.atom_debug:
+            print "atom_debug: fyi: created Part:", self
+
         return # from Part.__init__
 
+    def __repr__(self):
+        classname = self.__class__.__name__
+        try:
+            topnodename = "%r" % self.topnode.name
+        except:
+            topnodename = "<topnode??>"
+        return "<%s %#x %s (%d nodes)>" % (classname, id(self), topnodename, self.nodecount)
+    
     # == membership maintenance
 
     # Note about selection of nodes moving between parts:
@@ -466,6 +477,8 @@ class Part(InvalMixin):
             # just call mol.moveto when you're done, like fileIO does.   
         ## done in addchild->changed_dad->inherit_part->Part.add:
         ## self.invalidate_attrs(['natoms','molecules']) # this also invals bbox and center, via molecules
+        if platform.atom_debug:
+            self.assy.checkparts()
 
     def ensure_toplevel_group(self): #bruce 050228, 050309
         "make sure this Part's toplevel node is a Group, by Grouping it if not."
@@ -474,16 +487,19 @@ class Part(InvalMixin):
             # to do this correctly, I think we have to know that we're a "clipboard item";
             # this implem might work even if we permit Groups of clipboard items someday
             old_top = self.topnode
+            # beginning of section during which assy's Part structure is invalid
             self.topnode = Group("Group", self.assy, None)
             self.add(self.topnode)
             # now put the new Group into the node tree in place of old_top
             old_top.addsibling(self.topnode)
             self.topnode.addchild(old_top) # do this last, since it makes old_top forget its old location
-            if self.assy.current_selection_group == old_top: # probably true
-                self.assy.current_selection_group = self.topnode
-                # this suggests that current part ought to be more primitive than current s.g...
-                # no need to call assy.current_selection_group_changed, AFAIK
-            # now the Part situation should be ok, no need for assy.update_parts
+            # now fix our assy's current selection group if it used to be old_top,
+            # but without any of the usual effects from "selgroup changed"
+            # (since in a sense it didn't).
+            self.assy.fyi_part_topnode_changed(old_top, self.topnode)
+            # end of section during which assy's Part structure is invalid
+            if platform.atom_debug:
+                self.assy.checkparts()
         return
     
     # ==
@@ -993,11 +1009,11 @@ class Part(InvalMixin):
                 use = new
                 use.name = self.topnode.name # not copying any other properties of the Group (if it has any)
                 new = Group(gensym("Copy"), self.assy, None)
-                new.addmember(use)
+                new.addchild(use)
             else:
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
                 # bruce 050131 inference from recalled bug report:
-                # this must fail in some way that addmember handles, or tolerate jigs/groups but shouldn't;
+                # this must fail in some way that addchild handles, or tolerate jigs/groups but shouldn't;
                 # one difference is that for chunks it would leave them in assy.molecules whereas copy would not;
                 # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
                 # like bug 278! Because findpick (etc) uses assy.molecules. So I fixed this with sanitize_for_clipboard, below.
@@ -1025,7 +1041,7 @@ class Part(InvalMixin):
                     # (which won't help the underlying problem in other cases like drag & drop, sorry),
                     # based on the theory that chunks remaining in assy.molecules is the problem:
                     ## self.sanitize_for_clipboard(ob) ## zapped 050307 since obs
-                    self.shelf.addmember(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
+                    self.shelf.addchild(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
                     # if the new member is a molecule, move it to the center of its space
                     if isinstance(ob, molecule): ob.move(-ob.center)
                 ## ob.pick() # bruce 050131 removed this
@@ -1068,12 +1084,12 @@ class Part(InvalMixin):
         # x is each node in the tree that is picked. [bruce 050201 comment: it's ok if self.topnode is picked.]
         # [bruce 050131 comments (not changing it in spite of bugs):
         #  the x's might be chunks, jigs, groups... but maybe not all are supported for copy.
-        #  In fact, Group.copy returns 0 and Jig.copy returns None, and addmember tolerates that
+        #  In fact, Group.copy returns 0 and Jig.copy returns None, and addchild tolerates that
         #  and does nothing!!
         #  About chunk.copy: it sets numol.assy but doesn't add it to assy,
         #  and it sets numol.dad but doesn't add it to dad's members -- so we do that immediately
-        #  in addmember. So we end up with a members list of copied chunks from assy.tree.]
-        self.topnode.apply2picked(lambda(x): new.addmember(x.copy(None))) #bruce 050215 changed mol.copy arg from new to None
+        #  in addchild. So we end up with a members list of copied chunks from assy.tree.]
+        self.topnode.apply2picked(lambda(x): new.addchild(x.copy(None))) #bruce 050215 changed mol.copy arg from new to None
 
         # unlike for cut, no self.changed() should be needed
         
@@ -1081,11 +1097,11 @@ class Part(InvalMixin):
             nshelf_before = len(self.shelf.members) #bruce 050201
             for ob in new.members[:]:
                 # [bruce 050215 copying that members list, to fix bug 360 comment #6 (item 5),
-                # which I introduced in Alpha-2 by making addmember remove ob from its prior home,
+                # which I introduced in Alpha-2 by making addchild remove ob from its prior home,
                 # thus modifying new.members during this loop]
                 ## no longer needed, 050309:
                 ## self.sanitize_for_clipboard(ob) # not needed on 050131 but might be needed soon, and harmless
-                self.shelf.addmember(ob) # add new member(s) to the clipboard
+                self.shelf.addchild(ob) # add new member(s) to the clipboard
                 # if the new member is a molecule, move it to the center of its space
                 if isinstance(ob, molecule): ob.move(-ob.center)
             ## ob.pick() # bruce 050131 removed this
@@ -1100,7 +1116,7 @@ class Part(InvalMixin):
         self.w.win_update()
         return
 
-    def break_interpart_bonds(self): ######@@@@@@ refile, review, implem for jigs
+    def break_interpart_bonds(self): ###@@@ move elsewhere in method order? review, implem for jigs
         """Break all bonds between nodes in this part and nodes in other parts;
         jig-atom connections count as bonds [but might not be handled correctly as of 050308].
         #e In future we might optimize this and only do it for specific node-trees.
@@ -1244,6 +1260,10 @@ class Part(InvalMixin):
         
     # makes a simulation movie
     def makeSimMovie(self):
+        if self.__class__ != MainPart: #bruce 050316 temporary kluge
+            self.w.history.message( redmsg( "Simulator is not yet implemented for clipboard items."))
+            return -1
+        
         self.simcntl = runSim(self.assy) # Open SimSetup dialog
         if self.m.cancelled: return -1 # user hit Cancel button in SimSetup Dialog.
         r = self.writemovie()
@@ -1260,6 +1280,10 @@ class Part(InvalMixin):
             1 = tell writemovie() to create a single-frame XYZ file.
             2 = tell writemovie() to create a multi-frame DPB moviefile.
         """
+        if self.__class__ != MainPart: #bruce 050316 temporary kluge
+            self.w.history.message( redmsg( "Minimize is not yet implemented for clipboard items."))
+            return
+        
         r = self.writemovie(mtype) # Writemovie informs user if there was a problem.
         if r: return # We had a problem writing the minimize file.  Simply return.
         
@@ -1292,7 +1316,7 @@ class Part(InvalMixin):
             del(m) #bruce comment 050223: this statement has no effect.
             return
         mol = self.selatoms.values()[0].molecule
-        mol.dad.addmember(m)
+        mol.dad.addchild(m)
         self.unpickatoms()
       
     def makeLinearMotor(self, sightline):
@@ -1308,7 +1332,7 @@ class Part(InvalMixin):
             del(m) #bruce comment 050223: this statement has no effect.
             return
         mol = self.selatoms.values()[0].molecule
-        mol.dad.addmember(m)
+        mol.dad.addchild(m)
         self.unpickatoms()
 
     def makeground(self):
@@ -1322,7 +1346,7 @@ class Part(InvalMixin):
         if len(self.selatoms) > 30: return
         m=Ground(self, self.selatoms.values())
         mol = self.selatoms.values()[0].molecule
-        mol.dad.addmember(m)
+        mol.dad.addchild(m)
         self.unpickatoms()
 
     def makestat(self):
@@ -1331,7 +1355,7 @@ class Part(InvalMixin):
         if not self.selatoms: return
         if len(self.selatoms) != 1: return
         m=Stat(self, self.selatoms.values())
-        m.atoms[0].molecule.dad.addmember(m) #bruce 050210 replaced obs .mol attr
+        m.atoms[0].molecule.dad.addchild(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
         
     def makethermo(self):
@@ -1340,7 +1364,7 @@ class Part(InvalMixin):
         if not self.selatoms: return
         if len(self.selatoms) != 1: return
         m=Thermo(self, self.selatoms.values())
-        m.atoms[0].molecule.dad.addmember(m) #bruce 050210 replaced obs .mol attr
+        m.atoms[0].molecule.dad.addchild(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
 
     # == helpers for SelectConnected and SelectDoubly
@@ -1586,6 +1610,7 @@ class MainPart(Part):
     def immortal(self): return True
     def location_name(self):
         return "main part"
+    assy_attrs_all = ['m'] + Part.assy_attrs_all #####@@@@@ temporary kluge, i hope [050316]
     pass
 
 class ClipboardItemPart(Part):
@@ -1598,84 +1623,84 @@ class ClipboardItemPart(Part):
 
 # ==
 
-def process_changed_dads_fix_parts():
-    """Grab (and reset) the global set of nodes with possibly-changed dads,
-    and use this info (and our memory from prior times we ran??)
-    to fix Parts of all affected nodes.
-    If this should someday coexist with other things to do with the
-    same set of nodes with changed dads (at the same time, since it's reset),
-    then how these interact is unclear; probably we'll be put into an order
-    or nesting with those, become methods of an object, and not do our own grab/reset.
-    """
-    # [Try to be correct even if there are multiple assys and nodes can move between them!
-    #  I don't know if we'll achieve this, and it's not urgent.]
-    nodes = changed.dads.grab_and_reset_changed_objects()
-    ##e future: also know their old dads, so we can see if the dads really changed. Not very important, not done yet.
-    # A node with a new dad might have a new Part, and any of its children might have one.
-    # By the time we run, they all already have their new dad, so we can figure out what Part they and kids should have.
-    # So one easy scheme is just to invalidate the Part for all nodes that might have it wrong. #####@@@@@ not sure...
-    # And then, when done, recompute them all? We do want to *actually finish* moving nodes from their old to new Parts,
-    # and when that's done, checking them all for external bonds that have become interspace bonds and need to be broken
-    # or (maybe) need to induce new Parts to merge.
-    for node in topmost_nodes(nodes):
-        # this includes nodes that got moved, but perhaps also some "deleted"
-        # nodes no longer in the tree at all. This might be a good place to destroy
-        # the latter kind! But to avoid bugs, it's safer to do that later (or never).
-        # But we detect them right away, to avoid bugs in other methods like find_selection_group.
-        if not node.has_home():
-            # actually we need to remove them from their Parts, at least, right away.
-            clean_deleted_node( node)
-                #e (this would be bad if we wanted to keep it around for undo-related purposes)
-            continue
-        sg = node.find_selection_group()
-        ###e next steps: ######@@@@@@ this is where i am, 050303 10:09pm
-        # figure out part, make it if nec, see fix_parts (merge that in here somehow, just sort of inline it, about here or so)
-        # scan tree headed at node, set part (apply2all), and whenever it changed, record node in another list or dict
-        # (no node will be recorded twice since these trees are disjoint and since sg is deterministic for them, assert node!=clipboard)
-        # now all part settings are right, membership props (selmols etc) can be fixed when we change part value;
-        # so all that's left is handling extern bonds that are now interspace bonds, i think.
-        pass#####@@@@@
-
-def clean_deleted_node(node):
-    "apply this to all deleted nodes found; it's recursive, no need to use apply2all"
-    try:
-        #e probably they should already be killed, let's check this if we can
-        if node.assy and platform.atom_debug:
-            print "fyi, possible bug: clean_deleted_node hits one with an assy (thus not yet killed)", node
-        node.kill() # kills members first; removes it from its part; supposedly ok to kill any node twice
-    except:
-        print_compact_traceback("bug, trying to ignore it: exception in clean_deleted_node: ")
-    return
-
-    ## not needed:
-##def destroy_nodes_own_part(node):
-##    "if node is the top node of its Part, remove that Part from node and its tree, and destroy that Part" ###k?? for who?
-##    if node.part and node.part.topnode == node:
-##        ...
-
-# ==
-
-# this might be obs before it's ever used; or maybe we'll still want it, not sure yet. [050303 comment]
-
-from Utility import MovingNodes
-
-class MovingBondedNodes(MovingNodes):
-    """Guiding & History Object for moving a set of "bonded nodes", perhaps between parts.
-    """ #e does this also assume we have the selection rules of "within one part"? Does that even matter to this class?
-    # it matters to the callers, esp in whether they are in assy or part objects.
-    def begin(self, nodes):
-        ###e extend the nodes to include their desirable baggage (jigs, groups),
-        # at least in cases of inter-part moves or spatial moves (different issues? maybe not)
-        super.begin(self, nodes)
-        self.externs = [] #e extern bonds from that set of nodes as a whole --
-            # not needed yet unless we want to show it or use it for baggage
-    def end(self):
-        super.end(self) # now or later?
-        #e maintain node -> part mapping; figure out which nodes moved between parts; maintain parts' nodelists etc;
-        #e break interspace bonds - for each extern bond (from the moved set), check it? can we assume they end up in same part???
-        # no, in general we can't, so instead, just look at all externs from each node in a new part, to see which ones to break.
-        # BTW, also record these breakages in this history-object,
-        # since it caused them and explained them and they'll become part of its single undo-group.
-    pass
-
-# end
+##def process_changed_dads_fix_parts():
+##    """Grab (and reset) the global set of nodes with possibly-changed dads,
+##    and use this info (and our memory from prior times we ran??)
+##    to fix Parts of all affected nodes.
+##    If this should someday coexist with other things to do with the
+##    same set of nodes with changed dads (at the same time, since it's reset),
+##    then how these interact is unclear; probably we'll be put into an order
+##    or nesting with those, become methods of an object, and not do our own grab/reset.
+##    """
+##    # [Try to be correct even if there are multiple assys and nodes can move between them!
+##    #  I don't know if we'll achieve this, and it's not urgent.]
+##    nodes = changed.dads.grab_and_reset_changed_objects()
+##    ##e future: also know their old dads, so we can see if the dads really changed. Not very important, not done yet.
+##    # A node with a new dad might have a new Part, and any of its children might have one.
+##    # By the time we run, they all already have their new dad, so we can figure out what Part they and kids should have.
+##    # So one easy scheme is just to invalidate the Part for all nodes that might have it wrong. #####@@@@@ not sure...
+##    # And then, when done, recompute them all? We do want to *actually finish* moving nodes from their old to new Parts,
+##    # and when that's done, checking them all for external bonds that have become interspace bonds and need to be broken
+##    # or (maybe) need to induce new Parts to merge.
+##    for node in topmost_nodes(nodes):
+##        # this includes nodes that got moved, but perhaps also some "deleted"
+##        # nodes no longer in the tree at all. This might be a good place to destroy
+##        # the latter kind! But to avoid bugs, it's safer to do that later (or never).
+##        # But we detect them right away, to avoid bugs in other methods like find_selection_group.
+##        if not node.has_home():
+##            # actually we need to remove them from their Parts, at least, right away.
+##            clean_deleted_node( node)
+##                #e (this would be bad if we wanted to keep it around for undo-related purposes)
+##            continue
+##        sg = node.find_selection_group()
+##        ###e next steps: ######@@@@@@ this is where i am, 050303 10:09pm
+##        # figure out part, make it if nec, see fix_parts (merge that in here somehow, just sort of inline it, about here or so)
+##        # scan tree headed at node, set part (apply2all), and whenever it changed, record node in another list or dict
+##        # (no node will be recorded twice since these trees are disjoint and since sg is deterministic for them, assert node!=clipboard)
+##        # now all part settings are right, membership props (selmols etc) can be fixed when we change part value;
+##        # so all that's left is handling extern bonds that are now interspace bonds, i think.
+##        pass#####@@@@@
+##
+##def clean_deleted_node(node):
+##    "apply this to all deleted nodes found; it's recursive, no need to use apply2all"
+##    try:
+##        #e probably they should already be killed, let's check this if we can
+##        if node.assy and platform.atom_debug:
+##            print "fyi, possible bug: clean_deleted_node hits one with an assy (thus not yet killed)", node
+##        node.kill() # kills members first; removes it from its part; supposedly ok to kill any node twice
+##    except:
+##        print_compact_traceback("bug, trying to ignore it: exception in clean_deleted_node: ")
+##    return
+##
+##    ## not needed:
+####def destroy_nodes_own_part(node):
+####    "if node is the top node of its Part, remove that Part from node and its tree, and destroy that Part" ###k?? for who?
+####    if node.part and node.part.topnode == node:
+####        ...
+##
+### ==
+##
+### this might be obs before it's ever used; or maybe we'll still want it, not sure yet. [050303 comment]
+##
+##from Utility import MovingNodes
+##
+##class MovingBondedNodes(MovingNodes):
+##    """Guiding & History Object for moving a set of "bonded nodes", perhaps between parts.
+##    """ #e does this also assume we have the selection rules of "within one part"? Does that even matter to this class?
+##    # it matters to the callers, esp in whether they are in assy or part objects.
+##    def begin(self, nodes):
+##        ###e extend the nodes to include their desirable baggage (jigs, groups),
+##        # at least in cases of inter-part moves or spatial moves (different issues? maybe not)
+##        super.begin(self, nodes)
+##        self.externs = [] #e extern bonds from that set of nodes as a whole --
+##            # not needed yet unless we want to show it or use it for baggage
+##    def end(self):
+##        super.end(self) # now or later?
+##        #e maintain node -> part mapping; figure out which nodes moved between parts; maintain parts' nodelists etc;
+##        #e break interspace bonds - for each extern bond (from the moved set), check it? can we assume they end up in same part???
+##        # no, in general we can't, so instead, just look at all externs from each node in a new part, to see which ones to break.
+##        # BTW, also record these breakages in this history-object,
+##        # since it caused them and explained them and they'll become part of its single undo-group.
+##    pass
+##
+### end

@@ -30,6 +30,12 @@ from inval import InvalMixin
 # object with unbonded atoms, and with bonds to atoms in other
 # molecules
 
+# [bruce 050315 adds: I've seen "part" used for the assembly, but not for "chunk"
+#  (which is the current term for instances of class molecule).
+#  Now, however, each assy has one or more Parts, each with its own
+#  physical space, containing perhaps many bonded chunks. So any use of
+#  "part" to mean "chunk" would be misleading.]
+
 # Huaicai: It's completely possible to create a molecule without any atoms,
 # so don't assume it always has atoms.   09/30/04
 # (However, as of bruce 041116 we kill any mol which loses all its atoms
@@ -92,7 +98,7 @@ class molecule(Node, InvalMixin):
         
         # this set and the molecule in assembly.selmols
         # must remain consistent
-        self.picked=0
+        ## self.picked=0 # bruce 050308 removed this, redundant with Node.__init__
         
         # this overrides atom colors if set
         self.color = None
@@ -116,6 +122,21 @@ class molecule(Node, InvalMixin):
         
         return # from molecule.__init__
 
+    def break_interpart_bonds(self): #bruce 050308-16 to help fix bug 371
+        "[overrides Node method]"
+        # check atom-atom bonds
+        for b in self.externs[:]:
+            #e should this loop body be a bond method??
+            m1 = b.atom1.molecule
+            m2 = b.atom2.molecule
+            assert m1.part and m2.part ###@@@ justified??
+            if m1.part != m2.part:
+                b.bust() 
+        # check atom-jig bonds ####@@@@ in the future! Callers also need to handle some jigs specially first, which this would destroy
+        ### actually this would be inefficient from this side (it would scan all atoms), so let's let the jigs handle it...
+        # tho that won't work when we can later apply this to a subtree... so review it then.
+        return
+    
     def set_hotspot(self, hotspot): #bruce 050217
         # make sure no other code forgot to call us and set it directly
         assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
@@ -812,8 +833,8 @@ class molecule(Node, InvalMixin):
             pass
 
             if self.hotspot: # note, as of 050217 that can have side effects in getattr
-                if platform.atom_debug:
-                    self.overdraw_hotspot(glpane, disp)
+                if 1: #bruce 050316 always do this; was "if platform.atom_debug:"
+                    self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
 
         except:
             print_compact_traceback("exception in molecule.draw, continuing: ")
@@ -873,8 +894,8 @@ class molecule(Node, InvalMixin):
         #  and added after the new-feature deadline passed for Alpha).
         #    If atom_debug and if this chunk is a clipboard item, display its hotspot
         # (if there is one), like we do selatom (so no worries about resetting havelist).
-        if not platform.atom_debug:
-            return # redundant with caller
+##        if not platform.atom_debug:
+##            return # redundant with caller
         try:
             # if any of this fails (which is normal), it means don't use this feature for self.
             assert self in self.assy.shelf.members
@@ -1160,7 +1181,8 @@ class molecule(Node, InvalMixin):
         return self.quat.unrot( anything - self.basecenter)
 
     def set_basecenter_and_quat(self, basecenter, quat):
-        """Deprecated public method: change this molecule's basecenter and quat to the specified values.
+        """Deprecated public method: change this molecule's basecenter and quat to the specified values,
+        as a way of moving the molecule's atoms.
         It's deprecated since basecenter and quat are replaced by in-principle-arbitrary values
         every time certain recomputations are done, but this method is only useful if the caller
         knows what they are, and computes the new ones it wants relative to what they are.
@@ -1168,6 +1190,7 @@ class molecule(Node, InvalMixin):
         #"""
         # [written by bruce for extrude; moved into class molecule by bruce 041104]
         # modified from mol.move and mol.rot as of 041015 night
+        self.basepos # bruce 050315 bugfix: recompute this if it's currently invalid!
         # make sure mol owns its new basecenter and quat,
         # since it might destructively modify them later!
         self.basecenter = V(0,0,0) + basecenter
@@ -1256,19 +1279,44 @@ class molecule(Node, InvalMixin):
             self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
                 # (might not be needed for other kinds of leaf nodes... not sure. [bruce 050131])
             Node.pick(self)
-            self.assy.selmols.append(self)
+            #bruce 050308 comment: Node.pick has ensured that we're in the current selection group,
+            # so it's correct to append to selmols, *unless* we recompute it now and get a version
+            # which already contains self. So, we'll maintain it iff it already exists.
+            # I'll write this code to run even if my other assy/part changes aren't committed yet.
+            # This needs a later re-review! same with unpick #####@@@@@
+            try:
+                import part # see if the code that defines this was committed yet
+            except:
+                # that code wasn't committed yet
+                self.assy.selmols.append(self)
+            else:
+                # let the Part figure out how best to do this
+                ## self.assy.part.selmols_append(self) ## WRONG
+                if self.part:
+                    self.part.selmols_append(self)
             # bruce 041207 thinks self.havelist = 0 is no longer needed here,
             # since self.draw uses self.picked outside of its display list,
             # so I'm removing that! This might speed up some things.
             ## self.havelist = 0
-            # bruce 041227 moved message from here to one caller, pick_at_event
+            # bruce 041227 moved history message from here to one caller, pick_at_event
 
     def unpick(self):
         """unselect the molecule.
         """
         if self.picked:
             Node.unpick(self)
-            if self in self.assy.selmols: self.assy.selmols.remove(self)
+            # bruce 050308 comment: following probably needs no change for assy/part.
+            # But we'll let the Part do it, so it needn't remake selmols if not made.
+            # But in case the code for assy.part is not yet committed, check that first:
+            try:
+                import part # see comments in pick method
+            except:
+                if self in self.assy.selmols:
+                    self.assy.selmols.remove(self)
+            else:
+                ## self.assy.part.selmols_remove(self) ## WRONG
+                if self.part:
+                    self.part.selmols_remove(self)
             # bruce 041207 thinks self.havelist = 0 is no longer needed here
             # (see comment in self.pick).
             ## self.havelist = 0
@@ -1314,23 +1362,34 @@ class molecule(Node, InvalMixin):
         self.invalidate_attr('atlist') # probably not needed; covers atpos
             # and basepos too, due to rules; externs were correctly set to []
         if self.assy:
-            # remove from assy.molecules, if necessary
+            # bruce 050308 for assy/part split:
+            # do this differently if Node.part code has been committed
             try:
-                self.assy.molecules.remove(self)
-                self.assy.changed()
-                #bruce 050206: this should not be reached if we were in the clipboard!
-                # (since there should be an exception from not being in assy.molecules.)
-                # so if we reached it, "safely assert" we were not.
-                if platform.atom_debug and self.in_clipboard():
-                    print "atom_debug: bug: killed mol was in clipboard but also in assy.molecules:", self
-            except ValueError:
-                #bruce 050206: this might be legal, e.g. if we're in the clipboard.
-                # But it might be important to warn about, if we're not.
-                if platform.atom_debug and not self.in_clipboard():
-                    print "atom_debug: possible bug (not sure): killed mol was not in clipboard but not in assy.molecules:", self
-                ## print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
-                pass
-            ## self.assy = None # [done by Node.kill as of 050214]
+                self.part
+            except AttributeError:
+                # use pre-050308 code:
+                # remove from assy.molecules, if necessary
+                try:
+                    self.assy.molecules.remove(self)
+                    self.assy.changed()
+                    #bruce 050206: this should not be reached if we were in the clipboard!
+                    # (since there should be an exception from not being in assy.molecules.)
+                    # so if we reached it, "safely assert" we were not.
+                    if platform.atom_debug and self.in_clipboard():
+                        print "atom_debug: bug: killed mol was in clipboard but also in assy.molecules:", self
+                except ValueError:
+                    #bruce 050206: this might be legal, e.g. if we're in the clipboard.
+                    # But it might be important to warn about, if we're not.
+                    if platform.atom_debug and not self.in_clipboard():
+                        print "atom_debug: possible bug (not sure): killed mol was not in clipboard but not in assy.molecules:", self
+                    ## print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
+                    pass
+                ## self.assy = None # [done by Node.kill as of 050214]
+            else:
+                # let the Part handle it
+                if self.part:
+                    self.part.remove(self)
+                    assert self.part == None
         Node.kill(self) #bruce 050214 moved this here, made it unconditional
         return # from molecule.kill
 

@@ -1727,24 +1727,6 @@ class extrudeMode(basicMode):
 
 # ==
 
-### should be a method in assembly (tho it also uses my local customizations to mol.copy and atom.copy)
-##def assy_copy(assy, mols, offset = V(10.0, 10.0, 10.0)):
-##    """in assy, copy the mols in the list of mols; return list of new mols.
-##    The code is modified from pre-041007 assembly.copy [is that code used? correct? it doesn't do anything with nulist].
-##    But then extended to handle post-041007 by bruce, 041007-08
-##    Note, as a side effect (of molecule.copy), the new mols are picked and the old mols are unpicked. ####k [not anymore 041014]
-##    """
-##    self = assy
-##    nulist = [] # moved out of loop; is that a bug in assy.copy too?? ###k
-##    for mol in mols[:]: # copy the list in case it happens to be self.selmols (needed??)
-##        self.changed() # only if loop runs
-##        numol = mol.copy( mol.dad, offset)
-##        nulist += [numol]
-##        self.addmol(numol) ###k ###@@@ why was this not already done in mol.copy?? [bruce 041116 question]
-##            # answer: because mol.copy makes mols meant for the clipboard, too! addmol for them is very wrong. [bruce 050202]
-##        # what does it, when mol is actually copied by UI? 
-##    return nulist
-
 # should be a method in assembly (maybe there is one like this already??)
 def assy_merge_mols(assy, mollist):
     "merge multiple mols in assy into one mol in assy, and return it"
@@ -1800,7 +1782,8 @@ def assy_extrude_unit(assy, really_make_mol = 1):
     """
     # bruce 041222: adding really_make_mol flag.
 
-    assy.unselect_clipboard_items() #bruce 050131 for Alpha
+    ## not needed (and not good) after assy/part split, 050309:
+    ## assy.unselect_clipboard_items() #bruce 050131 for Alpha
 
     assy_fix_selmol_bugs(assy)
     resmol = "not a mol"

@@ -2,7 +2,7 @@
 """
 modelTree.py -- The model tree display widget. Inherits from TreeWidget.py.
 
-[temporarily owned by Bruce, circa 050107, until further notice]
+[mostly owned by Bruce]
 
 $Id$
 
@@ -103,58 +103,9 @@ class modelTree(TreeWidget):
         like this.
         """
         self.clear()
+        # prevents Windows crash if an item's text is being edited in-place
+        # [huaicai & bruce 050201 for Alpha to fix bug 369; not sure how it works]
         return
-        
-    # prevents Windows crash if an item's text is being edited in-place
-    # [huaicai & bruce 050201 for Alpha to fix bug 369; not sure how it works]
-
-
-
-##    def _init_menus(self):
-##        # Single Item Selected Menu
-##        self.singlemenu_spec = ([
-##            
-##            ["Hide",   self.cm_hide],
-##            ["Unhide", self.cm_unhide],
-##            None,
-##            ["Copy",   self.cm_copy],
-##            ["Cut",    self.cm_cut],
-##            ["Delete", self.cm_delete],
-##            None,
-##            ["Properties", self.cm_properties],
-##            ])
-##
-##        # Multiselected Menu
-##        self.multimenu_spec = ([
-##            
-##            ["Group",   self.cm_group],
-##            ["Ungroup", self.cm_ungroup],
-##            None,
-##            ["Hide",   self.cm_hide],
-##            ["Unhide", self.cm_unhide],
-##            None,
-##            ["Copy",   self.cm_copy],
-##            ["Cut",    self.cm_cut],
-##            ["Delete", self.cm_delete],
-##            None,
-##            ["Properties", self.cm_properties],
-##            ])
-##            
-##        # Part Node Menu
-##        self.partmenu_spec = ([
-##            
-##            ["Properties", self.cm_properties],
-##            ])
-##            
-##        # Clipboard Menu
-##        self.clipboardmenu_spec = ([
-##            
-##            ["Delete",     self.cm_delete],
-##            None,
-##            ["Properties", self.cm_properties],
-##            ])
-##
-##        return # from _init_menus
 
     # callbacks from superclass to help it update the display
     
@@ -163,7 +114,7 @@ class modelTree(TreeWidget):
         self.assy.tree.name = self.assy.name
             #k is this still desirable, now that we have PartGroup
             # so it's no longer needed for safety?
-        kluge_patch_assy_toplevel_groups( self.assy)
+        kluge_patch_assy_toplevel_groups( self.assy, assert_this_was_not_needed = True)
             # fixes Group subclasses of assy.shelf and assy.tree,
             # and inserts assy.data.members into assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
@@ -276,15 +227,15 @@ class modelTree(TreeWidget):
 
         ## res.append(None) # separator - from now on, add these at start of optional sets, not at end
 
-        # Special clipboard-selection commands
-        # [bruce 050131 -- only available when ATOM_DEBUG is set,
-        #  since Alpha new-feature deadline has passed
-        #  and since not yet useful enough except for debugging, anyway]
-        if platform.atom_debug:
-            if len(nodeset) >= 1 and nodeset[0].find_selection_group() != self.tree_node:
-                # selection is in a selection group which is not the one usually displayed (i.e. in a clipboard item)
-                res.append(None) # separator
-                res.append(( 'Briefly Show', self.cm_briefly_show ))
+##        # Special clipboard-selection commands
+##        # [bruce 050131 -- only available when ATOM_DEBUG is set,
+##        #  since Alpha new-feature deadline has passed
+##        #  and since not yet useful enough except for debugging, anyway]
+##        if platform.atom_debug:
+##            if len(nodeset) >= 1 and nodeset[0].find_selection_group() != self.tree_node:
+##                # selection is in a selection group which is not the one usually displayed (i.e. in a clipboard item)
+##                res.append(None) # separator
+##                res.append(( 'Briefly Show', self.cm_briefly_show ))
         
         # Edit Properties command -- only provide this when there's exactly one thing to apply it to,
         # and it says it can handle it.
@@ -313,12 +264,7 @@ class modelTree(TreeWidget):
             res.append(None) # separator
 
             res.append(( "selection:", noop, 'disabled' ))
-            
-##            if len(nodeset) > 1:
-##                res.append(( "%d selections:" % len(nodeset), noop, 'disabled' ))
-##            else:
-##                res.append(( "selection:", noop, 'disabled' ))
-            
+                        
             if allstats.nchunks:
                 res.append(( fix_plurals("%d chunk(s)" % allstats.nchunks), noop, 'disabled' ))
             
@@ -391,6 +337,9 @@ class modelTree(TreeWidget):
             # (should never occur, if caller constructs menu properly, unless it wants
             #  to permit 1-item groups, which would require a new special case here to do
             #  correctly, I think -- bruce 050126)
+            # bruce comment 050316: this is also the only case which could mess up the Part structure.
+            # If we permit it, we'll need update_parts or the some other fixup to put the Group in a Part
+            # Until then, we can ignore Parts in this method.
             self.win.history.message("single item, not making a new Group")
             return
         # node is an unpicked Group; more than one of its children are either picked
@@ -411,50 +360,83 @@ class modelTree(TreeWidget):
         for m in node.members:
             if m.haspicked():
                 assert m != new
-                node.delmember(new) #e (addsibling ought to do this for us...)
+                ## node.delmember(new) #e (addsibling ought to do this for us...) [now it does]
                 m.addsibling(new, before = True)
                 break # (this always happens, since something was picked under node)
         node.apply2picked(lambda(x): x.moveto(new)) # was self.tree_item.object.apply2picked
             # this will have skipped new before moving anything picked into it!
             # even so, I'd feel better if it unpicked them before moving them...
             # but I guess it doesn't. for now, just see if it works this way... seems to work.
+            # ... later [050316], it evidently does unpick them, or maybe delmember does.
         msg = "grouped %d items into %s" % (len(new.members), new.name)
         self.win.history.message( msg)
-        
-        # we have not changed picked state of anything in glpane, so in theory only the mtree
-        # needs updating... [050126, untested]
-        self.mt_update() # bruce 050110 this does not seem to be always working ###@@@ still??
+
+        # now, should we pick the new group so that glpane picked state has not changed?
+        # or not, and then make sure to redraw as well? hmm...
+        # - possibility 1: try picking the group, then see if anyone complains.
+        # Caveat: future changes might cause glpane redraw to occur anyway, defeating the speed-purpose of this...
+        # and as a UI feature I'm not sure what's better.
+        # - possibility 2: don't pick it, do update glpane. This is consistent with Ungroup (for now)
+        # and most other commands, so I'll do it.
+        #
+        # BTW, the prior code didn't pick the group
+        # and orginally didn't unpick the members but now does, so it had a bug (failure to update
+        # glpane to show new picked state), whose bug number I forget, which this should fix.
+        # [bruce 050316]
+        ## new.pick() # this will emit an undesirable history message... fix that?
+        self.win.glpane.gl_update()
+        self.mt_update()
+        return
     
     def cm_ungroup(self):
+        from platform import fix_plurals
         nodeset = self.topmost_selected_nodes()
-        assert len(nodeset) == 1
+        assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
-        assert node.permits_ungrouping()
+        assert node.permits_ungrouping() # ditto
+        need_update_parts = []
+        if node.is_top_of_selection_group():
+            # this case is harder, since dissolving this node causes its members to become
+            # new selection groups. Whether there's one or more members, Part structure needs fixing;
+            # if more than one, interpart bonds need breaking (or in future might keep some subsets of
+            # members together; more likely we'd have a different command for that).
+            # simplest fix -- just make sure to update the part structure when you're done.
+            # [bruce 050316]
+            need_update_parts.append( node.assy)
+        msg = "ungrouping %d item(s) from %r" % (len(node.members), node.name)
+        msg = fix_plurals(msg)
+        self.win.history.message( msg)
         node.ungroup()
-        # for now, this does not change the picked state, so no glpane update is needed... [050126, untested]
+        # this also unpicks the nodes... is that good? Not really, it'd be nice to see who they were,
+        # and to be consistent with Group command, and to avoid a glpane redraw.
+        # But it's some work to make it pick them now, so for now I'll leave it like that.
+        # BTW, if this group is a clipboard item and has >1 member, we couldn't pick all the members anyway!
         #e history.message?
+        for assy in need_update_parts:
+            assy.update_parts() # this should break new inter-part bonds
+        self.win.glpane.gl_update()
         self.mt_update()
 
-    def cm_briefly_show(self): #bruce 050131 experiment (only user-visible when ATOM_DEBUG is set)
-        nodeset = self.topmost_selected_nodes()
-        if len(nodeset) == 0: return
-        selgroup = nodeset[0].find_selection_group()
-        ## if selgroup != self.tree_node: return
-        ##     # should never be called this way so far, tho it'd work if it was
-        # begin kluge block: [I don't yet know if this will work! In fact, it works on Mac but not on Windows.]
-        from HistoryWidget import greenmsg #e or use redmsg here? or orange, for a warning?
-        from Utility import node_name
-        msg = "briefly showing %r; most operations unsafe in Alpha; click in model tree to end" % node_name(selgroup)
-        self.win.history.message( greenmsg( msg ))
-        oldtree = selgroup.assy.tree
-        selgroup.assy.tree = selgroup
-        try:
-            self.win.glpane.paintGL()
-                # direct repaint, not gl_update, since the next gl_update's
-                # redraw will redraw the main part
-        finally:
-            selgroup.assy.tree = oldtree
-        return # without updating!
+##    def cm_briefly_show(self): #bruce 050131 experiment (only user-visible when ATOM_DEBUG is set)
+##        nodeset = self.topmost_selected_nodes()
+##        if len(nodeset) == 0: return
+##        selgroup = nodeset[0].find_selection_group()
+##        ## if selgroup != self.tree_node: return
+##        ##     # should never be called this way so far, tho it'd work if it was
+##        # begin kluge block: [I don't yet know if this will work! In fact, it works on Mac but not on Windows.]
+##        from HistoryWidget import greenmsg #e or use redmsg here? or orange, for a warning?
+##        from Utility import node_name
+##        msg = "briefly showing %r; most operations unsafe in Alpha; click in model tree to end" % node_name(selgroup)
+##        self.win.history.message( greenmsg( msg ))
+##        oldtree = selgroup.assy.tree
+##        selgroup.assy.tree = selgroup
+##        try:
+##            self.win.glpane.paintGL()
+##                # direct repaint, not gl_update, since the next gl_update's
+##                # redraw will redraw the main part
+##        finally:
+##            selgroup.assy.tree = oldtree
+##        return # without updating!
 
     # copy and cut and delete are doable by tool buttons
     # so they might as well be available from here as well;

@@ -28,7 +28,7 @@ from mdldata import marks, links, filler
 
 from debug import print_compact_stack, print_compact_traceback, compact_stack
 
-import platform # for atom_debug, but uses of atom_debug should all grab it
+import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
 
 from elements import *
@@ -119,6 +119,8 @@ class atom:
         # list of jigs (###e should be treated analogously to self.bonds)
         self.jigs = [] # josh 10/26 to fix bug 85
         # whether the atom is selected; see also assembly.selatoms
+        # (note that Nodes also have .picked, with the same meaning, but atoms
+        #  are not Nodes)
         self.picked = 0
         # can be set to override molecule or global value
         self.display = diDEFAULT
@@ -569,9 +571,19 @@ class atom:
         if not self.picked:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
+                #bruce comment 050308: should be ok even if selatoms recomputed for assy.part
             self.molecule.changeapp(1)
             # bruce 041227 moved message from here to one caller, pick_at_event
-                
+            #bruce 050308 comment: we also need to ensure that it's ok to pick atoms
+            # (wrt selwhat), and change current selection group to include self.molecule
+            # if it doesn't already. But in practice, all callers might be ensuring these
+            # conditions already (this is likely to be true if pre-assy/part code was correct).
+            # In particular, atoms are only picked by user in glpane or perhaps by operations
+            # on current part, and in both cases the picked atom would be in the current part.
+            # If atoms can someday be picked from the mtree (directly or by selecting a jig that
+            # connects to them), this will need review.
+        return
+    
     def unpick(self):
         """make the atom unselected
         """
@@ -581,8 +593,15 @@ class atom:
         # the user unpick it!
         ## if self.element == Singlet: return 
         if self.picked:
+            try:
+                #bruce 050309 catch exceptions, and do this before picked=0
+                # so that if selatoms is recomputed now, the del will still work
+                # (required by upcoming "assy/part split")
+                del self.molecule.assy.selatoms[self.key]
+            except:
+                if platform.atom_debug:
+                    print_compact_traceback("atom_debug: atom.unpick finds atom not in selatoms: ")
             self.picked = 0
-            del self.molecule.assy.selatoms[self.key]
             self.molecule.changeapp(1)
 
     def copy_for_mol_copy(self, numol):

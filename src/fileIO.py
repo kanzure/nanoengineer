@@ -229,19 +229,16 @@ def _addMolecule(mol, assy, group):
         """
         assy.addmol(mol)
         mol.moveto(group)
-        mol = None
-        
-        return mol        
-
+        return None #bruce 050228
 
 def _readmmp(assy, filename, isInsert = False):
     """The routine to actually reading a mmp file and save data
     into data structure"""
     #bruce 041011: added 'U' to file mode, for universal newline support.
-    lines = open(filename,"rU").readlines() 
+    lines = open(filename,"rU").readlines()
     if not isInsert:
         assy.filename = filename
-    mol = None
+    mol = None # the current molecule being built, if any [bruce comment 050228]
     ndix = {}
     assy.alist = []
     AddAtoms = True
@@ -623,10 +620,19 @@ def readmmp_info( card, currents, interp ): #bruce 050217
     return
 
 # read a Molecular Machine Part-format file into maybe multiple molecules
-def readmmp(assy, filename):
+def readmmp(assy, filename): #bruce 050302 split out some subroutines for use in other code
     """Reading a mmp file to create a new model """
     grouplist = _readmmp(assy, filename)
-
+    grouplist = fix_grouplist(assy, grouplist)
+    reset_grouplist(assy, grouplist)
+    return
+    
+def fix_grouplist(assy, grouplist):
+    #bruce 050302; temporary since all this code is badly structured
+    """[private]
+    common code for readmmp and insertmmp --
+    check and canonicalize a grouplist read from an mmp file
+    """
     if len(grouplist) == 2:
         #bruce 050217 upward-compatible reader extension (needs no mmpformat-record change):
         # permit missing 3rd group, so we can read mmp files written as input for the simulator
@@ -636,28 +642,52 @@ def readmmp(assy, filename):
         assy.w.history.message( "(fyi: this mmp file was written as input for the simulator, and contains no clipboard items)" )
         
     if len(grouplist) != 3:
-        print "wrong number of top-level groups"
+        print "wrong number of top-level groups; treating file as empty"
         #bruce 050217: also emit a user-visible error message
         # (It says the program treats the file as empty;
-        #  I think this is accurate, but I'm not 100% sure)
+        #  I think this is accurate [given how this function is called],
+        #  but I'm not 100% sure)
         assy.w.history.message( redmsg( "mmp file format error: wrong number of top-level groups; treating file as empty" ))
         #e it would be nice to have an "error return" here...
+        return None
     else:
+        ## assy.data, assy.tree, assy.shelf = grouplist
+        return grouplist
+    pass
+
+def reset_grouplist(assy, grouplist):
+    #bruce 050302 split this out of readmmp;
+    # it should be entirely rewritten and become an assy method
+    """[private]
+    stick a new grouplist into assy, within readmmp;
+    if grouplist is None, indicating file had bad format,
+    do some but not all of the usual side effects.
+    [appropriateness of behavior for grouplist == None is unreviewed]
+    """
+    if grouplist:
         assy.data, assy.tree, assy.shelf = grouplist
+    #bruce 050302: old code does a lot of the following even if grouplist is None;
+    # until I understand all the effects better, I won't change that.
     assy.shelf.name = "Clipboard"
     assy.data.open = assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
     #bruce 050131 for Alpha:
     from Utility import kluge_patch_assy_toplevel_groups
     kluge_patch_assy_toplevel_groups(assy)
+    #bruce 050309 for assy/part split
+    assy.update_parts()
+##    assy.fix_parts() #bruce 050302 for assy/part split
     return
-    
-def insertmmp(assy, filename):
-    """Reading a mmp file and insert the part into the existing model """    
-    groupList  = _readmmp(assy, filename, isInsert = True)
-    
-    if len(groupList) != 3: print "wrong number of top-level groups"
-    assy.tree.addmember(groupList[1])
+
+def insertmmp(assy, filename): #bruce 050302 using some subrs split from readmmp
+    """Reading a mmp file and insert the part into the existing model """
+    #####@@@@@ this implem is wrong -- does it in the main part, regardless of the current part.
+    grouplist  = _readmmp(assy, filename, isInsert = True)
+    # bruce 050302 permit reading a sim-input mmp file (2 top groups)
+    grouplist = fix_grouplist(assy, grouplist)
+    if grouplist:
+        assy.tree.addmember(grouplist[1])
+    return
 
 def workaround_for_bug_296(assy):
     """If needed, move jigs in assy.tree to later positions

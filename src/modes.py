@@ -1248,7 +1248,8 @@ class modeMixin:
         self.mode = self.nullmode
         
     def start_using_mode(self, mode):
-        """Semi-internal method (meant to be called only from self or
+        """Semi-internal method (meant to be called only from self
+           (typically a GLPane) or
            from one of our mode objects): Start using the given mode
            (name or object), ignoring any prior mode.  If the new mode
            refuses to become current (e.g. if it requires certain
@@ -1256,6 +1257,9 @@ class modeMixin:
            an appropriate message and return True; then we'll start
            using our default mode.
         """
+        if platform.atom_debug:
+            self.assy.checkparts() #bruce 050315 assy/part debug code
+        
         #e (Would it be better to go back to using the immediately
         #   prior mode, if different? Probably not... if so, we'd need
         #   to split this into the query to the new mode for whether
