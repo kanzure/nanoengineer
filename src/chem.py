@@ -415,6 +415,22 @@ class atom:
         if len(bl) > 0:
             f.write("bond1 " + " ".join(map(str,bl)) + "\n")
 
+    def atnum(self, atnums, alist): #bruce 050217
+        """Return the number used to refer to this atom in the mmp file
+        being written using atnums and alist,
+        or None if no number has yet been given to this atom while writing that file.
+        No side effects.
+        In present code, the number won't have been assigned until the atom is written
+        (which happens when its chunk is written).
+           The return value is presently None or a small positive integer,
+        but for compatibility with possible future changes,
+        callers are advised to assume only that it's None or something
+        whose str() is suitable for printing into an mmp record.
+        """
+        # Note: this does what lots of existing code does, e.g. writemmp for
+        # atoms and jigs, but it is not yet generally used by that code.
+        return atnums.get(self.key, None) # this is presently a number, not a string
+    
     # write to a povray file:  draw a single atom
     def writepov(self, file, dispdef, col):
         color = col or self.element.color

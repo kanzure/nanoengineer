@@ -896,11 +896,47 @@ class molecule(Node, InvalMixin):
             pass
         pass
 
+    def readmmp_info_setitem( self, key, val, interp ): #bruce 050217
+        """This is called when reading an mmp file, for each "info chunk" record.
+        Key is a list of words, val a string; the entire record format
+        is presently [050217] "info chunk <key> = <val>".
+        Interp is an object to help us translate references in <val>
+        into other objects read from the same mmp file or referred to by it.
+        See the calls of this method from fileIO for the doc of interp methods.
+           If key is recognized, set the attribute or property
+        it refers to to val; otherwise do nothing.
+           (An unrecognized key, even if longer than any recognized key,
+        is not an error. Someday it would be ok to warn about an mmp file
+        containing unrecognized info records or keys, but not too verbosely
+        (at most once per file per type of info).)
+        """
+        if key == ['hotspot']:
+            # val should be a string containing an atom number referring to
+            # the hotspot to be set for this chunk (which is being read from an mmp file)
+            (hs_num,) = val.split()
+            hs = interp.atom(hs_num)
+            self.set_hotspot(hs)
+        else:
+            if platform.atom_debug:
+                print "atom_debug: fyi: info chunk with unrecognized key %r" % (key,)
+        return
+    
     def writemmp(self, atnums, alist, f):
         disp = dispNames[self.display]
         f.write("mol (" + self.name + ") " + disp + "\n")
         for a in self.atoms.values():
             a.writemmp(atnums, alist, f)
+        #bruce 050217 new feature [see also a comment added to fileIO.py]:
+        # also write the hotspot, if there is one.
+        hs = self.hotspot # uses getattr to validate it
+        if hs:
+            # hs is a valid hotspot in this chunk, and was therefore one of the
+            # atoms just written above, and therefore should have an atnum for
+            # the current mmp file:
+            hs_num = hs.atnum(atnums, alist)
+            assert hs_num != None
+            f.write("info chunk hotspot = %s\n" % hs_num)
+        return
 
     # write to a povray file:  draw the atoms and bonds inside a molecule
     def writepov(self, file, disp):

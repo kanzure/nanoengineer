@@ -3,7 +3,93 @@
 File IO functions for reading and writing PDB and MMP files
 
 $Id$
+
+===
+
+Notes by bruce 050217 about mmp file format version strings:
+
+Specific mmp format versions used so far:
+
+[developers: maintain this list!]
+
+<none> -- before 050130 (shortly before Alpha-1 released)
+
+  (though the format had several versions before then,
+   not all upward-compatible)
+
+050130 -- introduced just before Alpha-1 release, at or shortly after
+two Csys records were stored, one for Home View and one for Last View
+
+'050130 required; 050217 optional' -- introduced on 050217,
+when the info record was added.
+
+General notes (could be moved outside of this file; partly redundant):
+
+- When to change the format-version string:
+
+Each extension to the kinds of info records that can be written
+(or any other upward-compatible file format extension)
+should upgrade the 'optional' date in the format string;
+only changes which should (ideally) cause earlier code to reject
+the file, or warn that reading it might not work properly,
+should upgrade the 'required' date.
+
+(Note that current reader code doesn't yet try to notice whether it's
+too old to read the file; but it does show the user what format the
+file had, in the Edit Properties dialog for the Part.)
+
+It will be good if all format-version strings ever used
+sort in the proper order when sorted as python strings.
+At some point the reader code might assume this.
+  
+- Strictly speaking, the format-version should not be stored in
+the assy since it's a property of the file as written, not of the assy
+contents. But the assy records the value found in the last-read file
+or used in the last-written file (whichever happened later),
+and some other code finds it there for display to the user.
+
+- The format string MUST be updated whenever the mmp file format
+used by our writing-code (writemmp or anything it calls) changes
+in a way which will not work properly when read by older reading code.
+This permits reading code to predict whether it can read the file...
+or it would, if older reading code contained any check of the format,
+but so far it doesn't, so this doesn't yet help older code read newer files.
+This also permits newer reading code to handle both newer and older files,
+and that should work fine provided we do the right thing when we upgrade
+the format (which has never happened since this mmpformat record was introduced).
+
+- The format string CAN be updated when the mmp file format changes
+in an upward-compatible way, which will work better when read by newer code
+but will still work correctly (or just as well as older mmp files do)
+when read by older code. This is the case when new mmp records are added
+(which older reading code will ignore, both in cad and in simulator),
+for which older code ignoring them is not a problem. Whether it's good
+or not to change the format is not yet clear, since the reading code
+doesn't yet try to use that info at all.
+
+- Any change to the written mmp format should be documented in a comment
+near the top of this file, whether or not it's upward-compatible and
+whether or not it resulted in a change to the mmpformat value.
+But this has never been done until 050217 (though the format has
+changed several times).
+
+- Experimental change [bruce 050217:
+We now include in the format both the required date
+of the reading code, for correctly reading the file,
+and the optional date, i.e. the date if you want to read all the optional
+info (e.g. new upward-compatible record types) that might be in the file.
+
+Ideally we'd base the latter on the actual file contents; but probably we
+never will, since it would require two passes (inefficient for big files),
+and is partly redundant (since reader can notice when it doesn't recognize
+something, though it can't guess the date of definition of that thing).
+Probably better would be to write a dated "definition record" before the first
+use of each record type (and say whether it's optional, etc). ##e
 """
+
+MMP_FORMAT_VERSION_TO_WRITE = '050130 required; 050217 optional'
+    #bruce modified this to indicate required & ideal reader versions... see general notes above.
+
 from Numeric import *
 from VQT import *
 from string import *
@@ -227,7 +313,7 @@ def _readmmp(assy, filnam, isInsert = False):
             #"opengroup" will be always at the top of "groupstack" 
             groupstack = [(opengroup, name)] + groupstack 
 
-        if key == "egroup": # Group of Molecules and/or Groups
+        elif key == "egroup": # Group of Molecules and/or Groups
             name = getname(card, "Grp")
             curgrp, curnam = groupstack[0]
             if name != curnam:
@@ -507,9 +593,80 @@ def _readmmp(assy, filnam, isInsert = False):
                 
         elif key=="end1":  # End of main tree
             AddAtoms = False
-    
-    return grouplist        
+
+        elif key == "end":
+            # end of file
+            pass
+        
+        elif key == "info":
+            #bruce 050217 new mmp record, for optional info about
+            # various types of objects which occur earlier in the file
+            # (what I mean by "optional" is that it's never an error for the
+            #  specified type of thing or type of info to not be recognized,
+            #  as can happen when a new file is read by older code)
             
+            # find current chunk -- how we do this depends on details of
+            # the other mmp-record readers in this big if/elif statement,
+            # and is likely to need changing sometime
+            chunk = mol
+            # make dict of all current items that info record might refer to
+            currents = dict(chunk = chunk)
+            interp = mmp_interp(ndix) #e could optim by using the same object each time
+            readmmp_info(card, currents, interp) # has side effect on object referred to by card
+                    
+        else:
+            # unrecognized mmp record; not an error, since the format
+            # is meant to be upward-compatible when new records are added,
+            # as long as it's ok for old code to ignore them and not signal an error
+            #bruce 050217 new debug feature: warning for unrecognized record
+            if platform.atom_debug:
+                print "atom_debug: fyi: unrecognized mmp record type ignored (not an error): %r" % key
+    
+    return grouplist
+
+class mmp_interp: #bruce 050217
+    "helps translate object refs in mmp file to their objects"
+    def __init__(self, ndix):
+        self.ndix = ndix # maps atom numbers to atoms (??)
+    def atom(self, atnum):
+        "map atnum string to atom, while reading mmp file"
+        return self.ndix[int(atnum)]
+    pass
+
+def readmmp_info( card, currents, interp ): #bruce 050217
+    """Handle an info record 'card' being read from an mmp file;
+    currents should be a dict from thingtypes to the current things of those types,
+    for all thingtypes which info records can give info about (so far, just 'chunk');
+    interp should be an mmp_interp object #doc.
+       The side effect of this function, when given "info <type> <name> = <val>",
+    is to tell the current thing of type <type> (that is, the last one read from this file)
+    that its optional info <name> has value <val>,
+    using a standard info-accepting method on that thing.
+    <type> should be a "word";
+    <name> should be one or more "words"
+    (it's supplied as a python list of strings to the info-accepting method);
+    <val> can be (for now) any string with no newlines,
+    and no whitespace at the ends; its permissible syntax might be further restricted later.
+    """
+    #e interface will need expanding when info can be given about non-current things too
+    what, val = card.split('=', 1)
+    key = "info"
+    what = what[len(key):]
+    what = what.strip() # e.g. "chunk xxx" for info of type xxx about the current chunk
+    val = val.strip()
+    what = what.split() # e.g. ["chunk", "xxx"], always 2 or more words
+    type = what[0]
+    name = what[1:] # list of words (typically contains exactly one word, an attribute-name)
+    thing = currents.get(type)
+    if thing: # can be false if type not recognized, or if current one was None
+        # record info about the current thing of type <type>
+        try:
+            thing.readmmp_info_setitem( name, val, interp )
+        except:
+            print_compact_traceback("error reading info record for %s %r, ignored: " % (type, name) )
+    elif platform.atom_debug:
+        print "atom_debug: fyi: no object found for info record for %s %r; ignoring it (not an error)" % (type, name)
+    return
 
 # read a Molecular Machine Part-format file into maybe multiple molecules
 def readmmp(assy, filnam):
@@ -592,7 +749,10 @@ def writemmp(assy, filename, addshelf = True):
     
     # The MMP File Format is initialized here, just before we write the file.
     # Mark 050130
-    assy.mmpformat = '050130'
+    # [see also the general notes and history of the mmpformat,
+    # in a comment or docstring near the top of this file -- bruce 050217]
+    assy.mmpformat = MMP_FORMAT_VERSION_TO_WRITE
+
     f.write("mmpformat %s\n" % assy.mmpformat)
     
     f.write("kelvin %d\n" % assy.temperature)
