@@ -13,7 +13,6 @@ from GLPane import *
 import os
 import help
 from math import ceil
-import assistant
 from runSim import runSim
 from modelTree import *
 
@@ -24,7 +23,6 @@ from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
 helpwindow = None
-assistantwindow = None
 elementwindow = None
 windowList = []
 
@@ -765,33 +763,10 @@ class MWsemantics(MainWindow):
         helpwindow.show()
 
     def helpAssistant(self):
-        # bruce 041105 made this catch more errors, not need NE1DIR
-        global assistantwindow
-        if not assistantwindow:
-            try:
-                nedirenv = environ['NE1DIR']
-            except:
-                # bruce 041105 bugfix -- should not need NE1DIR if user does not
-                # set it -- just assume installation was standard, and find doc
-                # files relative to this python source file.
-                dir, base = os.path.split(__file__)
-                    # e.g. "/.../cad/src" and "MWsemantics.py" (or maybe ".pyc"?)
-                # remove cad/src from end, in os-independent way
-                dir, dir1 = os.path.split(dir)
-                assert dir1 == "src" #e should have decent error message if this fails
-                dir, dir1 = os.path.split(dir)
-                assert dir1 == "cad"
-                nedirenv = dir
-            if nedirenv != None:
-                home = nedirenv + '/cad/doc/html/index.html'
-                assistantwindow = assistant.AssistantWindow(home,QStringList('.'),None,'help viewer')
-        if assistantwindow:
-            assistantwindow.show()
-        else:
-            print "can't find html docs for assistant"
-            #e put in status bar or dialog
-            #e let user try to find them in a file browser
-            #e improve error message; catch assertions and have them cause it too
+        # bruce 041118 moved this into assistant.py so I could merge
+        # common code about where to find the docfiles
+        import assistant
+        assistant.showAssistant()
 	         
     def helpAbout(self):
         QMessageBox.information(self, "ATOM User Notice:", 

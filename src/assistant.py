@@ -431,15 +431,86 @@ class AssistantWindow(QMainWindow):
     def slotAddBookmark(self):
         self.mBookmarks[self.bookm.insertItem(self.caption())] = str(self.browser.context())
 
+    # end of class AssistantWindow
+
+# == knowledge about where to find the doc files, used for either startup method
+
+import os
+
+def findIndexFile():
+    "return the full pathname to our toplevel html docfile, or None if you can't find it"
+    #e This should be extended to ask user for help in locating this pathname,
+    # if it can't find it on its own;
+    # and it's ok if it's extended to put error messages in a dialog
+    # even though the callers also print something then.
+    try:
+        nedirenv = environ['NE1DIR']
+        #e now make it an absolute pathname??
+    except:
+        # bruce 041105 bugfix -- should not need NE1DIR if user does not
+        # set it -- just assume installation was standard, and find doc
+        # files relative to this python source file.
+
+        #e do we first need to make sure __file__ is an absolute pathname??
+        dir, base = os.path.split(__file__)
+            # e.g. "/.../cad/src" and "assistant.py" (or maybe ".pyc"?)
+        # remove cad/src from end, in os-independent way
+        dir, dir1 = os.path.split(dir)
+        assert dir1 == "src" #e should have decent error message if this fails
+        dir, dir1 = os.path.split(dir)
+        assert dir1 == "cad"
+        nedirenv = dir
+    if nedirenv:
+        home = os.path.join( nedirenv, 'cad/doc/html/index.html' )
+        return home
+    return None
+
+# == code for when this file is a module in a larger program:
+
+assistantwindow = None # warning: same name as the class, but different case
+
+def showAssistant(): #bruce 041118 split this out of MWsemantics.helpAssistant
+    """Show the assistant window (if it's not already shown).
+    Needs bugfixes: should put error messages in a dialog and/or statusbar,
+    should let user help locate the doc files if necessary.
+       This function is used only when this file is a module in a larger program;
+    when we're run standalone, similar code in __main__ section below is used.
+    """
+    # bruce 041105 made this catch more errors, not need NE1DIR
+    # bruce 041118 moved this from MWsemantics into this file,
+    # renamed it showAssistant, and made MWsemantics.helpAssistant
+    # call it, since it encodes the same knowledge as the __main__
+    # code below about where to find the docs.
+    # (BTW: For reasons I don't know, closing the window does not prevent it
+    # from being shown again if asked for by again calling this function,
+    # so resetting our global to None is not needed when window is closed.)
+    global assistantwindow
+    if not assistantwindow:
+        # try to make one
+        home = findIndexFile()
+        if home:
+            assistantwindow = AssistantWindow(home,QStringList('.'),None,'help viewer')
+        else:
+            print "can't find html docs for assistant"
+            #e put this in status bar or dialog
+            #e let user try to find them in a file browser
+            #e improve error message; catch assertions and have them cause it too
+            assistantwindow = None # as it already was
+    if assistantwindow:
+        # if it was made previously or made just now
+        assistantwindow.show() # I hope this brings it to the front
+    return
+
+# == code for when we're run standalone:
+
 if __name__=='__main__':
     QApplication.setColorSpec(QApplication.CustomColor)
     app=QApplication(sys.argv)
 
-    nedirenv = environ['NE1DIR']
-    if nedirenv != None:
-        home = nedirenv + '/cad/doc/html/index.html'
-
-#    foo = AssistantWindow()
+    home = findIndexFile()
+    if not home:
+        print "can't find html docs for assistant"
+        sys.exit(1) #bruce 041118
     foo = AssistantWindow(home,QStringList('.'),None,'help viewer')
     if QApplication.desktop().width() > 1000 and QApplication.desktop().height() > 650:
         foo.show()
@@ -449,3 +520,6 @@ if __name__=='__main__':
     QObject.connect(app,SIGNAL('lastWindowClosed()'),app,SLOT('quit()'))
 
     app.exec_loop()
+
+# end of assistant.py
+
