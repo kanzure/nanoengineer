@@ -1181,7 +1181,6 @@ class MWsemantics(MainWindow):
     def toolsExtrude(self):
         self.glpane.setMode('EXTRUDE')
     
-    # Open the Simulator dialog to run a simulation.
     def simSetup(self):
         """Creates a movie of a molecular dynamics simulation.
         """
@@ -1211,7 +1210,6 @@ class MWsemantics(MainWindow):
         else:
             self.history.message("Cancelled.")
 
-    # Play a movie created by the simulator.
     def simPlot(self):
         """Opens the Plot Tool dialog.
         """
@@ -1228,10 +1226,11 @@ class MWsemantics(MainWindow):
                 self.history.message(redmsg("Plot Tool: No simulation has been run yet."))
                 return
                 
+        self.history.message(greenmsg("Plot Tool:"))
+                
         from PlotTool import PlotTool
         self.plotcntl = PlotTool(self.assy) # Open Plot Tool dialog
-            
-    # Play a movie created by the simulator.
+
     def simMoviePlayer(self):
         """Plays a DPB movie file created by the simulator.
         """
@@ -1401,6 +1400,16 @@ class MWsemantics(MainWindow):
                 self.assy.m._close()
                 import shutil
                 shutil.copy(self.assy.m.filename, safile)
+                
+                # Get the trace file name.
+                tfile1 = self.assy.m.get_trace_filename()
+        
+                # Copy the tracefile
+                if os.path.exists(tfile1): 
+                    fullpath, ext = os.path.splitext(safile)
+                    tfile2 = fullpath + "-trace.txt"
+                    shutil.copy(tfile1, tfile2)
+
                 self.history.message("DPB movie file saved: " + safile)
                 self.assy.m._setup()
                 
