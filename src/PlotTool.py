@@ -105,6 +105,7 @@ class PlotTool(PlotToolDialog):
         
         # Write GNUplot file
         f = open(self.plotFile,"w")
+        if sys.platform == 'darwin': f.write("set terminal aqua\n") # GNUplot for Mac needs this.
         f.write("set title \"Trajectory file: %s\\n Created %s\"\n"%(self.dpbname,self.date))
         f.write("set key left box\n")
         f.write("set xlabel \"time  (picoseconds)\"\n")
