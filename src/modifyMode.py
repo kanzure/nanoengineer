@@ -190,7 +190,7 @@ class modifyMode(basicMode):
             ('Cancel', self.Cancel),
             ('Separate', self.o.assy.modifySeparate),
             ('Stretch', self.o.assy.Stretch),
-            ('Kill', self.o.assy.kill),
+            ('Delete', self.o.assy.kill),
             ('Hide', self.o.assy.Hide) ]
 
         self.debug_Menu_spec = [

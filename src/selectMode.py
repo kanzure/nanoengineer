@@ -162,7 +162,7 @@ class selectMode(basicMode):
             ('Chunks', self.w.toolsSelectMolecules) ]
         
         self.Menu_spec_shift = [
-            ('Kill', self.o.assy.kill),
+            ('Delete', self.o.assy.kill),
             ('Move', self.move),
             None,
             ('Hide', self.o.assy.Hide),
