@@ -341,13 +341,7 @@ class assembly:
         if a and self.selwhat: 
             a.molecule.pick()
 #            self.w.msgbarLabel.setText( "Molecule name" + str (a.index ) + ", " + a.element.name)
-        elif a:
-            a.pick()
-            # Print information about the selected atom in the msgbar [mark 041005]
-            xyzstr = a.posn()
-            self.w.msgbarLabel.setText( 
-                "Atom #" + str (a.key ) + ", " + a.element.name + 
-                ", X = " + str(xyzstr[0]) + ", Y = " + str(xyzstr[1]) + ", Z = " + str(xyzstr[2]))
+        elif a: a.pick()
 
     # make something unselected
     def unpick(self, p1, v1):
@@ -378,11 +372,7 @@ class assembly:
         self.unpickatoms()
         if not self.selmols: self.selmols = []
         a = self.findpick(p1, v1)
-        if a: 
-            a.molecule.pick()
-            # print molecule info on the msgbar. - Mark [2004-10-14]
-            self.w.msgbarLabel.setText( 
-                "Molecule Name: [" + str (a.molecule.name) + "]     Total Atoms = " + str(len(a.molecule.atoms)))
+        if a: a.molecule.pick()
                 
     # deselect any selected atoms
     def unpickatoms(self):

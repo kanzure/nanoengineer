@@ -376,7 +376,12 @@ class atom:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
             self.molecule.changeapp()
-
+            # Print information about the selected atom in the msgbar [mark 041005]
+            xyzstr = self.posn()
+            self.molecule.assy.w.msgbarLabel.setText( 
+                "Atom #" + str (self.key ) + ", " + self.element.name + 
+                ", X = " + str(xyzstr[0]) + ", Y = " + str(xyzstr[1]) + ", Z = " + str(xyzstr[2]))
+                
     def unpick(self):
         """make the atom unselected
         """
@@ -385,6 +390,7 @@ class atom:
             self.picked = 0
             del self.molecule.assy.selatoms[self.key]
             self.molecule.changeapp()
+            self.molecule.assy.w.msgbarLabel.setText(" ")
 
     def copy(self, numol):
         """create a copy of the atom
@@ -903,6 +909,9 @@ class molecule(Node):
             self.assy.selmols.append(self)
             # may have changed appearance of the molecule
             self.havelist = 0
+            # print molecule info on the msgbar. - Mark [2004-10-14]
+            self.assy.w.msgbarLabel.setText(
+                "Molecule Name: [" + str (self.name) + "]     Total Atoms = " + str(len(self.atoms)))            
 
     def unpick(self):
         """unselect the molecule.
@@ -912,6 +921,7 @@ class molecule(Node):
             self.assy.selmols.remove(self)
             # may have changed appearance of the molecule
             self.havelist = 0
+            self.assy.w.msgbarLabel.setText(" ")
 
     def kill(self):
         self.unpick()
