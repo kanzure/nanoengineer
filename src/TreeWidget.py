@@ -1593,7 +1593,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
                     assert nodes == nodes #e i mean the ones we already knew about
                     # and (unlike some other comments' claims nearby)
                     # it's our job to now do the operation.
-                    if debug_dragstuff:
+                    self.doit(event, drag_type, nodes)
+                    if 0 and debug_dragstuff:
                         print "NOT IMPLEMENTED: do the op on these dragged nodes:",nodes
                         self.redmsg("NIM: do the op %r on %d nodes, first/last names %r, %r" % (
                             drag_type, len(nodes), nodes[0].name, nodes[-1].name ))
@@ -1633,7 +1634,31 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.win.history.message( redmsg(errmsg))
         self.statusbar_msg(" ") # probably a good idea -- not sure!
         return
-    
+
+    def doit(self, event, drag_type, nodes): #######@@@@@@@ where i am (but shouldn't be yet)
+        "stub to do a drop"
+        ## not there anymore: cpos = self.true_dragMove_cpos # None or a tuple
+        pos = event.pos()
+        cpos = tupleFromQPoint(pos)
+        if not cpos:
+            print "drop not in widget"
+            return
+        x,y = cpos
+        item = self.itemAtCposXY(x,y) # item you might want to drop on directly, or None
+        if not item:
+            print "drop not on an item"
+            return
+        #e worry about where on the item?
+        node = item.object
+        if not node.drop_on_ok(drag_type, nodes):
+            from Utility import node_name
+            print "drop refused by %r" % node_name(node)
+            return
+        print "about to do node.drop_on(drag_type, nodes) # implems untested!"
+        node.drop_on(drag_type, nodes) # implems untested!
+        print "did it!"
+        self.mt_update()
+        return
     
     # key event handlers
     

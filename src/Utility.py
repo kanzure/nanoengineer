@@ -311,13 +311,14 @@ class Node:
         """
         return True #e probably change to False for leaf nodes, once we support dropping into gaps
 
-    def drop_on(self, drag_type, nodes): #####@@@@@ use it! rewrite to use copy_nodes (also the assy methods? not for alpha)
+    def drop_on(self, drag_type, nodes): #####@@@@@ used in doit, is it safe?
+        #e rewrite to use copy_nodes? (also rewrite the assy methods? not for alpha)
         "Like drop_on_ok, but (assuming it's ok -- error if it's not) actually perform the drop."
         if drag_type == 'move':
-            for node in nodes:
+            for node in nodes[::-1]:
                 node.moveto(self) ###k guess/stub #####@@@@@
         else:
-            for node in nodes:
+            for node in nodes[::-1]:
                 self.addmember(node.copy(self)) ###k guess/stub #####@@@@@
         return
 
