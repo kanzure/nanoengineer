@@ -94,6 +94,14 @@ class Node:
             #  with treewidget-specific state #e)
         return
 
+    def show_in_model_tree(self): #bruce 050127
+        """Say whether this node should be shown in the model tree widget.
+        True for most nodes. Can be overridden by subclasses.
+        [Added so that Datum Plane nodes won't be shown. Initially,
+         it might not work much more generally than that.]
+        """
+        return True
+    
     def haspicked(self): #bruce 050126
         """Whether node's subtree has any picked members.
         Faster than counting them with nodespicked or "maxing" them with hindmost,
@@ -840,7 +848,10 @@ class Group(Node):
 
 
 class DataNode(Node):
-    def rename_enabled(self): return False
+    "class for Csys and Datum nodes"
+    ## def rename_enabled(self): return False
+    ##   (removed by bruce 050127 -- this exception apparently no longer desired, at least for Csys)
+    
     def drag_enabled(self): return False #e might want to permit drag-copy-state of Csys (home view state)
     def drop_enabled(self): return False #e might want to permit drop-set-state of Csys
     def node_icon(self, display_prefs):
@@ -879,7 +890,7 @@ class Csys(DataNode):
 
 class Datum(DataNode):
     """ A datum point, plane, or line"""
-
+    
     def __init__(self, assy, name, type, cntr, x = V(0,0,1), y = V(0,1,0)):
         self.const_icon = imagename_to_pixmap("datumplane.png")
         Node.__init__(self, assy, None, name)
@@ -888,6 +899,10 @@ class Datum(DataNode):
         self.x = x
         self.y = y
         self.rgb = (0,0,255)
+
+    def show_in_model_tree(self): #bruce 050127
+        "[overrides Node method]"
+        return False
         
     def writemmp(self, atnums, alist, f):
         f.write("datum (" + self.name + ") " +
