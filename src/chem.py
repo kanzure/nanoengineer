@@ -565,15 +565,16 @@ class atom:
 
     def unbond(self, b):
         """Private method (for use mainly by bonds); remove b from self and
-        usually replace it with a singlet. Details:
+        usually replace it with a singlet (which is returned). Details:
            Remove bond b from self (error if b not in self.bonds).
         Note that bonds are compared with __eq__, not 'is', by 'in' and 'remove'.
         Only call this when b will be destroyed, or "recycled" (by bond.rebond);
         thus no need to invalidate the bond b itself -- caller must do whatever
         inval of bond b is needed (which is nothing, if it will be destroyed).
            Then replace bond b in self.bonds with a new bond to a new singlet,
-        unless self or the old neighbor atom is a singlet.
-        Do all necessary invalidations of molecules, BUT NOT OF b (see above).
+        unless self or the old neighbor atom is a singlet. Return the new
+        singlet, or None if one was not created. Do all necessary invalidations
+        of molecules, BUT NOT OF b (see above).
            If self is a singlet, kill it (singlets must always have one bond).
            As of 041109, this is called from atom.kill of the other atom,
         and from bond.bust, and [added by bruce 041109] from bond.rebond.
@@ -602,11 +603,13 @@ class atom:
             else:
                 print "fyi: bug: unbond on a singlet %r finds unexpected bonds left over in it, %r" % (self,self.bonds)
                 # don't kill it, in this case [bruce 041115; I don't know if this ever happens]
-            return
+            return None
         at2 = b.other(self)
-        if at2.element == Singlet: return
+        if at2.element == Singlet:
+            return None
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
         self.molecule.bond(self, x) # invals mol as needed
+        return x # new feature, bruce 041222
     
     def hopmol(self, numol): #bruce 041105-041109 extensively revised this
         """If this atom is not already in molecule numol, move it
@@ -1355,19 +1358,22 @@ class Bond:
         """Destroy this bond, modifying the bonded atoms as needed
         (by adding singlets in place of this bond -- they might overlap!),
         and invalidating the bonded molecules as needed.
+        Return the added singlets as a 2-tuple.
         (This method is named 'bust' since 'break' is a python keyword.)
         If either atom is a singlet, kill that atom.
-        (Note: as of 041115 bust is never called with either atom a singlet.)
+        (Note: as of 041115 bust is never called with either atom a singlet.
+        If it ever is, retval remains a 2-tuple but has None in 1 or both
+        places ... precise effect needs review in that case.)
         """
         # bruce 041115: bust is never called with either atom a singlet,
         # but since atom.unbond now kills singlets lacking any bonds,
         # and since not doing that would be bad, I added a note about that
         # to the docstring.
-        self.atom1.unbond(self) # does all needed invals
-        self.atom2.unbond(self)
+        x1 = self.atom1.unbond(self) # does all needed invals
+        x2 = self.atom2.unbond(self)
         ###e do we want to also change our atoms and key to None, for safety?
         ###e check all callers and decide
-        return
+        return x1, x2 # retval is new feature, bruce 041222
     
     def rebond(self, old, new):
         """Self is a bond between old (typically a singlet) and some atom A;

@@ -567,43 +567,53 @@ class extrudeMode(basicMode):
             self.status_msg("%s refused: %r" % (self.msg_modename, whynot,))
             return 1 # refused!
         self.basemol = mol
-## partly done new code, commented out so I can commit the code cleanup and new refuseEnter method separately [bruce 041222]
-##        self.broken_externs = []
-##        for bon in list(mol.externs):
-##            a1 = bon.atom1
-##            a2 = bon.atom2
-##            if a1.molecule == mol:
-##                (a1,a2) = (a2,a1)
-##                assert a1 != a2
-##            assert a2.molecule == mol
-##            assert a1.molecule != mol
-##            bon.bust() # these will be rebonded at the end
-##            self.broken_externs.append((a1,a2)) # what we really need here is
-##                # the singlets made by unbond, in case a2 or a1 occurs twice
-##                # (or more) in our externs! ###@@@
-##            ####@@@ see paper notes - restore at end, also modify singlet-pairing alg
-        
-        ## following was shakedown, replaced with update on 041112
-        self.basemol.full_inval_and_update() ###### bruce 041019: this will fix ninad's bug, but only by working around my own bug. ###test
-        ##### see my notesfile for that... mainly, when i use self.basemol.quat i should not use it.
+        ## partly done new code [bruce 041222] ###@@@
+        # temporarily break bonds between our base unit (mol) and the rest
+        # of the model; record the pairs of singlets thus formed,
+        # both for rebonding when we're done, and to rule out unit-unit bonds
+        # incompatible with that rebonding.
+        self.broken_externs = [] # pairs of singlets from breaking of externs
+        self.broken_extern_s2s = {}
+        for bon in list(mol.externs):
+            s1, s2 = bon.bust() # these will be rebonded when we're done
+            assert s1.is_singlet() and s2.is_singlet()
+            # order them so that s2 is in mol, s1 not in it
+            if s1.molecule == mol:
+                (s1,s2) = (s2,s1)
+                assert s1 != s2 # redundant with following, but more informative
+            assert s2.molecule == mol
+            assert s1.molecule != mol
+            self.broken_externs.append((s1,s2))
+            self.broken_extern_s2s[s2] = s1 # set of keys; values not used as of 041222
+            # note that the atoms we unbonded (the neighbors of s1,s2)
+            # might be neighbors of more than one singlet in this list.
+        ####@@@ see paper notes - restore at end, also modify singlet-pairing alg
 
-        mark_singlets(self.basemol, self.colorfunc)
-        offset = V(15.0,16.0,17.0) # initial value doesn't matter
-        self.offset = offset
-        
+        # The following is necessary to work around a bug in this code, which is
+        # its assumption (wrong, in general) that mol.copy().quat == mol.quat.
+        # A better fix would be to stop using set_basecenter_and_quat, replacing
+        # that with an equivalent use of mol.pivot.
+        self.basemol.full_inval_and_update()
+        mark_singlets(self.basemol, self.colorfunc) ###@@@ make this behave differently for broken_externs
+        # now set up a consistent initial state, even though it will probably
+        # be modified as soon as we look at the actual controls
+        self.offset = V(15.0,16.0,17.0) # initial value doesn't matter
         self.ncopies = 1
-        #obs comment?? might not be true if we reenter the mode with one copy selected! ignore that issue for now.
-        # note, nothing makes sure the new mol is visible in the window except keeping ncopies small!!
-        # now see if we can copy it, moved over a bit, and add that to the assembly
+        self.molcopies = [self.basemol]
+            #e if we someday want to also display "potential new copies" dimly,
+            # they are not in this list
+            #e someday we might optimize by not creating separate molcopies,
+            # only displaying the same mol in many places
+            # (or, having many mols but making them share their display lists --
+            #  could mol.copy do that for us??)
 
-        self.molcopies = [self.basemol] # if we have any potential mols to show dimly, they are not in here
-        #e we might optimize by not creating these molcopies, only displaying them, but i ignore this issue for now
-
-        ######e these exceptions not preventing Enter are just to help me debug it -- remove the 'try', later
         try:
             self.recompute_for_new_unit() # recomputes whatever depends on self.basemol
         except:
-            print_compact_traceback("in Enter, exception in recompute_for_new_unit (entering anyway!!): ")
+            msg = "in Enter, exception in recompute_for_new_unit"
+            print_compact_traceback(msg + ": ")
+            self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
+            return 1 # refused!
 
         #e is this obs? or just nim?? [041017 night]
         self.recompute_for_new_bend() # ... and whatever depends on the bend from each repunit to the next (varies only in Revolve)
@@ -615,15 +625,19 @@ class extrudeMode(basicMode):
         try:
             self.update_from_controls()
         except:
-            print_compact_traceback("in Enter, exception in update_from_controls (entering anyway!!): ")
+            msg = "in Enter, exception in update_from_controls"
+            print_compact_traceback(msg + ": ")
+            self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
+            return 1
 
+        # debugging code, safe to leave in indefinitely:
         import __main__
         __main__.mode = self
         if platform.atom_debug:
             print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
             ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
 
-    singlet_color = {}
+    singlet_color = {} # we also do this in clear()
     def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol._colorfunc
         return self.singlet_color.get(atom.info) # ok if this is None
 
@@ -941,7 +955,7 @@ class extrudeMode(basicMode):
             disp, radius = atom.howdraw(dispdef)
             info = None #####
             hset.addHandle(pos, radius, info)
-        self.basemol_singlets = self.basemol.singlets
+        self.basemol_singlets = list(self.basemol.singlets) #bruce 041222 precaution: copy list
         hset = self.nice_offsets_handleset = niceoffsetsHandleSet(target = self)
         hset.radius_multiplier = abs(self.bond_tolerance) # kluge -- might be -1 or 1 initially! (sorry, i'm in a hurry)
           # note: hset is used to test offsets via self.nice_offsets_handleset,
@@ -985,32 +999,34 @@ class extrudeMode(basicMode):
         #e self.mergeables is in an obs format... but we still use it to look up (i1,i2) or their swapped form
         msg = "scanned %d open-bond pairs..." % ( len(sings1) * len(sings2) ,) # longer msg below
         self.status_msg(msg)
-        # make handles from mergeables
+        # make handles from mergeables.
+        # Note added 041222: the handle (i1,i2) corresponds to the possibility
+        # of bonding singlet number i1 in unit[k] to singlet number i2 in unit[k+1].
+        # As of 041222 we have self.broken_externs, list of (s1,s2) where s1 is
+        # something outside, and s2 is in the baseunit. We assume (without real
+        # justification) that all this outside stuff should remain fixed and bound
+        # to the baseunit; to avoid choosing unit-unit bonds which would prevent
+        # that, we exclude (i1,i2) when singlet[i1] = s2 for some s2 in
+        # self.broken_externs -- if we didn't, singlet[i1] in base unit would
+        # need to bond to unit2 *and* to the outside stuff.
+        excluded = 0
         for (i1,i2),(ideal,err) in mergeables.items():
             pos = ideal
             radius = err
-            # [bruce 041101:] We used to have the following highly amusing bug:
-            # radius == err instead of radius = err.
-            # The err here was (e.g.) 0.77, but the radius in VdW display mode was 1.1
-            # (left over from disp, radius = atom.howdraw(dispdef), far above),
-            # whereas in CPK it was 0.275. So what everyone is used to, for extrude's bond tolerance,
-            # if they usually enter it in VdW as I do (for unknown reasons),
-            # is to see 1.1 whereas the code wanted to show them 0.77.
-            # So to repair that I will multiply it by a constant, 1.1/0.77.
-            # Josh also suggested always making it 1.5 times bigger by default,
-            # so I should do that too. But I am cautious about that, so use 1.25 instead.
-            # In fact, what if he was entering it from CPK? Ok, I'll first just fix the bug
-            # and then see if he still wants it bigger.
-            # Either of these changes could be done instead when I init the slider...
-            # but nevermind that for now.
-            radius *= (1.1/0.77) * 1.0 # see above comment for why
+            radius *= (1.1/0.77) * 1.0 # see a removed "bruce 041101" comment for why
             info = (i1,i2)
-            hset.addHandle(pos, radius, info)
+            if self.basemol_singlets[i1] not in self.broken_extern_s2s:
+                hset.addHandle(pos, radius, info)
+            else:
+                excluded += 1
             if i2 != i1:
                 # correct for optimization above
                 pos = -pos
                 info = (i2,i1)
-                hset.addHandle(pos, radius, info)
+                if self.basemol_singlets[i2] not in self.broken_extern_s2s:
+                    hset.addHandle(pos, radius, info)
+                else:
+                    excluded += 1
             else:
                 print "fyi: singlet %d is mergeable with itself (should never happen for extrude; ok for revolve)" % i1
             # handle has dual purposes: click to change the offset to the ideal,
@@ -1018,6 +1034,8 @@ class extrudeMode(basicMode):
         msg = "scanned %d open-bond pairs; %d pairs could bond at some offset (as shown by bond-offset spheres)" % \
               ( len(sings1) * len(sings2) , len(hset.handles) )
         self.status_msg(msg)
+        if excluded:
+            print "fyi: %d pairs excluded due to external bonds to extruded unit" % excluded ###@@@
         return
     
     def recompute_for_new_bend(self):
@@ -1104,8 +1122,8 @@ class extrudeMode(basicMode):
                     self.singlet_color[mark] = color # when we draw atoms, somehow they find self.singlet_color and use it...
                 doit(i1, blue)
                 doit(i2, green)
-                ###e now how do we make that affect the look of the base and rep units? patch atom.draw?
-                # but as we draw the atom, do we look up itskey? is that the same in the mol.copy??
+                ###e now how do we make that effect the look of the base and rep units? patch atom.draw?
+                # but as we draw the atom, do we look up its key? is that the same in the mol.copy??
         nbonds = len(hh)
         set_bond_tolerance_and_number_display(self.w, self.bond_tolerance, nbonds)
         ###e ideally we'd color the word "bonds" funny, or so, to indicate that offset_for_bonds != offset or that ptype isn't rod...
@@ -1146,7 +1164,6 @@ class extrudeMode(basicMode):
 
     def finalize_product(self):
         "if requested, make bonds and/or join units into one part"
-        #nim: #e merge base back into its fragmented ancestral molecule...
         
         desc = " (N = %d)" % self.ncopies  #e later, also include circle_n if different and matters; and more for other product_types
         
@@ -1159,7 +1176,7 @@ class extrudeMode(basicMode):
         print "fyi: extrude params not mentioned in statusbar: offset = %r, tol = %r" % (self.offset, self.bond_tolerance)
 
         if self.whendone_make_bonds:
-            # NIM - rebond base unit with its home molecule, if any
+            # NIM - rebond base unit with its home molecule, if any [###@@@ see below]
             #  (but not if product is a closed ring, right? not sure, actually, deps on which singlets are involved)
             #e even the nim-warning msg is nim...
             #e (once we do this, maybe do it even when not self.whendone_make_bonds??)
@@ -1177,14 +1194,22 @@ class extrudeMode(basicMode):
                     # bond unit ii with unit ii-1
                     self.make_inter_unit_bonds( self.molcopies[ii-1], self.molcopies[ii], bonds ) # uses self.basemol_singlets, etc
                 if self.product_type == "closed ring":
-                    # close the ring
+                    # close the ring ###@@@ what about broken_externs? Need to modify bonding for ring, for this reason... ###@@@
                     self.make_inter_unit_bonds( self.molcopies[self.ncopies-1], self.molcopies[0], bonds )
                 bonds_msg = "made %d bonds per unit" % len(bonds)
                 self.status_msg(self.final_msg_accum + bonds_msg)
             self.final_msg_accum += bonds_msg
-            
+            # merge base back into its fragmented ancestral molecule...
+            # but not until the end, for fear of messing up unit-unit bonding
+            # (could be dealt with, but easier to skirt the issue).
+            if not self.product_type == "closed ring":
+                # 041222 finally implementing this...
+                ###@@@ closed ring case has to be handled differently earlier...
+                for s1,s2 in self.broken_externs:
+                    bond_at_singlets(s1, s2, move = 0)
+        
         if self.whendone_all_one_part:
-            # rejoin base unit with its home molecule, if any -- NIM
+            # rejoin base unit with its home molecule, if any -- NIM [even after 041222]
             #e even the nim-warning msg is nim...
             #e (once we do this, maybe do it even when not self.whendone_all_one_part??)
 
@@ -1497,6 +1522,7 @@ class extrudeMode(basicMode):
             self.product_type = "straight rod" #e someday have a combobox for this
             self.circle_n = 0
         self.__old_ptype = None
+        self.singlet_color = {}
         #e lots more ivars too
 ##        # experiment: need to not do this for instance methods; will the im_func attr (same_method, modes.py) help?? #####
 ##        for attr in dir(self.__class__):
