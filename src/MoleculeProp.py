@@ -24,18 +24,15 @@ class MoleculeProp(MoleculePropDialog):
             self.colorPixmapLabel.setPaletteBackgroundColor(nocolor)
             self.colorPixmapLabel.setFrameShape(QFrame.Box)
         
-        # Create header of the textbrowser.
+        # Create header of the molecule info.
         self.atomsTextBrowser.setReadOnly(True)
         totalAtomsStr = "Total Atoms: " + str(len(mol.atoms)) + "\n\n"
         ele2Num = {}
         
         # Calculating the number of element types in this molecule.
         for a in self.mol.atoms.itervalues():
-             if ele2Num.has_key(a.element.symbol):
-                value = ele2Num[a.element.symbol]
-                ele2Num[a.element.symbol] = value + 1
-             else:
-                ele2Num[a.element.symbol] = 1
+             if not ele2Num.has_key(a.element.symbol): ele2Num[a.element.symbol] = 1 # New element found
+             else: ele2Num[a.element.symbol] += 1 # Increment element
         
         # String construction for each element to be displayed.        
         for item in ele2Num.iteritems():

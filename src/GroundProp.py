@@ -14,14 +14,14 @@ class GroundProp(GroundPropDialog):
     def setup(self):
         ground = self.ground
         
-        self.ground.originalColor = self.ground.color
+        self.ground.originalColor = self.ground.normcolor
         
         self.nameLineEdit.setText(ground.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
-            QColor(int(ground.color[0]*255), 
-                         int(ground.color[1]*255), 
-                         int(ground.color[2]*255)))
+            QColor(int(ground.normcolor[0]*255), 
+                         int(ground.normcolor[1]*255), 
+                         int(ground.normcolor[2]*255)))
 
         strList = map(lambda i: ground.atoms[i].element.symbol + str(i),
                                                 range(0, len(ground.atoms)))
@@ -36,14 +36,14 @@ class GroundProp(GroundPropDialog):
     def changeGroundColor(self):
 
         color = QColorDialog.getColor(
-            QColor(int(self.ground.color[0]*255), 
-                         int(self.ground.color[1]*255), 
-                         int(self.ground.color[2]*255)),
+            QColor(int(self.ground.normcolor[0]*255), 
+                         int(self.ground.normcolor[1]*255), 
+                         int(self.ground.normcolor[2]*255)),
                          self, "ColorDialog")
                         
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.ground.color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.ground.color = self.ground.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
             self.glpane.paintGL()
 
 
@@ -59,7 +59,7 @@ class GroundProp(GroundPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
-	    self.ground.color = self.ground.originalColor
+	    self.ground.normcolor = self.ground.originalColor
 
     #################
     # Apply Button

@@ -41,7 +41,8 @@ class RotaryMotor(Node):
         self.axis = V(0,0,0)
         self.atoms = []
         self.molecule = None
-        self.color = (0.5, 0.5, 0.5) # default color = gray
+        self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
+        self.pickcolor = (1.0, 0.0, 0.0)
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 2.0 # default cylinder radius
         self.sradius = 0.5 #default spoke radius
@@ -96,7 +97,26 @@ class RotaryMotor(Node):
    
     def seticon(self, treewidget):
         self.icon = treewidget.rmotorIcon
-   
+
+    def getinfo(self):
+        return "[Object: Rotary Motor] [Name: " + str(self.name) + "] [Torque = " + str(self.torque) + "] [Speed = " +str(self.speed) + "]"
+
+    def pick(self):
+        """select the rotary motor
+        """
+        self.picked = True
+        self.assy.w.msgbarLabel.setText(self.getinfo())
+        self.normcolor = self.color
+        self.color = self.pickcolor
+
+    def unpick(self):
+        """unselect the rotary motor
+        """
+        if self.picked:
+            self.picked = False
+            self.assy.w.msgbarLabel.setText(" ")
+            self.color = self.normcolor
+           
     # Rotary Motor is drawn as a cylinder along the axis, with a spoke to each atom
     def draw(self, win, dispdef):
         drawcylinder(self.color,
@@ -123,7 +143,9 @@ class RotaryMotor(Node):
     def __repr__(self, ndix=None):
         cxyz=self.posn() * 1000
         axyz=self.axen() * 1000
-        color=map(int,A(self.color)*255)
+        if self.picked: c = self.normcolor
+        else: c = self.color
+        color=map(int,A(c)*255)
         s="rmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d)\n" %\
            (self.name, color[0], color[1], color[2], self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
@@ -152,7 +174,8 @@ class LinearMotor(Node):
         self.atoms = []
         self.picked = 0
         self.molecule = None
-        self.color = (0.5, 0.5, 0.5) # default color = gray
+        self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
+        self.pickcolor = (1.0, 0.0, 0.0)
         self.length = 10.0 # default length of Linear Motor box
         self.width = 2.0 # default box width
         self.sradius = 0.5 #default spoke radius
@@ -212,8 +235,28 @@ class LinearMotor(Node):
    
     def seticon(self, treewidget):
         self.icon = treewidget.lmotorIcon
+        
+    def getinfo(self):
+        return "[Object: Linear Motor] [Name: " + str(self.name) + \
+                    "] [Force = " + str(self.force) + \
+                    "] [Stiffness = " +str(self.stiffness) + "]"
    
+    def pick(self):
+        """select the linear motor
+        """
+        self.picked = True
+        self.assy.w.msgbarLabel.setText(self.getinfo())
+        self.normcolor = self.color
+        self.color = self.pickcolor
 
+    def unpick(self):
+        """unselect the rotary motor
+        """
+        if self.picked:
+            self.picked = False
+            self.assy.w.msgbarLabel.setText(" ")
+            self.color = self.normcolor
+                    
     # drawn as a gray box along the axis,
     # with a thin cylinder to each atom 
     def draw(self, win, dispdef):
@@ -249,7 +292,9 @@ class LinearMotor(Node):
     def __repr__(self, ndix = None):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        color=map(int,A(self.color)*255)
+        if self.picked: c = self.normcolor
+        else: c = self.color
+        color=map(int,A(c)*255)
         s = "lmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d)\n" %\
            (self.name, color[0], color[1], color[2], self.stiffness, self.force, 
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
@@ -272,7 +317,8 @@ class Ground(Node):
         self.molecule = list[0].molecule
         self.molecule.gadgets += [self]
         self.picked = 0
-        self.color = (0.0, 0.0, 0.0) # set default color of ground to black
+        self.color = self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
+        self.pickcolor = (1.0, 0.0, 0.0) # ground is red when picked
         self.cntl = GroundProp(self, assy.o)
         
 
@@ -290,25 +336,47 @@ class Ground(Node):
     # Write "ground" record to POV-Ray file in the format:
     # ground(<box-center>,box-radius,<r, g, b>)
     def povwrite(self, file, dispdef):
+        if self.picked: c = self.normcolor
+        else: c = self.color
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             file.write("ground(" + povpoint(a.posn()) + "," +
                 str(rad) + ",<" + 
-                str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
+                str(self.c[0]) + "," + str(self.c[1]) + "," + str(self.c[2]) + ">)\n")
+#                str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
 
     def move(self, offset):
         pass
 
-        
     def seticon(self, treewidget):
         self.icon = treewidget.groundIcon
         
-   
+    def getinfo(self):
+        return "[Object: Ground] [Name: " + str(self.name) + "]"
+
+    def pick(self):
+        """select the ground
+        """
+        self.picked = True
+        self.assy.w.msgbarLabel.setText(self.getinfo())
+        self.normcolor = self.color
+        self.color = self.pickcolor
+        
+    def unpick(self):
+        """unselect the ground
+        """
+        if self.picked:
+            self.picked = False
+            self.assy.w.msgbarLabel.setText(" ")
+            self.color = self.normcolor
+                                   
     # Returns the MMP record for the current Ground as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}    
     def __repr__(self, ndix=None):
         
-        color=map(int,A(self.color)*255)
+        if self.picked: c = self.normcolor
+        else: c = self.color
+        color=map(int,A(c)*255)
         s = "ground (%s) (%d, %d, %d) " %\
            (self.name, color[0], color[1], color[2])
         if ndix:
@@ -329,7 +397,8 @@ class Stat(Node):
         self.molecule = list[0].molecule
         self.molecule.gadgets += [self]
         self.picked = 0
-        self.color = (0.0, 0.0, 1.0) # set default color of new stat to blue
+        self.color = self.normcolor = (0.0, 0.0, 1.0) # set default color of new stat to blue
+        self.pickcolor = (1.0, 0.0, 0.0) # stat is red when picked
         self.temp = 300
         self.cntl = StatProp(self, assy.o)
         
@@ -357,15 +426,34 @@ class Stat(Node):
     def move(self, offset):
         pass
 
-
     def seticon(self, treewidget):
         self.icon = treewidget.statIcon
 
-   
+    def getinfo(self):
+        return "[Object: Thermostat] [Name: " + str(self.name) + "] [Temp = " + str(self.temp) + "K]"
+        
+    def pick(self):
+        """select the thermostat
+        """
+        self.picked = True
+        self.assy.w.msgbarLabel.setText(self.getinfo())
+        self.normcolor = self.color
+        self.color = self.pickcolor
+        
+    def unpick(self):
+        """unselect the thermostat
+        """
+        if self.picked:
+            self.picked = False
+            self.assy.w.msgbarLabel.setText(" ")
+            self.color = self.normcolor
+               
     # Returns the MMP record for the current Stat as:
     # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
     def __repr__(self, ndix=None):
-        color=map(int,A(self.color)*255)
+        if self.picked: c = self.normcolor
+        else: c = self.color
+        color=map(int,A(c)*255)
         s = "stat (%s) (%d, %d, %d) (%d) " %\
            (self.name, color[0], color[1], color[2], int(self.temp))
         if ndix:

@@ -13,15 +13,15 @@ class LinearMotorProp(LinearMotorPropDialog):
 
     def setup(self):
         linearMotor = self.motor
-        
-        self.motor.originalColor = self.motor.color
+            
+        self.motor.originalColor = self.motor.normcolor
         
         self.nameLineEdit.setText(linearMotor.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
-            QColor(int(linearMotor.color[0]*255), 
-                         int(linearMotor.color[1]*255), 
-                         int(linearMotor.color[2]*255)))
+            QColor(int(linearMotor.normcolor[0]*255), 
+                         int(linearMotor.normcolor[1]*255), 
+                         int(linearMotor.normcolor[2]*255)))
                          
         self.stiffnessLineEdit.setText(str(linearMotor.stiffness))
         self.forceLineEdit.setText(str(linearMotor.force))
@@ -51,14 +51,14 @@ class LinearMotorProp(LinearMotorPropDialog):
     def changeLinearMotorColor(self):
 
         color = QColorDialog.getColor(
-            QColor(int(self.motor.color[0]*255), 
-                         int(self.motor.color[1]*255), 
-                         int(self.motor.color[2]*255)),
+            QColor(int(self.motor.normcolor[0]*255), 
+                         int(self.motor.normcolor[1]*255), 
+                         int(self.motor.normcolor[2]*255)),
                          self, "ColorDialog")
                         
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.motor.color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.motor.color = self.motor.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
             self.glpane.paintGL()
 
 
@@ -74,7 +74,7 @@ class LinearMotorProp(LinearMotorPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
-	    self.motor.color = self.motor.originalColor
+	    self.motor.normcolor = self.motor.originalColor
         
     #################
     # Apply Button

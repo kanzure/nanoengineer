@@ -14,15 +14,15 @@ class StatProp(StatPropDialog):
     def setup(self):
         stat = self.stat
         
-        self.stat.originalColor = self.stat.color
+        self.stat.originalColor = self.stat.normcolor
         
         self.nameLineEdit.setText(stat.name)
         self.tempSpinBox.setValue(int(stat.temp))
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
-            QColor(int(stat.color[0]*255), 
-                         int(stat.color[1]*255), 
-                         int(stat.color[2]*255)))
+            QColor(int(stat.normcolor[0]*255), 
+                         int(stat.normcolor[1]*255), 
+                         int(stat.normcolor[2]*255)))
 
         strList = map(lambda i: stat.atoms[i].element.symbol + str(i),
                                                 range(0, len(stat.atoms)))
@@ -37,14 +37,14 @@ class StatProp(StatPropDialog):
     def changeStatColor(self):
 
         color = QColorDialog.getColor(
-            QColor(int(self.stat.color[0]*255), 
-                         int(self.stat.color[1]*255), 
-                         int(self.stat.color[2]*255)),
+            QColor(int(self.stat.normcolor[0]*255), 
+                         int(self.stat.normcolor[1]*255), 
+                         int(self.stat.normcolor[2]*255)),
                          self, "ColorDialog")
                         
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.stat.color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.stat.color = self.stat.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
             self.glpane.paintGL()
 
 
@@ -60,7 +60,7 @@ class StatProp(StatPropDialog):
     #################
     def reject(self):
 	    QDialog.reject(self)
-	    self.stat.color = self.stat.originalColor
+	    self.stat.normcolor = self.stat.originalColor
 
     #################
     # Apply Button
