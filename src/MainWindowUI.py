@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainWindowUI.ui'
+# Form implementation generated from reading ui file '../GUI/MainWindowUI.ui'
 #
-# Created: Thu Sep 9 12:01:41 2004
+# Created: Wed Sep 15 12:13:05 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5181,13 +5181,6 @@ class MainWindow(QMainWindow):
         self.setIcon(self.image0)
         self.setUsesBigPixmaps(0)
 
-        self.setCentralWidget(QWidget(self,"qt_central_widget"))
-
-        self.mainFrame = QFrame(self.centralWidget(),"mainFrame")
-        self.mainFrame.setGeometry(QRect(10,10,660,500))
-        self.mainFrame.setSizePolicy(QSizePolicy(2,2,0,0,self.mainFrame.sizePolicy().hasHeightForWidth()))
-        self.mainFrame.setFrameShape(QFrame.NoFrame)
-        self.mainFrame.setFrameShadow(QFrame.Plain)
 
         self.fileNewAction = QAction(self,"fileNewAction")
         self.fileNewAction.setIconSet(QIconSet(self.image1))
@@ -5441,7 +5434,7 @@ class MainWindow(QMainWindow):
         self.selectDoublyAction.addTo(self.selectToolbar)
         self.cookieCutterToolbar = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterToolbar.setGeometry(QRect(0,0,516,29))
+        self.cookieCutterToolbar.setGeometry(QRect(0,0,563,29))
         self.cookieCutterToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterToolbar,"textLabel2")
@@ -5518,7 +5511,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1062,33))
+        self.MenuBar.setGeometry(QRect(0,0,1062,25))
 
         self.fileMenu = QPopupMenu(self)
         self.fileNewAction.addTo(self.fileMenu)
@@ -5558,28 +5551,28 @@ class MainWindow(QMainWindow):
         self.setViewRecenterAction.addTo(self.unnamed)
         self.setViewFitToWindowAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
-        self.PopupMenuEditor_32 = QPopupMenu(self)
-        self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewDefviewAction.iconSet(),self.__tr("&Default Views"),self.PopupMenuEditor_32))
-        self.setViewFrontAction.addTo(self.PopupMenuEditor_32)
-        self.setViewBackAction.addTo(self.PopupMenuEditor_32)
-        self.setViewTopAction.addTo(self.PopupMenuEditor_32)
-        self.setViewBottomAction.addTo(self.PopupMenuEditor_32)
-        self.setViewRightAction.addTo(self.PopupMenuEditor_32)
-        self.setViewLeftAction.addTo(self.PopupMenuEditor_32)
+        self.popupMenu_32 = QPopupMenu(self)
+        self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewDefviewAction.iconSet(),self.__tr("&Default Views"),self.popupMenu_32))
+        self.setViewFrontAction.addTo(self.popupMenu_32)
+        self.setViewBackAction.addTo(self.popupMenu_32)
+        self.setViewTopAction.addTo(self.popupMenu_32)
+        self.setViewBottomAction.addTo(self.popupMenu_32)
+        self.setViewRightAction.addTo(self.popupMenu_32)
+        self.setViewLeftAction.addTo(self.popupMenu_32)
         self.unnamed.insertSeparator()
         self.setViewOrthoAction.addTo(self.unnamed)
         self.setViewPerspecAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
-        self.PopupMenuEditor_43 = QPopupMenu(self)
-        self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewToolbarsAction.iconSet(),self.__tr("&Toolbars"),self.PopupMenuEditor_43))
-        self.toggleFileTbarAction.addTo(self.PopupMenuEditor_43)
-        self.toggleEditTbarAction.addTo(self.PopupMenuEditor_43)
-        self.toggleViewTbarAction.addTo(self.PopupMenuEditor_43)
-        self.toggleModelDispTbarAction.addTo(self.PopupMenuEditor_43)
-        self.toggleModifyTbarAction.addTo(self.PopupMenuEditor_43)
-        self.toggleDatumDispTbarAction.addTo(self.PopupMenuEditor_43)
-        self.toggleToolsTbarAction.addTo(self.PopupMenuEditor_43)
-        self.toggleSelectTbarAction.addTo(self.PopupMenuEditor_43)
+        self.popupMenu_43 = QPopupMenu(self)
+        self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewToolbarsAction.iconSet(),self.__tr("&Toolbars"),self.popupMenu_43))
+        self.toggleFileTbarAction.addTo(self.popupMenu_43)
+        self.toggleEditTbarAction.addTo(self.popupMenu_43)
+        self.toggleViewTbarAction.addTo(self.popupMenu_43)
+        self.toggleModelDispTbarAction.addTo(self.popupMenu_43)
+        self.toggleModifyTbarAction.addTo(self.popupMenu_43)
+        self.toggleDatumDispTbarAction.addTo(self.popupMenu_43)
+        self.toggleToolsTbarAction.addTo(self.popupMenu_43)
+        self.toggleSelectTbarAction.addTo(self.popupMenu_43)
         self.MenuBar.insertItem(QString(""),self.unnamed,4)
 
         self.unnamed = QPopupMenu(self)

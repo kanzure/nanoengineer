@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'elementSelectorForm.ui'
+# Form implementation generated from reading ui file '../GUI/elementSelectorForm.ui'
 #
-# Created: Thu Sep 9 10:27:18 2004
+# Created: Wed Sep 15 12:24:50 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

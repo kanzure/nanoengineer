@@ -1,16 +1,21 @@
-UIFILES=MainWindowUI.ui rotaryMotorProp.ui simsetup.ui elementSelectorForm.ui
-PYFILES=MainWindowUI.py rotaryMotorProp.py simsetup.py elementSelectorForm.py
+UI_DIR = ../GUI
+
+UIFILES=MainWindowUI.ui rotaryMotorProp.ui LinearMotorProp.ui simsetup.ui elementSelectorForm.ui
+PYFILES=MainWindowUI.py RotaryMotorPropDialog.py LinearMotorPropDialog.py simsetup.py elementSelectorForm.py
 
 atom:	$(PYFILES)
 
-MainWindowUI.py: MainWindowUI.ui
-	pyuic MainWindowUI.ui > MainWindowUI.py
+MainWindowUI.py: $(UI_DIR)/MainWindowUI.ui
+	pyuic $(UI_DIR)/MainWindowUI.ui > MainWindowUI.py
 
-rotaryMotorProp.py: rotaryMotorProp.ui
-	pyuic rotaryMotorProp.ui > rotaryMotorProp.py
+RotaryMotorPropDialog.py: $(UI_DIR)/rotaryMotorProp.ui
+	pyuic $(UI_DIR)/rotaryMotorProp.ui > RotaryMotorPropDialog.py
 
-simsetup.py: simsetup.ui
-	pyuic simsetup.ui > simsetup.py
+LinearMotorPropDialog.py: $(UI_DIR)/LinearMotorProp.ui
+	pyuic $(UI_DIR)/LinearMotorProp.ui > LinearMotorPropDialog.py
 
-elementSelectorForm.py: elementSelectorForm.ui
-	pyuic elementSelectorForm.ui > elementSelectorForm.py
+simsetup.py: $(UI_DIR)/simsetup.ui
+	pyuic $(UI_DIR)/simsetup.ui > simsetup.py
+
+elementSelectorForm.py: $(UI_DIR)/elementSelectorForm.ui
+	pyuic $(UI_DIR)/elementSelectorForm.ui > elementSelectorForm.py

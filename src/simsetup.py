@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'simsetup.ui'
+# Form implementation generated from reading ui file '../GUI/simsetup.ui'
 #
-# Created: Mon Aug 23 07:21:19 2004
+# Created: Wed Sep 15 12:24:50 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

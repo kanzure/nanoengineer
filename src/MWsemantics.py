@@ -43,17 +43,20 @@ class MWsemantics(MainWindow):
 	# start with empty window
         self.assy = assembly(self, "Empty")
 
-        self.MFLayout = QHBoxLayout(self.mainFrame,0,0,"MFLayout")
+        splitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
 
-        vertLayout = QVBoxLayout(self.centralWidget(),11,6,"Form1Layout")
-        vertLayout.addWidget(self.mainFrame)
-
-        self.modelTreeView = modelTree(self.mainFrame, self)
-        self.MFLayout.addWidget(self.modelTreeView)
+        self.modelTreeView = modelTree(splitter, self)
+        self.modelTreeView.setMinimumSize(150, 480)
         
-        self.glpane = GLPane(self.assy, self.mainFrame, "glpane", self)   
-        self.MFLayout.addWidget(self.glpane)
+        
+        self.glpane = GLPane(self.assy, splitter, "glpane", self)
+        self.glpane.setMinimumSize(800, 780)   
 
+        splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)       
+        splitter.setOpaqueResize(True)
+        
+        self.setCentralWidget(splitter)
+        
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
 
