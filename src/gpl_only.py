@@ -6,7 +6,7 @@ This module contains code which is only distributed in the GPL version,
 since providing this code might violate the commercial-version licenses of
 Qt and/or PyQt. Specifically (as I understand it -- bruce 041217), those
 licenses require anyone who writes new code which uses the Qt or PyQt APIs
-(to connect to the commercial versions of PyQt or Qt) to purchase a
+(to link to the commercial versions of PyQt or Qt) to purchase a
 commercial license for those packages. This generally affects only
 developers, but if our product lets users run arbitrary Python code (which
 might include general use of Qt, via PyQt), it affects users too; so
@@ -25,6 +25,8 @@ other code should not call it directly, but call some wrapper function, in a
 module appropriate to the function's purpose, where the wrapper function's
 only job is to handle the case where this module gpl_only is not available.
 
+-- bruce 041217
+
 $Id$
 '''
 
@@ -36,8 +38,19 @@ import sys, os
 # - "linux2" (on Mandrake 10.x) (GPL)
 # - "darwin" (on Mac OS X 10.3) (GPL)
 # - "win32" (on WindowsXP)      (non-GPL)
+#
+# If this changes, modify the list of GPL versions hardcoded below.
 
-if sys.platform not in ['darwin','linux2']:
+cheatpath = os.path.join( os.path.dirname(__file__), "gpl_only_ok")
+
+if os.path.exists(cheatpath):
+    # If cad/src/gpl_only_ok exists, we permit this module to exist, even on Windows.
+    # this is a temporary hack meant to be removed before Alpha is released.
+    # (though if we change our minds and leave it in, this might actually be ok.)
+    print "WARNING: permitting gpl_only.py to exist because gpl_only_ok does;\n" \
+          "REMOVE THEM BOTH (and the .pyc file too!!!) before making any distribution\n" \
+          "from this working directory!"
+elif sys.platform not in ['darwin','linux2']:
     print "sys.platform == %r; this is not known to be a GPL version." % (sys.platform,)
     try:
         fname = os.path.basename(__file__)
@@ -45,8 +58,10 @@ if sys.platform not in ['darwin','linux2']:
         fname = ""
     msg = "This file %r should not have been distributed with your version!!! Exiting." % (fname,)
     print msg
-    #e dialog?
+    # no dialog needed, since this should only happen to developers, not users.
     sys.exit(1)
+
+# and here are those functions we can't allow those Windows users to run:
 
 def _execfile_in_globals(filename, globals):
     execfile(filename, globals)
