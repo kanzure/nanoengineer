@@ -124,6 +124,7 @@ class Group(Node):
         obj.assy = self.assy
 
     def delmember(self, obj):
+        obj.unpick() #bruce 041029 fix bug 145
         try:
             self.members.remove(obj)
         except: pass
