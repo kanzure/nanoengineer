@@ -831,8 +831,15 @@ class GLPane(QGLWidget, modeMixin):
             # spawnv() has problems on Windows, so changing working directory to it
             oldWorkingDir = os.getcwd()
             program = os.path.normpath(filePath + '/../bin/simulator')
+            # Note: the actual executable file on Windows is simulator.exe.
+            # For now, just change the existence test below (for all OSes).
+            # Later we might decide to do this more cleanly
+            # (so error detection is not confused if something exists at the
+            #  wrong path for some OS). I don't know whether the .exe name
+            # could or should be passed to spawnv.
+            # [quick bugfix by Mark & Bruce, 041223; comment by bruce]
             args = [program, '-m ',  "minimize.mmp"]
-            if os.path.exists(program):
+            if os.path.exists(program) or os.path.exists(program + '.exe'):
                 try:
                     os.chdir(tmpFilePath)
                     r = os.spawnv(os.P_WAIT, program, args)
@@ -840,10 +847,16 @@ class GLPane(QGLWidget, modeMixin):
                     os.chdir(oldWorkingDir)
             else:
                 r = 'program not found'
-                s = "simulator not found at %r; installation error?" % program
+                s = "simulator not found at \"%s\"; installation error?" % program
+                # avoid %r for pathnames -- on Windows it shows \dir\file as \\dir\\file
+                # (note that as of 041223 this message is misleading for Windows
+                # since it leaves out the .exe.) [bruce 041223]
         except:
             print_compact_traceback("exception in minimize; continuing: ")
-            print "note: spawnv args were %r" % (args,)
+            print "note: spawnv args were %r" % (args,) # This %r remains,
+                # since Mark says %s here also prints \\, and we prefer the %r
+                # anyway for its precision. (This is really a debugging message
+                # which we'll remove once the code is stable enough.) [bruce 041223]
             s = "internal error (traceback printed elsewhere)"
             r = -1 # simulate failure
         QApplication.restoreOverrideCursor() # Restore the cursor
@@ -854,8 +867,8 @@ class GLPane(QGLWidget, modeMixin):
             if not s:
                 s = "exit code %r" % r
             print "Minimization Failed:", s
-            print "note: spawnv args were %r" % (args,)
-            print " in the temporary working directory %r" % (tmpFilePath,)
+            print "note: spawnv args were %r" % (args,) # this %r remains (see above)
+            print " in the temporary working directory \"%s\"" % (tmpFilePath,)
             self.win.statusBar.message("Minimization Failed!") ##e include s?
             QMessageBox.warning(self, "Minimization Failed:", s)
         return
