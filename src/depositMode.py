@@ -2,6 +2,8 @@
 """
 depositMode.py
 
+Build mode.
+
 $Id$
 """
 __author__ = "Josh"
@@ -295,7 +297,7 @@ class depositMode(basicMode):
             atm = None
         self.o.selatom = atm
         if self.o.selatom != oldselatom:
-       ## self.w.statusBar.message("%r" % (atm,)) # might obscure other messages?? not sure.
+            ## self.w.statusBar.message("%r" % (atm,)) # might obscure other messages?? not sure.
             self.o.paintGL() # draws selatom too, since its chunk is not hidden
 
     def posn_str(self, atm): #bruce 041123
