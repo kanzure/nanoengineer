@@ -1277,6 +1277,7 @@ void SIGTERMhandler(int sig)
     interrupted = 1;
 }
 
+#if 0
 static void installSIGTERMhandler() 
 {
     struct sigaction act;
@@ -1289,6 +1290,7 @@ static void installSIGTERMhandler()
         exit(1);
     }
 }
+#endif
 
 static void usage()
 {
@@ -1322,7 +1324,10 @@ main(int argc,char **argv)
 	
     double x,y,z, end, theta;
 
-    installSIGTERMhandler();
+    if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
+        perror("signal(SIGTERM)");
+        exit(1);
+    }
 
     maktab(uft1, uft2, uffunc, UFSTART, UFTLEN, UFSCALE);
 	
