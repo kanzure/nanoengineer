@@ -11,7 +11,6 @@ from drawer import segstart, drawsegment, segend, drawwirecube
 from shape import *
 from chem import *
 
-
 # the class for groups of parts (molecules)
 # currently only one level, but should be recursive
 class assembly:
@@ -56,6 +55,11 @@ class assembly:
     def draw(self,win):
         for mol in self.molecules:
             mol.draw(win)
+            
+    # write a povray file: just draw everything inside
+    def povwrite(self,file,win):
+        for mol in self.molecules:
+            mol.povwrite(file,win)
 
     # make a new molecule using a cookie-cut shape
     def molmake(self,shap):
@@ -395,6 +399,12 @@ class assembly:
         # keep the atoms consecutive within molecules
         self.renatoms()
 
+
+def povpoint(p):
+    # note z reversal -- povray is left-handed
+    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
+
+
 # A motor has an axis of rotation, represented as a point and
 # a direction vector, a stall torque, a no-load speed, and
 # a set of atoms connected to it
@@ -454,6 +464,12 @@ class motor:
     def move(self, offset):
         self.center += offset
 
+    def posn(self):
+        return self.molecule.quat.rot(self.center) + self.molecule.center
+
+    def axen(self):
+        return self.molecule.quat.rot(self.axis)
+
     # drawn as a gray cylinder along the axis,
     # with a spoke to each atom    
     def draw(self, win, dispdef):
@@ -462,6 +478,16 @@ class motor:
                      2.0, self.picked, 1)
         for a in self.atoms:
             drawcylinder(col, self.center, a.xyz ,0.5, self.picked)
+            
+    # write on a povray file
+    def povwrite(self, file, dispdef):
+        c = self.posn()
+        a = self.axen()
+        file.write("motor(" + povpoint(c+5*a) +
+                    "," + povpoint(c-5*a) + ")\n")
+        for a in self.atoms:
+            file.write("spoke(" + povpoint(c) +
+                       "," + povpoint(a.posn()) + ")\n")
 
     # the representation is also the mmp-file record
     def __repr__(self):
@@ -487,8 +513,15 @@ class ground:
     def draw(self, win, dispdef):
         col=(0, 0, 0)
         for a in self.atoms:
-            disp, rad = a.howdraw(win, dispdef)
+            disp, rad = a.howdraw(dispdef)
             drawwirecube(col, a.xyz, rad)
+            
+    # write on a povray file
+    def povwrite(self, file, dispdef):
+        for a in self.atoms:
+            disp, rad = a.howdraw(dispdef)
+            file.write("ground(" + povpoint(a.posn()) + "," +
+                       str(rad) + ")\n")
 
     def move(self, offset):
         pass

@@ -42,6 +42,11 @@ def genKey():
 atKey=genKey()
 
 
+def povpoint(p):
+    # note z reversal -- povray is left-handed
+    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
+
+
 class elem:
     """one of these for each element type"""
     def __init__(self, sym, n, m, rv, col, bn):
@@ -223,7 +228,7 @@ class atom:
         element-dependent one
         """
         color = col or self.element.color
-        disp, rad = self.howdraw(win, dispdef)
+        disp, rad = self.howdraw(dispdef)
         pos = self.xyz
         if disp in [diVDW, diCPK]:
             drawsphere(color, pos, rad, self.picked)
@@ -231,7 +236,7 @@ class atom:
             drawwirecube(PickedColor, pos, rad)
         
 
-    def howdraw(self, win, dispdef):
+    def howdraw(self, dispdef):
         """ tell how to draw the atom depending
         its (possibly inherited) display mode
         An atom's display mode overrides the inherited one from
@@ -244,6 +249,16 @@ class atom:
         rad = self.element.rvdw
         if disp != diVDW: rad=rad*CPKvdW
         return (disp, rad)
+
+    def povwrite(self, file, dispdef, col):
+        color = col or self.element.color
+        color = color * V(1,1,-1)
+        disp, rad = self.howdraw(dispdef)
+        if disp in [diVDW, diCPK]:
+            file.write("atom(" + povpoint(self.posn()) +
+                   "," + str(rad) + "," +
+                       povpoint(color) + ")\n")
+
 
     def checkpick(self, p1, v1):
         """check if the line through point p1 in direction v1
@@ -371,6 +386,18 @@ class bond:
             drawcylinder(col or bondColor, self.atom1.xyz,
                          self.atom2.xyz, 0.1, self.picked)
 
+    def povwrite(self, file, dispdef, col):
+        disp=max(self.atom1.display, self.atom2.display)
+        
+        if disp<0: disp= dispdef
+        if disp == diLINES:
+            file.write("line(" + povpoint(self.atom1.posn()) +
+                       "," + povpoint(self.atom2.posn()) + ")\n")
+        if disp == diCPK:
+            file.write("bond(" + povpoint(self.atom1.posn()) +
+                       "," + povpoint(self.atom2.posn()) + ")\n")
+
+
     def other(self, at):
         """Given one atom the bond is connected to, return the other one
         """
@@ -488,6 +515,23 @@ class molecule:
             glEndList()
             self.havelist = 1
         glPopMatrix()
+
+    # write a povray file: just draw everything inside
+    def povwrite(self,file, win):
+
+        if self.display != diDEFAULT: disp = self.display
+        else: disp = win.display
+        
+        drawn = {}
+        for atm in self.atoms.itervalues():
+            atm.povwrite(file, disp, self.color)
+            for bon in atm.bonds:
+                if bon.key not in drawn:
+                    drawn[bon.key] = bon
+                    bon.povwrite(file, disp, self.color)
+
+        for g in self.gadgets:
+            g.povwrite(file, disp)
 
     def move(self, offs):
         self.center += offs

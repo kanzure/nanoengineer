@@ -18,6 +18,7 @@ from constants import *
 import Image
 import operator
 import struct
+from povheader import povheader
 
 #  ... what a Pane ...
 
@@ -400,14 +401,52 @@ class GLPane(QGLWidget):
         print " pov: ", self.pov
         print " quat ", self.quat
 
-    def image(self, filename, width=0, height=0):
+    def image(self, filename):
         """saves an image of the screen to file filename
         width and height default to current size
         (and only that works currently)
         """
-        if width==0:
-            width = self.width
-            height = self.height
+        width = self.width
+        height = self.height
+        if filename[-3:] == "pov": self.povwrite(filename, width, height)
+        else:  self.jpgwrite(filename, width, height)
+
+    def povwrite(self, filename, width, height):
+
+        aspect = (width*1.0)/(height*1.0)
+            
+        f=open(filename,"w")
+        f.write(povheader)
+
+        f.write("background { color rgb " +
+                povpoint(self.backgroundColor*V(1,1,-1)) +
+                "}\n")
+
+        light1 = self.out + self.left + self.up
+        light2 = self.right + self.up
+        light3 = self.right + self.down + self.out/2.0
+        f.write("light_source {" + povpoint(light1) +
+                " color Gray50 parallel}\n")
+        f.write("light_source {" + povpoint(light2) +
+                " color Gray25 parallel}\n")
+        f.write("light_source {" + povpoint(light3) +
+                " color Gray25 parallel}\n")
+        
+
+        f.write("camera {\n location " +
+                povpoint(3.0*self.scale*self.out-self.pov) +
+                "\nup " + povpoint(0.7 * self.up) +
+                "\nright " + povpoint(0.7 * aspect*self.right) +
+                "\nsky " + povpoint(self.up) +
+                "\nlook_at " + povpoint(-self.pov) +
+                "\n}\n")
+        
+        self.assy.povwrite(f, self)
+
+        f.close()
+        print "povray +P +W" + str(width) + " +H" +str(height)  + " +A " + filename
+    def jpgwrite(self, filename, width, height):
+
         buf = array(glReadPixelsub(0, 0, width, height, GL_RGB))
         buf = reshape(buf, (height, width, 3))
         
@@ -418,7 +457,11 @@ class GLPane(QGLWidget):
         pic = Image.new("RGB", (width, height))
         pic.putdata(buf)
         pic.save(filename, "JPEG", quality=85)
-        
+
+
+def povpoint(p):
+    # note z reversal -- povray is left-handed
+    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
 
 def pppoint(o,p1,p2):
     """Return the point where the segment from p1 to p2 intersects
