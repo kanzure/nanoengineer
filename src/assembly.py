@@ -82,7 +82,7 @@ class assembly:
         self.bbox.merge(mol.bbox)
         self.center = self.bbox.center()
         self.molecules += [mol]
-
+   
         self.setDrawLevel()
         
     ## Calculate the number of atoms in an assembly, which is used to
@@ -144,8 +144,8 @@ class assembly:
         self.unpickatoms()
         self.selwhat = 2
         mol.pick()
-        
-        self.w.modelTreeView.addObject(mol)
+
+        self.w.modelTreeView.addObject(mol)        
 
 
     # set up to run a movie or minimization
@@ -350,6 +350,7 @@ class assembly:
                 numol=mol.copy(offset)
                 nulist += [numol]
                 self.molecules += [numol]
+   
                 self.w.modelTreeView.addObject(numol)
 
     # move any selected parts in space ("move" is an offset vector)
@@ -541,9 +542,9 @@ class assembly:
                     a.unpick()
             if numol.atoms:
                 self.addmol(numol)
-                numol.shakedown()
+                #numol.shakedown()  #comment out by Huaicai 09/30/04, addmol() has this call
+                self.w.modelTreeView.addObject(mol)
                 numol.pick()
-                self.w.modelTreeView.addObject(numol)
                 # need to redo the old one too, unless we removed all its atoms
                 if mol.atoms:
                     mol.shakedown()

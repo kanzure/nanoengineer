@@ -729,6 +729,9 @@ class molecule(QObject):
         bounding box as a wireframe
         o is a GLPane
         """
+        #Tried to fix some bugs by Huaicai 09/30/04
+        if len(self.atoms) == 0:
+                 return # Doesn't make sense to do anything for a molecule without any atoms
 
         # put it in its place
         glPushMatrix()
