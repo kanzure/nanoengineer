@@ -392,7 +392,7 @@ def _readmmp(assy, filnam, isInsert = False):
             # This would happen if we loaded an old part with more than 3 atoms listed.
             if len(list) > 1:
                 del list[1:]
-                msg = "Warning: a thermostat record was found in the part which contained extra atoms.  They will be ignored."
+                msg = "Warning: a thermostat record was found (" + name + ") in the part which contained extra atoms.  They will be ignored."
                 assy.w.history.message( redmsg(msg))
                 
             list = map((lambda n: ndix[n]), list)
