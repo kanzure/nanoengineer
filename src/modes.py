@@ -379,7 +379,7 @@ class basicMode(anyMode):
         pass
 
     def UpdateDashboard(self): # bruce 041124
-        """Public method for the current mode object:
+        """Public method, meant to be called only on the current mode object:
            Make sure this mode's dashboard is updated before the processing of
         the current user event is finished.
            External code that might change things which some modes
@@ -393,8 +393,25 @@ class basicMode(anyMode):
         # we might split this into separate invalidation and update code;
         # this will then be the invalidation routine, in spite of the name.
         # We *don't* also call update_mode_status_text -- that's separate.
-        self.update_gui()
+        if self.now_using_this_mode_object(): #bruce 050122 added this condition
+            self.update_gui()
         return
+
+    def now_using_this_mode_object(self): #bruce 050122 moved this here from extrudeMode.py
+        """Return true if the glpane is presently using this mode object
+        (not just a mode object with the same name!)
+           Useful in "slot methods" that receive Qt signals from a dashboard
+        to reject signals that are meant for a newer mode object of the same class,
+        in case the old mode didn't disconnect those signals from its own methods
+        (as it ideally should do).
+           Warning: this returns false while a mode is still being entered (i.e.
+        during the calls of Enter and init_gui, and the first call of update_gui).
+        But it's not a good idea to rely on that behavior -- if you do, you should
+        redefine this function to guarantee it, and add suitable comments near the
+        places which *could* set self.o.mode to the mode object being entered,
+        earlier than they do now.
+        """
+        return self.o.mode == self
         
     def update_mode_status_text(self):        
         """##### new method, bruce 040927; here is my guess at its doc
@@ -993,9 +1010,12 @@ class basicMode(anyMode):
     ######################
 
     # add hydrogen atoms to each dangling bond
+    # Changed this method to mirror what modifyDehydrogenate does.
+    # It is more informative about the number of chunks modified, etc.
+    # Mark 050124
     def modifyHydrogenate(self):
-        """Huaicai 1/19/05: Optimizate and add information for
-            the number of atoms hydrogenated """
+        """Add hydrogen atoms to open bonds on selected chunks/atoms.
+        """
         from platform import fix_plurals
         fixmols = {} # helps count modified mols for statusbar
         didWhat = "Selection had no open bonds."
@@ -1052,8 +1072,6 @@ class basicMode(anyMode):
         self.w.history.message(didwhat)
         return
 
-        
-
     # Remove hydrogen atoms from each selected atom/chunk
     # (coded by Mark ~10/18/04; bugfixed/optimized/msgd by Bruce same day,
     #  and cleaned up (and perhaps further bugfixed) after shakedown changes
@@ -1061,8 +1079,8 @@ class basicMode(anyMode):
     #  Bruce warns: I'm skeptical this belongs in basicMode; probably it will need
     #  rewriting as soon as some specific mode wants to do it differently.)
     def modifyDehydrogenate(self):
-        # Moved to MWsemantics.  Mark 050116
-#        self.w.history.message("Dehydrogenating...")
+        """Remove hydrogen atoms from selected chunks/atoms.
+        """
         from platform import fix_plurals
         fixmols = {} # helps count modified mols for statusbar
         if self.o.assy.selmols:
@@ -1078,7 +1096,7 @@ class basicMode(anyMode):
                           % (counta, countm)
                 if len(self.o.assy.selmols) > countm:
                     didwhat += \
-                        " (%d selection had no hydrogens)" \
+                        " (%d selected chunk(s) had no hydrogens)" \
                         % (len(self.o.assy.selmols) - countm)
                 didwhat = fix_plurals(didwhat)
             else:
