@@ -1130,12 +1130,27 @@ class Bond:
           # if it's called too early while initing the bond or one of its molecules)
         return self.__dict__[attr] # raise exception if attr still missing
 
-    def other(self, at):
+    def other(self, atm):
         """Given one atom the bond is connected to, return the other one
         """
-        if self.atom1 == at: return self.atom2
-        assert self.atom2 == at #bruce 041029
+        if self.atom1 == atm: return self.atom2
+        assert self.atom2 == atm #bruce 041029
         return self.atom1
+
+    def othermol(self, mol): #bruce 041123; not yet used or tested
+        """Given the molecule of one atom of this bond, return the mol
+        of the other one. Error if mol is not one of the bonded mols.
+        Note that this implies that for an internal bond within mol,
+        the input must be mol and we always return mol.
+        """
+        if mol == self.atom1.molecule:
+            return self.atom2.molecule
+        elif mol == self.atom2.molecule:
+            return self.atom1.molecule
+        else:
+            assert mol in [self.atom1.molecule, self.atom2.molecule]
+            # this always fails -- it's just our "understandable error message"
+        pass
     
     def ubp(self, atom):
         """ unbond point (atom must be one of the bond's atoms) """
