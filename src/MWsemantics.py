@@ -35,6 +35,10 @@ class MWsemantics(MainWindow):
 	
         global windowList
         MainWindow.__init__(self, parent, name, fl)
+
+        # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
+        import extrudeMode as _extrudeMode
+        _extrudeMode.do_what_MainWindowUI_should_do(self)
         
         windowList += [self]
         if name == None:
@@ -61,7 +65,8 @@ class MWsemantics(MainWindow):
 
         self.setFocusPolicy(QWidget.StrongFocus)
 
-        self.cookieCutterToolbar.hide()
+        self.cookieCutterToolbar.hide() # (bruce note: this is the cookie mode dashboard)
+        self.extrudeToolbar.hide() # (... and this is the extrude mode dashboard)
         self.sketchAtomToolbar.hide()
 
         # start with Carbon
@@ -556,20 +561,26 @@ class MWsemantics(MainWindow):
         else:
             self.sketchAtomToolbar.show()
 
-    def toggleCookieCutterTbar(self):
-        if self.cookieCutterToolbar.isVisible():
-            self.cookieCutterToolbar.hide()
-        else:
-            self.cookieCutterToolbar.show()
+## bruce 040920 -- toggleCookieCutterTbar seems to be obsolete, so I zapped it:
+##    def toggleCookieCutterTbar(self):
+##        print "\n * * * * fyi: toggleCookieCutterTbar() called -- tell bruce since he thinks this will never happen * * * * \n" ####
+##        if self.cookieCutterToolbar.isVisible():
+##            self.cookieCutterToolbar.hide()
+##        else:
+##            self.cookieCutterToolbar.show()
 
 
     ###############################################################
     # functions from the buttons down the right side of the display
     ###############################################################
 
-    # set up cookiecutter mode
+    # get into cookiecutter mode
     def toolsCookieCut(self):
         self.glpane.setMode('COOKIE')
+
+    # get into Extrude mode
+    def toolsExtrude(self):
+        self.glpane.setMode('EXTRUDE')
 
     # "push down" one nanometer to cut out the next layer
     def toolsCCAddLayer(self):

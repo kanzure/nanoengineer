@@ -18,7 +18,8 @@ from assembly import *
 import re
 from constants import *
 from modifyMode import *
-from cookieMode import *
+from cookieMode import cookieMode # fyi: was 'import *' before bruce 040920
+from extrudeMode import extrudeMode
 from selectMode import *
 from depositMode import *
 
@@ -152,6 +153,7 @@ class GLPane(QGLWidget):
         
         selectMode(self)
         cookieMode(self)
+        extrudeMode(self)
         modifyMode(self)
         depositMode(self)
 
