@@ -1010,7 +1010,7 @@ class MWsemantics(MainWindow):
         # Make sure that no more than 30 atoms are selected.
         nsa = len(self.assy.selatoms)
         if nsa > 30: 
-            self.history.message(redmsg("Linear Motor: " + str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+            self.history.message(redmsg("Rotary Motor: " + str(nsa) + " atoms selected.  The limit is 30.  Try again."))
             return
         
         self.history.message(greenmsg("Rotary Motor: "))
