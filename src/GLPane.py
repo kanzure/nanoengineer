@@ -661,8 +661,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                       vdist*self.near, vdist*self.far)
 
         glMatrixMode(GL_MODELVIEW)
-        if aspect < 1.0:
-             vdist /= aspect
+        #if aspect < 1.0:
+        #     vdist /= aspect
         
         glTranslatef(0.0, 0.0, - vdist)
 	# bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale

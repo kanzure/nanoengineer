@@ -678,6 +678,9 @@ class MWsemantics(MainWindow):
         self.assy.computeBoundingBox()     
 
         self.glpane.scale=self.assy.bbox.scale()
+        aspect = float(self.glpane.width)/self.glpane.height
+        if aspect < 1.0:
+             self.glpane.scale /= aspect
         self.glpane.pov = V(-self.assy.center[0], -self.assy.center[1], -self.assy.center[2]) 
         self.glpane.setZoomFactor(1.0)
         self.glpane.gl_update()
