@@ -331,7 +331,7 @@ class Ground(Node):
 
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
-            drawwirecube(self.color, a.molecule.basepos[a.index], rad)
+            drawwirecube(self.color, a.posn(), rad)
             
     # Write "ground" record to POV-Ray file in the format:
     # ground(<box-center>,box-radius,<r, g, b>)
@@ -410,7 +410,7 @@ class Stat(Node):
     def draw(self, win, dispdef):
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
-            drawwirecube(self.color, a.molecule.basepos[a.index], rad)
+            drawwirecube(self.color, a.posn(), rad)
             
     # Write "stat" record to POV-Ray file in the format:
     # stat(<box-center>,box-radius,<r, g, b>)
