@@ -312,7 +312,7 @@ void filred(char *filnam) {
 	
     file=fopen(filnam,"r");
 	
-    while (fgets(buf,127,file)) {
+    while (fgets(buf,255,file)) {
 	/* atom number (element) (posx, posy, posz) */
 	/* position vectors are integral 0.1pm */
 	if (0==strncasecmp("atom",buf,4)) {
@@ -529,7 +529,6 @@ void filred(char *filnam) {
 	}
 		
 	else if (0==strncasecmp("end",buf,3)) {
-	  printf("end\n");
 	  break;
 	}
 		
@@ -537,9 +536,6 @@ void filred(char *filnam) {
 		
     }
     fclose(file);
-	
-    printf("out\n");
-
 	
 
     /* got all the static vdW bonds we'll see */

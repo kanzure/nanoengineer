@@ -83,21 +83,21 @@ struct A *Space[SPWIDTH][SPWIDTH][SPWIDTH];	/*  space buckets */
 
 void orion() {			/* atoms in space :-) */
     int n, i,j,k;
-    struct A *emptybucket = NULL;
-    struct A **pail = &emptybucket;
-	
+    struct A **pail;
+
     for (n=0; n<Nexatom; n++) *atom[n].bucket = NULL;
 	
     for (n=0; n<Nexatom; n++) {
 	i= ((int)cur[n].x / 250) & SPMASK;
 	j= ((int)cur[n].y / 250) & SPMASK;
 	k= ((int)cur[n].z / 250) & SPMASK;
-		
+
+	pail = &Space[i][j][k];
 	atom[n].next = *pail;
 	*pail = atom+n;
 	atom[n].bucket = pail;
     }
-	
+
 }
 
 
@@ -373,11 +373,12 @@ void findnobo(int a1) {
     int a2, ix, iy, iz, i, j, k;
     struct A *p;
     double r;
+
 	
     ix= (int)cur[a1].x / 250 + 4;
     iy= (int)cur[a1].y / 250 + 4;
     iz= (int)cur[a1].z / 250 + 4;
-	
+
     for (i=ix-7; i<ix; i++)
 	for (j=iy-7; j<iy; j++)
 	    for (k=iz-7; k<iz; k++)
@@ -559,64 +560,8 @@ void calcloop(int iters) {
 		vsub(force[torq[j].a2],q2);
 
 		//printf("theta %f, torq %f \n",theta, sqrt(vdot(q1,q1)));
-
-		/*
-		vadd2(rx,v1,v2);
-		rsq=vdot(rx,rx);
-
-		// table setup for bend, to be moved out of loop 
-		start=torq[j].type->start;
-		scale=torq[j].type->scale;
-		t1=torq[j].type->tab1->t1;
-		t2=torq[j].type->tab1->t2;
-				
-		k=(int)(rsq-start)/scale;
-		if (k<0 || k>=TABLEN) {
-		    theta=(180.0/3.1415)*vang(v1,v2);
-					
-		    //printf("bend: off table -- angle = %.2f\n",theta);
-		    //pq(j);
-					
-		    if (k<0) k=0;
-		    else k=TABLEN-1;
-		}
-		ff=t1[k]+rsq*t2[k];
-				
-		vmulc(v2,ff);
-		if (torq[j].dir1) {vsub(torq[j].b1->bff,v2);}
-		else {vadd(torq[j].b1->bff,v2);}
-				
-		if (torq[j].type->tab1 == torq[j].type->tab2) {
-		    t1=torq[j].type->tab2->t1;
-		    t2=torq[j].type->tab2->t2;
-					
-		    ff=t1[k]+rsq*t2[k];
-		}
-		vmulc(v1,ff);
-				
-		if (torq[j].dir2) {vsub(torq[j].b2->bff,v1);}
-		else {vadd(torq[j].b2->bff,v1);}
-		*/
 	    }
-			
-	    /* now loop over bonds again, orthogonalizing torques and
-	       adding to force */
-	    /*
-	    for (j=0; j<Nexbon; j++) {
-		vadd(force[bond[j].an1],bond[j].aff);
-		vsub(force[bond[j].an2],bond[j].aff);
-		
-		//  br=sqrt(vdot(bond[j].aff,bond[j].aff));
-		//  printf("bond %d: stretch force: %f, ",j,br);
-		
-		vmul2c(f,bond[j].ru,vdot(bond[j].ru,bond[j].bff));
-		vsub2(f,bond[j].bff,f);
-		vadd(force[bond[j].an1],f);
-		vsub(force[bond[j].an2],f);
-		
-	    }
-	    */
-			
+
 	    /* do the van der Waals/London forces */
 	    for (nvb=&vanderRoot; nvb; nvb=nvb->next)
 		for (j=0; j<nvb->fill; j++) {
@@ -891,7 +836,7 @@ void minimize(int NumFrames, int IterPerFrame) {
 main(int argc,char **argv)
 {
     int i,j, n;
-    int da=0, db=0, dc=0;
+    int da=0, db=0, dc=0, dw=0;
     struct xyz p, foo;
     double therm = 0.645;
 	
@@ -938,6 +883,7 @@ main(int argc,char **argv)
 		if (argv[i][2]=='a') da = 1;
 		if (argv[i][2]=='b') db = 1;
 		if (argv[i][2]=='c') dc = 1;
+		if (argv[i][2]=='w') dw = 1;
 	    case 'n':
 		n = atoi(argv[i]+2);
 		if (n>NATOMS) {
@@ -1013,6 +959,8 @@ main(int argc,char **argv)
 
     filred(buf);
     
+    orion();
+
     if (da) {
 	printf("%d atoms:\n",Nexatom);
 	for (i=0; i<Nexatom; i++) pa(i);
@@ -1022,6 +970,8 @@ main(int argc,char **argv)
 	for (i=0; i<Nexbon; i++) pb(i);
 	printf("%d torques:\n",Nextorq);
 	for (i=0; i<Nextorq; i++) pq(i);
+    }
+    if (dw) {
 	printf("%d Waals:\n",vanderRoot);
 	for (i=0; i<vanderRoot.fill; i++) pvdw(&vanderRoot,i);
     }
@@ -1029,8 +979,6 @@ main(int argc,char **argv)
 	printf("%d constraints:\n",Nexcon);
 	for (i=0; i<Nexcon; i++) pcon(i);
     }
-
-    orion();
 
     printf(" center of mass velocity: %f\n", vlen(vdif(CoM(cur),CoM(old))));
 
