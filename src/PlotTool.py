@@ -10,7 +10,7 @@ from PlotToolDialog import *
 from qt import *
 import time
 import sys, os, string, linecache
-from HistoryWidget import redmsg
+from HistoryWidget import redmsg, greenmsg
 
 class PlotTool(PlotToolDialog):
     def __init__(self, assy, movie): #bruce 050326 added movie arg
@@ -259,3 +259,60 @@ class PlotTool(PlotToolDialog):
             editor = "/usr/bin/kwrite"
             
         return editor
+
+# == 
+
+def simPlot(assy): # moved here from MWsemantics method, bruce 050327
+    """Opens the Plot Tool dialog (and waits until it's dismissed),
+    for the current movie if there is one, otherwise for a previously saved
+    dpb file with the same name as the current part, if one can be found.
+    Returns the dialog, after it's dismissed (probably useless),
+    or None if no dialog was shown.
+    """
+    #bruce 050326 inferred docstring from code, then revised to fit my recent changes
+    # to assy.current_movie, but didn't yet try to look for alternate dpb file names
+    # when the current part is not the main part. (I'm sure that we'll soon have a wholly
+    # different scheme for letting the user look around for preexisting related files to use,
+    # like movie files applicable to the current part.)
+    #    I did reorder the code, and removed the check on the current part having atoms
+    # (since plotting from an old file shouldn't require movie to be valid for current part).
+    #    This method should be moved into some other file.
+
+    history = assy.w.history
+    
+    ## from PlotTool import PlotTool
+##        if not assy.molecules: # No model.
+##            history.message(redmsg("Plot Tool: Need a model."))
+##            return
+    history.message(greenmsg("Plot Tool:")) # do before other messages, tho success is not yet known
+
+    if assy.current_movie and assy.current_movie.filename:
+        # (bruce 050326 asks: can an existing movie ever not have a filename? Depends on whether stored on error...)
+        return PlotTool(assy, assy.current_movie) # Open Plot Tool dialog [and wait until it's dismissed]
+        # [bruce comment 050324-27: retval is stored in main window as win.plotcntl,
+        #  but never used. Conceivably, keeping it matters due to its refcount, but I doubt it.]
+
+    # no valid current movie, look for saved one with same name as assy
+    history.message("Plot Tool: No simulation has been run yet.")
+    if assy.filename:
+        if assy.part != assy.tree.part:
+            history.message("Plot Tool: Warning: Looking for saved movie for main part, not for displayed clipboard item.")
+        mfile = assy.filename[:-4] + ".dpb"
+        movie = find_saved_movie( assy, mfile)
+            # just checks existence, not validity for current part or main part
+        if movie:
+            #e should we set this as current_movie? I don't see a good reason to do that,
+            # user can open it if they want to. But I'll do it if we don't have one yet.
+            if not assy.current_movie:
+                assy.current_movie = movie
+            #e should we switch to the part for which this movie was made?
+            # No current way to tell how to do that, and this might be done even if it's not valid
+            # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
+            # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
+            history.message("Plot Tool: using previously saved movie for this part.")
+            return PlotTool(assy, movie)
+        else:
+            history.message(redmsg("Plot Tool: Can't find previously saved movie for this part."))
+    return
+
+# end
