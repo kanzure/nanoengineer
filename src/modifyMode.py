@@ -82,10 +82,6 @@ class modifyMode(basicMode):
         # Call. 
         if not self.picking: return
 
-        # Any changes to leftDrag will need to be added to fusechunkMode.leftDrag
-        # Mark 050328
-        if not self.o.assy.selmols: return # We aren't dragging anything
-
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
         self.dragdist += vlen(deltaMouse)
@@ -109,6 +105,10 @@ class modifyMode(basicMode):
         if not self.picking: return
         self.picking = False
 
+        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                       self.o.MousePos[1] - event.pos().y(), 0.0)
+        self.dragdist += vlen(deltaMouse)
+        
         if self.dragdist<7:
             # didn't move much, call it a click
             # Pick a part
@@ -132,10 +132,6 @@ class modifyMode(basicMode):
         """
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
-        
-        # Any changes to leftCntlDrag will need to be added to fusechunkMode.leftCntlDrag
-        # Mark 050328
-        if not self.o.assy.selmols: return # We aren't dragging anything
 
         self.o.setCursor(self.w.RotateMolCursor)
         
@@ -174,11 +170,7 @@ class modifyMode(basicMode):
         """
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
-        
-        # Any changes to leftShiftDrag will need to be added to fusechunkMode.leftShiftDrag
-        # Mark 050328
-        if not self.o.assy.selmols: return # We aren't dragging anything
-        
+
         self.o.setCursor(self.w.MoveRotateMolCursor)
         
         w=self.o.width+0.0
