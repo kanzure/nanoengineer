@@ -1,0 +1,39 @@
+kelvin 300
+group (Data)
+csys (CSys) (0.891619, 0.317770, -0.052755, 0.318207) (10.000000)
+datum (XY) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 0.000000, 1.000000) (0.000000, 1.000000, 0.000000)
+datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
+datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
+egroup (Data)
+group (5CarbonRing)
+mol (5 Carbon Ring) tub
+atom 1 (0) (1043, 4089, 5583) def
+atom 2 (0) (-577, 2844, 5616) def
+atom 3 (0) (91, 924, 5626) def
+atom 4 (0) (2706, 2910, 5589) def
+atom 5 (0) (2124, 957, 5591) def
+atom 6 (6) (1040, 3652, 4949) def
+bond1 1
+atom 7 (0) (1021, 4092, 4317) def
+bond1 6
+atom 8 (6) (-180, 2713, 4970) def
+bond1 6 2
+atom 9 (0) (-619, 2848, 4351) def
+bond1 8
+atom 10 (6) (2302, 2771, 4948) def
+bond1 6 4
+atom 11 (0) (2728, 2929, 4327) def
+bond1 10
+atom 12 (6) (1857, 1305, 4958) def
+bond1 10 5
+atom 13 (0) (2118, 955, 4323) def
+bond1 12
+atom 14 (6) (327, 1275, 4983) def
+bond1 8 12 3
+atom 15 (0) (67, 910, 4356) def
+bond1 14
+egroup (5CarbonRing)
+end1
+group (Clipboard)
+egroup (Clipboard)
+end molecular machine part 5CarbonRing
