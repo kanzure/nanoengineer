@@ -222,7 +222,7 @@ def createWhatsThis(self):
 
         self.setViewTopAction.setWhatsThis(  setViewTopActionText )      
         
-                           #### set Bottom View ####
+                           #### Bottom View ####
         
         setViewBottomActionText = "<u><b>Bottom View</b></u><br>"\
                        "<p><img source=\"setViewBottom\"><br> "\
@@ -234,7 +234,7 @@ def createWhatsThis(self):
 
         self.setViewBottomAction.setWhatsThis(  setViewBottomActionText )  
         
-        #### set Left View ####
+        #### Left View ####
         
         setViewLeftActionText = "<u><b>Left View</b></u><br>"\
                        "<p><img source=\"setViewLeft\"><br> "\
@@ -246,7 +246,7 @@ def createWhatsThis(self):
 
         self.setViewLeftAction.setWhatsThis(  setViewLeftActionText )
         
-        #### set Right View ####
+        #### Right View ####
         
         setViewRightActionText = "<u><b>Right View</b></u><br>"\
                        "<p><img source=\"setViewRight\"><br> "\
@@ -292,7 +292,9 @@ def createWhatsThis(self):
 
         orient111ActionText = "<u><b>Surface 111</b></u><br>"\
                        "<p><img source=\"orient111Action\"><br> "\
-                       "Reorients the view to the nearest angle that would look straight into a (1,1,1) surface of a diamond lattice.</p>"
+                       "Reorients the view to the nearest angle that would "\
+                       "look straight into a (1,1,1) surface of a diamond lattice."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "orient111Action",
                                                        self.orient111Action.iconSet().pixmap() )
@@ -303,73 +305,106 @@ def createWhatsThis(self):
         # Molecular Display toolbar
         ##############################################
         
-        #### Default  </p>"####
+        #### Display Default  ####
 
-        dispDefaultActionText = "<u><b>Default</b></u><br>"\
+        dispDefaultActionText = "<u><b>Display Default</b></u><br>"\
                        "<p><img source=\"dispDefaultAction\"><br> "\
-                       "Resets the display of the selected atoms or chunks to their default display mode."\
-                       "</p>"
+                       "This resets the display setting of the selected atoms or chunks to the "\
+                       "<b>Default Display Mode</b>.</p>"\
+                       "The active Default Display Mode is displayed in the lower right corner "\
+                       "of the main window.  The Default Display Mode can be easily changed "\
+                       "by unselecting everything (i.e. Select None) and selecting a "\
+                       "different Display Mode.</p>"\
+                       "<p><b>Display Default</b> mimics <b>Display VwD</b> when the "\
+                       "Default Display Mode is set to <b>Display Default</b>.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispDefaultAction",
                                                        self.dispDefaultAction.iconSet().pixmap() )
 
         self.dispDefaultAction.setWhatsThis(dispDefaultActionText )
  
-         ####Invisible####
+         #### Display Invisible ####
 
-        dispInvisActionText = "<u><b>Invisible</b></u><br>"\
+        dispInvisActionText = "<u><b>Display Invisible</b></u><br>"\
                        "<p><img source=\"dispInvisAction\"><br> "\
-                       "Changes the display of the selected atoms or chunks to <b>Invisible</b>, making them invisible, but does not delete them.</p>"
+                       "Changes the display setting of the selected atoms or chunks to "\
+                       "<b>Invisible</b>.</p>"\
+                       "<p>This can also be used to change the active <b>Default Display "\
+                       "Mode</b> to <b>Display Invisible</b> by unselecting everything "\
+                       "(i.e. Select None) and selecting this action. Doing this will make "\
+                       "all atoms and chunks invisible that have their display setting set to "\
+                       "<b>Display Default</b>.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispInvisAction",
                                                        self.dispInvisAction.iconSet().pixmap() )
 
         self.dispInvisAction.setWhatsThis(dispInvisActionText )       
 
-           ####Lines####
+           #### Display Lines ####
 
-        dispLinesActionText = "<u><b>Lines</b></u><br>"\
+        dispLinesActionText = "<u><b>Display Lines</b></u><br>"\
                        "<p><img source=\"dispLinesAction\"><br> "\
                        "Changes the display of the selected atoms or chunks to <b>Lines</b>.  "\
-                       "Only bonds are rendered as colored lines."\
-                       "</p>"
+                       "Only bonds are rendered as colored lines.</p>"\
+                       "<p>This can also be used to change the active <b>Default Display "\
+                       "Mode</b> to <b>Display Lines</b> by unselecting everything "\
+                       "(i.e. Select None) and selecting this action. Doing this will render "\
+                       "all atoms and chunks Lines mode that have their display setting set to "\
+                       "<b>Display Default</b> .</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispLinesAction",
                                                        self.dispLinesAction.iconSet().pixmap() )
 
         self.dispLinesAction.setWhatsThis(dispLinesActionText )  
         
-        ####Tubes####
+        #### Display Tubes ####
 
-        dispTubesActionText = "<u><b>Tubes</b></u><br>"\
+        dispTubesActionText = "<u><b>Display Tubes</b></u><br>"\
                        "<p><img source=\"dispTubesAction\"><br> "\
-                       "Changes the display of the selected atoms or chunks to <b>Tubes</b>.  "\
-                       "Atoms and bonds are rendered as colored tubes."\
-                       "</p>"
+                       "Changes the display setting of the selected atoms or chunks to "\
+                       "<b>Tubes</b>.  Atoms and bonds are rendered as colored tubes.</p>"\
+                       "<p>This can also be used to change the active <b>Default Display "\
+                       "Mode</b> to <b>Display Tubes</b> by unselecting everything "\
+                       "(i.e. Select None) and selecting this action. Doing this will render "\
+                       "all atoms and chunks in Tubes mode that have their display setting set to "\
+                       "<b>Display Default</b> .</p>"
+
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispTubesAction",
                                                        self.dispTubesAction.iconSet().pixmap() )
 
         self.dispTubesAction.setWhatsThis(dispTubesActionText )  
         
-        ####CPK####
+        #### Display CPK ####
 
-        dispCPKActionText = "<u><b>CPK</b></u><br>"\
+        dispCPKActionText = "<u><b>Display CPK</b></u><br>"\
                        "<p><img source=\"dispCPKAction\"><br> "\
-                       "Changes the display of the selected atoms to <b>CPK</b> mode, also known as <b>\"Ball and Sticks\"</b> mode.  Atoms are rendered as spheres and bonds are rendered as grey cylinders."\
-                       "</p>"
+                       "Changes the display of the selected atoms to <b>CPK</b> mode, "\
+                       "also known as <b>\"Ball and Sticks\"</b> mode.  Atoms are rendered "\
+                       "as spheres and bonds are rendered as grey cylinders.</p>"\
+                       "<p>This can also be used to change the active <b>Default Display "\
+                       "Mode</b> to <b>Display CPK</b> by unselecting everything "\
+                       "(i.e. Select None) and selecting this action. Doing this will render "\
+                       "all atoms and chunks in CPK mode that have their display setting set to "\
+                       "<b>Display Default</b> .</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispCPKAction",
                                                        self.dispCPKAction.iconSet().pixmap() )
 
         self.dispCPKAction.setWhatsThis(dispCPKActionText ) 
         
-         ####VDW####
+         #### Display VdW ####
 
-        dispVdWActionText = "<u><b>VdW</b></u><br>"\
+        dispVdWActionText = "<u><b>Display VdW</b></u><br>"\
                        "<p><img source=\"dispVdWAction\"><br> "\
-                       "Changes the display of the selected atoms to <b>Van der Waals</b> mode.  Atoms are rendered as spheres with a size equal to the VdW radius.  Bonds are not rendered."\
-                       "</p>"
+                       "Changes the display of the selected atoms to <b>Van der Waals</b> "\
+                       "mode.  Atoms are rendered as spheres with a size equal to the VdW "\
+                       "radius.  Bonds are not rendered.</p>"\
+                       "<p>This can also be used to change the active <b>Default Display "\
+                       "Mode</b> to <b>Display VdW</b> by unselecting everything "\
+                       "(i.e. Select None) and selecting this action. Doing this will render "\
+                       "all atoms and chunks in VdW mode that have their display setting set to "\
+                       "<b>Display Default</b> .</p>"
                       
         QMimeSourceFactory.defaultFactory().setPixmap( "dispVdWAction",
                                                        self.dispVdWAction.iconSet().pixmap() )
@@ -380,11 +415,12 @@ def createWhatsThis(self):
         # Select toolbar
         ##############################################
         
-        ####selectAll####
+        #### Select All ####
 
         selectAllActionText = "<u><b>Select All</b></u>     (Ctrl + A)</b></p><br>"\
                        "<p><img source=\"selectAllAction\"><br> "\
-                       "Selects all the atoms while in <b>Select Atoms</b> mode, and selects all the chunks while in <b>Select Chunks</b> mode."\
+                       "During <b>Select Atoms</b> mode, this will select all the atoms in "\
+                       "the model.  Otherwise, this will select all the chunks in the model."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectAllAction",
@@ -392,18 +428,18 @@ def createWhatsThis(self):
 
         self.selectAllAction.setWhatsThis(selectAllActionText )
         
-        ####selectNone####
+        #### Select None ####
 
         selectNoneActionText = "<u><b>Select None</b></u>     (Ctrl + D)</b></p><br>"\
                        "<p><img source=\"selectNoneAction\"><br> "\
-                       "Unselects the current selection.</p>"
+                       "Unselects anything currently selected.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectNoneAction",
                                                        self.selectNoneAction.iconSet().pixmap() )
 
         self.selectNoneAction.setWhatsThis(selectNoneActionText )
  
-        ####select Invert####
+        #### Invert Selection ####
 
         selectInvertActionText = "<u><b>Invert Selection</b></u>     (Ctrl + Shift + I)</b></p><br>"\
                        "<p><img source=\"selectInvertAction\"><br> "\
@@ -414,24 +450,30 @@ def createWhatsThis(self):
 
         self.selectInvertAction.setWhatsThis(selectInvertActionText )
         
-        ####Select Connected####
+        #### Select Connected ####
 
         selectConnectedActionText = "<u><b>Select Connected</b></u>     (Ctrl + Shift+C)</b></p><br>"\
             "<p><img source=\"selectConnectedAction\"><br> "\
-            "Selects all the atoms that can be reached by the currently selected atom via an unbroken chain of bonds."\
-            "You must first be in <b>Select Atoms</b> mode and select at least one atom to use this feature.</p>"
+            "Selects all the atoms that can be reached by the currently selected atom "\
+            "via an unbroken chain of bonds. </p>"\
+            "<p>To use this feature, you must first be in "\
+            "<b>Select Atoms</b> mode and select at least one atom.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectConnectedAction",
                                                        self.selectConnectedAction.iconSet().pixmap() )
 
         self.selectConnectedAction.setWhatsThis(selectConnectedActionText )
         
-        ####Select Doubly####
+        #### Select Doubly ####
 
         selectDoublyActionText = "<u><b>Select Doubly</b></u>    (Ctrl + Shift + D)</b></p><br>"\
                        "<p><img source=\"selectDoublyAction\"><br> "\
-                       "Selects all the atoms that can be reached from a currently selected atom through two disjoint unbroken chains of bonds.  Atoms singly connected to this group and unconnected to anything else are also included in the selection.  You must first be in <b>Select Atoms</b> mode and select at least one atom to use this feature."\
-                       "</p>"
+                       "Selects all the atoms that can be reached from a currently selected "\
+                       "atom through two disjoint unbroken chains of bonds.  Atoms singly "\
+                       "connected to this group and unconnected to anything else are also "\
+                       "included in the selection.</p>"\
+                       "<p>To use this feature, you must first be in "\
+                       "<b>Select Atoms</b> mode and select at least one atom.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectDoublyAction",
                                                        self.selectDoublyAction.iconSet().pixmap() )
@@ -442,11 +484,12 @@ def createWhatsThis(self):
         # Modify Toolbar
         ##############################################
         
-        ####Minimize####
+        #### Minimize ####
 
         modifyMinimizeActionText = "<u><b>Minimize</b></u>    (Ctrl + M)</b></p><br>"\
                        "<p><img source=\"modifyMinimizeAction\"><br> "\
-                       "Arranges the atoms of the selected chunk(s) to their chemically stable point of equilibrium in reference to the other atoms in the structure."\
+                       "Arranges the atoms of the model to their chemically stable point of "\
+                       "equilibrium in reference to the other atoms in the structure."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifyMinimizeAction",
@@ -454,7 +497,7 @@ def createWhatsThis(self):
 
         self.modifyMinimizeAction.setWhatsThis(modifyMinimizeActionText )
         
-        ####Hydrogenate####
+        #### Hydrogenate ####
 
         modifyHydrogenateActionText = "<u><b>Hydrogenate</b></u>    (Ctrl + H)</b></p><br>"\
                        "<p><img source=\"modifyHydrogenateAction\"><br> "\
@@ -465,7 +508,7 @@ def createWhatsThis(self):
 
         self.modifyHydrogenateAction.setWhatsThis(modifyHydrogenateActionText )
 
-          ####Dehydrogenate####
+          #### Dehydrogenate ####
 
         modifyDehydrogenateActionText = "<u><b>Dehydrogenate</b></u><br>"\
                        "<p><img source=\"modifyDehydrogenateAction\"><br> "\
@@ -476,11 +519,12 @@ def createWhatsThis(self):
 
         self.modifyDehydrogenateAction.setWhatsThis(modifyDehydrogenateActionText )     
         
-        ####Passivate####
+        #### Passivate ####
 
         modifyPassivateActionText = "<u><b>Passivate</b></u>    (Ctrl + P)</b></p><br>"\
                        "<p><img source=\"modifyPassivateAction\"><br> "\
-                       "Changes the types of incompletely bonded atoms to atoms with the right number of bonds, using atoms with the best atomic radius."\
+                       "Changes the types of incompletely bonded atoms to atoms with the "\
+                       "right number of bonds, using atoms with the best atomic radius."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifyPassivateAction",
@@ -488,19 +532,20 @@ def createWhatsThis(self):
 
         self.modifyPassivateAction.setWhatsThis(modifyPassivateActionText )   
         
-        ####Change Element####
+        #### Change Element ####
 
         modifySetElementActionText = "<u><b>Change Element</b></u>    (Ctrl + E)</b></p><br>"\
                        "<p><img source=\"modifySetElementAction\"><br> "\
-                       "Allows you to change the element type of selected atoms.  You can also use <b>Change Element</b> while in <b>Build Atom</b> mode to change atom types."\
-                       "</p>"
+                       "Allows you to change the element type of selected atoms.  "\
+                       "You can also use <b>Change Element</b> while in "\
+                       "<b>Build Atom</b> mode to change atom types.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifySetElementAction",
                                                        self.modifySetElementAction.iconSet().pixmap() )
 
         self.modifySetElementAction.setWhatsThis(modifySetElementActionText )  
         
-        ####Stretch####
+        #### Stretch ####
 
         modifyStretchActionText = "<u><b>Stretch</b></u><br>"\
                        "<p><img source=\"modifyStretchAction\"><br> "\
@@ -511,7 +556,7 @@ def createWhatsThis(self):
 
         self.modifyStretchAction.setWhatsThis(modifyStretchActionText )
 
-        ####Separate####
+        #### Separate ####
 
         modifySeparateActionText = "<u><b>Separate</b></u><br>"\
                        "<p><img source=\"modifySeparateAction\"><br> "\
@@ -522,24 +567,25 @@ def createWhatsThis(self):
 
         self.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
         
-        ####Weld Chunks####
+        #### Weld Chunks ####
 
         modifyWeldActionText = "<u><b>Weld Chunks</b></u><br>"\
                        "<p><img source=\"modifyWeldAction\"><br> "\
-                       "Merges two or more chunks into one chunk when in <b>Select Chunks</b> mode. "\
-                       "Creates one or more new chunks when in <b>Select Atoms</b> mode. "\
-                       "</p>"
+                       "Merges two or more chunks into one chunk when in "\
+                       "<b>Select Chunks</b> mode. Creates one or more new chunks "\
+                       "when in <b>Select Atoms</b> mode. </p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifyWeldAction",
                                                        self.modifyWeldAction.iconSet().pixmap() )
        
         self.modifyWeldAction.setWhatsThis(modifyWeldActionText )  
 
-        ####Align to Common Axis####
+        #### Align to Common Axis ####
 
         modifyAlignCommonAxisActionText = "<u><b>Align To Common Axis</b></u><br>"\
                        "<p><img source=\"modifyAlignCommonAxis\"><br> "\
-                       "Automatically aligns two or more chunks to a common axis. You must first select two or more chunks before using this feature."\
+                       "Automatically aligns two or more chunks to a common axis. You must first "\
+                       "select two or more chunks before using this feature."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifyAlignCommonAxis",
@@ -551,7 +597,7 @@ def createWhatsThis(self):
         # Tools Toolbar
         ##############################################
         
-        ####Select Chunks####
+        #### Select Chunks ####
 
         toolsSelectMoleculesActionText = "<u><b>Select Chunks</b></u><br>"\
                        "<p><img source=\" toolsSelectMoleculesAction\"><br> "\
@@ -562,7 +608,7 @@ def createWhatsThis(self):
        
         self. toolsSelectMoleculesAction.setWhatsThis( toolsSelectMoleculesActionText )  
 
-        ####Select Atoms####
+        #### Select Atoms ####
 
         toolsSelectAtomsActionText = "<u><b>Select Atoms</b></u><br>"\
                        "<p><img source=\" toolsSelectAtomsAction\"><br> "\
@@ -573,7 +619,7 @@ def createWhatsThis(self):
        
         self. toolsSelectAtomsAction.setWhatsThis( toolsSelectAtomsActionText ) 
         
-         ####Move Chunks####
+         #### Move Chunks ####
 
         toolsMoveMoleculeActionText = "<u><b>Move Chunks</b></u><br>"\
                        "<p><img source=\" toolsMoveMoleculeAction\"><br> "\
@@ -584,7 +630,7 @@ def createWhatsThis(self):
        
         self. toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText ) 
         
-        ####Build Tool####
+        #### Build Atoms Tool ####
 
         toolsDepositAtomActionText = "<u><b>Build Tool</b></u><br>"\
                        "<p><img source=\" toolsDepositAtomAction\"><br> "\
@@ -595,7 +641,7 @@ def createWhatsThis(self):
        
         self. toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText ) 
         
-        ####Cookie Cutter####
+        #### Cookie Cutter ####
                                         
         toolsCookieCutActionText = "<u><b>Cookie Cutter Tool</b></u><br>"\
                        "<p><><img source=\" toolsCookieCutAction\"><br> "\
@@ -606,7 +652,7 @@ def createWhatsThis(self):
        
         self. toolsCookieCutAction.setWhatsThis( toolsCookieCutActionText )
         
-         ####Extrude####
+         #### Extrude Tool ####
 
         toolsExtrudeActionText = "<u><b>Extrude Tool</b></u><br>"\
                        "<p><img source=\" toolsExtrudeAction\"><br> "\
@@ -617,7 +663,7 @@ def createWhatsThis(self):
        
         self. toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )  
 
-        ####Movie####
+        #### Movie Player ####
 
         toolsMoviePlayerActionText = "<u><b>Movie Player</b></u><br>"\
                        "<p><img source=\" toolsMoviePlayerAction\"><br> "\
@@ -628,7 +674,7 @@ def createWhatsThis(self):
        
         self. toolsMoviePlayerAction.setWhatsThis( toolsMoviePlayerActionText )  
         
-        ####Simulator####
+        #### Simulator ####
 
         toolsSimulatorActionText = "<u><b>Simulator</b></u><br>"\
                        "<p><img source=\" toolsSimulatorAction\"><br> "\
@@ -643,7 +689,7 @@ def createWhatsThis(self):
         # Dashboard Buttons
         ##############################################
         
-        ####done checkmark####
+        #### Done ####
 
         toolsDoneActionText = "<u><b>Done</b></u><br>"\
                        "<p><img source=\" toolsDoneAction\"><br> "\
@@ -655,7 +701,7 @@ def createWhatsThis(self):
        
         self. toolsDoneAction.setWhatsThis( toolsDoneActionText )  
 
-        ####Cancel####
+        #### Cancel ####
 
         toolsCancelActionText = "<u><b>Cancel</b></u><br>"\
                        "<p><img source=\" toolsCancelAction\"><br> "\
@@ -667,7 +713,7 @@ def createWhatsThis(self):
        
         self. toolsCancelAction.setWhatsThis( toolsCancelActionText ) 
         
-        ####Back up####
+        #### Back up ####
 
         toolsBackUpActionText = "<u><b>Back Up</b></u><br>"\
                        "<p><img source=\" toolsBackUpAction\"><br> "\
@@ -679,7 +725,7 @@ def createWhatsThis(self):
        
         self. toolsBackUpAction.setWhatsThis( toolsBackUpActionText ) 
    
-        ####Start Over####
+        #### Start Over ####
                         
         toolsStartOverActionText = "<u><b>Start Over</b></u><br>"\
                        "<p><img source=\"toolsStartOverAction\"><br> "\
@@ -691,7 +737,7 @@ def createWhatsThis(self):
        
         self.toolsStartOverAction.setWhatsThis(toolsStartOverActionText ) 
         
-        ####Add Layersr####
+        #### Add Layers ####
                         
         ccAddLayerActionText = "<u><b>Add Layer</b></u><br>"\
                        "<p><img source=\"ccAddLayerAction\"><br> "\
@@ -706,61 +752,80 @@ def createWhatsThis(self):
         # Jigs
         ##############################################
         
-        ####Ground####
+        #### Ground ####
 
         jigsGroundActionText = "<u><b>Ground</b></u><br>"\
                        "<p><img source=\"jigsGroundAction\"><br> "\
-                       "Attaches a <b>Ground</b> (anchor) to the selected atom(s), which constrains its motion during a simulation.  Grounds are drawn as a black wire box around each atom to which it is attached.</p>"
+                       "Attaches a <b>Ground</b> (anchor) to the selected atom(s), which "\
+                       "constrains its motion during a simulation.</p>"\
+                       "<p>To create a Ground, enter <b>Select Atoms</b> mode, "\
+                       "select the atom(s) you want to anchor and then select this action. "\
+                       "Grounds are drawn as a black wireframe box around each selected atom.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsGroundAction",
                                                        self.jigsGroundAction.iconSet().pixmap() )
        
         self.jigsGroundAction.setWhatsThis(jigsGroundActionText )  
         
-         ####Rotary Motor####
+         #### Rotary Motor ####
 
         jigsMotorActionText = "<u><b>Rotary Motor</b></u><br>"\
                        "<p><img source=\"jigsMotorAction\"><br> "\
-                       "Attaches a <b>Rotary Motor</b> to the selected atoms for a simulation.  You may specify the <b>torque (in nN*nm)</b> and <b>speed (in Ghz)</b> of the motor. </p>"
+                       "Attaches a <b>Rotary Motor</b> to the selected atoms.  The Rotary Motor is used by "\
+                       "the simulator to apply rotary motion to a set of atoms during a simulation run.  You may "\
+                       "specify the <b>torque (in nN*nm)</b> and <b>speed (in Ghz)</b> of the motor.</p>"\
+                       "<p>To create a Rotary Motor, enter <b>Select Atoms</b> mode, "\
+                       "select the atoms you want to attach the motor to and then select this action.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsMotorAction",
                                                        self.jigsMotorAction.iconSet().pixmap() )
        
         self.jigsMotorAction.setWhatsThis(jigsMotorActionText )  
         
-         ####Linear Motor####
+         #### Linear Motor ####
 
         jigsLinearMotorActionText = "<u><b>Linear Motor</b></u><br>"\
                        "<p><img source=\"jigsLinearMotorAction\"><br> "\
-                       "Attaches a <b>Linear Motor</b> to the selected atoms for a simulation.  You may specify the <b>force (in nN*nm)</b> and <b>stiffness (in N/m)</b> of the motor. </p>"
+                       "Attaches a <b>Linear Motor</b> to the selected atoms.  The Linear Motor is used by "\
+                       "the simulator to apply linear motion to a set of atoms during a simulation run.  You may "\
+                       "specify the <b>force (in nN*nm)</b> and <b>stiffness (in N/m)</b> of the motor.</p>"\
+                       "<p>To create a Linear Motor, enter <b>Select Atoms</b> mode, "\
+                       "select the atoms you want to attach the motor to and then select this action.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsLinearMotorAction",
                                                        self.jigsLinearMotorAction.iconSet().pixmap() )
        
         self.jigsLinearMotorAction.setWhatsThis(jigsLinearMotorActionText )  
         
-        ####Thermostat####
+        #### Thermostat ####
 
         jigsStatActionText = "<u><b>Thermostat</b></u><br>"\
                        "<p><img source=\"jigsStatAction\"><br> "\
-                       "Attaches a Langevin Thermostat to the selected atoms."\
-                       " A Langevin thermostat sets the temperature (in Kelvin)"\
-                       " of the selected atom(s) for the simulator."\
-                       "</p>"
+                       "Attaches a <b>Langevin Thermostat</b> to a single selected atom, thereby associating "\
+                       "the themostat to the entire molecule of which the selected atom is a member. The user "\
+                       "specifies the temperature (in Kelvin).</p>"\
+                       "<p>The Langevin Thermostat is used to set and hold the temperature "\
+                       "of a molecule during a simulation run.</p>"\
+                       "<p>To create a Langevin Thermostat, enter <b>Select Atoms</b> mode, "\
+                       "select a single atom and then select this action. The thermostat is drawn as a "\
+                       "blue wireframe box around the selected atom.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsStatAction",
                                                        self.jigsStatAction.iconSet().pixmap() )
        
         self.jigsStatAction.setWhatsThis(jigsStatActionText ) 
 
-        ####Thermometer####
+        #### Thermometer ####
 
         jigsThermoActionText = "<u><b>Thermometer</b></u><br>"\
                        "<p><img source=\"jigsThermoAction\"><br> "\
-                       "Attaches a thermometer to the selected atoms. "\
-                       "The temperate for the atom(s) will be recorded and "\
-                       " written to a trace file during a simulation run."\
-                       "</p>"
+                        "Attaches a <b>Thermometer</b> to a single selected atom, thereby associating "\
+                       "the themometer to the entire molecule of which the selected atom is a member. "\
+                       "<p>The temperature of the molecule will be recorded and written to a trace file "\
+                       "during a simulation run.</p>"\
+                       "<p>To create a Thermometer, enter <b>Select Atoms</b> mode, "\
+                       "select a single atom and then select this action. The thermometer is drawn as a "\
+                       "dark red wireframe box around the selected atom.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsThermoAction",
                                                        self.jigsThermoAction.iconSet().pixmap() )
@@ -771,7 +836,7 @@ def createWhatsThis(self):
         # Display
         ##############################################
         
-        ####Display ObjectColor####
+        #### Display Object Color ####
 
         dispObjectColorActionText = "<u><b>Object Color</b></u><br>"\
                        "<p><img source=\"dispObjectColorAction\"><br> "\
@@ -782,7 +847,7 @@ def createWhatsThis(self):
        
         self.dispObjectColorAction.setWhatsThis(dispObjectColorActionText ) 
         
-         ####Display Background Color####
+         #### Display Background Color ####
 
         dispBGColorActionText = "<u><b>Background Color</b></u><br>"\
                        "<p><img source=\"dispBGColorAction\"><br> "\
@@ -797,7 +862,7 @@ def createWhatsThis(self):
         # Help Toolbar
         ##############################################
         
-        #### helpAssistantAction ####
+        #### NE-1 Assistant ####
         
         helpAssistantText = "<u><b>nanoENGINEER-1 Assistant</b></u><br>"\
                         "<p><img source=\"helpAssistant\"><br> "\
@@ -809,14 +874,12 @@ def createWhatsThis(self):
 
         self.helpAssistantAction.setWhatsThis( helpAssistantText )
         
-        #### fileSaveAction ####
-       
-       
+
         ##############################################
         # Datum Display Toolbar
         ##############################################
         
-        ####Display Trihedron####
+        #### Display Trihedron ####
 
         dispTrihedronText = "<u><b>Display Trihedron</b></u><br>"\
                        "<p><img source=\"dispTrihedron\"><br> "\
@@ -827,7 +890,7 @@ def createWhatsThis(self):
        
         self.dispTrihedronAction.setWhatsThis(dispTrihedronText ) 
 
-        ####Display Csys####
+        #### Display Csys ####
 
         dispCsysText = "<u><b>Display Csys Axis</b></u><br>"\
                        "<p><img source=\"dispCsys\"><br> "\
@@ -839,7 +902,7 @@ def createWhatsThis(self):
        
         self.dispCsysAction.setWhatsThis(dispCsysText ) 
         
-        ####Display Datum Lines####
+        #### Display Datum Lines ####
 
         dispDatumLinesText = "<u><b>Display Datum Lines</b></u><br>"\
                        "<p><img source=\"dispDatumLines\"><br> "\
@@ -850,7 +913,7 @@ def createWhatsThis(self):
        
         self.dispDatumLinesAction.setWhatsThis(dispDatumLinesText )    
 
-        ####Display Datum Planes####
+        #### Display Datum Planes ####
 
         dispDatumPlanesText = "<u><b>Display Datum Planes</b></u><br>"\
                        "<p><img source=\"dispDatumPlanes\"><br> "\
@@ -861,7 +924,7 @@ def createWhatsThis(self):
        
         self.dispDatumPlanesAction.setWhatsThis(dispDatumPlanesText )    
         
-        ####Display Grid####
+        #### Display Grid ####
 
         dispGridText = "<u><b>Display 3-D Grid</b></u><br>"\
                        "<p><img source=\"dispGrid\"><br> "\
@@ -873,7 +936,7 @@ def createWhatsThis(self):
        
         self.dispGridAction.setWhatsThis(dispGridText )           
 
-        ####Display Open Bonds####
+        #### Display Open Bonds ####
 
         dispOpenBondsText = "<u><b>Display Singlets</b></u><br>"\
                        "<p><img source=\"dispOpenBonds\"><br> "\
@@ -883,4 +946,4 @@ def createWhatsThis(self):
         QMimeSourceFactory.defaultFactory().setPixmap( "dispOpenBonds",
                                                        self.dispOpenBondsAction.iconSet().pixmap() )
        
-        self.dispOpenBondsAction.setWhatsThis(dispOpenBondsText )                   
+        self.dispOpenBondsAction.setWhatsThis(dispOpenBondsText )
