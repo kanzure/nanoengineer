@@ -1109,17 +1109,17 @@ class TreeWidget(TreeView, DebugMenuMixin):
         pt = QPainter(self, True)
         try:
             fontmetrics = pt.fontMetrics()
-            w = pt.fontMetrics().width("Moving 99 items")
+            w = pt.fontMetrics().width("Copying 99 items")
             maxw = w * 1.5
             for node in nodes:
                 item = self.nodeItem(node)
                 cw = item.width(fontmetrics, self, 0)
                 if  cw > w: w = cw
-            pt.end()
         except:
             w = 160
             print "Exception in get_drag_pixmap_width: w = ", w
-        return min(maxw, w + 4)
+        pt.end()
+        return min(maxw, w + 8)
 
     def get_whatting_n_items_text(self, drag_type, nodes):
         "return something like 'moving 1 item' or 'copying 5 items'"
