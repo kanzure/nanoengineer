@@ -1067,6 +1067,14 @@ class extrudeMode(basicMode):
     def init_gui(self):
         ##print "hi my msg_modename is",self.msg_modename
         self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
+        
+        # Disable some "File" action items while in Extrude mode - Mark 050114
+        self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
+        self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save As"
+        self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
+        self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
+        self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
+        
         if self.is_revolve:
             self.w.toolsRevolveAction.setOn(1)
             self.w.revolveDashboard.show()
@@ -1224,6 +1232,14 @@ class extrudeMode(basicMode):
             self.w.revolveDashboard.hide()
         else:
             self.w.extrudeDashboard.hide()
+        
+        # Re-enable "File" action items - Mark 050114
+        self.w.fileSaveAction.setEnabled(1) # Enable "File Save"
+        self.w.fileSaveAsAction.setEnabled(1) # Enable "File Save"
+        self.w.fileOpenAction.setEnabled(1) # Enable "File Open"
+        self.w.fileCloseAction.setEnabled(1) # Enable "File Close"
+        self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
+        
         return
 
     # mouse events
