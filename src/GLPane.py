@@ -41,7 +41,7 @@ import struct
 from povheader import povheader
 
 from fileIO import *
-
+from HistoryWidget import greenmsg, redmsg
 
 paneno = 0
 #  ... what a Pane ...
@@ -814,7 +814,7 @@ class GLPane(QGLWidget, modeMixin):
     def minimize(self):
         # Make sure some chunks are in the part.
         if not self.assy.molecules: # Nothing in the part to minimize.
-            self.win.history.message("<span style=\"color:#ff0000\">Minimize: Nothing to minimize.</span>")
+            self.win.history.message(redmsg("Minimize: Nothing to minimize."))
             return
 
         minmovie = os.path.join(self.win.tmpFilePath, "minimize.dpb")

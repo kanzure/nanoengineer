@@ -23,10 +23,9 @@ from fileIO import *
 from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
-
 from assistant import AssistantWindow
-
 from AboutDialog import AboutDialog
+from HistoryWidget import greenmsg, redmsg # [moved by bruce 050107]
 
 helpwindow = None
 elementwindow = None
@@ -37,14 +36,6 @@ eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
 eCCBtab2 = {}
 for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
-
-def greenmsg(text):
-    """Display text in green in the HistoryWidget"""
-    return "<span style=\"color:#006600\">" + text + "</span>"
-    
-def redmsg(text):
-    """Display text in red in the HistoryWidget"""
-    return "<span style=\"color:#ff0000\">" + text + "</span>"
     
 def fileparse(name):
     """breaks name into directory, main name, and extension in a tuple.
@@ -577,10 +568,10 @@ class MWsemantics(MainWindow):
     ###################################
 
     def editUndo(self):
-        self.history.message("<span style=\"color:#ff0000\">Undo: Not implemented yet.</span>")
+        self.history.message(redmsg("Undo: Not implemented yet."))
 
     def editRedo(self):
-        self.history.message("<span style=\"color:#ff0000\">Redo: Not implemented yet.</span>")
+        self.history.message(redmsg("Redo: Not implemented yet."))
 
     def editCut(self):
         self.assy.cut()
@@ -604,7 +595,7 @@ class MWsemantics(MainWindow):
         self.mt.mt_update()
 
     def editFind(self):
-        self.history.message("<span style=\"color:#ff0000\">Find: Not implemented yet.</span>")
+        self.history.message(redmsg("Find: Not implemented yet."))
 
     ###################################
     # View Toolbar Slots
@@ -803,7 +794,7 @@ class MWsemantics(MainWindow):
         selected atom through a sequence of bonds.
         """
         if not self.assy.selatoms:
-            self.history.message("<span style=\"color:#ff0000\">Select Connected: No atom(s) selected.</span>")
+            self.history.message(redmsg("Select Connected: No atom(s) selected."))
             return
         self.assy.selectConnected()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
@@ -816,7 +807,7 @@ class MWsemantics(MainWindow):
         one bond and have no other bonds.
         """
         if not self.assy.selatoms:
-            self.history.message("<span style=\"color:#ff0000\">Select Doubly: No atom(s) selected.</span>")
+            self.history.message(redmsg("Select Doubly: No atom(s) selected."))
             return
         self.assy.selectDoubly()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
@@ -945,7 +936,7 @@ class MWsemantics(MainWindow):
         """Creates a movie of a molecular dynamics simulation.
         """
         if not self.assy.molecules: # Nothing in the part to minimize.
-            self.history.message("<span style=\"color:#ff0000\">Simulator: Nothing to simulate.</span>")
+            self.history.message(redmsg("Simulator: Nothing to simulate."))
             return
         self.simCntl = runSim(self.assy)
         self.simCntl.show()
@@ -963,7 +954,7 @@ class MWsemantics(MainWindow):
         # Make sure there is a moviefile to play.
         if not self.assy.moviename or not os.path.exists(self.assy.moviename):
 
-            msg = "<span style=\"color:#ff0000\">Movie Player: No movie file.</span>"
+            msg = redmsg("Movie Player: No movie file.")
             self.history.message(msg)
 
             msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
@@ -1004,11 +995,11 @@ class MWsemantics(MainWindow):
         
     # Mirror Tool
     def toolsMirror(self):
-        self.history.message("<span style=\"color:#ff0000\">Mirror Tool: Not implemented yet.</span>")
+        self.history.message(redmsg("Mirror Tool: Not implemented yet."))
              
     # Mirror Circular Boundary Tool
     def toolsMirrorCircularBoundary(self):
-        self.history.message("<span style=\"color:#ff0000\">Mirror Circular Boundary Tool: Not implemented yet.</span>")
+        self.history.message(redmsg("Mirror Circular Boundary Tool: Not implemented yet."))
 
     ###################################
     # Slots for Dashboard widgets
@@ -1172,19 +1163,19 @@ class MWsemantics(MainWindow):
 
     def dispDatumLines(self):
         """ Toggle on/off datum lines """
-        self.history.message("<span style=\"color:#ff0000\">Display Datum Lines: Not implemented yet.</span>")
+        self.history.message(redmsg("Display Datum Lines: Not implemented yet."))
 
     def dispDatumPlanes(self):
         """ Toggle on/off datum planes """
-        self.history.message("<span style=\"color:#ff0000\">Display Datum Planes: Not implemented yet.</span>")
+        self.history.message(redmsg("Display Datum Planes: Not implemented yet."))
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
-        self.history.message("<span style=\"color:#ff0000\">Display Open Bonds: Not implemented yet.</span>")
+        self.history.message(redmsg("Display Open Bonds: Not implemented yet."))
 
     def editPrefs(self):
         """ Edit square grid line distances(dx, dy, dz) in nm/angstroms """
-        self.history.message("<span style=\"color:#ff0000\">Edit Preferences: Not implemented yet.</span>")
+        self.history.message(redmsg("Edit Preferences: Not implemented yet."))
  
     def elemChangePTable(self):
         """ Future: element change via periodic table

@@ -26,6 +26,26 @@ from qt import *
 import sys, os, time
 import platform # for atom_debug, and more
 
+
+# [formatters by Mark; moved into this file by bruce 050107;
+#  at some point these might be renamed based on what kinds of messages
+#  or message-fragments to use them for, and/or used automatically by
+#  methods in here meant for certain kinds of messages.]
+
+def greenmsg(text):
+    """Add the tags needed to display text in green in the HistoryWidget"""
+    return "<span style=\"color:#006600\">" + text + "</span>"
+    
+def redmsg(text):
+    """Add the tags needed to display text in red in the HistoryWidget"""
+    return "<span style=\"color:#ff0000\">" + text + "</span>"
+
+# (this one, by bruce, is only meant for internal use)
+def _graymsg(text):
+    return "<span style=\"color:#808080\">" + text + "</span>"
+
+# ==
+
 class message:
     """Stores one message for a history."""
     #e this will get more complicated (and its existence will be justified)
@@ -54,7 +74,7 @@ class message:
         ###e also escape < > and & ? not appropriate when self.text contains html, as it sometimes does!
         # maybe it's best in the long run to just require the source messages to escape these if they need to.
         # if not, we'll need some sort of hueristic to escape them except when part of well-formatted tags.
-        return "<span style=\"color:#808080\">%s</span>" % self.widget_text_header() + self.text
+        return _graymsg(self.widget_text_header()) + self.text
     def xml_text(self):
         assert 0, "nim" # same fields as widget text, but in xml, and not affected by display prefs
     pass
