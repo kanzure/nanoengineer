@@ -33,6 +33,12 @@ class ProgressBar( progressBarDialog ):
         filesize = 0
         sinc = .1
         self.stime = time.time()
+        
+        # This is a temporary fix for bug #490.  Mark 050325
+        if caption == "Minimize": 
+            self.progress.hide()
+        else:
+            self.progress.show()
 
 #        print "ProgressBar: nsteps =",nsteps,", filename =", filename
         
@@ -55,7 +61,7 @@ class ProgressBar( progressBarDialog ):
                 elapsedtime = self.duration
                 self.duration = time.time() - self.stime
                 if elapsedtime == self.duration: continue
-                elapmsg = "Elasped Time: " + self.hhmmss_str(self.duration)
+                elapmsg = "Elasped Time: " + self.hhmmss_str(int(self.duration))
                 self.msgLabel2.setText(elapmsg) 
             
             if self.abort: # User hit abort button
