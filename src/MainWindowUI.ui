@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1062</width>
-            <height>835</height>
+            <height>838</height>
         </rect>
     </property>
     <property name="caption">
@@ -77,7 +77,7 @@
         <action name="setViewPerspecAction"/>
         <separator/>
         <action name="viewDefviewAction"/>
-        <item text="&amp;Default Views" name="popupMenu_32" accel="">
+        <item text="Orientations" name="popupMenu_32" accel="">
             <action name="setViewFrontAction"/>
             <action name="setViewBackAction"/>
             <action name="setViewTopAction"/>
@@ -284,7 +284,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>532</width>
+                <width>533</width>
                 <height>29</height>
             </rect>
         </property>
@@ -840,10 +840,10 @@
             <cstring>viewDefviewAction</cstring>
         </property>
         <property name="text">
-            <string>&amp;Default Views</string>
+            <string>Orientations</string>
         </property>
         <property name="menuText">
-            <string>&amp;Default Views</string>
+            <string>Orientations</string>
         </property>
         <property name="toolTip">
             <string>Default Views</string>
@@ -1671,13 +1671,13 @@
             <iconset>image53</iconset>
         </property>
         <property name="text">
-            <string>Front View</string>
+            <string>&amp;Front</string>
         </property>
         <property name="menuText">
-            <string>&amp;Front View</string>
+            <string>&amp;Front</string>
         </property>
         <property name="toolTip">
-            <string>Front View</string>
+            <string>Front</string>
         </property>
     </action>
     <action>
@@ -1688,10 +1688,10 @@
             <iconset>image54</iconset>
         </property>
         <property name="text">
-            <string>Back View</string>
+            <string>Back</string>
         </property>
         <property name="menuText">
-            <string>&amp;Back View</string>
+            <string>&amp;Back</string>
         </property>
     </action>
     <action>
@@ -1702,13 +1702,13 @@
             <iconset>image55</iconset>
         </property>
         <property name="text">
-            <string>Top View</string>
+            <string>Top</string>
         </property>
         <property name="menuText">
-            <string>&amp;Top View</string>
+            <string>&amp;Top</string>
         </property>
         <property name="toolTip">
-            <string>Top View</string>
+            <string>Top</string>
         </property>
     </action>
     <action>
@@ -1719,10 +1719,10 @@
             <iconset>image56</iconset>
         </property>
         <property name="text">
-            <string>Bottom View</string>
+            <string>Bottom</string>
         </property>
         <property name="menuText">
-            <string>Botto&amp;m View</string>
+            <string>Botto&amp;m</string>
         </property>
     </action>
     <action>
@@ -1733,13 +1733,13 @@
             <iconset>image57</iconset>
         </property>
         <property name="text">
-            <string>Right View</string>
+            <string>Right</string>
         </property>
         <property name="menuText">
-            <string>&amp;Right View</string>
+            <string>&amp;Right</string>
         </property>
         <property name="toolTip">
-            <string>Right View</string>
+            <string>Right</string>
         </property>
     </action>
     <action>
@@ -1750,13 +1750,13 @@
             <iconset>image58</iconset>
         </property>
         <property name="text">
-            <string>Left View</string>
+            <string>Left</string>
         </property>
         <property name="menuText">
-            <string>&amp;Left View</string>
+            <string>&amp;Left</string>
         </property>
         <property name="toolTip">
-            <string>Left View</string>
+            <string>Left</string>
         </property>
     </action>
     <action>

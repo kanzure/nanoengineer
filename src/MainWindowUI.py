@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Sep 22 17:24:06 2004
+# Created: Wed Sep 22 17:40:26 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6295,7 +6295,7 @@ class MainWindow(QMainWindow):
         self.selectDoublyAction.addTo(self.selectToolbar)
         self.cookieCutterToolbar = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterToolbar.setGeometry(QRect(0,0,532,29))
+        self.cookieCutterToolbar.setGeometry(QRect(0,0,533,29))
         self.cookieCutterToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterToolbar,"textLabel2")
@@ -6416,7 +6416,7 @@ class MainWindow(QMainWindow):
         self.setViewPerspecAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.popupMenu_32 = QPopupMenu(self)
-        self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewDefviewAction.iconSet(),self.__tr("&Default Views"),self.popupMenu_32))
+        self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewDefviewAction.iconSet(),self.__tr("Orientations"),self.popupMenu_32))
         self.setViewFrontAction.addTo(self.popupMenu_32)
         self.setViewBackAction.addTo(self.popupMenu_32)
         self.setViewTopAction.addTo(self.popupMenu_32)
@@ -6507,7 +6507,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1062,835).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1062,838).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -6656,8 +6656,8 @@ class MainWindow(QMainWindow):
         self.setViewFitToWindowAction.setAccel(self.__tr("Ctrl+F"))
         self.fileCloseAction.setText(self.__tr("Close"))
         self.fileCloseAction.setMenuText(self.__tr("&Close"))
-        self.viewDefviewAction.setText(self.__tr("&Default Views"))
-        self.viewDefviewAction.setMenuText(self.__tr("&Default Views"))
+        self.viewDefviewAction.setText(self.__tr("Orientations"))
+        self.viewDefviewAction.setMenuText(self.__tr("Orientations"))
         self.viewDefviewAction.setToolTip(self.__tr("Default Views"))
         self.dispBGColorAction.setText(self.__tr("Background Color..."))
         self.dispBGColorAction.setMenuText(self.__tr("&Background Color..."))
@@ -6782,22 +6782,22 @@ class MainWindow(QMainWindow):
         self.orient110Action.setMenuText(self.__tr("Surface 110"))
         self.orient111Action.setText(self.__tr("Surface 111"))
         self.orient111Action.setMenuText(self.__tr("Surface 111"))
-        self.setViewFrontAction.setText(self.__tr("Front View"))
-        self.setViewFrontAction.setMenuText(self.__tr("&Front View"))
-        self.setViewFrontAction.setToolTip(self.__tr("Front View"))
-        self.setViewBackAction.setText(self.__tr("Back View"))
-        self.setViewBackAction.setMenuText(self.__tr("&Back View"))
-        self.setViewTopAction.setText(self.__tr("Top View"))
-        self.setViewTopAction.setMenuText(self.__tr("&Top View"))
-        self.setViewTopAction.setToolTip(self.__tr("Top View"))
-        self.setViewBottomAction.setText(self.__tr("Bottom View"))
-        self.setViewBottomAction.setMenuText(self.__tr("Botto&m View"))
-        self.setViewRightAction.setText(self.__tr("Right View"))
-        self.setViewRightAction.setMenuText(self.__tr("&Right View"))
-        self.setViewRightAction.setToolTip(self.__tr("Right View"))
-        self.setViewLeftAction.setText(self.__tr("Left View"))
-        self.setViewLeftAction.setMenuText(self.__tr("&Left View"))
-        self.setViewLeftAction.setToolTip(self.__tr("Left View"))
+        self.setViewFrontAction.setText(self.__tr("&Front"))
+        self.setViewFrontAction.setMenuText(self.__tr("&Front"))
+        self.setViewFrontAction.setToolTip(self.__tr("Front"))
+        self.setViewBackAction.setText(self.__tr("Back"))
+        self.setViewBackAction.setMenuText(self.__tr("&Back"))
+        self.setViewTopAction.setText(self.__tr("Top"))
+        self.setViewTopAction.setMenuText(self.__tr("&Top"))
+        self.setViewTopAction.setToolTip(self.__tr("Top"))
+        self.setViewBottomAction.setText(self.__tr("Bottom"))
+        self.setViewBottomAction.setMenuText(self.__tr("Botto&m"))
+        self.setViewRightAction.setText(self.__tr("Right"))
+        self.setViewRightAction.setMenuText(self.__tr("&Right"))
+        self.setViewRightAction.setToolTip(self.__tr("Right"))
+        self.setViewLeftAction.setText(self.__tr("Left"))
+        self.setViewLeftAction.setMenuText(self.__tr("&Left"))
+        self.setViewLeftAction.setToolTip(self.__tr("Left"))
         self.setViewHomeAction.setText(self.__tr("Home"))
         self.setViewHomeAction.setMenuText(self.__tr("&Home"))
         self.setViewHomeAction.setToolTip(self.__tr("Home"))
@@ -6898,7 +6898,7 @@ class MainWindow(QMainWindow):
             self.MenuBar.findItem(2).setText(self.__tr("&File"))
         if self.MenuBar.findItem(3):
             self.MenuBar.findItem(3).setText(self.__tr("&Edit"))
-        self.unnamed.changeItem(self.unnamed.idAt(7),self.__tr("&Default Views"))
+        self.unnamed.changeItem(self.unnamed.idAt(7),self.__tr("Orientations"))
         self.unnamed.changeItem(self.unnamed.idAt(9),self.__tr("&Toolbars"))
         if self.MenuBar.findItem(4):
             self.MenuBar.findItem(4).setText(self.__tr("&View"))
