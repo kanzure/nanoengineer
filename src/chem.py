@@ -1484,18 +1484,18 @@ class Bond:
                     drawcylinder(color2, self.a2pos, self.center, TubeRadius)
                 if not (v1 and v2):
                     drawsphere(black, self.center, TubeRadius, level)
-                print "draw: bond 1---2: ", self.a1pos, self.a2pos    
+#                print "draw: bond 1---2: ", self.a1pos, self.a2pos    
             else:
                 drawcylinder(red, self.c1, self.c2, TubeRadius)
-                print "draw: bond c1--c2: ", self.c1, self.c2    
+#                print "draw: bond c1--c2: ", self.c1, self.c2    
                 if v1:
                     drawcylinder(color1, self.a1pos, self.c1, TubeRadius)
-                    print "draw: bond a1---c1: ", self.a1pos, self.c1    
+#                    print "draw: bond a1---c1: ", self.a1pos, self.c1    
                 else:
                     drawsphere(black, self.c1, TubeRadius, level)
                 if v2:
                     drawcylinder(color2, self.a2pos, self.c2, TubeRadius)
-                    print "draw: bond a2---c2: ", self.a2pos, self.c2    
+#                    print "draw: bond a2---c2: ", self.a2pos, self.c2    
                 else:
                     drawsphere(black, self.c2, TubeRadius, level)
                     
