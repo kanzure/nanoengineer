@@ -419,48 +419,41 @@ class atom:
         and its display mode (possibly inherited from dispdef).
         An atom's display mode overrides the inherited one from
         the molecule or glpane, but a molecule's color overrides the atom's
-        element-dependent one
+        element-dependent one. Special cases for glpane.selatom.
         """
         assert not self.__killed
-        color = col or self.element.color
-        disp, rad = self.howdraw(dispdef)
-        if self == glpane.selatom: # bruce 041104 bugfix for bug#45
+        # note use of basepos (in atom.baseposn) since it's being drawn under
+        # rotation/translation of molecule
+        pos = self.baseposn()
+        disp, drawrad = self.howdraw(dispdef) # (drawrad might be modified for selatom)
+        dodraw = (disp in [diVDW, diCPK, diTUBES]) # (dodraw might be modified for selatom)
+        if disp == diTUBES:
+            pickedrad = drawrad * 1.8
+        else:
+            pickedrad = drawrad * 1.1
+        color = col or self.element.color # (color might be modified for selatom)
+        # selatom hack: might modify any of several local vars we set above
+        if self == glpane.selatom:
+            dodraw = 1 # Make sure selatom always gets drawn
+                # (drawrad will have been set by howdraw as if for diCPK)
             if self.element == Singlet:
                 color = LEDon
             else:
                 color = orange
-            if disp not in [diVDW, diCPK, diTUBES]:
-                disp = diTUBES # Make sure selatom always gets drawn.
-                # This is correct even if the atom is invisible, since if
-                # depositMode stored it into glpane.selatom, then it will act
-                # on it when you click, so we should light it up to indicate
-                # that. If depositMode wants to not light up invisible atoms,
-                # or wants the choice of visible display mode to influence that,
-                # all it needs to do is not store them in glpane.selatom (which
-                # it also needs to do to avoid acting on them). [bruce 041104]
-                # [bruce 041129: also rad = TubeRadius? I guess not.]
-        # note use of basepos (in atom.baseposn) since it's being drawn under
-        # rotation/translation of molecule
-        pos = self.baseposn()
-        if disp in [diVDW, diCPK]:
-            drawsphere(color, pos, rad, level)
-        rad *= 1.1
-        if disp == diTUBES:
-            if self == glpane.selatom:
-                if self.element == Singlet:
-                    drawsphere(LEDon, pos, rad, level)
-                else:
-                    drawsphere(orange, pos, rad*1.7, level)
-                    
-            else: drawsphere(color, pos, rad, level)
-            rad *= 1.8
+                if disp == diTUBES:
+                    drawrad *= 1.7 # but don't revise pickedrad!
+        if dodraw:
+            drawsphere(color, pos, drawrad, level)
         if self.picked:
-            drawwiresphere(PickedColor, pos, rad)
+            drawwiresphere(PickedColor, pos, pickedrad)
+        return
 
     def setDisplay(self, disp):
         self.display = disp
         self.molecule.changeapp()
-        # bruce 041109 comment: this changes appearance of this atom's bonds,
+        self.molecule.assy.modified = 1 # bruce 041206 bugfix (unreported bug)
+        # bruce 041109 comment:
+        # atom.setDisplay changes appearance of this atom's bonds,
         # so: do we need to invalidate the bonds? No, they don't store display
         # info, and the geometry related to bond.setup_invalidate has not changed.
         # What about the mols on both ends of the bonds? The changeapp() handles
@@ -471,24 +464,30 @@ class atom:
         """Tell how to draw the atom depending on its display mode (possibly
         inherited from dispdef). An atom's display mode overrides the inherited
         one from the molecule or glpane, but a molecule's color overrides the
-        atom's element-dependent one (color is done in atom.draw, not here).
-        Return display mode and radius to use, in a tuple (disp, rad).
-        Note that atom.draw further modifies the radius in some cases.
+        atom's element-dependent one (color is handled in atom.draw, not here,
+        so this is just FYI).
+           Return display mode and radius to use, in a tuple (disp, rad).
+        For display modes in which the atom is not drawn, such as diLINES or
+        diINVISIBLE, we return the same radius as in diCPK; it's up to the
+        caller to check the disp we return and decide whether/how to use this
+        radius (e.g. it might be used for atom selection in diLINES mode, even
+        though the atoms are not shown).
         """
+        #bruce 041206 moved rad *= 1.1 (for TUBES) from atom.draw into this method
         if dispdef == diDEFAULT: #bruce 041129 permanent debug code, re bug 21
             if platform.atom_debug:
                 print "bug warning: dispdef == diDEFAULT in atom.howdraw for %r" % self
-            ## this workaround would be possible, but I'm not doing it:
-            ## dispdef = default_display_mode
+            dispdef = default_display_mode # silently work around that bug [bruce 041206]
         if self.element == Singlet:
-            disp,rad = self.bonds[0].other(self).howdraw(dispdef)
-            # note: this rad is going to be replaced, below
+            disp, rad_unused = self.bonds[0].other(self).howdraw(dispdef)
         else:
-            if self.display == diDEFAULT: disp=dispdef
-            else: disp=self.display
+            if self.display == diDEFAULT:
+                disp = dispdef
+            else:
+                disp = self.display
         rad = self.element.rvdw
         if disp != diVDW: rad=rad*CPKvdW
-        if disp == diTUBES: rad = TubeRadius
+        if disp == diTUBES: rad = TubeRadius * 1.1 #bruce 041206 added "* 1.1"
         return (disp, rad)
 
     def writemmp(self, atnums, alist, f):
@@ -559,16 +558,21 @@ class atom:
                             filler, filler))
 
 
-    def checkpick(self, p1, v1, disp, r=None, iPic=None):
-        """check if the line through point p1 in direction v1
-        goes through the atom (defined as a sphere 70% its vdW radius).
-        This is a royal kludge, needs to be replaced by something
-        that uses the screen representation
-        [or caller can pass disp, r to indicate that]
+    def checkpick(self, p1, v1, disp, r=None, iPic=None): # called only in one place, from assy.findpick ###@@@ bruce 041206
+        """Selection function for atoms:
+        Check if the line through point p1 in direction v1 goes through the
+        atom (treated as a sphere with the same radius it would be drawn with,
+        which might depend on disp, or with the passed-in radius r if that's
+        supplied). If not, or if the atom is a singlet, or if not iPic and the
+        atom is already picked, return None. If so, return the distance along
+        the ray (from p1 towards v1) of the point closest to the atom center
+        (which might be 0.0, which is false!), or None if that distance is < 0.
         """
+        #bruce 041206 revised docstring to match code
         if self.element == Singlet: return None
         if not r:
             disp, r = self.howdraw(disp)
+        ## if disp == diINVISIBLE: return None #bruce 041206 ###@@@ review callers to see if needed/wanted
         if self.picked and not iPic: return None
         dist, wid = orthodist(p1, v1, self.posn())
         if wid > r: return None
