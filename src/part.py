@@ -103,7 +103,7 @@ class Part:
     def __getattr__(self, attr):
         if attr.startswith('_'): # common case, be fast
             raise AttributeError, attr
-        if attr in assy_attrs_all:
+        if attr in self.assy_attrs_all:
             # delegate to self.assy
             return getattr(self.assy, attr) ###@@@ detect error of infrecur, since assy getattr delegates to here??
         raise AttributeError, attr
