@@ -172,6 +172,9 @@ class Node:
     def getinfo(self):
         pass
 
+    def getstatistics(self, stats):
+        pass
+        
     #in addition, each Node should have the following methods:
     # draw, cut, copy, paste
 
@@ -349,7 +352,14 @@ class Group(Node):
         if self.hidden: return
         for ob in self.members:
             ob.draw(o, dispdef)
-
+            
+    def getstatistics(self, stats):
+        """add group to part stats
+        """
+        stats.ngroups += 1
+        for ob in self.members:
+            ob.getstatistics(stats)
+  
     def writemmp(self, atnums, alist, f):
         f.write("group (" + self.name + ")\n")
         for x in self.members:

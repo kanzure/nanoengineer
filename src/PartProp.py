@@ -9,37 +9,56 @@ class PartProp(PartPropDialog):
         
         self.nameLineEdit.setText(self.assy.name)
 
+        # Initialize all part statistics
+        self.nchunks = 0
+        self.natoms = 0
+        self.nsinglets = 0
+        self.nrmotors = 0
+        self.nlmotors = 0
+        self.ngrounds = 0
+        self.nstats = 0
+        self.ngroups = -1 # Must subtract tree group.
 
-        nchunks = 0
-        natoms = 0
-        nsinglets = 0
-        nrmotors = 0
-        nlmotors = 0
-        ngrounds = 0
-        nstats = 0
+        # Get statistics of part from tree members.
+        self.assy.tree.getstatistics(self)
 
-        # Determine the number of chunks and atoms in the part.         
-        for mol in self.assy.molecules:
-            nchunks += 1
-            natoms += len(mol.atoms)
-            for a in mol.atoms.itervalues():
-                if a.element.symbol == "X": nsinglets +=1
-        
-        natoms = natoms - nsinglets # Subtract singlets from number of atoms
-
+        # Subtract singlets from total number of atoms            
+        self.natoms = self.natoms - self.nsinglets 
+            
+        # Display stats in listview
         self.statsView.setSorting( -1) # Turn off sorting
 
         item = QListViewItem(self.statsView,None)
-        item.setText(0,"Singlets:")
-        item.setText(1, str(nsinglets))
+        item.setText(0,"Groups:")
+        item.setText(1, str(self.ngroups))
+        
+        item = QListViewItem(self.statsView,None)
+        item.setText(0,"Thermostats:")
+        item.setText(1, str(self.nstats))
+
+        item = QListViewItem(self.statsView,None)
+        item.setText(0,"Grounds:")
+        item.setText(1, str(self.ngrounds))
+
+        item = QListViewItem(self.statsView,None)
+        item.setText(0,"Linear Motors:")
+        item.setText(1, str(self.nlmotors))
+        
+        item = QListViewItem(self.statsView,None)
+        item.setText(0,"Rotary Motors:")
+        item.setText(1, str(self.nrmotors))
+
+        item = QListViewItem(self.statsView,None)
+        item.setText(0,"Open Bonds:")
+        item.setText(1, str(self.nsinglets))
 
         item = QListViewItem(self.statsView,None)
         item.setText(0,"Atoms:")
-        item.setText(1, str(natoms))
+        item.setText(1, str(self.natoms))
                         
         item = QListViewItem(self.statsView,None)
         item.setText(0,"Chunks:")
-        item.setText(1, str(nchunks))
+        item.setText(1, str(self.nchunks))
 
     def accept(self):
         QDialog.accept(self)

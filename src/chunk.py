@@ -1100,6 +1100,15 @@ class molecule(Node, InvalMixin):
                         
         return minfo
 
+    def getstatistics(self, stats):
+        """Adds the current chunk, including number of atoms 
+        and singlets to part stats.
+        """
+        stats.nchunks += 1
+        stats.natoms += len(self.atoms)
+        for a in self.atoms.itervalues():
+            if a.element.symbol == "X": stats.nsinglets +=1
+ 
     def pick(self):
         """select the molecule.
         """

@@ -177,6 +177,9 @@ class RotaryMotor(Jig):
    
     def getinfo(self):
         return "[Object: Rotary Motor] [Name: " + str(self.name) + "] [Torque = " + str(self.torque) + "] [Speed = " +str(self.speed) + "]"
+        
+    def getstatistics(self, stats):
+        stats.nrmotors += 1
 
     def pick(self):
         """select the rotary motor
@@ -316,6 +319,9 @@ class LinearMotor(Jig):
         return "[Object: Linear Motor] [Name: " + str(self.name) + \
                     "] [Force = " + str(self.force) + \
                     "] [Stiffness = " +str(self.stiffness) + "]"
+
+    def getstatistics(self, stats):
+        stats.nlmotors += 1
    
     def pick(self):
         """select the linear motor
@@ -429,6 +435,9 @@ class Ground(Jig):
     def getinfo(self):
         return "[Object: Ground] [Name: " + str(self.name) + "] [Total Grounds: " + str(len(self.atoms)) + "]"
 
+    def getstatistics(self, stats):
+        stats.ngrounds += len(self.atoms)
+        
     def pick(self):
         """select the ground
         """
@@ -506,7 +515,10 @@ class Stat(Jig):
 
     def getinfo(self):
         return "[Object: Thermostat] [Name: " + str(self.name) + "] [Temp = " + str(self.temp) + "K]" + "] [Total Stats: " + str(len(self.atoms)) + "]"
-        
+
+    def getstatistics(self, stats):
+        stats.nstats += len(self.atoms)
+
     def pick(self):
         """select the thermostat
         """
