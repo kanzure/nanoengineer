@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Jan 10 10:57:31 2005
+# Created: Tue Jan 11 11:35:37 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6740,56 +6740,151 @@ image97_data = [
 "......................"
 ]
 image98_data = [
-"22 22 25 1",
+"22 22 6 1",
 ". c None",
-"d c #000000",
-"w c #4a4a4a",
-"c c #555555",
-"b c #676767",
-"a c #6f6f6f",
-"p c #747474",
-"# c #7f7f7f",
-"o c #888787",
-"n c #8f8f8e",
-"f c #9f9f9e",
-"q c #a0a09f",
-"g c #a0a0a0",
-"h c #a1a1a1",
-"i c #a2a1a1",
-"r c #a2a2a1",
-"j c #a3a3a2",
-"s c #a3a3a3",
-"k c #a4a4a4",
-"t c #a5a4a4",
-"l c #a5a5a4",
-"u c #a6a5a5",
-"m c #a6a6a5",
-"v c #a7a6a6",
-"e c #a8a7a7",
+"c c #000000",
+"d c #4a4a4a",
+"b c #4b4b4b",
+"a c #888787",
+"# c #a5a5a4",
 "......................",
 "......................",
+"....###a.......a#a....",
+"....#aab......a#ab....",
+"....#aab.....a#aab....",
+"....#aab....a#aaab....",
+"....#aab...a#aaaab....",
+"....#aab..a#aaaaab....",
+"....#aab.a#aaaaaab....",
+"....#aaba#aaaaaaab....",
+"....#aabbaaaaaaaab....",
+"....#aabcbaaaaaaab....",
+"....#aab.cbaaaaaab....",
+"....#aab..cbaaaaab....",
+"....#aab...cbaaaab....",
+"....#aab....cbaaab....",
+"....#aab.....cbaab....",
+"....#aab......cbad....",
+"....abbc.......cbc....",
 "......................",
-"...#abbbbbbbbbbccd....",
-"...aefghijklmmmmndd...",
-"...bfooooooooooopddd..",
-"...bqooooooooooopddd..",
-"...bhooooooooooopddd..",
-"...bhooooooooooopddd..",
-"...brooooooooooopddd..",
-"...bsooooooooooopddd..",
-"...bkooooooooooopddd..",
-"...btooooooooooopddd..",
-"...buooooooooooopddd..",
-"...bvooooooooooopddd..",
-"...beooooooooooopddd..",
-"...wnppppppppppppddd..",
-"...ddddddddddddddddd..",
-"....dddddddddddddddd..",
-".....ddddddddddddddd..",
 "......................",
 "......................"
 ]
 image99_data = [
+"22 22 18 1",
+". c None",
+"k c #000000",
+"p c #00684a",
+"c c #009067",
+"# c #009167",
+"f c #009168",
+"b c #009c6f",
+"j c #00a374",
+"g c #00be87",
+"e c #00e09e",
+"h c #00e19f",
+"i c #00e3a1",
+"l c #00e5a3",
+"m c #00e7a4",
+"d c #00e8a4",
+"n c #00e8a5",
+"o c #00eaa6",
+"a c #00eba7",
+"......................",
+"......................",
+"................##....",
+"..............##ab....",
+"............c#dde#....",
+"..........f#ddggh#....",
+"........f#ddggggi#....",
+"......f#ddggggggi#....",
+"....f#ddggggggggi#....",
+"..f#ddggggggggggi#....",
+".fjjggggggggggggi#....",
+"..kkjjggggggggggl#....",
+"....kkjjggggggggm#....",
+"......kkjjggggggm#....",
+"........kkjjggggn#....",
+"..........kkjjggo#....",
+"............kkjja#....",
+"..............kkjp....",
+"................kk....",
+"......................",
+"......................",
+"......................"
+]
+image100_data = [
+"22 22 16 1",
+". c None",
+"j c #000000",
+"n c #00684a",
+"# c #009167",
+"a c #009c6f",
+"h c #00a374",
+"f c #00be87",
+"c c #00e09e",
+"e c #00e19f",
+"g c #00e3a1",
+"i c #00e5a3",
+"k c #00e7a4",
+"d c #00e8a4",
+"l c #00e8a5",
+"m c #00eaa6",
+"b c #00eba7",
+"......................",
+"......................",
+"....##................",
+"....ab##..............",
+"....#cdd##............",
+"....#effdd##..........",
+"....#gffffdd##........",
+"....#gffffffdd##......",
+"....#gffffffffdd##....",
+"....#gffffffffffdd##..",
+"....#gffffffffffffhh#.",
+"....#iffffffffffhhjj..",
+"....#kffffffffhhjj....",
+"....#kffffffhhjj......",
+"....#lffffhhjj........",
+"....#mffhhjj..........",
+"....#bhhjj............",
+"....nhjj..............",
+"....jj................",
+"......................",
+"......................",
+"......................"
+]
+image101_data = [
+"22 22 5 1",
+". c None",
+"c c #000000",
+"b c #4b4b4b",
+"a c #888787",
+"# c #a5a5a4",
+"......................",
+"......................",
+"....##a.......###a....",
+"....#a#a......#aab....",
+"....#aa#a.....#aab....",
+"....#aaa#a....#aab....",
+"....#aaaa#a...#aab....",
+"....#aaaaa#a..#aab....",
+"....#aaaaaa#a.#aab....",
+"....#aaaaaaa#a#aab....",
+"....#aaaaaaaab#aab....",
+"....#aaaaaaabc#aab....",
+"....#aaaaaabc.#aab....",
+"....#aaaaabc..#aab....",
+"....#aaaabc...#aab....",
+"....#aaabc....#aab....",
+"....#aabc.....#aab....",
+"....#abc......#aab....",
+"....abc.......abbc....",
+"......................",
+"......................",
+"......................"
+]
+image102_data = [
 "22 22 14 1",
 ". c None",
 "b c #4a4a4a",
@@ -6828,7 +6923,7 @@ image99_data = [
 "......................",
 "......................"
 ]
-image100_data = [
+image103_data = [
 "22 22 17 1",
 ". c None",
 "j c #000000",
@@ -6870,7 +6965,7 @@ image100_data = [
 "......................",
 "......................"
 ]
-image101_data = [
+image104_data = [
 "22 22 14 1",
 ". c None",
 "b c #4a4a4a",
@@ -6909,7 +7004,7 @@ image101_data = [
 "......................",
 "......................"
 ]
-image102_data = [
+image105_data = [
 "22 22 14 1",
 ". c None",
 "a c #4a4a4a",
@@ -6948,7 +7043,7 @@ image102_data = [
 "......................",
 "......................"
 ]
-image103_data = [
+image106_data = [
 "22 22 18 1",
 ". c None",
 "j c #000000",
@@ -7101,6 +7196,9 @@ class MainWindow(QMainWindow):
         self.image101 = QPixmap(image101_data)
         self.image102 = QPixmap(image102_data)
         self.image103 = QPixmap(image103_data)
+        self.image104 = QPixmap(image104_data)
+        self.image105 = QPixmap(image105_data)
+        self.image106 = QPixmap(image106_data)
 
         if not name:
             self.setName("MainWindow")
@@ -7409,15 +7507,18 @@ class MainWindow(QMainWindow):
         self.dispResetMolColorAction = QAction(self,"dispResetMolColorAction")
         self.helpWhatsThisAction = QAction(self,"helpWhatsThisAction")
         self.helpWhatsThisAction.setIconSet(QIconSet(self.image97))
-        self.movieRewindAction = QAction(self,"movieRewindAction")
-        self.movieStopAction = QAction(self,"movieStopAction")
-        self.movieStopAction.setIconSet(QIconSet(self.image98))
-        self.movieStepFwdAction = QAction(self,"movieStepFwdAction")
-        self.movieStepBkwdAction = QAction(self,"movieStepBkwdAction")
+        self.movieResetAction = QAction(self,"movieResetAction")
+        self.movieResetAction.setIconSet(QIconSet(self.image98))
+        self.moviePlayRevActiveAction = QAction(self,"moviePlayRevActiveAction")
+        self.moviePlayRevActiveAction.setIconSet(QIconSet(self.image99))
+        self.moviePlayActiveAction = QAction(self,"moviePlayActiveAction")
+        self.moviePlayActiveAction.setIconSet(QIconSet(self.image100))
+        self.movieSetToEndAction = QAction(self,"movieSetToEndAction")
+        self.movieSetToEndAction.setIconSet(QIconSet(self.image101))
         self.moviePauseAction = QAction(self,"moviePauseAction")
-        self.moviePauseAction.setIconSet(QIconSet(self.image99))
+        self.moviePauseAction.setIconSet(QIconSet(self.image102))
         self.moviePlayAction = QAction(self,"moviePlayAction")
-        self.moviePlayAction.setIconSet(QIconSet(self.image100))
+        self.moviePlayAction.setIconSet(QIconSet(self.image103))
         self.moviePlayAction.setVisible(1)
         self.setViewHomeToCurrentAction = QAction(self,"setViewHomeToCurrentAction")
         self.modifyAlignCommonAxisAction = QAction(self,"modifyAlignCommonAxisAction")
@@ -7427,13 +7528,13 @@ class MainWindow(QMainWindow):
         self.movieDoneAction = QAction(self,"movieDoneAction")
         self.movieDoneAction.setIconSet(QIconSet(self.image18))
         self.movieNextFrameAction = QAction(self,"movieNextFrameAction")
-        self.movieNextFrameAction.setIconSet(QIconSet(self.image101))
+        self.movieNextFrameAction.setIconSet(QIconSet(self.image104))
         self.moviePrevFrameAction = QAction(self,"moviePrevFrameAction")
-        self.moviePrevFrameAction.setIconSet(QIconSet(self.image102))
+        self.moviePrevFrameAction.setIconSet(QIconSet(self.image105))
         self.fileSaveMovieAction = QAction(self,"fileSaveMovieAction")
         self.fileSaveMovieAction.setIconSet(QIconSet(self.image3))
         self.moviePlayRevAction = QAction(self,"moviePlayRevAction")
-        self.moviePlayRevAction.setIconSet(QIconSet(self.image103))
+        self.moviePlayRevAction.setIconSet(QIconSet(self.image106))
         self.fileOpenMovieAction = QAction(self,"fileOpenMovieAction")
         self.fileOpenMovieAction.setIconSet(QIconSet(self.image2))
 
@@ -7532,9 +7633,13 @@ class MainWindow(QMainWindow):
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
         self.moviePlayerDashboard.addSeparator()
+        self.movieResetAction.addTo(self.moviePlayerDashboard)
+        self.moviePlayRevActiveAction.addTo(self.moviePlayerDashboard)
         self.moviePlayRevAction.addTo(self.moviePlayerDashboard)
         self.moviePauseAction.addTo(self.moviePlayerDashboard)
         self.moviePlayAction.addTo(self.moviePlayerDashboard)
+        self.moviePlayActiveAction.addTo(self.moviePlayerDashboard)
+        self.movieSetToEndAction.addTo(self.moviePlayerDashboard)
         self.moviePlayerDashboard.addSeparator()
 
         self.frameLabel = QLabel(self.moviePlayerDashboard,"frameLabel")
@@ -7717,7 +7822,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1108).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1114).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7791,7 +7896,6 @@ class MainWindow(QMainWindow):
         self.connect(self.moviePlayAction,SIGNAL("activated()"),self.moviePlay)
         self.connect(self.moviePlayRevAction,SIGNAL("activated()"),self.moviePlayRev)
         self.connect(self.moviePrevFrameAction,SIGNAL("activated()"),self.moviePrevFrame)
-        self.connect(self.movieStopAction,SIGNAL("activated()"),self.movieStop)
         self.connect(self.orient100Action,SIGNAL("activated()"),self.orient100)
         self.connect(self.orient110Action,SIGNAL("activated()"),self.orient110)
         self.connect(self.orient111Action,SIGNAL("activated()"),self.orient111)
@@ -7843,6 +7947,8 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
+        self.connect(self.movieSetToEndAction,SIGNAL("activated()"),self.movieSetToEnd)
+        self.connect(self.movieResetAction,SIGNAL("activated()"),self.movieReset)
 
 
     def languageChange(self):
@@ -8173,19 +8279,19 @@ class MainWindow(QMainWindow):
         self.dispResetMolColorAction.setMenuText(self.__tr("&Reset Chunk Color"))
         self.helpWhatsThisAction.setText(self.__tr("What's This"))
         self.helpWhatsThisAction.setMenuText(self.__tr("What's This"))
-        self.movieRewindAction.setText(self.__tr("Rewind"))
-        self.movieRewindAction.setMenuText(self.__tr("Rewind"))
-        self.movieStopAction.setText(self.__tr("Stop"))
-        self.movieStopAction.setMenuText(self.__tr("Stop"))
-        self.movieStepFwdAction.setText(self.__tr("+1 Frame"))
-        self.movieStepFwdAction.setMenuText(self.__tr("+1 Frame"))
-        self.movieStepBkwdAction.setText(self.__tr("-1 Frame"))
-        self.movieStepBkwdAction.setMenuText(self.__tr("-1 Frame"))
+        self.movieResetAction.setText(self.__tr("Reset Movie"))
+        self.movieResetAction.setMenuText(self.__tr("Reset Movie"))
+        self.moviePlayRevActiveAction.setText(self.__tr("Play Reverse"))
+        self.moviePlayRevActiveAction.setMenuText(self.__tr("Play Reverse"))
+        self.moviePlayActiveAction.setText(self.__tr("Play Forward"))
+        self.moviePlayActiveAction.setMenuText(self.__tr("Play Forward"))
+        self.movieSetToEndAction.setText(self.__tr("Advance To End"))
+        self.movieSetToEndAction.setMenuText(self.__tr("Advance To End"))
         self.moviePauseAction.setText(self.__tr("Pause"))
         self.moviePauseAction.setMenuText(self.__tr("Pause"))
-        self.moviePlayAction.setText(self.__tr("Play"))
-        self.moviePlayAction.setToolTip(self.__tr("Play Movie"))
-        self.moviePlayAction.setMenuText(self.__tr("Play"))
+        self.moviePlayAction.setText(self.__tr("Play Forward"))
+        self.moviePlayAction.setToolTip(self.__tr("Play Forward"))
+        self.moviePlayAction.setMenuText(self.__tr("Play Forward"))
         self.setViewHomeToCurrentAction.setText(self.__tr("Set Home View to Current View"))
         self.setViewHomeToCurrentAction.setMenuText(self.__tr("Set Home View to &Current View"))
         self.modifyAlignCommonAxisAction.setText(self.__tr("Align to Common Axis"))
@@ -8605,9 +8711,6 @@ class MainWindow(QMainWindow):
     def dispSetEltable2(self):
         print "MainWindow.dispSetEltable2(): Not implemented yet"
 
-    def movieStop(self):
-        print "MainWindow.movieStop(): Not implemented yet"
-
     def moviePlay(self):
         print "MainWindow.moviePlay(): Not implemented yet"
 
@@ -8637,6 +8740,12 @@ class MainWindow(QMainWindow):
 
     def fileOpenMovie(self):
         print "MainWindow.fileOpenMovie(): Not implemented yet"
+
+    def movieSetToEnd(self):
+        print "MainWindow.movieSetToEnd(): Not implemented yet"
+
+    def movieReset(self):
+        print "MainWindow.movieReset(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

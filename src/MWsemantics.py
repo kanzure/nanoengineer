@@ -988,22 +988,37 @@ class MWsemantics(MainWindow):
         self.glpane.setMode('MOVIE')
 
     # Movie Player Dashboard Slots ############
-    
-    def moviePause(self):
-        """Pause movie.
-        """
-        self.assy.m._pause()
-        
+
     def moviePlay(self):
         """Play current movie foward from current position.
         """
         self.assy.m._play(1)
+            
+    def moviePause(self):
+        """Pause movie.
+        """
+        self.assy.m._pause()
+
 
     def moviePlayRev(self):
         """Play current movie in reverse from current position.
         """
         self.assy.m._play(-1)
-        
+
+    def movieReset(self):
+        """Move current frame position to frame 0 (beginning) of the movie.
+        """
+        if self.assy.m.currentFrame != 0:
+            self.assy.m._pause()
+            self.assy.m._playFrame(0)
+    
+    def movieSetToEnd(self):
+        """Move frame position to the last frame (end) of the movie.
+        """
+        if self.assy.m.currentFrame != self.assy.m.totalFrames: 
+            self.assy.m._pause()
+            self.assy.m._playFrame(self.assy.m.totalFrames)
+                            
     def moviePlayFrame(self, fnum):
         """Show frame fnum in the current movie.
         """

@@ -41,13 +41,18 @@ class movieMode(basicMode):
         self.w.frameNumberSB.setValue(self.o.assy.m.currentFrame) # SB = Spinbox
 #        self.w.frameNumberSL.setMaxValue(self.o.assy.m.totalFrames)
 #        self.w.frameNumberSL.setValue(self.o.assy.m.currentFrame) # SL = Slider
-        self.o.assy.m._setup()
+        
+        self.w.moviePlayActiveAction.setVisible(0)
+        self.w.moviePlayRevActiveAction.setVisible(0)
         self.w.moviePlayerDashboard.show()
+        
         self.w.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
         self.w.toolsSimulatorAction.setEnabled(0) # Disable "Simulator"
         self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
         self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save"
         self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
+        
+        self.o.assy.m._setup() # Cue movie.
 
     # methods related to exiting this mode [bruce 040922 made these from
     # old Done method, and added new code; there was no Flush method]

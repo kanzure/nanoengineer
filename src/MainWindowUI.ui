@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1108</height>
+            <height>1114</height>
         </rect>
     </property>
     <property name="caption">
@@ -382,9 +382,13 @@
             </property>
         </widget>
         <separator/>
+        <action name="movieResetAction"/>
+        <action name="moviePlayRevActiveAction"/>
         <action name="moviePlayRevAction"/>
         <action name="moviePauseAction"/>
         <action name="moviePlayAction"/>
+        <action name="moviePlayActiveAction"/>
+        <action name="movieSetToEndAction"/>
         <separator/>
         <widget class="QLabel">
             <property name="name">
@@ -2647,37 +2651,46 @@
     </action>
     <action>
         <property name="name">
-            <cstring>movieRewindAction</cstring>
-        </property>
-        <property name="text">
-            <string>Rewind</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>movieStopAction</cstring>
+            <cstring>movieResetAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image98</iconset>
         </property>
         <property name="text">
-            <string>Stop</string>
+            <string>Reset Movie</string>
         </property>
     </action>
     <action>
         <property name="name">
-            <cstring>movieStepFwdAction</cstring>
+            <cstring>moviePlayRevActiveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image99</iconset>
         </property>
         <property name="text">
-            <string>+1 Frame</string>
+            <string>Play Reverse</string>
         </property>
     </action>
     <action>
         <property name="name">
-            <cstring>movieStepBkwdAction</cstring>
+            <cstring>moviePlayActiveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image100</iconset>
         </property>
         <property name="text">
-            <string>-1 Frame</string>
+            <string>Play Forward</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>movieSetToEndAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image101</iconset>
+        </property>
+        <property name="text">
+            <string>Advance To End</string>
         </property>
     </action>
     <action>
@@ -2685,7 +2698,7 @@
             <cstring>moviePauseAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image99</iconset>
+            <iconset>image102</iconset>
         </property>
         <property name="text">
             <string>Pause</string>
@@ -2696,13 +2709,13 @@
             <cstring>moviePlayAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image100</iconset>
+            <iconset>image103</iconset>
         </property>
         <property name="text">
-            <string>Play</string>
+            <string>Play Forward</string>
         </property>
         <property name="toolTip">
-            <string>Play Movie</string>
+            <string>Play Forward</string>
         </property>
         <property name="visible">
             <bool>true</bool>
@@ -2765,7 +2778,7 @@
             <cstring>movieNextFrameAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image101</iconset>
+            <iconset>image104</iconset>
         </property>
         <property name="text">
             <string>Next</string>
@@ -2776,7 +2789,7 @@
             <cstring>moviePrevFrameAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image102</iconset>
+            <iconset>image105</iconset>
         </property>
         <property name="text">
             <string>Prev</string>
@@ -2798,7 +2811,7 @@
             <cstring>moviePlayRevAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image103</iconset>
+            <iconset>image106</iconset>
         </property>
         <property name="text">
             <string>Play Reverse</string>
@@ -3112,21 +3125,30 @@
         <data format="XPM.GZ" length="661">789c7dd2c10e82300c00d0fbbea261376240f168fc048d4713e3a1418d1ed044f1608cffeed6b2b52340c361e3adaceb2873d8ef369097e6d5627baba1bee213f2d3bb693e87e3fa6bb2aa02f72c6191cd4c56400ddbc7fdecc7d68ded9cc24fd14f2f14b47230a6c58e8b22e4088291d0726090401e10993a61425ecd148468583c8d882325b20f11178c496d214b365342e71088e7498f54a81e444ac5bd5349d435d56bdb2b40eec74a1ba4b6a24f698e7c4eedd3dd8d4def76e23ff8adcc1f5d5a8961</data>
     </image>
     <image name="image98">
-        <data format="XPM.GZ" length="992">789ca5d1cb6a83401805e0bd4f31e84e4a624c8c86d24768e9b250ba181d271ae3255e124ae9bb77ceaf4609994dfa1f17f3cd6160069736fb787f65f6d2685adea6118b125e335b7479fefdf9f5f26398aecbf0796c653e19e68245ecad2c62ac855a5b0e0d7801371c0123d0a3014370eb2320274a04ac407f838016512260090641e00774b6204a15ba86047752857802b9c39d1d9ddd8fe474c984b842c094e88eac07ba3d0fc4b58a0b3657aec18c480f065ba237f238d0ebd911b7d800f381db9e67a28f0d3026066a83debbb83bff682c1e5e278ac4ace1b1dc27e9213be66a0a21a62694e53495403536276d933cd0d4daa6d13699b669b54da76dceda26d63597a29acdbc11b733fd1f7d735b3df8b77f9f8d3fa4be0340</data>
+        <data format="XPM.GZ" length="706">789c95d1c10ac2300c06e07b9f22acb7219b8ee90ae223281e05f190b6821ea6a0f320e2bbdbb4eb1097a1363be4df57cad2e5296cd64b4873716db0391a3007bc406a6f757ddfee160f911405b86706936424920c0caccea73df56e2fc8b15f142dc512a9286a1f351545a4a894aa54455152c4a9abd21fcbaeef22a5c4f61586ae1344dd81660563f72904ac78e02400232df425425f340e89d143924562bead256e9e40ec1d78e2ef8d881722fb2e6e1a934532bffdd3bfe439172fc5569ede</data>
     </image>
     <image name="image99">
-        <data format="XPM.GZ" length="827">789cad91cb6ac3301045f7fe0a61ef4c886337b115423fa1a5cb40c9622c5b7ea685365d94d27f8fee300181024da07305a333072181b254ed5f9e549a459f273a0d46999e3e54da7c1d8fdfaf87c79f282e0ae556be5679bc88e2a532eaf9fdadc5be76fb644d0830019615026c805aeb4a331ae0d6baf0d916482b5a6d2dd032e608b0632c5c187bc607043830f2c5c0917173c189b174830d7066acdca00412a376037ed5f26afd6d1294d73d4344b5d73d639aa6f6ba675a316d60ac187b87e9c47481e9c5f4ff726610330466143306661233056616330786c4d0eda64679fd963fbdcbfceea2331695b5f6</data>
+        <data format="XPM.GZ" length="887">789c9dd0c96e83301080e13b4f61e11baa08848445551f21558f95aa1e0663cc12204ad34355f5ddcb78dcb0d439b41607bef965b0bcf1d8f3d381791be7ed02975a3051c19979c57bd77dbcbc3e7c3aee76cbc6274c59e8de39aecf047b1c7a89efedf8ce03bd9027629cee002988591027486e1812cb2b53646e28e212d910214a764845cc65aaf74aa20c327d8cca30ccf4deda30027de0a3e11e2264679880fe72619812fb2bf7c8c110204682610efa18be75fdad706e2f9c436e2b821785b4ec29c7b952d5af4273a5ea55f999afcb345f96f97c51caa651ca5afcb69db7e3e23ff3d6adce36b575995a6fb9036a83f546b1c18dbb1edbc95eb0dd2ab4fe55beee9d6f32d2c46e</data>
     </image>
     <image name="image100">
-        <data format="XPM.GZ" length="872">789c9591d14e83301486ef798a86de11b3c1dc6817e32368bc34315e9442076c40a2f3c218dfddfe47073d38a3f6ef45bfffe384265d26e2feee4624cbe8f9688e8d15b6364f22295fbaeef5e1f1fa2d8a572be177a644165f44f14258713bf415cead3fcb94167000ae0d0294c05c214043e810600d546b04e8805a6ba5e9630bdc3a1ffa510534a949b734bb23cc106043788900f784740fe0817073c2f20b379fd811e628803da1f2450e2c08b52fe8568bb3eb7723e54fc6147337ced8b2e46e349573dc8d66e71c77dc846e6e26f7dd9cdc39e35c5dcbc93461dfb6c1cc9ef78139f03e301def03d3f33e3005ef2733ccfac9ccfbbfbce9bfccfb55f401ead0c161</data>
+        <data format="XPM.GZ" length="857">789c95d1416f823014c0f13b9fa2a1376214440b64f1236cd97189f1f05a5a0185258e1d9665df7dbeb6428b1ab78603fff7a3d0844544de5e9f49b4083e7ae86b4144052712959f6dfbb5dd6dbe8370b924e72b6124096741382782bcbc7712ef9bf33d8df5c2ec4cb27c0598d46491b00c136c0aa6302b9390662b4c6592cb5c3f2c4ccab8d01f92369342efdddb4c411fa9b6b98614f3603303fde6d2666ef238e41ab3b509c030b94d0efa18f39bebb1507a4f804f6dd823cad2b741a452be0db257ca375f5c9bca68d772b15ba25455d1516a77de34ce9e833fbf96cbdc91a33f77a4f5e78e707f3e4a37998f329dffe59ffe4b7e9e825fceb7bc3c</data>
     </image>
     <image name="image101">
-        <data format="XPM.GZ" length="827">789c9d8edd6ac2401085eff3144bf62e1435a9262bc54768f1b2507a31d9cde6d70aadbd28d277ef9cb1ad285950cfc9c57cf3b164a6897a5e3faa641a7dec68d75a651b7a5789fbdc6cbe5e5e57fb28ce32c55f3a57697c17c51365d5d3f6adc25cf2ace7840235302f50a0031a630a2368814bcf95b7159066345b7aa0174c51602d9871051bc17b14d80aca8f819de0e20f7bc19c170be02058f0220792a0e1855c3519cd854623e38688ca71639d0b982a68fc35461f52b391a13c1ab295f775e35cdbf5835cf86fdc492e3225a25bde1d727e5b17bcba0f9a2168e87af37bd58839c94de6fb21fa01b64db2b6</data>
+        <data format="XPM.GZ" length="691">789ca5d1c10a02211006e0bb4f31e84da2ad659715a247283a06d161b4a00ebb416d8788de3d47dd8568a4438e87f9fd44050b0ddbcd0a74216e3df66707ee8457d0877bdb3e76fbe553c8b2043f6b98cb89905370b0be7447eafd5e50b330285a8a95a5a288148d318d69282a8a58fbaac239ecf82d4a615a51a91d05075288f6530662241127915809c40b514690dec80bda9c589711eb32f778e0858095009c446024c1978ce0bbd8fef3db8cbc16e20dad489787</data>
     </image>
     <image name="image102">
-        <data format="XPM.GZ" length="827">789cd5d0cb0a82401406e0bd4f31e84ec25b5e46a247285a06d1621c1def05658b88debdf90f44252dda04757e17f39d9f41d1b5d97ab560b66b1c0731d492c94a1c989d9ffafebcd9ce2f8619044c3f7ec87c7362980e936cb9df15380b7db642818016182708d8819cf3841325982a1dba9b83c2135eaac082e823a022063ac4923845c08a482f066b627467438cf522025b62a217319811b95ed057396fe7af1b6b34e2d164322f0a55aab2aa9b36cb9e9bee653e6ac4687ee81f7cbfb9ce8c1b2a88a9ed</data>
+        <data format="XPM.GZ" length="827">789cad91cb6ac3301045f7fe0a61ef4c886337b115423fa1a5cb40c9622c5b7ea685365d94d27f8fee300181024da07305a333072181b254ed5f9e549a459f273a0d46999e3e54da7c1d8fdfaf87c79f282e0ae556be5679bc88e2a532eaf9fdadc5be76fb644d0830019615026c805aeb4a331ae0d6baf0d916482b5a6d2dd032e608b0632c5c187bc607043830f2c5c0917173c189b174830d7066acdca00412a376037ed5f26afd6d1294d73d4344b5d73d639aa6f6ba675a316d60ac187b87e9c47481e9c5f4ff726610330466143306661233056616330786c4d0eda64679fd963fbdcbfceea2331695b5f6</data>
     </image>
     <image name="image103">
+        <data format="XPM.GZ" length="872">789c9591d14e83301486ef798a86de11b3c1dc6817e32368bc34315e9442076c40a2f3c218dfddfe47073d38a3f6ef45bfffe384265d26e2feee4624cbe8f9688e8d15b6364f22295fbaeef5e1f1fa2d8a572be177a644165f44f14258713bf415cead3fcb94167000ae0d0294c05c214043e810600d546b04e8805a6ba5e9630bdc3a1ffa510534a949b734bb23cc106043788900f784740fe0817073c2f20b379fd811e628803da1f2450e2c08b52fe8568bb3eb7723e54fc6147337ced8b2e46e349573dc8d66e71c77dc846e6e26f7dd9cdc39e35c5dcbc93461dfb6c1cc9ef78139f03e301def03d3f33e3005ef2733ccfac9ccfbbfbce9bfccfb55f401ead0c161</data>
+    </image>
+    <image name="image104">
+        <data format="XPM.GZ" length="827">789c9d8edd6ac2401085eff3144bf62e1435a9262bc54768f1b2507a31d9cde6d70aadbd28d277ef9cb1ad285950cfc9c57cf3b164a6897a5e3faa641a7dec68d75a651b7a5789fbdc6cbe5e5e57fb28ce32c55f3a57697c17c51365d5d3f6adc25cf2ace7840235302f50a0031a630a2368814bcf95b7159066345b7aa0174c51602d9871051bc17b14d80aca8f819de0e20f7bc19c170be02058f0220792a0e1855c3519cd854623e38688ca71639d0b982a68fc35461f52b391a13c1ab295f775e35cdbf5835cf86fdc492e3225a25bde1d727e5b17bcba0f9a2168e87af37bd58839c94de6fb21fa01b64db2b6</data>
+    </image>
+    <image name="image105">
+        <data format="XPM.GZ" length="827">789cd5d0cb0a82401406e0bd4f31e84ec25b5e46a247285a06d1621c1def05658b88debdf90f44252dda04757e17f39d9f41d1b5d97ab560b66b1c0731d492c94a1c989d9ffafebcd9ce2f8619044c3f7ec87c7362980e936cb9df15380b7db642818016182708d8819cf3841325982a1dba9b83c2135eaac082e823a022063ac4923845c08a482f066b627467438cf522025b62a217319811b95ed057396fe7af1b6b34e2d164322f0a55aab2aa9b36cb9e9bee653e6ac4687ee81f7cbfb9ce8c1b2a88a9ed</data>
+    </image>
+    <image name="image106">
         <data format="XPM.GZ" length="887">789c9d90b16e8330144577bec2c21baa08a40938aafa098d3a56aa3a3886172001a22619a2aaff5edf4751803843ebcbe0738f9e6c3c0bc4dbeb8b0866def1a44fa511a6d09f22c8ce757d79ff78fef2fcf95cd82f5622f61f3c3f1446acdb26c7beb27b19f1021e800b8d002530491160cea810e086911060094c170890804aa954f16c065c910d9fbb05ea48472b9e2d186304b8637c44807b46be16b0665cf6687e71d961c398a000b68ca92d12a06654b6e05b85cef53723a5db48a9372e23a531996326b73dd1f6c6743d5131317d3f35d77e6c86fdc8e46549e43461550ddd6e74ced0ed2777bbbafae67f7ad738dea073adf345e1f49db7b6eee03670f74cb7fe65be9fbc1f7e24c5f9</data>
     </image>
 </images>
@@ -3558,12 +3580,6 @@
         <slot>moviePrevFrame()</slot>
     </connection>
     <connection>
-        <sender>movieStopAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>movieStop()</slot>
-    </connection>
-    <connection>
         <sender>orient100Action</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3869,6 +3885,18 @@
         <receiver>MainWindow</receiver>
         <slot>toolsStartOver()</slot>
     </connection>
+    <connection>
+        <sender>movieSetToEndAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieSetToEnd()</slot>
+    </connection>
+    <connection>
+        <sender>movieResetAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieReset()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3989,7 +4017,6 @@
     <slot>setViewHomeToCurrent()</slot>
     <slot>dispSetEltable1()</slot>
     <slot>dispSetEltable2()</slot>
-    <slot>movieStop()</slot>
     <slot>moviePlay()</slot>
     <slot>movieDone()</slot>
     <slot>toolsMoviePlayer()</slot>
@@ -4000,6 +4027,8 @@
     <slot>fileSaveMovie()</slot>
     <slot>moviePlayRev()</slot>
     <slot>fileOpenMovie()</slot>
+    <slot>movieSetToEnd()</slot>
+    <slot>movieReset()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

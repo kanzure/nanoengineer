@@ -127,10 +127,12 @@ class Movie:
         # This is temporary.  I intend to 
         self._pause(0) 
         
+        
+        
         if hflag: self.assy.w.history.message("Movie continued.")
         
         self.showEachFrame = True
-        
+
         # Continue playing movie.
         if self.playDirection == FWD: self._playFrame(self.totalFrames)
         else: self._playFrame(0)
@@ -140,6 +142,11 @@ class Movie:
         hflag - if True, print history message
         """
         self.isPaused = True
+        self.showEachFrame = False
+        self.assy.w.moviePlayActiveAction.setVisible(0)
+        self.assy.w.moviePlayAction.setVisible(1)
+        self.assy.w.moviePlayRevActiveAction.setVisible(0)
+        self.assy.w.moviePlayRevAction.setVisible(1)
         if hflag: self.assy.w.history.message("Movie paused.")
 
     def _playFrame(self, fnum):
@@ -156,8 +163,14 @@ class Movie:
             return
 
         # "inc" is the frame increment (FWD = 1, REV = -1) .
-        if fnum > self.currentFrame: inc = FWD
-        else: inc = REV
+        if fnum > self.currentFrame: 
+            inc = FWD
+            self.assy.w.moviePlayActiveAction.setVisible(1)
+            self.assy.w.moviePlayAction.setVisible(0)
+        else: 
+            inc = REV
+            self.assy.w.moviePlayRevActiveAction.setVisible(1)
+            self.assy.w.moviePlayRevAction.setVisible(0)
         
 #        print "BEGIN: fnum = ", fnum, ", currentFrame =", self.currentFrame, ", inc =",inc
         
@@ -203,10 +216,7 @@ class Movie:
                 self.assy.o.paintGL()
             
             # Pause was pressed while playing movie.    
-            if self.isPaused:
-                self.isPaused = False
-                self.showEachFrame = False
-                break
+            if self.isPaused: break
                 
         # End of loop
         
@@ -215,6 +225,10 @@ class Movie:
         
         # Update dashboard and show frame.        
         self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
+        self.assy.w.moviePlayActiveAction.setVisible(0)
+        self.assy.w.moviePlayAction.setVisible(1)
+        self.assy.w.moviePlayRevActiveAction.setVisible(0)
+        self.assy.w.moviePlayRevAction.setVisible(1)
         self.assy.o.paintGL()
 
         # This is a temporary workaround for an unusual bug I can't figure out.
