@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 modes.py -- provides basicMode, the superclass for all modes, and
 modeMixin, for GLPane.
@@ -81,6 +81,7 @@ from debug import print_compact_traceback
 
 from platform import *
 import platform # not redundant with "from platform import *" -- we need both
+import preferences
 
 class anyMode:
     "abstract superclass for all mode objects"
@@ -206,40 +207,25 @@ class basicMode(anyMode):
 
         self.setup_menus()
 
-    def init_prefs(self): # bruce 050105 new feature
+    def init_prefs(self): # bruce 050105 new feature [bruce 050117 cleaned it up]
         "set some of our constants from user preferences, if they exist"
         self.bgcolor_prefs_key = key = "mode %s backgroundColor" % self.modename
-        try:
-            import preferences
-        except ImportError:
-            pass
-        else:
-            self.prefs = prefs = preferences.prefs_context()
-            ## this might not work yet (since prefs.get will use its __getattr__):
-            ## bgcolor = prefs.get( key, self.backgroundColor )
-            # note: if we want concurrent sessions to share bgcolor pref,
-            # then besides this we also need to clear the prefs cache for
-            # this key... I'm not doing that yet.
-            try:
-                bgcolor = prefs[key]
-            except KeyError:
-                bgcolor = self.backgroundColor
-            self.backgroundColor = bgcolor
+        self.prefs = prefs = preferences.prefs_context()
+        bgcolor = prefs.get( key, self.backgroundColor )
+        # (Note: if we wanted concurrent sessions to share bgcolor pref,
+        # then besides this, we'd also need to clear the prefs cache for
+        # this key... and update it more often.)
+        self.backgroundColor = bgcolor
         return
 
-    def set_backgroundColor(self, color): # bruce 050105 new feature
+    def set_backgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
         self.backgroundColor = color
-        # bruce 041118 comment: the above is not enough, since mode objects are remade
-        # at arbitrary times (presently whenever a new file is loaded).
-        # bruce 050105 experimental fix for that:
-        try:
-            import preferences
-        except ImportError:
-            pass
-        else:
-            prefs = self.prefs
-            key = self.bgcolor_prefs_key
-            prefs[key] = color # this also stores it in a prefs db file
+        # bruce 041118 comment: the above, by itself, would only last until the
+        # next time this mode object was remade (presently, whenever a new file
+        # is loaded; in principle, at arbitrary times).
+        prefs = self.prefs
+        key = self.bgcolor_prefs_key
+        prefs[key] = color # this stores the new color into a prefs db file
         return
     
     def setup_menus(self): # rewritten by bruce 041103
