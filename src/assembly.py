@@ -119,30 +119,39 @@ class assembly:
         """Record the fact that this assembly (or something it contains)
         has been changed, in the sense that saving it into a file would
         produce meaningfully different file contents than if that had been
-        done before the change, or (more generally) that the change matters
-        for any other kind of observer, like the model tree or the glpane.
-        [Note: as of 050107, it's unlikely that this is called everywhere
-         it needs to be. It's called in exactly the same places where the
-         prior code set self.modified = 1. In the future, this will be called
-         from lower-level methods than it is now, making complete coverage
-         easier. #e]
+        done before the change.
+           Note that some state changes (such as selecting chunks or atoms)
+        affect some observers (like the glpane or model tree), but not what
+        would be saved into a file; such changes should *not* cause calls to
+        this method (though in the future there might be other methods for
+        them to call, e.g. perhaps self.changed_selection() #e).
+           [Note: as of 050107, it's unlikely that this is called everywhere
+        it needs to be. It's called in exactly the same places where the
+        prior code set self.modified = 1. In the future, this will be called
+        from lower-level methods than it is now, making complete coverage
+        easier. #e]
         """
-        # bruce 050107 added this; as of now, all method names (in all
-        # classes) of the form changed or changed_xxx are hereby reserved
-        # for this purpose! [For beta, I plan to put in a uniform system for
-        # efficiently recording and propogating change-notices of that kind,
-        # as part of implementing Undo.]
+        # bruce 050107 added this method; as of now, all method names (in all
+        # classes) of the form 'changed' or 'changed_xxx' (for any xxx) are
+        # hereby reserved for this purpose! [For beta, I plan to put in a
+        # uniform system for efficiently recording and propogating change-
+        # notices of that kind, as part of implementing Undo (among other uses).]
         if not self._modified:
             self._modified = 1
-            # Feel free to add more side effects here, even if they are slow!
-            # They will only run the first time you modify this, since its
-            # modified flag was most recently reset [i.e. since it was saved].
+            # Feel free to add more side effects here, inside this 'if'
+            # statement, even if they are slow! They will only run the first
+            # time you modify this assembly, since its _modified flag was most
+            # recently reset [i.e. since it was saved].
             # [For Beta, they might run more often (once per undoable user-
             #  event), so we'll review them for speed at that time. For now,
             #  only saving this assembly to file (or loading or clearing it)
-            # is permitted to reset this flag to 0.]
+            #  is permitted to reset this flag to 0.]
             self.w.history.message("(fyi: part now has unsaved changes)") #e revise terminology?
             pass
+        # If you think you need to add a side-effect *here* (which runs every
+        # time this method is called, not just the first time after each save),
+        # that would probably be too slow -- we'll need to figure out a different
+        # way to get the same effect (like recording a "modtime" or "event counter").
         return
 
     def reset_changed(self): # bruce 050107
