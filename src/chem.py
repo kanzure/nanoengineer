@@ -441,6 +441,7 @@ class atom:
         if self.molecule == numol: return
         nxyz = self.posn()
         del self.molecule.atoms[self.key]
+        self.unpick()
         self.xyz = nxyz
         self.molecule = numol
         numol.atoms[self.key] = self

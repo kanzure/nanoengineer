@@ -610,6 +610,11 @@ class assembly:
            even if it has no atoms and we deleted it from self.
            (###k is that ok? if not, we'll change this func to use None in place of N.)
         """
+        if self.selwhat: return
+        if not self.selatoms: #always wind up in part pick mode
+            self.pickParts()
+            return
+        numolist=[]
         for mol in self.molecules:
             numol = molecule(self, mol.name + gensym("-frag"))
             for a in mol.atoms.values():
@@ -618,8 +623,7 @@ class assembly:
                     a.unpick()
             if numol.atoms:
                 self.addmol(numol)
-                #numol.shakedown()  #comment out by Huaicai 09/30/04, addmol() has this call
-                numol.pick()
+                numolist+=[numol]
                 # need to redo the old one too, unless we removed all its atoms
                 if mol.atoms:
                     mol.shakedown()
@@ -627,6 +631,9 @@ class assembly:
                     self.killmol(mol)
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
+        self.unpickatoms()
+        self.pickParts()
+        for m in numolist: m.pick()
         self.w.update()
 
     # change surface atom types to eliminate dangling bonds
