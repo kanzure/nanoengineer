@@ -4,6 +4,7 @@
 """Classes for objects in the model.
 This file should have a more descriptive name, but that can wait.
 
+
 $Id$
 """
 
@@ -23,6 +24,7 @@ class Node:
         self.dad = parent
         if self.dad: self.dad.addmember(self)
         self.picked = False
+        self.icon = None
         # in addition, each Node should have a bounding box
 
     # for a leaf node, add it to the dad node just after us
@@ -71,11 +73,15 @@ class Node:
         self.dad.delmember(self)
         grp.addmember(self)
 
-    def icon(self, treewidget):
-        return treewidget.partIcon
+    def seticon(self, tw):
+        self.icon = tw.partIcon
 
+    ## Note the icon() method is removed and replaced with the icon
+    ## member variable. This can simply be set externally to change
+    ## the node's icon.
     def upMT(self, tw, parent, dnd=True):
-        self.tritem = tw.buildNode(self, parent, self.icon(tw), dnd)
+        if not self.icon: self.seticon(tw)
+        self.tritem = tw.buildNode(self, parent, self.icon, dnd)
         return self.tritem
     
     def setProp(self, tw):
@@ -113,13 +119,11 @@ class Group(Node):
     def addmember(self, obj):
         self.members += [obj]
         obj.dad = self
-        self.assy.modified = 1
         obj.assy = self.assy
 
     def delmember(self, obj):
         try:
             self.members.remove(obj)
-            self.assy.modified = 1
         except: pass
 
     def pick(self):
@@ -177,11 +181,9 @@ class Group(Node):
         if self.dad:
             self.dad.delmember(self)
 
-    def icon(self, treewidget):
-        return treewidget.partIcon
-
     def upMT(self, tw, parent, dnd=True):
-        self.tritem = tw.buildNode(self, parent, self.icon(tw), dnd)
+        if not self.icon: self.seticon(tw)
+        self.tritem = tw.buildNode(self, parent, self.icon, dnd)
         for x in self.members:
             x.upMT(tw, self.tritem, dnd)
         return self.tritem
@@ -218,7 +220,7 @@ class Group(Node):
 #    def writepov(self, atnums, alist, f, dispdef):
     def writepov(self, f, dispdef):
         for x in self.members:
-#            print "Utility: writepov() member = ", x.name
+            print "Utility: writepov() member = ", x.name
             x.povwrite(f, dispdef)
 
     def __str__(self):
@@ -236,8 +238,8 @@ class Csys(Node):
         else:
             self.quat = Q(x, y, z, w)
 
-    def icon(self, treewidget):
-        return treewidget.csysIcon
+    def seticon(self, treewidget):
+        self.icon = treewidget.csysIcon
 
     def writemmp(self, atnums, alist, f):
         v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale)
@@ -265,9 +267,9 @@ class Datum(Node):
         self.y = y
         self.rgb = (0,0,255)
         
-    def icon(self, treewidget):
-        return treewidget.datumIcon
-
+    def seticon(self, treewidget):
+        self.icon = treewidget.datumIcon
+        
     def writemmp(self, atnums, alist, f):
         f.write("datum (" + self.name + ") " +
                 "(%d, %d, %d) " % self.rgb +

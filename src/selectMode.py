@@ -124,7 +124,8 @@ class selectMode(basicMode):
 
         self.sellist = []
 
-        self.o.paintGL()
+        #self.o.paintGL()  #Comment this out by Huaicai 10/13, usinggg w.update instead
+        self.w.update()
 
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.

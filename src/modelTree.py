@@ -24,7 +24,7 @@ class modelTree(QListView):
         self.setSizePolicy(QSizePolicy(0,7,0,244,False))
         self.setResizePolicy(QScrollView.Manual)
         self.setShowSortIndicator(0)
-        self.setAcceptDrops(True)
+        #self.setAcceptDrops(True)
 
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         self.moleculeIcon = QPixmap(filePath + "/../images/molecule.png")
@@ -37,11 +37,16 @@ class modelTree(QListView):
         self.groundIcon = QPixmap(filePath + "/../images/ground.png")
         self.groupOpenIcon = QPixmap(filePath + "/../images/group-expanded.png")
         self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
+        self.clipboardFullIcon = QPixmap(filePath + "/../images/clipboard-full.png")
+        self.clipboardEmptyIcon = QPixmap(filePath + "/../images/clipboard-empty.png")
+        
+        self.setFocusPolicy(QWidget.StrongFocus)
 
         self.setSorting(-1)
         self.setRootIsDecorated(1)
         self.setSelectionMode(QListView.Extended)
         self.selectedItem = None
+        self.currentItem = None
 
         self.menu = self.makemenu([["Group", self.group],
                                    ["Ungroup", self.ungroup],
@@ -54,7 +59,8 @@ class modelTree(QListView):
                                    None,
                                    ["Expand all", self.expand],
                                    ["Hide Tree", self.hide]])
-        self.update()
+        
+        self._update()
         
         # Mark and Huaicai - commented this out - causing a bug for context menu display
         # Fixed with the signal to "rightButtonPressed"
@@ -62,14 +68,15 @@ class modelTree(QListView):
         #             self.menuReq)
         self.connect(self, SIGNAL("rightButtonPressed(QListViewItem*,const QPoint&,int)"),
                      self.menuReq)
-        self.connect(self, SIGNAL("clicked(QListViewItem *)"),
-                     self.select)
-        self.connect(self, SIGNAL("expanded(QListViewItem *)"),
-                     self.treeItemExpanded)
-        self.connect(self, SIGNAL("collapsed(QListViewItem *)"),
-                     self.treeItemCollapsed)
+        #self.connect(self, SIGNAL("clicked(QListViewItem *)"), self.setTreeFocus)
+        self.connect(self, SIGNAL("selectionChanged()"), self.select)
+        self.connect(self, SIGNAL("expanded(QListViewItem *)"), self.treeItemExpanded)
+        self.connect(self, SIGNAL("collapsed(QListViewItem *)"), self.treeItemCollapsed)
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"),
                      self.rename)
+        self.connect(self, SIGNAL("currentChanged(QListViewItem *)"), self.whatCurrentItem)
+
+
 
     def makemenu(self, lis): 
         """make and return a reusable popup menu from lis,
@@ -93,25 +100,46 @@ class modelTree(QListView):
         itemObj = listItem.object
         if isinstance(itemObj, Group):
             itemObj.open = True
-            listItem.setPixmap(0, self.groupOpenIcon)
+            if listItem not in [self.root, self.shelf]:
+                listItem.setPixmap(0, self.groupOpenIcon)
 
 
     def treeItemCollapsed(self, listItem):
         itemObj = listItem.object
         if isinstance(itemObj, Group):
             itemObj.open = False
-            listItem.setPixmap(0, self.groupCloseIcon)
+            if listItem not in [self.root, self.shelf]:
+                listItem.setPixmap(0, self.groupCloseIcon)
 
-    def select(self, item):
-        if not item: return
-#        print "MT.py: select(): item.object = ", item.object
+
+    def setTreeFocus(self, item):
+            """ Set keyboard focus on items has been last clicked"""
+            if item:
+                    self.setCurrentItem(item)
+
+    def whatCurrentItem(self, item):
+            print "Current item changes to: ", item.object
+            
+    
+    def select(self):
+        items = self.selectedItems()    
+        
+        self.disconnect(self, SIGNAL("selectionChanged()"), self.select)    
+
         self.win.assy.unpickatoms()
         self.win.assy.unpickparts()
         self.win.assy.selwhat = 2
-        item.object.pick()
-        self.selectedItem = item.object
-        self.win.update()
-#        print "MT.py: after highlighting: self.selectedItem = ", self.selectedItem
+        
+        for item in items:
+                item.object.pick()
+                
+        #self.selectedItem = item.object
+        self.win.glpane.paintGL()
+        self._update()
+        
+      
+        self.connect(self, SIGNAL("selectionChanged()"), self.select)
+
 
     def menuReq(self, listItem, pos, col):
         """ Context menu items function handler for the Model Tree View """
@@ -120,27 +148,28 @@ class modelTree(QListView):
         self.menu.popup(pos, 1)
         self.update()
 
+
     def rename(self, listItem, col, text):
         if col != 0: return
         self.win.assy.modified = 1
         listItem.object.name = str(text)
 
-    def startDrag(self):
-        if self.selectedItem:
-            foo = QDragObject(self)
-            foo.drag()
+    #def startDrag(self):
+    #    if self.selectedItem:
+    #        foo = QDragObject(self)
+    #       foo.drag()
 
-    def dropEvent(self, event):
-        pnt = event.pos() - QPoint(0,24)
-        item = self.itemAt(self.contentsToViewport(pnt))
-        if item:
-            print "Moving", self.selectedItem, "to", item.object
-            self.selectedItem.moveto(item.object)
-            self.update()
-            self.win.assy.root.dumptree()
+    #def dropEvent(self, event):
+    #    pnt = event.pos() - QPoint(0,24)
+    #    item = self.itemAt(self.contentsToViewport(pnt))
+    #    if item:
+    #        print "Moving", self.selectedItem, "to", item.object
+    #        self.selectedItem.moveto(item.object)
+    #        self.update()
+    #        self.win.assy.model.dumptree()
 
-    def dragMoveEvent(self, event):
-        event.accept()
+    #def dragMoveEvent(self, event):
+    #    event.accept()
 
     def buildNode(self, obj, parent, icon, dnd=True):
         """ build a display node in the tree widget
@@ -149,22 +178,16 @@ class modelTree(QListView):
         mitem = QListViewItem(parent, obj.name)
         mitem.object = obj
         mitem.setPixmap(0, icon)
-        mitem.setDragEnabled(dnd)
-        mitem.setDropEnabled(dnd)
+        #mitem.setDragEnabled(dnd)
+        #mitem.setDropEnabled(dnd)
         mitem.setRenameEnabled(0, True)
         return mitem
 
     def update(self):
-        """ Build the tree structure of the current model """
-        self.clear()
-        self.root = self.win.assy.tree.upMT(self, self)
-        self.win.assy.tree.setProp(self)
-        self.shelf = self.win.assy.shelf.upMT(self, self)
-        self.win.assy.shelf.setProp(self)
-        self.data = self.win.assy.data.upMT(self, self, False)
-        self.win.assy.data.setProp(self)
-        return
-
+        """ Build the tree structure of the current model, public interface """
+        self.disconnect(self, SIGNAL("selectionChanged()"), self.select)
+        self._update()
+        self.connect(self, SIGNAL("selectionChanged()"), self.select)
 
 ## menu functions
 
@@ -172,11 +195,11 @@ class modelTree(QListView):
         node = self.root.object.hindmost()
         if node.picked: return
         new = Group(gensym("Node"), self.win.assy, node)
-        self.root.object.apply2picked(lambda(x): x.moveto(new))
+        self.model.object.apply2picked(lambda(x): x.moveto(new))
         self.update()
     
     def ungroup(self):
-        self.root.object.apply2picked(lambda(x): x.ungroup())
+        self.model.object.apply2picked(lambda(x): x.ungroup())
         self.update()
     
     def copy(self):
@@ -196,4 +219,39 @@ class modelTree(QListView):
         self.root.object.apply2tree(lambda(x): x.setopen())
         self.update()
 
-    
+    def selectedItems(self):
+        """ Find all selected tree items """
+        items = []
+        
+        child = self.firstChild()
+        while child:
+                if child.isSelected():
+                        items += [child]
+                child = child.itemBelow()
+        
+        return items
+        
+    def _update(self):
+        """ Build the tree structure of the current model, internal function """
+        self.clear()
+        
+        if self.win.assy.shelf.members:
+                self.win.assy.shelf.icon = self.clipboardFullIcon
+        else:
+                self.win.assy.shelf.icon = self.clipboardEmptyIcon
+        self.shelf = self.win.assy.shelf.upMT(self, self)
+        self.win.assy.shelf.setProp(self)
+                
+        
+        rootGroup = Group(self.win.assy.name, self.win.assy, None)
+        rootGroup.icon = self.partIcon
+        
+        for m in self.win.assy.tree.members[::-1]:
+                 rootGroup.addmember(m)
+        
+        for m in self.win.assy.data.members[::-1]:
+                    rootGroup.addmember(m)
+        
+        self.root = rootGroup.upMT(self, self)
+        rootGroup.setProp(self)           
+      
