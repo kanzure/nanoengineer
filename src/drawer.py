@@ -87,7 +87,7 @@ rotS = map((lambda n: pi/2+n*2.0*pi/numSeg), range(numSeg*3/4 + 1))
 zOffset = 0.005; scaleS = 0.4
 rotS0n = map((lambda a: (scaleS*cos(a), scaleS*sin(a), 0.0 - zOffset)), rotS)
 rotS1n = map((lambda a: (scaleS*cos(a), scaleS*sin(a), 1.0 + zOffset)), rotS)
-halfEdge = scaleS * sin(pi/numSeg)
+halfEdge = 3.0 * scaleS * sin(pi/numSeg)
 arrow0Vertices = [(rotS0n[-1][0]-halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
                             (rotS0n[-1][0]+halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
                             (rotS0n[-1][0], rotS0n[-1][1] + 2.0*halfEdge, rotS0n[-1][2])] 
@@ -97,7 +97,7 @@ arrow1Vertices = [(rotS1n[-1][0]-halfEdge, rotS1n[-1][1], rotS1n[-1][2]),
                             (rotS1n[-1][0], rotS1n[-1][1] + 2.0*halfEdge, rotS1n[-1][2])]                             
 
 ###Linear motor arrow sign data structure
-halfEdge = 1.0/8.0
+halfEdge = 1.0/3.0 ##1.0/8.0
 linearArrowVertices = [(0.0, -halfEdge, 0.0), (0.0, halfEdge, 0.0), (0.0, 0.0,2*halfEdge)]
 
 # a chunk of diamond grid, to be tiled out in 3d

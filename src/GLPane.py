@@ -161,7 +161,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
         # clipping planes, as percentage of distance from the eye
         self.near = 0.66
-        self.far = 5.0  ##2.0, Huaicai: make this bigger, so models will be
+        self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
                                ## more likely sitting within the view volume
 
         self.zoomFactor = 1.0
