@@ -32,10 +32,9 @@ diINVISIBLE = 1
 diLINES = 2
 diCPK = 3
 diTUBES = 4
-diMIXED = 5
-diVDW = 6
+diVDW = 5
 
-dispNames = ["def", 'nil', "lin", 'cpk', 'tub', 'mix', 'vdw']
+dispNames = ["def", "inv", "lin", "cpk", "tub", "vdw"]
 
 TubeRadius = 0.3
 
@@ -80,4 +79,3 @@ elemKeyTab =  [('H', Qt.Key_H, 1),
                ('P', Qt.Key_P, 15),
                ('S', Qt.Key_S, 16),
                ('Cl', Qt.Key_L, 17)]
-
