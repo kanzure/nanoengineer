@@ -366,6 +366,17 @@ void printheader(FILE *f, char *ifile, char *ofile, char *tfile,
     fprintf(f, "#\n");
 }
 
+void printError(FILE *f, char *s) 
+{
+    fprintf(stderr, "Error: %s\n", s);
+    fprintf(f, "# Error: %s\n", s);
+}
+
+void printWarning(FILE *f, char *s) 
+{
+    fprintf(stderr, "Warning: %s\n", s);
+    fprintf(f, "# Warning: %s\n", s);
+}
 
 void headcon(FILE *f) {
     struct MOT *mot;

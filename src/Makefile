@@ -2,7 +2,6 @@
 
 CC=gcc
 CFLAGS=-O3 -g
-#CFLAGS=-g
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
 
@@ -31,7 +30,10 @@ tables.c: gentab.py
 	python gentab.py > tables.c
 
 SIMOBJS=simulator.o tables.o lin-alg.o readers.o printers.o
-all: simulator 
+all: simulator
+
+noopt:
+	make CFLAGS=-g all
 
 simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
@@ -45,8 +47,11 @@ install: simulator
 
 clean:
 	rm -f simulator moldisp molsim physeng
-	rm -f *.o *.so *~ TAGS fmc.mmp dumpstruct.xyz
+	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz
 	rm -rf html gmon.out
+
+dist_clean: clean
+	rm -f TAGS
 
 TAGS:
 	etags *.c *.h

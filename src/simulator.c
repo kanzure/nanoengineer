@@ -1257,7 +1257,7 @@ void minimize(int numFrames)
     if (minimizeSteepestDescent(steepestDescentFrames, &frameNumber)) {
         minimizeConjugateGradients(numFrames, &frameNumber);
     } else {
-        fprintf(stderr, "Warning: partial minimization\n");
+        WARNING("partial minimization");
     }
 }
 
