@@ -423,4 +423,5 @@ def makePolyList(v):
     for lis in xlines:
         segs += [lis[0],lis[3],lis[1],lis[2]]
 
+    assert type(segs) == type([]) #bruce 041119
     return segs
