@@ -190,15 +190,15 @@ def print_compact_stack(msg = "", **kws): # newly written, 040928
     except:
         raise#####
         info = "(exception in compact_stack)"
-    print >>sys.__stderr__, "stack: %s: %s" % (msg, info)
+    print >>sys.__stderr__, "stack: %s%s" % (msg, info)
     return
 
 if __name__ == '__main__':
     def ff():
-        print_compact_stack("test 1 in ff")
-        print_compact_stack("test 2 in ff")
+        print_compact_stack("test 1 in ff:\n")
+        print_compact_stack("test 2 in ff:\n")
     ff()
-    print_compact_stack("test 3")
+    print_compact_stack("test 3:\n")
     print >>sys.__stderr__, "done"
     print "done, see __stderr__"
     
