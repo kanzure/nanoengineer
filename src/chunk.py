@@ -920,12 +920,39 @@ class molecule(Node, InvalMixin):
             if platform.atom_debug:
                 print "atom_debug: fyi: info chunk with unrecognized key %r" % (key,)
         return
+
+    def atoms_in_mmp_file_order(self): #bruce 050228
+        """Return a list of our atoms, in the same order as they would be written to an mmp file
+        (which is the same order in which they occurred in one, *if* they were just read from one).
+        We know it's the same order as they'd be written, since self.writemmp() calls this method.
+        We know it's the same order they were just read in (if they were just read), since it's
+        the order of atom.key, which is assigned successive values (guaranteed to sort in order)
+        as atoms are read from the file and created for use in this session.
+        """
+        pairs = self.atoms.items() # key, val pairs; keys are atom.key,
+            # which is an int which counts from 1 as atoms are created in one session,
+            # and which is (as of now, 050228) specified to sort in order of creation
+            # even if we later change the kind of value it produces.
+        pairs.sort()
+        res = [atm for key, atm in pairs]
+        # debug code, can be removed when it's worked for awhile
+        for i in range(len(res)):
+            if i:
+                # verify I used "list extension syntax" properly, above
+                assert res[i-1].key < res[i].key
+        return res
     
     def writemmp(self, atnums, alist, f):
         disp = dispNames[self.display]
         f.write("mol (" + self.name + ") " + disp + "\n")
-        for a in self.atoms.values():
-            a.writemmp(atnums, alist, f)
+        #bruce 050228: write atoms in the same order they were created in,
+        # so as to preserve atom order when an mmp file is read and written
+        # with no atoms created or destroyed and no chunks reordered, thus
+        # making previously-saved movies more likely to retain their validity.
+        for atm in self.atoms_in_mmp_file_order():
+            atm.writemmp(atnums, alist, f)
+##        for a in self.atoms.values():
+##            a.writemmp(atnums, alist, f)
         #bruce 050217 new feature [see also a comment added to fileIO.py]:
         # also write the hotspot, if there is one.
         hs = self.hotspot # uses getattr to validate it

@@ -59,7 +59,12 @@ def genKey():
         i += 1
         yield i
 
-atKey=genKey()
+atKey = genKey() # generator for atom.key attribute.
+    # As of bruce 050228, we now make use of the fact that this produces keys
+    # which sort in the same order as atoms are created (e.g. the order they're
+    # read from an mmp file), so we now require this in the future even if the
+    # key type is changed.
+
 
 ###Huaicai: This function has been repeated in multiple files, not 
 ### good, needs to improve. I'll add one more function for transferring
