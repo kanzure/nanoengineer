@@ -260,24 +260,25 @@ class DebugMenuMixin:
         import debug
         res = [
             ('(debugging menu)', noop, 'disabled'),
-            ('print self', self._debug_printself),
             # None, # separator
         ]
+        if self._debug_win:
+            res.extend( [
+                ('load window layout', self._debug_load_window_layout ),
+                ('save window layout', self._debug_save_window_layout ),
+                    #bruce 050117 prototype "save window layout" here; when it works, move it elsewhere
+            ] )
         if debug.exec_allowed():
             #bruce 041217 made this item conditional on whether it will work
             res.extend( [
                 ('run py code', self._debug_runpycode),
             ] )
         res.extend( [
+            #e use a "checkmark item" when we're remaking this menu dynamically:
             ('enable ATOM_DEBUG', self._debug_enable_atom_debug ),
             ('disable ATOM_DEBUG', self._debug_disable_atom_debug ),
+            ('print self', self._debug_printself),
         ] )
-        if self._debug_win:
-            res.extend( [
-                ('save window layout', self._debug_save_window_layout ),
-                ('load window layout', self._debug_load_window_layout ),
-                    #bruce 050117 prototype "save window layout" here; when it works, move it elsewhere
-            ] )
         return res
 
     def _debug_save_window_layout(self):
