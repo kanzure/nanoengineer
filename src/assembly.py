@@ -431,6 +431,19 @@ class assembly:
         self.w.update()
 
     # copy any selected parts (molecules)
+    #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
+    #  Bruce's comments (based on reading the code, not all verified by test):
+    #    0. If groups are not allowed in the clipboard (bug 213 doesn't say,
+    #  but why else would it have been a bug to have added a group there?),
+    #  then this is only a partial fix, since if a group is one of the
+    #  selected items, apply2picked will run its lambda on it directly.
+    #    1. The group 'new' is now seemingly used only to hold
+    #  a list; it's never made a real group (I think). So I wonder if this
+    #  is now deviating from Josh's intention, since he presumably had some
+    #  reason to make a group (rather than just a list).
+    #    2. Is it intentional to select only the last item added to the
+    #  clipboard? (This will be the topmost selected item, since (at least
+    #  for now) the group members are in bottom-to-top order.)
     def copy(self):
         if self.selwhat==0: return
         new = Group(gensym("Copy"),self,None)
@@ -438,13 +451,12 @@ class assembly:
         self.tree.apply2picked(lambda(x): new.addmember(x.copy(new)))
         
         if new.members:
-            if len(new.members)==1: # If only one member...
-                new = new.members[0] # ... make it a single new member.
-            self.shelf.addmember(new) # add new member(s) to the clipboard
-            new.pick()
-        
-        # if the new member is a molecule, move the center a little.
-        if isinstance(new, molecule): new.move(-new.center)
+            for ob in (new.members):
+                self.shelf.addmember(ob) # add new member(s) to the clipboard
+                # if the new member is a molecule, move the center a little.
+                if isinstance(ob, molecule): ob.move(-ob.center)
+            ob.pick()
+
         self.w.update()
 
     def paste(self, node):
@@ -473,8 +485,21 @@ class assembly:
             self.selatoms = {} # should be redundant
         if self.selwhat == 2 or self.selmols:
             self.tree.apply2picked(lambda o: o.kill())
+
+        # Kill anything picked in the clipboard
         
-        self.shelf.apply2picked(lambda o: o.kill()) # Kill anything picked in the clipboard
+        # [bruce 041129 thinks this was added by Mark (and is needed).
+        #  But I think it can be unintended and go unseen if user selected
+        #  using glpane, so maybe it should depend on focus and/or on whether
+        #  clipboard is open. So for now I think I'll add a check for clipboard
+        #  being open, which is a kluge but at least ensures the kill is seen.
+        #  A better fix might be for clipboard to have its own focus, distinct
+        #  from the main tree/glpane, but that has to wait for the future.
+        #  Digression: won't picking atoms unpick anything in the clipboard,
+        #  and is this intended (in case it messes up pasting)?]
+        
+        if self.shelf.open: # condition by bruce 041129
+            self.shelf.apply2picked(lambda o: o.kill()) # kill by Mark(?), 11/04
             
         self.setDrawLevel()
 
