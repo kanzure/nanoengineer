@@ -1569,7 +1569,7 @@ main(int argc,char **argv)
 	
 	orion();
 	
-	display_init(&argc, argv);
+	display_init(argc, argv);
 	display_mainloop();
 	display_fini();
 	
@@ -1579,7 +1579,7 @@ main(int argc,char **argv)
 
 /*
  * Local Variables:
- * c-basic-offset: 8
+ * c-basic-offset: 4
  * tab-width: 8
  * End:
  */
