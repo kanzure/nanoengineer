@@ -78,12 +78,16 @@ class zoomMode(basicMode):
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         zoomX = (abs(cWxy[0] - self.pWxy[0]) + 0.0) / (self.o.width + 0.0)
         zoomY = (abs(cWxy[1] - self.pWxy[1]) + 0.0) / (self.o.height + 0.0)
-              
+        
+        zoomFactor = max(zoomX, zoomY)
+        ##Huaicai: when rubber band window is too small, 
+        ##like a double click, skip zoom
+        DELTA = 1.0E-5
+        if zoomFactor < DELTA: return
+        
         winCenterX = (cWxy[0] + self.pWxy[0]) / 2.0
         winCenterY = (cWxy[1] + self.pWxy[1]) / 2.0
         winCenterZ = glReadPixelsf(int(winCenterX), int(winCenterY), 1, 1, GL_DEPTH_COMPONENT)
-        
-        zoomFactor = max(zoomX, zoomY)
         
         assert winCenterZ[0][0] >= 0.0 and winCenterZ[0][0] <= 1.0
         if winCenterZ[0][0] >= 1.0:  ### window center touches nothing

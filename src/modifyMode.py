@@ -81,6 +81,9 @@ class modifyMode(basicMode):
         
         p1, p2 = self.o.mousepoints(event)
         point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
+        if point == None: 
+                point = ptonline(self.movingPoint, p1, norm(p2-p1))
+        
         self.o.assy.movesel(point - self.movingPoint)
         self.o.paintGL()
         self.movingPoint = point
