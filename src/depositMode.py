@@ -709,6 +709,8 @@ class depositMode(basicMode):
     #  answer from josh: that's a bug, but we won't fix it for alpha.
     #  bruce thinks it has a recent bug number (eg 220-230) but forgets what it is.
     # ]
+    # bruce comment 041215: also makes new singlets to reach desired total
+    # number of bonds.
     
     # bruce 041123 new features:
     # return the new atom and a description of it, or None and the reason we made nothing.
@@ -737,8 +739,10 @@ class depositMode(basicMode):
                 rl += [real]
             elif platform.atom_debug:
                 print "fyi (ATOM_DEBUG): depositMode.attach refrained from causing bug232 by bonding twice to %r" % real
+        # note (bruce 041215): there's no guarantee singlet appears in pl,
+        # though it's likely; probably doesn't matter
 
-        n = min(el.numbonds, len(pl))
+        n = min(el.numbonds, len(pl)) # number of real bonds to make
         if n == 1:
             a = self.bond1(el, singlet, spot)
         elif n == 2:
@@ -757,7 +761,6 @@ class depositMode(basicMode):
                 desc += " (%d bonds made)" % n
         else:
             desc = "bug: too many (%d) bonds to make!" % n
-        mol.shakedown()
         self.o.paintGL() ##e probably should be moved to caller
         return a, desc
 
@@ -794,7 +797,7 @@ class depositMode(basicMode):
                 q = rq + q - rq - spin
                 x = atom('X', pos+q.rot(r), mol)
                 mol.bond(a,x)
-        return a #bruce 041123
+        return a
         
     def bond2(self, el, lis):
         s1, p1 = lis[0]
@@ -822,7 +825,7 @@ class depositMode(basicMode):
             q = rq + q - rq + tw
             x = atom('X', pos+q.rot(r), mol)
             mol.bond(a,x)
-        return a #bruce 041123
+        return a
 
     def bond3(self, el, lis):
         s1, p1 = lis[0]
@@ -838,10 +841,15 @@ class depositMode(basicMode):
         s2.bonds[0].rebond(s2, a)
         s3.bonds[0].rebond(s3, a)
 
-        opos = pos + el.rcovalent*norm(pos-opos)
-        x = atom('X', opos, mol)
-        mol.bond(a,x)
-        return a #bruce 041123
+        if el.numbonds > 3:
+            # bruce 041215 to fix a bug (just reported in email, no bug number):
+            # Only do this if we want more bonds.
+            # (But nothing done to handle more than 4 desired bonds; see comment
+            #  in bond4.)
+            opos = pos + el.rcovalent*norm(pos-opos)
+            x = atom('X', opos, mol)
+            mol.bond(a,x)
+        return a
 
     def bond4(self, el, lis):
         s1, p1 = lis[0]
@@ -858,7 +866,12 @@ class depositMode(basicMode):
         s2.bonds[0].rebond(s2, a)
         s3.bonds[0].rebond(s3, a)
         s4.bonds[0].rebond(s4, a)
-        return a #bruce 041123
+        # bruce 041215 note: this assumes el.numbonds is <= 4.
+        # This is not true for all elements in our table, chem.Mendeleev,
+        # though a comment there claims we only use elements for which it's true
+        # (but nothing makes me confident that comment is up-to-date). #k
+        
+        return a
 
     ####################
     # buttons
