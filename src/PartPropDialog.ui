@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>PartPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>393</width>
-            <height>381</height>
+            <width>396</width>
+            <height>402</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,11 +18,73 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QTabWidget">
+        <widget class="QLayoutWidget" row="1" column="0">
+            <property name="name">
+                <cstring>layout108</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>4</number>
+                </property>
+                <property name="spacing">
+                    <number>72</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okPushButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;OK</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+O</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancelPushButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+C</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QTabWidget" row="0" column="0">
             <property name="name">
                 <cstring>tabWidget3</cstring>
             </property>
@@ -33,13 +95,13 @@
                 <attribute name="title">
                     <string>General</string>
                 </attribute>
-                <vbox>
+                <grid>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget">
+                    <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
-                            <cstring>layout109</cstring>
+                            <cstring>layout8</cstring>
                         </property>
                         <vbox>
                             <property name="name">
@@ -47,7 +109,7 @@
                             </property>
                             <widget class="QLayoutWidget">
                                 <property name="name">
-                                    <cstring>layout107</cstring>
+                                    <cstring>layout6</cstring>
                                 </property>
                                 <hbox>
                                     <property name="name">
@@ -86,9 +148,20 @@
                                     </widget>
                                 </hbox>
                             </widget>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>mmpformatLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>MMP File Format:</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignLeft</set>
+                                </property>
+                            </widget>
                             <widget class="QLayoutWidget">
                                 <property name="name">
-                                    <cstring>layout106</cstring>
+                                    <cstring>layout7</cstring>
                                 </property>
                                 <hbox>
                                     <property name="name">
@@ -163,76 +236,14 @@
                             </widget>
                         </vbox>
                     </widget>
-                </vbox>
+                </grid>
             </widget>
         </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout108</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>4</number>
-                </property>
-                <property name="spacing">
-                    <number>72</number>
-                </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>okPushButton</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>0</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string>&amp;OK</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+O</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>true</bool>
-                    </property>
-                    <property name="default">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>cancelPushButton</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>0</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Cancel</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+C</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>true</bool>
-                    </property>
-                    <property name="default">
-                        <bool>false</bool>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
-    </vbox>
+    </grid>
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="336">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000011749444154789cb5d53d8a85301405e0e3f87403295c84602958da0929b5b775176ec455a5b4b513b4120413719a51f4e54f61bc95e486cfc34d20ceb66d78a37e5e51df843fa666d7751ba5f436c61873acf08e56558520088c6096654892e4b2a68477b4691a6bca388e511485b42ec14fd0300c91a6a9b27739bca749cbb204001042cc8929a5608c59510047524208866130c37fa995d0baaec777dff7175485dfbec7aeeb4a6b3a549998730e001042587f664a2cc19ee71961dff76f259646c1393f52ab6a591665e2efd28ee20efe78c6261400e67996125b67cc398710e272bd6c89dbb6455dd766783f34d3add87b6734cf73e7bc4782a769c2388e5af45c3a14009cf3d31445d1a3774a874af07fd66b4fd32f903fb8bfe751f33f0000000049454e44ae426082</data>
+        <data format="XPM.GZ" length="962">789ca5d3c14ec2401485e17d9f62c2ec88116c214a8c8fa07169625c0cd32953a02d85b230c67797ffb6e0d0b011cf61d12f273724348c86eaedf5590d47d1ae314d6e95f566ab86e9be283edf3f9ebea2411c2b3e89ba1bdc44835b65d54b553a9ecde159c729851e4ec6142ee034a1700e67530a2d3496c206cec714ee84130a374243e15ee8282ca14d28dc0aef2974c21985b550be185642476101d384c2b5f081c2957046e1522881b930a35043175398c26c42612694c8af7a31ff5cb4f9cdd9a2cddc7649cf166ddc31d9225c8221f53e58ce2e7c7863b253bc5f8437464bf23c77be77a38f93ebdf2c97ab36176edae12f37eb75d1a6ecdf1455974dffa6aab76d76871b6383a5aecb364d379c96fdf1773efcab6cf87e8257d30dd7bdedefc7e8070397f33b</data>
     </image>
 </images>
 <connections>

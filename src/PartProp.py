@@ -14,6 +14,8 @@ class PartProp(PartPropDialog):
         self.assy = assy
         
         self.nameLineEdit.setText(self.assy.name)
+        
+        self.mmpformatLabel.setText("MMP File Format: " + self.assy.mmpformat)
 
         # Initialize all part statistics
         self.nchunks = 0
