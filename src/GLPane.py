@@ -156,17 +156,17 @@ class GLPane(QGLWidget):
     # relative to the screen
     def __getattr__(self, name):
         if name == 'lineOfSight':
-            return dot(V(0,0,-1), self.quat.matrix3)
+            return self.quat.unrot(V(0,0,-1))
         elif name == 'right':
-            return dot(V(1,0,0), self.quat.matrix3)
+            return self.quat.unrot(V(1,0,0))
         elif name == 'left':
-            return dot(V(-1,0,0), self.quat.matrix3)
+            return self.quat.unrot(V(-1,0,0))
         elif name == 'up':
-            return dot(V(0,1,0), self.quat.matrix3)
+            return self.quat.unrot(V(0,1,0))
         elif name == 'down':
-            return dot(V(0,-1,0), self.quat.matrix3)
+            return self.quat.unrot(V(0,-1,0))
         elif name in 'out':
-            return dot(V(0,0,1), self.quat.matrix3)
+            return self.quat.unrot(V(0,0,1))
         else:
             raise AttributeError, 'GLPane has no "%s"' % name
 
@@ -304,7 +304,8 @@ class GLPane(QGLWidget):
         
     def mousepoints(self,event):
         """Returns a pair (tuple) of points (arrays) that lie under
-        the mouse pointer at the near and far clipping planes.
+        the mouse pointer at (just beyond) the near clipping plane
+        and in the plane of the center of view.
         """
         x = event.pos().x()
         y = self.height - event.pos().y()

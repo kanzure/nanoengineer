@@ -2,6 +2,7 @@ from Numeric import *
 from modes import *
 from VQT import *
 from chem import *
+import drawer
 
 class depositMode(basicMode):
     """ This class is used to manually add atoms to create any structure
@@ -11,7 +12,6 @@ class depositMode(basicMode):
 	self.backgroundColor = 74/256.0, 187/256.0, 227/256.0
 	self.gridColor = 74/256.0, 187/256.0, 227/256.0
 	self.newMolecule = None
-	
 	self.makeMenus()
 
     def setMode(self):
@@ -56,7 +56,10 @@ class depositMode(basicMode):
             self.o.singlet = None
             doPaint = 1
         p1, p2 = self.o.mousepoints(event)
-        mat = transpose(V(self.o.right,self.o.up,norm(p1-p2)))
+        z = norm(p1-p2)
+        x = cross(self.o.up,z)
+        y = cross(z,x)
+        mat = transpose(V(x,y,z))
         for mol in self.o.assy.molecules:
             if mol.display != diINVISIBLE:
                 a = mol.findSinglets(p2, mat, TubeRadius)
@@ -79,18 +82,19 @@ class depositMode(basicMode):
     def leftDrag(self, event):
         """ Press left mouse button down to add an atom
 	"""
-        atomPos = self.getCoords(event)
-        if not self.new:
-            el =  PeriodicTable[self.w.Element]
-            self.new = oneUnbonded(el, self.o.assy, atomPos)
+        # happens inside a click too aften
+##         atomPos = self.getCoords(event)
+##         if not self.new:
+##             el =  PeriodicTable[self.w.Element]
+##             self.new = oneUnbonded(el, self.o.assy, atomPos)
         
         w=self.o.width+0.0
         h=self.o.height+0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
         self.dragdist += vlen(deltaMouse)
-        dist = atomPos - self.new.center
-        self.new.move(dist)
+##         dist = atomPos - self.new.center
+##         self.new.move(dist)
 
         self.o.SaveMouse(event)
 
@@ -109,7 +113,7 @@ class depositMode(basicMode):
         atomPos = self.getCoords(event)
         p1, p2 = self.o.mousepoints(event)
 
-        if self.dragdist<7:
+        if self.dragdist<70000: # let it drag
             # didn't move much, call it a click
             if selSense == 0:
                 self.o.assy.pick(p1,norm(p2-p1))
@@ -134,6 +138,9 @@ class depositMode(basicMode):
 	"""
 	self.Done()
 
+    # singlet is supposedly the lit-up singlet we're pointing to.
+    # bond the new atom to it, and any other ones around you'd
+    # expect it to form bonds with
     def attach(self, el, singlet):
         obond = singlet.bonds[0]
         a1 = obond.other(singlet)
@@ -143,13 +150,38 @@ class depositMode(basicMode):
         a = atom(el.symbol, pos, mol)
         obond.rebond(singlet, a)
         del mol.atoms[singlet.key]
-        r = singlet.posn() - pos
+        # ok, the first bond is formed.  Look for others
         if el.base:
+            # There is at least one other bond
+            # this rotates the atom to match the bond formed above
+            r = singlet.posn() - pos
             rq = Q(r,el.base)
-            for q in el.quats:
-                q = rq + q - rq
-                x = atom('X', pos+q.rot(r), mol)
-                mol.bond(a,x)
+            more = list(mol.nearSinglets(pos, cr+2.0*TubeRadius))
+            # don't redo the one we started with
+            del more[more.index(singlet)]
+            if not more:
+                # nothing to bond to, position randomly
+                for q in el.quats:
+                    q = rq + q - rq
+                    x = atom('X', pos+q.rot(r), mol)
+                    mol.bond(a,x)
+            elif len(more) == 1:
+                opos = more[0].posn()
+                if len(el.quats)>=1:
+                    # this moves the second bond to a possible position
+                    q1 = rq + el.quats[0] -rq
+                    b2p = q1.rot(r)
+                    # rotate it into place
+                    tw = twistor(r, b2p, opos-pos)
+                    ob2 = more[0].bonds[0]
+                    ob2.rebond(more[0], a)
+                    del mol.atoms[more[0].key]
+                    # now for all the rest
+                    for q in el.quats[1:]:
+                        q = rq + q - rq + tw
+                        x = atom('X', pos+q.rot(r), mol)
+                        mol.bond(a,x)
+            
         mol.shakedown()
         self.o.assy.updateDisplays()                  
 

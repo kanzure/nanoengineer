@@ -599,7 +599,8 @@ class molecule:
         self.basepos = atpos-self.center
         self.curpos = atpos
         self.singlets = array(singlets, PyObject)
-        self.singlpos = array(singlpos, PyObject)
+        self.singlpos = array(singlpos)
+        self.singlbase = self.singlpos
         # and compute inertia tensor
         tensor = zeros((3,3),Float)
         for p in self.basepos:
@@ -729,20 +730,21 @@ class molecule:
 
     def move(self, offs):
         self.center += offs
-        self.curpos = self.center + dot(self.basepos,
-                                        transpose(self.quat.matrix3))
+        self.curpos = self.center + self.quat.rot(self.basepos)
+        self.singlpos = self.center + self.quat.rot(self.singlbase)
         for bon in self.externs: bon.setup()
 
     def rot(self, q):
         self.quat += q
-        self.curpos = self.center + dot(self.basepos,
-                                        transpose(self.quat.matrix3))
+        self.curpos = self.center + self.quat.rot(self.basepos)
+        self.singlpos = self.center + self.quat.rot(self.singlbase)
         for bon in self.externs: bon.setup()
 
     def stretch(self, factor):
         self.basepos *= 1.1
-        self.curpos = self.center + dot(self.basepos,
-                                        transpose(self.quat.matrix3))
+        self.curpos = self.center + self.quat.rot(self.basepos)
+        self.singlpos = self.center + self.quat.rot(self.singlbase)
+        for bon in self.externs: bon.setup()
         self.changeapp()
 
 
@@ -792,7 +794,12 @@ class molecule:
         i = argmax(A(v[:,2]) - 100000.0*(r>radius))
         if r[i]>radius: return None
         return self.singlets[i]
-        
+
+    def nearSinglets(self, point, radius):
+        if not self.singlets: return None
+        v = self.singlpos-point
+        r = sqrt(A(v[:,0]**2) + A(v[:,1]**2) + A(v[:,2]**2))
+        return compress(r<=radius,self.singlets)
 
     def copy(self, offset):
         """Copy the molecule to a new molecule.

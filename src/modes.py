@@ -105,8 +105,7 @@ class basicMode:
         h=self.o.height+0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
-        move = self.o.scale * deltaMouse/(h*0.5)
-        move = dot(move, self.o.quat.matrix3)
+        move = self.o.quat.unrot(self.o.scale * deltaMouse/(h*0.5))
         self.o.pov += move
         self.o.paintGL()
         self.o.SaveMouse(event)
@@ -119,12 +118,12 @@ class basicMode:
         """ Set up for zooming or rotating
         """
         self.o.SaveMouse(event)
-        self.o.Zorg = self.o.MousePos
-        self.o.Zq = Q(self.o.quat)
-        self.o.Zscale = self.o.scale
+        self.Zorg = self.o.MousePos
+        self.Zq = Q(self.o.quat)
+        self.Zpov = self.o.pov
         # start in ambivalent mode
-        self.o.Zunlocked = 1
-        self.o.ZRot = 0
+        self.Zunlocked = 1
+        self.ZRot = 0
         self.picking = 0
     
     def middleCntlDrag(self, event):
@@ -133,24 +132,24 @@ class basicMode:
 
         """
         self.o.SaveMouse(event)
-        dx,dy = (self.o.MousePos - self.o.Zorg) * V(1,-1)
+        dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
         ax,ay = abs(V(dx,dy))
-        if self.o.Zunlocked:
-            self.o.Zunlocked = ax<10 and ay<10
+        if self.Zunlocked:
+            self.Zunlocked = ax<10 and ay<10
             if ax>ay:
                 # rotating
-                self.o.scale = self.o.Zscale
-                self.o.ZRot = 1
+                self.o.pov = self.Zpov
+                self.ZRot = 1
             else:
                 # zooming
-                self.o.quat = Q(self.o.Zq)
-                self.o.ZRot = 0
-        if self.o.ZRot:
+                self.o.quat = Q(self.Zq)
+                self.ZRot = 0
+        if self.ZRot:
             w=self.o.width+0.0
-            self.o.quat = self.o.Zq + Q(V(0,0,1),2*pi*dx/w)
+            self.o.quat = self.Zq + Q(V(0,0,1),2*pi*dx/w)
         else:
             h=self.o.height+0.0
-            self.o.scale = self.o.Zscale*10.0**(0.5*dy/h)
+            self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
                 
         self.picking = 0
         self.o.paintGL()

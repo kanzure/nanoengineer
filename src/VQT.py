@@ -113,36 +113,22 @@ class Q:
             else: return 0.0
         elif name == 'axis':
             return V(self.vec[1], self.vec[2], self.vec[3])
-        elif name == 'matrix3':
-            self.__dict__['matrix3'] = array([\
+        elif name == 'matrix':
+            # this the transpose of the normal form
+            # so we can use it on matrices of row vectors
+            self.__dict__['matrix'] = array([\
                     [1.0 - 2.0*(self.y**2 + self.z**2),
-                     2.0*(self.x*self.y - self.z*self.w),
-                     2.0*(self.z*self.x + self.y*self.w)],
-                    [2.0*(self.x*self.y + self.z*self.w),
+                     2.0*(self.x*self.y + self.z*self.w),
+                     2.0*(self.z*self.x - self.y*self.w)],
+                    [2.0*(self.x*self.y - self.z*self.w),
                      1.0 - 2.0*(self.z**2 + self.x**2),
-                     2.0*(self.y*self.z - self.x*self.w)],
-                    [2.0*(self.z*self.x - self.y*self.w),
-                     2.0*(self.y*self.z + self.x*self.w),
-                     1.0 - 2.0 * (self.y**2 + self.x**2)]])
-            return self.__dict__['matrix3']
-        elif name == 'matrix4':
-            self.__dict__['matrix4'] = array([\
-                    [1.0 - 2.0*(self.y**2 + self.z**2),
-                     2.0*(self.x*self.y - self.z*self.w),
-                     2.0*(self.z*self.x + self.y*self.w),
-                     0.0],
-                    [2.0*(self.x*self.y + self.z*self.w),
-                     1.0 - 2.0*(self.z**2 + self.x**2),
+                     2.0*(self.y*self.z + self.x*self.w)],
+                    [2.0*(self.z*self.x + self.y*self.w),
                      2.0*(self.y*self.z - self.x*self.w),
-                     0.0],
-                    [2.0*(self.z*self.x - self.y*self.w),
-                     2.0*(self.y*self.z + self.x*self.w),
-                     1.0 - 2.0 * (self.y**2 + self.x**2),
-                     0.0],
-                    [0.0, 0.0, 0.0, 1.0]])
-            return self.__dict__['matrix4']
+                     1.0 - 2.0 * (self.y**2 + self.x**2)]])
+            return self.__dict__['matrix']
         else:
-            raise AttributeError, 'Attribute "%s" not found' % name
+            raise AttributeError, 'No "%s" in Quaternion' % name
         
     def __getitem__(self, num):
         return self.vec[num]
@@ -159,10 +145,8 @@ class Q:
         
 
     def __reset(self):
-        if self.__dict__.has_key('matrix3'):
-            del self.__dict__['matrix3']
-        if self.__dict__.has_key('matrix4'):
-            del self.__dict__['matrix4']
+        if self.__dict__.has_key('matrix'):
+            del self.__dict__['matrix']
 
 
     def __setattr__(self, name, value):
@@ -268,11 +252,28 @@ class Q:
         else: self.vec = V(1,0,0,0)
         return self
 
-    def rot(self,v):
-        return matrixmultiply(self.matrix3,v)
-
     def unrot(self,v):
-        return matrixmultiply(v,self.matrix3)
+        return matrixmultiply(self.matrix,v)
+
+    def vunrot(self,v):
+        # for use with row vectors
+        return matrixmultiply(v,transpose(self.matrix))
+
+    def rot(self,v):
+        return matrixmultiply(v,self.matrix)
+
+def twistor(axis, pt1, pt2):
+    """return the quaternion that, rotating around axis, will bring 
+    pt1 closest to pt2.
+    """
+    q = Q(axis, V(0,0,1))
+    pt1 = q.rot(pt1)
+    pt2 = q.rot(pt2)
+    a1 = atan2(pt1[1],pt1[0])
+    a2 = atan2(pt2[1],pt2[0])
+    theta = a2-a1
+    return Q(axis, theta)
+
 
 # project a point from a tangent plane onto a unit sphere
 def proj2sphere(x, y):

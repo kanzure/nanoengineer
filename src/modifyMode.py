@@ -33,8 +33,7 @@ class modifyMode(basicMode):
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
         self.dragdist += vlen(deltaMouse)
-        move = self.o.scale * deltaMouse/(h*0.5)
-        move = dot(move, self.o.quat.matrix3)
+        move = self.o.quat.unrot(self.o.scale * deltaMouse/(h*0.5))
         self.o.assy.movesel(move)
         self.o.assy.updateDisplays()
         self.o.SaveMouse(event)
