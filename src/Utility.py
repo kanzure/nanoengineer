@@ -93,6 +93,20 @@ class Node:
             # (when more than one tree widget can show the same node, .open will need replacement
             #  with treewidget-specific state #e)
         return
+
+    def haspicked(self): #bruce 050126
+        """Whether node's subtree has any picked members.
+        Faster than counting them or hindmost, when it has one --
+        but saying "no" still takes a full scan! [#e should we memoize hindmost data??]
+        [overridden in Group; should not be overridden elsewhere]
+        """
+        return self.picked
+
+    def permits_ungrouping(self): #bruce 050126 for Node; earlier for Group
+        """[Leaf nodes can never (yet) be ungrouped. See Group.permits_ungrouping
+        docstring for the general definition of this method.]
+        """
+        return False
     
     def kids(self, display_prefs): #bruce 050109
         """#doc; see Group.kids()
@@ -431,6 +445,15 @@ class Group(Node):
         for ob in list: self.addmember(ob)
         self.open = True
 
+    def haspicked(self): # bruce 050126
+        """Whether node's subtree has any picked members.
+        [See comments in Node.haspicked docstring.]
+        """
+        if self.picked: return True
+        for m in self.members:
+            if m.haspicked(): return True
+        return False
+    
     def changed_members(self): #bruce 050121 new feature, now needed by depositMode
         """Whenever something changes self.members in any way (insert, delete, reorder),
         it MUST call this method to inform us (but only *after* it makes the change);
@@ -683,9 +706,10 @@ class Group(Node):
             ## if self.name == self.assy.name: return
             ## (that's now covered by permits_ungrouping)
             for x in self.members[:]:
-                ## x.moveto(self.dad) #e should probably put them after self in there
+                ## x.moveto(self.dad) #e should probably put them before self in there
                 self.delmember(x)
-                self.addsibling(x)
+                self.addsibling(x, before = True)
+                    # put them before self, to preserve order [bruce 050126]
             self.kill()
 
     def copy(self, dad):
@@ -694,7 +718,7 @@ class Group(Node):
         self.assy.w.history.message("Groups cannot be copied")
             ###@@@ should remove that limitation
         return 0
-             
+    
     def kill(self): ###@@@ should merge with Node.kill
         if self.dad:
             self.dad.delmember(self)

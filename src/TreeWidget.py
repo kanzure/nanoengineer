@@ -166,9 +166,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # (At least, without it, QListView emits its "clicked" signal.)
         pass
 
-    def contentsMouseEnterEvent(self, event): #k guess at method name
-        print "contentsMouseEnterEvent" ###@@@ this is not called - methname? some flag or setting?? ####@@@@
-        self.sbar_msg(" ") # experiment; needed to hide msg appropriate only to glpane (eg advice from Build)
+    def enterEvent(self, event):
+        "[should be called by Qt when mouse enters this widget]"
+        # [Qt doc says this method is on QWidget; there doesn't seem to be a "contentsEnterEvent".]
+        # erase any statusbar messages that might be left over from other widgets
+        # (eg advice from Build mode in glpane)
+        self.sbar_msg(" ") # bruce 050126; works
 
     def sbar_msg(self, msg):
         self.win.history.transient_msg( msg)
@@ -249,10 +252,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # (regardless of which part of it we clicked on (even openclose or left)!),
             # or for a set of selected items which it's part of
             # (this is detected in following subr), or for no item if item == None.
-            # The menu (and the selection-modifying behavior before we put it up) can ignore modifier keys and dblclick.
-            ###k [verify it ignores modkeys rather than having them defeat the menu, in the mac]
+            # The menu (and the selection-modifying behavior before we put it up) can ignore dblclick.
+            # 050126: let's pass it the modifier keys too (more clearly ok for shift
+            # than for control, but try both for now).
             pos = event.globalPos()
-            self.menuReq( item, pos) # does all needed updates ###k even in glpane?
+            self.menuReq( item, pos, modifier) # does all needed updates ###k even in glpane?
             return
 
         # after this point, treat clicks to left of open/close icon as if on no item.
@@ -323,7 +327,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     # context menu requests (the menu items themselves are defined by our subclass)
     
-    def menuReq(self, item, pos):
+    def menuReq(self, item, pos, modifier):
         """Context menu items function handler for the Model Tree View
         [interface is mostly compatible with a related QListView signal,
          but it's no longer called that way; col arg was not used and is now removed;
@@ -350,9 +354,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # the text of its entries makes this clear.
         #
         # (What about other modifier keys which normally modify selection
-        # behavior? If you use them, it just does selection and ignores the
-        # control key (no context menu). This is not what our caller does
-        # as of 050124, but I don't think it matters much... ##e)
+        # behavior? If you use them, the Mac just does selection and ignores the
+        # control key (no context menu). I decided [050126] to instead let them
+        # affect selection as normal, then put up the cmenu on the result --
+        # especially for Shift, but even for Control which can remove the clicked-
+        # on item. (Motivation: for shift, I found myself trying to use it this way,
+        # to extend a selection before getting the cmenu, and failing.)
         #
         # Note that this implies: the visible selection always shows you what
         # set of items the context menu is about and will operate on; it's easy
@@ -379,23 +386,28 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #e correct item to be None if we were not really on the item acc'd to above?
         # no, let the caller do that, if it needs to be done.
         
-        self.selection_click( item, modifier = None, group_select_kids = True, permit_drag_type = None)
+        self.selection_click( item, modifier = modifier, group_select_kids = True, permit_drag_type = None)
             # this does all needed invals/updates except update_select_mode
             # bruce 050126: group_select_kids changed to True after discussion with Josh...
             # the same principle applies to context menu ops as to everything else.
-            # Also, ###@@@ ##e should I change modifier to include shift (and be called then)?
+            # Also, changed modifier from None to the one passed in.
 
-        nodeset = self.topmost_selected_nodes() # seems better than selected_nodes for most existing cmenu commands...
+        nodeset = self.topmost_selected_nodes()
+            # topmost_selected_nodes is "more efficient" than selected_nodes,
+            # and [050126] equivalent to it now that we're enforcing "selected group
+            # implies selected members", assuming the command are coded to operate on
+            # all members of groups (when that makes sense).
         menu = self.make_cmenu_for_set( nodeset)
-        ## print "arg1 of qmpopup is menu = %r, other arg pos is %r" % (menu,pos)
-        menu.popup(pos)
-            #e should we care about which item to put where (e.g. popup(pos,1))?
-        # the menu commands will do their own update,
-        # and since we used .popup they have not yet run anyway,
-        # [#k is there any reason to use exec_loop instead?]
-        # so there's nothing more to update here.
         
-        self.dprint("mtree.menuReq just returned from menu.popup, probably with menu there - what events are responded to?")###@@@ find out!
+        menu.exec_loop(pos) # was menu.popup before 050126
+            #e should we care about which item to put where (e.g. popup(pos,1))?
+        
+        # the menu commands will do their own updates within this widget (and to glpane),
+        # but we used exec_loop (which does not return until the menu command has run)
+        # so we can do necessary external updates here. (We might later have to change back
+        # to menu.popup so we can make the menu go away on mouseup, and then put this update
+        # into the menu commands. #e)
+        self.update_select_mode() #k is this done redundantly by our caller? if not, move it there?
 
         return # from menuReq
     

@@ -142,17 +142,18 @@ class modelTree(TreeWidget):
         kluge_patch_assy_toplevel_groups( self.assy)
             # fixes Group subclasses of assy.shelf and assy.tree,
             # and inserts assy.data.members into assy.tree
+        self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
         return [self.assy.tree, self.assy.shelf]
 
     def post_update_topitems(self):
-        self.tree, self.shelf = self.topitems ###k needed??
+        self.tree_item, self.shelf_item = self.topitems ###k needed??
             # the actual items are different each time this is called
 
     # special calls from external code
     
     def open_clipboard(self): #bruce 050108, probably temporary
-        ## self._open_listitem(self.shelf)
-        self.toggle_open( self.shelf, openflag = True)
+        ## self._open_listitem(self.shelf_item)
+        self.toggle_open( self.shelf_item, openflag = True)
     
     # context menus
     
@@ -232,7 +233,30 @@ class modelTree(TreeWidget):
             res.append(( 'Properties', self.cm_properties ))
         else:
             res.append(( 'Properties', noop, 'disabled' )) # nim for multiple items
-        
+
+        # Group command -- only when more than one thing is picked, and they're all in the same "assembly-node" --
+        # kluging this for now as "PartGroup or a Shelf member", but it ought to be determined more rationally.
+        # In fact, to save time, for now I'll just only do it in the first topnode, self.assy.tree (node, the partgroup)
+        # or self.tree_item (the QListViewItem). I'll disable it when anything else is selected (i.e. in the shelf).
+        # Then when we fix up the clipboard semantics I'll make it more general. ###e ###@@@
+
+        if len(nodeset) < 2 or self.tree_node.picked or self.shelf_node.haspicked():
+            res.append(( 'Group', noop, 'disabled' ))
+        else:
+            # 2 or more subtrees of the PartGroup -- should always be ok to group them
+            res.append(( 'Group', self.cm_group ))
+
+        # Ungroup command -- only when exactly one picked Group is what we have, of a suitable kind.
+        # (As for Group, later this can become more general, tho in this case it might be general
+        #  enough already -- it's more "self-contained" than the Group command can be.)
+
+        if len(nodeset) == 1 and nodeset[0].permits_ungrouping():
+            # (this implies it's a group, or enough like one)
+            res.append(( 'Ungroup', self.cm_ungroup )) #####@@@@@ implem; use node.ungroup
+        else:
+            res.append(( 'Ungroup', noop, 'disabled' ))
+            
+            
         ###e more to follow...
 
         # add basic info on what's selected at the end (later might turn into commands related to subclasses of nodes)
@@ -319,20 +343,68 @@ class modelTree(TreeWidget):
             else:
                 self.win.win_update()
         return
-
-    # not yet reviewed: [050125]
     
-    def cm_group(self):
-        node = self.assy.tree.hindmost()
-        if not node: return # hindmost can return "None", with no "picked" attribute. Mark 401210.
-        if node.picked: return
-        new = Group(gensym("Group"), self.assy, node)
-        self.tree.object.apply2picked(lambda(x): x.moveto(new))
+    def cm_group(self): # bruce 050126 adding comments and changing behavior
+        "put the selected subtrees (if more than one) into a new Group"
+        ##e I wonder if option/alt/midButton should be like a "force" or "power" flag
+        # for cmenus; in this case, it would let this work even for a single element,
+        # making a 1-item group. That idea can wait. [bruce 050126]
+        ###@@@ the use of assy.tree to find what to operate on is wrong
+        # (and will prevent this from working inside the clipboard);
+        # this tolerable for the moment. [bruce 050126]
+        node = self.assy.tree.hindmost() # smallest nodetree containing all picked nodes 
+        if not node:
+            self.win.history.message("nothing selected to Group") # should never happen
+            return # hindmost can return "None", with no "picked" attribute. Mark 401210.
+        if node.picked:
+            # prevent 1-item Groups from being formed
+            # (should never occur, if caller constructs menu properly, unless it wants
+            #  to permit 1-item groups, which would require a new special case here to do
+            #  correctly, I think -- bruce 050126)
+            self.win.history.message("single item, not making a new Group")
+            return
+        # node is an unpicked Group; more than one of its children are either picked
+        # or contain something picked (but maybe none of them are directly picked).
+        # we'll make a new Group inside node, just before the first child containing
+        # anything picked, and move all picked subtrees into it (preserving their order;
+        # but losing their structure in terms of unpicked groups that contain some of them).
+        ###e what do we do with the picked state of things we move? worry about the invariant! ####@@@@
+
+        # make a new Group (inside node, same assy)
+        ###e future: require all assys the same, or, do this once per topnode or assy-node.
+        # for now: this will have bugs when done across topnodes! ####@@@@
+        new = Group(gensym("Group"), node.assy, node) # was self.assy
+        assert not new.picked
+
+        # put it where we want it -- before the first node member-tree with anything picked in it
+        for m in node.members:
+            if m.haspicked():
+                assert m != new
+                node.delmember(new) #e (addsibling ought to do this)
+                m.addsibling(new, before = True)
+                break # always happens; don't bother asserting this
+        node.apply2picked(lambda(x): x.moveto(new)) # was self.tree_item.object.apply2picked
+            # this will have skipped new before moving anything picked into it!
+            # even so, I'd feel better if it unpicked them before moving them...
+            # for now, just see if it works this way.
+        msg = "moved %d items to new %s before them" % (len(new.members), new.name)
+            # this assumes new.name starts with Group, as it does now
+        self.win.history.message( msg)
+        
+        # we have not changed picked state of anything in glpane, so in theory only the mtree
+        # needs updating... [050126, untested]
         self.mt_update() # bruce 050110 this does not seem to be always working ####@@@@
     
     def cm_ungroup(self):
-        self.tree.object.apply2picked(lambda(x): x.ungroup())
+        nodeset = self.topmost_selected_nodes()
+        assert len(nodeset) == 1
+        node = nodeset[0]
+        assert node.permits_ungrouping()
+        node.ungroup()
+        # for now, this does not change the picked state, so no glpane update it needed... [050126, untested]
         self.mt_update()
+
+    # not yet reviewed: [050126] ###@@@
     
     def cm_copy(self):
         self.assy.copy()
@@ -349,7 +421,7 @@ class modelTree(TreeWidget):
 
 ## zapped by bruce 050108 since unused and uses deprecated node.setopen:
 ##    def expand(self):
-##        self.tree.object.apply2tree(lambda(x): x.setopen())
+##        self.tree_item.object.apply2tree(lambda(x): x.setopen())
 ##        self.mt_update()
 
     pass # end of class modelTree
