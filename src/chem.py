@@ -609,7 +609,7 @@ class atom:
         self.molecule.bond(self, x) # invals mol as needed
     
     def hopmol(self, numol): #bruce 041105-041109 extensively revised this
-        """If this atom is not already in molecule numol, unpick it and move it
+        """If this atom is not already in molecule numol, move it
         to molecule numol. (This only changes the owning molecule -- it doesn't
         change this atom's position in space!) Also move its singlet-neighbors.
         Do all necessary invalidations of old and new molecules,
@@ -617,10 +617,9 @@ class atom:
         since some of those bonds might change from internal to external
         or vice versa, which changes how they need to be drawn.
         """
+        # bruce 041222 removed side effect on self.picked
         if self.molecule == numol:
             return
-        self.unpick() #e do we still want this? we no longer need it, i think
-        # (in fact our only caller as of 041118, modifySeparate, does it redundantly)
         self.molecule.delatom(self) # this also invalidates our bonds
         numol.addatom(self)
         for atm in self.singNeighbors():

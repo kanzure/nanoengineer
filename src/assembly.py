@@ -768,51 +768,47 @@ class assembly:
                 self.p[atom] = min(self.p[atom], self.p[a2])
 
     # separate selected atoms into a new molecule
+    # (one new mol for each existing one containing any selected atoms)
     # do not break bonds
-    #bruce 040929 adding optional arg new_old_callback for use in extrudeMode.py
     def modifySeparate(self, new_old_callback = None):
-        """[bruce comment 040929:]
-           For each molecule (named N) containing any selected atoms,
+        """For each molecule (named N) containing any selected atoms,
            move the selected atoms out of N (but without breaking any bonds)
            into a new molecule which we name N-frag.
            If N is now empty, remove it.
-           [new feature 040929:]
-           If new_old_callback is provided, then each time we create a new (nonempty) fragment N-frag,
-           call it with the 2 args N-frag and N (that is, with the new and old molecules).
+           If new_old_callback is provided, then each time we create a new
+           (and nonempty) fragment N-frag, call new_old_callback with the
+           2 args N-frag and N (that is, with the new and old molecules).
            Warning: we pass the old mol N to that callback,
-           even if it has no atoms and we deleted it from self.
-           (###k is that ok? if not, we'll change this func to use None in place of N.)
+           even if it has no atoms and we deleted it from this assembly.
         """
-        if self.selwhat: return
+        # bruce 040929 wrote or revised docstring, added new_old_callback feature
+        # for use from Extrude.
+        # Note that this is called both from a tool button and for internal uses.
+        # bruce 041222 removed side effect on selection mode, after discussion
+        # with Mark and Josh. Also added some status messages.
+        # Questions: is it good to refrain from merging all moved atoms into one
+        # new mol? If not, then if N becomes empty, should we rename N-frag to N?
         
-        if not self.selatoms: #always wind up in part pick mode
-            #self.pickParts()
-            self.w.toolsSelectMolecules()
-            # (This would be bad when entering Extrude, but Extrude only calls
-            #  us when self.selatoms, so it doesn't happen then.
-            #  But it's done below, always, and I don't yet know why that
-            #  doesn't cause trouble (or maybe it does). [bruce 041116])
+        if not self.selatoms: # optimization, and different status msg
+            msg = "Separate: no atoms selected"
+            self.w.statusBar.message(msg)
             return
-            
         numolist=[]
-        for mol in self.molecules:
+        for mol in self.molecules[:]: # new mols are added during the loop!
             numol = molecule(self, gensym(mol.name + "-frag"))
             for a in mol.atoms.values():
                 if a.picked:
-                    a.unpick()
+                    # leave the moved atoms picked, so still visible
                     a.hopmol(numol)
             if numol.atoms:
                 self.addmol(numol)
                 numolist+=[numol]
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
-                    
-        self.unpickatoms()
-        #self.pickParts()
-        self.w.toolsSelectMolecules()
-        for m in numolist: m.pick()
-        
-        self.w.update()
+        from platform import fix_plurals
+        msg = fix_plurals("Separate created %d new chunk(s)" % len(numolist))
+        self.w.statusBar.message(msg)
+        self.w.update() #e do this in callers instead?
 
     def copySelatomFrags(self):
         #bruce 041116, combining modifySeparate and mol.copy; for extrude
