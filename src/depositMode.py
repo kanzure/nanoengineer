@@ -102,8 +102,8 @@ class depositMode(basicMode):
         self.reset_drag_vars()
 
     def reset_drag_vars(self):
-        #bruce 041124 split this out of Enter,
-        # plan to add new calls to it to fix some bugs
+        #bruce 041124 split this out of Enter; as of 041130,
+        # required bits of it are inlined into Down methods as bugfixes
         self.dragatom = None
         self.dragmol = None
         self.pivot = None
@@ -279,8 +279,9 @@ class depositMode(basicMode):
         if doPaint: self.o.paintGL()
 
     def posn_str(self, atm): #bruce 041123
-        """return the position of an atom (or, any vector -- kluge, sorry)
+        """return the position of an atom
         as a string for use in our status messages
+        (also works if given an atom's position vector itself -- kluge, sorry)
         """
         try:
             x,y,z = atm.posn()
@@ -293,7 +294,8 @@ class depositMode(basicMode):
         If cursor is on a singlet, deposit an atom bonded to it.
         If it is a real atom, drag it around.
         """
-        ## self.reset_drag_vars() # bruce 041124 bugfix-experiment [soon... ###@@@]
+        self.pivot = self.pivax = self.dragmol = None #bruce 041130 precautions
+        self.bareMotion(event) #bruce 041130 in case no bareMotion happened yet
         a = self.o.selatom
         el =  PeriodicTable[self.w.Element]
         self.modified = 1
@@ -329,7 +331,7 @@ class depositMode(basicMode):
                 self.w.update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
-            elif a.realNeighbors(): # part of larger molecule
+            elif a.realNeighbors(): # probably part of larger molecule
                 self.dragmol = a.molecule
                 e=a.molecule.externs
                 if len(e)==1: # pivot around one bond
@@ -342,10 +344,31 @@ class depositMode(basicMode):
                     return
                 elif len(e)==0: # drag it around
                     self.pivot = None
-                    self.pivax = True
+                    self.pivax = True #k might have bugs if realNeighbors in other mols??
+                    #bruce 041130 tried using this case for 1-atom mol as well,
+                    # but it made singlet highlighting wrong (due to pivax??).
+                    # (Could that mean there's some sort of basepos-updating bug
+                    # in mol.pivot? ###@@@)
                     return
-            # no externs or more than 2 -- fall thru
+                # more than 2 externs -- fall thru
+            elif len(a.molecule.atoms) == 1 + len(a.bonds):
+                #bruce 041130 added this case to let plain left drag work to
+                # drag a 1-real-atom mol, not only a larger mol as before; the
+                # docstring makes me think this was the original intention, and
+                # the many "invalid bug reports" whose authors assume this will
+                # work imply this feature is desired and intuitively expected.
+                self.dragmol = a.molecule
+                # fall thru
+            else:
+                #bruce 041130 added this case too:
+                # no real neighbors, but more than just the singlets in the mol
+                # (weird but possible)... for now, just do the same, though if
+                # there are 1 or 2 externs it might be better to do pivoting. #e
+                self.dragmol = a.molecule
+                # fall thru
         else:
+            # nothing was "lit up" -- we're in empty space;
+            # create something and (if an atom) drag it rigidly
             atomPos = self.getCoords(event)
             if self.w.pasteP:
                 if self.pastable:
@@ -361,7 +384,7 @@ class depositMode(basicMode):
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
             self.w.msgbarLabel.setText(status)
             # fall thru
-        # move the molecule rigidly
+        # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
         self.pivot = None
         self.pivax = None
         self.w.update()
@@ -387,8 +410,9 @@ class depositMode(basicMode):
         return point2
         
     def leftDrag(self, event):
-        """ drag the new atom around
+        """ drag a new atom or an old atom's molecule
 	"""
+        #bruce 041130 revised docstring
         if not (self.dragmol and self.o.selatom): return
         m = self.dragmol
         a = self.o.selatom
@@ -407,17 +431,30 @@ class depositMode(basicMode):
             m.move(px-a.posn())
         else:
             m.move(px-a.posn())
+        #e bruce 041130 thinks this should be given a new-coordinates-message,
+        # like in leftShiftDrag but starting with the atom-creation message
+        # (but the entire mol gets dragged, so the msg should reflect that)
+        # ###@@@
         self.o.paintGL()
 
     def leftUp(self, event):
         self.dragmol = None
         self.o.selatom = None
+        #bruce 041130 comment: it forgets selatom, but doesn't repaint,
+        # so selatom is still visible; then the next event will probably
+        # set it again; all this seems ok for now, so I'll leave it alone.
 	
     def leftShiftDown(self, event):
-        """If there's nothing nearby, do nothing If cursor is on a
+        """If there's nothing nearby, do nothing. If cursor is on a
         singlet, drag it around, rotating the atom it's bonded to if
-        possible.  If it is a real atom, drag it around.
+        possible.  If it is a real atom, drag it around (but not
+        the real atoms it's bonded to).
         """
+        #bruce 041130 revised docstring
+        self.pivot = self.pivax = self.line = None #bruce 041130 precaution
+        self.baggage = [] #bruce 041130 precaution
+        self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
+        self.bareMotion(event) #bruce 041130 in case no bareMotion happened yet
         a = self.o.selatom
         if not a: return
         # now, if something was "lit up"
@@ -449,13 +486,15 @@ class depositMode(basicMode):
             self.baggage = a.singNeighbors()
         self.dragatom = a
         self.w.update()
+        return
                         
 
     def leftShiftDrag(self, event):
-        """ drag the new atom around
+        """ drag the atom around
 	"""
         if not self.dragatom: return
         a = self.dragatom
+        apos0 = a.posn()
         px = self.dragto(a.posn(), event)
         if a.element != Singlet and not self.pivot:
             # no pivot, just dragging it around
@@ -493,15 +532,25 @@ class depositMode(basicMode):
             quat = Q(a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
-        self.bareMotion(event, True)
+        self.bareMotion(event, True) # indicate singlets we might bond to
+            #bruce 041130 asks: is it correct to do that when a is real?
         if a.element == Singlet:
             self.line = [a.posn(), px]
+        #bruce 041130 added status bar message with new coordinates
+        apos1 = a.posn()
+        if apos1 - apos0:
+            ##k does this ever overwrite some other message we want to keep??
+            if a.element == Singlet:
+                # this message might not be useful enough to be worthwhile...
+                msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
+            else:
+                msg = "dragged atom %r to %s" % (a, self.posn_str(a))
+            self.w.msgbarLabel.setText(msg)
         self.o.paintGL()
         return
 
     def leftShiftUp(self, event):
         if not self.dragatom: return
-        self.dragatom.molecule.shakedown()
         self.baggage = []
         self.line = None
         self.bareMotion(event, True)
@@ -511,6 +560,7 @@ class depositMode(basicMode):
                 selatom = self.o.selatom
                 if selatom.is_singlet(): #bruce 041119, just for safety
                     self.dragged_singlet_over_singlet(dragatom, selatom)
+        self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
         self.o.paintGL()
 
     def dragged_singlet_over_singlet(self, dragatom, selatom):
@@ -533,14 +583,13 @@ class depositMode(basicMode):
 
     ## delete with cntl-left mouse
     def leftCntlDown(self, event):
+        self.bareMotion(event) #bruce 041130 in case no bareMotion happened yet
         a = self.o.selatom
         if a:
             # this may change hybridization someday
             if a.element == Singlet: return
-            m = a.molecule
             a.kill()
-            if m.atoms: m.shakedown()
-            else: m.kill()
+            self.o.selatom = None #bruce 041130 precaution
             self.o.assy.modified = 1
         self.w.update()
 
