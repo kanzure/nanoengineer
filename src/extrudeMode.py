@@ -1897,6 +1897,7 @@ def mol_set_center_and_quat(mol, center, quat):
     self.curpos = self.center + self.quat.rot(self.basepos)
     if self.singlets:
         self.singlpos = self.center + self.quat.rot(self.singlbase)
+    self.fix_externs()
     for bon in self.externs: bon.setup()
 
 def floats_near(f1,f2):

@@ -250,6 +250,7 @@ class depositMode(basicMode):
             # else we've grabbed an atom
             elif a.realNeighbors(): # part of larger molecule
                 self.dragmol = a.molecule
+                a.molecule.fix_externs() #bruce 041029
                 e=a.molecule.externs
                 if len(e)==1: # pivot around one bond
                     self.pivot = e[0].center
@@ -689,6 +690,7 @@ class depositMode(basicMode):
         if self.o.selatom:
             m = self.o.selatom.molecule
             print "mol", m.name, len(m.atoms), len(m.atlist), len(m.curpos)
+            m.fix_externs() #bruce 041029
             print 'externs', m.externs
             for a in m.atlist:
                 print a
