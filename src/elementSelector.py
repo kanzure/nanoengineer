@@ -1,4 +1,3 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
 from ElementSelectorDialog import *
 from elementpixmaps import *
@@ -39,25 +38,37 @@ b = { 1: 205, 2 : 255,
 class elementSelector(ElementSelectorDialog):
     def __init__(self, win):
         ElementSelectorDialog.__init__(self)
-        self.w = win
+	self.w = win
 
 # Create the pixmaps for each element        
 
         self.image1 = QPixmap(image1_data)
+        self.image2 = QPixmap(image2_data)
         self.image5 = QPixmap(image5_data)
         self.image6 = QPixmap(image6_data)
         self.image7 = QPixmap(image7_data)
         self.image8 = QPixmap(image8_data)
         self.image9 = QPixmap(image9_data)
+        self.image10 = QPixmap(image10_data)
         self.image13 = QPixmap(image13_data)
         self.image14 = QPixmap(image14_data)
         self.image15 = QPixmap(image15_data)
         self.image16 = QPixmap(image16_data)
         self.image17 = QPixmap(image17_data)
+        self.image18 = QPixmap(image18_data)
+        self.image32 = QPixmap(image32_data)
+        self.image33 = QPixmap(image33_data)
+        self.image34 = QPixmap(image34_data)
+        self.image35 = QPixmap(image35_data)
+        self.image36 = QPixmap(image36_data)
+        self.image51 = QPixmap(image51_data)
+        self.image52 = QPixmap(image52_data)
+        self.image53 = QPixmap(image53_data)
+        self.image54 = QPixmap(image54_data)
 
 # Set the default element here (carbon)
-        #self.setElementInfo(6)  # commet out by Huaicai
-
+#        self.setElementInfo(6)
+   
     # called as a slot from button push
     def setElementInfo(self,value):
         self.w.glpane.mode.elemSet(value)
@@ -78,6 +89,8 @@ class elementSelector(ElementSelectorDialog):
         
         if value == 1 :
             self.pixmapLabel1.setPixmap(self.image1)  # Set pixmap to hydrogen
+        elif value == 2 :
+            self.pixmapLabel1.setPixmap(self.image2)  # Set pixmap to helium
         elif value == 5 :
             self.pixmapLabel1.setPixmap(self.image5)  # Set pixmap to boron
         elif value == 6 :
@@ -88,6 +101,8 @@ class elementSelector(ElementSelectorDialog):
             self.pixmapLabel1.setPixmap(self.image8)  # Set pixmap to oxygen
         elif value == 9 :
             self.pixmapLabel1.setPixmap(self.image9)  # Set pixmap to flourine
+        elif value == 10 :
+            self.pixmapLabel1.setPixmap(self.image10)  # Set pixmap to neo
         elif value == 13 :
             self.pixmapLabel1.setPixmap(self.image13)  # Set pixmap to aluminum
         elif value == 14 :
@@ -96,8 +111,28 @@ class elementSelector(ElementSelectorDialog):
             self.pixmapLabel1.setPixmap(self.image15)  # Set pixmap to phosphorus 
         elif value == 16 :
             self.pixmapLabel1.setPixmap(self.image16)  # Set pixmap to sulfur
+        elif value == 17 :
+            self.pixmapLabel1.setPixmap(self.image17)  # Set pixmap to chlorine
+        elif value == 18 :
+            self.pixmapLabel1.setPixmap(self.image18)  # Set pixmap to argon
+        elif value == 32 :
+            self.pixmapLabel1.setPixmap(self.image32)  # Set pixmap to germanium
+        elif value == 33 :
+            self.pixmapLabel1.setPixmap(self.image33)  # Set pixmap to arsenic 
+        elif value == 34 :
+            self.pixmapLabel1.setPixmap(self.image34)  # Set pixmap to selenium
+        elif value == 35 :
+            self.pixmapLabel1.setPixmap(self.image35)  # Set pixmap to bromine
+        elif value == 36 :
+            self.pixmapLabel1.setPixmap(self.image36)  # Set pixmap to krypton
+        elif value == 51 :
+            self.pixmapLabel1.setPixmap(self.image51)  # Set pixmap to antimony
+        elif value == 52 :
+            self.pixmapLabel1.setPixmap(self.image52)  # Set pixmap to tellurium 
+        elif value == 53 :
+            self.pixmapLabel1.setPixmap(self.image53)  # Set pixmap to iodine
         else :
-            self.pixmapLabel1.setPixmap(self.image17)  # Set pixmap to chloriine (all elements without a pixmap get this)
-            
+            self.pixmapLabel1.setPixmap(self.image54)  # Set pixmap to xenon (all elements without a pixmap get this)
+
     def transmutePressed(self):
         self.w.glpane.mode.elemSet(self.w.Element)
