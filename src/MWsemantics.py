@@ -620,6 +620,9 @@ class MWsemantics(MainWindow):
         self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
         self.glpane.setAssy(self.assy)
         self.assy.mt = self.mt
+        
+        ### Hack by Huaicai 2/1 to fix bug 369
+        self.mt.resetAssy_and_clear() 
 
 
     ###################################
