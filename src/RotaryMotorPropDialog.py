@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Fri Dec 24 03:13:42 2004
+# Created: Mon Jan 31 14:45:03 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -243,7 +243,7 @@ class RotaryMotorPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(338,324).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(338,327).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
@@ -251,7 +251,7 @@ class RotaryMotorPropDialog(QDialog):
         self.connect(self.applyPushButton,SIGNAL("clicked()"),self.applyButtonPressed)
         self.connect(self.torqueLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
         self.connect(self.speedLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
-        self.connect(self.colorSelectorPushButton,SIGNAL("clicked()"),self.changeRotaryMotorColor)
+        self.connect(self.colorSelectorPushButton,SIGNAL("clicked()"),self.changeColor)
         self.connect(self.nameLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
 
         self.setTabOrder(self.torqueLineEdit,self.speedLineEdit)
@@ -290,8 +290,8 @@ class RotaryMotorPropDialog(QDialog):
     def propertyChanged(self):
         print "RotaryMotorPropDialog.propertyChanged(): Not implemented yet"
 
-    def changeRotaryMotorColor(self):
-        print "RotaryMotorPropDialog.changeRotaryMotorColor(): Not implemented yet"
+    def changeColor(self):
+        print "RotaryMotorPropDialog.changeColor(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("RotaryMotorPropDialog",s,c)

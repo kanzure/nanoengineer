@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>338</width>
-            <height>324</height>
+            <height>327</height>
         </rect>
     </property>
     <property name="caption">
@@ -385,7 +385,7 @@
         <sender>colorSelectorPushButton</sender>
         <signal>clicked()</signal>
         <receiver>RotaryMotorPropDialog</receiver>
-        <slot>changeRotaryMotorColor()</slot>
+        <slot>changeColor()</slot>
     </connection>
     <connection>
         <sender>nameLineEdit</sender>
@@ -403,7 +403,7 @@
 <slots>
     <slot>applyButtonPressed()</slot>
     <slot>propertyChanged()</slot>
-    <slot>changeRotaryMotorColor()</slot>
+    <slot>changeColor()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

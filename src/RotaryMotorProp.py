@@ -41,7 +41,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
     #########################
     # Change rotary motor color
     #########################
-    def changeRotaryMotorColor(self):
+    def changeColor(self):
         color = QColorDialog.getColor(
             QColor(int(self.motor.normcolor[0]*255), 
                          int(self.motor.normcolor[1]*255), 
