@@ -8,74 +8,24 @@ and the user-visible commands for those operations.
 
 $Id$
 
-Created by Mark. Bruce [050324] did some comments and cleanup
-and brought in lots of simulator-running code from other files,
-and wrote the experimental CommandRun class and subclasses.
+History: Mark created a file of this name, but that was renamed to SimSetup.py
+by bruce on 050325.
 
-###@@@ Soon, I'll rename this module to SimSetup.py, and its runSim class to SimSetup,
-or perhaps move that class into a new module of that name. [bruce 050324]
+Bruce 050324 pulled in lots of existing code for running the simulator
+(and some code for reading its results) into this file, since that fits
+its name. That existing code was mostly by Mark and Huaicai, and was
+partly cleaned up by Bruce, who also put some of it into subclasses
+of the experimental CommandRun class.
 '''
-__author__ = "Mark"
 
-from SimSetupDialog import *
-from commands import *  # bruce 050324 question -- what's this??
-from debug import *
+from debug import print_compact_traceback ## bruce 050325 removing import *
 import os, sys ## bruce 050324 removing: import re, signal
-from constants import *
+## from constants import * ## bruce 050325 removing
 from math import sqrt
 from fileIO import writemmp
+from SimSetup import SimSetup
+from qt import QApplication, QCursor, Qt, QStringList, QProcess
 # more imports lower down
-
-class runSim(SimSetupDialog):
-    "dialog class for setting up a simulator run ###@@@ will be renamed SimSetup"
-    def __init__(self, assy, previous_movie):
-        "use previous_movie for default values; make a new movie and store it as movie ###@@@ not yet, reuse same one for now"
-        SimSetupDialog.__init__(self)
-        self.assy = assy
-        self.previous_movie = previous_movie
-        self.movie = self.previous_movie ## assy.current_movie
-            #######@@@@@@@ bruce 050324 comments:
-            # We should make a new Movie here instead (but only when we return with success).
-            # But we might want to use default param settings from prior movie.
-            # Caller should pass info about default filename (including uniqueness
-            #  when on selection or in clipboard item).
-            # We should set the params and filename using a Movie method, or warn it we did so,
-            # or do them in its init....
-            # self.movie is now a public attribute.
-            # I renamed assy.m to assy.current_movie.
-        self.setup()
-        self.exec_loop()
-        
-    def setup(self):
-        self.movie.cancelled = True # We will assume the user will cancel
-        #bruce 050324 comment: shouldn't these be calling setValue, not assigning to it?? ###@@@
-        self.nframesSB.setValue = self.previous_movie.totalFrames
-        self.tempSB.setValue = self.previous_movie.temp
-        self.stepsperSB.setValue = self.previous_movie.stepsper
-#        self.timestepSB.setValue = self.previous_movie.timestep # Not supported in Alpha
-    
-    def createMoviePressed(self):
-        """Creates a DPB (movie) file of the current part.  
-        The part does not have to be saved
-        as an MMP file first, as it used to.
-        """
-        #######@@@@@@@ bruce 050324 comment: docstring says it creates the file
-        # but it only sets up self.movie to say how to create it (incl the default filename)
-        # and the dialog's caller should then create the file. Not sure if/when user can rename the file.
-        QDialog.accept(self)
-        self.movie.cancelled = False
-        self.movie.totalFrames = self.nframesSB.value()
-        self.movie.temp = self.tempSB.value()
-        self.movie.stepsper = self.stepsperSB.value()
-#        self.movie.timestep = self.timestepSB.value()
-        
-        if self.assy.filename: # Could be an MMP or PDB file.
-            self.movie.filename = self.assy.filename[:-4] + '.dpb'
-        else: 
-            self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled.dpb")
-        return
-
-# ==
 
 # Run the simulator and tell it to create a dpb or xyz trajectory file.
 # [bruce 050324 moved this here from fileIO.py. It should be renamed to run_simulator,
@@ -460,7 +410,7 @@ class simSetup_CommandRun(CommandRun):
             return -1
         ###@@@ else use suffix below!
         
-        self.simcntl = runSim(self.assy, previous_movie) # Open SimSetup dialog [and run it until user dismisses it]
+        self.simcntl = SimSetup(self.assy, previous_movie) # Open SimSetup dialog [and run it until user dismisses it]
             # [bruce comment 050324: this uses assy.current_movie and sets its params and filename;
             #  I'm changing it to look at previous_movie for those, and it should make a new one ###@@@
             #  but for now it just reuses that one; the one it uses is in its .movie when it returns.]

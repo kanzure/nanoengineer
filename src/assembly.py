@@ -665,8 +665,7 @@ class assembly:
 ##            # This will probably not make Alpha.  It is intended to be used in the future
 ##            # as a way to validate movie files.  assy.movieID is handed off to the simulator
 ##            # as an argument (-b) where it writes the number in the movie (.dpb) file header.
-##            # (see writemovie() in fileIO.py.)
-##            # [moved to runSim, which will be renamed SimSetup.py, and writemovie will be renamed too -- bruce 050324]
+##            # (see writemovie() in fileIO.py.) [writemovie is now in runSim.py, and might be renamed -- bruce 050325]
 ##            # The number is then compared to assy.movieID when the movie file is opened
 ##            # at a later time. This check will be done in movie._checkMovieFile().
 ##            # Mark - 050116
