@@ -123,9 +123,12 @@ class MWsemantics(MainWindow):
         self.setElement(6)
         # and paste the atom rather than the clipboard by default
         self.pasteP = False
-
-        self.currentPov = None
-
+        
+        # Huaicai 12/14/04, the following property should be really a property of Csys, which
+        # stores the center view point of the current home view. This needs to change when
+        # we update the mmp file format
+        self.currentPov = V(0.0, 0.0, 0.0) 
+        
         #Create the temporary file directory if not exist [by huaicai ~041201]
         # bruce 041202 comments about future changes to this code:
         # - we'll probably rename this, sometime before Alpha goes out,
@@ -243,7 +246,6 @@ class MWsemantics(MainWindow):
                 self )
         
         if fn:
-
             fn = str(fn)
             if not os.path.exists(fn): return
 
@@ -316,8 +318,14 @@ class MWsemantics(MainWindow):
 
             self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
 
+            # Huaicai 12/14/04, set the initial orientation to the file's home view orientation 
+            # when open a file; set the home view scale = current fit-in-view scale  
+            self.glpane.quat = Q( self.assy.csys.quat)
             self.setViewFitToWindow()
+            self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
+            self.assy.csys.scale = self.glpane.scale
             self.mt.update()
+
 
     def fileSave(self):
         if self.assy:
@@ -547,10 +555,9 @@ class MWsemantics(MainWindow):
 
     def setViewHome(self):
         """Reset view to Home view"""
-        self.glpane.quat = Q(self.assy.csys.quat) # Q(1,0,0,0)
+        self.glpane.quat = Q(self.assy.csys.quat) 
         self.glpane.scale = self.assy.csys.scale
-        if self.currentPov:
-                self.glpane.pov = V(self.currentPov[0], self.currentPov[1], self.currentPov[2])
+        self.glpane.pov = V(self.currentPov[0], self.currentPov[1], self.currentPov[2])
       
         self.glpane.paintGL()
 
@@ -561,13 +568,11 @@ class MWsemantics(MainWindow):
         self.assy.computeBoundingBox()     
 
         self.glpane.scale=self.assy.bbox.scale()
-        self.assy.csys.scale = self.glpane.scale
         self.glpane.pov = -self.assy.center
         self.glpane.paintGL()
             
     def setViewHomeToCurrent(self):
         """Changes Home view to the current view.  This saves the view info in the Csys"""
-        #print "MWsemantics.setViewHomeToCurrent is a stub."
         self.assy.csys.quat = Q(self.glpane.quat)
         self.assy.csys.scale = self.glpane.scale
         self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
