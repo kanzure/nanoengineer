@@ -1224,4 +1224,4 @@ class MWsemantics(MainWindow):
         QMimeSourceFactory.defaultFactory().setPixmap( "editUndo",
                                                        self.editUndoAction.iconSet().pixmap() )
 
-        self.editUndoAction.setWhatsThis( editUndoText )>>>>>>> 1.71.2.2
+        self.editUndoAction.setWhatsThis( editUndoText )
