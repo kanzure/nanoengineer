@@ -415,7 +415,7 @@ class shape:
         #---next element in the looplist will not go into the loop
         
         c=self.curves[0]
-        if c.logic == 2 or c.logic == 1: # drag selection
+        if c.logic == 1 or c.logic == 2 : # shift drag selection
             for mol in assy.molecules:
                 if mol.display == diINVISIBLE: continue
                 for a in mol.atoms.itervalues():
@@ -424,14 +424,15 @@ class shape:
                               a.molecule.pick()
                               break
                               
-        if c.logic == 1: #ctrl drag selection, modified by Huaicai to fix the selection bug 10/05/04
+        if c.logic == 2: # drag selection: unselect any selected molecule not in the area, 
+                               # modified by Huaicai to fix the selection bug 10/05/04
             for m in assy.selmols[:]:
                 for a in m.atoms.values():
                       if not c.isin(a.posn()): 
                             m.unpick()
                             break
                             
-        if c.logic == 0:  # Shift drag slection --everything selected inside dragging area unselected
+        if c.logic == 0:  # Ctrl drag slection --everything selected inside dragging area unselected
             for m in assy.selmols[:]:
                 for a in m.atoms.values():
                         if c.isin(a.posn()): 
