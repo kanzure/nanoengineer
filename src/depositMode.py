@@ -374,9 +374,14 @@ class depositMode(basicMode):
             else: 
                 for at in self.baggage:
                     at.setposn(at.posn()+delta)
+            # [Josh wrote, about the following "a.setposn(px)":]
             # there's some weirdness I don't understand
             # this doesn't work if done before the loop above
             a.setposn(px)
+            # [bruce 041108 writes:]
+            # This a.setposn(px) can't be done before the at.adjSinglets(a, px)
+            # in the loop before it, or adjSinglets (which compares a.posn() to
+            # px) would think atom a was not moving.
         elif self.pivax: # pivoting around an axis
             quat = twistor(self.pivax, a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
