@@ -280,7 +280,9 @@ class selectAtomsMode(selectMode):
         
         def Enter(self): 
             basicMode.Enter(self)
-            self.o.assy.selectAtoms() 
+            self.o.assy.selectAtoms()
+            # Reinitialize previously picked atoms (ppas).
+            self.o.assy.ppa2 = self.o.assy.ppa3 = None
             
         def init_gui(self):
             selectMode.init_gui(self)
