@@ -372,9 +372,16 @@ class MWsemantics(MainWindow):
         self.glpane.pov = V(0,0,0)
         self.glpane.paintGL()
 
-
+    ###############################################################
     # functions from the "Select" menu
+    ###############################################################
 
+    def selectAtoms(self):
+        self.assy.selectAtoms()
+
+    def selectParts(self):
+        self.assy.selectParts()
+    
     def selectAll(self):
         """Select all parts if nothing selected.
         If some parts are selected, select all atoms in those parts.
@@ -486,15 +493,15 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
 
-    ###############################################################
-    # functions from the buttons down the right side of the display
-    ###############################################################
+    ######################################################
+    # functions for toggling (hiding/unhiding) toolbars  #
+    ######################################################
 
     def toggleFileTbar(self):
-        if self.FileToolBar.isVisible():
-            self.FileToolBar.hide()
+        if self.fileToolbar.isVisible():
+            self.fileToolbar.hide()
         else:
-            self.FileToolBar.show()
+            self.fileToolbar.show()
 
     def toggleEditTbar(self):
         if self.editToolbar.isVisible():
@@ -508,11 +515,23 @@ class MWsemantics(MainWindow):
         else:
             self.viewToolbar.show()
 
-    def toggleDisplayTbar(self):
-        if self.displayToolbar.isVisible():
-            self.displayToolbar.hide()
+    def toggleGridTbar(self):
+        if self.gridToolbar.isVisible():
+            self.gridToolbar.hide()
         else:
-            self.displayToolbar.show()
+            self.gridToolbar.show()
+
+    def toggleModelDispTbar(self):
+        if self.modelDispToolbar.isVisible():
+            self.modelDispToolbar.hide()
+        else:
+            self.modelDispToolbar.show()
+
+    def toggleSelectTbar(self):
+        if self.selectToolbar.isVisible():
+            self.selectToolbar.hide()
+        else:
+            self.selectToolbar.show()
 
     def toggleModifyTbar(self):
         if self.modifyToolbar.isVisible():
@@ -520,35 +539,34 @@ class MWsemantics(MainWindow):
         else:
             self.modifyToolbar.show()
 
-    def toggleTbar(self):
-        if self.toggleDisplayToolbar.isVisible():
-            self.toggleDisplayToolbar.hide()
+    def toggleToolsTbar(self):
+        if self.toolsToolbar.isVisible():
+            self.toolsToolbar.hide()
         else:
-            self.toggleDisplayToolbar.show()
+            self.toolsToolbar.show()
 
-    def toggleTbar(self):
-        if self.cookieCutterToolbar.isVisible():
-            self.cookieCutterToolbar.hide()
+    def toggleDatumDispTbar(self):
+        if self.datumDispToolbar.isVisible():
+            self.datumDispToolbar.hide()
         else:
-            self.cookieCutterToolbar.show()
+            self.datumDispToolbar.show()
 
-    def toggleTbar(self):
+    def toggleSketchAtomTbar(self):
         if self.sketchAtomToolbar.isVisible():
             self.sketchAtomToolbar.hide()
         else:
             self.sketchAtomToolbar.show()
 
-    def toggleFeaturesTbar(self):
-        if self.featuresToolbar.isVisible():
-            self.featuresToolbar.hide()
+    def toggleCookieCutterTbar(self):
+        if self.cookieCutterToolbar.isVisible():
+            self.cookieCutterToolbar.hide()
         else:
-            self.featuresToolbar.show()
+            self.cookieCutterToolbar.show()
 
-    def toggleSelectTbar(self):
-        if self.selectToolbar.isVisible():
-            self.selectToolbar.hide()
-        else:
-            self.selectToolbar.show()
+
+    ###############################################################
+    # functions from the buttons down the right side of the display
+    ###############################################################
 
     # set up cookiecutter mode
     def toolsCookieCut(self):
