@@ -46,8 +46,10 @@ from povheader import povheader
 from fileIO import *
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_buttons_helper
+import platform # for platform.atom_debug
 from widgets import makemenu_helper
-from debug import DebugMenuMixin
+from debug import DebugMenuMixin, print_compact_traceback
+
 
 paneno = 0
 #  ... what a Pane ...
@@ -355,59 +357,139 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
     
     def setLighting(self, lights, _guard_ = 6574833, gl_update = True): 
         """Set current lighting parameters as specified
-        [for now, to a list of 6 floats from 0 to 1; format may be revised].
+        [for now, to a list of 6 floats from 0 to 1; format may be revised #### HAS BEEN REVISED, need to redoc it].
         [#e someday we might also schedule an event to save them in prefs soon,
          or maybe we'll leave that to the caller]
         If option gl_update is False, then don't do a gl_update, let caller do that if they want to.
         """
-        from debug import print_compact_traceback
         assert _guard_ == 6574833 # don't permit optional args to be specified positionally!!
         try:
-            lights = list(lights) # local copy, in case caller modifies the list
-            a,b,c,d,e,f = lights
-            for i in lights:
-                assert 0.0 <= i <= 1.0
+            # check, standardize, and copy what the caller gave us for lights
+            res = []
+            lights = list(lights)
+            assert len(lights) == 3
+            for a,d,e in lights:
+                # check values, give them standard types
+                a = float(a)
+                d = float(d)
+                assert 0.0 <= a <= 1.0
+                assert 0.0 <= d <= 1.0
+                assert e in [0,1,True,False]
+                e = not not e
+                res.append( (a,d,e) )
+            lights = res
         except:
             print_compact_traceback("erroneous lights %r (ignored): " % lights)
             return
         self._lights = lights
-        #e set a flag so we'll use them and maybe later save them in prefs...
+        # set a flag so we'll set up the new lighting in the next paintGL call
+        self.need_setup_lighting = True
+        #e maybe arrange to later save the lighting in prefs... don't know if this belongs here
+        # update GLPane unless caller wanted to do that itself
         if gl_update:
             self.gl_update()
         return
 
     def getLighting(self):
-        "return the current lighting parameters [for now, as a list of 6 floats from 0 to 1]"
+        """Return the current lighting parameters
+        [for now, these are a list of 3 triples, one per light,
+        each giving 2 floats from 0 to 1 and a boolean,
+        which are ambient, diffuse, enabled for that light]
+        """
         return list(self._lights)
 
     # default value of instance variable:
-    _lights = [0.3,0.8, 0.4,0.4, 1.0,1.0]
-        # 6 values, gray levels for GL_AMBIENT and GL_DIFFUSE for each of 3 lights at fixed positions
+    _lights = [(0.3, 0.8, True), (0.4, 0.4, True), (1.0, 1.0, False)] #e might revise format
+        # for each of 3 lights (at hardcoded positions for now), this stores (a,d,e)
+        # giving gray levels for GL_AMBIENT and GL_DIFFUSE and an enabled boolean
+
+    need_setup_lighting = True # whether the next paintGL needs to call it
     
     def _setup_lighting(self):
         """[private method]
         Set up lighting in the model (according to self._lights).
         [Called from both initializeGL and paintGL.]
         """
-        ####@@@@ doesn't yet use self._lights values!
+        if platform.atom_debug:
+            print "atom_debug: _setup_lighting called; _lights are %r" % (self._lights,)
+        
         glEnable(GL_NORMALIZE) # bruce comment 050311: I don't know if this relates to lighting or not
-        glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
-        glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
-        glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
-        glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
-        glLightfv(GL_LIGHT1, GL_AMBIENT, (0.4, 0.4, 0.4, 1.0))
-        glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.4, 0.4, 0.4, 1.0))
-        glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
-        glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
-        glLightfv(GL_LIGHT2, GL_AMBIENT, (1.0, 1.0, 1.0, 1.0))
-        glLightfv(GL_LIGHT2, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
-        glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
-        glEnable(GL_LIGHT1)
-        glDisable(GL_LIGHT2)
+
+        try:
+            # new code
+            ((a0,d0,e0),(a1,d1,e1),(a2,d2,e2)) = self._lights #e might revise format
+            
+            glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
+            glLightfv(GL_LIGHT0, GL_AMBIENT, (a0, a0, a0, 1.0))
+            glLightfv(GL_LIGHT0, GL_DIFFUSE, (d0, d0, d0, 1.0))
+            glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
+            
+            glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
+            glLightfv(GL_LIGHT1, GL_AMBIENT, (a1, a1, a1, 1.0))
+            glLightfv(GL_LIGHT1, GL_DIFFUSE, (d1, d1, d1, 1.0))
+            glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
+            
+            glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
+            glLightfv(GL_LIGHT2, GL_AMBIENT, (a2, a2, a2, 1.0))
+            glLightfv(GL_LIGHT2, GL_DIFFUSE, (d2, d2, d2, 1.0))
+            glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
+            
+            glEnable(GL_LIGHTING)
+            
+            if e0:
+                glEnable(GL_LIGHT0)
+            else:
+                glDisable(GL_LIGHT0)
+                
+            if e1:
+                glEnable(GL_LIGHT1)
+            else:
+                glDisable(GL_LIGHT1)
+                
+            if e2:
+                glEnable(GL_LIGHT2)
+            else:
+                glDisable(GL_LIGHT2)
+        except:
+            if platform.atom_debug:
+                print_compact_traceback("atom_debug: _setup_lighting reverting to old code, because: ")
+            # old code
+            glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
+            glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
+            glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
+            glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
+            
+            glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
+            glLightfv(GL_LIGHT1, GL_AMBIENT, (0.4, 0.4, 0.4, 1.0))
+            glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.4, 0.4, 0.4, 1.0))
+            glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
+            
+            glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
+            glLightfv(GL_LIGHT2, GL_AMBIENT, (1.0, 1.0, 1.0, 1.0))
+            glLightfv(GL_LIGHT2, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
+            glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
+            
+            glEnable(GL_LIGHTING)
+            
+            glEnable(GL_LIGHT0)
+            glEnable(GL_LIGHT1)
+            glDisable(GL_LIGHT2)
         return
+
+    def saveLighting(self):
+        "save the current lighting values in the standard preferences database"
+        print "saveLighting NIM" ###@@@
+        return
+
+    def loadLighting(self, gl_update = True):
+        """load new lighting values from the standard preferences database, if possible;
+        if correct values were loaded, start using them, and do gl_update unless option for that is False;
+        return True if you loaded new values, False if that failed
+        """
+        print "loadLighting NIM" ###@@@
+        return False
+    
+    # ==
     
     def initializeGL(self):
         "#doc [called by Qt]"
@@ -638,13 +720,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         return
     
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
-       """[PRIVATE METHOD -- call gl_update instead!]
+        """[PRIVATE METHOD -- call gl_update instead!]
         The main screen-drawing function, called internally by Qt when our
         superclass needs to repaint. THIS SHOULD NO LONGER BE CALLED DIRECTLY
         BY EXTERNAL CODE -- CALL gl_update INSTEAD.
            Sets up point of view projection, position, angle.
         Calls draw member fns for everything in the screen.
-       """
+        """
         # bruce comment 041220: besides our own calls of this function
         # [later: which no longer exist after 050127], it can
         # be called directly from the app.exec_loop() in atom.py; I'm not sure
@@ -656,33 +738,39 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # Guess: it's a special method name known to the superclass widget.
         # (Presumably the Qt docs spell this out... find out sometime! #k)
 
-       if not self.initialised: return
+        if not self.initialised: return
        
-       if not self.redrawGL: return
-       
-       ###e bruce 040923: I'd like to reset the OpenGL state
-       # completely, here, incl the stack depths, to mitigate some
-       # bugs. How??  Note that there might be some OpenGL init code
-       # earlier which I'll have to not mess up. Incl displaylists in
-       # drawer.setup.  What I ended up doing is just to measure the
-       # stack depth and pop it 0 or more times to make the depth 1
-       # -- see below.
-       c=self.mode.backgroundColor
-       glClearColor(c[0], c[1], c[2], 0.0)
-       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        if not self.redrawGL: return
 
-       glMatrixMode(GL_MODELVIEW)
+        if self.need_setup_lighting:
+            # I don't know if it matters to avoid calling this every time...
+            # in case it's slow, we'll only do it when it might have changed.
+            self.need_setup_lighting = False # set to true again if setLighting is called
+            self._setup_lighting()
 
-       # restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923,
-       # to partly mitigate the effect of certain drawing bugs] btw I
-       # don't know for sure whether this causes a significant speed
-       # hit for some OpenGL implementations (esp. X windows)...
-       # test sometime. #e
+        ###e bruce 040923: I'd like to reset the OpenGL state
+        # completely, here, incl the stack depths, to mitigate some
+        # bugs. How??  Note that there might be some OpenGL init code
+        # earlier which I'll have to not mess up. Incl displaylists in
+        # drawer.setup.  What I ended up doing is just to measure the
+        # stack depth and pop it 0 or more times to make the depth 1
+        # -- see below.
+        c = self.mode.backgroundColor
+        glClearColor(c[0], c[1], c[2], 0.0)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        glMatrixMode(GL_MODELVIEW)
+
+        # restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923,
+        # to partly mitigate the effect of certain drawing bugs] btw I
+        # don't know for sure whether this causes a significant speed
+        # hit for some OpenGL implementations (esp. X windows)...
+        # test sometime. #e
         
-       depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
-       # this is normally 1
-       # (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
-       if depth > 1:
+        depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
+        # this is normally 1
+        # (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
+        if depth > 1:
             print "apparent bug: glGetInteger(GL_MODELVIEW_STACK_DEPTH) = %r in GLPane.paintGL" % depth
             print "workaround: pop it back to depth 1"
             while depth > 1:
@@ -693,38 +781,38 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                     print "hmm, after depth-1 pops we should have reached depth 1, but instead reached depth %r" % newdepth
             pass    
     
-       glLoadIdentity()
-       glMatrixMode(GL_PROJECTION)
-       glLoadIdentity()
+        glLoadIdentity()
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
 
-       aspect = (self.width + 0.0)/(self.height + 0.0)
-       if self.drawAxisIcon: self.drawarrow(aspect)
+        aspect = (self.width + 0.0)/(self.height + 0.0)
+        if self.drawAxisIcon: self.drawarrow(aspect)
         
-       vdist = 6.0 * self.scale
+        vdist = 6.0 * self.scale
                 
-       if self.ortho:
+        if self.ortho:
             glOrtho(-self.scale*aspect*self.zoomFactor, self.scale*aspect*self.zoomFactor, -self.scale*self.zoomFactor, self.scale*self.zoomFactor, vdist*self.near, vdist*self.far)
-       else:
+        else:
             glFrustum(-self.scale*aspect*self.near*self.zoomFactor, self.scale*aspect*self.near*self.zoomFactor, -self.scale*self.near*self.zoomFactor, self.scale*self.near*self.zoomFactor, vdist*self.near, vdist*self.far)
 
-       glMatrixMode(GL_MODELVIEW)
+        glMatrixMode(GL_MODELVIEW)
         
-       glTranslatef(0.0, 0.0, - vdist)
-       # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
-       # (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
-       # We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
-       # clipping planes, etc, like we do now for right, up, etc. ###e
+        glTranslatef(0.0, 0.0, - vdist)
+        # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
+        # (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
+        # We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
+        # clipping planes, etc, like we do now for right, up, etc. ###e
 
-       q = self.quat
+        q = self.quat
         
-       glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
-       glTranslatef(self.pov[0], self.pov[1], self.pov[2])
+        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+        glTranslatef(self.pov[0], self.pov[1], self.pov[2])
 
-       # draw according to mode
-       self.mode.Draw()
-       glFlush()  #Tidy up
-       ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
-       return # from paintGL       
+        # draw according to mode
+        self.mode.Draw()
+        glFlush()  #Tidy up
+        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
+        return # from paintGL       
 
 
     def drawarrow(self, aspect):
