@@ -290,22 +290,40 @@ class assembly:
     def savebasepos(self):
         """Copy current atom positions into an array.
         """
-        if not self.alist: return
-        for a in self.alist:
-            self.copybasepos = + a.molecule.basepos
+        # save a copy of each chunk's basepos array 
+        # (in the chunk itself, why not -- it's the most convenient place)
+        for m in self.molecules:
+            m._savedbasepos = + m.basepos
+            
+#        if not self.alist: return
+#        for a in self.alist:
+#            self.copybasepos = + a.molecule.basepos
             
     def restorebasepos(self):
         """Restore atom positions copied earlier by savebasepos().
         """
-        if not self.alist: return
-        for a in self.alist:
-            a.molecule.basepos[a.index] = self.copybasepos[a.index]
+        # restore that later (without erasing it, so no need to save it 
+        # again right now)
+        # (only valid when every molecule is "frozen", i.e. basepos and 
+        # curpos are same object):
+        for m in self.molecules:
+            m.basepos = m.curpos = + m._savedbasepos
+        
+#        if not self.alist: return
+#        for a in self.alist:
+#            a.molecule.basepos[a.index] = self.copybasepos[a.index]
         
         for b in self.blist.itervalues():
             b.setup_invalidate()
             
         for m in self.molecules:
             m.changeapp(0)
+
+    def deletebasepos(self):
+        """Erase the savedbasepos array.  It takes a lot of room.
+        """
+        for m in self.molecules:
+            del m._savedbasepos
             
     # set up to run a movie or minimization
     def movsetup(self):
