@@ -719,8 +719,7 @@ class Node:
         print depth*"...", self.name
 
     def writemmp(self, atnums, alist, f):
-        if platform.atom_debug:
-            print "fyi: Node.writemmp ran" # can this ever happen? maybe for a jig? uses __repr__ nonstandardly! ###@@@ [bruce 050108]
+        # bruce comment 050108/050210: this is used for Jigs. It uses __repr__ nonstandardly! ###@@@
         f.write(self.__repr__(atnums))
         
 #    def writemdl(self, atnum, alist, f, dispdef):
