@@ -111,8 +111,6 @@ def do_what_MainWindowUI_should_do(self):
     ### for now we must set up dashboards for both extrude and revolve. at first they are just the same one.
     # and when we show it we should patch the label...
 
-    ##print "extrude debug: do_what_MainWindowUI_should_do"
-
     from qt import SIGNAL, QToolBar, QLabel, QLineEdit, QSpinBox
 
     # 2. make a toolbar to be our dashboard, similar to the cookieCutterToolbar
@@ -436,17 +434,6 @@ class extrudeMode(basicMode):
     
     # methods related to entering this mode
 
-##    def refuseEnter(self, warn):
-##        "if we'd refuse to enter this mode, then (iff warn) tell user why, and (always) return true."
-##        from debug import print_compact_stack # re-import each time, so reload(debug) is effective at runtime
-##        print_compact_stack("refuseEnter:\n")
-##        assy = self.o.assy
-##        if len(assy.selmols) != 1:
-##            if warn:
-##                self.warning("extrude mode stub requires exactly 1 molecule to be selected, for now (sorry)")
-##            return 1
-##        return 0
-
     def connect_controls(self): ###@@@ josh has some disconnect code in cookieMode, now; should be imitated here
         "connect the dashboard controls to their slots in this method"
         #k i call this from Enter; depositMode calls the equivalent from init_gui -- which is better?
@@ -545,6 +532,19 @@ class extrudeMode(basicMode):
     def now_using_this_mode_object(self): ###e refile this in modes.py basicMode?
         "return true if the glpane is presently using this mode object (not just a mode object with the same name!)"
         return self.o.mode == self ###k 041009
+
+    def refuseEnter(self, warn):
+        "if we'd refuse to enter this mode, then (iff warn) tell user why, and (always) return true."
+        ok, mol = assy_extrude_unit(self.o.assy, really_make_mol = 0)
+        if not ok:
+            whynot = mol
+            if warn:
+                self.warning("%s refused: %r" % (self.msg_modename, whynot,)) ###k format, in self.warning too ###@@@
+            return 1
+        else:
+            # mol is nonsense, btw
+            return 0
+        pass
         
     def Enter(self):
         self.status_msg("entering %s..." % self.msg_modename)
@@ -554,21 +554,35 @@ class extrudeMode(basicMode):
         self.initial_out = self.o.out
         reinit_extrude_controls(self.w, self.o, length = 7.0, attr_target = self)
         basicMode.Enter(self)
-        assy = self.o.assy
-        self.assy = assy #k i assume this never changes during one use of this mode!
 
         ###
         # find out what's selected, which if ok will be the repeating unit we will extrude... explore its atoms, bonds, externs...
         # what's selected should be its own molecule if it isn't already...
         # for now let's hope it is exactly one (was checked in refuseEnter, but not anymore).
 
-        ok, mol = assy_extrude_unit(self.assy)
+        ok, mol = assy_extrude_unit(self.o.assy)
         if not ok:
+            # after 041222 this should no longer happen, since checked in refuseEnter
             whynot = mol
-            #e show the reason why not in a dialog??
-            self.status_msg("%s refused: %r" % (self.msg_modename, whynot,)) #e improve
+            self.status_msg("%s refused: %r" % (self.msg_modename, whynot,))
             return 1 # refused!
         self.basemol = mol
+## partly done new code, commented out so I can commit the code cleanup and new refuseEnter method separately [bruce 041222]
+##        self.broken_externs = []
+##        for bon in list(mol.externs):
+##            a1 = bon.atom1
+##            a2 = bon.atom2
+##            if a1.molecule == mol:
+##                (a1,a2) = (a2,a1)
+##                assert a1 != a2
+##            assert a2.molecule == mol
+##            assert a1.molecule != mol
+##            bon.bust() # these will be rebonded at the end
+##            self.broken_externs.append((a1,a2)) # what we really need here is
+##                # the singlets made by unbond, in case a2 or a1 occurs twice
+##                # (or more) in our externs! ###@@@
+##            ####@@@ see paper notes - restore at end, also modify singlet-pairing alg
+        
         ## following was shakedown, replaced with update on 041112
         self.basemol.full_inval_and_update() ###### bruce 041019: this will fix ninad's bug, but only by working around my own bug. ###test
         ##### see my notesfile for that... mainly, when i use self.basemol.quat i should not use it.
@@ -679,10 +693,6 @@ class extrudeMode(basicMode):
     def want_center_and_quat(self, ii, ptype = None):
         offset = self.offset
         cn = self.circle_n ### does far-below code have bugs when ii >= cn?? that might explain some things i saw...
-##        if self.use_circle_n_from_ncopies_kluge:
-##            if cn != self.ncopies:
-##                print "extrude fyi: possible bug: cn != self.ncopies, %r != %r" % (cn, self.ncopies) #######debug ###@@@
-##            cn = self.ncopies
         basemol = self.basemol
         if not ptype:
             ptype = self.product_type
@@ -718,10 +728,6 @@ class extrudeMode(basicMode):
             out = self.initial_out
             tangent = norm(offset)
             axis = cross(down,tangent) # example, I think: left = cross(down,out)  ##k
-##            if ii == 2: # avoid too many prints per recompute
-##                print "down",down
-##                print "out",out
-##                print "axis",axis ########@@@ debug
             if vlen(axis) < 0.001: #k guess
                 axis = cross(down,out)
                 self.status_msg("error: offset too close to straight down, picking down/out circle")
@@ -767,12 +773,7 @@ class extrudeMode(basicMode):
         When that's not possible (e.g. when no record of prior value to compare to current value),
         we'd better check an invalid flag for some of what we compute,
         and/or a changed flag for some of the inputs we use.
-        """
-
-##        if self.use_circle_n_from_ncopies_kluge:
-##            self.circle_n = self.ncopies #k probably not needed (redundant with other use of this kluge)
-##            ### wrong, since we did not yet read ncopies_wanted from the control, let alone update self.ncopies to match!
-        
+        """        
         self.asserts()
         
         # get control values
@@ -845,7 +846,7 @@ class extrudeMode(basicMode):
                     self.molcopies[ii].move(motion) #k does this change picked state????
                 else:
                     c, q = self.want_center_and_quat(ii)
-                    mol_set_basecenter_and_quat(self.molcopies[ii], c, q)
+                    self.molcopies[ii].set_basecenter_and_quat( c, q)
         # now delete or make copies as needed (but don't adjust view until the end)
         while self.ncopies > ncopies_wanted:
             # delete a copy we no longer want
@@ -854,7 +855,7 @@ class extrudeMode(basicMode):
             self.ncopies = ii
             old = self.molcopies.pop(ii)
             old.unpick() # work around a bug in assy.killmol [041009] ##### that's fixed now -- verify, and remove this
-            old.kill() # might be faster than self.assy.killmol(old)
+            old.kill() # might be faster than self.o.assy.killmol(old)
             self.asserts()
         while self.ncopies < ncopies_wanted:
             # make a new copy we now want
@@ -863,7 +864,7 @@ class extrudeMode(basicMode):
             #e but we'll probably want to figure out a decent name for it, make a special group to put these in, etc
             ii = self.ncopies
             self.ncopies = ii + 1
-            newmols = assy_copy(self.assy, [self.basemol]) # fyi: offset is redundant with mol_set_basecenter_and_quat (below) 
+            newmols = assy_copy(self.o.assy, [self.basemol]) # fyi: offset is redundant with mol.set_basecenter_and_quat (below) 
             new = newmols[0]
             if self.keeppicked:
                 pass ## done later: self.basemol.pick()
@@ -872,9 +873,7 @@ class extrudeMode(basicMode):
                 new.unpick() # undo side effect of assy_copy
             self.molcopies.append(new)
             c, q = self.want_center_and_quat(ii)
-            mol_set_basecenter_and_quat(self.molcopies[ii], c, q)
-##            print "basemol quat %r, unit ii=%d quat %r, after setting it, wanted %r" % \
-##                  (self.basemol.quat, ii, self.molcopies[ii].quat, q) ###################debug ninad's bug 041019
+            self.molcopies[ii].set_basecenter_and_quat( c, q)
             self.asserts()
         if self.keeppicked:
             self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
@@ -938,11 +937,11 @@ class extrudeMode(basicMode):
         for atom in self.basemol.atoms.values():
             # make a handle for it... to use in every copy we show
             pos = atom.posn() ###e make this relative?
-            dispdef = molecule_dispdef(self.basemol, self.o)
+            dispdef = self.basemol.get_dispdef(self.o)
             disp, radius = atom.howdraw(dispdef)
             info = None #####
             hset.addHandle(pos, radius, info)
-        self.basemol_singlets = mol_singlets(self.basemol)
+        self.basemol_singlets = self.basemol.singlets
         hset = self.nice_offsets_handleset = niceoffsetsHandleSet(target = self)
         hset.radius_multiplier = abs(self.bond_tolerance) # kluge -- might be -1 or 1 initially! (sorry, i'm in a hurry)
           # note: hset is used to test offsets via self.nice_offsets_handleset,
@@ -1143,7 +1142,6 @@ class extrudeMode(basicMode):
             except:
                 pass
         self.finalize_product() # ... and emit status message about it
-        self.w.update() ####k shouldn't caller in modes.py be doing this?? we needed it to update model tree...
         return None
 
     def finalize_product(self):
@@ -1271,7 +1269,7 @@ class extrudeMode(basicMode):
             self.w.extrudeDashboard.hide()
         return
 
-    # mouse events ### wrong -- i should let you drag one of the repeated units; see code in move mode which does similar
+    # mouse events
 
     def leftDown(self, event):
         """Move the touched repunit object, or handle (if any), in the plane of
@@ -1505,9 +1503,6 @@ class extrudeMode(basicMode):
 ##            if getattr(self.__class__,attr) != getattr(self,attr):
 ##                print "extrudeMode clear: do we need to add attr %r?" % attr
         return
-
-    ## toggle attrs, no need to init:
-    ## show_whole_model, show_bond_offsets
     
     def Draw(self):
         basicMode.Draw(self) # draw axes, if displayed
@@ -1516,17 +1511,14 @@ class extrudeMode(basicMode):
         else:
             for mol in self.molcopies:
                 #e use per-repunit drawing styles...
-                dispdef = molecule_dispdef(mol, self.o) # not needed, since...
+                dispdef = mol.get_dispdef( self.o) # not needed, since...
                 mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
         if self.show_bond_offsets:
             for hset in self.show_bond_offsets_handlesets:
-                # one of the hsets' radius_multiplier was patched to self.bond_tolerance... ####NIM ###@@@
                 try:
                     hset.draw(self.o)
                 except:
                     print_compact_traceback("exc in some hset.draw(): ")
-##        if self.mergeables:
-##            draw_mergeables(self.mergeables, self.o)
         return
    
     def makeMenus(self): ### mostly not yet reviewed for extrude or revolve mode
@@ -1614,21 +1606,17 @@ def assy_copy(assy, mols, offset = V(10.0, 10.0, 10.0)):
     nulist = [] # moved out of loop; is that a bug in assy.copy too?? ###k
     for mol in mols[:]: # copy the list in case it happens to be self.selmols (needed??)
         self.modified = 1 # only if loop runs
-        ##numol=mol.copy(mol.dad,offset)
-        numol = mol_copy( mol, mol.dad, offset)
+        numol = mol.copy( mol.dad, offset)
         nulist += [numol]
         self.addmol(numol) ###k ###@@@ why was this not already done in mol.copy?? [bruce 041116 question]
         # what does it, when mol is actually copied by UI? 
     return nulist
 
-def mol_copy(self, dad=None, offset=V(0,0,0)): ###@@@ replace callers
-    return self.copy(dad, offset)
-
 # should be a method in assembly (maybe there is one like this already??)
 def assy_merge_mols(assy, mollist):
     "merge multiple mols in assy into one mol in assy, and return it"
     mollist = list(mollist) # be safe in case it's identical to assy.selmols,
-    # which we might modify as we run
+        # which we might modify as we run
     assert len(mollist) >= 1
     ## mollist.sort() #k ok for mols? should be sorted by name, or by
     ## # position in model tree groups, I think...
@@ -1641,7 +1629,14 @@ def assy_merge_mols(assy, mollist):
         # note: this will unpick mol (modifying assy.selmols) and kill it
     return res
 
-def assy_fix_selmol_bugs(assy): ###@@@ 041116 new feature, untested ###@@@ use it
+def assy_fix_selmol_bugs(assy):
+    # 041116 new feature; as of 041222, runs but don't know if it catches bugs
+    # (maybe they were all fixed).
+    # Note that selected chunks might be in clipboard, and as of 041222
+    # they are evidently also in assy.molecules, and extrude operates on them!
+    # It even merges units from main model and clipboard... not sure that's good,
+    # but ignore it until we figure out the correct model tree selection semantics
+    # in general.
     "work around bugs in other code that prevent extrude from entering"
     for mol in list(assy.selmols):
         if (mol not in assy.molecules) or (not mol.dad) or (not mol.assy):
@@ -1654,57 +1649,52 @@ def assy_fix_selmol_bugs(assy): ###@@@ 041116 new feature, untested ###@@@ use i
                 mol.unpick()
             except:
                 pass
-            try:
-                mol.kill()
-            except:
-                pass
+            # but don't kill it (like i did before 041222)
+            # in case it's in clipboard and user wants it still there
     #e worry about selatoms too?
     return
 
 # this can remain a local function
-def assy_extrude_unit(assy):
-    """if we can find a good extrude unit in assy,
+def assy_extrude_unit(assy, really_make_mol = 1):
+    """If we can find a good extrude unit in assy,
        make it a molecule in there, and return (True, mol);
        else return (False, whynot).
        Note: we might modify assy even if we return False in the end!!!
-       #e Fix that later.
-       Best solution: make a nondet version that just returns the flag, for use in refuseEnter. Should be easy enough.
+       To mitigate that (for use in refuseEnter), caller can pass
+       really_make_mol = 0, and then we will not change anything in assy
+       (unless it has bugs caught by assy_fix_selmol_bugs),
+       and return either (True, "not a mol") or (False, whynot).
     """
+    # bruce 041222: adding really_make_mol flag.
     assy_fix_selmol_bugs(assy)
+    resmol = "not a mol"
     if assy.selmols:
         assert type(assy.selmols) == type([]) # assumed by this code; always true at the moment
-        return True, assy_merge_mols( assy, assy.selmols) # merge the selected mols into one
+        if really_make_mol:
+            resmol = assy_merge_mols( assy, assy.selmols) # merge the selected mols into one
+        return True, resmol
             #e in future, better to make them a group? or use them in parallel?
-##        if len(assy.selmols) > 1:
-##            print 'assy.selmols is',`assy.selmols` #debug
-##            return False, "more than one molecule selected (and we can't yet merge them)"
-##        else:
-##            return True, assy.selmols[0] #e later use assy_merge_mols
     elif assy.selatoms:
-        res = []
-        def new_old(new, old):
-            # new = fragment of selected atoms, old = rest of their mol
-            assert new.atoms
-            res.append(new) #e someday we might use old too, eg for undo or for heuristics to help deal with neighbor-atoms...
-        try:
-            assy.selwhat = 0 # josh says: It should correspond, or there's a bug. You can always set it... [bruce 041015]
-        except:
-            pass # (tho the above should work even if the attr becomes obsolete!)
-        assy.modifySeparate(new_old_callback = new_old) # make the selected atoms into their own mols
-        assert res, "what happened to all those selected atoms???" # (or did assy.selwhat check in modifySeparate mess us up?)
-        return True, assy_merge_mols( assy, res) # merge the newly made mol-fragments into one
-##        if len(res) > 1:
-##            return False, "more than one mol contains selected atoms, and stub code can't yet merge them"
-##        else:
-##            return True, res[0] #e later use assy_merge_mols
-        #e or for multiple mols, should we do several extrudes in parallel? hmm, might be useful...
+        if really_make_mol:
+            res = []
+            def new_old(new, old):
+                # new = fragment of selected atoms, old = rest of their mol
+                assert new.atoms
+                res.append(new) #e someday we might use old too, eg for undo or for heuristics to help deal with neighbor-atoms...
+            assy.modifySeparate(new_old_callback = new_old) # make the selected atoms into their own mols
+                # note: that generates a status msg (as of 041222).
+            assert res, "what happened to all those selected atoms???"
+            resmol = assy_merge_mols( assy, res) # merge the newly made mol-fragments into one
+                #e or for multiple mols, should we do several extrudes in parallel? hmm, might be useful...
+        return True, resmol
     elif len(assy.molecules) == 1:
         # nothing selected, but exactly one molecule in all -- just use it
-        return True, assy.molecules[0]
+        if really_make_mol:
+            resmol = assy.molecules[0]
+        return True, resmol
     else:
-        print 'assy.molecules is',`assy.molecules` #debug
+        ## print 'assy.molecules is',`assy.molecules` #debug
         return False, "don't know what to extrude: nothing selected, and not exactly one chunk in all"
-        #e someday might merge multiple mols...
     pass
 
 # ==
@@ -1712,9 +1702,7 @@ def assy_extrude_unit(assy):
 #e between two molecules, find overlapping atoms/bonds ("bad") or singlets ("good") -- as a function of all possible offsets
 # (in future, some cases of overlapping atoms might be ok, since those atoms could be merged into one)
 
-# ==
-
-###### lots of experimental code below here
+# (for now, we notice only bondable singlets, nothing about overlapping atoms or bonds)
 
 cosine_of_permitted_noncollinearity = 0.5 #e we might want to adjust this parameter
 
@@ -1777,122 +1765,11 @@ else:
     print "reloading extrudeMode.py"
 pass
 
-def mol_singlets(mol):
-    "return a sequence of the singlets of molecule mol"
-    #e see also mol.singlpos, an array of the singlet positions,
-    # which could speed up our "explore" method for a specific offset2
-
-    #e someday just replace this with:
-    # return mol.singlets ###@@@
-    return mol.get_singlets()
-##
-##def get_singlets(self): ###@@@ move to chem
-##    "return a sequence of the singlets of molecule self"
-##    try:
-##        return self.singlets
-##    except AttributeError:
-##        if not self.atoms:
-##            print "fyi, mol_singlets(mol) returns [] since mol %r has no atoms" % (self,)
-##            return []
-##        else:
-##            self.shakedown() # this sets singlets = array(singlets, PyObject),
-##             # but only if self has any atoms
-##            return self.singlets
-##    pass
-
-def molecule_dispdef(mol, glpane):
-    return mol.get_dispdef(glpane)
-
-### should be a method on molecule:
-##def molecule_dispdef(mol, glpane):
-##    # copied out of molecule.draw
-##    self = mol
-##    o = glpane
-##    if self.display != diDEFAULT: disp = self.display
-##    else: disp = o.display
-##    return disp
-    
-### custom-modified versions of atom and molecule copy methods
-##
-##def atom_copy(self, numol): ###@@@ move to chem... ok, chem's atom copy now does this
-##    """create a copy of the atom
-##    (to go in numol, a copy of its molecule)
-##    """
-##    nuat = atom(self.element.symbol, 'no', numol)
-##    nuat.index = self.index
-##    try:
-##        nuat.info = self.info # bruce
-##    except AttributeError:
-##        pass
-##    return nuat
-##
-##def mol_copy(self, dad=None, offset=V(0,0,0)): ###@@@ move to chem... has a couple changes... now that one is ok too.
-##    """Copy the molecule to a new molecule.
-##    offset tells where it will go relative to the original.
-##    """
-##    pairlis = []
-##    ndix = {}
-##    numol = molecule(self.assy, gensym(self.name)) ###### should let caller pass a nicer name or name-suffix
-##    for a in self.atoms.itervalues():
-##        ## na = a.copy(numol)
-##        na = atom_copy(a, numol) # bruce; also copies a.info
-##        pairlis += [(a, na)]
-##        ndix[a.key] = na
-##    for (a, na) in pairlis:
-##        for b in a.bonds:
-##            if b.other(a).key in ndix:
-##                numol.bond(na,ndix[b.other(a).key])
-##    ## not needed: verify has no effect: [done]
-##    ## numol.basepos = self.basepos + offset ####### bruce 041019 added this, will this fix ninad's bug? no! (shakedown ignores it)
-##    ### what about quat? center? etc? shakedown recomputes center and sets it, but sets quat to 1. uses its own atom posns.
-##    numol.curpos = self.curpos+offset
-##    numol.shakedown()
-##    numol.setDisplay(self.display)
-##    numol.dad = dad ##### should let caller put these in a new group
-##    try:
-##        numol._colorfunc = self._colorfunc # bruce
-##    except AttributeError:
-##        pass
-##    return numol
-
 def mark_singlets(basemol, colorfunc):
     for a in basemol.atoms.itervalues():
         a.info = a.key
     basemol._colorfunc = colorfunc # maps atoms to colors (due to a hack i will add)
     return
-
-    
-##def makeBonded_without_moving_or_shakedown(s1, s2): # modified from chem.makeBonded
-##    ###e check whether rewritten chem.makeBonded (with invals not shakedowns) can be directly used ###@@@ 041109
-##    """s1 and s2 are singlets; make a bond between their real atoms in
-##    their stead. If they are in different molecules, DON'T move s1's to
-##    match the bond. [customized for extrude by bruce 041015 from recent
-##     josh code in chem.py; also added some asserts; also REMOVED SHAKEDOWN]
-##    """
-##    assert s1.element == Singlet
-##    assert s2.element == Singlet
-##    assert s1 != s2
-##    a1 = singlet_atom(s1)
-##    a2 = singlet_atom(s2)
-##    
-##    m1 = s1.molecule ###@@@ should be a1.mol...
-##    m2 = s2.molecule
-##    if m1 != m2:
-##        pass # don't move m1
-##
-##    ###e does it matter that following code forgets which singlets were involved,
-##    # before bonding? or should it use something like bond.rebond or a new related method?
-##    s1.kill()
-##    s2.kill()
-##    m1.bond(a1,a2) # even though m2 might not equal m1... does choice of mol matter? [041109: no.]
-##    
-##    ## let's try waiting until we're done, for the shakedowns
-##    ##m1.shakedown()
-##    ##m2.shakedown()
-##    # but we'll at least do this:###@@@ won't be needed #k 041109
-##    m1.changeapp()
-##    m2.changeapp()
-
 
 
 #end of extrude
@@ -1920,25 +1797,7 @@ class revolveMode(extrudeMode):
 
 
 # more customized should-be mol methods
-
-def mol_set_basecenter_and_quat(mol, center, quat):
-    "change mol's center and quat to the specified values"
-    # moved into class molecule by bruce 041104
-    mol.set_basecenter_and_quat(center, quat)
     
-##    ##print 'mol_set_basecenter_and_quat', mol, center, quat
-##    # modified from mol.move and mol.rot as of 041015 night
-##    # make sure mol owns its new center and quat,
-##    # since it might destructively modify them later!
-##    self = mol
-##    self.center = V(0,0,0) + center
-##    self.quat = Q(1,0,0,0) + quat
-##    self.curpos = self.center + self.quat.rot(self.basepos)
-##    if self.singlets:
-##        self.singlpos = self.center + self.quat.rot(self.singlbase)
-##    for bon in self.externs:
-##        bon.setup_invalidate() # changed from setup 041104; not tested 
-
 def floats_near(f1,f2):
     return abs( f1-f2 ) <= 0.0000001 # just for use in sanity-check assertions
 
