@@ -22,6 +22,8 @@ from chunk import molecule
 from gadgets import Jig
 
 
+# helpers for making context menu commands
+
 class statsclass:
     "class for holding and totalling counts of whatever you want, in named attributes"
     def __getattr__(self, attr):
@@ -50,8 +52,6 @@ class statsclass:
     __repr__ = __str__ #k needed?
     pass
 
-# helper function for making context menus
-
 def accumulate_stats(node, stats):
     """When making a context menu from a nodeset (of "topselected nodes"),
     this is run once on every topselected node (note: they are all picked)
@@ -69,6 +69,8 @@ def accumulate_stats(node, stats):
     stats.nopen += int(node.open)
     return
 
+# main widget class
+
 class modelTree(TreeWidget):
     def __init__(self, parent, win, name = "modelTreeView"):
         """#doc"""
@@ -78,9 +80,6 @@ class modelTree(TreeWidget):
         # debug menu and reload command - inited in superclass ###k ok?
 
         self.assy = win.assy #k needed? btw does any superclass depend on this?? ###@@@
-
-##        ###@@@ soon to be obs (or moved elsewhere):
-##        self._init_menus()
 
         self.initialized = 1 ###@@@ review where this is done
         self.mt_update() ###@@@ review where done, and name (split it?)
@@ -194,9 +193,6 @@ class modelTree(TreeWidget):
             node.__stats = statsclass() # we expect python name-mangling to make this _modelTree__stats (or something like that)
             node.apply2all( lambda n1: accumulate_stats( n1, node.__stats) )
             allstats += node.__stats # totals to allstats
-            ## print "so far: node.__stats = %r, allstats = %r" % (node.__stats, allstats) #####@@@@@
-        
-        # ...
 
         # Hide command (and sometimes Unhide)
         
@@ -207,9 +203,6 @@ class modelTree(TreeWidget):
         nhidden = allstats.nhidden
         nunhidden = nleafs - nhidden # since only leafs can be hidden
         assert nunhidden >= 0
-##        print nodeset #####@@@@@
-##        print "nleafs = %d, nhidden = %d, nunhidden = %d" % (nleafs, nhidden, nunhidden)  #####@@@@@
-##        print allstats #####@@@@@
 
         # We'll always define a Hide item. Checked means all is hidden (and the command will be unhide);
         # unchecked means not all is hidden (and the command will be hide).
@@ -218,21 +211,32 @@ class modelTree(TreeWidget):
             res.append(( 'Hide', noop, 'disabled')) # nothing that can be hidden
         elif nunhidden == 0:
             # all is hidden -- show that, and offer to unhide it all
-            res.append(( 'Hidden', self.cm_unhide, 'checked'))
+            ## res.append(( 'Hidden', self.cm_unhide, 'checked'))
+            res.append(( 'Unhide', self.cm_unhide)) # will this be better?
+            ##e do we want special cases saying "Unhide All", here and below,
+            # when all hidden items would be unhidden, or vice versa?
+            # (on PartGroup, or in other cases, so detect by comparing counts for sel and tree_node.)
         elif nhidden > 0:
             # some is not hidden, some is hidden -- make this clear & offer both extremes
             ## res.append(( 'Hide (' + fix_plurals('%d item(s)' % nunhidden) + ')', self.cm_hide )) #e fix_plurals bug, worked around
-            res.append(( fix_plurals('Hide %d item(s)' % nunhidden), self.cm_hide ))
             res.append(( fix_plurals('Unhide %d item(s)' % nhidden), self.cm_unhide ))
+            res.append(( fix_plurals('Hide %d item(s)' % nunhidden), self.cm_hide ))
         else:
             # all is unhidden -- just offer to hide it
             res.append(( 'Hide', self.cm_hide ))
 
-        # Edit Properties command -- only provide this when there's exactly one thing to apply it to, I guess.
-        if len(nodeset) == 1:
+        res.append(None) # separator
+        
+        # Edit Properties command -- only provide this when there's exactly one thing to apply it to,
+        # and it says it can handle it.
+        ###e Command name should depend on what the thing is, e.g. "Part Properties", "Chunk Properties".
+        # Need to add methods to return that "user-visible class name".
+        if len(nodeset) == 1 and nodeset[0].edit_props_enabled():
             res.append(( 'Properties', self.cm_properties ))
         else:
             res.append(( 'Properties', noop, 'disabled' )) # nim for multiple items
+
+        res.append(None) # separator
 
         # Group command -- only when more than one thing is picked, and they're all in the same "assembly-node" --
         # kluging this for now as "PartGroup or a Shelf member", but it ought to be determined more rationally.
@@ -252,83 +256,64 @@ class modelTree(TreeWidget):
 
         if len(nodeset) == 1 and nodeset[0].permits_ungrouping():
             # (this implies it's a group, or enough like one)
-            res.append(( 'Ungroup', self.cm_ungroup )) #####@@@@@ implem; use node.ungroup
+            res.append(( 'Ungroup', self.cm_ungroup ))
         else:
             res.append(( 'Ungroup', noop, 'disabled' ))
-            
-            
-        ###e more to follow...
+         
+        ###e more to follow... e.g. copy, cut, delete, maybe duplicate...
 
         # add basic info on what's selected at the end (later might turn into commands related to subclasses of nodes)
-        
-        ##e following msg is not true, since nodeset doesn't include selection under selected groups!
-        # need to replace it with a better breakdown of what's selected,
-        # incl how much under selected groups is selected. Maybe we'll add a list of major types
-        # of selected things, as submenus, lower down (with commands like "select only these", "deselect these").
-        
-        res.append(( fix_plurals("(%d item(s) selected)" % len(nodeset)), noop, 'disabled' )) #e move to bottom?
+
+        if allstats.nchunks + allstats.njigs: # otherwise, nothing we can yet print stats on... (e.g. clipboard)
+
+            res.append(None) # separator
+
+            res.append(( "selection:", noop, 'disabled' ))
+            
+##            if len(nodeset) > 1:
+##                res.append(( "%d selections:" % len(nodeset), noop, 'disabled' ))
+##            else:
+##                res.append(( "selection:", noop, 'disabled' ))
+            
+            if allstats.nchunks:
+                res.append(( fix_plurals("%d chunk(s)" % allstats.nchunks), noop, 'disabled' ))
+            
+            if allstats.njigs:
+                res.append(( fix_plurals("%d jig(s)" % allstats.njigs), noop, 'disabled' ))
+            
+            if allstats.nhidden:
+                res.append(( fix_plurals("(%d of these are hidden)" % allstats.nhidden), noop, 'disabled' ))
+
+##        ##e following msg is not true, since nodeset doesn't include selection under selected groups!
+##        # need to replace it with a better breakdown of what's selected,
+##        # incl how much under selected groups is selected. Maybe we'll add a list of major types
+##        # of selected things, as submenus, lower down (with commands like "select only these", "deselect these").
+##        
+##        res.append(( fix_plurals("(%d selected item(s))" % len(nodeset)), noop, 'disabled' ))
+
+        # pre-alpha warning [050126] (hope to be able to remove this for alpha):
+        shelf_npicked = self.shelf_node.nodespicked() - int(self.shelf_node.picked)
+            # clipboard itself, picked alone, probably has no bad bugs to warn about
+        if shelf_npicked:
+            res.append(None) # separator
+            res.append(( fix_plurals("(%d selected item(s) in clipboard)" % shelf_npicked), noop, 'disabled' ))
+            res.append(( "WARNING (pre-alpha): clipboard selections have bugs", noop ))
 
         return res # from make_cmenuspec_for_set
 
-    
-##        # ok, what does the following do or want to do?
-##        # click on data item (csys or datum plane) or directly on part node or clipboard node (maybe unintended? maybe not):
-##        #     iff name is assy name (true only for part node i think), then use partmenu
-##        # in other words, there is a special menu for the Part node itself, and no menu at all for those other special high up nodes.
-##        # (which is not right, but never mind) [btw the finder sel item / cmenu rules don't know about sel group specialness... #think)
-##        # [btw i suspect we should contribute menu entries for both the itemness (eg collapse all) and the nodeness...]
-##        #
-##        # click on any other item: fall thru... or on no item: no menu [wrong, fixed above]
-##        if item:
-##            self.last_selected_node = item.object
-##            sdaddy = self.last_selected_node.whosurdaddy()
-##            if sdaddy in ["ROOT","Data"]: 
-##                # This conditional should change.  There has to be a better check.
-##                # We get the partmenu if another object has the same name as the assy.
-##                # Mark 041225 (Merry Xmas!)
-##                if self.last_selected_node.name == self.assy.name: 
-##                    return self.partmenu_spec
-##                return
-##            # else fall thru
-##        else:
-##            self.last_selected_node = None
-##            return
-##
-##        # ok what does this do (for a real and ordinary item - a chunk or group, never the partgroup)?
-##        # what it looks like it wanted to do: if any sel in clipboard, use clipboardmenu,
-##        # else if any in main model, use right one of singlemenu and multimenu.
-##        # and does 0/False wrongness make it do anything different? no, it was ok since called on groups.
-##        
-##        # Figure out which menu to display 
-##        # (This is kludgy - meant to be a quick fix for Alpha) - Mark
-##        treepicked = self.assy.tree.nodespicked() #Number of nodes picked in the MT
-##        clippicked = self.assy.shelf.nodespicked() #Number of nodes picked in the clipboard
-##        if treepicked == 0 and clippicked == 0:
-##            return
-##        if clippicked:
-##             ###@@@ bruce 041227 comment: this test being first could be bad
-##            # for depositmode's current use of clipboard selection; but that use
-##            # is slated to be changed.
-##            return self.clipboardmenu_spec
-##        elif treepicked == 1:
-##            return self.singlemenu_spec
-##        elif treepicked > 1:
-##            return self.multimenu_spec
-
-
     ## Context menu handler functions [bruce 050112 renamed them; "hide" hid a QWidget method!]
 
-    # good enough for now: [050125]
+    # these ones are good enough for now [050125]
+    # (but they'll need revision when we fix clipboard bugs)
     
     def cm_hide(self):
         self.win.history.message("Hide: %d selected items or groups" % len(self.topmost_selected_nodes()))
-        ## print "assy.selwhat =",self.assy.selwhat
-        self.assy.permit_pick_parts() #e should not be needed here, but see if it fixes my bugs #####@@@@@
+        self.assy.permit_pick_parts() #e should not be needed here, but see if it fixes my bugs ###@@@ #k still needed? if so, why?
         self.assy.Hide() # operates only on assy.tree, using apply2picked; includes win_update
         
     def cm_unhide(self):
         self.win.history.message("Unhide: %d selected items or groups" % len(self.topmost_selected_nodes()))
-        self.assy.permit_pick_parts() #e should not be needed here, but see if it fixes my bugs #####@@@@@
+        self.assy.permit_pick_parts() #e should not be needed here [see same comment above]
         self.assy.Unhide() # operates only on assy.tree, using apply2picked; includes win_update
     
     def cm_properties(self):
@@ -351,7 +336,7 @@ class modelTree(TreeWidget):
         # making a 1-item group. That idea can wait. [bruce 050126]
         ###@@@ the use of assy.tree to find what to operate on is wrong
         # (and will prevent this from working inside the clipboard);
-        # this tolerable for the moment. [bruce 050126]
+        # this is tolerable for the moment. [bruce 050126]
         node = self.assy.tree.hindmost() # smallest nodetree containing all picked nodes 
         if not node:
             self.win.history.message("nothing selected to Group") # should never happen
@@ -372,7 +357,8 @@ class modelTree(TreeWidget):
 
         # make a new Group (inside node, same assy)
         ###e future: require all assys the same, or, do this once per topnode or assy-node.
-        # for now: this will have bugs when done across topnodes! ####@@@@
+        # for now: this will have bugs when done across topnodes!
+        # so the caller doesn't let that happen, for now. [050126]
         new = Group(gensym("Group"), node.assy, node) # was self.assy
         assert not new.picked
 
@@ -380,20 +366,19 @@ class modelTree(TreeWidget):
         for m in node.members:
             if m.haspicked():
                 assert m != new
-                node.delmember(new) #e (addsibling ought to do this)
+                node.delmember(new) #e (addsibling ought to do this for us...)
                 m.addsibling(new, before = True)
-                break # always happens; don't bother asserting this
+                break # (this always happens, since something was picked under node)
         node.apply2picked(lambda(x): x.moveto(new)) # was self.tree_item.object.apply2picked
             # this will have skipped new before moving anything picked into it!
             # even so, I'd feel better if it unpicked them before moving them...
-            # for now, just see if it works this way.
-        msg = "moved %d items to new %s before them" % (len(new.members), new.name)
-            # this assumes new.name starts with Group, as it does now
+            # but I guess it doesn't. for now, just see if it works this way... seems to work.
+        msg = "grouped %d items into %s" % (len(new.members), new.name)
         self.win.history.message( msg)
         
         # we have not changed picked state of anything in glpane, so in theory only the mtree
         # needs updating... [050126, untested]
-        self.mt_update() # bruce 050110 this does not seem to be always working ####@@@@
+        self.mt_update() # bruce 050110 this does not seem to be always working ###@@@ still??
     
     def cm_ungroup(self):
         nodeset = self.topmost_selected_nodes()
@@ -401,7 +386,8 @@ class modelTree(TreeWidget):
         node = nodeset[0]
         assert node.permits_ungrouping()
         node.ungroup()
-        # for now, this does not change the picked state, so no glpane update it needed... [050126, untested]
+        # for now, this does not change the picked state, so no glpane update is needed... [050126, untested]
+        #e history.message?
         self.mt_update()
 
     # not yet reviewed: [050126] ###@@@
@@ -418,11 +404,6 @@ class modelTree(TreeWidget):
         # note: this is essentially the same as MWsemantics.killDo. [bruce 041220 comment]
         self.assy.kill()
         self.win.win_update() # Changed from self.mt_update for deleting from MT menu. Mark [04-12-03]
-
-## zapped by bruce 050108 since unused and uses deprecated node.setopen:
-##    def expand(self):
-##        self.tree_item.object.apply2tree(lambda(x): x.setopen())
-##        self.mt_update()
 
     pass # end of class modelTree
 
