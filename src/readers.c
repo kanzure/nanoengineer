@@ -72,7 +72,7 @@ void makbond(int a, int b, int ord) {
     int n, t, typ, ta, tb, a1, a2;
     double bl, sbl;
 	
-    // printf("making bond %d--%d\n",a,b);
+    DPRINT(D_READER, "making bond %d--%d\n",a,b);
     bond[Nexbon].an1=a;
     bond[Nexbon].an2=b;
     bond[Nexbon].order=ord;
@@ -264,7 +264,7 @@ void makmot2(int i) {
     // mot->moment = (Dt*Dt)/mominert;
     // give the motor a flywheel w/ Tc about a picosecond
     mot->moment = (Dt*Dt)/(mot->stall*1e8*1e-27/(1e-9/Dx));
-    printf("moment %e\n", mot->moment);
+    DPRINT(D_READER, "moment %e\n", mot->moment);
     mot->theta = 0.0;
     mot->theta0 = 0.0;
 	
@@ -287,7 +287,7 @@ int readname(char *buf, char **ret) {
   char b1[128];
   int j;
   sscanf(buf, "(%[^)])%n", b1, &j);
-  // printf("got name (%s)\n", b1);
+  DPRINT(D_READER, "got name (%s)\n", b1);
   *ret = malloc(strlen(b1)+1);
   strcpy(*ret, b1);
   return j;
@@ -298,13 +298,13 @@ int readshaft(char *buf, int *iv, int *atnotab) {
 
   int i, j;
 	
-  // printf("from <%s> ", buf);
+  DPRINT(D_READER, "from <%s> ", buf);
   j=sscanf(buf, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
 	   iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
 	   iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
 	   iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24, iv+25,
 	   iv+26, iv+27, iv+28, iv+29);
-  // printf ("got shaft of %d atoms\n",j);
+  DPRINT(D_READER, "got shaft of %d atoms\n",j);
   for (i=0; i<j; i++) iv[i]=atnotab[iv[i]];
   return j;
 }
@@ -337,10 +337,9 @@ void filred(char *filnam) {
 	/* position vectors are integral 0.1pm */
 	if (0==strncasecmp("atom",buf,4)) {
 	    sscanf(buf+4, "%d (%d) (%d,%d,%d", &atnum, &ie, &ix, &iy, &iz);
-	    /*
-	      printf("in filred: %s %d (%d) (%d,%d,%d) \n","atom",
-	      lastatom,ie, ix, iy, iz );
-	    */
+
+            DPRINT(D_READER, "in filred: %s %d (%d) (%d,%d,%d) \n","atom",
+                   lastatom,ie, ix, iy, iz );
 	    
 	    // hack: change singlets to hydrogen
 	    // if (ie == 0) ie=1;
@@ -357,10 +356,10 @@ void filred(char *filnam) {
 
 	/* bondO atno atno atno ... (where O is order) */
 	else if (0==strncasecmp("bond",buf,4)) {
-	  // printf("%s\n",buf);
+	  DPRINT(D_READER, "%s\n",buf);
 	  sscanf(buf+4, "%d", &ord);
 	  j=readshaft(buf+5, iv, atnotab);
-	  // printf("j=%d\n",j);
+	  DPRINT(D_READER, "j=%d\n",j);
 	  for (i=0; i<j; i++) makbond(lastatom, iv[i], ord);
 	}
 		
@@ -391,8 +390,8 @@ void filred(char *filnam) {
 
 	  j=readshaft(buf+7+i+j, iv, atnotab);
 
-	  printf("got thermometer (%s) @%d\n", strg, j);
-	  printf ("got shaft of %d atoms\n",j);
+	  DPRINT(D_READER, "got thermometer (%s) @%d\n", strg, j);
+	  DPRINT(D_READER, "got shaft of %d atoms\n",j);
 
 	  i=makcon(CODEtemp, NULL, j, iv);
 	  Constraint[i].name = strg;
@@ -403,7 +402,7 @@ void filred(char *filnam) {
 	else if (0==strncasecmp("angle",buf,5)) {
 
 	  j=readname(buf+6,&strg);
-	  printf("got angle meter (%s) @%d\n", strg, j);
+	  DPRINT(D_READER, "got angle meter (%s) @%d\n", strg, j);
 	  j=readshaft(buf+6+j, iv, atnotab);
 	  i=makcon(CODEangle, NULL, j, iv);
 	  Constraint[i].name = strg;
@@ -414,7 +413,7 @@ void filred(char *filnam) {
 	else if (0==strncasecmp("radius",buf,6)) {
 
 	  j=readname(buf+7,&strg);
-	  printf("got radius meter (%s) @%d\n", strg, j);
+	  DPRINT(D_READER, "got radius meter (%s) @%d\n", strg, j);
 	  j=readshaft(buf+7+j, iv, atnotab);
 	  i=makcon(CODEradius, NULL, j, iv);
 	  Constraint[i].name = strg;
@@ -425,7 +424,7 @@ void filred(char *filnam) {
 	else if (0==strncasecmp("stat",buf,4)) {
 	  i=readname(buf+5,&strg);
 	  sscanf(buf+5+i, " (%[0-9, ]) (%d)%n", nambuf, &ix, &j);
-	  // printf("%s%sgot stat (%s) %d @%d\n", buf+5+i, buf+5+i+j, strg, ix, j);
+	  DPRINT(D_READER, "%s%sgot stat (%s) %d @%d\n", buf+5+i, buf+5+i+j, strg, ix, j);
 	  j=readshaft(buf+5+i+j, iv, atnotab);
 	  i=makcon(CODEstat, NULL, j, iv);
 	  Constraint[i].temp = ix;
@@ -439,8 +438,8 @@ void filred(char *filnam) {
 	    j=readname(buf+7,&strg);
 	    sscanf(buf+j+7, " (%[0-9, ]) %lf %lf (%d, %d, %d) (%d, %d, %d",
 		   nambuf, &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
-	    // printf("%s\ngot motor (%s)  %lf %lf (%d, %d, %d) (%d, %d, %d) \n",
-	    //	   buf,strg,stall,speed, ix, iy, iz, ix1, iy1, iz1);
+	    DPRINT(D_READER, "%s\ngot motor (%s)  %lf %lf (%d, %d, %d) (%d, %d, %d) \n",
+                   buf,strg,stall,speed, ix, iy, iz, ix1, iy1, iz1);
 	    vec1.x=(double)ix *0.1;
 	    vec1.y=(double)iy *0.1;
 	    vec1.z=(double)iz *0.1;
@@ -448,8 +447,9 @@ void filred(char *filnam) {
 	    vec2.y=(double)iy1 *0.1;
 	    vec2.z=(double)iz1 *0.1;
 	    fgets(buf,127,file);
-	    if (strncasecmp("shaft",buf,5)) printf("motor needs a shaft\n");
-	    else {
+	    if (strncasecmp("shaft",buf,5)) {
+              fprintf(stderr, "motor needs a shaft: %d\n", j);
+            } else {
 	      j=readshaft(buf+5, iv, atnotab);
 
 	      i=makcon(CODEmotor, makmot(stall, speed, vec1, vec2), j, iv);
@@ -464,7 +464,7 @@ void filred(char *filnam) {
 	  for (i=2,j=8;i;j++) if (buf[j]==')') i--;
 	    sscanf(buf+j+1, " (%d, %d, %d) (%d, %d, %d",
 		    &ix, &iy, &iz, &ix1, &iy1, &iz1);
-	    printf("%s\ngot bearing (%d)  (%d, %d, %d) (%d, %d, %d) \n",
+	    DPRINT(D_READER, "%s\ngot bearing (%d)  (%d, %d, %d) (%d, %d, %d) \n",
 		   buf,j, ix, iy, iz, ix1, iy1, iz1);	
 	    vec1.x=(double)ix *0.1;
 	    vec1.y=(double)iy *0.1;
@@ -473,8 +473,9 @@ void filred(char *filnam) {
 	    vec2.y=(double)iy1 *0.1;
 	    vec2.z=(double)iz1 *0.1;
 	    fgets(buf,127,file);
-	    if (strncasecmp("shaft",buf,5)) printf("bearing needs a shaft\n");
-	    else {
+	    if (strncasecmp("shaft",buf,5)) {
+              fprintf(stderr, "bearing needs a shaft: %d\n", j);
+            } else {
 	      j=readshaft(buf+5, iv, atnotab);
 
 	      i=makcon(CODEbearing, makmot(stall, speed, vec1, vec2), j, iv);
@@ -497,8 +498,9 @@ void filred(char *filnam) {
 	    vec2.y=(double)iy1 *0.1;
 	    vec2.z=(double)iz1 *0.1;
 	    fgets(buf,127,file);
-	    if (strncasecmp("shaft",buf,5)) printf("lmotor needs a shaft\n");
-	    else {
+	    if (strncasecmp("shaft",buf,5)) {
+              fprintf(stderr, "lmotor needs a shaft\n");
+            } else {
 	      j=readshaft(buf+5, iv, atnotab);
 	      i=makcon(CODElmotor, makmot(stall, speed, vec1, vec2), j, iv);
 	      makmot2(i);
@@ -520,8 +522,9 @@ void filred(char *filnam) {
 	    vec2.y=(double)iy1 *0.1;
 	    vec2.z=(double)iz1 *0.1;
 	    fgets(buf,127,file);
-	    if (strncasecmp("shaft",buf,5)) printf("spring needs a shaft\n");
-	    else {
+	    if (strncasecmp("shaft",buf,5)) {
+              fprintf(stderr, "spring needs a shaft\n");
+            } else {
 	      j=readshaft(buf+5, iv, atnotab);
 	      i=makcon(CODEspring, makmot(stall, speed, vec1, vec2), j, iv);
 	      makmot2(i);
@@ -544,8 +547,9 @@ void filred(char *filnam) {
 	    vec2.y=(double)iy1 *0.1;
 	    vec2.z=(double)iz1 *0.1;
 	    fgets(buf,127,file);
-	    if (strncasecmp("shaft",buf,5)) printf("slider needs a shaft\n");
-	    else {
+	    if (strncasecmp("shaft",buf,5)) {
+              fprintf(stderr, "slider needs a shaft\n");
+            } else {
 	      j=readshaft(buf+5, iv, atnotab);
 	      i=makcon(CODEslider, makmot(stall, speed, vec1, vec2), j, iv);
 	      makmot2(i);
@@ -568,7 +572,7 @@ void filred(char *filnam) {
 	  break;
 	}
 		
-	//else printf("??? %s\n", buf);
+	DPRINT(D_READER, "??? %s\n", buf);
 		
     }
     fclose(file);
@@ -588,7 +592,7 @@ void filred(char *filnam) {
     for (i=0; i<Nexatom; i++) {
 	for (m=0; m<atom[i].nbonds-1; m++) {
 	    for (n=m+1; n<atom[i].nbonds; n++) {
-		checkatom(i);
+		checkatom(stderr, i);
 		maktorq(atom[i].bonds[m], atom[i].bonds[n]);
 	    }
 	}

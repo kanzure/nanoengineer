@@ -6,6 +6,14 @@
 #define DBGPRINTF(x...) ((void) 0)
 #endif
 
+extern int debug_flags;
+#define DEBUG(flag) (debug_flags & (flag))
+#define DPRINT(flag, x...) (DEBUG(flag) ? fprintf(stderr, ## x) : (void) 0)
+
+#define D_TABLE_BOUNDS    (1<<0)
+#define D_READER          (1<<1)
+#define D_MINIMIZE        (1<<2)
+
 #define NATOMS 100000
 #define NBONDS 12
 /* that's bonds per atom! */
@@ -305,10 +313,10 @@ extern struct A atom[];
 extern struct B bond[];
 extern struct Q torq[];
 // extern char *elname[37];
-extern void pbontyp(struct bsdata *ab);
+extern void pbontyp(FILE *f, struct bsdata *ab);
 extern int Iteration;
-extern void bondump(void);
-extern void pangben(struct angben *ab);
+extern void bondump(FILE *f);
+extern void pangben(FILE *f, struct angben *ab);
 extern int findbond(int btyp);
 extern int findtorq(int btyp1, int btyp2);
 // extern struct vdWtab vanderTable[(37 * (37 +1))/2];
@@ -343,7 +351,7 @@ extern double totMass;
 extern struct xyz Cog;
 extern struct xyz P;
 extern struct xyz Omega;
-extern void speedump(void);
+extern void speedump(FILE *f);
 extern double t1[150];
 extern double t2[150];
 extern double start;
@@ -359,13 +367,13 @@ extern void vdWsetup(void);
 extern double gavss(double v);
 extern struct xyz gxyz(double v);
 extern struct xyz sxyz(double *v);
-extern void pv(struct xyz foo);
-extern void pvt(struct xyz foo);
-extern void pa(int i);
-extern void checkatom(int i);
-extern void pb(int i);
-extern void pq(int i);
-extern void pvdw(struct vdWbuf *buf, int n);
+extern void pv(FILE *f, struct xyz foo);
+extern void pvt(FILE *f, struct xyz foo);
+extern void pa(FILE *f, int i);
+extern void checkatom(FILE *f, int i);
+extern void pb(FILE *f, int i);
+extern void pq(FILE *f, int i);
+extern void pvdw(FILE *f, struct vdWbuf *buf, int n);
 extern void makatom(int elem, struct xyz posn);
 extern void makbon0(int a, int b, int ord);
 extern void makbon1(int n);
@@ -378,7 +386,7 @@ extern void makvander1(struct vdWbuf *buf, int n);
 extern int makcon(int typ, struct MOT *mot, int n, int *atnos);
 extern struct MOT *makmot(double stall, double speed, struct xyz vec1, struct xyz vec2);
 extern void makmot2(int i);
-extern void pcon(int i);
+extern void pcon(FILE *f, int i);
 extern void filred(char *filnam);
 extern int ShotNo;
 extern void calcloop(int iters);

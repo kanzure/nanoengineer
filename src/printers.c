@@ -5,14 +5,14 @@
 
 #include "simulator.h"
 
-void pbontyp(struct bsdata *ab) {
-    printf("Bond between %d / %d of order %d: type %d, length %f, stiffness %f\n table %d, start %f, scale %d\n",
+void pbontyp(FILE *f, struct bsdata *ab) {
+    fprintf(f, "Bond between %d / %d of order %d: type %d, length %f, stiffness %f\n table %d, start %f, scale %d\n",
 	      ab->a1,ab->a2,ab->ord,ab->typ,ab->r0,ab->ks,
 	      ab->table,ab->start,ab->scale);
 	
 }
 
-void bondump() {		/* gather bond statistics */
+void bondump(FILE *f) {		/* gather bond statistics */
     int histo[50][23], totno[50], btyp, i, j, k, n;
     double r, perc, means[50];
     struct bsdata *bt;
@@ -38,28 +38,28 @@ void bondump() {		/* gather bond statistics */
     }
 	
     for (i=0; i<BSTABSIZE; i++) if (totno[i]) {
-	printf("Bond type %s-%s, %d occurences, mean %.2f pm:\n",
+	fprintf(f, "Bond type %s-%s, %d occurences, mean %.2f pm:\n",
 		  element[bstab[i].a1].symbol, element[bstab[i].a2].symbol, totno[i],
 		  means[i]/(double)totno[i]);
 	for (j=0; j<23; j++) {
-	    if ((j-1)%10) printf(" |");
-	    else printf("-+");
+	    if ((j-1)%10) fprintf(f, " |");
+	    else fprintf(f, "-+");
 	    n=(80*histo[i][j])/totno[i];
-	    if (histo[i][j] && n==0) printf(".");
-	    for (k=0; k<n; k++) printf("M");
-	    printf("\n");
+	    if (histo[i][j] && n==0) fprintf(f, ".");
+	    for (k=0; k<n; k++) fprintf(f, "M");
+	    fprintf(f, "\n");
 	}}
-    printf("Iteration %d\n",Iteration);
+    fprintf(f, "Iteration %d\n",Iteration);
 }
 
 
-void pangben(struct angben *ab) {
-    printf("Bend between %d / %d: kb=%.2f, th0=%.2f\n",
+void pangben(FILE *f, struct angben *ab) {
+    fprintf(f, "Bend between %d / %d: kb=%.2f, th0=%.2f\n",
 	   ab->b1typ,ab->b2typ,ab->kb,ab->theta0);
 
 }
 
-void speedump() {		/* gather bond statistics */
+void speedump(FILE *f) {		/* gather bond statistics */
     int histo[20], iv, i, j, k, n;
     double v, eng, toteng=0.0;
 	
@@ -76,95 +76,96 @@ void speedump() {		/* gather bond statistics */
 	histo[iv]++;
     }
 	
-    printf("Kinetic energies:\n");
+    fprintf(f, "Kinetic energies:\n");
     for (j=0; j<21; j++) {
-	if (j%5) printf(" |");
-	else printf("-+");
+	if (j%5) fprintf(f, " |");
+	else fprintf(f, "-+");
 	n=(70*histo[j])/Nexatom;
-	if (histo[j] && n==0) printf(".");
-	for (k=0; k<n; k++) printf("M");
-	printf("\n");
+	if (histo[j] && n==0) fprintf(f, ".");
+	for (k=0; k<n; k++) fprintf(f, "M");
+	fprintf(f, "\n");
     }
-    printf("Iteration %d, KE %e --> %e\n",Iteration,TotalKE,FoundKE);
+    fprintf(f, "Iteration %d, KE %e --> %e\n",Iteration,TotalKE,FoundKE);
 }
 
-void pv(struct xyz foo) {
-    printf("(%.2f, %.2f, %.2f)",foo.x, foo.y, foo.z);
+void pv(FILE *f, struct xyz foo) {
+    fprintf(f, "(%.2f, %.2f, %.2f)",foo.x, foo.y, foo.z);
 }
-void pvt(struct xyz foo) {
-    printf("(%.2f, %.2f, %.2f)\n",foo.x, foo.y, foo.z);
+void pvt(FILE *f, struct xyz foo) {
+    fprintf(f, "(%.2f, %.2f, %.2f)\n",foo.x, foo.y, foo.z);
 }
 
-void pa(int i) {
+void pa(FILE *f, int i) {
     int j, b, ba;
     double v;
 	
-    if (i<0 || i>=Nexatom) printf("bad atom number %d\n",i);
+    if (i<0 || i>=Nexatom) fprintf(f, "bad atom number %d\n",i);
     else {
-	printf("atom %s%d (%d bonds): ", element[atom[i].elt].symbol, i, atom[i].nbonds);
+	fprintf(f, "atom %s%d (%d bonds): ", element[atom[i].elt].symbol, i, atom[i].nbonds);
 	for (j=0; j<atom[i].nbonds; j++) {
 	    b=atom[i].bonds[j];
 	    ba=(i==bond[b].an1 ? bond[b].an2 : bond[b].an1);
-	    printf("[%d/%d]: %s%d, ", b, bond[b].order,
+	    fprintf(f, "[%d/%d]: %s%d, ", b, bond[b].order,
 		      element[atom[ba].elt].symbol, ba);
 	}
 	v=vlen(vdif(cur[i],old[i]));
-	printf("\n   V=%.2f, mV^2=%.6f, pos=", v,1e-4*v*v/atom[i].massacc);
-	pv(cur[i]); pvt(old[i]);
-	printf("   mass = %f, massacc=%e\n", element[atom[i].elt].mass,
+	fprintf(f, "\n   V=%.2f, mV^2=%.6f, pos=", v,1e-4*v*v/atom[i].massacc);
+	pv(f, cur[i]);
+        pvt(f, old[i]);
+	fprintf(f, "   mass = %f, massacc=%e\n", element[atom[i].elt].mass,
 	       atom[i].massacc);
     }
 }
 
-void checkatom(int i) {
+void checkatom(FILE *f, int i) {
     int j, b, ba;
     double v;
 	
-    if (i<0 || i>=Nexatom) printf("bad atom number %d\n",i);
+    if (i<0 || i>=Nexatom) fprintf(f, "bad atom number %d\n",i);
     else if (atom[i].elt < 0 || atom[i].elt >= NUMELTS)
-	printf("bad element in atom %d: %d\n", i, atom[i].elt);
+	fprintf(f, "bad element in atom %d: %d\n", i, atom[i].elt);
     else if (atom[i].nbonds <0 || atom[i].nbonds >NBONDS)
-	printf("bad nbonds in atom %d: %d\n", i, atom[i].nbonds);
+	fprintf(f, "bad nbonds in atom %d: %d\n", i, atom[i].nbonds);
     else if (atom[i].elt < 0 || atom[i].elt >= NUMELTS)
-	printf("bad element in atom %d: %d\n", i, atom[i].elt);
+	fprintf(f, "bad element in atom %d: %d\n", i, atom[i].elt);
     else for (j=0; j<atom[i].nbonds; j++) {
 	b=atom[i].bonds[j];
 	if (b < 0 || b >= Nexbon)
-	    printf("bad bonds number in atom %d: %d\n", i, b);
+	    fprintf(f, "bad bonds number in atom %d: %d\n", i, b);
 	else if (i != bond[b].an1 && i != bond[b].an2) {
-	    printf("bond %d of atom %d [%d] doesn't point back\n", j, i, b);
+	    fprintf(f, "bond %d of atom %d [%d] doesn't point back\n", j, i, b);
 	    exit(0);
 	}
     }
 }
 
-void pb(int i) {
+void pb(FILE *f, int i) {
     double len;
     struct bsdata *bt;
     int index;
 	
-    if (i<0 || i>=Nexbon) printf("bad bond number %d\n",i);
+    if (i<0 || i>=Nexbon) fprintf(f, "bad bond number %d\n",i);
     else {
 	bt = bond[i].type;
 	len = vlen(vdif(cur[bond[i].an1],cur[bond[i].an2]));
-	printf("bond %d[%d] [%s%d(%d)-%s%d(%d)]: length %.1f\n",
+	fprintf(f, "bond %d[%d] [%s%d(%d)-%s%d(%d)]: length %.1f\n",
 		  i, bond[i].order,
 		  element[atom[bond[i].an1].elt].symbol, bond[i].an1, atom[bond[i].an1].elt,
 		  element[atom[bond[i].an1].elt].symbol, bond[i].an2, atom[bond[i].an2].elt,
 		  len);
 	index=(int)((len*len)-bt->start)/bt->scale;
 	if (index<0 || index>=TABLEN)
-	    printf("r0=%.1f, index=%d of %d, off table\n",  bt->r0, index, TABLEN);
-	else printf("r0=%.1f, index=%d of %d, value %f\n", bt->r0, index, TABLEN,
+	    fprintf(f, "r0=%.1f, index=%d of %d, off table\n",  bt->r0, index, TABLEN);
+	else fprintf(f, "r0=%.1f, index=%d of %d, value %f\n", bt->r0, index, TABLEN,
 		       bt->table->t1[index] + len*len*bt->table->t2[index]);
     }
 }
 
-void pq(int i) {
+void pq(FILE *f, int i) {
     struct xyz r1, r2;
-    if (i<0 || i>=Nextorq) printf("bad torq number %d\n",i);
+    if (i<0 || i>=Nextorq) fprintf(f, "bad torq number %d\n",i);
     else {
-	printf("torq %s%d-%s%d-%s%d, that's %d-%d=%d-%d\n",
+	fprintf(f, "torq %s%d-%s%d-%s%d, that's %d-%d=%d-%d\n",
 		  element[atom[torq[i].a1].elt].symbol, torq[i].a1,
 		  element[atom[torq[i].ac].elt].symbol, torq[i].ac,
 		  element[atom[torq[i].a2].elt].symbol, torq[i].a2,
@@ -175,115 +176,117 @@ void pq(int i) {
 		
 	r1=vdif(cur[torq[i].a1],cur[torq[i].ac]);
 	r2=vdif(cur[torq[i].a2],cur[torq[i].ac]);
-	printf("r1= %.1f, r2= %.1f, theta=%.2f (%.0f)\n",
+	fprintf(f, "r1= %.1f, r2= %.1f, theta=%.2f (%.0f)\n",
 		  vlen(r1), vlen(r2), vang(r1, r2),
 		  (180.0/3.1415)*vang(r1, r2));
-	printf(" theta0=%f, Kb=%f, Ks=%f\n",torq[i].theta0, torq[i].kb1,
+	fprintf(f, " theta0=%f, Kb=%f, Ks=%f\n",torq[i].theta0, torq[i].kb1,
 	       torq[i].kb1/(vlen(r1) * vlen(r2)));
     }
 }
 
-void pvdw(struct vdWbuf *buf, int n) {
-    printf("vdW %s%d-%s%d: vanderTable[%d]\n",
+void pvdw(FILE *f, struct vdWbuf *buf, int n) {
+    fprintf(f, "vdW %s%d-%s%d: vanderTable[%d]\n",
 	      element[atom[buf->item[n].a1].elt].symbol, buf->item[n].a1,
 	      element[atom[buf->item[n].a2].elt].symbol, buf->item[n].a2,
 	      buf->item[n].table - vanderTable);
-    printf("start; %f, scale %d, b=%f, m=%f\n",
+    fprintf(f, "start; %f, scale %d, b=%f, m=%f\n",
 	      sqrt(buf->item[n].table->start), buf->item[n].table->scale,
 	      buf->item[n].table->table.t1[0],
 	      buf->item[n].table->table.t2[0]);
 	
 }
 
-void pcon(int i) {
+void pcon(FILE *f, int i) {
     struct MOT *mot;
     int j;
 	
     if (i<0 || i>=Nexcon) {
-	printf("Bad constraint number %d\n",i);
+	fprintf(f, "Bad constraint number %d\n",i);
 	return;
     }
-    printf("Constraint %d: ",i);
+    fprintf(f, "Constraint %d: ",i);
 
     switch (Constraint[i].type) {
 	case CODEground: 
-	printf("Ground:\n atoms ");
+	fprintf(f, "Ground:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     case CODEtemp:
-	printf("Thermometer %s:\n atoms ",Constraint[i].name);
+	fprintf(f, "Thermometer %s:\n atoms ",Constraint[i].name);
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     case CODEstat:
-	printf("Thermostat %s (%f):\n atoms ",
+	fprintf(f, "Thermostat %s (%f):\n atoms ",
 	       Constraint[i].name,Constraint[i].data);
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     case CODEbearing:
-	printf("Bearing:\n atoms ");
+	fprintf(f, "Bearing:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     case CODElmotor:
-	printf("Linear motor:\n atoms ");
+	fprintf(f, "Linear motor:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     case CODEspring:
-	printf("Spring:\n atoms ");
+	fprintf(f, "Spring:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     case CODEslider:
-	printf("Slider:\n atoms ");
+	fprintf(f, "Slider:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     case CODEmotor:
 	mot = Constraint[i].motor;
-	printf("motor; stall torque %.2e, unloaded speed %.2e\n center ",
+	fprintf(f, "motor; stall torque %.2e, unloaded speed %.2e\n center ",
 		  mot->stall, mot->speed);
-	pv(mot->center);
-	printf(" axis ");
-	pvt(mot->axis);
+	pv(f, mot->center);
+	fprintf(f, " axis ");
+	pvt(f, mot->axis);
 		
-	printf(" rot basis ");
-	pv(mot->roty); pv(mot->rotz);
-	printf(" angles %.0f, %.0f, %.0f\n",
+	fprintf(f, " rot basis ");
+	pv(f, mot->roty);
+        pv(f, mot->rotz);
+	fprintf(f, " angles %.0f, %.0f, %.0f\n",
 		  180.0*vang(mot->axis,mot->roty)/Pi,
 		  180.0*vang(mot->rotz,mot->roty)/Pi,
 		  180.0*vang(mot->axis,mot->rotz)/Pi);
 		
 	for (j=0;j<Constraint[i].natoms;j++) {
-	    printf(" atom %d radius %.1f angle %.2f\n   center ",
+	    fprintf(f, " atom %d radius %.1f angle %.2f\n   center ",
 		      Constraint[i].atoms[j], mot->radius[j], mot->atang[j]);
-	    pv(mot->atocent[j]);
-	    printf(" posn "); pvt(mot->ator[j]);
+	    pv(f, mot->atocent[j]);
+	    fprintf(f, " posn ");
+            pvt(f, mot->ator[j]);
 	}
-	printf(" Theta=%.2f, theta0=%.2f, moment factor =%e\n",
+	fprintf(f, " Theta=%.2f, theta0=%.2f, moment factor =%e\n",
 		  mot->theta, mot->theta0, mot->moment);
 	break;
     case CODEangle:   
-	printf("Angle meter %s:\n atoms ",Constraint[i].name);
+	fprintf(f, "Angle meter %s:\n atoms ",Constraint[i].name);
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     case CODEradius:  
-	printf("radius measure %s:\n atoms ",Constraint[i].name);
+	fprintf(f, "radius measure %s:\n atoms ",Constraint[i].name);
 	for (j=0;j<Constraint[i].natoms;j++)
-	    printf("%d ",Constraint[i].atoms[j]);
-	printf("\n");
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
 	break;
     }
 }
