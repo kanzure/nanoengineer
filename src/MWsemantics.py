@@ -668,6 +668,7 @@ class MWsemantics(MainWindow):
 
         self.glpane.scale=self.assy.bbox.scale()
         self.glpane.pov = -self.assy.center
+        self.glpane.setZoomFactor(1.0)
         self.glpane.paintGL()
             
     def setViewHomeToCurrent(self):

@@ -161,6 +161,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
                                ## more likely sitting within the view volume
 
+        self.zoomFactor = 1.0
         # start in perspective mode
         self.ortho = 0
 
@@ -490,8 +491,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # bruce 041214 made just_beyond = 0.0 an optional argument,
         # rather than a hardcoded 0.01 (but put 0.01 into most callers)
 
-        #Trivial optimization, change the point of the next line from(x, y, 0.0) to (x, y, 0.01)
-        #So we don't need the p1 calculation next to the return statment---Huaicai 10/18, 04
         p1 = A(gluUnProject(x, y, just_beyond))
         p2 = A(gluUnProject(x, y, 1.0))
 
@@ -500,7 +499,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
 
         p2 = p1 + k*(p2-p1)
-        #p1 = A(gluUnProject(x, y, just_beyond))
         return (p1, p2)
 
     def SaveMouse(self, event):
@@ -545,6 +543,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         for mol in self.assy.molecules:
             if mol.display == diDEFAULT: mol.changeapp(1)
 
+    def setZoomFactor(self, zFactor):
+            self.zoomFactor = zFactor
+    def getZoomFactor(self):
+            return self.zoomFactor        
 
     def paintGL(self):
         """the main screen-drawing function.
@@ -562,7 +564,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # (Presumably the Qt docs spell this out... find out sometime! #k)
 
         if not self.initialised: return
-
+        
         ##print_compact_stack("paintGL called by: ")
 
         ##start=time.time()
@@ -611,12 +613,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         vdist = 6.0 * self.scale
                 
         if self.ortho:
-            glOrtho(-self.scale*aspect, self.scale*aspect,
-                    -self.scale, self.scale,
+            glOrtho(-self.scale*aspect*self.zoomFactor, self.scale*aspect*self.zoomFactor, -self.scale*self.zoomFactor, self.scale*self.zoomFactor,
                     vdist*self.near, vdist*self.far)
         else:
-            glFrustum(-self.scale*aspect*self.near, self.scale*aspect*self.near,
-                      -self.scale*self.near, self.scale*self.near,
+            glFrustum(-self.scale*aspect*self.near*self.zoomFactor, self.scale*aspect*self.near*self.zoomFactor,
+                      -self.scale*self.near*self.zoomFactor, self.scale*self.near*self.zoomFactor,
                       vdist*self.near, vdist*self.far)
 
         glMatrixMode(GL_MODELVIEW)
