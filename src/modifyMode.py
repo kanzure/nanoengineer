@@ -75,10 +75,17 @@ class modifyMode(basicMode):
         """Move the selected object(s) in the plane of the screen following
         the mouse.
         """
+        #Huaicai 3/23/05: This following line will fix bugs like 460. But
+        #the root of the serials of bugs including a lot of cursor bugs is
+        # the mouse event processing function. For bug 460, the 
+        # obvious reason is leftDown() is not called before the leftDrag()
+        # Call. 
+        if not self.picking: return
+
         # Any changes to leftDrag will need to be added to fusechunkMode.leftDrag
         # Mark 050328
         if not self.o.assy.selmols: return # We aren't dragging anything
-        
+
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
         self.dragdist += vlen(deltaMouse)
@@ -123,10 +130,13 @@ class modifyMode(basicMode):
     def leftCntlDrag(self, event):
         """Do an incremental trackball action on each selected part.
         """
+        ##See comments of leftDrag()--Huaicai 3/23/05
+        if not self.picking: return
+        
         # Any changes to leftCntlDrag will need to be added to fusechunkMode.leftCntlDrag
         # Mark 050328
         if not self.o.assy.selmols: return # We aren't dragging anything
-        
+
         self.o.setCursor(self.w.RotateMolCursor)
         
         w=self.o.width+0.0
@@ -162,6 +172,9 @@ class modifyMode(basicMode):
         """move part along its axis (mouse goes up or down)
            rotate around its axis (left-right)
         """
+        ##See comments of leftDrag()--Huaicai 3/23/05
+        if not self.picking: return
+        
         # Any changes to leftShiftDrag will need to be added to fusechunkMode.leftShiftDrag
         # Mark 050328
         if not self.o.assy.selmols: return # We aren't dragging anything
@@ -221,7 +234,7 @@ class modifyMode(basicMode):
             ('Select Chunks', self.w.toolsSelectMolecules),
             ('Select Atoms', self.w.toolsSelectAtoms), 
             ('Move Chunks', self.w.toolsMoveMolecule, 'checked'),
-            ('Build Atoms', self.w.toolsAtomStart),
+            ('Build Atoms', self.w.toolsBuildAtoms),
          ]
 
         self.debug_Menu_spec = [
