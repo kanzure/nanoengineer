@@ -181,7 +181,7 @@ class InvalMixin:
         # in the initial implem, just storing the attr's value is sufficient.
         # let's just make sure it was in fact stored.
         assert self.__dict__.has_key(attr), "validate_attr finds no attr %r was saved, in %r" % (attr, self)
-        ###e if it was not stored, we could also, instead, print a warning and store None here.
+        #e if it was not stored, we could also, instead, print a warning and store None here.
         pass
 
     def validate_attrs(self, attrs):
@@ -265,7 +265,7 @@ class InvalMixin:
     pass # end of class InvalMixin
 
 
-def getattr_helper(self, attr): #bruce 041118 10:52am rewrote it again, so retest it ###@@@
+def getattr_helper(self, attr):
     "private. self is an InvalMixin instance (but this is a function, not a method)"
     # assume caller has handled attrs starting with '_'.
     # be fast in this function, it's called often.
@@ -303,7 +303,7 @@ def getattr_helper(self, attr): #bruce 041118 10:52am rewrote it again, so retes
             msg = "bug: _recompute_%s returned None, and did not store any value" % attr
             print msg
             assert val != None, msg # not sure if this will be seen
-    self.validate_attr(attr) # noop except for asserts, so remove when works ###e
+    ## self.validate_attr(attr) # noop except for asserts, so removed for now
     return val
 
 # ==
