@@ -6,14 +6,15 @@ midButton = 4
 shiftButton = 256
 cntlButton = 512
 
-diDEFAULT = -1
-diINVISIBLE = 0
-diLINES = 1
-diCPK = 2
-diTUBES = 3
-diVDW = 4
+diDEFAULT = 0
+diINVISIBLE = 1
+diLINES = 2
+diCPK = 3
+diTUBES = 4
+diCOVALENT = 5
+diVDW = 6
 
-dispNames = ["def", 'nil', "lin", 'cpk', 'tub', 'vdw']
+dispNames = ["def", 'nil', "lin", 'cpk', 'tub', 'cov', 'vdw']
 
 TubeRadius = 0.3
 

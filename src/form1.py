@@ -808,26 +808,15 @@ class Form1(QMainWindow):
     # change surface atom types to eliminate dangling bonds
     # a kludgey hack
     def modifyPassivate(self):
-        if not self.assy: return
-        for m in self.assy.selmols:
-            m.passivate()
-            self.assy.updateDisplays()
+        self.assy.modifyPassivate()
 
     # add hydrogen atoms to each dangling bond
     def modifyHydrogenate(self):
-        if self.assy.selmols:
-            for m in self.assy.selmols:
-                m.Hydrogenate()
-        elif self.assy.selatoms:
-            for a in self.assy.selatoms.itervalues():
-                a.Hydrogenate()
-        self.assy.updateDisplays()
+        self.assy.modifyHydrogenate()
 
     # form a new part (molecule) with whatever atoms are selected
     def modifySeparate(self):
-        if not self.assy: return
-        self.assy.separate()
-        self.assy.updateDisplays()
+        self.assy.modifySeparate()
 
     # Modify motor property
     def modifyMotorProperty(self):

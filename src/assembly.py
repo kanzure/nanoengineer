@@ -294,19 +294,11 @@ class assembly:
         If some atoms are selected, select all atoms in the parts
         in which some atoms are selected.
         """
-        if not (self.selmols or self.selatoms):
+        if self.selwhat:
             for m in self.molecules:
                 m.pick()
-        elif self.selmols:
-            for m in self.selmols[:]:
-                for a in m.atoms.itervalues():
-                    a.pick()
-            self.unpickparts()
         else:
-            mollist = []
-            for a in self.selatoms.itervalues():
-                if a.molecule not in mollist: mollist.append(a.molecule)
-            for m in mollist:
+            for m in self.molecules:
                 for a in m.atoms.itervalues():
                     a.pick()
         self.updateDisplays()
@@ -324,13 +316,12 @@ class assembly:
         atoms in parts in which there are currently some selected atoms.
         (And unselect all currently selected atoms.)
         """
-        if not (self.selmols or self.selatoms):
+        if self.selwhat:
+            mollist = []
             for m in self.molecules:
-                m.pick()
-        elif self.selmols:
-            for m in self.molecules:
-                if m.picked: m.unpick()
-                else: m.pick()
+                if m not in self.selmols: mollist.append(m)
+            self.unpickparts()
+            for m in mollist: m.pick()
         else:
             mollist = []
             for a in self.selatoms.itervalues():
@@ -614,7 +605,7 @@ class assembly:
 
     # separate selected atoms into a new molecule
     # do not break bonds
-    def separate(self):
+    def modifySeparate(self):
         for mol in self.molecules:
             numol = molecule(self, mol.name + gensym("-frag"))
             for a in mol.atoms.values():
@@ -630,4 +621,23 @@ class assembly:
                     mol.shakedown()
                 else:
                     self.killmol(mol)
-          
+        self.updateDisplays()
+
+    # change surface atom types to eliminate dangling bonds
+    # a kludgey hack
+    def modifyPassivate(self):
+        for m in self.selmols:
+            m.passivate()
+        for a in self.selatoms.itervalues():
+            a.Hydrogenate()
+        self.updateDisplays()
+
+    # add hydrogen atoms to each dangling bond
+    def modifyHydrogenate(self):
+        if self.selmols:
+            for m in self.selmols:
+                m.Hydrogenate()
+        elif self.selatoms:
+            for a in self.selatoms.itervalues():
+                a.Hydrogenate()
+        self.updateDisplays()

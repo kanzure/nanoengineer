@@ -4,7 +4,7 @@
 __author__ = "Josh"
 
 from VQT import *
-#from LinearAlgebra import *
+from LinearAlgebra import *
 import string
 import re
 from OpenGL.GL import *
@@ -249,6 +249,7 @@ class atom:
         rad = self.element.rvdw
         if disp != diVDW: rad=rad*CPKvdW
         if disp == diTUBES: rad = TubeRadius
+        if disp == diCOVALENT: rad = self.element.rcovalent
         return (disp, rad)
 
     def povwrite(self, file, dispdef, col):
@@ -257,7 +258,7 @@ class atom:
         disp, rad = self.howdraw(dispdef)
         if disp in [diVDW, diCPK]:
             file.write("atom(" + povpoint(self.posn()) +
-                   "," + str(rad) + "," +
+                       "," + str(rad) + "," +
                        povpoint(color) + ")\n")
 
 
@@ -398,7 +399,7 @@ class bond:
             a2pos = self.atom2.posn()
 
         disp=max(self.atom1.display, self.atom2.display)
-        if disp<0: disp= dispdef
+        if disp == diDEFAULT: disp= dispdef
         if disp == diLINES:
             drawline(color1, a1pos, color2, a2pos)
         if disp == diCPK:
@@ -500,15 +501,14 @@ class molecule:
             m[1,1] += rsq
             m[2,2] += rsq
             tensor += m
-       # self.eval, self.evec = eigenvectors(tensor)
+        self.eval, self.evec = eigenvectors(tensor)
 
         # Pick a principal axis: if square or circular, the axle;
         # otherwise the long axis (this is a heuristic)
-      #  ug = argsort(self.eval)
-      #  if self.eval[ug[0]]/self.eval[ug[1]] >0.95:
-      #      self.axis = self.evec[ug[2]]
-      #  else: self.axis = self.evec[ug[0]]
-        self.axis = V(1, 0, 0)
+        ug = argsort(self.eval)
+        if self.eval[ug[0]]/self.eval[ug[1]] >0.95:
+            self.axis = self.evec[ug[2]]
+        else: self.axis = self.evec[ug[0]]
             
         # may have changed appearance of the molecule
         self.havelist = 0

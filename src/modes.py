@@ -27,8 +27,21 @@ class basicMode:
         self.selLassRect = 0
 
     def setMode(self):
+        self.prevmode = self.o.mode
         self.o.mode = self
         pass
+
+    def Restart(self):
+        print self.modename,  "Restart not implemented yet"
+
+    def Flush(self):
+        print self.modename, "Flush not implemented yet"
+
+    def Backup(self):
+        print self.modename, "Backup not implemented yet"
+
+    def Done(self):
+        self.o.setMode(self.prevmode.modename)
     
     def Draw(self):
         drawer.drawaxes(5,-self.o.pov)
@@ -560,6 +573,7 @@ class cookieMode(basicMode):
         
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
+                                    ('Separate', self.o.assy.modifySeparate),
                                     ('Bond', self.o.assy.Bond),
                                     ('Unbond', self.o.assy.Unbond),
                                     ('Stretch', self.o.assy.Stretch)])
@@ -722,29 +736,30 @@ class modifyMode(basicMode):
 
     def makeMenus(self):
         
-        self.Menu1 = self.makemenu([('Kill', self.o.assy.kill),
+        self.Menu1 = self.makemenu([('Cancel', self.Flush),
+                                    ('Restart', self.Restart),
+                                    ('Backup', self.Backup),
+                                    None,
                                     ('Copy', self.o.assy.copy),
-                                    ('Move', self.move),
+                                    ('CopyBond', self.o.assy.copy),
                                     ('Bond', self.o.assy.Bond),
                                     ('Unbond', self.o.assy.Unbond),
-                                    ('Stretch', self.o.assy.Stretch)])
+                                    ('Stretch', self.o.assy.Stretch),
+                                    None,
+                                    ('Kill', self.o.assy.kill)])
 
-        self.Menu2 = self.makemenu([('All', self.o.assy.selectAll),
-                                    ('None', self.o.assy.selectNone),
-                                    ('Invert', self.o.assy.selectInvert),
-                                    ('Connected', self.o.assy.selectConnected),
-                                    ('Doubly', self.o.assy.selectDoubly)])
+        self.Menu2 = self.makemenu([('Ground', self.o.assy.makeground),
+                                    ('Handle', self.skip),
+                                    ('motor', self.o.assy.makemotor),
+                                    ('Linearmotor', self.o.assy.makeLinearMotor),
+                                    ('Spring', self.skip),
+                                    ('Bearing', self.skip),
+                                    ('Dynamometer', self.skip),
+                                    ('Heatsink', self.skip)])
         
-        self.Menu3 = self.makemenu([('Default', self.o.dispDefault),
-                                    ('Lines', self.o.dispLines),
-                                    ('CPK', self.o.dispCPK),
-                                    ('Tubes', self.o.dispTubes),
-                                    ('VdW', self.o.dispVdW),
-                                    None,
-                                    ('Invisible', self.o.dispInvis),
-                                    None,
-                                    ('Color', self.o.dispColor)])
-
-    def move(self):
-        # go into move mode
+        self.Menu3 = self.makemenu([('Passivate', self.o.assy.modifyPassivate),
+                                    ('Hydrogenate', self.o.assy.modifyHydrogenate),
+                                    ('Separate', self.o.assy.modifySeparate)])
+                                    
+    def skip(self):
         pass
