@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1177</height>
+            <height>1195</height>
         </rect>
     </property>
     <property name="caption">
@@ -185,7 +185,7 @@
             <rect>
                 <x>202</x>
                 <y>0</y>
-                <width>376</width>
+                <width>318</width>
                 <height>29</height>
             </rect>
         </property>
@@ -199,15 +199,13 @@
         <action name="setViewFitToWindowAction"/>
         <action name="zoomToolAction"/>
         <action name="panToolAction"/>
+        <action name="rotateToolAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
         <separator/>
         <action name="setViewFrontAction"/>
-        <action name="setViewBackAction"/>
         <action name="setViewTopAction"/>
-        <action name="setViewBottomAction"/>
-        <action name="setViewLeftAction"/>
         <action name="setViewRightAction"/>
     </toolbar>
     <toolbar dock="2">
@@ -216,7 +214,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>578</x>
+                <x>520</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -263,7 +261,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>655</width>
+                <width>657</width>
                 <height>29</height>
             </rect>
         </property>
@@ -351,7 +349,8 @@
                 <string>Select Atoms</string>
             </property>
         </widget>
-        <action name="nullAction"/>
+        <separator/>
+        <action name="modifySetElementAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -535,10 +534,28 @@
         </property>
         <widget class="QLabel">
             <property name="name">
-                <cstring>anTextLabel</cstring>
+                <cstring>panTextLabel</cstring>
             </property>
             <property name="text">
                 <string>Pan Tool</string>
+            </property>
+        </widget>
+        <separator/>
+        <action name="toolsDoneAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>rotateDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Rotate Tool</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>rotateTextLabel</cstring>
+            </property>
+            <property name="text">
+                <string>Rotate Tool</string>
             </property>
         </widget>
         <separator/>
@@ -1192,20 +1209,6 @@
     </action>
     <action>
         <property name="name">
-            <cstring>elemChangePTableAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>image26</iconset>
-        </property>
-        <property name="text">
-            <string>Atom Type</string>
-        </property>
-        <property name="menuText">
-            <string>Atom Type</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
             <cstring>toggleFileTbarAction</cstring>
         </property>
         <property name="toggleAction">
@@ -1331,7 +1334,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>image27</iconset>
+            <iconset>image26</iconset>
         </property>
         <property name="text">
             <string>Trihedron</string>
@@ -1354,7 +1357,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>image28</iconset>
+            <iconset>image27</iconset>
         </property>
         <property name="text">
             <string>Display Datum Planes</string>
@@ -1374,7 +1377,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>image29</iconset>
+            <iconset>image28</iconset>
         </property>
         <property name="text">
             <string>Display Coordinate System</string>
@@ -1394,7 +1397,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>image30</iconset>
+            <iconset>image29</iconset>
         </property>
         <property name="text">
             <string>Display Datum Lines</string>
@@ -1411,7 +1414,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>image31</iconset>
+            <iconset>image30</iconset>
         </property>
         <property name="text">
             <string>Display Grid</string>
@@ -1425,7 +1428,7 @@
             <cstring>selectConnectedAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image32</iconset>
+            <iconset>image31</iconset>
         </property>
         <property name="text">
             <string>Connected</string>
@@ -1445,7 +1448,7 @@
             <cstring>selectDoublyAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image33</iconset>
+            <iconset>image32</iconset>
         </property>
         <property name="text">
             <string>Doubly</string>
@@ -1476,7 +1479,7 @@
             <cstring>jigsBearingAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image34</iconset>
+            <iconset>image33</iconset>
         </property>
         <property name="text">
             <string>Bearing</string>
@@ -1490,7 +1493,7 @@
             <cstring>jigsSpringAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image35</iconset>
+            <iconset>image34</iconset>
         </property>
         <property name="text">
             <string>Spring</string>
@@ -1504,7 +1507,7 @@
             <cstring>jigsDynoAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image36</iconset>
+            <iconset>image35</iconset>
         </property>
         <property name="text">
             <string>Dyno</string>
@@ -1518,7 +1521,7 @@
             <cstring>jigsHeatsinkAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image37</iconset>
+            <iconset>image36</iconset>
         </property>
         <property name="text">
             <string>Heatsin&amp;k</string>
@@ -1532,7 +1535,7 @@
             <cstring>jigsGroundAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image38</iconset>
+            <iconset>image37</iconset>
         </property>
         <property name="text">
             <string>Ground</string>
@@ -1546,7 +1549,7 @@
             <cstring>jigsHandleAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image39</iconset>
+            <iconset>image38</iconset>
         </property>
         <property name="text">
             <string>Handle</string>
@@ -1560,7 +1563,7 @@
             <cstring>modifySeparateAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image40</iconset>
+            <iconset>image39</iconset>
         </property>
         <property name="text">
             <string>Separate</string>
@@ -1574,7 +1577,7 @@
             <cstring>orient100Action</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image41</iconset>
+            <iconset>image40</iconset>
         </property>
         <property name="text">
             <string>Surface 100</string>
@@ -1588,7 +1591,7 @@
             <cstring>orient110Action</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image42</iconset>
+            <iconset>image41</iconset>
         </property>
         <property name="text">
             <string>Surface 110</string>
@@ -1602,7 +1605,7 @@
             <cstring>orient111Action</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image43</iconset>
+            <iconset>image42</iconset>
         </property>
         <property name="text">
             <string>Surface 111</string>
@@ -1619,7 +1622,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>image44</iconset>
+            <iconset>image43</iconset>
         </property>
         <property name="text">
             <string>&amp;Front</string>
@@ -1636,7 +1639,7 @@
             <cstring>setViewBackAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image45</iconset>
+            <iconset>image44</iconset>
         </property>
         <property name="text">
             <string>Back</string>
@@ -1650,7 +1653,7 @@
             <cstring>setViewTopAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image46</iconset>
+            <iconset>image45</iconset>
         </property>
         <property name="text">
             <string>Top</string>
@@ -1670,7 +1673,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>image47</iconset>
+            <iconset>image46</iconset>
         </property>
         <property name="text">
             <string>Bottom</string>
@@ -1684,7 +1687,7 @@
             <cstring>setViewRightAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image48</iconset>
+            <iconset>image47</iconset>
         </property>
         <property name="text">
             <string>Right</string>
@@ -1701,7 +1704,7 @@
             <cstring>setViewLeftAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image49</iconset>
+            <iconset>image48</iconset>
         </property>
         <property name="text">
             <string>Left</string>
@@ -1718,7 +1721,7 @@
             <cstring>setViewHomeAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image50</iconset>
+            <iconset>image49</iconset>
         </property>
         <property name="text">
             <string>Home</string>
@@ -1738,7 +1741,7 @@
             <cstring>setViewRecenterAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image51</iconset>
+            <iconset>image50</iconset>
         </property>
         <property name="text">
             <string>Recenter</string>
@@ -1758,7 +1761,7 @@
             <cstring>jigsLinearMotorAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image52</iconset>
+            <iconset>image51</iconset>
         </property>
         <property name="text">
             <string>&amp;Linear Motor</string>
@@ -1789,7 +1792,7 @@
             <cstring>toolsStartOverAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image53</iconset>
+            <iconset>image52</iconset>
         </property>
         <property name="text">
             <string>Start Over</string>
@@ -1803,7 +1806,7 @@
             <cstring>toolsBackUpAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image54</iconset>
+            <iconset>image53</iconset>
         </property>
         <property name="text">
             <string>Back Up</string>
@@ -1828,7 +1831,7 @@
             <cstring>modifyCopyBondAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image55</iconset>
+            <iconset>image54</iconset>
         </property>
         <property name="text">
             <string>Copy Bond</string>
@@ -1842,7 +1845,7 @@
             <cstring>modifyEdgeBondAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image56</iconset>
+            <iconset>image55</iconset>
         </property>
         <property name="text">
             <string>Edge Bond</string>
@@ -1856,7 +1859,7 @@
             <cstring>modifyWeldAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image57</iconset>
+            <iconset>image56</iconset>
         </property>
         <property name="text">
             <string>Weld</string>
@@ -1887,13 +1890,13 @@
             <cstring>modifySetElementAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image26</iconset>
+            <iconset>image57</iconset>
         </property>
         <property name="text">
-            <string>Change Element</string>
+            <string>Element Selector</string>
         </property>
         <property name="menuText">
-            <string>Change &amp;Element...</string>
+            <string>&amp;Element Selector...</string>
         </property>
         <property name="accel">
             <string>Ctrl+E</string>
@@ -2820,6 +2823,17 @@
             <string>Done</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>rotateToolAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image108</iconset>
+        </property>
+        <property name="text">
+            <string>Rotate Tool</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -2901,100 +2915,100 @@
         <data format="XPM.GZ" length="736">789cad90c10ac2301044eff98ad0dc8ab44d142d889fa07814c4439a6cd14315b41e44fc77bb69539236a2073739e46560679834a6bbed9ac629b9d5b23e29aa8ef24a637dafaac7feb07a924808dadc9cf26842a2842abab99c01dfd0bc5966065159e4025177c8f914b1e850f0192243cc333c882522cc6101734489589a31a6c16915c6fc5f64a330290b4f40b68a1a28aadba6b5bf0df95b02eb3a4ad0bb8e12f4aee304d63549e0630280400780531a29d4412b843a803f75e096e075e0c6f03b70630c3a7063fc9c60a8bc96e40d3e9a94ee</data>
     </image>
     <image name="image26">
-        <data format="XPM.GZ" length="661">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022630543251d2e253d856405bffcbc54105b19c856364a0141103711c44d364a364e3602abc40ac896515656461104f3213289683289d864944100bb4c2218226410005d061dd25b06131011a2183a103289c84099667a488bed5a6b2e00bc608159</data>
-    </image>
-    <image name="image27">
         <data format="XPM.GZ" length="1580">789c8dd2c76edb401006e0bb9e82b06f466093db17410eee4deedd410e5b5de52ad720ef1ece4fc9b22521c882077df8b9b3334bcd4c15c7db1bc5d44cebb1ebba17a108e7eea1988a4f9dcedbcf5f3f7eb726182bea4789a29af8d69ab82b4231590a6dca926841adcb9c892fc44a72c3057113744c5789b80366ee384a2d13592514c7de159009ce1d711714827143bc073d972c120fc1c42ba6880760e69ea1d43b910b6e184a6d8051081e889e2894e20a6d04d0a84aa2c93dd02a292df109f45a6a4eec80417985734fc12893c4bc9760d2a5421b5da22cb5d08cb804565a281cf40c321d349abc0085720af32e82b2ff3207951252132bd0a8a450d935d455f3f236e8eabd9e78d5d030837919e8555698e81c0cca288c70d3635618ffbaa1a9af9218c1580f889b3c21aab2266ea3ec51347b35c8b928d1c62d28ebca38a84dd4d93b8d0fba4a34c6468bf4110c4e3af43c09a63ac55dbd82d9298b7913d196d65b4cb4d0d0c9269d253a167353ca8031b92c89c7442f7cf2e01931d41f38a08d0cc6c8032612608a2aa00d498cb9aa4a549e26269574c26d1c812e85840fba0ffa9c332a6f7d102fcf13735513073d80ac26ee790ee439363daff5d8dbab40e9eb457c6b58a7f8abac83a17feef4d835924c3a1f62ca23c9d9f9c5e5d575e7e6f6ac97dcd1a2e4fee1b1fbf4fcf2faf63e4866b1676e7e6171697965756d7d90b4916c6c6e6defeceeed1f1cf693d976131d1d9f9c9615e3a2df417d462f1ad7f5a7480ecd3388a41c9ab48e54b328fa32695bcb8ff52531d6343f86f77c04c3e70c82cfbdd92fc1e779ac1909fa891d09fe27b1766c326efd23f9f3bdf5170ab04e1a</data>
     </image>
-    <image name="image28">
+    <image name="image27">
         <data format="XPM.GZ" length="1520">789c9dd2c96edb301006e0bb9f42486e4191485c86128a1eb2afcebe173d9014193b89b3d9598bbe7b35bf6c0791dd4b051ffce1e790339416e692f3fd7632b7d0ea0feca0eb13dfb14fc95cf9dcebbdfffcf5e3776b4688a4fa519a6433df5a332f894f66332d73a998dba015260bcc5d304a2bb178952932453232d740a1a4b4cc3d50292173e603e8a41625f3080c3213c43c04a374025bbd33a592b9c0565b60a994f44cc7544492d0860773ca349adc070bd2ba600e4067b491cc1ee8c911ce3d034b1d34e6bd068349096df4993a35ca08e60a98194538e81914c61b34d9051559c2bccba01e2d4e4122a50df302cc291076b6354d562f6e83b6aa75cc9b9ab9c831ef25e8281226ea809e72c208774346c2f8b735f3ea2a9925585603e2264f999456c46d9c0fa9ea5a092a29d294790fea6a671ca499b9d44ea28d75302fca02e913e8adb6e879160c558abb7a05a3a502f306669116aec0564b35adae53057ae3357a164c971664f0219d80ca05a799574c5fbd608f36225896d263a20c0c2579b431cf0c144cc0f8c7a00d3ee00d1e802ec688ad76c6c4e24566cc2a62e747505444931fa08c6544571b430e6bdf405d111fc326e84707cd4f7d269259eb7c19e24472d5e95edfdcf6eeeeaf9ac9c3e3537ff0fcf2faf6de4c3e1697965756d7d637369bc9d6f64e7b776fffe0f0a8991c9f9c9e9d5f5ca6d994defeddf5b444c8f1d348a41afed1ea6b22f43050b2b1db6789f89a344b3e9366c938992819271325a364b264947c0e291ac994e7bf923fdf5b7f01d6ec397d</data>
     </image>
-    <image name="image29">
+    <image name="image28">
         <data format="XPM.GZ" length="2945">789c8d95c76e24371086ef7a8a81ea2618b5d3cdd8307c50ce6194770d1f3a51a3b80aa3b8f0bb9bfd17a5951cda420bd3f30d8bc5bf12f5656670bcb33998f93275372927a7f5a01e97b78399e6fef2f2f9f73f7efb31359de783f8976566904fff3235cd0f837a4099515e69f026b8cc5dd68277c041952a032f769c67daaa005e02e75aa9123c026b9d2b0fbe0657cae40df800dcaa2cb7e07d7050552efe9e3b565af95cfc6d801bad550dae3ad6d62a2b7a6ab0b79911bdbbe0c21a538027e0ca19a7c097e0da5656cecfc18d698dc47f066eddd08a9ebb8ecdd06927f95a00674e5b39ef1e9cbbda89de53b0b6a595f8e7c1e6cdde82add5c68135d8dbd68aff52d865c97e1b5cc6fd15f85cd8e75ee237e0ca062bf18dc1b5f556e2b94a1cace4e342d8c704831b7013e3457e09f98bd9305af8367199f299756c87d15ef2a7126bf14f73e0dc16521f821eab553e1c8247c23121125f01ee1224f5fd2e1cf5423f093b6b13a35fad37a5463fd1e4958d9c77082e4c30d26f5ed80e93feaf89bde827d437562b33122f2556b29f300fb68ae597f8d685e379124f00d7ba947e264edc28d48b0e84a33ff1bf0a6e9c4dfd28fedaeec13ae6c98698308907fd14b33dd4e817da4a9c4b3cd48273ed73d4932ede18fe6943d8d4926f423f3915cf937e42be62777b277ad1ffddb438c9f732d8e93c97f32f854da50d785ed8c70900631e9c8ffa64ff09b8344a497e1613b75af4af09c7f38557c095515af49c27b6299f9877579b46f6f3b170f760fd59d8674eea87fbc2b556a57e93f3dad8ff120ffadf85a847fc1f75dc4d57daff945809f3ebbaf5a277161c2fa0943fccaf77ae49f9c3fc79ef5a615e162e9a42d6713ffac2571ef707e17ef1559179b97f307fbe2e4d29f38efef46ddc2ff7cd233894b690f8d00fc5b0a80ae9af39e138be52ff17b08efd20fe871d57ba6a2ba9e74dc7b5aef35af69f248e2d0d46bfd74da36ac9bf03b78dada16784798ccd1c538ef56fe0b2ad5bb90ff7c0550841fc6dbdb1d8239f218b2cfea127e491e57e80fea04213a0975712a7fd04ff41c75f245fa85f30715dee5bcc5fa85fcf27fc7feb4e0b323ffb89db20f5784c9cec4793cf3ffdf64c5c72c53537dc72e8b7e7131ef3299ff1395ff0255ff1773ee9b5bfe61bbee53b9ef03d3ff0233ff173affd0bcff21ccff3022ff2122ff30aafbeb7e7b5f45e4fef0ddee42ddee61d1ef12eeff13e1f7cb03fe4a3f879cc5f137fe321679cb362cd862dbbbfc7db79e675f69fcf2776143f99b8cf9e884abcabc435359fa917b5e91d3e575f3aa171fc1cd3e9cf7cd1595f3fd0395dd065fa7ec5ebf49dae3fdad30dddd21d4de83efa7dff3cd0233dd1739f1e6879e934e1fb2ccdd13c2df4e85fa4a5f8b94c2beff4aff6d88f3fbeff3d3fb4166b1b1f5aa78df4cb266df5e793b6698746ef78b7cf3efadea37d3af8a0edf0bfec939aa37f6afebffaf6dafff9ebd45f095ae664</data>
     </image>
-    <image name="image30">
+    <image name="image29">
         <data format="XPM.GZ" length="1475">789ccdd1c96edb301006e0bb9f42b06f4191485c86128a1eb2af4e9c7d297a2029d2761267f192c409faeed5fc727a70d2638b0a12a00f43ce422e2d24179d76b2b0d4188dedb8ef13dfb3c364a19c0c06d3ef3fbebd359a4224d5ab4d9235bf349a4f894f5a9996b954cc5dd00a9305e63e18a59558bcce14992219991ba050525ae601a8949039f30174528b92790c069909621e81513a815453a654321748b503964a49cf744c4524096d7830a74ca3c90e5890d605730c3aa38d640e404f8e50f71c2c75d098f71a0c2625b43162ead42823986b606614a1d00414c61b34d9071559c2bcaba07e5f9c82444a1be62598532064b6354d562f6e83b6daeb983735739163de2bd051244cd4033de58411ee668c84f16f6be6d551324bb0ac06c4499e3129ad88d3b89851d57b05a8a44853e63da8abcc28b4c9ccf3a22cc021e8adb668b205862a8ac37906a3a5020306669116aec0082b35adaea3a74ca75c709ad965faeace3c0a45b02ca5479319184af228b4c80c144cc04427a00d3ee0520e41176344aabddfc4e26566cc2a22f323282ae2ac5e4119cb88aeb6669ced7d017545dcef36e8df0b2d7efa7c88b4acf365881f22dd5efffae6767077df9d8f3c3c0e47e3c9d3f3cb743ef2babcb2bab6beb1b9b53d1fd9d9dd6bef1f740e8f8ee72327a767e717975769f6496f7feefaaf4644fd2cce3efcff2fbdfd83c8cfaf8d5f1dfa2f7b</data>
     </image>
-    <image name="image31">
+    <image name="image30">
         <data format="XPM.GZ" length="1475">789ccdd1494fdb401407f07b3e85456ea8027b9637b6aa1ed8f77d0b543dcc0a0102218425a07ef7fafd1d501590aa1e2ad58e22fdf4fcb699d9e9acb3bb954dcfb6ee8776d8f599bfb0836c3a3cf47aa3ef3fbebdb6a684c8ea9f365931f5a535d5cf7cd6cef1309f988596a554cc4dd00a5344e60e98a495c85d668a42914ccc155028292d7317544ac89279073aa945601e82511682980760924ea0d40b532a590a94da008352d2331d531149c2181e2ca9d018720fac48eb8af9003aa38d64f6404f8ed0b703061d35f6bd04a3c909630c993a37ca08e61258184568f4080ae30d86ec828a2c61df4550bf7d5c80444a1be61958522454b60d4dd17cbc0dda3ad731af1a96a2c4be39e8281136ba003d9584156ec64c84f5af1b96f551320318ea057192274cca6be2344ec7544dee2da8eb52a8bcca2ccb2a54e03de8adb698aa0dc63a8ad3780693a50a1b45669557aec2cc0b0dad6ea2c74ca75c749a79cef4f52579344a6008d2632a01c6401e8d669891a28958e108b4d147dcc23ee8524a28b5f54e7c3ccf4c454d541e80a2260e670e9429244cb536e6387704ea9ab8d075d0bf359af9f4f910695be7434c1f22e717ddcbabebdecdedf97ba48f40ff6e703f7c787c7a1ebd4ce6cccd2f2c2e2dafacaead8f23fdb77763736b7b67776fffe07032e7e8f8a4737a96176266b2cf6fff7fdee7ef73fa1fde7fd3e7ff9eed93c8cfafad5f4d07393a</data>
     </image>
-    <image name="image32">
+    <image name="image31">
         <data format="XPM.GZ" length="767">789cb591cd8ac2301485f77d8ad0eccad0da4286069947187129888b9b9fa62e74403b0b11dfdd9cd4389db60b19987b1b385f0ec949d222639bf527cb8ae4dc51b7d74cb7746299f93e1c2edbddc73549ab8af9af5cb0327d4bd29c69b6fa3a5a68eb355f8402726065d0400314529090c016587b5309a0034ad508f30e24209568a00a28d1400d54b592aa0636c0265438d26cfd83c3399f8c87434ae74483c17574c65b71f5c8d19394b86662fce4e4b9b1a69f0cc2cf44c734ce05ab17d1f1bb5ae79c0d0531cc31ceb5fd9a205eca199f2de64c9cd7ee33bfdbcc5b3fef43f4fbad89fef64f6fcbe40e25fca0ae</data>
     </image>
-    <image name="image33">
+    <image name="image32">
         <data format="XPM.GZ" length="767">789cb591cf8ac23010c6ef7d8ad0dc8a545b8834888fa0ec7161d9c32493a61eaae09f83c8befbe68badeeda1e4470a681f9e563e64bd269263e3f56229b2687231d3756d886f622e353db9ebfbe9797242d4b11be62268a7492a4b9b062bddb3ad42ed472160328812523810c545a91d2c0065805d128a0076a532b9e030948051268226a24d0024d65b4a98035b08e118f341a6f50a49483d529646c4ef46749db2b8fa3a4e97cecc0a5ef1908779f3c67c7d7cd58849d5ee1da7b7621627153c254e7bd7768e98abb0f7bdf5c7b503ce7f378b6de67a03c779ff169236f7dbb0fd1ffb7267aed9ffe2c925f12cda18a</data>
     </image>
-    <image name="image34">
+    <image name="image33">
         <data format="XPM.GZ" length="1547">789ca5d34b4fe3301405e07d7f4544766804a99b2654a359f02caff22eafd12c9cc47671dd8692422968fefbf89c50c18c5820cd3d5de4d34de25c5b5d5d0eae4f7ac1f26aa39acae95d1ee403f9102c178fa3d1fce7af1faf8d252102ff4b44d05cfad6585a09f2e0a81c2b5c3b7f1d0a1698931902de81ad26025e93020135c902afc804019fc90c011518b3c05bb28d80c764a7e9033e923902666481806d5221e02ea9632d787302b605021a92056e9109020ec80e02f6c81c01535221e0019844491471a2e68249045e92adb813f3554fa4af885db960c2755ba444c01bb240c02352236008a611020a5220e0846481dbe41a026e806b1102c6240b1c819d08010f497f08f5b3052910f08c4c3ba9e0085d92056e9212014f40194722e2b3e7642ad37a371e1694fce67dd23f2a784643920546a44a75caddd803b376d65ee3cd533245c03e994551bdd07d4d14f802e6190256a4affae6f182394f7f06162c701d542d043c250b55d4c75d922c7007d44991177cd59cf4552f74b160fdc7b10b6a0eb8f2697db113ca2c0c3fe9c8bc50da0cee4cf877479a5cdba1b246b941f8b1239db1233b2eef8d9d182ddf3b528fcb876afa68f4f0c9ce8c7bef3c3b5bcd5fd637d4e6acaa665ac945676bdbec7477abbdd296fb0787b6ebfcfbd8e91d4d8e4f66a7737976ae2e2adbbf54e555ddd9b2436dcab191f3f9931bdb9936f6baeedcdc9a89d6fdae1d56f6b23ff153b9f06d1d39b1461a67a2fe8e934adab16ebe7584bb57ce1a4ce2c7354a0e5aeff318df717e1469875239f9610fb4932e3643e72fd4c73df025da7e40e59432ad7ff75ae489e8e5e9db567ff5e4febff3fb7be30fd3ba6497</data>
     </image>
-    <image name="image35">
+    <image name="image34">
         <data format="XPM.GZ" length="1310">789cbdd2cb6eda401406e03d4f61c10e55892fe3f158551731845c098455a5aa8b3333762009b9184880aaefde393fb601a9eb78d0913efd9ef1f131a75defe778e8754f5b8b252d67c633532abdae5dcde79b5fbf7ffc69b5c3d0733f21bda0fdadd526cf781d1f17f302ccfdc22f981f3503a44fcc40bb953287cc30e2c5bc02c92dc51c57b4218e7a006d14448279ce8c12b7b0b707aac846b879036a118a986998428a58a08dac622224f39a19c7b18eb13707a58c24da9880694c317a5e8254a72568dd4a980ba60ca4bfbbf91d8ca49638f905143291e8d932934409a59937a04e4c026e99ca57698a9e67609006297a2e40ad4821bd63a68614e141cf4c8ab5d4e025a848a6c41c80e49e84bd23a6f6dd5701576064120b7640a905e105fb605aa773904c6a43e619688cb118fb2b68b5de9d3c651adf0a6b999f6068658ef40d8cacca719406951b065ee1162cdcc2d8d74c77506cf1677804c96a8b264f98b9cc931cb3baafa8763cf9eff5c5899b7fe7b8568936363747b54e8a87e98c1e0f6a933c3dcf5fe8f5a03609bdbd97b458eeeb3e5951491f9ffbba5ed7c9c6697bb6af595625594665afbf3d6f6a8faa64bda672d0bfb86cea809a19d055fffae6f6a036c990ee86c7b54e46341e1d5724f7ee9a4c8eebd77db9bfdf5bff00af562b53</data>
     </image>
-    <image name="image36">
+    <image name="image35">
         <data format="XPM.GZ" length="1532">789cc5d44b53da501c86f13d9f22033ba753c985844ca70baf7817afa89d2e4e4e8280820a44c54ebf7bf3bc11a6a5ee3d8f93c98f3f0943cee0ea8a73d53e7456562b93a999f6ad637b66ecaca4f97038fbf1f3fbaf4ad5f39ce22f741db7faa552fdea58e7e8619471de29ce6b752d1840d7babe1bc27de80704cfc4cc774b3ec2c0257823c67e16e856b392041f4443f0504c8a37ebda9e6809a6624ab00f1b1e415ff4e71f94942468c580e0891812bc140dc1b19811dc8361423083519de09b1810dc101b04b7c5a8b856b732255970205a829bb0e911ac8bcd82baf3ad68083ec13824d885c627782a8604afc566338bf56047624cb02676091ec0a44ef042f409be8a01c12b514f079e8b71f120f5058fa0754d62b46577a24f7022eafbc321d4f6eacef76244701d662ec1353120b825460443d8ad47b6dcc117d127d81283a8d824b85b92e0546c106c8851921addca1363826dd198a0a91d3c2e997ab6095d314bde9ff37349823b623775ad9e735e92a5dfe387eb13263593589b66dde5c96daf3fb8bb1f8eb287c7a77f26e36432cd59cf2fafb3fe5f93d9db5abe58eb1bc962b239dbcaf36dbddcdac9f3ddbd8df964ff80170f8f8ac371bb555c75725a4e06f645ef3f3b9f5f7571594e3a57e5075cdfd48ba3db3acebdcefb64fed9c5bfaee2d808f37c799207c1fbc97f93c59a4f3e589fb13fcb93dfdf2a7f00dea0614f</data>
     </image>
-    <image name="image37">
+    <image name="image36">
         <data format="XPM.GZ" length="676">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022130543251d2e253d856405bffcbc54105b19c85636310041103711c44d4d0341103709c44d0303b046ac002ca38c09603289e80028059501aa42c3709924344c849e517ba86c0fb64885a403dc32585348ad3517002ad69195</data>
     </image>
-    <image name="image38">
+    <image name="image37">
         <data format="XPM.GZ" length="1202">789cb5d14b4fc2401405e03dbfa2811d31bcfa1888716105ca231a9726c6c5bc0a285065602835fe777b6e5151ebd2395df4cbe93477da66ddb9bbbd76eacd8ad9f2ed423a72ce374e5ded56abc3fdc3c56ba5dae938f9e5f69c76f5ac526d38d2b949d61af726bfafb5688107b0cd103023f6105012150226604720e0255123e004745b08b822fa0838274a04dc13150246a0470b14441f0163d05708a8c0c00dbcc005d7440f01174415e8801ebe02590b0147441701c7477a0543a287801b62c0180bc02551b398d1799fc16e1b01b744b7eb75e9557da242c0013146c014ec0904b420175c71e28ca8b8e6b477080a57f882defc02e69f9149a226fa08c8890c016bc49e14927ee88ea810f0f1485d707a645cf009d481669a8edf285d3f9ada1f0d1752e9d246c4b3f9a2ac7994b3a7e5aa74cf7abe4c9e4b9b978dd9eeca67b3c6fe31f57f37c698e4a4d9e7fe6cd26f7bd2c3679366f6a4b197e947933442aa8ac6666163ff3541985df5edc00c86fd302fbecd166659149928ca8ae2746a3b325823fbfb3cc3f1c44cc6c3b2934e6d68a7e5dfe07455dfce2bef50790a00</data>
     </image>
-    <image name="image39">
+    <image name="image38">
         <data format="XPM.GZ" length="2253">789c9dd4576f1a411486e17b7e0562eeace898b2cb82a25cb897b8773bcac516d6b8002ee016e5bf67be1727c60a8e71f246969ecc59330c43a6a78a475bebc5a9e9c26d3fee9fa5c5b41ddf14a7b241a7f3f8edfb971f8552b55af47f23ffb3f4a950daee17d3e246afdb122cf370e544e16db95253780b870a273852b88d9b0ac73856781da70a1fcad5b2c203cc1f5cc53525bb14078af50a0e15fe8aeb0aefe248e10bdc54f816c70aefe054e116ce14af6fb8a558bf96399e0aee63368c431c297c821b0a977153e11a8e150e70a2f02c6e29dc9183b2c20fb8a6d82ffb0f42c57a8e63851770aef09a1cd6149ec3fc02dcc50d85e77153e13b9c2a7c2ed72b8afd705fea9162fd0a270adfe05c31cf7d8c0285d93f8f0f3fdf264e14dec49962dee15cb17e2a37ca0aefe340e1631c29dcc34d852f71acf0194e15e6f51ab9c2f7321feff03c8f70aaf081ccc73d5c9fc1a1c2abb8ae783f7c9f78f9e1f96fe05ce14799e318ee7f454e0385eb38517859ce2a0aef612e3c7ec2a9c20d99eb3f5c5fc45c481ce150e1259c2bccf797e3690cfff3f93b73168ffbf7f1f39ab6c4dcc4f3b1a59659cb723b9df8f7b7edccceedc22edf9f7fd9bf75acfbf6bc9feabddeb55dd9f5f8793f7b63b7d6b781dd8dccdfdb60dcbc9f7eb0ae3dda93cdd8accd8ddbe3abf9795bb0455bb2655bb155fb6a6b7e67af732ff3fe24d66dc34f6ffa5369fbb3d9b26dff73b4b6ede889e7f99eedda9e9f4f6cdfeff8604cfb7eadf767ded9a11df9f9633bf195ad6255ab593052cd9fac1bd9ff9d8556f74f44d6f0efb862cd7fbf5fffc49a33e75cec1297dad57be7a35ce65afea996cbdf3fffe7d58e9aecf3fd9ffb333afd91fbf9fbfefbf733f9fdffc0f7eba3dfdfb72bfdfc5cf80590754e20</data>
     </image>
-    <image name="image40">
-        <data format="XPM.GZ" length="962">789ca5d1cd6e82401486e13d57317176a6a91634ad697a096dba6cd274010323880c82b8689ade7be73dfe04d1553d9f204f3e8f46988cd5c7fbab1a4f826d17778551268f5b354e7755f5fdf9f5f2138cc250f18ad4c3e82e18dd2ba3de6a9771adfdb50e53022d9c4d092ce03c2230868b3981098c0d811d4ca6046e85330237c298c09d3023d0411311d80a1f094c850b021ba1fc30ac851981154c2302d7c227024be182c0955006e6424be01266218106da1981995046eeead5b9b1d1bd396b749c24894e1873d61cfe0d6f99ed3752f8aff16763fb8d3e7e9e8d7ea333667fb6e7cdd28f3fe5799edae2a2d957e96067b52acb52fba3bcdc3914d776a4b8dc59afab4a578c1bec54b51fcd6933d8a99bb6d52db33dac1c9ba671ce697fb8ce16baf714f42e39dde8fdc6a9193c9b7f3feddfe7e00fd579e809</data>
+    <image name="image39">
+        <data format="XPM.GZ" length="3022">789ca5d5d952ec361006e07b9e628abea3527d6c7919bb52b960df771896542e645b82018675588654de3dd2dfb2811c4e3895d0cc547da596d46ecb9e6f33bde39dcddeccb7a987b11e0feb5e7daeef7b33cde36834f9fd8fdffe9c9a56aae7fe6315f5d4f42f53d3bbe35edddbbab9361e74e64051a452a5e1f5e0226be085e03a2fe1f3e02691fc7b38567996c0cfb052795c7bf31c9c477114c1395c442a78273811d315acbbf1d9e076fc09ae541aa17e56de71149b589cc02a2e931cbe80cb380b36c179827ad976cee026b8afa4fe1758c769987f1e9cab3e7cd63a8951dfbc58e934c5f810ae5c3efac55b70e38cf568d55b152e64fd14ae54115b8c4f5a2be9ef6db0db11f9e8bfaa555fc6f920b890fed328b80cf945e7029eb456d25fd4ab1a1f185f828dcb97fe106c5519a13eae5bc7b27fe59d444a47727dcb9de5fa35acbaf135b84eeb5ccedba2771af9801fe0a2880ae92ff64febb4c8d07f1a8b5dfb64fd4bd8a4558ac34e179d713fe81ab6699de03cf39e77163b4b3d2bb04a75381ff3c1a11f847e6449dac879a147b8e957b9d477e75d263aab257f03ce7c60bd5d6f9d6a55ca7e385fbaf60147de55e4033e81531ff011ac7dc0316c7cc087de75e2033e86fb3e60ec5f973ee0531805c003d8f880719e9ac407eaefc359a3c27c3c4f4d6eac91fa37e1c2076cc5a631b2de3e5cfa80717e9adaba3f18f7a3c11f8cf743637d60ff586c9a46f6abc4ddfc6d6fa37c201ffd34a9a99a0ae378be4dbfcd67bcaf8c368995fb83fa5db5a991fae6823323fdc4fbc81853487f18f7d75d7d26ebf3767059cb7aafc1ba96f701ce9f8d4c59c9fe59b0aee53cdcc0b19b2ff55f7596fb7fd959ce9f1677d783f367955b5ffafd1aac2ba9ef48dce5cb7e89a92ae937c3a9cb97f7dba8b33c2f0371371fef239bb971a9b70caeb4f407cfb3cd9d653ecea37deb3f7e5f6ce1c6a55ffb9d657f9c7f5bba74791fe17cdbaa9b8fe7cf1a5b072f0737c12bc126f834d85ab91ff83d71d2617c1c5c053f04b7ebaf071b235e6d6de57dba166cad9c97adce567e7c7f3efe6b3e136b17958bdaa961c3d67dfcb78f333ee7215fb4f97cc9573ce26bbee15bbee37b7ee0b18b477cfb78729f677ee9f227fccab33cc7f3bcc08bbcc4cbbc126295d7789d377893b7deea71eb6ff30eeff29ecbdfe7033ee4011ff1319ff029471cb3e2e47dfd9c72c639f7b9e09298883455545343862c9dd1390d25da7cbaa04bbaa2115dd30dddd21dddd3038de9919ee8995e42bccf9fb8fc57973b4b73344f0bed7afe0a6811df435a7ccb7733966899566895d6689d36ba35bbb5fdbcf7f96db8753668f31f31f47bfc307febbb580cf179fe36ed7c885d9ffb2febefd1fe87f82a7f930e3ec4e117f51cd0e0431c7db1fe808e3fc449c81f7e76fe5dfea9abe07d446d2d3fc88fbfbb5b5df6a7f99fc4ff7f1e7f3affaf5fa7fe064370e62b</data>
     </image>
-    <image name="image41">
+    <image name="image40">
         <data format="XPM.GZ" length="706">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022330543251d2e253d856405bffcbc54103b11c856360003103709ca35877095c15c6320047393415c93545333a334103705c4353532358270f5b002ca65941371c82482111699443881269384248f2203b30346c3651211a625a2c824a2c9c26560762422ec82caa0d9a14c8c69785c00e42b43e9640c9f42ed48212574f08428503c490f870c32204ba6d69a0b00bd24878c</data>
     </image>
-    <image name="image42">
+    <image name="image41">
         <data format="XPM.GZ" length="736">789c8d91cb0ac2301045f7f98aa1dd1569b5e203c44f505c0ae262f2421755d0ba10f1dfed4d2bc6473073c390c32577425264b45e2d282bc4b9e67aaf48edf84499be54d575b39ddf445296d4ac290d929e487252b43c1e0cf669b34ffbae80d6e104021a8716022a602921a0766821a0040ec71090812386dcd09f15e5a45ef71d96b9e4aebf392dfafde9f8512ad209a569931bedc6b78b9fcef701ee9c36de7aa3ec5f279c86d9fe1bbc6e10fd0636d209a7857fa129e9f53cf2b73f9dfb4c3c008012947c</data>
     </image>
-    <image name="image43">
+    <image name="image42">
         <data format="XPM.GZ" length="646">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade65232325200210543251d2e253d856405bffcbc54105b19c856364a0141b01456401b196564802aa3a70c550b63416594a118894548064d104c129041b71c2c0591c10404f590e302b27c8a27dcf0843526204ba6d69a0b00d389702e</data>
     </image>
-    <image name="image44">
+    <image name="image43">
         <data format="XPM.GZ" length="947">789ccdd1cd4e83401486e13d573129bbc64c91626a63bc048d4b13e30286df76065ac08531debbbca73552aac6a5e763310f5f08e1b098abc7873b355f785d1ff79551a68c5b354f5f9c7b7d7abe7df36661a80ed7e5ecc29b6965d47d53679ced70f68328580501f461981298c128203086eb2b0213181b027b980404b6c288c09d3026b0866649e05eb82270235c13d809e54db01166043a982e0934c26b022be19ac0ad500696c29cc00266218129cc230273a18cacf1dbf9578d3f9a93c68f93e398d3c6379f936627cdf1c3996cd214455156e5309bbf37db425e5755678dd17618ed5c3d6d9cd336b7ba6976d3a6697848eff7edb4e9b4d5c355d7fdd08cb7e30f779344b38243f1b503abc74b1b35f6a75d9f17bffd9ff71bef037783d2bf</data>
     </image>
-    <image name="image45">
+    <image name="image44">
         <data format="XPM.GZ" length="962">789c85d0c16e82401485e13d4f316176a6518a344a9a3e429b2e9b345d0cc3a0a8800a2e9aa6ef5efe2bc628909ec3822f2764c8cc26eae3fd554d665edd9826b7caaecd514dd253517c7f7ebdfc787e182a9eb97af41f3c7faaac7aab4ac7bb6edf7510058b2080090c530a57300a28b4307ea23085c652d8c024a0f0288c28dc0b0d8527a1a3b084764ee141b8a070238c29ac857230ac848ec202a6730a9d7049e1561853b8134a602ecc285c43175298c12ca2d0082572ab83195bf4d8a207bfd1f20c2e5a8f9ca3cde872fee8b224d7dcfe7562cf5793babb25715db2d5ed92984b56f7cbba4dde6633b06c25fd65b71b5b9c2b24656f298a4ab2ef2d5575901c7b4b5d9792a65da637cba9bb81f43a744befd286effaffe5f7d9fb030eefe4fb</data>
     </image>
-    <image name="image46">
+    <image name="image45">
         <data format="XPM.GZ" length="977">789cbdd1cd6ac2401885e17dae62707652348da9564a2fa1a5cb42e922339998a8f951a3504aefbdf37e586c8c9bbae83921e4e1400293f150bdbe3ca9e138d8b5495b5865f364ab86e9be2c3fdede1f3f83411429ae58dd0e6e82c14859f55c578e67ed9f751887b3308406462985398c430a2d9cdf5198c2c452b88726a470278c29dc08130a0f4247610ded84c2ad7046e15a38a7b015ca876123741456309d50e884f7142e85730a4ba104ae841985057411859970ea666e0a17308b294c841239e48be92efa5f16ad13ad2f2dc64f7a6448773136f56ff367e2ce16e39ccb46feb6c8bb8b497e929f2f45512c573eeb3f2c65b994f417e72a49dd5baaaa916c7a4bd36c25bbded2b6b564ef97cee998437acc71382da75cfc0bbf73d5f2f5107c0374bee6f7</data>
     </image>
-    <image name="image47">
+    <image name="image46">
         <data format="XPM.GZ" length="962">789ca5d0cb6a83501485e1b94f7188b3501a6b2c69287d84960e0ba5033d1e2f8997443d8352faeef5df151263020d5dcb811f0b14f662aede5e9fd57ce1b45dd8e55ae92c6cd43cb665f9f9fef1f4e5cc7c5ff12cd5ddecc699dd2aad5eeacaf06efb77d70bbc95e74117fa318506061e85215cdf5318c15053d8c2c8a3702f0c28ac8521859dd0505842bda470275c51b811ae296c84f26358090d85058c97146ae1038599704de1562881b930a13085c6a730864940612294c855cfe668710f192f6e18fd469f2cae1e129bf132fcb68f395dd234cdf23e9b2b96ed36934c17ad0b4939598aa292d493a5aa7692fd64699a52d2f6cbe83a6e375c201a86c3323edaf8a2976fddc75e5aacb5e7176b93a3e98f5ffbfff2fde8fc00b083db5e</data>
     </image>
-    <image name="image48">
+    <image name="image47">
         <data format="XPM.GZ" length="962">789ccdd1c14e83401485e13d4f3129bbc6b423606a637c048d4b13e3621806281468812e8cf1dde5bf5295d6b872e1395df0e5a40186e55c3d3edca9f9d2eb7ad36facb2b969d53c3954d5cbd3f3edab370b02c52f5497b30b6fb65056dd37b5e3ba18ae7d1de995d6d0874142a18391a6d0c0f51585313496c21ec69ac2561851b8131a0a0f4247610d6d48e15eb8a270235c53d809e5c6b0113a0a2b9884145ae135855be19ac2522881b930a530832ea030816944612a94c8a9fe987fb4f85f992ebe893f624f16df8e49dc74195f7b883b5db22ccbc9e6d765517c5fca722b1996453159acad2435435a0c392e55d5487667ff699abda43dbb4fd7d5929e65f26c87f104e2cfe1b89c1edadf7f9fb71bef1dd5e6db2b</data>
     </image>
-    <image name="image49">
+    <image name="image48">
         <data format="XPM.GZ" length="962">789ccdd1cd4e83401885e13d5731293b622c02a612e325685c9a181730c37f81969f8531debbbc9f242da23b173da70b9e9c34c0b075d4cbf3a372b6563f4443a195cea34e3966acebf7d7b7870f6be3798a9faf6e3657d6e65a69f5d43609d7e5746dbb81bb735d6843cf506860e05218c1f096c218469ac201c62e859d30a0f0208c281c8509850dd43e8547e18ec2421852d80be5c6b0152614d6d0f8146ae11d857b6148612594c05c985298c1c4a330816940612a94c8a9fe9a4b5bec53968b1dc5dfd166b9d87a4e6296cbfcee53cccf25cbb29c14e74bf9f7324d7655ed25a7a52ccb749aa607a825cdea3f75dd4a0eabfbb4ed51d2ad9eadef1bc9c0b058c6f9046286c5727668ffff7d3eefad2f84d0dd06</data>
     </image>
-    <image name="image50">
+    <image name="image49">
         <data format="XPM.GZ" length="857">789c9591cd4e84301485f73c45033b623a800e43627c048d4b13e3e2f607e8cc14131d17c6f8eede83523a84c5780e21fdf2e574019b5c3c3dde8b7c93bc9fe8e4b4d03dbd89dc7c78fff9fc72f795a45525f8296b51a657492a85160faf83c599f89c156380fe0fcb5f74239693cd806535a1055606056ae04d81025be0f61a052a6053a0c0039076dc2d703f62c3ad81c7800db01f51a3c001a82c0a34405da0c00e686bbbb3e3557235179b2ca3759329ad68618848124450c11822a328529131ea4ccdb741c46adea859c59b208c21457636049e4a3a32b2ed42fad69e1ba554e79c63a3179bfd818d742b9b6330cb0db2be998dd63e3643cf61c3efd6c7df8d6fe0b071defb7ffed3cbccf76df203125dce95</data>
     </image>
-    <image name="image51">
+    <image name="image50">
         <data format="XPM.GZ" length="1130">789c75d24b6fda401405e03dbfc2821daa123c1efc5094451eb08bd465a5aa0b7b1e408024f6988053f5bfd7e77840c1827b01f3f9681e1ef9761cfcfaf9128c6f07aeceeb950ad432af82b1de6db7cdef3ff77f07432182f613c9201cfe180c4da082d18405369e61474786c7f4d1d3a75f9ea2e316141329b2045c7a46590e8ec850caac003fc84214690cbe815112257906ae4129a45006d4e054a0c15730b6b1d51a3c80c9140d3e78c61d1599a2c127308dd1e08a34a931122cc02c448335988768b024333498932c7003166991155c68072aa9a68a335764a252c5c3b1a4d51365c13da8251a5c90b92e34679e934a6badc04f9205ce486b269a533d834698c8f0ac6ec8d82486cffb0e5a16d38bc5649417eaacb4b10b26cbd5eaf5acd666d3cdb65dbf9dea1dfd61ca8a8939963bfdab775d527eee59aebbeccb5e72704d73b894b4031a3fec2cb1eddd3dbfb697709a2ffc3cf492e3e21cf82d71ae5dfd118bb51b77eeca1877699d869bbfb637d7df1b6f5f7c9e2b67a0cbae8cbf3e9d92ab677d633765dd2b9f2c6cb53bafaa3abe21cfb3f9e27bcd67c37f7783ffe1274d2a</data>
     </image>
-    <image name="image52">
+    <image name="image51">
         <data format="XPM.GZ" length="797">789cad90510b82301485dff72b867b93c8253e08d14f287a0ca287eb74d3c082b28788fe7b3bd32c5293a07336b81f87ed5e6ee0f3cd7ac9fd809d2baa0ac5554e27eea797b2bc6e778b1bf3c290db33b3c79b306fca155f1d0f196a616b219d80048c240cdc0329868105309130307718c340035412066a87040333601ac1c0d4a186810a9869189800b5931bb8577f4b040d26883e12512b119d849cfade8cf579cd667feedc2651b67ebfa98dea2483742b63cc33c96b15adf6a2edd3d1e8de480c24248612bba7e6f39e37f5c27ee8f365b6dee43e670f2f09a194</data>
     </image>
-    <image name="image53">
+    <image name="image52">
         <data format="XPM.GZ" length="751">789ca5d1bb0ac23014c6f1bd4f119aad48bdf512111f417114c4e1e4d2eaa0829741c47737df51879a38d9d396fefb2350d27e2656cbb9c8fac9f942979d11664b2791d9eb7e7f5b6f66f7241d8d843f276298f6923417462c8e078767f2cf72c0075222ab1a837448ae0ad92055e1678c6c394b3f05d2722a552b5e6b382d06a99154f929f91ba2c7ff22c95f12f72f911aa27520521bfadc3be25fc5456a6b2d8bed0a434c5e109137c4d690fb256f8ac98ba2026a589a600fc8b52c6db86fe4585c2839418822f2fbfffc2d8f69f204a1359f71</data>
     </image>
-    <image name="image54">
+    <image name="image53">
         <data format="XPM.GZ" length="751">789cadd0bd0ac23010c0f13d4f119aad48abb51f11f1111447411c2e1fad0e55d03a88f8eee6ceba5db6e63ae4cf8f409a3c9587fd56a6b9780c305cacb467b8cbd43dfbfe753c6dde22290a19be955c24339164d2caddedea710f61afe6b4301566dde0607a4caa1ab3c5d46598256647598529311da5d68da6b396d2e1601a4ca8c3547407764d230a22a24c4494b1bc04e04519e71c27049cfc809111b833e06332127b3722fe7f02b5913700dfc5de0d7c4c3288ca7f4d2c9fb5f802781d9765</data>
     </image>
-    <image name="image55">
+    <image name="image54">
         <data format="XPM.GZ" length="1070">789c5dd14b6f82401405e0bdbf82e8ce344af1499a2e74dfa4cb264d1770677014f189f868fadfcb39a38370ae9b2f07b930f4bbded7e787d7edb78e79942fc513131dbcae3a65d9f5fbe7fdb7d50e02affc0d7cefb5fdd26a9717789d4061c01538f431a006c311064cc04830604a26b11f25e0118c7d0c78208718707ee7c8f2466a0c68c844fc98b7da8132c0807b7282010b722aa14cc18c0c31e095e45382f19db1654ec6221283175263c019c8c308c02d39c0804b728a013764880115192b51bcf39964c0359960c013a8030c1891033dd45cd421477aac79ec3d72ac277a0c2ec084618b74a25e3daeb1055ed846b9e65e687bab8518ae768de825b35849ca67ac9a85cdeadef41a2bd659ad795ab1a9374f2bb6bb7a53add81f5cd358b13b3e9ae68a24290b36cd15655293b369ae2863783a725a236e455146f144e5bc41dc8aa2789cb52cb7885ba1946b2e7bc4ada8be8f5c7748b5a26a6ef675cabf98fa377527909a463333f3d4c6a87aa3667961f354f4da7f6fad7f3bfd280a</data>
     </image>
-    <image name="image56">
+    <image name="image55">
         <data format="XPM.GZ" length="724">789cbd90c10ac2300c86ef7b8ab2de863856d9a6888f207814c4439276e861179d0711dfddfd9d532bce939816ca97bf7f93264dd47ab554491a1d1b6af6a264470795d8535d9f37dbc5258a8d51ed2e55168fa29894286d2c16d002a72d710e14e08cabdc164006528605d440313211031c035de14ae72f3b60e5c3ab1fe3bba28938cc3291f66d8b50a820d329f65db19de2065f63c72e30519b60ef81c477234e9fe83d8ca23eda93034fdf068a871e148582cf059eb08387e7a733187eedaf33d0cf19e8c0f3da80eb3cd7797403b1e6b7dd</data>
     </image>
+    <image name="image56">
+        <data format="XPM.GZ" length="917">789c6d90cd4ec2401845f77d8a09df8e98820523c4f8081a9726c6453b9dd2022d3fe2c218df5dce5760c6917b9bb4a727e9cf1d0dcdebcb93198e928f437e68acb175be37c3f2b36dbfdede1fbf934196198eb1b91ddc2483d458f3bce91cd772bc96aca4a003a7630ae6e0fc8e8205985b0aeec0624cc18de294827b4547c135682714ec14ef29582bce29b855d43781ada2a3e00a2c27142c1567145c2ace29d8286ac0856245c10a7419052d586974a830724e6c242f34363692f7efb5ee9fb17d5c6424956a41eac8c8f168962434a2472ae58aac4323a2a7b6239b2b66bb26bbbf469fb6ef7fc7491a7ff539e9c904372e51e327f1cf55134c127c8c1a3f496cfc24fe9f7be32739ddbd183f8917bdf193445f1d4c121b3f496cae2c70343f0fc92fdf6fd3fc</data>
+    </image>
     <image name="image57">
-        <data format="XPM.GZ" length="932">789cbdd1cd4ec2401885e17daf62d2d93546a0d46863bc048d4b13e3623a33a505da428b0b63bc777d3f3a5a7f366e3887e4e3c949438059a21eee6f55328b868339d456d9caf42a71cf4df3f2f874f31ac569aa782dd4223e8be27365d55dd77adeeb8ff73a75147a98cd293430bfa0b080c652d8c3624ee14e985138083d850db44b0a3be12585b530a7702f944f82add053b8856e49a1135e51b811e614ae851258094b0a57d0a7145a586614964289fc6e7fe6c48b3ec6e890b06853103bdec285451bf9f676bccefacfa5fc1effb5ac2a52873b59d61b5287fbfb19fb9f67dc9634e14e96b6233b3bdec9b26f481fee64198e5f3d5c8671f99993fe736fd7d13b8b40de47</data>
+        <data format="XPM.GZ" length="902">789ca5d04d4ec3301005e07d4e61757615a24ed2944688238058222116634fdca4cd5fa12c10e2eee44d8468d576d3da5ef8d3cb781ccfa6e6e5f9d14c67d1c78e779537bee4773395cfa6f97a7d7bf88e2649628615e7269edc44935be3cd53d716d8f3b0276b432229d82b13c74b014599b18bb590c04430c11598e641586b3d38b7b90d1eacc0a5c5044b9039772103d74a992fc68feb91813306b7a0b7986050ba41daa8550a6e0d3a50627f379edc288378ab772ec090ba744c374a2fcbf902ec9481d338e8cb9c1cc7098de354c24cce5d93d0f1f84bbc27112a8ae1c6b45aedd75c929cef53965455b45ed3664375bd5f734972b60f7ebd69a86da9eba8ef0f5fe7a2e46c1f84dbedffba3e39ecf3731ffd027d63c6e5</data>
     </image>
     <image name="image58">
         <data format="XPM.GZ" length="661">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022630543251d2e253d856405bffcbc54105b19c856364a0141103711c44d4c0641b04aac804219651040d0c832898989ca081a454f22544f229a1ea06265249a0a3210809081ba13e4280820420faddc865d0677e8e00b515cb18006c892a9b5e6020012d77c81</data>
@@ -3145,6 +3159,9 @@
     </image>
     <image name="image107">
         <data format="XPM.GZ" length="721">789cad90cb0ac2301045f7f98ad0d915b10f2221889fa0b814c445324dd14515b42e44fc7733116c858c20386491c3e1de0c2972b9592f655e884b6ffb034adcdbb3cc9b6bd7ddb6bbc55d64752dc3d1b2ca26229b4a94abd3d1d31dc21d2a5db6a526b484ca2ba36ac286b0ad8cd1d1fa8833a78c23c4886d1986d0bd9026be929c4f03d642da58e72c93718ec98003d6f099bfb621b2866dfb92f9b90d2ce2fb4bc786c4a0c6268886542213052632809e31a1cd336dec0641010c5b3fe6e20947ba912d</data>
+    </image>
+    <image name="image108">
+        <data format="XPM.GZ" length="661">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022630543251d2e253d856405bffcbc54105b19c856360003103711c44d344c344a84a8c40a8895515606626c32207165d2649461066297c16a0f4c0c21a3acac8cec28b065caca603d106b91b48004f0cb404d42960122a80ca603a0f660c82442edd1c3741b927f949100113e251c3a10b793183f40295c327ac8b15d6bcd050092d8734f</data>
     </image>
 </images>
 <connections>
@@ -3868,6 +3885,12 @@
         <receiver>MainWindow</receiver>
         <slot>panDone()</slot>
     </connection>
+    <connection>
+        <sender>rotateToolAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>rotateTool()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4004,6 +4027,7 @@
     <slot>makeThermo()</slot>
     <slot>panTool()</slot>
     <slot>panDone()</slot>
+    <slot>rotateTool()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Jan 30 11:08:07 2005
+# Created: Sun Jan 30 14:28:45 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -2219,34 +2219,6 @@ image25_data = [
 "......................"
 ]
 image26_data = [
-"22 22 3 1",
-". c None",
-"# c #2d2d2d",
-"a c #c2c3c2",
-"......................",
-"......................",
-"......................",
-".###.............###..",
-".#a#.............#a#..",
-".#a#.........#####a#..",
-".#a#.........#a#a#a#..",
-".#a###########a#a#a#..",
-".#a#a#a#a#a#a#a#a#a#..",
-".#a#a#a#a#a#a#a#a#a#..",
-".#a#a#a#a#a#a#a#a#a#..",
-".#a#a#a#a#a#a#a#a#a#..",
-".#a#a#a#a#a#a#a#a#a#..",
-".###################..",
-"......................",
-"...###############....",
-"...#aaaaaaaaaaaaa#....",
-"...###############....",
-"...#aaaaaaaaaaaaa#....",
-"...###############....",
-"......................",
-"......................"
-]
-image27_data = [
 "22 22 64 1",
 "p c #047800",
 "9 c #0770ff",
@@ -2335,7 +2307,7 @@ image27_data = [
 "......................",
 "......................"
 ]
-image28_data = [
+image27_data = [
 "22 22 60 1",
 "v c #153834",
 "K c #1a271e",
@@ -2420,7 +2392,7 @@ image28_data = [
 "......................",
 "......................"
 ]
-image29_data = [
+image28_data = [
 "22 22 115 2",
 ".v c #153834",
 ".M c #1a271e",
@@ -2560,7 +2532,7 @@ image29_data = [
 "QtQtQt.K.K.K#WQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image30_data = [
+image29_data = [
 "22 22 57 1",
 "v c #153834",
 "K c #1a271e",
@@ -2642,7 +2614,7 @@ image30_data = [
 "......................",
 "......................"
 ]
-image31_data = [
+image30_data = [
 "22 22 57 1",
 "p c #000000",
 "w c #153834",
@@ -2724,7 +2696,7 @@ image31_data = [
 "......................",
 "......................"
 ]
-image32_data = [
+image31_data = [
 "22 22 10 1",
 ". c None",
 "e c #000000",
@@ -2759,7 +2731,7 @@ image32_data = [
 "......................",
 "......................"
 ]
-image33_data = [
+image32_data = [
 "22 22 10 1",
 ". c None",
 "e c #000000",
@@ -2794,7 +2766,7 @@ image33_data = [
 "......................",
 "......................"
 ]
-image34_data = [
+image33_data = [
 "22 22 62 1",
 ". c None",
 "l c #222222",
@@ -2881,7 +2853,7 @@ image34_data = [
 "......................",
 "......................"
 ]
-image35_data = [
+image34_data = [
 "22 22 46 1",
 "a c #000000",
 "G c #0e0f0f",
@@ -2952,7 +2924,7 @@ image35_data = [
 "......................",
 "......................"
 ]
-image36_data = [
+image35_data = [
 "22 22 61 1",
 ". c None",
 "W c #000000",
@@ -3038,7 +3010,7 @@ image36_data = [
 "......................",
 "......................"
 ]
-image37_data = [
+image36_data = [
 "22 22 4 1",
 ". c None",
 "# c #404040",
@@ -3067,7 +3039,7 @@ image37_data = [
 "..###################.",
 "......................"
 ]
-image38_data = [
+image37_data = [
 "22 22 39 1",
 ". c None",
 "s c #000000",
@@ -3131,7 +3103,7 @@ image38_data = [
 ".........KvBvK........",
 "......................"
 ]
-image39_data = [
+image38_data = [
 "22 22 72 2",
 "Qt c None",
 ".d c #0b0b0b",
@@ -3228,55 +3200,152 @@ image39_data = [
 "QtQtQtQtQtQtQtQtQtQt.#.aQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image40_data = [
-"22 22 23 1",
-". c None",
-"# c #2d2d2d",
-"f c #404040",
-"i c #535353",
-"a c #959595",
-"b c #acacac",
-"t c #b0b0b0",
-"s c #b4b4b4",
-"p c #bababa",
-"u c #bebebe",
-"n c #c3c3c3",
-"r c #c7c7c7",
-"d c #c9c9c9",
-"q c #cacaca",
-"o c #cecece",
-"m c #d3d3d3",
-"l c #d8d8d8",
-"k c #d9d9d9",
-"j c #dddddd",
-"h c #dfdfdf",
-"g c #e2e2e2",
-"c c #f4f4f4",
-"e c #ffffff",
-"......................",
-"......................",
-"......................",
-".......############...",
-"......#abbb#bbbbbc#...",
-".....#dddddd#dddef#...",
-"....#dddd###dddcff#...",
-"...#dddd#dddddefff#...",
-"..#eeeee#eeeeeffff#...",
-"..#gggg#gghhhdfiff#...",
-"..#ggggg#gghhdffff#...",
-"..#jjkkk#kkkkdfiff#...",
-"..#ggkk#kkkkhdffff#...",
-"..#jjk#kkkkkkdfiff#...",
-"..#llmm#mmmmmnffff#...",
-"..#moooo#oooopfiff#...",
-"..#oqrr#rrrrrsfff#....",
-"..#qqnnn#nnnntfi#.....",
-"..#ubbbb#bbbbbf#......",
-"..#############.......",
-"......................",
-"......................"
+image39_data = [
+"22 22 120 2",
+"Qt c None",
+"#g c #00242a",
+"#K c #00285d",
+"#D c #002c69",
+"#h c #002d3a",
+"#r c #012653",
+"#w c #02261c",
+".B c #060100",
+".6 c #080200",
+".P c #080300",
+"#l c #0a0200",
+".A c #0a0300",
+"#v c #0b240e",
+".2 c #101e1e",
+".3 c #121936",
+".j c #191536",
+".e c #191633",
+".f c #191635",
+".d c #19172c",
+".x c #1a1436",
+".h c #1a1627",
+".g c #1a1631",
+"#C c #1a2a44",
+".i c #1b162a",
+".N c #1d1626",
+"#I c #282826",
+".4 c #2b281f",
+"#y c #2b2823",
+"#p c #2b2a16",
+".r c #2c2723",
+".T c #2c281c",
+"#m c #2c2916",
+".8 c #2c2918",
+".y c #2c2920",
+"#i c #2d2d2d",
+".F c #2e2915",
+".# c #2f290f",
+".c c #2f2913",
+".b c #302a06",
+"#G c #302a0a",
+".a c #322a06",
+"#J c #3c4c6d",
+"#E c #404040",
+"#s c #488081",
+"## c #4c4857",
+"#t c #4c826a",
+".k c #4e4b42",
+"#j c #4e4b44",
+"#n c #4f4c39",
+".R c #514c36",
+"#H c #524a33",
+".C c #524d2d",
+"#F c #534d35",
+"#u c #5d7b61",
+"#q c #93a5cd",
+"#L c #959595",
+".Q c #a4a296",
+"#x c #acacac",
+"#0 c #b0b0b0",
+"#Y c #b4b4b4",
+"#W c #bababa",
+"#1 c #bebebe",
+"#U c #c3c3c3",
+"#X c #c7c7c7",
+"#Q c #c9c9c9",
+"#Z c #cacaca",
+"#V c #cecece",
+"#T c #d3d3d3",
+".7 c #d5d2c9",
+"#e c #d6efec",
+"#M c #d8d8d8",
+"#f c #d8edee",
+"#S c #d9d9d9",
+"#c c #dcffff",
+"#R c #dddddd",
+"#P c #dfdfdf",
+".1 c #dfeddc",
+"#b c #dfffff",
+"#O c #e2e2e2",
+".0 c #e4ebdb",
+"#d c #e7ffff",
+".w c #eae3f5",
+".M c #ede4e9",
+"#B c #ede5e3",
+"#A c #eee8ce",
+".L c #efe5db",
+".O c #efe9c5",
+".z c #efeac4",
+".n c #f0e9bf",
+".5 c #f0eac6",
+"#o c #f1e9c2",
+".l c #f1e9c4",
+"#k c #f1e9c5",
+"#a c #f1ffff",
+".q c #f2e9be",
+"#z c #f2eabb",
+".W c #f2ffff",
+".o c #f3ebbd",
+"#. c #f4eab7",
+".m c #f4eab9",
+".V c #f4ffff",
+".p c #f5eab2",
+".9 c #f5ebae",
+".E c #f6eba9",
+".X c #f7ffff",
+".D c #f8eba5",
+".S c #f8eba7",
+".Y c #f9fffd",
+".U c #fbffff",
+".u c #fefcff",
+".G c #fefdff",
+".H c #fefeff",
+".Z c #fefff4",
+".v c #fffaff",
+".t c #fffbff",
+".s c #fffcff",
+".K c #fffeef",
+".I c #fffef8",
+".J c #fffff3",
+"#N c #ffffff",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQt.#.a.a.b.b.cQt.d.e.f.e.e.f.f.f.g.h.i.jQt",
+"Qt.k.l.m.n.o.p.q.r.s.t.t.u.t.t.t.t.v.t.w.xQt",
+"Qt.y.z.A.B.C.D.E.F.G.H.H.H.H.I.J.K.L.M.NQtQt",
+"Qt.k.O.P.Q.R.D.S.T.U.V.W.X.Y.Z.0.1.2.3QtQtQt",
+"Qt.4.5.6.7.8.9#.###a#b#c#d#e#f#g#h#i#i#i#iQt",
+"Qt#j#k#l#m#n#o#p#q#r#s#t#u#v#w#x#x#x#x#i#iQt",
+"Qt#y#k#z#o#A#B#C#D#i#i#i#i.H.H#E.H.H#i#E#iQt",
+"QtQt#F#G#H#I#J#K#L#x#x#x#x#x#x#x#x#i.H#E#iQt",
+"QtQtQtQtQtQt#i#L#M#M#M#M#M#M#M#M#i#E.H#E#iQt",
+"QtQtQtQtQtQt#i#N#N#N#N#N#N#N#N#N#E#E#E#E#iQt",
+"QtQtQtQtQtQt#i#O#P#P#P#P#P#P#P#Q#E#E.H#E#iQt",
+"QtQtQtQtQtQt#i#R#S#S#S#S#S#S#S#Q#E#E.H#E#iQt",
+"QtQtQtQtQtQt#i#M#T#T#T#T#T#T#T#U#E#E#E#E#iQt",
+"QtQtQtQtQtQt#i#T#V#V#V#V#V#V#V#W#E#E.H#E#iQt",
+"QtQtQtQtQtQt#i#V#X#X#X#X#X#X#X#Y#E#E.H#iQtQt",
+"QtQtQtQtQtQt#i#Z#U#U#U#U#U#U#U#0#E#E#iQtQtQt",
+"QtQtQtQtQtQt#i#1#x#x#x#x#x#x#x#x#E#iQtQtQtQt",
+"QtQtQtQtQtQt#i#i#i#i#i#i#i#i#i#i#iQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image41_data = [
+image40_data = [
 "22 22 6 1",
 ". c None",
 "a c #000000",
@@ -3307,7 +3376,7 @@ image41_data = [
 "......................",
 "......................"
 ]
-image42_data = [
+image41_data = [
 "22 22 8 1",
 ". c None",
 "# c #000000",
@@ -3340,7 +3409,7 @@ image42_data = [
 "......................",
 "......................"
 ]
-image43_data = [
+image42_data = [
 "22 22 2 1",
 ". c None",
 "# c #2d2d2d",
@@ -3367,7 +3436,7 @@ image43_data = [
 "......................",
 "......................"
 ]
-image44_data = [
+image43_data = [
 "22 22 22 1",
 ". c None",
 "l c #040700",
@@ -3414,7 +3483,7 @@ image44_data = [
 "...l..................",
 "......................"
 ]
-image45_data = [
+image44_data = [
 "22 22 23 1",
 ". c None",
 "# c #040700",
@@ -3462,7 +3531,7 @@ image45_data = [
 "......................",
 "......................"
 ]
-image46_data = [
+image45_data = [
 "22 22 24 1",
 ". c None",
 "# c #040700",
@@ -3511,7 +3580,7 @@ image46_data = [
 "......................",
 "......................"
 ]
-image47_data = [
+image46_data = [
 "22 22 23 1",
 ". c None",
 "u c #040700",
@@ -3559,7 +3628,7 @@ image47_data = [
 "..........u...........",
 "..........u..........."
 ]
-image48_data = [
+image47_data = [
 "22 22 23 1",
 ". c None",
 "j c #040700",
@@ -3607,7 +3676,7 @@ image48_data = [
 "......................",
 "......................"
 ]
-image49_data = [
+image48_data = [
 "22 22 23 1",
 ". c None",
 "j c #040700",
@@ -3655,7 +3724,7 @@ image49_data = [
 "......................",
 "......................"
 ]
-image50_data = [
+image49_data = [
 "22 22 16 1",
 ". c None",
 "a c #000000",
@@ -3696,7 +3765,7 @@ image50_data = [
 "......................",
 "......................"
 ]
-image51_data = [
+image50_data = [
 "22 22 34 1",
 "e c #000000",
 "y c #000100",
@@ -3755,7 +3824,7 @@ image51_data = [
 "..gfruuuuuuuuuuuuuuurr",
 "....DEFgggggggggggggFE"
 ]
-image52_data = [
+image51_data = [
 "22 22 12 1",
 ". c None",
 "# c #000000",
@@ -3792,7 +3861,7 @@ image52_data = [
 "......................",
 "......................"
 ]
-image53_data = [
+image52_data = [
 "22 22 9 1",
 ". c None",
 "a c #000000",
@@ -3826,7 +3895,7 @@ image53_data = [
 "......................",
 "......................"
 ]
-image54_data = [
+image53_data = [
 "22 22 9 1",
 ". c None",
 "a c #000000",
@@ -3860,7 +3929,7 @@ image54_data = [
 "......................",
 "......................"
 ]
-image55_data = [
+image54_data = [
 "22 22 30 1",
 "c c #2d2d2d",
 "j c #404040",
@@ -3915,7 +3984,7 @@ image55_data = [
 "AhBkkkkkkkhd..........",
 "dAtvvvvvvvd..........."
 ]
-image56_data = [
+image55_data = [
 "22 22 7 1",
 "a c #2d2d2d",
 "d c #82d2b5",
@@ -3947,51 +4016,94 @@ image56_data = [
 "bebeb#aa#....#aa#bebeb",
 "ebeb............eebebe"
 ]
-image57_data = [
-"22 22 21 1",
+image56_data = [
+"22 22 20 1",
 ". c None",
 "# c #2d2d2d",
 "e c #404040",
 "a c #959595",
 "b c #acacac",
-"r c #b0b0b0",
-"p c #b4b4b4",
-"s c #bebebe",
-"m c #c3c3c3",
-"o c #c7c7c7",
-"i c #c9c9c9",
-"q c #cacaca",
-"n c #cecece",
-"l c #d3d3d3",
+"q c #b0b0b0",
+"o c #b4b4b4",
+"r c #bebebe",
+"l c #c3c3c3",
+"n c #c7c7c7",
+"h c #c9c9c9",
+"p c #cacaca",
+"m c #cecece",
+"k c #d3d3d3",
 "d c #d8d8d8",
-"k c #d9d9d9",
-"j c #dddddd",
-"h c #dfdfdf",
-"g c #e2e2e2",
-"c c #f4f4f4",
-"f c #ffffff",
+"j c #d9d9d9",
+"i c #dddddd",
+"g c #dfdfdf",
+"f c #e2e2e2",
+"c c #ffffff",
+".............#########",
+"............#abbbbbbc#",
+"...........#addddddce#",
+"...........#cccccccee#",
+".........#.#fggggghee#",
+"........#..#ijjjjjhee#",
+"....#..#...#dkkkkklee#",
+"....###....#mnnnnnoee#",
+"....###....#plllllqee#",
+"....####...#rbbbbbbe#.",
+"...........#########..",
+"..#########...........",
+".#abbbbbbc#...####....",
+"#addddddce#....###....",
+"#cccccccee#....###....",
+"#fggggghee#...#..#....",
+"#ijjjjjhee#..#........",
+"#dkkkkklee#.#.........",
+"#mnnnnnoee#...........",
+"#plllllqee#...........",
+"#rbbbbbbe#............",
+"#########............."
+]
+image57_data = [
+"22 22 19 1",
+". c None",
+"a c #00f2d3",
+"p c #02ba8d",
+"d c #05ab11",
+"# c #2d2d2d",
+"g c #39fda3",
+"c c #4090fc",
+"i c #808080",
+"h c #aa9bf5",
+"j c #ad46fc",
+"l c #adfa5a",
+"q c #c0c0c0",
+"f c #cb0c03",
+"n c #cd00f2",
+"b c #d1c7f5",
+"m c #dfdc01",
+"e c #f3b3f5",
+"k c #fcd846",
+"o c #ffa31f",
 "......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"...#######a#########..",
-"..#abbbbbc#abbbbbbd#..",
-".#adddddc#addddddce#..",
-".#fffffffffffffffee#..",
-".#ghhhhhi#ghhhhhiee#..",
-".#jkkkkki#jkkkkkiee#..",
-".#ghhhhhicghhhhhiee#..",
-".#jkkkkki#jkkkkkiee#..",
-".#dlllllm#dlllllmee#..",
-".#nooooopcnooooopee#..",
-".#qmmmmmr#qmmmmmree#..",
-".#sbbbbbb#sbbbbbbe#...",
-".#################....",
-"......................",
-"......................",
-"......................",
-"......................"
+"..............#######.",
+"..............#aa#bb#.",
+"..............#aa#bb#.",
+"..............#aa#bb#.",
+"..###################.",
+"..#cc#dd#ee#ff#gg#bb#.",
+"..#cc#dd#ee#ff#gg#bb#.",
+"..#cc#dd#ee#ff#gg#bb#.",
+"..###################.",
+"..#hh#ii#jj#kk#ll#bb#.",
+"..#hh#ii#jj#kk#ll#bb#.",
+"..#hh#ii#jj#kk#ll#bb#.",
+"..###################.",
+".....#mm#nn#oo#pp#bb#.",
+".....#mm#nn#oo#pp#bb#.",
+".....#mm#nn#oo#pp#bb#.",
+".....################.",
+"........#qq#qq#qq#qq#.",
+"........#qq#qq#qq#qq#.",
+"........#qq#qq#qq#qq#.",
+"........#############."
 ]
 image58_data = [
 "22 22 3 1",
@@ -6704,6 +6816,34 @@ image107_data = [
 "........#acccca#......",
 ".........#a##a#......."
 ]
+image108_data = [
+"22 22 3 1",
+". c None",
+"# c #000000",
+"a c #a1a2a1",
+"......................",
+"......................",
+"..........##..#.......",
+".........#..###.......",
+".........#..###.......",
+"........#....##.......",
+"........#.....#.......",
+"........#.............",
+"#####..#.........#####",
+".###...#..........###.",
+".###...#..........###.",
+"#..#...#..........#..#",
+"#......#.............#",
+".#.....#...........a#.",
+"..###..#.........###..",
+".....############.....",
+"........#.............",
+"........#.....#.......",
+".........#...##.......",
+".........#..###.......",
+"..........#.###.......",
+"...........#..#......."
+]
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6818,6 +6958,7 @@ class MainWindow(QMainWindow):
         self.image105 = QPixmap(image105_data)
         self.image106 = QPixmap(image106_data)
         self.image107 = QPixmap(image107_data)
+        self.image108 = QPixmap(image108_data)
 
         if not name:
             self.setName("MainWindow")
@@ -6894,8 +7035,6 @@ class MainWindow(QMainWindow):
         self.modifyMinimizeAction = QAction(self,"modifyMinimizeAction")
         self.modifyMinimizeAction.setEnabled(1)
         self.modifyMinimizeAction.setIconSet(QIconSet(self.image25))
-        self.elemChangePTableAction = QAction(self,"elemChangePTableAction")
-        self.elemChangePTableAction.setIconSet(QIconSet(self.image26))
         self.toggleFileTbarAction = QAction(self,"toggleFileTbarAction")
         self.toggleFileTbarAction.setToggleAction(1)
         self.toggleFileTbarAction.setOn(1)
@@ -6919,86 +7058,86 @@ class MainWindow(QMainWindow):
         self.dispTrihedronAction.setToggleAction(1)
         self.dispTrihedronAction.setOn(1)
         self.dispTrihedronAction.setEnabled(1)
-        self.dispTrihedronAction.setIconSet(QIconSet(self.image27))
+        self.dispTrihedronAction.setIconSet(QIconSet(self.image26))
         self.dispDatumPlanesAction = QAction(self,"dispDatumPlanesAction")
         self.dispDatumPlanesAction.setToggleAction(1)
         self.dispDatumPlanesAction.setOn(1)
-        self.dispDatumPlanesAction.setIconSet(QIconSet(self.image28))
+        self.dispDatumPlanesAction.setIconSet(QIconSet(self.image27))
         self.dispCsysAction = QAction(self,"dispCsysAction")
         self.dispCsysAction.setToggleAction(1)
         self.dispCsysAction.setOn(1)
-        self.dispCsysAction.setIconSet(QIconSet(self.image29))
+        self.dispCsysAction.setIconSet(QIconSet(self.image28))
         self.dispDatumLinesAction = QAction(self,"dispDatumLinesAction")
         self.dispDatumLinesAction.setToggleAction(1)
         self.dispDatumLinesAction.setOn(1)
-        self.dispDatumLinesAction.setIconSet(QIconSet(self.image30))
+        self.dispDatumLinesAction.setIconSet(QIconSet(self.image29))
         self.dispGridAction = QAction(self,"dispGridAction")
         self.dispGridAction.setToggleAction(1)
-        self.dispGridAction.setIconSet(QIconSet(self.image31))
+        self.dispGridAction.setIconSet(QIconSet(self.image30))
         self.selectConnectedAction = QAction(self,"selectConnectedAction")
-        self.selectConnectedAction.setIconSet(QIconSet(self.image32))
+        self.selectConnectedAction.setIconSet(QIconSet(self.image31))
         self.selectDoublyAction = QAction(self,"selectDoublyAction")
-        self.selectDoublyAction.setIconSet(QIconSet(self.image33))
+        self.selectDoublyAction.setIconSet(QIconSet(self.image32))
         self.editPreferencesAction = QAction(self,"editPreferencesAction")
         self.jigsBearingAction = QAction(self,"jigsBearingAction")
-        self.jigsBearingAction.setIconSet(QIconSet(self.image34))
+        self.jigsBearingAction.setIconSet(QIconSet(self.image33))
         self.jigsSpringAction = QAction(self,"jigsSpringAction")
-        self.jigsSpringAction.setIconSet(QIconSet(self.image35))
+        self.jigsSpringAction.setIconSet(QIconSet(self.image34))
         self.jigsDynoAction = QAction(self,"jigsDynoAction")
-        self.jigsDynoAction.setIconSet(QIconSet(self.image36))
+        self.jigsDynoAction.setIconSet(QIconSet(self.image35))
         self.jigsHeatsinkAction = QAction(self,"jigsHeatsinkAction")
-        self.jigsHeatsinkAction.setIconSet(QIconSet(self.image37))
+        self.jigsHeatsinkAction.setIconSet(QIconSet(self.image36))
         self.jigsGroundAction = QAction(self,"jigsGroundAction")
-        self.jigsGroundAction.setIconSet(QIconSet(self.image38))
+        self.jigsGroundAction.setIconSet(QIconSet(self.image37))
         self.jigsHandleAction = QAction(self,"jigsHandleAction")
-        self.jigsHandleAction.setIconSet(QIconSet(self.image39))
+        self.jigsHandleAction.setIconSet(QIconSet(self.image38))
         self.modifySeparateAction = QAction(self,"modifySeparateAction")
-        self.modifySeparateAction.setIconSet(QIconSet(self.image40))
+        self.modifySeparateAction.setIconSet(QIconSet(self.image39))
         self.orient100Action = QAction(self,"orient100Action")
-        self.orient100Action.setIconSet(QIconSet(self.image41))
+        self.orient100Action.setIconSet(QIconSet(self.image40))
         self.orient110Action = QAction(self,"orient110Action")
-        self.orient110Action.setIconSet(QIconSet(self.image42))
+        self.orient110Action.setIconSet(QIconSet(self.image41))
         self.orient111Action = QAction(self,"orient111Action")
-        self.orient111Action.setIconSet(QIconSet(self.image43))
+        self.orient111Action.setIconSet(QIconSet(self.image42))
         self.setViewFrontAction = QAction(self,"setViewFrontAction")
         self.setViewFrontAction.setEnabled(1)
-        self.setViewFrontAction.setIconSet(QIconSet(self.image44))
+        self.setViewFrontAction.setIconSet(QIconSet(self.image43))
         self.setViewBackAction = QAction(self,"setViewBackAction")
-        self.setViewBackAction.setIconSet(QIconSet(self.image45))
+        self.setViewBackAction.setIconSet(QIconSet(self.image44))
         self.setViewTopAction = QAction(self,"setViewTopAction")
-        self.setViewTopAction.setIconSet(QIconSet(self.image46))
+        self.setViewTopAction.setIconSet(QIconSet(self.image45))
         self.setViewBottomAction = QAction(self,"setViewBottomAction")
         self.setViewBottomAction.setEnabled(1)
-        self.setViewBottomAction.setIconSet(QIconSet(self.image47))
+        self.setViewBottomAction.setIconSet(QIconSet(self.image46))
         self.setViewRightAction = QAction(self,"setViewRightAction")
-        self.setViewRightAction.setIconSet(QIconSet(self.image48))
+        self.setViewRightAction.setIconSet(QIconSet(self.image47))
         self.setViewLeftAction = QAction(self,"setViewLeftAction")
-        self.setViewLeftAction.setIconSet(QIconSet(self.image49))
+        self.setViewLeftAction.setIconSet(QIconSet(self.image48))
         self.setViewHomeAction = QAction(self,"setViewHomeAction")
-        self.setViewHomeAction.setIconSet(QIconSet(self.image50))
+        self.setViewHomeAction.setIconSet(QIconSet(self.image49))
         self.setViewRecenterAction = QAction(self,"setViewRecenterAction")
-        self.setViewRecenterAction.setIconSet(QIconSet(self.image51))
+        self.setViewRecenterAction.setIconSet(QIconSet(self.image50))
         self.jigsLinearMotorAction = QAction(self,"jigsLinearMotorAction")
-        self.jigsLinearMotorAction.setIconSet(QIconSet(self.image52))
+        self.jigsLinearMotorAction.setIconSet(QIconSet(self.image51))
         self.toggleModifyTbarAction = QAction(self,"toggleModifyTbarAction")
         self.toggleModifyTbarAction.setToggleAction(1)
         self.toggleModifyTbarAction.setOn(1)
         self.toolsStartOverAction = QAction(self,"toolsStartOverAction")
-        self.toolsStartOverAction.setIconSet(QIconSet(self.image53))
+        self.toolsStartOverAction.setIconSet(QIconSet(self.image52))
         self.toolsBackUpAction = QAction(self,"toolsBackUpAction")
-        self.toolsBackUpAction.setIconSet(QIconSet(self.image54))
+        self.toolsBackUpAction.setIconSet(QIconSet(self.image53))
         self.fileClearAction = QAction(self,"fileClearAction")
         self.modifyCopyBondAction = QAction(self,"modifyCopyBondAction")
-        self.modifyCopyBondAction.setIconSet(QIconSet(self.image55))
+        self.modifyCopyBondAction.setIconSet(QIconSet(self.image54))
         self.modifyEdgeBondAction = QAction(self,"modifyEdgeBondAction")
-        self.modifyEdgeBondAction.setIconSet(QIconSet(self.image56))
+        self.modifyEdgeBondAction.setIconSet(QIconSet(self.image55))
         self.modifyWeldAction = QAction(self,"modifyWeldAction")
-        self.modifyWeldAction.setIconSet(QIconSet(self.image57))
+        self.modifyWeldAction.setIconSet(QIconSet(self.image56))
         self.toggleDatumDispTbarAction = QAction(self,"toggleDatumDispTbarAction")
         self.toggleDatumDispTbarAction.setToggleAction(1)
         self.toggleDatumDispTbarAction.setOn(0)
         self.modifySetElementAction = QAction(self,"modifySetElementAction")
-        self.modifySetElementAction.setIconSet(QIconSet(self.image26))
+        self.modifySetElementAction.setIconSet(QIconSet(self.image57))
         self.fileInsertAction = QAction(self,"fileInsertAction")
         self.modifyDehydrogenateAction = QAction(self,"modifyDehydrogenateAction")
         self.modifyDehydrogenateAction.setIconSet(QIconSet(self.image58))
@@ -7156,6 +7295,8 @@ class MainWindow(QMainWindow):
         self.jigsThermoAction.setIconSet(QIconSet(self.image107))
         self.panDoneAction = QAction(self,"panDoneAction")
         self.panDoneAction.setIconSet(QIconSet(self.image17))
+        self.rotateToolAction = QAction(self,"rotateToolAction")
+        self.rotateToolAction.setIconSet(QIconSet(self.image108))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7174,25 +7315,23 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(202,0,376,29))
+        self.viewToolbar.setGeometry(QRect(202,0,318,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
         self.zoomToolAction.addTo(self.viewToolbar)
         self.panToolAction.addTo(self.viewToolbar)
+        self.rotateToolAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewOrthoAction.addTo(self.viewToolbar)
         self.setViewPerspecAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewFrontAction.addTo(self.viewToolbar)
-        self.setViewBackAction.addTo(self.viewToolbar)
         self.setViewTopAction.addTo(self.viewToolbar)
-        self.setViewBottomAction.addTo(self.viewToolbar)
-        self.setViewLeftAction.addTo(self.viewToolbar)
         self.setViewRightAction.addTo(self.viewToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(578,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(520,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7212,7 +7351,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,655,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7242,7 +7381,8 @@ class MainWindow(QMainWindow):
         self.selectAtomsDashboard.setEnabled(1)
 
         self.textLabel2_2 = QLabel(self.selectAtomsDashboard,"textLabel2_2")
-        self.nullAction.addTo(self.selectAtomsDashboard)
+        self.selectAtomsDashboard.addSeparator()
+        self.modifySetElementAction.addTo(self.selectAtomsDashboard)
         self.moveMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
 
@@ -7303,9 +7443,15 @@ class MainWindow(QMainWindow):
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
 
-        self.anTextLabel = QLabel(self.panDashboard,"anTextLabel")
+        self.panTextLabel = QLabel(self.panDashboard,"panTextLabel")
         self.panDashboard.addSeparator()
         self.toolsDoneAction.addTo(self.panDashboard)
+        self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
+
+        self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
+        self.rotateDashboard.addSeparator()
+        self.toolsDoneAction.addTo(self.rotateDashboard)
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
@@ -7458,7 +7604,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1177).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1195).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7581,6 +7727,7 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsThermoAction,SIGNAL("activated()"),self.makeThermo)
         self.connect(self.panToolAction,SIGNAL("activated()"),self.panTool)
         self.connect(self.panDoneAction,SIGNAL("activated()"),self.panDone)
+        self.connect(self.rotateToolAction,SIGNAL("activated()"),self.rotateTool)
 
 
     def languageChange(self):
@@ -7678,8 +7825,6 @@ class MainWindow(QMainWindow):
         self.modifyMinimizeAction.setMenuText(self.__tr("&Minimize"))
         self.modifyMinimizeAction.setToolTip(self.__tr("Minimize (Ctrl+M)"))
         self.modifyMinimizeAction.setAccel(self.__tr("Ctrl+M"))
-        self.elemChangePTableAction.setText(self.__tr("Atom Type"))
-        self.elemChangePTableAction.setMenuText(self.__tr("Atom Type"))
         self.toggleFileTbarAction.setText(self.__tr("File"))
         self.toggleFileTbarAction.setMenuText(self.__tr("File"))
         self.toggleEditTbarAction.setText(self.__tr("Edit"))
@@ -7777,8 +7922,8 @@ class MainWindow(QMainWindow):
         self.modifyWeldAction.setMenuText(self.__tr("&Weld"))
         self.toggleDatumDispTbarAction.setText(self.__tr("Datum Display"))
         self.toggleDatumDispTbarAction.setMenuText(self.__tr("Datum Display"))
-        self.modifySetElementAction.setText(self.__tr("Change Element"))
-        self.modifySetElementAction.setMenuText(self.__tr("Change &Element..."))
+        self.modifySetElementAction.setText(self.__tr("Element Selector"))
+        self.modifySetElementAction.setMenuText(self.__tr("&Element Selector..."))
         self.modifySetElementAction.setAccel(self.__tr("Ctrl+E"))
         self.fileInsertAction.setText(self.__tr("Inser&t..."))
         self.fileInsertAction.setMenuText(self.__tr("Inser&t..."))
@@ -7931,6 +8076,8 @@ class MainWindow(QMainWindow):
         self.jigsThermoAction.setMenuText(self.__tr("&Thermometer"))
         self.panDoneAction.setText(self.__tr("Done"))
         self.panDoneAction.setMenuText(self.__tr("Done"))
+        self.rotateToolAction.setText(self.__tr("Rotate Tool"))
+        self.rotateToolAction.setMenuText(self.__tr("Rotate Tool"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7957,7 +8104,9 @@ class MainWindow(QMainWindow):
         self.zoomDashboard.setLabel(self.__tr("Zoom Tool"))
         self.zoomTextLabel.setText(self.__tr("Zoom Tool"))
         self.panDashboard.setLabel(self.__tr("Pan Tool"))
-        self.anTextLabel.setText(self.__tr("Pan Tool"))
+        self.panTextLabel.setText(self.__tr("Pan Tool"))
+        self.rotateDashboard.setLabel(self.__tr("Rotate Tool"))
+        self.rotateTextLabel.setText(self.__tr("Rotate Tool"))
         self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
         self.modifyToolbar.setLabel(self.__tr("Modify"))
         self.toolsToolbar.setLabel(self.__tr("Tools"))
@@ -8381,6 +8530,9 @@ class MainWindow(QMainWindow):
 
     def panDone(self):
         print "MainWindow.panDone(): Not implemented yet"
+
+    def rotateTool(self):
+        print "MainWindow.rotateTool(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
