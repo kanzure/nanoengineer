@@ -56,6 +56,26 @@ class fusechunksMode(modifyMode):
         self.find_bondable_pairs() # Find bondable pairs of singlets
         self.o.gl_update()
 
+    def Backup(self):
+        if self.bondable_pairs_atoms:
+            for a1, a2 in self.bondable_pairs_atoms:
+                b = self.get_neighbor_bond(a1, a2)
+                if b: b.bust()
+            # Then I need to separate and rename the new chunk back to it's original name.
+            for chunk in self.merged_chunks:
+                print "Restore chunk: ", chunk.name
+                
+        self.find_bondable_pairs() # Find bondable pairs of singlets
+        self.o.gl_update()
+
+    def get_neighbor_bond(self, a1, a2):
+        '''Return the bond between atoms a1 and a2, or None if none exist.
+        '''
+        for b in a1.bonds[:]:
+            if b.other(a1) == a2:
+               return b
+        return None
+        
     def leftDrag(self, event):
         """Move the selected chunk in the plane of the screen following
         the mouse.
@@ -224,8 +244,8 @@ class fusechunksMode(modifyMode):
         "Make bonds between all bondable pairs of singlets"
         
         self.bondable_pairs_atoms = []
-        singlets_with_two_bonds = []
-        not_bonded = 0
+        self.merged_chunks = []
+        not_bonded = 0 # Bondable pairs not bonded counter
         
 #        print self.bondable_pairs
         
@@ -255,13 +275,12 @@ class fusechunksMode(modifyMode):
                         
         # Merge the chunks if the "merge chunks" checkbox is checked
         if self.w.mergeCB.isChecked() and self.bondable_pairs_atoms:
-            merged_chunks = []
             for a1, a2 in self.bondable_pairs_atoms:
                 # Ignore a1, they are atoms from selected_chunk
                 # It is possible that a2 is an atom from selected_chunk, so check it
                 if a2.molecule != self.selected_chunk:
-                    if a2.molecule not in merged_chunks:
-                        merged_chunks.append(a2.molecule)
+                    if a2.molecule not in self.merged_chunks:
+                        self.merged_chunks.append(a2.molecule)
                         self.selected_chunk.merge(a2.molecule)
 
         # This must be done before gl_update, or it will try to draw the 
@@ -270,6 +289,6 @@ class fusechunksMode(modifyMode):
             self.bondable_pairs = []
             self.ways_of_bonding = {}
                 
-        self.o.gl_update()
+        self.w.win_update()
 
 # end of class fusechunksMode
