@@ -19,7 +19,7 @@ class selectMode(basicMode):
     # class constants
     backgroundColor = 190/256.0, 229/256.0, 239/256.0
     gridColor = (0.0, 0.0, 0.6)
-    modename = 'SELECT'
+    #modename = 'SELECT'
     # no default_mode_status_text, since it varies
     
     # default initial values
@@ -31,46 +31,37 @@ class selectMode(basicMode):
 ##        basicMode.__init__(self, glpane)
 ##        self.picking = 0
 
-    def get_mode_status_text(self):
+#    def get_mode_status_text(self):
         # bruce 040927; ###k is this queried often enough??
-        try:
-            what = self.o.assy.selectingWhat() # 'Atoms' or 'Molecules'
+#        try:
+#            what = self.o.assy.selectingWhat() # 'Atoms' or 'Molecules'
             # bruce 040927: this seems to be wrong sometimes, e.g. when no atoms or molecules exist in the assembly... not sure.
-        except:
-            what = '...' # hopefully this will never show up...
-        return "Mode: Select %s" % what
+#        except:
+#            what = '...' # hopefully this will never show up...
+#        return "Mode: Select %s" % what
     
     # init_gui handles all the GUI display when entering this mode [mark 041004]    
     def init_gui(self):
         self.o.setCursor(self.w.SelectCursor)
-        if self.o.assy.selwhat == 2:
-            self.w.toolsSelectMoleculesAction.setOn(1) # mark - toggle the select molecule tools icon on
-            self.w.selectMolDashboard.show() 
-        elif self.o.assy.selwhat == 0:
-            self.w.selectAtomsDashboard.show()
-         
-    
+
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
-        #if self.o.assy.selwhat == 2:
-            self.w.selectMolDashboard.hide()
-        #elif self.o.assy.selwhat == 0:
-            self.w.selectAtomsDashboard.hide()
-    
+        pass
+   
     def leftDown(self, event):
-        self.StartPick(event, 2) 
+        self.StartPick(event, 2) # new selection (replace)
     
     def leftCntlDown(self, event):
         self.w.OldCursor = QCursor(self.o.cursor())
         self.o.setCursor(self.w.SelectSubtractCursor)
         
-        self.StartPick(event, 0)
+        self.StartPick(event, 0) # subtract from selection
 
     def leftShiftDown(self, event):
         self.w.OldCursor = QCursor(self.o.cursor())
         self.o.setCursor(self.w.SelectAddCursor)
         
-        self.StartPick(event, 1) 
+        self.StartPick(event, 1) # add to selection
 
 
     def StartPick(self, event, sense):
@@ -166,6 +157,7 @@ class selectMode(basicMode):
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.
         """
+        # we must change set OldCursor to the MoveSelectCursor before going into move mode.
         self.w.OldCursor = self.w.MoveSelectCursor
         self.move() # go into move mode # bruce 040923: we use to inline the same code as is in this method
         
@@ -245,3 +237,42 @@ class selectMode(basicMode):
                    self.o.updateGL()
 
     pass # end of class selectMode
+    
+class selectMolsMode(selectMode):
+        modename = 'SELECTMOLS'
+        default_mode_status_text = "Mode: Select Molecules"
+    
+        def Enter(self): 
+            basicMode.Enter(self)
+            self.o.assy.selectParts() 
+        
+    
+        def init_gui(self):
+            selectMode.init_gui(self)
+            
+            #self.o.assy.selwhat = 2
+            self.w.toolsSelectMoleculesAction.setOn(1) # mark - toggle the select molecule tools icon on
+            self.w.selectMolDashboard.show() 
+            
+        def restore_gui(self):
+            self.w.selectMolDashboard.hide()
+        
+                    
+class selectAtomsMode(selectMode):
+        modename = 'SELECTATOMS'
+        default_mode_status_text = "Mode: Select Atoms"
+        
+        def Enter(self): 
+            basicMode.Enter(self)
+            self.o.assy.selectAtoms() 
+            
+        def init_gui(self):
+            selectMode.init_gui(self)
+            
+            #self.o.assy.selwhat = 0
+            self.w.selectAtomsDashboard.show()
+            
+        def restore_gui(self):
+            self.w.selectAtomsDashboard.hide()
+   
+         

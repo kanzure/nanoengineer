@@ -324,11 +324,13 @@ class assembly:
     # make something selected
     def pick(self, p1, v1):
         a = self.findpick(p1, v1)
-        if a and self.selwhat: a.molecule.pick()
+        if a and self.selwhat: 
+            a.molecule.pick()
+#            self.w.msgbarLabel.setText( "Molecule name" + str (a.index ) + ", " + a.element.name)
         elif a:
             a.pick()
             # Print information about the selected atom in the msgbar [mark 041005]
-            self.w.msgbarLabel.setText( "Atom #" + str (a.index ) + ", " + a.element.name)
+            self.w.msgbarLabel.setText( "Atom #" + str (a.key ) + ", " + a.element.name)
 
     # make something unselected
     def unpick(self, p1, v1):
@@ -361,7 +363,7 @@ class assembly:
         a = self.findpick(p1, v1)
         if a: 
               a.molecule.pick()
-              if (self.o.mode == self.o.modetab["SELECT"]) :
+              if (self.o.mode == self.o.modetab["SELECTMOLS"]) :
                     a.molecule.setSelectionState(self.o.mode, a.molecule, True)
 
     # deselect any selected atoms
@@ -378,7 +380,7 @@ class assembly:
             for mol in self.selmols:
                 mol.picked = 0
                 mol.changeapp()
-                if (self.o.mode == self.o.modetab["SELECT"]) :
+                if (self.o.mode == self.o.modetab["SELECTMOLS"]) :
                     mol.setSelectionState(self.o.mode, mol, False)
             self.selmols = []
 

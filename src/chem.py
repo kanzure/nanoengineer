@@ -614,7 +614,7 @@ class molecule(QObject):
         modelTree = self.assy.w.modelTreeView
         QObject.connect(self, PYSIGNAL("modelSelectionChanged"), modelTree.changeModelSelection)
           
-        selMode = self.assy.o.modetab['SELECT']
+        selMode = self.assy.o.modetab['SELECTMOLS']
         QObject.connect(self, PYSIGNAL("modelSelectionChanged"), selMode.changeModelSelection)
 
     def setSelectionState(self, trigger, target, state):

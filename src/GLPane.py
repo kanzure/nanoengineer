@@ -31,7 +31,7 @@ from constants import *
 from modifyMode import modifyMode
 from cookieMode import cookieMode # fyi: was 'import *' before bruce 040920; same with some other modes here, 040922
 from extrudeMode import extrudeMode
-from selectMode import selectMode
+from selectMode import *
 from depositMode import depositMode
 from modes import modeMixin
 
@@ -102,8 +102,8 @@ class GLPane(QGLWidget, modeMixin):
     # This is all set up and maintained by our mixin class, modeMixin. [bruce 040922]
 
     # constants needed by modeMixin:
-    default_mode_class = selectMode
-    other_mode_classes = [modifyMode, depositMode, cookieMode, extrudeMode]
+    default_mode_class = selectMolsMode
+    other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode, extrudeMode]
     
     def __init__(self, assem, master=None, name=None, win=None):
         

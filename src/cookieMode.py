@@ -85,13 +85,14 @@ class cookieMode(basicMode):
     # mouse events
     
     def leftDown(self, event):
-        self.StartDraw(event, 1)
+#        self.shape.curves
+        self.StartDraw(event, 2) # new selection (replace)
     
     def leftShiftDown(self, event):
-        self.StartDraw(event, 0)
+        self.StartDraw(event, 1) # add to selection
 
     def leftCntlDown(self, event):
-        self.StartDraw(event, 2)
+        self.StartDraw(event, 0) # subtract from selection
 
     def StartDraw(self, event, sense):
         """Start a selection curve
@@ -172,7 +173,14 @@ class cookieMode(basicMode):
         if not self.o.shape:
             self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight,
                                Slab(-self.o.pov, self.o.out, 7))
+
+        # This is a kludge, to get exclusive (replace) selection working - Mark and Huaicai [04
+        if self.selSense == 2:
+            self.o.shape.curves = []
+            self.selSense = 1
+                
         eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
+        
         if self.selLassRect:
             self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, self.selSense)
         else:
