@@ -140,7 +140,10 @@ class modelTree(QListView):
 
 
     def select(self, item):
-#        print "MT.select: item = ",item
+        print "MT.select: item = ",item
+        if item:
+            if item.object.name == self.assy.name: return
+        
         self.win.assy.unpickatoms()
         
         if isinstance(self.win.glpane.mode, selectMode): 
@@ -175,10 +178,12 @@ class modelTree(QListView):
             self.selectedItem = listItem.object
             sdaddy = self.selectedItem.whosurdaddy()
             if sdaddy in ["ROOT","Data"]: 
-                if self.selectedItem.name == self.assy.name: self.partmenu.popup(pos, 1)
+                if self.selectedItem.name == self.assy.name: 
+                    self.partmenu.popup(pos, 1)
                 return
         else:
             self.selectedItem = None
+            return
         
         # Figure out which menu to display
         treepicked = self.assy.tree.nodespicked()
