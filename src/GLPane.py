@@ -2,12 +2,9 @@
 """
 GLPane.py -- Atom's main model view, based on Qt's OpenGL widget.
 
-BRUCE IS TEMPORARILY OWNING this file (and all mode files) for a few days starting 040922,
-in order to fix mode-related bugs by revising the interface between modes.py,
-all specific modes, and GLPane.py. During this period, please consult Bruce
-before any changes to these files.
+(As of 040928 ~1:30pm edt, no one owns this file.)
 
-Mostly by Josh; partly revised by Bruce, 040922.
+Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-24.
 
 $Id$
 """
@@ -44,6 +41,7 @@ import struct
 from povheader import povheader
 
 from fileIO import *
+from debug import debug_run_command
 
 
 paneno = 0
@@ -791,7 +789,7 @@ class GLPane(QGLWidget, modeMixin):
 
     def do_debug_menu(self, event):
         menu = self.debug_menu
-        self.current_event = event
+        self.current_event = event # (so debug commands can see it)
         # this code written from Qt/PyQt docs... note that some Atom modules use menu.exec_loop() but others use menu.popup();
         # I don't know for sure whether this matters here, or which is best. -- bruce ca. 040916
         menu.exec_loop(event.globalPos(), 1)
@@ -802,48 +800,12 @@ class GLPane(QGLWidget, modeMixin):
         print self
 
     def _debug_runpycode(self):
-        title = "debug: run py code"
-        label = "one line of python to exec in GLPane.py's globals()\n(or use @@@ to fake \\n for more lines)\n(or use execfile)"
-        text, ok = QInputDialog.getText(title, label)
-        if ok:
-            # fyi: type(text) == <class '__main__.qt.QString'>
-            command = str(text) #k not yet well tested
-            command = command.replace("@@@",'\n')
-            debug_run_command(command, source = "debug menu")
-        else:
-            print "run py code: cancelled"
+        from debug import debug_runpycode_from_a_dialog
+        debug_runpycode_from_a_dialog( source = "GLPane debug menu")
         return
 
     pass # end of class GLPane
 
-def debug_run_command(command, source = "user debug input"): #bruce 040913-16 #e move this to somewhere more general?
-    """Execute a python command, supplied by the user via some sort of debugging interface (named by source),
-       in GLPane.py's globals. Return 1 for ok (incl empty command), 0 for any error.
-       Caller should not print diagnostics -- this function should be extended to do that, though it doesn't yet.
-    """
-    #e someday we might record time, history, etc
-    command = "" + command # i.e. assert it's a string
-    #k what's a better way to do the following?
-    while command and command[0] == '\n':
-        command = command[1:]
-    while command and command[-1] == '\n':
-        command = command[:-1]
-    if not command:
-        print "empty command (from %s), nothing executed" % (source,)
-        return
-    if '\n' not in command:
-        print "will execute (from %s): %s" % (source, command)
-    else:
-        nlines = command.count('\n')+1
-        print "will execute (from %s; %d lines):\n%s" % (source, nlines, command)
-    command = command + '\n' #k probably not needed
-    try:
-        exec command in globals()
-    except:
-        print "exception from that, discarded (sorry)" #e should print compact traceback
-    else:
-        print "did it!"
-    return
 
 def povpoint(p):
     # note z reversal -- povray is left-handed
