@@ -43,9 +43,10 @@ xyzreader.o: mol.h
 
 MOLOBJS=mol.o tables.o lin-alg.o display-opengl.o
 SIMOBJS=mol.o tables.o lin-alg.o dumpxyz.o
+PHYSOBJS=mol.o tables.o lin-alg.o physeng.o
 DISPOBJS=xyzreader.o tables.o lin-alg.o display-opengl.o
 
-all: mol molsim moldisp
+all: mol molsim moldisp physeng
 
 mol: $(MOLOBJS)
 	$(CC) -o mol $(LDFLAGS) -lGL -lGLU -lglut $(MOLOBJS)
@@ -53,11 +54,15 @@ mol: $(MOLOBJS)
 molsim: $(SIMOBJS)
 	$(CC) -o molsim $(LDFLAGS) $(SIMOBJS)
 
+
+physeng: $(PHYSOBJS)
+	$(CC) -o physeng $(LDFLAGS) $(PHYSOBJS)
+
 moldisp: $(DISPOBJS)
 	$(CC) -o moldisp $(LDFLAGS) -lGL -lGLU -lglut $(DISPOBJS)
 
 clean:
-	rm -f mol moldisp molsim
+	rm -f mol moldisp molsim physeng
 	rm -f *.o *.so *~ TAGS fmc.mmp dumpstruct.xyz
 	rm -rf html gmon.out
 

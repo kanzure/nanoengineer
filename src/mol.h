@@ -364,9 +364,10 @@ extern const int NUMELTS;
 extern const int BSTABSIZE;
 extern const int BENDATASIZE;
 
+
 /*
  * Local Variables:
- * c-basic-offset: 8
+ * c-basic-offset: 4
  * tab-width: 8
  * End:
  */
