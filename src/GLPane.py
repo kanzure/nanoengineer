@@ -177,16 +177,9 @@ class GLPane(QGLWidget, modeMixin):
 
         self.setAssy(assem)
 
-        ## self.win.statusBar().message("self.win.statusBar", 2000) #
-        ## this works, but is shown for only about 1/2 sec [bruce
-        ## 040924] self.win.statusBar().message("self.win.statusBar")
-        ## # this works too; leaves it there until a tooltip writes
-        ## over it but note that other statusbar msgs I'm emitting are
-        ## going away almost instantly -- it's not a reliable place to
-        ## make sure the user sees something! [bruce 040924]
+        return # from GLPane.__init__
         
     def setAssy(self, assem):
-        
         """[bruce comment 040922] This is called from self.__init__,
         and from MWSemantics.__clear when user asks to open a new
         file, etc.  Apparently, it is supposed to forget whatever is
@@ -245,6 +238,8 @@ class GLPane(QGLWidget, modeMixin):
     def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
         
         """[experimental method by bruce 040922]
+
+            ###@@@ need to merge this with set_status_text or make a sibling method! [bruce 041223]
         
            Show a warning to the user, without interrupting them
            (i.e. not in a dialog) unless bother_user_with_dialog is
@@ -292,7 +287,7 @@ class GLPane(QGLWidget, modeMixin):
         print msg 
         
         if use_status_bar: # do this first
-            self.win.statusBar().message( msg)
+            ## WRONG CODE NOW: self.win.statusBar().message( msg)
             assert 0 # this never happens for now
         if use_dialog:
             # use this only when it's worth interrupting the user to make
