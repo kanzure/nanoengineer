@@ -35,14 +35,17 @@ SUFFIXES: .c .h .o ;
 	$(CC) -c $(CFLAGS) -o $@ $(@:.o=.c)
 
 mol.o: mol.h
+tables.o: mol.h
 lin-alg.o: mol.h
 display-opengl.o: mol.h
 dumpxyz.o: mol.h
 xyzreader.o: mol.h
 
-MOLOBJS=mol.o lin-alg.o display-opengl.o
-SIMOBJS=mol.o lin-alg.o dumpxyz.o
-DISPOBJS=xyzreader.o lin-alg.o display-opengl.o
+MOLOBJS=mol.o tables.o lin-alg.o display-opengl.o
+SIMOBJS=mol.o tables.o lin-alg.o dumpxyz.o
+DISPOBJS=xyzreader.o tables.o lin-alg.o display-opengl.o
+
+all: mol molsim moldisp
 
 mol: $(MOLOBJS)
 	$(CC) -o mol $(LDFLAGS) -lGL -lGLU -lglut $(MOLOBJS)

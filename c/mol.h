@@ -8,49 +8,6 @@ typedef double GLfloat;
 #include <GL/glut.h>
 #endif
 
-
-//#define DEBUG 1
-//#if DEBUG
-//extern int DebugLevel;
-//#define DBGWRAPPER(level,stmt) \
-//  if (DebugLevel >= level) { \
-//    fprintf(stderr, "%s:%d ", __FILE__, __LINE__); \
-//    stmt; \
-//  }
-//#define DBGPRINTF(level,format) \
-//  DBGWRAPPER(level, fprintf(stderr, format))
-//#define DBGPRINTF1(level,format,a) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a))
-//#define DBGPRINTF2(level,format,a,b) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a,b))
-//#define DBGPRINTF3(level,format,a,b,c) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c))
-//#define DBGPRINTF4(level,format,a,b,c,d) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d))
-//#define DBGPRINTF5(level,format,a,b,c,d,e) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e))
-//#define DBGPRINTF6(level,format,a,b,c,d,e,f) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e,f))
-//#define DBGPRINTF7(level,format,a,b,c,d,e,f,g) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e,f,g))
-//#define DBGPRINTF8(level,format,a,b,c,d,e,f,g,h) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e,f,g,h))
-//#define DBGPRINTF9(level,format,a,b,c,d,e,f,g,h,i) \
-//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e,f,g,h,i))
-//#else
-//#define DBGPRINTF(level,format)
-//#define DBGPRINTF1(level,format,a)
-//#define DBGPRINTF2(level,format,a,b)
-//#define DBGPRINTF3(level,format,a,b,c)
-//#define DBGPRINTF4(level,format,a,b,c,d)
-//#define DBGPRINTF5(level,format,a,b,c,d,e)
-//#define DBGPRINTF6(level,format,a,b,c,d,e,f)
-//#define DBGPRINTF7(level,format,a,b,c,d,e,f,g)
-//#define DBGPRINTF8(level,format,a,b,c,d,e,f,g,h)
-//#define DBGPRINTF9(level,format,a,b,c,d,e,f,g,h,i)
-//#endif
-
-
 #if 0
 #define DBGPRINTF(x...) fprintf(stderr, ## x)
 #else
@@ -64,8 +21,6 @@ typedef double GLfloat;
 #define NATOMS 10000
 #define NBONDS 12
 /* that's bonds per atom! */
-
-#define NUMELTS 37
 
 #define VANBUFSIZ 10000
 
@@ -304,17 +259,15 @@ extern int DisplayStyle;
 extern struct A atom[10000];
 extern struct B bond[4*10000];
 extern struct Q torq[6*10000];
-extern struct atomtype element[37];
-extern char *elname[37];
-extern struct bsdata bstab[];
+// extern char *elname[37];
 extern void pbontyp(struct bsdata *ab);
 extern int Iteration;
 extern void bondump(void);
-extern struct angben bendata[];
 extern void pangben(struct angben *ab);
 extern int findbond(int btyp);
 extern int findtorq(int btyp1, int btyp2);
-extern struct vdWtab vanderTable[(37 * (37 +1))/2];
+// extern struct vdWtab vanderTable[(37 * (37 +1))/2];
+extern struct vdWtab vanderTable[];
 extern double RvdW;
 extern double EvdW;
 extern struct vdWbuf *Nexvanbuf;
@@ -402,6 +355,14 @@ extern double vlen(struct xyz v);
 extern struct xyz uvec(struct xyz v);
 extern double vang(struct xyz v, struct xyz w);
 extern struct xyz vx(struct xyz v, struct xyz w);
+
+/* tables */
+extern struct atomtype element[37];
+extern struct bsdata bstab[];
+extern struct angben bendata[];
+extern const int NUMELTS;
+extern const int BSTABSIZE;
+extern const int BENDATASIZE;
 
 /*
  * Local Variables:
