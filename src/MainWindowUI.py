@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Jan 30 21:08:36 2005
+# Created: Mon Jan 31 13:01:15 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -3766,63 +3766,54 @@ image49_data = [
 "......................"
 ]
 image50_data = [
-"22 22 34 1",
-"e c #000000",
-"y c #000100",
-"s c #010000",
-"B c #010100",
-"z c #010200",
-"m c #204297",
-"h c #20439a",
+"22 22 25 1",
+". c None",
+"d c #000000",
+"r c #000100",
+"m c #010000",
+"v c #010100",
+"t c #010200",
+"i c #204297",
+"e c #20439a",
 "# c #21449b",
-"p c #2b2b86",
-"n c #3737a9",
-"k c #4242ce",
-"d c #525252",
-"j c #6f6fdd",
-"x c #757575",
-"A c #757675",
-"c c #787878",
-"C c #868686",
-"i c #8e8ee4",
-"b c #919191",
-"t c #a1a1a1",
-"q c #a9a9a9",
-"a c #aaaaaa",
-"l c #b8b9b8",
-"u c #c4c5c4",
-"r c #c7c8c7",
-"f c #cfd0cf",
-"w c #d4d4d4",
-"g c #dadbda",
-"F c #dcdddc",
-"v c #dddddd",
-"E c #dfe0df",
-"D c #e2e3e2",
-". c #e6e7e6",
-"o c #ffffff",
+"l c #2b2b86",
+"j c #3737a9",
+"h c #4242ce",
+"c c #525252",
+"g c #6f6fdd",
+"q c #757575",
+"u c #757675",
+"b c #787878",
+"w c #868686",
+"f c #8e8ee4",
+"a c #919191",
+"n c #a9a9a9",
+"s c #cfd0cf",
+"p c #d4d4d4",
+"o c #dddddd",
+"k c #ffffff",
 "......................",
-".#abccccccccccccccdefg",
-".hiijjjjjjjjjjjjjjkelf",
-".mknnnnnnnnnnononopeqr",
-".eeeeeeeeeseeeeeeeeetu",
-".eqvwwwwwwswwwwwwwqetu",
-".eqvwwwwxsyyxwwwwwqetu",
-".eqvwwwswwywwswwwwqetu",
-".eqvwfywwwywwwyfwwqetu",
-".eqvwxwwwwzwwwwAwwqetu",
-".eqvwswwwwwwwwwywwqetu",
-".eqsssyyBwwwsseessqetu",
-".eqvwswwwwwwwwwswwqetu",
-".eqvwxwwwwywwwwxwwqetu",
-".eqvwfywwwywwwsfwwqetu",
-".eqvwwwywwywwswwwwqetu",
-".eqvwwwwxsyyxwwwwwqetu",
-".edqqqqqqqeqqqqqqqCetu",
-".eeeeeeeeeseeeeeeeeetu",
-"..flqttttttttttttttttu",
-"..gfruuuuuuuuuuuuuuurr",
-"....DEFgggggggggggggFE"
+"......................",
+".#aabbbbbbbbbbbbbbcd..",
+".effgggggggggggggghd..",
+".ihjjjjjjjjjjkjkjkld..",
+".dddddddddmddddddddd..",
+".dnoppppppmpppppppnd..",
+".dnoppppqmrrqpppppnd..",
+".dnopppmpprppmppppnd..",
+".dnopsrppprppprsppnd..",
+".dnopqpppptppppuppnd..",
+".dnopmppppppppprppnd..",
+".dnmmmrrvpppmmddmmnd..",
+".dnopmpppppppppmppnd..",
+".dnopqpppprppppqppnd..",
+".dnopsrppprpppmsppnd..",
+".dnoppprpprppmppppnd..",
+".dnoppppqmrrqpppppnd..",
+".dcnnnnnnndnnnnnnnwd..",
+".dddddddddmddddddddd..",
+"......................",
+"......................"
 ]
 image51_data = [
 "22 22 12 1",
@@ -7315,10 +7306,11 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(202,0,318,29))
+        self.viewToolbar.setGeometry(QRect(202,0,347,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
+        self.setViewRecenterAction.addTo(self.viewToolbar)
         self.zoomToolAction.addTo(self.viewToolbar)
         self.panToolAction.addTo(self.viewToolbar)
         self.rotateToolAction.addTo(self.viewToolbar)
@@ -7331,7 +7323,7 @@ class MainWindow(QMainWindow):
         self.setViewRightAction.addTo(self.viewToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(520,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(549,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7351,7 +7343,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,655,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7530,6 +7522,7 @@ class MainWindow(QMainWindow):
         self.setViewHomeAction.addTo(self.unnamed)
         self.setViewHomeToCurrentAction.addTo(self.unnamed)
         self.setViewFitToWindowAction.addTo(self.unnamed)
+        self.setViewRecenterAction.addTo(self.unnamed)
         self.zoomToolAction.addTo(self.unnamed)
         self.panToolAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
@@ -7605,7 +7598,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1201).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1204).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)

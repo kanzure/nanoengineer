@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1201</height>
+            <height>1204</height>
         </rect>
     </property>
     <property name="caption">
@@ -70,6 +70,7 @@
         <action name="setViewHomeAction"/>
         <action name="setViewHomeToCurrentAction"/>
         <action name="setViewFitToWindowAction"/>
+        <action name="setViewRecenterAction"/>
         <action name="zoomToolAction"/>
         <action name="panToolAction"/>
         <separator/>
@@ -185,7 +186,7 @@
             <rect>
                 <x>202</x>
                 <y>0</y>
-                <width>318</width>
+                <width>347</width>
                 <height>29</height>
             </rect>
         </property>
@@ -197,6 +198,7 @@
         </property>
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
+        <action name="setViewRecenterAction"/>
         <action name="zoomToolAction"/>
         <action name="panToolAction"/>
         <action name="rotateToolAction"/>
@@ -214,7 +216,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>520</x>
+                <x>549</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -261,7 +263,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>655</width>
+                <width>657</width>
                 <height>29</height>
             </rect>
         </property>
@@ -2988,7 +2990,7 @@
         <data format="XPM.GZ" length="857">789c9591cd4e84301485f73c45033b623a800e43627c048d4b13e3e2f607e8cc14131d17c6f8eede83523a84c5780e21fdf2e574019b5c3c3dde8b7c93bc9fe8e4b4d03dbd89dc7c78fff9fc72f795a45525f8296b51a657492a85160faf83c599f89c156380fe0fcb5f74239693cd806535a1055606056ae04d81025be0f61a052a6053a0c0039076dc2d703f62c3ad81c7800db01f51a3c001a82c0a34405da0c00e686bbbb3e3557235179b2ca3759329ad68618848124450c11822a328529131ea4ccdb741c46adea859c59b208c21457636049e4a3a32b2ed42fad69e1ba554e79c63a3179bfd818d742b9b6330cb0db2be998dd63e3643cf61c3efd6c7df8d6fe0b071defb7ffed3cbccf76df203125dce95</data>
     </image>
     <image name="image50">
-        <data format="XPM.GZ" length="1130">789c75d24b6fda401405e03dbfc2821daa123c1efc5094451eb08bd465a5aa0b7b1e408024f6988053f5bfd7e77840c1827b01f3f9681e1ef9761cfcfaf9128c6f07aeceeb950ad432af82b1de6db7cdef3ff77f07432182f613c9201cfe180c4da082d18405369e61474786c7f4d1d3a75f9ea2e316141329b2045c7a46590e8ec850caac003fc84214690cbe815112257906ae4129a45006d4e054a0c15730b6b1d51a3c80c9140d3e78c61d1599a2c127308dd1e08a34a931122cc02c448335988768b024333498932c7003166991155c68072aa9a68a335764a252c5c3b1a4d51365c13da8251a5c90b92e34679e934a6badc04f9205ce486b269a533d834698c8f0ac6ec8d82486cffb0e5a16d38bc5649417eaacb4b10b26cbd5eaf5acd666d3cdb65dbf9dea1dfd61ca8a8939963bfdab775d527eee59aebbeccb5e72704d73b894b4031a3fec2cb1eddd3dbfb697709a2ffc3cf492e3e21cf82d71ae5dfd118bb51b77eeca1877699d869bbfb637d7df1b6f5f7c9e2b67a0cbae8cbf3e9d92ab677d633765dd2b9f2c6cb53bafaa3abe21cfb3f9e27bcd67c37f7783ffe1274d2a</data>
+        <data format="XPM.GZ" length="992">789c95d25d6f82301406e07b7e45a3776699522b1f59f613b6ec72c9b28bd252f1a388809a65d97f1fefa198492066e728f4e14d696d9ccfd8fbdb0b9bcdbdaa96f5463195c992cdf4c9daaf8fcfe76f6fc239c367c5fcc9833779648abd1ef21463dd8ca70b2ab074f45b5aa2dfa5674797d68ebce506e40bc1e3104c1d97b104a7445f883801f7c4842751006ec165b80c650c66a0e0822bdaa402571c0daec1c004466bf008862b3478720c5a26c4080d5ec0284083869846692a4009c63e1acc4119a3c10a54462f94010b500b34782052813bd050d1990fd69d642a6572534abb2435667d5359976cb2edb576e87d97e8aeec75d425f9a1a0b2edadc87bc9d196e571286926946eda4d52354f0bfa56bd845e53e372ea25dde234f14f626db3fa198b351bb776648e1d5aa7a4cd8fedcdf6f7468f077fcfc819a8bc2dedee97fb67fddfffc1cf93f70ba85e0f9e</data>
     </image>
     <image name="image51">
         <data format="XPM.GZ" length="797">789cad90510b82301485dff72b867b93c8253e08d14f287a0ca287eb74d3c082b28788fe7b3bd32c5293a07336b81f87ed5e6ee0f3cd7ac9fd809d2baa0ac5554e27eea797b2bc6e778b1bf3c290db33b3c79b306fca155f1d0f196a616b219d80048c240cdc0329868105309130307718c340035412066a87040333601ac1c0d4a186810a9869189800b5931bb8577f4b040d26883e12512b119d849cfade8cf579cd667feedc2651b67ebfa98dea2483742b63cc33c96b15adf6a2edd3d1e8de480c24248612bba7e6f39e37f5c27ee8f365b6dee43e670f2f09a194</data>
