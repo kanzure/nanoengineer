@@ -150,16 +150,43 @@ def createWhatsThis(self):
         
         setzoomToolActionText = "<u><b>Zoom Tool</b></u><br>"\
                        "<p><img source=\"setzoomTool\"><br> "\
-                       "Allows the user to specify a rectangular area by holding "\
-                       "down the left button and dragging the mouse "\
-                       "to zoom into a specific area of the model."\
-                       "</p>"
+                       "Allows the user to zoom into a specific area of the model by specifying a rectangular area. "\
+                       "This is done by holding down the left button and dragging the mouse.</p>"\
+                       "<p>A mouse with a mouse wheel can also be used to zoom in and out "\
+                       "at any time, without using the Zoom Tool.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setzoomTool",
                                                        self.zoomToolAction.iconSet().pixmap() )
 
         self.zoomToolAction.setWhatsThis(  setzoomToolActionText )      
 
+        
+         #### Pan Tool ####
+        
+        setpanToolActionText = "<u><b>Pan Tool</b></u><br>"\
+                       "<p><img source=\"setpanTool\"><br> "\
+                       "Allows X-Y panning using the left mouse button.</p>"\
+                       "<p>Users with a 3-button mouse can pan the model at any time by pressing "\
+                       "the middle mouse button while holding down the Shift key.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setpanTool",
+                                                       self.panToolAction.iconSet().pixmap() )
+
+        self.panToolAction.setWhatsThis(  setpanToolActionText )
+
+        
+         #### Rotate Tool ####
+        
+        setrotateToolActionText = "<u><b>Rotate Tool</b></u><br>"\
+                       "<p><img source=\"setrotateTool\"><br> "\
+                       "Allows free rotation using the left mouse button.</p>"\
+                       "<p>Users with a 3-button mouse can rotate the model at any time by pressing "\
+                       "the middle mouse button and dragging the mouse.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setrotateTool",
+                                                       self.rotateToolAction.iconSet().pixmap() )
+
+        self.rotateToolAction.setWhatsThis(  setrotateToolActionText )
         
          #### Orthographic Projection ####
         
