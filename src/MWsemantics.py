@@ -1062,7 +1062,7 @@ class MWsemantics(MainWindow):
     
     def modifyDeleteBond(self):
         """ Delete all bonds between selected and unselected atoms or chunks"""
-        self.assy.modifyDeleteBonds()
+        self.assy.modifyDeleteBond()
             
     def modifyStretch(self):
         """ Stretch/expand the selected chunk(s) """

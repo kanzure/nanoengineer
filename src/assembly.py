@@ -1245,16 +1245,16 @@ class assembly:
                     self.stack = self.stack[:pop]
                 self.p[atom] = min(self.p[atom], self.p[a2])
 
-    def modifyDeleteBonds(self):
+    def modifyDeleteBond(self):
         """Delete all bonds between selected and unselected atoms or chunks
         """
         
         if not self.selatoms and not self.selmols: # optimization, and different status msg
-            msg = redmsg("Delete Bonds: Nothing selected")
+            msg = redmsg("Delete Bond: Nothing selected")
             self.w.history.message(msg)
             return
         
-        self.w.history.message(greenmsg("Delete Bonds:"))
+        self.w.history.message(greenmsg("Delete Bond:"))
         
         cutbonds = 0
         
