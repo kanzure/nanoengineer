@@ -53,6 +53,7 @@ class cookieMode(basicMode):
         # Disable some action items in the main window.
         self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
         self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
+        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
         
 # methods related to exiting this mode [bruce 040922 made these
 # from old Done and Flush methods]
@@ -83,6 +84,7 @@ class cookieMode(basicMode):
                        
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
+        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
         
     def restore_patches(self):
         self.o.ortho = self.savedOrtho

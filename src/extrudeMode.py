@@ -1081,6 +1081,7 @@ class extrudeMode(basicMode):
         self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
         self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
         self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
+        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
         
         if self.is_revolve:
             self.w.toolsRevolveAction.setOn(1)
@@ -1248,6 +1249,7 @@ class extrudeMode(basicMode):
         self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
+        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
         
         return
 

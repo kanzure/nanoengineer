@@ -42,6 +42,7 @@ class movieMode(basicMode):
         self.w.editDeleteAction.setEnabled(0) # Disable "Delete"
         self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
         self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
+        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
         
         # MP dashboard initialization.
         self.w.frameNumberSB.setValue(self.o.assy.m.currentFrame) # SB = Spinbox
@@ -74,6 +75,7 @@ class movieMode(basicMode):
         self.w.editDeleteAction.setEnabled(1) # Enable "Delete"
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
+        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
 
     def makeMenus(self):
         self.Menu_spec = [

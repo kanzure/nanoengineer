@@ -221,6 +221,7 @@ class depositMode(basicMode):
         
         self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
         self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
+        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
 
         self.dont_update_gui = False
 
@@ -406,6 +407,7 @@ class depositMode(basicMode):
         self.w.depositAtomDashboard.hide() # Stow away dashboard
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
+        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
 
 
     def restore_patches(self):
