@@ -1,7 +1,9 @@
 # Makefile for the simulator
 
+PYINCL=-I/usr/include/python2.3
+
 CC=gcc
-CFLAGS=-O3 -g
+CFLAGS=-O3 -g $(PYINCL)
 LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 
 ifeq ($(PROFILING),1)
@@ -29,6 +31,9 @@ simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
 	mv simulator ~/bin
 
+
+atomsimmodule.so: atomsimmodule.o
+	$(CC) $(CFLAGS) -shared -o atomsimmodule.so atomsimmodule.o
 
 clean:
 	rm -f simulator moldisp molsim physeng
