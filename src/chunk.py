@@ -251,7 +251,7 @@ class molecule(Node, InvalMixin):
         # arrays that store pos directly (everything else depends on them):
         self.curpos[ind] = pos
         atpos = self.__dict__.get('atpos')
-        if atpos == None:
+        if atpos == None: # note: "if atpos" would be false if all entries 0.0!
             # nothing more to do -- everything else depends on atpos
             return
         assert atpos is self.curpos, "atpos should be same object as curpos"
@@ -264,15 +264,18 @@ class molecule(Node, InvalMixin):
         # Now check basepos.
         # We only need to store something in basepos if that exists,
         # and is not the same object as curpos.
+        # Note: "if basepos" would be false if all entries were 0.0, and this is
+        # usually the case for a 1-atom molecule! [That mistake in the following
+        # code caused bug 218, fixed by bruce 041130.]
         basepos = self.__dict__.get('basepos')
-        if basepos and (basepos is not self.curpos):
+        if basepos != None and (basepos is not self.curpos):
             # (actually this would be a noop if the mol was frozen,
             #  even though basepos is curpos then,
             #  since the transform on pos would be the identity then;
             #  but it seems better to not do it twice, anyway)
             basepos[ind] = self.quat.unrot(pos - self.basecenter)
         # But some invals are needed either then, or if the mol is frozen:
-        if basepos:
+        if basepos != None:
             self.changed_attr('basepos')
         return # from setatomposn
     
