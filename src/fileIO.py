@@ -464,7 +464,7 @@ def _readmmp(assy, filnam, isInsert = False):
                         wxyz = A(map(float, [m.group(2), m.group(3),
                                  m.group(4), m.group(5)]))
                         scale=float(m.group(6))
-                        assy.homeCsys = Csys(assy, "HomeView", scale, V(0,0,0), 1.0, wxyz)
+                        assy.homeCsys = Csys(assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
                         opengroup.addmember(assy.homeCsys)
                         assy.lastCsys = Csys(assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
                         opengroup.addmember(assy.lastCsys)

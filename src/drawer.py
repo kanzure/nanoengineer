@@ -522,7 +522,6 @@ def drawgrid(scale, center):
     glPopMatrix()
     glEnable(GL_LIGHTING)
 
-
 def drawrectangle(pt1, pt2, rt, up, color):
     glColor3f(color[0], color[1], color[2])
     glDisable(GL_LIGHTING)
@@ -535,6 +534,28 @@ def drawrectangle(pt1, pt2, rt, up, color):
     glVertex(c3[0],c3[1],c3[2])
     glEnd()
     glEnable(GL_LIGHTING)
+
+def drawRubberBand(pt1, pt2, c2, c3, color):
+       """Huaicai: the logic xor seems not working, don't know why? """
+       glColor3f(color[0], color[1], color[2])
+       glDisable(GL_LIGHTING)
+       glEnable(GL_COLOR_LOGIC_OP)
+       
+       glLogicOp(GL_XOR)
+       
+       glBegin(GL_LINE_LOOP)
+       glVertex(pt1[0],pt1[1],pt1[2])
+       glVertex(c2[0],c2[1],c2[2])
+       glVertex(pt2[0],pt2[1],pt2[2])
+       glVertex(c3[0],c3[1],c3[2])
+       glEnd()
+       
+       
+       glDisable(GL_COLOR_LOGIC_OP)
+       
+       glEnable(GL_LIGHTING)
+       
+       
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
 def drawbrick(color, center, axis, l, h, w):

@@ -557,4 +557,3 @@ class shape:
         return "<Shape of " + `len(self.curves)` + ">"
 
     pass # end of class shape
-

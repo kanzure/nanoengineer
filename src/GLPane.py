@@ -6,6 +6,7 @@ Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-2
 Revised by many other developers since then (and perhaps before).
 
 $Id$
+
 """
 
 from qt import *
@@ -160,7 +161,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
         # clipping planes, as percentage of distance from the eye
         self.near = 0.66
-        self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
+        self.far = 5.0  ##2.0, Huaicai: make this bigger, so models will be
                                ## more likely sitting within the view volume
 
         self.zoomFactor = 1.0
@@ -549,7 +550,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 q = q2
                 what = n
         self.quat = Q(q)
-        self.gl_update()
+        self.paintGL()
         return what
 
     def setDisplay(self, disp):
@@ -566,7 +567,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             self.zoomFactor = zFactor
     def getZoomFactor(self):
             return self.zoomFactor        
-
     def gl_update(self): #bruce 050127
         """External code should call this when it thinks the GLPane needs
         redrawing, rather than directly calling paintGL, unless it really
@@ -586,16 +586,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             # very soon after the current event handler returns
         return
     
-    def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
-        """[PRIVATE METHOD -- call gl_update instead!]
-        The main screen-drawing function, called internally by Qt when our
-        superclass needs to repaint. THIS SHOULD NO LONGER BE CALLED DIRECTLY
-        BY EXTERNAL CODE -- CALL gl_update INSTEAD.
-           Sets up point of view projection, position, angle.
+
+    def paintGL(self):
+        """the main screen-drawing function.
+        Sets up point of view projection, position, angle.
         Calls draw member fns for everything in the screen.
         """
-        # bruce comment 041220: besides our own calls of this function
-        # [later: which no longer exist after 050127], it can
+        # bruce comment 041220: besides our own calls of this function, it can
         # be called directly from the app.exec_loop() in atom.py; I'm not sure
         # exactly why or under what circumstances, but one case (on Mac) is when you
         # switch back into the app by clicking in the blank part of the model tree
@@ -663,8 +660,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                       vdist*self.near, vdist*self.far)
 
         glMatrixMode(GL_MODELVIEW)
-        #if aspect < 1.0:
-        #     vdist /= aspect
+        if aspect < 1.0:
+             vdist /= aspect
         
         glTranslatef(0.0, 0.0, - vdist)
 	# bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
@@ -683,8 +680,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glFlush()                           # Tidy up
         self.swapBuffers()
 
-        return # from paintGL
-
+    
     def drawarrow(self, aspect):
         glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500)
         q = self.quat
@@ -721,7 +717,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 glEnable(GL_LIGHTING)
         
         glLoadIdentity()
-        return
+
 
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
@@ -734,8 +730,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         if not self.initialised:
             self.initialised = 1
         self.trackball.rescale(width, height)
-        self.gl_update()
-        return
+        self.paintGL()
+
+
 
     def xdump(self):
         """for debugging"""

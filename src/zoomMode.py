@@ -3,10 +3,12 @@
 zoomMode.py -- zoom mode.
 
 $Id$
+
 """
 __author__ = "Mark"
 
 from modes import *
+
 
 class zoomMode(basicMode):
 
@@ -75,19 +77,46 @@ class zoomMode(basicMode):
              point that current cursor points at on the screen plane"""
         self.rbw = True
         self.pWxy = (event.pos().x(), self.o.height - event.pos().y())
-        p1 = A(gluUnProject(self.pWxy[0], self.pWxy[1], 0.0)) 
+        p1 = A(gluUnProject(self.pWxy[0], self.pWxy[1], 0.005)) 
         
-        self.pickLineStart = self.pickLinePrev = p1
-
-    
+        self.pStart =  p1
+        self.pPrev = p1
+        self.point2 = None
+        self.point3 = None
+        
+        
+    def computePoints(self):
+          rt = self.o.right
+          up = self.o.up  
+          self.point2 = self.pStart + up*dot(up, self.pPrev - self.pStart)
+          self.point3 = self.pStart + rt*dot(rt, self.pPrev - self.pStart)
+            
     def leftDrag(self, event):
         """Compute the changing rubber band window ending point """
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
-        p1 = A(gluUnProject(cWxy[0], cWxy[1], 0.0)) 
-        self.pickLinePrev = p1
+        
+        ##if self.point2 and self.point3:  ## redraw the previous rectangle to erase
+        ##     drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        ##     col = glReadPixelsf(cWxy[0], cWxy[1], 1, 1, GL_RGB)
+        ##     print "after erase color: ", col[0][0]
+        ##     self.o.swapBuffers()
+        
+           
+        p1 = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
+        self.pPrev = p1
+        ## draw the new rubber band
+        ##self.computePoints()
+        ##col = glReadPixelsf(cWxy[0], cWxy[1], 1, 1, GL_RGB)
+        ##print "before color: ", col[0][0]
+        ##drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        ##col = glReadPixelsf(cWxy[0], cWxy[1], 1, 1, GL_RGB)
+        ##print "color: ", col[0][0]
+        #self.o.swapBuffers()
+        
+        #The original way to redraw everything
         self.o.gl_update()
-
-
+        
+        
     def leftUp(self, event):
         """"Compute the final rubber band window ending point, do zoom"""
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
@@ -95,10 +124,13 @@ class zoomMode(basicMode):
         zoomY = (abs(cWxy[1] - self.pWxy[1]) + 0.0) / (self.o.height + 0.0)
         
         zoomFactor = max(zoomX, zoomY)
-        ##Huaicai: when rubber band window is too small, 
+        ##Huaicai: when rubber band window is too small,
         ##like a double click, skip zoom
         DELTA = 1.0E-5
-        if zoomFactor < DELTA: return
+        if zoomFactor < DELTA: 
+                self.rbw = False
+                self.o.mode.Done(self.o.prevMode)
+                return
         
         winCenterX = (cWxy[0] + self.pWxy[0]) / 2.0
         winCenterY = (cWxy[1] + self.pWxy[1]) / 2.0
@@ -106,7 +138,7 @@ class zoomMode(basicMode):
         
         assert winCenterZ[0][0] >= 0.0 and winCenterZ[0][0] <= 1.0
         if winCenterZ[0][0] >= 1.0:  ### window center touches nothing
-                 p1 = A(gluUnProject(winCenterX, winCenterY, 0.0))
+                 p1 = A(gluUnProject(winCenterX, winCenterY, 0.005))
                  p2 = A(gluUnProject(winCenterX, winCenterY, 1.0))
 
                  los = self.o.lineOfSight
@@ -121,16 +153,24 @@ class zoomMode(basicMode):
         ## changes view angles, the 2nd one change viewing distance
         ## The advantage for the 1st one is model will not be clipped by 
         ##  near or back clipping planes, and the rubber band can be 
-        ## always shown. The disadvantage: TBD
-        zoomFactor *= self.o.getZoomFactor()
-        self.o.setZoomFactor(zoomFactor)
+        ## always shown. The disadvantage: when the view field is too 
+        ## small, a selection window may be actually act as a single pick.
+        ## rubber ban window will not look as rectanglular any more.
+        zf = self.o.getZoomFactor()
+        #zoomFactor = pow(zoomFactor, 0.25)
+        zoomFactor *= zf
+        #self.o.setZoomFactor(zoomFactor)
         
-        ###Change viewing distance to do zoom
-        ##self.o.scale *= zoomFactor
+        ##Change viewing distance to do zoom. This works better with
+        ##mouse wheel, since both are changing viewing distance, and
+        ##it's not too bad of model being clipped, since the near/far clip
+        ##plane change as scale too.
+        self.o.scale *= zoomFactor
         
-        self.o.gl_update()
         self.rbw = False
+        self.o.gl_update()
         self.Done()
+
 
     def keyPress(self,key):
         # ESC - Exit/cancel zoom mode.
@@ -139,15 +179,21 @@ class zoomMode(basicMode):
             
     def Draw(self):
         basicMode.Draw(self)   
-        if self.rbw: self.RBWdraw() # Draw rubber band window.
         self.o.assy.draw(self.o)
+        ##Make sure this is the last scene draw
+        if self.rbw: 
+                self.RBWdraw() # Draw rubber band window.
+        
         
     def RBWdraw(self):
-        """Draw the rubber-band window.
+        """Draw the rubber-band window. Disable depth test, make sure rubber band window is always on top
         """
-        drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
+        glDisable(GL_DEPTH_TEST)
+        drawer.drawrectangle(self.pStart, self.pPrev,
                                  self.o.up, self.o.right, self.rbwcolor)
-          
+        glEnable(GL_DEPTH_TEST) 
+        
+        
     def makeMenus(self):
         self.Menu_spec = [
             ('Cancel', self.Cancel),

@@ -373,7 +373,12 @@ class MWsemantics(MainWindow):
             # Huaicai 12/14/04, set the initial orientation to the file's home view orientation 
             # when open a file; set the home view scale = current fit-in-view scale  
             if isMMPFile:
-                    self.glpane.setInitialView(self.assy)
+                    if self.assy.homeCsys.name == "OldVersion": ## old version of mmp file
+                        self.assy.homeCsys.name = "HomeView"
+                        self.glpane.quat = Q( self.assy.homeCsys.quat)
+                        self.setViewFitToWindow()
+                    else:    
+                        self.glpane.setInitialView(self.assy)
             else: ###PDB or other file format        
                 self.setViewFitToWindow()
                 

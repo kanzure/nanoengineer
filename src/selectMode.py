@@ -100,6 +100,12 @@ class selectMode(basicMode):
             if selSense == 0: self.o.assy.unpick_at_event(event)
             if selSense == 1: self.o.assy.pick_at_event(event)
             if selSense == 2: self.o.assy.onlypick_at_event(event)
+            ###Huaicai 1/29/05: to fix zoom messing up selection bug
+            ###In window zoom mode, even for a big selection window, the 
+            ###pickLineLength/scale could still be < 0.03, so we need clean 
+            ### sellist[] to release the rubber band selection window. One 
+            ###problem is its a single pick not as user expect as area pick 
+            self.sellist = []
             self.w.win_update()
             return
 
