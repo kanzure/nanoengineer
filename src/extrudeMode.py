@@ -905,6 +905,9 @@ class extrudeMode(basicMode):
         for i1 in range(len(sings1)):
             qApp.processEvents() # [bruce 050114, copied from movie.py]
                 # Process queued events [enough to get statusbar msgs to show up]
+                ###@@@ #e for safety we might want to pass the argument: QEventLoop::ExcludeUserInput;
+                #e OTOH we'd rather have some way to let the user abort this if it takes too long!
+                # (we don't yet have any known or safe way to abort it...)
             if i1 % 10 == 0 or i1 < 10:
                 #bruce 050118 try only every 10th one, is it faster?
                 #e should processEvents be in here too??
