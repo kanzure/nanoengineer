@@ -19,17 +19,157 @@ and split it into three modules:
 
 from TreeView import * # including class TreeView, and import * from many other modules
 from selectMode import selectMolsMode, selectAtomsMode
+allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons
+
+from platform import tupleFromQPoint, fix_plurals
+
+debug_dragstuff = 0 # DO NOT COMMIT with 1. btw where i am: ready to make contentsDrag/Drop methods do something real. #####@@@@@
+
+
+# These drag_handler classes might turn out to be generally useful for all kinds
+# of Qt widgets, so they might be moved to some other file like widgets.py or a
+# new file. But for now, they are specific to being used inside this kind
+# of TreeWidget -- they might depend intimately on its being a QListView
+# whose items represent Nodes. [bruce 050128]
+
+class drag_handler:
+    """Abstract class for objects which handle individual drag events
+    of various kinds, such as selection-extenders, selection-rects or lassos,
+    and drag-and-drop (where we supplied the QDragObject);
+    maybe even drag-and-drop of an externally supplied QDragObject.
+    Eventually we'll document a general API that all subclasses must follow.
+    At first this is ill-defined since there might be only one subclass.
+    """
+    pass
+
+class drag_and_drop_handler(drag_handler):
+    """Handle an individual drag-and-drop event
+    for which we supplied the QDragObject (??).
+    Later we might split this into subclasses,
+    with one for an externally supplied QDragObject... not sure.
+    """
+    def __init__(self, dragsource, drag_type, nodes, click_event):
+        """Be ready to start a drag-and-drop (if subsequent mouse motion, fed to us,
+        is large enough), whose dragsource, drag_type ('move' or 'copy') and dragged nodes
+        are as specified,
+        and whose initial click event was the one given
+        (needed for its position, especially to decide when to start a drag).
+        """
+        self.dragsource = dragsource
+        self.mtree = dragsource # for its helper methods... not uniformly used.
+        self.drag_type = drag_type
+        self.nodes = nodes
+        self.click_event = click_event
+        # just storing the QPoint from click_event.globalPos() fails,
+        # since the pos coords are garbage when checked later,
+        # so store x0,y0 instead:
+        x0,y0 = tupleFromQPoint(click_event.globalPos())
+        self.click_xy = x0,y0
+            # keep it in global coords in case of scrolling...
+            # good? at least for checking distance threshhold to start a drag, it is.
+        self.started_drag = False
+        self.start_drag_dist = QApplication.startDragDistance() # this was 4 for me
+    def mouseMoveEvent(self, event):
+        ####@@@@ experimental
+        ## print time.time()
+        listview = self.dragsource
+        gpos = event.globalPos()
+        gx,gy = tupleFromQPoint(gpos)
+        x0,y0 = self.click_xy
+        if not self.started_drag:
+            # just see if we should start one.
+            d2 = (gx-x0)**2 + (gy-y0)**2
+            ##print gx,gy,x0,y0 #obs: 828 553 -1073748100 46337997 - seems like self.clickpos is becoming invalid.
+            ##print d2
+            if d2 >= self.start_drag_dist**2:
+                self.started_drag = True
+                ##print "should start a drag now - so we will, and when it's done, return"
+                self.start_a_drag(event)
+                if debug_dragstuff:
+                    print "returned from self.start_a_drag()" #####@@@@@
+            return
+        assert self.started_drag
+        if not debug_dragstuff: return
+        # for now, just draw something -- this may or may not run anymore, after we really start a drag... [so far, no.]
+        unclipped = True # True works, can draw over the QListView column label and the scrollbar. False draws nothing!
+            # So we have to use True for now, though it's "dangerous" in terms of what we might mess up.
+            ##e probably better (and not hard) to define our own clipper and clip to that...
+            #e we could also put this painter inside the drawing area, would that work better? try it sometime.
+        painter = QPainter(listview, unclipped)
+        gpos = event.globalPos()
+        wpos = listview.mapFromGlobal(gpos)
+        x,y=wpos.x(),wpos.y() # this works, scrolled or not, at least with unclipped = True
+        listview.drawbluething( painter, (x,y)) # guess: this wants viewport coords (ie those of widget). yes.
+        listview.update() #k needed?
+        pass
+    def start_a_drag(self,event):
+        """start (and wait for completion of) a drag-and-drop of our nodes,
+        using our other parameters from __init__,
+        where event is the event which made the caller decide to start the drag
+        (typically mouseMove, has gpos, not sure if we need it for anything).
+        Note that recursive event processing (in self.dragsource) occurs during this method.
+        Since self.dragsource passes drag events into here (#e), recursion occurs in this object too.
+        """
+        ## text = "x\n%s %d item(s)" % ... # this results in appearance (w/o custom pixmap) of "x move 5 items..."
+        text = "%s %d item(s)" % (self.drag_type, len(self.nodes)) # e.g. "copy 5 item(s)"
+        text = fix_plurals(text) # e.g. "copy 5 items" or "move 1 item" -- no "ing" to keep it as short as possible
+        self.mtree.statusbar_msg(text)
+        ## works but not very useful: for node in self.nodes: text += "\n  %s" % node.name
+        ####@@@@ use the above to verify nodes are in the right order!
+        dragobj = QTextDrag( text, self.dragsource)
+            # \n and \r were each turned to \n, \n\r gave two \ns - even in "od -c"; as processed through Terminal
+        ##E soon: dragobj.setPixmap(pixmap)
+        
+        # the following move/copy distinction needs to be "truthful"
+        # to make the icon look right ('+' or not) on the Mac.
+        if self.drag_type == 'move': 
+            wantdel = dragobj.dragMove() #k guess at method name... seems to work
+        else:
+            wantdel = dragobj.dragCopy()
+            # comments from the same code in canvas-b-3.py, probably apply here too:
+            # during this call, we do recursive event processing, including the expected dragEnter event, and moves and drop,
+            # plus another *initial* unexpected dragEnter event, different event object. To debug those, print the stack!
+            # then our dropevent has an exception (for known reasons).
+        # more stuff from canvas example, not reviewed:
+        # Then, this prints: wantdel = None, target = source = the figureeditor obj (expected).
+        if debug_dragstuff:
+            print "dragged text: wantdel = %r, target = %r, dragsource = %r" % (wantdel, dragobj.target(), self.dragsource)
+        # dropped on model tree (tho it does not accept it): target == dragsource == <modelTree.modelTree object at 0xce2d120>
+        # dropped on glpane: target == None. dropped on external app Terminal: target == None.
+        # dropped on the HistoryWidget (which does accept it and the text gets into it):
+        #   target = <constants.qt.QWidget object at 0xd4c39f0>
+        # (PyQt doesn't realize its true class, I guess... but who knows which obj it is anyway)
+        # always wantdel = None, always same dragsource, and always no more mouseMove events but one mouseRelease event.
+        # ... but things are different after I told the viewport (not just the widget) to accept drops (and dropping on mtree):
+        # target = <constants.qt.QWidget object at 0xd4c3f30>, dragsource = <modelTree.modelTree object at 0xce2de10>
+        # (guess: this widget is the content widget inside the scrollview; should find out sometime)
+        # and better, the icon during the drag is showing the little square-framed +-sign for "copy"!
+        # (which means I need to tell the truth about "copy" vs "move" to the QDragObject. I guess that'll work out ok.)
+
+        ###e delete dragobj?
+
+        # ...
+    def mouseReleaseEvent(self, event):
+        if debug_dragstuff:
+            print "drag_and_drop_handler.mouseReleaseEvent, self.started_drag = %r" % self.started_drag
+        pass
+    pass
+        
+
+# main widget class
 
 class TreeWidget(TreeView, DebugMenuMixin):
-    def __init__(self, parent, win, name = None, columns = ["node tree"]):
+    def __init__(self, parent, win, name = None, columns = ["node tree"], size = (200, 560)):
         """#doc
         creates all columns but only known to work for one column.
         some code only bothers trying to support one column.
         """
         ###@@@ review all init args & instvars, here vs subclasses
-        TreeView.__init__(self, parent, win, name, columns = columns) # stores self.win
+        TreeView.__init__(self, parent, win, name, columns = columns, size = size) # stores self.win
 
-        self.setAcceptDrops(True)
+        # of the following, old mtree had first only, canvas example has 2nd only, dirview example has both. [050128]
+        self.setAcceptDrops(True) #k this one probably not needed, try it both ways (see if we have duplicate-enter bug)
+        self.viewport().setAcceptDrops(True)
 
         # debug menu and reload command ###e subclasses need to add reload actions too
         self._init_time = time.asctime() # for debugging; do before DebugMenuMixin._init1
@@ -54,7 +194,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def makemenu(self, lis):
         return makemenu_helper(self, lis)    
 
-    # mouse event handlers
+    # mouse event handlers (except for drag & drop, those are farther below)
     
     def contentsMouseDoubleClickEvent(self, event):
         "[called by Qt]"
@@ -138,18 +278,34 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         return # from contentsMousePressedEvent
 
-    def contentsMouseMoveEvent(self, event): ###e extend for drag & drop (or use other method? still need this one); use fix_buttons
+    drag_handler = None
+    def contentsMouseMoveEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
-        # This method might be needed, to prevent QListView's version of it from messing us up.
+        # This method might be needed, to prevent QListView's version of it from messing us up,
+        # even if it had no body. Anyway, now it does have one.
+        # Note that it is not called by Qt for a dragMoveEvent,
+        # but it's involved in drag and drop since it decides whether we should start one.
+        # WARNING: if it does start one, its subr might not return until that entire drag and drop
+        # is finished! There will be recursive event processing during that time.
+        if self.drag_handler:
+            # this should only be true when some button is down in the event!
+            # but in case of weirdness in sequence of events we get from Qt,
+            # let's check this ourselves!
+            if event.state() & allButtons: # if any mouse button is pressed
+                self.drag_handler.mouseMoveEvent( event) #k worry about coords?
         pass
     
-    def contentsMouseReleaseEvent(self, event): ###e extend for drag & drop; use fix_buttons
+    def contentsMouseReleaseEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
-        # This method might be needed, to prevent QListView version of it from messing us up.
+        # This method might be needed, to prevent QListView version of it from messing us up,
+        # even if it does nothing.
         # (At least, without it, QListView emits its "clicked" signal.)
+        # (Many comments for contentsMouseMoveEvent apply to this method as well.)
+        if self.drag_handler:
+            self.drag_handler.mouseReleaseEvent( event) #k worry about coords?
         pass
 
-    def enterEvent(self, event):
+    def enterEvent(self, event): ####e #####@@@@@ should this (and Leave) call our drag_handler??
         "[should be called by Qt when mouse enters this widget]"
         # [Qt doc says this method is on QWidget; there doesn't seem to be a "contentsEnterEvent".]
         # erase any statusbar messages that might be left over from other widgets
@@ -297,7 +453,6 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         # if buttons are not what we expect, return now (thus avoiding bad effects
         # from some possible bugs in the above code)
-        allButtons = (leftButton|midButton|rightButton)
         if (but & allButtons) not in [leftButton, midButton]:
             # (note, this is after fix_buttons, so on Mac this means click or option-click)
             return
@@ -309,7 +464,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
                               modifier = modifier,
                               ## group_select_kids = (part == 'icon'), ##k ok? could we use dblclick to mean this??
                               group_select_kids = True, # bruce 050126 after email discussion with Josh
-                              permit_drag_type = drag_type )
+                              permit_drag_type = drag_type,
+                              event = event )
             # note: the same selection_click method, called differently,
             # also determines the selection for context menus.
             # It does all needed invals/updates except for update_select_mode.
@@ -478,7 +634,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         for node in self.topnodes:
             node.unpick()
         
-    def selection_click(self, item, _guard_ = 67548, group_select_kids = True, modifier = None, permit_drag_type = None):
+    def selection_click(self, item, _guard_ = 67548, \
+                        group_select_kids = True, modifier = None, permit_drag_type = None, event = None):
         """Perform the ordinary selection-modifying behavior for one click on this item (might be None).
         Assume the modifier keys for this click were as given in modifier, for purposes of selection or drag(??) semantics.
         We immediately modify the set of selected items -- changing the selection state of their Nodes (node.picked),
@@ -516,8 +673,22 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # warning: in future the pick and unpick methods we're calling here
         # might call incremental updaters back in this module or treeview!
 
-        ###DOC - comments below are WRONG, they're from before group_select_kids option was honored ####@@@@
+        # [bruce 050128 adding drag & drop support]
+        self.drag_handler = None # might be set to an appropriate drag_handler below
         
+##        # store info about this click for subsequent mouseMoveEvents, so they can
+##        # decide whether to start a drag of some kind (for extending a selection, drag & drop, etc).
+##        #e not clear if it's cleaner to decide that right here, or when this info is used;
+##        # someday this self.drag_info object might be a drag_handler with its own event methods;
+##        # we'd then decide on its class here, so try to decide now.
+##        if item and not modifier:
+##            # subsequent mouseMoves might start a drag and drop.
+##            self.drag_info = drag_and_drop_handler( 
+##        self.drag_info = attrholder()
+##        self.drag_info.permit_drag_type = permit_drag_type # whether or not it's None
+        
+        ###DOC - some comments below are WRONG, they're from before group_select_kids option was honored ####@@@@
+
         if modifier == 'ShiftCntl': # bruce 050124 new behavior [or use Option key? #e]
             # toggle the sel state of the clicked item ONLY (no effect on members);
             # noop if no item.
@@ -533,6 +704,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         elif modifier == 'Shift':
             # Mac would select a range... but I will just add to the selection,
             # for now (this item and all its members); noop for no item.
+            ##e in future: create a drag_selection_handler, which behaves differently
+            # depending on modifiers (since we'll also do it for Cntl
+            # and maybe even for ShiftCntl) and on whether item is None.
             if item:
                 # whether or not item.object.picked -- this matters
                 # for groups with not all picked contents!
@@ -552,6 +726,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
                         # same Q for how far group_select_kids (ie Group.pick) descends?
                         # Not sure.
                     self.pick( item, group_select_kids = group_select_kids)
+                # this click might later turn out to be starting a drag
+                # of the now-selected items:
+                if permit_drag_type:
+                    self.drag_handler = self.drag_and_drop_handler( permit_drag_type, self.topmost_selected_nodes(), event)
             else:
                 # no item
                 self.unpick_all()
@@ -566,9 +744,65 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return # from selection_click
 
 
-    # key events ###@@@ move these?
+    # selection dragging methods [#e not yet implemented] would go here
+
     
-    def keyPressEvent(self, event): ####@@@@ Delete needs revision, and belongs in the subclass
+    # drag and drop events and helpers (whether dragsource is self or something else)
+
+    def drag_and_drop_handler( self, permit_drag_type, nodes, click_event):
+        "this instance's way of constructing a drag_and_drop_handler with itself as dragsource"
+        listview = self
+        dragsource = listview
+        return drag_and_drop_handler( dragsource, permit_drag_type, nodes, click_event)
+
+    def contentsDragEnterEvent(self, event):
+        if debug_dragstuff:
+            print_compact_stack("contentsDragEnterEvent stack (fyi): ")
+        ok = QTextDrag.canDecode(event)
+        event.accept(ok)
+        if debug_dragstuff:
+            print "ok = %r" % ok
+        #e maybe do same highlighting as dragmove... but maybe not, if we have that dup-enter bug that the canvas had
+
+    def contentsDragMoveEvent(self, event):
+        if debug_dragstuff and 0:
+            print "contentsDragMoveEvent"
+            pass
+        #e change highlighting/indicating of possible drop points (gaps or items) (e.g. darken icons of items)
+        #e should we also change whether we accept the drop or not based on where it is?
+        # - do we want to?
+        # - does it affect the icon appearance? if so will this mislead users into thinking entire widget refuses?
+        # - does it work, semantically?
+        # ...also is it possible to actually examine the text being offered, to decide whether to accept it?
+        # (that way we can tell if it's from inside or outside this app. this would not be needed for alpha.)
+
+    def contentsDragLeaveEvent(self, event):
+        if debug_dragstuff:
+            print "contentsDragLeaveEvent, event == %r" % event
+        #e remove highlighting from dragmove
+
+    def contentsDropEvent(self, event):
+        if debug_dragstuff:
+            print "contentsDropEvent, event == %r" % event
+        oktext = QTextDrag.canDecode(event)
+        if oktext:
+            if debug_dragstuff:
+                print "accepting text"
+            str1 = QString() # see dropsite.py in examples3
+            res = QTextDrag.decode(event, str1)
+            text = str(str1)
+            if debug_dragstuff:
+                print "got this res and text: %r, %r" % (res,text) # guess: from finder it will be filename [was url i think]
+            event.accept(True)
+            self.win.history.message("fyi (nim feature): accepted dropped text %r" % text)
+        else:
+            event.accept(False)
+            self.win.history.message("fyi (nim feature): refused dropped object which could not provide text")
+        return
+        
+    # key events
+    
+    def keyPressEvent(self, event): ####@@@@ Delete might need revision, and belongs in the subclass
         key = event.key()
         import platform
         key = platform.filter_key(key) #bruce 041220 (needed for bug 93)
@@ -712,6 +946,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # for now we might just plop the new one over the existing one! hope that works.
         print "_reload_this_module... i mean all needed modules for the tree widget, and remake it..."
 
+        width = self.width() #050128
+        height = self.height()
+
         # figure out which modules to reload. The ones of the classes...
         print "finding modules we should reload, innermost first:"
         class1 = self.__class__
@@ -738,17 +975,35 @@ class TreeWidget(TreeView, DebugMenuMixin):
         print "now remaking the model tree widget" #e should let subclass give us these details...
         from modelTree import modelTree
         # figure out where we are
-        splitter = self.parent()
-        print "splitter:",splitter # QSplitter
+        splitter = self.parent() # QSplitter
+        sizes = splitter.sizes() # e.g. [207, 633]
+        # record the current scroll position so it can later be set to something similar
+        scrollpos = self.viewportToContents(0,0)
         win = self.win
         # imitate MWsemantics.py: Create the model tree widget
-        win.mt = win.modelTreeView = modelTree(splitter, win)
-        win.modelTreeView.setMinimumSize(0, 0)
+        win.mt = win.modelTreeView = modelTree(splitter, win, size = (width,height))
+        x, y = scrollpos
+        win.mt.setContentsPos( x, y) # do this twice; this first time probably doesn't help
         # at this point the new widget is probably to the right of the glpane! hmm...
         splitter.moveToFirst(win.mt)
-        # (do we also need to show it? and hide this one? can't hurt. might not work for childwidgets?)
         win.mt.show()
         self.hide()
+        splitter.moveToLast(self)
+        # looking at splitter.sizes() at various times,
+        # they make no sense, but if the move ops work, then the kids are newmt, glpane, junk.
+        wantsizes = [width, sum(sizes) - width]
+        while len(wantsizes) < len(sizes):
+            wantsizes.append(0)
+        splitter.setSizes(sizes) ###e this will also help us extend what's stored by save/load window layout.
+        print "splitter-child sizes after setSizes",splitter.sizes()
+        splitter.updateGeometry()
+        splitter.update()
+        win.mt.setContentsPos( x, y) # do this 3 times ... doesn't help avoid a "flicker to no scrollbar state"
+            # but i bet setting the contents height initially would help! try it sometime. ###e
+        qApp.processEvents() # might be needed before setContentPos in order to make it work
+        win.mt.setContentsPos( x, y) # do this 3 times - was not enough to do it before updateGeometry above
+##        win.mt.show()
+##        self.hide()
         print "done reloading... I guess"
         win.history.message( "reloaded model tree, init time %s" % win.mt._init_time)
         return

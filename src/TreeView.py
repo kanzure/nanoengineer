@@ -42,7 +42,7 @@ from debug import DebugMenuMixin
 class TreeView(QListView):
     needs_update_state = 0
     initialized = 0 ####@@@@ review use of this here vs in subclasses
-    def __init__(self, parent, win, name = None, columns = ["node tree"]): ###@@@ review all init args & instvars, here vs subclasses
+    def __init__(self, parent, win, name = None, columns = ["node tree"], size = (200, 560)): ###@@@ review all init args & instvars, here vs subclasses
         """Create a TreeView (superclasses include QListView, QScrollView, QWidget).
         parent is the Qt widget parent.
         win (required) is our main window, stored in self.win
@@ -77,7 +77,7 @@ class TreeView(QListView):
           # section header (which one? I don't know if count() is 1 or 2 for our one column.)
 
         # [some of the following might belong in a subclass or need to be influenced by one:]
-        self.setGeometry(QRect(0, 0, 200, 560))
+        self.setGeometry(QRect(0, 0, size[0], size[1]))
         self.setSizePolicy(QSizePolicy(0,7,0,244,False)) #k what's this?
         self.setResizePolicy(QScrollView.Manual) #k what's this? The Qt doc is pretty obscure.
             # I tried removing it, and noticed no change; in particular, the bug of a resize
@@ -257,34 +257,35 @@ class TreeView(QListView):
 
     ###@@@ move this? for eventual use, into a subclass, but for debug use, keep a copy here...
     def drawbluething(self, painter, pos = (0,0), color = Qt.blue): # bruce 050110 taken from my local canvas_b2.py
-        if not debug_painting: return ########@@@@@@@@@@
+        "[for debugging] draw a recognizable symbol in the given QPainter, at given position, of given color"
         p = painter # caller should have called begin on the widget, assuming that works
         p.setPen(QPen(color, 3)) # 3 is pen thickness
-        w,h = 100,9
-        x,y = pos
+        w,h = 100,9 # bbox rect size of what we draw (i think)
+        x,y = pos # topleft of what we draw
         p.drawEllipse(x,y,h,h)
         fudge_up = 1 # 1 for h = 9, 2 for h = 10
         p.drawLine(x+h, y+h/2 - fudge_up, x+w, y+h/2 - fudge_up)
         
     def viewportPaintEvent(self, event):
-        # making this do nothing does prevent most of mtree from being drawn, but:
+        """[This turns out to be the main redrawing event for a QListView --
+        not that you can tell that from the Qt docs for it.
+        """
+        # Making this event handler do nothing does prevent most of the QListView
+        # widget contents from being drawn, but:
         # - doesn't prevent its top column label from being drawn
         # - doesn't prevent regular PaintEvent from happening.
-        # so let's try some drawing in here... then try to decode that warning from QPainter about begin().
-        # and look up how to get the real painter... also look up the clipper... and find out what draws that mtree label...
-        # or consider postponing all this, since i do have access to mtree content drawing now, and that's more important for now.
-        # and maybe i could just turn off the label and draw my own!
-        self.dprint("viewportPaintEvent, maybe this one needs to call update_state, if called first?") ####@@@@ this might fix it all
-        if platform.atom_debug:
-            print_compact_stack("stack in viewportPaintEvent(e): ")
 
-        self.update_state_iff_needed(event) ####@@@@ this might fix the update bug after the menuitem to make a group!
+        self.update_state_iff_needed( event)
 
-        if 1:
-            res = QListView.viewportPaintEvent(self, event)
-        painter = QPainter(self, True)#True=unclipped, works, it shows up over the mtree label...
+        # Let QListView draw its standard contents 
+        res = QListView.viewportPaintEvent(self, event)
+
+        # Now do our own drawing on top of that
+        # (so far only for debugging, but we always make the unclipped painter,
+        #  and this is one of two places we do that of which one or both are needed
+        #  to fix some Mac-specific redrawing bugs when the widget is resized.)
+        painter = QPainter(self, True) # True means "unclipped", i.e. it can draw over the QListView column label
             ####@@@@ if this is what fixes the redraw bugs, should i do it before the super call not after?
-        self.dprint("viewportPaintEvent super done, and QPainter after it done")
         if debug_painting:
             self.drawbluething(painter, (0,0), color = Qt.red)
             self.drawbluething(painter, (80,130), color = Qt.green)
@@ -357,6 +358,7 @@ class TreeView(QListView):
         painter = QPainter(self, True) # this works (so does one from viewportPaintEvent, it's random which is left on screen)
             # but: it's obscured by model tree label (i only see the part in the highlight border area)
             # , and, it's clipped so i don't see it in mtree area either. Hmm, try no clipping, True arg2 to QPainter. works.
+##       if debug_painting:
 ##        self.drawbluething(painter, (0,0)) # draws nothing, but says "QPainter::setPen: Will be reset by begin()"
 ##        self.drawbluething(painter, (100,120))
         return res

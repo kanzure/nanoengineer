@@ -72,10 +72,10 @@ def accumulate_stats(node, stats):
 # main widget class
 
 class modelTree(TreeWidget):
-    def __init__(self, parent, win, name = "modelTreeView"):
+    def __init__(self, parent, win, name = "modelTreeView", size = (200, 560)):
         """#doc"""
         ###@@@ review all init args & instvars, here vs subclasses
-        TreeWidget.__init__(self, parent, win, name, columns = ["Model Tree"]) # stores self.win
+        TreeWidget.__init__(self, parent, win, name, columns = ["Model Tree"], size = size) # stores self.win
 
         # debug menu and reload command - inited in superclass ###k ok?
 
