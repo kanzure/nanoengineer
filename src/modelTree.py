@@ -24,7 +24,7 @@ class modelTree(QListView):
         self.assy = win.assy
 
         self.header().setClickEnabled(0, self.header().count() - 1)
-        self.setGeometry(QRect(0, 0, 131, 560))
+        self.setGeometry(QRect(0, 0, 150, 560))
         self.setSizePolicy(QSizePolicy(0,7,0,244,False))
         self.setResizePolicy(QScrollView.Manual)
         self.setShowSortIndicator(0)
