@@ -1,0 +1,29 @@
+NanoEngineer packaging instructions:
+
+1. Windows: Atom python code packaging instructions: 
+a) Copy cad/src code souce directory into a packaging directory(say, \packaging), make sure it works in this directory: python atom.py.
+b) Put the setup.py into the same directory as above.
+c) Under command prompt, run: python setup.py py2exe --includes sip --excludes OpenGL.
+d) It will create a "build" and "dist" directory after step 3).
+e) Copy the "OpenGL" directory from python home directory/Lib/site-packages to "dist" directory.
+f) Change library.zip to library1.zip, create a directory called libary.zip, unzip all the files in library1.zip into directory library.zip.
+g) Copy the "OpenGL" directory into library.zip directory too.
+h) Delete unnecessary OpenGL extensions, py files , tcl, tk modules in "dist" and "dist/libary.zip" directory.
+i) Copy ImageFile.pyc, JpegImagePlugin.pyc into "dist/libary.zip".
+j) Copy glut32.dll, msvcr71.dll into "dist" .
+
+2. Windows: Atom installation packaging instructions:
+a) Create a directory to build installation packages(say, ...\distribution), all following steps is relative to this directory.
+b) Create a directory called "program", copy all stuff from "dist" in Instruction 1 into "program".
+c) Create a directory called "bin", copy assistant.exe, simulator.exe into this directory.
+d) Copy "images" and "doc" from cad into this directory.
+e) Modify "setup.iss" to customize the software installation, compile it to build "setup.exe" in a directory called "output".
+
+
+3. Mac OS X: Atom python code packaging instructions:
+   Mostly are similar as steps in instruction 1. 
+For step (3), run: python setup.py py2app --includes sip --packages OpenGL
+Skip steps (5), (6), (7), (9), (10).
+
+4. Mac OS X: Atom installation packaging instructions:
+Refer the instructions of packageMaker to build *.pkg file and optionally put the *.pkg into disk image file *.dmg.
