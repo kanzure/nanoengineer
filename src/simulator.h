@@ -223,6 +223,8 @@ struct vdWtab {
 #define CODEspring 6
 #define CODEslider 7
 #define CODEangle 8
+#define CODEradius 9
+
 
 /**
  * a "jig", motor, constraint, or instrument
@@ -237,8 +239,11 @@ struct AXLE {
         int atoms[NJATOMS];
     // string from file
     char *name;
+    // a pun
+    double temp, gamma;
     // whatever
     double data;
+    struct xyz xdata;
 };
 
 /**
@@ -369,7 +374,7 @@ extern void pcon(int i);
 extern void filred(char *filnam);
 extern int ShotNo;
 extern void calcloop(int iters);
-extern void minimize(int NumFrames, int IterPerFrame);
+extern void minimize(int NumFrames);
 extern void keyboard(unsigned char key, int x, int y);
 extern int main(int argc, char **argv);
 

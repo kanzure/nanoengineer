@@ -28,18 +28,22 @@ void makatom(int elem, struct xyz posn) {
     cur[Nexatom]=posn;
     old[Nexatom]=posn;
     avg[Nexatom]=posn;
-    therm = sqrt((2.0*Boltz*Temperature)/mass)*Dt/Dx;
+    // assuming the structure is minimized, half of this will 
+    // disappear into Pe on average (1.875 is empirical)
+    therm = sqrt(1.875*(Boltz*Temperature)/mass)*Dt/Dx;
     v=gxyz(therm);
     vsub(old[Nexatom],v);
 	
     /* thermostat trigger stays high, since slower motions shouldn't
        reach the unstable simulation regions of phase space
-    */
+       {not currently used}
+
     therm = sqrt((2.0*Boltz*300.0)/mass)*Dt/Dx;
     atom[Nexatom].vlim=(3*therm)*(3*therm);
+    */
 	
-    TotalKE += 2.0*Boltz*Temperature;
-    atom[Nexatom].energ = (0.5*mass*Dx*Dx)/(Dt*Dt);
+    TotalKE += Boltz*Temperature*1.5;
+    atom[Nexatom].energ = (mass*Dx*Dx)/(Dt*Dt);
 	
     /* add contribution to overall mass center, momentum */
     totMass += mass;
@@ -194,6 +198,7 @@ void makvdw(int a1, int a2) {
 	
     Nexvanbuf->fill++;
 }
+
 
 int makcon(int typ, struct MOT *mot, int n, int *atnos) {
     int i;
@@ -366,18 +371,22 @@ void filred(char *filnam) {
 	}
 	
 	// thermometer
-	// temp (name) <atoms>
-	else if (0==strncasecmp("temp",buf,4)) {
+	// thermo (name) <atoms>
+	else if (0==strncasecmp("thermo",buf,6)) {
+	  i=readname(buf+7,&strg);
+	  sscanf(buf+7+i, " (%[0-9, ]) %n", nambuf, &j);
 
-	  j=readname(buf+5,&strg);
+	  j=readshaft(buf+7+i+j, iv, atnotab);
+
 	  printf("got thermometer (%s) @%d\n", strg, j);
-	  j=readshaft(buf+5+j, iv, atnotab);
+	  printf ("got shaft of %d atoms\n",j);
+
 	  i=makcon(CODEtemp, NULL, j, iv);
 	  Constraint[i].name = strg;
 	}
 
 	// angle
-	// amgle (name) <atoms>
+	// angle (name) <atoms>
 	else if (0==strncasecmp("angle",buf,5)) {
 
 	  j=readname(buf+6,&strg);
@@ -395,7 +404,7 @@ void filred(char *filnam) {
 	  // printf("%s%sgot stat (%s) %d @%d\n", buf+5+i, buf+5+i+j, strg, ix, j);
 	  j=readshaft(buf+5+i+j, iv, atnotab);
 	  i=makcon(CODEstat, NULL, j, iv);
-	  Constraint[i].data = ix;
+	  Constraint[i].temp = ix;
 	  Constraint[i].name = strg;
 	}
 
@@ -424,7 +433,7 @@ void filred(char *filnam) {
 	    }
 	}
 
-	// bearing
+	// bearing 
 	/* bearing (name) (r,g,b) (<center>) (<axis>) */
 	else if (0==strncasecmp("bearing",buf,7)) {
 	  for (i=2,j=8;i;j++) if (buf[j]==')') i--;

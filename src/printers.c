@@ -272,3 +272,79 @@ void pcon(int i) {
 		  mot->theta, mot->theta0, mot->moment);
     }
 }
+
+
+void headcon(FILE *f) {
+    struct MOT *mot;
+    int i, j;
+
+    fprintf(f, "#");
+
+    for (i=0; i<Nexcon; i++) {
+
+	Constraint[i].data=0.0;
+	vsetc(Constraint[i].xdata,0.0);
+
+        switch (Constraint[i].type) {
+	case CODEground:  fprintf(f, "Ground  "); break;
+	case CODEtemp:    fprintf(f, "T.meter "); break;
+	case CODEstat:    fprintf(f, "T.stat  "); break;
+	case CODEbearing: fprintf(f, "Bearing "); break;
+	case CODElmotor:  fprintf(f, "Lmotor  "); break;
+	case CODEspring:  fprintf(f, "Spring  "); break;
+	case CODEslider:  fprintf(f, "Slider  "); break;
+	case CODEmotor:   fprintf(f, "Motor   "); break;
+	case CODEangle:   fprintf(f, "Angle   "); break;
+	case CODEradius:  fprintf(f, "Radius  "); break;
+	}
+    }
+    fprintf(f, "\n#");
+
+    for (i=0; i<Nexcon; i++) {
+	fprintf(f, "%-8.8s",Constraint[i].name);
+    }
+
+    fprintf(f, "\n#\n");
+
+}
+
+
+void tracon(FILE *f) {
+    struct MOT *mot;
+    double x;
+    int i, j;
+
+    for (i=0; i<Nexcon; i++) {
+        switch (Constraint[i].type) {
+	case CODEground: 
+	    x=vlen(Constraint[i].xdata)/1e4;
+	    fprintf(f, "%8.2f",x/Constraint[i].data);
+	    Constraint[i].data=0.0;
+	    vsetc(Constraint[i].xdata,0.0);
+	    break;
+	case CODEtemp:   
+	case CODEstat:   
+	case CODEbearing:
+	case CODElmotor: 
+	case CODEspring: 
+	case CODEslider: 
+	case CODEangle:  
+	case CODEradius: 
+	    fprintf(f, "%8.2f",Constraint[i].data);
+	    Constraint[i].data = 0.0;
+	    break;
+	case CODEmotor:  
+	    fprintf(f, "%8.4f",Constraint[i].data);
+	    Constraint[i].data = 0.0;
+	    break;
+	}
+    }
+    fprintf(f, "\n"); // each snapshot is one line
+}
+
+/*
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * End:
+ */

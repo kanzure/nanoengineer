@@ -154,6 +154,8 @@ double totClipped=0.0;  // internal thermostat for numerical stability
 int notherm; // total number of atoms in thermometers
 double totTherm; // used to average the temps in thermometers
 
+double Gamma = 0.01; // for Langevin thermostats
+
 // definitions for command line args
 
 int ToMinimize=0;
@@ -445,6 +447,7 @@ double totKE() {
 }
 
 static int ShotNo=0;
+static int innerIters = 10;
 
 void calcloop(int iters) {
 	
@@ -458,7 +461,6 @@ void calcloop(int iters) {
     double *t1, *t2;
     double start;
     int scale;
-    int inner = 10;
 	
     for (j=0; j<Nexatom; j++) {
 	vsetc(avg[j],0.0);
@@ -477,7 +479,7 @@ void calcloop(int iters) {
 	    findnobo(j);
 	}
 		
-	for (i=inner; i; i--) {		/* do whole force calc n steps */
+	for (i=innerIters; i; i--) {   // do whole force calc n steps 
 			
 	    Iteration++;
 			
@@ -680,7 +682,8 @@ void calcloop(int iters) {
 		ff = vdot(f, f);
 		FoundKE += atom[j].energ * ff;
 	    }
-			
+
+
 	    /* now the constraints */
 	    
 	    //printf("\njust before, cur=\n");
@@ -688,6 +691,23 @@ void calcloop(int iters) {
 	    
 	    for (j=0;j<Nexcon;j++) {	/* for each constraint */
 		if (Constraint[j].type == CODEground) { /* welded to space */
+		    vsetc(foo,0.0);
+		    vsetc(q1,0.0);
+		    for (k=0; k<Constraint[j].natoms; k++) { // find center
+			vadd(foo,cur[Constraint[j].atoms[k]]);
+		    }
+		    vmulc(foo,1.0/Constraint[j].natoms);
+
+		    for (k=0; k<Constraint[j].natoms; k++) {
+			vsub2(rx,cur[Constraint[j].atoms[k]], foo);
+			v2x(bar,rx,force[Constraint[j].atoms[k]]);
+			vadd(q1,bar);
+		    }
+		    z=1.0/(double) (innerIters * iters);
+		    vmulc(q1,z);
+		    vadd(Constraint[j].xdata, q1);
+		    Constraint[j].data++;
+
 		    for (k=0; k<Constraint[j].natoms; k++) {
 			new[Constraint[j].atoms[k]] = cur[Constraint[j].atoms[k]];
 		    }
@@ -740,18 +760,37 @@ void calcloop(int iters) {
 			    mot->theta0 = mot->theta;
 			    mot->theta = theta;
 			}
+			// data for printing speed trace
+			Constraint[j].data += mot->theta - mot->theta0;
 		    }
 		}
-		else if (Constraint[j].type == CODEtemp) { // thermometer
-					
-		    z=(double) (3*Constraint[j].natoms*inner * iters);
 
-		    for (k=0; k<Constraint[j].natoms; k++) {
-			a1 = Constraint[j].atoms[k];
+		else if (Constraint[j].type == CODEtemp) { // thermometer
+
+		    z=(double) (3*(1+Constraint[j].atoms[1]-
+				   Constraint[j].atoms[0])
+				*innerIters * iters);
+		    ff=0.0;
+		    for (a1 = Constraint[j].atoms[0];
+			 a1 <= Constraint[j].atoms[1];
+			 a1++) {
 			f = vdif(cur[a1],new[a1]);
-			ff=vdot(f, f)*Dx*Dx/(Dt*Dt);
-			ff *= element[atom[a1].elt].mass * 1e-27 / Boltz;
-			Constraint[j].data += ff/z;
+			ff += vdot(f, f)*element[atom[a1].elt].mass;
+		    }
+		    ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
+		    Constraint[j].data += ff/z;
+		}
+
+		else if (Constraint[j].type == CODEstat) { // thermostat
+
+		    for (a1 = Constraint[j].atoms[0];
+			 a1 <= Constraint[j].atoms[1];
+			 a1++) {
+			v1 = vdif(new[a1],cur[a1]);
+			fac= vlen(v1);
+			vmulc(v1,1.0/fac);
+			vmul2c(v2,v1,Gamma);
+			vsub(new[a1],v2);
 		    }
 		}
 		else if (Constraint[j].type == CODEangle) { // angle meter
@@ -775,7 +814,7 @@ void calcloop(int iters) {
 			
 	}} /* end of main loop */
 	
-    ff = 1.0/((double)inner * (double)iters);
+    ff = 1.0/((double)innerIters * (double)iters);
     for (j=0; j<Nexatom; j++) {
 	vmulc(avg[j],ff);
     }
@@ -788,9 +827,6 @@ void calcloop(int iters) {
 void snapshot(int n) {
     int i,j;
     char c0, c1, c2;
-
-    // first trace is total energy
-    fprintf(tracef, "%f", totKE());
 
     if (DumpAsText) {
 
@@ -822,24 +858,14 @@ void snapshot(int n) {
 
     }
 
-    fprintf(tracef, " %e", totClipped);
-    totClipped = 0.0;
-    fprintf(tracef, " %f", vlen(vdif(CoM(cur),CoM(old))));
+    tracon(tracef);
 
-    for (j=0;j<Nexcon;j++) {	/* for each constraint */
-	if (Constraint[j].type == CODEtemp) { // thermometer
-	        fprintf(tracef, " %f", Constraint[j].data);
-		Constraint[j].data = 0.0;
-	}
-        else if (Constraint[j].type == CODEangle) { // angle
-	        fprintf(tracef, " %f", Constraint[j].data);
-	}
-    }
-    fprintf(tracef, "\n"); // each snapshot is one line
+    // printf("found Ke = %e\n",FoundKE);
+
 }
 
 
-void minimize(int NumFrames, int IterPerFrame) {
+void minimize(int NumFrames) {
     int i, j, k, saveNexcon;
     double tke, therm, mass;
     struct xyz v;
@@ -850,9 +876,10 @@ void minimize(int NumFrames, int IterPerFrame) {
 
     Temperature = 0.0;
 	
-    for (i=0, k=10; i<5; i++, k*= 2) {
+    for (i=0; i<NumFrames; i++) {
 	// stop atoms in their tracks
 	for (j=0; j<Nexatom; j++) old[j] = cur[j];
+	k=max(1,(i*i)/NumFrames);
 	calcloop(k);
 	snapshot(0);
 	}
@@ -986,16 +1013,9 @@ main(int argc,char **argv)
 
     strcpy(TraceFileName,tfilename);
 
-    IterPerFrame = IterPerFrame/10;
+    IterPerFrame = IterPerFrame/innerIters;
     if (IterPerFrame == 0) IterPerFrame = 1;
 
-    printf("iters per frame = %d\n",IterPerFrame);
-    printf("number of frames = %d\n",NumFrames);
-    printf("timestep = %e\n",Dt);
-    printf("temp = %f\n",Temperature);
-    if (DumpAsText) printf("dump as text\n");
-
-    printf("< %s  > %s\n", buf, OutFileName);
 
     filred(buf);
     
@@ -1020,12 +1040,28 @@ main(int argc,char **argv)
 	printf("%d constraints:\n",Nexcon);
 	for (i=0; i<Nexcon; i++) pcon(i);
     }
-
+    /*
     printf(" center of mass velocity: %f\n", vlen(vdif(CoM(cur),CoM(old))));
     printf(" center of mass: %f -- %f\n", vlen(CoM(cur)), vlen(Cog));
     printf(" total momentum: %f\n",P);
-
+    */
     tracef = fopen(TraceFileName, "w"); 
+    headcon(tracef);
+
+    if  (ToMinimize) {
+	NumFrames = max(5,(int)sqrt((double)Nexatom));
+	Temperature = 0.0;
+    }
+
+    printf("iters per frame = %d\n",IterPerFrame*innerIters);
+    printf("number of frames = %d\n",NumFrames);
+    printf("timestep = %e\n",Dt);
+    printf("temp = %f\n",Temperature);
+    if (DumpAsText) printf("dump as text\n");
+
+    printf("< %s  > %s\n", buf, OutFileName);
+
+    printf("\nTotal Ke = %e\n",TotalKE);
 
     if (DumpAsText) outf = fopen(OutFileName, "w");  
     else {
@@ -1041,7 +1077,7 @@ main(int argc,char **argv)
     }
 
     if  (ToMinimize) {
-	minimize(NumFrames, IterPerFrame);
+	minimize(NumFrames);
     }
     else {
 	for (i=0; i<NumFrames; i++) {
