@@ -48,6 +48,8 @@ class assembly:
         self.selatoms={}
         # list of selected molecules
         self.selmols=[]
+        # what to select: 0=atoms, 2 = molecules
+        self.selwhat = 0
         # level of detail to draw
         self.drawLevel = 2
         # currently unimplemented
@@ -347,6 +349,24 @@ class assembly:
         self.markdouble()
         self.updateDisplays()
 
+    def selectAtoms(self):
+        lis = self.selmols[:]
+        self.unpickparts()
+        if lis:
+            for mol in lis:
+                for a in mol.atoms.itervalues:
+                    a.pick()
+        self.selwhat = 0
+        self.updateDisplays()
+            
+    def selectParts(self):
+        lis = self.selatoms.values()
+        self.unpickatoms()
+        if lis:
+            for a in lis:
+                a.molecule.pick()
+        self.selwhat = 2
+        self.updateDisplays()
 
 
     # dumb hack: find which atom the cursor is pointing at by
@@ -368,18 +388,18 @@ class assembly:
     # make something selected
     def pick(self, p1, v1):
         a = self.findpick(p1, v1)
-        if a and self.selmols: a.molecule.pick()
+        if a and self.selwhat: a.molecule.pick()
         elif a: a.pick()
 
     # make something unselected
     def unpick(self, p1, v1):
         a = self.findpick(p1, v1)
-        if a and self.selmols: a.molecule.unpick()
+        if a and self.selwhat: a.molecule.unpick()
         elif a: a.unpick()
 
-    # make something unselected
+    # select, make everything else unselected
     def onlypick(self, p1, v1):
-        if self.selmols:
+        if self.selwhat:
             self.unpickparts()
             self.pickpart(p1, v1)
         else:

@@ -338,8 +338,12 @@ class selectMode(basicMode):
         self.Menu1 = self.makemenu([('All', self.o.assy.selectAll),
                                     ('None', self.o.assy.selectNone),
                                     ('Invert', self.o.assy.selectInvert),
+                                    None,
                                     ('Connected', self.o.assy.selectConnected),
-                                    ('Doubly', self.o.assy.selectDoubly)])
+                                    ('Doubly', self.o.assy.selectDoubly),
+                                    None,
+                                    ('Atoms', self.o.assy.selectAtoms),
+                                    ('Parts', self.o.assy.selectParts)])
         
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
@@ -549,6 +553,9 @@ class modifyMode(basicMode):
         the mouse.
         """
         self.o.SaveMouse(event)
+        self.o.picking = True
+        p1, p2 = self.o.mousepoints(event)
+        self.o.pickLineStart = p1
 
     def leftDrag(self, event):
         """Move the selected object(s) in the plane of the screen following
@@ -564,12 +571,36 @@ class modifyMode(basicMode):
         self.o.assy.updateDisplays()
         self.o.SaveMouse(event)
 
+    def leftUp(self, event):
+        self.EndPick(event, 1)
+        
+    def EndPick(self, event, selSense):
+        """Pick if click
+        """
+        if not self.o.picking: return
+        self.o.picking = False
+
+        p1, p2 = self.o.mousepoints(event)
+
+        if vlen(p1-self.o.pickLineStart)/self.o.scale < 0.03:
+            # didn't move much, call it a click
+            # Pick a part
+            if selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
+            if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
+            if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
+            
+
+            self.o.assy.updateDisplays()
      
     def leftShiftDown(self, event):
         """Setup a trackball action on each selected part.
         """
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
+        self.o.picking = True
+        p1, p2 = self.o.mousepoints(event)
+        self.o.pickLineStart = p1
+        self.o.pickLineLength = 0.0
 
    
     def leftShiftDrag(self, event):
@@ -580,6 +611,10 @@ class modifyMode(basicMode):
                                     self.o.quat)
         self.o.assy.rotsel(q)
         self.o.assy.updateDisplays()
+
+    def leftShiftUp(self, event):
+        self.EndPick(event, 0)
+    
     
     def leftCntlDown(self, event):
         """ Set up for sliding or rotating the selected part
@@ -594,6 +629,10 @@ class modifyMode(basicMode):
         # start in ambivalent mode
         self.Zunlocked = 1
         self.ZRot = 0
+        self.o.picking = True
+        p1, p2 = self.o.mousepoints(event)
+        self.o.pickLineStart = p1
+        self.o.pickLineLength = 0.0
     
     def leftCntlDrag(self, event):
         """move part along its axis (mouse goes up or down)
@@ -625,17 +664,9 @@ class modifyMode(basicMode):
                 mol.center = c+mol.getaxis()*self.o.scale * dy/(h*0.5)
         self.o.assy.updateDisplays()
 
-  
-    def leftUp(self, event):
-        pass
-    
-    def leftShiftUp(self, event):
-        pass
-
     
     def leftCntlUp(self, event):
-        pass
-
+        self.EndPick(event, 2)
 
     def leftDouble(self, event):
         self.Done()
