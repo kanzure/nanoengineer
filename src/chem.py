@@ -500,36 +500,31 @@ class atom:
         if self == self.molecule.assy.ppa2: return
             
         xyz = self.posn()
-        ainfo = ("Atom #%s [%s] [X = %.2f] [Y = %.2f] [Z = %.2f]" % \
+        ainfo = ("Atom %s [%s] [X = %.2f] [Y = %.2f] [Z = %.2f]" % \
             ( self, self.element.name, xyz[0], xyz[1], xyz[2] ))
         
-        # ppa is the last atom picked.  
-        # It is reset to None when entering SELATOMS mode.
-        # Add the distance info between self and ppa.
+        # ppa2 is the previously picked atom.  ppa3 is the atom picked before ppa2.
+        # They are both reset to None when entering SELATOMS mode.
+        # Include the distance between self and ppa2 in the info string.
         if self.molecule.assy.ppa2:
-            try:
-                ainfo = ainfo + ". Distance to Atom #"\
-                                    + str (self.molecule.assy.ppa2)\
-                                    + " is "\
-                                    + str(vlen(self.posn()-self.molecule.assy.ppa2.posn()))\
-                                    + " Angstroms."
+            try: ainfo += (". Distance between %s-%s is %.2f." % \
+                                (self, self.molecule.assy.ppa2, vlen(self.posn()-self.molecule.assy.ppa2.posn())))
             except: pass
-            
+
+            # Include the angle between self, ppa2 and ppa3 in the info string.
             if self.molecule.assy.ppa3:
-                try:
-                    ainfo = ainfo + "The angle between #"\
-                                    + str (self)\
-                                    + ", #"\
-                                    + str (self.molecule.assy.ppa2)\
-                                    + " and #"\
-                                    + str (self.molecule.assy.ppa3)\
-                                    + " is  X degrees."
-#                                    + str(vang(self, self.molecule.assy.ppa2, self.molecule.assy.ppa2))
+                v1 = norm(self.posn()-self.molecule.assy.ppa2.posn())
+                v2 = norm(self.molecule.assy.ppa3.posn()-self.molecule.assy.ppa2.posn())
+                ang = acos(dot(v1,v2)) * 180/pi
+                try: ainfo += (" Angle for %s-%s-%s is %.2f degrees." %\
+                                    (self, self.molecule.assy.ppa2, self.molecule.assy.ppa3, ang))
                 except: pass
             
-            self.molecule.assy.ppa3 = self.molecule.assy.ppa2
+            # ppa3 is ppa2 for next atom picked.
+            self.molecule.assy.ppa3 = self.molecule.assy.ppa2 
         
-        self.molecule.assy.ppa2 = self
+        # ppa2 is self for next atom picked.
+        self.molecule.assy.ppa2 = self 
             
         if len(self.bonds) != self.element.numbonds:
             # I hope this can't be called for singlets! [bruce 041217]
