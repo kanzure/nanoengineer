@@ -35,19 +35,6 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self._init_time = time.asctime() # for debugging; do before DebugMenuMixin._init1
         DebugMenuMixin._init1(self) ###e will this be too early re subclass init actions??
 
-##        ###@@@ soon obs, if not already:
-##        self.last_selected_node = None #k what's this for? ###@@@ mainly context menus?
-##         # actually it has several uses which need to be split:
-##         # - sometimes records last item user clicked on to select it (but not to unselect).
-##         # - tells context menu what to be about, if not asked for when over an item. [surely obs]
-##         # - used by context menu to record the item, if it *is* on an item. (even if it refuses to put up a menu) [surely obs]
-##         # - used as the "item to drag" in drag and drop (regardless of event posns or selection!). [obs]
-##            #bruce 050109 renamed this from selectedItem since that's
-##            # a Qt method in QListView! In theory this might fix bugs...
-##            # didn't notice any though.
-
-        ###@@@ setCurrentItem might help it process keys... ###@@@ try it... maybe i did and it failed, not sure 050110
-
         self.setDefaultRenameAction(QListView.Accept)
             # I don't think this has any effect, now that we're depriving
             # QListView of mouse events, but I'm setting it anyway just in case.
@@ -135,10 +122,6 @@ class TreeWidget(TreeView, DebugMenuMixin):
             pass
         else:
             col0_left_x = x_past_openclose = -1000 # debug kluge
-
-##        print "mouse press on %r %r, part %r, from x %r, x_past_openclose %r, and borders reltothat of %r" % (
-##                item and self.item_isOpenable(item), item and item.object.name, \
-##                part, vpos.x(), x_past_openclose, (col0_left_x, -12, 2, 22) ) ####@@@@
         
         # If this click's data differs from the prior one, this event shouldn't
         # be counted as a double click. Or the same, if too much time passed since prior click,
@@ -171,6 +154,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # [Qt doc says this method is on QWidget; there doesn't seem to be a "contentsEnterEvent".]
         # erase any statusbar messages that might be left over from other widgets
         # (eg advice from Build mode in glpane)
+        ###e [should replace it with "our current sbar text", not " " --
+        # see comment near a call of history.transient_msg]
         self.sbar_msg(" ") # bruce 050126; works
 
     def sbar_msg(self, msg):
@@ -581,6 +566,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         key = event.key()
         import platform
         key = platform.filter_key(key) #bruce 041220 (needed for bug 93)
+        ####@@@@ as of 050126 this delete binding doesn't seem to work:
         if key == Qt.Key_Delete: ####@@@@ belongs in the subclass
             # bruce 041220: this fixes bug 93 (Delete on Mac) when the model
             # tree has the focus; the fix for other cases is in separate code.
@@ -607,14 +593,19 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.dprint("maybe_beginrename(%r, %r, %r)"%(item,pos,col))
         if not item: return
         if col != 0: return
-        if not item.renameEnabled(col): return ####@@@@ 050119 exper; should be enough to stop renaming of Clipboard ###test
+        if not item.renameEnabled(col): return
         istr = str(item.text(0))
-        ## now done by rename disabled in their node subclasses: ###@@@ test
-        ## if istr in [self.assy.name, "Clipboard"]: return
-        msg = "(renaming %r -- complete this by pressing Return, or cancel it by pressing Escape)" % istr
+        msg = "(renaming %r; complete by <Return> or click; cancel by <Escape>)" % istr # text, not html!
         self.win.history.transient_msg( msg)
             # this happened even for a Datum plane object for which the rename does not work... does it still? ###@@@
-            # bug: that message doesn't go away if user cancels the rename.
+        ###@@@ some minor bugs about that statusbar message: [050126]
+        # - it needs to reappear in enterEvent rather than having " " appear then
+        # - it needs to go away after user cancels the rename
+        #   (can some focus-related event or state tell us when?)
+        # + [fixed:] it could be shortened; also it fails to mention "accept by click elsewhere"
+        #   and wrongly hints this would not work
+        # - its text (like some of our method names) assumes the item text is something's name,
+        #   but only our subclass (or maybe even only the node) knows what the item text actually represents!
         self.renaming_this_item = item # so we can accept renaming if user clicks outside the editfield for the name
         item.startRename(0)
 
@@ -657,58 +648,6 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.win.history.transient_msg("")
         return oldname
 
-##    # drag and drop (ALL DETAILS ARE WRONG AND OBS ###@@@)
-##    
-##    ###@@@ bruce 050110 - this overrides a Qt method, is that intended?? the one we should override is dragObject
-##    ###@@@ let's try this change
-####    def startDrag(self): 
-###        print "MT.startDrag: self.last_selected_node = [",self.last_selected_node,"]"
-####        if self.last_selected_node:
-####            foo = QDragObject(self)
-####            foo.drag()
-##    def dragObject(self):
-##        self.dprint("dragObject, last_selected_node is %r" % self.last_selected_node)
-##        if self.last_selected_node: # Qt doc says "depending on the selected nodes"
-##            foo = QDragObject(self)
-##            return foo
-##            ##foo.drag()
-##
-##    def dropEvent(self, event):
-##        above = False
-##        pnt = event.pos() - QPoint(0,24)
-##        # mark comments [04-12-10]
-##        # We need to check where we are dropping the selected item.  We cannot allow it 
-##        # to be dropped into the Data group.  This is what we are checking for here.
-##        # mmtop = 5 top nodes * (
-##        #                treeStepSize (space b/w parent and child nodes = 20 pixels) + 
-##        #                5 pixels (space b/w nodes ))
-##        mttop = 5 * (self.treeStepSize() + 5) # Y pos past top 5 nodes of MT (after last datum plane node).
-###        print "modelTree.dropEvent: mttop = ",mttop
-##        if pnt.y() < mttop:
-##            pnt.setY(mttop) # We dropped above the first chunk (onto datum plane/csys). Mark 041210
-##            above = True # If we move node, insert it above first node in MT.
-##        droptarget = self.itemAt(self.contentsToViewport(pnt))
-##        if droptarget:
-### bruce 050121 removing all these obs special cases, even tho not yet replaced with revised ones,
-### since these entire routines are all wrong and will be totally replaced.
-####            sdaddy = self.last_selected_node.whosurdaddy() # Selected item's daddy (source)
-####            tdaddy = droptarget.object.whosurdaddy() # Drop target item's daddy (target)
-#####            print "Source selected item:", self.last_selected_node,", sdaddy: ", sdaddy
-#####            print "Target drop item:", droptarget.object,", tdaddy: ", tdaddy
-####            if sdaddy == "Data": return # selected item is in the Data group.  Do nothing.
-####            if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.    
-##            if isinstance(droptarget.object, Group): above = True # If drop target is a Group
-##            self.last_selected_node.moveto(droptarget.object, above)
-###            if sdaddy != tdaddy: 
-###                if sdaddy == "Clipboard" or droptarget.object.name == "Clipboard": 
-###                    self.win.win_update() # Selected item moved to/from clipboard. Update both MT and GLpane.
-###                    return
-###            self.mt_update() # Update MT only
-##            self.win.win_update()
-##
-##    def dragMoveEvent(self, event):
-##        event.accept()
-
     # debug menu items
 
     def debug_menu_items(self):
@@ -724,7 +663,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         ours.extend(usual)
         return ours
 
-    def _reload_and_remake(self):  ###@@@ untested, and needs rewriting to let subclass help with the details...
+    def _reload_and_remake(self):  ###e needs rewriting to let subclass help with the details...
         """reload all necessary modules (not just this one), and replace the existing tree widget
         (an instance of some subclass of this class)
         with a new one made using the reloaded modules
@@ -735,9 +674,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # figure out which modules to reload. The ones of the classes...
         print "finding modules we should reload, innermost first:"
         class1 = self.__class__
-        ## print "class:",class1
         bases = class1.__bases__ # base classes (tuple), not including class1 - this is not the superclass list!
-        ## print "bases:",bases
         # there is some method to get supers, but for now let's be quick and simple
         classes = [class1]
         while bases: # loop on class1 and bases; we've already included class1 in our list
