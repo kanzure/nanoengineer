@@ -73,6 +73,7 @@ LEDon = (1.0, 0.5, 0.5)
 bondColor = (0.25, 0.25, 0.25)
 
 PickedColor = (0.0, 0.0, 1.0)
+ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 experiment
 
 globalParms = {}
 globalParms['WorkingDirectory'] = "."

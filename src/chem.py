@@ -452,9 +452,26 @@ class atom:
         if disp in [diVDW, diCPK, diTUBES]:
             drawsphere(color, pos, drawrad, level)
         if self.picked:
-            drawwiresphere(PickedColor, pos, pickedrad)
+            #bruce 041217 experiment: show valence errors for picked atoms by
+            # using a different color for the wireframe.
+            # (Since Transmute operates on picked atoms, and leaves them picked,
+            #  this will serve to show whatever valence errors it causes. And
+            #  showing it only for picked atoms makes it not mess up any images,
+            #  even though there's not yet any way to turn this feature off.)
+            color = (self.bad() and ErrorPickedColor) or PickedColor
+            drawwiresphere(color, pos, pickedrad)
         return
 
+    def bad(self): #bruce 041217 experiment
+        "is this atom breaking any rules?"
+        elt = self.element
+        if elt == Singlet:
+            # should be correct, but this case won't be used as of 041217
+            numbonds = 1
+        else:
+            numbonds = elt.numbonds
+        return numbonds != len(self.bonds)
+    
     def draw_as_selatom(self, glpane, dispdef, color, level):
         #bruce 041206, to avoid need for changeapp() when selatom changes
         # (fyi, as of 041206 the color arg is not used)
