@@ -76,6 +76,8 @@ class Part(InvalMixin):
         self.init_InvalMixin()
         self.assy = assy
         self.topnode = topnode
+        self.nodecount = 0 # doesn't yet include topnode
+        self.add(topnode)
         # for now:
         assert isinstance(assy, assembly)
         assert isinstance(topnode, Node)
@@ -136,6 +138,68 @@ class Part(InvalMixin):
 
         return # from Part.__init__
 
+    # == membership maintenance
+
+    def add(self, node):
+        if node.part == self:
+            if platform.atom_debug:
+                print "atom_debug: warning: node added to its own part (noop):", node, self
+            return
+        if node.part:
+            if platform.atom_debug: #e this will be common, remove it as soon as you see it (unless i do the remove explicitly)
+                print "atom_debug: fyi: node added to new part so removed from old part first:", node, self, node.part
+            node.part.remove(node)
+        assert node.part == None
+        node.part = self
+        self.nodecount += 1
+        if isinstance(node, molecule): #####@@@@@ #e better if we let the node add itself to our stats and lists, i think...
+            self.invalidate_attrs(['molecules','selmols','selatoms'])
+        # note that node is not added to any comprehensive list of nodes, in fact, we don't have one.
+        # presumably this function is only called when node was just, or is about to be,
+        # added to a nodetree in a place which puts it into this part's tree.
+        return
+    
+    def remove(self, node):
+        """Remove node (a member of this part) from this part's lists and stats;
+        reset node.part; DON'T look for interspace bonds yet (since this node
+        and some of its neighbors might be moving to the same new part).
+        """
+        assert node.part == self
+        if isinstance(node, molecule):
+            self.invalidate_attrs(['molecules','selmols','selatoms'])
+            ## first try at that:
+##            try:
+##                if node.picked and self.__dict__.has_key('selmols'): # not if attr is invalid (common?? ###k)
+##                    self.selmols.remove(node)
+##                    self.changed_attr('selmols')
+##            except ValueError:
+##                if platform.atom_debug:
+##                    print "part's mol was picked but not in selmols"
+##            try:
+##                if self.__dict__.has_key('molecules'): # not if attr is invalid (common?? ###k)
+##                    self.molecules.remove(node)
+##            except ValueError:
+##                if platform.atom_debug:
+##                    print "part's mol was picked but not in molecules"
+        self.nodecount -= 1
+        node.part = None
+        if self.topnode == node:
+            self.topnode = None #k can this happen when any nodes are left??? if so, is it bad?
+            if platform.atom_debug:
+                print "atom_debug: fyi: topnode leaves part, %d nodes remain" % self.nodecount 
+        if self.nodecount <= 0:
+            assert self.nodecount == 0
+            assert not self.topnode
+            self.destroy()
+        return
+
+    def destroy(self):
+        "forget everything, let all storage be reclaimed" # implem is a guess
+        ## self.invalidate_all_attrs() # not needed
+        for attr in self.__dict__.keys():
+            delattr(self,attr) # is this safe, in arb order??
+        return
+    
     # == compatibility methods
     
     def _get_tree(self): #####@@@@@ find and fix all sets of .tree or .root or .data or .shelf
@@ -1380,6 +1444,8 @@ def process_changed_dads_fix_parts:
     then how these interact is unclear; probably we'll be put into an order
     or nesting with those, become methods of an object, and not do our own grab/reset.
     """
+    # [Try to be correct even if there are multiple assys and nodes can move between them!
+    #  I don't know if we'll achieve this, and it's not urgent.]
     nodes = changed.dads.grab_and_reset_changed_objects()
     ##e future: also know their old dads, so we can see if the dads really changed. Not very important, not done yet.
     # A node with a new dad might have a new Part, and any of its children might have one.
@@ -1393,11 +1459,37 @@ def process_changed_dads_fix_parts:
         # nodes no longer in the tree at all. This might be a good place to destroy
         # the latter kind! But to avoid bugs, it's safer to do that later (or never).
         # But we detect them right away, to avoid bugs in other methods like find_selection_group.
-        if not node.valid():
-            continue #e someday, destroy it later (unless we want to keep it around for undo-related purposes)
+        if not node.has_home():
+            # actually we need to remove them from their Parts, at least, right away.
+            clean_deleted_node( node)
+                #e (this would be bad if we wanted to keep it around for undo-related purposes)
+            continue
         sg = node.find_selection_group()
-        
+        ###e next steps: ######@@@@@@ this is where i am, 050303 10:09pm
+        # figure out part, make it if nec, see fix_parts (merge that in here somehow, just sort of inline it, about here or so)
+        # scan tree headed at node, set part (apply2all), and whenever it changed, record node in another list or dict
+        # (no node will be recorded twice since these trees are disjoint and since sg is deterministic for them, assert node!=clipboard)
+        # now all part settings are right, membership props (selmols etc) can be fixed when we change part value;
+        # so all that's left is handling extern bonds that are now interspace bonds, i think.
         pass#####@@@@@
+
+def clean_deleted_node(node):
+    "apply this to all deleted nodes found; it's recursive, no need to use apply2all"
+    try:
+        #e probably they should already be killed, let's check this if we can
+        if node.assy and platform.atom_debug:
+            print "fyi, possible bug: clean_deleted_node hits one with an assy (thus not yet killed)", node
+        node.kill() # kills members first; removes it from its part; supposedly ok to kill any node twice
+    except:
+        print_compact_traceback("bug, trying to ignore it: exception in clean_deleted_node: ")
+    return
+
+    ## not needed:
+##def destroy_nodes_own_part(node):
+##    "if node is the top node of its Part, remove that Part from node and its tree, and destroy that Part" ###k?? for who?
+##    if node.part and node.part.topnode == node:
+##        ...
+
 # ==
 
 # this might be obs before it's ever used; or maybe we'll still want it, not sure yet. [050303 comment]
