@@ -47,6 +47,7 @@ diCPK = 4
 diTUBES = 5
 
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
+dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
 
 # display mode for new glpanes (#e should be a user preference) [bruce 041129]
 default_display_mode = diVDW
@@ -94,4 +95,3 @@ elemKeyTab =  [('H', Qt.Key_H, 1),
                ('P', Qt.Key_P, 15),
                ('S', Qt.Key_S, 16),
                ('Cl', Qt.Key_L, 17)]
-               
