@@ -10,12 +10,18 @@ from runSim import runSim
 from modelTree import *
 
 from constants import *
-from chem import fullnamePeriodicTable
+from elementSelector import *
 
 from MainWindowUI import MainWindow
 helpwindow = None
+elementwindow = None
 windowList = []
 
+eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
+
+eCCBtab2 = {}
+for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
+    eCCBtab2[elno] = i
 
 def fileparse(name):
     """breaks name into directory, main name, and extension in a tuple.
@@ -55,20 +61,10 @@ class MWsemantics(MainWindow):
 
         self.cookieCutterToolbar.hide()
         self.sketchAtomToolbar.hide()
-        
-        self.Element = 'C'
-        self.elTab = [('C', Qt.Key_C, 0),
-                      ('H', Qt.Key_H, 1),
-                      ('O', Qt.Key_O, 2),
-                      ('N', Qt.Key_N, 3),
-                      ('B', Qt.Key_B, 4),
-                      ('F', Qt.Key_F, 5),
-                      ('Al', Qt.Key_A, 6),
-                      ('Si', Qt.Key_I, 7),
-                      ('P', Qt.Key_P, 8),
-                      ('S', Qt.Key_S, 9),
-                      ('Cl', Qt.Key_L, 10)]
-        
+
+        # start with Carbon
+        self.Element = 6
+        self.setElement(6)
        
     ###################################
     # functions from the "File" menu
@@ -583,41 +579,37 @@ class MWsemantics(MainWindow):
     def toolsAtomStart(self):
         self.glpane.setMode('DEPOSIT')
 
-    # the elements combobox:
-    # change selected atoms to the element selected
-##     def elemChange(self, string):
-##         if self.assy.selatoms:
-##             for a in self.assy.selatoms.itervalues():
-##                 a.mvElement(fullnamePeriodicTable[str(string)])
-##             self.glpane.paintGL()
-##         else:
-##             el = fullnamePeriodicTable[str(string)].symbol
-##             self.setElement(el)
+    # pop up set element box
+    def modifySetElement(self):
+        global elementwindow
+        if not elementwindow:
+            elementwindow = elementSelector(self)
+        elementwindow.setDisplay(self.Element)
+        elementwindow.show()
 
     def elemChange(self,a0):
         print "elemchange",a0
 
+    # this routine sets the displays to reflect elt
+    def setElement(self, elt):
+        # element specified as element number
+        global elementwindow
+        self.Element = elt
+        if elementwindow: elementwindow.setDisplay(elt)
+        line = eCCBtab2[elt]
+        self.elemChangeComboBox.setCurrentItem(line)
+
     def setCarbon(self):
-        self.setElement("C")
+        self.setElement(6)
 
     def setHydrogen(self):
-        self.setElement("H")
-
+        self.setElement(1)
+    
     def setOxygen(self):
-        self.setElement("O")
+        self.setElement(8)
 
     def setNitrogen(self):
-        self.setElement("N")
-
-    def setBoron(self):
-        self.setElement("B")
-
-    def setElement(self, elt):
-        # element specified as chemical symbol
-        self.Element = elt
-        for sym, key, num in self.elTab:
-            if elt == sym: self.elemChangeComboBox.setCurrentItem(num)
-
+        self.setElement(7)
 
     # Play a movie from the simulator
     def toolsMovie(self):

@@ -89,19 +89,12 @@ class depositMode(basicMode):
     def leftDrag(self, event):
         """ Press left mouse button down to add an atom
 	"""
-        # happens inside a click too aften
-##         atomPos = self.getCoords(event)
-##         if not self.new:
-##             el =  PeriodicTable[self.w.Element]
-##             self.new = oneUnbonded(el, self.o.assy, atomPos)
-        
+       
         w=self.o.width+0.0
         h=self.o.height+0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
         self.dragdist += vlen(deltaMouse)
-##         dist = atomPos - self.new.center
-##         self.new.move(dist)
 
         self.o.SaveMouse(event)
 

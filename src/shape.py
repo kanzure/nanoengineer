@@ -231,7 +231,7 @@ class curve:
         p2 = V(dot(pt, self.x), dot(pt, self.y))
         if self.eyeball:
             p2 = p2 / (dot(pt - self.eyeball, self.normal) / 
-                       vlen(self.org - self.eyeball))
+                       vlen(self.eyeball))
         if logical_or.accumulate(less(p2,self.bboxlo)): return 0
         if logical_or.accumulate(greater(p2,self.bboxhi)): return 0
         ij = map(int,p2*8)-self.matbase

@@ -1,5 +1,6 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 """Various constants used in more than one module"""
+from qt import Qt
 
 leftButton = 1
 rightButton = 2
@@ -48,4 +49,16 @@ def logicColor(logic):
     if logic==2: return yellow
 
 assyList = []
+
+elemKeyTab =  [('H', Qt.Key_H, 1),
+               ('B', Qt.Key_B, 5),
+               ('C', Qt.Key_C, 6),
+               ('N', Qt.Key_N, 7),
+               ('O', Qt.Key_O, 8),
+               ('F', Qt.Key_F, 9),
+               ('Al', Qt.Key_A, 13),
+               ('Si', Qt.Key_I, 14),
+               ('P', Qt.Key_P, 15),
+               ('S', Qt.Key_S, 16),
+               ('Cl', Qt.Key_L, 17)]
 

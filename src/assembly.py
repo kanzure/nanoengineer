@@ -141,7 +141,7 @@ class assembly:
             key=card[:6].lower().replace(" ", "")
             if key in ["atom", "hetatm"]:
                 sym = capitalize(card[12:14].replace(" ", "").replace("_", ""))
-                try: PeriodicTable[sym]
+                try: PeriodicTable[EltSym2Num[sym]]
                 except KeyError: print 'unknown element "',sym,'" in: ',card
                 else:
                     xyz = map(float, [card[30:38],card[38:46],card[46:54]])
@@ -220,7 +220,7 @@ class assembly:
                 m=re.match("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)"
                            ,card)
                 n=int(m.group(1))
-                sym=Mendeleev[int(m.group(2))].symbol
+                sym=PeriodicTable[int(m.group(2))].symbol
                 xyz=A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
                 a=atom(sym, xyz, mol)
                 self.alist += [a]
@@ -290,7 +290,7 @@ class assembly:
                     f.write("show " + disp + "\n")
                     carrydisp = disp
                 xyz=a.posn()*1000
-                n=(atnum, a.element.atnum,
+                n=(atnum, a.element.eltnum,
                    int(xyz[0]), int(xyz[1]), int(xyz[2]))
                 f.write("atom %d (%d) (%d, %d, %d)\n" % n)
                 atnum += 1
@@ -481,8 +481,8 @@ class assembly:
             for a in self.selatoms.itervalues():
                 a.picked = 0
                 a.molecule.changeapp()
-                if (self.o.mode == self.o.modetab["SELECT"]) :
-                    a.molecule.setSelectionState(self.o.mode, a.molecule, True)
+#                if (self.o.mode == self.o.modetab["SELECT"]) :
+#                    a.molecule.setSelectionState(self.o.mode, a.molecule, True)
             self.selatoms = {}
 
     # deselect any selected molecules

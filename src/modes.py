@@ -204,6 +204,9 @@ class basicMode:
         self.o.scale *= 1.0 + dScale * event.delta()
         self.o.paintGL()
 
+    def elemSet(self,elem):
+        self.w.setElement(elem)
+
     def keyPress(self,key):
         if key == Qt.Key_Delete:
             self.w.killDo()

@@ -113,6 +113,17 @@ class selectMode(basicMode):
         # go into move mode
         self.o.setMode('MODIFY')
 
+
+    def elemSet(self,elem):
+        # elem is an element number
+        self.w.setElement(elem)
+        # change selected atoms to the element selected
+        if self.o.assy.selatoms:
+            for a in self.o.assy.selatoms.itervalues():
+                a.mvElement(PeriodicTable[elem])
+            self.o.paintGL()
+       
+
     def Draw(self):
         self.griddraw()
         if self.sellist: self.pickdraw()

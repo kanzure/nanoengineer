@@ -60,7 +60,7 @@ class elem:
              angle between bonds in degrees
         """
         global Elno
-        self.atnum = Elno
+        self.eltnum = Elno
         Elno += 1
         self.symbol = sym
         self.name = n
@@ -170,26 +170,44 @@ Mendeleev=[ \
  elem("Kr", "Krypton",   134.429,  1.9,  [0.78, 0.21, 0.53],
       None)]
 
+# Antimony is element 51
+appendix = [
+ elem("Sb", "Antimony",   124.401,  2.2,  [0.6, 0.26, 0.7],
+      [[3, 119, tetra3]]),
+ elem("Te", "Tellurium",  131.106,  2.1,  [0.9, 0.35, 0.0],
+      [[2, 120, tetra2]]),
+ elem("I", "Iodine",   132.674,  2.0,  [0.0, 0.5, 0.0],
+      [[1, 119, None]]),
+ elem("Xe", "Xenon",   134.429,  1.9,  [0.78, 0.21, 0.53],
+      None)]
+
 # note mass is in e-27 kg, not amu
 
 # the elements, indexed by symbol (H, C, O ...)
 PeriodicTable={}
+EltNum2Sym={}
+EltName2Num={}
+EltSym2Num={}
 for el in Mendeleev:
-    PeriodicTable[el.symbol] = el
+    PeriodicTable[el.eltnum] = el
+    EltNum2Sym[el.eltnum] = el.symbol
+    EltName2Num[el.name] = el.eltnum
+    EltSym2Num[el.symbol] = el.eltnum
 
-Hydrogen = PeriodicTable["H"]
-Carbon = PeriodicTable["C"]
-Nitrogen = PeriodicTable["N"]
-Oxygen = PeriodicTable["O"]
+Elno = 51
+for el in appendix:
+    PeriodicTable[el.eltnum] = el
+    EltNum2Sym[el.eltnum] = el.symbol
+    EltName2Num[el.name] = el.eltnum
+    EltSym2Num[el.symbol] = el.eltnum
+    
 
-Singlet = PeriodicTable["X"]
+Hydrogen = PeriodicTable[1]
+Carbon = PeriodicTable[6]
+Nitrogen = PeriodicTable[7]
+Oxygen = PeriodicTable[8]
 
-
-# the elements, indexed by name (Hydrogen, Carbon ...)
-fullnamePeriodicTable={}
-
-for el in Mendeleev:
-    fullnamePeriodicTable[el.name] = el
+Singlet = PeriodicTable[0]
 
 class atom:
     def __init__(self, sym, where, mol):
@@ -200,7 +218,7 @@ class atom:
         # unique key for hashing
         self.key = atKey.next()
         # element-type object
-        self.element=PeriodicTable[sym]
+        self.element=PeriodicTable[EltSym2Num[sym]]
         # location, which will be set relative to its molecule's center
         self.xyz=where
         # list of bond objects
@@ -370,8 +388,8 @@ class atom:
         return map((lambda b: b.other(self)), self.bonds)
 
     def mvElement(self, elt):
-        """Change the element type of this atom to element elname
-        (e.g. 'Oxygen')
+        """Change the element type of this atom to element elt
+        (an element object)
         """
         self.element = elt
         for b in self.bonds: b.setup()            
