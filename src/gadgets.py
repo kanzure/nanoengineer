@@ -42,7 +42,6 @@ class motor(Node):
         self.atoms=[]
         self.molecule = None
         # set default color of rotary motor to gray
-        self.color = QColor(128,128,128)
         self.col = (0.5, 0.5, 0.5)
         self.cntl = RotaryMotorProp(self, assy.o)
 

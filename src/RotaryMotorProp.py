@@ -16,7 +16,8 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         
         self.nameLineEdit.setText(rotMotor.name)
 
-        self.colorPixmapLabel.setPaletteBackgroundColor(rotMotor.color)
+        c = map(int,A(self.motor.col)*255)
+        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(c[0], c[1], c[2]))
         
         self.torqueLineEdit.setText(str(rotMotor.torque))
         self.speedLineEdit.setText(str(rotMotor.speed))
