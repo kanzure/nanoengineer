@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ProgressBarDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ProgressBarDialog.ui'
 #
-# Created: Wed Jan 5 00:06:45 2005
+# Created: Wed Jan 12 17:17:29 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -378,25 +378,37 @@ class progressBarDialog(QDialog):
 
         self.setIcon(self.image0)
 
+        progressBarDialogLayout = QVBoxLayout(self,11,6,"progressBarDialogLayout")
 
-        self.progress = QProgressBar(self,"progress")
-        self.progress.setGeometry(QRect(12,36,278,25))
-        self.progress.setTotalSteps(0)
-
-        self.abortPB = QPushButton(self,"abortPB")
-        self.abortPB.setGeometry(QRect(111,99,82,29))
+        layout24 = QVBoxLayout(None,0,6,"layout24")
 
         self.msgLabel = QLabel(self,"msgLabel")
-        self.msgLabel.setGeometry(QRect(10,10,260,20))
         self.msgLabel.setAlignment(QLabel.AlignCenter)
+        layout24.addWidget(self.msgLabel)
+
+        self.progress = QProgressBar(self,"progress")
+        self.progress.setSizePolicy(QSizePolicy(7,0,0,0,self.progress.sizePolicy().hasHeightForWidth()))
+        self.progress.setTotalSteps(0)
+        layout24.addWidget(self.progress)
+        progressBarDialogLayout.addLayout(layout24)
 
         self.msgLabel2 = QLabel(self,"msgLabel2")
-        self.msgLabel2.setGeometry(QRect(10,70,260,20))
         self.msgLabel2.setAlignment(QLabel.AlignCenter)
+        progressBarDialogLayout.addWidget(self.msgLabel2)
+
+        layout25 = QHBoxLayout(None,0,6,"layout25")
+        spacer2 = QSpacerItem(91,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout25.addItem(spacer2)
+
+        self.abortPB = QPushButton(self,"abortPB")
+        layout25.addWidget(self.abortPB)
+        spacer1 = QSpacerItem(91,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout25.addItem(spacer1)
+        progressBarDialogLayout.addLayout(layout25)
 
         self.languageChange()
 
-        self.resize(QSize(298,152).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(348,186).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.abortPB,SIGNAL("clicked()"),self.abort)
@@ -404,9 +416,9 @@ class progressBarDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Minimize"))
-        self.abortPB.setText(self.__tr("Abort"))
         self.msgLabel.setText(self.__tr("Calculating.  Please wait..."))
         self.msgLabel2.setText(QString.null)
+        self.abortPB.setText(self.__tr("Abort"))
 
 
     def abort(self):

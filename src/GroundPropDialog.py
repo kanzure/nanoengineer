@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GroundPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\GroundPropDialog.ui'
 #
-# Created: Thu Dec 30 11:34:08 2004
+# Created: Wed Jan 12 17:17:20 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -83,63 +83,65 @@ class GroundPropDialog(QDialog):
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
+        GroundPropDialogLayout = QVBoxLayout(self,11,6,"GroundPropDialogLayout")
 
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(13,105,82,29))
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
-
-        self.applyPushButton = QPushButton(self,"applyPushButton")
-        self.applyPushButton.setEnabled(0)
-        self.applyPushButton.setGeometry(QRect(189,105,82,29))
-
-        self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setGeometry(QRect(101,105,82,29))
-        self.cancelPushButton.setAutoDefault(1)
-        self.cancelPushButton.setDefault(0)
-
-        LayoutWidget = QWidget(self,"layout10")
-        LayoutWidget.setGeometry(QRect(12,12,260,64))
-        layout10 = QGridLayout(LayoutWidget,1,1,11,6,"layout10")
-
-        layout8 = QHBoxLayout(None,0,6,"layout8")
-
-        layout7 = QHBoxLayout(None,0,6,"layout7")
-
-        self.colorTextLabel = QLabel(LayoutWidget,"colorTextLabel")
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout7.addWidget(self.colorTextLabel)
-
-        self.colorPixmapLabel = QLabel(LayoutWidget,"colorPixmapLabel")
-        self.colorPixmapLabel.setMinimumSize(QSize(30,0))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
-        self.colorPixmapLabel.setScaledContents(1)
-        layout7.addWidget(self.colorPixmapLabel)
-        layout8.addLayout(layout7)
-
-        self.colorSelectorPushButton = QPushButton(LayoutWidget,"colorSelectorPushButton")
-        self.colorSelectorPushButton.setEnabled(1)
-        layout8.addWidget(self.colorSelectorPushButton)
-
-        layout10.addLayout(layout8,1,0)
+        layout10 = QVBoxLayout(None,0,6,"layout10")
 
         layout6 = QHBoxLayout(None,0,6,"layout6")
 
-        self.nameTextLabel = QLabel(LayoutWidget,"nameTextLabel")
+        self.nameTextLabel = QLabel(self,"nameTextLabel")
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout6.addWidget(self.nameTextLabel)
 
-        self.nameLineEdit = QLineEdit(LayoutWidget,"nameLineEdit")
+        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
         self.nameLineEdit.setEnabled(1)
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
         layout6.addWidget(self.nameLineEdit)
+        layout10.addLayout(layout6)
 
-        layout10.addLayout(layout6,0,0)
+        layout9 = QHBoxLayout(None,0,6,"layout9")
+
+        layout8 = QHBoxLayout(None,0,6,"layout8")
+
+        self.colorTextLabel = QLabel(self,"colorTextLabel")
+        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+        layout8.addWidget(self.colorTextLabel)
+
+        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
+        self.colorPixmapLabel.setMinimumSize(QSize(30,0))
+        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
+        self.colorPixmapLabel.setScaledContents(1)
+        layout8.addWidget(self.colorPixmapLabel)
+        layout9.addLayout(layout8)
+
+        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
+        self.colorSelectorPushButton.setEnabled(1)
+        self.colorSelectorPushButton.setSizePolicy(QSizePolicy(5,0,1,0,self.colorSelectorPushButton.sizePolicy().hasHeightForWidth()))
+        layout9.addWidget(self.colorSelectorPushButton)
+        layout10.addLayout(layout9)
+        GroundPropDialogLayout.addLayout(layout10)
+
+        layout7 = QHBoxLayout(None,0,6,"layout7")
+
+        self.okPushButton = QPushButton(self,"okPushButton")
+        self.okPushButton.setAutoDefault(1)
+        self.okPushButton.setDefault(1)
+        layout7.addWidget(self.okPushButton)
+
+        self.cancelPushButton = QPushButton(self,"cancelPushButton")
+        self.cancelPushButton.setAutoDefault(1)
+        self.cancelPushButton.setDefault(0)
+        layout7.addWidget(self.cancelPushButton)
+
+        self.applyPushButton = QPushButton(self,"applyPushButton")
+        self.applyPushButton.setEnabled(0)
+        layout7.addWidget(self.applyPushButton)
+        GroundPropDialogLayout.addLayout(layout7)
 
         self.languageChange()
 
-        self.resize(QSize(288,151).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(282,186).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
@@ -152,16 +154,17 @@ class GroundPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Ground Properties"))
-        self.okPushButton.setText(self.__tr("&OK"))
-        self.okPushButton.setAccel(self.__tr("Alt+O"))
-        self.applyPushButton.setText(self.__tr("Apply"))
-        self.cancelPushButton.setText(self.__tr("&Cancel"))
-        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
+        self.nameTextLabel.setText(self.__tr("Name:"))
+        self.nameLineEdit.setText(QString.null)
         self.colorTextLabel.setText(self.__tr("Color:"))
         self.colorSelectorPushButton.setText(self.__tr("..."))
         QToolTip.add(self.colorSelectorPushButton,self.__tr("Change Color"))
-        self.nameTextLabel.setText(self.__tr("Name:"))
-        self.nameLineEdit.setText(QString.null)
+        self.okPushButton.setText(self.__tr("&OK"))
+        self.okPushButton.setAccel(self.__tr("Alt+O"))
+        self.cancelPushButton.setText(self.__tr("&Cancel"))
+        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
+        self.applyPushButton.setText(self.__tr("Apply"))
+        self.applyPushButton.setAccel(QString.null)
 
 
     def applyButtonPressed(self):

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>265</width>
-            <height>245</height>
+            <width>298</width>
+            <height>312</height>
         </rect>
     </property>
     <property name="caption">
@@ -21,136 +21,152 @@
     <property name="modal">
         <bool>true</bool>
     </property>
-    <widget class="QLayoutWidget">
+    <vbox>
         <property name="name">
-            <cstring>layout8</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>20</x>
-                <y>10</y>
-                <width>210</width>
-                <height>169</height>
-            </rect>
+        <property name="spacing">
+            <number>21</number>
         </property>
-        <vbox>
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>unnamed</cstring>
+                <cstring>layout28</cstring>
             </property>
-            <widget class="QLabel">
+            <grid>
                 <property name="name">
-                    <cstring>textLabel5</cstring>
+                    <cstring>unnamed</cstring>
                 </property>
-                <property name="text">
-                    <string>Total frames</string>
-                </property>
-            </widget>
-            <widget class="QSpinBox">
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>textLabel5</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Total frames:</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="0">
+                    <property name="name">
+                        <cstring>textLabel2</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Steps per Frame:</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="1" column="0">
+                    <property name="name">
+                        <cstring>nframesSB</cstring>
+                    </property>
+                    <property name="maxValue">
+                        <number>90000</number>
+                    </property>
+                    <property name="minValue">
+                        <number>10</number>
+                    </property>
+                    <property name="lineStep">
+                        <number>15</number>
+                    </property>
+                    <property name="value">
+                        <number>900</number>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="3" column="0">
+                    <property name="name">
+                        <cstring>stepsperSB</cstring>
+                    </property>
+                    <property name="minValue">
+                        <number>1</number>
+                    </property>
+                    <property name="value">
+                        <number>10</number>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="5" column="0">
+                    <property name="name">
+                        <cstring>tempSB</cstring>
+                    </property>
+                    <property name="maxValue">
+                        <number>999</number>
+                    </property>
+                    <property name="value">
+                        <number>300</number>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="4" column="0">
+                    <property name="name">
+                        <cstring>textLabel3</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Temperature(Kelvins):</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout27</cstring>
+            </property>
+            <hbox>
                 <property name="name">
-                    <cstring>nframesSB</cstring>
+                    <cstring>unnamed</cstring>
                 </property>
-                <property name="maxValue">
-                    <number>90000</number>
-                </property>
-                <property name="minValue">
+                <property name="spacing">
                     <number>10</number>
                 </property>
-                <property name="lineStep">
-                    <number>15</number>
-                </property>
-                <property name="value">
-                    <number>900</number>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>textLabel2</cstring>
-                </property>
-                <property name="text">
-                    <string>Steps per Frame</string>
-                </property>
-            </widget>
-            <widget class="QSpinBox">
-                <property name="name">
-                    <cstring>stepsperSB</cstring>
-                </property>
-                <property name="minValue">
-                    <number>1</number>
-                </property>
-                <property name="value">
-                    <number>10</number>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>textLabel3</cstring>
-                </property>
-                <property name="text">
-                    <string>Temperature
-
-
-
-
-
-
-
-
-
-
-(Kelvins)</string>
-                </property>
-            </widget>
-            <widget class="QSpinBox">
-                <property name="name">
-                    <cstring>tempSB</cstring>
-                </property>
-                <property name="maxValue">
-                    <number>999</number>
-                </property>
-                <property name="value">
-                    <number>300</number>
-                </property>
-            </widget>
-        </vbox>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>MovieButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>21</x>
-                <y>191</y>
-                <width>106</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Create Movie</string>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>CancelButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>133</x>
-                <y>191</y>
-                <width>100</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Cancel</string>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>MovieButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Create Movie</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>CancelButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
 </widget>
 <images>
     <image name="image0">

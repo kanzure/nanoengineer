@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Mon Jan 10 12:55:32 2005
+# Created: Wed Jan 12 17:17:35 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -62,48 +62,77 @@ class SimSetupDialog(QDialog):
         self.setIcon(self.image0)
         self.setModal(1)
 
+        SimSetupDialogLayout = QVBoxLayout(self,11,21,"SimSetupDialogLayout")
 
-        LayoutWidget = QWidget(self,"layout8")
-        LayoutWidget.setGeometry(QRect(20,10,210,169))
-        layout8 = QVBoxLayout(LayoutWidget,11,6,"layout8")
+        layout28 = QGridLayout(None,1,1,0,6,"layout28")
 
-        self.textLabel5 = QLabel(LayoutWidget,"textLabel5")
-        layout8.addWidget(self.textLabel5)
+        self.textLabel5 = QLabel(self,"textLabel5")
+        textLabel5_font = QFont(self.textLabel5.font())
+        textLabel5_font.setPointSize(9)
+        textLabel5_font.setBold(1)
+        self.textLabel5.setFont(textLabel5_font)
 
-        self.nframesSB = QSpinBox(LayoutWidget,"nframesSB")
+        layout28.addWidget(self.textLabel5,0,0)
+
+        self.textLabel2 = QLabel(self,"textLabel2")
+        textLabel2_font = QFont(self.textLabel2.font())
+        textLabel2_font.setPointSize(9)
+        textLabel2_font.setBold(1)
+        self.textLabel2.setFont(textLabel2_font)
+
+        layout28.addWidget(self.textLabel2,2,0)
+
+        self.nframesSB = QSpinBox(self,"nframesSB")
         self.nframesSB.setMaxValue(90000)
         self.nframesSB.setMinValue(10)
         self.nframesSB.setLineStep(15)
         self.nframesSB.setValue(900)
-        layout8.addWidget(self.nframesSB)
 
-        self.textLabel2 = QLabel(LayoutWidget,"textLabel2")
-        layout8.addWidget(self.textLabel2)
+        layout28.addWidget(self.nframesSB,1,0)
 
-        self.stepsperSB = QSpinBox(LayoutWidget,"stepsperSB")
+        self.stepsperSB = QSpinBox(self,"stepsperSB")
         self.stepsperSB.setMinValue(1)
         self.stepsperSB.setValue(10)
-        layout8.addWidget(self.stepsperSB)
 
-        self.textLabel3 = QLabel(LayoutWidget,"textLabel3")
-        layout8.addWidget(self.textLabel3)
+        layout28.addWidget(self.stepsperSB,3,0)
 
-        self.tempSB = QSpinBox(LayoutWidget,"tempSB")
+        self.tempSB = QSpinBox(self,"tempSB")
         self.tempSB.setMaxValue(999)
         self.tempSB.setValue(300)
-        layout8.addWidget(self.tempSB)
+
+        layout28.addWidget(self.tempSB,5,0)
+
+        self.textLabel3 = QLabel(self,"textLabel3")
+        textLabel3_font = QFont(self.textLabel3.font())
+        textLabel3_font.setPointSize(9)
+        textLabel3_font.setBold(1)
+        self.textLabel3.setFont(textLabel3_font)
+
+        layout28.addWidget(self.textLabel3,4,0)
+        SimSetupDialogLayout.addLayout(layout28)
+
+        layout27 = QHBoxLayout(None,0,10,"layout27")
 
         self.MovieButton = QPushButton(self,"MovieButton")
-        self.MovieButton.setGeometry(QRect(21,191,106,29))
+        MovieButton_font = QFont(self.MovieButton.font())
+        MovieButton_font.setPointSize(9)
+        MovieButton_font.setBold(1)
+        self.MovieButton.setFont(MovieButton_font)
         self.MovieButton.setDefault(1)
+        layout27.addWidget(self.MovieButton)
 
         self.CancelButton = QPushButton(self,"CancelButton")
-        self.CancelButton.setGeometry(QRect(133,191,100,29))
+        CancelButton_font = QFont(self.CancelButton.font())
+        CancelButton_font.setPointSize(9)
+        CancelButton_font.setBold(1)
+        self.CancelButton.setFont(CancelButton_font)
         self.CancelButton.setDefault(1)
+        layout27.addWidget(self.CancelButton)
+        SimSetupDialogLayout.addLayout(layout27)
 
         self.languageChange()
 
-        self.resize(QSize(265,245).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(298,312).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.MovieButton,SIGNAL("clicked()"),self.createMoviePressed)
@@ -112,10 +141,9 @@ class SimSetupDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Simulator Setup"))
-        self.textLabel5.setText(self.__tr("Total frames"))
-        self.textLabel2.setText(self.__tr("Steps per Frame"))
-        self.textLabel3.setText(self.__tr("Temperature\n"
-"(Kelvins)"))
+        self.textLabel5.setText(self.__tr("Total frames:"))
+        self.textLabel2.setText(self.__tr("Steps per Frame:"))
+        self.textLabel3.setText(self.__tr("Temperature(Kelvins):"))
         self.MovieButton.setText(self.__tr("Create Movie"))
         self.CancelButton.setText(self.__tr("Cancel"))
 
