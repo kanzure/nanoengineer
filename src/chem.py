@@ -1183,7 +1183,7 @@ def bond_atoms(at1,at2):
     purely for historical reasons.
     """
     # bruce 041109 split this out of molecule.bond. Since it's the only caller of
-    # Bond.__init__, what it does to the atoms could (and probably shoould) be put
+    # Bond.__init__, what it does to the atoms could (and probably should) be put
     # inside the constructor. However, it should not simply be replaced with calls
     # to the constructor, in case we someday want it to return the bond which it
     # either makes (as the constructor does) or doesn't make (when the atoms are
@@ -1192,7 +1192,7 @@ def bond_atoms(at1,at2):
     if at1 == at2: #bruce 041119, partial response to bug #203
         print "BUG: bond_atoms was asked to bond %r to itself." % at1
         print "Doing nothing (but further bugs may be caused by this)."
-        print_compact_stack()
+        print_compact_stack("stack when same-atom bond attempted: ")
         return
 
     b = Bond(at1,at2) # (this does all necessary invals)
@@ -1285,6 +1285,22 @@ class Bond:
         at2 = self.atom2
         assert at1 != at2
         self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key)
+        #bruce 050317: debug warning for interpart bonds, or bonding killed atoms/chunks,
+        # or bonding to chunks not yet added to any Part (but not warning about internal
+        # bonds, since mol.copy makes those before a copied chunk is added to any Part).
+        #   This covers new bonds (no matter how made) and the .rebond method.
+        #   Maybe this should be an actual error, or maybe it should set a flag so that
+        # involved chunks are checked for interpart bonds when the user event is done
+        # (in case caller plans to move the chunks into the same part, but hasn't yet).
+        # It might turn out this happens a lot (and is not a bug), if callers make a
+        # new chunk, bond to it, and only then add it into the tree of Nodes.
+        if platform.atom_debug and at1.molecule != at2.molecule:
+            if (not at1.molecule.assy) or (not at2.molecule.assy):
+                print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r" % (at1,at2))
+            elif (not at1.molecule.part) or (not at2.molecule.part): # assume false means None, maybe untrue if bugs happen
+                print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r" % (at1,at2))
+            elif at1.molecule.part != at2.molecule.part:
+                print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r" % (at1,at2))
         return
     
     def invalidate_bonded_mols(self): #bruce 041109
