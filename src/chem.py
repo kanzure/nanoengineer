@@ -754,6 +754,9 @@ class molecule(Node):
         bounding box as a wireframe
         o is a GLPane
         """
+        
+        self.glpane = o # this is needed for the edit method - Mark [2004-10-13]
+        
         #Tried to fix some bugs by Huaicai 09/30/04
         if len(self.atoms) == 0:
             return

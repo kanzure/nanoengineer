@@ -250,6 +250,9 @@ class Csys(Node):
 
     def __str__(self):
         return "<csys " + self.name + ">"
+        
+    def edit(self):
+        pass
 
 class Datum(Node):
     """ A datum point, plane, or line"""
@@ -282,3 +285,6 @@ class Datum(Node):
         new.rgb = self.rgb
         new.dad = dad
         return new
+
+    def edit(self):
+        pass

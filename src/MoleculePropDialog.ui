@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>MoleculePropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>318</width>
-            <height>301</height>
+            <width>314</width>
+            <height>310</height>
         </rect>
     </property>
     <property name="caption">
@@ -36,45 +36,77 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>141</x>
-                <y>225</y>
+                <x>131</x>
+                <y>235</y>
                 <width>20</width>
                 <height>16</height>
             </rect>
         </property>
     </spacer>
-    <spacer>
+    <widget class="QPushButton">
         <property name="name">
-            <cstring>spacer1</cstring>
-        </property>
-        <property name="orientation">
-            <enum>Vertical</enum>
-        </property>
-        <property name="sizeType">
-            <enum>Expanding</enum>
-        </property>
-        <property name="sizeHint">
-            <size>
-                <width>20</width>
-                <height>113</height>
-            </size>
+            <cstring>cancelPushButton</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>33</x>
-                <y>72</y>
-                <width>20</width>
-                <height>113</height>
+                <x>121</x>
+                <y>259</y>
+                <width>82</width>
+                <height>29</height>
             </rect>
         </property>
-    </spacer>
+        <property name="text">
+            <string>&amp;Cancel</string>
+        </property>
+        <property name="accel">
+            <string>Alt+C</string>
+        </property>
+        <property name="autoDefault">
+            <bool>true</bool>
+        </property>
+        <property name="default">
+            <bool>false</bool>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>elementColorsPushButton</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>150</x>
+                <y>200</y>
+                <width>130</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Element Colors</string>
+        </property>
+    </widget>
+    <widget class="QTextBrowser">
+        <property name="name">
+            <cstring>atomsTextBrowser</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>60</x>
+                <y>49</y>
+                <width>220</width>
+                <height>136</height>
+            </rect>
+        </property>
+    </widget>
     <widget class="QLabel">
         <property name="name">
             <cstring>textLabel2</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>12</x>
+                <x>2</x>
                 <y>49</y>
                 <width>52</width>
                 <height>20</height>
@@ -93,7 +125,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>14</x>
+                <x>4</x>
                 <y>22</y>
                 <width>50</width>
                 <height>21</height>
@@ -106,154 +138,13 @@
             <set>AlignVCenter|AlignRight</set>
         </property>
     </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel3</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>14</x>
-                <y>191</y>
-                <width>50</width>
-                <height>27</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Jigs:</string>
-        </property>
-        <property name="alignment">
-            <set>AlignVCenter|AlignRight</set>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>cancelPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>130</x>
-                <y>248</y>
-                <width>82</width>
-                <height>27</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;Cancel</string>
-        </property>
-        <property name="accel">
-            <string>Alt+C</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>false</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>applyPushButton</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>218</x>
-                <y>248</y>
-                <width>82</width>
-                <height>27</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Apply</string>
-        </property>
-    </widget>
-    <widget class="QTextBrowser">
-        <property name="name">
-            <cstring>atomsTextBrowser</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>70</x>
-                <y>49</y>
-                <width>220</width>
-                <height>136</height>
-            </rect>
-        </property>
-    </widget>
-    <widget class="QComboBox">
-        <property name="name">
-            <cstring>jigsComboBox</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>70</x>
-                <y>194</y>
-                <width>122</width>
-                <height>21</height>
-            </rect>
-        </property>
-        <property name="sizePolicy">
-            <sizepolicy>
-                <hsizetype>7</hsizetype>
-                <vsizetype>0</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-            </sizepolicy>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>okPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>42</x>
-                <y>248</y>
-                <width>82</width>
-                <height>27</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;OK</string>
-        </property>
-        <property name="accel">
-            <string>Alt+O</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>propPushButton</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>198</x>
-                <y>191</y>
-                <width>100</width>
-                <height>27</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Properties...</string>
-        </property>
-    </widget>
     <widget class="QLineEdit">
         <property name="name">
             <cstring>nameLineEdit</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>70</x>
+                <x>60</x>
                 <y>22</y>
                 <width>220</width>
                 <height>23</height>
@@ -269,10 +160,149 @@
             <string></string>
         </property>
     </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>applyPushButton</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>209</x>
+                <y>259</y>
+                <width>82</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Apply</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>okPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>33</x>
+                <y>259</y>
+                <width>82</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;OK</string>
+        </property>
+        <property name="accel">
+            <string>Alt+O</string>
+        </property>
+        <property name="autoDefault">
+            <bool>true</bool>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <spacer>
+        <property name="name">
+            <cstring>spacer1</cstring>
+        </property>
+        <property name="orientation">
+            <enum>Vertical</enum>
+        </property>
+        <property name="sizeType">
+            <enum>Expanding</enum>
+        </property>
+        <property name="sizeHint">
+            <size>
+                <width>20</width>
+                <height>113</height>
+            </size>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>23</x>
+                <y>72</y>
+                <width>20</width>
+                <height>113</height>
+            </rect>
+        </property>
+    </spacer>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>colorTextLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>205</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Color:</string>
+        </property>
+        <property name="alignment">
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>colorPixmapLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>60</x>
+                <y>200</y>
+                <width>40</width>
+                <height>28</height>
+            </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
+        </property>
+        <property name="frameShape">
+            <enum>Box</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Plain</enum>
+        </property>
+        <property name="scaledContents">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>colorSelectorPushButton</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>110</x>
+                <y>200</y>
+                <width>30</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>...</string>
+        </property>
+    </widget>
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="441">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000018049444154789cbd95b14fc24018c51fc4887665320cee4d68683cdcf80b8c2b035bcf150dab7f05ac0cdeee1fe04e7a8438343161706b8c09c8041b51169e83d2687bb48d015f72d3cbf7cb77f7bd7c5720897da8b817eabf83f550534a49c77128a5a41e6ae6f17eaa607a6329254faf2e50716d4c9f9ef17af7804ea70300e8f57a887b4aa9422eb0e338bc79bc07009c142ddc9e5f623e9f0300cae532e2de783c4e800f4cd710426016bee0f0f808b3f70f08217e751cf78c229938bef6e9791eabd52a3dcfa3af7d6e64f2168b05e38c0474b55ab1d56ab1d96c72b95c324d6118b256abb1dbed26c0512a36d31642a0542aa17ddd866559e66b7e6bfa3685ebba504a219e906878a62428a552c152caad09893a0e820015d7fe1ade99401004a9d0ac9a2815a6246429b5264f12b6694b8d391524d1eff759afd739994c52c183c180b66d73341a65c7ed2f395eafd70970ee5dd1683400005aeb5cbbc2b8dd4cd3d65a436b9d3b3db977c5a62b292577bd2b32bdcc37de85f6f6357d02d3485baa5b910a0a0000000049454e44ae426082</data>
+        <data format="XPM.GZ" length="1037">789ca5d1db4ec2401405d0f77ec584be1123b45084183f41e3a389f1e1cca594425b2ee56afc77d9bb0551216a3c9b64ba72329dc3b4d5544f8ff7aad9f216a59423a34c2273d5b4cb2cdb3ebfdcbd7a8d3054f8f555d0b8f21ad7caa8872277781eee9ffd4010700d8682809ab40838033b6d042cc908017330ea2160460a020ad80b10d080fdb6e98a0113727f8ee6ab4664df6acd73e7648c800b70c0022da9e3c8f2dc1de91030067537be719c79059a3602fa64683a260437640f011d6803049c922c7009ba2e028e49165880718480137280805bd221604ab2f881ced6bf3abe68f18fcb69478c35e21c97cf1d6d6dac87432e5ff624a3047bb09c39274db98c4f3b932c2fd2aaa6b3f947a7de50553d5ed5e144874e3d5ed5e144874e3d5ebd07131df754e3fd74cebe16e5b2eeacd69b8bff67fbfdde76bb4bf72672e9de8ecbefbecf5fbef6dbadf70efd53faf5</data>
     </image>
 </images>
 <connections>
@@ -295,22 +325,29 @@
         <slot>applyButtonClicked()</slot>
     </connection>
     <connection>
-        <sender>propPushButton</sender>
-        <signal>clicked()</signal>
-        <receiver>MoleculePropDialog</receiver>
-        <slot>propClickedButton()</slot>
-    </connection>
-    <connection>
         <sender>nameLineEdit</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>MoleculePropDialog</receiver>
         <slot>nameChanged()</slot>
     </connection>
+    <connection>
+        <sender>elementColorsPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MoleculePropDialog</receiver>
+        <slot>setMol2ElementColors()</slot>
+    </connection>
+    <connection>
+        <sender>colorSelectorPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MoleculePropDialog</receiver>
+        <slot>changeMolColor()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>applyButtonClicked()</slot>
-    <slot>propClickedButton()</slot>
     <slot>nameChanged()</slot>
+    <slot>setMol2ElementColors()</slot>
+    <slot>changeMolColor()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
