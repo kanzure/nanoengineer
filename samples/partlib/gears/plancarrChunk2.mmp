@@ -1,5 +1,4 @@
-csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
-part vdw (Part1)
+part vdw (Moiety)
 show def
 atom 1 (6) (9300, 344, -3196)
 atom 2 (1) (9551, 1143, -2500)
@@ -235,4 +234,6 @@ atom 118 (0) (6289, 3552, 313)
 bond1 86
 atom 119 (0) (5213, 3554, -2131)
 bond1 90
+csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
+kelvin 300
 end molecular machine part plancarrChunk2

@@ -1,5 +1,4 @@
-csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
-part vdw (Part61)
+part vdw (Sun Gear)
 show def
 atom 1 (6) (3596, -6324, 4857)
 atom 2 (6) (3199, -3383, -6832)
@@ -1904,4 +1903,6 @@ atom 959 (6) (4403, -2128, -4872)
 bond1 532 932 936 20
 atom 960 (8) (3379, -6516, 7531)
 bond1 517 934
-end molecular machine part planet
+csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
+kelvin 300
+end molecular machine part sunGear
