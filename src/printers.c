@@ -28,7 +28,7 @@ void bondump(FILE *f) {		/* gather bond statistics */
 	bt=bond[i].type;
 	btyp = bt-bstab;
 	totno[btyp]++;
-	r=vlen(vdif(cur[bond[i].an1], cur[bond[i].an2]));
+	r=vlen(vdif(positions[bond[i].an1], positions[bond[i].an2]));
 	means[btyp] += r;
 	perc = (r/bt->r0)*20.0 - 8.5;
 	k=(int)perc;
@@ -68,7 +68,7 @@ void speedump(FILE *f) {		/* gather bond statistics */
     }
 	
     for (i=0; i<Nexatom; i++) {
-	v=vlen(vdif(old[i],cur[i]));
+	v=vlen(vdif(old_positions[i],positions[i]));
 	eng= atom[i].energ*v*v;
 	toteng += eng;
 	iv=(int)(eng*1e21);
@@ -108,10 +108,10 @@ void pa(FILE *f, int i) {
 	    fprintf(f, "[%d/%d]: %s%d, ", b, bond[b].order,
 		      element[atom[ba].elt].symbol, ba);
 	}
-	v=vlen(vdif(cur[i],old[i]));
+	v=vlen(vdif(positions[i],old_positions[i]));
 	fprintf(f, "\n   V=%.2f, mV^2=%.6f, pos=", v,1e-4*v*v/atom[i].massacc);
-	pv(f, cur[i]);
-        pvt(f, old[i]);
+	pv(f, positions[i]);
+        pvt(f, old_positions[i]);
 	fprintf(f, "   mass = %f, massacc=%e\n", element[atom[i].elt].mass,
 	       atom[i].massacc);
     }
@@ -147,11 +147,11 @@ void pb(FILE *f, int i) {
     if (i<0 || i>=Nexbon) fprintf(f, "bad bond number %d\n",i);
     else {
 	bt = bond[i].type;
-	len = vlen(vdif(cur[bond[i].an1],cur[bond[i].an2]));
+	len = vlen(vdif(positions[bond[i].an1],positions[bond[i].an2]));
 	fprintf(f, "bond %d[%d] [%s%d(%d)-%s%d(%d)]: length %.1f\n",
 		  i, bond[i].order,
 		  element[atom[bond[i].an1].elt].symbol, bond[i].an1, atom[bond[i].an1].elt,
-		  element[atom[bond[i].an1].elt].symbol, bond[i].an2, atom[bond[i].an2].elt,
+		  element[atom[bond[i].an2].elt].symbol, bond[i].an2, atom[bond[i].an2].elt,
 		  len);
 	index=(int)((len*len)-bt->start)/bt->scale;
 	if (index<0 || index>=TABLEN)
@@ -160,6 +160,15 @@ void pb(FILE *f, int i) {
 		       bt->table->t1[index] + len*len*bt->table->t2[index]);
     }
 }
+
+void printAllBonds(FILE *f) 
+{
+    int i;
+    for (i=0; i<Nexbon; i++) {
+        pb(f, i);
+    }
+}
+
 
 void pq(FILE *f, int i) {
     struct xyz r1, r2;
@@ -174,8 +183,8 @@ void pq(FILE *f, int i) {
 		  (torq[i].dir2 ? torq[i].b2->an1 :  torq[i].b2->an2),
 		  (torq[i].dir2 ? torq[i].b2->an2 :  torq[i].b2->an1));
 		
-	r1=vdif(cur[torq[i].a1],cur[torq[i].ac]);
-	r2=vdif(cur[torq[i].a2],cur[torq[i].ac]);
+	r1=vdif(positions[torq[i].a1],positions[torq[i].ac]);
+	r2=vdif(positions[torq[i].a2],positions[torq[i].ac]);
 	fprintf(f, "r1= %.1f, r2= %.1f, theta=%.2f (%.0f)\n",
 		  vlen(r1), vlen(r2), vang(r1, r2),
 		  (180.0/3.1415)*vang(r1, r2));

@@ -18,10 +18,13 @@ double uffunc(double uf) {
     return 1.0/sqrt(uf);
 }
 
-/** positions and forces on the atoms w/pointers into pos */
-struct xyz pos[3*NATOMS], f, force[NATOMS], avg[NATOMS];
-struct xyz dirs[2*NATOMS], *dir, *odir;
-struct xyz *old, *new, *cur, *tmp;
+/** positions and forces on the atoms */
+struct xyz force[NATOMS];
+struct xyz average_positions[NATOMS];
+struct xyz position_arrays[3*NATOMS];
+struct xyz *old_positions, *new_positions, *positions; // these point into position_arrays
+
+struct xyz minimize_force[NATOMS];
 
 struct xyz Center, Bbox[2];
 
@@ -90,9 +93,9 @@ void orion() {			/* atoms in space :-) */
     for (n=0; n<Nexatom; n++) *atom[n].bucket = NULL;
 	
     for (n=0; n<Nexatom; n++) {
-	i= ((int)cur[n].x / 250) & SPMASK;
-	j= ((int)cur[n].y / 250) & SPMASK;
-	k= ((int)cur[n].z / 250) & SPMASK;
+	i= ((int)positions[n].x / 250) & SPMASK;
+	j= ((int)positions[n].y / 250) & SPMASK;
+	k= ((int)positions[n].z / 250) & SPMASK;
 
 	pail = &Space[i][j][k];
 	atom[n].next = *pail;
@@ -218,9 +221,9 @@ void maktab(double *t1, double *t2, double func(double),
 /* uses globals R0 and R1, the lengths of (a0-ac) & (a1-ac), in pm,
    Kb, in N/m, and Theta0, the nominal angle, in radians */
 
-double bender(double rsq) {
+double bender(double rSquared) {
     double theta,f;
-    theta=acos((rsq-(R0*R0+R1*R1))/(2.0*R0*R1));
+    theta=acos((rSquared-(R0*R0+R1*R1))/(2.0*R0*R1));
 	
     if (theta < Theta0)
 	f= - Kb*(exp(-2.0*(theta-Theta0)) - exp(-(theta-Theta0)));
@@ -232,10 +235,10 @@ double bender(double rsq) {
 
 /** note -- uses global Ks and R0 */
 // a kludge, no coherent units; result will be interpreted as pN
-double hooke(double rsq) {
+double hooke(double rSquared) {
 	double r;
 	
-	r=sqrt(rsq);
+	r=sqrt(rSquared);
 	return 2.0*Ks*(R0/r-1.0);
 	//return Ks*(R0-r);
 }
@@ -245,10 +248,10 @@ double hooke(double rsq) {
 /* uses global De, Beta, Ks and R0 */
 
 // the result is in attoJoules per picometer * 1e6 = picoNewtons
-double lippmor(double rsq) {
+double lippmor(double rSquared) {
     double r,y1,y2;
 	
-    r=sqrt(rsq);
+    r=sqrt(rSquared);
     r=r+0.5;
 	
     if (r>=R0)
@@ -270,9 +273,9 @@ double lippmor(double rsq) {
 
 /* the Buckingham potential for van der Waals / London force */
 /* uses global EvdW, RvdW */
-double bucking(double rsq) {
+double bucking(double rSquared) {
     double r, y;
-    r=sqrt(rsq);
+    r=sqrt(rSquared);
 	
     y= -1e3 * EvdW*(2.48e5 * exp(-12.5*(r/RvdW)) *(-12.5/RvdW)
 		    -1.924*pow(1.0/RvdW, -6.0)*(-6.0)*pow(r,-7.0));
@@ -350,13 +353,13 @@ void vdWsetup() {
     or 645 m/s each dimension, or 0.645 pm/fs  */
 
 double gavss(double v) {
-    double v0,v1, rsq;
+    double v0,v1, rSquared;
     do {
 	v0=(float)rand()/(float)(RAND_MAX/2) - 1.0;
 	v1=(float)rand()/(float)(RAND_MAX/2) - 1.0;
-	rsq = v0*v0 + v1*v1;
-    } while (rsq>=1.0 || rsq==0.0);
-    return v*v0*sqrt(-2.0*log(rsq)/rsq);
+	rSquared = v0*v0 + v1*v1;
+    } while (rSquared>=1.0 || rSquared==0.0);
+    return v*v0*sqrt(-2.0*log(rSquared)/rSquared);
 }
 
 struct xyz gxyz(double v) {
@@ -395,9 +398,9 @@ void findnobo(int a1) {
 
     // fprintf(stderr, "find nobo for %d\n",a1);
 	
-    ix= (int)cur[a1].x / 250 + 4;
-    iy= (int)cur[a1].y / 250 + 4;
-    iz= (int)cur[a1].z / 250 + 4;
+    ix= (int)positions[a1].x / 250 + 4;
+    iy= (int)positions[a1].y / 250 + 4;
+    iz= (int)positions[a1].z / 250 + 4;
 
     for (i=ix-7; i<ix; i++)
 	for (j=iy-7; j<iy; j++)
@@ -407,7 +410,7 @@ void findnobo(int a1) {
 		    if (a2>a1 
 			// && (ToMinimize || atom[a1].part != atom[a2].part)
 			&& !isbonded(a1,a2)) {
-			r=vlen(vdif(cur[a1],cur[a2]));
+			r=vlen(vdif(positions[a1],positions[a2]));
 			if (r<800.0) {
 			    // fprintf(stderr, "  found nobo for %d<-->%d\n",a1, a2);
 			    makvdw(a1, a2);
@@ -442,7 +445,7 @@ double totKE() {
 
     c=0.0;
     for (j=0; j<Nexatom; j++) {
-        rx=vdif(cur[j], old[j]);
+        rx=vdif(positions[j], old_positions[j]);
         a=vdot(rx,rx)*Dx*Dx/(Dt*Dt);
         a *= element[atom[j].elt].mass * 1e-27/ Boltz;
         c += a;
@@ -453,12 +456,42 @@ double totKE() {
 static int ShotNo=0;
 static int innerIters = 100;
 
+/*
+  for minimization:
+  
+  inputs:
+    old_positions[*]
+    positions[*]
+    bond[*].an1, .an2, .type
+    torq[*].dir1, .dir2, .b1, .b2, .kb1, .kb2
+    
+  changes:
+    finds non-bonded interacting atoms using orion()
+    average_positions[*] = 0
+    force[*] contains accumulated force on atom over calculated iterations
+    bond[*].r = vector from bond[*].an1 to bond[*].an2 (delta of positions)
+    bond[*].invlen = 1/|r|
+    bond[*].ru = unit vector along r
+
+  for dynamics (as above plus):
+
+  inputs:
+    Constraint[*].*
+
+  changes:
+    old_positions
+    positions[*]
+    new_positions[*]
+    average_positions[*] = average position across all iterations for this call
+    Constraint[*].*
+*/
 void calcloop(int iters) {
 	
-    double fac, pe,ke;
+    double fac, ke;
     int i,j, k, loop, a1, a2, ac, n, orionp;
-    double rsq, br, ff, m, theta, z, totorq, motorq, omega;
-    struct xyz f, v1, v2, rx, foo,bar, totforce, q1, q2;
+    double rSquared, ff, m, theta, z, sum_torque, motorq, omega;
+    struct xyz f, v1, v2, rx, foo, bar, totforce, q1, q2;
+    struct xyz *tmp;
     struct vdWbuf *nvb;
     struct MOT *mot;
 	
@@ -467,7 +500,6 @@ void calcloop(int iters) {
     int scale;
 
     double therm;
-    double modrag = 0.001;
 
     orionp = iters;
 
@@ -476,7 +508,7 @@ void calcloop(int iters) {
     deltaTframe = 1.0/iters;
 	
     for (j=0; j<Nexatom; j++) {
-	vsetc(avg[j],0.0);
+	vsetc(average_positions[j],0.0);
     }
 	
     for (loop=0, i=innerIters; loop<iters; loop++, i--) {
@@ -497,14 +529,15 @@ void calcloop(int iters) {
 	    i=innerIters;
 	}		
 			
-	/* new, cur, and old to avoid mixing positions while
+	/* new_positions, positions, and old_positions to avoid mixing positions while
 	   calculating force
 	   force calculated separately because used for other things */
 			
 	/* first, for each atom, find non-accelerated new pos and clear force */			
-        /* Atom moved from old to cur last time, now we move it the same amount from cur to new */	
+        /* Atom moved from old_positions to positions last time,
+           now we move it the same amount from positions to new_positions */	
 	for (j=0; j<Nexatom; j++) {
-	    vsub2(f,cur[j],old[j]);
+	    vsub2(f,positions[j],old_positions[j]);
 	    /*
 	      ff = vdot(f,f);
 	      if (ff < atom[j].vlim)  ff=1.0;
@@ -517,22 +550,22 @@ void calcloop(int iters) {
 	      }
 	      vmulc(f, ff);
 	    */
-	    vadd2(new[j],cur[j],f);
+	    vadd2(new_positions[j],positions[j],f);
 				
 	    vsetc(force[j],0.0);
 	}
 			
 	/* compute stretch force for each bond, accumulating in force[atom] */
 	for (j=0; j<Nexbon; j++) {
-	    vsub2(bond[j].r, cur[bond[j].an1], cur[bond[j].an2]);
+	    vsub2(bond[j].r, positions[bond[j].an1], positions[bond[j].an2]);
 	    vset(f,bond[j].r);
-	    rsq = vdot(f,f);
+	    rSquared = vdot(f,f);
 				
 	    /* while we're at it, set unit bond vector and clear bend force */
-	    ff = 1.0/sqrt(rsq); /* XXX if atoms are on top of each other, 1/0 !! */
+	    ff = 1.0/sqrt(rSquared); /* XXX if atoms are on top of each other, 1/0 !! */
 	    bond[j].invlen = ff;
 	    vmul2c(bond[j].ru,f,ff); /* unit vector along r */
-	    vsetc(bond[j].bff,0.0);
+	    //vsetc(bond[j].bff,0.0);
 				
 	    /* table setup for stretch, to be moved out of loop */
 	    start=bond[j].type->start;
@@ -540,14 +573,14 @@ void calcloop(int iters) {
 	    t1=bond[j].type->table->t1;
 	    t2=bond[j].type->table->t2;
 				
-	    k=(int)(rsq-start)/scale;
+	    k=(int)(rSquared-start)/scale;
 	    if (k<0) {
 					
 		if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
 		    fprintf(stderr, "stretch: low --");
 		    pb(stderr, j);
 		}
-		fac=t1[0]+rsq*t2[0];
+		fac=t1[0]+rSquared*t2[0];
 	    }
 	    else if (k>=TABLEN) {
 					
@@ -557,10 +590,11 @@ void calcloop(int iters) {
 		    fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*t2[TABLEN-1];
 		else fac=0.0;
 	    }
-	    else fac=t1[k]+rsq*t2[k];
-				
+	    else fac=t1[k]+rSquared*t2[k];
+            // table lookup equivalent to: fac=lippmor(rSquared)
+            
 	    // vmul2c(bond[j].aff,f,fac);
-	    vmul2c(f,f,fac);
+	    vmul2c(f,f,fac);  // f = r * lippmor(rSquared)
 	    vadd(force[bond[j].an1],f);
 	    vsub(force[bond[j].an2],f);
 	    //fprintf(stderr, "length %f, force %f \n", vlen(bond[j].r), sqrt(vdot(f,f)));
@@ -627,11 +661,11 @@ void calcloop(int iters) {
 	for (nvb=&vanderRoot; nvb; nvb=nvb->next)
 	    for (j=0; j<nvb->fill; j++) {
 		// fprintf(stderr, "in vdw loop\n");
-		vsub2(f, cur[nvb->item[j].a1], cur[nvb->item[j].a2]);
-		rsq = vdot(f,f);
+		vsub2(f, positions[nvb->item[j].a1], positions[nvb->item[j].a2]);
+		rSquared = vdot(f,f);
 					
-		if (rsq>50.0*700.0*700.0 && DEBUG(D_TABLE_BOUNDS)) {
-                    fprintf(stderr, "hi vdw: %f\n", sqrt(rsq));
+		if (rSquared>50.0*700.0*700.0 && DEBUG(D_TABLE_BOUNDS)) {
+                    fprintf(stderr, "hi vdw: %f\n", sqrt(rSquared));
                     pvdw(stderr, nvb,j);
 		    pa(stderr, nvb->item[j].a1);
 		    pa(stderr, nvb->item[j].a2);
@@ -640,7 +674,7 @@ void calcloop(int iters) {
 		/*
 		  fprintf(stderr, "Processing vdW %d/%d: atoms %d-%d, r=%f\n",
 		  nvb-&vanderRoot, j,nvb->item[j].a1, nvb->item[j].a2,
-		  sqrt(rsq));
+		  sqrt(rSquared));
 		*/
 		/* table setup  */
 		start=nvb->item[j].table->start;
@@ -648,14 +682,14 @@ void calcloop(int iters) {
 		t1=nvb->item[j].table->table.t1;
 		t2=nvb->item[j].table->table.t2;
 					
-		k=(int)(rsq-start)/scale;
+		k=(int)(rSquared-start)/scale;
 		if (k<0) {
 		    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
-			fprintf(stderr, "vdW: off table low -- r=%.2f \n",  sqrt(rsq));
+			fprintf(stderr, "vdW: off table low -- r=%.2f \n",  sqrt(rSquared));
 			pvdw(stderr, nvb,j);
 		    }
 		    k=0;
-		    fac=t1[k]+rsq*t2[k];
+		    fac=t1[k]+rSquared*t2[k];
 		}
 		else if (k>=TABLEN) {
 		    /*
@@ -664,7 +698,7 @@ void calcloop(int iters) {
 		    */
 		    fac = 0.0;
 		}
-		else fac=t1[k]+rsq*t2[k];
+		else fac=t1[k]+rSquared*t2[k];
 		vmulc(f,fac);
 		vadd(force[nvb->item[j].a1],f);
 		vsub(force[nvb->item[j].a2],f);
@@ -684,7 +718,7 @@ void calcloop(int iters) {
 		    n=Constraint[j].natoms;
 		    vsetc(rx, 0.0);
 		    for (k=0; k<n; k++) {
-			vadd(rx,cur[Constraint[j].atoms[k]]);
+			vadd(rx,positions[Constraint[j].atoms[k]]);
 		    }
 		    vmulc(rx,1.0/(double)n);
 		    mot->center = rx;
@@ -692,7 +726,7 @@ void calcloop(int iters) {
 		    ff = Tq*mot->stall/n;
 		    for (k=0; k<n; k++) {
 			a1 = Constraint[j].atoms[k];
-			rx = vdif(cur[a1],mot->center);
+			rx = vdif(positions[a1],mot->center);
 			f  = vprodc(vx(mot->axis,uvec(rx)),ff/vlen(rx));
 			    
 			//fprintf(stderr, "applying torque %f to %d: other force %f\n",
@@ -703,7 +737,7 @@ void calcloop(int iters) {
 		    // data for printing speed trace
 		    Constraint[j].temp = mot->stall; // torque
 
-		    rx=uvec(vdif(cur[Constraint[j].atoms[0]],mot->center));
+		    rx=uvec(vdif(positions[Constraint[j].atoms[0]],mot->center));
 			
 		    theta = atan2(vdot(rx,mot->rotz),vdot(rx,mot->roty));
 		    /* update the motor's position */
@@ -732,17 +766,17 @@ void calcloop(int iters) {
 	      fprintf(stderr, "--> Total force on atom %d is %.2f, displacement %f\n", j,
 	      ff, ff*atom[j].massacc);
 	    */
-	    vmul2c(f,force[j],atom[j].massacc);
+	    vmul2c(f,force[j],atom[j].massacc); // massacc = Dt*Dt/mass
 				
 	    if (vlen(f)>15.0) {
 		fprintf(stderr, "High force %.2f in iteration %d\n",vlen(f), Iteration);
 		pa(stderr, j);
 	    }
 				
-	    vadd(new[j],f);
-	    vadd(avg[j],new[j]);
+	    vadd(new_positions[j],f);
+	    vadd(average_positions[j],new_positions[j]);
 				
-	    vsub2(f, new[j], cur[j]);
+	    vsub2(f, new_positions[j], positions[j]);
 	    ff = vdot(f, f);
 	    FoundKE += atom[j].energ * ff;
 	}
@@ -750,20 +784,20 @@ void calcloop(int iters) {
 
 	/* now the constraints */
 	    
-	//fprintf(stderr, "\njust before, cur=\n");
-	//for (j=0;j<Nexatom;j++) pvt(cur[j]);
+	//fprintf(stderr, "\njust before, positions=\n");
+	//for (j=0;j<Nexatom;j++) pvt(positions[j]);
 	    
 	for (j=0;j<Nexcon;j++) {	/* for each constraint */
 	    if (Constraint[j].type == CODEground) { /* welded to space */
 		vsetc(foo,0.0);
 		vsetc(q1,0.0);
 		for (k=0; k<Constraint[j].natoms; k++) { // find center
-		    vadd(foo,cur[Constraint[j].atoms[k]]);
+		    vadd(foo,positions[Constraint[j].atoms[k]]);
 		}
 		vmulc(foo,1.0/Constraint[j].natoms);
 
 		for (k=0; k<Constraint[j].natoms; k++) {
-		    vsub2(rx,cur[Constraint[j].atoms[k]], foo);
+		    vsub2(rx,positions[Constraint[j].atoms[k]], foo);
 		    v2x(bar,rx,force[Constraint[j].atoms[k]]);
 		    vadd(q1,bar);
 		}
@@ -772,7 +806,7 @@ void calcloop(int iters) {
 		Constraint[j].data++;
 
 		for (k=0; k<Constraint[j].natoms; k++) {
-		    new[Constraint[j].atoms[k]] = cur[Constraint[j].atoms[k]];
+		    new_positions[Constraint[j].atoms[k]] = positions[Constraint[j].atoms[k]];
 		}
 	    }
 	    else if (Constraint[j].type == CODEmotor) { /* motor */
@@ -780,26 +814,26 @@ void calcloop(int iters) {
 		mot=Constraint[j].motor;
 
 		if (mot->speed != 0.0) {
-		    totorq = 0.0;
+		    sum_torque = 0.0;
 					
 		    /* input torque due to forces on each atom */
 		    for (k=0; k<Constraint[j].natoms; k++) {
 			a1 = Constraint[j].atoms[k];
-			rx = vdif(cur[a1],mot->atocent[j]);
+			rx = vdif(positions[a1],mot->atocent[j]);
 			f = vx(rx,force[a1]);
 			ff = vdot(f, mot->axis);
-			totorq += ff;
+			sum_torque += ff;
 		    }
 		    
-		    //fprintf(stderr, "*** input torque %f\n", totorq);
+		    //fprintf(stderr, "*** input torque %f\n", sum_torque);
 
 
 		    omega = mot->theta - mot->theta0;
 		    motorq = mot->stall - omega*mot->stall/(mot->speed);
 		    theta = mot->theta + omega +
-			mot->moment*(motorq + totorq);
+			mot->moment*(motorq + sum_torque);
   
-		    /* theta_i+1 = 2theta_i - theta_i-1 + totorq + motorq
+		    /* theta_i+1 = 2theta_i - theta_i-1 + sum_torque + motorq
 		       motorq = stall - omega*(stall/speed)
 		       omega = (theta_i+1 - theta_i-1)/ 2Dt
 		       solve for theta_i+1 -- preserves Verlet reversibility  */
@@ -807,7 +841,7 @@ void calcloop(int iters) {
 		      z = mot->moment;
 		      m = - z * mot->stall / (2.0 *  mot->speed);
 		      theta = (2.0*mot->theta - (1.0+m)*mot->theta0 +
-		      z*(mot->stall + totorq))  / (1.0 - m);
+		      z*(mot->stall + sum_torque))  / (1.0 - m);
 		    */
 
 		    // fprintf(stderr, "***  Theta = %f, %f, %f\n",
@@ -819,8 +853,8 @@ void calcloop(int iters) {
 			z = theta + mot->atang[k];
 			vmul2c(v1, mot->roty, mot->radius[k] * cos(z));
 			vmul2c(v2, mot->rotz, mot->radius[k] * sin(z));
-			vadd2(new[a1], v1, v2);
-			vadd(new[a1], mot->atocent[k]);
+			vadd2(new_positions[a1], v1, v2);
+			vadd(new_positions[a1], mot->atocent[k]);
 		    }
 					
 		    /* update the motor's position */
@@ -846,7 +880,7 @@ void calcloop(int iters) {
 		for (a1 = Constraint[j].atoms[0];
 		     a1 <= Constraint[j].atoms[1];
 		     a1++) {
-		    f = vdif(cur[a1],new[a1]);
+		    f = vdif(positions[a1],new_positions[a1]);
 		    ff += vdot(f, f)*element[atom[a1].elt].mass;
 		}
 		ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
@@ -864,12 +898,12 @@ void calcloop(int iters) {
 		     a1++) {
 		    therm = sqrt((Boltz*Constraint[j].temp)/
 				 (element[atom[a1].elt].mass * 1e-27))*Dt/Dx;
-		    v1 = vdif(new[a1],cur[a1]);
+		    v1 = vdif(new_positions[a1],positions[a1]);
 		    ff = vdot(v1, v1)*element[atom[a1].elt].mass;
 		    vmulc(v1,1.0-Gamma);
 		    v2= gxyz(G1*therm);
 		    vadd(v1, v2);
-		    vadd2(new[a1],cur[a1],v1);
+		    vadd2(new_positions[a1],positions[a1],v1);
 
 		    // add up the energy
 		    ke += vdot(v1, v1)*element[atom[a1].elt].mass - ff;
@@ -882,10 +916,10 @@ void calcloop(int iters) {
 	    else if (Constraint[j].type == CODEangle) { // angle meter
 		// better have 3 atoms exactly
 
-		vsub2(v1,new[Constraint[j].atoms[0]],
-		      new[Constraint[j].atoms[1]]);
-		vsub2(v2,new[Constraint[j].atoms[2]],
-		      new[Constraint[j].atoms[1]]);
+		vsub2(v1,new_positions[Constraint[j].atoms[0]],
+		      new_positions[Constraint[j].atoms[1]]);
+		vsub2(v2,new_positions[Constraint[j].atoms[2]],
+		      new_positions[Constraint[j].atoms[1]]);
 		z=acos(vdot(v1,v2)/(vlen(v1)*vlen(v2)));
 
 		Constraint[j].data = z;
@@ -893,23 +927,23 @@ void calcloop(int iters) {
 	    else if (Constraint[j].type == CODEradius) { // radius meter
 		// better have 2 atoms exactly
 
-		vsub2(v1,new[Constraint[j].atoms[0]],
-		      new[Constraint[j].atoms[1]]);
+		vsub2(v1,new_positions[Constraint[j].atoms[0]],
+		      new_positions[Constraint[j].atoms[1]]);
 
 		Constraint[j].data = vlen(v1);
 	    }
 	}
 	    
 	// fprintf(stderr, "just after, new=\n");
-	// for (j=0;j<Nexatom;j++) pvt(new[j]);
+	// for (j=0;j<Nexatom;j++) pvt(new_positions[j]);
 	    
 			
-	tmp=old; old=cur; cur=new; new=tmp;
+	tmp=old_positions; old_positions=positions; positions=new_positions; new_positions=tmp;
 			
     } /* end of main loop */
 	
     for (j=0; j<Nexatom; j++) {
-	vmulc(avg[j],deltaTframe);
+	vmulc(average_positions[j],deltaTframe);
     }
 	
 }
@@ -928,14 +962,14 @@ void snapshot(int n) {
 
         for (i=0; i<Nexatom; i++) {
             fprintf(outf, "%s %f %f %f\n", element[atom[i].elt].symbol,
-                    avg[i].x*xyz, avg[i].y*xyz, avg[i].z*xyz);
+                    average_positions[i].x*xyz, average_positions[i].y*xyz, average_positions[i].z*xyz);
         }
     }
     else {
         for (i=0, j=0; i<3*Nexatom; i+=3, j++) {
-            ixyz[i+0] = (int)avg[j].x;
-            ixyz[i+1] = (int)avg[j].y;
-            ixyz[i+2] = (int)avg[j].z;
+            ixyz[i+0] = (int)average_positions[j].x;
+            ixyz[i+1] = (int)average_positions[j].y;
+            ixyz[i+2] = (int)average_positions[j].z;
             c0=(char)(ixyz[i+0] - previxyz[i+0]);
             fwrite(&c0, sizeof(char), 1, outf);
             c1=(char)(ixyz[i+1] - previxyz[i+1]);
@@ -975,15 +1009,15 @@ void minshot(int final, double rms, double hifsq) {
 
 	    for (i=0; i<Nexatom; i++) {
 		fprintf(outf, "%s %f %f %f\n", element[atom[i].elt].symbol,
-			cur[i].x*xyz, cur[i].y*xyz, cur[i].z*xyz);
+			positions[i].x*xyz, positions[i].y*xyz, positions[i].z*xyz);
 	    }
 	}
     }
     else {
         for (i=0, j=0; i<3*Nexatom; i+=3, j++) {
-            ixyz[i+0] = (int)cur[j].x;
-            ixyz[i+1] = (int)cur[j].y;
-            ixyz[i+2] = (int)cur[j].z;
+            ixyz[i+0] = (int)positions[j].x;
+            ixyz[i+1] = (int)positions[j].y;
+            ixyz[i+2] = (int)positions[j].z;
             c0=(char)(ixyz[i+0] - previxyz[i+0]);
             fwrite(&c0, sizeof(char), 1, outf);
             c1=(char)(ixyz[i+1] - previxyz[i+1]);
@@ -1004,19 +1038,32 @@ void minshot(int final, double rms, double hifsq) {
     fprintf(tracef,"%.2f %.2f\n", rms, sqrt(hifsq));
 }
 
+static void min_debug(char *label, double rms, int frameNumber) 
+{
+    fprintf(stderr, "---------------- %s -- frame %d\nrms: %f\n", label, frameNumber, rms);
+    printAllBonds(stderr);
+}
 
-void minimize(int NumFrames) {
-    int i, j, k, saveNexcon, nmfr;
-    double tke, therm, mass, ff, ff2, totf, hif, ddd;
-    double fdf=0.0, fdf1, fdo, gamma, totdist, x, y, z;
-    struct xyz v, f, f2, q, r, s;
-    double rms, frac;
-    double movst = 4e-4, movcon = 4e-4, movfac = 1.5, omc, mc1, mc2;
+void minimize(int numFrames) {
+    int i, j, k;
+    int frameNumber;
+    double forceSquared, max_forceSquared;
+    double sum_old_force_squared;
+    double sum_forceSquared, last_sum_forceSquared;
+    double sum_force_dot_old_force;
+    double gamma; // = last_sum_forceSquared / sum_forceSquared
+    double x, y, z;
+    struct xyz f; // force
+    struct xyz *tmp;
+    double rms_force;
+    double movcon = 4e-4;
+    double old_movcon = movcon;
+    double movfac = 1.5;
+    struct xyz *old_force;
 
-    nmfr=NumFrames;
+    frameNumber = 1;
    
-    // set up direction vectors
-    dir=dirs; odir = dirs+NATOMS;
+    old_force = minimize_force;
 
     /* turn off constraints --
        minimize is a one-shot run of the program */
@@ -1024,146 +1071,160 @@ void minimize(int NumFrames) {
 
     Temperature = 0.0;
     
-    fprintf(tracef,"\n# average, high force, distance\n", totf/Nexatom, hif);
+    fprintf(tracef,"\n# rms force, high force\n");
 
     // 2 fixed steps to initialize
-    for (i=0; i<2; i++, NumFrames--) {
-	hif = 0.0;
-	fdf1 = fdf;
-	fdf = 0.0;
-	calcloop(1);
+    for (i=0; i<2; i++) {
+	max_forceSquared = 0.0;
+	sum_forceSquared = 0.0;
+	calcloop(1); // one iteration, do orion()
 	for (j=0; j<Nexatom; j++) {
-	    f= force[j];
-	    dir[j] = f;
-	    ff = vdot(f,f);
-	    fdf += ff;
-	    ff = sqrt(ff);
-	    if (ff>hif) hif = ff;
+	    f = force[j];
+	    old_force[j] = f;
+	    forceSquared = vdot(f,f);
+	    sum_forceSquared += forceSquared;
+	    if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
 	    vmulc(f, movcon);
-	    vadd2(old[j], cur[j], f);
+	    vadd2(old_positions[j], positions[j], f);
 	}
-	tmp = old; old=cur; cur=tmp;
-	rms = sqrt(fdf/Nexatom);
-        DPRINT(D_MINIMIZE, "rms1: %f\n", rms);
-    }	
-    minshot(0,rms, hif); //offset NumFrames to allow for final minshot below
+	tmp = old_positions; old_positions=positions; positions=tmp;
+	rms_force = sqrt(sum_forceSquared/Nexatom);
+    }
+    if (DEBUG(D_MINIMIZE)) {
+        min_debug("1", rms_force, frameNumber);
+    }
+    minshot(0,rms_force, max_forceSquared);
+    frameNumber++;
 
     // adaptive stepsize steepest descents until RMS gradient is under 50
-    for (; NumFrames && rms>50.0; NumFrames--) {
-	hif = 0.0;
-	fdf1 = fdf;
-	fdf = 0.0;
-	fdo=0.0;
+    for (; frameNumber < (numFrames/2) && rms_force>50.0;) {
+	max_forceSquared = 0.0;
+	last_sum_forceSquared = sum_forceSquared;
+	sum_forceSquared = 0.0;
+	sum_force_dot_old_force=0.0;
 	calcloop(1);
 	for (j=0; j<Nexatom; j++) {
 	    f= force[j];
-	    ff = vdot(f,f);
-	    if (ff>hif) hif = ff;
-	    fdf += ff;
-	    fdo += vdot(f,dir[j]);
+	    forceSquared = vdot(f,f);
+	    if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
+	    sum_forceSquared += forceSquared;
+	    sum_force_dot_old_force += vdot(f,old_force[j]);
 	}
-	rms = sqrt(fdf/Nexatom);
-        DPRINT(D_MINIMIZE, "rms2: %f\n", rms);
-	minshot(0,rms, hif); 
-	x = sqrt(fdf1);
-	y = fdo/x;
-	z = sqrt(fdf-y*y);
-	omc=movcon;
+	rms_force = sqrt(sum_forceSquared/Nexatom);
+
+        if (DEBUG(D_MINIMIZE)) {
+            min_debug("2", rms_force, frameNumber);
+        }
+	minshot(0,rms_force, max_forceSquared);
+        frameNumber++;
+        
+	x = sqrt(last_sum_forceSquared);
+	y = sum_force_dot_old_force/x;
+	z = sqrt(sum_forceSquared-y*y);
+	old_movcon=movcon;
 	if (y<x-x/(movfac)) movcon *= x/(x-y);
 	else movcon *= movfac;
 
 	for (j=0; j<Nexatom; j++) {
 	    f= force[j];
-	    dir[j] = f;
+	    old_force[j] = f;
 	    vmulc(f, movcon);
-	    vadd2(old[j], cur[j], f);
+	    vadd2(old_positions[j], positions[j], f);
 	}
-	tmp = old; old=cur; cur=tmp;
+	tmp = old_positions; old_positions=positions; positions=tmp;
 
     }
 
-    hif = 0.0;
-    fdf1 = fdf;
-    fdf = 0.0;
+    max_forceSquared = 0.0;
+    last_sum_forceSquared = sum_forceSquared;
+    sum_forceSquared = 0.0;
     calcloop(1);
     for (j=0; j<Nexatom; j++) {
 	f= force[j];
-	ff = vdot(f,f);
-	if (ff>hif) hif = ff;
-	fdf += ff;
+	forceSquared = vdot(f,f);
+	if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
+	sum_forceSquared += forceSquared;
     }
-    rms = sqrt(fdf/Nexatom);
-    DPRINT(D_MINIMIZE, "rms3: %f\n", rms);
-
+    rms_force = sqrt(sum_forceSquared/Nexatom);
     movfac=3.0;
 
     // conjugate gradients for a while
-    for (; DumpAsText ? rms>1.0 : NumFrames ;  NumFrames--) {
+    for (; DumpAsText ? rms_force>1.0 : frameNumber<numFrames;) {
 	//for (i=0; i<20 ;  i++) {
-	minshot(0,rms, hif); 
-	gamma = fdf/fdf1;
+        if (DEBUG(D_MINIMIZE)) {
+            min_debug("3", rms_force, frameNumber);
+        }
+	minshot(0,rms_force, max_forceSquared);
+        frameNumber++;
+	gamma = sum_forceSquared/last_sum_forceSquared;
 	// compute the conjugate direction 
-	fdf1=fdf;
-	ddd=0.0;
-	fdo=0.0;
+	last_sum_forceSquared=sum_forceSquared;
+	sum_old_force_squared=0.0;
+	sum_force_dot_old_force=0.0;
 	for (j=0; j<Nexatom; j++) {
-	    vmul2c(f,dir[j],gamma);
+	    vmul2c(f,old_force[j],gamma);
 	    vadd(f,force[j]);
-	    dir[j]=f;
-	    ddd += vdot(f,f);
-	    fdo += vdot(force[j],dir[j]);
+	    old_force[j]=f;
+	    sum_old_force_squared += vdot(f,f);
+	    sum_force_dot_old_force += vdot(force[j],old_force[j]);
 	}
-	tmp = old; old=cur; cur=tmp;
-	x=sqrt(ddd);
-	y = fdo/x;
+	tmp = old_positions; old_positions=positions; positions=tmp;
+	x = sqrt(sum_old_force_squared);
+	y = sum_force_dot_old_force/x;
 	z = y;
-	for (k=0; k<10 && y*y>1.0; k++) {
+	for (k=0; k<10 && y*y>1.0 && frameNumber<numFrames; k++) {
 	    for (j=0; j<Nexatom; j++) {
-		f=dir[j];
+		f=old_force[j];
 		vmulc(f, movcon);
-		vadd2(cur[j],old[j], f);
+		vadd2(positions[j],old_positions[j], f);
 	    }
-	    fdf = 0.0;
-	    fdo=0.0;
+	    sum_forceSquared = 0.0;
+	    sum_force_dot_old_force=0.0;
 	    calcloop(0);
 	    for (j=0; j<Nexatom; j++) {
 		f= force[j];
-		ff = vdot(f,f);
-		if (ff>hif) hif = ff;
-		fdf += ff;
-		fdo += vdot(f,dir[j]);
+		forceSquared = vdot(f,f);
+		if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
+		sum_forceSquared += forceSquared;
+		sum_force_dot_old_force += vdot(f,old_force[j]);
 	    }
-	    rms = sqrt(fdf/Nexatom);
-            DPRINT(D_MINIMIZE, "rms4: %f\n", rms);
-	    
-	    y = fdo/x;
+	    rms_force = sqrt(sum_forceSquared/Nexatom);
+            if (DEBUG(D_MINIMIZE)) {
+                min_debug("4", rms_force, frameNumber);
+            }
+            minshot(0,rms_force, max_forceSquared); 
+            frameNumber++;
+            
+	    y = sum_force_dot_old_force/x;
 	    if (y<z-z/(movfac)) movcon *= z/(z-y);
 	    else movcon *= movfac;
 
 	}
-	omc=movcon;
+	old_movcon=movcon;
 	if (y<x-x/(movfac+1.0)) movcon *= x/(x-y)-1.0;
 	else movcon *= movfac;
 	for (j=0; j<Nexatom; j++) {
-	    f= dir[j];
+	    f= old_force[j];
 	    vmulc(f, movcon);
-	    vadd(cur[j], f);
+	    vadd(positions[j], f);
 	}
-	if (movcon<0) movcon = omc+movcon;
-	hif = 0.0;
-	fdf = 0.0;
+	if (movcon<0) movcon = old_movcon+movcon;
+	max_forceSquared = 0.0;
+	sum_forceSquared = 0.0;
 	calcloop(0);
 	for (j=0; j<Nexatom; j++) {
 	    f= force[j];
-	    ff = vdot(f,f);
-	    if (ff>hif) hif = ff;
-	    fdf += ff;
+	    forceSquared = vdot(f,f);
+	    if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
+	    sum_forceSquared += forceSquared;
 	}
-	rms = sqrt(fdf/Nexatom);
-        DPRINT(D_MINIMIZE, "rms5: %f\n", rms);
+	rms_force = sqrt(sum_forceSquared/Nexatom);
     }
-    minshot(1,rms, hif); 
-    printf("final RMS gradient=%f after %d iterations\n",rms, nmfr-NumFrames);
+    if (DEBUG(D_MINIMIZE)) {
+        min_debug("final", rms_force, frameNumber);
+    }
+    minshot(1,rms_force, max_forceSquared);
+    printf("final RMS gradient=%f after %d iterations\n", rms_force, frameNumber);
 
 }
 
@@ -1201,9 +1262,9 @@ main(int argc,char **argv)
 
     maktab(uft1, uft2, uffunc, UFSTART, UFTLEN, UFSCALE);
 	
-    cur=pos;
-    old=pos+NATOMS;
-    new=pos+2*NATOMS;
+    positions    =position_arrays;
+    old_positions=position_arrays+NATOMS;
+    new_positions=position_arrays+2*NATOMS;
 	
     vsetc(Cog,0.0);
     vsetc(P,0.0);
@@ -1349,8 +1410,8 @@ main(int argc,char **argv)
 	for (i=0; i<Nexcon; i++) pcon(stderr, i);
     }
     /*
-    fprintf(stderr, " center of mass velocity: %f\n", vlen(vdif(CoM(cur),CoM(old))));
-    fprintf(stderr, " center of mass: %f -- %f\n", vlen(CoM(cur)), vlen(Cog));
+    fprintf(stderr, " center of mass velocity: %f\n", vlen(vdif(CoM(positions),CoM(old_positions))));
+    fprintf(stderr, " center of mass: %f -- %f\n", vlen(CoM(positions)), vlen(Cog));
     fprintf(stderr, " total momentum: %f\n",P);
     */
     tracef = fopen(TraceFileName, "w");
@@ -1362,7 +1423,7 @@ main(int argc,char **argv)
     headcon(tracef);
 
     if  (ToMinimize) {
-	NumFrames = max(100,(int)sqrt((double)Nexatom));
+	NumFrames = max(NumFrames,(int)sqrt((double)Nexatom));
 	Temperature = 0.0;
     }
 
@@ -1386,9 +1447,9 @@ main(int argc,char **argv)
 	ixyz=ibuf1;
 	previxyz=ibuf2;
 	for (i=0, j=0; i<3*Nexatom; i+=3, j++) {
-	    previxyz[i+0] = (int)cur[j].x;
-	    previxyz[i+1] = (int)cur[j].y;
-	    previxyz[i+2] = (int)cur[j].z;
+	    previxyz[i+0] = (int)positions[j].x;
+	    previxyz[i+1] = (int)positions[j].y;
+	    previxyz[i+2] = (int)positions[j].z;
 	}
 	outf = fopen(OutFileName, "wb");  
         if (outf == NULL) {
@@ -1412,7 +1473,7 @@ main(int argc,char **argv)
 	}
 
 	/*  do the time-reversal (for debugging)
-	tmp=cur; cur=new; new=tmp;
+	tmp=positions; positions=new_positions; new_positions=tmp;
 
 	for (i=0; i<NumFrames; i++) {
 	    printf(" %d", i);

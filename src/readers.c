@@ -7,7 +7,7 @@
 
 /* creating atoms, bonds, etc */
 
-/** uses global Nexatom, atom, element, cur, old, Dt, Dx, Boltz, and
+/** uses global Nexatom, atom, element, positions, old_positions, Dt, Dx, Boltz, and
     Temperature */
 void makatom(int elem, struct xyz posn) {
     struct xyz foo, v, p;
@@ -25,14 +25,14 @@ void makatom(int elem, struct xyz posn) {
     atom[Nexatom].massacc= Dt*Dt / mass;
 	
     /* set position and initialize thermal velocity */
-    cur[Nexatom]=posn;
-    old[Nexatom]=posn;
-    avg[Nexatom]=posn;
+    positions[Nexatom]=posn;
+    old_positions[Nexatom]=posn;
+    average_positions[Nexatom]=posn;
     // assuming the structure is minimized, half of this will 
     // disappear into Pe on average 
     therm = sqrt(2.0*(Boltz*Temperature)/mass)*Dt/Dx;
     v=gxyz(therm);
-    vsub(old[Nexatom],v);
+    vsub(old_positions[Nexatom],v);
 	
     /* thermostat trigger stays high, since slower motions shouldn't
        reach the unstable simulation regions of phase space
@@ -55,9 +55,9 @@ void makatom(int elem, struct xyz posn) {
     vadd(P,p);
 	
     /*
-      v=vdif(cur[Nexatom],old[Nexatom]);
+      v=vdif(positions[Nexatom],old_positions[Nexatom]);
       printf("makatom(%d)  V=%.2f ", Nexatom, vlen(v));
-      pv(cur[Nexatom]); pvt(old[Nexatom]);
+      pv(positions[Nexatom]); pvt(old_positions[Nexatom]);
     */
     Nexatom++;
 	
@@ -98,7 +98,7 @@ void makbond(int a, int b, int ord) {
     atom[a2].bonds[atom[a2].nbonds++]=n;
 
 	
-    bl = vlen(vdif(cur[a], cur[b]));
+    bl = vlen(vdif(positions[a], positions[b]));
     sbl = bond[n].type->r0;
     /*
     if (bl> 1.11*sbl || bl<0.89*sbl)
@@ -158,8 +158,8 @@ void maktorq(int a, int b) {
 	torq[Nextorq].ac=bond[a].an2;
     }
 
-    theta = vang(vdif(cur[torq[Nextorq].a1],cur[torq[Nextorq].ac]),
-		 vdif(cur[torq[Nextorq].a2],cur[torq[Nextorq].ac]));
+    theta = vang(vdif(positions[torq[Nextorq].a1],positions[torq[Nextorq].ac]),
+		 vdif(positions[torq[Nextorq].a2],positions[torq[Nextorq].ac]));
     th0=torq[Nextorq].theta0;
     /*
     if (theta> 1.25*th0 || theta<0.75*th0)
@@ -248,13 +248,13 @@ void makmot2(int i) {
 	mass = element[atom[atlis[j]].elt].mass * 1e-27;
 		
 	/* find its projection onto the rotation vector */
-	r=vdif(cur[atlis[j]],mot->center);
+	r=vdif(positions[atlis[j]],mot->center);
 	x=vdot(r,mot->axis);
 	vmul2c(q,mot->axis,x);
 	vadd2(mot->atocent[j],q,mot->center);
 		
 	/* and orthogonal distance */
-	r=vdif(cur[atlis[j]],mot->atocent[j]);
+	r=vdif(positions[atlis[j]],mot->atocent[j]);
 	mot->ator[j] = r;
 	mot->radius[j]=vlen(r);
 	if (mot->radius[j] > rmax) vrmax=r;
@@ -600,12 +600,12 @@ void filred(char *filnam) {
 	
     /* find bounding box */
 	
-    vset(vec1, cur[0]);
-    vset(vec2, cur[0]);
+    vset(vec1, positions[0]);
+    vset(vec2, positions[0]);
 	
     for (i=1; i<Nexatom; i++) {
-	vmin(vec1,cur[i]);
-	vmax(vec2,cur[i]);
+	vmin(vec1,positions[i]);
+	vmax(vec2,positions[i]);
     }
     vadd2(Center, vec1, vec2);
     vmulc(Center, 0.5);
@@ -620,7 +620,7 @@ void filred(char *filnam) {
     
     vmul2c(vec1,P,1.0/totMass);
     for (i=1; i<Nexatom; i++) {
-	vadd(old[i],vec1);
+	vadd(old_positions[i],vec1);
     }
     
 	

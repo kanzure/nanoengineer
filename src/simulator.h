@@ -126,7 +126,8 @@ struct B {
     double invlen;
     struct bsdata *type;
     struct xyz r, ru;        /* bond vector, unit version threreof */
-    struct xyz aff, bff;     /* axial force,  bending force */
+    struct xyz aff;     /* axial force */
+    //struct xyz bff;     /* bending force */
 };
 /* note that the bending "force" is a torque pair, e.g. +bff applies
    to an1 and -bff to an2 (and aff is a linear pair likewise) */
@@ -296,14 +297,12 @@ extern int Nexatom;
 extern double uft1[200];
 extern double uft2[200];
 extern double uffunc(double uf);
-extern struct xyz pos[];
-extern struct xyz f;
+//extern struct xyz f;
 extern struct xyz force[];
-extern struct xyz avg[];
-extern struct xyz *old;
-extern struct xyz *new;
-extern struct xyz *cur;
-extern struct xyz *tmp;
+extern struct xyz average_positions[];
+extern struct xyz *old_positions;
+extern struct xyz *new_positions;
+extern struct xyz *positions;
 extern struct xyz Center;
 extern struct xyz Bbox[2];
 extern struct xyz diam[5];
@@ -372,6 +371,7 @@ extern void pvt(FILE *f, struct xyz foo);
 extern void pa(FILE *f, int i);
 extern void checkatom(FILE *f, int i);
 extern void pb(FILE *f, int i);
+extern void printAllBonds(FILE *f);
 extern void pq(FILE *f, int i);
 extern void pvdw(FILE *f, struct vdWbuf *buf, int n);
 extern void makatom(int elem, struct xyz posn);
