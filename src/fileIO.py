@@ -1010,6 +1010,7 @@ def writemovie(assy, mflag = False):
                     '-f' + str(assy.m.totalFrames),
                     '-t' + str(assy.m.temp), 
                     '-i' + str(assy.m.stepsper), 
+                    '-r',
                     str(formarg),
                     traceFile,
                     outfile,
