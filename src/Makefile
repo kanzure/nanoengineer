@@ -5,7 +5,8 @@ CFLAGS=-O3 -g
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
 
-EXE_DIRECTORY=../../cad/bin
+#EXE_DIRECTORY=../../cad/bin
+EXE_DIRECTORY=~/bin
 
 ifeq ($(PROFILING),1)
 CFLAGS+=-pg
@@ -21,9 +22,12 @@ SUFFIXES: .c .h .o ;
 
 simulator.o: simulator.h
 tables.o: simulator.h
-lin-alg.o: simulator.h
+lin-alg.o: simulator.h lin-alg.c
 readers.o: simulator.h
 printers.o: simulator.h
+
+tables.c: gentab.py
+	python gentab.py > tables.c
 
 SIMOBJS=simulator.o tables.o lin-alg.o readers.o printers.o
 all: simulator 

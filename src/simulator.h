@@ -6,7 +6,7 @@
 #define DBGPRINTF(x...) ((void) 0)
 #endif
 
-#define NATOMS 10000
+#define NATOMS 100000
 #define NBONDS 12
 /* that's bonds per atom! */
 
@@ -20,7 +20,6 @@
 
 #define SPWIDTH 128
 #define SPMASK 127
-
 /** vector addition (incremental: add src to dest) */
 #define vadd(dest,src) dest.x+=src.x; dest.y+=src.y; dest.z+=src.z
 /** vector addition (non-incremental) */
@@ -58,6 +57,10 @@
 
 /** */
 #define vdot(src1,src2) (src1.x*src2.x+src1.y*src2.y+src1.z*src2.z)
+// cross product
+#define v2x(dest,src1,src2)  dest.x = src1.y * src2.z - src1.z * src2.y;\
+	dest.y = src1.z * src2.x - src1.x * src2.z;\
+	dest.z = src1.x * src2.y - src1.y * src2.x;
 
 /** table length for bond stretch/bending functions */
 #define TABLEN 150
@@ -68,17 +71,21 @@
 #define UFSTART 10000.0
 /** */
 #define UFSCALE 300
-/** */
+/*
 #define ufac(uf,i,rsq) {uf=rsq; i=(int)(uf-UFSTART)/UFSCALE; \
                         if (i<0 || i>UFTLEN) uf=1.0/sqrt(uf);\
                         else uf=uft1[i]+uf*uft2[i];}
+*/
+#define ufac(uf,i,rsq) (uf=1.0/sqrt(uf))
 
 /* bond type is a number that encodes the atom types and order
    maintained in numerical order in the following table */
 #define bontyp(ord,a1,a2) (a1<=a2 ? ord*10000 + a1*100 + a2 : \
-                                   -(ord*10000 + a2*100 + a1))
-#define bondrec(ord,a1,a2,ks,len,de,beta) {bontyp(ord,a1,a2),\
-          ord,a1,a2,ks,len,de,beta*1e-2, 0.0, NULL, 0}
+                                  -(ord*10000 + a2*100 + a1))
+//#define bondrec(ord,a1,a2,ks,len,de,beta) {bontyp(ord,a1,a2),\
+    //          ord,a1,a2,ks,len,de,beta*1e-2, 0.0, NULL, 0}
+#define bondrec(a1,a2,ks,len,de,beta) {bontyp(1,a1,a2),\
+          1,a1,a2,ks,len,de,beta*1e-2, 0.0, NULL, 0}
 
 /* a 3-vector */
 struct xyz {
@@ -116,6 +123,12 @@ struct Q {
     struct B *b1, *b2;
     int dir1, dir2;
     int a1, a2, ac;
+
+    /** kb in pN/rad */
+    double kb1, kb2;
+    /** in radians */
+    double theta0;
+
     struct angben *type;
 };
 
@@ -165,14 +178,15 @@ struct angben {
         double kb;
         /** in radians */
         double theta0;
-        /** interpolation table stuff */
-        double start;
-        struct dtab *tab1, *tab2;
-        int scale;
 };
 
+/*
 #define benrec(a1,o1,ac,o2,a2,kb,th) {bontyp(o1,ac,a1),bontyp(o2,ac,a2),\
                                  kb*6.36e-2,  th, 0.0, NULL, NULL, 0}
+*/
+// convert Ktheta from zJ to yJ, see 
+#define benrec(a1,ac,a2,kb,th) {bontyp(1,ac,a1),bontyp(1,ac,a2),\
+                                 kb*1000.0,  th}
 
 /* van der Waals forces */
 
@@ -197,20 +211,34 @@ struct vdWtab {
         struct dtab table;
 };
 
-#define MAX_ATOMS_PER_AXLE 25
+// number of atoms a jig can hold
+#define NJATOMS 30
 
+#define CODEground 0
+#define CODEtemp 1
+#define CODEstat 2
+#define CODEmotor 3
+#define CODEbearing 4
+#define CODElmotor 5
+#define CODEspring 6
+#define CODEslider 7
+#define CODEangle 8
 
 /**
- * External rotational constraint, either an anchor or a motor
+ * a "jig", motor, constraint, or instrument
  */
 struct AXLE {
-        /** 0= fixed, 1=motor */
+        /** see CODEs above  */
         int type;
         /** motor if there is one */
         struct MOT *motor;
         int natoms;
         /** atoms connected to the shaft */
-        int atoms[MAX_ATOMS_PER_AXLE];
+        int atoms[NJATOMS];
+    // string from file
+    char *name;
+    // whatever
+    double data;
 };
 
 /**
@@ -220,13 +248,13 @@ struct MOT {
         /** point about which motor turns */
         struct xyz center;
         /** centers of rotation and radii */
-        struct xyz atocent[MAX_ATOMS_PER_AXLE], ator[MAX_ATOMS_PER_AXLE];
+        struct xyz atocent[NJATOMS], ator[NJATOMS];
         /** axis & frame of rotation, unit vectors */
         struct xyz axis, roty, rotz;
         /** atom positions about centers, */
-        double radius[MAX_ATOMS_PER_AXLE];
+        double radius[NJATOMS];
         /** in polar coords */
-        double atang[MAX_ATOMS_PER_AXLE];
+        double atang[NJATOMS];
         /** torque at zero speed, Dx^2 N * m */
         double stall;
         /** speed at zero torque, rad/Dt */
@@ -238,34 +266,6 @@ struct MOT {
         /** angular inertia factor in Dt^2 / kg Dx */
         double moment;
 };
-
-/**
- * A linear motor
- */
-struct LMOT {
-        /** point about which motor turns */
-        struct xyz center;
-        /** centers of rotation and radii */
-        struct xyz atocent[MAX_ATOMS_PER_AXLE], ator[MAX_ATOMS_PER_AXLE];
-        /** axis & frame of rotation, unit vectors */
-        struct xyz axis, roty, rotz;
-        /** atom positions about centers, */
-        double radius[MAX_ATOMS_PER_AXLE];
-        /** in polar coords */
-        double atang[MAX_ATOMS_PER_AXLE];
-        /** torque at zero speed, Dx^2 N * m */
-        double stall;
-        /** speed at zero torque, rad/Dt */
-        double speed;
-        /** previous angular position in radians */
-        double theta0;
-        /** current angular position in radians */
-        double theta;
-        /** angular inertia factor in Dt^2 / kg Dx */
-        double moment;
-};
-
-
 
 
 /* mol.c */
@@ -276,10 +276,10 @@ extern int Nexatom;
 extern double uft1[200];
 extern double uft2[200];
 extern double uffunc(double uf);
-extern struct xyz pos[3*10000];
+extern struct xyz pos[];
 extern struct xyz f;
-extern struct xyz force[10000];
-extern struct xyz avg[10000];
+extern struct xyz force[];
+extern struct xyz avg[];
 extern struct xyz *old;
 extern struct xyz *new;
 extern struct xyz *cur;
@@ -289,9 +289,9 @@ extern struct xyz Bbox[2];
 extern struct xyz diam[5];
 extern int PartNo;
 extern int DisplayStyle;
-extern struct A atom[10000];
-extern struct B bond[4*10000];
-extern struct Q torq[6*10000];
+extern struct A atom[];
+extern struct B bond[];
+extern struct Q torq[];
 // extern char *elname[37];
 extern void pbontyp(struct bsdata *ab);
 extern int Iteration;
@@ -384,13 +384,15 @@ extern void display_mainloop(void);
 extern struct xyz vcon(double x);
 extern struct xyz vsum(struct xyz v, struct xyz w);
 extern struct xyz vdif(struct xyz v, struct xyz w);
+struct xyz vprod(struct xyz v, struct xyz w);
+struct xyz vprodc(struct xyz v, double w);
 extern double vlen(struct xyz v);
 extern struct xyz uvec(struct xyz v);
 extern double vang(struct xyz v, struct xyz w);
 extern struct xyz vx(struct xyz v, struct xyz w);
 
 /* tables */
-extern struct atomtype element[37];
+extern struct atomtype element[];
 extern struct bsdata bstab[];
 extern struct angben bendata[];
 extern const int NUMELTS;

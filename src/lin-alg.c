@@ -21,6 +21,18 @@ struct xyz vsum(struct xyz v, struct xyz w) {
 	return u;
 }
 
+struct xyz vprod(struct xyz v, struct xyz w) {
+	struct xyz u;
+	vmul2(u,v,w);
+	return u;
+}
+
+struct xyz vprodc(struct xyz v, double w) {
+	struct xyz u;
+	vmul2c(u,v,w);
+	return u;
+}
+
 struct xyz vdif(struct xyz v, struct xyz w) {
 	struct xyz u;
 	vsub2(u,v,w);

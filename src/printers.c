@@ -54,12 +54,9 @@ void bondump() {		/* gather bond statistics */
 
 
 void pangben(struct angben *ab) {
-    printf("Bend between %d / %d: kb=%.2f, th0=%.2f\n\
- --Table[%d]: %.0f by %d:  -->%.2f/%.4f,  -->%.2f/%.4f\n",
-	      ab->b1typ,ab->b2typ,ab->kb,ab->theta0,
-	      TABLEN,ab->start,ab->scale,
-	      ab->tab1->t1[0],ab->tab1->t2[0],
-	      ab->tab2->t1[0],ab->tab2->t2[0]);
+    printf("Bend between %d / %d: kb=%.2f, th0=%.2f\n",
+	   ab->b1typ,ab->b2typ,ab->kb,ab->theta0);
+
 }
 
 void speedump() {		/* gather bond statistics */
@@ -114,7 +111,8 @@ void pa(int i) {
 	v=vlen(vdif(cur[i],old[i]));
 	printf("\n   V=%.2f, mV^2=%.6f, pos=", v,1e-4*v*v/atom[i].massacc);
 	pv(cur[i]); pvt(old[i]);
-	printf("   massacc=%e\n",atom[i].massacc);
+	printf("   mass = %f, massacc=%e\n", element[atom[i].elt].mass,
+	       atom[i].massacc);
     }
 }
 
@@ -177,9 +175,11 @@ void pq(int i) {
 		
 	r1=vdif(cur[torq[i].a1],cur[torq[i].ac]);
 	r2=vdif(cur[torq[i].a2],cur[torq[i].ac]);
-	printf("r1= %.1f, r2= %.1f, theta=%.2f (%.0f)\n",
+	printf("r1= %.1f, r2= %.1f, theta=%.2f (%.0f)",
 		  vlen(r1), vlen(r2), vang(r1, r2),
 		  (180.0/3.1415)*vang(r1, r2));
+	printf(" theta0=%f, Kb=%f\n",torq[i].type->theta0,
+	       torq[i].type->kb);
     }
 }
 
@@ -204,13 +204,50 @@ void pcon(int i) {
 	return;
     }
     printf("Constraint %d: ",i);
-    if (Constraint[i].type == 0) {
-	printf("Space weld\n atoms ");
+    if (Constraint[i].type == CODEground) {
+	printf("Ground:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
 	    printf("%d ",Constraint[i].atoms[j]);
 	printf("\n");
     }
-    else if (Constraint[i].type == 1) {
+    else if (Constraint[i].type == CODEtemp) {
+	printf("Thermometer %s:\n atoms ",Constraint[i].name);
+	for (j=0;j<Constraint[i].natoms;j++)
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
+    }
+    else if (Constraint[i].type == CODEstat) {
+	printf("Thermostat %s (%f):\n atoms ",
+	       Constraint[i].name,Constraint[i].data);
+	for (j=0;j<Constraint[i].natoms;j++)
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
+    }
+    else if (Constraint[i].type == CODEbearing) {
+	printf("Bearing:\n atoms ");
+	for (j=0;j<Constraint[i].natoms;j++)
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
+    }
+    else if (Constraint[i].type == CODElmotor) {
+	printf("Linear motor:\n atoms ");
+	for (j=0;j<Constraint[i].natoms;j++)
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
+    }
+    else if (Constraint[i].type == CODEspring) {
+	printf("Spring:\n atoms ");
+	for (j=0;j<Constraint[i].natoms;j++)
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
+    }
+    else if (Constraint[i].type == CODEslider) {
+	printf("Slider:\n atoms ");
+	for (j=0;j<Constraint[i].natoms;j++)
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
+    }
+    else if (Constraint[i].type == CODEmotor) {
 	mot = Constraint[i].motor;
 	printf("motor; stall torque %.2e, unloaded speed %.2e\n center ",
 		  mot->stall, mot->speed);

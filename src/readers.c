@@ -51,8 +51,8 @@ void makatom(int elem, struct xyz posn) {
     vadd(P,p);
 	
     /*
-      v=vlen(vdif(cur[Nexatom],old[Nexatom]));
-      DBGPRINTF("makatom(%d)  V=%.2f ", Nexatom, v);
+      v=vdif(cur[Nexatom],old[Nexatom]);
+      printf("makatom(%d)  V=%.2f ", Nexatom, vlen(v));
       pv(cur[Nexatom]); pvt(old[Nexatom]);
     */
     Nexatom++;
@@ -63,22 +63,18 @@ void makatom(int elem, struct xyz posn) {
 
 /** an actual bond is ordered so it has a positive type,
     e.g. atom[a].elt <= atom[b].elt */
-/* 2 phases -- in first, we don't know if both atoms are there yet */
-void makbon0(int a, int b, int ord) {
-    int t, typ, ta, tb;
+/* file format now guarantees no bond before its atoms */
+void makbond(int a, int b, int ord) {
+    int n, t, typ, ta, tb, a1, a2;
     double bl, sbl;
 	
+    // printf("making bond %d--%d\n",a,b);
     bond[Nexbon].an1=a;
     bond[Nexbon].an2=b;
     bond[Nexbon].order=ord;
 	
-    Nexbon++;
-}
+    n = Nexbon++;
 
-void makbon1(int n) {
-    int a, b, t, typ, ta, tb;
-    double bl, sbl;
-	
     a=bond[n].an1;
     b=bond[n].an2;
 	
@@ -91,11 +87,17 @@ void makbon1(int n) {
     bond[n].an2=b;
 	
     bond[n].type=bstab+findbond(typ);
+
+    a1=bond[n].an1;
+    atom[a1].bonds[atom[a1].nbonds++]=n;
+    a2=bond[n].an2;
+    atom[a2].bonds[atom[a2].nbonds++]=n;
+
 	
     bl = vlen(vdif(cur[a], cur[b]));
     sbl = bond[n].type->r0;
     if (bl> 1.11*sbl || bl<0.89*sbl)
-	DBGPRINTF("Strained bond: %2f vs %2f  (%s%d-%s%d)\n",bl,sbl,
+	printf("Strained bond: %2f vs %2f  (%s%d-%s%d)\n",bl,sbl,
 		  element[atom[a].elt].symbol, a, element[atom[b].elt].symbol, b);
 }
 
@@ -111,6 +113,10 @@ void maktorq(int a, int b) {
     torq[Nextorq].b1=bond+a;
     torq[Nextorq].b2=bond+b;
     torq[Nextorq].type = bendata+tq;
+    torq[Nextorq].theta0 = torq[Nextorq].type->theta0;
+    // the kb in the torq record is the torqtype Ktheta / bond's R0
+    torq[Nextorq].kb1 = torq[Nextorq].type->kb/torq[Nextorq].b1->type->r0;
+    torq[Nextorq].kb2 = torq[Nextorq].type->kb/torq[Nextorq].b2->type->r0;
 	
     if (bond[a].an1==bond[b].an1) {
 	torq[Nextorq].dir1=1;
@@ -140,13 +146,13 @@ void maktorq(int a, int b) {
 	torq[Nextorq].a2=bond[b].an1;
 	torq[Nextorq].ac=bond[a].an2;
     }
-	
+
     theta = vang(vdif(cur[torq[Nextorq].a1],cur[torq[Nextorq].ac]),
 		 vdif(cur[torq[Nextorq].a2],cur[torq[Nextorq].ac]));
-    th0=torq[Nextorq].type->theta0;
+    th0=torq[Nextorq].theta0;
 	
     if (theta> 1.25*th0 || theta<0.75*th0)
-	DBGPRINTF("Strained torq: %.0f vs %.0f  (%s%d-%s%d-%s%d)\n",
+	printf("Strained torq: %.0f vs %.0f  (%s%d-%s%d-%s%d)\n",
 		  (180.0/3.1415)*theta, (180.0/3.1415)*th0,
 		  element[atom[torq[Nextorq].a1].elt].symbol, torq[Nextorq].a1,
 		  element[atom[torq[Nextorq].ac].elt].symbol, torq[Nextorq].ac,
@@ -187,81 +193,6 @@ void makvdw(int a1, int a2) {
     Nexvanbuf->fill++;
 }
 
-int Count = 0;
-
-void findnobo(int a1) {
-    int a2, ix, iy, iz, i, j, k;
-    struct A *p;
-    double r;
-	
-    ix= (int)cur[a1].x / 250 + 4;
-    iy= (int)cur[a1].y / 250 + 4;
-    iz= (int)cur[a1].z / 250 + 4;
-	
-    for (i=ix-7; i<ix; i++)
-	for (j=iy-7; j<iy; j++)
-	    for (k=iz-7; k<iz; k++)
-		for (p=Space[i&SPMASK][j&SPMASK][k&SPMASK]; p; p=p->next) {
-		    a2 = p-atom;
-		    if (a2>a1 && atom[a1].part != atom[a2].part) {
-			r=vlen(vdif(cur[a1],cur[a2]));
-			if (r<800.0) {
-			    makvdw(a1, a2);
-			    Count++;
-			}
-		    }
-		}
-}
-
-/** same as stretch bonds, 2 phases */
-void makvander0(int a1, int a2) {
-    struct vdWbuf *newbuf;
-    int nx, i, j;
-	
-    if (Nexvanbuf->fill >= VANBUFSIZ) {
-	if (Nexvanbuf->next) {
-	    Nexvanbuf = Nexvanbuf->next;
-	    Nexvanbuf->fill = 0;
-	}
-	else {
-	    newbuf=malloc(sizeof(struct vdWbuf));
-	    Nexvanbuf->next = newbuf;
-	    Nexvanbuf = newbuf;
-	    Nexvanbuf->fill = 0;
-	    Nexvanbuf->next = NULL;
-	}
-    }
-	
-    Nexvanbuf->item[Nexvanbuf->fill].a1 = a1;
-    Nexvanbuf->item[Nexvanbuf->fill].a2 = a2;
-	
-    /*
-      DBGPRINTF("making(0) vdW %d/%d: atoms %d-%d\n",
-      Nexvanbuf-&vanderRoot, Nexvanbuf->fill, a1, a2);
-    */
-	
-    Nexvanbuf->fill++;
-}
-
-void makvander1(struct vdWbuf *buf, int n) {
-	
-    int nx, i, j, a1, a2;
-	
-	
-    a1=buf->item[n].a1;
-    a2=buf->item[n].a2;
-	
-    i = min(atom[a1].elt,atom[a2].elt);
-    j = max(atom[a2].elt,atom[a2].elt);
-    nx = i*(NUMELTS+1) - i*(i+1)/2 + j-i;
-    buf->item[n].table = vanderTable+nx;
-	
-    /*
-      DBGPRINTF("making(1) vdW %d/%d: atoms %d-%d\n",
-      buf-&vanderRoot, n, buf->item[n].a1, buf->item[n].a2);
-    */
-}
-
 int makcon(int typ, struct MOT *mot, int n, int *atnos) {
     int i;
 	
@@ -294,7 +225,7 @@ void makmot2(int i) {
     int j, *atlis;
     double x, mass, rmax=0.0, mominert=0.0;
 	
-    if (Constraint[i].type != 1) return;
+    if (Constraint[i].type != CODEmotor) return;
 	
     atlis = Constraint[i].atoms;
     mot = Constraint[i].motor;
@@ -335,6 +266,34 @@ void makmot2(int i) {
     }
 }
 
+int readname(char *buf, char **ret) {
+
+  char b1[128];
+  int j;
+  sscanf(buf, "(%[^)])%n", b1, &j);
+  // printf("got name (%s)\n", b1);
+  *ret = malloc(strlen(b1)+1);
+  strcpy(*ret, b1);
+  return j;
+
+}
+
+int readshaft(char *buf, int *iv, int *atnotab) {
+
+  int i, j;
+	
+  // printf("from <%s> ", buf);
+  j=sscanf(buf, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
+	   iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
+	   iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
+	   iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24, iv+25,
+	   iv+26, iv+27, iv+28, iv+29);
+  // printf ("got shaft of %d atoms\n",j);
+  for (i=0; i<j; i++) iv[i]=atnotab[iv[i]];
+  return j;
+}
+
+
 /** file reading */
 
 void filred(char *filnam) {
@@ -344,15 +303,14 @@ void filred(char *filnam) {
     int i, j, n, m, b, c, ord, lastatom;
     double stall, speed;
     struct xyz vec1,vec2;
-    int a1, a2, ie, ix, iy, iz, ix1, iy1, iz1, iv[25];
+    int a1, a2, ie, ix, iy, iz, ix1, iy1, iz1, iv[NJATOMS];
     int firstatom=1, offset;
     int atnum, atnotab[2*NATOMS];
     struct vdWbuf *nvb;
-    char nambuf[128],nambuf2[128] ;
+    char nambuf[128],nambuf2[128], *strg, *junk;
     int colr[3];
 	
     file=fopen(filnam,"r");
-	
 	
     while (fgets(buf,127,file)) {
 	/* atom number (element) (posx, posy, posz) */
@@ -360,7 +318,7 @@ void filred(char *filnam) {
 	if (0==strncasecmp("atom",buf,4)) {
 	    sscanf(buf+4, "%d (%d) (%d,%d,%d", &atnum, &ie, &ix, &iy, &iz);
 	    /*
-	      DBGPRINTF("in filred: %s %d (%d) (%d,%d,%d) \n","atom",
+	      printf("in filred: %s %d (%d) (%d,%d,%d) \n","atom",
 	      lastatom,ie, ix, iy, iz );
 	    */
 	    
@@ -379,47 +337,75 @@ void filred(char *filnam) {
 
 	/* bondO atno atno atno ... (where O is order) */
 	else if (0==strncasecmp("bond",buf,4)) {
-			
-	    j=sscanf(buf+4, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
-		     &ord, iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
-		     iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
-		     iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24);
-			
-	    for (i=0; i<j-1; i++) makbon0(lastatom, atnotab[iv[i]], ord);
+	  // printf("%s\n",buf);
+	  sscanf(buf+4, "%d", &ord);
+	  j=readshaft(buf+5, iv, atnotab);
+	  // printf("j=%d\n",j);
+	  for (i=0; i<j; i++) makbond(lastatom, iv[i], ord);
 	}
 		
 	/* [vander]Waals atno atno atno ... (for atoms on same part) */
 	else if (0==strncasecmp("waals",buf,5)) {
 			
-	    j=sscanf(buf+5, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
-		     iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
-		     iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
-		     iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24);
+	    j=readshaft(buf+5, iv, atnotab);
 			
-	    for (i=0; i<j; i++) makvander0(lastatom,atnotab[iv[i]]);
+	    for (i=0; i<j; i++) makvdw(lastatom,iv[i]);
 	}
 		
 	/* constraints */
 	/* welded to space: */
+	// ground (<name>) <atoms>
 	else if (0==strncasecmp("ground",buf,6)) {
-	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
-	    j=sscanf(buf+j+1, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
-		     iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
-		     iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
-		     iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24);
-	    printf("%s\ngot ground (%d) %d %d %d %d \n",buf,j,iv[0],iv[1],iv[2],iv[3]);
-	    for (i=0; i<j; i++) atnotab[iv[i]];
-	    makcon(0, NULL, j, iv);
+	  j=readname(buf+7,&strg);
+	  i=readname(buf+7+j+1, &junk);
+	  j=readshaft(buf+7+j+i+1, iv, atnotab);
+	  i=makcon(CODEground, NULL, j, iv);
+	  Constraint[i].name = strg;
 	}
-		
+	
+	// thermometer
+	// temp (name) <atoms>
+	else if (0==strncasecmp("temp",buf,4)) {
+
+	  j=readname(buf+5,&strg);
+	  printf("got thermometer (%s) @%d\n", strg, j);
+	  j=readshaft(buf+5+j, iv, atnotab);
+	  i=makcon(CODEtemp, NULL, j, iv);
+	  Constraint[i].name = strg;
+	}
+
+	// angle
+	// amgle (name) <atoms>
+	else if (0==strncasecmp("angle",buf,5)) {
+
+	  j=readname(buf+6,&strg);
+	  printf("got thermometer (%s) @%d\n", strg, j);
+	  j=readshaft(buf+6+j, iv, atnotab);
+	  i=makcon(CODEangle, NULL, j, iv);
+	  Constraint[i].name = strg;
+	}
+
+	// Langevin thermostat
+	// stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
+	else if (0==strncasecmp("stat",buf,4)) {
+	  i=readname(buf+5,&strg);
+	  sscanf(buf+5+i, " (%[0-9, ]) (%d)%n", nambuf, &ix, &j);
+	  // printf("%s%sgot stat (%s) %d @%d\n", buf+5+i, buf+5+i+j, strg, ix, j);
+	  j=readshaft(buf+5+i+j, iv, atnotab);
+	  i=makcon(CODEstat, NULL, j, iv);
+	  Constraint[i].data = ix;
+	  Constraint[i].name = strg;
+	}
+
+	// motor
 	/* rmotor (name) (r,g,b) <torque> <speed> (<center>) (<axis>) */
 	/* torque in nN*nm  speed in gigahertz */
 	else if (0==strncasecmp("rmotor",buf,6)) {
 	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
 	    sscanf(buf+j+1, " %lf %lf (%d, %d, %d) (%d, %d, %d",
 		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
-	    printf("%s\ngot motor (%d)  %lf %lf (%d, %d, %d) (%d, %d, %d) \n",buf,j,stall,speed, ix, iy, iz, ix1, iy1, iz1
-);			
+	    printf("%s\ngot motor (%d)  %lf %lf (%d, %d, %d) (%d, %d, %d) \n",
+		   buf,j,stall,speed, ix, iy, iz, ix1, iy1, iz1);
 	    vec1.x=(double)ix *0.1;
 	    vec1.y=(double)iy *0.1;
 	    vec1.z=(double)iz *0.1;
@@ -427,21 +413,44 @@ void filred(char *filnam) {
 	    vec2.y=(double)iy1 *0.1;
 	    vec2.z=(double)iz1 *0.1;
 	    fgets(buf,127,file);
-	    if (strncasecmp("shaft",buf,5)) DBGPRINTF("motor needs a shaft\n");
+	    if (strncasecmp("shaft",buf,5)) printf("motor needs a shaft\n");
 	    else {
-		j=sscanf(buf+5, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
-			 iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
-			 iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
-			 iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24);
-		for (i=0; i<j; i++) atnotab[iv[i]];
-		i=makcon(1, makmot(stall, speed, vec1, vec2), j, iv);
+	      j=readshaft(buf+5, iv, atnotab);
+
+	      i=makcon(CODEmotor, makmot(stall, speed, vec1, vec2), j, iv);
+	      makmot2(i);
+	    }
+	}
+
+	// bearing
+	/* bearing (name) (r,g,b) (<center>) (<axis>) */
+	else if (0==strncasecmp("bearing",buf,7)) {
+	  for (i=2,j=8;i;j++) if (buf[j]==')') i--;
+	    sscanf(buf+j+1, " (%d, %d, %d) (%d, %d, %d",
+		    &ix, &iy, &iz, &ix1, &iy1, &iz1);
+	    printf("%s\ngot bearing (%d)  (%d, %d, %d) (%d, %d, %d) \n",
+		   buf,j, ix, iy, iz, ix1, iy1, iz1);	
+	    vec1.x=(double)ix *0.1;
+	    vec1.y=(double)iy *0.1;
+	    vec1.z=(double)iz *0.1;
+	    vec2.x=(double)ix1 *0.1;
+	    vec2.y=(double)iy1 *0.1;
+	    vec2.z=(double)iz1 *0.1;
+	    fgets(buf,127,file);
+	    if (strncasecmp("shaft",buf,5)) printf("bearing needs a shaft\n");
+	    else {
+	      j=readshaft(buf+5, iv, atnotab);
+
+	      i=makcon(CODEbearing, makmot(stall, speed, vec1, vec2), j, iv);
+	      makmot2(i);
 	    }
 	}
 		
-	/* lmotor <torque>, <speed>, (<center>) (<axis>) */
-	/* torque in nN*nm  speed in gigahertz */
+	// linear motor
+	/* lmotor <force>, <speed>, (<center>) (<axis>) */
 	else if (0==strncasecmp("lmotor",buf,6)) {
-	    sscanf(buf+5, "(%s) (%d, %d, %d)%lf, %lf, (%d, %d, %d) (%d, %d, %d",
+	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
+	  sscanf(buf+5, " (%d, %d, %d) %lf, %lf, (%d, %d, %d) (%d, %d, %d",
 		   nambuf, colr, colr+1, colr+2,
 		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
 			
@@ -452,55 +461,92 @@ void filred(char *filnam) {
 	    vec2.y=(double)iy1 *0.1;
 	    vec2.z=(double)iz1 *0.1;
 	    fgets(buf,127,file);
-	    if (strncasecmp("shaft",buf,5)) DBGPRINTF("motor needs a shaft\n");
+	    if (strncasecmp("shaft",buf,5)) printf("lmotor needs a shaft\n");
 	    else {
-		j=sscanf(buf+5, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
-			 iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
-			 iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
-			 iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24);
-		for (i=0; i<j; i++) atnotab[iv[i]];
-		i=makcon(1, makmot(stall, speed, vec1, vec2), j, iv);
+	      j=readshaft(buf+5, iv, atnotab);
+	      i=makcon(CODElmotor, makmot(stall, speed, vec1, vec2), j, iv);
+	      makmot2(i);
 	    }
 	}
 		
-	/* mol [nil|bns|vdw] */
+	// spring
+	/* spring <stiffness>, (<center1>) (<center2>) */
+	else if (0==strncasecmp("spring",buf,6)) {
+	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
+	  sscanf(buf+5, " (%d, %d, %d) %lf, %lf, (%d, %d, %d) (%d, %d, %d",
+		   nambuf, colr, colr+1, colr+2,
+		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
+			
+	    vec1.x=(double)ix *0.1;
+	    vec1.y=(double)iy *0.1;
+	    vec1.z=(double)iz *0.1;
+	    vec2.x=(double)ix1 *0.1;
+	    vec2.y=(double)iy1 *0.1;
+	    vec2.z=(double)iz1 *0.1;
+	    fgets(buf,127,file);
+	    if (strncasecmp("shaft",buf,5)) printf("spring needs a shaft\n");
+	    else {
+	      j=readshaft(buf+5, iv, atnotab);
+	      i=makcon(CODEspring, makmot(stall, speed, vec1, vec2), j, iv);
+	      makmot2(i);
+	    }
+	}
+		
+	// slider
+	/* slider (<center>) (<axis>) */
+	/* torque in nN*nm  speed in gigahertz */
+	else if (0==strncasecmp("slider",buf,6)) {
+	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
+	  sscanf(buf+5, " (%d, %d, %d) %lf, %lf, (%d, %d, %d) (%d, %d, %d",
+		   nambuf, colr, colr+1, colr+2,
+		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
+			
+	    vec1.x=(double)ix *0.1;
+	    vec1.y=(double)iy *0.1;
+	    vec1.z=(double)iz *0.1;
+	    vec2.x=(double)ix1 *0.1;
+	    vec2.y=(double)iy1 *0.1;
+	    vec2.z=(double)iz1 *0.1;
+	    fgets(buf,127,file);
+	    if (strncasecmp("shaft",buf,5)) printf("slider needs a shaft\n");
+	    else {
+	      j=readshaft(buf+5, iv, atnotab);
+	      i=makcon(CODEslider, makmot(stall, speed, vec1, vec2), j, iv);
+	      makmot2(i);
+	    }
+	}
+		
+	/* mol  */
 	else if (0==strncasecmp("mol ",buf,4)) {
 	    PartNo++;
 	}
 		
-	
+	// kelvin <temperature>
 	else if (0==strncasecmp("kelvin",buf,6)) {
 	    sscanf(buf+6, "%d", &ix);
-	    Temperature = (double)ix;
-	    DBGPRINTF("Temperature set to %f\n",Temperature);
+	    // Temperature = (double)ix;
+	    // printf("Temperature set to %f\n",Temperature);
 	}
 		
-	else if (0==strncasecmp("end",buf,3)) break;
+	else if (0==strncasecmp("end",buf,3)) {
+	  printf("end\n");
+	  break;
+	}
 		
-	else DBGPRINTF("??? %s\n", buf);
+	//else printf("??? %s\n", buf);
 		
     }
     fclose(file);
 	
+    printf("out\n");
+
 	
-    /* fill in new atoms, fixup backward bonds */
-	
-    for (i=0; i<Nexbon; i++) {
-	makbon1(i);
-	a1=bond[i].an1;
-	atom[a1].bonds[atom[a1].nbonds++]=i;
-	a2=bond[i].an2;
-	atom[a2].bonds[atom[a2].nbonds++]=i;
-    }
-	
+
     /* got all the static vdW bonds we'll see */
     Dynobuf = Nexvanbuf;
     Dynoix = Nexvanbuf->fill;
 	
-    /* fill in new atoms for vanderwaals pointers */
-    for (nvb=&vanderRoot; nvb; nvb=nvb->next)
-	for (j=0; j<nvb->fill; j++) makvander1(nvb, j);
-	
+
     /*
       for (i=0; i<Nexatom; i++) pa(i);
       for (i=0; i<Nexbon; i++) pb(i);
@@ -515,8 +561,6 @@ void filred(char *filnam) {
 	    }
 	}
     }
-	
-    for (i=0; i<Nexcon; i++) makmot2(i); /* fixup motors */
 	
     /* find bounding box */
 	
