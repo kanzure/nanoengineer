@@ -172,7 +172,7 @@ class MWsemantics(MainWindow):
         # stores the center view point of the current home view. This needs to change when
         # we update the mmp file format
         self.currentPov = V(0.0, 0.0, 0.0)
-        
+
         # bruce 050104 moved find_or_make_Nanorex_prefs_directory to an earlier time
         
         self.initialised = 1
@@ -679,9 +679,10 @@ class MWsemantics(MainWindow):
         self.assy.changed() # Csys record changed in assy.  Mark [041215]
         
     def zoomWindow(self):
-        """Rubberband window zoom.
+        """Rubber band window zoom.
         """
-        self.glpane.setMode('ZOOM')
+        self.history.message(redmsg("Zoom Window: Not implemented yet."))
+#        self.glpane.zoom = True
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
