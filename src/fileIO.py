@@ -126,6 +126,12 @@ def writepdb(assy, filename):
     f.write("END")
     f.close()   
 
+# Huaicai to implement readxyz - Mark 050120
+def readxyz(assy):
+    """Read a single-frame XYZ file created by the simulator, typically a for minimizing a part.
+    """
+    print "fileIO.readxyz() called.  Currently a stub."
+
 
 def _addMolecule(mol, assy, group):
         """Make sure to call this function before any other record operation except for record types: atom, bond, shaft and csys, dataum, walls, kelvin. This adds the previous molecule to its group """
@@ -576,7 +582,10 @@ def writemovie(assy, mflag = False):
     assy.m.filename.  The moviefile is either a DPB file or an XYZ trajectory file.
     DPB = Differential Position Bytes (binary file)
     XYZ = XYZ trajectory file (text file)
-    mflag - if True, creates a minimize dpb moviefile
+    mflag:
+        0 = default, runs a full simulation using parameters stored in the movie object.
+        1 = run the simulator with -m and -x flags, creating a single-frame XYZ file.
+        2 = run the simulator with -m flags, creating a multi-frame DPB moviefile.
     """
     # Make sure some chunks are in the part.
     if not assy.molecules: # Nothing in the part to minimize.
@@ -584,12 +593,20 @@ def writemovie(assy, mflag = False):
         assy.w.history.message(msg)
         return -1
     
-    if mflag:
-        pid = os.getpid()
+    # "pid" = process id.  
+    # We use the PID to create unique filenames for this instance of the program,
+    # so that if we run more than one program at the same time, we don't use
+    # the same temporary file names.
+    pid = os.getpid()
+    
+    if mflag == 1: # single-frame XYZ file
+        assy.m.filename = os.path.join(assy.w.tmpFilePath, "sim-%d.xyz" % pid)
+        
+    if mflag == 2: #multi-frame DPB file
         assy.m.filename = os.path.join(assy.w.tmpFilePath, "sim-%d.dpb" % pid)
     
-    if assy.m.filename: moviefile = assy.m.filename
-    
+    if assy.m.filename: 
+        moviefile = assy.m.filename
     else:
         msg = redmsg("Can't create movie.  Empty filename.")
         assy.w.history.message(msg)
@@ -604,7 +621,6 @@ def writemovie(assy, mflag = False):
 
     # We always save the current part to an MMP file.  In the future, we may want to check
     # if assy.filename is an MMP file and use it if not assy.has_changed().
-    pid = os.getpid()
     mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
 
     # filePath = the current directory NE-1 is running from.
@@ -620,9 +636,6 @@ def writemovie(assy, mflag = False):
     #oldCursor = QCursor(assy.w.cursor())
     #assy.w.setCursor(QCursor(Qt.WaitCursor) )
 
-    # "formarg" = File format argument
-    if ext == ".dpb": formarg = ''
-    else: formarg = "-x"
         
     # Put double quotes around filenames so spawnv can handle them properly on Win32 systems.
     # This may create a bug on Linux and MacOS, so lets leave the quotes off.
@@ -634,10 +647,14 @@ def writemovie(assy, mflag = False):
         outfile = "-o"+moviefile
         infile = mmpfile
 
-    if mflag: # "args" = arguments for the simulator to minimize.
-        args = [program, '-m', outfile, infile]
+    # "formarg" = File format argument
+    if ext == ".dpb": formarg = ''
+    else: formarg = "-x"
+    
+    # "args" = arguments for the simulator.
+    if mflag: 
+        args = [program, '-m', str(formarg), outfile, infile]
     else: 
-        # "args" = arguments for the simulator.  
         # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
         # The timestep argument "-s + (assy.timestep)" is not supported for Alpha.
         args = [program, 
@@ -673,8 +690,11 @@ def writemovie(assy, mflag = False):
     # actual final size of the XYZ file, or the progress bar will never hit 100%,
     # even though the simulator finished writing the file.
     # - Mark 050105 
-    if formarg == "-x" and not mflag:
-        filesize = assy.m.totalFrames * ((natoms * 32) + 25) # xyz filesize (estimate)
+    if formarg == "-x":
+        if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
+            filesize = (natoms * 32) + 25 # single-frame xyz filesize (estimate)
+        else:
+            filesize = assy.m.totalFrames * ((natoms * 32) + 25) # multi-frame xyz filesize (estimate)
     else: 
         if mflag: filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
         else:      filesize = (assy.m.totalFrames * natoms * 3) + 4
@@ -691,8 +711,8 @@ def writemovie(assy, mflag = False):
         os.remove (assy.m.filename) # Delete before spawning simulator.
 
     # These are useful when debugging the simulator.     
-#    print  "program = ",program
-#    print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+    print  "program = ",program
+    print  "Spawnv args are %r" % (args,) # this %r remains (see above)
         
     try:
         # Spawn the simulator.

@@ -830,11 +830,22 @@ class assembly:
         return r
 
     # makes a minimize movie
-    def makeMinMovie(self):
-        r = self.writemovie(1)
-        # Minimization worked.  Start the movie.
-        if not r:
+    def makeMinMovie(self,mtype = 2):
+        """Minimize the part and display the results.
+        mtype:
+            1 = tell writemovie() to create a single-frame XYZ file.
+            2 = tell writemovie() to create a multi-frame DPB moviefile.
+        """
+        r = self.writemovie(mtype) # Writemovie informs user if there was a problem.
+        if r: return # We had a problem writing the minimize file.  Simply return.
+        
+        if mtype == 1:  # Load single-frame XYZ file.
+            self.readxyz()
+            self.w.win_update()
+            
+        else: # Play multi-frame DPB movie file.
             self.m.currentFrame = 0
+            # If _setup() returns a non-zero value, something went wrong loading the movie.
             if self.m._setup(): return
             self.m._play()
             self.m._close()
@@ -1069,5 +1080,10 @@ class assembly:
     def writemovie(self, mflag = 0):
         from fileIO import writemovie
         return writemovie(self, mflag)
-            
+
+    # read xyz file.
+    def readxyz(self):
+        from fileIO import readxyz
+        return readxyz(self)
+                    
     # end of class assembly

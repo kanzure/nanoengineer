@@ -677,6 +677,11 @@ class MWsemantics(MainWindow):
         self.assy.csys.scale = self.glpane.scale
         self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
         self.assy.changed() # Csys record changed in assy.  Mark [041215]
+        
+    def zoomWindow(self):
+        """Rubberband window zoom.
+        """
+        self.glpane.setMode('ZOOM')
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
@@ -918,7 +923,8 @@ class MWsemantics(MainWindow):
         self.toolsMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
             self.history.message(greenmsg("Minimize..."))
-            self.assy.makeMinMovie()
+#           self.assy.makeMinMovie(1) # 1 = single-frame XYZ file.
+            self.assy.makeMinMovie(2) # 2 = multi-frame DPB file.
         finally:
             self.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
             self.toolsSimulatorAction.setEnabled(1) # Enable "Simulator"
