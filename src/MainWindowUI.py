@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Mar 25 20:33:55 2005
+# Created: Fri Mar 25 23:36:19 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5692,7 +5692,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,679,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,681,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -5740,7 +5740,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.moveMolDashboard)
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,29,1034,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,29,1033,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -5837,10 +5837,11 @@ class MainWindow(QMainWindow):
         spacer4 = QSpacerItem(20,27,QSizePolicy.Expanding,QSizePolicy.Minimum)
         QApplication.sendPostedEvents(self.fuseChunksDashboard,QEvent.ChildInserted)
         self.fuseChunksDashboard.boxLayout().addItem(spacer4)
+        self.toolsBackUpAction.addTo(self.fuseChunksDashboard)
         self.toolsDoneAction.addTo(self.fuseChunksDashboard)
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.depositAtomDashboard.setGeometry(QRect(973,58,19,29))
+        self.depositAtomDashboard.setGeometry(QRect(1001,58,19,29))
         self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 

@@ -285,7 +285,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>679</width>
+                <width>681</width>
                 <height>29</height>
             </rect>
         </property>
@@ -529,7 +529,7 @@
             <rect>
                 <x>0</x>
                 <y>29</y>
-                <width>1034</width>
+                <width>1033</width>
                 <height>29</height>
             </rect>
         </property>
@@ -862,6 +862,7 @@
                 </size>
             </property>
         </widget>
+        <action name="toolsBackUpAction"/>
         <action name="toolsDoneAction"/>
     </toolbar>
     <toolbar dock="3">
@@ -870,7 +871,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>973</x>
+                <x>1001</x>
                 <y>58</y>
                 <width>19</width>
                 <height>29</height>
