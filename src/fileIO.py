@@ -13,7 +13,7 @@ from gadgets import *
 from Utility import *
 from povheader import povheader
 from mdldata import *
-from HistoryWidget import greenmsg, redmsg # bruce 050107
+from HistoryWidget import redmsg # bruce 050107
 
 nampat=re.compile("\\(([^)]*)\\)")
 csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
@@ -344,6 +344,12 @@ def _readmmp(assy, filnam, isInsert = False):
                 n = int(m.group(1))
                 assy.temperature = n
                 
+        elif key=="movie_id": # Movie ID - To be supported for Beta.  Mark 05-01-16
+            if not isInsert: #Skip this record if inserting
+                m = re.match("movie_id (\d+)",card)
+                n = int(m.group(1))
+                assy.movieID = n
+                
         elif key=="end1":  # End of main tree
             AddAtoms = False
     
@@ -402,6 +408,9 @@ def writemmp(assy, filename, addshelf = True):
     assy.alist = []
     
     f.write("kelvin %d\n" % assy.temperature)
+    
+    # To be added for Beta.  Mark 05-01-16
+#    f.write("movie_id %d\n" % assy.movieID)
     
     assy.data.writemmp(atnums, assy.alist, f)
     assy.tree.writemmp(atnums, assy.alist, f)
@@ -625,15 +634,15 @@ def writemovie(assy, mflag = False):
         outfile = "-o"+moviefile
         infile = mmpfile
 
-
     if mflag: # "args" = arguments for the simulator to minimize.
         args = [program, '-m', outfile, infile]
+#        args = [program, '-b' + str(assy.movieID), '-m', outfile, infile] # For Beta
     else: 
         # "args" = arguments for the simulator.  
         # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
         # The timestep argument "-s + (assy.timestep)" is not supported for Alpha.
         args = [program, 
-                    '-f' + str(assy.m.totalFrames), 
+                    '-f' + str(assy.m.totalFrames),
                     '-t' + str(assy.m.temp), 
                     '-i' + str(assy.m.stepsper), 
                     str(formarg),
@@ -641,8 +650,8 @@ def writemovie(assy, mflag = False):
                     infile]
 
     # Tell user we're creating the movie file...
-    msg = greenmsg("Creating movie file [" + moviefile + "]")
-    assy.w.history.message(msg)
+#    msg = "Creating movie file [" + moviefile + "]"
+#    assy.w.history.message(msg)
 
     # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR writemovie()!
     # writemmp must come before computing "natoms".  This ensures that writemovie
@@ -658,7 +667,7 @@ def writemovie(assy, mflag = False):
     
     writemmp(assy, mmpfile, False)
     assy.m.natoms = natoms = len(assy.alist)
-    print "writeMovie: natoms = ",natoms, "assy.filename =",assy.filename
+#    print "writeMovie: natoms = ",natoms, "assy.filename =",assy.filename
             
     # We cannot to determine the exact final size of an XYZ trajectory file.
     # This formula is an estimate.  "filesize" must never be larger than the
