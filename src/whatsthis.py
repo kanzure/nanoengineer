@@ -481,7 +481,7 @@ def createWhatsThis(self):
  
         #### Invert Selection ####
 
-        selectInvertActionText = "<u><b>Invert Selection</b></u>     (Ctrl + Shift + I)</b></p><br>"\
+        selectInvertActionText = "<u><b>Invert Selection</b></u> <br>    (Ctrl + Shift + I)</b></p><br>"\
                        "<p><img source=\"selectInvertAction\"><br> "\
                        "Inverts the current selection.</p>"
 
