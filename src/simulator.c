@@ -19,6 +19,7 @@ double uffunc(double uf) {
 
 /** positions and forces on the atoms w/pointers into pos */
 struct xyz pos[3*NATOMS], f, force[NATOMS], avg[NATOMS];
+struct xyz dirs[2*NATOMS], *dir, *odir;
 struct xyz *old, *new, *cur, *tmp;
 
 struct xyz Center, Bbox[2];
@@ -234,6 +235,7 @@ double hooke(double rsq) {
 	
 	r=sqrt(rsq);
 	return 2.0*Ks*(R0/r-1.0);
+	//return Ks*(R0-r);
 }
 
 /* use the Morse potential inside R0, Lippincott outside */
@@ -295,10 +297,11 @@ void bondinit() {
 	De = bstab[i].de;
 	Beta = bstab[i].beta;
 	tables = malloc(sizeof(struct dtab));
-	if (ToMinimize)
-	    	maktab(tables->t1, tables->t2, hooke,
-		       bstab[i].start, TABLEN, bstab[i].scale);
-	else maktab(tables->t1, tables->t2, lippmor,
+	//	if (ToMinimize)
+	//    	maktab(tables->t1, tables->t2, hooke,
+	//	       bstab[i].start, TABLEN, bstab[i].scale);
+	//else 
+	maktab(tables->t1, tables->t2, lippmor,
 		    bstab[i].start, TABLEN, bstab[i].scale);
 	bstab[i].table = tables;
     }
@@ -531,14 +534,16 @@ void calcloop(int iters) {
 		k=(int)(rsq-start)/scale;
 		if (k<0) {
 					
-		    printf("stretch: low --");
-		    pb(j);
+		    if (!ToMinimize) { //linear
+			printf("stretch: low --");
+			pb(j);
+		    }
 		    fac=t1[0]+rsq*t2[0];
 		}
 		else if (k>=TABLEN) {
 					
-		    printf("stretch: high --");
-		    pb(j);
+		    // printf("stretch: high --");
+		    // pb(j);
 		    if (ToMinimize)  //flat
 			fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*t2[TABLEN-1];
 		    else fac=0.0;
@@ -634,8 +639,10 @@ void calcloop(int iters) {
 					
 		    k=(int)(rsq-start)/scale;
 		    if (k<0) {
-			printf("vdW: off table low -- r=%.2f \n",  sqrt(rsq));
-			pvdw(nvb,j);
+			if (!ToMinimize) { //linear
+			    printf("vdW: off table low -- r=%.2f \n",  sqrt(rsq));
+			    pvdw(nvb,j);
+			}
 			k=0;
 			fac=t1[k]+rsq*t2[k];
 		    }
@@ -942,43 +949,203 @@ void snapshot(int n) {
 }
 
 
+/**
+ */
+void minshot(int final, double rms, double hifsq) {
+    int i,j;
+    char c0, c1, c2;
+
+    if (DumpAsText) {
+
+	if (final) {
+	    fprintf(outf, "%d\nRMS=%f\n", Nexatom, rms);
+
+	    for (i=0; i<Nexatom; i++) {
+		fprintf(outf, "%s %f %f %f\n", element[atom[i].elt].symbol,
+			cur[i].x, cur[i].y, cur[i].z);
+	    }
+	}
+    }
+    else {
+        for (i=0, j=0; i<3*Nexatom; i+=3, j++) {
+            ixyz[i+0] = (int)cur[j].x;
+            ixyz[i+1] = (int)cur[j].y;
+            ixyz[i+2] = (int)cur[j].z;
+            c0=(char)(ixyz[i+0] - previxyz[i+0]);
+            fwrite(&c0, sizeof(char), 1, outf);
+            c1=(char)(ixyz[i+1] - previxyz[i+1]);
+            fwrite(&c1, sizeof(char), 1, outf);
+            c2=(char)(ixyz[i+2] - previxyz[i+2]);
+            fwrite(&c2, sizeof(char), 1, outf);
+
+            //printf("%d %d %d\n", (int)c0, (int)c1, (int)c2);
+
+        }
+        temp = previxyz;
+        previxyz = ixyz;
+        ixyz = temp;
+
+	fflush(outf);
+    }
+
+    fprintf(tracef,"%.2f %.2f\n", rms, sqrt(hifsq));
+}
+
+
 void minimize(int NumFrames) {
     int i, j, k, saveNexcon;
-    double tke, therm, mass, ff, totf, hif;
-    struct xyz v, f;
-
-    double movcon = 8e-4;
+    double tke, therm, mass, ff, ff2, totf, hif, ddd;
+    double fdf=0.0, fdf1, fdo, gamma, totdist, x, y, z;
+    struct xyz v, f, f2, q, r, s;
+    double rms, frac;
+    double movst = 4e-4, movcon = 4e-4, movfac = 1.5, omc, mc1, mc2;
    
+    // set up direction vectors
+    dir=dirs; odir = dirs+NATOMS;
+
     /* turn off constraints --
        minimize is a one-shot run of the program */
     Nexcon=0;
 
     Temperature = 0.0;
-	
-    for (i=0; i<NumFrames; i++) {
-	totf = 0.0;
+    
+    fprintf(tracef,"\n# average, high force, distance\n", totf/Nexatom, hif);
+
+    // 2 fixed steps to initialize
+    for (i=0; i<2; i++, NumFrames--) {
 	hif = 0.0;
+	fdf = 0.0;
 	calcloop(1);
 	for (j=0; j<Nexatom; j++) {
 	    f= force[j];
-	    ff = vlen(f);
-	    totf += ff;
+	    dir[j] = f;
+	    ff = vdot(f,f);
+	    fdf += ff;
+	    ff = sqrt(ff);
 	    if (ff>hif) hif = ff;
-	    old[j] = f;
+	    vmulc(f, movcon);
+	    vadd2(old[j], cur[j], f);
+	}
+	tmp = old; old=cur; cur=tmp;
+	rms = sqrt(fdf/Nexatom);
+	minshot(0,rms, hif); 
+	fdf1 = fdf;
+    }	
+    // adaptive stepsize steepest descents until RMS gradient is under 500
+    for (; NumFrames && rms>50.0; NumFrames--) {
+	hif = 0.0;
+	fdf1 = fdf;
+	fdf = 0.0;
+	fdo=0.0;
+	calcloop(1);
+	for (j=0; j<Nexatom; j++) {
+	    f= force[j];
+	    ff = vdot(f,f);
+	    if (ff>hif) hif = ff;
+	    fdf += ff;
+	    fdo += vdot(f,dir[j]);
+	}
+	rms = sqrt(fdf/Nexatom);
+	minshot(0,rms, hif); 
+	x = sqrt(fdf1);
+	y = fdo/x;
+	z = sqrt(fdf-y*y);
+	omc=movcon;
+	if (y<x-x/(movfac)) movcon *= x/(x-y);
+	else movcon *= movfac;
+
+	for (j=0; j<Nexatom; j++) {
+	    f= force[j];
+	    dir[j] = f;
+	    vmulc(f, movcon);
+	    vadd2(old[j], cur[j], f);
+	}
+	tmp = old; old=cur; cur=tmp;
+
+    }
+
+    hif = 0.0;
+    fdf1 = fdf;
+    fdf = 0.0;
+    calcloop(1);
+    for (j=0; j<Nexatom; j++) {
+	f= force[j];
+	ff = vdot(f,f);
+	if (ff>hif) hif = ff;
+	fdf += ff;
+    }
+    rms = sqrt(fdf/Nexatom);
+
+    movfac=3.0;
+
+    // conjugate gradients for a while
+    for (; NumFrames ;  NumFrames--) {
+	//for (i=0; i<20 ;  i++) {
+	minshot(0,rms, hif); 
+	gamma = fdf/fdf1;
+	// compute the conjugate direction 
+	fdf1=fdf;
+	ddd=0.0;
+	fdo=0.0;
+	for (j=0; j<Nexatom; j++) {
+	    vmul2c(f,dir[j],gamma);
+	    vadd(f,force[j]);
+	    dir[j]=f;
+	    ddd += vdot(f,f);
+	    fdo += vdot(force[j],dir[j]);
+	}
+	tmp = old; old=cur; cur=tmp;
+	x=sqrt(ddd);
+	y = fdo/x;
+	z = y;
+	for (k=0; k<10 && y*y>1.0; k++) {
+	    for (j=0; j<Nexatom; j++) {
+		f=dir[j];
+		vmulc(f, movcon);
+		vadd2(cur[j],old[j], f);
+	    }
+	    fdf = 0.0;
+	    fdo=0.0;
+	    calcloop(1);
+	    for (j=0; j<Nexatom; j++) {
+		f= force[j];
+		ff = vdot(f,f);
+		if (ff>hif) hif = ff;
+		fdf += ff;
+		fdo += vdot(f,dir[j]);
+	    }
+	    rms = sqrt(fdf/Nexatom);
+	    
+	    y = fdo/x;
+	    if (y<z-z/(movfac)) movcon *= z/(z-y);
+	    else movcon *= movfac;
+
+	}
+	omc=movcon;
+	if (y<x-x/(movfac+1.0)) movcon *= x/(x-y)-1.0;
+	else movcon *= movfac;
+	for (j=0; j<Nexatom; j++) {
+	    f= dir[j];
 	    vmulc(f, movcon);
 	    vadd(cur[j], f);
-	    avg[j]=cur[j];
 	}
-	fprintf(tracef," %.2f %.2f ", totf/Nexatom, hif);
+	if (movcon<0) movcon = omc+movcon;
+	hif = 0.0;
+	fdf = 0.0;
+	calcloop(1);
+	for (j=0; j<Nexatom; j++) {
+	    f= force[j];
+	    ff = vdot(f,f);
+	    if (ff>hif) hif = ff;
+	    fdf += ff;
+	}
+	rms = sqrt(fdf/Nexatom);
 
-/* 	// stop atoms in their tracks */
-/* 	for (j=0; j<Nexatom; j++) old[j] = cur[j]; */
-/* 	k=max(1,(i*i)/NumFrames); */
-/* 	calcloop(k); */
-
- 	snapshot(0); 
     }
-}
+    minshot(1,rms, hif); 
+    printf("final RMS gradient=%f\n",rms);
+
+} 
 
 
 /**
@@ -1007,9 +1174,6 @@ main(int argc,char **argv)
     double x,y,z, end, theta;
 
     maktab(uft1, uft2, uffunc, UFSTART, UFTLEN, UFSCALE);
-	
-    bondinit();
-    vdWsetup();
 	
     cur=pos;
     old=pos+NATOMS;
@@ -1111,6 +1275,9 @@ main(int argc,char **argv)
     IterPerFrame = IterPerFrame/innerIters;
     if (IterPerFrame == 0) IterPerFrame = 1;
 
+    bondinit();
+    vdWsetup();
+	
 
     filred(buf);
     
@@ -1144,7 +1311,7 @@ main(int argc,char **argv)
     headcon(tracef);
 
     if  (ToMinimize) {
-	NumFrames = max(25,(int)sqrt((double)Nexatom));
+	NumFrames = max(100,(int)sqrt((double)Nexatom));
 	Temperature = 0.0;
     }
 

@@ -41,6 +41,10 @@
 /** */
 #define vmulc(dest,src) dest.x*=src; dest.y*=src; dest.z*=src
 
+#define vdiv(dest,src) dest.x/=src.x; dest.y/=src.y; dest.z/=src.z
+#define vdiv2(dest,src1,src2) dest.x=src1.x/src2.x; \
+    dest.y=src1.y/src2.y; dest.z=src1.z/src2.z
+
 /** */
 #define vset(dest,src) dest.x=src.x; dest.y=src.y; dest.z=src.z
 /** */
