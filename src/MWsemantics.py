@@ -22,6 +22,9 @@ from fileIO import *
 from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
+
+from assistant import AssistantWindow
+
 helpwindow = None
 elementwindow = None
 windowList = []
@@ -41,11 +44,9 @@ def fileparse(name):
 
 class MWsemantics(MainWindow):
     def __init__(self, parent = None, name = None):
-#    def __init__(self,parent = None, name = None, fl = 0):
 	
         global windowList
 
-#        MainWindow.__init__(self, parent, name, fl)
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
 
         # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
@@ -68,6 +69,9 @@ class MWsemantics(MainWindow):
         
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         self.createStatusBars()
+        
+        # Create nanoENGINEER-1 Assistant - Mark 11-23-2004
+        self.assistant = AssistantWindow(self, "Assistant")
         
         # Create validator(s)
         maxd = self.ccLayerThicknessSpinBox.maxValue() * 3.5103 # Maximum value allowed
@@ -766,8 +770,9 @@ class MWsemantics(MainWindow):
     def helpAssistant(self):
         # bruce 041118 moved this into assistant.py so I could merge
         # common code about where to find the docfiles
-        import assistant
-        assistant.showAssistant()
+#        assistant.showAssistant()
+#        import assistant
+        self.assistant.openNE1Assistant()
 	         
     def helpAbout(self):
         QMessageBox.information(self, "ATOM User Notice:", 
