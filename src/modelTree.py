@@ -169,7 +169,7 @@ class modelTree(QListView):
             #print "Moving", self.selectedItem, "to", item.object
             self.selectedItem.moveto(item.object)
             self.update()
-            self.win.assy.root.dumptree()
+            #self.win.assy.root.dumptree()
 
     def dragMoveEvent(self, event):
         event.accept()
