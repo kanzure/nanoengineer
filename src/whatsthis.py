@@ -572,12 +572,12 @@ def createWhatsThis(self):
 
         self.modifyPassivateAction.setWhatsThis(modifyPassivateActionText )   
         
-        #### Change Element ####
+        #### Element Selector ####
 
-        modifySetElementActionText = "<u><b>Change Element</b></u>    (Ctrl + E)</b></p><br>"\
+        modifySetElementActionText = "<u><b>Element Selector</b></u>    (Ctrl + E)</b></p><br>"\
                        "<p><img source=\"modifySetElementAction\"><br> "\
                        "Allows you to change the element type of selected atoms.  "\
-                       "You can also use <b>Change Element</b> while in "\
+                       "You can also use the <b>Element Selector</b> while in "\
                        "<b>Build Atom</b> mode to change atom types.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifySetElementAction",
