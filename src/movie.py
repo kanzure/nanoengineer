@@ -141,12 +141,9 @@ class Movie:
         """
         if DEBUG1: print "movie._close() called. self.isOpen =", self.isOpen
         if not self.isOpen: return
-        
-        # Close the movie file.
-        self.fileobj.close()
-        
-        # Unfreeze atoms.
-        self.assy.movend() 
+        self._pause(0) 
+        self.fileobj.close() # Close the movie file.
+        self.assy.movend() # Unfreeze atoms.
         
         # Delete the array containing the original atom positions for the model.
         # We no longer need them since the movie file is closed.
