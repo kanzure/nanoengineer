@@ -605,7 +605,7 @@ class molecule(QObject):
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0
-        
+          
         modelTree = self.assy.w.modelTreeView
         QObject.connect(self, PYSIGNAL("modelSelectionChanged"), modelTree.changeModelSelection)
           
@@ -939,6 +939,8 @@ def oneUnbonded(elem, assy, pos):
             mol.bond(a,x)
     assy.addmol(mol)
 
+    assy.w.modelTreeView.addTreeItem(mol)
+
     return mol
     
                      
@@ -999,4 +1001,3 @@ def oneUnbonded(elem, assy, pos):
 ##                     v = - norm(b+c+d)
 ##                     b=atom("H", a.xyz+lCHb*v, self)
 ##                     self.bond(a,b)
-

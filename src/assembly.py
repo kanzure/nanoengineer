@@ -13,6 +13,7 @@ from drawer import segstart, drawsegment, segend, drawwirecube
 from shape import *
 from chem import *
 from gadgets import *
+from Utility import *
 
 # number of atoms for detail level 0
 HUGE_MODEL = 20000
@@ -58,6 +59,14 @@ class assembly:
         self.undolist=[]
         # 1 if there is a structural difference between assy and file
         self.modified = 0
+        
+        ### Some information needed for the simulation or coming from mmp file
+        self.temperature = 300
+        self.csys = Csys("csys", 1.0, 0.0, 1.0, 0.0, 0.0)
+        self.waals = None
+        # This only stores molecules not belonging to any group and groups in the order 
+        # shown in the model tree
+        self.orderedItemsList = []
 
     def selectingWhat(self):
         "return 'Atoms' or 'Molecules' to indicate what is currently being selected [by bruce 040927; might change]"
@@ -134,6 +143,8 @@ class assembly:
         self.unpickatoms()
         self.selwhat = 2
         mol.pick()
+        
+        self.w.modelTreeView.addTreeItem(mol)
 
 
     # set up to run a movie or minimization

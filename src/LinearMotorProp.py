@@ -4,10 +4,21 @@ from LinearMotorPropDialog import *
 
 
 class LinearMotorProp(LinearMotorPropDialog):
-    def __init__(self, linearMotor, glpane):
+    def __init__(self, linearMotor, glpane, name):
         LinearMotorPropDialog.__init__(self)
         self.motor = linearMotor
         self.glpane = glpane
+
+        self.nameLineEdit.setText(name)
+        self.stiffnessLineEdit.setText(str(linearMotor.stiffness))
+        self.forceLineEdit.setText(str(linearMotor.force))
+        self.axLineEdit.setText(str(linearMotor.axis[0]))
+        self.ayLineEdit.setText(str(linearMotor.axis[1])) 
+        self.azLineEdit.setText(str(linearMotor.axis[2]))
+
+        self.cxLineEdit.setText(str(linearMotor.center[0]))	
+        self.cyLineEdit.setText(str(linearMotor.center[1]))
+        self.czLineEdit.setText(str(linearMotor.center[2]))
 
         self.colorPixmapLabel.setPaletteBackgroundColor(linearMotor.color)
 
@@ -26,6 +37,8 @@ class LinearMotorProp(LinearMotorPropDialog):
                                                  range(0, len(linearMotor.atoms)))
         self.atomsComboBox.insertStrList(strList, 0)
         
+        self.applyPushButton.setEnabled(False) 
+       
     #########################
     # Change motor color
     #########################
@@ -37,21 +50,28 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.motor.color = color
         self.glpane.paintGL()
         
+
         
     def accept(self):
+        self.applyButtonPressed()  
+        QDialog.accept(self)
+
+    def reject(self):
+        QDialog.reject(self)
+
+    def applyButtonPressed(self):
         self.motor.stiffness = float(str(self.stiffnessLineEdit.text()))
         self.motor.force = float(str(self.forceLineEdit.text()))
-    	self.motor.axis[0] = float(str(self.axLineEdit.text()))
+        self.motor.axis[0] = float(str(self.axLineEdit.text()))
         self.motor.axis[1] = float(str(self.ayLineEdit.text()))
         self.motor.axis[2] = float(str(self.azLineEdit.text()))
 
         self.motor.center[0] = float(str(self.cxLineEdit.text()))
         self.motor.center[1] = float(str(self.cyLineEdit.text()))
         self.motor.center[2] = float(str(self.czLineEdit.text()))
-
-        QDialog.accept(self)
-
-    def reject(self):
-        QDialog.reject(self)
-
-         
+        
+        self.applyPushButton.setEnabled(False) 
+        
+        
+    def propertyChanged(self):    
+        self.applyPushButton.setEnabled(True)

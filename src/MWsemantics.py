@@ -54,11 +54,10 @@ class MWsemantics(MainWindow):
         self.modelTreeView = modelTree(splitter, self)
         self.modelTreeView.setMinimumSize(150, 0)
         
-        
         self.glpane = GLPane(self.assy, splitter, "glpane", self)
 
         splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)       
-        splitter.setOpaqueResize(True)
+        splitter.setOpaqueResize(False)
         
         self.setCentralWidget(splitter)
         
@@ -329,7 +328,7 @@ class MWsemantics(MainWindow):
         self.glpane.paintGL()
 
     def setViewHome(self):
-        self.glpane.quat = Q(1,0,0,0)
+        self.glpane.quat = self.assy.csys.quat#Q(1,0,0,0)
         self.glpane.paintGL()
 
     def setViewLeft(self):

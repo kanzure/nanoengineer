@@ -2,11 +2,15 @@
 from qt import *
 from RotaryMotorProp import RotaryMotorProp
 from LinearMotorProp import LinearMotorProp
+from MoleculeProp import MoleculeProp
+from GroundProp import GroundProp
 from TreeListViewItem import TreeListViewItem
 from constants import *
 from chem import *
 from gadgets import *
+from Utility import *
 import sys, os
+
 
 class modelTree(QListView):
     def __init__(self, parent, win):
@@ -30,11 +34,18 @@ class modelTree(QListView):
         self.lmotorIcon = QPixmap(filePath + "/../images/linearmotor.png")
        	self.insertHereIcon = QPixmap(filePath + "/../images/inserthere.png")
        	self.groundIcon = QPixmap(filePath + "/../images/ground.png")
-
+       	self.groupOpenIcon = QPixmap(filePath + "/../images/group-expanded.png")
+        self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
+        
         self.dropItem = 0
         self.oldCurrent = None
         self.presspos = None
         self.mousePressed = 0
+        
+        self.COPY = 0
+        self.CUT = 1
+        self.itemToPaste = None
+        self.pasteMode = self.COPY
 
 	# Dictionary stores the pair of (tree item, real model object)
         self.treeItems = {}
@@ -50,16 +61,21 @@ class modelTree(QListView):
                 SIGNAL("rightButtonPressed(QListViewItem*,const QPoint&,int)"), 
                                                      self.processRightButton)
         self.connect(self, SIGNAL("selectionChanged(QListViewItem *)"), self.treeItemChanged)
-     
-    	self.updateModelTree()        
+   
+        self.connect(self, SIGNAL("expanded(QListViewItem *)"), self.treeItemExpanded)
+        self.connect(self, SIGNAL("collapsed(QListViewItem *)"), self.treeItemCollapsed) 
+  
+        self.updateModelTree()        
         self.setPopupMenus() 
+        
 
-                
+###---------- Context menu processing functions------------------------###
     def processCsysMenu(self, id):
           if id == 0: #Rename
               self.selectedTreeItem.startRename(0)
-          else: # Properties
-              pass
+          else: # Set current view as default view
+              assy = self.win.assy
+              assy.csys.quat = self.win.glpane.quat
 
     def processTreeMenu(self, id):
           if id == 0: #Collapse 
@@ -87,22 +103,28 @@ class modelTree(QListView):
                
     def processMolMenu(self, id):
             if id == 0: #Copy
-                 pass
+                 self.itemToPaste = self.selectedTreeItem
+                 self.pasteMode = self.COPY
             elif id == 1: #Cut
-                 pass
+                 self.itemToPaste = self.selectedTreeItem
+                 self.pasteMode = self.CUT
             elif id == 2: #Delete
-                 pass#self.selectedTreeItem.takeItem(self.selectedTreeItem)
+                 parentItem = self.selectedTreeItem.parent()
+                 parentItem.takeItem(self.selectedTreeItem)
             elif id == 3: #Rename
                  self.selectedTreeItem.startRename(0)
             elif id == 4: #Hide/Unhide
                  self.hiddenItems += [self.selectedTreeItem]
                  self.selectedTreeItem.setVisible(False)
             elif id == 5: # Properties
-                 pass
+                 molDialog = MoleculeProp(self.treeItems[self.selectedTreeItem])
+                 if molDialog.exec_loop() == QDialog.Accepted:
+                         self.updateModelTree()
                   
     def processJigMenu(self, id):
             if id == 0: #Delete
-                  pass#self.selectedTreeItem.takeItem(self.selectedTreeItem)
+                  parentItem = self.selectedTreeItem.parent()
+                  parentItem.takeItem(self.selectedTreeItem)
             elif id == 1: #Rename
                   self.selectedTreeItem.startRename(0)
             elif id == 2: #Hide/Unhide
@@ -111,22 +133,41 @@ class modelTree(QListView):
             elif id == 3: # Properties
                 jig = self.treeItems[self.selectedTreeItem]
                 if isinstance(jig, motor):
-                        rMotorDialog = RotaryMotorProp(jig, self.win.glpane)
-                        rMotorDialog.show()
+                        rMotorDialog = RotaryMotorProp(jig, self.win.glpane, self.selectedTreeItem.text(0))
                         rMotorDialog.exec_loop()
                 elif isinstance(jig, LinearMotor):
-                        lMotorDialog = LinearMotorProp(jig, self.win.glpane)
-                        lMotorDialog.show()
+                        lMotorDialog = LinearMotorProp(jig, self.win.glpane, self.selectedTreeItem.text(0))
                         lMotorDialog.exec_loop()
                 elif isinstance(jig, ground):
-                        pass
+                        groundDialog = GroundProp(jig)
+                        groundDialog.exec_loop()
 
                   
     def processInsertHereMenu(self, id):
             if id == 0: #Paste
-                  pass
+                  hereItem = self.objectToTreeItems[self.insertHereIcon]
+                  tItem = hereItem.itemAbove()
+                  if tItem.nextSibling() != hereItem:
+                       tItem = tItem.parent()
+                  self.pasteItem(tItem)
+                  
             elif id == 1: #New Group
-                  pass                            
+                  group = Group("New Group")
+                  item = TreeListViewItem(self.rootItem, group.name)
+                  item.setItemObject(group)
+                  item.setPixmap(0, self.groupCloseIcon)
+                  item.setDragEnabled(True)
+                  item.setDropEnabled(True)
+                  self.objectToTreeItems[group] = item
+                  self.treeItems[item] = group
+                  
+                  hereItem = self.objectToTreeItems[self.insertHereIcon]
+                  tItem = hereItem.itemAbove()
+                  if tItem.nextSibling() != hereItem:
+                       tItem = tItem.parent()
+                  item.moveItem(tItem)
+                  item.startRename(0)
+                                                  
                   
     def setPopupMenus(self):
         self.treePopupMenu = QPopupMenu()
@@ -134,12 +175,12 @@ class modelTree(QListView):
         self.treePopupMenu.insertItem("Expand", 1)
         #self.treePopupMenu.insertItem("Hide", 2)
         self.treePopupMenu.insertItem("Unhide All", 3)
-        self.treePopupMenu.insertItem("Filter...", 4)
+        #self.treePopupMenu.insertItem("Filter...", 4)
         self.connect(self.treePopupMenu, SIGNAL("activated(int)"), self.processTreeMenu)
         
         self.csysPopupMenu = QPopupMenu()
         self.csysPopupMenu.insertItem("Rename", 0)
-        self.csysPopupMenu.insertItem("Properties...", 1)
+        self.csysPopupMenu.insertItem("Set Default View", 1)
         self.connect(self.csysPopupMenu, SIGNAL("activated(int)"), self.processCsysMenu)
         
         self.molPopupMenu = QPopupMenu()
@@ -153,7 +194,7 @@ class modelTree(QListView):
         
         self.jigPopupMenu = QPopupMenu()
         self.jigPopupMenu.insertItem("Delete", 0)
-        self.jigPopupMenu.insertItem("Rename", 1)
+        #self.jigPopupMenu.insertItem("Rename", 1)
         self.jigPopupMenu.insertItem("Hide/Unhide", 2)
         self.jigPopupMenu.insertItem("Properites...", 3)
         self.connect(self.jigPopupMenu, SIGNAL("activated(int)"), self.processJigMenu)
@@ -165,19 +206,19 @@ class modelTree(QListView):
         self.connect(self.insertHerePopupMenu, SIGNAL("activated(int)"), self.processInsertHereMenu)
 
 
-    def editLinearMotor(self):
-        linearMotor = self.treeItems[self.selectedTreeItem]
-        lMotorDialog = LinearMotorProp(linearMotor)
-        lMotorDialog.show()
-        lMotorDialog.exec_loop()    
-
-    def editRotMotor(self):
-        rotaryMotor = self.treeItems[self.selectedTreeItem]
-        rMotorDialog = RotMotorProp(rotaryMotor)
-        rMotorDialog.show()
-        rMotorDialog.exec_loop()    
-
-
+###---------- Slot functions------------------------###
+    def treeItemExpanded(self, listItem):
+            itemObj = self.treeItems[listItem]
+            if isinstance(itemObj, Group):
+                    listItem.setPixmap(0, self.groupOpenIcon)
+    
+            
+    def treeItemCollapsed(self, listItem):
+            itemObj = self.treeItems[listItem]
+            if isinstance(itemObj, Group):
+                    listItem.setPixmap(0, self.groupCloseIcon)
+    
+            
     def treeItemChanged(self, listItem):
           if self.lastSelectedItem:
              modelItem = self.treeItems[self.lastSelectedItem]
@@ -218,91 +259,17 @@ class modelTree(QListView):
                 elif isinstance(clickedItem, molecule):
                         self.molPopupMenu.exec_loop(pos)
                 elif listItem == self.objectToTreeItems[self.insertHereIcon]:
+                        if self.itemToPaste:
+                                self.insertHerePopupMenu.setItemEnabled(0, True)
+                        else:
+                                self.insertHerePopupMenu.setItemEnabled(0, False)
                         self.insertHerePopupMenu.exec_loop(pos)
                 elif listItem == self.objectToTreeItems[self.csysIcon]:
                         self.csysPopupMenu.exec_loop(pos)  
 
 
-    def updateModelTree(self):
-        """ Build the tree structure of the current model """
-        self.clear()
-        #global assyList
 
-        #for assy in assyList:
-        assy = self.win.assy
-        rootItem = QListViewItem(self, assy.name)
-        rootItem.setPixmap(0, self.partIcon)
-        self.treeItems[rootItem] = assy
-        self.objectToTreeItems[assy] = rootItem
-            
-        item = QListViewItem(rootItem, "Insert Here")
-        item.setPixmap(0, self.insertHereIcon)
-        item.setDragEnabled(True)
-        item.setDropEnabled(False)
-        self.objectToTreeItems[self.insertHereIcon] = item
-        self.treeItems[item] = None
-
-
-        for mol in assy.molecules:
-                mitem = TreeListViewItem(rootItem, mol.name)
-                mitem.setItemObject(mol)
-                mitem.setPixmap(0, self.moleculeIcon)
-                mitem.setDragEnabled(False)
-                mitem.setDropEnabled(True)
-                mitem.setRenameEnabled(0, True)
-                self.treeItems[mitem] = mol
-                self.objectToTreeItems[mol] = mitem
-
-                #item = QListViewItem(mitem, "Total %d atoms" % len(mol.atoms))
-                #self.treeItems[item] = None
-
-                gIndex = 1
-                for g in mol.gadgets:
-                   item = TreeListViewItem(mitem, g.__class__.__name__ + str(gIndex))
-                   item.setItemObject(g)
-                   if isinstance(g, ground):
-                      item.setPixmap(0, self.groundIcon)
-                   elif isinstance(g, motor):
-                      item.setPixmap(0, self.rmotorIcon)
-                   elif isinstance(g, LinearMotor):
-                      item.setPixmap(0, self.lmotorIcon)
-                         
-                   item.setDragEnabled(False)
-                   item.setDropEnabled(False)
-                   item.setRenameEnabled(0, True)
-                   self.treeItems[item] = g
-                   self.objectToTreeItems[g] = item
-                   gIndex += 1
-            
-        item = QListViewItem(rootItem, "RIGHT")
-        item.setPixmap(0, self.datumPlaneIcon) 
-        item.setDragEnabled(False)
-        item.setDropEnabled(True)
-        self.treeItems[item] = None
-        
-        item = QListViewItem(rootItem, "TOP")
-        item.setPixmap(0, self.datumPlaneIcon) 
-        item.setDragEnabled(False)
-        item.setDropEnabled(False)
-        self.treeItems[item] = None
-        
-        item = QListViewItem(rootItem, "FRONT")
-        item.setPixmap(0, self.datumPlaneIcon) 
-        item.setDragEnabled(False)
-        item.setDropEnabled(False)
-        self.treeItems[item] = None
-        
-        item = TreeListViewItem(rootItem, "Csys")
-        
-        item.setPixmap(0, self.csysIcon)
-        item.setDragEnabled(False)
-        item.setDropEnabled(False)
-        item.setRenameEnabled(0, True)
-        self.treeItems[item] = None
-        self.objectToTreeItems[self.csysIcon] = item
-
-
-             
+###---------- Drag & Drop related functions------------------------###             
 
     def contentsDragEnterEvent(self, e):
     #     e.accept(True)
@@ -339,36 +306,247 @@ class modelTree(QListView):
           if not item or not item.parent() or not item.dropEnabled():
              return
 
-          self.oldCurrent.moveItem(item)
+          curObject = self.treeItems[item]
+          oldObject = self.treeItems[self.oldCurrent]
+          if isinstance(curObject, Group) and isinstance(oldObject, (molecule, Group)) :
+                  parentItem = self.oldCurrent.parent()
+                  parentItem.takeItem(self.oldCurrent)
+                  item.insertItem(self.oldCurrent)
+          else:        
+                  self.oldCurrent.moveItem(item)
 
 
     def contentsMousePressEvent(self, e ):
-        QListView.contentsMousePressEvent(self, e)
-        p = QPoint(self.contentsToViewport(e.pos()))
-        item = self.itemAt( p )
-        if item and self.objectToTreeItems[self.insertHereIcon] == item:
-            if self.rootIsDecorated(): i = 1
-            else: i = 0
-
+        if e.button() == QMouseEvent.LeftButton:    
+            p = QPoint(self.contentsToViewport(e.pos()))
+            item = self.itemAt( p )
+            if item and item.dragEnabled():
+                 if self.rootIsDecorated(): i = 1
+                 else: i = 0
+            
+            
         # if the user clicked into the root decoration of the item, don't try to start a drag!
-            if ( p.x() > self.header().sectionPos(self.header().mapToIndex(0)) +
-                   self.treeStepSize() * ( item.depth() + i) + self.itemMargin() or
-                   p.x() < self.header().sectionPos(self.header().mapToIndex(0))):
-              self.presspos = e.pos()
-              self.mousePressed = True
-              self.oldCurrent = item
-
+                 if ( p.x() > self.header().sectionPos(self.header().mapToIndex(0)) +
+                          self.treeStepSize() * ( item.depth() + i) + self.itemMargin() or
+                         p.x() < self.header().sectionPos(self.header().mapToIndex(0))):
+                       self.presspos = e.pos()
+                       self.mousePressed = True
+                       self.oldCurrent = item
+        
+        QListView.contentsMousePressEvent(self, e)
+      
 
 
     def contentsMouseMoveEvent(self, e ):
-       if (self.mousePressed):# and
-                #(self.presspos - e.pos()).manhattanLength() > QApplication. startDragDistance()) :
-            self.mousePressed = False
-            item = self.itemAt( self.contentsToViewport(self.presspos) )
-            if item:
-                ud = QDragObject(self.viewport())
-                ud.drag()
-                
+       if self.mousePressed:
+        # and (e.pos() - self.presspos).manhattanLength() > QApplication. startDragDistance() :
+            self.mousePressed = False    
+            dragObj = QDragObject(self.viewport())
+            dragObj.drag()
+            
+       QListView.contentsMouseMoveEvent(self, e )         
 
     def contentsMouseReleaseEvent(self, e ):
         self.mousePressed = False
+        QListView.contentsMouseReleaseEvent(self, e )
+        
+###---------- Utility functions------------------------###
+    def pasteItem(self, afterItem):
+            mol = self.treeItems[self.itemToPaste]
+            parentItem = afterItem.parent()
+            newMol = None
+            
+            if self.pasteMode == self.COPY:
+                offset = V(10.0, 10.0, 10.0)
+                newMol = mol.copy(offset)
+                newMol.name = "Copy of " + mol.name
+                assy = self.win.assy
+                assy.molecules += [newMol]
+            
+                mitem = TreeListViewItem(parentItem, newMol.name)
+            else:
+                mitem = TreeListViewItem(parentItem, mol.name)
+                       
+            if self.pasteMode == self.CUT:
+                parentItem = self.itemToPaste.parent()
+                parentItem.takeItem(self.itemToPaste)
+        
+            mitem.moveItem(afterItem)
+            mitem.setPixmap(0, self.moleculeIcon)
+            mitem.setDragEnabled(True)
+            mitem.setDropEnabled(True)
+            mitem.setRenameEnabled(0, True)
+            
+            if self.pasteMode == self.COPY:
+                mitem.setItemObject(newMol)
+                self.treeItems[mitem] = newMol
+                self.objectToTreeItems[newMol] = mitem
+            else:   
+                mitem.setItemObject(mol)
+                self.treeItems[mitem] = mol
+                self.objectToTreeItems[mol] = mitem
+                
+            self.itemToPaste = None   
+
+    def buildMoleculeTree(self, mol, parentItem):
+                """ build tree structure for molecule"""
+                mitem = TreeListViewItem(parentItem, mol.name)
+                mitem.setItemObject(mol)
+                mitem.setPixmap(0, self.moleculeIcon)
+                mitem.setDragEnabled(True)
+                mitem.setDropEnabled(True)
+                mitem.setRenameEnabled(0, True)
+                self.treeItems[mitem] = mol
+                self.objectToTreeItems[mol] = mitem
+
+                gIndex = 1
+                mol.gadgets.reverse()
+                for g in mol.gadgets:
+                   item = QListViewItem(mitem, g.__class__.__name__ + str(gIndex))
+                   if isinstance(g, ground):
+                      item.setPixmap(0, self.groundIcon)
+                   elif isinstance(g, motor):
+                      item.setPixmap(0, self.rmotorIcon)
+                   elif isinstance(g, LinearMotor):
+                      item.setPixmap(0, self.lmotorIcon)
+                         
+                   item.setDragEnabled(False)
+                   item.setDropEnabled(False)
+                   item.setRenameEnabled(0, False)
+                   self.treeItems[item] = g
+                   self.objectToTreeItems[g] = item
+                   gIndex += 1
+                mol.gadgets.reverse()   
+                
+                   
+    def buildGroupTree(self, group, parentItem):
+                """ build tree structure for a group """
+                item = TreeListViewItem(parentItem, group.name)
+                item.setItemObject(group)
+                item.setPixmap(0, self.groupCloseIcon)
+                item.setDragEnabled(True)
+                item.setDropEnabled(True)
+                self.objectToTreeItems[group] = item
+                self.treeItems[item] = group
+                
+                group.members.reverse()   
+                for g in group.members:
+                     if isinstance(g, molecule):
+                          self.buildMoleculeTree(g, item)
+                     else:
+                          self.buildGroupTree(g, item)
+                group.members.reverse()             
+                                           
+
+    def addTreeItem(self, obj):
+        """create new model object, like molecule"""
+        atItem =  self.objectToTreeItems[self.insertHereIcon]
+        parentItem = atItem.parent()
+        if isinstance(obj, molecule):
+                mitem = TreeListViewItem(parentItem, obj.name)
+                mitem.setItemObject(obj)
+                mitem.setPixmap(0, self.moleculeIcon)
+                mitem.setDragEnabled(True)
+                mitem.setDropEnabled(True)
+                mitem.setRenameEnabled(0, True)
+                self.treeItems[mitem] =obj
+                self.objectToTreeItems[obj] = mitem
+     
+                aboveItem = atItem.itemAbove()
+                if aboveItem != parentItem:
+                        sItem = aboveItem.nextSibling()
+                        while  sItem!= atItem and aboveItem != self.rootItem:
+                                aboveItem = aboveItem.itemAbove()
+                                sItem = aboveItem.nextSibling()
+                 
+                        if aboveItem != self.rootItem:
+                                mitem.moveItem(aboveItem)
+                 
+                   
+            
+    def updateModelTree(self):        
+        """ Build the tree structure of the current model """
+        self.clear()
+        #global assyList
+
+        #for assy in assyList:
+        assy = self.win.assy
+        self.rootItem = QListViewItem(self, assy.name)
+        self.rootItem.setPixmap(0, self.partIcon)
+        self.treeItems[self.rootItem] = assy
+        self.objectToTreeItems[assy] = self.rootItem
+            
+        item = QListViewItem(self.rootItem, "Insert Here")
+        item.setPixmap(0, self.insertHereIcon)
+        item.setDragEnabled(True)
+        item.setDropEnabled(False)
+        self.objectToTreeItems[self.insertHereIcon] = item
+        self.treeItems[item] = None
+ 
+        assy.orderedItemsList.reverse()
+        for m in assy.orderedItemsList:
+                if isinstance(m, molecule):
+                        self.buildMoleculeTree(m, self.rootItem)
+                else:
+                        self.buildGroupTree(m, self.rootItem)
+        assy.orderedItemsList.reverse()
+                   
+        item = QListViewItem(self.rootItem, "RIGHT")
+        item.setPixmap(0, self.datumPlaneIcon) 
+        item.setDragEnabled(False)
+        item.setDropEnabled(True)
+        self.treeItems[item] = None
+        
+        item = QListViewItem(self.rootItem, "TOP")
+        item.setPixmap(0, self.datumPlaneIcon) 
+        item.setDragEnabled(False)
+        item.setDropEnabled(False)
+        self.treeItems[item] = None
+        
+        item = QListViewItem(self.rootItem, "FRONT")
+        item.setPixmap(0, self.datumPlaneIcon) 
+        item.setDragEnabled(False)
+        item.setDropEnabled(False)
+        self.treeItems[item] = None
+        
+        item = TreeListViewItem(self.rootItem, "Csys")
+        
+        item.setPixmap(0, self.csysIcon)
+        item.setDragEnabled(False)
+        item.setDropEnabled(False)
+        item.setRenameEnabled(0, True)
+        self.treeItems[item] = None
+        self.objectToTreeItems[self.csysIcon] = item
+
+
+    def saveGroupItems(self, obj, item):
+            child = item.firstChild()
+            obj.members = []
+            
+            while child:
+                cObj = self.treeItems[child]
+                if isinstance(cObj, molecule):
+                       obj.members += [cObj]
+                elif isinstance(cObj, Group):
+                       self.saveGroupItems(cObj, child)
+                       obj.members += [cObj]
+                            
+                child = child.nextSibling()
+                            
+
+    def saveModelTree(self):
+        """ Update the information  for the model tree operation """
+        assy =  self.win.assy
+        assy.orderedItemsList = []
+        it = self.firstChild().firstChild()
+        
+        while it:
+                obj = self.treeItems[it]
+                if isinstance(obj, molecule):
+                      assy.orderedItemsList += [obj]
+                elif isinstance(obj, Group):
+                      self.saveGroupItems(obj, it)
+                      assy.orderedItemsList += [obj]
+                      
+                it = it.nextSibling()
+                      

@@ -5,6 +5,7 @@ from string import *
 import re
 from chem import *
 from gadgets import *
+from Utility import *
 
 
 
@@ -84,27 +85,44 @@ def readmmp(assy,filnam):
     assy.filename=filnam
     mol = None
     ndix={}
+    molDic = {}
+    groupDic = {}
     assy.alist = []
-
+   
     for card in l:
         key=card[:4]
         if key=="part":
             if mol: assy.addmol(mol)
-            m=re.search("\((.+)\)", card[8:])
-            mol=molecule(assy, m and m.group(1))
+            try: m=re.search("\((.+)\)", card[8:])
+            except NameError: 
+                       print "File reading: Molecule name error."
+                       return
+                       
+            mol=molecule(assy,  m.group(1))
+            molDic[m.group(1)] = mol
+            assy.orderedItemsList += [mol]
+            
             try: mol.setDisplay(dispNames.index(card[5:8]))
             except ValueError: mol.setDisplay(diDEFAULT)
+
+            atomDisplay = None
+
         elif key == "atom":
             m=re.match("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)"
                        ,card)
             n=int(m.group(1))
             sym=PeriodicTable[int(m.group(2))].symbol
             xyz=A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
-            a=atom(sym, xyz, mol)
+            a = atom(sym, xyz, mol)
+            
+            if  atomDisplay:
+                    a.display = atomDisplay
+                    
             assy.alist += [a]
             ndix[n]=a
             prevatom=a
             prevcard = card
+            
         elif key == "bond":
             list=map(int, re.findall("\d+",card[5:]))
             try:
@@ -113,29 +131,32 @@ def readmmp(assy,filnam):
             except KeyError:
                 print "error in MMP file: atom ", prevcard
                 print card
+                
         elif key[:3] == "end":
             if mol: assy.addmol(mol)
-        elif key == "moto":
+            
+        elif card[:5] == "rmoto":
             if mol:
                 assy.addmol(mol)
                 mol = None
-            m=re.match("motor (-?\d+\.\d+), (-?\d+\.\d+), \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)", card)
+            m=re.match("rmotor (-?\d+\.\d+), (-?\d+\.\d+), \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)", card)
             torq=float(m.group(1))
             sped=float(m.group(2))
             cxyz=A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
             axyz=A(map(float, [m.group(6),m.group(7),m.group(8)]))/1000.0
             prevmotor=motor(assy)
             prevmotor.setcenter(torq, sped, cxyz, axyz)
+            
         elif key == "shaf":
             list = map(int, re.findall("\d+",card[6:]))
             list = map((lambda n: ndix[n]), list)
             prevmotor.setShaft(list)
 
-        elif key == "linm":  # Linear Motor
+        elif card[:5] == "lmoto":  # Linear Motor
             if mol:
                 assy.addmol(mol)
                 mol = None
-            m = re.match("linmotor (-?\d+\.\d+), (-?\d+\.\d+), \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)", card)
+            m = re.match("lmotor (-?\d+\.\d+), (-?\d+\.\d+), \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)", card)
             stiffness = float(m.group(1))
             force = float(m.group(2))
             cxyz = A(map(float, [m.group(3), m.group(4), m.group(5)]))/1000.0  
@@ -143,25 +164,80 @@ def readmmp(assy,filnam):
             prevmotor = LinearMotor(assy)
             prevmotor.setCenter(force, stiffness, cxyz, axyz)
 
-        elif key == "grou":
+        elif card[:6] == "ground":
             if mol:
                 assy.addmol(mol)
                 mol = None
             list = map(int, re.findall("\d+",card[7:]))
             list = map((lambda n: ndix[n]), list)
             ground(assy, list)
+         
+        elif key=="csys": # Coordinate System
+            m=re.match("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)",card)
+            name=m.group(1)
+            wxyz = A(map(float, [m.group(2), m.group(3), m.group(4), m.group(5)]))
+            zoom=float(m.group(6))
+            assy.csys = Csys(name, zoom, wxyz)
+            
+        elif key=="datu": # Datum Plane
+            m=re.match("datum \((.+)\) (.+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)",card)
+            name=m.group(1)
+            type=m.group(2)
+            vec1 = A(map(float, [m.group(3), m.group(4), m.group(5)]))
+            vec2 = A(map(float, [m.group(6), m.group(7), m.group(8)]))
+            vec3 = A(map(float, [m.group(9), m.group(10), m.group(11)]))
+            vec4 = A(map(float, [m.group(12), m.group(13), m.group(14)]))
+            #Datum(name,type,vec1,vec2,vec3,vec4)        
+            
+        elif card[:5] == "group": # Group of Molecules and/or Groups 
+            #list = map(str, re.split("\)\s\(", card[6:]))
+            list = card[6:].split(") (")
+            m = list[len(list)-1][:-3]  #Remove ')\n'
+            list[len(list)-1] = m
+            name = list[0][1:]         # Remove '('
+            
+            members = []
+            for mem in list[1:]:
+                 rlt = re.match("<(.+)>", mem)
+                 if rlt:
+                         members += [groupDic[rlt.group(1)]]
+                 else:
+                         members += [molDic[mem]]
+          
+            memLength = len(members)
+            totLength = len(assy.orderedItemsList)
+            del assy.orderedItemsList[totLength-memLength:]
+            newGroup = Group(name, members)
+            assy.orderedItemsList += [newGroup]  
+              
+            groupDic[name] = newGroup
+            
+        elif key=="waal": # van der Waals Interactions
+            list = map(int, re.findall("\d+", card[6:]))
+            list = map((lambda n: ndix[n]), list)
+            assy.waals = Waals(list)
+            
+        elif key=="kelv":  # Temperature in Kelvin
+            m = re.match("kelvin (\d+)",card)
+            n = int(m.group(1))
+            assy.temperature = n  
+            
+        elif key=="show": #Display Representation Record
+            m = re.match("show (.+)", card)
+            smode=m.group(1)
+         
+            for count in range(len(dispNames)):
+                if smode == dispNames[count]:
+                    atomDisplay = count
+                    break
+            
 
-# write all molecules, motors, grounds into an MMP file
-def writemmp(assy,filename):
-    f=open(filename,"w")
-    atnums = {}
-    atnum = 1
-    assy.alist = []
-    for mol in assy.molecules:
+def writeMolecule(mol, atnum, alist, atnums, f):
         carrydisp = dispNames[mol.display]
         f.write("part " + carrydisp + " (" + mol.name + ")\n")
+        
         for a in mol.atoms.itervalues():
-            assy.alist += [a]
+            alist += [a]
             atnums[a.key] = atnum
             disp = dispNames[a.display]
             if disp != carrydisp:
@@ -178,8 +254,43 @@ def writemmp(assy,filename):
                 if oa.key in atnums: bl += [atnums[oa.key]]
             if len(bl) > 0:
                 f.write("bond1 " + " ".join(map(str,bl)) + "\n")
+                
         for g in mol.gadgets:
             f.write(g.__repr__(atnums) + "\n")
+
+
+def writeGroup(group, atnum, alist, atnums, f):
+        for m in group.members:
+                if isinstance(m, molecule):
+                        writeMolecule(m, atnum, alist, atnums, f)
+                else:
+                        writeGroup(m, atnum, alist, atnums, f)
+        f.write(group.__str__() + "\n")
+                        
+        
+
+# write all molecules, motors, grounds into an MMP file
+def writemmp(assy, filename):
+    f = open(filename,"w")
+    atnums = {}
+    atnum = 1
+    assy.alist = []
+    
+    assy.w.modelTreeView.saveModelTree()
+    
+    for mem in  assy.orderedItemsList:
+        if isinstance(mem, molecule):
+                writeMolecule(mem, atnum, assy.alist, atnums, f)
+        elif isinstance(mem, Group):
+                writeGroup(mem, atnum, assy.alist, atnums, f)
+
+    f.write(assy.csys.__str__() + "\n")
+    
+    f.write("kelvin " + str(assy.temperature) + "\n")
+    
+    if assy.waals:
+        f.write(assy.waals.__str__(atnums) + "\n")
+
+                     
     f.write("end molecular machine part " + assy.name + "\n")
     f.close()
-

@@ -110,7 +110,7 @@ class motor:
     def __repr__(self, ndix=None):
         cxyz=self.posn() * 1000
         axyz=self.axen() * 1000
-        s="motor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
+        s="rmotor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
            (self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]))
@@ -228,7 +228,7 @@ class LinearMotor:
     def __repr__(self, ndix = None):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        s = "linmotor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
+        s = "lmotor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
            (self.stiffness, self.force, 
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]))
