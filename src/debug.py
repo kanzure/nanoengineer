@@ -133,6 +133,7 @@ def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in
 def debug_runpycode_from_a_dialog( source = "some debug menu??"):
     title = "debug: run py code"
     label = "one line of python to exec in debug.py's globals()\n(or use @@@ to fake \\n for more lines)\n(or use execfile)"
+    from qt import QInputDialog # bruce 041216 bugfix
     text, ok = QInputDialog.getText(title, label)
     if ok:
         # fyi: type(text) == <class '__main__.qt.QString'>
