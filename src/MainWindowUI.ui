@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1168</height>
+            <height>1177</height>
         </rect>
     </property>
     <property name="caption">
@@ -70,8 +70,8 @@
         <action name="setViewHomeAction"/>
         <action name="setViewHomeToCurrentAction"/>
         <action name="setViewFitToWindowAction"/>
-        <action name="zoomWindowAction"/>
-        <action name="panWindowAction"/>
+        <action name="zoomToolAction"/>
+        <action name="panToolAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
@@ -197,8 +197,8 @@
         </property>
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
-        <action name="zoomWindowAction"/>
-        <action name="panWindowAction"/>
+        <action name="zoomToolAction"/>
+        <action name="panToolAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
@@ -263,7 +263,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>657</width>
+                <width>655</width>
                 <height>29</height>
             </rect>
         </property>
@@ -514,17 +514,35 @@
             <cstring>zoomDashboard</cstring>
         </property>
         <property name="label">
-            <string>Zoom Window</string>
+            <string>Zoom Tool</string>
         </property>
         <widget class="QLabel">
             <property name="name">
                 <cstring>zoomTextLabel</cstring>
             </property>
             <property name="text">
-                <string>Zoom Window</string>
+                <string>Zoom Tool</string>
             </property>
         </widget>
         <action name="nullAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>panDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Pan Tool</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>anTextLabel</cstring>
+            </property>
+            <property name="text">
+                <string>Pan Tool</string>
+            </property>
+        </widget>
+        <separator/>
+        <action name="toolsDoneAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -2740,7 +2758,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>zoomWindowAction</cstring>
+            <cstring>zoomToolAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image104</iconset>
@@ -2754,7 +2772,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>panWindowAction</cstring>
+            <cstring>panToolAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image105</iconset>
@@ -2789,6 +2807,17 @@
         </property>
         <property name="menuText">
             <string>&amp;Thermometer</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>panDoneAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image17</iconset>
+        </property>
+        <property name="text">
+            <string>Done</string>
         </property>
     </action>
 </actions>
@@ -3816,10 +3845,10 @@
         <slot>movieInfo()</slot>
     </connection>
     <connection>
-        <sender>zoomWindowAction</sender>
+        <sender>zoomToolAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>zoomWindow()</slot>
+        <slot>zoomTool()</slot>
     </connection>
     <connection>
         <sender>jigsThermoAction</sender>
@@ -3828,10 +3857,16 @@
         <slot>makeThermo()</slot>
     </connection>
     <connection>
-        <sender>panWindowAction</sender>
+        <sender>panToolAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>panWindow()</slot>
+        <slot>panTool()</slot>
+    </connection>
+    <connection>
+        <sender>panDoneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>panDone()</slot>
     </connection>
 </connections>
 <slots>
@@ -3965,9 +4000,10 @@
     <slot>movieReset()</slot>
     <slot>movieSlider()</slot>
     <slot>movieInfo()</slot>
-    <slot>zoomWindow()</slot>
+    <slot>zoomTool()</slot>
     <slot>makeThermo()</slot>
-    <slot>panWindow()</slot>
+    <slot>panTool()</slot>
+    <slot>panDone()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

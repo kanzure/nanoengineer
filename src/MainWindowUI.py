@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Jan 28 14:15:34 2005
+# Created: Sun Jan 30 11:08:07 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7146,14 +7146,16 @@ class MainWindow(QMainWindow):
         self.fileOpenMovieAction.setIconSet(QIconSet(self.image1))
         self.movieInfoAction = QAction(self,"movieInfoAction")
         self.movieInfoAction.setIconSet(QIconSet(self.image103))
-        self.zoomWindowAction = QAction(self,"zoomWindowAction")
-        self.zoomWindowAction.setIconSet(QIconSet(self.image104))
-        self.panWindowAction = QAction(self,"panWindowAction")
-        self.panWindowAction.setIconSet(QIconSet(self.image105))
+        self.zoomToolAction = QAction(self,"zoomToolAction")
+        self.zoomToolAction.setIconSet(QIconSet(self.image104))
+        self.panToolAction = QAction(self,"panToolAction")
+        self.panToolAction.setIconSet(QIconSet(self.image105))
         self.rotateWindowAction = QAction(self,"rotateWindowAction")
         self.rotateWindowAction.setIconSet(QIconSet(self.image106))
         self.jigsThermoAction = QAction(self,"jigsThermoAction")
         self.jigsThermoAction.setIconSet(QIconSet(self.image107))
+        self.panDoneAction = QAction(self,"panDoneAction")
+        self.panDoneAction.setIconSet(QIconSet(self.image17))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7176,8 +7178,8 @@ class MainWindow(QMainWindow):
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
-        self.zoomWindowAction.addTo(self.viewToolbar)
-        self.panWindowAction.addTo(self.viewToolbar)
+        self.zoomToolAction.addTo(self.viewToolbar)
+        self.panToolAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewOrthoAction.addTo(self.viewToolbar)
         self.setViewPerspecAction.addTo(self.viewToolbar)
@@ -7210,7 +7212,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,655,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7298,6 +7300,12 @@ class MainWindow(QMainWindow):
 
         self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
         self.nullAction.addTo(self.zoomDashboard)
+        self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
+
+        self.anTextLabel = QLabel(self.panDashboard,"anTextLabel")
+        self.panDashboard.addSeparator()
+        self.toolsDoneAction.addTo(self.panDashboard)
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
@@ -7375,8 +7383,8 @@ class MainWindow(QMainWindow):
         self.setViewHomeAction.addTo(self.unnamed)
         self.setViewHomeToCurrentAction.addTo(self.unnamed)
         self.setViewFitToWindowAction.addTo(self.unnamed)
-        self.zoomWindowAction.addTo(self.unnamed)
-        self.panWindowAction.addTo(self.unnamed)
+        self.zoomToolAction.addTo(self.unnamed)
+        self.panToolAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.setViewOrthoAction.addTo(self.unnamed)
         self.setViewPerspecAction.addTo(self.unnamed)
@@ -7450,7 +7458,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1168).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1177).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7569,9 +7577,10 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
-        self.connect(self.zoomWindowAction,SIGNAL("activated()"),self.zoomWindow)
+        self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
         self.connect(self.jigsThermoAction,SIGNAL("activated()"),self.makeThermo)
-        self.connect(self.panWindowAction,SIGNAL("activated()"),self.panWindow)
+        self.connect(self.panToolAction,SIGNAL("activated()"),self.panTool)
+        self.connect(self.panDoneAction,SIGNAL("activated()"),self.panDone)
 
 
     def languageChange(self):
@@ -7912,14 +7921,16 @@ class MainWindow(QMainWindow):
         self.fileOpenMovieAction.setMenuText(self.__tr("Open Movie File"))
         self.movieInfoAction.setText(self.__tr("Movie Information"))
         self.movieInfoAction.setMenuText(self.__tr("Movie Information"))
-        self.zoomWindowAction.setText(self.__tr("Zoom Tool"))
-        self.zoomWindowAction.setMenuText(self.__tr("&Zoom Tool"))
-        self.panWindowAction.setText(self.__tr("Pan Tool"))
-        self.panWindowAction.setMenuText(self.__tr("&Pan Tool"))
+        self.zoomToolAction.setText(self.__tr("Zoom Tool"))
+        self.zoomToolAction.setMenuText(self.__tr("&Zoom Tool"))
+        self.panToolAction.setText(self.__tr("Pan Tool"))
+        self.panToolAction.setMenuText(self.__tr("&Pan Tool"))
         self.rotateWindowAction.setText(self.__tr("Action"))
         self.rotateWindowAction.setMenuText(self.__tr("Action"))
         self.jigsThermoAction.setText(self.__tr("Thermometer"))
         self.jigsThermoAction.setMenuText(self.__tr("&Thermometer"))
+        self.panDoneAction.setText(self.__tr("Done"))
+        self.panDoneAction.setMenuText(self.__tr("Done"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7943,8 +7954,10 @@ class MainWindow(QMainWindow):
         self.frameNumberSB.setPrefix(QString.null)
         self.selectMolDashboard.setLabel(self.__tr("Select Molecule"))
         self.textLabel1_2.setText(self.__tr("Select Chunks"))
-        self.zoomDashboard.setLabel(self.__tr("Zoom Window"))
-        self.zoomTextLabel.setText(self.__tr("Zoom Window"))
+        self.zoomDashboard.setLabel(self.__tr("Zoom Tool"))
+        self.zoomTextLabel.setText(self.__tr("Zoom Tool"))
+        self.panDashboard.setLabel(self.__tr("Pan Tool"))
+        self.anTextLabel.setText(self.__tr("Pan Tool"))
         self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
         self.modifyToolbar.setLabel(self.__tr("Modify"))
         self.toolsToolbar.setLabel(self.__tr("Tools"))
@@ -8357,14 +8370,17 @@ class MainWindow(QMainWindow):
     def movieInfo(self):
         print "MainWindow.movieInfo(): Not implemented yet"
 
-    def zoomWindow(self):
-        print "MainWindow.zoomWindow(): Not implemented yet"
+    def zoomTool(self):
+        print "MainWindow.zoomTool(): Not implemented yet"
 
     def makeThermo(self):
         print "MainWindow.makeThermo(): Not implemented yet"
 
-    def panWindow(self):
-        print "MainWindow.panWindow(): Not implemented yet"
+    def panTool(self):
+        print "MainWindow.panTool(): Not implemented yet"
+
+    def panDone(self):
+        print "MainWindow.panDone(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

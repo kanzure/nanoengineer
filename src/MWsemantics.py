@@ -696,7 +696,7 @@ class MWsemantics(MainWindow):
         
         self.assy.changed() # Csys record changed in assy.  Mark [041215]
         
-    def zoomWindow(self):
+    def zoomTool(self):
         """Zoom Tool, allowing the user to specify a rectangular area 
         by holding down the left button and dragging the mouse to zoom 
         into a specific area of the model.
@@ -707,14 +707,15 @@ class MWsemantics(MainWindow):
         self.glpane.setMode('ZOOM')
 
         
-    def panWindow(self):
+    def panTool(self):
         """Pan Tool.
         """
-        self.history.message("Pan Tool not implemented yet.")
-#        self.glpane.prevMode= self.glpane.mode.modename
-#        self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+#        self.history.message("Pan Tool not implemented yet.")
+        self.glpane.prevMode= self.glpane.mode.modename
+        self.glpane.prevModeColor = self.glpane.mode.backgroundColor
 
-#        self.glpane.setMode('PAN')
+        self.glpane.setMode('PAN')
+        self.history.message("Hit the Esc key to exit Pan Tool.")
         
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
@@ -1699,11 +1700,12 @@ class MWsemantics(MainWindow):
         self.moveMolDashboard.hide()
         self.moviePlayerDashboard.hide()
         self.zoomDashboard.hide()
+        self.panDashboard.hide()
         
         ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
         objList = self.queryList("QToolBar")
         for obj in objList:
-                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard]:
+                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard, self.panDashboard]:
                          self.setAppropriate(obj, False)
 
     # Import code for What's This support        
