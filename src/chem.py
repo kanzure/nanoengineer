@@ -1209,7 +1209,10 @@ class molecule(Node):
         """
         if self.picked:
             Node.unpick(self)
-            self.assy.selmols.remove(self)
+            try:
+                self.assy.selmols.remove(self)
+            except ValueError: #bruce 041029 precaution
+                print_compact_traceback("fyi: mol.unpick: mol %r not in self.assy.selmols" % self)
             # may have changed appearance of the molecule
             self.havelist = 0
             # self.assy.w.msgbarLabel.setText(" ")
