@@ -135,17 +135,16 @@ class TreeWidget(TreeView, DebugMenuMixin):
         else:
             col0_left_x = x_past_openclose = -1000 # debug kluge
 
-        print "mouse press on %r, part %r, from x %r, x_past_openclose %r, and borders reltothat of %r" % (
-                item, part, vpos.x(), x_past_openclose, (col0_left_x, -12, 2, 22) ) ####@@@@
-        if item:
-            print "item.isExpandable() =", item.isExpandable()
-            print "item.object.name =",item.object.name
+##        print "mouse press on %r %r, part %r, from x %r, x_past_openclose %r, and borders reltothat of %r" % (
+##                item and self.item_isOpenable(item), item and item.object.name, \
+##                part, vpos.x(), x_past_openclose, (col0_left_x, -12, 2, 22) ) ####@@@@
         
         # If this click's data differs from the prior one, this event shouldn't
         # be counted as a double click. Or the same, if too much time passed since prior click,
         # which would mean Qt erred and called this a double click even though its first click
         # went to a different widget (I don't know if Qt can make that mistake).
-        # ###e nim feature... ###@@@
+        # ###e nim feature... and low pri, since Qt seems reasonably conservative
+        # about what it calls a double click. ###@@@
 
         ###e probably store some things here too, in case we'll decide later to start a drag.
 
@@ -383,7 +382,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         nodeset = self.topmost_selected_nodes() # seems better than selected_nodes for most existing cmenu commands...
         menu = self.make_cmenu_for_set( nodeset)
-        print "arg1 of qmpopup is menu = %r, other arg pos is %r" % (menu,pos)####@@@@
+        ## print "arg1 of qmpopup is menu = %r, other arg pos is %r" % (menu,pos)
         menu.popup(pos)
             #e should we care about which item to put where (e.g. popup(pos,1))?
         # the menu commands will do their own update,
@@ -399,7 +398,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         """Return a context menu (QPopupMenu object #k)
         to show for the given set of (presumably selected) items.
         [Might be overridden by subclasses, but usually it's more convenient
-        for them to override make_cmenuspec_for_set instead.]
+        and better for them to override make_cmenuspec_for_set instead.]
         """
         spec = self.make_cmenuspec_for_set(nodeset)  \
                or self.make_cmenuspec_for_set([])  \
@@ -407,14 +406,23 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return self.makemenu( spec)
 
     def make_cmenuspec_for_set(self, nodeset):
-        """#doc
-        [subclasses should override this]
-        # [see also the term Menu_spec]
+        """Return a Menu_spec list (of a format suitable for makemenu_helper)
+        for a context menu suitable for nodeset, a list of 0 or more selected nodes
+        (which includes only the topmost selected nodes, i.e. it includes no
+        children of selected nodes even if they are selected).
+           Subclasses should override this to provide an actual menu spec.
+        The subclass implementation can directly examine the selection status of nodes
+        below those in nodeset, if desired, and can assume every node in nodeset is picked,
+        and every node not in it or under something in it is not picked.
+        [all subclasses should override this]
         """
         return []
 
 
-    # sets of selected items or nodes [#e do we also want versions for subtrees?]
+    # sets of selected items or nodes
+    
+    #e [do we also want versions with node arguments, which search only in subtrees?
+    #   if so, those should just be (or call) Node methods.]
     
     def selected_nodes(self):
         "return a list of all currently selected nodes (perhaps including both groups and some of their members)"
