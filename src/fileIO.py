@@ -90,47 +90,81 @@ def getname(str, default):
     return gensym(default)
 
 
-# read a Protein DataBank-format file into a single molecule
-def _readpdb(assy, filename, isInsert = False):
-
-    f=open(filename,"rU").readlines()
+def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & docstring in several ways
+    """Read a Protein DataBank-format file into a single new chunk, which is returned,
+    unless there are no atoms in the file, in which case a warning is printed
+    and None is returned. (The new chunk (if returned) is in assy, but is not
+    yet added into any Group or Part in assy -- caller must do that.)
+    Unless isInsert = True, set assy.filename to match the file we read,
+    even if we return None.
+    """
+    fi = open(filename,"rU")
+    lines = fi.readlines()
+    fi.close() #bruce 050322 added fi.close
     
-    dir, nodename = os.path.split (filename)
-    if not isInsert: assy.filename=filename
-    ndix={}
-    mol=molecule(assy, nodename)
+    dir, nodename = os.path.split(filename)
+    if not isInsert:
+        assy.filename = filename
+    ndix = {}
+    mol = molecule(assy, nodename)
         
-    for card in f:
-        key=card[:6].lower().replace(" ", "")
+    for card in lines:
+        key = card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
             sym = capitalize(card[12:14].replace(" ", "").replace("_", ""))
-            try: PeriodicTable.getElement(sym)
-            except KeyError: print 'unknown element "',sym,'" in: ',card
+            try:
+                PeriodicTable.getElement(sym)
+            except:
+                #bruce 050322 replaced print with history warning,
+                # and generalized exception from KeyError
+                # (since a test reveals AssertionError is what happens)
+                assy.w.history.message( redmsg( "Warning: Pdb file: unknown element %s in: %s" % (sym,card) ))
+                ## print 'unknown element "',sym,'" in: ',card
             else:
                 xyz = map(float, [card[30:38],card[38:46],card[46:54]])
-                n=int(card[6:11])
-                a=atom(sym, A(xyz), mol)
-                ndix[n]=a
+                n = int(card[6:11])
+                a = atom(sym, A(xyz), mol)
+                ndix[n] = a
         elif key == "conect":
-            a1=ndix[int(card[6:11])]
-            for i in range(11, 70, 5):
-                try: a2=ndix[int(card[i:i+5])]
-                except ValueError: break
-                mol.bond(a1, a2)
-#    f.close()
+            try:
+                a1 = ndix[int(card[6:11])]
+            except:
+                #bruce 050322 added this level of try/except and its message
+                assy.w.history.message( redmsg( "Warning: Pdb file: can't find atom at column %d in: %s" % (6,card) ))
+            else:
+                for i in range(11, 70, 5):
+                    try:
+                        a2 = ndix[int(card[i:i+5])]
+                    except:
+                        #bruce 050322 added history warning to except clause,
+                        # and generalized exception from ValueError
+                        # (since what happened in a test was KeyError)
+                        assy.w.history.message( redmsg( "Warning: Pdb file: can't find atom at column %d in: %s" % (i,card) ))
+                        break
+                    mol.bond(a1, a2)
+    #bruce 050322 part of fix for bug 433: don't return an empty chunk
+    if not mol.atoms:
+        assy.w.history.message( redmsg( "Warning: Pdb file contained no atoms"))
+        return None
     return mol
     
 # read a Protein DataBank-format file into a single molecule
+#bruce 050322 revised this for bug 433
 def readpdb(assy,filename):
     """Reads a pdb file"""
     mol  = _readpdb(assy, filename, isInsert = False)
-    assy.addmol(mol)
+    if mol:
+        assy.addmol(mol)
+    return
     
 # Insert a Protein DataBank-format file into a single molecule
+#bruce 050322 revised this for bug 433
 def insertpdb(assy,filename):
     """Reads a pdb file and inserts it into the existing model """
     mol  = _readpdb(assy, filename, isInsert = True)
-    assy.addmol(mol)
+    if mol:
+        assy.addmol(mol)
+    return
 
 # Write all molecules into a Protein DataBank-format file
 # [bruce 050318 revised comments, and made it not write singlets or their bonds,

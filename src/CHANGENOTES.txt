@@ -121,3 +121,10 @@ Summary: exclude singlets from saved PDB files; warn user when this happens
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 3/22/2005
+Files: fileIO.py
+Summary: fix bug 433 (now ok to read empty pdb files)
+
+----------------------------
+
