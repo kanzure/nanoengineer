@@ -43,10 +43,12 @@ class BBox:
             self.data = V(maximum(point1, point2),minimum(point1, point2))
         elif point1:
             # list of points
-            self.data = V(maximum.reduce(point1), minimum.reduce(point1))
+            self.data = V(maximum.reduce(point1) + 1.8, minimum.reduce(point1) - 1.8)
         else:
             # a null bbox
             self.data = None
+        
+            
             
     def add(self, point):
         vl = cat(self.data, point)
@@ -74,8 +76,8 @@ class BBox:
         #x=1.2*maximum.reduce(subtract.reduce(self.data))
         dd = 0.5*subtract.reduce(self.data)
         x = sqrt(dd[0]*dd[0] + dd[1]*dd[1] + dd[2]*dd[2])
-        return max(x, 2.0)
-        #return x
+        #return max(x, 2.0)
+        return x
 
     def copy(self, offset=None):
         if offset: return BBox(self.data[0]+offset, self.data[1]+offset)
@@ -555,5 +557,4 @@ class shape:
         return "<Shape of " + `len(self.curves)` + ">"
 
     pass # end of class shape
-
 
