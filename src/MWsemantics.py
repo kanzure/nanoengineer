@@ -993,9 +993,9 @@ class MWsemantics(MainWindow):
 
     # Play a movie from the simulator
     def toolsMovie(self):
-        if not self.assy.filename: self.assy.filename=tmpFilePath + "simulate.mmp"
+        if not self.assy.filename: self.assy.filename=self.tmpFilePath + "simulate.mmp"
         dir, fil, ext = fileparse(self.assy.filename)
-#        print "playing", dir+fil+'.dpb'
+        print "playing", dir+fil+'.dpb'
         self.glpane.startmovie(dir+fil+'.dpb')
 
     
