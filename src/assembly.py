@@ -427,6 +427,7 @@ class assembly:
                 new = new.members[0]
             self.shelf.addmember(new)
             new.pick()
+        self.modified = 1
         self.w.update()
 
     # copy any selected parts (molecules)
