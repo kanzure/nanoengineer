@@ -34,9 +34,6 @@ class movieMode(basicMode):
         
         # We have a moviefile ready to go.  It's showtime!!!
         self.w.toolsMoviePlayerAction.setOn(1) # toggle on the Movie Player icon
-#        self.w.moviePauseAction.setVisible(0)
-#        self.w.moviePlayAction.setVisible(1)
-#        self.w.movieProgressBar.reset()
 #       self.w.frameNumberLCD.display(self.o.assy.currentFrame)
         self.w.frameNumberSB.setValue(self.o.assy.m.currentFrame) # SB = Spinbox
 #        self.w.frameNumberSL.setMaxValue(self.o.assy.m.totalFrames)

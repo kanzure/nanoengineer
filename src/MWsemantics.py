@@ -991,18 +991,19 @@ class MWsemantics(MainWindow):
         # We have a moviefile ready to go.  It's showtime!!!
         self.glpane.setMode('MOVIE')
 
-    # Movie Player Dashboard Slots ############
+ #### Movie Player Dashboard Slots ############
 
     def moviePlay(self):
         """Play current movie foward from current position.
         """
+#        print "MW: MoviePlay called"
         self.assy.m._play(1)
-            
+
     def moviePause(self):
         """Pause movie.
         """
+#        print "MW: MoviePause called"
         self.assy.m._pause()
-
 
     def moviePlayRev(self):
         """Play current movie in reverse from current position.
@@ -1012,23 +1013,31 @@ class MWsemantics(MainWindow):
     def movieReset(self):
         """Move current frame position to frame 0 (beginning) of the movie.
         """
-        if self.assy.m.currentFrame != 0:
-            self.assy.m._pause()
-            self.assy.m._playFrame(0)
+#        print "MW: MovieReset called"
+        self.assy.m._reset()
     
-    def movieSetToEnd(self):
+    def movieMoveToEnd(self):
         """Move frame position to the last frame (end) of the movie.
         """
-        if self.assy.m.currentFrame != self.assy.m.totalFrames: 
-            self.assy.m._pause()
-            self.assy.m._playFrame(self.assy.m.totalFrames)
+#        print "MW: movieMoveToEnd called"
+        self.assy.m._moveToEnd()
                             
     def moviePlayFrame(self, fnum):
         """Show frame fnum in the current movie.
         """
-        if fnum != self.assy.m.currentFrame: 
-            self.assy.m._playFrame(fnum)
-
+#        print "MW: MoviePlayFrame called"
+        if fnum == self.assy.m.currentFrame: return
+        self.assy.m._playFrame(fnum)
+#        self.frameNumberSL.setValue(fnum) # SL = Slider
+                            
+    def movieSlider(self, fnum):
+        """Show frame fnum in the current movie.
+        """
+#        print "MW: MovieSlider called"
+        if fnum == self.assy.m.currentFrame: return
+        self.assy.m._playSlider(fnum)
+        
+        
     def fileOpenMovie(self):
         """Open a movie file to play.
         """

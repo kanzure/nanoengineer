@@ -144,6 +144,8 @@ class assembly:
             #  is permitted to reset this flag to 0.]
             
             # The part changed.  The movie, if it exists, is not longer valid.
+            # Not true.  If the user has changed a display mode on a check or atom
+            # this gets called.
             if self.m.isOpen: 
                 print "assembly.changed(): closeing moviefile =",self.m.filename
                 self.m.fileobj.close()
@@ -285,6 +287,26 @@ class assembly:
             mol.pick()
             self.mt.mt_update()
 
+    def savebasepos(self):
+        """Copy current atom positions into an array.
+        """
+        if not self.alist: return
+        for a in self.alist:
+            self.copybasepos = + a.molecule.basepos
+            
+    def restorebasepos(self):
+        """Restore atom positions copied earlier by savebasepos().
+        """
+        if not self.alist: return
+        for a in self.alist:
+            a.molecule.basepos[a.index] = self.copybasepos[a.index]
+        
+        for b in self.blist.itervalues():
+            b.setup_invalidate()
+            
+        for m in self.molecules:
+            m.changeapp(0)
+            
     # set up to run a movie or minimization
     def movsetup(self):
         for m in self.molecules:
@@ -1000,5 +1022,5 @@ class assembly:
     def writemovie(self, mflag = 0):
         from fileIO import writemovie
         return writemovie(self, mflag)
-        
+            
     # end of class assembly

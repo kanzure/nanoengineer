@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Jan 12 16:31:42 2005
+# Created: Thu Jan 13 12:17:53 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7411,8 +7411,8 @@ class MainWindow(QMainWindow):
         self.moviePlayRevActiveAction.setIconSet(QIconSet(self.image98))
         self.moviePlayActiveAction = QAction(self,"moviePlayActiveAction")
         self.moviePlayActiveAction.setIconSet(QIconSet(self.image99))
-        self.movieSetToEndAction = QAction(self,"movieSetToEndAction")
-        self.movieSetToEndAction.setIconSet(QIconSet(self.image100))
+        self.movieMoveToEndAction = QAction(self,"movieMoveToEndAction")
+        self.movieMoveToEndAction.setIconSet(QIconSet(self.image100))
         self.moviePauseAction = QAction(self,"moviePauseAction")
         self.moviePauseAction.setIconSet(QIconSet(self.image101))
         self.moviePlayAction = QAction(self,"moviePlayAction")
@@ -7531,13 +7531,16 @@ class MainWindow(QMainWindow):
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
         self.moviePlayerDashboard.addSeparator()
+        self.fileOpenMovieAction.addTo(self.moviePlayerDashboard)
+        self.fileSaveMovieAction.addTo(self.moviePlayerDashboard)
+        self.moviePlayerDashboard.addSeparator()
         self.movieResetAction.addTo(self.moviePlayerDashboard)
         self.moviePlayRevActiveAction.addTo(self.moviePlayerDashboard)
         self.moviePlayRevAction.addTo(self.moviePlayerDashboard)
         self.moviePauseAction.addTo(self.moviePlayerDashboard)
         self.moviePlayAction.addTo(self.moviePlayerDashboard)
         self.moviePlayActiveAction.addTo(self.moviePlayerDashboard)
-        self.movieSetToEndAction.addTo(self.moviePlayerDashboard)
+        self.movieMoveToEndAction.addTo(self.moviePlayerDashboard)
         self.moviePlayerDashboard.addSeparator()
 
         self.frameLabel = QLabel(self.moviePlayerDashboard,"frameLabel")
@@ -7554,16 +7557,13 @@ class MainWindow(QMainWindow):
         QApplication.sendPostedEvents(self.moviePlayerDashboard,QEvent.ChildInserted)
         self.moviePlayerDashboard.boxLayout().addItem(spacer2)
 
-        self.movieProgressBar = QProgressBar(self.moviePlayerDashboard,"movieProgressBar")
-        self.movieProgressBar.setMinimumSize(QSize(400,0))
+        self.frameNumberSL = QSlider(self.moviePlayerDashboard,"frameNumberSL")
+        self.frameNumberSL.setMinimumSize(QSize(300,0))
+        self.frameNumberSL.setMaxValue(999999)
+        self.frameNumberSL.setOrientation(QSlider.Horizontal)
         spacer1 = QSpacerItem(22,22,QSizePolicy.Fixed,QSizePolicy.Minimum)
         QApplication.sendPostedEvents(self.moviePlayerDashboard,QEvent.ChildInserted)
         self.moviePlayerDashboard.boxLayout().addItem(spacer1)
-        self.fileOpenMovieAction.addTo(self.moviePlayerDashboard)
-        self.fileSaveMovieAction.addTo(self.moviePlayerDashboard)
-        spacer3 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        QApplication.sendPostedEvents(self.moviePlayerDashboard,QEvent.ChildInserted)
-        self.moviePlayerDashboard.boxLayout().addItem(spacer3)
         self.toolsDoneAction.addTo(self.moviePlayerDashboard)
         self.moviePlayerDashboard.addSeparator()
         self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
@@ -7763,6 +7763,7 @@ class MainWindow(QMainWindow):
         self.connect(self.fileSaveMovieAction,SIGNAL("activated()"),self.fileSaveMovie)
         self.connect(self.fileSetWorkDirAction,SIGNAL("activated()"),self.fileSetWorkDir)
         self.connect(self.frameNumberSB,SIGNAL("valueChanged(int)"),self.moviePlayFrame)
+        self.connect(self.frameNumberSL,SIGNAL("valueChanged(int)"),self.movieSlider)
         self.connect(self.helpAboutAction,SIGNAL("activated()"),self.helpAbout)
         self.connect(self.helpAssistantAction,SIGNAL("activated()"),self.helpAssistant)
         self.connect(self.helpContentsAction,SIGNAL("activated()"),self.helpContents)
@@ -7788,11 +7789,11 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyStretchAction,SIGNAL("activated()"),self.modifyStretch)
         self.connect(self.modifyWeldAction,SIGNAL("activated()"),self.modifyWeld)
         self.connect(self.movieDoneAction,SIGNAL("activated()"),self.movieDone)
-        self.connect(self.movieNextFrameAction,SIGNAL("activated()"),self.movieNextFrame)
         self.connect(self.moviePauseAction,SIGNAL("activated()"),self.moviePause)
         self.connect(self.moviePlayAction,SIGNAL("activated()"),self.moviePlay)
         self.connect(self.moviePlayRevAction,SIGNAL("activated()"),self.moviePlayRev)
-        self.connect(self.moviePrevFrameAction,SIGNAL("activated()"),self.moviePrevFrame)
+        self.connect(self.movieResetAction,SIGNAL("activated()"),self.movieReset)
+        self.connect(self.movieMoveToEndAction,SIGNAL("activated()"),self.movieMoveToEnd)
         self.connect(self.orient100Action,SIGNAL("activated()"),self.orient100)
         self.connect(self.orient110Action,SIGNAL("activated()"),self.orient110)
         self.connect(self.orient111Action,SIGNAL("activated()"),self.orient111)
@@ -7844,8 +7845,6 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.movieSetToEndAction,SIGNAL("activated()"),self.movieSetToEnd)
-        self.connect(self.movieResetAction,SIGNAL("activated()"),self.movieReset)
 
 
     def languageChange(self):
@@ -8179,8 +8178,8 @@ class MainWindow(QMainWindow):
         self.moviePlayRevActiveAction.setMenuText(self.__tr("Play Reverse"))
         self.moviePlayActiveAction.setText(self.__tr("Play Forward"))
         self.moviePlayActiveAction.setMenuText(self.__tr("Play Forward"))
-        self.movieSetToEndAction.setText(self.__tr("Advance To End"))
-        self.movieSetToEndAction.setMenuText(self.__tr("Advance To End"))
+        self.movieMoveToEndAction.setText(self.__tr("Advance To End"))
+        self.movieMoveToEndAction.setMenuText(self.__tr("Advance To End"))
         self.moviePauseAction.setText(self.__tr("Pause"))
         self.moviePauseAction.setMenuText(self.__tr("Pause"))
         self.moviePlayAction.setText(self.__tr("Play Forward"))
@@ -8225,7 +8224,7 @@ class MainWindow(QMainWindow):
         self.textLabel1.setText(self.__tr("Move Chunks"))
         self.moviePlayerDashboard.setLabel(self.__tr("Movie Player Dashboard"))
         self.textLabel1_4.setText(self.__tr("Movie Player"))
-        self.frameLabel.setText(self.__tr("Frame:"))
+        self.frameLabel.setText(self.__tr("Frame (500 total):"))
         self.frameNumberSB.setPrefix(QString.null)
         self.selectMolDashboard.setLabel(self.__tr("Select Molecule"))
         self.textLabel1_2.setText(self.__tr("Select Chunks"))
@@ -8617,12 +8616,6 @@ class MainWindow(QMainWindow):
     def moviePause(self):
         print "MainWindow.moviePause(): Not implemented yet"
 
-    def movieNextFrame(self):
-        print "MainWindow.movieNextFrame(): Not implemented yet"
-
-    def moviePrevFrame(self):
-        print "MainWindow.moviePrevFrame(): Not implemented yet"
-
     def moviePlayFrame(self):
         print "MainWindow.moviePlayFrame(): Not implemented yet"
 
@@ -8635,11 +8628,14 @@ class MainWindow(QMainWindow):
     def fileOpenMovie(self):
         print "MainWindow.fileOpenMovie(): Not implemented yet"
 
-    def movieSetToEnd(self):
-        print "MainWindow.movieSetToEnd(): Not implemented yet"
+    def movieMoveToEnd(self):
+        print "MainWindow.movieMoveToEnd(): Not implemented yet"
 
     def movieReset(self):
         print "MainWindow.movieReset(): Not implemented yet"
+
+    def movieSlider(self):
+        print "MainWindow.movieSlider(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

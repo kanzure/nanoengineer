@@ -382,20 +382,23 @@
             </property>
         </widget>
         <separator/>
+        <action name="fileOpenMovieAction"/>
+        <action name="fileSaveMovieAction"/>
+        <separator/>
         <action name="movieResetAction"/>
         <action name="moviePlayRevActiveAction"/>
         <action name="moviePlayRevAction"/>
         <action name="moviePauseAction"/>
         <action name="moviePlayAction"/>
         <action name="moviePlayActiveAction"/>
-        <action name="movieSetToEndAction"/>
+        <action name="movieMoveToEndAction"/>
         <separator/>
         <widget class="QLabel">
             <property name="name">
                 <cstring>frameLabel</cstring>
             </property>
             <property name="text">
-                <string>Frame:</string>
+                <string>Frame (500 total):</string>
             </property>
         </widget>
         <widget class="QSpinBox">
@@ -446,15 +449,21 @@
                 </size>
             </property>
         </widget>
-        <widget class="QProgressBar">
+        <widget class="QSlider">
             <property name="name">
-                <cstring>movieProgressBar</cstring>
+                <cstring>frameNumberSL</cstring>
             </property>
             <property name="minimumSize">
                 <size>
-                    <width>400</width>
+                    <width>300</width>
                     <height>0</height>
                 </size>
+            </property>
+            <property name="maxValue">
+                <number>999999</number>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
             </property>
         </widget>
         <widget class="Spacer">
@@ -471,25 +480,6 @@
                 <size>
                     <width>22</width>
                     <height>22</height>
-                </size>
-            </property>
-        </widget>
-        <action name="fileOpenMovieAction"/>
-        <action name="fileSaveMovieAction"/>
-        <widget class="Spacer">
-            <property name="name">
-                <cstring>spacer3</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Horizontal</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>20</height>
                 </size>
             </property>
         </widget>
@@ -2667,7 +2657,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>movieSetToEndAction</cstring>
+            <cstring>movieMoveToEndAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image100</iconset>
@@ -3374,6 +3364,12 @@
         <slot>moviePlayFrame()</slot>
     </connection>
     <connection>
+        <sender>frameNumberSL</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieSlider()</slot>
+    </connection>
+    <connection>
         <sender>helpAboutAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3524,12 +3520,6 @@
         <slot>movieDone()</slot>
     </connection>
     <connection>
-        <sender>movieNextFrameAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>movieNextFrame()</slot>
-    </connection>
-    <connection>
         <sender>moviePauseAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3548,10 +3538,16 @@
         <slot>moviePlayRev()</slot>
     </connection>
     <connection>
-        <sender>moviePrevFrameAction</sender>
+        <sender>movieResetAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>moviePrevFrame()</slot>
+        <slot>movieReset()</slot>
+    </connection>
+    <connection>
+        <sender>movieMoveToEndAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieMoveToEnd()</slot>
     </connection>
     <connection>
         <sender>orient100Action</sender>
@@ -3859,18 +3855,6 @@
         <receiver>MainWindow</receiver>
         <slot>toolsStartOver()</slot>
     </connection>
-    <connection>
-        <sender>movieSetToEndAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>movieSetToEnd()</slot>
-    </connection>
-    <connection>
-        <sender>movieResetAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>movieReset()</slot>
-    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3995,14 +3979,13 @@
     <slot>movieDone()</slot>
     <slot>toolsMoviePlayer()</slot>
     <slot>moviePause()</slot>
-    <slot>movieNextFrame()</slot>
-    <slot>moviePrevFrame()</slot>
     <slot>moviePlayFrame()</slot>
     <slot>fileSaveMovie()</slot>
     <slot>moviePlayRev()</slot>
     <slot>fileOpenMovie()</slot>
-    <slot>movieSetToEnd()</slot>
+    <slot>movieMoveToEnd()</slot>
     <slot>movieReset()</slot>
+    <slot>movieSlider()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
