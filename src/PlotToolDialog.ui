@@ -1,0 +1,91 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>PlotToolDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>PlotToolDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>198</width>
+            <height>109</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Plot Tool</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget" row="0" column="0">
+            <property name="name">
+                <cstring>layout2</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="2" column="0">
+                    <property name="name">
+                        <cstring>layout1</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>plotPB</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Plot</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>quitPB</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Quit</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QComboBox" row="1" column="0">
+                    <property name="name">
+                        <cstring>plotCB</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>textLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Select Jig to Graph:</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>quitPB</sender>
+        <signal>clicked()</signal>
+        <receiver>PlotToolDialog</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>plotPB</sender>
+        <signal>clicked()</signal>
+        <receiver>PlotToolDialog</receiver>
+        <slot>genPlot()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>genPlot()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
