@@ -83,7 +83,7 @@ class RotaryMotor(Node):
 
     def edit(self):
         self.cntl.setup()
-        self.cntl.show()
+        self.cntl.exec_loop()
 
     def move(self, offset):
         self.center += offset
@@ -199,7 +199,7 @@ class LinearMotor(Node):
 
     def edit(self):
         self.cntl.setup()
-        self.cntl.show()
+        self.cntl.exec_loop()
         
     def move(self, offset):
         self.center += offset
@@ -278,7 +278,7 @@ class Ground(Node):
 
     def edit(self):
         self.cntl.setup()
-        self.cntl.show()
+        self.cntl.exec_loop()
 
     # it's drawn as a wire cube around each atom (default color = black)
     def draw(self, win, dispdef):
@@ -336,7 +336,7 @@ class Stat(Node):
 
     def edit(self):
         self.cntl.setup()
-        self.cntl.show()
+        self.cntl.exec_loop()
 
     # it's drawn as a wire cube around each atom (default color = blue)
     def draw(self, win, dispdef):
