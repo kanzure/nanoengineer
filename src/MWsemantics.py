@@ -222,7 +222,7 @@ class MWsemantics(MainWindow):
 
     def fileOpen(self):
         if self.assy.modified:
-            ret = QMessageBox.information( self, self.name(),
+            ret = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before opening a new part?",
                 "&Save", "&Discard", "Cancel",
@@ -286,7 +286,7 @@ class MWsemantics(MainWindow):
                 dir, fil = "./", self.assy.name
                 sdir = globalParms['WorkingDirectory']
         else:
-            print "MWsemantics.py: fileSaveAs(): Part is empty - nothing to save"
+            self.msgbarLabel.setText( "Save Ignored: Part is currently empty." )
             return
 
         sfilter = QString("")   
@@ -300,42 +300,58 @@ class MWsemantics(MainWindow):
             fn = str(fn)
             dir, fil, ext = fileparse(fn)
             ext =str(sfilter[-5:-1]) # Get the file extension from the sfilter.
+            safile = dir + fil + ext # full path of "Save As" filename
+            
+            if self.assy.filename != safile: # If the current part name and "Save As" filename are not the same...
+                if os.path.exists(safile): # ...and if the "Save As" file exists...
+
+                    # ... confirm overwrite of the existing file.
+                    ret = QMessageBox.warning( self, self.name(),
+                        "The file \"" + fil + ext + "\" already exists.\n"\
+                        "Do you want to overwrite the existing file or cancel?",
+                        "&Overwrite", "&Cancel", None,
+                        0,      # Enter == button 0
+                        1 )     # Escape == button 1
+
+                    if ret==1: # The user cancelled
+                        self.msgbarLabel.setText( "Cancelled.  Part not saved." )
+                        return # Cancel clicked or Alt+C pressed or Escape pressed
 
             if ext == ".pdb": # Write PDB file.
                 try:
-                    writepdb(self.assy, dir + fil + ext)
+                    writepdb(self.assy, safile)
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file" + dir + fil + ext
-                    self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
+                    print "MWsemantics.py: fileSaveAs(): error writing file" + safile
+                    self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
+                    self.msgbarLabel.setText( "File saved: " + safile )
             
             elif ext == ".pov": # Write POV-Ray file
                 try:
-                    writepov(self.assy, dir + fil + ext)
+                    writepov(self.assy, safile)
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file " + dir + fil + ext
-                    self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
+                    print "MWsemantics.py: fileSaveAs(): error writing file " + safile
+                    self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
+                    self.msgbarLabel.setText( "File saved: " + safile )
             
             elif ext == ".jpg": # Write JPEG file
                 try:
-                    self.glpane.image(dir + fil + ext)
+                    self.glpane.image(safile)
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file" + dir + fil + ext
-                    self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
+                    print "MWsemantics.py: fileSaveAs(): error writing file" + safile
+                    self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
+                    self.msgbarLabel.setText( "File saved: " + safile )
 
-            elif ext == ".mmp" : # Write MMP file.
-                self.assy.filename = dir + fil + ext
+            elif ext == ".mmp" : # Write MMP file
+                self.assy.filename = safile
                 self.assy.name = fil
                 try:
-                    writemmp(self.assy, dir + fil + ext)
+                    writemmp(self.assy, safile)
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file" + dir + fil + ext
-                    self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
+                    print "MWsemantics.py: fileSaveAs(): error writing file" + safile
+                    self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
@@ -349,7 +365,7 @@ class MWsemantics(MainWindow):
 
     def fileExit(self):
         if self.assy.modified:
-            ret = QMessageBox.information( self, self.name(),
+            ret = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before exiting?",
                 "&Save", "&Discard", "Cancel",
@@ -358,8 +374,8 @@ class MWsemantics(MainWindow):
             
             if ret==0: self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
             elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
-#        pass
-
+        self.destroy()
+        
     def fileClear(self):
         self.__clear()
         self.modelTreeView.update()
@@ -367,7 +383,7 @@ class MWsemantics(MainWindow):
 
     def fileClose(self):
         if self.assy.modified:
-            ret = QMessageBox.information( self, self.name(),
+            ret = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before closing this part?",
                 "&Save", "&Discard", "Cancel",
@@ -421,12 +437,12 @@ class MWsemantics(MainWindow):
 
     def editUndo(self):
         print "MWsemantics.editUndo(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editRedo(self):
         print "MWsemantics.editRedo(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editCut(self):
@@ -444,7 +460,7 @@ class MWsemantics(MainWindow):
 
     def editFind(self):
         print "MWsemantics.editFind(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     ###################################
@@ -556,13 +572,13 @@ class MWsemantics(MainWindow):
 
     def dispGrid(self):
         print "MWsemantics.dispGrid(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
         
 
     def gridGraphite(self):
         print "MWsemantics.gridGraphite(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     #######################################
@@ -654,7 +670,7 @@ class MWsemantics(MainWindow):
 
     def makeHandle(self):
         print "MWsemantics.makeHandle(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def makeMotor(self):
@@ -666,20 +682,20 @@ class MWsemantics(MainWindow):
         self.update()
 
     def makeBearing(self):
-        QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.information(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
 
     def makeSpring(self):
-        QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.information(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
     def makeDyno(self):
         print "MWsemantics.makeDyno(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def makeHeatsink(self):
         print "MWsemantics.makeHeatsink(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     ###################################
@@ -755,7 +771,7 @@ class MWsemantics(MainWindow):
             #e improve error message; catch assertions and have them cause it too
 	         
     def helpAbout(self):
-        QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.information(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
 	         
     def helpWhatsThis(self):
@@ -834,11 +850,6 @@ class MWsemantics(MainWindow):
 
     def toolsSelectMolecules(self):
         self.glpane.setMode('SELECTMOLS')
-
-    def toolsSelectJigs(self):
-        print "MWsemantics.toolsSelectJigs(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:", 
-             "This function is not implemented yet, coming soon...")
         
     def toolsMoveMolecule(self):
         self.glpane.setMode('MODIFY')
@@ -858,13 +869,13 @@ class MWsemantics(MainWindow):
     # Mirror Tool
     def toolsMirror(self):
         print "MWsemantics.toolsMirror(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.information(self, "ATOM User Notice:", 
              "This function is not implemented yet, coming soon...")
              
     # Mirror Circular Boundary Tool
     def toolsMirrorCircularBoundary(self):
         print "MWsemantics.toolsMirrorCircularBoundary(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:", 
+        QMessageBox.information(self, "ATOM User Notice:", 
              "This function is not implemented yet, coming soon...")
 
     # "push down" one nanometer to cut out the next layer
@@ -950,13 +961,13 @@ class MWsemantics(MainWindow):
     # create bonds where reasonable between selected and unselected
     def modifyEdgeBond(self):
         print "MWsemantics.modifyEdgeBond(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
         
     # create bonds where reasonable between selected and unselected
     def toolsAddBond(self):
         print "MWsemantics.modifyAddBond(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # Turn on or off the axis icon
@@ -972,7 +983,7 @@ class MWsemantics(MainWindow):
     # break bonds between selected and unselected atoms
     def toolsDeleteBond(self):
         print "MWsemantics.modifyDeleteBond(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # 2BDone: make a copy of the selected part, move it, and bondEdge it,
@@ -981,7 +992,7 @@ class MWsemantics(MainWindow):
     # between copying and bondEdging it.
     def modifyCopyBond(self):
         print "MWsemantics.modifyCopyBond(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # delete selected parts or atoms
@@ -1012,22 +1023,22 @@ class MWsemantics(MainWindow):
 
     def dispDatumLines(self):
         """ Toggle on/off datum lines """
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def dispDatumPlanes(self):
         """ Toggle on/off datum planes """
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editPrefs(self):
         """ Edit square grid line distances(dx, dy, dz) in nm/angtroms """
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.information(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
  
     def elemChangePTable(self):
@@ -1056,7 +1067,7 @@ class MWsemantics(MainWindow):
         
     def setViewRecenter(self):
         """ Fit to Window """
-        QMessageBox.warning(self, self.name() + " User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 	         
 #######  Load Cursors #########################################
