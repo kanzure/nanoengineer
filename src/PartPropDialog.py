@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\PartPropDialog.ui'
 #
-# Created: Sun Nov 7 10:35:50 2004
+# Created: Sun Nov 7 17:55:10 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -315,8 +315,11 @@ class PartPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(378,480).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(378,483).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
+
+        self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
 
 
     def languageChange(self):

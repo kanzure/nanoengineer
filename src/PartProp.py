@@ -41,11 +41,7 @@ class PartProp(PartPropDialog):
         item.setText(0,"Chunks:")
         item.setText(1, str(nchunks))
 
-    def applyButtonClicked(self):
-        self.applyPushButton.setEnabled(False)            
-
     def accept(self):
-        self.applyButtonClicked()    
         QDialog.accept(self)
 
     def reject(self):
