@@ -641,24 +641,28 @@ class depositMode(basicMode):
         
     def makeMenus(self):
         
-        self.Menu1 = self.makemenu([('Set Hotspot', self.setHotSpot),
-                                    ('select', self.select),
-                                    ("dump", self.dump),
-                                    None,
-                                    ('Double bond', self.skip),
-                                    ('Triple bond', self.skip)
-                                    ])
-        
-        self.Menu2 = self.makemenu([('Carbon', self.w.setCarbon),
-                                    ('Hydrogen', self.w.setHydrogen),
-                                    ('Oxygen', self.w.setOxygen),
-                                    ('Nitrogen', self.w.setNitrogen)
-                                    ])
-        
-        self.Menu3 = self.makemenu([('Passivate', self.o.assy.modifyPassivate),
-                                    ('Hydrogenate', self.o.assy.modifyHydrogenate),
-                                    ('Separate', self.o.assy.modifySeparate)])
+        self.Menu_spec = [
+            ('Set Hotspot', self.setHotSpot),
+            ('Select', self.select) ] # bruce 041103 capitalized 'Select'
 
+        self.debug_Menu_spec = [
+            ("dump", self.dump)
+        ]
+
+        # Ninad asks whether we should add more elements to this [bruce 041103]
+        self.Menu_spec_shift = [
+            ('Carbon', self.w.setCarbon),
+            ('Hydrogen', self.w.setHydrogen),
+            ('Oxygen', self.w.setOxygen),
+            ('Nitrogen', self.w.setNitrogen) ]
+
+        # Ninad says this is redundant, but I left it in; Josh should decide
+        # for this mode [bruce 041103]
+        self.Menu_spec_control = [
+            ('Passivate', self.o.assy.modifyPassivate),
+            ('Hydrogenate', self.o.assy.modifyHydrogenate),
+            ('Separate', self.o.assy.modifySeparate) ]
+        
     def setHotSpot(self):
         """if called on a singlet, make that singlet the hotspot for
         the molecule.  (if there's only one, it's automatically the

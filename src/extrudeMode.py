@@ -14,8 +14,6 @@ Being extended to also have algorithms suitable for Revolve...
 
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
-from platform import *
-
 from modes import *
 from qt import QSpinBox, QDoubleValidator
 
@@ -1549,39 +1547,27 @@ class extrudeMode(basicMode):
         return
    
     def makeMenus(self): ### mostly not yet reviewed for extrude or revolve mode
-        self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
-                                    ('Copy', self.o.assy.copy),
-                                    ('Separate', self.o.assy.modifySeparate),
-                                    ('Bond', self.o.assy.Bond),
-                                    ('Unbond', self.o.assy.Unbond),
-                                    ('Stretch', self.o.assy.Stretch)])
         
-        self.Menu3 = self.makemenu([('Default', self.w.dispDefault),
-                                    ('Lines', self.w.dispLines),
-                                    ('CPK', self.w.dispCPK),
-                                    ('Tubes', self.w.dispTubes),
-                                    ('VdW', self.w.dispVdW),
-                                    None,
-                                    ('Invisible', self.w.dispInvis),
-                                    None,
-                                    ('Color', self.w.dispObjectColor)])
-
-        #bruce 041010 experiment -- try letting those other menus also be submenus of this one
-        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
-                                    ('Start Over', self.StartOver),
-                                    ('Backup', self.Backup),
-                                    None,
-                                    ('Move', self.move),
-                                    ('Copy', self.copy),
-                                    ('debug: reload', self.extrude_reload),
-                                    None,
-                                    # note: use platform.py functions so names work on Mac or non-Mac,
-                                    # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
-                                    # or   "Control-Command Menu" vs. "Right-Control Menu".
-                                    # [bruce 041014]
-                                    ('%s-%s Menu' % (context_menu_prefix(), shift_name()), self.Menu2),
-                                    ('%s-%s Menu' % (context_menu_prefix(), control_name()), self.Menu3),
-                                   ])
+        self.Menu_spec = [
+            ('Cancel', self.Cancel),
+            ('Start Over', self.StartOver),
+         ]
+        
+        self.debug_Menu_spec = [
+            ('debug-reload', self.extrude_reload)
+         ]
+        
+        self.Menu_spec_control = [
+            ('Invisible', self.w.dispInvis),
+            None,
+            ('Default', self.w.dispDefault),
+            ('Lines', self.w.dispLines),
+            ('CPK', self.w.dispCPK),
+            ('Tubes', self.w.dispTubes),
+            ('VdW', self.w.dispVdW),
+            None,
+            ('Color', self.w.dispObjectColor) ]
+        
         return
 
     def extrude_reload(self):

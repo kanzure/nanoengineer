@@ -186,33 +186,26 @@ class modifyMode(basicMode):
 ##        """
 ##        drawer.drawaxes(5,-self.o.pov)
 
-    def makeMenus(self):
+    def makeMenus(self): # menus modified by bruce 041103
         
-        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
-                                    ('Start Over', self.StartOver),
-                                    ('Backup', self.Backup),
-                                    None,
-                                    ('Copy', self.o.assy.copy),
-                                    ('CopyBond', self.o.assy.copy),
-                                    ('Bond', self.o.assy.Bond),
-                                    ('Unbond', self.o.assy.Unbond),
-                                    ('Stretch', self.o.assy.Stretch),
-                                    None,
-                                    ('Kill', self.o.assy.kill)])
-
-        self.Menu2 = self.makemenu([('Ground', self.o.assy.makeground),
-                                    ('Handle', self.skip),
-                                    ('Rotary Motor', self.o.assy.makeRotaryMotor),
-                                    ('Linear Motor', self.o.assy.makeLinearMotor),
-                                    ('Spring', self.skip),
-                                    ('Bearing', self.skip),
-                                    ('Dynamometer', self.skip),
-                                    ('Heatsink', self.skip)])
+        self.Menu_spec = [
+            ('Cancel', self.Cancel),
+            ('Separate', self.o.assy.modifySeparate),
+            ('Stretch', self.o.assy.Stretch),
+            ('Kill', self.o.assy.kill),
+            ('Hide', self.o.assy.Hide) ]
         
-        self.Menu3 = self.makemenu([('Passivate', self.o.assy.modifyPassivate),
-                                    ('Hydrogenate', self.o.assy.modifyHydrogenate),
-                                    ('Separate', self.o.assy.modifySeparate)])
-                                    
+        self.Menu_spec_control = [
+            ('Invisible', self.w.dispInvis),
+            None,
+            ('Default', self.w.dispDefault),
+            ('Lines', self.w.dispLines),
+            ('CPK', self.w.dispCPK),
+            ('Tubes', self.w.dispTubes),
+            ('VdW', self.w.dispVdW),
+            None,
+            ('Color', self.w.dispObjectColor) ]
+                
     def skip(self):
         pass
 

@@ -277,17 +277,18 @@ class cookieMode(basicMode):
 
    
     def makeMenus(self):
-        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
-                                    ('Start Over', self.StartOver),
-                                    ('Backup', self.Backup),
-                                    None,
-                                    ('Layer', self.Layer),
-                                    None,
-                                    ('Copy', self.copy)])
-        
-        self.Menu2 = self.Menu1
-        
-        self.Menu3 = self.Menu1
+        self.Menu_spec = [
+            ('Cancel', self.Cancel),
+            ('Start Over', self.StartOver),
+            ('Backup', self.Backup),
+            None,
+            ('Layer', self.Layer),
+            # bruce 041103 removed Copy, per Ninad email;
+            # Josh says he might implement it for Alpha;
+            # if/when he does, he can uncomment the following two lines.
+            ## None,
+            ## ('Copy', self.copy),
+         ]
 
     def copy(self):
         print 'NYI'

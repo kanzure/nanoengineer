@@ -148,42 +148,38 @@ class selectMode(basicMode):
         if self.sellist: self.pickdraw()
         self.o.assy.draw(self.o)
 
-## bruce 040922 zapped this since it seems obsolete:
-##    def griddraw(self):
-##        """ draws point-of-view axes
-##        """
-##        drawer.drawaxes(5,-self.o.pov)
-
     def makeMenus(self):
         
-        self.Menu1 = self.makemenu([('All', self.o.assy.selectAll),
-                                    ('None', self.o.assy.selectNone),
-                                    ('Invert', self.o.assy.selectInvert),
-                                    None,
-                                    ('Connected', self.o.assy.selectConnected),
-                                    ('Doubly', self.o.assy.selectDoubly),
-                                    None,
-                                    ('Atoms', self.w.toolsSelectAtoms),#self.o.assy.selectAtoms),
-                                    ('Chunks', self.w.toolsSelectMolecules)])#self.o.assy.selectParts)])
+        self.Menu_spec = [
+            ('All', self.o.assy.selectAll),
+            ('None', self.o.assy.selectNone),
+            ('Invert', self.o.assy.selectInvert),
+            None,
+            ('Connected', self.o.assy.selectConnected),
+            ('Doubly', self.o.assy.selectDoubly),
+            None,
+            ('Atoms', self.w.toolsSelectAtoms),
+            ('Chunks', self.w.toolsSelectMolecules) ]
         
-        self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
-                                    ('Copy', self.o.assy.copy),
-                                    ('Move', self.move),
-                                    None,
-                                    ('Hide', self.o.assy.Hide),
-                                    None,
-                                    ('Separate', self.o.assy.modifySeparate),
-                                    ('Stretch', self.o.assy.Stretch)])
+        self.Menu_spec_shift = [
+            ('Kill', self.o.assy.kill),
+            ('Move', self.move),
+            None,
+            ('Hide', self.o.assy.Hide),
+            None,
+            ('Separate', self.o.assy.modifySeparate),
+            ('Stretch', self.o.assy.Stretch) ]
         
-        self.Menu3 = self.makemenu([('Invisible', self.w.dispInvis),
-                                    None,
-                                    ('Default', self.w.dispDefault),
-                                    ('Lines', self.w.dispLines),
-                                    ('CPK', self.w.dispCPK),
-                                    ('Tubes', self.w.dispTubes),
-                                    ('VdW', self.w.dispVdW),
-                                    None,
-                                    ('Color', self.w.dispObjectColor)])
+        self.Menu_spec_control = [
+            ('Invisible', self.w.dispInvis),
+            None,
+            ('Default', self.w.dispDefault),
+            ('Lines', self.w.dispLines),
+            ('CPK', self.w.dispCPK),
+            ('Tubes', self.w.dispTubes),
+            ('VdW', self.w.dispVdW),
+            None,
+            ('Color', self.w.dispObjectColor) ]
 
     def move(self):
         # we must set OldCursor to the MoveSelectCursor before going into move mode.
