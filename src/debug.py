@@ -23,7 +23,7 @@ frame when it's first seen, and perhaps incrementing it each time it's seen).
 '''
 
 import sys, os, time
-from constants import debugButtons
+from constants import debugButtons, noop
 
 # note: some debug features run user-supplied code in this module's
 # global namespace (on platforms where this is permitted by our licenses).
@@ -259,6 +259,7 @@ class DebugMenuMixin:
         "[subclasses can in theory override this, but probably needn't and shouldn't]"
         import debug
         res = [
+            ('(debugging menu)', noop, 'disabled'),
             ('print self', self._debug_printself),
             # None, # separator
         ]
