@@ -151,8 +151,12 @@ class modelTree(QListView):
     def changename(self, listItem, col, text):
         if col != 0: return
         self.assy.modified = 1
-        listItem.object.name = str(text)
-        
+        # Check if there is text for the listitem's name.  If not, we must force an MT update.
+        # Otherwise, the name will remain blank until the next MT update.
+        # Mark [04-12-07]
+        if text: listItem.object.name = str(text)
+        else: self.update() # Force MT update.
+
     def beginrename(self, item, pos, col):
         istr = str(item.text(0))
 #        print "MT.py: beginrename: selected item: ",istr
@@ -186,7 +190,9 @@ class modelTree(QListView):
         mitem.setPixmap(0, icon)
         mitem.setDragEnabled(dnd)
         mitem.setDropEnabled(dnd)
-        mitem.setRenameEnabled(0,True)
+        # A kludge.  Will fix for beta by implementing a "rename" method for Node class (and all sub-classes)
+        # This works for now.  Mark [04-12-07]
+        if obj.name != "Clipboard": mitem.setRenameEnabled(0,True) # kludge for Clipboard.
         return mitem
     
     def update(self):
