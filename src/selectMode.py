@@ -195,9 +195,6 @@ class selectMode(basicMode):
             ('Select None                Ctrl+D', self.o.assy.selectNone),
             ('Invert Selection   Ctrl+Shift+I', self.o.assy.selectInvert),
             None,
-            ('Connected', self.o.assy.selectConnected),
-            ('Doubly', self.o.assy.selectDoubly),
-            None,
             # bruce 041217 renamed Atoms and Chunks to the full names of the
             # modes they enter, and added Move Chunks too. (It was already
             # present but in a different menu. I left it there, too, for the
@@ -215,7 +212,6 @@ class selectMode(basicMode):
             None,
             ('Hide', self.o.assy.Hide),
             None,
-            ('Separate', self.o.assy.modifySeparate),
             ('Stretch', self.o.assy.Stretch) ]
         
         self.Menu_spec_control = [
@@ -227,7 +223,10 @@ class selectMode(basicMode):
             ('Tubes', self.w.dispTubes),
             ('VdW', self.w.dispVdW),
             None,
-            ('Color', self.w.dispObjectColor),
+            ('Reset Chunk Color', self.w.dispResetChunkColor),
+            ('Reset Chunk Display', self.w.dispResetChunkDisplay),
+            ('Show Invisible Atoms', self.w.dispShowInvisAtoms),
+            ('Chunk Color...', self.w.dispObjectColor),
             ]
 
     def move(self):
