@@ -3,7 +3,7 @@ nanoENGINEER-1™ v0.0.4 (Alpha 4)
 
 Bug Fixes In Alpha 4 
 
-* Bug #130: ‘Hydrogenate’ add hydrogen atoms to all open bonds above waterline in Build mode. Thus, its implementation is different than Dehydrogenate and Passivate in that mode (these two work  only on a selection). Now, Hydrogenate is implemented in such a way that it works only when a chunk is selected. 
+* Bug #130: ‘Hydrogenate’ adds hydrogen atoms to all open bonds above waterline in Build mode. Thus, its implementation is different than Dehydrogenate and Passivate in that mode (these two work  only on a selection). Now, in Build mode, Hydrogenate is implemented in such a way that it works only when the chunk is selected. 
 
 * Bug #360 (item 8): Single cut operation for multiple selected objects places copies of only alternate objects in the clipboard.
 
