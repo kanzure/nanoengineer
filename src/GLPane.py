@@ -29,7 +29,8 @@ import re
 from constants import *
 
 from modifyMode import modifyMode
-from cookieMode import cookieMode # fyi: was 'import *' before bruce 040920; same with some other modes here, 040922
+# fyi: was 'import *' before bruce 040920; same with other modes here, 040922
+from cookieMode import cookieMode 
 from extrudeMode import extrudeMode
 from selectMode import *
 from depositMode import depositMode
@@ -91,15 +92,18 @@ for q in pquats:
 
 allQuats = quats100 + quats110 + quats111
 
-debug_menu_enabled = 1 # enable the undocumented debug menu by default [bruce 040920]
+# enable the undocumented debug menu by default [bruce 040920]
+debug_menu_enabled = 1 
 debug_events = 0 # set this to 1 to print info about most mouse events
 
 class GLPane(QGLWidget, modeMixin):
     """Mouse input and graphics output in the main view window.
     """
-    # Note: external code expects self.mode to always be a working mode object, which has certain callable methods.
-    # Our modes themselves expect certain other attributes (like self.default_mode, self.modetab) to be present.
-    # This is all set up and maintained by our mixin class, modeMixin. [bruce 040922]
+    # Note: external code expects self.mode to always be a working
+    # mode object, which has certain callable methods.  Our modes
+    # themselves expect certain other attributes (like
+    # self.default_mode, self.modetab) to be present.  This is all set
+    # up and maintained by our mixin class, modeMixin. [bruce 040922]
 
     # constants needed by modeMixin:
     default_mode_class = selectMolsMode
@@ -120,8 +124,11 @@ class GLPane(QGLWidget, modeMixin):
         self.debug_menu = self.makemenu( self.debug_menu_items() )
 
         # The background color
-        self.backgroundColor = normalBackground ### bruce 040928 thinks backgroundColor is never used from here, only from self.mode
-        self.gridColor = normalGridLines ### bruce 040928 -- i'm not sure whether or not gridColor is still used
+        ### bruce 040928 thinks backgroundColor is never used from here,
+        ### only from self.mode
+        self.backgroundColor = normalBackground
+        ### bruce 040928 -- i'm not sure whether or not gridColor is still used
+        self.gridColor = normalGridLines 
 
         self.trackball = Trackball(10,10)
         self.quat = Q(1, 0, 0, 0)
@@ -149,8 +156,8 @@ class GLPane(QGLWidget, modeMixin):
         # not selecting anything currently
         self.shape = None
 
-##        ## bruce 040923 zapped the following members, since I think they are now only used in mode objects.
-##
+##        ## bruce 040923 zapped the following members, 
+##        ## since I think they are now only used in mode objects.
 ##        self.sellist = None
 ##
 ##        # 1 for selecting, 0 for deselecting, 2 for selecting parts
@@ -175,32 +182,50 @@ class GLPane(QGLWidget, modeMixin):
 
         self.setAssy(assem)
 
-        ## self.win.statusBar().message("self.win.statusBar", 2000) # this works, but is shown for only about 1/2 sec [bruce 040924]
-        ## self.win.statusBar().message("self.win.statusBar") # this works too; leaves it there until a tooltip writes over it
-        ## but note that other statusbar msgs I'm emitting are going away almost instantly -- it's not a reliable place to make sure
-        ## the user sees something! [bruce 040924]
+        ## self.win.statusBar().message("self.win.statusBar", 2000) #
+        ## this works, but is shown for only about 1/2 sec [bruce
+        ## 040924] self.win.statusBar().message("self.win.statusBar")
+        ## # this works too; leaves it there until a tooltip writes
+        ## over it but note that other statusbar msgs I'm emitting are
+        ## going away almost instantly -- it's not a reliable place to
+        ## make sure the user sees something! [bruce 040924]
         
     def setAssy(self, assem):
-        """[bruce comment 040922]
-        This is called from self.__init__, and from MWSemantics.__clear when user asks to open a new file, etc.
-        Apparently, it is supposed to forget whatever is happening now, and reinitialize the entire GLPane.
-        However, it does nothing to cleanly leave the current mode, if any; my initial guess [040922 1035am] is that that's a bug.
-        (As of 040922 I didn't yet try to fix that... only to emit a warning when it happens. Any fix requires modifying our callers.)
-        I also wonder if setAssy ought to do some of the other things now in __init__, e.g. setting some display prefs to their defaults.
-        Yet another bug (in how it's called now): user is evidently not given any chance to save unsaved changes,
-        or get back to current state if the openfile fails... tho I'm not sure I'm right about that, since I didn't test it.
+        
+        """[bruce comment 040922] This is called from self.__init__,
+        and from MWSemantics.__clear when user asks to open a new
+        file, etc.  Apparently, it is supposed to forget whatever is
+        happening now, and reinitialize the entire GLPane.  However,
+        it does nothing to cleanly leave the current mode, if any; my
+        initial guess [040922 1035am] is that that's a bug.  (As of
+        040922 I didn't yet try to fix that... only to emit a warning
+        when it happens. Any fix requires modifying our callers.)  I
+        also wonder if setAssy ought to do some of the other things
+        now in __init__, e.g. setting some display prefs to their
+        defaults.  Yet another bug (in how it's called now): user is
+        evidently not given any chance to save unsaved changes, or get
+        back to current state if the openfile fails... tho I'm not
+        sure I'm right about that, since I didn't test it.
         """
+        
         assem.o = self
         self.assy = assem
+        self.quat = self.assy.csys.quat
+        self.scale = self.assy.csys.scale
 
-        self._reinit_modes() # defined in modeMixin [bruce 040922]; requires self.assy
+        # defined in modeMixin [bruce 040922]; requires self.assy
+        self._reinit_modes() 
 
     # "callback methods" from modeMixin:
 
     def update_after_new_mode(self):
-        "do whatever updates are needed after self.mode might have changed (ok if this is called more than needed)"
+        """do whatever updates are needed after self.mode might have changed
+        (ok if this is called more than needed)"""
+        
         #This following line was commented out by Huaicai 9/29/04
-        #self.win.modelTreeView.updateModelTree() #bruce comment 040922: I'm not positive this is the right place to do this...
+        #self.win.modelTreeView.updateModelTree()
+        #bruce comment 040922:
+        #  I'm not positive this is the right place to do this...
         ###e also update tool-icon visual state in the toolbar
         self.paintGL()
 
@@ -209,46 +234,62 @@ class GLPane(QGLWidget, modeMixin):
     # ==
 
     def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
+        
         """[experimental method by bruce 040922]
         
-           Show a warning to the user, without interrupting them (i.e. not in a dialog)
-           unless bother_user_with_dialog is true,
-           or unless ensure_visible is true and there's no other way to be sure they'll see the message.
-           (If neither of these options is true, we might merely print the message to stdout.)
+           Show a warning to the user, without interrupting them
+           (i.e. not in a dialog) unless bother_user_with_dialog is
+           true, or unless ensure_visible is true and there's no other
+           way to be sure they'll see the message.  (If neither of
+           these options is true, we might merely print the message to
+           stdout.)
 
-           In the future, this might go into a status bar in the window, if we can be sure it will remain visible long enough.
-           For now, that won't work, since some status bar messages I emit are vanishing almost instantly,
-           and I can't yet predict which ones will do that.
-           Due to that problem and since the stdout/stderr output might be hidden from the user,
-           ensure_visible implies bother_user_with_dialog for now.
-           (And when we change that, we have to figure out whether all the calls that no longer use dialogs are still ok.)
+           In the future, this might go into a status bar in the
+           window, if we can be sure it will remain visible long
+           enough.  For now, that won't work, since some status bar
+           messages I emit are vanishing almost instantly, and I can't
+           yet predict which ones will do that.  Due to that problem
+           and since the stdout/stderr output might be hidden from the
+           user, ensure_visible implies bother_user_with_dialog for
+           now.  (And when we change that, we have to figure out
+           whether all the calls that no longer use dialogs are still
+           ok.)
 
-           In the future, all these messages will also probably get timestamped and recorded in a log file,
-           in addition to whereever they're shown now.
+           In the future, all these messages will also probably get
+           timestamped and recorded in a log file, in addition to
+           whereever they're shown now.
 
-           This is an experimental method, not yet uniformly used (most uses are in modes.py),
-           and it's likely to be revised a few times in API as well as in implemention. [bruce 040924]
+           This is an experimental method, not yet uniformly used
+           (most uses are in modes.py), and it's likely to be revised
+           a few times in API as well as in implemention. [bruce
+           040924]
         """
+        
         use_status_bar = 0 # always 0, for now
         use_dialog = bother_user_with_dialog
         
         if ensure_visible:
             prefix = "WARNING"
-            use_dialog = 1 ###e for now, and during debugging -- status bar would be ok when we figure out how to guarantee it lasts
+            use_dialog = 1 ###e for now, and during debugging --
+            ### status bar would be ok when we figure out how to
+            ### guarantee it lasts
         else:
             prefix = "warning"
         str = str[0].upper() + str[1:] # capitalize the sentence
         msg = "%s: %s" % (prefix,str,)
         ###e add a timestamp prefix, at least for the printed one
-        
-        print msg # always print it so there's a semi-permanent record they can refer to
+
+        # always print it so there's a semi-permanent record they can refer to
+        print msg 
         
         if use_status_bar: # do this first
             self.win.statusBar().message( msg)
             assert 0 # this never happens for now
         if use_dialog:
-            # use this only when it's worth interrupting the user to make sure they noticed the message.. see docstring for details
-            ##e also linebreak it if it's very long? i might hope that some arg to the messagebox could do this...
+            # use this only when it's worth interrupting the user to make
+            # sure they noticed the message.. see docstring for details
+            ##e also linebreak it if it's very long? i might hope that some
+            # arg to the messagebox could do this...
             QMessageBox.warning(self, prefix, msg) # args are title, content
         return
         
@@ -300,15 +341,25 @@ class GLPane(QGLWidget, modeMixin):
 
     _saved_buttons = 0
     def fix_buttons(self, but, when):
-        """Every mouse event's button and modifier key flags should be filtered through this method, which does two things:
-           1. Store those flags from a mouse-press, and reuse them on the subsequent mouse-drag and mouse-release events (but not on pure mouse-moves),
-             so the caller can just switch on the flags to process the event, and will always call properly paired begin/end routines
-             (this matters if the user releases or presses a modifier key during the middle of a drag; it's common to release a mod key then);
-           2. On the Mac, remap Option/leftButton to middleButton, so that the Option key (also called the Alt key) simulates the middle mouse button.
-           (Note that Qt/Mac, by default, lets Control key simulate rightButton and remaps Command key to the same flag we call cntlButton;
-            we like this and don't change it here.)
+        
+        """Every mouse event's button and modifier key flags should be
+        filtered through this method, which does two things: 1. Store
+        those flags from a mouse-press, and reuse them on the
+        subsequent mouse-drag and mouse-release events (but not on
+        pure mouse-moves), so the caller can just switch on the flags
+        to process the event, and will always call properly paired
+        begin/end routines (this matters if the user releases or
+        presses a modifier key during the middle of a drag; it's
+        common to release a mod key then); 2. On the Mac, remap
+        Option/leftButton to middleButton, so that the Option key
+        (also called the Alt key) simulates the middle mouse button.
+        (Note that Qt/Mac, by default, lets Control key simulate
+        rightButton and remaps Command key to the same flag we call
+        cntlButton; we like this and don't change it here.)
         """
-        # [by bruce, 040917. At time of commit, tested only on Mac with one-button mouse.]
+        
+        # [by bruce, 040917. At time of commit,
+        # tested only on Mac with one-button mouse.]
         
         allButtons = (leftButton|midButton|rightButton)
         allModKeys = (shiftButton|cntlButton|altButton)
@@ -318,47 +369,77 @@ class GLPane(QGLWidget, modeMixin):
             when = 'drag'
         assert when in ['move','press','drag','release']
         
-        # 1. bugfix: make mod keys during drag and button-release the same as on the initial button-press.
-        # Do the same with mouse buttons, if they change during a single drag (though I hope that will be rare).
-        # Do all this before remapping the modkey/mousebutton combinations in part 2 below!
+        # 1. bugfix: make mod keys during drag and button-release the
+        # same as on the initial button-press.  Do the same with mouse
+        # buttons, if they change during a single drag (though I hope
+        # that will be rare).  Do all this before remapping the
+        # modkey/mousebutton combinations in part 2 below!
+        
         if when == 'press':
-            self._saved_buttons = but & allFlags # we'll reuse this button/modkey state during the same drag and release
+            self._saved_buttons = but & allFlags
+            # we'll reuse this button/modkey state during the same
+            # drag and release
             if _debug and self._saved_buttons != but:
                 print "fyi, debug: fix_buttons: some event flags unsaved: %d - %d = 0x%x" % (but, self._saved_buttons, but - self._saved_buttons)
-                # fyi: on Mac I once got 2050 - 2 = 0x800 from this statement; don't know what flag 0x800 means; shouldn't be a problem
+                # fyi: on Mac I once got 2050 - 2 = 0x800 from this statement;
+                # don't know what flag 0x800 means; shouldn't be a problem
         elif when in ['drag','release']:
             if (self._saved_buttons & allButtons):
                 but0 = but
                 but &= ~allFlags
-                but |= self._saved_buttons # restore the modkeys and mousebuttons from the mousepress
+                but |= self._saved_buttons
+                # restore the modkeys and mousebuttons from the mousepress
                 if _debug and but0 != but:
                     print "fyi, debug: fix_buttons rewrote but0 0x%x to but 0x%x" % (but0, but) #works
             else:
-                # fyi: This case might happen in the following rare and weird situation:
-                # - the user presses another mousebutton during a drag, then releases the first one, still in the drag;
-                # - Qt responds to this by emitting two mouseReleases in a row, one for each released button.
-                # (I don't know if it does this; testing it requires a 3-button mouse, but the one I own is unreliable.)
+                
+                # fyi: This case might happen in the following rare
+                # and weird situation: - the user presses another
+                # mousebutton during a drag, then releases the first
+                # one, still in the drag; - Qt responds to this by
+                # emitting two mouseReleases in a row, one for each
+                # released button.  (I don't know if it does this;
+                # testing it requires a 3-button mouse, but the one I
+                # own is unreliable.)
                 #
-                # In that case, this code might make some sense of this, but it's not worth analyzing exactly what it does for now.
+                # In that case, this code might make some sense of
+                # this, but it's not worth analyzing exactly what it
+                # does for now.
                 #
-                # If Qt instead suppresses the first mouseRelease until all buttons are up (as I hope), this case never happens;
-                # instead the above code pretends the same mouse button was down during the entire drag.
+                # If Qt instead suppresses the first mouseRelease
+                #until all buttons are up (as I hope), this case never
+                #happens; instead the above code pretends the same
+                #mouse button was down during the entire drag.
+                
                 print "warning: Qt gave us two mouseReleases without a mousePress; ignoring this if we can, but it might cause bugs"
                 pass # don't modify 'but'
         else:
-            pass # pure move (no mouse buttons down): don't revise the event flags
+            pass # pure move (no mouse buttons down):
+                 #  don't revise the event flags
         if when == 'release':
             self._saved_buttons = 0
         
         # 2. let the Mac's Alt/Option mod key simulate middle mouse button.
-        if sys.platform in ['darwin']: ### please try adding your platform here, and tell me whether it breaks anything... see below.
-            # As of 040916 this hasn't been tested on other platforms, so I used sys.platform to limit it to the Mac.
-            # Note that sys.platform is 'darwin' for my MacPython 2.3 and Fink python 2.3 installs, but might be 'mac' or 'macintosh' or so
-            # for some other Macintosh Pythons. When we find out, we should add those to the above list.
-            # As for non-Mac platforms, what I think this code would do (if they were added to the above list)
-            # is either nothing, or remap some other modifier key (different than Shift or Control) to middleButton.
-            # If it does the latter, maybe we'll decide that's good (for users with less than 3 mouse buttons) and document it.
+        if sys.platform in ['darwin']:
+            
+### please try adding your platform here, and tell me whether it
+### breaks anything... see below.
+            
+            # As of 040916 this hasn't been tested on other platforms,
+            # so I used sys.platform to limit it to the Mac.  Note
+            # that sys.platform is 'darwin' for my MacPython 2.3 and
+            # Fink python 2.3 installs, but might be 'mac' or
+            # 'macintosh' or so for some other Macintosh Pythons. When
+            # we find out, we should add those to the above list.  As
+            # for non-Mac platforms, what I think this code would do
+            # (if they were added to the above list) is either
+            # nothing, or remap some other modifier key (different
+            # than Shift or Control) to middleButton.  If it does the
+            # latter, maybe we'll decide that's good (for users with
+            # less than 3 mouse buttons) and document it.
+            
             # -- bruce 040916-17
+            
             if (but & altButton) and (but & leftButton):
                 but = but - altButton - leftButton + midButton
         return but
@@ -366,7 +447,9 @@ class GLPane(QGLWidget, modeMixin):
     def mouseDoubleClickEvent(self, event):
         self.debug_event(event, 'mouseDoubleClickEvent')
         but = event.stateAfter()
-        but = self.fix_buttons(but, 'press') #k I'm guessing this event comes in place of a mousePressEvent; test this [bruce 040917]
+        #k I'm guessing this event comes in place of a mousePressEvent; test
+        #this [bruce 040917]
+        but = self.fix_buttons(but, 'press')
         if but & leftButton:
             self.mode.leftDouble(event)
         if but & midButton:
@@ -541,9 +624,13 @@ class GLPane(QGLWidget, modeMixin):
 
         ##start=time.time()
 
-        ###e bruce 040923: I'd like to reset the OpenGL state completely, here, incl the stack depths, to mitigate some bugs. How??
-        # Note that there might be some openGL init code earlier which I'll have to not mess up. Incl displaylists in drawer.setup.
-        # What I ended up doing is just to measure the stack depth and pop it 0 or more times to make the depth 1 -- see below.
+        ###e bruce 040923: I'd like to reset the OpenGL state
+        # completely, here, incl the stack depths, to mitigate some
+        # bugs. How??  Note that there might be some openGL init code
+        # earlier which I'll have to not mess up. Incl displaylists in
+        # drawer.setup.  What I ended up doing is just to measure the
+        # stack depth and pop it 0 or more times to make the depth 1
+        # -- see below.
      
         c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
@@ -551,10 +638,15 @@ class GLPane(QGLWidget, modeMixin):
 
 	glMatrixMode(GL_MODELVIEW)
 
-	# restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923, to partly mitigate the effect of certain drawing bugs]
-	# btw I don't know for sure whether this causes a significant speed hit for some OpenGL implementations (esp. X windows)...
+	# restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923,
+	# to partly mitigate the effect of certain drawing bugs] btw I
+	# don't know for sure whether this causes a significant speed
+	# hit for some OpenGL implementations (esp. X windows)...
 	# test sometime. #e
-	depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH) # this is normally 1 (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
+        
+	depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
+        # this is normally 1
+        # (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
 	if depth > 1:
             print "apparent bug: glGetInteger(GL_MODELVIEW_STACK_DEPTH) = %r in GLPane.paintGL" % depth
             print "workaround: pop it back to depth 1"
@@ -702,22 +794,28 @@ class GLPane(QGLWidget, modeMixin):
 
     def minimize(self):
         from debug import print_compact_traceback
-        self.win.statusBar().message("Minimizing...")  # Initial message [mark 040924 via bruce]
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # Put up the hourglass cursor. [mark 040924 via bruce]
+        self.win.statusBar().message("Minimizing...")
+        # Initial message [mark 040924 via bruce]
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        # Put up the hourglass cursor. [mark 040924 via bruce]
         try:
             writemmp(self.assy, "minimize.mmp")
             s = getoutput("simulator -m minimize.mmp")
-            # s might or might not start with "Minimize" -- if not, it's used as an error message
+            # s might or might not start with "Minimize" --
+            # if not, it's used as an error message
         except:
-            print_compact_traceback("exception in minimize; continuing: ") # bruce 040924
+            print_compact_traceback("exception in minimize; continuing: ")
+            # bruce 040924
             s = "internal error (traceback printed elsewhere)"
             assert not s.startswith("Minimize")
-        QApplication.restoreOverrideCursor()  # Restore the cursor [mark 040924 via bruce]
+        QApplication.restoreOverrideCursor()
+        # Restore the cursor [mark 040924 via bruce]
         if s.startswith("Minimize"):
             self.win.statusBar().message("Error...", 2000)
             QMessageBox.warning(self, "Minimization Failed:", s)
         else:
-            self.win.statusBar().message("Done.", 2000) # Final message for 2 seconds [mark 040924 via bruce]
+            self.win.statusBar().message("Done.", 2000)
+            # Final message for 2 seconds [mark 040924 via bruce]
                 # [Question for Mark: is it right to put this before the movie? -- bruce]
             self.startmovie("minimize.dpb")
         return
@@ -740,8 +838,12 @@ class GLPane(QGLWidget, modeMixin):
     def __str__(self):
         return "<GLPane " + self.name + ">"
 
-    def makemenu(self, lis): #bruce 040909-16 moved this method from basicMode to GLPane, leaving a delegator for it in basicMode.
-        "make and return a reusable popup menu from lis, which gives pairs of command names and callables"
+    def makemenu(self, lis):
+#bruce 040909-16 moved this method from basicMode to GLPane,
+# leaving a delegator for it in basicMode.
+        """make and return a reusable popup menu from lis,
+        which gives pairs of command names and callables
+        """
         win = self
         menu = QPopupMenu(win)
         for m in lis:
@@ -763,15 +865,23 @@ class GLPane(QGLWidget, modeMixin):
          ]
 
     def debug_event(self, event, funcname, permit_debug_menu_popup = 0):
-        """Debugging method -- no effect on normal users.
-           Does two things -- if a global flag is set, prints info about the event;
-           if a certain modifier key combination is pressed, and if caller passed permit_debug_menu_popup = 1,
-           puts up an undocumented debugging menu, and returns 1 to caller.
-           As of 040916, the debug menu is put up by Shift-Option-Command-click on the Mac,
-           and for other OS's I predict it either never happens or happens only for some similar set of 3 modifier keys.
+        
+        """Debugging method -- no effect on normal users.  Does two
+           things -- if a global flag is set, prints info about the
+           event; if a certain modifier key combination is pressed,
+           and if caller passed permit_debug_menu_popup = 1, puts up
+           an undocumented debugging menu, and returns 1 to caller.
+           As of 040916, the debug menu is put up by
+           Shift-Option-Command-click on the Mac, and for other OS's I
+           predict it either never happens or happens only for some
+           similar set of 3 modifier keys.
+           
            -- bruce 040916
         """
-        # in constants.py: debugButtons = cntlButton | shiftButton | altButton # on the mac, this really means command-shift-alt
+        
+        # in constants.py: debugButtons = cntlButton | shiftButton | altButton
+        # on the mac, this really means command-shift-alt
+        
         if debug_menu_enabled and permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
             print "\n* * * fyi: got debug click, will try to put up a debug menu...\n"
             self.do_debug_menu(event)
@@ -782,17 +892,26 @@ class GLPane(QGLWidget, modeMixin):
             except:
                 after = "<no stateAfter>" # needed for Wheel events, at least
             print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, event.state(), after, time.asctime())
-        # It seems, from doc and experiments, that event.state() is from just before the event (e.g. a button press or release, or move),
-        # and event.stateAfter() is from just after it, so they differ in one bit which is the button whose state changed (if any).
-        # But the doc is vague, and the experiments incomplete, so there is no guarantee that they don't sometimes differ in other ways.
+            
+        # It seems, from doc and experiments, that event.state() is
+        # from just before the event (e.g. a button press or release,
+        # or move), and event.stateAfter() is from just after it, so
+        # they differ in one bit which is the button whose state
+        # changed (if any).  But the doc is vague, and the experiments
+        # incomplete, so there is no guarantee that they don't
+        # sometimes differ in other ways.
         # -- bruce ca. 040916
         return 0
 
     def do_debug_menu(self, event):
         menu = self.debug_menu
         self.current_event = event # (so debug commands can see it)
-        # this code written from Qt/PyQt docs... note that some Atom modules use menu.exec_loop() but others use menu.popup();
-        # I don't know for sure whether this matters here, or which is best. -- bruce ca. 040916
+        
+        # this code written from Qt/PyQt docs... note that some Atom
+        # modules use menu.exec_loop() but others use menu.popup(); I
+        # don't know for sure whether this matters here, or which is
+        # best. -- bruce ca. 040916
+        
         menu.exec_loop(event.globalPos(), 1)
         self.current_event = None
         return 1

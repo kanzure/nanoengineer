@@ -130,7 +130,7 @@ class selectMode(basicMode):
             if selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
             if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
             if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
-            self.o.paintGL()
+            self.w.update() # josh 10/5
             return
 
         self.sellist += [p1]
@@ -222,20 +222,6 @@ class selectMode(basicMode):
         # go into move mode [bruce 040923: now also called from leftDouble]
         self.o.setMode('MODIFY') # [bruce 040923: i think how we do this doesn't need to be changed]
 
-    def changeModelSelection(self, trigger, target, state):
-          """ slot function to respond to model selection change
-          """
-          if self == trigger:
-               return
-          
-          if isinstance(target, molecule):
-                   if state:
-                        target.pick()
-                   else:
-                        target.unpick()
-
-                   self.o.updateGL()
-
     pass # end of class selectMode
     
 class selectMolsMode(selectMode):
@@ -244,14 +230,15 @@ class selectMolsMode(selectMode):
     
         def Enter(self): 
             basicMode.Enter(self)
-            self.o.assy.selectParts() 
+            self.o.assy.pickParts() # josh 10/7 to avoid race in assy init
         
     
         def init_gui(self):
             selectMode.init_gui(self)
             
             #self.o.assy.selwhat = 2
-            self.w.toolsSelectMoleculesAction.setOn(1) # mark - toggle the select molecule tools icon on
+            # mark - toggle the select molecule tools icon on
+            self.w.toolsSelectMoleculesAction.setOn(1)
             self.w.selectMolDashboard.show() 
             
         def restore_gui(self):

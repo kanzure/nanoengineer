@@ -19,6 +19,8 @@ from shape import *
 
 from constants import *
 from qt import *
+from Utility import *
+from MoleculeProp import *
 
 CPKvdW = 0.25
 
@@ -304,6 +306,24 @@ class atom:
         
         return (disp, rad)
 
+    def writemmp(self, atnums, alist, f):
+        atnums['NUM'] += 1
+        num = atnums['NUM']
+        alist += [self]
+        atnums[self.key] = num
+        disp = dispNames[self.display]
+        xyz=self.posn()*1000
+        n=(num, self.element.eltnum,
+           int(xyz[0]), int(xyz[1]), int(xyz[2]), disp)
+        f.write("atom %d (%d) (%d, %d, %d) %s\n" % n)
+        bl=[]
+        for b in self.bonds:
+            oa = b.other(self)
+            if oa.key in atnums: bl += [atnums[oa.key]]
+        if len(bl) > 0:
+            f.write("bond1 " + " ".join(map(str,bl)) + "\n")
+
+
     def povwrite(self, file, dispdef, col):
         color = col or self.element.color
         color = color * V(1,1,-1)
@@ -580,11 +600,10 @@ class bond:
 # object with unbonded atoms, and with bonds to atoms in other
 # molecules
 
-# Huaicai: It's completely possible to create a molecule without any atoms, so don't assume it always 
-# has atoms.   09/30/04
-class molecule(QObject):
+# Huaicai: It's completely possible to create a molecule without any atoms,
+# so don't assume it always has atoms.   09/30/04
+class molecule(Node):
     def __init__(self, assembly, nam=None):
-        QObject.__init__(self)
         self.assy = assembly
         # name doesn't get used yet, except as a comment
         # in mmp file output, but could be used to name
@@ -610,16 +629,8 @@ class molecule(QObject):
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0
+        self.cntl = MoleculeProp(self)
           
-        modelTree = self.assy.w.modelTreeView
-        QObject.connect(self, PYSIGNAL("modelSelectionChanged"), modelTree.changeModelSelection)
-          
-        selMode = self.assy.o.modetab['SELECTMOLS']
-        QObject.connect(self, PYSIGNAL("modelSelectionChanged"), selMode.changeModelSelection)
-
-    def setSelectionState(self, trigger, target, state):
-           self.emit(PYSIGNAL("modelSelectionChanged"), (trigger, target, state))
-
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to at2
         """
@@ -725,7 +736,7 @@ class molecule(QObject):
         self.shakedown()
 
 
-    def draw(self, o, level):
+    def draw(self, o, dispdef):
         """draw all the atoms, using the atom's, molecule's,
         or GLPane's display mode in that order of preference
         Use the hash table drawn to draw each bond only once,
@@ -736,7 +747,8 @@ class molecule(QObject):
         """
         #Tried to fix some bugs by Huaicai 09/30/04
         if len(self.atoms) == 0:
-                 return # Doesn't make sense to do anything for a molecule without any atoms
+            return
+            # do nothing for a molecule without any atoms
 
         # put it in its place
         glPushMatrix()
@@ -764,25 +776,26 @@ class molecule(QObject):
             self.externs = []
 
             for atm in self.atoms.itervalues():
-                atm.draw(o, disp, self.color, level)
+                atm.draw(o, disp, self.color, self.assy.drawLevel)
                 for bon in atm.bonds:
                     if bon.key not in drawn:
                         if bon.other(atm).molecule != self:
                             self.externs += [bon]
                         else:
                             drawn[bon.key] = bon
-                            bon.draw(o, disp, self.color, level)
-
-
-            for g in self.gadgets:
-                g.draw(o, disp)
-
+                            bon.draw(o, disp, self.color, self.assy.drawLevel)
             glEndList()
             self.havelist = 1
         glPopMatrix()
 
         for bon in self.externs:
-            bon.draw(o, disp, self.color, level)
+            bon.draw(o, disp, self.color, self.assy.drawLevel)
+
+    def writemmp(self, atnums, alist, f):
+        disp = dispNames[self.display]
+        f.write("mol (" + self.name + ") " + disp + "\n")
+        for a in self.atoms.itervalues():
+            a.writemmp(atnums, alist, f)
 
     # write a povray file: just draw everything inside
     def povwrite(self,file, win):
@@ -797,9 +810,6 @@ class molecule(QObject):
                 if bon.key not in drawn:
                     drawn[bon.key] = bon
                     bon.povwrite(file, disp, self.color)
-
-        for g in self.gadgets:
-            g.povwrite(file, disp)
 
     def move(self, offs):
         self.center += offs
@@ -846,7 +856,7 @@ class molecule(QObject):
         """select the molecule.
         """
         if not self.picked:
-            self.picked = 1
+            Node.pick(self)
             self.assy.selmols.append(self)
             # may have changed appearance of the molecule
             self.havelist = 0
@@ -855,10 +865,21 @@ class molecule(QObject):
         """unselect the molecule.
         """
         if self.picked:
-            self.picked = 0
+            Node.unpick(self)
             self.assy.selmols.remove(self)
             # may have changed appearance of the molecule
             self.havelist = 0
+
+    def kill(self):
+        Node.kill(self)
+        try:
+            self.assy.molecules.remove(self)
+            self.assy.modified = 1
+        except ValueError: pass
+
+    def icon(self, treewidget):
+        return treewidget.moleculeIcon
+
 
     # point is some point on the line of sight
     # matrix is a rotation matrix with z along the line of sight,
@@ -876,18 +897,19 @@ class molecule(QObject):
     # return the singlets in the given sphere
     # sorted by increasing distance from the center
     def nearSinglets(self, point, radius):
-        if not self.singlets: return None ## bruce comment 040928: returning None will cause caller's for loop to crash...
+        ## bruce comment 040928:
+        # returning None will cause caller's for loop to crash...
+        if not self.singlets: return None 
         v = self.singlpos-point
         r = sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2)
         p= r<=radius
         i=argsort(compress(p,r))
         return take(compress(p,self.singlets),i)
 
-    def copy(self, offset):
+    def copy(self, dad, offset):
         """Copy the molecule to a new molecule.
         offset tells where it will go relative to the original.
         There should be a rotation parameter but there isn't.
-        note the assembly must be passed in.
         """
         pairlis = []
         ndix = {}
@@ -905,6 +927,7 @@ class molecule(QObject):
         numol.setDisplay(self.display)
         self.unpick()
         numol.pick()
+        numol.dad = dad
         return numol
 
     def passivate(self):
@@ -933,12 +956,16 @@ class molecule(QObject):
         for a in self.atoms.values():
             a.Hydrogenate()
 
+    def edit(self):
+        self.cntl.show()
+
 
     def __str__(self):
         return "<Molecule of " + self.name + ">"
 
 def oneUnbonded(elem, assy, pos):
-    "[bruce comment 040928:] create one unbonded atom, of element elem, at position pos, in its own new molecule."
+    """[bruce comment 040928:] create one unbonded atom, of element elem,
+    at position pos, in its own new molecule."""
     mol = molecule(assy, gensym('Clicked'))
     a = atom(elem.symbol, pos, mol)
     r = elem.rcovalent
@@ -947,8 +974,6 @@ def oneUnbonded(elem, assy, pos):
             x = atom('X', pos+r*dp, mol)
             mol.bond(a,x)
     assy.addmol(mol)
-
-    assy.w.modelTreeView.addObject(mol)
 
     return mol
     

@@ -10,7 +10,17 @@ from drawer import segstart, drawsegment, segend, drawwirecube
 from shape import *
 from chem import *
 import OpenGL.GLUT as glut
+from Utility import *
+from RotaryMotorProp import *
+from LinearMotorProp import *
+from GroundProp import *
 
+Gno = 0
+def gensym(string):
+    """return string appended with a unique number"""
+    global Gno
+    Gno += 1
+    return string + str(Gno)
 
 def povpoint(p):
     # note z reversal -- povray is left-handed
@@ -21,18 +31,20 @@ def povpoint(p):
 # a direction vector, a stall torque, a no-load speed, and
 # a set of atoms connected to it
 # 2BDone -- selecting & manipulation
-class motor:
+class motor(Node):
     # create a blank motor connected to anything
     def __init__(self, assy):
+        Node.__init__(self, assy, None, gensym("Motor"))
         self.torque=0.0
         self.speed=0.0
         self.center=V(0,0,0)
         self.axis=V(0,0,0)
         self.atoms=[]
-        self.picked=0
         self.molecule = None
-        self.color = QColor(128,128,128) # set default color of rotary motor to gray
-        self.name = QString("Rotary Motor") # default name of rotary motor
+        # set default color of rotary motor to gray
+        self.color = QColor(128,128,128)
+        self.col = (0.5, 0.5, 0.5)
+        self.cntl = RotaryMotorProp(self, assy.o)
 
     # for a motor read from a file, the "motor" record
     def setcenter(self, torq, spd, cntr, xs):
@@ -44,11 +56,6 @@ class motor:
     # for a motor read from a file, the "shaft" record
     def setShaft(self, shft):
         self.atoms=shft
-        # this is a hack, but a motor shouldn't be
-        # attached to more than one molecule anyway
-        self.molecule = shft[0].molecule
-        self.center -= self.molecule.center
-        self.molecule.gadgets += [self]
 
     # for a motor created by the UI, center is average point and
     # axis (kludge) is the average of the cross products of
@@ -62,45 +69,42 @@ class motor:
         self.center=sum(pos)/len(pos)
         relpos=pos-self.center
         if len(shft) == 1:
-            axis = norm(los)
+            self.axis = norm(los)
         elif len(shft) == 2:
-            axis = norm(cross(relpos[0],cross(relpos[1],los)))
+            self.axis = norm(cross(relpos[0],cross(relpos[1],los)))
         else:
             guess = map(cross, relpos[:-1], relpos[1:])
             guess = map(lambda x: sign(dot(los,x))*x, guess)
             self.axis=norm(sum(guess))
+        print self.center
+        print self.axis
+        self.edit()
 
-        self.molecule = shft[0].molecule
-        self.center -= self.molecule.center
-        self.molecule.gadgets += [self]
-        
+    def edit(self):
+        self.cntl.setup()
+        self.cntl.show()
 
     def move(self, offset):
         self.center += offset
 
     def posn(self):
-        return self.molecule.quat.rot(self.center) + self.molecule.center
+        return self.center
 
     def axen(self):
-        return self.molecule.quat.rot(self.axis)
+        return self.axis
+   
+    def icon(self, treewidget):
+        return treewidget.rmotorIcon
+
 
     # drawn as a gray cylinder along the axis,
     # with a spoke to each atom    
     def draw(self, win, dispdef):
 
-        # mark - added color support
-        red = float (qRed(self.color.rgb())) / 255.0
-        green = float (qGreen(self.color.rgb())) / 255.0
-        blue = float (qBlue(self.color.rgb())) / 255.0
-        col = (red, green, blue)
-
-#        col=(0.5, 0.5, 0.5)
-
-        drawcylinder(col,self.center+5*self.axis,self.center-5*self.axis,
+        drawcylinder(self.col,self.center+5*self.axis,self.center-5*self.axis,
                      2.0, 1)
         for a in self.atoms:
-            drawcylinder(col, self.center,
-                         a.molecule.basepos[a.index], 0.5)
+            drawcylinder(self.col, self.center, a.posn(), 0.5)
             
     # write on a povray file
     def povwrite(self, file, dispdef):
@@ -116,8 +120,9 @@ class motor:
     def __repr__(self, ndix=None):
         cxyz=self.posn() * 1000
         axyz=self.axen() * 1000
-        s="rmotor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
-           (self.torque, self.speed,
+        col=map(int,A(self.col)*255)
+        s="rmotor (%s) (%d, %d, %d) %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
+           (self.name, col, self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]))
         if ndix:
@@ -126,9 +131,9 @@ class motor:
             nums = map((lambda a: a.key), self.atoms)
         return s + "shaft " + " ".join(map(str,nums))
 
+# note: the other gadgets must be updated to handle colors like rmotor
 
-
-class LinearMotor:
+class LinearMotor(Node):
     '''A Linear motor has an axis, represented as a point and
        a direction vector, a force, a stiffness, and
        a set of atoms connected to it
@@ -136,6 +141,7 @@ class LinearMotor:
 
     # create a blank motor connected to anything
     def __init__(self, assy):
+        Node.__init__(self, assy, None, gensym("LinMotor"))
         self.force = 0.0
         self.stiffness = 0.0
         self.center = V(0,0,0)
@@ -143,9 +149,11 @@ class LinearMotor:
         self.atoms = []
         self.picked = 0
         self.molecule = None
-        self.color = QColor(128,128,128) # set default color of linear motor to gray
+        # set default color of linear motor to gray
+        self.color = QColor(128,128,128) 
         self.name = QString("Linear Motor") # default name of linear motor
-    
+        self.cntl = LinearMotorProp(self, assy.o)
+
     # for a linear motor read from a file, the "linear motor" record
     def setCenter(self, force, stiffness, center, axis):
         self.force = force
@@ -185,6 +193,10 @@ class LinearMotor:
         self.molecule = shft[0].molecule 
         self.center -= self.molecule.center
         self.molecule.gadgets += [self]
+        self.edit()
+
+    def edit(self):
+        self.cntl.show()
         
     # Translate motor by offset
     def move(self, offset):
@@ -197,6 +209,9 @@ class LinearMotor:
     # Absolute axis vector, used to write povray file
     def axen(self):
         return self.molecule.quat.rot(self.axis)
+    
+    def icon(self, treewidget):
+        return treewidget.lmotorIcon
 
     # drawn as a gray box along the axis,
     # with a thin cylinder to each atom    
@@ -236,8 +251,8 @@ class LinearMotor:
     def __repr__(self, ndix = None):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        s = "lmotor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
-           (self.stiffness, self.force, 
+        s = "lmotor (%s) %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
+           (self.name, self.stiffness, self.force, 
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]))
         if ndix:
@@ -246,10 +261,8 @@ class LinearMotor:
             nums = map((lambda a: a.key), self.atoms)
         return s + "shaft " + " ".join(map(str, nums))
 
-
-
 # a ground just has a list of atoms
-class ground:
+class ground(Node):
     def __init__(self, assy, list):
         self.atoms =list
         # should really split ground if attached to more than one mol
@@ -257,7 +270,11 @@ class ground:
         self.molecule.gadgets += [self]
         self.color = QColor(0,0,0) # set default color of ground to black
         self.name = QString("Ground") # default name of linear motor
+        self.cntl = GroundProp(self, assy.o)
         
+
+    def edit(self):
+        self.cntl.show()
 
     # it's drawn as a wire cube around each atom (default color = black)
     def draw(self, win, dispdef):
@@ -281,11 +298,15 @@ class ground:
 
     def move(self, offset):
         pass
-    
+
+        
+    def icon(self, treewidget):
+        return treewidget.groundIcon
+   
     # the representation is also the mmp-file record
     def __repr__(self, ndix=None):
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
             nums = map((lambda a: a.key), self.atoms)
-        return "ground " + " ".join(map(str,nums))
+        return "ground (" + self.name + ") ".join(map(str,nums))

@@ -9,7 +9,11 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         RotaryMotorPropDialog.__init__(self)
         self.motor = rotMotor
         self.glpane = glpane
+        self.setup()
 
+    def setup(self):
+        rotMotor = self.motor
+        
         self.nameLineEdit.setText(rotMotor.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(rotMotor.color)
@@ -29,17 +33,24 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.atomsComboBox.insertStrList(strList, 0)
 
         self.applyPushButton.setEnabled(False)
+        
 
     #########################
     # Change rotary motor color
     #########################
     def changeRotaryMotorColor(self):
-        color = QColorDialog.getColor(QColor(self.motor.color), self, "ColorDialog")
+
+        color = QColorDialog.getColor(QColor(self.motor.color), self,
+                                      "ColorDialog")
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
             self.motor.color = color
-            self.motor.molecule.havelist = 0
+            red = float (qRed(color.rgb())) / 255.0
+            green = float (qGreen(color.rgb())) / 255.0
+            blue = float (qBlue(color.rgb())) / 255.0
+            self.motor.col = (red, green, blue)
             self.glpane.paintGL()
+
 
     #################
     # OK Button

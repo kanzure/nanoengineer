@@ -36,21 +36,40 @@ class assembly:
     def __init__(self, win, nm=None):
         # nothing is done with this now, but should have a
         # control for browsing/managing the list
-        global assyList ## bruce 040929: I'm discussing with Josh whether to eliminate this.
+        global assyList
         assyList += [self]
         # the MWsemantics displaying this assembly. 
         self.w = win
+        # self.mt = win.modelTreeView
         # self.o = win.glpane
         #  ... done in MWsemantics to avoid a circularity
+        
+        # the name if any
+        self.name = nm or gensym("Assembly")
+        # all the Nodes in the assembly registered here
+        self.dict = {}
+        
+        # the coordinate system (Actually default view)
+        self.csys = Csys(self, "CSys", 10.0, 0.0, 1.0, 0.0, 0.0)
+        grpl1=[self.csys,
+               Datum(self, "XY", "plane", V(0,0,0), V(0,0,1)),
+               Datum(self, "XZ", "plane", V(0,0,0), V(0,1,0)),
+               Datum(self, "YZ", "plane", V(0,0,0), V(1,0,0))]
+        self.data=Group("Data", self, None, grpl1)
+        self.data.open=False
+
+        self.shelf = Group("Shelf", self, None, [])
+        self.shelf.open = False
+
+        # the model tree for this assembly
+        self.tree = Group(self.name, self, None)
+        self.root = Group("ROOT", self, None, [self.tree, self.shelf])
         # list of chem.molecule's
         self.molecules=[]
         # list of the atoms, only valid just after read or write
         self.alist = [] #None
         # filename if this was read from a file
-        self.filename = "" # bruce 040928: I changed this to "" from None, so __str__ and some external code won't crash
-            # when it assumes this is a string. Other external code tests it for false; that should still be ok since "" is false.
-        # the name if any
-        self.name = nm or gensym("Assembly")
+        self.filename = ""
         # to be shrunk, see addmol
         self.bbox = BBox()
         self.center=V(0,0,0)
@@ -70,19 +89,20 @@ class assembly:
         
         ### Some information needed for the simulation or coming from mmp file
         self.temperature = 300
-        self.csys = Csys("csys", 1.0, 0.0, 1.0, 0.0, 0.0)
         self.waals = None
-        # This only stores molecules not belonging to any group and groups in the order 
-        # shown in the model tree
-        self.orderedItemsList = []
 
     def selectingWhat(self):
-        "return 'Atoms' or 'Molecules' to indicate what is currently being selected [by bruce 040927; might change]"
-        # bruce 040927: this seems to be wrong sometimes, e.g. when no atoms or molecules exist in the assembly... not sure.
+        """return 'Atoms' or 'Molecules' to indicate what is currently
+        being selected [by bruce 040927; might change]
+        """
+        # bruce 040927: this seems to be wrong sometimes,
+        # e.g. when no atoms or molecules exist in the assembly... not sure.
         return {0: "Atoms", 2: "Molecules"}[self.selwhat]
 
     def checkpicked(self, always_print = 0):
-        "check whether every atom and molecule has its .picked attribute set correctly. Fix errors, too. [bruce 040929]"
+        """check whether every atom and molecule has its .picked attribute
+        set correctly. Fix errors, too. [bruce 040929]
+        """
         if always_print: print "fyi: checkpicked()..."
         self.checkpicked_atoms(always_print = 0)
         self.checkpicked_mols(always_print = 0)
@@ -124,6 +144,7 @@ class assembly:
         self.bbox.merge(mol.bbox)
         self.center = self.bbox.center()
         self.molecules += [mol]
+        self.tree.addmember(mol)
    
         self.setDrawLevel()
         
@@ -141,10 +162,7 @@ class assembly:
 
     # to draw, just draw everything inside
     def draw(self, win):
-        global assyList
-        for part in assyList: ## bruce 040929: I think this should be changed to (the equivalent of) "for part in [self]".
-            for mol in part.molecules:
-                 mol.draw(win, self.drawLevel)
+        self.tree.draw(self.o, self.o.display)
            
     # write a povray file: just draw everything inside
     def povwrite(self, file, win):
@@ -153,7 +171,7 @@ class assembly:
 
     # make a new molecule using a cookie-cut shape
     def molmake(self,shap):
-        mol = molecule(self, gensym("handrawn"))
+        mol = molecule(self, gensym("Cookie"))
         ndx={}
         hashAtomPos
         bbhi, bblo = shap.bbox.data
@@ -182,15 +200,15 @@ class assembly:
                 x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
                 mol.bond(pp1, x)
             pp=griderator.next()
-            
-        if len(mol.atoms) > 0:  #Added by huaicai to fix some bugs for the 0 atoms molecule 09/30/04
-                self.addmol(mol)
-                self.unpickatoms()
-                self.selwhat = 2
-                mol.pick()
 
-                self.w.modelTreeView.addObject(mol)        
-
+        #Added by huaicai to fixed some bugs for the 0 atoms molecule 09/30/04
+        if len(mol.atoms) > 0:  
+            self.addmol(mol)
+            self.unpickatoms()
+            self.unpickparts()
+            self.selwhat = 2
+            mol.pick()
+            self.mt.update()
 
     # set up to run a movie or minimization
     def movsetup(self):
@@ -238,13 +256,13 @@ class assembly:
             for m in self.molecules:
                 for a in m.atoms.itervalues():
                     a.pick()
-        self.o.paintGL()
+        self.w.update()
 
 
     def selectNone(self):
         self.unpickatoms()
         self.unpickparts()
-        self.o.paintGL()
+        self.w.update()
 
 
     def selectInvert(self):
@@ -267,14 +285,14 @@ class assembly:
                 for a in m.atoms.itervalues():
                     if a.picked: a.unpick()
                     else: a.pick()
-        self.o.paintGL()
+        self.w.update()
 
     def selectConnected(self):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """
         self.marksingle()
-        self.o.paintGL()
+        self.w.update()
 
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
@@ -283,26 +301,24 @@ class assembly:
         one bond and have no other bonds.
         """
         self.markdouble()
-        self.o.paintGL()
+        self.w.update()
 
     def selectAtoms(self):
-        lis = self.selmols[:]
         self.unpickparts()
-        if lis:
-            for mol in lis:
-                for a in mol.atoms.itervalues():
-                    a.pick()
         self.selwhat = 0
-        self.o.paintGL()
+        self.w.update()
             
     def selectParts(self):
+        self.pickParts()
+        self.selwhat = 2
+        self.w.update()
+
+    def pickParts(self):
         lis = self.selatoms.values()
         self.unpickatoms()
         if lis:
             for a in lis:
                 a.molecule.pick()
-        self.selwhat = 2
-        self.o.paintGL()
 
 
     # dumb hack: find which atom the cursor is pointing at by
@@ -363,8 +379,6 @@ class assembly:
         a = self.findpick(p1, v1)
         if a: 
               a.molecule.pick()
-              if (self.o.mode == self.o.modetab["SELECTMOLS"]) :
-                    a.molecule.setSelectionState(self.o.mode, a.molecule, True)
 
     # deselect any selected atoms
     def unpickatoms(self):
@@ -376,31 +390,39 @@ class assembly:
 
     # deselect any selected molecules
     def unpickparts(self):
-        if self.selmols:
-            for mol in self.selmols:
-                mol.picked = 0
-                mol.changeapp()
-                if (self.o.mode == self.o.modetab["SELECTMOLS"]) :
-                    mol.setSelectionState(self.o.mode, mol, False)
-            self.selmols = []
+        self.root.unpick()
+        self.data.unpick()
 
     # for debugging
     def prin(self):
         for a in self.selatoms.itervalues():
             a.prin()
 
+    def cut(self):
+        if self.selwhat==0: return
+        new = Group(gensym("Copy"),self,None)
+        self.tree.apply2picked(lambda(x): x.moveto(new))
+        if new.members:
+            if len(new.members)==1:
+                new = new.members[0]
+            self.shelf.addmember(new)
+        self.w.update()
+        
+
     # copy any selected parts (molecules)
     def copy(self):
-        if self.selmols:
-            self.modified = 1
-            offset = V(10.0, 10.0, 10.0)
-            nulist=[]
-            for mol in self.selmols[:]:
-                numol=mol.copy(offset)
-                nulist += [numol]
-                self.molecules += [numol]
+        if self.selwhat==0: return
+        new = Group(gensym("Copy"),self,None)
+        self.tree.copy(new, V(10.0, 10.0, 10.0))
+        if new.members:
+            if len(new.members)==1:
+                new = new.members[0]
+            self.shelf.addmember(new)
+        self.w.update()
+
+    def paste(self, node):
+        pass # to be implemented
    
-                self.w.modelTreeView.addObject(numol)
 
     # move any selected parts in space ("move" is an offset vector)
     def movesel(self, move):
@@ -416,7 +438,7 @@ class assembly:
 
     # delete whatever is selected
     def kill(self):
-        if self.selatoms:
+        if self.selwhat == 0 and self.selatoms:
             self.modified = 1
             changedMols = []
             for a in self.selatoms.values():
@@ -425,30 +447,17 @@ class assembly:
                 a.kill()
                 if len(m.atoms) == 0:
                         self.killmol(m)
-                        self.w.modelTreeView.deleteObject(m)
-                        
             self.selatoms={}
             for m in changedMols: m.shakedown()
             
-        if self.selmols:
-            self.modified = 1
-            for m in self.selmols:
-                self.killmol(m)
-                self.w.modelTreeView.deleteObject(m)
-            self.selmols=[]
-    
-
-
+        if self.selwhat == 2:
+            self.tree.apply2picked(lambda o: o.kill())
         self.setDrawLevel()
 
 
     # actually remove a given molecule from the list
     def killmol(self, mol):
-        try:
-            self.molecules.remove(mol)
-            self.modified = 1
-        except ValueError: pass
-
+        mol.kill()
         self.setDrawLevel()
 
     #bond atoms (cheap hack)
@@ -495,9 +504,9 @@ class assembly:
         self.modified = 1
         m=motor(self)
         m.findcenter(self.selatoms.values(), sightline)
+        mol = self.selatoms.values()[0].molecule
+        mol.dad.addmember(m)
         self.unpickatoms()
-
-	self.w.modelTreeView.addObject(m)
 
     # makes a Linear Motor connected to the selected atoms
     # note I don't check for a limit of 25 atoms, but any more
@@ -507,9 +516,9 @@ class assembly:
         self.modified = 1
         m = LinearMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
+        mol = self.selatoms.values()[0].molecule
+        mol.dad.addmember(m)
         self.unpickatoms()
-
-	self.w.modelTreeView.addObject(m)
 
     # makes all the selected atoms grounded
     # same note as above
@@ -517,9 +526,9 @@ class assembly:
         if not self.selatoms: return
         self.modified = 1
         m=ground(self, self.selatoms.values())
+        mol = self.selatoms.values()[0].molecule
+        mol.dad.addmember(m)
         self.unpickatoms()
-
-	self.w.modelTreeView.addObject(m)
 
     # select all atoms connected by a sequence of bonds to
     # an already selected one
@@ -605,17 +614,15 @@ class assembly:
             if numol.atoms:
                 self.addmol(numol)
                 #numol.shakedown()  #comment out by Huaicai 09/30/04, addmol() has this call
-                self.w.modelTreeView.addObject(mol)
                 numol.pick()
                 # need to redo the old one too, unless we removed all its atoms
                 if mol.atoms:
                     mol.shakedown()
                 else:
                     self.killmol(mol)
-                    self.w.modelTreeView.deleteObject(mol)
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
-        self.o.paintGL()
+        self.w.update()
 
     # change surface atom types to eliminate dangling bonds
     # a kludgey hack

@@ -36,6 +36,7 @@ class MWsemantics(MainWindow):
     def __init__(self,parent = None, name = None, fl = 0):
 	
         global windowList
+
         MainWindow.__init__(self, parent, name, fl)
 
         # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
@@ -59,8 +60,8 @@ class MWsemantics(MainWindow):
 
         splitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
 
-        self.modelTreeView = modelTree(splitter, self)
-        self.modelTreeView.setMinimumSize(150, 0)
+        self.mt = self.modelTreeView = modelTree(splitter, self)
+        self.modelTreeView.setMinimumSize(0, 0)
         
         self.glpane = GLPane(self.assy, splitter, "glpane", self)
 
@@ -71,6 +72,7 @@ class MWsemantics(MainWindow):
         
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
+        self.assy.mt = self.mt
 
         self.setFocusPolicy(QWidget.StrongFocus)
 
@@ -82,34 +84,55 @@ class MWsemantics(MainWindow):
 
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]
-        Update the text shown in self.modebarLabel (if that widget exists yet).
-        Get the text to use from mode_obj if supplied, otherwise from the current
-        mode object (self.glpane.mode). (The mode object has to be supplied
-        when the currently stored one is incorrect, during a mode transition.) #####doit
+        
+        Update the text shown in self.modebarLabel (if that widget
+        exists yet).  Get the text to use from mode_obj if supplied,
+        otherwise from the current mode object
+        (self.glpane.mode). (The mode object has to be supplied when
+        the currently stored one is incorrect, during a mode
+        transition.) #####doit
 
-        This method needs to be called whenever the mode status text might need to change.
-        See a comment in the method to find out what code should call it.
+        This method needs to be called whenever the mode status text
+        might need to change.  See a comment in the method to find out
+        what code should call it.
+        
         """
-        # There are at least 3 general ways we could be sure to call this method often enough;
-        # the initial implementation of 040927 uses (approximately) way #1:
+        # There are at least 3 general ways we could be sure to call
+        # this method often enough; the initial implementation of
+        # 040927 uses (approximately) way #1:
         # 
-        # (1) Call it after any user-event-handler that might change what the mode status text should be.
-        # This is reasonable, but has the danger that we might forget about some kind of user-event that
-        # ought to change it. (As of 040927, we call this method from this file (after tool button actions
-        # related to selection), and from the mode code (after mode changes).)
+        # (1) Call it after any user-event-handler that might change
+        # what the mode status text should be.  This is reasonable,
+        # but has the danger that we might forget about some kind of
+        # user-event that ought to change it. (As of 040927, we call
+        # this method from this file (after tool button actions
+        # related to selection), and from the mode code (after mode
+        # changes).)
         # 
-        # (2) Call it after any user-event at all (except for mouse-move or mouse-drag).
-        # This would probably be best (##e so do it!), since it's simple, won't miss anything, and is probably efficient enough.
-        # (But if we ever support text-editing, we might have to exclude keypress/keyrelease from this, for efficiency.)
+        # (2) Call it after any user-event at all (except for
+        # mouse-move or mouse-drag).  This would probably be best (##e
+        # so do it!), since it's simple, won't miss anything, and is
+        # probably efficient enough.  (But if we ever support
+        # text-editing, we might have to exclude keypress/keyrelease
+        # from this, for efficiency.)
         # 
-        # (3) Call it after any internal change which might affect the mode-status text. This would have to include, at least,
-        # any change to (the id of) self.glpane, self.glpane.mode, self.glpane.assy, or (the value of) self.glpane.assy.selwhat,
-        # regardless of the initial cause of that change. The problems with this method are: it's complicated; we might miss a
-        # necessary update call; we'd have to be careful for efficiency to avoid too many calls after a single user event
-        # (e.g. one for which we iterate over all atoms and "select parts" redundantly for each one); or we'd have to make
-        # many calls permissible, by separating this method into an "update-needed" notice (just setting a flag),
-        # and a "do-update" function, which does the update only when the flag is set. But if we did the latter,
-        # it would be simpler and probably faster to just dispense with the flag and always update, i.e. to use method (2).
+        # (3) Call it after any internal change which might affect the
+        # mode-status text. This would have to include, at least, any
+        # change to (the id of) self.glpane, self.glpane.mode,
+        # self.glpane.assy, or (the value of)
+        # self.glpane.assy.selwhat, regardless of the initial cause of
+        # that change. The problems with this method are: it's
+        # complicated; we might miss a necessary update call; we'd
+        # have to be careful for efficiency to avoid too many calls
+        # after a single user event (e.g. one for which we iterate
+        # over all atoms and "select parts" redundantly for each one);
+        # or we'd have to make many calls permissible, by separating
+        # this method into an "update-needed" notice (just setting a
+        # flag), and a "do-update" function, which does the update
+        # only when the flag is set. But if we did the latter, it
+        # would be simpler and probably faster to just dispense with
+        # the flag and always update, i.e. to use method (2).
+        
         try:
             widget = self.modebarLabel
         except AttributeError:
@@ -119,6 +142,17 @@ class MWsemantics(MainWindow):
             mode_obj = mode_obj or self.glpane.mode
             text = mode_obj.get_mode_status_text()
             widget.setText( text )
+
+
+    ##################################################
+    # The beginnings of an invalidate/update mechanism
+    # at the moment it just does update whether needed or not
+    ##################################################
+
+    def update(self):
+        self.glpane.paintGL()
+        self.mt.update()
+        
 
     ###################################
     # functions from the "File" menu
@@ -149,12 +183,9 @@ class MWsemantics(MainWindow):
 
         self.setCaption(self.trUtf8("Atom: " + assy.name))
 
-	#update the model tree
-        self.modelTreeView.updateModelTree()
-
         self.glpane.scale=self.assy.bbox.scale()
         self.glpane.paintGL()
-
+        self.mt.update()
 
     def fileOpen(self):
         self.__clear()
@@ -175,11 +206,9 @@ class MWsemantics(MainWindow):
 
         self.setCaption(self.trUtf8("Atom: " + self.assy.name))
 
-	#update the model tree
-        self.modelTreeView.updateModelTree()
-
         self.glpane.scale=self.assy.bbox.scale()
         self.glpane.paintGL()
+        self.mt.update()
 
 
     def fileSave(self):
@@ -240,26 +269,28 @@ class MWsemantics(MainWindow):
 
     def fileClear(self):
         self.__clear()
-        self.modelTreeView.updateModelTree()
-        self.glpane.paintGL()
-
+        self.modelTreeView.update()
+        self.update()
+        
 
     def fileClose(self):
         if self.assy.modified: self.fileSave()
         self.__clear()
+        self.update()
 
     def fileSetWorkDir(self):
 	""" Sets working directory (need dialogue window) """
-	## bruce 040928 removed the following typo by Mark -- does it need to be replaced by some intended change??
+	## bruce 040928 removed the following typo by Mark --
+        #  does it need to be replaced by some intended change??
 	## modifyAlignToCommonAxismodifyAlignToCommonAxis
 	QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def __clear(self):
-        global assyList
-        del assyList[:]
+        # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Empty")
         self.glpane.setAssy(self.assy)
+        self.assy.mt = self.mt
 
 
     ###################################
@@ -486,7 +517,7 @@ class MWsemantics(MainWindow):
     # they don't do much in Atom itself
     def makeGround(self):
         self.assy.makeground()
-        self.glpane.paintGL()
+        self.update()
 
     def makeHandle(self):
         print "MWsemantics.makeHandle(): Not implemented yet"
@@ -495,12 +526,11 @@ class MWsemantics(MainWindow):
 
     def makeMotor(self):
         self.assy.makemotor(self.glpane.lineOfSight)
-        self.glpane.paintGL()
+        self.update()
 
     def makeLinearMotor(self):
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
-        self.glpane.paintGL()
-
+        self.update()
 
     def makeBearing(self):
         QMessageBox.warning(self, "ATOM User Notice:", 
@@ -800,6 +830,8 @@ class MWsemantics(MainWindow):
     def copyDo(self):
         self.assy.copy()
         self.glpane.paintGL()
+        self.mt.update()
+   
 
     # 2BDone: make a copy of the selected part, move it, and bondEdge it,
     # having unselected the original and selected the copy.
@@ -814,6 +846,7 @@ class MWsemantics(MainWindow):
     def killDo(self):
         self.assy.kill()
         self.glpane.paintGL()
+        self.mt.update()
 
     # utility functions
 

@@ -41,7 +41,7 @@ if __name__=='__main__':
         wd = f.readline()
         globalParms['WorkingDirectory'] = wd
         f.close()
-
+        
     QApplication.setColorSpec(QApplication.CustomColor)
     app=QApplication(sys.argv)
     app.connect(app,SIGNAL("lastWindowClosed ()"),app.quit)
@@ -50,7 +50,8 @@ if __name__=='__main__':
     app.connect(foo.fileExitAction, SIGNAL("activated()"), app.quit)
 
     try:
-        meth = atom_debug_pre_main_show # do this, if user asked us to by defining it in .atom-debug-rc
+        # do this, if user asked us to by defining it in .atom-debug-rc
+        meth = atom_debug_pre_main_show 
     except:
         pass
     else:
@@ -60,15 +61,19 @@ if __name__=='__main__':
     foo.show()
 
     try:
-        meth = atom_debug_post_main_show # do this, if user asked us to by defining it in .atom-debug-rc
+        # do this, if user asked us to by defining it in .atom-debug-rc
+        meth = atom_debug_post_main_show 
     except:
         pass
     else:
         meth()
 
-    # now run the main Qt event loop -- perhaps with profiling, if user requested this via .atom-debug-rc.
+    # now run the main Qt event loop --
+    # perhaps with profiling, if user requested this via .atom-debug-rc.
     try:
-        atom_debug_profile_filename # user can set this to a filename in .atom-debug-rc, to enable profiling into that file
+        # user can set this to a filename in .atom-debug-rc,
+        # to enable profiling into that file
+        atom_debug_profile_filename 
         if atom_debug_profile_filename:
             print "user's .atom_debug_rc requests profiling into file %r" % (atom_debug_profile_filename,)
             if not type(atom_debug_profile_filename) in [type("x"), type(u"x")]:
@@ -86,7 +91,8 @@ if __name__=='__main__':
         profile.run('app.exec_loop()', atom_debug_profile_filename )
         print "\nprofile data was presumably saved into %r" % (atom_debug_profile_filename,)
     else:
-        app.exec_loop() # if you change this code, also change the string literal just above
+        # if you change this code, also change the string literal just above
+        app.exec_loop() 
 
     # end
 
