@@ -797,7 +797,7 @@ class GLPane(QGLWidget, modeMixin):
             import os, sys
             filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
             tmpFilePath = self.win.tmpFilePath 
-            writemmp(self.assy, tmpFilePath + "minimize.mmp")
+            writemmp(self.assy, os.path.join(tmpFilePath, "minimize.mmp"))
             oldWorkingDir = os.getcwd()
             os.chdir(tmpFilePath)
             args = [filePath + '/../bin/simulator', '-m ',  "minimize.mmp"]
@@ -816,7 +816,7 @@ class GLPane(QGLWidget, modeMixin):
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
             self.win.msgbarLabel.setText("Minimizing...")
-            self.startmovie(tmpFilePath + "minimize.dpb")
+            self.startmovie(os.path.join(tmpFilePath, "minimize.dpb"))
         else:
             if not s: #bruce 041101
                 s = "exit code %r" % r

@@ -25,9 +25,10 @@ class runSim(SimSetupDialog):
 
     def GoPressed(self):
         QDialog.accept(self)
-        tmpFilePath = self.assy.w.tmpFilePath
-        if not self.assy.filename: self.assy.filename= tmpFilePath + "simulate.mmp"
         import os, sys
+        tmpFilePath = self.assy.w.tmpFilePath
+        if not self.assy.filename: 
+                self.assy.filename= os.path.join(tmpFilePath, "simulate.mmp")
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
        
         args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper), "simulate.mmp"]

@@ -30,7 +30,7 @@ HUGE_MODEL = 20000
 LARGE_MODEL = 5000
 
 def hashAtomPos(pos):
-    return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
+        return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
 
 # the class for groups of parts (molecules)
 # currently only one level, but should be recursive
@@ -178,7 +178,7 @@ class assembly:
         self.modified = 1 # The file and the part are now out of sync.
         mol = molecule(self, gensym("Cookie."))
         ndx={}
-        hashAtomPos
+        hashAtomPos 
         bbhi, bblo = shap.bbox.data
         # Widen the grid enough to get bonds that cross the box
         griderator = genDiam(bblo-1.6, bbhi+1.6)

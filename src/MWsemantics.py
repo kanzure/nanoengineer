@@ -137,7 +137,7 @@ class MWsemantics(MainWindow):
         #   directory and is writable. If we someday routinely create
         #   a new file in it for each session, that will be a good-
         #   enough test.
-        self.tmpFilePath = os.path.expanduser("~/atom_tmp/")
+        self.tmpFilePath = os.path.normpath(os.path.expanduser("~/atom_tmp/"))
         if not os.path.exists(self.tmpFilePath):
            try :
               os.mkdir(self.tmpFilePath)
@@ -276,8 +276,8 @@ class MWsemantics(MainWindow):
             
             if ret==0: # Save clicked or Alt+S pressed or Enter pressed.
                 self.fileSave()
-                self.__clear() # Clear the part - we're loading a new file.
-            elif ret==1: self.__clear() # Discard the part - we're loading a new file.
+                #self.__clear() # Clear the part - we're loading a new file.
+            elif ret==1: pass#self.__clear() # Discard the part -we're loading a new file.
             elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
 
         wd = globalParms['WorkingDirectory']
@@ -443,10 +443,10 @@ class MWsemantics(MainWindow):
         else:
             ce.ignore()
 
-    def fileClear(self):
-        self.__clear()
-        self.modelTreeView.update()
-        self.update()
+    #def fileClear(self):
+    #    self.__clear()
+    #    self.modelTreeView.update()
+    #    self.update()
 
     def fileClose(self):
         if self.assy.modified:
@@ -1002,10 +1002,11 @@ class MWsemantics(MainWindow):
 
     # Play a movie from the simulator
     def toolsMovie(self):
-        if not self.assy.filename: self.assy.filename=self.tmpFilePath + "simulate.mmp"
+        if not self.assy.filename: 
+                self.assy.filename=os.path.join(self.tmpFilePath, "simulate.mmp")
         dir, fil, ext = fileparse(self.assy.filename)
-        print "playing", dir+fil+'.dpb'
-        self.glpane.startmovie(dir+fil+'.dpb')
+        #print "playing", dir+fil+'.dpb'
+        self.glpane.startmovie(os.path.join(dir, fil+'.dpb'))
 
     
     ###################################
