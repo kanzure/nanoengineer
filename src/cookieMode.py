@@ -13,16 +13,21 @@ $Id$
 from modes import *
 
 class cookieMode(basicMode):
-    def __init__(self, glpane):
-        basicMode.__init__(self, glpane, 'COOKIE')
-        self.backgroundColor = 103/256.0, 124/256.0, 53/256.0
-        self.gridColor = 223/256.0, 149/256.0, 0/256.0
-        self.savedOrtho = 0
-	self.makeMenus()
 
+    # class constants
+    backgroundColor = 103/256.0, 124/256.0, 53/256.0
+    gridColor = 223/256.0, 149/256.0, 0/256.0
+    modename = 'COOKIE'
+    
+    # default initial values
+    savedOrtho = 0
 
-    def setMode(self):
-        basicMode.setMode(self)
+    # no __init__ method needed
+    
+    # methods related to entering this mode
+    
+    def Enter(self): # bruce 040922 split setMode into Enter and show_toolbars (fyi)
+        basicMode.Enter(self)
         self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
 
@@ -33,40 +38,48 @@ class cookieMode(basicMode):
         self.Rubber = None
         self.o.snap2trackball()
 
+    def show_toolbars(self):
         self.w.cookieCutterToolbar.show()
 
-    def Flush(self):
-        self.o.shape = None
+    # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
 
-        self.w.cookieCutterToolbar.hide()
-        self.o.ortho = self.savedOrtho
-        self.o.setMode('SELECT')
+    def haveNontrivialState(self):
+        return self.o.shape != None # note that this is stored in the glpane, but not in its assembly.
 
-
-    def Done(self):
+    def StateDone(self):
         if self.o.shape:
             self.o.assy.molmake(self.o.shape)
-            self.o.shape = None
+        self.o.shape = None
+        return None
 
+    def StateCancel(self):
+        self.o.shape = None
+        # it's mostly a matter of taste whether to put this statement into StateCancel, restore_patches, or clear()...
+        # it probably doesn't matter in effect, in this case. To be safe (e.g. in case of Abandon), I put it in more than one place.
+        return None
+    
+    def hide_toolbars(self):
         self.w.cookieCutterToolbar.hide()
+
+    def restore_patches(self):
         self.o.ortho = self.savedOrtho
-        self.o.setMode('SELECT')
-         
-	basicMode.Done(self)
-
+        self.o.shape = None
         
-
+    # other dashboard methods (not yet revised by bruce 040922 ###e)
+    
     def Backup(self):
         if self.o.shape:
             self.o.shape.undo()
         self.o.paintGL()
-        
-    def Restart(self):
-        if self.o.shape:
-            self.o.shape.clear()
-        self.o.paintGL()
-        
 
+    # StartOver (formerly Restart) is no longer needed here, since the basicMode generic method works now. [bruce 040924]
+##    def StartOver(self):
+##        if self.o.shape:
+##            self.o.shape.clear()
+##        self.o.paintGL()
+        
+    # mouse events
+    
     def leftDown(self, event):
         self.StartDraw(event, 1)
     
@@ -206,8 +219,8 @@ class cookieMode(basicMode):
 
    
     def makeMenus(self):
-        self.Menu1 = self.makemenu([('Cancel', self.Flush),
-                                    ('Restart', self.Restart),
+        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
+                                    ('Start Over', self.StartOver),
                                     ('Backup', self.Backup),
                                     None,
                                     ('Layer', self.Layer),
@@ -246,3 +259,6 @@ class cookieMode(basicMode):
 
     def Thickness(self):
         print 'NYI'
+
+    pass # end of class cookieMode
+

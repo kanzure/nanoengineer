@@ -7,8 +7,8 @@ however small, unless this is necessary to make Atom work properly for other dev
 $Id$
 
 Stub file for Extrude mode. For now, this works, but it's almost identical to cookieMode,
-except for some textLabel2-related bugs [fixed in rev 1.5??] and for a different background color.
--- bruce 040920
+except for a different background color.
+-- bruce 040924
 """
 
 # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
@@ -71,16 +71,21 @@ def do_what_MainWindowUI_should_do(self):
 from modes import *
 
 class extrudeMode(basicMode):
-    def __init__(self, glpane):
-        basicMode.__init__(self, glpane, 'EXTRUDE')
-        self.backgroundColor = 200/256.0, 100/256.0, 100/256.0 # different than in cookieMode
-        ##self.gridColor = 223/256.0, 149/256.0, 0/256.0
-        self.savedOrtho = 0
-	self.makeMenus()
 
+    # class constants
+    backgroundColor = 200/256.0, 100/256.0, 100/256.0 # different than in cookieMode
+    ##gridColor = 223/256.0, 149/256.0, 0/256.0
+    modename = 'EXTRUDE'
 
-    def setMode(self):
-        basicMode.setMode(self)
+    # default initial values
+    savedOrtho = 0
+
+    # no __init__ method needed
+    
+    # methods related to entering this mode
+    
+    def Enter(self): # bruce 040922 split setMode into Enter and show_toolbars (fyi)
+        basicMode.Enter(self)
         self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
 
@@ -91,40 +96,48 @@ class extrudeMode(basicMode):
         self.Rubber = None
         self.o.snap2trackball()
 
+    def show_toolbars(self):
         self.w.extrudeToolbar.show()
 
-    def Flush(self):
-        self.o.shape = None
+    # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
 
-        self.w.extrudeToolbar.hide()
-        self.o.ortho = self.savedOrtho
-        self.o.setMode('SELECT')
+    def haveNontrivialState(self):
+        return self.o.shape != None # note that this is stored in the glpane, but not in its assembly.
 
-
-    def Done(self):
+    def StateDone(self):
         if self.o.shape:
             self.o.assy.molmake(self.o.shape)
-            self.o.shape = None
+        self.o.shape = None
+        return None
 
+    def StateCancel(self):
+        self.o.shape = None
+        # it's mostly a matter of taste whether to put this statement into StateCancel, restore_patches, or clear()...
+        # it probably doesn't matter in effect, in this case. To be safe (e.g. in case of Abandon), I put it in more than one place.
+        return None
+    
+    def hide_toolbars(self):
         self.w.extrudeToolbar.hide()
+
+    def restore_patches(self):
         self.o.ortho = self.savedOrtho
-        self.o.setMode('SELECT')
-         
-	basicMode.Done(self)
-
+        self.o.shape = None
         
-
+    # other dashboard methods (not yet revised by bruce 040922 ###e)
+    
     def Backup(self):
         if self.o.shape:
             self.o.shape.undo()
         self.o.paintGL()
-        
-    def Restart(self):
-        if self.o.shape:
-            self.o.shape.clear()
-        self.o.paintGL()
-        
 
+##    not needed:
+##    def StartOver(self):
+##        if self.o.shape:
+##            self.o.shape.clear()
+##        self.o.paintGL()
+        
+    # mouse events
+    
     def leftDown(self, event):
         self.StartDraw(event, 1)
     
@@ -236,35 +249,14 @@ class extrudeMode(basicMode):
             self.o.paintGL()
 
     def Draw(self):
-        basicMode.Draw(self) 
-        ## self.griddraw()
+        basicMode.Draw(self)    
+        ##self.griddraw()
         if self.sellist: self.pickdraw()
         if self.o.shape: self.o.shape.draw(self.o)
-
-    def griddraw(self):
-        """Assigned as griddraw for a diamond lattice grid that is fixed in
-        space but cut out into a slab one nanometer thick parallel to the screen
-        (and is equivalent to what the extrude-cutter will cut).
-        """
-        # the grid is in modelspace but the clipping planes are in eyespace
-        glPushMatrix()
-        glColor3fv(self.gridColor)
-        q = self.o.quat
-        glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
-        glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
-        glClipPlane(GL_CLIP_PLANE0, (0.0, 0.0, 1.0, 6.0))
-        glClipPlane(GL_CLIP_PLANE1, (0.0, 0.0, -1.0, 0.1))
-        glEnable(GL_CLIP_PLANE0)
-        glEnable(GL_CLIP_PLANE1)
-        glPopMatrix()
-        drawer.drawgrid(1.5*self.o.scale, -self.o.pov)
-        glDisable(GL_CLIP_PLANE0)
-        glDisable(GL_CLIP_PLANE1)
-        #drawer.drawaxes(5,-self.o.pov)
-
+   
     def makeMenus(self):
-        self.Menu1 = self.makemenu([('Cancel', self.Flush),
-                                    ('Restart', self.Restart),
+        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
+                                    ('Start Over', self.StartOver),
                                     ('Backup', self.Backup),
                                     None,
                                     ('Layer', self.Layer),
@@ -299,7 +291,10 @@ class extrudeMode(basicMode):
     def Layer(self):
         if self.o.shape:
             self.o.pov -= self.o.shape.pushdown()
-        
-
+    
     def Thickness(self):
         print 'NYI'
+
+    pass # end of class extrudeMode
+
+

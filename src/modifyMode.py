@@ -13,20 +13,22 @@ $Id$
 from modes import *
 
 class modifyMode(basicMode):
-    def __init__(self, glpane):
-        basicMode.__init__(self, glpane, 'MODIFY')
-        self.backgroundColor = 255/256.0, 174/256.0, 247/256.0
-        self.gridColor = 52/256.0, 129/256.0, 26/256.0
-        self.makeMenus()
+    "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
 
-    def setMode(self):
-        basicMode.setMode(self)
+    # class constants
+    backgroundColor = 255/256.0, 174/256.0, 247/256.0
+    gridColor = 52/256.0, 129/256.0, 26/256.0
+    modename = 'MODIFY'
+    
+    # no __init__ method needed
+
+    def Enter(self): # bruce 040922 renamed setMode to Enter (and split out show_toolbars, but that's not needed in this class)
+        basicMode.Enter(self)
         self.o.assy.selectParts()
         self.dragdist = 0.0
 
-    def Done(self):
-        # bruce comment 040922: there is no dashboard, but this happens, for example, if you double-click on the background.
-        self.o.setMode('SELECT')
+    # no method overrides needed for exiting this mode
+    # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
 
     def leftDown(self, event):
         """Move the selected object(s) in the plane of the screen following
@@ -137,7 +139,8 @@ class modifyMode(basicMode):
         self.EndPick(event, 2)
 
     def leftDouble(self, event):
-        self.Done()
+        self.Done() # bruce 040923: how to do this need not change
+        # (tho josh in bug#15 asks us to change the functionality -- not yet done ###e)
         
     def Draw(self):
         # bruce comment 040922: code is almost identical with selectMode.Draw
@@ -154,8 +157,8 @@ class modifyMode(basicMode):
 
     def makeMenus(self):
         
-        self.Menu1 = self.makemenu([('Cancel', self.Flush),
-                                    ('Restart', self.Restart),
+        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
+                                    ('Start Over', self.StartOver),
                                     ('Backup', self.Backup),
                                     None,
                                     ('Copy', self.o.assy.copy),
@@ -181,3 +184,7 @@ class modifyMode(basicMode):
                                     
     def skip(self):
         pass
+
+    pass # end of class modifyMode
+
+

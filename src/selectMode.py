@@ -14,12 +14,21 @@ from modes import *
 from chem import molecule
 
 class selectMode(basicMode):
-    def __init__(self, glpane):
-        basicMode.__init__(self, glpane, 'SELECT')
-        self.backgroundColor = 190/256.0, 229/256.0, 239/256.0
-        self.gridColor = (0.0, 0.0, 0.6)
-        self.makeMenus()
-        self.picking = 0
+    "the default mode of GLPane"
+    
+    # class constants
+    backgroundColor = 190/256.0, 229/256.0, 239/256.0
+    gridColor = (0.0, 0.0, 0.6)
+    modename = 'SELECT'
+    
+    # default initial values
+    savedOrtho = 0
+
+    # no __init__ method needed -- i [bruce 040923] think the following is redundant with basicMode.Enter, which we inherit:
+##    
+##    def __init__(self, glpane):
+##        basicMode.__init__(self, glpane)
+##        self.picking = 0
 
     def leftDown(self, event):
         self.StartPick(event, 1)
@@ -120,9 +129,8 @@ class selectMode(basicMode):
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.
         """
-        # go into move mode
-        self.o.setMode('MODIFY')
-
+        self.move() # go into move mode # bruce 040923: we use to inline the same code as is in this method
+        
 
     def elemSet(self,elem):
         # elem is an element number
@@ -181,8 +189,8 @@ class selectMode(basicMode):
                                     ('Color', self.w.dispObjectColor)])
 
     def move(self):
-        # go into move mode
-        self.o.setMode('MODIFY')
+        # go into move mode [bruce 040923: now also called from leftDouble]
+        self.o.setMode('MODIFY') # [bruce 040923: i think how we do this doesn't need to be changed]
 
     def changeModelSelection(self, trigger, target, state):
           """ slot function to respond to model selection change
@@ -197,3 +205,5 @@ class selectMode(basicMode):
                         target.unpick()
 
                    self.o.updateGL()
+
+    pass # end of class selectMode
