@@ -23,8 +23,15 @@ allButtons = (leftButton|midButton|rightButton) #e should be defined in same fil
 
 from platform import tupleFromQPoint, fix_plurals
 
-debug_dragstuff = 0 # DO NOT COMMIT with 1. btw where i am: ready to make contentsDrag/Drop methods do something real. #####@@@@@
-
+debug_dragstuff = 0 # DO NOT COMMIT with 1. - at least not for the alpha-release version (see below)
+# btw where i am 050129 830pm: making contentsDrag/Drop methods do something real... fixing some exceptions...
+import os
+if not (os.path.isdir("/Users/bruce") and os.path.isdir("/Huge")):
+    # oops, I committed with that set to 1! sorry.
+    # (well, since this check is here, i might commit it with 1 a few times, but remove it pre-release)
+    debug_dragstuff = 0
+if debug_dragstuff:
+    print "\n * * * * Running with debug_dragstuff set. \nExpect lots of output if you drag in the model tree!\n"
 
 # These drag_handler classes might turn out to be generally useful for all kinds
 # of Qt widgets, so they might be moved to some other file like widgets.py or a
@@ -40,23 +47,35 @@ class drag_handler:
     Eventually we'll document a general API that all subclasses must follow.
     At first this is ill-defined since there might be only one subclass.
     """
+    def cleanup(self, client):
+        "[should be overridden in subclasses]"
+        pass
+    def one_of_yours_Q( self, event, text): ##e should rename, zap text arg, call earlier in client's dropevent processing
+        """Someone just now dropped this text on the client widget (your dragsource),
+        using this QDropEvent... is it a drag-and-drop you (client's current drag_handler) initiated?
+        [should be overridden in subclasses]
+        """
+        if debug_dragstuff:
+            print "that's weird, client should not get a drop at the same time as it's handling an ordinary drag! hmm..."
+        return False # for example, false for selection-drags (though also it should never happen then)
     pass
 
-class drag_and_drop_handler(drag_handler):
+class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/3 of its present size!! [050129]
     """Handle an individual drag-and-drop event
     for which we supplied the QDragObject (??).
     Later we might split this into subclasses,
     with one for an externally supplied QDragObject... not sure.
     """
-    def __init__(self, dragsource, drag_type, nodes, click_event):
+    def __init__(self, client, dragsource, drag_type, nodes, click_event):
         """Be ready to start a drag-and-drop (if subsequent mouse motion, fed to us,
         is large enough), whose dragsource, drag_type ('move' or 'copy') and dragged nodes
         are as specified,
         and whose initial click event was the one given
         (needed for its position, especially to decide when to start a drag).
         """
-        self.dragsource = dragsource
-        self.mtree = dragsource # for its helper methods... not uniformly used.
+        self.client = client # for its helper methods... not yet uniformly used, mostly still uses dragsource for this purpose
+        self.dragsource = dragsource # for creating the QDragObject (and not for much or anything else, ideally)
+        assert client == dragsource # until we clean that up in these methods! ###e
         self.drag_type = drag_type
         self.nodes = nodes
         self.click_event = click_event
@@ -70,28 +89,46 @@ class drag_and_drop_handler(drag_handler):
         self.started_drag = False
         self.start_drag_dist = QApplication.startDragDistance() # this was 4 for me
     def mouseMoveEvent(self, event):
-        ####@@@@ experimental
-        ## print time.time()
+        "this must be called by our client, but only when mousebuttons remain down"
+        if self.started_drag:
+            # once set, this is never cleared, and if we see it in this event
+            # it means (1) this object's useful life is over, (2) we're surprised
+            # since mouse motion before mouseUp should be part of the drag and drop-or-not,
+            # not an ordinary mouse motion event. Maybe this could happen if two mouse buttons
+            # are down and one goes up? Not sure. Anyway, warn developer, then ignore it.
+            if debug_dragstuff:
+                print "fyi (bug??): drag_and_drop_handler mouseMoveEvent even after started_drag"
+                ## (fyi: for debugging, we inlined "old_debugging_junk_not_called_now" here
+                ##  but it also had those local vars we now define below)
+            return
+        # we're still waiting to see if the mouse moves enough to start a drag.
         listview = self.dragsource
         gpos = event.globalPos()
         gx,gy = tupleFromQPoint(gpos)
         x0,y0 = self.click_xy
-        if not self.started_drag:
-            # just see if we should start one.
-            d2 = (gx-x0)**2 + (gy-y0)**2
-            ##print gx,gy,x0,y0 #obs: 828 553 -1073748100 46337997 - seems like self.clickpos is becoming invalid.
-            ##print d2
-            if d2 >= self.start_drag_dist**2:
-                self.started_drag = True
-                ##print "should start a drag now - so we will, and when it's done, return"
-                self.start_a_drag(event)
-                if debug_dragstuff:
-                    print "returned from self.start_a_drag()" #####@@@@@
-            return
-        assert self.started_drag
+        d2 = (gx-x0)**2 + (gy-y0)**2
+        if d2 >= self.start_drag_dist**2:
+            self.started_drag = True # warning: this flag means we decided to start one,
+                # but following method sets another flag meaning it *actually* started one,
+                # and that flag (not this one) is definitive for whether a dragEnter/drop etc is
+                # assumed to have to come from us, vs. from an outside app.
+            self.start_a_drag(event)
+            if debug_dragstuff:
+                print "returned from self.start_a_drag() (after recursive event processing)"
+            ###e clear statusbar? btw we ought to do this thru a func, not directly;
+            # so it can work with mouse enter/leave from client, to share sbar with other widgets.
+            return # do no more in this object -- that drag and drop-or-not is all over
+        else:
+            # mouse didn't yet move enough to start a drag
+            pass
+        return
+    def old_debugging_junk_not_called_now():
+        # (this was in mouseMoveEvent above)
+        # (keep around in case useful, esp as prototype for drop-point-highlighting code ###@@@)
         if not debug_dragstuff: return
         # for now, just draw something -- this may or may not run anymore, after we really start a drag... [so far, no.]
-        unclipped = True # True works, can draw over the QListView column label and the scrollbar. False draws nothing!
+        unclipped = True # True works, can draw over the QListView column label and the scrollbar.
+            # False draws nothing! [later: was that due to the rect in the event?]
             # So we have to use True for now, though it's "dangerous" in terms of what we might mess up.
             ##e probably better (and not hard) to define our own clipper and clip to that...
             #e we could also put this painter inside the drawing area, would that work better? try it sometime.
@@ -102,24 +139,60 @@ class drag_and_drop_handler(drag_handler):
         listview.drawbluething( painter, (x,y)) # guess: this wants viewport coords (ie those of widget). yes.
         listview.update() #k needed?
         pass
-    def start_a_drag(self,event):
-        """start (and wait for completion of) a drag-and-drop of our nodes,
+    doing_our_own_drag = False
+    def one_of_yours_Q( self, event, text): #e rename, re-spec, etc (see super comment)
+        if not self.doing_our_own_drag:
+            return drag_handler(self, event, text) # super method, prints warning and rets False
+        # ok, someone dropped this text on us, while we were doing our own drag.
+        # Guess it must be our drag that got dropped!
+##        # But let's do some sanity checks first:
+##        self.dragged_text = text # cheat, since we don't have this handy anyway! later look inside dragobj for it??
+##        if text != self.dragged_text and (1 or debug_dragstuff):
+##            print "drag_and_drop_handler: possible bug: text != self.dragged_text: %r != %r" % (text , self.dragged_text)
+##            # but otherwise ignore the error for now -- maybe something turned \n into nothing or so,
+##            # and that might be OS-specific so I can't test for it right now... but always print,
+##            # so someone testing on another OS will tell me.
+        if debug_dragstuff:
+            print_compact_stack("fyi: stack in one_of_yours_Q (should be inside start_a_drag): ")
+        # ok, good enough for now. Just Do It.
+        # The thing is, the client was handling the dragmoves, knows what items or gaps are lighted up
+        # and ready to take the dropped nodes (and knows how to decide whether/how they can take them);
+        # and it knows how to unhighlight them... so let the client do all that.
+        # We'll just give it the info it needs about what we were trying to do.
+        # I guess it's simpler to do that as a retval than as another layer of callback!
+        #####@@@@@ revise return spec of this method
+        # And, if drag_type was a move, then since this was all internal to one widget and nodetree,
+        # we'll let it erase or move the original nodes too
+        # (ie handle the source of the drag, as well as the target of the drop).
+        # And that means that any highlighting of the original nodes should have been set up by it
+        # and should now be undone by it. but that's hard since it was this object which decided to
+        # do that, and when! So for that, we do need a callback telling it we're starting that drag of those nodes. #####@@@@@
+        return (True, self.drag_type, self.nodes)
+        
+    def start_a_drag(self, event):
+        """Start (and wait for completion of) a drag-and-drop of our nodes,
         using our other parameters from __init__,
         where event is the event which made the caller decide to start the drag
-        (typically mouseMove, has gpos, not sure if we need it for anything).
-        Note that recursive event processing (in self.dragsource) occurs during this method.
-        Since self.dragsource passes drag events into here (#e), recursion occurs in this object too.
+        (typically mouseMove, has globalPos(); not sure if we need it for anything).
+           Note that recursive event processing (in self.dragsource's event methods called by Qt)
+        occurs during this method. Since self.dragsource passes drag events into here (#e),
+        method-recursion could occur in this object too.
         """
-        ## text = "x\n%s %d item(s)" % ... # this results in appearance (w/o custom pixmap) of "x move 5 items..."
-        text = "%s %d item(s)" % (self.drag_type, len(self.nodes)) # e.g. "copy 5 item(s)"
-        text = fix_plurals(text) # e.g. "copy 5 items" or "move 1 item" -- no "ing" to keep it as short as possible
-        self.mtree.statusbar_msg(text)
-        ## works but not very useful: for node in self.nodes: text += "\n  %s" % node.name
-        ####@@@@ use the above to verify nodes are in the right order!
-        dragobj = QTextDrag( text, self.dragsource)
-            # \n and \r were each turned to \n, \n\r gave two \ns - even in "od -c"; as processed through Terminal
-        ##E soon: dragobj.setPixmap(pixmap)
-        
+        dragobj = self.client.advise_starting_drag_and_get_dragobj( self.drag_type, self.nodes )
+        ###@@@ we moved a lot from here into client -- does here even still need self.nodes, for example?
+        assert not self.doing_our_own_drag
+        self.doing_our_own_drag = True
+            # we or our client can examine this flag
+            # to guess whether a drag or drop event comes from us
+            # or from the outside world (or another widget)
+        try:
+            self.do_our_own_drag( event, dragobj)
+            self.doing_our_own_drag = False
+        except:
+            self.doing_our_own_drag = False
+            print_compact_traceback("exception in do_our_own_drag(): ")
+        return
+    def do_our_own_drag(self, event, dragobj):
         # the following move/copy distinction needs to be "truthful"
         # to make the icon look right ('+' or not) on the Mac.
         if self.drag_type == 'move': 
@@ -134,6 +207,40 @@ class drag_and_drop_handler(drag_handler):
         # Then, this prints: wantdel = None, target = source = the figureeditor obj (expected).
         if debug_dragstuff:
             print "dragged text: wantdel = %r, target = %r, dragsource = %r" % (wantdel, dragobj.target(), self.dragsource)
+##            target = dragobj.target()
+##            # what is target? not mtree or its viewport... (as far as pyqt knows, assuming that's the hex address i see in repr)
+##            widget1 = target
+##            try:
+##                while widget1:
+##                    print "target or a parent:",widget1
+##                    # use QObject methods:
+##                    print "  .className() = %r" % widget1.className()
+##                    print "  .name() = %r" % widget1.name()
+##                    widget1 = widget1.parent()
+##                    if not widget1:
+##                        print "  has no parent!"
+##                    what_we_got_from_that = '''
+##dragged text: wantdel = True, target = <constants.qt.QWidget object at 0x36e7b70>, dragsource = <modelTree.modelTree object at 0xd0de240>
+##target or a parent: <constants.qt.QWidget object at 0x36e7b70>
+##  .className() = 'QWidget'
+##  .name() = 'qt_viewport'
+##target or a parent: <modelTree.modelTree object at 0xd0de240>
+##  .className() = 'modelTree'
+##  .name() = 'modelTreeView'
+##target or a parent: <constants.qt.QSplitter object at 0x36975d0>
+##  .className() = 'QSplitter'
+##  .name() = 'ContentsWindow'
+##target or a parent: <constants.qt.QSplitter object at 0x3697660>
+##  .className() = 'QSplitter'
+##  .name() = 'vContentsWindow'
+##target or a parent: <MWsemantics.MWsemantics object at 0x4c45a0>
+##  .className() = 'MWsemantics'
+##  .name() = 'nanoENGINEER-1'
+##  has no parent!
+##'''
+##            except:
+##                print_compact_traceback("oops: ")
+                
         # dropped on model tree (tho it does not accept it): target == dragsource == <modelTree.modelTree object at 0xce2d120>
         # dropped on glpane: target == None. dropped on external app Terminal: target == None.
         # dropped on the HistoryWidget (which does accept it and the text gets into it):
@@ -146,14 +253,21 @@ class drag_and_drop_handler(drag_handler):
         # and better, the icon during the drag is showing the little square-framed +-sign for "copy"!
         # (which means I need to tell the truth about "copy" vs "move" to the QDragObject. I guess that'll work out ok.)
 
-        ###e delete dragobj?
-
-        # ...
+        ###e delete dragobj? i think python refder does that and it might not be needed anyway
+        
+        return # from do_our_own_drag
+    
     def mouseReleaseEvent(self, event):
+        # this seems to be normal, whether or not we did our own drag.
         if debug_dragstuff:
             print "drag_and_drop_handler.mouseReleaseEvent, self.started_drag = %r" % self.started_drag
         pass
-    pass
+    def cleanup(self, client = None): ###@@@ call this from above
+        "we're done; reset whatever we set outside this object, remove reference cycles, etc"
+        assert self.client == None or self.client == client
+        self.dragsource = self.client = None
+        #e clean statusbar; dragobj if stored here
+    pass # end of class drag_and_drop_handler
         
 
 # main widget class
@@ -162,14 +276,20 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def __init__(self, parent, win, name = None, columns = ["node tree"], size = (200, 560)):
         """#doc
         creates all columns but only known to work for one column.
-        some code only bothers trying to support one column.
+        most of its code only bothers trying to support one column.
         """
         ###@@@ review all init args & instvars, here vs subclasses
         TreeView.__init__(self, parent, win, name, columns = columns, size = size) # stores self.win
 
+        #e maybe subclass should tell us whether to do this...
         # of the following, old mtree had first only, canvas example has 2nd only, dirview example has both. [050128]
-        self.setAcceptDrops(True) #k this one probably not needed, try it both ways (see if we have duplicate-enter bug)
+##        self.setAcceptDrops(True) #k this one probably not needed, try it both ways (see if we have duplicate-enter bug) ####@@@@
         self.viewport().setAcceptDrops(True)
+            #####@@@@@@ btw trying only this one for first time, same as 1st time with this one at all and with scroll signal
+        # btw see "dragAutoScroll" property in QScrollView docs. dflt true. that's why we have to accept drops on viewport.
+
+        if debug_dragstuff:
+            print "self, and our viewport:",self,self.viewport()
 
         # debug menu and reload command ###e subclasses need to add reload actions too
         self._init_time = time.asctime() # for debugging; do before DebugMenuMixin._init1
@@ -184,7 +304,17 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"), self.slot_itemRenamed)
 
+        # experiment, 050129: can we be told when autoscrolling occurs while we're (not) receiving contentsDragMoveEvents? yes!
+        self.connect(self, SIGNAL("contentsMoving(int, int)"), self.slot_contentsMoving)
+        # KLUGE: clean up!
+        self.debug_dragstuff = debug_dragstuff # so TreeView.py can see it
+
         return # from TreeWidget.__init__
+
+    ###e refile:
+    def slot_contentsMoving(self, x, y):
+        if debug_dragstuff:
+            print 'got signal "contentsMoving(int, int)" with args %r, %r' % (x,y)
 
     # helper functions
     
@@ -278,7 +408,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         return # from contentsMousePressedEvent
 
-    drag_handler = None
+    drag_handler = None # this can be set by selection_click()
     def contentsMouseMoveEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
         # This method might be needed, to prevent QListView's version of it from messing us up,
@@ -303,6 +433,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # (Many comments for contentsMouseMoveEvent apply to this method as well.)
         if self.drag_handler:
             self.drag_handler.mouseReleaseEvent( event) #k worry about coords?
+            self.drag_handler.cleanup(self) # redundant but that's ok ###k
+                # (if it already cleaned up, it doesn't know self, and might need to someday, so we pass it in)
+            self.drag_handler = None
         pass
 
     def enterEvent(self, event): ####e #####@@@@@ should this (and Leave) call our drag_handler??
@@ -315,6 +448,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.statusbar_msg(" ") # bruce 050126; works
 
     def statusbar_msg(self, msg):
+        #e should store the current one for this widget, to share sbar with other widgets;
+        # or better, the method we're calling should do that for all widgets (or their parts) in a uniform way
         self.win.history.transient_msg( msg)
 
     # external update methods
@@ -674,6 +809,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # might call incremental updaters back in this module or treeview!
 
         # [bruce 050128 adding drag & drop support]
+        if self.drag_handler:
+            if debug_dragstuff:
+                print "should never happen: selection_click finds old drag_handler to dispose of"
+            try:
+                self.drag_handler.cleanup(self)
+            except:
+                print_compact_traceback("self.drag_handler.cleanup(self): ")
+            pass
         self.drag_handler = None # might be set to an appropriate drag_handler below
         
 ##        # store info about this click for subsequent mouseMoveEvents, so they can
@@ -730,6 +873,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 # of the now-selected items:
                 if permit_drag_type:
                     self.drag_handler = self.drag_and_drop_handler( permit_drag_type, self.topmost_selected_nodes(), event)
+                    # that method will create an object to handle the drag, pass it self,
+                    # tell it how to callback to self in some ways when it starts the drag
             else:
                 # no item
                 self.unpick_all()
@@ -747,44 +892,190 @@ class TreeWidget(TreeView, DebugMenuMixin):
     # selection dragging methods [#e not yet implemented] would go here
 
     
-    # drag and drop events and helpers (whether dragsource is self or something else)
+    # drag and drop event handlers and helpers
+    # (some might be relevant whether the dragsource is self or something external)
 
     def drag_and_drop_handler( self, permit_drag_type, nodes, click_event):
         "this instance's way of constructing a drag_and_drop_handler with itself as dragsource"
         listview = self
         dragsource = listview
-        return drag_and_drop_handler( dragsource, permit_drag_type, nodes, click_event)
+        client = listview
+        return drag_and_drop_handler( client, dragsource, permit_drag_type, nodes, click_event)
+            # in the current imperfect API, this handler knows about the next few special methods
+            # in this object, and knows that "client" is this object, so it can call them.
+            # (except that internally it might still sometimes use dragsource when it should use client,
+            # since those are always the same for now.) [050129]
+
+    def get_pixmap_for_dragging_nodes(self, drag_type, nodes):
+        ####@@@@ call this from advise_starting_drag_and_get_dragobj (not from handler )
+        
+        #e [also put the drag-text-making code in another method near here? or even the dragobj maker?
+        # or even the decision of what to do when the motion is large enough (ie let drag_handler role be only to notice that,
+        # not to do whatever should be done at that point? as if its role was to filter our events into higher level ones
+        # where one of them would be enoughMotionToStartADragEvent?] ###e yes, lots of cleanup is possible here...
+        """Our current drag_handler can call this to ask us for a nice-looking pixmap
+        representing this drag_type of these nodes,
+        to put into its QDragObject as a custom pixmap.
+        If we're not yet sure how to make one, we can just return None.
+        """
+        return None
+
+    current_drag_type = None
+    current_drag_nodes = []
+    def advise_starting_drag_and_get_dragobj(self, drag_type, nodes):
+        """Our current drag_handler can call this to advise us
+        that it started a drag of given type on given nodes,
+        and that we should highlight the original nodes to indicate this,
+        and that if we get any drop-related events (e.g. dragEnter, dragMove, dragLeave)
+        that we should also highlight the possible drop points
+        (assuming the potential drop is this drag it started).
+            Also it wants a QDragObject from us, so we have to make one and return it!
+        (It will then start the drag on it in the right way... unless we decide
+        to move that code from it to here, as well. #e)
+        """
+        #####@@@@@ moved from caller (next 2 paras), works here yet?
+        
+        # make up some text to be dragged in case the custom pixmap doesn't work or is nim
+        ## text = "x\n%s %d item(s)" % ... # this results in appearance (w/o custom pixmap) of "x move 5 items..."
+        dragobj_text = "%s %d item(s)" % (drag_type, len(nodes)) # e.g. "copy 5 item(s)"
+        dragobj_text = fix_plurals(dragobj_text) # e.g. "copy 5 items" or "move 1 item" -- no "ing" to keep it as short as possible
+        ## works but not very useful: for node in self.nodes: dragobj_text += "\n  %s" % node.name
+        ####@@@@ use the above to verify nodes are in the right order! and might be more useful for history or sbar...
+
+        # make the dragobj [move sbar code above this? also add a history greenmsg? ###e]
+        dragsource = self
+        dragobj = QTextDrag( dragobj_text, dragsource)
+            # \n and \r were each turned to \n, \n\r gave two \ns - even in "od -c"; as processed through Terminal
+        pixmap = self.get_pixmap_for_dragging_nodes(drag_type, nodes) #e make this work! now it returns None.
+        if pixmap:
+            dragobj.setPixmap(pixmap)
+
+        # store data to advise potential drop-points about what might drop on them
+        # (in case it affects their highlighting, motion, acceptance of drop...)
+        self.current_drag_type = drag_type
+        self.current_drag_nodes = nodes
+        #####@@@@@ do the highlighting of original items...
+        # btw should the sbar be done from here as well? probably yes.
+        # stub for all of that:
+        ing_dict = { "move":"moving", "copy":"copying" }
+        whatting = ing_dict[ drag_type] # moving or copying?
+        sbar_text = fix_plurals( "%s %d item(s)" % (whatting, len(nodes)) ) # not quite the same as the text for the QDragObject
+        self.statusbar_msg( sbar_text + " [not yet implemented]")
+        if debug_dragstuff:
+            # also use whatting in a transient node prefix, see below
+            for node in nodes:
+                item = self.nodeItem(node)
+                    #e rename? I wrongly guessed it was called self.item_for_node(node)
+                col = 0
+                item.setText( col, "%s: %s" % (whatting, node.name))
+                item.repaint() #e in the non-stub code we'll probably repaint it
+                    # in a different way so it looks dim, italic, colored, or whatever --
+                    # for copy, not much or at all different (esp if it still looks selected, that should be enough)
+                    #   (so if this stub code gets released, change it to not bother doing this at all for copy) #####@@@@@
+                    # but for move, these original nodes should look "almost missing" but with names still readable
+                    # (whereas this prefix makes them less readable since more likely truncated by the right edge of the widget)
+                    # (but this is at least useful for debugging, i hope! unless it itself has to be too much debugged....)
+        return dragobj
+    
+    def advise_ended_drag(self):#####@@@@@ call this
+        "we call this ourselves - it does not do the operation on the nodes, but it resets variables" 
+        ###e should it also undo any highlighting of original nodes?
+        # or let caller do it? or just let next update do it? not sure...
+        self.current_drag_type = None
+        self.current_drag_nodes = []
+        return
 
     def contentsDragEnterEvent(self, event):
+##    def dragEnterEvent(self, event):
+##        ########@@@@@@@
+##        print "contentsDragEnterEvent ignoring"#DO NOT COMMIT - this doesn't prevent our getting the dragMoves!
+##         # and we still don't ever get the non-contents dragEnter!
+##         # what if we stop accepting drops in the viewport?
+##        event.ignore()
+##        return
+        # warning: for unknown reasons, this is called twice when i'd expect it to be called once.
         if debug_dragstuff:
             print_compact_stack("contentsDragEnterEvent stack (fyi): ")
+            ## print "to highlight during move, i need to know: what type is the viewport? find out" # i did...
         ok = QTextDrag.canDecode(event)
         event.accept(ok)
+        # the Qt docs warn that actually looking at the text might be slow (requires talking to the external app
+        # if it came from one), so using the text to find out whether the source is external would not be a good idea.
+        # For a dragMoveEvent, it subclasses DropEvent and thus might have a "source" we can look at... don't know.
         if debug_dragstuff:
             print "ok = %r" % ok
         #e maybe do same highlighting as dragmove... but maybe not, if we have that dup-enter bug that the canvas had
+        return
 
+    def dragEnterEvent(self,event):
+        if debug_dragstuff:
+            print "dragEnterEvent happened too! SHOULD NOT HAPPEN" # unless we are not accepting drops on the viewport
+    
     def contentsDragMoveEvent(self, event):
-        if debug_dragstuff and 0:
-            print "contentsDragMoveEvent"
-            pass
+##    def dragMoveEvent(self, event):
+        # we can re-accept it (they suggest letting this depend on event.pos())... don't know if we need to... let's do:
+        ok = QTextDrag.canDecode(event)
+        ## event.accept(ok) -- do this below, first read this advice from Qt:
+        # here is some advice from Qt docs on doing this if you're autoscrolling (which we evidently are):
+        #   void QDragMoveEvent::accept ( const QRect & r ) 
+        #   If the rectangle is empty, then drag move events will be sent continuously.
+        #   This is useful if the source is scrolling in a timer event. 
+        ## Qt docs also say: QRect::QRect () -- Constructs an invalid rectangle.
+        # Unfortunately this advice doesn't work -- I can't get it to keep sending more events like this as it autoscrolls.
+        if ok:
+            ## event.accept(QRect()) # this doesn't work, we still get none of these events during the autoscroll.
+            event.accept(QRect(2,2,-1,-1)) # no bad effect but not the good one i want either
+        else:
+            event.ignore()
+
         #e change highlighting/indicating of possible drop points (gaps or items) (e.g. darken icons of items)
-        #e should we also change whether we accept the drop or not based on where it is?
+        #e should we also change whether we accept the drop or not based on where it is? [i think not. surely not for alpha.]
         # - do we want to?
         # - does it affect the icon appearance? if so will this mislead users into thinking entire widget refuses?
         # - does it work, semantically?
         # ...also is it possible to actually examine the text being offered, to decide whether to accept it?
         # (that way we can tell if it's from inside or outside this app. this would not be needed for alpha.)
+        
+        ## gpos = event.globalPos() # AttributeError: globalPos
+        pos = event.pos()
+        if debug_dragstuff:
+            print "drag move pos:",tupleFromQPoint(pos) # this is in contents area coords. it autoscrolls but is not resent then!
+        # [later solved that: get a contentsMoving signal.]
+        # so i'd better use the advice above about returning the empty rect!
+##        # following is not right, we want to try doing this inside the contents.
+##        listview = self
+##        wpos = listview.mapFromGlobal(gpos)
 
+    def junk_copied_from_above():
+        unclipped = True # True works, can draw over the QListView column label and the scrollbar. False draws nothing!
+            # So we have to use True for now, though it's "dangerous" in terms of what we might mess up.
+            ##e probably better (and not hard) to define our own clipper and clip to that...
+            #e we could also put this painter inside the drawing area, would that work better? try it sometime.
+        painter = QPainter(listview, unclipped)
+        gpos = event.globalPos()
+        wpos = listview.mapFromGlobal(gpos)
+        x,y=wpos.x(),wpos.y() # this works, scrolled or not, at least with unclipped = True
+        listview.drawbluething( painter, (x,y)) # guess: this wants viewport coords (ie those of widget). yes.
+        listview.update() #k needed?
+        
     def contentsDragLeaveEvent(self, event):
         if debug_dragstuff:
             print "contentsDragLeaveEvent, event == %r" % event
+        #e remove highlighting from dragmove
+    def dragLeaveEvent(self, event):
+        if debug_dragstuff:
+            print "dragLeaveEvent, event == %r, SHOULD NOT HAPPEN" % event
         #e remove highlighting from dragmove
 
     def contentsDropEvent(self, event):
         if debug_dragstuff:
             print "contentsDropEvent, event == %r" % event
+##    def dropEvent(self, event):
+##        if debug_dragstuff:
+##            print "dropEvent, event == %r" % event
         oktext = QTextDrag.canDecode(event)
+            #e in future even this part (choice of dropped data type to look for)
+            # should be delegated to the current drag_handler if it recognizes it
         if oktext:
             if debug_dragstuff:
                 print "accepting text"
@@ -794,13 +1085,69 @@ class TreeWidget(TreeView, DebugMenuMixin):
             if debug_dragstuff:
                 print "got this res and text: %r, %r" % (res,text) # guess: from finder it will be filename [was url i think]
             event.accept(True)
-            self.win.history.message("fyi (nim feature): accepted dropped text %r" % text)
+            # up to this point (accepting dropped text) we'll behave the same whether or not it was *our* dropped object.
+            # (except for the highlighting done by DragMove, which ideally would distinguish that according to which items
+            #  want to accept drops from inside vs outside this widget. But that distinction can be post-Alpha.)
+            # Now that we accepted the drop, to handle it properly we do need to know whether it was ours.
+            # If it was ours, it was created by a presently active drag_handler
+            # (which should be still inside its start_a_drag method), so if we have one, just ask it.
+            # (Someday we might think it's wise to do this earlier so it had a chance to reject the drop.)
+            if self.drag_handler:
+                messed_up_retval = self.drag_handler.one_of_yours_Q( event, text) # False, or a tuple of useful data #e revise!
+                if messed_up_retval:
+                    # return "true" whether or not it accepts the drag! (once it has that choice) (i mean return "recognized"
+                    # not just "accepted". it could return (recognized, type, nodes) with type==None meaning rejected.
+                    # when it always does that we can change the call to immediately assign the reval to the tuple, if we want.
+                    recognized_Q, drag_type, nodes = messed_up_retval
+                    # but for now we can only handle the following:
+                    assert recognized_Q == True
+                    if debug_dragstuff:
+                        # because recognized_Q:
+                        print "our drag handler recognized this drop as one it had generated"
+                        if drag_type:
+                            print "our drag handler accepted this drop"
+                    assert drag_type in ['copy','move'] # for now it can't reject it; to do that it would return None
+                        # (sorry for the mess, the deadline approaches)
+                    # and nodes is a list of 1 or more nodes, and it's been our job to highlight the originals specially too,
+                    # which means we already knew this list of nodes
+                    assert nodes == nodes #e i mean the ones we already knew about
+                    # and (unlike some other comments' claims nearby)
+                    # it's our job to now do the operation.
+                    if debug_dragstuff:
+                        print "NOT IMPLEMENTED: do the op on these dragged nodes:",nodes
+                        self.win.history.message("NIM: do the op %r on %d nodes, first/last names %r, %r" % (
+                            drag_type, len(nodes), nodes[0].name, nodes[-1].name ))
+##                    do the op
+##                    } #####@@@@@@
+                    ### OBS WRONG COMMENT:
+                    # not only that, it did all the work needed by it (since it, more than us, knew what it all meant...);
+                    # and it even did all the updates in this widget, required by whatever it did to our state --
+                    # even though some highlighting is set up here but should be undone by it? not sure about that yet!
+                    # (maybe we do the graphics and it does the semantics... but the changes need to be coordinated)
+                    # in other words the interaction between this and the handler is not clear -- they are like parts of one object
+                    # and maybe it's even a bit weird to separate them... we'll see. Anyway, sounds like we're done.
+                    return
+                pass
+            # well, that guy didn't want it (or didn't exist) so it's our problem. That means the drop is from another app.
+            # (or another widget in this app.)
+            # someday we'll handle these and that will be very useful...
+            # for now just acknowledge that we got this data and what it contained
+            # (in a way which might sometimes be marginally useful, and seems non-harmful unless
+            #  someone drops way too much text onto us, which they can easily avoid doing.)
+            if len(text) > 250:
+                text = text[:250] + "..."
+            self.win.history.message("fyi: accepted (but ignoring) this dropped text from outside this widget: %r" % text)
         else:
+            # drop was not able to provide us with text -- can't possibly be one of ours
+            if self.drag_handler and self.drag_handler.doing_our_own_drag:
+                errmsg = "likely bug warning: dropped object should have been ours but provided no text; ignored"
+                self.win.history.message(errmsg) #e redmsg
             event.accept(False)
             self.win.history.message("fyi (nim feature): refused dropped object which could not provide text")
-        return
+        return # from overly-long method contentsDropEvent
+    
         
-    # key events
+    # key event handlers
     
     def keyPressEvent(self, event): ####@@@@ Delete might need revision, and belongs in the subclass
         key = event.key()

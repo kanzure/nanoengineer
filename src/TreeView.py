@@ -275,6 +275,10 @@ class TreeView(QListView):
         # - doesn't prevent its top column label from being drawn
         # - doesn't prevent regular PaintEvent from happening.
 
+        if self.debug_dragstuff: #####@@@@@ KLUGE: this is defined only by a subclass TreeWidget
+            rect = event.rect() # QPaintEvent method: the rect we need to update ###k do we see these during autoscroll? Yes! Good.
+            print "viewportPaintEvent with rect:",rect.left(),rect.top(),rect.width(),rect.height() #####@@@@@
+            # we might just override this in TreeWidget so it can do its extra drawing on top, during drag & drop.
         self.update_state_iff_needed( event)
 
         # Let QListView draw its standard contents 
@@ -286,6 +290,9 @@ class TreeView(QListView):
         #  to fix some Mac-specific redrawing bugs when the widget is resized.)
         painter = QPainter(self, True) # True means "unclipped", i.e. it can draw over the QListView column label
             ####@@@@ if this is what fixes the redraw bugs, should i do it before the super call not after?
+##        painter = QPainter(self.viewport(), True) #k any diff with viewport? still drawing in coords of nonscrolled place...
+##            # but probably ones below the label rather than incl it... and only draws in the invalid rect, not in the whole area!
+##            # also i don't know if, w/o the other one, the tool-dock-resize redraw bug fix is broken!
         if debug_painting:
             self.drawbluething(painter, (0,0), color = Qt.red)
             self.drawbluething(painter, (80,130), color = Qt.green)
@@ -334,7 +341,7 @@ class TreeView(QListView):
     ## def viewportResizeEvent(self, event):pass
         
     def paintEvent(self, event):
-        # this is the only one that gets called, out of update, repaint, paintEvent, contentsPaintEvent
+        # this is the only one that gets called, out of update, repaint, paintEvent, contentsPaintEvent -- see viewportPaintEvent
         if platform.atom_debug:
             self.dprinttime()
             ##print "fyi: modelTree.paintEvent() called (by Qt, presumably), event = %r" % event
