@@ -912,8 +912,16 @@ class MWsemantics(MainWindow):
             self.history.message(redmsg("Minimize: Nothing to minimize."))
             return
             
-        self.history.message(greenmsg("Minimize:"))
+        # Disable Minimize, Simulator and Movie Player during the minimize function.
+        self.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
+        self.toolsSimulatorAction.setEnabled(0) # Disable "Simulator" 
+        self.toolsMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
+        self.history.message(greenmsg("Minimize..."))
         self.assy.makeMinMovie()
+        self.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
+        self.toolsSimulatorAction.setEnabled(1) # Enable "Simulator"
+        self.toolsMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
+        self.history.message("Done")
 
     def modifyHydrogenate(self):
         """ Add hydrogen atoms to each singlet in the selection """
