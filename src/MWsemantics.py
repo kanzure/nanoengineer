@@ -700,7 +700,17 @@ class MWsemantics(MainWindow):
         self.assy.homeCsys.zoomFactor = self.glpane.zoomFactor 
         
         self.assy.changed() # Csys record changed in assy.  Mark [041215]
-        
+            
+    def setViewRecenter(self):
+        """Recenter the view around the origin of modeling space.
+        """
+        self.history.message(greenmsg("Recentert View:"))
+        self.glpane.pov = V(0,0,0)
+        #bCenter = V(self.assy.center[0], self.assy.center[1], self.assy.center[2]) 
+        self.glpane.scale += vlen(self.assy.center)
+        self.glpane.gl_update()
+        self.assy.changed()
+                
     def zoomTool(self):
         """Zoom Tool, allowing the user to specify a rectangular area 
         by holding down the left button and dragging the mouse to zoom 
@@ -935,10 +945,10 @@ class MWsemantics(MainWindow):
             self.history.message(redmsg("Ground: You must first select an atom(s) you want to ground."))
             return
         
-        # Make sure that no more than 25 atoms are selected.
+        # Make sure that no more than 30 atoms are selected.
         nsa = len(self.assy.selatoms)
-        if nsa > 25: 
-            self.history.message(redmsg("Ground: " + str(nsa) +" atoms selected.  The limit is 25.  Try again."))
+        if nsa > 30: 
+            self.history.message(redmsg("Ground: " + str(nsa) +" atoms selected.  The limit is 30.  Try again."))
             return
         
         self.history.message(greenmsg("Ground: "))
@@ -979,10 +989,10 @@ class MWsemantics(MainWindow):
             self.history.message(redmsg("Rotary Motor: You must first select an atom(s) to create a rotary motor."))
             return
         
-        # Make sure that no more than 25 atoms are selected.
+        # Make sure that no more than 30 atoms are selected.
         nsa = len(self.assy.selatoms)
-        if nsa > 25: 
-            self.history.message(redmsg("Linear Motor: " + str(nsa) + " atoms selected.  The limit is 25.  Try again."))
+        if nsa > 30: 
+            self.history.message(redmsg("Linear Motor: " + str(nsa) + " atoms selected.  The limit is 30.  Try again."))
             return
         
         self.history.message(greenmsg("Rotary Motor: "))
@@ -994,10 +1004,10 @@ class MWsemantics(MainWindow):
             self.history.message(redmsg("Linear Motor: You must first select an atom(s) to create a linear motor."))
             return
         
-        # Make sure that no more than 25 atoms are selected.
+        # Make sure that no more than 30 atoms are selected.
         nsa = len(self.assy.selatoms)
-        if nsa > 25: 
-            self.history.message(redmsg("Linear Motor: " + str(nsa) + " atoms selected.  The limit is 25.  Try again."))
+        if nsa > 30: 
+            self.history.message(redmsg("Linear Motor: " + str(nsa) + " atoms selected.  The limit is 30.  Try again."))
             return
         
         self.history.message(greenmsg("Linear Motor: "))
