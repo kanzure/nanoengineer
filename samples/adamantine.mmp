@@ -1,5 +1,5 @@
-csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
-part vdw (/home/josh/molecules/adamant.pdb)
+part cpk (molecule)
+show def
 atom 1 (6) (0, 0, 0)
 atom 2 (6) (1543, 0, 0)
 bond1 1
@@ -51,4 +51,6 @@ atom 25 (1) (1694, 1967, 3410)
 bond1 24
 atom 26 (1) (3146, 1456, 2523)
 bond1 24
-end molecular machine part NewPart1
+csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
+kelvin 300
+end molecular machine part adamantine
