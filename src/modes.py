@@ -615,6 +615,8 @@ class basicMode(anyMode):
     # are the same for all modes (with a few exceptions)
     def middleDown(self, event):
         
+#        print "modes.py: middleDown(): Current Cursor = ", self.o.cursor()
+#        print "modes.py: middleDown(): Current Cursor saved in Oldcursor"
         self.w.OldCursor = QCursor(self.o.cursor())
         # save copy of current cursor in OldCursor
         self.o.setCursor(self.w.RotateCursor) # load RotateCursor in glpane
@@ -631,6 +633,7 @@ class basicMode(anyMode):
         self.picking = 0
 
     def middleUp(self, event):
+#        print "modes.py: middleUp(): Oldcursor restored"
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleShiftDown(self, event):
@@ -725,15 +728,19 @@ class basicMode(anyMode):
         pass
     
     def rightUp(self, event):
+#        print "modes.py: rightUp()"
         pass
     
     def rightShiftDown(self, event):
         self.Menu2.popup(event.globalPos(),3)
-    
+#        print "modes.py: rightShiftDown()"
+
+                
     def rightShiftDrag(self, event):
         pass
     
     def rightShiftUp(self, event):
+#        print "modes.py: rightShiftUp()"
         pass
     
     def rightCntlDown(self, event):

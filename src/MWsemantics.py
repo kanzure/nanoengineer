@@ -505,7 +505,13 @@ class MWsemantics(MainWindow):
                 ob.setcolor(molcolor)
             self.glpane.paintGL()
 
-
+    # Reset the color of the selected molecule back to element colors
+    def dispResetMolColor(self):
+#        molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
+        for ob in self.assy.selmols:
+            ob.setcolor(None)
+        self.glpane.paintGL()
+            
     def dispBGColor(self):
         
         # get r, g, b values of current background color

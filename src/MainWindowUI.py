@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Oct 13 17:54:45 2004
+# Created: Wed Oct 13 22:25:35 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7602,18 +7602,6 @@ class MainWindow(QMainWindow):
         self.setViewBottomAction.addTo(self.popupMenu_32)
         self.setViewRightAction.addTo(self.popupMenu_32)
         self.setViewLeftAction.addTo(self.popupMenu_32)
-        self.unnamed.insertSeparator()
-        self.popupMenu_43 = QPopupMenu(self)
-        self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewToolbarsAction.iconSet(),self.__tr("&Toolbars"),self.popupMenu_43))
-        self.toggleFileTbarAction.addTo(self.popupMenu_43)
-        self.toggleEditTbarAction.addTo(self.popupMenu_43)
-        self.toggleViewTbarAction.addTo(self.popupMenu_43)
-        self.toggleGridsTbarAction.addTo(self.popupMenu_43)
-        self.toggleModelDispTbarAction.addTo(self.popupMenu_43)
-        self.toggleModifyTbarAction.addTo(self.popupMenu_43)
-        self.toggleDatumDispTbarAction.addTo(self.popupMenu_43)
-        self.toggleToolsTbarAction.addTo(self.popupMenu_43)
-        self.toggleSelectTbarAction.addTo(self.popupMenu_43)
         self.MenuBar.insertItem(QString(""),self.unnamed,5)
 
         self.unnamed = QPopupMenu(self)
@@ -7674,7 +7662,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,932).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,938).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7690,6 +7678,7 @@ class MainWindow(QMainWindow):
         self.connect(self.dispLinesAction,SIGNAL("activated()"),self.dispLines)
         self.connect(self.dispObjectColorAction,SIGNAL("activated()"),self.dispObjectColor)
         self.connect(self.dispOpenBondsAction,SIGNAL("activated()"),self.dispOpenBonds)
+        self.connect(self.dispResetMolColorAction,SIGNAL("activated()"),self.dispResetMolColor)
         self.connect(self.dispTrihedronAction,SIGNAL("activated()"),self.dispTrihedron)
         self.connect(self.dispTubesAction,SIGNAL("activated()"),self.dispTubes)
         self.connect(self.dispVdWAction,SIGNAL("activated()"),self.dispVdW)
@@ -7722,6 +7711,7 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsLinearMotorAction,SIGNAL("activated()"),self.makeLinearMotor)
         self.connect(self.jigsMotorAction,SIGNAL("activated()"),self.makeMotor)
         self.connect(self.jigsSpringAction,SIGNAL("activated()"),self.makeSpring)
+        self.connect(self.jigsStatAction,SIGNAL("activated()"),self.makeStat)
         self.connect(self.modifyCopyBondAction,SIGNAL("activated()"),self.modifyCopyBond)
         self.connect(self.modifyEdgeBondAction,SIGNAL("activated()"),self.modifyEdgeBond)
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
@@ -7735,9 +7725,12 @@ class MainWindow(QMainWindow):
         self.connect(self.orient110Action,SIGNAL("activated()"),self.orient110)
         self.connect(self.orient111Action,SIGNAL("activated()"),self.orient111)
         self.connect(self.selectAllAction,SIGNAL("activated()"),self.selectAll)
+        self.connect(self.selectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
         self.connect(self.selectConnectedAction,SIGNAL("activated()"),self.selectConnected)
         self.connect(self.selectDoublyAction,SIGNAL("activated()"),self.selectDoubly)
         self.connect(self.selectInvertAction,SIGNAL("activated()"),self.selectInvert)
+        self.connect(self.selectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
+        self.connect(self.selectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.selectNoneAction,SIGNAL("activated()"),self.selectNone)
         self.connect(self.setViewBackAction,SIGNAL("activated()"),self.setViewBack)
         self.connect(self.setViewBottomAction,SIGNAL("activated()"),self.setViewBottom)
@@ -7764,6 +7757,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsCancelAction,SIGNAL("activated()"),self.toolsCancel)
         self.connect(self.toolsCookieCutAction,SIGNAL("activated()"),self.toolsCookieCut)
         self.connect(self.toolsDeleteBondAction,SIGNAL("activated()"),self.toolsDeleteBond)
+        self.connect(self.toolsDepositAtomAction,SIGNAL("activated()"),self.addAtomStart)
         self.connect(self.toolsDoneAction,SIGNAL("activated()"),self.toolsDone)
         self.connect(self.toolsExtrudeAction,SIGNAL("activated()"),self.toolsExtrude)
         self.connect(self.toolsMirrorAction,SIGNAL("activated()"),self.toolsMirror)
@@ -7771,18 +7765,12 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsMoveMoleculeAction,SIGNAL("activated()"),self.toolsMoveMolecule)
         self.connect(self.toolsMovieAction,SIGNAL("activated()"),self.toolsMovie)
         self.connect(self.toolsRevolveAction,SIGNAL("activated()"),self.toolsRevolve)
+        self.connect(self.toolsSelectAction,SIGNAL("activated()"),self.toolsSelect)
         self.connect(self.toolsSelectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
+        self.connect(self.toolsSelectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsSimulator_Action,SIGNAL("activated()"),self.toolsSimulator)
-        self.connect(self.toolsDepositAtomAction,SIGNAL("activated()"),self.addAtomStart)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.selectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
-        self.connect(self.selectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
-        self.connect(self.selectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
-        self.connect(self.toolsSelectAction,SIGNAL("activated()"),self.toolsSelect)
-        self.connect(self.toolsSelectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
-        self.connect(self.jigsStatAction,SIGNAL("activated()"),self.makeStat)
-        self.connect(self.dispResetMolColorAction,SIGNAL("activated()"),self.dispResetMolColor)
 
 
     def languageChange(self):
@@ -8160,7 +8148,6 @@ class MainWindow(QMainWindow):
         if self.MenuBar.findItem(4):
             self.MenuBar.findItem(4).setText(self.__tr("&Edit"))
         self.unnamed.changeItem(self.unnamed.idAt(6),self.__tr("Orientations"))
-        self.unnamed.changeItem(self.unnamed.idAt(8),self.__tr("&Toolbars"))
         if self.MenuBar.findItem(5):
             self.MenuBar.findItem(5).setText(self.__tr("&View"))
         if self.MenuBar.findItem(6):

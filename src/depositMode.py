@@ -50,8 +50,10 @@ class depositMode(basicMode):
     
     # init_gui does all the GUI display when entering this mode [mark 041004]
     def init_gui(self):
-        self.o.setCursor(self.w.DepositAtomCursor) 
-        self.w.depositAtomDashboard.show()
+#        print "depositMode.py: init_gui(): Cursor set to DepositAtomCursor"
+        self.o.setCursor(self.w.DepositAtomCursor)  # load default cursor for MODIFY mode
+        self.w.toolsDepositAtomAction.setOn(1) # toggle on the Deposit Atoms icon
+        self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
 
     # methods related to exiting this mode [bruce 040922 made these from
     # old Done method, and added new code; there was no Flush method]
@@ -80,7 +82,7 @@ class depositMode(basicMode):
     # restore_gui handles all the GUI display when leavinging this mode
     # [mark 041004]
     def restore_gui(self):
-        self.w.depositAtomDashboard.hide()
+        self.w.depositAtomDashboard.hide() # Stow away dashboard
 
     def restore_patches(self):
         self.o.display = self.saveDisp
@@ -466,4 +468,3 @@ class depositMode(basicMode):
                     print b
 
     pass # end of class depositMode
-

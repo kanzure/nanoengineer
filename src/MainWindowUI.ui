@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>932</height>
+            <height>938</height>
         </rect>
     </property>
     <property name="caption">
@@ -82,19 +82,6 @@
             <action name="setViewBottomAction"/>
             <action name="setViewRightAction"/>
             <action name="setViewLeftAction"/>
-        </item>
-        <separator/>
-        <action name="viewToolbarsAction"/>
-        <item text="&amp;Toolbars" name="popupMenu_43" accel="">
-            <action name="toggleFileTbarAction"/>
-            <action name="toggleEditTbarAction"/>
-            <action name="toggleViewTbarAction"/>
-            <action name="toggleGridsTbarAction"/>
-            <action name="toggleModelDispTbarAction"/>
-            <action name="toggleModifyTbarAction"/>
-            <action name="toggleDatumDispTbarAction"/>
-            <action name="toggleToolsTbarAction"/>
-            <action name="toggleSelectTbarAction"/>
         </item>
     </item>
     <item text="&amp;Display" name="unnamed">
@@ -3051,6 +3038,12 @@
         <slot>dispOpenBonds()</slot>
     </connection>
     <connection>
+        <sender>dispResetMolColorAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispResetMolColor()</slot>
+    </connection>
+    <connection>
         <sender>dispTrihedronAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3243,6 +3236,12 @@
         <slot>makeSpring()</slot>
     </connection>
     <connection>
+        <sender>jigsStatAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeStat()</slot>
+    </connection>
+    <connection>
         <sender>modifyCopyBondAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3321,6 +3320,12 @@
         <slot>selectAll()</slot>
     </connection>
     <connection>
+        <sender>selectAtomsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelectAtoms()</slot>
+    </connection>
+    <connection>
         <sender>selectConnectedAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3337,6 +3342,18 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>selectInvert()</slot>
+    </connection>
+    <connection>
+        <sender>selectJigsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelectJigs()</slot>
+    </connection>
+    <connection>
+        <sender>selectMoleculesAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelectMolecules()</slot>
     </connection>
     <connection>
         <sender>selectNoneAction</sender>
@@ -3495,6 +3512,12 @@
         <slot>toolsDeleteBond()</slot>
     </connection>
     <connection>
+        <sender>toolsDepositAtomAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>addAtomStart()</slot>
+    </connection>
+    <connection>
         <sender>toolsDoneAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3537,10 +3560,22 @@
         <slot>toolsRevolve()</slot>
     </connection>
     <connection>
+        <sender>toolsSelectAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelect()</slot>
+    </connection>
+    <connection>
         <sender>toolsSelectAtomsAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>toolsSelectAtoms()</slot>
+    </connection>
+    <connection>
+        <sender>toolsSelectJigsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelectJigs()</slot>
     </connection>
     <connection>
         <sender>toolsSelectMoleculesAction</sender>
@@ -3555,58 +3590,10 @@
         <slot>toolsSimulator()</slot>
     </connection>
     <connection>
-        <sender>toolsDepositAtomAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>addAtomStart()</slot>
-    </connection>
-    <connection>
         <sender>toolsStartOverAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>toolsStartOver()</slot>
-    </connection>
-    <connection>
-        <sender>selectAtomsAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsSelectAtoms()</slot>
-    </connection>
-    <connection>
-        <sender>selectMoleculesAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsSelectMolecules()</slot>
-    </connection>
-    <connection>
-        <sender>selectJigsAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsSelectJigs()</slot>
-    </connection>
-    <connection>
-        <sender>toolsSelectAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsSelect()</slot>
-    </connection>
-    <connection>
-        <sender>toolsSelectJigsAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsSelectJigs()</slot>
-    </connection>
-    <connection>
-        <sender>jigsStatAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>makeStat()</slot>
-    </connection>
-    <connection>
-        <sender>dispResetMolColorAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>dispResetMolColor()</slot>
     </connection>
 </connections>
 <slots>

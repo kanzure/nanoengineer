@@ -355,7 +355,6 @@ class Stat(Node):
 
     def move(self, offset):
         pass
-
         
     def icon(self, treewidget):
         return treewidget.statIcon

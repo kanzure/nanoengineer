@@ -207,7 +207,9 @@ class selectMolsMode(selectMode):
     
         def init_gui(self):
             selectMode.init_gui(self)
+#            print "selectMode.py: init_gui(): Cursor set to SelectMolsCursor"
             self.o.setCursor(self.w.SelectMolsCursor)
+            self.w.OldCursor = QCursor(self.o.cursor())
             self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Molecules" tools icon
             self.w.selectMolDashboard.show() 
             
@@ -217,13 +219,16 @@ class selectMolsMode(selectMode):
         def keyPress(self,key):
             basicMode.keyPress(self, key)
             if key == Qt.Key_Shift:
+#                print "selectMode.py: keyPress(): Cursor set to SelectMolsAddCursor"
                 self.o.setCursor(self.w.SelectMolsAddCursor)
             if key == Qt.Key_Control:
+#                print "selectMode.py: keyPress(): Cursor set to SelectMolsSubtractCursor"
                 self.o.setCursor(self.w.SelectMolsSubtractCursor)
                 
         def keyRelease(self,key):
             basicMode.keyRelease(self, key)
             if key == Qt.Key_Shift or key == Qt.Key_Control:
+#                print "selectMode.py: keyRelease(): Cursor set to SelectMolsCursor"
                 self.o.setCursor(self.w.SelectMolsCursor)
 
 class selectAtomsMode(selectMode):

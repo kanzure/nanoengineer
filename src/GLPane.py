@@ -773,7 +773,7 @@ class GLPane(QGLWidget, modeMixin):
 
     def minimize(self):
         from debug import print_compact_traceback
-        self.win.statusBar().message("Minimizing...")
+        self.win.msgbarLabel.setText( "Minimizing...")
         # Initial message [mark 040924 via bruce]
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         # Put up the hourglass cursor. [mark 040924 via bruce]
@@ -790,10 +790,10 @@ class GLPane(QGLWidget, modeMixin):
         QApplication.restoreOverrideCursor()
         # Restore the cursor [mark 040924 via bruce]
         if s.startswith("Minimize"):
-            self.win.statusBar().message("Error...", 2000)
+            self.win.msgbarLabel.setText("Minimization Failed")
             QMessageBox.warning(self, "Minimization Failed:", s)
         else:
-            self.win.statusBar().message("Done.", 2000)
+            self.win.msgbarLabel.setText("Minimization Complete")
             # Final message for 2 seconds [mark 040924 via bruce]
                 # [Question for Mark: is it right to put this
                 #  before the movie? -- bruce]
