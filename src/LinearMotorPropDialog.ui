@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>473</width>
-            <height>398</height>
+            <width>477</width>
+            <height>423</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -32,6 +32,9 @@
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
+        </property>
+        <property name="spacing">
+            <number>7</number>
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
@@ -237,7 +240,7 @@
                                 <cstring>textLabel3_4_2_2</cstring>
                             </property>
                             <property name="text">
-                                <string>        </string>
+                                <string></string>
                             </property>
                         </widget>
                     </grid>
@@ -328,7 +331,7 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout47</cstring>
+                <cstring>layout95</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -338,226 +341,178 @@
                     <property name="name">
                         <cstring>groupBox3_3</cstring>
                     </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>115</height>
+                        </size>
+                    </property>
                     <property name="title">
                         <string>Center Coordinates</string>
                     </property>
-                    <widget class="QLineEdit">
+                    <widget class="QLayoutWidget">
                         <property name="name">
-                            <cstring>czLineEdit</cstring>
+                            <cstring>layout93</cstring>
                         </property>
                         <property name="geometry">
                             <rect>
-                                <x>30</x>
-                                <y>70</y>
-                                <width>123</width>
-                                <height>21</height>
-                            </rect>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>cyLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>43</y>
-                                <width>123</width>
-                                <height>21</height>
-                            </rect>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>cxLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
+                                <x>11</x>
                                 <y>16</y>
-                                <width>123</width>
-                                <height>21</height>
+                                <width>127</width>
+                                <height>83</height>
                             </rect>
                         </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_5</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>11</x>
-                                <y>23</y>
-                                <width>16</width>
-                                <height>21</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>X:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_2_3</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>11</x>
-                                <y>50</y>
-                                <width>16</width>
-                                <height>21</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Y:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3_2</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_3_3</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>11</x>
-                                <y>77</y>
-                                <width>16</width>
-                                <height>21</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Z:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3_3</cstring>
-                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLineEdit" row="2" column="1">
+                                <property name="name">
+                                    <cstring>czLineEdit</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="0">
+                                <property name="name">
+                                    <cstring>textLabel1_4_2_3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Y:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>lineEdit9_3_2</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="0" column="1">
+                                <property name="name">
+                                    <cstring>cxLineEdit</cstring>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="0">
+                                <property name="name">
+                                    <cstring>textLabel1_4_3_3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Z:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>lineEdit9_3_3</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="1" column="1">
+                                <property name="name">
+                                    <cstring>cyLineEdit</cstring>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>textLabel1_4_5</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>X:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>lineEdit9_3</cstring>
+                                </property>
+                            </widget>
+                        </grid>
                     </widget>
                 </widget>
                 <widget class="QGroupBox">
                     <property name="name">
                         <cstring>groupBox3_2_2</cstring>
                     </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>115</height>
+                        </size>
+                    </property>
                     <property name="title">
                         <string>Axis Vector</string>
                     </property>
-                    <widget class="QLineEdit">
+                    <widget class="QLayoutWidget">
                         <property name="name">
-                            <cstring>axLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>21</y>
-                                <width>123</width>
-                                <height>22</height>
-                            </rect>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>azLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>77</y>
-                                <width>123</width>
-                                <height>22</height>
-                            </rect>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_4_2</cstring>
+                            <cstring>layout94</cstring>
                         </property>
                         <property name="geometry">
                             <rect>
                                 <x>11</x>
                                 <y>21</y>
-                                <width>16</width>
-                                <height>22</height>
+                                <width>127</width>
+                                <height>83</height>
                             </rect>
                         </property>
-                        <property name="text">
-                            <string>X:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>ayLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>49</y>
-                                <width>123</width>
-                                <height>22</height>
-                            </rect>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_2_2_2</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>11</x>
-                                <y>49</y>
-                                <width>16</width>
-                                <height>22</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Y:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3_2</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_3_2_2</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>11</x>
-                                <y>77</y>
-                                <width>16</width>
-                                <height>22</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Z:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3_3</cstring>
-                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>textLabel1_4_4_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>X:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>lineEdit9_3</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="0" column="1">
+                                <property name="name">
+                                    <cstring>axLineEdit</cstring>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="0">
+                                <property name="name">
+                                    <cstring>textLabel1_4_3_2_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Z:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>lineEdit9_3_3</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="1" column="1">
+                                <property name="name">
+                                    <cstring>ayLineEdit</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="0">
+                                <property name="name">
+                                    <cstring>textLabel1_4_2_2_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Y:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>lineEdit9_3_2</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="2" column="1">
+                                <property name="name">
+                                    <cstring>azLineEdit</cstring>
+                                </property>
+                            </widget>
+                        </grid>
                     </widget>
                 </widget>
             </hbox>
@@ -569,6 +524,9 @@
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
+                </property>
+                <property name="spacing">
+                    <number>36</number>
                 </property>
                 <widget class="QPushButton">
                     <property name="name">
@@ -624,6 +582,9 @@
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
+                </property>
+                <property name="spacing">
+                    <number>31</number>
                 </property>
                 <widget class="QPushButton">
                     <property name="name">

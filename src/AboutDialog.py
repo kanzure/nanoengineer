@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\AboutDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\AboutDialog.ui'
 #
-# Created: Wed Dec 8 17:40:37 2004
+# Created: Thu Dec 9 13:19:04 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -1938,30 +1938,38 @@ class AboutDialog(QDialog):
         self.setPaletteBackgroundColor(QColor(255,255,255))
         self.setIcon(self.image0)
 
-
-        self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setGeometry(QRect(0,90,320,40))
-        self.textLabel1.setAlignment(QLabel.AlignCenter)
+        AboutDialogLayout = QVBoxLayout(self,11,6,"AboutDialogLayout")
 
         self.pixmapLabel2 = QLabel(self,"pixmapLabel2")
-        self.pixmapLabel2.setGeometry(QRect(60,10,200,69))
         self.pixmapLabel2.setPixmap(self.image1)
         self.pixmapLabel2.setScaledContents(1)
+        AboutDialogLayout.addWidget(self.pixmapLabel2)
+
+        self.textLabel1 = QLabel(self,"textLabel1")
+        self.textLabel1.setAlignment(QLabel.AlignCenter)
+        AboutDialogLayout.addWidget(self.textLabel1)
 
         self.textLabel2 = QLabel(self,"textLabel2")
-        self.textLabel2.setGeometry(QRect(0,130,320,30))
         self.textLabel2.setAlignment(QLabel.AlignCenter)
+        AboutDialogLayout.addWidget(self.textLabel2)
 
         self.textLabel2_2 = QLabel(self,"textLabel2_2")
-        self.textLabel2_2.setGeometry(QRect(0,170,320,30))
         self.textLabel2_2.setAlignment(QLabel.AlignCenter)
+        AboutDialogLayout.addWidget(self.textLabel2_2)
+
+        layout64 = QHBoxLayout(None,0,6,"layout64")
+        spacer7_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout64.addItem(spacer7_2)
 
         self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(120,220,86,29))
+        layout64.addWidget(self.okPushButton)
+        spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout64.addItem(spacer7)
+        AboutDialogLayout.addLayout(layout64)
 
         self.languageChange()
 
-        self.resize(QSize(322,258).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(322,261).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("close()"))

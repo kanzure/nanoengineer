@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\SimSetupDialog.ui'
 #
-# Created: Mon Nov 22 16:45:07 2004
+# Created: Thu Dec 9 13:20:01 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -62,55 +62,67 @@ class SimSetupDialog(QDialog):
         self.setIcon(self.image0)
         self.setModal(1)
 
+        SimSetupDialogLayout = QVBoxLayout(self,11,6,"SimSetupDialogLayout")
+
+        self.textLabel6 = QLabel(self,"textLabel6")
+        self.textLabel6.setAlignment(QLabel.WordBreak | QLabel.AlignCenter)
+        SimSetupDialogLayout.addWidget(self.textLabel6)
+
+        layout62 = QGridLayout(None,1,1,0,6,"layout62")
+
+        layout61 = QVBoxLayout(None,0,6,"layout61")
+
+        self.textLabel2 = QLabel(self,"textLabel2")
+        layout61.addWidget(self.textLabel2)
+
+        self.StepsPerFrameWidget = QSpinBox(self,"StepsPerFrameWidget")
+        self.StepsPerFrameWidget.setMinValue(1)
+        self.StepsPerFrameWidget.setValue(10)
+        layout61.addWidget(self.StepsPerFrameWidget)
+
+        layout62.addLayout(layout61,1,0)
+
+        layout58 = QVBoxLayout(None,0,6,"layout58")
+
+        self.textLabel1 = QLabel(self,"textLabel1")
+        layout58.addWidget(self.textLabel1)
 
         self.TimeStepWidget = QSpinBox(self,"TimeStepWidget")
-        self.TimeStepWidget.setGeometry(QRect(10,130,90,30))
         self.TimeStepWidget.setMaxValue(999)
         self.TimeStepWidget.setMinValue(1)
         self.TimeStepWidget.setValue(10)
+        layout58.addWidget(self.TimeStepWidget)
 
-        self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setGeometry(QRect(10,60,130,60))
+        layout62.addLayout(layout58,0,0)
 
-        self.textLabel2 = QLabel(self,"textLabel2")
-        self.textLabel2.setGeometry(QRect(11,181,110,17))
-
-        self.StepsPerFrameWidget = QSpinBox(self,"StepsPerFrameWidget")
-        self.StepsPerFrameWidget.setGeometry(QRect(10,210,80,30))
-        self.StepsPerFrameWidget.setMinValue(1)
-        self.StepsPerFrameWidget.setValue(10)
-
-        self.NameFileButton = QPushButton(self,"NameFileButton")
-        self.NameFileButton.setGeometry(QRect(20,350,110,30))
-
-        self.textLabel5 = QLabel(self,"textLabel5")
-        self.textLabel5.setGeometry(QRect(171,181,110,17))
-
-        self.TemperatureWidget = QSpinBox(self,"TemperatureWidget")
-        self.TemperatureWidget.setGeometry(QRect(170,130,81,31))
-        self.TemperatureWidget.setMaxValue(999)
-        self.TemperatureWidget.setValue(300)
+        layout59 = QVBoxLayout(None,0,6,"layout59")
 
         self.textLabel3 = QLabel(self,"textLabel3")
-        self.textLabel3.setGeometry(QRect(170,80,100,31))
+        layout59.addWidget(self.textLabel3)
+
+        self.TemperatureWidget = QSpinBox(self,"TemperatureWidget")
+        self.TemperatureWidget.setMaxValue(999)
+        self.TemperatureWidget.setValue(300)
+        layout59.addWidget(self.TemperatureWidget)
+
+        layout62.addLayout(layout59,0,1)
+
+        layout60 = QVBoxLayout(None,0,6,"layout60")
+
+        self.textLabel5 = QLabel(self,"textLabel5")
+        layout60.addWidget(self.textLabel5)
 
         self.NumFramesWidget = QSpinBox(self,"NumFramesWidget")
-        self.NumFramesWidget.setGeometry(QRect(170,210,90,30))
         self.NumFramesWidget.setMaxValue(90000)
         self.NumFramesWidget.setMinValue(30)
         self.NumFramesWidget.setLineStep(15)
         self.NumFramesWidget.setValue(900)
+        layout60.addWidget(self.NumFramesWidget)
 
-        self.GoButton = QPushButton(self,"GoButton")
-        self.GoButton.setGeometry(QRect(140,350,110,30))
-        self.GoButton.setDefault(1)
-
-        self.textLabel6 = QLabel(self,"textLabel6")
-        self.textLabel6.setGeometry(QRect(10,10,250,37))
-        self.textLabel6.setAlignment(QLabel.WordBreak | QLabel.AlignCenter)
+        layout62.addLayout(layout60,1,1)
+        SimSetupDialogLayout.addLayout(layout62)
 
         self.FileFormatWidget = QButtonGroup(self,"FileFormatWidget")
-        self.FileFormatWidget.setGeometry(QRect(10,260,250,71))
 
         self.BinFileWidget = QRadioButton(self.FileFormatWidget,"BinFileWidget")
         self.BinFileWidget.setGeometry(QRect(20,20,190,22))
@@ -120,10 +132,21 @@ class SimSetupDialog(QDialog):
         self.TextFile = QRadioButton(self.FileFormatWidget,"TextFile")
         self.TextFile.setGeometry(QRect(20,40,190,22))
         self.FileFormatWidget.insert( self.TextFile,1)
+        SimSetupDialogLayout.addWidget(self.FileFormatWidget)
+
+        layout63 = QHBoxLayout(None,0,6,"layout63")
+
+        self.NameFileButton = QPushButton(self,"NameFileButton")
+        layout63.addWidget(self.NameFileButton)
+
+        self.GoButton = QPushButton(self,"GoButton")
+        self.GoButton.setDefault(1)
+        layout63.addWidget(self.GoButton)
+        SimSetupDialogLayout.addLayout(layout63)
 
         self.languageChange()
 
-        self.resize(QSize(270,402).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(290,330).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.NumFramesWidget,SIGNAL("valueChanged(int)"),self.NumFramesValueChanged)
@@ -137,19 +160,19 @@ class SimSetupDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Simulator"))
+        self.textLabel6.setText(self.__tr("<b><h1>Simulation Setup</h1></b>"))
+        self.textLabel2.setText(self.__tr("Steps per Frame"))
         self.textLabel1.setText(self.__tr("Timestep\n"
 "(hundredths of\n"
 "femtosecond)"))
-        self.textLabel2.setText(self.__tr("Steps per Frame"))
-        self.NameFileButton.setText(self.__tr("Name File"))
-        self.textLabel5.setText(self.__tr("Total frames"))
         self.textLabel3.setText(self.__tr("Temperature\n"
 "(Kelvins)"))
-        self.GoButton.setText(self.__tr("Go"))
-        self.textLabel6.setText(self.__tr("<b><h1>Simulation Setup</h1></b>"))
+        self.textLabel5.setText(self.__tr("Total frames"))
         self.FileFormatWidget.setTitle(self.__tr("File Format"))
         self.BinFileWidget.setText(self.__tr("Binary trajectory file (*.dpb)"))
         self.TextFile.setText(self.__tr("Text trajectory file (*.xyz)"))
+        self.NameFileButton.setText(self.__tr("Name File"))
+        self.GoButton.setText(self.__tr("Go"))
 
 
     def NumFramesValueChanged(self,a0):

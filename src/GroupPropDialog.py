@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GroupPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\GroupPropDialog.ui'
 #
-# Created: Mon Nov 29 00:19:25 2004
+# Created: Thu Dec 9 13:19:29 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -93,29 +93,42 @@ class GroupPropDialog(QDialog):
 
         self.setIcon(self.image0)
 
+        GroupPropDialogLayout = QVBoxLayout(self,11,6,"GroupPropDialogLayout")
+
+        layout98 = QHBoxLayout(None,0,6,"layout98")
 
         self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setGeometry(QRect(4,22,50,21))
         self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout98.addWidget(self.textLabel1)
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
-        self.nameLineEdit.setGeometry(QRect(60,22,220,23))
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
+        layout98.addWidget(self.nameLineEdit)
+
+        self.textLabel2 = QLabel(self,"textLabel2")
+        self.textLabel2.setMinimumSize(QSize(30,0))
+        layout98.addWidget(self.textLabel2)
+        GroupPropDialogLayout.addLayout(layout98)
+        spacer11 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        GroupPropDialogLayout.addItem(spacer11)
+
+        layout96 = QHBoxLayout(None,10,65,"layout96")
 
         self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(73,79,82,29))
         self.okPushButton.setAutoDefault(1)
         self.okPushButton.setDefault(1)
+        layout96.addWidget(self.okPushButton)
 
         self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setGeometry(QRect(161,79,82,29))
         self.cancelPushButton.setAutoDefault(1)
         self.cancelPushButton.setDefault(0)
+        layout96.addWidget(self.cancelPushButton)
+        GroupPropDialogLayout.addLayout(layout96)
 
         self.languageChange()
 
-        self.resize(QSize(314,133).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(314,136).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
@@ -127,6 +140,7 @@ class GroupPropDialog(QDialog):
         self.setCaption(self.__tr("Group Properties"))
         self.textLabel1.setText(self.__tr("Name:"))
         self.nameLineEdit.setText(QString.null)
+        self.textLabel2.setText(QString.null)
         self.okPushButton.setText(self.__tr("&OK"))
         self.okPushButton.setAccel(self.__tr("Alt+O"))
         self.cancelPushButton.setText(self.__tr("&Cancel"))

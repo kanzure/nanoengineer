@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementSelectorDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Thu Dec 2 09:17:23 2004
+# Created: Thu Dec 9 13:19:15 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -109,15 +109,9 @@ class ElementSelectorDialog(QDialog):
         self.setPalette(pal)
         self.setIcon(self.image0)
 
-
-        self.closePTableButton = QPushButton(self,"closePTableButton")
-        self.closePTableButton.setGeometry(QRect(160,340,100,29))
-
-        self.TransmuteButton = QPushButton(self,"TransmuteButton")
-        self.TransmuteButton.setGeometry(QRect(10,340,131,31))
+        ElementSelectorDialogLayout = QVBoxLayout(self,11,6,"ElementSelectorDialogLayout")
 
         self.elementButtonGroup = QButtonGroup(self,"elementButtonGroup")
-        self.elementButtonGroup.setGeometry(QRect(10,0,250,330))
         self.elementButtonGroup.setExclusive(1)
 
         self.elementFrame = QFrame(self.elementButtonGroup,"elementFrame")
@@ -395,10 +389,20 @@ class ElementSelectorDialog(QDialog):
         self.pushButton54.setFont(pushButton54_font)
         self.pushButton54.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton54,54)
+        ElementSelectorDialogLayout.addWidget(self.elementButtonGroup)
+
+        layout65 = QHBoxLayout(None,0,6,"layout65")
+
+        self.TransmuteButton = QPushButton(self,"TransmuteButton")
+        layout65.addWidget(self.TransmuteButton)
+
+        self.closePTableButton = QPushButton(self,"closePTableButton")
+        layout65.addWidget(self.closePTableButton)
+        ElementSelectorDialogLayout.addLayout(layout65)
 
         self.languageChange()
 
-        self.resize(QSize(266,388).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(266,391).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
@@ -408,8 +412,6 @@ class ElementSelectorDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Element Selector"))
-        self.closePTableButton.setText(self.__tr("Close"))
-        self.TransmuteButton.setText(self.__tr("Transmute"))
         self.elementButtonGroup.setTitle(QString.null)
         self.elementNumberLabel.setText(self.__tr("1"))
         self.amuLabel.setText(self.__tr("1.008"))
@@ -460,6 +462,8 @@ class ElementSelectorDialog(QDialog):
 "I"))
         self.pushButton54.setText(self.__tr("54\n"
 "Xe"))
+        self.TransmuteButton.setText(self.__tr("Transmute"))
+        self.closePTableButton.setText(self.__tr("Close"))
 
 
     def setElementInfo(self):

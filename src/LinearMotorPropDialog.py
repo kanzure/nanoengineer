@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\LinearMotorPropDialog.ui'
 #
-# Created: Wed Dec 8 17:56:06 2004
+# Created: Thu Dec 9 13:19:36 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -60,7 +60,7 @@ class LinearMotorPropDialog(QDialog):
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
-        LinearMotorPropDialogLayout = QVBoxLayout(self,11,6,"LinearMotorPropDialogLayout")
+        LinearMotorPropDialogLayout = QVBoxLayout(self,11,7,"LinearMotorPropDialogLayout")
 
         layout52 = QHBoxLayout(None,0,6,"layout52")
 
@@ -184,58 +184,80 @@ class LinearMotorPropDialog(QDialog):
         layout55.addLayout(layout54)
         LinearMotorPropDialogLayout.addLayout(layout55)
 
-        layout47 = QHBoxLayout(None,0,6,"layout47")
+        layout95 = QHBoxLayout(None,0,6,"layout95")
 
         self.groupBox3_3 = QGroupBox(self,"groupBox3_3")
+        self.groupBox3_3.setMinimumSize(QSize(0,115))
 
-        self.czLineEdit = QLineEdit(self.groupBox3_3,"czLineEdit")
-        self.czLineEdit.setGeometry(QRect(30,70,123,21))
+        LayoutWidget = QWidget(self.groupBox3_3,"layout93")
+        LayoutWidget.setGeometry(QRect(11,16,127,83))
+        layout93 = QGridLayout(LayoutWidget,1,1,11,6,"layout93")
 
-        self.cyLineEdit = QLineEdit(self.groupBox3_3,"cyLineEdit")
-        self.cyLineEdit.setGeometry(QRect(30,43,123,21))
-        self.cyLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.cyLineEdit.setFrameShadow(QLineEdit.Sunken)
+        self.czLineEdit = QLineEdit(LayoutWidget,"czLineEdit")
 
-        self.cxLineEdit = QLineEdit(self.groupBox3_3,"cxLineEdit")
-        self.cxLineEdit.setGeometry(QRect(30,16,123,21))
+        layout93.addWidget(self.czLineEdit,2,1)
+
+        self.textLabel1_4_2_3 = QLabel(LayoutWidget,"textLabel1_4_2_3")
+
+        layout93.addWidget(self.textLabel1_4_2_3,1,0)
+
+        self.cxLineEdit = QLineEdit(LayoutWidget,"cxLineEdit")
         self.cxLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.cxLineEdit.setFrameShadow(QLineEdit.Sunken)
 
-        self.textLabel1_4_5 = QLabel(self.groupBox3_3,"textLabel1_4_5")
-        self.textLabel1_4_5.setGeometry(QRect(11,23,16,21))
+        layout93.addWidget(self.cxLineEdit,0,1)
 
-        self.textLabel1_4_2_3 = QLabel(self.groupBox3_3,"textLabel1_4_2_3")
-        self.textLabel1_4_2_3.setGeometry(QRect(11,50,16,21))
+        self.textLabel1_4_3_3 = QLabel(LayoutWidget,"textLabel1_4_3_3")
 
-        self.textLabel1_4_3_3 = QLabel(self.groupBox3_3,"textLabel1_4_3_3")
-        self.textLabel1_4_3_3.setGeometry(QRect(11,77,16,21))
-        layout47.addWidget(self.groupBox3_3)
+        layout93.addWidget(self.textLabel1_4_3_3,2,0)
+
+        self.cyLineEdit = QLineEdit(LayoutWidget,"cyLineEdit")
+        self.cyLineEdit.setFrameShape(QLineEdit.LineEditPanel)
+        self.cyLineEdit.setFrameShadow(QLineEdit.Sunken)
+
+        layout93.addWidget(self.cyLineEdit,1,1)
+
+        self.textLabel1_4_5 = QLabel(LayoutWidget,"textLabel1_4_5")
+
+        layout93.addWidget(self.textLabel1_4_5,0,0)
+        layout95.addWidget(self.groupBox3_3)
 
         self.groupBox3_2_2 = QGroupBox(self,"groupBox3_2_2")
+        self.groupBox3_2_2.setMinimumSize(QSize(0,115))
 
-        self.axLineEdit = QLineEdit(self.groupBox3_2_2,"axLineEdit")
-        self.axLineEdit.setGeometry(QRect(30,21,123,22))
+        LayoutWidget_2 = QWidget(self.groupBox3_2_2,"layout94")
+        LayoutWidget_2.setGeometry(QRect(11,21,127,83))
+        layout94 = QGridLayout(LayoutWidget_2,1,1,11,6,"layout94")
+
+        self.textLabel1_4_4_2 = QLabel(LayoutWidget_2,"textLabel1_4_4_2")
+
+        layout94.addWidget(self.textLabel1_4_4_2,0,0)
+
+        self.axLineEdit = QLineEdit(LayoutWidget_2,"axLineEdit")
         self.axLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.axLineEdit.setFrameShadow(QLineEdit.Sunken)
 
-        self.azLineEdit = QLineEdit(self.groupBox3_2_2,"azLineEdit")
-        self.azLineEdit.setGeometry(QRect(30,77,123,22))
+        layout94.addWidget(self.axLineEdit,0,1)
 
-        self.textLabel1_4_4_2 = QLabel(self.groupBox3_2_2,"textLabel1_4_4_2")
-        self.textLabel1_4_4_2.setGeometry(QRect(11,21,16,22))
+        self.textLabel1_4_3_2_2 = QLabel(LayoutWidget_2,"textLabel1_4_3_2_2")
 
-        self.ayLineEdit = QLineEdit(self.groupBox3_2_2,"ayLineEdit")
-        self.ayLineEdit.setGeometry(QRect(30,49,123,22))
+        layout94.addWidget(self.textLabel1_4_3_2_2,2,0)
 
-        self.textLabel1_4_2_2_2 = QLabel(self.groupBox3_2_2,"textLabel1_4_2_2_2")
-        self.textLabel1_4_2_2_2.setGeometry(QRect(11,49,16,22))
+        self.ayLineEdit = QLineEdit(LayoutWidget_2,"ayLineEdit")
 
-        self.textLabel1_4_3_2_2 = QLabel(self.groupBox3_2_2,"textLabel1_4_3_2_2")
-        self.textLabel1_4_3_2_2.setGeometry(QRect(11,77,16,22))
-        layout47.addWidget(self.groupBox3_2_2)
-        LinearMotorPropDialogLayout.addLayout(layout47)
+        layout94.addWidget(self.ayLineEdit,1,1)
 
-        layout48 = QHBoxLayout(None,0,6,"layout48")
+        self.textLabel1_4_2_2_2 = QLabel(LayoutWidget_2,"textLabel1_4_2_2_2")
+
+        layout94.addWidget(self.textLabel1_4_2_2_2,1,0)
+
+        self.azLineEdit = QLineEdit(LayoutWidget_2,"azLineEdit")
+
+        layout94.addWidget(self.azLineEdit,2,1)
+        layout95.addWidget(self.groupBox3_2_2)
+        LinearMotorPropDialogLayout.addLayout(layout95)
+
+        layout48 = QHBoxLayout(None,0,36,"layout48")
 
         self.moveCenterPushButton = QPushButton(self,"moveCenterPushButton")
         self.moveCenterPushButton.setEnabled(0)
@@ -248,7 +270,7 @@ class LinearMotorPropDialog(QDialog):
         spacer2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
         LinearMotorPropDialogLayout.addItem(spacer2)
 
-        layout49 = QHBoxLayout(None,0,6,"layout49")
+        layout49 = QHBoxLayout(None,0,31,"layout49")
 
         self.okPushButton = QPushButton(self,"okPushButton")
         self.okPushButton.setAutoDefault(1)
@@ -268,7 +290,7 @@ class LinearMotorPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(473,398).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(477,423).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
@@ -307,13 +329,13 @@ class LinearMotorPropDialog(QDialog):
         self.textLabel1_2.setText(self.__tr("Motor Width:"))
         self.textLabel3.setText(self.__tr("Angstroms"))
         self.groupBox3_3.setTitle(self.__tr("Center Coordinates"))
-        self.textLabel1_4_5.setText(self.__tr("X:"))
         self.textLabel1_4_2_3.setText(self.__tr("Y:"))
         self.textLabel1_4_3_3.setText(self.__tr("Z:"))
+        self.textLabel1_4_5.setText(self.__tr("X:"))
         self.groupBox3_2_2.setTitle(self.__tr("Axis Vector"))
         self.textLabel1_4_4_2.setText(self.__tr("X:"))
-        self.textLabel1_4_2_2_2.setText(self.__tr("Y:"))
         self.textLabel1_4_3_2_2.setText(self.__tr("Z:"))
+        self.textLabel1_4_2_2_2.setText(self.__tr("Y:"))
         self.moveCenterPushButton.setText(self.__tr("Move Center"))
         self.moveCenterPushButton.setAccel(QString.null)
         self.alignAxiPushButtons.setText(self.__tr("Align Axis"))

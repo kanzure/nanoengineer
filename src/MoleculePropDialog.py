@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MoleculePropDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\MoleculePropDialog.ui'
 #
-# Created: Fri Nov 5 09:10:26 2004
+# Created: Thu Dec 9 13:19:42 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,59 +75,86 @@ class MoleculePropDialog(QDialog):
 
         self.setIcon(self.image0)
 
+        MoleculePropDialogLayout = QVBoxLayout(self,11,7,"MoleculePropDialogLayout")
 
-        self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setGeometry(QRect(121,259,82,29))
-        self.cancelPushButton.setAutoDefault(1)
-        self.cancelPushButton.setDefault(0)
-
-        self.elementColorsPushButton = QPushButton(self,"elementColorsPushButton")
-        self.elementColorsPushButton.setEnabled(1)
-        self.elementColorsPushButton.setGeometry(QRect(150,200,130,30))
-
-        self.atomsTextBrowser = QTextBrowser(self,"atomsTextBrowser")
-        self.atomsTextBrowser.setGeometry(QRect(60,49,220,136))
-
-        self.textLabel2 = QLabel(self,"textLabel2")
-        self.textLabel2.setGeometry(QRect(2,49,52,20))
-        self.textLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout99 = QHBoxLayout(None,0,6,"layout99")
 
         self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setGeometry(QRect(4,22,50,21))
         self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout99.addWidget(self.textLabel1)
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
-        self.nameLineEdit.setGeometry(QRect(60,22,220,23))
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
+        layout99.addWidget(self.nameLineEdit)
+        MoleculePropDialogLayout.addLayout(layout99)
 
-        self.applyPushButton = QPushButton(self,"applyPushButton")
-        self.applyPushButton.setEnabled(0)
-        self.applyPushButton.setGeometry(QRect(209,259,82,29))
+        layout101 = QHBoxLayout(None,0,6,"layout101")
 
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(33,259,82,29))
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
+        layout100 = QVBoxLayout(None,0,6,"layout100")
+
+        self.textLabel2 = QLabel(self,"textLabel2")
+        self.textLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout100.addWidget(self.textLabel2)
+        spacer1 = QSpacerItem(20,113,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout100.addItem(spacer1)
+        layout101.addLayout(layout100)
+
+        self.atomsTextBrowser = QTextBrowser(self,"atomsTextBrowser")
+        layout101.addWidget(self.atomsTextBrowser)
+        MoleculePropDialogLayout.addLayout(layout101)
+
+        layout103 = QHBoxLayout(None,0,6,"layout103")
+
+        layout102 = QHBoxLayout(None,0,6,"layout102")
 
         self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setGeometry(QRect(0,205,50,20))
         self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout102.addWidget(self.colorTextLabel)
 
         self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setGeometry(QRect(60,200,40,28))
+        self.colorPixmapLabel.setMinimumSize(QSize(30,0))
         self.colorPixmapLabel.setPaletteBackgroundColor(QColor(230,231,230))
         self.colorPixmapLabel.setFrameShape(QLabel.Box)
         self.colorPixmapLabel.setFrameShadow(QLabel.Plain)
         self.colorPixmapLabel.setScaledContents(1)
+        layout102.addWidget(self.colorPixmapLabel)
 
         self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
         self.colorSelectorPushButton.setEnabled(1)
-        self.colorSelectorPushButton.setGeometry(QRect(110,200,30,30))
+        layout102.addWidget(self.colorSelectorPushButton)
+        layout103.addLayout(layout102)
+
+        self.elementColorsPushButton = QPushButton(self,"elementColorsPushButton")
+        self.elementColorsPushButton.setEnabled(1)
+        layout103.addWidget(self.elementColorsPushButton)
+        MoleculePropDialogLayout.addLayout(layout103)
+        spacer2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        MoleculePropDialogLayout.addItem(spacer2)
+
+        layout104 = QHBoxLayout(None,7,7,"layout104")
+
+        self.okPushButton = QPushButton(self,"okPushButton")
+        self.okPushButton.setMinimumSize(QSize(0,30))
+        self.okPushButton.setAutoDefault(1)
+        self.okPushButton.setDefault(1)
+        layout104.addWidget(self.okPushButton)
+
+        self.cancelPushButton = QPushButton(self,"cancelPushButton")
+        self.cancelPushButton.setMinimumSize(QSize(0,30))
+        self.cancelPushButton.setAutoDefault(1)
+        self.cancelPushButton.setDefault(0)
+        layout104.addWidget(self.cancelPushButton)
+
+        self.applyPushButton = QPushButton(self,"applyPushButton")
+        self.applyPushButton.setEnabled(0)
+        self.applyPushButton.setMinimumSize(QSize(0,30))
+        layout104.addWidget(self.applyPushButton)
+        MoleculePropDialogLayout.addLayout(layout104)
 
         self.languageChange()
 
-        self.resize(QSize(314,313).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(393,354).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
@@ -140,18 +167,18 @@ class MoleculePropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Chunk Properties"))
-        self.cancelPushButton.setText(self.__tr("&Cancel"))
-        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
-        self.elementColorsPushButton.setText(self.__tr("Element Colors"))
-        self.textLabel2.setText(self.__tr("Atoms:"))
         self.textLabel1.setText(self.__tr("Name:"))
         self.nameLineEdit.setText(QString.null)
-        self.applyPushButton.setText(self.__tr("Apply"))
-        self.applyPushButton.setAccel(QString.null)
-        self.okPushButton.setText(self.__tr("&OK"))
-        self.okPushButton.setAccel(self.__tr("Alt+O"))
+        self.textLabel2.setText(self.__tr("Atoms:"))
         self.colorTextLabel.setText(self.__tr("Color:"))
         self.colorSelectorPushButton.setText(self.__tr("..."))
+        self.elementColorsPushButton.setText(self.__tr("Element Colors"))
+        self.okPushButton.setText(self.__tr("&OK"))
+        self.okPushButton.setAccel(self.__tr("Alt+O"))
+        self.cancelPushButton.setText(self.__tr("&Cancel"))
+        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
+        self.applyPushButton.setText(self.__tr("Apply"))
+        self.applyPushButton.setAccel(QString.null)
 
 
     def applyButtonClicked(self):

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>378</width>
-            <height>351</height>
+            <width>393</width>
+            <height>381</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,219 +18,214 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <widget class="QLineEdit">
+    <vbox>
         <property name="name">
-            <cstring>nameLineEdit_2</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>80</x>
-                <y>53</y>
-                <width>270</width>
-                <height>23</height>
-            </rect>
-        </property>
-        <property name="frameShape">
-            <enum>LineEditPanel</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Sunken</enum>
-        </property>
-        <property name="text">
-            <string></string>
-        </property>
-        <property name="readOnly">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>nameLabel_2</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>11</x>
-                <y>53</y>
-                <width>60</width>
-                <height>21</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Name:</string>
-        </property>
-        <property name="alignment">
-            <set>AlignVCenter|AlignLeft</set>
-        </property>
-    </widget>
-    <widget class="QTabWidget">
-        <property name="name">
-            <cstring>tabWidget3</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>10</y>
-                <width>370</width>
-                <height>290</height>
-            </rect>
-        </property>
-        <widget class="QWidget">
+        <widget class="QTabWidget">
             <property name="name">
-                <cstring>tab</cstring>
+                <cstring>tabWidget3</cstring>
             </property>
-            <attribute name="title">
-                <string>General</string>
-            </attribute>
-            <widget class="QLineEdit">
+            <widget class="QWidget">
                 <property name="name">
-                    <cstring>nameLineEdit</cstring>
+                    <cstring>tab</cstring>
                 </property>
-                <property name="geometry">
-                    <rect>
-                        <x>80</x>
-                        <y>23</y>
-                        <width>270</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="frameShape">
-                    <enum>LineEditPanel</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Sunken</enum>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="readOnly">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>nameLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>11</x>
-                        <y>23</y>
-                        <width>60</width>
-                        <height>21</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Name:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignLeft</set>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>statsLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>71</y>
-                        <width>60</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Statistics:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignLeft</set>
-                </property>
-            </widget>
-            <widget class="QListView">
-                <column>
-                    <property name="text">
-                        <string>Statistic Name</string>
+                <attribute name="title">
+                    <string>General</string>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
                     </property>
-                    <property name="clickable">
-                        <bool>true</bool>
-                    </property>
-                    <property name="resizable">
-                        <bool>true</bool>
-                    </property>
-                </column>
-                <column>
-                    <property name="text">
-                        <string>Value</string>
-                    </property>
-                    <property name="clickable">
-                        <bool>true</bool>
-                    </property>
-                    <property name="resizable">
-                        <bool>true</bool>
-                    </property>
-                </column>
-                <property name="name">
-                    <cstring>statsView</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>80</x>
-                        <y>60</y>
-                        <width>270</width>
-                        <height>180</height>
-                    </rect>
-                </property>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout109</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout107</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>nameLabel</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Name:</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignLeft</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>nameLineEdit</cstring>
+                                        </property>
+                                        <property name="frameShape">
+                                            <enum>LineEditPanel</enum>
+                                        </property>
+                                        <property name="frameShadow">
+                                            <enum>Sunken</enum>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="readOnly">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout106</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout105</cstring>
+                                        </property>
+                                        <vbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>statsLabel</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Statistics:</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignLeft</set>
+                                                </property>
+                                            </widget>
+                                            <spacer>
+                                                <property name="name">
+                                                    <cstring>spacer14</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Vertical</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>20</width>
+                                                        <height>40</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                        </vbox>
+                                    </widget>
+                                    <widget class="QListView">
+                                        <column>
+                                            <property name="text">
+                                                <string>Statistic Name</string>
+                                            </property>
+                                            <property name="clickable">
+                                                <bool>true</bool>
+                                            </property>
+                                            <property name="resizable">
+                                                <bool>true</bool>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Value</string>
+                                            </property>
+                                            <property name="clickable">
+                                                <bool>true</bool>
+                                            </property>
+                                            <property name="resizable">
+                                                <bool>true</bool>
+                                            </property>
+                                        </column>
+                                        <property name="name">
+                                            <cstring>statsView</cstring>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                </vbox>
             </widget>
         </widget>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>cancelPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>190</x>
-                <y>310</y>
-                <width>82</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;Cancel</string>
-        </property>
-        <property name="accel">
-            <string>Alt+C</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>false</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>okPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>102</x>
-                <y>310</y>
-                <width>82</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;OK</string>
-        </property>
-        <property name="accel">
-            <string>Alt+O</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout108</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>4</number>
+                </property>
+                <property name="spacing">
+                    <number>72</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okPushButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;OK</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+O</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancelPushButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+C</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
 </widget>
 <images>
     <image name="image0">

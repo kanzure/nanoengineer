@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>322</width>
-            <height>258</height>
+            <height>261</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -25,98 +25,107 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <widget class="QLabel">
+    <vbox>
         <property name="name">
-            <cstring>textLabel1</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>90</y>
-                <width>320</width>
-                <height>40</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>nanoENGINEER-1 Version 1.0 (Alpha)</string>
-        </property>
-        <property name="alignment">
-            <set>AlignCenter</set>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>pixmapLabel2</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>60</x>
-                <y>10</y>
-                <width>200</width>
-                <height>69</height>
-            </rect>
-        </property>
-        <property name="pixmap">
-            <pixmap>image1</pixmap>
-        </property>
-        <property name="scaledContents">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel2</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>130</y>
-                <width>320</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Copyright (C) 2004, Nanorex, Inc.</string>
-        </property>
-        <property name="alignment">
-            <set>AlignCenter</set>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel2_2</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>170</y>
-                <width>320</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>www.nanorex.com</string>
-        </property>
-        <property name="alignment">
-            <set>AlignCenter</set>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>okPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>120</x>
-                <y>220</y>
-                <width>86</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>OK</string>
-        </property>
-    </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>pixmapLabel2</cstring>
+            </property>
+            <property name="pixmap">
+                <pixmap>image1</pixmap>
+            </property>
+            <property name="scaledContents">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="text">
+                <string>nanoENGINEER-1 Version 1.0 (Alpha)</string>
+            </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel2</cstring>
+            </property>
+            <property name="text">
+                <string>Copyright (C) 2004, Nanorex, Inc.</string>
+            </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel2_2</cstring>
+            </property>
+            <property name="text">
+                <string>www.nanorex.com</string>
+            </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
+            </property>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout64</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer7_2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okPushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>OK</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer7</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </hbox>
+        </widget>
+    </vbox>
 </widget>
 <images>
     <image name="image0">

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GroundPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\GroundPropDialog.ui'
 #
-# Created: Fri Oct 8 11:47:17 2004
+# Created: Thu Dec 9 13:19:20 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -83,54 +83,73 @@ class GroundPropDialog(QDialog):
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
+        GroundPropDialogLayout = QVBoxLayout(self,11,28,"GroundPropDialogLayout")
 
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(21,101,82,27))
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
-
-        self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setGeometry(QRect(119,101,82,27))
-        self.cancelPushButton.setAutoDefault(1)
-        self.cancelPushButton.setDefault(0)
-
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setGeometry(QRect(223,51,40,27))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
-        self.colorPixmapLabel.setScaledContents(1)
-
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setGeometry(QRect(171,51,44,27))
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout70 = QHBoxLayout(None,0,6,"layout70")
 
         self.nameTextLabel = QLabel(self,"nameTextLabel")
-        self.nameTextLabel.setGeometry(QRect(11,11,42,26))
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout70.addWidget(self.nameTextLabel)
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
         self.nameLineEdit.setEnabled(1)
-        self.nameLineEdit.setGeometry(QRect(58,11,211,21))
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
+        layout70.addWidget(self.nameLineEdit)
+        GroundPropDialogLayout.addLayout(layout70)
+
+        layout73 = QHBoxLayout(None,0,16,"layout73")
+
+        layout67 = QHBoxLayout(None,0,6,"layout67")
+
+        self.colorTextLabel = QLabel(self,"colorTextLabel")
+        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout67.addWidget(self.colorTextLabel)
+
+        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
+        self.colorPixmapLabel.setMinimumSize(QSize(30,0))
+        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
+        self.colorPixmapLabel.setScaledContents(1)
+        layout67.addWidget(self.colorPixmapLabel)
 
         self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
         self.colorSelectorPushButton.setEnabled(1)
-        self.colorSelectorPushButton.setGeometry(QRect(272,51,30,27))
+        layout67.addWidget(self.colorSelectorPushButton)
+        layout73.addLayout(layout67)
+
+        layout72 = QHBoxLayout(None,0,0,"layout72")
 
         self.atomsTextLabel = QLabel(self,"atomsTextLabel")
-        self.atomsTextLabel.setGeometry(QRect(11,51,42,23))
         self.atomsTextLabel.setMouseTracking(0)
+        layout72.addWidget(self.atomsTextLabel)
 
         self.atomsComboBox = QComboBox(0,self,"atomsComboBox")
-        self.atomsComboBox.setGeometry(QRect(59,51,85,23))
+        layout72.addWidget(self.atomsComboBox)
+        layout73.addLayout(layout72)
+        GroundPropDialogLayout.addLayout(layout73)
+        spacer9 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        GroundPropDialogLayout.addItem(spacer9)
+
+        layout66 = QHBoxLayout(None,0,16,"layout66")
+
+        self.okPushButton = QPushButton(self,"okPushButton")
+        self.okPushButton.setAutoDefault(1)
+        self.okPushButton.setDefault(1)
+        layout66.addWidget(self.okPushButton)
+
+        self.cancelPushButton = QPushButton(self,"cancelPushButton")
+        self.cancelPushButton.setAutoDefault(1)
+        self.cancelPushButton.setDefault(0)
+        layout66.addWidget(self.cancelPushButton)
 
         self.applyPushButton = QPushButton(self,"applyPushButton")
         self.applyPushButton.setEnabled(0)
-        self.applyPushButton.setGeometry(QRect(217,101,82,27))
+        layout66.addWidget(self.applyPushButton)
+        GroundPropDialogLayout.addLayout(layout66)
 
         self.languageChange()
 
-        self.resize(QSize(339,164).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(331,202).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
@@ -143,15 +162,15 @@ class GroundPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Ground Properties"))
+        self.nameTextLabel.setText(self.__tr("Name:"))
+        self.nameLineEdit.setText(QString.null)
+        self.colorTextLabel.setText(self.__tr("Color:"))
+        self.colorSelectorPushButton.setText(self.__tr("..."))
+        self.atomsTextLabel.setText(self.__tr("Atoms:"))
         self.okPushButton.setText(self.__tr("&OK"))
         self.okPushButton.setAccel(self.__tr("Alt+O"))
         self.cancelPushButton.setText(self.__tr("&Cancel"))
         self.cancelPushButton.setAccel(self.__tr("Alt+C"))
-        self.colorTextLabel.setText(self.__tr("Color:"))
-        self.nameTextLabel.setText(self.__tr("Name:"))
-        self.nameLineEdit.setText(QString.null)
-        self.colorSelectorPushButton.setText(self.__tr("..."))
-        self.atomsTextLabel.setText(self.__tr("Atoms:"))
         self.applyPushButton.setText(self.__tr("Apply"))
 
 

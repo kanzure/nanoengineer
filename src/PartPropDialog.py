@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\PartPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\PartPropDialog.ui'
 #
-# Created: Tue Nov 9 09:54:02 2004
+# Created: Thu Dec 9 13:19:47 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,55 +69,66 @@ class PartPropDialog(QDialog):
 
         self.setIcon(self.image0)
 
-
-        self.nameLineEdit_2 = QLineEdit(self,"nameLineEdit_2")
-        self.nameLineEdit_2.setGeometry(QRect(80,53,270,23))
-        self.nameLineEdit_2.setFrameShape(QLineEdit.LineEditPanel)
-        self.nameLineEdit_2.setFrameShadow(QLineEdit.Sunken)
-        self.nameLineEdit_2.setReadOnly(1)
-
-        self.nameLabel_2 = QLabel(self,"nameLabel_2")
-        self.nameLabel_2.setGeometry(QRect(11,53,60,21))
-        self.nameLabel_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+        PartPropDialogLayout = QVBoxLayout(self,11,6,"PartPropDialogLayout")
 
         self.tabWidget3 = QTabWidget(self,"tabWidget3")
-        self.tabWidget3.setGeometry(QRect(0,10,370,290))
 
         self.tab = QWidget(self.tabWidget3,"tab")
+        tabLayout = QVBoxLayout(self.tab,11,6,"tabLayout")
+
+        layout109 = QVBoxLayout(None,0,6,"layout109")
+
+        layout107 = QHBoxLayout(None,0,6,"layout107")
+
+        self.nameLabel = QLabel(self.tab,"nameLabel")
+        self.nameLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+        layout107.addWidget(self.nameLabel)
 
         self.nameLineEdit = QLineEdit(self.tab,"nameLineEdit")
-        self.nameLineEdit.setGeometry(QRect(80,23,270,23))
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.nameLineEdit.setReadOnly(1)
+        layout107.addWidget(self.nameLineEdit)
+        layout109.addLayout(layout107)
 
-        self.nameLabel = QLabel(self.tab,"nameLabel")
-        self.nameLabel.setGeometry(QRect(11,23,60,21))
-        self.nameLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+        layout106 = QHBoxLayout(None,0,6,"layout106")
+
+        layout105 = QVBoxLayout(None,0,6,"layout105")
 
         self.statsLabel = QLabel(self.tab,"statsLabel")
-        self.statsLabel.setGeometry(QRect(10,71,60,20))
         self.statsLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+        layout105.addWidget(self.statsLabel)
+        spacer14 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout105.addItem(spacer14)
+        layout106.addLayout(layout105)
 
         self.statsView = QListView(self.tab,"statsView")
         self.statsView.addColumn(self.__tr("Statistic Name"))
         self.statsView.addColumn(self.__tr("Value"))
-        self.statsView.setGeometry(QRect(80,60,270,180))
+        layout106.addWidget(self.statsView)
+        layout109.addLayout(layout106)
+        tabLayout.addLayout(layout109)
         self.tabWidget3.insertTab(self.tab,QString(""))
+        PartPropDialogLayout.addWidget(self.tabWidget3)
 
-        self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setGeometry(QRect(190,310,82,29))
-        self.cancelPushButton.setAutoDefault(1)
-        self.cancelPushButton.setDefault(0)
+        layout108 = QHBoxLayout(None,4,72,"layout108")
 
         self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(102,310,82,29))
+        self.okPushButton.setMinimumSize(QSize(0,30))
         self.okPushButton.setAutoDefault(1)
         self.okPushButton.setDefault(1)
+        layout108.addWidget(self.okPushButton)
+
+        self.cancelPushButton = QPushButton(self,"cancelPushButton")
+        self.cancelPushButton.setMinimumSize(QSize(0,30))
+        self.cancelPushButton.setAutoDefault(1)
+        self.cancelPushButton.setDefault(0)
+        layout108.addWidget(self.cancelPushButton)
+        PartPropDialogLayout.addLayout(layout108)
 
         self.languageChange()
 
-        self.resize(QSize(378,351).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(393,381).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
@@ -126,18 +137,16 @@ class PartPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Part Properties"))
-        self.nameLineEdit_2.setText(QString.null)
-        self.nameLabel_2.setText(self.__tr("Name:"))
-        self.nameLineEdit.setText(QString.null)
         self.nameLabel.setText(self.__tr("Name:"))
+        self.nameLineEdit.setText(QString.null)
         self.statsLabel.setText(self.__tr("Statistics:"))
         self.statsView.header().setLabel(0,self.__tr("Statistic Name"))
         self.statsView.header().setLabel(1,self.__tr("Value"))
         self.tabWidget3.changeTab(self.tab,self.__tr("General"))
-        self.cancelPushButton.setText(self.__tr("&Cancel"))
-        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
         self.okPushButton.setText(self.__tr("&OK"))
         self.okPushButton.setAccel(self.__tr("Alt+O"))
+        self.cancelPushButton.setText(self.__tr("&Cancel"))
+        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
 
 
     def applyButtonClicked(self):

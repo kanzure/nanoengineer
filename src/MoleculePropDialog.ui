@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>314</width>
-            <height>313</height>
+            <width>393</width>
+            <height>354</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,287 +18,281 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <spacer>
+    <vbox>
         <property name="name">
-            <cstring>spacer2</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="orientation">
-            <enum>Vertical</enum>
+        <property name="spacing">
+            <number>7</number>
         </property>
-        <property name="sizeType">
-            <enum>Expanding</enum>
-        </property>
-        <property name="sizeHint">
-            <size>
-                <width>20</width>
-                <height>16</height>
-            </size>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>131</x>
-                <y>235</y>
-                <width>20</width>
-                <height>16</height>
-            </rect>
-        </property>
-    </spacer>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>cancelPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>121</x>
-                <y>259</y>
-                <width>82</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;Cancel</string>
-        </property>
-        <property name="accel">
-            <string>Alt+C</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>false</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>elementColorsPushButton</cstring>
-        </property>
-        <property name="enabled">
-            <bool>true</bool>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>150</x>
-                <y>200</y>
-                <width>130</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Element Colors</string>
-        </property>
-    </widget>
-    <widget class="QTextBrowser">
-        <property name="name">
-            <cstring>atomsTextBrowser</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>60</x>
-                <y>49</y>
-                <width>220</width>
-                <height>136</height>
-            </rect>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel2</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>2</x>
-                <y>49</y>
-                <width>52</width>
-                <height>20</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Atoms:</string>
-        </property>
-        <property name="alignment">
-            <set>AlignVCenter|AlignRight</set>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>4</x>
-                <y>22</y>
-                <width>50</width>
-                <height>21</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Name:</string>
-        </property>
-        <property name="alignment">
-            <set>AlignVCenter|AlignRight</set>
-        </property>
-    </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>nameLineEdit</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>60</x>
-                <y>22</y>
-                <width>220</width>
-                <height>23</height>
-            </rect>
-        </property>
-        <property name="frameShape">
-            <enum>LineEditPanel</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Sunken</enum>
-        </property>
-        <property name="text">
-            <string></string>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>applyPushButton</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>209</x>
-                <y>259</y>
-                <width>82</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Apply</string>
-        </property>
-        <property name="accel">
-            <string></string>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>okPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>33</x>
-                <y>259</y>
-                <width>82</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;OK</string>
-        </property>
-        <property name="accel">
-            <string>Alt+O</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <spacer>
-        <property name="name">
-            <cstring>spacer1</cstring>
-        </property>
-        <property name="orientation">
-            <enum>Vertical</enum>
-        </property>
-        <property name="sizeType">
-            <enum>Expanding</enum>
-        </property>
-        <property name="sizeHint">
-            <size>
-                <width>20</width>
-                <height>113</height>
-            </size>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>23</x>
-                <y>72</y>
-                <width>20</width>
-                <height>113</height>
-            </rect>
-        </property>
-    </spacer>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>colorTextLabel</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>205</y>
-                <width>50</width>
-                <height>20</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Color:</string>
-        </property>
-        <property name="alignment">
-            <set>AlignVCenter|AlignRight</set>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>colorPixmapLabel</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>60</x>
-                <y>200</y>
-                <width>40</width>
-                <height>28</height>
-            </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
-        <property name="frameShape">
-            <enum>Box</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Plain</enum>
-        </property>
-        <property name="scaledContents">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>colorSelectorPushButton</cstring>
-        </property>
-        <property name="enabled">
-            <bool>true</bool>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>110</x>
-                <y>200</y>
-                <width>30</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>...</string>
-        </property>
-    </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout99</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Name:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit">
+                    <property name="name">
+                        <cstring>nameLineEdit</cstring>
+                    </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout101</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout100</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Atoms:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer1</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>113</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </vbox>
+                </widget>
+                <widget class="QTextBrowser">
+                    <property name="name">
+                        <cstring>atomsTextBrowser</cstring>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout103</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout102</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>colorTextLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Color:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>colorPixmapLabel</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>30</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>230</red>
+                                    <green>231</green>
+                                    <blue>230</blue>
+                                </color>
+                            </property>
+                            <property name="frameShape">
+                                <enum>Box</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Plain</enum>
+                            </property>
+                            <property name="scaledContents">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>colorSelectorPushButton</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>true</bool>
+                            </property>
+                            <property name="text">
+                                <string>...</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>elementColorsPushButton</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>true</bool>
+                    </property>
+                    <property name="text">
+                        <string>Element Colors</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <spacer>
+            <property name="name">
+                <cstring>spacer2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout104</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>7</number>
+                </property>
+                <property name="spacing">
+                    <number>7</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okPushButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;OK</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+O</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancelPushButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+C</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>applyPushButton</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Apply</string>
+                    </property>
+                    <property name="accel">
+                        <string></string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
 </widget>
 <images>
     <image name="image0">

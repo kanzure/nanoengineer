@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Huaicai\Main\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Wed Dec 8 17:27:51 2004
+# Created: Thu Dec 9 13:19:52 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>314</width>
-            <height>133</height>
+            <height>136</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,97 +18,127 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <widget class="QLabel">
+    <vbox>
         <property name="name">
-            <cstring>textLabel1</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>4</x>
-                <y>22</y>
-                <width>50</width>
-                <height>21</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Name:</string>
-        </property>
-        <property name="alignment">
-            <set>AlignVCenter|AlignRight</set>
-        </property>
-    </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>nameLineEdit</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>60</x>
-                <y>22</y>
-                <width>220</width>
-                <height>23</height>
-            </rect>
-        </property>
-        <property name="frameShape">
-            <enum>LineEditPanel</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Sunken</enum>
-        </property>
-        <property name="text">
-            <string></string>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>okPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>73</x>
-                <y>79</y>
-                <width>82</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;OK</string>
-        </property>
-        <property name="accel">
-            <string>Alt+O</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>cancelPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>161</x>
-                <y>79</y>
-                <width>82</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;Cancel</string>
-        </property>
-        <property name="accel">
-            <string>Alt+C</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>false</bool>
-        </property>
-    </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout98</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Name:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit">
+                    <property name="name">
+                        <cstring>nameLineEdit</cstring>
+                    </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabel2</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>                      </string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <spacer>
+            <property name="name">
+                <cstring>spacer11</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>40</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout96</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>10</number>
+                </property>
+                <property name="spacing">
+                    <number>65</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okPushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;OK</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+O</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancelPushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+C</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
 </widget>
 <images>
     <image name="image0">
