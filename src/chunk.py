@@ -39,9 +39,14 @@ from inval import InvalMixin
 
 class molecule(Node, InvalMixin):
     def __init__(self, assembly, nam=None, dad=None):
-        # note: new molecules are NOT automatically added to assembly.
+        # note [bruce 041116]:
+        # new molecules are NOT automatically added to assembly.
         # this has to be done separately (if desired) by assembly.addmol
-        # (or the equivalent). [comment by bruce 041116]
+        # (or the equivalent).
+        # addendum [bruce 050206 -- describing the situation, not endorsing it!]:
+        # (and for clipboard mols it should not be done at all!
+        #  also not for mols "created in a Group", if any; for those,
+        #  probably best to do addmol/moveto like fileIO does.)
         if not self.mticon:
             self.init_icons()
         self.init_InvalMixin()
@@ -1209,8 +1214,17 @@ class molecule(Node, InvalMixin):
             try:
                 self.assy.molecules.remove(self)
                 self.assy.changed()
+                #bruce 050206: this should not be reached if we were in the clipboard!
+                # (since there should be an exception from not being in assy.molecules.)
+                # so if we reached it, "safely assert" we were not.
+                if platform.atom_debug and self.in_clipboard():
+                    print "atom_debug: bug: killed mol was in clipboard but also in assy.molecules:", self
             except ValueError:
-                print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
+                #bruce 050206: this might be legal, e.g. if we're in the clipboard.
+                # But it might be important to warn about, if we're not.
+                if platform.atom_debug and not self.in_clipboard():
+                    print "atom_debug: possible bug (not sure): killed mol was not in clipboard but not in assy.molecules:", self
+                ## print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
                 pass
             self.assy = None
         return # from molecule.kill
@@ -1514,12 +1528,23 @@ class molecule(Node, InvalMixin):
         """Public method: Copy the molecule to a new molecule.
         Offset tells where it will go relative to the original.
         Unless cauterize = 0, replace bonds out of the molecule
-        with singlets in the copy, and if this causes the hotspot
-        to become ambiguous, set one explicitly. (This has no effect on the
-        original.) If cauterize == 0, the copy has atoms with lower valence
+        with singlets in the copy [though that's not very nice when we're
+        copying a group of mols all at once ###@@@ bruce 050206 comment],
+        and if this causes the hotspot in the copy to become ambiguous,
+        set one explicitly. (This has no effect on the
+        original mol's hotspot.) If cauterize == 0, the copy has atoms with lower valence
         instead, wherever the original had outgoing bonds (not recommended).
            Note that the copy has the same assembly as self, but is not added
-        to that assembly; caller should call assy.addmol if desired.
+        to that assembly (e.g. to its .molecules list); caller should call
+        assy.addmol if desired. Warning: addmol would not notice if the dad
+        (passed as an arg) was some Group in that assembly, and might blindly
+        reset it to assy.tree! Also, tho we set dad in the copy as asked,
+        we don't add the copied mol to dad.members! Bruce 050202-050206 thinks we
+        should deprecate passing dad for now, just pass None, and caller
+        should use addmol or addmember (but not both) to place the mol somewhere.
+        Not sure what happens now; so I made addchild notice the setting of
+        dad but lack of being in dad's members list, and tolerate it but complain
+        when atom_debug. This should all be cleaned up sometime soon. ###@@@
         """
         # bruce added cauterize feature 041116, and its hotspot behavior 041123.
         # Without hotspot feature, Build mode pasting could have an exception.
