@@ -1135,7 +1135,7 @@ class molecule(Node, InvalMixin):
            Note that the copy has the same assembly as self, but is not added
         added to that assembly; caller should call assy.addmol if desired.
         """
-        # bruce added cauterize feature 041116, and hotspot feature 041123.
+        # bruce added cauterize feature 041116, and its hotspot behavior 041123.
         # Without hotspot feature, Build mode pasting could have an exception.
         ##print "fyi debug: mol.copy on %r" % self
         # bruce 041116: note: callers seem to be mainly in model tree copy ops
@@ -1448,7 +1448,6 @@ def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
             #e you might prefer externs_except_to(mol1, [mol2]), but probably not
         if ok_to_move(m1,m2):
             status += ", and moved %r to match" % m1.name
-            #e "first atom" might make no sense -- should we let caller name it??
             m1.rot(Q(a1.posn()-s1.posn(), s2.posn()-a2.posn()))
             m1.move(s2.posn()-s1.posn())
         else:
