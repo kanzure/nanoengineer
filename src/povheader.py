@@ -204,4 +204,8 @@ finish {
   wirebox( pos, rad, col )
 #end
 
+#macro thermo(pos, rad, col)
+  wirebox( pos, rad, col )
+#end
+
 """
