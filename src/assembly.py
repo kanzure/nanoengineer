@@ -310,10 +310,10 @@ class assembly:
             
     def selectParts(self):
         self.pickParts()
-        self.selwhat = 2
         self.w.update()
 
     def pickParts(self):
+        self.selwhat = 2
         lis = self.selatoms.values()
         self.unpickatoms()
         if lis:
