@@ -707,10 +707,9 @@ class MWsemantics(MainWindow):
         """
         self.history.message(greenmsg("Recentert View:"))
         self.glpane.pov = V(0,0,0)
-        #bCenter = V(self.assy.center[0], self.assy.center[1], self.assy.center[2]) 
+       
         self.assy.computeBoundingBox()     
-        self.glpane.scale=(self.assy.bbox.scale() * 0.5) + vlen(self.assy.center)
-#        self.glpane.scale += vlen(self.assy.center)
+        self.glpane.scale = self.assy.bbox.scale() + vlen(self.assy.center)
         self.glpane.gl_update()
         self.assy.changed()
                 
