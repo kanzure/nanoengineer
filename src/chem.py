@@ -218,6 +218,15 @@ Oxygen = PeriodicTable[8]
 
 Singlet = PeriodicTable[0]
 
+# reversed right ends of top 4 lines for passivating
+PTsenil = [[PeriodicTable[2], PeriodicTable[1]],
+           [PeriodicTable[10], PeriodicTable[9], PeriodicTable[8],
+            PeriodicTable[7], PeriodicTable[6]],
+           [PeriodicTable[18], PeriodicTable[17], PeriodicTable[16],
+            PeriodicTable[15], PeriodicTable[14]],
+           [PeriodicTable[36], PeriodicTable[35], PeriodicTable[34],
+            PeriodicTable[33], PeriodicTable[32]]]
+
 class atom:
     def __init__(self, sym, where, mol):
         """create an atom of element sym (e.g. 'C')
@@ -620,6 +629,27 @@ class atom:
         np = norm(self.posn()-op)*o.element.rcovalent + op
         self.molecule.curpos[self.index] = np
 
+
+    def passivate(self):
+
+        """change the element type of the atom to match the number of
+        bonds with other real atoms, and delete singlets"""
+        el = self.element
+        line = len(PTsenil)
+        for i in range(line):
+            if el in PTsenil[i]:
+                line = i
+                break
+        if line == len(PTsenil): return #not in table
+        nrn = len(self.realNeighbors())
+        for a in self.singNeighbors():
+            a.kill()
+        try: self.mvElement(PTsenil[line][nrn])
+        except IndexError: pass
+        # note that if an atom has too many bonds we'll delete the
+        # singlets anyway -- which is fine
+                            
+        
 class bondtype:
     """not implemented
     """
@@ -1311,23 +1341,11 @@ class molecule(Node):
         numol.dad = dad
         return numol
 
-    def passivate(self):
-        """kludgey hack: change carbons with 3 neighbors to nitrogen,
-        with 2 neighbors to oxygen, with 1 to hydrogen, and
-        delete unbonded ones.
-        """
+    def passivate(self, p=False):
         for a in self.atoms.values():
-            if a.element == Carbon:
-                valence = len(a.bonds)
-                if valence == 0: a.kill()
-                elif valence == 1: a.element = Hydrogen
-                elif valence == 2: a.element = Oxygen
-                elif valence == 3: a.element = Nitrogen
-                elif valence == 4: # single atom with 4 valences - Mark [2004-10-16]
-                    for atm in a.neighbors(): 
-                        atm.Hydrogenate() 
-        # will have changed appearance of the molecule
-        self.havelist = 0
+            if p or a.picked: a.passivate()
+
+        self.shakedown()
 
     def Hydrogenate(self):
         """Add hydrogen to all unfilled bond sites on carbon
