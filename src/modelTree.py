@@ -3,7 +3,9 @@ from qt import *
 from RotMotorProp import RotMotorProp
 from LinearMotorProp import LinearMotorProp
 from constants import *
-# from QUriDrag import *
+from chem import *
+from gadgets import *
+import sys, os
 
 class modelTree(QListView):
     def __init__(self, parent, win):
@@ -17,13 +19,14 @@ class modelTree(QListView):
         self.setResizePolicy(QScrollView.Manual)
         self.setShowSortIndicator(0)
         self.viewport().setAcceptDrops(True)
-
-    	self.assemblyIcon = QPixmap("../images/assembly.png")
-        self.csysIcon = QPixmap("../images/csys.png")
-        self.datumPlaneIcon = QPixmap("../images/datumplane.png") 
-        self.partIcon = QPixmap("../images/part.png")
-        self.motorIcon = QPixmap("../images/motor.png")
-       	self.insertHereIcon = QPixmap("../images/inserthere.png")
+         
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+    	self.assemblyIcon = QPixmap(filePath + "/../images/assembly.png")
+        self.csysIcon = QPixmap(filePath + "/../images/csys.png")
+        self.datumPlaneIcon = QPixmap(filePath + "/../images/datumplane.png") 
+        self.partIcon = QPixmap(filePath + "/../images/part.png")
+        self.motorIcon = QPixmap(filePath + "/../images/motor.png")
+       	self.insertHereIcon = QPixmap(filePath + "/../images/inserthere.png")
 
         self.dropItem = 0
         self.oldCurrent = None
@@ -63,11 +66,11 @@ class modelTree(QListView):
     def treeItemChanged(self, listItem):
           if self.lastSelectedItem:
              modelItem = self.treeItems[self.lastSelectedItem]
-             if modelItem.__class__.__name__ == 'molecule':
+             if isinstance(modelItem, molecule):
                 modelItem.setSelectionState(self, modelItem, False)
  
           modelItem = self.treeItems[listItem]
-          if modelItem.__class__.__name__ == 'molecule':
+          if isinstance(modelItem, molecule): 
                 modelItem.setSelectionState(self,  modelItem, True)
 
           self.lastSelectedItem = listItem          
@@ -77,7 +80,7 @@ class modelTree(QListView):
           if self == trigger:  #don't respond if it is triggered by itself
                return
           # Find the corresponding tree item for the target and set the state
-          if target.__class__.__name__ == 'molecule':
+          if isinstance(target, molecule):
                item = self.objectToTreeItems[target]
                self.setSelected(item, state)
 	
@@ -88,7 +91,7 @@ class modelTree(QListView):
         self.selectedTreeItem = listItem
         clickedItem = self.treeItems[listItem]
 
-        if clickedItem.__class__.__name__ == 'LinearMotor':
+        if isinstance(clickedItem, LinearMotor):
            _popupMenu = QPopupMenu()
            editAction = QAction(self, 'linearMototEditAction')
            editAction.setText(self.trUtf8("&Edit..."))
@@ -98,7 +101,7 @@ class modelTree(QListView):
            self.connect(editAction, SIGNAL("activated()"), self.editLinearMotor)
            _popupMenu.exec_loop(pos)
         
-        elif clickedItem.__class__.__name__ == 'motor':
+        elif isinstance(clickedItem, motor):
            _popupMenu = QPopupMenu()
            editAction = QAction(self, 'rotMototEditAction')
            editAction.setText(self.trUtf8("&Edit..."))
