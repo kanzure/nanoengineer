@@ -22,8 +22,6 @@ class assembly:
         # the Form1's displaying this assembly. 
         # breaks currently if there is more than 1!
         self.windows = []
-        # used to number the atoms sequentially for file writing
-        self.AtomSerialNumber = 0
         # list of chem.molecule's
         self.molecules=[]
         # filename if this was read from a file
@@ -145,10 +143,15 @@ class assembly:
                 a=atom(sym, xyz, mol)
                 ndix[n]=a
                 prevatom=a
+                prevcard = card
             elif key == "bond":
                 list=map(int, re.findall("\d+",card[5:]))
-                for a in map((lambda n: ndix[n]), list):
-                    mol.bond(prevatom, a)
+                try:
+                    for a in map((lambda n: ndix[n]), list):
+                        mol.bond(prevatom, a)
+                except KeyError:
+                    print "error in MMP file: atom ", prevcard
+                    print card
             elif key[:3] == "end":
                 if mol: self.addmol(mol)
             elif key == "moto":
@@ -177,10 +180,13 @@ class assembly:
     # write all molecules, motors, grounds into an MMP file
     def writemmp(self,filename):
         f=open(filename,"w")
+        atnums = {}
+        atnum = 1
         for mol in self.molecules:
             carrydisp = ("nil", "lin", "bns", "vdw")[mol.display]
             f.write("part " + carrydisp + " (" + mol.name + ")\n")
             for a in mol.atoms.itervalues():
+                atnums[a.key] = atnum
                 if a.display >= 0:
                     disp = ("nil", "lin", "bns", "vdw")[a.display]
                 else: disp = ("nil", "lin", "bns", "vdw")[mol.display]
@@ -188,28 +194,20 @@ class assembly:
                     f.write("show " + disp + "\n")
                     carrydisp = disp
                 xyz=a.posn()*1000
-                n=(a.number, a.element.atnum,
+                n=(atnum, a.element.atnum,
                    int(xyz[0]), int(xyz[1]), int(xyz[2]))
                 f.write("atom %d (%d) (%d, %d, %d)\n" % n)
+                atnum += 1
                 bl=[]
                 for b in a.bonds:
                     oa = b.other(a)
-                    if oa.number < a.number: bl += [oa.number]
+                    if oa.key in atnums: bl += [atnums[oa.key]]
                 if len(bl) > 0:
                     f.write("bond1 " + " ".join(map(str,bl)) + "\n")
             for g in mol.gadgets:
-                f.write(repr(g) + "\n")
+                f.write(g.__repr__(atnums) + "\n")
         f.write("end molecular machine part " + self.name + "\n")
         f.close()
-
-    # renumber all the atoms in the assembly (in case there were deletions,
-    # etc) since the file format wants sequential numbers starting at 1
-    def renatoms(self):
-        self.AtomSerialNumber = 0
-        for mol in self.molecules:
-            for a in mol.atoms.itervalues():
-                self.AtomSerialNumber += 1
-                a.number = self.AtomSerialNumber
 
     # dumb hack: find which atom the cursor is pointing at by
     # checking every atom...
@@ -267,15 +265,13 @@ class assembly:
         if self.selmols:
             offset = self.bboxhi-self.bboxlo
             nulist=[]
-            for mol in self.selmols:
-                numol=mol.copy(offset,self)
+            for mol in self.selmols[:]:
+                numol=mol.copy(offset)
                 nulist += [numol]
                 self.molecules += [numol]
-                self.bboxhi = maximum(self.bboxhi, mol.bboxhi+mol.center)
-                self.bboxlo = minimum(self.bboxlo, mol.bboxlo+mol.center)
+                self.bboxhi = maximum(self.bboxhi, numol.bboxhi+numol.center)
+                self.bboxlo = minimum(self.bboxlo, numol.bboxlo+numol.center)
             self.center = (self.bboxhi+self.bboxlo)/2
-            self.unpickparts()
-            self.selmols = nulist
 
     # move any selected parts in space ("move" is an offset vector)
     def movesel(self, move):
@@ -291,7 +287,7 @@ class assembly:
     def kill(self):
         if self.selatoms:
             for a in self.selatoms.values():
-                a.molecule.killatom(a)
+                a.kill()
             self.selatoms={}
         if self.selmols:
             for m in self.selmols:
@@ -366,7 +362,7 @@ class assembly:
         self.p[atom] = self.i
         self.i += 1
         for a2 in atom.neighbors():
-            if atom.number < a2.number: pair = (atom, a2)
+            if atom.key < a2.key: pair = (atom, a2)
             else: pair = (a2, atom)
             if not pair in self.stack: self.stack += [pair]
             if a2 in self.dfi:
@@ -396,8 +392,6 @@ class assembly:
                 numol.pick()
                 # need to redo the old one too
                 mol.shakedown()
-        # keep the atoms consecutive within molecules
-        self.renatoms()
 
 
 def povpoint(p):
@@ -490,14 +484,17 @@ class motor:
                        "," + povpoint(a.posn()) + ")\n")
 
     # the representation is also the mmp-file record
-    def __repr__(self):
-        cxyz=(self.center + self.molecule.center) * 1000
-        axyz=self.molecule.quat.rot(self.axis)*1000
+    def __repr__(self, ndix=None):
+        cxyz=self.posn() * 1000
+        axyz=self.axen() * 1000
         s="motor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
            (self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]))
-        nums = map((lambda a: a.number), self.atoms)
+        if ndix:
+            nums = map((lambda a: ndix[a.key]), self.atoms)
+        else:
+            nums = map((lambda a: a.key), self.atoms)
         return s + "shaft " + " ".join(map(str,nums))
 
 # a ground just has a list of atoms
@@ -527,6 +524,9 @@ class ground:
         pass
     
     # the representation is also the mmp-file record
-    def __repr__(self):
-        nums = map((lambda a: a.number), self.atoms)
+    def __repr__(self, ndix=None):
+        if ndix:
+            nums = map((lambda a: ndix[a.key]), self.atoms)
+        else:
+            nums = map((lambda a: a.key), self.atoms)
         return "ground " + " ".join(map(str,nums))

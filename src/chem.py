@@ -187,10 +187,6 @@ class atom:
         self.xyz=where
         # list of bond objects
         self.bonds=[]
-        # a numbering for each atom in the assembly, for writing
-        # consistent multi-molecule files
-        mol.assy.AtomSerialNumber += 1
-        self.number=mol.assy.AtomSerialNumber
         # whether the atom is selected, see also assembly.selatoms
         self.picked = 0
         # can be set to override molecule or global value
@@ -209,10 +205,10 @@ class atom:
         return p + self.molecule.center
 
     def __repr__(self):
-        return self.element.symbol + str(self.number)
+        return self.element.symbol + str(self.key)
 
     def __str__(self):
-        return self.element.symbol + str(self.number)
+        return self.element.symbol + str(self.key)
 
     def prin(self):
         """for debugging
@@ -297,7 +293,7 @@ class atom:
 
     def unbond(self, b):
         """remove bond b from the atom.
-        called from molecule.killatom of the other atom.
+        called from atom.kill of the other atom.
         """
         try: self.bonds.remove(b)
         except ValueError: pass
@@ -331,10 +327,10 @@ class atom:
         """kill an atom: remove it from molecule.atoms,
         and remove bonds to it from its neighbors
         """
-        try: del self.molecule.atoms[at.key]
+        try: del self.molecule.atoms[self.key]
         except KeyError: pass
-        for b in at.bonds:
-            b.other(at).unbond(b)
+        for b in self.bonds:
+            b.other(self).unbond(b)
         # may have changed appearance of the molecule
         self.molecule.changeapp()
 
@@ -568,21 +564,28 @@ class molecule:
             # may have changed appearance of the molecule
             self.havelist = 0
 
-    def copy(self, offset, assy):
+    def copy(self, offset):
         """Copy the molecule to a new molecule.
         offset tells where it will go relative to the original.
         There should be a rotation parameter but there isn't.
         note the assembly must be passed in.
         """
-        ndix={}
-        numol = molecule(assy, gensym(self.name))
+        pairlis = []
+        ndix = {}
+        numol = molecule(self.assy, gensym(self.name))
         for a in self.atoms.itervalues():
-            ndix[a.number] = a.copy(numol)
+            na = a.copy(numol)
+            pairlis += [(a, na)]
+            ndix[a.key] = na
+        for (a, na) in pairlis:
+            for b in a.bonds:
+                numol.bond(na,ndix[b.other(a).key])
         numol.center=self.center + offset
         numol.bboxhi=self.bboxhi
         numol.bboxlo=self.bboxlo
-        numol.pick()
         numol.display = self.display
+        self.unpick()
+        numol.pick()
         return numol
 
     def passivate(self):
@@ -593,7 +596,7 @@ class molecule:
         for a in self.atoms.values():
             if a.element == Carbon:
                 valence = len(a.bonds)
-                if valence == 0: self.killatom(a)
+                if valence == 0: a.kill()
                 elif valence == 1: a.element = Hydrogen
                 elif valence == 2: a.element = Oxygen
                 elif valence == 3: a.element = Nitrogen

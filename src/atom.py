@@ -18,6 +18,9 @@ from form1 import Form1
 
 if __name__=='__main__':
 
+    # the default (1000) bombs with large molecules
+    sys.setrecursionlimit(5000)
+
     QApplication.setColorSpec(QApplication.CustomColor)
     app=QApplication(sys.argv)
     app.connect(app,SIGNAL("lastWindowClosed ()"),app.quit)

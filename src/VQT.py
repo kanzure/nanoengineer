@@ -271,8 +271,10 @@ class Trackball:
                                (self.h2-py)*self.scale)
         if self.oldmouse and not uq:
             quat = Q(self.oldmouse, newmouse)
-        if self.oldmouse and uq:
+        elif self.oldmouse and uq:
             quat =  uq + Q(self.oldmouse, newmouse) - uq
+        else:
+            quat = Q(1,0,0,0)
         self.oldmouse = newmouse
         return quat
 
