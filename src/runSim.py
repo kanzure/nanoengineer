@@ -114,8 +114,8 @@ class runSim(SimSetupDialog):
         A DPB file is a binary trajectory file. An XYZ file is a text file.
         """
         # When creating a movie file, we cwd to tmpFilePath and spawn the
-        # simulator.  The reason we do this is because os.spawn on Win32
-        # systems will not work if there are spaces in any of the arguments
+        # simulator.  The reason we do this is because os.spawn (on Win32
+        # systems) will not work if there are spaces in any of the arguments
         # supplied to it.  Often, there are spaces in the file and directory
         # names on Win32 systems.  To get around this problem, we chdir to 
         # assy.w.tmpFilePath and run the simulator on "mmpfile", generating "dpbfile".
@@ -125,33 +125,55 @@ class runSim(SimSetupDialog):
         # the file without renaming it.  This is because the progress bar often completes
         # before the spawned simulator completes writing the file.  If we attempt to 
         # rename the file before the simulator has completed, we get a "permission 
-        # denied" error.  The only problem with this is when the moviefile has a space,
-        # which can definitely happen.  This is current a bug that will be fixed soon.
+        # denied" error.
         # - Mark 050106
         
+
         
-        # Wait (hourglass) cursor
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        # When creating an XYZ file, the simulator writes directly to the XYZ file
+        if self.fileform == "-x": 
         
-        # When creating an XYZ trajectory file, we want the simulator to write directly to
-        # the file.  When creating a DPB file, we cwd to tmpFilePath and spawn the
-        # simulator.  It write "
-        if self.fileform == "-x": dpbfile = moviefile
+            # Make sure there is no space in the XYZ filename (Win32 only).
+            if sys.platform == 'win32':
+                import re
+                m = re.search(' +',  moviefile)
+                if  m:
+                    QMessageBox.critical(self, "Problem", "XYZ file names cannot have a space.  Try again.")
+                    return -1
+
+            dpbfile = moviefile
+        
+        # If we are creating a DPB file, the simulator writes to "simulate.dpb",
+        # then we rename it to "moviefile"
         else: dpbfile = "simulate.dpb"
         
-        mmpfile = "simulate.mmp" # We always save the current part to an MMP file.
+        # We always save the current part to an MMP file.  In the future, we may want to check
+        # if assy.filename is an MMP file and use it if assy.modified = 0.
+        mmpfile = "simulate.mmp" 
         
+        # filePath = the current directory NE-1 is running from.
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         
-        # This full path to the simulator executable.
+        # "program" is the full path to the simulator executable.  
         program = os.path.normpath(filePath + '/../bin/simulator')
         
-        # Args for the simulator.  THE TIME STEP ARGUMENT IS MISSING ON PURPOSE.
-        # The time step (-s) argument is not currently supported.
+        # If there is a space in the path, spawnv will not work (Win32 only).
+        if sys.platform == 'win32':
+            m = re.search(' +',  program)
+            if  m:
+                QMessageBox.critical(self, "Error", "There is a space in the simulator pathname: [" + program +"]")
+                return -1
+
+        # Change cursor to Wait (hourglass) cursor
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        
+        # "args" = arguments for the simulator.  
+        # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
+        # The timestep argument "-s + (self.timestep)" is not supported for Alpha.
         args = [program, '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper), str(self.fileform),  '-o' + dpbfile, mmpfile]
         
-        
-        basename = os.path.basename(moviefile) # "filename.dpb" or "filename.xyz"
+        # "filename.dpb" or "filename.xyz" - used below by the progress bar.
+        basename = os.path.basename(moviefile) 
         
         # Tell user we're creating the movie file...
         msg = "<span style=\"color:#006600\">Simulator: Creating movie file [" + moviefile + "]</span>"
@@ -176,8 +198,8 @@ class runSim(SimSetupDialog):
         #      new part, creates something and simulates before saving as an MMP file.
         # 
         # I do not know if it was intentional, but assy.alist is not created until an mmp file 
-        # is created.  In the future, it would be nice to 
-        #
+        # is created.  We are simply taking advantage of this "feature" here.
+        # - Mark 050106
         writemmp(self.assy, mmpfile, False)
         natoms = len(self.assy.alist)
             
@@ -185,7 +207,7 @@ class runSim(SimSetupDialog):
         # it is impossible to determine the exact final size.
         # This formula is an estimate.  "filesize" should never be larger than the
         # actual final size of the XYZ file, or the progress bar will never hit 100%,
-        # even tho the simulator finished writing the file.
+        # even though the simulator finished writing the file.
         # - Mark 050105 
         if self.fileform == "-x": 
             dpbfile = moviefile
@@ -199,6 +221,8 @@ class runSim(SimSetupDialog):
 #        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
         
         try:
+            # Remember, no spaces in "program" or "args".  
+            # We've checked everything but "program", so there could still be a problem.
             kid = os.spawnv(os.P_NOWAIT, program, args)
             r = self.assy.w.progressbar.launch(filesize, dpbfile, "Simulate", "Writing movie file " + basename + "...", 1)
             s = None
@@ -225,7 +249,7 @@ class runSim(SimSetupDialog):
             if sys.platform not in ['win32']: os.kill(kid, signal.SIGKILL) # Not tested - Mark 050105
             
         else: # Something failed...
-            if not s: msg = "<span style=\"color:#ff0000\">Simulation failed: exit code %r </span>" % r
+            msg = "<span style=\"color:#ff0000\">Simulation failed: exit code %r </span>" % r
             self.assy.w.statusBar.message(msg)
 
         return r

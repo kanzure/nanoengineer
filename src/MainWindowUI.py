@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jan 6 13:26:38 2005
+# Created: Thu Jan 6 15:14:10 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7294,6 +7294,7 @@ class MainWindow(QMainWindow):
         self.moviePauseAction.setIconSet(QIconSet(self.image99))
         self.moviePlayAction = QAction(self,"moviePlayAction")
         self.moviePlayAction.setIconSet(QIconSet(self.image100))
+        self.moviePlayAction.setVisible(0)
         self.setViewHomeToCurrentAction = QAction(self,"setViewHomeToCurrentAction")
         self.modifyAlignCommonAxisAction = QAction(self,"modifyAlignCommonAxisAction")
         self.modifyAlignCommonAxisAction.setIconSet(QIconSet(self.image75))
@@ -7355,7 +7356,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,655,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7573,7 +7574,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1045).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1048).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)

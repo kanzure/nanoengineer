@@ -897,11 +897,11 @@ class GLPane(QGLWidget, modeMixin):
         if not os.path.exists(filename): 
             self.win.statusBar.message("Cannot play movie file [" + filename + "]. It does not exist.")
             return
-        self.win.statusBar.message("Playing movie file [" + filename + "]")
         self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
         self.framenum = 0
+        self.win.statusBar.message("Playing movie file [" + filename + "]  Total Frames: " + str(self.clock))
         self.win.movieProgressBar.setTotalSteps(self.clock)
         self.win.movieProgressBar.setProgress(0)
         self.startTimer(30)
@@ -911,11 +911,16 @@ class GLPane(QGLWidget, modeMixin):
         """
         self.killTimers()
         self.win.statusBar.message("Movie paused.")
+        self.win.moviePauseAction.setVisible(0)
+        self.win.moviePlayAction.setVisible(1)
         
     def playmovie(self):
         """Continue playing movie
         """
         self.startTimer(30)
+        self.win.statusBar.message("Movie continued.")
+        self.win.moviePlayAction.setVisible(0)
+        self.win.moviePauseAction.setVisible(1)
         
     def timerEvent(self, e):
         self.clock -= 1

@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1045</height>
+            <height>1048</height>
         </rect>
     </property>
     <property name="caption">
@@ -258,7 +258,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>655</width>
+                <width>657</width>
                 <height>29</height>
             </rect>
         </property>
@@ -2682,6 +2682,9 @@
         </property>
         <property name="toolTip">
             <string>Play Movie</string>
+        </property>
+        <property name="visible">
+            <bool>false</bool>
         </property>
     </action>
     <action>
