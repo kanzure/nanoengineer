@@ -13,7 +13,7 @@ $Id$
 '''
 __author__ = "bruce"
 
-from qt import QTextEdit
+from qt import *
 import sys, os, time
 
 class HistoryMegawidget:
@@ -23,9 +23,12 @@ class HistoryMegawidget:
         """
         ###stub -- we'll likely turn this widget into a frame with buttons
         self.widget = QTextEdit(parent) # public member, private value (except that it's a Qt widget)
+        self.widget.setFocusPolicy(QWidget.ClickFocus)
+            # not needed on Mac [bruce], but needed on Windows [mark],
+            # to support copy/paste command sequences, etc;
         if line1 == None:
             line1 = time.asctime() #stub
-        self._insert(line1) # no '\n'
+        self._append(line1) # no '\n'
         import platform
         if platform.atom_debug:
             self.debug_init()
@@ -38,12 +41,15 @@ class HistoryMegawidget:
             ff = "this module's"
             tt = "<exception discarded>"
         self._print("atom_debug: %s modtime is %s" % (ff,tt))
-    def _insert(self, something):
-        "Insert some text. We might deprecate this interface!"
-        self.widget.insert(something)
+    def _append(self, something):
+        "Append some text. We might deprecate this interface!"
+        self.widget.append(something)
+        self.widget.scrollToBottom()
+            #e Someday we need a checkbox or heuristic to turn off this
+            # autoscrolling, in case user wants to read or copy something
+            # while new status messages keep pouring in.
     def _print(self, line):
-        self._insert("\n")
-        self._insert(line)
+        self._append(line) # apparently prepends a newline if needed
     def set_status_text(self, text, **options):
         """Compatibility method -- pretend we're a statusbar and this is its "set text" call.
         [The following is not yet implemented as of the initial commit:]
@@ -54,8 +60,7 @@ class HistoryMegawidget:
         """
         #e timestamp?
         #e use html for color etc?
-        self._print(text.replace('\r','\n'))
-            # it looks like '\r' was messing up msgs from Extrude (unconfirmed theory)
+        self._print(text)
         if options:
             msg = "fyi: bug: set_status_text got unsupported options: %r" % options
             print msg
