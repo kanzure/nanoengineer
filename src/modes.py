@@ -1257,8 +1257,20 @@ class modeMixin:
            an appropriate message and return True; then we'll start
            using our default mode.
         """
-        if platform.atom_debug:
-            self.assy.checkparts() #bruce 050315 assy/part debug code
+        #bruce 050317: do update_parts to insulate new mode from prior one's bugs
+        try:
+            self.assy.update_parts()
+            # Note: this is overkill (only known to be needed when leaving
+            # extrude, and really it's a bug that it doesn't do this itself),
+            # and potentially too slow (though I doubt it),
+            # and not a substitute for doing this at the end of operations
+            # that need it (esp. once we have Undo); but will make things
+            # more robust. Ideally we should "assert_this_was_not_needed".
+        except:
+            print_compact_traceback("bug: update_parts: ")
+        else:
+            if platform.atom_debug:
+                self.assy.checkparts() #bruce 050315 assy/part debug code
         
         #e (Would it be better to go back to using the immediately
         #   prior mode, if different? Probably not... if so, we'd need
