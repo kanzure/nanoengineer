@@ -142,6 +142,10 @@ class Jig(Node):
             if self.part != atm.molecule.part:
                 self.rematom(atm) # this might kill self, if we remove them all
         return
+
+    def fixes_atom(self, atm): #bruce 050321
+        "does this jig hold this atom fixed in space? [should be overridden by subclasses as needed]"
+        return False # for most jigs
     
     #e there might be other common methods to pull into here
 
@@ -466,6 +470,10 @@ class Ground(Jig):
 
         return s + " ".join(map(str,nums)) + "\n"
 
+    def fixes_atom(self, atm): #bruce 050321
+        "does this jig hold this atom fixed in space? [overrides Jig method]"
+        return atm in self.atoms
+    
     pass # end of class Ground
 
 
