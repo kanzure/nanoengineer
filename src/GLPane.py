@@ -592,7 +592,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         but = event.stateAfter()
         but = self.fix_buttons(but, 'press')
         
-        print "Button pressed: ", but
+        #print "Button pressed: ", but
         
         if but & leftButton:
             if but & shiftButton:
@@ -625,7 +625,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         but = event.state()
         but = self.fix_buttons(but, 'release')
         
-        print "Button released: ", but
+        #print "Button released: ", but
         
         if but & leftButton:
             if but & shiftButton:

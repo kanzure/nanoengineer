@@ -325,11 +325,11 @@ class cookieMode(basicMode):
         basicMode.middleUp(self, event)
         
         if self.cookieQuat:
-            print "cookie: restore to original view."
+            #print "cookie: restore to original view."
             self.o.quat = Q(self.cookieQuat)
             self.o.gl_update()
         else:
-            print "cookie: middle up: snap2trackball() called."
+            #print "cookie: middle up: snap2trackball() called."
             self.surfset(self.o.snap2trackball())
             
     def bareMotion(self, event):
