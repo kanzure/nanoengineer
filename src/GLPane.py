@@ -154,18 +154,13 @@ class GLPane(QGLWidget, modeMixin):
         # not selecting anything currently
         self.shape = None
 
-##        ## bruce 040923 zapped the following members, 
-##        ## since I think they are now only used in mode objects.
-##        self.sellist = None
-##
-##        # 1 for selecting, 0 for deselecting, 2 for selecting parts
-##        self.selSense = 1
-##        # 0 if selecting as lasso, 1 if as rectangle
-##        self.selLassRect = 1
-##
-##        self.picking = False 
-
         self.setMouseTracking(True)
+
+        # bruce 041220 let the GLPane have the keyboard focus, to fix bugs.
+        # See comments above our keyPressEvent method.
+        ###e I did not yet review  the choice of StrongFocus in the Qt docs,
+        # just copied it from MWsemantics.
+        self.setFocusPolicy(QWidget.StrongFocus)
 
         # default display form for objects in the window
         # even tho there is only one assembly to a window,
@@ -232,6 +227,22 @@ class GLPane(QGLWidget, modeMixin):
     # def setMode(self, modename) -- moved to modeMixin [bruce 040922]
     
     # ==
+
+    # bruce 041220: handle keys in GLPane (see also setFocusPolicy, above).
+    # Also call these from MWsemantics whenever it has the focus. This fixes
+    # some key-focus-related bugs. We also wrap the Qt events with our own
+    # type, to help fix Qt's Mac-specific Delete key bug (bug 93), and (in the
+    # future) for other reasons. The fact that clicking in the GLPane now gives
+    # it the focus (due to the setFocusPolicy, above) is also required to fully
+    # fix bug 93.
+    
+    def keyPressEvent(self, e):
+        #e future: also track these to match releases with presses, to fix
+        # dialogs intercepting keyRelease? Maybe easier if they just pass it on.
+        self.mode.keyPressEvent( atom_event(e) )
+        
+    def keyReleaseEvent(self, e):
+        self.mode.keyReleaseEvent( atom_event(e) )
 
     def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
         
@@ -635,7 +646,19 @@ class GLPane(QGLWidget, modeMixin):
         Sets up point of view projection, position, angle.
         Calls draw member fns for everything in the screen.
         """
+        # bruce comment 041220: besides our own calls of this function, it can
+        # be called directly from the app.exec_loop() in atom.py; I'm not sure
+        # exactly why or under what circumstances, but one case (on Mac) is when you
+        # switch back into the app by clicking in the blank part of the model tree
+        # (multiple repaints by different routes in that case),
+        # or on the window's title bar (just one repaint); another case is when
+        # you switch *out* of the app by clicking on some other app's window.
+        # Guess: it's a special method name known to the superclass widget.
+        # (Presumably the QT docs spell this out... find out sometime! #k)
+
         if not self.initialised: return
+
+        ##print_compact_stack("paintGL called by: ")
 
         ##start=time.time()
 

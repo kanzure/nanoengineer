@@ -82,9 +82,6 @@ from debug import print_compact_traceback
 from platform import *
 import platform # not redundant with "from platform import *" -- we need both
 
-# set this to 1 in a debugger, to see certain debug printouts [bruce 040924]
-_debug_keys = 0
-
 class anyMode:
     "abstract superclass for all mode objects"
     
@@ -124,12 +121,14 @@ class nullMode(anyMode):
         else:
             raise AttributeError, attr #e args?
     def Draw(self):
-        
         # this happens... is that ok? note: see
         # "self.start_using_mode( self.default_mode)" below -- that
         # might be the cause.  if so, it's ok that it happens and good
         # that we turn it into a noop. [bruce 040924]
-        
+        pass
+    def keyPressEvent(self, e):
+        pass
+    def keyReleaseEvent(self, e):
         pass
     pass ##e maybe needs to have some other specific methods?
 
@@ -610,6 +609,8 @@ class basicMode(anyMode):
         # stop receiving events from our glpane
         self.restore_gui()
         self.w.setFocus() #bruce 041010 bugfix (needed in two places)
+            # (I think that was needed to prevent key events from being sent to
+            #  no-longer-shown mode dashboards. [bruce 041220])
         self.restore_patches()
         self.clear() # clear our internal state, if any
         
@@ -898,8 +899,11 @@ class basicMode(anyMode):
         pass
 
     def Wheel(self, event):
+        #e sometime we need to give this a modifier key binding too;
+        # see some email from Josh with a suggested set of them [bruce 041220]
         but = event.state()
-
+            ###@@@ this might need a fix_buttons call to work the same
+            # on the Mac [bruce 041220]
         dScale = 1.0/1200.0
         if but & shiftButton: dScale *= 0.5
         if but & cntlButton: dScale *= 2.0
@@ -915,19 +919,33 @@ class basicMode(anyMode):
     def modifyTransmute(self, elem, force = False):
         self.w.setElement(elem) # doesn't use force option
 
-    def keyPress(self,key): # bruce 040923: fyi: overridden in depositMode
-        if _debug_keys:
-            print "fyi: basicMode.keyPress(%r)" % (key,)
-        from platform import filter_key
-        key = filter_key(key, debug_keys = _debug_keys)
-        # fix platform-specific bugs in keycode
-        # (bruce 040929 -- split from here into separate function)
+    # Key event handling revised by bruce 041220 to fix some bugs;
+    # see comments in the GLPane methods, which now contain Mac-specific Delete
+    # key fixes that used to be done here. For the future: The keyPressEvent and
+    # keyReleaseEvent methods must be overridden by any mode which needs to know
+    # more about key events than e.key() (which is the same for 'A' and 'a',
+    # for example). As of 041220 no existing mode needs to do this.
+    
+    def keyPressEvent(self, e):
+        "some modes will need to override this in the future"
+        self.keyPress(e.key())
+        
+    def keyReleaseEvent(self, e):
+        self.keyRelease(e.key())
+
+    # the old key event API (for modes which don't override keyPressEvent etc)
+    
+    def keyPress(self,key): # depositMode replaces this, other modes extend it
         if key == Qt.Key_Delete:
-            if _debug_keys:
-                print "fyi: treating that as Qt.Key_Delete"
             self.w.killDo()
+        return
     
     def keyRelease(self,key): # mark 2004-10-11
+        #e bruce comment 041220: lots of modes change cursors on this, but they
+        # have bugs when more than one modifier is pressed and then one is
+        # released, and perhaps when the focus changes. To fix those, we need to
+        # track the set of modifiers and use some sort of inval/update system.
+        # (Someday. These are low-priority bugs.)
         pass
 
     def makemenu(self, lis):
@@ -1240,6 +1258,8 @@ class modeMixin:
             # definite bug anyway. [bruce 040924]
             try:
                 self.win.setFocus() #bruce 041010 bugfix (needed in two places)
+                    # (I think that was needed to prevent key events from being sent to
+                    #  no-longer-shown mode dashboards. [bruce 041220])
                 self.mode.restore_gui()
             except:
                 print "(...even the old mode's restore_gui method, run by itself, had a bug...)"

@@ -2,10 +2,10 @@
 """
 depositMode.py
 
-
 $Id$
-
 """
+__author__ = "Josh"
+
 from Numeric import *
 from modes import *
 from VQT import *
@@ -224,11 +224,13 @@ class depositMode(basicMode):
     # event methods
     
     def keyPress(self,key):
+        # bruce comment 041220:
+        # doesn't call basicMode method, so Delete key is not active. Good??
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.KillCursor)
         for sym, code, num in elemKeyTab:
             if key == code:
-                self.w.setElement(num)
+                self.w.setElement(num) ###@@@ does this update our own spinbox too??
         return
 
     def keyRelease(self,key):

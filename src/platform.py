@@ -14,18 +14,40 @@ def is_macintosh():
     # have a different value for sys.platform
     return sys.platform in ['darwin']
 
-def filter_key(key, debug_keys = 0): # bruce 040929 split this out of basicMode.keyPress(), where I'd added it as a mac-specific bugfix.
+def filter_key(key, debug_keys = 0):
     """given a Qt keycode key, usually return it unchanged,
        but return a different keycode if that would help fix platform-specific bugs in Qt keycodes
        or in our use of them.
     """
+    # bruce 040929 split this out of basicMode.keyPress(), where I'd added it
+    # as a mac-specific bugfix.
     if is_macintosh():
+        # Help fix Qt's Mac-specific Delete key bug, bug 93.
         ###bruce 040924 temp fix, should be revised once we understand relation to other systems (see my email to josh & ninad):
         if key == 4099: ##k will this 4099 be the same in other macs? other platforms? Does Qt define it anywhere??
             if debug_keys:
                 print "fyi: mac bugfix: remapping key %d (actual delete key) to key %d (Qt.Key_Delete)" % (key, Qt.Key_Delete)
             key = Qt.Key_Delete
     return key
+
+def atom_event(qt_event):
+    """Return our own event object in place of (or wrapping) the given Qt event.
+    Fix bugs in Qt events, and someday provide new features to help in history-tracking.
+    So far [041220] this only handles key events, and does no more than fix the Mac-specific
+    bug in the Delete key (bug 93).
+    """
+    return atomEvent(qt_event)
+
+class atomEvent:
+    "our own event type. API should be non-qt-specific."
+    def __init__(self, qt_event):
+        self._qt_event = qt_event # private
+    def key(self):
+        return filter_key( self._qt_event.key() )
+    def ascii(self):
+        return filter_key( self._qt_event.ascii() )
+    #e more methods might be needed here
+    pass
 
 #e there might be other code mentioning "darwin" which should be moved here... maybe also modifier keys in constants.py...
 

@@ -566,6 +566,11 @@ class assembly:
         #  and is this intended (in case it messes up pasting)?]
         
         if self.shelf.open: # condition by bruce 041129
+            # [bruce 041220: should we also require event not from glpane,
+            #  and nothing selected in glpane?? so nothing but click in mtree
+            #  would work... issue is related to click in mtree not unseling in
+            #  clipboard, but we need that too, since its sel defines pastable.
+            #  This whole thing needs to be rethought even before Alpha... ###@@@]
             self.shelf.apply2picked(lambda o: o.kill()) # kill by Mark(?), 11/04
             
         self.setDrawLevel()

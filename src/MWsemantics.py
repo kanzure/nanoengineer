@@ -1067,12 +1067,14 @@ class MWsemantics(MainWindow):
         else:
             return r/255.0, g/255.0, b/255.0
 
-
+    # key event handling revised by bruce 041220 to fix some bugs;
+    # see comments in the GLPane methods.
+    
     def keyPressEvent(self, e):
-        self.glpane.mode.keyPress(e.key())
+        self.glpane.keyPressEvent(e)
         
     def keyReleaseEvent(self, e):
-        self.glpane.mode.keyRelease(e.key())
+        self.glpane.keyReleaseEvent(e)
 
     ##############################################################
     # Some future slot functions for the UI                      #

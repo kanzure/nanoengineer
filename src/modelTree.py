@@ -140,17 +140,27 @@ class modelTree(QListView):
 
 
     def select(self, item):
+        # bruce comment 041220: this is called when widget signals that
+        # user clicked on an item, or on blank part of model tree (confirmed by
+        # experiment). Event (with mod keys flags) would be useful,
+        # but is evidently not available (maybe it could be, in some other way?)
         if item:
-            if item.object.name == self.assy.name: return
+            if item.object.name == self.assy.name:
+                return
         
         self.win.assy.unpickatoms()
         
         if isinstance(self.win.glpane.mode, selectMode): 
-                self.win.toolsSelectMolecules()
+            self.win.toolsSelectMolecules()
+                #e should optim:
+                # this calls repaintGL redundantly with win.update() [bruce 041220]
         else:        
-                self.win.assy.selwhat = 2
+            self.win.assy.selwhat = 2
         
-        if not self.modifier: self.win.assy.unpickparts()
+        if not self.modifier:
+            # bruce comment 041220: some bugs are caused by this being wrong,
+            # e.g. bug 263 (my comment #3 in there explains the likely cause).
+            self.win.assy.unpickparts()
         
         if item: 
             if self.modifier == 'Cntl':
@@ -159,14 +169,33 @@ class modelTree(QListView):
             else:
                 item.object.pick()
                 self.selectedItem = item.object
+                ###@@@ why only the one item? [bruce question 041220]
             
         self.win.update()
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Control:
+        key = e.key()
+        import platform
+        key = platform.filter_key(key) #bruce 041220 (needed for bug 93)
+        if key == Qt.Key_Delete:
+            # bruce 041220: this fixes bug 93 (Delete on Mac) when the model
+            # tree has the focus; the fix for other cases is in separate code.
+            # Note that the Del key (and the Delete key on non-Mac platforms)
+            # never makes it to this keyPressEvent method, but is handled at
+            # some earlier stage by the widget, and in a different way;
+            # probably this happens because it's a menu item accelerator.
+            # The Del key (or the Delete menu item) always directly runs
+            # MWsemantics.killDo, regardless of focus.
+            self.win.killDo()
+            ## part of killDo: self.win.update()
+        elif key == Qt.Key_Control:
             self.modifier = 'Cntl'
-        if e.key() == Qt.Key_Shift:
+        elif key == Qt.Key_Shift:
             self.modifier = 'Shift'
+        # bruce 041220: I tried passing other key events to the superclass,
+        # QListView.keyPressEvent, but I didn't find any that had any effect
+        # (e.g. arrow keys, letters) so I took that out.
+        return
         
     def keyReleaseEvent(self, key):
         self.modifier = None
@@ -189,8 +218,8 @@ class modelTree(QListView):
         clippicked = self.assy.shelf.nodespicked()
 #        print "MT.menuReq: selectedItem = ",self.selectedItem
 #        print "treepicked =",treepicked,", clippicked =",clippicked
-        if treepicked == 0 and clippicked == 0: return
-        if clippicked: self.clipboardmenu.popup(pos, 1)
+        if treepicked == 0 and clippicked == 0: return ###@@@ why == 0? are these numbers??? bools?
+        if clippicked: self.clipboardmenu.popup(pos, 1) ###@@@ could be bad for depositmode's use of this
         elif treepicked == 1: self.singlemenu.popup(pos, 1)
         elif treepicked > 1: self.multimenu.popup(pos, 1)
         self.update()
@@ -317,6 +346,7 @@ class modelTree(QListView):
         self.update()
     
     def kill(self):
+        # note: this is essentially the same as MWsemantics.killDo. [bruce 041220 comment]
         self.assy.kill()
         self.win.update() # Changed from self.update for deleting from MT menu. Mark [04-12-03]
     
