@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 platform.py -- module for platform-specific code,
 especially for such code that needs to be called from various other modules.
@@ -6,7 +6,7 @@ especially for such code that needs to be called from various other modules.
 $Id$
 """
 
-import sys, os
+import sys, os, time
 from qt import Qt
 
 def is_macintosh():
@@ -83,6 +83,73 @@ def middle_button_prefix():
         return "Middle" # refers to middle mouse button
     pass
 
+
+# code which contains hardcoded filenames in the user's homedir, etc
+# (moved into this module from MWsemantics.py by bruce 050104,
+#  since not specific to one window, might be needed before main window init,
+#  and the directory names might become platform-specific.)
+
+def find_or_make_Nanorex_prefs_directory():
+    #Create the temporary file directory if not exist [by huaicai ~041201]
+    # bruce 041202 comments about future changes to this code:
+    # - we'll probably rename this, sometime before Alpha goes out,
+    #   since its purpose will become more user-visible and general.
+    # - it might be good to create a README file in the directory
+    #   when we create it. And maybe to tell the user we created it,
+    #   in a dialog.
+    # - If creating it fails, we might want to create it in /tmp
+    #   (or wherever some python function says is a good temp dir)
+    #   rather than leaving an ususable path in tmpFilePath. This
+    #   could affect someone giving a demo on a strange machine!
+    # - If it exists already, we might want to test that it's a
+    #   directory and is writable. If we someday routinely create
+    #   a new file in it for each session, that will be a good-
+    #   enough test.
+
+    tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/"))
+    if not os.path.exists(tmpFilePath):
+        from debug import print_compact_traceback
+        try:
+            os.mkdir(tmpFilePath)
+        except:
+            #bruce 041202 fixed minor bug in next line; removed return statement
+            print_compact_traceback("exception in creating temporary directory: \"%s\"" % tmpFilePath)
+            #bruce 050104 new feature [needs to be made portable so it works on Windows ###@@@]
+            os_tempdir = "/tmp"
+            print "warning: using \"%s\" for temporary directory, since \"%s\" didn't work" % (os_tempdir, tmpFilePath)
+            tmpFilePath = os_tempdir
+    #e now we should create or update a README file in there [bruce 050104]
+    return tmpFilePath
+
+def make_history_filename():
+    """Return a suitable name for a new history file (not an existing filename).
+    The filename contains the current time, so should be called once per history
+    (probably once per process), not once per window when we have more than one.
+    This filename could also someday be used as a "process name", valid forever,
+    but relative to the local filesystem.
+    """
+    prefsdir = find_or_make_Nanorex_prefs_directory()
+    tried_already = None
+    while 1:
+        histfile = os.path.join( prefsdir, "Histories", "h%s.txt" % time.strftime("%Y%m%d-%H%M%S") )
+            # e.g. ~/Nanorex/Histories/h20050104-160000.txt
+        if not os.path.exists(histfile):
+            if histfile == tried_already:
+                # this is ok, but is so unlikely that it might indicate a bug, so report it
+                print "fyi: using history file \"%s\" after all; someone removed it!" % histfile
+            return histfile # caller should print this at some point
+        # Another process which wants to use the same kind of history filename
+        # (in the same Nanorex-specific prefs directory) must have started less
+        # than one second before! Wait for this to be untrue. Print something,
+        # in case this gets into an infloop from some sort of bug. This is rare
+        # enough that it doesn't matter much what we print -- hardly anyone
+        # should see it.
+        if histfile != tried_already:
+            print "fyi: history file \"%s\" already exists; will try again shortly..." % histfile
+        tried_already = histfile # prevent printing another msg about the same filename
+        time.sleep(0.35)
+        continue
+    pass
 
 # When we start, figure out whether user wants to enable general debugging code
 # which turns on extra internal error checking (perhaps slowing down the code).
