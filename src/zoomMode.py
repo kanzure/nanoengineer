@@ -11,7 +11,6 @@ from modes import *
 
 
 class zoomMode(basicMode):
-
     # class constants
     backgroundColor = 0.5, 0.5, 0.5
     modename = 'ZOOM'
@@ -36,9 +35,8 @@ class zoomMode(basicMode):
         #else: self.rbwcolor = white
         ## Set RBW color as the same as bg color, then it will draw as black
         self.rbwcolor = bg
-        
         self.o.redrawGL = False
-        
+       
         
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
@@ -85,14 +83,13 @@ class zoomMode(basicMode):
         """Compute the rubber band window starting point, which
              lies on the near clipping plane, projecting into the same 
              point that current cursor points at on the screen plane"""
-        #self.rbw = True
         self.pWxy = (event.pos().x(), self.o.height - event.pos().y())
         p1 = A(gluUnProject(self.pWxy[0], self.pWxy[1], 0.005)) 
         
         self.pStart = p1
         self.pPrev = p1
-        self.point2 = p1
-        self.point3 = p1
+        self.point2 = None
+        self.point3 = None
         
         glDisable(GL_DEPTH_TEST)
         glDisable(GL_LIGHTING)
@@ -103,6 +100,7 @@ class zoomMode(basicMode):
         
         
     def computePoints(self):
+          """Compute the left bottom(point2) and right top (point3) """
           rt = self.o.right
           up = self.o.up  
           self.point2 = self.pStart + up*dot(up, self.pPrev - self.pStart)
@@ -110,37 +108,44 @@ class zoomMode(basicMode):
     
             
     def leftDrag(self, event):
-        """Compute the changing rubber band window ending point """
+        """Compute the changing rubber band window ending point. Erase    the previous window, draw the new window """
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         
-        drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
-        self.o.swapBuffers()
+        if self.point2 and self.point3: #Erase the previous rubber window
+            drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+            self.o.swapBuffers()  #Update display 
            
         self.pPrev = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
         ##draw the new rubber band
         self.computePoints()
         drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
-        self.o.swapBuffers()
+        self.o.swapBuffers() #Update display
         
         
     def leftUp(self, event):
-        """"Compute the final rubber band window ending point, do zoom"""
+        """"Erase the final rubber band window and do zoom if user indeed     draws a rubber band window"""
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         zoomX = (abs(cWxy[0] - self.pWxy[0]) + 0.0) / (self.o.width + 0.0)
         zoomY = (abs(cWxy[1] - self.pWxy[1]) + 0.0) / (self.o.height + 0.0)
 
-        ##Erase the last rubber-band window        
-        drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
-        self.o.swapBuffers()
+        ##The rubber band window size can be larger than that of glpane.
+        ## Limit the zoomFactor to 1.0
+        zoomFactor = min(max(zoomX, zoomY), 1.0)
         
-        zoomFactor = max(zoomX, zoomY)
         ##Huaicai: when rubber band window is too small,
-        ##like a double click, skip zoom
+        ##like a double click, a single line rubber band, skip zoom
         DELTA = 1.0E-5
-        if zoomFactor < DELTA: 
-                self.rbw = False
+        if self.pWxy[0] == cWxy[0] or self.pWxy[1] == cWxy[1] or zoomFactor < DELTA: 
+                glDisable(GL_COLOR_LOGIC_OP)
+                glEnable(GL_LIGHTING)
+                glEnable(GL_DEPTH_TEST)
+        
                 self.o.mode.Done(self.o.prevMode)
                 return
+        
+        ##Erase the last rubber-band window
+        drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        self.o.swapBuffers()
         
         winCenterX = (cWxy[0] + self.pWxy[0]) / 2.0
         winCenterY = (cWxy[1] + self.pWxy[1]) / 2.0
@@ -166,9 +171,9 @@ class zoomMode(basicMode):
         ## always shown. The disadvantage: when the view field is too 
         ## small, a selection window may be actually act as a single pick.
         ## rubber ban window will not look as rectanglular any more.
-        zf = self.o.getZoomFactor()
-        #zoomFactor = pow(zoomFactor, 0.25)
-        zoomFactor *= zf
+        #zf = self.o.getZoomFactor()
+        ##zoomFactor = pow(zoomFactor, 0.25)
+        #zoomFactor *= zf
         #self.o.setZoomFactor(zoomFactor)
         
         ##Change viewing distance to do zoom. This works better with
@@ -180,7 +185,6 @@ class zoomMode(basicMode):
         glDisable(GL_COLOR_LOGIC_OP)
         glEnable(GL_LIGHTING)
         glEnable(GL_DEPTH_TEST)
-        #self.rbw = False
         self.Done()
 
     def keyPress(self,key):
@@ -202,9 +206,7 @@ class zoomMode(basicMode):
         """
         drawer.drawrectangle(self.pStart, self.pPrev,
                                  self.o.up, self.o.right, self.rbwcolor)
-       
-     
-        
+
     def makeMenus(self):
         self.Menu_spec = [
             ('Cancel', self.Cancel),
