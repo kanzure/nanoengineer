@@ -365,7 +365,10 @@ def drawbrick(color, center, axis, l, h, w):
     glTranslatef(center[0], center[1], center[2])
     glRotate(-acos(axis[2])*180.0/pi, axis[1], -axis[0], 0.0)
     glScale(h, w, l)
+    ###Huaicai 1/15/05: to fix the linear motor display problem. 
+    glFrontFace(GL_CW)
     glut.glutSolidCube(1.0)
+    glFrontFace(GL_CCW)
     glPopMatrix()
     
 def drawlinelist(color,lines):

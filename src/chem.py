@@ -427,7 +427,7 @@ class atom:
             ###e this should be merged with other case, and should probably
             # just use rad from howdraw [bruce 041206 comment]
             file.write("atom(" + povpoint(self.posn()) +
-                       "," + str(TubeRadius) + "," +
+                       "," + str(rad) + "," +
                        stringVec(color) + ")\n")
 
     # write to a MDL file.  By Chris Phoenix and Mark for John Burch [04-12-03]
@@ -1484,16 +1484,21 @@ class Bond:
                     drawcylinder(color2, self.a2pos, self.center, TubeRadius)
                 if not (v1 and v2):
                     drawsphere(black, self.center, TubeRadius, level)
+                print "draw: bond 1---2: ", self.a1pos, self.a2pos    
             else:
                 drawcylinder(red, self.c1, self.c2, TubeRadius)
+                print "draw: bond c1--c2: ", self.c1, self.c2    
                 if v1:
                     drawcylinder(color1, self.a1pos, self.c1, TubeRadius)
+                    print "draw: bond a1---c1: ", self.a1pos, self.c1    
                 else:
                     drawsphere(black, self.c1, TubeRadius, level)
                 if v2:
                     drawcylinder(color2, self.a2pos, self.c2, TubeRadius)
+                    print "draw: bond a2---c2: ", self.a2pos, self.c2    
                 else:
                     drawsphere(black, self.c2, TubeRadius, level)
+                    
 
     # write to a povray file:  draw a single bond [never reviewed by bruce]
     # [note: this redundantly computes attrs like __setup_update computes for
@@ -1504,19 +1509,36 @@ class Bond:
     #  note that I have changed self.center and added self.toolong; see
     #  self.draw() for details. -- bruce 041112 ###e]
     def writepov(self, file, dispdef, col):
-        ##Huaicai 1/6/05: Remove some redundant code and fix bug ##227   
+       ##Huaicai 1/15/05: It seems the attributes from __setup__update() is not correct,
+       ## at least for pov file writing, so compute it here locally. To fix bug 346,347
         disp=max(self.atom1.display, self.atom2.display)
         if disp == diDEFAULT: disp= dispdef
         color1 = col or self.atom1.element.color
         color2 = col or self.atom2.element.color
         
+        a1pos = self.atom1.posn()
+        a2pos = self.atom2.posn()
+        
+        vec = a2pos - a1pos
+        leng = 0.98 * vlen(vec)
+        vec = norm(vec)
+        # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
+        #  etc, so the entire bond is drawn as if "too long".)
+        rcov1 = self.atom1.element.rcovalent
+        rcov2 = self.atom2.element.rcovalent
+        c1 = a1pos + vec*rcov1
+        c2 = a2pos - vec*rcov2
+        toolong = (leng > rcov1 + rcov2)
+        center = (c1 + c2) / 2.0 # before 041112 this was None when self.toolong
+        
+        
         if disp<0: disp= dispdef
         if disp == diLINES:
-            file.write("line(" + povpoint(self.a1pos) +
-                       "," + povpoint(self.a2pos) + ")\n")
+            file.write("line(" + povpoint(a1pos) +
+                       "," + povpoint(a2pos) + ")\n")
         if disp == diCPK:
-            file.write("bond(" + povpoint(self.a1pos) +
-                       "," + povpoint(self.a2pos) + ")\n")
+            file.write("bond(" + povpoint(a1pos) +
+                       "," + povpoint(a2pos) + ")\n")
         if disp == diTUBES:
         ##Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
         ##             cylinder written to a pov file    
@@ -1529,21 +1551,21 @@ class Bond:
                     col = color1
                     isSingleCylinder = True
             if isSingleCylinder:        
-                file.write("tube3(" + povpoint(self.a1pos) + ", " + povpoint(self.a2pos) + ", " + stringVec(col) + ")")
+                file.write("tube3(" + povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + stringVec(col) + ")\n")
             else:      
                 if not self.toolong:
-                        file.write("tube2(" + povpoint(self.a1pos) +
-                           "," + povpoint(color1) +
-                           "," + povpoint(self.center) + "," +
-                           povpoint(self.a2pos) + "," +
-                           povpoint(color2) + ")\n")
+                        file.write("tube2(" + povpoint(a1pos) +
+                           "," + stringVec(color1) +
+                           "," + povpoint(center) + "," +
+                           povpoint(a2pos) + "," +
+                           stringVec(color2) + ")\n")
                 else:
-                        file.write("tube1(" + povpoint(self.a1pos) +
-                           "," + povpoint(color1) +
-                           "," + povpoint(self.c1) + "," +
-                           povpoint(self.c2) + "," + 
-                           povpoint(self.a2pos) + "," +
-                           povpoint(color2) + ")\n")
+                        file.write("tube1(" + povpoint(a1pos) +
+                           "," + stringVec(color1) +
+                           "," + povpoint(c1) + "," +
+                           povpoint(c2) + "," + 
+                           povpoint(a2pos) + "," +
+                           stringVec(color2) + ")\n")
 
     def __str__(self):
         return str(self.atom1) + " <--> " + str(self.atom2)

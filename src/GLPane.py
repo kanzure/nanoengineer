@@ -659,8 +659,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glEnable(GL_CULL_FACE)
         glDisable(GL_COLOR_MATERIAL)
         
-        ##Adding "X, Y, Z" text labels for Axis. Right now, Mandrake Linux has problem for the following 
-        # code---Huaicai 10/10, 04
+        ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get segmentation fault on Manrake Linux 10.0 with libqt3-3.2.3-17mdk or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
+        
         if True:###sys.platform in ['darwin', 'win32']:
                 glDisable(GL_LIGHTING)
                 glDisable(GL_DEPTH_TEST)
