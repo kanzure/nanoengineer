@@ -221,4 +221,4 @@ class Movie:
         # When the REV play button is pressed during FWD play, the movie
         # will play forward again after REV play gets to frame 0.  Very strange.
         # Mark 050110
-        if fnum == self.currentFrame: self._pause(0) # Force pause.
+        self._pause(0) # Force pause.
