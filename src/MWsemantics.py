@@ -23,7 +23,6 @@ from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
 from assistant import AssistantWindow
-from AboutDialog import AboutDialog
 from HistoryWidget import greenmsg, redmsg # [moved by bruce 050107]
 
 helpwindow = None
@@ -1121,8 +1120,8 @@ class MWsemantics(MainWindow):
         self.assistant.openNE1Assistant()
              
     def helpAbout(self):
-        cntl = AboutDialog() # About NE-1 Dialog
-        cntl.exec_loop()
+        aboutinfo = "nanoENGINEER-1 v0.0.4 (Alpha)\n\nCopyright (C) 2005, Nanorex, Inc.\n\nwww.nanoengineer-1.com"
+        QMessageBox.about ( self, "About nanoENGINEER-1", aboutinfo)
              
     def helpWhatsThis(self):
         self.history.message(greenmsg("What's This:"))
