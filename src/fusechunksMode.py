@@ -25,9 +25,8 @@ class fusechunksMode(modifyMode):
     bondcolor = white # Color of bond lines
     bondable_pairs = [] # List of bondable singlets
     ways_of_bonding = {} # Number of bonds each singlet found
-    # tol is the tolerance (distance in Angstrom?) between two singlets.  If the singlets are closer
-    # than tol, they can form a bond.  This can be adjusted by a slider later.
-    tol = 1.0
+    bondable_pairs_atoms = [] # List of atom pairs that have been bonded.
+    tol = 1.0 # tol is the distance (in Angstroms) between two bondable singlets.
     
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
@@ -57,24 +56,38 @@ class fusechunksMode(modifyMode):
         self.o.gl_update()
 
     def Backup(self):
+        '''Undo any bonds made between chunks.
+        '''
+        # This undoes only the last fused chunks.  Will work on supporting
+        # multiple undos when we get a single undo working.   Mark 050326
+
+        # Bust bonds between last pair/set of fused chunks.
         if self.bondable_pairs_atoms:
             for a1, a2 in self.bondable_pairs_atoms:
-                b = self.get_neighbor_bond(a1, a2)
+                b = a1.get_neighbor_bond(a2)
                 if b: b.bust()
-            # Then I need to separate and rename the new chunk back to it's original name.
+                
+            # Separate and restore the merged chunks' name(s).
+            # This isn't implemented yet - need help from Bruce here.
+            # I'm thinking: 
+            #   1. select any atom from the a1 list. This would be an atom from selected_chunk.
+            #   2. call part.marksingle or bring in code from part.conncomp . This would
+            #       select all atoms in selected_chunk.
+            #   3. bring in code from modifySeparate to separate all chunks.  We need to rename them
+            #       differently than modifySeparate().
+            # This should get us our original chunks.  Now we need to 
+            # figure out how to rename each restored chunk back to it's original name.
+           
+            # Here are the original names...
             for chunk in self.merged_chunks:
                 print "Restore chunk: ", chunk.name
-                
-        self.find_bondable_pairs() # Find bondable pairs of singlets
-        self.o.gl_update()
-
-    def get_neighbor_bond(self, a1, a2):
-        '''Return the bond between atoms a1 and a2, or None if none exist.
-        '''
-        for b in a1.bonds[:]:
-            if b.other(a1) == a2:
-               return b
-        return None
+            
+            self.find_bondable_pairs() # Find bondable pairs of singlets
+            self.o.gl_update()
+                        
+        else:
+            msg = "Fuse Chunks: No bonds have been made yet.  Undo ignored."
+            self.w.history.message(redmsg(msg))
         
     def leftDrag(self, event):
         """Move the selected chunk in the plane of the screen following
@@ -160,12 +173,16 @@ class fusechunksMode(modifyMode):
 
         if self.dragdist<7: # didn't move much, call it a click
             
-            # Pick a chunk and only one chunk
-            if selSense == 0:  # Control key pressed, so unpick
+            # This will clear bonds when unselecting the current chunk,
+            # regardless of whether it is done with the control key pressed.
+            # (i.e. clicking in an empty area of the GLPane)
+            self.bondable_pairs = [] 
+            self.ways_of_bonding = {}
+                
+            # Unpick the selected chunk.
+            if selSense == 0:  # 0 = Control key pressed, so unpick
                 self.o.assy.unpick_at_event(event)
                 self.selected_chunk = None
-                self.bondable_pairs = [] 
-                self.ways_of_bonding = {}
 
             else:  # Pick a new chunk
                 self.o.assy.onlypick_at_event(event)
@@ -184,13 +201,15 @@ class fusechunksMode(modifyMode):
             for s1,s2 in self.bondable_pairs:
                 
                 # Color bondable pair singlets. Singlets with multiple pairs are colored purple.
+                # Singlets with one way of bonding are colored blue (selected_chunk) or green (other chunks).
                 color = (self.ways_of_bonding[s1.key] > 1) and purple or blue
                 s1.overdraw_with_special_color(color)
                 color = (self.ways_of_bonding[s2.key] > 1) and purple or green
                 s2.overdraw_with_special_color(color)
      
-                # Draw bond lines between singlets
-                drawline(self.bondcolor, s1.posn(), s2.posn()) # Color should be set from user preferences
+                # Draw bond lines between singlets.
+                # Color should be set from user preferences.
+                drawline(self.bondcolor, s1.posn(), s2.posn()) 
 
     def find_bondable_pairs(self):
         '''Checks the open bonds of the select chunk to see if they are close enough
