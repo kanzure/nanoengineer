@@ -1,5 +1,4 @@
-csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
-part vdw (Part1)
+part vdw (Pump Rotor)
 show def
 atom 1 (6) (-3997, 30590, -1673)
 atom 2 (6) (-6567, 34105, 3324)
@@ -1762,4 +1761,6 @@ atom 985 (6) (-3632, 31964, 3324)
 bond1 878 927 932 967
 atom 986 (6) (-16114, 29315, 591)
 bond1 821 980 147 14
+csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
+kelvin 300
 end molecular machine part pumpRotor
