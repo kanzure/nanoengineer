@@ -14,7 +14,7 @@ import drawer
 class ThumbView(QGLWidget):
     """A simple version of OpenGL widget, which can be used to show a simple thumb view of models when loading models or color changing. 
     General rules for multiple QGLWidget uses: make sure the rendering context is current. 
-    Remember makeCurrent() will be called implicitly before any ininializeGL, resizeGL, paintGL virtual functions call.
+    Remember makeCurrent() will be called implicitly before any ininializeGL, resizeGL, paintGL virtual functions call. Ideally, this class should coordinate with class GLPane in some ways.
     """ 
     def __init__(self, parent, name, shareWidget):
         """  """
@@ -36,7 +36,10 @@ class ThumbView(QGLWidget):
         # start in perspective mode
         self.ortho = False #True
         self.initialised = False
-
+        if shareWidget and hasattr(shareWidget.mode, 'backgroundColor'):
+            self.backgroundColor = shareWidget.mode.backgroundColor
+        else:
+            self.backgroundColor = (0.7, 0.66, 0.73)#(216/255.0, 213/255.0, 159/255.0)
         
     def initializeGL(self):
         """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading affect.
@@ -64,7 +67,6 @@ class ThumbView(QGLWidget):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         
-        self.backgroundColor = (0.7, 0.66, 0.73)#(216/255.0, 213/255.0, 159/255.0)
         if not self.isSharing():
                 drawer.setup()  
         

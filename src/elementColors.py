@@ -5,13 +5,14 @@ elementColors.py
 $Id$
 '''
 from ElementColorsDialog import *
-#from elementpixmaps import *
 from fileIO import readElementColors, saveElementColors
 import elements 
-from constants import globalParms
+from constants import globalParms, diVDW, diCPK, diTUBES 
 from ThumbView import *
-import drawer
+from chem import atom
+from chunk import molecule
 from HistoryWidget import redmsg # Mark 050311
+from VQT import V
 
 ########################################################
 # Declaring tuples
@@ -23,6 +24,8 @@ elementAMU = { 1 : "1.008", 2 : "4.003",
 ########################################################
 
 class elementColors(ElementColorsDialog):
+    _displayList = (diTUBES, diCPK, diVDW)
+    
     def __init__(self, win):
         ElementColorsDialog.__init__(self, win, None, 0, Qt.WStyle_Customize | Qt.WStyle_NormalBorder | Qt.WStyle_Title | Qt.WStyle_SysMenu)
         self.w = win
@@ -31,6 +34,7 @@ class elementColors(ElementColorsDialog):
         self.isFileSaved = False
         self.oldTable = self.w.periodicTable.deepCopy()
         self.elemTable = self.w.periodicTable
+        self.displayMode = self._displayList[0]
         
         buttons = [(self.pushButton1, 1), (self.pushButton2, 2), (self.pushButton5, 5), (self.pushButton6, 6), (self.pushButton7,7), (self.pushButton8, 8), (self.pushButton9, 9), (self.pushButton10, 10), (self.pushButton13, 13), (self.pushButton14, 14), (self.pushButton15, 15), (self.pushButton16, 16), (self.pushButton17, 17), (self.pushButton18, 18), (self.pushButton32,32), (self.pushButton33, 33), (self.pushButton34, 34), (self.pushButton35, 35), (self.pushButton36, 36), (self.pushButton51, 51), (self.pushButton52, 52), (self.pushButton53, 53), (self.pushButton54, 54)]
         
@@ -83,18 +87,33 @@ class elementColors(ElementColorsDialog):
         elemNum =  self.buttonGroup.selectedId()
         self.setDisplay(elemNum)
         self.isElementModified = True
-         
+    
+    def changeDisplayMode(self, value):
+        """Called when any of the display mode radioButton clicked. """
+        assert value in [0, 1, 2]
+        newMode = self._displayList[value]
+        if newMode != self.displayMode:
+            self.displayMode = newMode
+            elemNum =  self.buttonGroup.selectedId()
+            elm = self.elemTable.getElement(elemNum)
+            self.elemGLPane.refreshDisplay(elm, self.displayMode)
+ 
     # called as a slot from button push
     def setElementInfo(self,value):
-        #self.w.setElement(value)
         self.setDisplay(value)
         
     def setDisplay(self, value):
-        eInfoText = "<p>" + str(value) + "</p> "
+        eInfoText =   str(value) + "<br>"#"</p> "
         elemSymbol = self.elemTable.getElemSymbol(value)
+        elemName = self.elemTable.getElemName(value)
+        elemRvdw = str(self.elemTable.getElemRvdw(value))
+        elemBonds = str(self.elemTable.getElemBondCount(value))
         if not elemSymbol: return
-        eInfoText += "<p> " + "<font size=26> <b>" + elemSymbol + "</b> </font> </p>"
-        eInfoText += "<p>" + elementAMU[value] + "</p>"
+        eInfoText +=   "<font size=18> <b>" + elemSymbol + "</b> </font> <br>"#</p>"
+        eInfoText +=  elemName + "<br>"#"</p>"
+        eInfoText += "Amu: " + elementAMU[value] + "<br>"#"</p>"
+        eInfoText += "Rvdw: " + elemRvdw + "<br>"#"</p>"
+        eInfoText += "Open Bonds: " + elemBonds #</p>"
         self.elemInfoLabel.setText(eInfoText)
         
         self.buttonGroup.setButton(value)
@@ -117,10 +136,10 @@ class elementColors(ElementColorsDialog):
         """Update non user interactive controls display for current selected element: element label info and element graphics info """
         elemNum =  self.buttonGroup.selectedId()
         self.color = self.elemTable.getElemColor(elemNum)
-        self.rad = self.elemTable.getElemRvdw(elemNum)
         
-        self.elemGLPane.refreshDisplay(self.color, self.rad)
-         
+        elm = self.elemTable.getElement(elemNum)
+        self.elemGLPane.refreshDisplay(elm, self.displayMode)
+        
         r =  int(self.color[0]*255 + 0.5)
         g = int(self.color[1]*255 + 0.5)
         b = int(self.color[2]*255 + 0.5)
@@ -187,7 +206,6 @@ class elementColors(ElementColorsDialog):
             #After saving a file, reset the flag        
             self.isFileSaved = True        
  
-                      
     def changeSliderBlue(self,a0):
         self.disconnect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
         self.blueSlider.setValue(a0)
@@ -264,22 +282,54 @@ class ElementView(ThumbView):
     """Element graphical display """    
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
-        self.scale = 5.0 ## the possible largest rvdw of all elements
-        self.color = [0.5, 0.5, 0.0]
-        self.pos = [0.0, 0.0, 0.0]
-        self.rad = -1.0 ##Initial value when no element selected
-        self.level = 2
+        self.scale = 4.0#5.0 ## the possible largest rvdw of all elements
+        self.pos = V(0.0, 0.0, 0.0)
+        self.mol = None
         
-    #def mousePressEvent(self, event):   
-    #     print " Mouse pressed in color selector window."
-    #     event.ignore()
-         
+        ## Dummy attributes. A kludge, just try to make other code
+        ##  think it looks like a glpane object.
+        self.display = 0  
+        self.selatom = None
+
     def drawModel(self):
         """The method for element drawing """
-        if self.rad >= 0.0 :
-           drawer.drawsphere(self.color, self.pos, self.rad, self.level)
-           
-           glDisable(GL_LIGHTING) 
+        if self.mol:
+           self.mol.draw(self, None)
+
+    def refreshDisplay(self, elm, dispMode):
+        """Display the new element or the same element but new display mode"""   
+        self.makeCurrent()
+        self.mol = self._constructModel(elm, self.pos, dispMode) 
+        self.updateGL()
+    
+    def _constructModel(self, elm, pos, dispMode):
+        """This is to try to repeat what 'oneUnbonded()' function does, but hope to remove some stuff not needed here. The main purpose is to build the geometry model for element display. 
+        <Param> elm: An object of class elem
+        <Param> dispMode: the display mode of the atom--(int)
+        <Return>: the molecule which contains the geometry model.
+        """
+        class DummyAssy:
+            """dummy assemby class"""
+            drawLevel = 2
+            
+        if 0:#1:
+            assy = DummyAssy()
+        else:
+            from assembly import assembly 
+            assy = assembly(None)
+                
+        mol = molecule(assy, 'dummy') 
+        atm = atom(elm.symbol, pos, mol)
+        atm.display = dispMode
+        atm.make_singlets_when_no_bonds()
+        return mol
+
+
+##Junk code###
+## The following code used to be for drawing text on a QGLWidget
+if 0:
+           glDisable(GL_LIGHTING)
+           glDisable(GL_DEPTH_TEST) 
            self.qglColor(QColor(0, 0, 0))
            font = QFont( QString("Times"), 10)
            text = QString('Rvdw = ' + str(self.rad))
@@ -289,15 +339,9 @@ class ElementView(ThumbView):
            w = self.width/2 - strWd/2
            h = self.height - strHt/2 
            self.renderText(w, h, text, font)
-           glEnable(GL_LIGHTING)
-            
-    def refreshDisplay(self, newColor, newRad):
-        """Display the new element """   
-        self.makeCurrent() 
-        self.color = newColor
-        self.rad = newRad
-        self.updateGL()
-        
+           glEnable(GL_DEPTH_TEST)
+           glEnable(GL_LIGHTING)        
+      
         
 ### Test code #########
 import sys        

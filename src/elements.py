@@ -287,7 +287,20 @@ class ElementPeriodicTable(Singleton):
     def getElemMass(self, eleNum):
         """Return the mass for element <eleNum> """
         return self._perodicalTable[eleNum].mass
+    
+    def getElemName(self, eleNum):
+        """Return the mass for element <eleNum> """
+        return self._perodicalTable[eleNum].name
         
+    def getElemBondCount(self, eleNum):
+        """Return the number of open bonds for element <eleNum>. Currently, only for the single bond case. """
+        elem = self._perodicalTable[eleNum]
+        bond = elem.bonds
+        if bond:
+            return bond[0][0]
+        else:
+            return 0
+    
     def getElemSymbol(self, eleNum):
         """ <Param> eleNum: element index
             <Return>  the symbol for the element
