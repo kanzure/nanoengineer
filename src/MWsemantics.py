@@ -861,13 +861,37 @@ class MWsemantics(MainWindow):
                 ob.setcolor(molcolor)
             self.glpane.gl_update()
 
-    # Reset the color of the selected molecule back to element colors
-    def dispResetMolColor(self):
-#        molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
-        for ob in self.assy.selmols:
-            ob.setcolor(None)
+    def dispResetChunkColor(self):
+        "Resets the selected chunk's atom colors to the current element colors"
+        if not self.assy.selmols: 
+            self.history.message(redmsg("Reset Chunk Color: No chunks selected."))
+            return
+        
+        for chunk in self.assy.selmols:
+            chunk.setcolor(None)
         self.glpane.gl_update()
+        
+    def dispResetChunkDisplay(self):
+        "Resets the display mode for each atom in the selected chunks to Default display mode"
+        if not self.assy.selmols: 
+            self.history.message(redmsg("Reset Chunk Display: No chunks selected."))
+            return
             
+        self.assy.resetChunkDisplay()
+        msg = "Reset Chunk Display: Display mode for all atoms in selected chunk(s) reset to Default."
+        self.history.message(greenmsg(msg))
+
+        
+    def dispShowInvisAtoms(self):
+        "Resets the display mode for each invisible atom in the selected chunks to Default display mode"
+        if not self.assy.selmols: 
+            self.history.message(redmsg("Show Invisible Atoms: No chunks selected."))
+            return
+            
+        nia = self.assy.resetInvisibleAtoms() # nia = Number of Invisible Atoms
+        msg = "Show Invisible Atoms: Display mode reset to Default for " + str(nia) +" atoms"
+        self.history.message(greenmsg(msg))
+                    
     def dispBGColor(self):
         "let user change the current mode's background color"
         # get r, g, b values of current background color
@@ -1818,6 +1842,10 @@ class MWsemantics(MainWindow):
         self.zoomDashboard.hide()
         self.panDashboard.hide()
         self.rotateDashboard.hide()
+
+        # This section used by Mark and David to hide toolbars, etc when creating
+        # tutorial videos.        
+#        self.helpToolbar.hide()
         
         ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
         objList = self.queryList("QToolBar")
