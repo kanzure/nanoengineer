@@ -92,6 +92,14 @@ if __name__=='__main__':
     except:
         atom_debug_profile_filename = None
 
+    # bruce 041029: create fake exception, to help with debugging
+    # (in case it's shown inappropriately in a later traceback)
+    try:
+        assert 0, "if you see this exception in a traceback, it is from" \
+            " the startup script atom.py, not the code that printed the traceback"
+    except:
+        pass
+
     if atom_debug_profile_filename:
         profile.run('app.exec_loop()', atom_debug_profile_filename )
         print "\nprofile data was presumably saved into %r" % (atom_debug_profile_filename,)
