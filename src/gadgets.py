@@ -99,8 +99,26 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
         #e don't we need to remove self from all our atoms' a.jigs? [guess: yes]
         # [bruce question 041105; looks like a bug but i will ask josh]
         Node.kill(self)
+
+    # bruce 050125 centralized pick and unpick (they were identical on all Jig
+    # subclasses -- with identical bugs!), added comments; didn't yet fix the bugs.
+    
+    def pick(self): 
+        """select the Jig"""
+        self.picked = True #e should be Node.pick(self)
+        self.assy.w.history.message(self.getinfo())
+        self.normcolor = self.color # bug if this is done twice in a row!
+        self.color = self.pickcolor
+
+    def unpick(self):
+        """unselect the Jig"""
+        if self.picked: #e should use Node.unpick(self)
+            self.picked = False
+            self.color = self.normcolor
+
     #e there might be other common methods to pull into here
-    pass # class Jig
+
+    pass # end of class Jig
 
 
 class RotaryMotor(Jig):
@@ -181,21 +199,6 @@ class RotaryMotor(Jig):
         
     def getstatistics(self, stats):
         stats.nrmotors += 1
-
-    def pick(self):
-        """select the rotary motor
-        """
-        self.picked = True
-        self.assy.w.history.message(self.getinfo())
-        self.normcolor = self.color
-        self.color = self.pickcolor
-
-    def unpick(self):
-        """unselect the rotary motor
-        """
-        if self.picked:
-            self.picked = False
-            self.color = self.normcolor
                
     # Rotary Motor is drawn as a cylinder along the axis,
     #  with a spoke to each atom
@@ -324,21 +327,6 @@ class LinearMotor(Jig):
     def getstatistics(self, stats):
         stats.nlmotors += 1
    
-    def pick(self):
-        """select the linear motor
-        """
-        self.picked = True
-        self.assy.w.history.message(self.getinfo())
-        self.normcolor = self.color
-        self.color = self.pickcolor
-
-    def unpick(self):
-        """unselect the rotary motor
-        """
-        if self.picked:
-            self.picked = False
-            self.color = self.normcolor
-                    
     # drawn as a gray box along the axis,
     # with a thin cylinder to each atom 
     def draw(self, win, dispdef):
@@ -430,21 +418,6 @@ class Ground(Jig):
     def getstatistics(self, stats):
         stats.ngrounds += len(self.atoms)
         
-    def pick(self):
-        """select the ground
-        """
-        self.picked = True
-        self.assy.w.history.message(self.getinfo())
-        self.normcolor = self.color
-        self.color = self.pickcolor
-        
-    def unpick(self):
-        """unselect the ground
-        """
-        if self.picked:
-            self.picked = False
-            self.color = self.normcolor
-                                   
     # Returns the MMP record for the current Ground as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}    
     def __repr__(self, ndix=None):
@@ -513,21 +486,6 @@ class Stat(Jig):
     def getstatistics(self, stats):
         stats.nstats += len(self.atoms)
 
-    def pick(self):
-        """select the thermostat
-        """
-        self.picked = True
-        self.assy.w.history.message(self.getinfo())
-        self.normcolor = self.color
-        self.color = self.pickcolor
-        
-    def unpick(self):
-        """unselect the thermostat
-        """
-        if self.picked:
-            self.picked = False
-            self.color = self.normcolor
-               
     # Returns the MMP record for the current Stat as:
     # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
     def __repr__(self, ndix=None):
@@ -593,21 +551,6 @@ class Thermo(Jig):
     def getstatistics(self, stats):
         stats.nstats += len(self.atoms)
 
-    def pick(self):
-        """select the thermometer
-        """
-        self.picked = True
-        self.assy.w.history.message(self.getinfo())
-        self.normcolor = self.color
-        self.color = self.pickcolor
-        
-    def unpick(self):
-        """unselect the thermometer
-        """
-        if self.picked:
-            self.picked = False
-            self.color = self.normcolor
-               
     # Returns the MMP record for the current Thermo as:
     # stat (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
     def __repr__(self, ndix=None):
