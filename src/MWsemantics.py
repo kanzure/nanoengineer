@@ -995,8 +995,10 @@ class MWsemantics(MainWindow):
 
     def setViewFitToWindow(self):
         """ Fit to Window """
-        QMessageBox.warning(self, "ATOM User Notice:",
-	         "This function is not implemented yet, coming soon...")
+        self.glpane.scale=self.assy.bbox.scale()
+        self.glpane.paintGL()
+#        QMessageBox.warning(self, "ATOM User Notice:",
+#	         "This function is not implemented yet, coming soon...")
         
     def setViewRecenter(self):
         """ Fit to Window """
