@@ -144,6 +144,10 @@ class HistoryWidget:
         self.widget.setFocusPolicy(QWidget.ClickFocus) ##e StrongFocus also can be tabbed to, might be better
             # not needed on Mac [bruce], but needed on Windows [mark],
             # to support copy/paste command sequences, etc
+
+        # Set history widget height to 4 lines of text.  Mark 05-03-13
+        h = self.widget.fontMetrics().lineSpacing() * 4 + 2 # Plus 2 pixes
+        self.widget.setGeometry(QRect(0,0,0,h))
         return
     
     file = None
