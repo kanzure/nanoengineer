@@ -40,6 +40,8 @@ class Movie:
         self.totalFrames = 0
         # the most recent frame number of this movie that was played
         self.currentFrame = 0
+        # the starting (current) frame number when entering MOVIE mode
+        self.startFrame = 0
         # a flag that indicates whether this moviefile is open or closed 
         self.isOpen = False
         # a flag that indicates the current direction the movie is playing
@@ -79,7 +81,7 @@ class Movie:
             return r
         
         elif r == 2: 
-            msg = redmsg("Movie file [" + self.filename + "] not valid for the current part")
+            msg = redmsg("Movie file [" + self.filename + "] not valid for the current part.")
             self.assy.w.history.message(msg)
             self._controls(0) # Disable movie control buttons.
             return r
@@ -123,6 +125,9 @@ class Movie:
 
         if hflag: self._info()
         
+        # startframe and currentframe are compared in _close to determine if the assy has changed.
+        self.startFrame = self.currentFrame
+        
         return 0
         
         # Debugging Code
@@ -144,6 +149,7 @@ class Movie:
         self._pause(0) 
         self.fileobj.close() # Close the movie file.
         self.assy.movend() # Unfreeze atoms.
+        if self.startFrame != self.currentFrame: self.assy.changed()
         
         # Delete the array containing the original atom positions for the model.
         # We no longer need them since the movie file is closed.
