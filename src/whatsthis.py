@@ -652,7 +652,12 @@ def createWhatsThis(self):
 
         toolsSelectMoleculesActionText = "<u><b>Select Chunks</b></u><br>"\
                        "<p><img source=\" toolsSelectMoleculesAction\"><br> "\
-                       "Activates <b>Select Chunks</b> mode, allowing you to select chunks with the mouse.</p>"
+                       "<b>Select Chunks</b> allows you to select/unselect chunks with the mouse.</p>"\
+                       "<p><b><u>Mouse/Key Combinations</u></b></p>"\
+                       "<p><b>Left Click/Drag</b> - selects a chunk(s).</p>"\
+                       "<p><b>Ctrl+Left Click/Drag</b> - removes chunk(s) from selection.</p>"\
+                       "<p><b>Shift+Left Click/Drag</b> - adds chunk(s) to selection."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsSelectMoleculesAction",
                                                        self. toolsSelectMoleculesAction.iconSet().pixmap() )
@@ -663,7 +668,12 @@ def createWhatsThis(self):
 
         toolsSelectAtomsActionText = "<u><b>Select Atoms</b></u><br>"\
                        "<p><img source=\" toolsSelectAtomsAction\"><br> "\
-                       "Activates <b>Select Atoms</b> mode, allowing you to select atoms with the mouse.</p>"
+                       "<b>Select Atoms</b> allows you to select/unselect atoms with the mouse.</p>"\
+                       "<p><b><u>Mouse/Key Combinations</u></b></p>"\
+                       "<p><b>Left Click/Drag</b> - selects an atom(s).</p>"\
+                       "<p><b>Ctrl+Left Click/Drag</b> - removes atom(s) from selection.</p>"\
+                       "<p><b>Shift+Left Click/Drag</b> - adds atom(s) to selection."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsSelectAtomsAction",
                                                        self. toolsSelectAtomsAction.iconSet().pixmap() )
@@ -674,7 +684,13 @@ def createWhatsThis(self):
 
         toolsMoveMoleculeActionText = "<u><b>Move Chunks</b></u><br>"\
                        "<p><img source=\" toolsMoveMoleculeAction\"><br> "\
-                       "Activates <b>Move Chunks</b> mode, allowing you to select, move and rotate individual chunks with the mouse.</p>"
+                       "Activates <b>Move Chunks</b> mode, allowing you to select, "\
+                       "move and rotate one of more chunks with the mouse.</p>"\
+                       "<p><b><u>Mouse/Key Combinations</u></b></p>"\
+                       "<p><b>Left Drag</b> - moves the selected chunk(s).</p>"\
+                       "<p><b>Ctrl+Left Drag</b> - freely rotates selected chunk(s).</p>"\
+                       "<p><b>Shift+Left Drag</b> - constrained movement and rotation of a chunk about its own axis."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsMoveMoleculeAction",
                                                        self. toolsMoveMoleculeAction.iconSet().pixmap() )
@@ -685,7 +701,18 @@ def createWhatsThis(self):
 
         toolsDepositAtomActionText = "<u><b>Build Tool</b></u><br>"\
                        "<p><img source=\" toolsDepositAtomAction\"><br> "\
-                       "Activates <b>Build Atom</b> mode, allowing you to build chunks with the mouse.</p>"
+                       "<b>Build Tool</b> allows you to deposit individual atoms or add/move/delete "\
+                       "atoms from an existing chunk.  Build Tool can also be used to paste "\
+                       "copies of chunks from the clipboard into the part.</p>"\
+                       "<p><b><u>Mouse/Key Combinations</u></b></p>"\
+                       "<p><b>Left Click</b> - adds an atom or pastes a chunk from the clipboard. "\
+                       "New atoms can be connected to an existing chunk if an open bond is highlighted "\
+                       "during a left click.</p>"\
+                       "<p><b>Ctrl+Left Click</b> - deletes a highlighted atom.</p>"\
+                       "<p><b>Shift+Left Drag</b> - moves an atom or open bond. An open bond will be "\
+                       "connected to another open bond if the mouse button is released over a different "\
+                       "open bond."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsDepositAtomAction",
                                                        self. toolsDepositAtomAction.iconSet().pixmap() )
