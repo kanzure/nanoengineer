@@ -123,15 +123,15 @@ class modelTree(QListView):
                 if isinstance(jig, motor):
                         rMotorDialog = RotaryMotorProp(jig, self.win.glpane)
                         if rMotorDialog.exec_loop() == QDialog.Accepted:
-                         self.updateModelTree()
+                                self.updateModelTree()
                 elif isinstance(jig, LinearMotor):
                         lMotorDialog = LinearMotorProp(jig, self.win.glpane)
                         if lMotorDialog.exec_loop() == QDialog.Accepted:
-                         self.updateModelTree()
+                                self.updateModelTree()
                 elif isinstance(jig, ground):
-                        GroundDialog = GroundProp(jig, self.win.glpane)
-                        if GroundDialog.exec_loop() == QDialog.Accepted:
-                         self.updateModelTree()
+                        groundDialog = GroundProp(jig, self.win.glpane)
+                        if groundDialog.exec_loop() == QDialog.Accepted:
+                                self.updateModelTree()
 
     def processInsertHereMenu(self, id):
             if id == 0: #Paste
@@ -514,75 +514,6 @@ class modelTree(QListView):
 
         self.expandTree() # added by mark 9/28/2004
              
-
-    def contentsDragEnterEvent(self, e):
-    #     e.accept(True)
-        self.oldCurrent = self.currentItem()
-        
-        i = self.itemAt(self.contentsToViewport(e.pos()))
-        if i:
-            self.dropItem = i
-        
-
-    def contentsDragMoveEvent(self, e):
-        vp = self.contentsToViewport(e.pos())
-        i = self.itemAt( vp )
-
-        if  i and i.dropEnabled():
-            self.setSelected( i, True )
-            e.accept()
-            e.acceptAction()
-        else:
-           e.ignore()
-
-
-    def contentsDragLeaveEvent(self, e):
-        #autoopen_timer->stop();
-        self.dropItem = 0          
-        
-        self.setCurrentItem( self.oldCurrent )
-        self.setSelected( self.oldCurrent, True )
-
-
-
-    def contentsDropEvent(self, e ):
-          item = self.itemAt(self.contentsToViewport(e.pos()))
-          if not item or not item.parent() or not item.dropEnabled():
-             return
-
-          self.oldCurrent.moveItem(item)
-
-
-    def contentsMousePressEvent(self, e ):
-        QListView.contentsMousePressEvent(self, e)
-        p = QPoint(self.contentsToViewport(e.pos()))
-        item = self.itemAt( p )
-        if item and self.objectToTreeItems[self.insertHereIcon] == item:
-            if self.rootIsDecorated(): i = 1
-            else: i = 0
-
-        # if the user clicked into the root decoration of the item, don't try to start a drag!
-            if ( p.x() > self.header().sectionPos(self.header().mapToIndex(0)) +
-                   self.treeStepSize() * ( item.depth() + i) + self.itemMargin() or
-                   p.x() < self.header().sectionPos(self.header().mapToIndex(0))):
-              self.presspos = e.pos()
-              self.mousePressed = True
-              self.oldCurrent = item
-
-
-
-    def contentsMouseMoveEvent(self, e ):
-       if (self.mousePressed):# and
-                #(self.presspos - e.pos()).manhattanLength() > QApplication. startDragDistance()) :
-            self.mousePressed = False
-            item = self.itemAt( self.contentsToViewport(self.presspos) )
-            if item:
-                ud = QDragObject(self.viewport())
-                ud.drag()
-                
-
-    def contentsMouseReleaseEvent(self, e ):
-        self.mousePressed = False
 
 # added these basic methods for expanding, collapsing and unhiding the model tree. - mark 9/28/04
         

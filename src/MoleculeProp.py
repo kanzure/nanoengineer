@@ -3,6 +3,7 @@ from qt import *
 from MoleculePropDialog import *
 from RotaryMotorProp import RotaryMotorProp
 from LinearMotorProp import LinearMotorProp
+from GroundProp import GroundProp
 
 from gadgets import *
 
@@ -11,9 +12,9 @@ class MoleculeProp(MoleculePropDialog):
     def __init__(self, mol):
         MoleculePropDialog.__init__(self)
         self.mol = mol
-        self.flag = 0 # First time, the next line will cause nameChanged() signal
         
         self.nameLineEdit.setText(mol.name)
+        self.applyPushButton.setEnabled(False)
         
         self.atomsTextBrowser.setReadOnly(True)
         totalAtomsStr = "Total Atoms: " + str(len(mol.atoms)) + "\n\n"
@@ -42,9 +43,7 @@ class MoleculeProp(MoleculePropDialog):
                 self.propPushButton.setEnabled(True)        
     
     def nameChanged(self):
-        if self.flag:    
-                self.applyPushButton.setEnabled(True)
-        else:  self.flag = 1                
+        self.applyPushButton.setEnabled(True)
                 
     def applyButtonClicked(self):    
         self.mol.name = str(self.nameLineEdit.text())
@@ -53,14 +52,18 @@ class MoleculeProp(MoleculePropDialog):
     def propClickedButton(self):
         index = self.jigsComboBox.currentItem()
         g = self.mol.gadgets[index]
+        glpane = self.mol.assy.o
+        
         if isinstance(g, motor):
-              rMotorDialog = RotaryMotorProp(g)
+              rMotorDialog = RotaryMotorProp(g, glpane)
               rMotorDialog.exec_loop()
         elif isinstance(g, LinearMotor):
-              lMotorDialog = LinearMotorProp(g)
+              lMotorDialog = LinearMotorProp(g, glpane)
               lMotorDialog.exec_loop()
         elif isinstance(g, ground):
-              pass
+              groundDialog = GroundProp(g,  glpane)
+              if groundDialog.exec_loop() == QDialog.Accepted:
+                      glpane.win.modelTreeView.updateModelTree()
             
     def accept(self):
         self.applyButtonClicked()    
