@@ -209,31 +209,75 @@ class GLPane(QGLWidget):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-    def fix_buttons(self, but):
-        """###bruce's temporary fix for mac [040826/040916]:
-        make Alt/Option mod key simulate middle mouse button.
-        [On other platforms, this should either do nothing,
-         or make some other mod key simulate middle button
-         (which seems ok or even good, once we document it).
-         But as of 040916 it has not yet been tested on other platforms.
-         Therefore, for now, I added a sys.platform test to limit it to the Mac.]
-        Note that even without this fix (and also with it), control key simulates right button,
-        and command key simulates control key, on the Mac.
-        ###BUG (noted on 040908): we need to be testing for altButton in the press event, for use during drag and release events! ###
-        (lack of this is probably what caused an EndDrag without a preceding BeginDrag, or something like that which I once saw.)
-        #e PLAN, 040916, nim: fix that by storing state on self. Probably need more args (and sleep :-) to do this properly...
+    _saved_buttons = 0
+    def fix_buttons(self, but, when):
+        """Every mouse event's button and modifier key flags should be filtered through this method, which does two things:
+           1. Store those flags from a mouse-press, and reuse them on the subsequent mouse-drag and mouse-release events (but not on pure mouse-moves),
+             so the caller can just switch on the flags to process the event, and will always call properly paired begin/end routines
+             (this matters if the user releases or presses a modifier key during the middle of a drag; it's common to release a mod key then);
+           2. On the Mac, remap Option/leftButton to middleButton, so that the Option key (also called the Alt key) simulates the middle mouse button.
+           (Note that Qt/Mac, by default, lets Control key simulate rightButton and remaps Command key to the same flag we call cntlButton;
+            we like this and don't change it here.)
         """
-        # let Mac's Alt/Option mod key simulate middle mouse button
-        if sys.platform in ['darwin']: ### please try adding your platform here, and tell me whether it breaks anything -- bruce
+        # [by bruce, 040917. At time of commit, tested only on Mac with one-button mouse.]
+        
+        allButtons = (leftButton|midButton|rightButton)
+        allModKeys = (shiftButton|cntlButton|altButton)
+        allFlags = (allButtons|allModKeys)
+        _debug = 0 # set this to 1 to see some debugging messages
+        if when == 'move' and (but & allButtons):
+            when = 'drag'
+        assert when in ['move','press','drag','release']
+        
+        # 1. bugfix: make mod keys during drag and button-release the same as on the initial button-press.
+        # Do the same with mouse buttons, if they change during a single drag (though I hope that will be rare).
+        # Do all this before remapping the modkey/mousebutton combinations in part 2 below!
+        if when == 'press':
+            self._saved_buttons = but & allFlags # we'll reuse this button/modkey state during the same drag and release
+            if _debug and self._saved_buttons != but:
+                print "fyi, debug: fix_buttons: some event flags unsaved: %d - %d = 0x%x" % (but, self._saved_buttons, but - self._saved_buttons)
+                # fyi: on Mac I once got 2050 - 2 = 0x800 from this statement; don't know what flag 0x800 means; shouldn't be a problem
+        elif when in ['drag','release']:
+            if (self._saved_buttons & allButtons):
+                but0 = but
+                but &= ~allFlags
+                but |= self._saved_buttons # restore the modkeys and mousebuttons from the mousepress
+                if _debug and but0 != but:
+                    print "fyi, debug: fix_buttons rewrote but0 0x%x to but 0x%x" % (but0, but) #works
+            else:
+                # fyi: This case might happen in the following rare and weird situation:
+                # - the user presses another mousebutton during a drag, then releases the first one, still in the drag;
+                # - Qt responds to this by emitting two mouseReleases in a row, one for each released button.
+                # (I don't know if it does this; testing it requires a 3-button mouse, but the one I own is unreliable.)
+                #
+                # In that case, this code might make some sense of this, but it's not worth analyzing exactly what it does for now.
+                #
+                # If Qt instead suppresses the first mouseRelease until all buttons are up (as I hope), this case never happens;
+                # instead the above code pretends the same mouse button was down during the entire drag.
+                print "warning: Qt gave us two mouseReleases without a mousePress; ignoring this if we can, but it might cause bugs"
+                pass # don't modify 'but'
+        else:
+            pass # pure move (no mouse buttons down): don't revise the event flags
+        if when == 'release':
+            self._saved_buttons = 0
+        
+        # 2. let the Mac's Alt/Option mod key simulate middle mouse button.
+        if sys.platform in ['darwin']: ### please try adding your platform here, and tell me whether it breaks anything... see below.
+            # As of 040916 this hasn't been tested on other platforms, so I used sys.platform to limit it to the Mac.
+            # Note that sys.platform is 'darwin' for my MacPython 2.3 and Fink python 2.3 installs, but might be 'mac' or 'macintosh' or so
+            # for some other Macintosh Pythons. When we find out, we should add those to the above list.
+            # As for non-Mac platforms, what I think this code would do (if they were added to the above list)
+            # is either nothing, or remap some other modifier key (different than Shift or Control) to middleButton.
+            # If it does the latter, maybe we'll decide that's good (for users with less than 3 mouse buttons) and document it.
+            # -- bruce 040916-17
             if (but & altButton) and (but & leftButton):
                 but = but - altButton - leftButton + midButton
-        # bugfix: make mod keys during drag and button-release the same as on the initial button-press. ###e NIM
         return but
 
     def mouseDoubleClickEvent(self, event):
         self.debug_event(event, 'mouseDoubleClickEvent')
         but = event.stateAfter()
-        but = self.fix_buttons(but)
+        but = self.fix_buttons(but, 'press') #k I'm guessing this event comes in place of a mousePressEvent; test this [bruce 040917]
         if but & leftButton:
             self.mode.leftDouble(event)
         if but & midButton:
@@ -248,7 +292,7 @@ class GLPane(QGLWidget):
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
             return
         but = event.stateAfter()
-        but = self.fix_buttons(but)
+        but = self.fix_buttons(but, 'press')
         
         if but & leftButton:
             if but & shiftButton:
@@ -279,7 +323,7 @@ class GLPane(QGLWidget):
         """
         self.debug_event(event, 'mouseReleaseEvent')
         but = event.state()
-        but = self.fix_buttons(but)
+        but = self.fix_buttons(but, 'release')
         
         if but & leftButton:
             if but & shiftButton:
@@ -312,7 +356,7 @@ class GLPane(QGLWidget):
         """
         ##self.debug_event(event, 'mouseMoveEvent')
         but = event.state()
-        but = self.fix_buttons(but)
+        but = self.fix_buttons(but, 'move')
 
         if but & leftButton:
             if but & shiftButton:
