@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Sun Feb 6 00:41:43 2005
+# Created: Sun Feb 6 15:12:12 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -86,7 +86,6 @@ class SimSetupDialog(QDialog):
         self.nframesSB.setMaxValue(90000)
         self.nframesSB.setMinValue(1)
         self.nframesSB.setLineStep(15)
-        print "SimSetupDialog: setting nframe = 900"
         self.nframesSB.setValue(900)
 
         layout28.addWidget(self.nframesSB,1,0)
@@ -100,7 +99,6 @@ class SimSetupDialog(QDialog):
 
         self.tempSB = QSpinBox(self,"tempSB")
         self.tempSB.setMaxValue(99999)
-        print "SimSetupDialog: setting temp = 300"
         self.tempSB.setValue(300)
 
         layout28.addWidget(self.tempSB,5,0)
