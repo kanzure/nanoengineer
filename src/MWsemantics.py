@@ -147,12 +147,6 @@ class MWsemantics(MainWindow):
            except :
               #bruce 041202 fixed minor bug in next line; removed return statement
               print_compact_traceback("exception in creating temporary directory: %r" % self.tmpFilePath)
-        
-        ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
-        objList = self.queryList("QToolBar")
-        for obj in objList:
-                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.modifyToolbar, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard]:
-                         self.setAppropriate(obj, False)
    
         return # from MWsemantics.__init__
 
@@ -1266,6 +1260,12 @@ class MWsemantics(MainWindow):
         self.selectAtomsDashboard.hide()
         self.moveMolDashboard.hide()
         self.moviePlayerDashboard.hide()
+        
+        ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
+        objList = self.queryList("QToolBar")
+        for obj in objList:
+                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard]:
+                         self.setAppropriate(obj, False)
 
     # Import code for What's This support        
     from whatsthis import createWhatsThis
