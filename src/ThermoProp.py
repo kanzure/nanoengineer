@@ -24,7 +24,7 @@ class ThermoProp(ThermoPropDialog):
         self.thermo.originalColor = self.thermo.normcolor
         
         self.nameLineEdit.setText(thermo.name)
-        self.molnameLineEdit.setText(thermo.mol.name)
+        self.molnameLineEdit.setText(thermo.atoms[0].molecule.name) #bruce 050210 replaced obs .mol attr
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
             QColor(int(thermo.normcolor[0]*255), 

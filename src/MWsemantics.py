@@ -708,7 +708,7 @@ class MWsemantics(MainWindow):
     def setViewRecenter(self):
         """Recenter the view around the origin of modeling space.
         """
-        self.history.message(greenmsg("Recentert View:"))
+        self.history.message(greenmsg("Recenter View:"))
         self.glpane.pov = V(0,0,0)
        
         self.assy.computeBoundingBox()     
@@ -953,7 +953,8 @@ class MWsemantics(MainWindow):
         # Make sure that no more than 30 atoms are selected.
         nsa = len(self.assy.selatoms)
         if nsa > 30: 
-            self.history.message(redmsg("Ground: " + str(nsa) +" atoms selected.  The limit is 30.  Try again."))
+            self.history.message(redmsg("Ground: " + str(nsa) +" atoms selected.  The limit is 30.  Try again (or make more than one Ground)."))
+                #bruce 050210 modified message
             return
         
         self.history.message(greenmsg("Ground: "))
@@ -967,7 +968,7 @@ class MWsemantics(MainWindow):
         
         # Make sure only one atom is selected.
         if len(self.assy.selatoms) != 1: 
-            self.history.message(redmsg("Thermometer: To create a Langevin thermostat, only one atom may be selected.  Try again."))
+            self.history.message(redmsg("Thermostat: To create a Langevin thermostat, only one atom may be selected.  Try again."))
             return
             
         self.history.message(greenmsg("Thermostat: "))

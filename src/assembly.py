@@ -1156,9 +1156,10 @@ class assembly:
     def makeground(self):
         """Grounds (anchors) all the selected atoms so that 
         they will not move during a simulation run.
-        There is a limit of 30 atoms.  Any more will choke the file parser
-        in the simulator.
+        There is a limit of 30 atoms per Ground.  Any more will choke the file parser
+        in the simulator. To work around this, just make more Grounds.
         """
+        # [bruce 050210 modified docstring]
         if not self.selatoms: return
         if len(self.selatoms) > 30: return
         m=Ground(self, self.selatoms.values())
@@ -1172,7 +1173,7 @@ class assembly:
         if not self.selatoms: return
         if len(self.selatoms) != 1: return
         m=Stat(self, self.selatoms.values())
-        m.mol.dad.addmember(m)
+        m.atoms[0].molecule.dad.addmember(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
         
     def makethermo(self):
@@ -1181,7 +1182,7 @@ class assembly:
         if not self.selatoms: return
         if len(self.selatoms) != 1: return
         m=Thermo(self, self.selatoms.values())
-        m.mol.dad.addmember(m)
+        m.atoms[0].molecule.dad.addmember(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
         
     # select all atoms connected by a sequence of bonds to

@@ -447,37 +447,39 @@ class Ground(Jig):
     pass # end of class Ground
 
 
-
 class Stat(Jig):
-    '''a stat is a Langevin thermostat, which sets a molecule  to a specific temperature
-    during a simulation.
-    a thermostat includes 3 atoms:
-    - first_atom: the first atom of the molecule to which it is attached.
-    - last_atom: the last atom of the molecule to which it is attached.
-    - boxed_atom: the atom in the molecule the user selected. A box is draw around this atom.
+    '''A Stat is a Langevin thermostat, which sets a chunk to a specific
+    temperature during a simulation. A Stat is defined and drawn on a single
+    atom, but its record in an mmp file includes 3 atoms:
+    - first_atom: the first atom of the chunk to which it is attached.
+    - last_atom: the last atom of the chunk to which it is attached.
+    - boxed_atom: the atom in the chunk the user selected. A box is drawn
+    around this atom.
+       Note that the simulator applies the Stat to all atoms in the entire chunk
+    to which it's attached, but in case of merging or joining chunks, the atoms
+    in this chunk might be different each time the mmp file is written; even
+    the atom order in one chunk might vary, so the first and last atoms can be
+    different even when the set of atoms in the chunk has not changed.
+    Only the boxed_atom is constant (and only it is saved, as self.atoms[0]).
     '''
-    
+    #bruce 050210 for Alpha-2: fix bug in Stat record reported by Josh to ne1-users    
     sym = "Stat"
     mticon = []
     icon_names = ["stat.png", "stat-hide.png"]
 
     # create a blank Stat with the given list of atoms, set to 300K
     def __init__(self, assy, list):
+        # ideally len(list) should be 1, but in case code in fileIO uses more
+        # when supporting old Stat records, all I assert here is that it's at
+        # least 1, but I only store the first atom [bruce 050210]
+        assert len(list) >= 1
+        list = list[0:1]
         Jig.__init__(self, assy, list)
         # set default color of new stat to blue
         self.color = self.normcolor = (0.0, 0.0, 1.0) 
         # stat is red when picked
         self.pickcolor = (1.0, 0.0, 0.0) 
         self.temp = 300
-        # first atom in the molecule (of the first atom in the list)
-        self.first_atom = min(list[0].molecule.atoms.keys())
-#        print "first_atom =", self.first_atom
-        # last atom in the molecule (of the first atom in the list)
-        self.last_atom = max(list[0].molecule.atoms.keys())
-#        print "last_atom =", self.last_atom
-        # molecule the thermostat is attached to, specified by the first atom in the list.
-        self.mol = list[0].molecule
-
         self.cntl = StatProp(self, assy.o)
     
     def edit(self):
@@ -506,7 +508,7 @@ class Stat(Jig):
         return  "[Object: Thermostat] "\
                     "[Name: " + str(self.name) + "] "\
                     "[Temp = " + str(self.temp) + "K]" + "] "\
-                    "[Attached to: " + str(self.mol.name) + "] "
+                    "[Attached to: " + str(self.atoms[0].molecule.name) + "] "
 
     def getstatistics(self, stats):
         stats.nstats += len(self.atoms)
@@ -517,45 +519,44 @@ class Stat(Jig):
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
-        s = "stat (%s) (%d, %d, %d) (%d) %d %d " %\
-           (self.name, color[0], color[1], color[2], int(self.temp), self.first_atom, self.last_atom )
+        s = "stat (%s) (%d, %d, %d) (%d) " %\
+           (self.name, color[0], color[1], color[2], int(self.temp) )
         if ndix:
-            nums = map((lambda a: ndix[a.key]), self.atoms)
+            atomkeys = [self.atoms[0].key] + self.atoms[0].molecule.atoms.keys()
+                # first key occurs twice, that's ok (but that it's first matters)
+            nums = map((lambda ak: ndix[ak]), atomkeys)
+            nums = [min(nums), max(nums), nums[0]]
         else:
             nums = map((lambda a: a.key), self.atoms)
         return s + " ".join(map(str,nums)) + "\n"
 
     pass # end of class Stat
-    
+
+
 class Thermo(Jig):
-    '''A thermometer measures the temperature of a molecule during a simulation.
-    a thermometer has 3 atoms:
-    - first_atom: the first atom of the molecule to which it is attached.
-    - last_atom: the last atom of the molecule to which it is attached.
-    - boxed_atom: the atom in the molecule the user selected. A box is draw around this atom.
+    '''A Thermo is a thermometer which measures the temperature of a chunk
+    during a simulation. A Thermo is defined and drawn on a single
+    atom, but its record in an mmp file includes 3 atoms and applies to all
+    atoms in the same chunk; for details see Stat docstring.
     '''
-    
+    #bruce 050210 for Alpha-2: fixed same bug as in Stat.
     sym = "Thermo"
     mticon = []
     icon_names = ["thermo.png", "thermo-hide.png"]
 
     # creates a thermometer for a specific atom. "list" contains only one atom.
     def __init__(self, assy, list):
+        # ideally len(list) should be 1, but in case code in fileIO uses more
+        # when supporting old Thermo records, all I assert here is that it's at
+        # least 1, but I only store the first atom [bruce 050210]
+        assert len(list) >= 1
+        list = list[0:1]
         Jig.__init__(self, assy, list)
         # set default color of new thermo to dark red
         self.color = self.normcolor = (0.6, 0.0, 0.2) 
         # thermo is red when picked
         self.pickcolor = (1.0, 0.0, 0.0)
-        # first atom in the molecule (of the first atom in the list)
-        self.first_atom = min(list[0].molecule.atoms.keys())
-#        print "first_atom =", self.first_atom
-        # last atom in the molecule (of the first atom in the list)
-        self.last_atom = max(list[0].molecule.atoms.keys())
-#        print "last_atom =", self.last_atom
-        # molecule the thermometer is attached to.
-        self.mol = list[0].molecule
         self.cntl = ThermoProp(self, assy.o)
-        
     
     def edit(self):
         self.cntl.setup()
@@ -582,10 +583,11 @@ class Thermo(Jig):
     def getinfo(self):
         return  "[Object: Thermometer] "\
                     "[Name: " + str(self.name) + "] "\
-                    "[Attached to: " + str(self.mol.name) + "] "
+                    "[Attached to: " + str(self.atoms[0].molecule.name) + "] "
 
     def getstatistics(self, stats):
-        stats.nstats += len(self.atoms)
+        #bruce 050210 fixed this as requested by Mark
+        stats.nthermos += len(self.atoms)
 
     # Returns the MMP record for the current Thermo as:
     # thermo (name) (r, g, b) first_atom last_atom box_atom
@@ -593,10 +595,13 @@ class Thermo(Jig):
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
-        s = "thermo (%s) (%d, %d, %d) %d %d " %\
-           (self.name, color[0], color[1], color[2], self.first_atom, self.last_atom )
+        s = "thermo (%s) (%d, %d, %d) " %\
+           (self.name, color[0], color[1], color[2] )
         if ndix:
-            nums = map((lambda a: ndix[a.key]), self.atoms)
+            atomkeys = [self.atoms[0].key] + self.atoms[0].molecule.atoms.keys()
+                # first key occurs twice, that's ok (but that it's first matters)
+            nums = map((lambda ak: ndix[ak]), atomkeys)
+            nums = [min(nums), max(nums), nums[0]]
         else:
             nums = map((lambda a: a.key), self.atoms)
         return s + " ".join(map(str,nums)) + "\n"

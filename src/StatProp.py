@@ -24,7 +24,7 @@ class StatProp(StatPropDialog):
         self.stat.originalColor = self.stat.normcolor
         
         self.nameLineEdit.setText(stat.name)
-        self.molnameLineEdit.setText(stat.mol.name)
+        self.molnameLineEdit.setText(stat.atoms[0].molecule.name) #bruce 050210 replaced obs .mol attr
         self.tempSpinBox.setValue(int(stat.temp))
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
