@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Jan 26 10:39:03 2005
+# Created: Thu Jan 27 14:34:47 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7448,7 +7448,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1156).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1159).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7787,12 +7787,12 @@ class MainWindow(QMainWindow):
         self.dispVdWAction.setText(self.__tr("VdW"))
         self.dispVdWAction.setMenuText(self.__tr("VdW"))
         self.setPerspectiveActionGroup.setText(self.__tr("ActionGroup"))
-        self.setViewOrthoAction.setText(self.__tr("Ortho"))
-        self.setViewOrthoAction.setMenuText(self.__tr("Or&tho"))
-        self.setViewOrthoAction.setToolTip(self.__tr("Ortho"))
-        self.setViewPerspecAction.setText(self.__tr("Perspective"))
-        self.setViewPerspecAction.setMenuText(self.__tr("&Perspective"))
-        self.setViewPerspecAction.setToolTip(self.__tr("Perspective"))
+        self.setViewOrthoAction.setText(self.__tr("Orthographic Projection"))
+        self.setViewOrthoAction.setMenuText(self.__tr("Or&thographic Projection"))
+        self.setViewOrthoAction.setToolTip(self.__tr("Orthographic Projection"))
+        self.setViewPerspecAction.setText(self.__tr("Perspective Projection"))
+        self.setViewPerspecAction.setMenuText(self.__tr("&Perspective Projection"))
+        self.setViewPerspecAction.setToolTip(self.__tr("Perspective Projection"))
         self.setPerspectiveActionGroup.setMenuText(self.__tr("ActionGroup"))
         self.toolsModeActionGroup.setText(self.__tr("ActionGroup"))
         self.toolsDepositAtomAction.setText(self.__tr("Build Atoms"))
@@ -7909,8 +7909,8 @@ class MainWindow(QMainWindow):
         self.fileOpenMovieAction.setMenuText(self.__tr("Open Movie File"))
         self.movieInfoAction.setText(self.__tr("Movie Information"))
         self.movieInfoAction.setMenuText(self.__tr("Movie Information"))
-        self.zoomWindowAction.setText(self.__tr("Zoom Window"))
-        self.zoomWindowAction.setMenuText(self.__tr("Zoom Window"))
+        self.zoomWindowAction.setText(self.__tr("Zoom Tool"))
+        self.zoomWindowAction.setMenuText(self.__tr("Zoom Tool"))
         self.panWindowAction.setText(self.__tr("Action"))
         self.panWindowAction.setMenuText(self.__tr("Action"))
         self.rotateWindowAction.setText(self.__tr("Action"))

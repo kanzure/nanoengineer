@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1156</height>
+            <height>1159</height>
         </rect>
     </property>
     <property name="caption">
@@ -1998,13 +1998,13 @@
                 <iconset>image65</iconset>
             </property>
             <property name="text">
-                <string>Ortho</string>
+                <string>Orthographic Projection</string>
             </property>
             <property name="menuText">
-                <string>Or&amp;tho</string>
+                <string>Or&amp;thographic Projection</string>
             </property>
             <property name="toolTip">
-                <string>Ortho</string>
+                <string>Orthographic Projection</string>
             </property>
         </action>
         <action>
@@ -2021,13 +2021,13 @@
                 <iconset>image66</iconset>
             </property>
             <property name="text">
-                <string>Perspective</string>
+                <string>Perspective Projection</string>
             </property>
             <property name="menuText">
-                <string>&amp;Perspective</string>
+                <string>&amp;Perspective Projection</string>
             </property>
             <property name="toolTip">
-                <string>Perspective</string>
+                <string>Perspective Projection</string>
             </property>
         </action>
     </actiongroup>
@@ -2734,7 +2734,7 @@
             <iconset>image104</iconset>
         </property>
         <property name="text">
-            <string>Zoom Window</string>
+            <string>Zoom Tool</string>
         </property>
     </action>
     <action>
