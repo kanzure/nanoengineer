@@ -1603,28 +1603,28 @@ class Part(InvalMixin):
         from fileIO import readxyz
         return readxyz(self.assy) #####@@@@@  self ->self.assy -- guess
 
-    def resetChunkDisplay(self):
+    def resetAtomsDisplay(self):
         """Resets the display mode for each atom in the selected chunks 
-        to default display mode
-        """
-        for chunk in self.selmols:
-            for a in chunk.atoms.itervalues():
-                a.setDisplay(diDEFAULT)
-        self.changed()
-
-    def resetInvisibleAtoms(self):
-        """Resets the display mode for each invisible atom in the selected chunks 
-        to default display mode
+        to default display mode.
+        Returns the total number of atoms that had their display setting reset.
         """
         n = 0
         for chunk in self.selmols:
-            for a in chunk.atoms.itervalues():
-                if a.display == diINVISIBLE: 
-                    a.setDisplay(diDEFAULT)
-                    n += 1
-        self.changed()
+            n += chunk.set_atoms_display(diDEFAULT)
+        if n: self.changed()
         return n
-                                
+
+    def showInvisibleAtoms(self):
+        """Resets the display mode for each invisible (diINVISIBLE) atom in the 
+        selected chunks to default display mode.
+        Returns the total number of invisible atoms that had their display setting reset.
+        """
+        n = 0
+        for chunk in self.selmols:
+            n += chunk.show_invisible_atoms()
+        if n: self.changed()
+        return n
+
     # end of class Part
 
 # subclasses of Part
