@@ -48,6 +48,9 @@ diTUBES = 5
 
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
 
+# display mode for new glpanes (#e should be a user preference) [bruce 041129]
+default_display_mode = diVDW
+
 TubeRadius = 0.3
 
 #colors

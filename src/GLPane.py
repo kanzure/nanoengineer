@@ -172,7 +172,7 @@ class GLPane(QGLWidget, modeMixin):
         # even tho there is only one assembly to a window,
         # this is here in anticipation of being able to have
         # multiple windows on the same assembly
-        self.display = diVDW
+        self.display = default_display_mode #bruce 041129
         self.singlet = None
         self.selatom = None # josh 10/11 supports deposit
 
@@ -617,10 +617,13 @@ class GLPane(QGLWidget, modeMixin):
         return what
 
     def setDisplay(self, disp):
+        if disp == diDEFAULT:
+            disp = default_display_mode #bruce 041129 to fix bug 21
+        #e someday: if self.display == disp, no actual change needed??
+        # not sure if that holds for all init code, so being safe for now.
+        self.display = disp
         for mol in self.assy.molecules:
             if mol.display == diDEFAULT: mol.changeapp()
-        self.display = disp
-            
 
     def paintGL(self):
         """the main screen-drawing function.
