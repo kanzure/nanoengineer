@@ -169,12 +169,11 @@ class PlotTool(PlotToolDialog):
         #Huaicai 3/18:  set environment variable to make gluplot use a specific AquaTerm on Mac
         environVb = None
         if sys.platform == 'darwin':
-             aquaPath = os.path.join(os.path.normpath(filePath + '/../bin'), 'AquaTerm.app')
-	 #print "aquaPath: ", aquaPath
-             environVb =  QStringList(QString('AQUATERM_PATH= %s' % aquaPath))
+            aquaPath = os.path.join(os.path.normpath(filePath + '/../bin'), 'AquaTerm.app')
+	        environVb =  QStringList(QString('AQUATERM_PATH= %s' % aquaPath))
 	 
-	 #It seems the environment variable passed to the QProcess is not working, so set it in the parent process using the Python way.      
-             os.environ['AQUATERM_PATH']=aquaPath
+	        #It seems the environment variable passed to the QProcess is not working, so set it in the parent process using the Python way.      
+            os.environ['AQUATERM_PATH']=aquaPath
         
         #It seems the environment variable passed to the QProcess is not working, so disable it.
         environVb = None        
