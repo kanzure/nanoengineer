@@ -1226,6 +1226,11 @@ class Bond:
         a just-created atom, not one with the right number of existing bonds.
         If old is a singlet, then kill it since it now has no bonds.
         Do the necessary invalidations in self and all involved molecules.
+           Warning: this can make a duplicate of an existing bond (so that
+        atoms A and B are connected by two equal copies of a bond). That
+        situation is an error, not supported by the code as of 041203,
+        and is drawn exactly as if it was a single bond. Avoiding this is
+        entirely up to the caller.
         """
         # [bruce 041109 added docstring and rewrote Josh's code:]
         # Josh said: intended for use on singlets, other uses may have bugs.
@@ -1247,13 +1252,24 @@ class Bond:
         # invalidate this bond itself
         self.changed_atoms()
         self.setup_invalidate()
-        # add this bond to new
+        # add this bond to new (it's already on A, i.e. in the list A.bonds)
         new.bonds += [self]
             #e put this in some private method on new, new.add_new_bond(self)??
             #  Note that it's intended to increase number of bonds on new,
             #  not to zap a singlet already bonded to new.
         # Invalidate molecules (of both our atoms) as needed, due to our existence
         self.invalidate_bonded_mols()
+        if 1:
+            # This debug code helped catch bug 232, but seems useful in general:
+            # warn if this bond is a duplicate of an existing bond on A or new.
+            # (Usually it will have the same count on each atom, but other bugs
+            #  could make that false, so we check both.) [bruce 041203]
+            A = self.other(new)
+            if A.bonds.count(self) > 1:
+                print "rebond bug (%r): A.bonds.count(self) == %r" % (self, A.bonds.count(self))
+            if new.bonds.count(self) > 1:
+                print "rebond bug (%r): new.bonds.count(self) == %r" % (self, new.bonds.count(self))
+        return
 
     def __eq__(self, ob):
         return ob.key == self.key
