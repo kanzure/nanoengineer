@@ -114,11 +114,18 @@ class depositMode(basicMode):
         
         self.w.pasteComboBox.clear()
         cx = 0
-        for ob,i in zip(self.o.assy.shelf.members,
+        if self.o.assy.shelf.members: # We have a something on the clipboard
+            self.pastable = self.o.assy.shelf.members[0]
+            for ob,i in zip(self.o.assy.shelf.members,
                         range(len(self.o.assy.shelf.members))):
-            self.w.pasteComboBox.insertItem(ob.name)
-            if ob.picked: cx = i
-            self.pastable = ob
+                self.w.pasteComboBox.insertItem(ob.name)
+                if ob.picked:
+                    cx = i
+                    self.pastable = ob # ob is the clipboard object that will be pasted.
+        else: # Nothing on the clipboard
+            self.pastable = None
+            
+        # Set pasteComboBox to the picked item (cx)
         self.w.pasteComboBox.setCurrentItem(cx)
             
         self.w.connect(self.w.pasteComboBox,SIGNAL("activated(int)"),
@@ -705,7 +712,8 @@ class depositMode(basicMode):
     def setPaste(self):
         self.w.pasteP = True
         self.w.depositAtomDashboard.pasteRB.setOn(True)
-        print 'pasting',self.w.pasteComboBox.currentItem()
+        cx = self.w.pasteComboBox.currentItem()
+        if self.o.assy.shelf.members: self.pastable = self.o.assy.shelf.members[cx]
         
     def setAtom(self):
         self.w.pasteP = False
