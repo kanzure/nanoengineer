@@ -16,6 +16,8 @@
 #define min(x,y) (x<y ? x : y)
 #define max(x,y) (x>y ? x : y)
 
+#define PICOSEC (1e-12)
+
 /** A space grid for locating non-bonded interactions */
 
 #define SPWIDTH 128

@@ -288,12 +288,25 @@ void pcon(int i) {
     }
 }
 
+void printargs(FILE *f, int argc, char **argv)
+{
+    int i;
+    
+    fprintf(f, "# simulator trace output\n");
+    fprintf(f, "# program arguments:\n");
+    fprintf(f, "# ");
+    for (i=0; i<argc; i++) {
+        fprintf(f, "%s ", argv[i]);
+    }
+    fprintf(f, "\n#\n");
+}
+
 
 void headcon(FILE *f) {
     struct MOT *mot;
     int i, j;
 
-    fprintf(f, "#");
+    fprintf(f, "#     Time ");
 
     for (i=0; i<Nexcon; i++) {
 
@@ -315,7 +328,7 @@ void headcon(FILE *f) {
 	case CODEradius:  fprintf(f, "Radius  "); break;
 	}
     }
-    fprintf(f, "\n#");
+    fprintf(f, "\n#  picosec ");
 
     for (i=0; i<Nexcon; i++) {
 	fprintf(f, "%-8.8s",Constraint[i].name);
@@ -333,6 +346,8 @@ void tracon(FILE *f) {
     double x;
     int i, j;
 
+    fprintf(f, "%10.4f ", Iteration * Dt / PICOSEC);
+    
     for (i=0; i<Nexcon; i++) {
         switch (Constraint[i].type) {
 	case CODEangle:  

@@ -1219,7 +1219,7 @@ main(int argc,char **argv)
 	
     filename = (char *)0;
     ofilename = (char *)0;
-    tfilename = "trace";
+    tfilename = (char *)0;
 
     for (i=1; i<argc; i++) {
 
@@ -1282,22 +1282,43 @@ main(int argc,char **argv)
 
     if (ToMinimize) printf("Minimize\n");
 
-    if (strchr(filename, '.')) sprintf(buf, "%s", filename);
-    else sprintf(buf, "%s.mmp", filename);
+    if (strchr(filename, '.')) {
+        sprintf(buf, "%s", filename);
+    } else {
+        sprintf(buf, "%s.mmp", filename);
+    }
 
     if (! ofilename) {
 	strcpy(OutFileName,buf);
 	c=strchr(OutFileName, '.');
-	if (c) *c='\0';
+	if (c) {
+            *c='\0';
+        }
+    } else {
+        strcpy(OutFileName,ofilename);
     }
-    else strcpy(OutFileName,ofilename);
+    
     if (! strchr(OutFileName, '.')) {
-
-	if (DumpAsText) strcat(OutFileName,".xyz");
-	else strcat(OutFileName,".dpb");
+	if (DumpAsText) {
+            strcat(OutFileName,".xyz");
+        } else {
+            strcat(OutFileName,".dpb");
+        }
     }
 
-    strcpy(TraceFileName,tfilename);
+    if (! tfilename) {
+	strcpy(TraceFileName,buf);
+	c=strchr(TraceFileName, '.');
+	if (c) {
+            *c='\0';
+        }
+    } else {
+        strcpy(TraceFileName,tfilename);
+    }
+    
+    if (! strchr(TraceFileName, '.')) {
+        strcat(TraceFileName,".trc");
+    }
 
     //IterPerFrame = IterPerFrame/innerIters;
     if (IterPerFrame <= 0) IterPerFrame = 1;
@@ -1334,7 +1355,12 @@ main(int argc,char **argv)
     printf(" center of mass: %f -- %f\n", vlen(CoM(cur)), vlen(Cog));
     printf(" total momentum: %f\n",P);
     */
-    tracef = fopen(TraceFileName, "w"); 
+    tracef = fopen(TraceFileName, "w");
+    if (!tracef) {
+        perror(TraceFileName);
+        exit(1);
+    }
+    printargs(tracef, argc, argv);
     headcon(tracef);
 
     if  (ToMinimize) {
