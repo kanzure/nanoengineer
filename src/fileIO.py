@@ -24,20 +24,29 @@ molpat = re.compile("mol \(.*\) (\S\S\S)")
 atom1pat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\S\S\S)")
 
+# Old Rotary Motor record format: 
 # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
-rmotpat = re.compile("rmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
-lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
+old_rmotpat = re.compile("rmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
+# New Rotary Motor record format: 
+# rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az) length radius spoke_radius
+new_rmotpat = re.compile("rmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
+
+# Old Linear Motor record format: 
 # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
-lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
+old_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
+
+# New Linear Motor record format: 
+# lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az) length width spoke_radius
+new_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
 # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 grdpat = re.compile("ground \((.+)\) \((\d+), (\d+), (\d+)\)")
 
-# stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
+# stat (name) (r, g, b) (temp) first_atom last_atom boxed_atom
 statpat = re.compile("stat \((.+)\) \((\d+), (\d+), (\d+)\) \((\d+)\)" )
 
-# thermo (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+# thermo (name) (r, g, b) first_atom last_atom boxed_atom
 thermopat = re.compile("thermo \((.+)\) \((\d+), (\d+), (\d+)\)" )
 
 def getname(str, default):
@@ -272,12 +281,15 @@ def _readmmp(assy, filnam, isInsert = False):
                 print "error in MMP file: atom ", prevcard
                 print card
                 
-        # Read the MMP record for a Rotary Motor as:
-        # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)                           
+        # Read the MMP record for a Rotary Motor as either:
+        # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az) length, radius, spoke_radius
+        # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
         elif key == "rmotor":
             if mol:
                 mol = _addMolecule(mol, assy, opengroup)
-            m=rmotpat.match(card)
+            m = new_rmotpat.match(card) # Try to read card with new format
+            if not m: m = old_rmotpat.match(card) # If that didn't work, read card with old format
+            ngroups = len(m.groups()) # ngroups = number of fields found (12=old, 15=new)
             name = m.group(1)
             col=map(lambda (x): int(x)/255.0,
                     [m.group(2),m.group(3),m.group(4)])
@@ -285,8 +297,16 @@ def _readmmp(assy, filnam, isInsert = False):
             sped=float(m.group(6))
             cxyz=A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
             axyz=A(map(float, [m.group(10),m.group(11),m.group(12)]))/1000.0
+            if ngroups == 15: # if we have 15 fields, we have the length, radius and spoke radius.
+                length = float(m.group(13))
+                radius = float(m.group(14))
+                sradius = float(m.group(15))
+            else: # if not, set the default values for length, radius and spoke radius.
+                length = 10.0
+                radius = 2.0
+                sradius = 0.5
             prevmotor=RotaryMotor(assy)
-            prevmotor.setProps(name, col, torq, sped, cxyz, axyz)
+            prevmotor.setProps(name, col, torq, sped, cxyz, axyz, length, radius, sradius)
             opengroup.addmember(prevmotor)
 
         elif key == "shaft":
@@ -295,11 +315,14 @@ def _readmmp(assy, filnam, isInsert = False):
             prevmotor.setShaft(list)
               
         # Read the MMP record for a Linear Motor as:
+        # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az) length, width, spoke_radius
         # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
         elif key == "lmotor":
             if mol:
                 mol = _addMolecule(mol, assy, opengroup)
-            m=lmotpat.match(card)
+            m = new_lmotpat.match(card) # Try to read card with new format
+            if not m: m = old_lmotpat.match(card) # If that didn't work, read card with old format
+            ngroups = len(m.groups()) # ngroups = number of fields found (12=old, 15=new)
             name = m.group(1)
             col=map(lambda (x): int(x)/255.0,
                     [m.group(2),m.group(3),m.group(4)])
@@ -307,8 +330,16 @@ def _readmmp(assy, filnam, isInsert = False):
             stiffness=float(m.group(6))
             cxyz=A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
             axyz=A(map(float, [m.group(10),m.group(11),m.group(12)]))/1000.0
+            if ngroups == 15: # if we have 15 fields, we have the length, width and spoke radius.
+                length = float(m.group(13))
+                width = float(m.group(14))
+                sradius = float(m.group(15))
+            else: # if not, set the default values for length, width and spoke radius.
+                length = 10.0
+                width = 2.0
+                sradius = 0.5
             prevmotor=LinearMotor(assy)
-            prevmotor.setProps(name, col, force, stiffness, cxyz, axyz)
+            prevmotor.setProps(name, col, force, stiffness, cxyz, axyz, length, width, sradius)
             opengroup.addmember(prevmotor)
 
     # Read the MMP record for a Ground as:
@@ -458,13 +489,18 @@ def _readmmp(assy, filnam, isInsert = False):
             pass # code was wrong -- to be implemented later
             
         elif key=="kelvin":  # Temperature in Kelvin
-            if not isInsert: #Skip this record if inserting
+            if not isInsert: # Skip this record if inserting
                 m = re.match("kelvin (\d+)",card)
                 n = int(m.group(1))
                 assy.temperature = n
                 
+        elif key=="mmpformat":  # MMP File Format. Mark 050130
+            if not isInsert: # Skip this record if inserting
+                m = re.match("mmpformat (.*)",card)
+                assy.mmpformat=m.group(1)
+                
         elif key=="movie_id": # Movie ID - To be supported for Beta.  Mark 05-01-16
-            if not isInsert: #Skip this record if inserting
+            if not isInsert: # Skip this record if inserting
                 m = re.match("movie_id (\d+)",card)
                 n = int(m.group(1))
                 assy.movieID = n
@@ -529,6 +565,11 @@ def writemmp(assy, filename, addshelf = True):
     atnums = {}
     atnums['NUM'] = 0
     assy.alist = []
+    
+    # The MMP File Format is initialized here, just before we write the file.
+    # Mark 050130
+    assy.mmpformat = '050130'
+    f.write("mmpformat %s\n" % assy.mmpformat)
     
     f.write("kelvin %d\n" % assy.temperature)
     
