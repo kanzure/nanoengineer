@@ -24,23 +24,35 @@ class MoleculeProp(MoleculePropDialog):
             self.colorPixmapLabel.setPaletteBackgroundColor(nocolor)
             self.colorPixmapLabel.setFrameShape(QFrame.Box)
         
-        # Create header of the molecule info.
+        # Create text for chunk info.
         self.atomsTextBrowser.setReadOnly(True)
-        totalAtomsStr = "Total Atoms: " + str(len(mol.atoms)) + "\n\n"
-        ele2Num = {}
+        chunkInfoText = ""
+        natoms = len(mol.atoms) # number of atoms in the chunk
         
-        # Calculating the number of element types in this molecule.
+        # Determining the number of element types in this molecule.
+        ele2Num = {}
         for a in self.mol.atoms.itervalues():
              if not ele2Num.has_key(a.element.symbol): ele2Num[a.element.symbol] = 1 # New element found
              else: ele2Num[a.element.symbol] += 1 # Increment element
         
-        # String construction for each element to be displayed.        
+        # String construction for each element to be displayed.
+        nsinglets = 0        
         for item in ele2Num.iteritems():
-            eleStr = item[0] + ": " + str(item[1]) + "\n"
-            totalAtomsStr += eleStr
+            if item[0] == "X":  # It is a Singlet
+                nsinglets = int(item[1])
+                continue
+            else: eleStr = item[0] + ": " + str(item[1]) + "\n"
+            chunkInfoText += eleStr
+            
+        if nsinglets:
+            eleStr = "\nSinglets: " + str(nsinglets) + "\n"
+            chunkInfoText += eleStr
+         
+        natoms -= nsinglets   
+        header = "Total Atoms: " + str(natoms) + "\n\n"
         
-        # Display molecule info in a textbrowser in the dialog window.      
-        self.atomsTextBrowser.setText(totalAtomsStr)
+        # Display chunk info in a textbrowser in the dialog window.      
+        self.atomsTextBrowser.setText(header + chunkInfoText)
 
     #########################
     # Change molecule color
