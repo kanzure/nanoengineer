@@ -380,7 +380,7 @@ void filred(char *filnam) {
 	}
 	
 	// thermometer
-	// thermo (name) <atoms>
+	// thermo (name) (r, g, b) <atom1> <atom2>
 	else if (0==strncasecmp("thermo",buf,6)) {
 	  i=readname(buf+7,&strg);
 	  sscanf(buf+7+i, " (%[0-9, ]) %n", nambuf, &j);
@@ -417,7 +417,7 @@ void filred(char *filnam) {
 	}
 
 	// Langevin thermostat
-	// stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
+	// stat (name) (r, g, b) (temp) atom1 atom2
 	else if (0==strncasecmp("stat",buf,4)) {
 	  i=readname(buf+5,&strg);
 	  sscanf(buf+5+i, " (%[0-9, ]) (%d)%n", nambuf, &ix, &j);

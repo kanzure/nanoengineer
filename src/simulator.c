@@ -999,12 +999,14 @@ void minshot(int final, double rms, double hifsq) {
 
 
 void minimize(int NumFrames) {
-    int i, j, k, saveNexcon;
+    int i, j, k, saveNexcon, nmfr;
     double tke, therm, mass, ff, ff2, totf, hif, ddd;
     double fdf=0.0, fdf1, fdo, gamma, totdist, x, y, z;
     struct xyz v, f, f2, q, r, s;
     double rms, frac;
     double movst = 4e-4, movcon = 4e-4, movfac = 1.5, omc, mc1, mc2;
+
+    nmfr=NumFrames;
    
     // set up direction vectors
     dir=dirs; odir = dirs+NATOMS;
@@ -1086,7 +1088,7 @@ void minimize(int NumFrames) {
     movfac=3.0;
 
     // conjugate gradients for a while
-    for (; NumFrames ;  NumFrames--) {
+    for (; DumpAsText ? rms>1.0 : NumFrames ;  NumFrames--) {
 	//for (i=0; i<20 ;  i++) {
 	minshot(0,rms, hif); 
 	gamma = fdf/fdf1;
@@ -1150,7 +1152,7 @@ void minimize(int NumFrames) {
 
     }
     minshot(1,rms, hif); 
-    printf("final RMS gradient=%f\n",rms);
+    printf("final RMS gradient=%f after %d iterations\n",rms, nmfr-NumFrames);
 
 } 
 
