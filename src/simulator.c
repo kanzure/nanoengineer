@@ -160,6 +160,7 @@ int ToMinimize=0;
 int IterPerFrame=10;
 int NumFrames=100;
 int DumpAsText=0;
+int PrintFrameNums=1;
 
 char OutFileName[1024];
 char TraceFileName[1024];
@@ -1215,6 +1216,7 @@ main(int argc,char **argv)
    -s -- timestep\n\
    -t -- temperature\n\
    -x -- write positions as (text) .xyz file(s)\n\
+   -r -- repress frame numbers\n\
    -o -- output file name (otherwise same as input)\n\
    -q -- trace file name (otherwise trace)\n\
    filename -- if no ., add .mmp to read, .dpb to write\n");
@@ -1250,7 +1252,10 @@ main(int argc,char **argv)
 	    case 'x':
 		DumpAsText=1;
 		break;
-	    case 'o':
+	    case 'r':
+		PrintFrameNums=0;
+		break;
+        case 'o':
 		ofilename=argv[i]+2;
 		break;
 	    case 'q':
@@ -1356,10 +1361,10 @@ main(int argc,char **argv)
     }
     else {
 	for (i=0; i<NumFrames; i++) {
-	    printf(" %d", i);
+	    if (PrintFrameNums) printf(" %d", i);
 	    fflush(stdout);
 	    if ((i & 15) == 15)
-		printf("\n");
+		if (PrintFrameNums) printf("\n");
 	    calcloop(IterPerFrame);
 	    snapshot(i);
 	}
