@@ -19,22 +19,19 @@ class movieMode(basicMode):
     modename = 'MOVIE'
     default_mode_status_text = "Mode: Movie Player"
     
-    # no __init__ method needed
-    
     # methods related to entering this mode
     
-    def Enter(self): # bruce 040922 split setMode into Enter and init_gui (fyi)
+    def Enter(self):
         basicMode.Enter(self)
         self.o.assy.unpickatoms()
         self.o.assy.unpickparts()
         self.o.assy.selwhat = 0
 
-    # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
-        
+
         self.w.toolsMoviePlayerAction.setOn(1) # toggle on the Movie Player icon
 
-        # Display some action items in the main window.
+        # Disable some action items in the main window.
         self.w.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
         self.w.toolsSimulatorAction.setEnabled(0) # Disable "Simulator"
         self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
@@ -55,25 +52,15 @@ class movieMode(basicMode):
         else:
             self.o.assy.m._controls(0) # Movie control buttons are disabled.
 
-    # methods related to exiting this mode [bruce 040922 made these from
-    # old Done method, and added new code; there was no Flush method]
-
     def haveNontrivialState(self):
-#        print "movieMode.haveNontrivialState() called"
         self.o.assy.m._close()
         return False
-        #return self.modified # bruce 040923 new code
 
     def StateDone(self):
-#        print "movieMode.StateDone() called"
         self.o.assy.m._close()
         return None
-    # we never have undone state, but we have to implement this method,
-    # since our haveNontrivialState can return True
-    
-    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+
     def restore_gui(self):
-#        print "movieMode.restore_gui() called"
         self.w.moviePlayerDashboard.hide()
         self.w.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
         self.w.toolsSimulatorAction.setEnabled(1) # Enable "Simulator"
@@ -84,31 +71,30 @@ class movieMode(basicMode):
         self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
         self.w.editDeleteAction.setEnabled(1) # Enable "Delete"
 
-
     def makeMenus(self):
         self.Menu_spec = [
-            None,
+            ('Cancel', self.Cancel),
+            ('Reset Movie', self.o.assy.m._reset),
+            ('Done', self.Done)
          ]
                 
     def Draw(self):
-        # bruce comment 040922: code is almost identical with modifyMode.Draw;
-        # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
-        basicMode.Draw(self)   
-        #self.griddraw()
-        if self.sellist: self.pickdraw()
+        basicMode.Draw(self)
         self.o.assy.draw(self.o)
-        
-    # mouse and key events
 
-    def keyPressEvent(self, e):
-        "some modes will need to override this in the future"
-        self.keyPress(e.key())
+    # mouse and key events
             
     def keyPress(self,key):
-        if key == Qt.Key_Delete: return
-#            print "Delete key pressed while in Movie Mode"
+        
+        # Disable delete key
+        if key == Qt.Key_Delete: return 
+        
+        # Left or Down arrow keys - advance back one frame
         if key == Qt.Key_Left or key == Qt.Key_Down:
             self.o.assy.m._playFrame(self.o.assy.m.currentFrame - 1)
+        
+        # Right or Up arrow keys - advance forward one frame
         if key == Qt.Key_Right or key == Qt.Key_Up:
             self.o.assy.m._playFrame(self.o.assy.m.currentFrame +1)
+        
         return
