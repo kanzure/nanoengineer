@@ -863,6 +863,9 @@ class MWsemantics(MainWindow):
 
     def keyPressEvent(self, e):
         self.glpane.mode.keyPress(e.key())
+        
+    def keyReleaseEvent(self, e):
+        self.glpane.mode.keyRelease(e.key())
 
     ##############################################################
     # Some future slot functions for the UI                      #
@@ -920,11 +923,35 @@ class MWsemantics(MainWindow):
             QBitmap(filePath + "/../images/SelectAtomsCursor.bmp"),
             QBitmap(filePath + "/../images/SelectAtomsCursor-bm.bmp"),
             0, 0)
-        
+
+        # Create "SelectAtomsAddCursor" cursor
+        self.SelectAtomsAddCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsAddCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsAddCursor-bm.bmp"),
+            0, 0)
+
+        # Create "SelectAtomsSubtractCursor" cursor
+        self.SelectAtomsSubtractCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsSubtractCursor-bm.bmp"),
+            0, 0)
+                                        
         # Create "SelectMolsCursor" cursor
         self.SelectMolsCursor = QCursor(
             QBitmap(filePath + "/../images/SelectMolsCursor.bmp"),
             QBitmap(filePath + "/../images/SelectMolsCursor-bm.bmp"),
+            0, 0)
+
+        # Create "SelectMolsAddCursor" cursor
+        self.SelectMolsAddCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectMolsAddCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectMolsAddCursor-bm.bmp"),
+            0, 0)
+        
+        # Create "SelectMolsSubtractCursor" cursor
+        self.SelectMolsSubtractCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectMolsSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectMolsSubtractCursor-bm.bmp"),
             0, 0)
         
         # Create "SelectAddCursor" cursor

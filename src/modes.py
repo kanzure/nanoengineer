@@ -5,8 +5,7 @@ modeMixin, for GLPane.
 
 $Id$
 
-Ownership: Bruce relinquished ownership a few days before 041007;
-not sure if anyone owns it now.
+Ownership: Mark [2004-10-10].
 
 ==
 
@@ -779,6 +778,9 @@ class basicMode(anyMode):
             if _debug_keys:
                 print "fyi: treating that as Qt.Key_Delete"
             self.w.killDo()
+    
+    def keyRelease(self,key): # mark 2004-10-11
+        pass
 
     def makemenu(self, lis):
         # bruce 040909 moved most of this method into GLPane.

@@ -32,13 +32,13 @@ class selectMode(basicMode):
         self.StartPick(event, 2) # new selection (replace)
     
     def leftCntlDown(self, event):
-        self.w.OldCursor = QCursor(self.o.cursor())
-        self.o.setCursor(self.w.SelectSubtractCursor)
+#        self.w.OldCursor = QCursor(self.o.cursor())
+#        self.o.setCursor(self.w.SelectSubtractCursor)
         self.StartPick(event, 0) # subtract from selection
 
     def leftShiftDown(self, event):
-        self.w.OldCursor = QCursor(self.o.cursor())
-        self.o.setCursor(self.w.SelectAddCursor)
+#        self.w.OldCursor = QCursor(self.o.cursor())
+#        self.o.setCursor(self.w.SelectAddCursor)
         self.StartPick(event, 1) # add to selection
 
 
@@ -88,11 +88,11 @@ class selectMode(basicMode):
         self.EndPick(event, 2)
     
     def leftCntlUp(self, event):
-        self.o.setCursor(self.w.OldCursor)
+#        self.o.setCursor(self.w.OldCursor)
         self.EndPick(event, 0)
     
     def leftShiftUp(self, event):
-        self.o.setCursor(self.w.OldCursor)
+#        self.o.setCursor(self.w.OldCursor)
         self.EndPick(event, 1)
 
     def EndPick(self, event, selSense):
@@ -135,8 +135,6 @@ class selectMode(basicMode):
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.
         """
-        # we must change set OldCursor to the MoveSelectCursor before going into move mode.
-        self.w.OldCursor = self.w.MoveSelectCursor
         self.move() # go into move mode # bruce 040923: we use to inline the same code as is in this method
         
 
@@ -197,6 +195,7 @@ class selectMode(basicMode):
                                     ('Color', self.w.dispObjectColor)])
 
     def move(self):
+        # we must set OldCursor to the MoveSelectCursor before going into move mode.
         # go into move mode [bruce 040923: now also called from leftDouble]
         self.o.setMode('MODIFY') # [bruce 040923: i think how we do this doesn't need to be changed]
 
@@ -223,7 +222,14 @@ class selectMolsMode(selectMode):
         def keyPress(self,key):
             basicMode.keyPress(self, key)
             if key == Qt.Key_Shift:
-                print "fyi: treating that as Qt.Key_Shift"
+                self.o.setCursor(self.w.SelectMolsAddCursor)
+            if key == Qt.Key_Control:
+                self.o.setCursor(self.w.SelectMolsSubtractCursor)
+                
+        def keyRelease(self,key):
+            basicMode.keyRelease(self, key)
+            if key == Qt.Key_Shift or key == Qt.Key_Control:
+                self.o.setCursor(self.w.SelectMolsCursor)
 
 class selectAtomsMode(selectMode):
         modename = 'SELECTATOMS'
@@ -241,3 +247,15 @@ class selectAtomsMode(selectMode):
             
         def restore_gui(self):
             self.w.selectAtomsDashboard.hide()
+            
+        def keyPress(self,key):
+            basicMode.keyPress(self, key)
+            if key == Qt.Key_Shift:
+                self.o.setCursor(self.w.SelectAtomsAddCursor)
+            if key == Qt.Key_Control:
+                self.o.setCursor(self.w.SelectAtomsSubtractCursor)
+                                
+        def keyRelease(self,key):
+            basicMode.keyRelease(self, key)
+            if key == Qt.Key_Shift or key == Qt.Key_Control:
+                self.o.setCursor(self.w.SelectAtomsCursor)

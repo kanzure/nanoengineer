@@ -30,19 +30,30 @@ class modifyMode(basicMode):
     # init_gui handles all the GUI display when entering this mode [mark 041004]
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
-        self.w.moveMolDashboard.show()    
+        self.w.toolsMoveMoleculeAction.setOn(1) # toggle on the Move Molecules icon
+        self.w.moveMolDashboard.show() # show the Move Molecules dashboard
     
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
         self.w.moveMolDashboard.hide()
+        
+    def keyPress(self,key):
+        basicMode.keyPress(self, key)
+        if key == Qt.Key_Shift:
+            self.o.setCursor(self.w.MoveAddCursor)
+        if key == Qt.Key_Control:
+            self.o.setCursor(self.w.MoveSubtractCursor)
+                                
+    def keyRelease(self,key):
+        basicMode.keyRelease(self, key)
+        if key == Qt.Key_Shift or key == Qt.Key_Control:
+            self.o.setCursor(self.w.MoveSelectCursor)
 
     def leftDown(self, event):
         """Move the selected object(s) in the plane of the screen following
         the mouse.
         """
-        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
-        self.o.setCursor(self.w.MoveSelectCursor) # load MoveSelectCursor in glpane
-      
+
         self.o.SaveMouse(event)
         self.picking = True
         p1, p2 = self.o.mousepoints(event)
@@ -63,7 +74,6 @@ class modifyMode(basicMode):
         self.o.SaveMouse(event)
 
     def leftUp(self, event):
-        self.o.setCursor(self.w.OldCursor) # Restore cursor
         self.EndPick(event, 2)
         
     def EndPick(self, event, selSense):
@@ -86,9 +96,6 @@ class modifyMode(basicMode):
     def leftCntlDown(self, event):
         """Setup a trackball action on each selected part.
         """
-        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
-        self.o.setCursor(self.w.MoveSubtractCursor)
-         
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
@@ -112,7 +119,6 @@ class modifyMode(basicMode):
         self.o.paintGL()
 
     def leftCntlUp(self, event):
-        self.o.setCursor(self.w.OldCursor) # Restore cursor
         self.EndPick(event, 0)
     
     
@@ -120,8 +126,6 @@ class modifyMode(basicMode):
         """ Set up for sliding or rotating the selected part
         unlike select zoom/rotate, can have combined motion
         """
-        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
-        self.o.setCursor(self.w.MoveAddCursor)
       
         self.o.SaveMouse(event)
         ma = V(0,0,0)
@@ -156,11 +160,9 @@ class modifyMode(basicMode):
 
     
     def leftShiftUp(self, event):
-        self.o.setCursor(self.w.OldCursor) # Restore cursor
         self.EndPick(event, 1)
 
     def leftDouble(self, event):
-        self.w.OldCursor = self.w.SelectMolsCursor
         self.Done() # bruce 040923: how to do this need not change
         # (tho josh in bug#15 asks us to change the functionality -- not yet done ###e)
         
