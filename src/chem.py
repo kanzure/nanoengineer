@@ -1465,6 +1465,7 @@ class Bond:
         len = 0.98 * vlen(vec)
         c1 = a1pos + vec*self.atom1.element.rcovalent
         c2 = a2pos - vec*self.atom2.element.rcovalent
+        # This conditional should change to account for compressed bonds.  Mark [041215]
         if len > self.atom1.element.rcovalent + self.atom2.element.rcovalent:
             center = None
         else:
@@ -1478,6 +1479,10 @@ class Bond:
             file.write("bond(" + povpoint(a1pos) +
                        "," + povpoint(a2pos) + ")\n")
         if disp == diTUBES:
+            # The conditional below has a problem when we have a compressed bond. 
+            # Center will will be non-zero value and a red tube will be drawn.
+            # We end up with red tubes rendered on top of the normal tube (bond).
+            # Fix for beta.  Mark [041215]
             if center:
                 file.write("tube2(" + povpoint(a1pos) +
                            "," + povpoint(color1) +
@@ -1485,10 +1490,12 @@ class Bond:
                            povpoint(a2pos) + "," +
                            povpoint(color2) + ")\n")
             else:
+                # Switched points c1 and c2.  This still has problems with compressed bonds.
+                # Maybe even with stretched bonds, but a couple tests looked OK.  Mark [041215]
                 file.write("tube1(" + povpoint(a1pos) +
                            "," + povpoint(color1) +
-                           "," + povpoint(c1) + "," +
-                           povpoint(c2) + "," + 
+                           "," + povpoint(c2) + "," +
+                           povpoint(c1) + "," + 
                            povpoint(a2pos) + "," +
                            povpoint(color2) + ")\n")
 
