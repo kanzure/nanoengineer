@@ -374,4 +374,28 @@ cubeLines = A([[-1,-1,-1], [-1,-1, 1],
                [-1, 1,-1], [ 1, 1,-1],
                [-1, 1, 1], [ 1, 1, 1]])
 
-               
+ddhhXmat = A([[1, 0, 0, 1,  1, 1,  1, 0,  0, 1,  1,  1,  1],
+              [0, 1, 0, 1, -1, 0,  0, 1,  1, 1,  1, -1, -1],
+              [0, 0, 1, 0,  0, 1, -1, 1, -1, 1, -1,  1, -1]])
+
+
+
+def makeddhhlist(mins, maxs):
+    ax = maxs[0], mins[0], maxs[1], mins[1], maxs[2], mins[2]
+    u = maxs[3]-maxs[0], 
+
+def drawddhh(color, v):
+    glPolygonMode(GL_FRONT, GL_LINE)
+    glPolygonMode(GL_BACK, GL_LINE)
+    glDisable(GL_LIGHTING)
+    glDisable(GL_CULL_FACE)
+    glColor3fv(color)
+    glBegin(GL_QUADS)
+    for s in ddhhsq:
+        glVertex3fv(take(v,s))
+    for s in ddhhtr:
+        glVertex3fv(take(v,s))
+    glEnable(GL_CULL_FACE)
+    glEnable(GL_LIGHTING)
+    glPolygonMode(GL_FRONT, GL_FILL)
+
