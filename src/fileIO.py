@@ -1118,11 +1118,16 @@ def readElementColors(fileName):
             try:
                 words = line.split()
                 row = map(int, words[:4])
-                if row[0] < 0 or row[1] < 0 or row[1] > 255 or row[2] < 0 or row[2] > 255 or row[3] < 0 or row[3] > 255:
-                      raise ValueError, "Value not in a valid range." 
-                elemColorTable += [row]
+                # Check Element Number validity
+                if row[0] >= 0 and row[0] <= 54:
+                    # Check RGB index values
+                    if row[1] < 0 or row[1] > 255 or row[2] < 0 or row[2] > 255 or row[3] < 0 or row[3] > 255:
+                        raise ValueError, "An RGB index value not in a valid range (0-255)."
+                    elemColorTable += [row]
+                else:
+                    raise ValueError, "Element number value not in a valid range."
             except:
-               print "In file %s,  line systax error: %s " % (fileName, line)
+               print "Error in element color file %s.  Invalid value in line: %sElement color file not loaded." % (fileName, line)
                return None
     
     return elemColorTable           
