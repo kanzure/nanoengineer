@@ -636,7 +636,6 @@ def writemovie(assy, mflag = False):
 
     if mflag: # "args" = arguments for the simulator to minimize.
         args = [program, '-m', outfile, infile]
-#        args = [program, '-b' + str(assy.movieID), '-m', outfile, infile] # For Beta
     else: 
         # "args" = arguments for the simulator.  
         # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
@@ -677,7 +676,7 @@ def writemovie(assy, mflag = False):
     if formarg == "-x" and not mflag:
         filesize = assy.m.totalFrames * ((natoms * 32) + 25) # xyz filesize (estimate)
     else: 
-        if mflag: filesize = (max(25, int(sqrt(natoms))) * natoms * 3) + 4
+        if mflag: filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
         else:      filesize = (assy.m.totalFrames * natoms * 3) + 4
          
     if os.path.exists(moviefile):
@@ -690,7 +689,8 @@ def writemovie(assy, mflag = False):
         
         print "deleting moviefile: [",moviefile,"]"
         os.remove (assy.m.filename) # Delete before spawning simulator.
-        
+
+    # These are useful when debugging the simulator.     
 #    print  "program = ",program
 #    print  "Spawnv args are %r" % (args,) # this %r remains (see above)
         
