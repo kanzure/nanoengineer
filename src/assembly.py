@@ -209,6 +209,23 @@ class assembly:
                 list = map(int, re.findall("\d+",card[6:]))
                 list = map((lambda n: ndix[n]), list)
                 prevmotor.setshaft(list)
+
+	    elif key == "linm":  # Linear Motor
+                if mol:
+                    self.addmol(mol)
+                    mol = None
+                m = re.match("linmotor (-?\d+\.\d+), \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)", card)
+                stiffness = float(m.group(1))
+                cxyz = A(map(float, [m.group(2), m.group(3), m.group(4)]))/1000.0  
+                axyz = A(map(float, [m.group(5), m.group(6), m.group(7)]))/1000.0
+                fxyz = A(map(float, [m.group(8), m.group(9), m.group(10)]))
+                prevmotor = LinearMotor(self)
+                prevmotor.setCenter(fxyz, stiffness, cxyz, axyz)
+            elif key == "lins": # Shaft for linear model
+                list = map(int, re.findall("\d+", card[6:]))
+                list = map((lambda n: ndix[n]), list)
+                prevmotor.setShaft(list)
+            
             elif key == "grou":
                 if mol:
                     self.addmol(mol)

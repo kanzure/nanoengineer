@@ -119,12 +119,12 @@ class LinearMotor:
 
     # create a blank motor connected to anything
     def __init__(self, assy):
-        self.force=0.0
-        self.stiffness=0.0
-        self.center=V(0,0,0)
-        self.axis=V(0,0,0)
-        self.atoms=[]
-        self.picked=0
+        self.force = V(0.0, 0.0, 0.0)
+        self.stiffness = 0.0
+        self.center = V(0,0,0)
+        self.axis = V(0,0,0)
+        self.atoms = []
+        self.picked = 0
         self.molecule = None
 
     # for a linear motor read from a file, the "linear motor" record
@@ -198,7 +198,7 @@ class LinearMotor:
     def povwrite(self, file, dispdef):
         c = self.posn()
         a = self.axen()
-        file.write("motor(" + povpoint(c+5*a) +
+        file.write("linmotor(" + povpoint(c+5*a) +
                     "," + povpoint(c-5*a) + ")\n")
         for a in self.atoms:
             file.write("spoke(" + povpoint(c) +
@@ -208,15 +208,16 @@ class LinearMotor:
     def __repr__(self, ndix = None):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        s = "motor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
-           (self.force, self.stiffness,
+        s = "linmotor %.2f, (%d, %d, %d) (%d, %d, %d) (%.2f, %.2f, %.2f)\n" %\
+           (self.stiffness,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
-            int(axyz[0]), int(axyz[1]), int(axyz[2]))
+            int(axyz[0]), int(axyz[1]), int(axyz[2]),
+            self.force[0], self.force[1], self.force[2])
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
             nums = map((lambda a: a.key), self.atoms)
-        return s + "shaft " + " ".join(map(str, nums))
+        return s + "linshaft " + " ".join(map(str, nums))
 
 
 
