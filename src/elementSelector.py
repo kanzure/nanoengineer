@@ -136,7 +136,8 @@ class elementSelector(ElementSelectorDialog):
             self.pixmapLabel1.setPixmap(self.image54)  # Set pixmap to xenon (all elements without a pixmap get this)
 
     def transmutePressed(self):
-        self.w.glpane.mode.modifyTransmute(self.w.Element, force = True)
+        force = self.transmuteCheckBox.isChecked()
+        self.w.glpane.mode.modifyTransmute(self.w.Element, force = force)
         # bruce 041216: renamed elemSet to modifyTransmute, added force option
 
     # end of class elementSelector

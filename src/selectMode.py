@@ -154,7 +154,7 @@ class selectMode(basicMode):
             #e status message?
             # (Presently a.Transmute makes one per "error or refusal".)
             self.o.paintGL()
-        elif self.o.assy.selmols and not force: # too dangerous with force!
+        elif self.o.assy.selmols:
             for mol in self.o.assy.selmols[:]:
                 for atm in mol.atoms.values():
                     atm.Transmute(PeriodicTable[elem], force = force)

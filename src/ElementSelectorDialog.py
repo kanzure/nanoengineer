@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/ElementSelectorDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Thu Dec 9 14:04:22 2004
+# Created: Mon Dec 20 20:25:39 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -109,9 +109,9 @@ class ElementSelectorDialog(QDialog):
         self.setPalette(pal)
         self.setIcon(self.image0)
 
-        ElementSelectorDialogLayout = QVBoxLayout(self,11,6,"ElementSelectorDialogLayout")
 
         self.elementButtonGroup = QButtonGroup(self,"elementButtonGroup")
+        self.elementButtonGroup.setGeometry(QRect(11,11,244,330))
         self.elementButtonGroup.setExclusive(1)
 
         self.elementFrame = QFrame(self.elementButtonGroup,"elementFrame")
@@ -389,20 +389,19 @@ class ElementSelectorDialog(QDialog):
         self.pushButton54.setFont(pushButton54_font)
         self.pushButton54.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton54,54)
-        ElementSelectorDialogLayout.addWidget(self.elementButtonGroup)
 
-        layout65 = QHBoxLayout(None,0,6,"layout65")
+        self.transmuteCheckBox = QCheckBox(self,"transmuteCheckBox")
+        self.transmuteCheckBox.setGeometry(QRect(20,400,230,60))
 
         self.TransmuteButton = QPushButton(self,"TransmuteButton")
-        layout65.addWidget(self.TransmuteButton)
+        self.TransmuteButton.setGeometry(QRect(11,351,118,29))
 
         self.closePTableButton = QPushButton(self,"closePTableButton")
-        layout65.addWidget(self.closePTableButton)
-        ElementSelectorDialogLayout.addLayout(layout65)
+        self.closePTableButton.setGeometry(QRect(135,351,118,29))
 
         self.languageChange()
 
-        self.resize(QSize(266,391).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(266,483).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
@@ -462,6 +461,9 @@ class ElementSelectorDialog(QDialog):
 "I"))
         self.pushButton54.setText(self.__tr("54\n"
 "Xe"))
+        self.transmuteCheckBox.setText(self.__tr("Check if transmuted atoms\n"
+"should keep all existing bonds, \n"
+"even if chemistry is wrong."))
         self.TransmuteButton.setText(self.__tr("Transmute"))
         self.closePTableButton.setText(self.__tr("Close"))
 
@@ -474,3 +476,4 @@ class ElementSelectorDialog(QDialog):
 
     def __tr(self,s,c = None):
         return qApp.translate("ElementSelectorDialog",s,c)
+
