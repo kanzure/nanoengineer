@@ -11,7 +11,7 @@ class cookieMode(basicMode):
 
     def setMode(self):
         basicMode.setMode(self)
-        
+        self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
 
         self.o.ortho = 1
@@ -132,8 +132,9 @@ class cookieMode(basicMode):
         self.sellist += [self.sellist[0]]
         self.o.backlist += [p2]
         self.o.backlist += [self.o.backlist[0]]
-        if not self.o.shape: self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight,
-                                      Slab(-self.o.pov, self.o.lineOfSight, 7))
+        if not self.o.shape:
+            self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight,
+                               Slab(-self.o.pov, self.o.out, 7))
         eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
         if self.selLassRect:
             self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, self.selSense)

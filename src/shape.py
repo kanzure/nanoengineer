@@ -68,6 +68,12 @@ class BBox:
         if offset: return BBox(self.data[0]+offset, self.data[1]+offset)
         return BBox(self.data[0], self.data[1])
 
+
+############################
+#         Slab             #
+############################
+
+
 class Slab:
     """ defines a slab in space which can tell you if a point is in the slab
     """
@@ -285,7 +291,7 @@ class shape:
         """A shape is a set of curves defining the whole cutout.
         """
         self.curves = []
-        self.center=V(0,0,0)
+        self.center= V(0,0,0)
         self.right = right
         self.up = up
         self.normal = normal
@@ -299,11 +305,12 @@ class shape:
         self.bbox = BBox()
 
     def pushdown(self):
-        
+        if not self.slab: return V(0,0,0)
         th = self.slab.thickness
-        n = self.normal
-        mov = - th * n
-        self.slab = Slab(self.center+mov, n, th)
+        n = self.slab.normal
+        mov = th * n
+        self.center += mov/2.0
+        self.slab = Slab(self.slab.point+mov, n, th)
         return mov
 
     def pickline(self, ptlist, point, logic, eye=None):

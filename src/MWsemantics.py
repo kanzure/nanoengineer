@@ -368,7 +368,7 @@ class MWsemantics(MainWindow):
     # "push down" one nanometer to cut out the next layer
     def cookieLayer(self):
         if self.glpane.shape:
-            self.glpane.shape.Layer()
+            self.glpane.pov -= self.glpane.shape.pushdown()
             self.assy.updateDisplays()
 
     # fill the shape created in the cookiecutter with actual
