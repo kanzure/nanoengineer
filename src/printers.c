@@ -293,7 +293,9 @@ void headcon(FILE *f) {
 	case CODElmotor:  fprintf(f, "Lmotor  "); break;
 	case CODEspring:  fprintf(f, "Spring  "); break;
 	case CODEslider:  fprintf(f, "Slider  "); break;
-	case CODEmotor:   fprintf(f, "Motor   "); break;
+	case CODEmotor:   fprintf(f, "sped Motor torq ");
+	    Constraint[i].temp=0.0;
+	    break;
 	case CODEangle:   fprintf(f, "Angle   "); break;
 	case CODEradius:  fprintf(f, "Radius  "); break;
 	}
@@ -302,6 +304,8 @@ void headcon(FILE *f) {
 
     for (i=0; i<Nexcon; i++) {
 	fprintf(f, "%-8.8s",Constraint[i].name);
+	if (Constraint[i].type==CODEmotor)
+	    fprintf(f, "        ");
     }
 
     fprintf(f, "\n#\n");
@@ -334,8 +338,10 @@ void tracon(FILE *f) {
 	    Constraint[i].data = 0.0;
 	    break;
 	case CODEmotor:  
-	    fprintf(f, "%8.4f",Constraint[i].data);
+	    fprintf(f, "%8.4f%8.4f",Constraint[i].data,
+		    Constraint[i].temp/((1e-9/Dx)*(1e-9/Dx)));
 	    Constraint[i].data = 0.0;
+	    Constraint[i].temp = 0.0;
 	    break;
 	}
     }

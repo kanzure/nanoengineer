@@ -459,8 +459,10 @@ void calcloop(int iters) {
     struct MOT *mot;
 	
     double *t1, *t2;
-    double start;
+    double start, deltaTframe;
     int scale;
+
+    deltaTframe = 1.0/(iters*innerIters);
 	
     for (j=0; j<Nexatom; j++) {
 	vsetc(avg[j],0.0);
@@ -703,8 +705,7 @@ void calcloop(int iters) {
 			v2x(bar,rx,force[Constraint[j].atoms[k]]);
 			vadd(q1,bar);
 		    }
-		    z=1.0/(double) (innerIters * iters);
-		    vmulc(q1,z);
+		    vmulc(q1,deltaTframe);
 		    vadd(Constraint[j].xdata, q1);
 		    Constraint[j].data++;
 
@@ -762,14 +763,15 @@ void calcloop(int iters) {
 			}
 			// data for printing speed trace
 			Constraint[j].data += mot->theta - mot->theta0;
+			ff = (mot->theta - mot->theta0) / mot->speed;
+			Constraint[j].temp += ff * mot->stall * deltaTframe;
 		    }
 		}
 
 		else if (Constraint[j].type == CODEtemp) { // thermometer
 
-		    z=(double) (3*(1+Constraint[j].atoms[1]-
-				   Constraint[j].atoms[0])
-				*innerIters * iters);
+		    z=deltaTframe/(3*(1+Constraint[j].atoms[1]-
+				      Constraint[j].atoms[0]));
 		    ff=0.0;
 		    for (a1 = Constraint[j].atoms[0];
 			 a1 <= Constraint[j].atoms[1];
@@ -778,7 +780,7 @@ void calcloop(int iters) {
 			ff += vdot(f, f)*element[atom[a1].elt].mass;
 		    }
 		    ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
-		    Constraint[j].data += ff/z;
+		    Constraint[j].data += ff*z;
 		}
 
 		else if (Constraint[j].type == CODEstat) { // thermostat
@@ -814,9 +816,8 @@ void calcloop(int iters) {
 			
 	}} /* end of main loop */
 	
-    ff = 1.0/((double)innerIters * (double)iters);
     for (j=0; j<Nexatom; j++) {
-	vmulc(avg[j],ff);
+	vmulc(avg[j],deltaTframe);
     }
 	
 }
@@ -1049,7 +1050,7 @@ main(int argc,char **argv)
     headcon(tracef);
 
     if  (ToMinimize) {
-	NumFrames = max(5,(int)sqrt((double)Nexatom));
+	NumFrames = max(25,(int)sqrt((double)Nexatom));
 	Temperature = 0.0;
     }
 
