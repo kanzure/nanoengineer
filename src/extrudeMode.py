@@ -570,6 +570,8 @@ class extrudeMode(basicMode):
             self.status_msg("%s refused: %r" % (self.msg_modename, whynot,)) #e improve
             return 1 # refused!
         self.basemol = mol
+        self.basemol.shakedown() ###### bruce 041019: this will fix ninad's bug, but only by working around my own bug. ###test
+        ##### see my notesfile for that... mainly, when i use self.basemol.quat i should not use it.
         mark_singlets(self.basemol, self.colorfunc)
         offset = V(15.0,16.0,17.0) # initial value doesn't matter
         self.offset = offset
@@ -869,6 +871,8 @@ class extrudeMode(basicMode):
             self.molcopies.append(new)
             c, q = self.want_center_and_quat(ii)
             mol_set_center_and_quat(self.molcopies[ii], c, q)
+            print "basemol quat %r, unit ii=%d quat %r, after setting it, wanted %r" % \
+                  (self.basemol.quat, ii, self.molcopies[ii].quat, q) ###################debug ninad's bug 041019
             self.asserts()
         if self.keeppicked:
             self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
@@ -1797,7 +1801,7 @@ def mol_copy(self, dad=None, offset=V(0,0,0)):
     """
     pairlis = []
     ndix = {}
-    numol = molecule(self.assy, gensym(self.name))
+    numol = molecule(self.assy, gensym(self.name)) ###### should let caller pass a nicer name or name-suffix
     for a in self.atoms.itervalues():
         ## na = a.copy(numol)
         na = atom_copy(a, numol) # bruce; also copies a.info
@@ -1807,10 +1811,13 @@ def mol_copy(self, dad=None, offset=V(0,0,0)):
         for b in a.bonds:
             if b.other(a).key in ndix:
                 numol.bond(na,ndix[b.other(a).key])
+    ## not needed: verify has no effect: [done]
+    ## numol.basepos = self.basepos + offset ####### bruce 041019 added this, will this fix ninad's bug? no! (shakedown ignores it)
+    ### what about quat? center? etc? shakedown recomputes center and sets it, but sets quat to 1. uses its own atom posns.
     numol.curpos = self.curpos+offset
     numol.shakedown()
     numol.setDisplay(self.display)
-    numol.dad = dad
+    numol.dad = dad ##### should let caller put these in a new group
     try:
         numol.colorfunc = self.colorfunc # bruce
     except AttributeError:
