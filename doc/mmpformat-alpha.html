@@ -1,0 +1,212 @@
+<h1>mmp file format (Alpha)</h1>
+<p>
+An mmp file consists of a <em>molecular machine part</em> (MMP) with a sequence of molecules. The simulator will check for van der Waals
+interactions between atoms of different molecules, but not within a given
+molecule. If such interactions are expected within the same molecule, the "waals" record can be
+used.
+</p>
+<p>
+Each molecule is a <strong>mol</strong> record followed by <strong>atom</strong> and <strong>bond</strong> records. The
+bonds must be back-references, i.e. if <em>atom1</em> and <em>atom2</em> are bonded,
+<em>atom1</em> will have no bond record, while <em>atom2</em> will have a record
+pointing back to <em>atom1</em>.
+</p>
+<p>&nbsp; </p>
+<h2>Record types</h2>
+ <p>Note parentheses and commas are required. Braces are metacomments.
+</p>
+ <hr>
+ <p><font size="+1"><strong>Changed Record (changed argument [<em>name</em>]):</strong></font></p>
+ <p><font size="+1"><strong>part</strong><em> mode (name</em></font>)</p>
+ <p>Begins a new part (molecule). Applies to all atoms until the next <strong>part</strong> record, where:</p>
+ <ul>
+   <li><em><strong>mode</strong></em> - the default display mode for this part (molecule) equals one of:
+     <ul>
+         <li>"vdw" - van der Waals</li>
+           <li>"cpk" - ball and stick</li>
+           <li>&quot;tub&quot; - tube</li>
+           <li>&quot;lin&quot; - lines</li>
+           <li>"inv"- invisible</li>
+           <li><font color="#FF0000">&quot;mix&quot; - mixed display, determined by subsequent show records within the part</font></li>
+     </ul>
+   </li>
+   <li><strong><em><strong>name</strong></em> - </strong>name of the part (molecule) that appears in the model tree </li>
+ </ul>
+ <hr>
+ <p><strong><font size="+1">Unchanged Record: </font></strong></p>
+ <p><font size="+1"><strong>atom </strong> <em> n (e) (x, y, z)</em></font></p>
+ <p>Creates a new atom, where: </p>
+ <ul>
+   <li><em><strong>n</strong></em> -  atom number, a unique atom ID</li>
+   <li><em><strong>e</strong></em> -  element number, e.g. carbon = 6 </li>
+   <li><em><strong>x, y, z</strong></em> - the position in 1e-13m</li>
+ </ul>
+ <hr>
+ <p><font size="+1"><strong><font size="+1">Unchanged Record: </font></strong></font></p>
+ <p><font size="+1"><strong>bond1 </strong> <em> atom1 atom2 ... atom25 {up
+                   to 25}</em></font> </p>
+ <p>Bonds the last-definted atom to the indicated atoms. </p>
+ <p>Note: The intent in calling this bond record <strong>bond1</strong> is that we intend to support <strong>bond2</strong>, <strong>bond3</strong>, and <strong>bond4</strong> for <em>double</em>, <em>triple</em>, and <em>aromatic</em> bonds.</p>
+ <hr>
+ <p><font size="+1"><strong><font size="+1">Unchanged Record: </font></strong></font></p>
+ <p><font size="+1"><strong>waals </strong>  <em>atom1 atom2 ... atom25 {up to 25}</em></font></p>
+ <p><font size="+1">I</font>ndicates van der Waals interaction to be simulated between
+      indicated and last-defined atoms
+      (NB vdW interactions are automatically simulated between atoms 
+ of different parts) </p>
+ <hr>
+ <p><font size="+1"><strong><font size="+1">Unchanged Record: </font></strong></font></p>
+ <p><font size="+1"><strong>show </strong> <em>mode </em> </font></p>
+ <p>Changes the display mode of subsequent atoms until the next <strong>show</strong> or <strong>part</strong> record, where: </p>
+ <ul>
+         <li><em><strong>mode</strong></em> - the default display mode for subsequent atoms equals one of:
+           <ul>
+             <li>"vdw" - van der Waals</li>
+             <li>"cpk" - ball and stick</li>
+             <li>&quot;tub&quot; - tube</li>
+             <li>&quot;lin&quot; - lines</li>
+             <li>"inv"- invisible</li>
+             <li><font color="#FF0000">&quot;mix&quot; - mixed display, determined by subsequent show records within the part</font></li>
+           </ul>
+   </li>
+ </ul>
+ <hr>
+ <p><font size="+1"><strong>Unchanged Record:</strong></font></p>
+ <p><font size="+1"><strong>ground </strong>  <em>atom1 atom2 ... atom25 {up to 25}</em></font> </p>
+ <p> Creates a ground object in which atoms are anchored in space, where:</p>
+ <ul>
+   <li><strong><em>atoms</em></strong> - atoms of mol that are anchored in space </li>
+ </ul>
+ <hr>
+ <p><font size="+1"><strong>New Record: </strong></font></p>
+ <p><font size="+1"><strong>lmotor</strong> <em>  force, stiffness, (cx,
+                                       cy, cz) (ax, ay, az)</em> </font></p>
+ <p>Creates a linear motor, where:  </p>
+ <ul>
+   <li><em><strong>name</strong></em> - the name of the linear motore that appears in the model tree</li>
+   <li><strong>mol</strong> - the name of the molecule (parent) that this rotary motor is connected</li>
+   <li><strong><em>r, g, b</em></strong> - color (int) </li>
+   <li> <em><strong>force</strong></em> - force of motor in nN*nm (float) </li>
+   <li> <em><strong>stiffness</strong></em> - stiffness of motor in <em><strong>???</strong></em> (float) </li>
+   <li> <em><strong>cx, cy, cz</strong></em> - center of rotation (same format as atom positions) </li>
+   <li> <em><strong>ax, xy, az</strong></em> - axis of rotation (same format as atom positions) </li>
+ </ul>
+  <p><font size="+1"><strong>shaft </strong> <em> atom1 atom2 ... atom25 {up
+                   to 25}</em></font> </p>
+ <p> Atoms to which the linear motor is connected (<strong>shaft</strong> must follow <strong>lmotor</strong> immediately)</p>
+ <hr>
+ <p><font size="+1"><strong>Changed Record (was <em>motor</em>): </strong></font></p>
+ <p><font size="+1"><strong>rmotor</strong> <em>  torque, speed, (cx, cy, cz) (ax, ay, az)</em></font></p>
+ <p>Creates a rotary motor, where: </p>
+ <ul>
+   <li><em><strong>torque</strong></em> - torque of motor in nN*nm (float) </li>
+   <li> <em><strong>speed</strong></em> - speed of motor in gHz (float) </li>
+   <li> <em><strong>cx, cy, cz</strong></em> - center of rotation (same format as atom positions) </li>
+   <li> <em><strong>ax, xy, az</strong></em> - axis of rotation (same format as atom positions) </li>
+ </ul>
+ <p><font size="+1"><strong>shaft </strong> <em> atom1 atom2 ... atom25 {up to 25}</em></font> </p>
+ <p> Atoms to which the rotary motor is connected (<strong>shaft</strong> must follow <strong>rmotor</strong> immediately)</p>
+ <hr>
+ <p><font size="+1"><strong>Unchanged Record:</strong></font></p>
+ <p><font size="+1"><strong>kelvin </strong> <em> n</em></font></p>
+ <p>
+The temperature of the part, where:</p>
+ <ul>
+   <li><strong><em>n</em></strong> - the temperature in kelvins (int) </li>
+</ul>
+ <hr>
+ <p><strong><font size="+1">New Record: </font></strong></p>
+ <p><font size="+1"><strong>csys</strong> <em> (name)  (w, x, y, z) (zoom)</em></font></p>
+ <ul>
+   <li><em><strong>name</strong></em> - the name of the csys object that appears in the model tree</li>
+   <li><strong><em>w, x, y, z </em></strong> - quaternion for the default orientation for home view (float). (No rotation = 1.0, 0.0, 0.0, 0.0) </li>
+   <li><strong><em>zoom</em></strong> - default zoom for home view (float). </li>
+</ul>
+ <hr>
+ <p><strong><font size="+1">New Record: </font></strong></p>
+ <p><font size="+1"><strong>datum</strong> <em> (name) type (x1, y1, z1) (x2, y2, z2) (x3, y3, z3) (x4, y4, z4)</em></font> </p>
+ <ul>
+   <li><em><strong>name</strong></em> - the name of the datum object that appears in the model tree</li>
+   <li><strong><em>type - </em></strong>one of &quot;point&quot;, &quot;line&quot; or &quot;plane&quot; </li>
+   <li><strong><em>x1, y1, z1 </em></strong> - first vector defining the datum object</li>
+   <li><strong><em>x2, y2, z2 </em></strong> - second vector defining the datum object</li>
+   <li><strong><em>x3, y3, z3</em></strong> - third vector defining the datum object</li>
+   <li><strong><em>x4, y4, z4</em></strong> - forth vector defining the datum object </li>
+ </ul>
+ <hr>
+ <p><strong><font size="+1">New Record: </font></strong></p>
+ <p><font size="+1"><strong>group</strong> <em> (name) (member1) (member2) ... (member25) {up to 25} </em></font> </p>
+ <ul>
+   <li><em><strong>name</strong></em> - the group name that appears in the model tree</li>
+   <li><strong><em>member(s)</em></strong> - the names of molecules that belong to this group</li>
+ </ul>
+ <hr>
+ <p><font size="+1"><strong>end </strong></font></p>
+ <p>
+   logical end of file
+</p>
+ <hr>
+ <p><strong><font size="+2">Planned for Beta </font></strong> </p>
+ <ul>
+   <li><font size="+1"><strong>bearing </strong><em>(name)</em> <em> (mol1) (mol2) (r, g, b) (cx, cy, cz) (ax, ay, az) </em></font>
+     <ul>
+       <li> shaft ... </li>
+           <li> shaft ... or ground </li>
+     </ul>
+   </li>
+   <li><font size="+1"><strong>dyno </strong><em>(name)</em> <em>(r, g, b) </em>??? <em> </em></font>
+     <ul>
+       <li>???</li>
+     </ul>
+   </li>
+   <li><font size="+1"><strong>handle</strong> <em>(name) (mol) (r, g, b) torque, speed, (cx, cy, cz) (ax, ay, az)</em></font>
+   </li>
+      <ul>
+        <li> shaft ... </li>
+        <li> shaft ... or ground </li>
+      </ul>
+   <li><font size="+1"><strong>heatsink</strong> <em> (name) (mol)</em></font> <font size="+1"><em>(r, g, b) </em></font>??? </li>
+   <ul>
+     <li>???</li>
+   </ul>
+   <li><font size="+1"><strong>spring</strong> </font><font size="+1"><em>(name) (mol) (r, g, b) force, stiffness, (cx, cy, cz) (ax, ay, az)</em></font>
+     <ul>
+       <li> shaft ... </li>
+         <li> shaft ... or ground </li>
+     </ul>
+   </li>
+ </ul>
+ <hr>
+ <p><strong><font size="+2">Planned for Gamma or Future releases </font></strong></p>
+ <ul>
+   <li><font size="+1"><strong>ball </strong> <em> (name)</em> <em> </em><em>(mol) (r, g, b) (cx, cy, cz)</em></font>
+       <ul>
+         <li> shaft ... </li>
+         <li> shaft ... or ground </li>
+       </ul>
+   </li>
+   <li><font size="+1"><strong>hooke </strong> <em>(name)</em> <em> </em><em>(mol) (r, g, b) (cx, cy, cz) (a1x, a1y, a1z) (a2x, a2y, a2z) </em></font>
+     <ul>
+       <li> shaft ... </li>
+           <li> shaft ... or ground </li>
+     </ul>
+   </li>
+   <li><font size="+1"><strong>link </strong> <em> (name) (mol) (r, g, b) (x1, y1, z1) (x2, y2, z2)</em></font> </li>
+   <ul>
+     <li> shaft ... </li>
+     <li> shaft ... or ground </li>
+   </ul>
+   <li><font size="+1"><strong>planar </strong> <em> (name)</em> <em> </em><em>(mol) (r, g, b) (nx, ny, nz) </em></font>
+       <ul>
+         <li> shaft ... </li>
+         <li> shaft ... or ground </li>
+       </ul>
+   </li>
+   <li><font size="+1"><strong>prism </strong> <em>(name)</em> <em> </em><em>(mol) (r, g, b) (ax, ay, az)</em></font>
+<ul>
+         <li> shaft ... </li>
+         <li> shaft ... or ground</li>
+     </ul>
+   </li>
+</ul>
+ 
