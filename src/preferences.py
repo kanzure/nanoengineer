@@ -267,9 +267,11 @@ class _prefs_context:
         if _shelf:
             _shelf[pkey] = _cache[pkey] = val
         else:
-            _reopen()
-            _shelf[pkey] = _cache[pkey] = val
-            _close()
+            try:
+                _reopen()
+                _shelf[pkey] = _cache[pkey] = val
+            finally:
+                _close()
         return
     def __getitem__(self, key):
         assert type(key) == type("a")
@@ -279,6 +281,28 @@ class _prefs_context:
         except KeyError:
             raise KeyError, key # not pkey like the exception we're catching!
         pass
+    def get(self, key, dflt = None): #bruce 050117
+        #e probably i can replace this by something like DictMixin...
+        try:
+            return self[key]
+        except KeyError:
+            return dflt
+        pass
+    def update(self, dict1): #bruce 050117
+        # note: unlike repeated setitem, this only opens and closes once.
+        if _shelf:
+            for key, val in dict1:
+                #e (on one KeyError, should we store the rest?)
+                #e (better, should we check all keys before storing anything?)
+                self[key] = val #e could optimize, but at least this leaves it open
+        else:
+            try:
+                _reopen()
+                self.update(dict1)
+            finally:
+                _close()
+        return
+        
     pass # end of class _prefs_context
 
 # for now, in this stub code, all modules use one context:
