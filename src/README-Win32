@@ -1,0 +1,58 @@
+nanoENGINEER-1 (TM) for Windows README
+--------------------------------------
+ 
+VERSION/INFO:
+ 
+  This is nanoENGINEER-1 v0.0.4 (Alpha 4) as of March 14, 2005.
+  See the COPYRIGHT section for distribution and copyright notices.
+  Send all bug reports and questions for nanoENGINEER-1 to 
+  support@nanorex.com.
+
+
+MINIMUM SYSTEM REQUIREMENTS:
+
+  Windows:
+    1 GHz Intel Pentium M processor or equivalent
+    WindowsXP
+    512 MB RAM
+    300 MB available disk space
+    3D graphics accelerator card
+
+
+INSTALLATION:
+
+  Simply run the package installer for your system type.
+
+
+NEW STUFF:
+
+  See RELEASENOTES for the latest info, including new
+  features.   You may access a copy of this file at:
+  http://www.nanorex.com/ReleaseNotes.htm
+
+
+UNSUPPORTED/BUGS:
+
+  See KNOWNBUGS for the latest bug information, including 
+  the most recently fixed bugs.  You may access a copy of 
+  this file at http://www.nanorex.com/KnownBugs.htm
+
+
+COPYRIGHT:
+
+  Copyright (c) 2004-2005 Nanorex, Inc.
+
+  Nanorex, Inc. disclaims all warranties with regard to this software, 
+  including all implied warranties of merchantability and fitness. 
+  In no event shall Nanorex be liable for any special, indirect or 
+  consequential damages or any damages whatsoever resulting from loss 
+  of use, data or profits, whether in an action of contract, negligence 
+  or other tortious action, arising out of or in connection with the 
+  use or performance of this software.
+
+  Please see the file LICENSE (distributed in the same directory as 
+  this file) for the license covering nanoENGINEER-1, since this depends 
+  on the platform and how the entire program was distributed. If no 
+  file named LICENSE was distributed in this file's directory, then 
+  all rights for use or distribution of nanoENGINEER-1 are reserved by 
+  Nanorex.
