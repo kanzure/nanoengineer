@@ -642,7 +642,7 @@ class assembly:
         for m in self.selmols:
             self.modified = 1
             m.passivate()
-        for a in self.selatoms.itervalues():
+        for a in self.selatoms.values():
             self.modified = 1
             for atm in a.neighbors():
                 atm.Hydrogenate()

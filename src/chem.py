@@ -492,6 +492,10 @@ class atom:
             n = b.other(self)
             n.unbond(b)
             if n.element == Singlet: n.kill()
+            # bruce comment 041018: it looks like killing singlets
+            # might mess up other molecules, if singlets are in other
+            # molecules and caller doesn't know about those in order
+            # to do a shakedown on them as well. ###e needs bugfix
 
     def Hydrogenate(self):
         """ if this is a singlet, change it to a hydrogen
@@ -500,11 +504,24 @@ class atom:
         o = self.bonds[0].other(self)
         self.mvElement(Hydrogen)
         self.molecule.basepos[self.index] += Hydrogen.rcovalent * norm(self.molecule.basepos[self.index] - o.molecule.basepos[o.index])
+        # bruce comment 041018: does this need to also change curpos, or does
+        # caller make sure that's fixed somehow, or neither (a bug)??
+        ###e needs review
 
     def Dehydrogenate(self):
-        """ if this is a hydrogen atom, kill it
+        """ if this is a hydrogen atom, kill it and return 1 (int, not boolean),
+        otherwise return 0. [bruce 041018 added retval feature]
+        [bruce comment 041018: I think caller MUST do a shakedown on all
+         affected molecules (those of self and its neighbor), or remove them
+         if they are left with no atoms.
+         But I think it would be wrong to do any of that here.]
         """
-        if self.element == Hydrogen : self.kill()
+        if self.element == Hydrogen :
+            self.kill()
+            return 1
+        else:
+            return 0
+        pass
 
 class bondtype:
     """not implemented
@@ -1109,11 +1126,19 @@ class molecule(Node):
             
     def Dehydrogenate(self):
         """remove hydrogen atoms from selected molecule.
+        Return the number of atoms removed [bruce 041018 new feature].
+        [bruce comment 041018: I think caller MUST do a shakedown,
+         or kill the molecule if it ends up with no atoms.
+         In theory, neighbors of removed H can be in other molecules,
+         and those also need shakedown or kill.
+         But I think it would be wrong to do any of that here.]
         """
         # will change appearance of the molecule
         self.havelist = 0
+        count = 0
         for a in self.atoms.values():
-            a.Dehydrogenate()
+            count += a.Dehydrogenate()
+        return count
             
     def edit(self):
         cntl = MoleculeProp(self)    

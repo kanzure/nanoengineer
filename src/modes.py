@@ -311,6 +311,21 @@ class basicMode(anyMode):
         """
         return self.default_mode_status_text
 
+    def status_msg(self, text): #bruce 041018
+        """Put a status message (for progress, warnings, etc) into the main
+        status widget -- not the mode status widget. In the future this might
+        also print or otherwise record the message and a timestamp.
+        """
+        # extrudeMode.py has its own, fancier version of this... but for now
+        # it must remain self-contained, in case Josh grabs another update
+        # of that file alone. After the conference I will combine the best
+        # features of both versions of this method. [bruce 041018]
+
+        # print first, since if there's a bug, printed output is most important,
+        # and otherwise we'll see both messages anyway.
+        print "status (%s):" % self.msg_modename, text
+        self.w.msgbarLabel.setText(text)
+
     # methods for changing to some other mode
     
     def userSetMode(self, modename):        
@@ -815,25 +830,89 @@ class basicMode(anyMode):
                 m.Hydrogenate()
         elif self.o.assy.selatoms:
             self.o.assy.modified = 1
-            for a in self.o.assy.selatoms.itervalues():
+            for a in self.o.assy.selatoms.values():
                 for atm in a.neighbors():
                     atm.Hydrogenate()
         self.o.paintGL()
 
     # remove hydrogen atoms from each selected atom/molecule
+    # (coded by Mark ~10/18/04; bugfixed/optimized/msgd by Bruce same day.
+    #  Bruce warns: I did not fully analyze and fix all potential bugs
+    #  caused by removing a hydrogen which is in a different molecule than
+    #  its neighbor atom, even though I fixed some such bugs, and other bugs.
+    #  Also, I'm skeptical this belongs in basicMode; probably it will need
+    #  rewriting as soon as some specific mode wants to do it differently.)
+    ###e needs enough testing to see each status message at least once!
     def modifyDehydrogenate(self):
+        self.status_msg("Dehydrogenating...")
+        from platform import fix_plurals
+        fixmols = {}
         if self.o.assy.selmols:
-            self.o.assy.modified = 1
+            counta = countm = 0
+            ## didwhat = "Dehydrogenated %d molecule(s)" % len(self.o.assy.selmols) 
             for m in self.o.assy.selmols:
-                m.Dehydrogenate()
-                m.shakedown()
+                changed = m.Dehydrogenate()
+                # note: this might have removed all atoms from m! Fixed below.
+                if changed:
+                    counta += changed
+                    countm += 1
+                    fixmols[id(m)] = m
+                    ###e In theory, we might have removed an H whose neighbor
+                    # is in a different molecule, which therefore might need a
+                    # shakedown... I have not tried to fix that, and I'm not
+                    # sure it's a bug (since Dehydrogenate did changeapp on it,
+                    # and maybe that's enough).
+            if counta:
+                didwhat = "Dehydrogenate: removed %d atom(s) from %d molecule(s)" \
+                          % (counta, countm)
+                if len(self.o.assy.selmols) > countm:
+                    didwhat += \
+                        " (%d selected molecule(s) had no hydrogens)" \
+                        % (len(self.o.assy.selmols) - countm) #test again; has bug, see debug output next time
+                didwhat = fix_plurals(didwhat)
+            else:
+                didwhat = "Dehydrogenate: selected molecules contain no hydrogens"
         elif self.o.assy.selatoms:
+            count = 0
+            for a in self.o.assy.selatoms.values():
+                ma = a.molecule
+                for atm in list(a.neighbors()) + [a]:
+                    #bruce 041018 semantic change: added [a] as well
+                    matm = atm.molecule
+                    changed = atm.Dehydrogenate()
+                    if changed:
+                        count += 1
+                        fixmols[id(ma)] = ma # shakedown at most once per mol
+                        fixmols[id(matm)] = matm
+            if fixmols:
+                didwhat = \
+                    "Dehydrogenate: removed %d atom(s) from %d molecule(s)" \
+                    % (count, len(fixmols))
+                didwhat = fix_plurals(didwhat)
+                # Technically, we *should* say ", affected" instead of "from"
+                # since the count includes mols of neighbors of
+                # atoms we removed, not always only mols of atoms we removed.
+                # Since that's rare, we word this assuming it didn't happen.
+                # [#e needs low-pri fix to be accurate in that rare case;
+                #  might as well deliver that as a warning, since that case is
+                #  also "dangerous" in some sense.]
+            else:
+                didwhat = "Dehydrogenate: no hydrogens bonded to selected atoms"
+        else:
+            didwhat = "Dehydrogenate: nothing selected"
+        if fixmols:
             self.o.assy.modified = 1
-            for a in self.o.assy.selatoms.itervalues():
-                for atm in a.neighbors():
-                    atm.Dehydrogenate()
-                    a.molecule.shakedown()
-        self.o.paintGL()
+            for mol in fixmols.values():
+                if mol.atoms:
+                    mol.shakedown()
+                else:
+                    mol.kill()
+                #e bruce comment 041018:
+                # someday we might optimize this by only doing shakedown
+                # on the molecules that actually changed. [low priority optim]
+            self.w.update()
+        self.status_msg(didwhat)
+        return
         
     pass # end of class basicMode
 
