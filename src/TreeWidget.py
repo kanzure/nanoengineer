@@ -78,12 +78,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         return # from TreeWidget.__init__
 
-    # event processing
+    # helper functions
     
     def fix_buttons(self, but, when):
         return fix_buttons_helper(self, but, when)
-
-    # context menus
     
     def makemenu(self, lis):
         return makemenu_helper(self, lis)
@@ -101,22 +99,17 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.update_item_icon(item)
         # note: doesn't call mt_update
 
-    # event processing & selection
+    # event processing & selection ###@@@ some obs, or move down...
     
     def select(self, item): ###@@@ soon to be obs, i think, or to be inlined... and some belongs in the subclass.
         
         # bruce comment 041220: this is called when widget signals that
         # user clicked on an item, or on blank part of model tree (confirmed by
-        # experiment). Event (with mod keys flags) would be useful,
-        # but is evidently not available (maybe it could be, in some other way?)
-        # [addendum, 041227: it might be sufficient to wrap this with a subclass
-        #  which defines an "event" method to process all events, making a note
-        #  of their flags, then handing it off to the superclass event method. ###@@@]
-        # bruce 050110: contentsMouseEvent or something like that...
+        # experiment). Event (with mod keys flags) would be useful...
+        # 
         self.dprint("select called")
         
         if item:
-            ## self.bruce_print_item(item) # debug
             if isinstance(item, PartGroup):
                 self.dprint("select returns early since item is the PartGroup") #k (but why can't we select it?)
                 return
@@ -126,19 +119,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         self.win.assy.unpickatoms() ####@@@@ belongs in the subclass
         
-        if isinstance(self.win.glpane.mode, selectMode) and 0: #######@@@@@@@ see if this 'and 0' helps...
-            ####@@@@ guess: this causes a bug by doing the update too early somehow... not sure... why not done again below?
-            ####@@@@ win_update should do mt_update which should schedule another repaint... does it think none is needed?
-            self.dprint("select is calling toolsSelectMolecules")
-            self.win.toolsSelectMolecules()
-            self.dprint("select done calling toolsSelectMolecules")
-                #e should optim:
-                # this calls repaintGL redundantly with win.win_update() [bruce 041220]
-        else:        
-            self.win.assy.selwhat = 2
-        
         if not self.modifier:
-            # bruce comment 041220: some bugs are caused by this being wrong,
+            # bruce comment 041220: some bugs are caused by this [i.e. self.modifier - 050124] being wrong,
             # e.g. bug 263 (my comment #3 in there explains the likely cause).
             self.win.assy.unpickparts()
         
@@ -158,8 +140,32 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.update_selection_highlighting()
         return
 
-    def keyPressEvent(self, e): ####@@@@ some belongs in the subclass
-        key = e.key()
+    def update_select_mode(self): #bruce 050124; this should become a mode-specific method and be used more generally.
+        """This should be called at the end of event handlers which might have
+        changed the current internal selection mode (atoms vs chunks),
+        to resolve disagreements between that and the visible selection mode
+        iff it's one of the Select modes. If the current mode is not one of
+        Select Atoms or Select Chunks, this routine has no effect.
+           If possible, we leave the visible mode the same (even changing assy.selwhat
+        to fit, if nothing is actually selected). But if forced to, by what is
+        currently selected, then we change the visible selection mode to fit
+        what is actually selected.
+        """
+        #e should optim: this can call repaintGL redundantly
+        # with win.win_update() [bruce 041220; is this still true? 050124]
+        mode = self.win.glpane.mode
+        if not isinstance(mode, selectMode):
+            return
+        if assy.selatoms and isinstance( mode, selectMolsMode):
+            self.win.toolsSelectAtoms() ###k check tool name - this case not needed by treewidget
+        elif assy.selmols and isinstance( mode, selectAtomsMode):
+            self.win.toolsSelectMolecules()
+        else:
+            pass # nothing selected -- don't worry about assy.selwhat
+        return
+        
+    def keyPressEvent(self, event): ####@@@@ Delete needs revision, and belongs in the subclass
+        key = event.key()
         import platform
         key = platform.filter_key(key) #bruce 041220 (needed for bug 93)
         if key == Qt.Key_Delete: ####@@@@ belongs in the subclass
@@ -173,20 +179,21 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # MWsemantics.killDo, regardless of focus.
             self.win.killDo()
             ## part of killDo: self.win.win_update()
-        ###@@@ the rest is soon to be obs
-        elif key == Qt.Key_Control:
-            self.modifier = 'Cntl' ###@@@ soon to be obs
-        elif key == Qt.Key_Shift:
-            self.modifier = 'Shift' ###@@@ soon to be obs
+##        ###@@@ the rest is soon to be obs
+##        elif key == Qt.Key_Control:
+##            self.modifier = 'Cntl' ###@@@ soon to be obs
+##        elif key == Qt.Key_Shift:
+##            self.modifier = 'Shift' ###@@@ soon to be obs
         # bruce 041220: I tried passing other key events to the superclass,
         # QListView.keyPressEvent, but I didn't find any that had any effect
         # (e.g. arrow keys, letters) so I took that out.
         return
         
-    def keyReleaseEvent(self, key):
-        self.modifier = None ###@@@ soon to be obs
+    def keyReleaseEvent(self, event):
+        pass
+##        self.modifier = None ###@@@ soon to be obs
 
-    # context menus
+    # context menus ###@@@ move this down
     
     def menuReq(self, item, pos, col): ####@@@@ some of this goes here (cmenus in general), maybe some in subclass (specific menus)
         """Context menu items function handler for the Model Tree View
@@ -260,7 +267,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.mt_update()
         return
 
-    # selection
+    # selection - move this down ####@@@@ also make it work
     
     def item_is_selected(self, item): ###@@@ might work in superclass but only useful here and might be redefined here
         """Is the given item already selected?
@@ -446,6 +453,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def dragMoveEvent(self, event):
         event.accept()
 
+    #####@@@@@ main event handlers - move up
     
     def glpane_eg_mousePressEvent(self, event): ###@@@ zap this when done -- just an example to look at.
         """Dispatches mouse press events depending on shift and
@@ -482,26 +490,23 @@ class TreeWidget(TreeView, DebugMenuMixin):
             else:
                 self.mode.rightDown(event)         
 
-    def contentsMouseDoubleClickEvent(self, e):
-        self.dprint("dblclick %r, pretending it's another regular click for now" % e)
-        return self.contentsMousePressEvent(e, dblclick = 1) # fine for open/close; until we need it to edit names
-        pass ####@@@@ ok for now?
+    def contentsMouseDoubleClickEvent(self, event):
+        return self.contentsMousePressEvent(event, dblclick = 1) # fine for open/close; until we need it to edit names
 
     renaming_this_item = None
-    def contentsMousePressEvent(self, e, dblclick = 0):
-        "[called by Qt, or by other event methods of our own]"
-        cpos = e.pos() # Qt doc, and test, agree this is in contents coords;
-            # y=1 is just under the "listview label".
-            # btw that label does not scroll! (good.)
-            # i once thought it did, maybe because it was so often messed up by redraw bugs.
-##        self.dprinttime()
-##        print "cpos from event:",cpos.x(),cpos.y()    
+    def contentsMousePressEvent(self, event, dblclick = 0):
+        "[called by Qt, or by our own contentsMouseDoubleClickEvent]"
+        
+        # figure out position and item of click (before doing any side effects)
+        #e this might be split into a separate routine if it's useful during drag
+        
+        cpos = event.pos() # this is in contents coords;
+            # y=1 is just under column label (which does not scroll with content)
         vpos = self.contentsToViewport(cpos)
-##        print "vpos:",vpos.x(),vpos.y() # this is correct - y==1 is just under label, whether or not scrolled. same as cpos if not.
-##        #k does it work right re label at top? or needs -24 like drop code has? seems to work right and not need that (so far).
         item = self.itemAt(vpos)
         
-        # first, let this click finish an in-place renaming, if there was one.
+        # before anything else (except above -- in case this scrolls for some reason),
+        # let this click finish an in-place renaming, if there was one.
         if self.renaming_this_item:
             self.renaming_this_item.okRename(0) # 0 is column # this ends up calling slot_itemRenamed
                 # could this scroll the view? I doubt it, but if so,
@@ -509,12 +514,15 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.done_renaming()
                 # redundant with slot function, but i'm not sure that always runs or gets that far
 
-        try:
-            name = item.object.name
-        except:
-            name = "?" # for item None or a bug
-        print "%sclick on item %r (%s)" % (dblclick and "double" or "",item,name)
+        # now figure out what part of the item (if any) we clicked on,
+        # setting 'part' to a constant string describing which part, or None.
 
+        # (someday: if we clicked too far to left or right of visible part of item,
+        #  set item = part = None; or we might have new 'part' values
+        #  for those positions. #e)
+
+        part = None
+        ## clicked_on_text = clicked_on_icon = clicked_on_openclose = False
         if item:
             # where in the item did we click?
             # relevant Qt things:
@@ -527,80 +535,166 @@ class TreeWidget(TreeView, DebugMenuMixin):
 ##            #bruce 050120 observes that there's a misplaced ')' in the next line. compare to Qt version of this.
 ##            if p.x() > self.header().sectionPos( self.header().mapToIndex( 0 )) + self.treeStepSize() * ( i.depth() + isdecorated + self.itemMargin() or
 ##               p.x() < self.header().sectionPos( self.header().mapToIndex( 0 ) ) ) : ### to left of this column
-##               self.presspos.setX(e.pos().x())
-##               self.presspos.setY(e.pos().y())
+##               self.presspos.setX(event.pos().x())
+##               self.presspos.setY(event.pos().y())
 ##               self.mousePressed = True
             # our version of dirview example's code:
             isdecorated = 1 # should conform to self.rootIsDecorated()
             header = self.header()
-            special_x = header.sectionPos( header.mapToIndex( 0 )) # where is this x? by experiment it's always 0 for us. must be left edge of column 0.
+            special_x = header.sectionPos( header.mapToIndex( 0 ))
+                # where is this x? by experiment it's always 0 for us. must be left edge of column 0.
                 # btw, Qt C++ eg uses mapToActual but there's no such attr when tried here.
             extra = self.treeStepSize() * (item.depth() + isdecorated) + self.itemMargin()
             ## special_x_2 = header.sectionPos( header.mapToActual( 0 )) # no such attr
 ##            print "for that item: special x pos = %r, treestep = %r, depth %r, margin %r" % (
 ##                                        special_x, self.treeStepSize(), item.depth(), self.itemMargin() )
             greater_by = vpos.x() - (special_x + extra) # this tells whether we hit the left edge of the icon, for a very big icon.
-            if greater_by > 0:
-                print "to right of decoration by",greater_by # i think to right by 3 or 2 should count as on decoration...
+##            if greater_by > 0:
+##                print "to right of decoration by",greater_by # i think to right by 3 or 2 should count as on decoration...
+##            else:
+##                print "not to right",greater_by
+            if greater_by > 22: #e probably need to adjust this cutoff
+                part = 'text'
+                #e incorrect if we're to the right of the visible text;
+                # Qt docs show how to check text width to find out; should use that
+                # (also we're not checking for still being in column 0, just assuming that)
+            if greater_by > 2: #e might need to adjust this cutoff (btw it's a bit subjective)
+                part = 'icon'
+            elif greater_by > -12: ###e surely need to adjust this
+                part = 'openclose'
+                print "change so openclose can only happen for an expandable item" ####@@@@
+            elif vpos.x() >= special_x:
+                part = 'left'
             else:
-                print "not to right",greater_by
-
+                part = item = None # to the left of column 0 (not currently possible I think)
+            pass
         
-        if dblclick and item: ####@@@@ and if click in correct place!
-            col = 0
-            return self.maybe_beginrename(item,vpos,col) ####@@@@ vpos coords?? ####@@@@ see if this works... 050114
-            # itworks, but the only way to get out of it is ret, esc, or another rename...
-            # how do we make other events work for that? qt doc for QListViewItem gives no clue.
-            # maybe check it out for EditField?? Or make my own renamer? read rename in QListView doc?
+        # If this click's data differs from the prior one, this event shouldn't
+        # be counted as a double click. Or the same, if too much time passed since prior click,
+        # which would mean Qt erred and called this a double click even though its first click
+        # went to a different widget (I don't know if Qt can make that mistake).
+        # ###e nim feature...
 
-        ###@@@ copying this in part from glpane_eg_mousePressEvent:   NEED DebugMenuMixin, fix_buttons
-        event = e
+        ####@@@@
+
+        # now what? figure out what to actually do. use bindings set up by subclass. use separate routine... ####@@@@
+        # probably store some things here too, in case we'll decide later to start a drag.
+        # subr might say whether that's permitted or reset what we store here. ####e ###@@@
+
+        self.clicked( event, vpos, item, part, dblclick)   ###e see also selection_click... ###@@@
+
+        self.update_select_mode() # change mode to selectMolsMode iff necessary
+        
+        return # from contentsMousePressedEvent
+
+    def clicked( self, event, vpos, item, part, dblclick):
+        """Called on every mousedown (regardless of mouse buttons / modifier keys).
+        Event is the Qt event (not yet passed through fix_buttons).
+        vpos is its position in viewport coordinates.
+        item is None or a QListViewItem.
+        If item, then part is one of ... #doc; otherwise it's None.
+        dblclick says whether this should count as a double click
+        (note that for some bindings we'll implement, this won't matter).
+        """
+
+        # handle debug menu; canonicalize buttons and modifier keys.
+        
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
             return
         but = event.stateAfter()
         but = self.fix_buttons(but, 'press')
+
+        # now we check for various user commands, handling the first one that applies
+        # and returning from this method (having done any needed inval/update which is
+        # within the tree widget itself, but not some external updates done by our caller).
+        
+        # handle context menu request.
         
         if but & rightButton:
-            # context menu
-            # kluge for now - be compat with old code
+            # context menu -- regardless of part of item (if any) we clicked on (even openclose or left)!
+            # Also when no item. Ignores modifier keys and dblclick.
+            # [kluge for now - be compat with old code
             #####e set self.modifier - probably not yet used by menuReq, anyway
-            # def menuReq(self, item, pos, col) - col not used, ends with mt_update, no retval
+            # def menuReq(self, item, pos, col) - col not used, ends with mt_update, no retval]
             pos = event.globalPos() # coords??
             col = -333
             self.menuReq( item, pos, col)
             return
 
-        if not item:
-            # kluge: try to use old code, see how much it can handle
-            ## self.modifier = None # for now
-            self.select(item) ###@@@
+        # after this point, treat clicks to left of open/close icon as if on no item.
+        # (would it be better to treat them as on open/close, or have a special cmenu
+        #  about the parent items, letting you close any of those? ##e)
+        if part == 'left':
+            part = item = None
+        
+        # handle open/close toggling. (ignores modifier keys, mouse buttons, dblclick)
+        if part == 'openclose':
+            # this can only happen for a non-leaf item!
+            self.toggle_open(item) # does all needed inval/update/repaint ####@@@@ is this finished?
             return
 
-        try:
-            node = item.object
-            leaf = not node.openable()
-        except:
-            print_compact_traceback("bug:")
-            return
+        # handle in-place editing of the item text, on double-click
         
-        if leaf:
-            # kluge: try to use old code, see how much it can handle
-            ## self.modifier = None # for now
-            self.select(item) ###@@@
-            return
-        
-        # not leaf -- for now, do this no matter where we click on it!
-        self.toggle_open(item) # does all needed inval/update/repaint
-        
-        return # from contentsMousePressedEvent
+        #e (someday this might be extended to edit a variant of the text,
+        #   if some of it is a fixed label or addendum... to implem that,
+        #   just call item.setText first, within the subroutine.)
 
-    def contentsMouseMoveEvent(self, e):
+        # (for now, this is done for middle click too, and it ignores modifier keys)
+        if dblclick and part = 'text':
+            # presumably the first click selected this item... does this matter?? #k
+            # BTW it would not be true if this was a Control-double-click!
+            # If we wanted to be paranoid, we'd return unless the modkeys and button
+            # were identical with the saved prior click (and were null)... #e do that now? ###@@@
+            col = 0
+            return self.maybe_beginrename( item, vpos, col)
+
+        # what's left?
+        # - selection.
+        # - drag-starting, whether for d&d or (saved for later #e) a selection range or rect.
+        # - hover behaviors (tooltip, cmenu) (saved for later. #e)
+        #####@@@@ need code to save event info for drag-starting ###@@@ merge with selection_click, elsewhere
+
+        # selection-click, and/or start of a drag
+        # (we can't in general distinguish these until more events come)
+
+        if dblclick:
+            # Too likely this 2nd click was a mistake -- let the first click handle
+            # it alone. (This only matters for Control-click, which toggles selection,
+            # once the feature of discarding dblclick flag when item/part
+            # changed is implemented.)
+            return
+
+        if (but & allButtons) != leftButton:
+            # ignore middle button, and ignore certain bugs in the above code
+            return
+
+        # kluge: set self.modifier for compatibility with old code
+        if but & shiftButton:
+            self.modifier = 'Shift'
+        elif but & cntlButton:
+            self.modifier = 'Cntl'
+        else:
+            self.modifier = None
+        
+        # kluge: try to use old code, see how much it can handle
+        ####@@@@ some or all of its behavior might belong in a subclass -- not sure
+            
+        self.select(item) ###@@@
+        
+        return # from clicked
+
+    def contentsMouseMoveEvent(self, event):
+        "[overrides QListView method]"
+        # This method might be needed, to prevent QListView from messing us up.
         pass
     
-    def contentsMouseReleaseEvent(self, e):
-        pass # without this, QListView calls its "clicked" signal
+    def contentsMouseReleaseEvent(self, event):
+        "[overrides QListView method]"
+        # This method might be needed, to prevent QListView from messing us up.
+        # (At least, without it, QListView emits its "clicked" signal.)
+        pass 
 
-    ## dragObject
+    # debug menu items
 
     def debug_menu_items(self):
         "overrides method from DebugMenuMixin"
