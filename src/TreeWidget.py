@@ -18,6 +18,7 @@ and split it into three modules:
 """
 
 from TreeView import * # including class TreeView, and import * from many other modules
+from selectMode import selectMolsMode, selectAtomsMode
 
 class TreeWidget(TreeView, DebugMenuMixin):
     def __init__(self, parent, win, name = None, columns = ["node tree"]):
