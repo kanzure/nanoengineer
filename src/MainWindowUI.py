@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Jan 4 14:21:32 2005
+# Created: Wed Jan 5 04:34:08 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5596,39 +5596,39 @@ image76_data = [
 ]
 image77_data = [
 "22 22 14 1",
-"b c #000000",
+". c None",
+"a c #000000",
 "l c #0000ff",
 "e c #13ff07",
-"a c #8e8c82",
+"# c #8e8c82",
 "i c #95f284",
 "d c #a1ff9c",
-"c c #aca899",
+"b c #aca899",
 "j c #e03f3a",
-". c #e6e7e6",
 "h c #ece9d8",
 "f c #edfe2c",
 "k c #ff0000",
 "g c #ff9999",
-"# c #ffffff",
+"c c #ffffff",
 "......................",
 "......................",
 "......................",
-"...............#......",
+"......................",
+"..#aaaaaaaaaaaaaaa#...",
 "..abbbbbbbbbbbbbbba...",
-"..bcccccccccccccccb...",
-"..bc#############cb...",
-"..bc###deeffbgh#hcb...",
-"..bc##ieddfcbjg##cb...",
-"..bc#ded###bcgkg#cb...",
-"..bc#ee###cb##kk#cb...",
-"..bc#ee###bc##kk#cb...",
-"..bclllllllllllllcb...",
-"..bclllllllllllllcb...",
-"..bcccccccccccccccb...",
+"..abcccccccccccccba...",
+"..abcccdeeffaghchba...",
+"..abccieddfbajgccba...",
+"..abcdedcccabgkgcba...",
+"..abceecccbacckkcba...",
+"..abceecccabcckkcba...",
+"..ablllllllllllllba...",
+"..ablllllllllllllba...",
 "..abbbbbbbbbbbbbbba...",
-"..hhhhhhhbbbhhh#hhh...",
-"..hhhhhhhbbbhhh#hhh...",
-"..hhhhhbbbbbbbhhhh....",
+"..#aaaaaaaaaaaaaaa#...",
+".........aaa..........",
+".........aaa..........",
+".......aaaaaaa........",
 "......................",
 "......................",
 "......................"
@@ -7290,16 +7290,9 @@ class MainWindow(QMainWindow):
         self.setViewBottomAction.addTo(self.viewToolbar)
         self.setViewLeftAction.addTo(self.viewToolbar)
         self.setViewRightAction.addTo(self.viewToolbar)
-        self.gridsToolbar = QToolBar(QString(""),self,Qt.DockTop)
-
-        self.gridsToolbar.setGeometry(QRect(578,0,101,29))
-        self.gridsToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
-        self.orient100Action.addTo(self.gridsToolbar)
-        self.orient110Action.addTo(self.gridsToolbar)
-        self.orient111Action.addTo(self.gridsToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(679,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(578,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7319,7 +7312,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,656,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7530,7 +7523,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1012).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1018).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -8000,7 +7993,6 @@ class MainWindow(QMainWindow):
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
-        self.gridsToolbar.setLabel(self.__tr("Grids"))
         self.molecularDispToolbar.setLabel(self.__tr("Molecular Display"))
         self.selectToolbar.setLabel(self.__tr("Select Toolbar"))
         self.helpToolbar.setLabel(self.__tr("Help Toolbar"))

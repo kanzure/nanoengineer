@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1012</height>
+            <height>1018</height>
         </rect>
     </property>
     <property name="caption">
@@ -204,33 +204,11 @@
     </toolbar>
     <toolbar dock="2">
         <property name="name">
-            <cstring>gridsToolbar</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>578</x>
-                <y>0</y>
-                <width>101</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="backgroundOrigin">
-            <enum>WidgetOrigin</enum>
-        </property>
-        <property name="label">
-            <string>Grids</string>
-        </property>
-        <action name="orient100Action"/>
-        <action name="orient110Action"/>
-        <action name="orient111Action"/>
-    </toolbar>
-    <toolbar dock="2">
-        <property name="name">
             <cstring>molecularDispToolbar</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>679</x>
+                <x>578</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -277,7 +255,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>656</width>
+                <width>657</width>
                 <height>29</height>
             </rect>
         </property>
@@ -2930,7 +2908,7 @@
         <data format="XPM.GZ" length="721">789c9d91cb0e82301045f77cc584ee880164c123c64fd0b834312e8669892ed04471618cff6ea73c2bb0e10e697a733974ca041e1c0f3bf002e759617525a00b3ec093afb27c9fcedb8fe34611e82781b5bb725c1f08f6f79be2bdd07b111ab145b669983636678b846996b1956c55ac1215b325b68556fdb26a6d51985326b538119df02fc9b12b3166b066709ce466c1fe7b16837a996670d8c390212167188924bbfeadae4993247529f2c9baa901c8002dd38886b1fddf163042e10ce30beea92d7b3efd38c4f2994e27df8df30304aa8cb6</data>
     </image>
     <image name="image77">
-        <data format="XPM.GZ" length="830">789cadd1b16ac3301006e0dd4f21accd94c696d344a2f4110a1d0ba58374ba931c274b9b0ea5f4ddab9393e2880432e4c7367cfed159b6178d787d7916cda2fadcdbfd0002a2fd108dffdaedbedfde9f7eaa5a29918e6e29bafaaeaa9d0021db1ce6f648222632bb9ea85d332d53a306ad9803d33c90d24ba667da8ec8001332c16a63981b26b63df596799fb9c235ae983113d078cda44c4fa8f2a891993671d8649868cc34594ee4e4c96773a346ce1beb4e63ff1b07a771b346ce53361e91c8852863d10ce83d81db84728d479fd6390863281ac4fc0029c7f15cc353cb663bcf95cda537bdfc75e294742f5d653aaf6d0e93e254dcea9f1e9bdfc7ea0f79efc943</data>
+        <data format="XPM.GZ" length="827">789cb5d1c14ac4301006e07b9f22b4b7226e9bae98203ec28a47413c4c273369b7bb0aeb7a10f1ddcda455ba610b5ef6a7877cfd49d2a4ab523d3d6e54b9cade8f70ec5161070755ba8ffdfef3f9e5fe2bcbb556e1a9d7aaceafb2fc5aa17a787b2519431817558c70f74b662109eb86b9ba15164243068d16f6427bc3daac854e0835b345611b8960ac156e855435dc80b08b44b2ce0839d231e9387710865da7aff223ad1d97c29192789cb3b94453c0698abf06dad3c0acc179d2c6113183efb04b9a9e9ce316b63e9de3c88579d0fac1270d51dc007118ce35b26adaece6f967b374d2e5db9912de2ddcf55233ad74a17ffa7d97fd00268bc9a3</data>
     </image>
     <image name="image78">
         <data format="XPM.GZ" length="709">789c7590b10ac2301445f77cc523d98ab41a48b5889f20380ae2f0f2d2a24317ad8388ff6e5f3ad894974b861c0e97845b15703e1da1a8d473c0e14e40377c40115e7dffbe5c0f1fa5ad85f1d4b0d12ba51108cc3a86d130bac6a16b1803e3ce06eb1d233136be73a1662c19dbbaddb6113d631713ad18d11834b2319ec888068908e50e51903bf23b3826f3372cb326d7c132d3c1ff3535333133988ab9c144249dac59942613e758249a6976c94cb38b9d38bb64f2ef88d1dfbdfa01074c8b25</data>
