@@ -128,11 +128,50 @@ def writepdb(assy, filename):
 
 # Huaicai to implement readxyz - Mark 050120
 def readxyz(assy):
-    """Read a single-frame XYZ file created by the simulator, typically a for minimizing a part.
-    """
-    print "fileIO.readxyz() called.  Currently a stub."
-
-
+        """Read a single-frame XYZ file created by the simulator, typically  for minimizing a part. Check file format, return a list of atom new positions in the same order as assy.alist
+        """
+        xyzFile = assy.m.filename
+        lines = open(xyzFile, "rU").readlines()
+        
+        if len(lines) < 3: ##Invalid file format
+             print "%s: File format error." % xyzFile
+             return
+        
+        atomList = assy.alist
+        ## stores the new position for each atom in atomList
+        newAtomsPos = [] 
+        
+        try:     
+                numAtoms = int(lines[0])
+                rms = float(lines[1][4:])
+        except ValueError:
+                print "%s: File format error in Line 1 and/or Line 2" % xyzFile
+                return
+        
+        atomIndex = 0
+        for line in lines[2:]:
+                words = line.split()
+                if len(words) != 4:
+                      print "%s: Line %d format error." % (lines.index(line), xyzFile)
+                      return
+                try:        
+                    if words[0] != atomList[atomIndex].element.symbol:
+                        print "%s: atom %d is not matching." % (xyzFile, atomIndex)
+                        return
+                    
+                    newAtomsPos += [map(lambda a: a/100.0, map(float, words[1:]))]
+                except ValueError:
+                        print "%s: atom %d position number format error." % (xyzFile, atomIndex)
+                        return
+                         
+                atomIndex += 1
+        
+        if (len(newAtomsPos) != len(atomList)):
+                print "The number of atoms from %s is not matching with the current model." % xyzFile
+                
+        return newAtomsPos        
+        
+        
 def _addMolecule(mol, assy, group):
         """Make sure to call this function before any other record operation except for record types: atom, bond, shaft and csys, dataum, walls, kelvin. This adds the previous molecule to its group """
         

@@ -379,6 +379,19 @@ class assembly:
         self.o.paintGL()
 
 
+    def moveAtoms(self, newPositions):
+        """Huaicai 1/20/05: Move a list of atoms to newPosition. After 
+            all atoms moving, bond updated, update display once.
+           <parameter>newPosition is a list of atom absolute position, the list order is the same as self.alist """
+           
+        if len(newPositions) != len(self.alist):
+                print "The number of atoms from XYZ file is not matching with that of the current model"
+                return
+        for a, newPos in zip(self.alist, newPositions):
+                a.setposn(A(newPos))
+        self.o.paintGL()                
+
+
     #########################
 
             # user interface
@@ -840,8 +853,9 @@ class assembly:
         if r: return # We had a problem writing the minimize file.  Simply return.
         
         if mtype == 1:  # Load single-frame XYZ file.
-            self.readxyz()
-            self.w.win_update()
+            newPositions = self.readxyz()
+            if newPositions:
+                self.moveAtoms(newPositions)
             
         else: # Play multi-frame DPB movie file.
             self.m.currentFrame = 0
