@@ -15,7 +15,6 @@ class MoleculeProp(MoleculePropDialog):
         self.mol.originalColor = self.mol.color # Save original molecule color in case of cancel
 
         if self.mol.color: # Set colortile to mol color (without border)
-#            self.mol.originalColor = self.mol.color # Save original molecule color in case of cancel
             self.colorPixmapLabel.setPaletteBackgroundColor(
                 QColor(int(mol.color[0]*255), 
                              int(mol.color[1]*255), 
@@ -50,8 +49,6 @@ class MoleculeProp(MoleculePropDialog):
     # Change molecule color
     #########################
     def changeMolColor(self):
-        print"MoleculeProp.py: changeMolColor(): self.mol.color = ", self.mol.color
-        
         defcolor = (230.0/255.0, 231.0/255.0, 230.0/255.0)
         if self.mol.color: defcolor = self.mol.color
         color = QColorDialog.getColor(

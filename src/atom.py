@@ -35,11 +35,16 @@ if __name__=='__main__':
     # the default (1000) bombs with large molecules
     sys.setrecursionlimit(5000)
 
+    # Windows Users: .atomrc must be placed in C:\Documents and Settings\[username]\.atomrc
+    # .atomrc contains one line, the Working Directory
+    # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
+    
     rc = os.path.expanduser("~/.atomrc")
     if os.path.exists(rc):
         f=open(rc,'r')
         wd = f.readline()
-        globalParms['WorkingDirectory'] = wd
+        # wd has a <cr> at the end which needs to be stripped for Win32 - Mark [2004-10-13]
+        globalParms['WorkingDirectory'] = wd[:-1] 
         f.close()
         
     QApplication.setColorSpec(QApplication.CustomColor)
@@ -95,4 +100,3 @@ if __name__=='__main__':
         app.exec_loop() 
 
     # end
-

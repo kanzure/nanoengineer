@@ -176,23 +176,25 @@ class MWsemantics(MainWindow):
         fn = QFileDialog.getOpenFileName(wd, 
             "Molecular machine parts (*.mmp);;Molecules (*.pdb);; All of the above (*.pdb *.mmp)",
             self )
-        fn = str(fn)
-        if not os.path.exists(fn): return
-        assy = assembly(self, "Empty")
-        if fn[-3:] == "pdb":
-            readpdb(assy,fn)
-        if fn[-3:] == "mmp":
-            readmmp(assy,fn)
+            
+        if fn:
+            fn = str(fn)
+            if not os.path.exists(fn): return
+            assy = assembly(self, "Empty")
+            if fn[-3:] == "pdb":
+                readpdb(assy,fn)
+            if fn[-3:] == "mmp":
+                readmmp(assy,fn)
 
-        dir, fil, ext = fileparse(fn)
-        assy.name = fil
-        assy.filename = fn
+            dir, fil, ext = fileparse(fn)
+            assy.name = fil
+            assy.filename = fn
 
-        self.setCaption(self.trUtf8("Atom - " + "[" + assy.filename + "]"))
+            self.setCaption(self.trUtf8("Atom - " + "[" + assy.filename + "]"))
 
-        self.glpane.scale=self.assy.bbox.scale()
-        self.glpane.paintGL()
-        self.mt.update()
+            self.glpane.scale=self.assy.bbox.scale()
+            self.glpane.paintGL()
+            self.mt.update()
 
     def fileOpen(self):
         if self.assy.modified:
@@ -214,28 +216,29 @@ class MWsemantics(MainWindow):
                 "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All of the above (*.pdb *.mmp)",
                 self )
         
-        # I know we are clearing twice if the file was saved above.
-        # This is desidered behavior - Mark [2004-10-11]
-        self.__clear()  
+        if fn:
+            # I know we are clearing twice if the file was saved above.
+            # This is desidered behavior - Mark [2004-10-11]
+            self.__clear()  
                 
-        fn = str(fn)
-        if not os.path.exists(fn): return
+            fn = str(fn)
+            if not os.path.exists(fn): return
 
-        if fn[-3:] == "mmp":
-            readmmp(self.assy,fn)
-        if fn[-3:] == "pdb":
-            readpdb(self.assy,fn)
+            if fn[-3:] == "mmp":
+                readmmp(self.assy,fn)
+            if fn[-3:] == "pdb":
+                readpdb(self.assy,fn)
 
-        dir, fil, ext = fileparse(fn)
-        self.assy.name = fil
-        self.assy.filename = fn
-        self.assy.modified = 0 # The file and the part are now the same
+            dir, fil, ext = fileparse(fn)
+            self.assy.name = fil
+            self.assy.filename = fn
+            self.assy.modified = 0 # The file and the part are now the same
 
-        self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
+            self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
 
-        self.glpane.scale=self.assy.bbox.scale()
-        self.glpane.paintGL()
-        self.mt.update()
+            self.glpane.scale=self.assy.bbox.scale()
+            self.glpane.paintGL()
+            self.mt.update()
 
 
     def fileSave(self):
@@ -254,11 +257,14 @@ class MWsemantics(MainWindow):
             if self.assy.filename:
                 dir, fil, ext = fileparse(self.assy.filename)
             else: dir, fil = "./", self.assy.name
+        else:
+            print "MWsemantics.py: fileSaveAs(): Part is Empty - nothing to save"
+            return
 
         sfilter = QString("")   
-        fn = QFileDialog.getSaveFileName(dir,
+        fn = QFileDialog.getSaveFileName(self.assy.filename,
                     "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov)",
-                    self, self.assy.filename,
+                    self, "IDONTKNOWWHATTHISIS",
                     "Save As",
                     sfilter)
         
@@ -266,9 +272,6 @@ class MWsemantics(MainWindow):
             fn = str(fn)
             dir, fil, ext = fileparse(fn)
             ext =str(sfilter[-5:-1]) # Get the file extension from the sfilter.
-
-#            print "MWSematics.py: filename =", dir + fil + ext # Debugging code - Mark
-#            print "MWSematics.py: ext =", ext # Debugging code - Mark
 
             if ext == ".pdb": # Write PDB file.
                 try:
@@ -314,8 +317,9 @@ class MWsemantics(MainWindow):
         fn = QFileDialog.getSaveFileName(dir + fil + ".jpg",
                                          "JPEG images (*.jpg *.jpeg",
                                          self )
-        fn = str(fn)
-        self.glpane.image(fn)
+        if fn:
+            fn = str(fn)
+            self.glpane.image(fn)
 
     def fileExit(self):
         if self.assy.modified:
@@ -351,13 +355,26 @@ class MWsemantics(MainWindow):
         self.update()
 
     def fileSetWorkDir(self):
-	""" Sets working directory (need dialogue window) """
-	## bruce 040928 removed the following typo by Mark --
-        #  does it need to be replaced by some intended change??
-	## modifyAlignToCommonAxismodifyAlignToCommonAxis
-	QMessageBox.warning(self, "ATOM User Notice:",
-	         "This function is not implemented yet, coming soon...")
-
+        """ Sets working directory (need dialogue window) """
+        # Windows Users: .atomrc must be placed in C:\Documents and Settings\[username]\.atomrc
+        # .atomrc contains one line, the Working Directory
+        # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
+        # Mark [2004-10-13]
+        wd = globalParms['WorkingDirectory']
+        wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", "Choose Working Directory", 1 )
+        
+        if wd:
+            wd = str(wd) + "/" # the additional slash needed by Windows
+            globalParms['WorkingDirectory'] = wd
+            self.msgbarLabel.setText( "Working Directory set to " + wd )
+            
+            # Write ~/.atomrc file with new Working Directory
+            rc = os.path.expanduser("~/.atomrc")
+            if os.path.exists(rc):
+                f=open(rc,'w')
+                f.write(wd)
+                f.close()
+        	    
     def __clear(self):
         # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Empty")
@@ -729,15 +746,6 @@ class MWsemantics(MainWindow):
             self.sketchAtomToolbar.hide()
         else:
             self.sketchAtomToolbar.show()
-
-## bruce 040920 -- toggleCookieCutterTbar seems to be obsolete, so I zapped it:
-##    def toggleCookieCutterTbar(self):
-##        print "\n * * * * fyi: toggleCookieCutterTbar() called -- tell bruce since he thinks this will never happen * * * * \n" ####
-##        if self.cookieCutterToolbar.isVisible():
-##            self.cookieCutterToolbar.hide()
-##        else:
-##            self.cookieCutterToolbar.show()
-
 
     ###############################################################
     # functions from the buttons down the right side of the display

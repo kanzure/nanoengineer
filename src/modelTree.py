@@ -104,14 +104,14 @@ class modelTree(QListView):
 
     def select(self, item):
         if not item: return
-        print "MT.py: select(): item.object = ", item.object
+#        print "MT.py: select(): item.object = ", item.object
         self.win.assy.unpickatoms()
         self.win.assy.unpickparts()
         self.win.assy.selwhat = 2
         item.object.pick()
         self.selectedItem = item.object
         self.win.update()
-        print "MT.py: after highlighting: self.selectedItem = ", self.selectedItem
+#        print "MT.py: after highlighting: self.selectedItem = ", self.selectedItem
 
     def menuReq(self, listItem, pos, col):
         """ Context menu items function handler for the Model Tree View """
@@ -190,7 +190,6 @@ class modelTree(QListView):
         self.update()
     
     def modprop(self):
-        print "self.selectedItem = ", self.selectedItem
         if self.selectedItem: self.selectedItem.edit()            
 
     def expand(self):
