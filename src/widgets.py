@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 '''
 widgets.py
 
@@ -10,7 +10,7 @@ $Id$
 '''
 __author__ = "bruce"
 
-from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget
+from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget, QPopupMenu, QAction, SIGNAL
 
 def is_qt_widget(obj):
     return isinstance(obj, QWidget)
@@ -137,5 +137,49 @@ class TogglePrefCheckBox(QCheckBox):
     def initValue(self):
         self.setValue(self.default)
     pass
+
+# ==
+
+# helper for making popup menus from our own "menu specs"
+# consisting of nested lists
+# [moved here from GLPane.py -- bruce 050112]
+# [should replace the one in modelTree with this one]
+
+def makemenu_helper(self, lis):
+    """make and return a reusable popup menu from lis,
+    which gives pairs of command names and callables,
+    or None for a separator.
+    New feature [bruce 041010]:
+    the "callable" can instead be a QPopupMenu object,
+    or [bruce 041103] a list
+    (indicating a menu spec like our 'lis' argument),
+    to be used as a submenu.
+       The 'self' argument should be the Qt widget
+    which is using this function to put up a menu.
+    """
+    # bruce 040909-16 moved this method from basicMode to GLPane,
+    # leaving a delegator for it in basicMode.
+    # (bruce was not the original author, but modified it)
+    win = self #e misnamed, should probably be widget #k
+    menu = QPopupMenu(win)
+    for m in lis:
+        if m and isinstance(m[1], QPopupMenu): #bruce 041010 added this case
+            submenu = m[1]
+            menu.insertItem( win.trUtf8(m[0]), submenu )
+                # (similar code might work for QAction case too, not sure)
+        elif m and isinstance(m[1], type([])): #bruce 041103 added this case
+            submenu = makemenu_helper(win, m[1]) # [used to call self.makemenu]
+            menu.insertItem( win.trUtf8(m[0]), submenu )
+        elif m:
+            assert callable(m[1]), \
+                "%r[1] needs to be a callable" % (m,) #bruce 041103
+            act = QAction(win,m[0]+'Action')
+            act.setText(win.trUtf8(m[0]))
+            act.setMenuText(win.trUtf8(m[0]))
+            act.addTo(menu)
+            win.connect(act, SIGNAL("activated()"), m[1])
+        else:
+            menu.insertSeparator()
+    return menu
 
 # end

@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 GLPane.py -- Atom's main model view, based on Qt's OpenGL widget.
 
@@ -43,6 +43,8 @@ from povheader import povheader
 
 from fileIO import *
 from HistoryWidget import greenmsg, redmsg
+from platform import fix_buttons_helper
+from widgets import makemenu_helper
 
 paneno = 0
 #  ... what a Pane ...
@@ -345,110 +347,9 @@ class GLPane(QGLWidget, modeMixin):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-    _saved_buttons = 0
+    _saved_buttons = 0 # needed by fix_buttons_helper
     def fix_buttons(self, but, when):
-        
-        """Every mouse event's button and modifier key flags should be
-        filtered through this method, which does two things: 1. Store
-        those flags from a mouse-press, and reuse them on the
-        subsequent mouse-drag and mouse-release events (but not on
-        pure mouse-moves), so the caller can just switch on the flags
-        to process the event, and will always call properly paired
-        begin/end routines (this matters if the user releases or
-        presses a modifier key during the middle of a drag; it's
-        common to release a mod key then); 2. On the Mac, remap
-        Option/leftButton to middleButton, so that the Option key
-        (also called the Alt key) simulates the middle mouse button.
-        (Note that Qt/Mac, by default, lets Control key simulate
-        rightButton and remaps Command key to the same flag we call
-        cntlButton; we like this and don't change it here.)
-        """
-        
-        # [by bruce, 040917. At time of commit,
-        # tested only on Mac with one-button mouse.]
-        
-        allButtons = (leftButton|midButton|rightButton)
-        allModKeys = (shiftButton|cntlButton|altButton)
-        allFlags = (allButtons|allModKeys)
-        _debug = 0 # set this to 1 to see some debugging messages
-        if when == 'move' and (but & allButtons):
-            when = 'drag'
-        assert when in ['move','press','drag','release']
-        
-        # 1. bugfix: make mod keys during drag and button-release the
-        # same as on the initial button-press.  Do the same with mouse
-        # buttons, if they change during a single drag (though I hope
-        # that will be rare).  Do all this before remapping the
-        # modkey/mousebutton combinations in part 2 below!
-        
-        if when == 'press':
-            self._saved_buttons = but & allFlags
-            # we'll reuse this button/modkey state during the same
-            # drag and release
-            if _debug and self._saved_buttons != but:
-                print "fyi, debug: fix_buttons: some event flags unsaved: %d - %d = 0x%x" % (but, self._saved_buttons, but - self._saved_buttons)
-                # fyi: on Mac I once got 2050 - 2 = 0x800 from this statement;
-                # don't know what flag 0x800 means; shouldn't be a problem
-        elif when in ['drag','release']:
-            if (self._saved_buttons & allButtons):
-                but0 = but
-                but &= ~allFlags
-                but |= self._saved_buttons
-                # restore the modkeys and mousebuttons from the mousepress
-                if _debug and but0 != but:
-                    print "fyi, debug: fix_buttons rewrote but0 0x%x to but 0x%x" % (but0, but) #works
-            else:
-                
-                # fyi: This case might happen in the following rare
-                # and weird situation: - the user presses another
-                # mousebutton during a drag, then releases the first
-                # one, still in the drag; - Qt responds to this by
-                # emitting two mouseReleases in a row, one for each
-                # released button.  (I don't know if it does this;
-                # testing it requires a 3-button mouse, but the one I
-                # own is unreliable.)
-                #
-                # In that case, this code might make some sense of
-                # this, but it's not worth analyzing exactly what it
-                # does for now.
-                #
-                # If Qt instead suppresses the first mouseRelease
-                #until all buttons are up (as I hope), this case never
-                #happens; instead the above code pretends the same
-                #mouse button was down during the entire drag.
-                
-                print "warning: Qt gave us two mouseReleases without a mousePress; ignoring this if we can, but it might cause bugs"
-                pass # don't modify 'but'
-        else:
-            pass # pure move (no mouse buttons down):
-                 #  don't revise the event flags
-        if when == 'release':
-            self._saved_buttons = 0
-        
-        # 2. let the Mac's Alt/Option mod key simulate middle mouse button.
-        if sys.platform in ['darwin']:
-            
-### please try adding your platform here, and tell me whether it
-### breaks anything... see below.
-            
-            # As of 040916 this hasn't been tested on other platforms,
-            # so I used sys.platform to limit it to the Mac.  Note
-            # that sys.platform is 'darwin' for my MacPython 2.3 and
-            # Fink python 2.3 installs, but might be 'mac' or
-            # 'macintosh' or so for some other Macintosh Pythons. When
-            # we find out, we should add those to the above list.  As
-            # for non-Mac platforms, what I think this code would do
-            # (if they were added to the above list) is either
-            # nothing, or remap some other modifier key (different
-            # than Shift or Control) to middleButton.  If it does the
-            # latter, maybe we'll decide that's good (for users with
-            # less than 3 mouse buttons) and document it.
-            
-            # -- bruce 040916-17
-            
-            if (but & altButton) and (but & leftButton):
-                but = but - altButton - leftButton + midButton
-        return but
+        return fix_buttons_helper(self, but, when)
 
     def mouseDoubleClickEvent(self, event):
         self.debug_event(event, 'mouseDoubleClickEvent')
@@ -818,38 +719,7 @@ class GLPane(QGLWidget, modeMixin):
         return "<GLPane " + self.name + ">"
 
     def makemenu(self, lis):
-        # bruce 040909-16 moved this method from basicMode to GLPane,
-        # leaving a delegator for it in basicMode.
-        """make and return a reusable popup menu from lis,
-        which gives pairs of command names and callables,
-        or None for a separator.
-        New feature [bruce 041010]:
-        the "callable" can instead be a QPopupMenu object,
-        or [bruce 041103] a list
-        (indicating a menu spec like our 'lis' argument),
-        to be used as a submenu.
-        """
-        win = self
-        menu = QPopupMenu(win)
-        for m in lis:
-            if m and isinstance(m[1], QPopupMenu): #bruce 041010 added this case
-                submenu = m[1]
-                menu.insertItem( win.trUtf8(m[0]), submenu )
-                    # (similar code might work for QAction case too, not sure)
-            elif m and isinstance(m[1], type([])): #bruce 041103 added this case
-                submenu = self.makemenu(m[1])
-                menu.insertItem( win.trUtf8(m[0]), submenu )
-            elif m:
-                assert callable(m[1]), \
-                    "%r[1] needs to be a callable" % (m,) #bruce 041103
-                act = QAction(win,m[0]+'Action')
-                act.setText(win.trUtf8(m[0]))
-                act.setMenuText(win.trUtf8(m[0]))
-                act.addTo(menu)
-                win.connect(act, SIGNAL("activated()"), m[1])
-            else:
-                menu.insertSeparator()
-        return menu
+        return makemenu_helper(self, lis)
 
     def debug_menu_items(self):
         import debug

@@ -8,9 +8,11 @@ but mainly is here since it had no better place to live.
 
 $Id$
 """
+__author__ = "bruce"
 
 import sys, os, time
 from qt import Qt
+from constants import * # e.g. for leftButton
 
 # file utilities
 
@@ -104,6 +106,131 @@ def middle_button_prefix():
         return "Middle" # refers to middle mouse button
     pass
 
+# helpers for processing modifiers on mouse events
+# [moved here from GLPane.py -- bruce 050112]
+
+def fix_buttons_helper(self, but, when):
+    """
+    Every mouse event's button and modifier key flags should be
+    filtered through this method (actually just a function).
+
+    Arguments:
+    - self can be the client object; we use it only for storing state
+      between calls, namely, self._saved_buttons.
+      The caller should init it to 0 [#e fix this].
+    - 'but' should be the flags from event.stateAfter() or perhaps
+      event.state() ###k ###doc more
+    - 'when' should be ###doc
+
+    Returns: a new version of 'but' which is simpler to use correctly
+    (as described below).
+       
+    This "method helper function" does two things:
+
+    1. Store those flags from a mouse-press, and reuse them on the
+    subsequent mouse-drag and mouse-release events (but not on
+    pure mouse-moves), so the caller can just switch on the flags
+    to process the event, and will always call properly paired
+    begin/end routines (this matters if the user releases or
+    presses a modifier key during the middle of a drag; it's
+    common to release a mod key then);
+
+    2. On the Mac, remap
+    Option+leftButton to middleButton, so that the Option key
+    (also called the Alt key) simulates the middle mouse button.
+    (Note that Qt/Mac, by default, lets Control key simulate
+    rightButton and remaps Command key to the same flag we call
+    cntlButton; we like this and don't change it here.)
+    """
+    # [by bruce, 040917 (in GLPane.py). At time of commit,
+    # tested only on Mac with one-button mouse.]
+    
+    allButtons = (leftButton|midButton|rightButton)
+    allModKeys = (shiftButton|cntlButton|altButton)
+    allFlags = (allButtons|allModKeys)
+    _debug = 0 # set this to 1 to see some debugging messages
+    if when == 'move' and (but & allButtons):
+        when = 'drag'
+    assert when in ['move','press','drag','release']
+    
+    # 1. bugfix: make mod keys during drag and button-release the
+    # same as on the initial button-press.  Do the same with mouse
+    # buttons, if they change during a single drag (though I hope
+    # that will be rare).  Do all this before remapping the
+    # modkey/mousebutton combinations in part 2 below!
+    
+    if when == 'press':
+        self._saved_buttons = but & allFlags
+        # we'll reuse this button/modkey state during the same
+        # drag and release
+        if _debug and self._saved_buttons != but:
+            print "fyi, debug: fix_buttons: some event flags unsaved: %d - %d = 0x%x" % (but, self._saved_buttons, but - self._saved_buttons)
+            # fyi: on Mac I once got 2050 - 2 = 0x800 from this statement;
+            # don't know what flag 0x800 means; shouldn't be a problem
+    elif when in ['drag','release']:
+        if (self._saved_buttons & allButtons):
+            but0 = but
+            but &= ~allFlags
+            but |= self._saved_buttons
+            # restore the modkeys and mousebuttons from the mousepress
+            if _debug and but0 != but:
+                print "fyi, debug: fix_buttons rewrote but0 0x%x to but 0x%x" % (but0, but) #works
+        else:
+            
+            # fyi: This case might happen in the following rare
+            # and weird situation: - the user presses another
+            # mousebutton during a drag, then releases the first
+            # one, still in the drag; - Qt responds to this by
+            # emitting two mouseReleases in a row, one for each
+            # released button.  (I don't know if it does this;
+            # testing it requires a 3-button mouse, but the one I
+            # own is unreliable.)
+            #
+            # In that case, this code might make some sense of
+            # this, but it's not worth analyzing exactly what it
+            # does for now.
+            #
+            # If Qt instead suppresses the first mouseRelease
+            #until all buttons are up (as I hope), this case never
+            #happens; instead the above code pretends the same
+            #mouse button was down during the entire drag.
+            
+            print "warning: Qt gave us two mouseReleases without a mousePress; ignoring this if we can, but it might cause bugs"
+            pass # don't modify 'but'
+    else:
+        pass # pure move (no mouse buttons down):
+             #  don't revise the event flags
+    if when == 'release':
+        self._saved_buttons = 0
+    
+    # 2. let the Mac's Alt/Option mod key simulate middle mouse button.
+    if sys.platform in ['darwin']:
+        
+### please try adding your platform here, and tell me whether it
+### breaks anything... see below.
+        
+        # As of 040916 this hasn't been tested on other platforms,
+        # so I used sys.platform to limit it to the Mac.  Note
+        # that sys.platform is 'darwin' for my MacPython 2.3 and
+        # Fink python 2.3 installs, but might be 'mac' or
+        # 'macintosh' or so for some other Macintosh Pythons. When
+        # we find out, we should add those to the above list.  As
+        # for non-Mac platforms, what I think this code would do
+        # (if they were added to the above list) is either
+        # nothing, or remap some other modifier key (different
+        # than Shift or Control) to middleButton.  If it does the
+        # latter, maybe we'll decide that's good (for users with
+        # less than 3 mouse buttons) and document it.
+        
+        # -- bruce 040916-17
+        
+        if (but & altButton) and (but & leftButton):
+            but = but - altButton - leftButton + midButton
+    return but
+
+# ===
+
+# Finding or making special directories and files (e.g. in user's homedir):
 
 # code which contains hardcoded filenames in the user's homedir, etc
 # (moved into this module from MWsemantics.py by bruce 050104,
@@ -192,6 +319,10 @@ def make_history_filename():
         continue
     pass
 
+# ===
+
+# atom_debug variable:
+
 # When we start, figure out whether user wants to enable general debugging code
 # which turns on extra internal error checking (perhaps slowing down the code).
 # There is no need to document this, since it is intended for developers familiar
@@ -213,6 +344,10 @@ except:
     atom_debug = not not atom_debug
 if atom_debug:
     print "fyi: user has requested ATOM_DEBUG feature; extra debugging code enabled; might be slower"
+
+# ===
+
+# user-message helpers:
 
 # here are some functions involving user messages, which don't really belong in
 # this file, but there is not yet a better place for them. [bruce 041018]
