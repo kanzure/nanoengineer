@@ -750,10 +750,12 @@ class MWsemantics(MainWindow):
 
     def selectInvert(self):
         """If some parts are selected, select the other parts instead.
-        If some atoms are selected, select all currently unselected
-        atoms in parts in which there are currently some selected atoms.
-        (And unselect all currently selected atoms.)
+        If some atoms are selected, select the other atoms instead
+        (even in chunks with no atoms selected, which end up with
+        all atoms selected). (And unselect all currently selected
+        parts or atoms.)
         """
+        # assy method revised by bruce 041217 after discussion with Josh
         self.assy.selectInvert()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 

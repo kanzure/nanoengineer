@@ -290,21 +290,21 @@ class assembly:
 
     def selectInvert(self):
         """If some parts are selected, select the other parts instead.
-        If some atoms are selected, select all currently unselected
-        atoms in parts in which there are currently some selected atoms.
-        (And unselect all currently selected atoms.)
+        If some atoms are selected, select the other atoms instead
+        (even in chunks with no atoms selected, which end up with
+        all atoms selected). (And unselect all currently selected
+        parts or atoms.)
         """
+        # revised by bruce 041217 after discussion with Josh;
+        # previous version inverted selatoms only in chunks with
+        # some selected atoms.
         if self.selwhat:
-            mollist = []
-            for m in self.molecules:
-                if m not in self.selmols: mollist.append(m)
+            newpicked = filter( lambda m: not m.picked, self.molecules )
             self.unpickparts()
-            for m in mollist: m.pick()
+            for m in newpicked:
+                m.pick()
         else:
-            mollist = []
-            for a in self.selatoms.itervalues():
-                if a.molecule not in mollist: mollist.append(a.molecule)
-            for m in mollist:
+            for m in self.molecules:
                 for a in m.atoms.itervalues():
                     if a.picked: a.unpick()
                     else: a.pick()
