@@ -1,44 +1,38 @@
-nanoENGINEER-1™ v0.0.4 (Alpha 4)
+nanoENGINEER-1™ v0.0.5 (Alpha 5)
 
 
-Bug Fixes In Alpha 4 
+Bug Fixes In Alpha 5
 
-* Bug #130: ‘Hydrogenate’ adds hydrogen atoms to all open bonds above waterline in Build mode. Thus, its implementation is different than Dehydrogenate and Passivate in that mode (these two work only on a selection). Now, in Build mode, Hydrogenate is implemented in such a way that it works only when the chunk is selected. 
+* Bug #371
 
-* Bug #360 (item 8): Single cut operation for multiple selected objects places copies of only alternate objects into the clipboard.
+* Bug # 433 errors/bugs when a blank PDB file is inserted into any open file using File->Insert.
 
-* Bug #381: Deleting a group (by selecting it in the Model Tree and pressing the Delete key) appears to delete the selected chunks, but they can still be available in Extrude mode. 
-
-* Bug #386 (item 2): File->Close operation after minimizing an opened model closes the file without saving changes due to minimize(and without prompting the user to save the changes made after minimization)
-
-* About nanoENGINEER-1 dialog background now displays the proper metallic/aqua color on MacOSX.
+* Bug #
 
 
 Unsupported Features:
 
 1. Undo/Redo not implemented. 
 
-2. Cannot change color of individual atoms.(189)
+2. Can not move, translate or rotate a chunk by editing its coordinates or providing an x, y, z offset. (9)
 
-3. Can not move, translate or rotate a chunk by editing its coordinates or providing an x, y, z offset. (9)
+3. Points, lines, and planes are not implemented yet. (47) 
 
-4. Points, lines, and planes are not implemented yet. (47) 
+4. Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. 
 
-5. Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. 
+5. The 'Clipboard' has limitations and some bugs. 
 
-6. The 'Clipboard' has limitations and some bugs. 
+6. Do not drag and drop anything between the model tree and the clipboard. 
 
-7. Do not drag and drop anything between the model tree and the clipboard. 
+7. The symmetry information for a selected chunk cannot be obtained. (261)
 
-8. The symmetry information for a selected chunk cannot be obtained. (261)
+8. sp and sp2 bonds are not supported.
 
-9. sp and sp2 bonds are not supported.
+9. Aromatic bonds are not supported.
 
-10. Aromatic bonds are not supported.
+10. Bonds are not selectable.
 
-11. Bonds are not selectable.
-
-12. Linear motors are not supported by the simulator. (393) 
+11. Linear motors are not supported by the simulator. (393) 
 
 
 Known Bugs (All Platforms)
@@ -67,9 +61,7 @@ Known Bugs (All Platforms)
 
 12. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. nanoENGINEER-1 doesn't give any warning message for users trying to save such features in a .pdb file. (252)
 
-13. There is a display bug associated with a cut operation on a chunk. It stretches the inter-chunk bond and keeps bonded portion of cut chunk visible. If this happens, select the visible chunk and use "Delete Bonds" to remove the bonds between the two chunks. (371) 
-
-14. Extrude Tool: The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
+13. Extrude Tool: The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
 
 -- Get everything adjusted first in the 'rod mode'. For example, adjust the number of copies (N), check boxes on the dashboard about the final product and the way you want bonding between chunks to form. 
 
@@ -79,58 +71,53 @@ Known Bugs (All Platforms)
 
 -- Select the 'Done' button on the dashboard when finished. (155) 
 
-15. Extrude Tool: Multple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
+14. Extrude Tool: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
 
-16. When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
+15. When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
 
-17. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at www.nanorex.com/mmpformat.htm
+16. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at www.nanorex.com/mmpformat.htm
 
-18. Rotary and Linear motors do not move with the chunks they are attached to. (168) 
+17. Rotary and Linear motors do not move with the chunks they are attached to. (168) 
 
-19. Cannot select a jig (i.e. motor, ground, thermostat or thermometer) in the graphics area. Jigs may only be selected via the model tree. (6) 
+18. Cannot select a jig (i.e. motor, ground, thermostat or thermometer) in the graphics area. Jigs may only be selected via the model tree. (6) 
 
-20. "Select Doubly" can often take a long time to complete. (102)
+19. "Select Doubly" can often take a long time to complete. (102)
 
-21. Middle mouse button "Hint Cursors" can sometimes get stuck on. Pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
+20. Middle mouse button "Hint Cursors" can sometimes get stuck on. Pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
 
-22. Build Mode: The skull and crossbones cursor will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
+21. Build Mode: The skull and crossbones cursor will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
 
-23. Cookie Mode: Changing views (Front, Top, Right, etc.) and then making a selection does not select properly. (236, 277) 
+22. Cookie Mode: Changing views (Front, Top, Right, etc.) and then making a selection does not select properly. (236, 277) 
 
-24. Cookie Mode: The thickness of the current layer does not change once selection has started, even though the thickness can be changed on the dashboard. (167)
+23. Cookie Mode: The thickness of the current layer does not change once selection has started, even though the thickness can be changed on the dashboard. (167)
 
-25. Cookie Mode: When adding a new layer, there is no visual cue indicating a new layer has started. (281) 
+24. Cookie Mode: When adding a new layer, there is no visual clue indicating a new layer has started. (281) 
 
-26. Cookie Mode: Large selections can cause response latency. (8)
+25. Cookie Mode: Large selections can cause response latency. (8)
 
-27. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+26. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
 
-28. Movie Player: If you immediately select the Movie Player after Minimize, you will get the error message "Movie file [/homedir/Nanorex/sim-PID#.xyz] not valid for the current part". 
+27. Movie Player: If you immediately select the Movie Player after Minimize, you will get the error message "Movie file [/homedir/Nanorex/sim-PID#.xyz] not valid for the current part". 
 
-29. Simulator: The parameters in the simulator always reset to 900 frames, 10 steps per frame and 300K rather than the last parameters entered from the previous simulation run.
+28. Simulator: The parameters in the simulator always reset to 900 frames, 10 steps per frame and 300K rather than the last parameters entered from the previous simulation run.
 
-30. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+29. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
-31. There are some bugs that occur when a blank PDB file is inserted into any open file using File->Insert. Therefore, avoid inserting a blank PDB file. (433) 
+30. Hydrogenate/Dehydrogenate/Passivate work for clipboard objects (411)
 
-32. Hydrogenate/Dehydrogenate/Passivate work for clipboard objects (411)
+31. Simulator: in some cases, open bonds ‘fly away’ from the elements while running a simulation movie. (254) 
 
-33. Simulator: in some cases, open bonds ‘fly away’ from the elements while running a simulation movie. (254) 
+32. Minimize: Large values written to the MMP (or to the generated XYZ) file after minimizing a model containing overlapped open bonds or excessively stretched bonds (422)
 
-34. Minimize: Large values written to the MMP (or to the generated XYZ) file after minimizing a model containing overlapped open bonds or excessively stretched bonds (422)
+33. Some bugs occur if one tries to play an invalid movie file for a part. This may result in loss of data. Therefore, do not try to play a movie file that is invalid for the opened part. (384) 
 
+34. Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
 
-35. Some bugs occur if one tries to play an invalid movie file for a part. This may result in loss of data. Therefore, do not try to play a movie file that is invalid for the opened part. (384) 
+35.  In the Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
 
-36. Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
+36. Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
 
-37.  In the Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
-
-38. Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
-
-39. Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
-
-
+37. Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
 
 
 Windows Only Bugs
