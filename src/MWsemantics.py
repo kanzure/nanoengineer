@@ -272,13 +272,16 @@ class MWsemantics(MainWindow):
         if self.assy:
             if self.assy.filename:
                 dir, fil, ext = fileparse(self.assy.filename)
-            else: dir, fil = "./", self.assy.name
+                sdir = self.assy.filename
+            else: 
+                dir, fil = "./", self.assy.name
+                sdir = globalParms['WorkingDirectory']
         else:
             print "MWsemantics.py: fileSaveAs(): Part is Empty - nothing to save"
             return
 
         sfilter = QString("")   
-        fn = QFileDialog.getSaveFileName(self.assy.filename,
+        fn = QFileDialog.getSaveFileName(sdir,
                     "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov);;JPEG (*.jpg)",
                     self, "IDONTKNOWWHATTHISIS",
                     "Save As",
@@ -897,7 +900,7 @@ class MWsemantics(MainWindow):
     def toolsMovie(self):
         if not self.assy.filename: self.assy.filename="simulate.mmp"
         dir, fil, ext = fileparse(self.assy.filename)
-        print "playing", dir+fil+'.dpb'
+#        print "playing", dir+fil+'.dpb'
         self.glpane.startmovie(dir+fil+'.dpb')
 
     
