@@ -206,6 +206,9 @@ class modelTree(QListView):
             self.selectedItem = listItem.object
             sdaddy = self.selectedItem.whosurdaddy()
             if sdaddy in ["ROOT","Data"]: 
+                # This conditional should change.  There has to be a better check.
+                # We get the partmenu if another object has the same name as the assy.
+                # Mark 041225 (Merry Xmas!)
                 if self.selectedItem.name == self.assy.name: 
                     self.partmenu.popup(pos, 1)
                 return
@@ -213,9 +216,10 @@ class modelTree(QListView):
             self.selectedItem = None
             return
         
-        # Figure out which menu to display
-        treepicked = self.assy.tree.nodespicked()
-        clippicked = self.assy.shelf.nodespicked()
+        # Figure out which menu to display 
+        # (This is kludgy - meant to be a quick fix for Alpha) - Mark
+        treepicked = self.assy.tree.nodespicked() #Number of nodes picked in the MT
+        clippicked = self.assy.shelf.nodespicked() #Number of nodes picked in the clipboard
 #        print "MT.menuReq: selectedItem = ",self.selectedItem
 #        print "treepicked =",treepicked,", clippicked =",clippicked
         if treepicked == 0 and clippicked == 0: return ###@@@ why == 0? are these numbers??? bools?
@@ -226,15 +230,16 @@ class modelTree(QListView):
 
     def changename(self, listItem, col, text):
         if col != 0: return
-        self.assy.modified = 1
-        
+
         # Huaicai: the following line to make sure file name is not just space
         text = text.stripWhiteSpace()
         
         # Check if there is text for the listitem's name.  If not, we must force an MT update.
         # Otherwise, the name will remain blank until the next MT update.
         # Mark [04-12-07]
-        if text: listItem.object.name = str(text)
+        if text: 
+            listItem.object.name = str(text)
+            self.assy.modified = 1
         else: self.update() # Force MT update.
 
     def beginrename(self, item, pos, col):
@@ -272,7 +277,7 @@ class modelTree(QListView):
 #            print "Source selected item:", self.selectedItem,", sdaddy: ", sdaddy
 #            print "Target drop item:", droptarget.object,", tdaddy: ", tdaddy
             if sdaddy == "Data": return # selected item is in the Data group.  Do nothing.
-            if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.#    
+            if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.    
             if isinstance(droptarget.object, Group): above = True # If drop target is a Group
             self.selectedItem.moveto(droptarget.object, above)
 #            if sdaddy != tdaddy: 
