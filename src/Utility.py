@@ -88,7 +88,7 @@ class Node:
         print depth*"...", self.name
 
     def writemmp(self, atnums, alist, f):
-        f.write(repr(self))
+        f.write(self.__repr__(atnums))
         
     def draw(self, o, dispdef):
         pass

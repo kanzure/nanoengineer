@@ -75,8 +75,6 @@ class motor(Node):
             guess = map(cross, relpos[:-1], relpos[1:])
             guess = map(lambda x: sign(dot(los,x))*x, guess)
             self.axis=norm(sum(guess))
-        print self.center
-        print self.axis
         self.edit()
 
     def edit(self):
@@ -120,15 +118,15 @@ class motor(Node):
         cxyz=self.posn() * 1000
         axyz=self.axen() * 1000
         col=map(int,A(self.col)*255)
-        s="rmotor (%s) (%d, %d, %d) %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
-           (self.name, col, self.torque, self.speed,
+        s="rmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d)\n" %\
+           (self.name, col[0], col[1], col[2], self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]))
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
             nums = map((lambda a: a.key), self.atoms)
-        return s + "shaft " + " ".join(map(str,nums))
+        return s + "shaft " + " ".join(map(str,nums)) + "\n"
 
 # note: the other gadgets must be updated to handle colors like rmotor
 
@@ -258,7 +256,7 @@ class LinearMotor(Node):
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
             nums = map((lambda a: a.key), self.atoms)
-        return s + "shaft " + " ".join(map(str, nums))
+        return s + "shaft " + " ".join(map(str, nums)) + "\n"
 
 # a ground just has a list of atoms
 class ground(Node):
@@ -309,4 +307,4 @@ class ground(Node):
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
             nums = map((lambda a: a.key), self.atoms)
-        return "ground (" + self.name + ") ".join(map(str,nums))
+        return "ground (" + self.name + ") ".join(map(str,nums)) + "\n"
