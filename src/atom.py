@@ -45,7 +45,7 @@ if __name__=='__main__':
         print """exception in execfile(%r); traceback printed to stderr or console; exiting""" % (rc,)
         raise
 
-from qt import QApplication, SIGNAL
+from qt import QApplication, SIGNAL, QRect, QDesktopWidget
 
 from constants import *
 
@@ -58,11 +58,11 @@ if __name__=='__main__':
     # the default (1000) bombs with large molecules
     sys.setrecursionlimit(5000)
 
-    # Windows Users: .atomrc must be placed in C:\Documents and Settings\[username]\.atomrc
-    # .atomrc contains one line, the Working Directory
+    # Windows Users: .ne1rc must be placed in C:\Documents and Settings\[username]\.ne1rc
+    # .ne1rc contains one line, the Working Directory
     # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
     
-    rc = os.path.expanduser("~/.atomrc")
+    rc = os.path.expanduser("~/.ne1rc")
     if os.path.exists(rc):
         f=open(rc,'r')
         globalParms['WorkingDirectory'] = os.path.normpath(f.readline())
@@ -82,8 +82,26 @@ if __name__=='__main__':
     else:
         meth()
 
-    # show the main window
-    foo.show()
+    # Determine the screen resolution and compute the normal window size for NE-1
+    
+    # Create desktop widget to obtain screen resolution
+    dtop=QDesktopWidget()
+    screensize = QRect (dtop.screenGeometry (0))
+#    print "Screen resolution = ",screensize.width(),"x",screensize.height()
+    
+    # Determine normal window size
+    normw = int (max (780, screensize.width()*.8))
+    normh = int (max (560, screensize.height()*.9))
+
+    # Set the main window geometry, then show the window maximized for full screen
+    foo.setGeometry(QRect(0,32,normw,normh))   # Set normal window origin and size
+#    foo.setGeometry(QRect(600,50,1000,800)) # KEEP FOR DEBUGGING
+    foo.showMaximized() # Show full screen
+    
+    # This is debugging code used to find out the origin and size of the fullscreen window
+#    fooge = QRect(foo.geometry())
+#    print "Window origin = ",fooge.left(),",",fooge.top()
+#    print "Window width =",fooge.width(),", Window height =",fooge.height()
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
