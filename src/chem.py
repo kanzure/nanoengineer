@@ -311,13 +311,27 @@ class atom:
 
     def draw(self, win, dispdef, col, level):
         """draw the atom depending on whether it is picked
-        and its (possibly inherited) display mode
+        and its (possibly inherited) display mode.
         An atom's display mode overrides the inherited one from
         the molecule, but a molecule's color overrides the atom's
         element-dependent one
         """
         color = col or self.element.color
         disp, rad = self.howdraw(dispdef)
+        if self == win.selatom: # bruce 041104 bugfix for bug#45
+            if self.element == Singlet:
+                color = LEDon
+            else:
+                color = orange
+            if disp not in [diVDW, diCPK, diTUBES]:
+                disp = diTUBES # Make sure selatom always gets drawn.
+                # This is correct even if the atom is invisible, since if
+                # depositMode stored it into win.selatom, then it will act
+                # on it when you click, so we should light it up to indicate
+                # that. If depositMode wants to not light up invisible atoms,
+                # or wants the choice of visible display mode to influence that,
+                # all it needs to do is not store them in win.selatom (which
+                # it also needs to do to avoid acting on them). [bruce 041104]
         # note use of basepos since it's being drawn under
         # rotation/translation of molecule
         pos = self.molecule.basepos[self.index]
