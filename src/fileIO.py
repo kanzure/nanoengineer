@@ -790,7 +790,7 @@ def writemovie(assy, mflag = False):
     # We always save the current part to an MMP file.  In the future, we may want to check
     # if assy.filename is an MMP file and use it if not assy.has_changed().
     mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
-    traceFile = "-q"+ os.path.join(assy.w.tmpFilePath, "sim-%d.trace.txt" % pid)    
+    traceFile = "-q"+ os.path.join(assy.w.tmpFilePath, "sim-%d-trace.txt" % pid)    
 
     # filePath = the current directory NE-1 is running from.
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -925,7 +925,8 @@ def writemovie(assy, mflag = False):
     except: # We had an exception.
         print_compact_traceback("exception in simulation; continuing: ")
         if simProcess:
-            simProcess.tryTerminate()
+            #simProcess.tryTerminate()
+	    simProcess.kill()
             simProcess = None
         r = -1 # simulator failure
         
@@ -942,8 +943,9 @@ def writemovie(assy, mflag = False):
         ## can do whatever clean up it requires. If the process
         ## is still running after 2 seconds (a kludge). it terminates the 
         ## process the hard way.
-        simProcess.tryTerminate()
-        QTimer.singleShot( 2000, simProcess, SLOT('kill()') )
+        #simProcess.tryTerminate()
+        #QTimer.singleShot( 2000, simProcess, SLOT('kill()') )
+        simProcess.kill()
         
     else: # Something failed...
         msg = redmsg("Simulation failed: exit code %r " % r)
