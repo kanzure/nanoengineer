@@ -16,6 +16,7 @@ from qt import Qt, qApp, QApplication, QCursor, SIGNAL
 
 FWD = 1
 REV = -1
+DEBUG = 0
 
 playDirection = { FWD : "Forward", REV : "Reverse" }
 
@@ -71,7 +72,8 @@ class Movie:
     def _setup(self):
         """Setup this movie for playing
         """
-#        print "movie._setup() called"
+        if DEBUG: print "movie._setup() called"
+        
         if not os.path.exists(self.filename): 
             self.assy.w.history.message("Cannot play movie file [" + self.filename + "]. It does not exist.")
             return
@@ -130,8 +132,9 @@ class Movie:
     def _play(self, direction = FWD):
         """Start playing movie from the current frame.
         """
-#        print "movie._play() called"
         self.playDirection = direction
+        
+        if DEBUG: print "movie._play() called.  Direction = ", playDirection[ self.playDirection ]
         
         if self.currentFrame == 0: 
             self.assy.w.history.message("Playing movie file [" + self.assy.m.filename + "]")
@@ -143,7 +146,8 @@ class Movie:
         """Continue playing movie from current position.
         hflag - if True, print history message
         """
-#        print "movie._continue() called"
+        if DEBUG: print "movie._continue() called. Direction = ", playDirection[ self.playDirection ]
+        
         # In case the movie is playing
         # This is temporary.  I intend to 
         self._pause(0) 
@@ -160,7 +164,7 @@ class Movie:
         """Pause movie.
         hflag - if True, print history message
         """
-#        print "movie._pause() called"
+        if DEBUG: print "movie._pause() called"
         self.isPaused = True
         self.showEachFrame = False
         self.moveToEnd = False
@@ -179,7 +183,7 @@ class Movie:
         fnum - frame number to play to in the movie.
         """
 
-#        print "movie._playFrame() called: fnum = ", fnum, ", currentFrame =", self.currentFrame
+        if DEBUG: print "movie._playFrame() called: fnum = ", fnum, ", currentFrame =", self.currentFrame
 
         self.isPaused = False
         
@@ -188,7 +192,7 @@ class Movie:
             self.isPaused = True # May not be needed.  Doing it anyway.
             return
            
-        # Reset to movie to beginning (frame 0).  Executed when user types 0 in spinbox.
+        # Reset movie to beginning (frame 0).  Executed when user types 0 in spinbox.
         if not self.showEachFrame and fnum == 0: 
             self._reset()
             return
@@ -209,19 +213,21 @@ class Movie:
                 if fadv > 1000:
                     self.waitCursor = True
                     QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-                    self.assy.w.history.message(playDirection[ inc ] + "ing to frame " + str(fnum) + ".  You make select Pause at any time.")
+                    self.assy.w.history.message(playDirection[ inc ] + "ing to frame " + str(fnum) + ".  You may select Pause at any time.")
                 else:
                     self.assy.w.history.message(playDirection[ inc ] + " to frame " + str(fnum))
             
-#        print "BEGIN LOOP: fnum = ", fnum, ", currentFrame =", self.currentFrame, ", inc =",inc
+        if DEBUG: print "BEGIN LOOP: fnum = ", fnum, ", currentFrame =", self.currentFrame, ", inc =",inc
     
         # This is the main loop to compute atom positions from the current frame to "fnum"
         # After this loop completes, we paint the model.
         while self.currentFrame != fnum:
 
+            if self.isPaused: break
+                
             self.currentFrame += inc
 
-#            print "IN LOOP1: fnum = ", fnum, ", currentFrame =", self.currentFrame, ", inc =",inc
+            if DEBUG: print "IN LOOP1: fnum = ", fnum, ", currentFrame =", self.currentFrame, ", inc =",inc
 
             # Forward one frame
             if inc == FWD:
@@ -248,6 +254,7 @@ class Movie:
 #                print msg
 
                 self.assy.movatoms(self.fileobj, 0)
+                self.fileobj.seek( filepos ) # reset the file position in case we play forward next time.
             
             # update the GLPane and dashboard widgets each frame
             if self.showEachFrame:
@@ -267,9 +274,9 @@ class Movie:
                 self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
             
             # Pause was pressed while playing movie.    
-            if self.isPaused: 
-#                print "movie._playFrame(): INSIDE LOOP. Movie is paused.  Exiting loop."
-                break
+#            if self.isPaused: 
+#                if DEBUG: print "movie._playFrame(): INSIDE LOOP. Movie is paused.  Exiting loop."
+#                break
             
             # Process queued events
             qApp.processEvents() 
@@ -277,7 +284,6 @@ class Movie:
         # End of loop
         
         # if we just played in reverse, reset the file position in case we play forward next time.
-        if inc == REV: self.fileobj.seek( filepos )
         
         # Update cursor, slider and show frame.
         if self.waitCursor: 
@@ -286,8 +292,9 @@ class Movie:
         self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
         self.assy.o.paintGL()
 
-#        print "movie._playFrame(): Calling _pause"
+        if DEBUG: print "movie._playFrame(): Calling _pause"
         self._pause(0) # Force pause. Takes care of variable and dashboard maintenance.
+        if DEBUG: print "movie._playFrame(): BYE!"
 
     def _playSlider(self, fnum):
         """Slot for movie slider control.
@@ -295,7 +302,7 @@ class Movie:
         fnum - frame number to advance to.
         """
 
-#        print "movie._playSlider() called: fnum = ", fnum, ", currentFrame =", self.currentFrame
+        if DEBUG: print "movie._playSlider() called: fnum = ", fnum, ", currentFrame =", self.currentFrame
 
         if fnum == self.currentFrame: return
         
@@ -346,7 +353,7 @@ class Movie:
     def _reset(self):
         """Resets the movie to the beginning (frame 0).
         """
-#        print "movie._reset() called"
+        if DEBUG: "movie._reset() called"
         if self.currentFrame == 0: return
         
         # Restore atom positions.
@@ -367,7 +374,7 @@ class Movie:
     def _moveToEnd(self):
         """
         """
-#        print "movie._moveToEnd() called"
+        if DEBUG: print "movie._moveToEnd() called"
         if self.currentFrame == self.totalFrames: return
         self._pause(0)
         self.moveToEnd = True

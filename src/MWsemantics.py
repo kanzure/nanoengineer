@@ -1028,7 +1028,6 @@ class MWsemantics(MainWindow):
 #        print "MW: MoviePlayFrame called"
         if fnum == self.assy.m.currentFrame: return
         self.assy.m._playFrame(fnum)
-#        self.frameNumberSL.setValue(fnum) # SL = Slider
                             
     def movieSlider(self, fnum):
         """Show frame fnum in the current movie.

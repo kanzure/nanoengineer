@@ -48,6 +48,8 @@ class movieMode(basicMode):
         self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
         self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save"
         self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
+        self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
+        self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
         
         self.o.assy.m._setup() # Cue movie.
 
@@ -76,6 +78,8 @@ class movieMode(basicMode):
         self.w.fileSaveAction.setEnabled(1) # Enable "File Save"
         self.w.fileSaveAsAction.setEnabled(1) # Enable "File Save"
         self.w.fileOpenAction.setEnabled(1) # Enable "File Open"
+        self.w.fileCloseAction.setEnabled(1) # Enable "File Close"
+        self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
 
 
     def makeMenus(self):
