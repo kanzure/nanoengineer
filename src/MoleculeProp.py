@@ -54,7 +54,7 @@ class MoleculeProp(MoleculePropDialog):
         g = self.mol.gadgets[index]
         glpane = self.mol.assy.o
         
-        if isinstance(g, motor):
+        if isinstance(g, RotaryMotor):
               rMotorDialog = RotaryMotorProp(g, glpane)
               if rMotorDialog.exec_loop() ==QDialog.Accepted:
                       self.jigsComboBox.setCurrentText(g.name)
@@ -65,7 +65,7 @@ class MoleculeProp(MoleculePropDialog):
               if lMotorDialog.exec_loop() == QDialog.Accepted:
                       self.jigsComboBox.setCurrentText(g.name)
                       glpane.win.modelTreeView.updateTreeItem(g)
-        elif isinstance(g, ground):
+        elif isinstance(g, Ground):
               groundDialog = GroundProp(g,  glpane)
               if groundDialog.exec_loop() == QDialog.Accepted:
                       self.jigsComboBox.setCurrentText(g.name)

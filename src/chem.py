@@ -626,7 +626,7 @@ class molecule(Node):
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0
-        self.cntl = MoleculeProp(self)
+        
           
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to at2
@@ -956,7 +956,8 @@ class molecule(Node):
             a.Hydrogenate()
 
     def edit(self):
-        self.cntl.show()
+        cntl = MoleculeProp(self)    
+        cntl.exec_loop()
 
 
     def __str__(self):

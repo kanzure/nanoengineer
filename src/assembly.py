@@ -504,6 +504,7 @@ class assembly:
     def makeRotaryMotor(self, sightline):
         if not self.selatoms: return
         self.modified = 1
+
         m=RotaryMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
         mol = self.selatoms.values()[0].molecule

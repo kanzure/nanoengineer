@@ -1,7 +1,7 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
 from RotaryMotorPropDialog import *
-from VQT import V,A
+from VQT import V
 
 class RotaryMotorProp(RotaryMotorPropDialog):
     def __init__(self, rotMotor, glpane):
@@ -19,6 +19,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
             QColor(int(rotMotor.color[0]*255), 
                          int(rotMotor.color[1]*255), 
                          int(rotMotor.color[2]*255)))
+
 
         self.torqueLineEdit.setText(str(rotMotor.torque))
         self.speedLineEdit.setText(str(rotMotor.speed))
@@ -45,7 +46,6 @@ class RotaryMotorProp(RotaryMotorPropDialog):
     # Change rotary motor color
     #########################
     def changeRotaryMotorColor(self):
-
         color = QColorDialog.getColor(
             QColor(int(self.motor.color[0]*255), 
                          int(self.motor.color[1]*255), 

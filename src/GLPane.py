@@ -690,7 +690,7 @@ class GLPane(QGLWidget, modeMixin):
         self.swapBuffers()
 
     def drawarrow(self, aspect):
-        glOrtho(-50*aspect, 5*aspect, -50, 5,  -5, 500)
+        glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500)
         q = self.quat
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
         glEnable(GL_COLOR_MATERIAL)
@@ -708,6 +708,20 @@ class GLPane(QGLWidget, modeMixin):
                     [.3,.3,.3,1,0,0])
         glEnable(GL_CULL_FACE)
         glDisable(GL_COLOR_MATERIAL)
+        
+        ##Adding "X, Y, Z" text labels for Axis. Right now, Mandrake Linux has problem for the following 
+        # code, not sure if this works for Mac---Huaicai 10/10, 04
+        if sys.platform in ['darwin', 'win32']:
+                glDisable(GL_LIGHTING)
+                glPushMatrix()
+                font = QFont(QString("Times"), 16, QFont.Bold)
+                self.qglColor(QColor(0, 0, 0))
+                self.renderText(5.0, -0.35, 0.0, QString("x"), font)
+                self.renderText(-0.35, 5.05, 0.0, QString("y"), font)
+                self.renderText(0.0, -0.35, 5.05, QString("z"), font)
+                glPopMatrix()
+                glEnable(GL_LIGHTING)
+        
         glLoadIdentity()
 
 

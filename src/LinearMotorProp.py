@@ -81,7 +81,7 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.motor.name = self.nameLineEdit.text()
         self.motor.force = float(str(self.forceLineEdit.text()))
         self.motor.stiffness = float(str(self.stiffnessLineEdit.text()))
-        
+
         self.motor.axis[0] = float(str(self.axLineEdit.text()))
         self.motor.axis[1] = float(str(self.ayLineEdit.text()))
         self.motor.axis[2] = float(str(self.azLineEdit.text()))
@@ -89,7 +89,7 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.motor.center[0] = float(str(self.cxLineEdit.text()))
         self.motor.center[1] = float(str(self.cyLineEdit.text()))
         self.motor.center[2] = float(str(self.czLineEdit.text()))
-        
+      
         self.motor.length = float(str(self.lengthLineEdit.text())) # motor length
         self.motor.width = float(str(self.widthLineEdit.text())) # motor width
         self.motor.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
