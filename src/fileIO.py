@@ -922,17 +922,14 @@ def writemovie(assy, mflag = False):
     # is an MMP file and use it if not assy.has_changed().
     mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
     
-    # Trace file that saves the simulation parameters and the output for jigs.
-    # We don't want to write a tracefile when sminimizing the part (mflag != 0).
-    # This would overwrite an important tracefile from a previous simulation run.
-    # We also shouldn't create a tracefile if there are not jigs in the file.
-    # The trace file will be the same as the movie filename, but with "-trace.txt" tacked on.
+    # The trace file saves the simulation parameters and the output data for jigs.
     # Mark 2005-03-08
-    if mflag:
+    if mflag: 
+        # We currently don't need to write a tracefile when minimizing the part (mflag != 0).
         traceFile = ""
-    else: 
-        fullpath, e = os.path.splitext(moviefile)
-        traceFile = "-q" + fullpath + "-trace.txt"
+    else:
+        # The trace filename will be the same as the movie filename, but with "-trace.txt" tacked on.
+        traceFile = "-q" + assy.m.get_trace_filename()
 
     # This was the old tracefile - obsolete as of 2005-03-08 - Mark
 #    traceFile = "-q"+ os.path.join(assy.w.tmpFilePath, "sim-%d-trace.txt" % pid) 
