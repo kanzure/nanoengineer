@@ -3,8 +3,12 @@
 modes.py -- provides basicMode, the superclass for all modes, and
 modeMixin, for GLPane.
 
-As of 041007 Bruce notes he relinquished ownership of this file some time ago;
+$Id$
+
+Ownership: Bruce relinquished ownership a few days before 041007;
 not sure if anyone owns it now.
+
+==
 
 Originally written by Josh.
 
@@ -53,8 +57,6 @@ See the method docstrings in this file for details.
 A good example for new modes (since it overrides a lot of the subclass
 methods) is cookieMode.  But there are few enough modes that you might
 as well look at them all.
-
-$Id$
 """
 
 # Note [bruce 040923]: a lot of specific modes import * from us, and
@@ -497,6 +499,7 @@ class basicMode(anyMode):
         self.o.stop_sending_us_events( self)
         # stop receiving events from our glpane
         self.restore_gui()
+        self.w.setFocus() #bruce 041010 bugfix (needed in two places)
         self.restore_patches()
         self.clear() # clear our internal state, if any
         
@@ -997,6 +1000,7 @@ class modeMixin:
             # untested! ###k It looks safe, and only runs if there's a
             # definite bug anyway. [bruce 040924]
             try:
+                self.win.setFocus() #bruce 041010 bugfix (needed in two places)
                 self.mode.restore_gui()
             except:
                 print "(...even the old mode's restore_gui method, run by itself, had a bug...)"
