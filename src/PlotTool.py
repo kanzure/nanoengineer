@@ -60,22 +60,30 @@ class PlotTool(PlotToolDialog):
         # If we've opened the tracefile once during this session, we
         # must check to see if the trace file has changed on disk.
         # Doesn't appear to be an issue calling checkcache before getline.
-        linecache.checkcache() 
-        
+        #linecache.checkcache() 
+
+        #Open trace file to read.
+        traceFile = open(self.traceFile)
+        traceLines = traceFile.readlines()        
+
         # Get Date from trace file from line #3 in the header.
-        header = linecache.getline(self.traceFile, 3)
+        #header = linecache.getline(self.traceFile, 3)
+        header = traceLines[2]
+        print "trace file: ", self.traceFile
+        print "header line 3: ", header
         hlist = string.split(header, ": ")
+        print "hlist: ", hlist
         self.date = hlist[1][:-1]
         
         # Get trajectory file name from trace file from line #5 in the header.
-        header = linecache.getline(self.traceFile, 5)
+        header =  traceLines[4]#linecache.getline(self.traceFile, 5)
         hlist = string.split(header, ": ")
         self.dpbname = hlist[1][:-1]
 #        print "Trajectory file name = ", self.dpbname
         
         # Get number of columns, located in line 14 of the header.
         hloc = 12 # Line number in file contain the "# n columns"
-        header = linecache.getline(self.traceFile, hloc)
+        header = traceLines[hloc-1]#linecache.getline(self.traceFile, hloc)
         hlist = string.split(header, " ")
         ncols = int(hlist[1])
 #        print "Columns header:", header
@@ -84,7 +92,7 @@ class PlotTool(PlotToolDialog):
         # Populate the plot combobox with plotting options.
         if ncols:
             for i in range(ncols):
-                gname = linecache.getline(self.traceFile, hloc + 1 + i)
+                gname =  traceLines[hloc + i]#linecache.getline(self.traceFile, hloc + 1 + i)
                 self.plotCB.insertItem(gname[2:-1])
         else: # No jigs in the part, so nothing to plot.
             msg = "Plot Tool: No jigs in this part.  Nothing to plot."
