@@ -1877,8 +1877,6 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
     # it's not yet used in extrudeMode, but could be if we changed to
     # recalculating bondable pairs more often, e.g. to fix bugs in ring mode.
     
-    ###e if anyone ever passes offset2, we should take a tolerance arg to
-    ###e multiply the error offset, i suppose [bruce 041109]
     #e someday we might move this to a more general file
     #e once this works, we might need to optimize it,
     # since it redoes a lot of the same work
@@ -1910,7 +1908,7 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
     ideal_offset2 = a1_a2_offset - a1_a2_offset_now # required shift of a2
     error_offset2 = (r1 + r2) / 2.0 # josh's guess (replaces 1.0 from the initial tests)
     error_offset2 *= tol # bruce 050324 new feature, untested ###@@@
-    if offset2:
+    if offset2 != None: #bruce 050328 bugfix: don't use boolean test of offset2
         if vlen(offset2 - ideal_offset2) > error_offset2:
             return res_bad
     return (True, ideal_offset2, error_offset2)
