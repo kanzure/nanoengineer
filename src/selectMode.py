@@ -214,13 +214,17 @@ class selectMolsMode(selectMode):
         def init_gui(self):
             selectMode.init_gui(self)
             self.o.setCursor(self.w.SelectMolsCursor)
-            self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Molecule" tools icon
+            self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Molecules" tools icon
             self.w.selectMolDashboard.show() 
             
         def restore_gui(self):
             self.w.selectMolDashboard.hide()
         
-                    
+        def keyPress(self,key):
+            basicMode.keyPress(self, key)
+            if key == Qt.Key_Shift:
+                print "fyi: treating that as Qt.Key_Shift"
+
 class selectAtomsMode(selectMode):
         modename = 'SELECTATOMS'
         default_mode_status_text = "Mode: Select Atoms"
@@ -232,7 +236,7 @@ class selectAtomsMode(selectMode):
         def init_gui(self):
             selectMode.init_gui(self)
             self.o.setCursor(self.w.SelectAtomsCursor)
-            self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Molecule" tools icon
+            self.w.toolsSelectAtomsAction.setOn(1) # toggle on the "Select Atoms" tools icon
             self.w.selectMolDashboard.show() 
             
         def restore_gui(self):
