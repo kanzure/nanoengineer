@@ -176,29 +176,13 @@ def do_what_MainWindowUI_should_do(self):
         if begin(QHBox):
             insertlabel("when done: ")
             # these only affect what we do at the end -- no repaint needed
-            self.extrudePref3 = TogglePrefCheckBox("all one part", parent_now(), "extrudePref3", attr = 'whendone_all_one_part')
-            self.extrudePref4 = TogglePrefCheckBox("relax bonds", parent_now(), "extrudePref4", attr = 'whendone_relax_bonds')
+            self.extrudePref3 = TogglePrefCheckBox("make bonds", parent_now(), "extrudePref3", attr = 'whendone_make_bonds')
+            self.extrudePref4 = TogglePrefCheckBox("join into one part", parent_now(), "extrudePref4", attr = 'whendone_all_one_part')
         end()
     end()
 
 #e smaller font? how?
 #e tooltips?
-
-##        if begin(QHBox):
-##            if begin(QVBox):
-##                self.extrudePref1 = QCheckBox("show whole model,", parent_now(), "extrudePref1")
-##                self.extrudePref2 = QCheckBox("bond-offset spheres", parent_now(), "extrudePref2") 
-##            end()
-##            if begin(QVBox):
-##                self.extrudePref3 = QCheckBox("one mol. when done", parent_now(), "extrudePref3")
-##                self.extrudePref4 = QCheckBox("relax bonds when done", parent_now(), "extrudePref4")
-##            end()
-##        end()
-
-##        self.extrudePref2.setChecked(False)
-##        self.extrudePref3.setChecked(True)
-##        print "self.extrudePref2.isChecked()",self.extrudePref2.isChecked()
-##        print "self.extrudePref3.isChecked()",self.extrudePref3.isChecked()
         
     self.extrudeDashboard.addSeparator()
 
@@ -347,6 +331,7 @@ def update_xyz_controls_from_length(win):
     if ll < 0.1: # prevent ZeroDivisionError
         set_controls_minimal(win)
         return
+    self = win
     length = self.extrudeSpinBox_length.floatValue()
     rr = float(length) / ll
     call_while_suppressing_valuechanged( lambda: set_extrude_controls_xyz_nolength( win, (x * rr, y * rr, z * rr) ) )
@@ -691,6 +676,7 @@ class extrudeMode(basicMode):
                 )
         hset2.addHandle( V(0,0,0), 0.66, None)
         hset2.addHandle( self.offset, 0.17, None) # kluge: will be kept patched with current offset
+        hset.special_pos = self.offset # ditto
         self.show_bond_offsets_handlesets.extend([hset,hset2])
            # (use of this list is conditioned on self.show_bond_offsets)
         ##e quadratic, slow alg; should worry about too many singlets
@@ -750,20 +736,37 @@ class extrudeMode(basicMode):
     have_offset_specific_data = 0 # we do this in clear() too
 
     def recompute_offset_specific_data(self):
-        "#doc"
+        "recompute whatever depends on offset but not on tol or bonds -- nothing at the moment"
+        pass
+    
+    def redo_look_of_bond_offset_spheres(self):
+        # call to us moved from recompute_offset_specific_data to recompute_bonds
+        "#doc; depends on offset and tol and len(bonds)"
         # kluge:
         try:
+            # teensy purple ball usually shows position of offset rel to the white balls (it's also draggable btw)
+            if len( self.bonds_for_current_offset_and_tol ) >= 1: ### worked with > 1, will it work with >= 1? ######@@@
+                teensy_ball_pos = V(0,0,0) # ... but make it not visible if there are any bonds [#e or change color??]
+                #e minor bug: it sometimes stays invisible even when there is only one bond again...
+                # because we are not rerunning this when tol changes, but it depends on tol. Fix later. #######
+            else:
+                teensy_ball_pos = self.offset
             hset2 = self.nice_offsets_handle
-            hset2.handle_setpos( 1, self.offset )
+            hset2.handle_setpos( 1, teensy_ball_pos ) # positions the teensy purple ball
+            hset = self.nice_offsets_handleset
+            hset.special_pos = self.offset # tells the white balls who contain this offset to be slightly purple
         except:
-            print "fyi: hset2 kluge failed" ###
+            print "fyi: hset2/hset kluge failed"
         # don't call recompute_bonds, our callers do that if nec.
         return 
 
     bonds_for_current_offset_and_tol = (17,) # we do this in clear() too
     def recompute_bonds(self):
+        "call this whenever offset or tol changes"
+        
+        self.redo_look_of_bond_offset_spheres()
+        
         # recompute what singlets to show in diff color, what bonds to make...
-        # call when offset or tol changes
         
         # basic idea: see which nice-offset-handles contain the offset, count them, and recolor singlets they come from.
         hset = self.nice_offsets_handleset #e revise this code if we cluster these, esp. if we change their radius
@@ -812,17 +815,136 @@ class extrudeMode(basicMode):
         return self.ncopies != 1 # more or less...
 
     def StateDone(self):
+        # restore normal appearance
         for mol in self.molcopies:
             try:
                 del mol.colorfunc
                 mol.changeapp()
             except:
                 pass
-        self.status_msg("extrude warning: bonding/merging of product (%d units) not yet implemented" % len(self.molcopies) )
-        ###e make bonds if not yet done, merge base and rep units,
-        # merge base back into its fragmented ancestral molecule...
+        self.finalize_product() # ... and emit status message about it
+        self.w.update() ####k shouldn't caller in modes.py be doing this?? we needed it to update model tree...
         return None
 
+    def finalize_product(self):
+        "if requested, make bonds and/or join units into one part"
+        #nim: #e merge base back into its fragmented ancestral molecule...
+        self.final_msg_accum = "extrude done: "
+        msg0 = "leaving mode, finalizing product..." # if this lasts long enough to read, something went wrong
+        self.status_msg(self.final_msg_accum + msg0)
+
+        if self.whendone_make_bonds:
+            # rebond base unit with its home molecule, if any -- NIM
+            #e even the nim-warning msg is nim...
+            #e (once we do this, maybe do it even when not self.whendone_make_bonds??)
+
+            # unit-unit bonds:
+            bonds = self.bonds_for_current_offset_and_tol
+            if not bonds:
+                bonds_msg = "no bonds to make"
+            else:
+                bonds_msg = "making %d bonds per unit..." % len(bonds)
+            self.status_msg(self.final_msg_accum + bonds_msg)
+            if bonds:
+                self.prep_to_make_inter_unit_bonds()
+                for ii in range(1, self.ncopies): # 1 thru n-1 (might be empty range, that's ok)
+                    # bond unit ii with unit ii-1
+                    self.make_inter_unit_bonds( self.molcopies[ii-1], self.molcopies[ii], bonds ) # uses self.basemol_singlets, etc
+                bonds_msg = "made %d bonds per unit" % len(bonds)
+                self.status_msg(self.final_msg_accum + bonds_msg)
+            self.final_msg_accum = self.final_msg_accum + bonds_msg
+            
+        if self.whendone_all_one_part:
+            # rejoin base unit with its home molecule, if any -- NIM
+            #e even the nim-warning msg is nim...
+            #e (once we do this, maybe do it even when not self.whendone_all_one_part??)
+
+            # join all units into basemol
+            self.final_msg_accum += "; "
+            join_msg = "joining..." # this won't be shown for long, if no error
+            self.status_msg(self.final_msg_accum + join_msg)
+            product = self.basemol #e should use home mol, but that's nim
+            for unit in self.molcopies[1:]: # all except basemol
+                self.merge_units_and_kill(product, unit) # does mol2.kill()
+##            # note: the other mols still exist, they just have no atoms.
+##            # let's zap them from self.o.assy.
+##            for unit in self.molcopies[1:]:
+##                unit.kill()
+            self.product = product #e needed?
+            if self.ncopies > 1:
+                join_msg = "joined into one part"
+            else:
+                join_msg = "(one unit, nothing to join)"
+            self.final_msg_accum += join_msg
+            self.status_msg(self.final_msg_accum)
+        else:
+            if self.ncopies > 1:
+                self.final_msg_accum += " (left units as separate parts)"
+            else:
+                pass # what is there to say?
+            self.status_msg(self.final_msg_accum)
+        return
+
+    def prep_to_make_inter_unit_bonds(self):
+        self.i1_to_mark = {}
+        #e keys are a range of ints, could have used an array -- but entire alg needs revision anyway
+        for i1, s1 in zip(range(len(self.basemol_singlets)), self.basemol_singlets):
+            self.i1_to_mark[i1] = s1.info # used by self.find_singlet
+            #e find_singlet could just look directly in self.basemol_singlets *right now*,
+            # but not after we start removing the singlets from basemol!
+        return
+
+    def make_inter_unit_bonds(self, unit1, unit2, bonds = ()):
+        # you must first call prep_to_make_inter_unit_bonds, once
+        #e this is quadratic in number of singlets, sorry; not hard to fix
+        ##print "bonds are %r",bonds
+        for (offset,permitted_error,(i1,i2)) in bonds:
+            # ignore offset,permitted_error; i1,i2 are singlet indices
+            # assume no singlet appears twice in this list!
+            # [not yet justified, 041015 1207p]
+            s1 = self.find_singlet(unit1,i1)
+            s2 = self.find_singlet(unit2,i2)
+            if s1 and s2:
+                self.merge_singlets(s1,s2)
+            else:
+                #e will be printed lots of times, oh well
+                print "extrude warning: one or both of singlets %d,%d slated to bond in more than one way, not all bonds made" % (i1,i2)
+        unit1.shakedown()
+        unit2.shakedown()
+        unit1.changeapp()
+        unit2.changeapp()
+
+    def find_singlet(self, unit, i1):
+        """Find the singlet #i1 in unit, and return it,
+        or None if it's not there anymore
+        (should someday never happen, but can for now)
+        (arg called i1 could actually be i1 or i2 in bonds list)
+        (all this singlet-numbering is specific to our current basemol)
+        (only works if you first once called prep_to_make_inter_unit_bonds)
+        """
+        mark = self.i1_to_mark[i1] # mark is basemol key, but unrelated to other mols' keys
+        for atm in unit.atoms.itervalues():
+            try:
+                if atm.info == mark:
+                    return atm
+            except:
+                pass # not sure if singlets have .info
+        print "extrude bug (trying to ignore it): singlet not found",unit,i1
+        # can happen until we remove dup i1,i2 from bonds
+        return None
+        
+    def merge_singlets(self, s1, s2):
+        "replace two singlets (perhaps in different mols) by a bond between their atoms"
+        makeBonded_without_moving_or_shakedown(s1, s2)
+    
+    def merge_units_and_kill(self, mol1, mol2):
+        "merge mol2 into mol1, where these might be units, or the base, or (nim) the base's home molecule"
+        mol1.merge(mol2) # this does mol2.kill() as a side effect (bad in general, imho, but ok here)
+          # (note: if mol2 bonded to singlets in some other mol
+          #  (should never happen), they'd also get merged into mol1.)
+        mol1.changeapp() # (already done a lot inside .merge, but do it here anyway)
+        return
+    
     def StateCancel(self):
         self.w.extrudeSpinBox_n.setValue(1)
         self.update_from_controls()
@@ -1386,6 +1508,42 @@ def mark_singlets(basemol, colorfunc):
     basemol.colorfunc = colorfunc # maps atoms to colors (due to a hack i will add)
     return
 
+def makeBonded_without_moving_or_shakedown(s1, s2): # modified from chem.makeBonded
+    """s1 and s2 are singlets; make a bond between their real atoms in
+    their stead. If they are in different molecules, DON'T move s1's to
+    match the bond. [customized for extrude by bruce 041015 from recent
+     josh code in chem.py; also added some asserts; also REMOVED SHAKEDOWN]
+    """
+    assert s1.element == Singlet
+    assert s2.element == Singlet
+    assert s1 != s2
+    a1 = singlet_atom(s1)
+    a2 = singlet_atom(s2)
+    
+    m1 = s1.molecule
+    m2 = s2.molecule
+    if m1 != m2:
+        pass # don't move m1
+    s1.kill()
+    s2.kill()
+    m1.bond(a1,a2) # even though m2 might not equal m1... does choice of mol matter?
+    ## let's try waiting until we're done, for the shakedowns
+    ##m1.shakedown()
+    ##m2.shakedown()
+    # but we'll at least do this:
+    m1.changeapp()
+    m2.changeapp()
+
+
+
 #end
  # remember to unpatch colorfunc from the mols when i'm done
 # and info from the atoms? not needed but might as well
+
+# not done:
+
+# for (i1,i2) in bonds:
+            # assume no singlet appears twice in this list!
+# this is not yet justified, and if false will crash it when it makes bonds
+
+

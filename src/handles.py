@@ -52,7 +52,7 @@ class HandleSet:
     def move(self, offset):
         self.origin = self.origin + offset
         ## warning: this would be wrong (due to destructive mod of a vector): self.origin += motion
-    def draw(self, glpane, offset = V(0,0,0), color = None, info = {}):
+    def draw(self, glpane, offset = V(0,0,0), color = None, info = {}): # this code is copied/modified into a subclass, sorry
         "draw our spheres (in practice we'll need to extend this for different sets...)"
 ##        self.radius_multiplier = 1.0 # this might be changed by certain subclass's process_optional_info method
 ##        self.process_optional_info(info) # might reset instvars that affect following code... (kluge?)
@@ -202,6 +202,8 @@ class niceoffsetsHandleSet(HandleSet): #e this really belongs in extrudeMode.py,
     # mouseover of nice_offset handle will light up its two singlets;
     # mouseover of a singlet will light up the applicable other singlets
     # and nice_offset handles; etc.
+    special_pos = V(0,0,0)
+    special_color = blue
     def __init__(self, *args, **kws):
         self.target = kws.pop('target') # must be specified; the extrudeMode object we're helping to control
         HandleSet.__init__(self, *args, **kws)
@@ -217,8 +219,39 @@ class niceoffsetsHandleSet(HandleSet): #e this really belongs in extrudeMode.py,
 ##    def process_optional_info(self, info):
 ##        bond_tolerance = info.get('bond_tolerance',1.0)
 ##        self.radius_multiplier = bond_tolerance # affects draw() method
+    def draw(self, glpane, offset = V(0,0,0), color = None, info = {}): # modified copy of superclass draw method
+        "draw our spheres (in practice we'll need to extend this for different sets...)"
+##        self.radius_multiplier = 1.0 # this might be changed by certain subclass's process_optional_info method
+##        self.process_optional_info(info) # might reset instvars that affect following code... (kluge?)
+        color = color or self.color
+        ##detailLevel = 0 # just an icosahedron
+        detailLevel = 1 # easier to click on this way
+        ##radius = 0.33 # the one we store might be too large? no, i guess it's ok.
+        #e (i might prefer an octahedron, or a miniature-convex-hull-of-extrude-unit)
+        offset = offset + self.origin
+        radius_multiplier = self.radius_multiplier
+        special_pos = self.special_pos # patched in ###nim?
+        special_pos = special_pos + offset #k?? or just self.origin??
+        special_color = self.special_color # default is used
+##        count = 0
+        for (pos,radius,info) in self.handles:
+            radius *= radius_multiplier
+            pos = pos + offset
+            dist = vlen(special_pos - pos)
+            if dist <= radius:
+                color2 = ave_colors( 1.0 - dist/radius, special_color, color )
+##                count += 1
+            else:
+                color2 = color
+            drawer.drawsphere(color2, pos, radius, detailLevel)
+##        self.color2_count = count # kluge, probably not used since should equal nbonds
+        return
     pass
 
+def ave_colors(weight, color1, color2):
+    "weight 1.0 => color1, 0.0 => color2, between => between" ###k calls
+    #e should use some Numeric method
+    return [weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)]
 
 # we'll use the atoms of the mols
 # and a sep set or two
