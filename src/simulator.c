@@ -391,6 +391,7 @@ void findnobo(int a1) {
     struct A *p;
     double r;
 
+    // printf("find nobo for %d\n",a1);
 	
     ix= (int)cur[a1].x / 250 + 4;
     iy= (int)cur[a1].y / 250 + 4;
@@ -406,6 +407,7 @@ void findnobo(int a1) {
 			&& !isbonded(a1,a2)) {
 			r=vlen(vdif(cur[a1],cur[a2]));
 			if (r<800.0) {
+			    // printf("  found nobo for %d<-->%d\n",a1, a2);
 			    makvdw(a1, a2);
 			    Count++;
 			}
@@ -475,8 +477,10 @@ void calcloop(int iters) {
 	vsetc(avg[j],0.0);
     }
 	
-    for (loop=0, i=0; loop<iters; loop++, i++) {
+    for (loop=0, i=innerIters; loop<iters; loop++, i--) {
 		
+	Iteration++;
+
 	if (orionp && i==innerIters) {
 	    /* find the non-bonded interactions */
 	    orion();
@@ -488,9 +492,8 @@ void calcloop(int iters) {
 	    for (j=0; j<Nexatom; j++) {
 		findnobo(j);
 	    }
-	    i=0;
+	    i=innerIters;
 	}		
-	Iteration++;
 			
 	/* new, cur, and old to avoid mixing positions while
 	   calculating force
@@ -617,9 +620,11 @@ void calcloop(int iters) {
 	    */
 	}
 
+	// printf("about to do vdw loop\n");
 	/* do the van der Waals/London forces */
 	for (nvb=&vanderRoot; nvb; nvb=nvb->next)
 	    for (j=0; j<nvb->fill; j++) {
+		// printf("in vdw loop\n");
 		vsub2(f, cur[nvb->item[j].a1], cur[nvb->item[j].a2]);
 		rsq = vdot(f,f);
 					
