@@ -1138,6 +1138,14 @@ class extrudeMode(basicMode):
                 pass
         self.finalize_product(cancelling = cancelling)
             # this also emits status messages and does some cleanup of broken_externs...
+        self.o.assy.update_parts()
+            #bruce 050317: fix some of the bugs caused by user dragging some
+            # repeat units into a different Part in the MT, deleting them, etc.
+            # (At least this should fix bug 371 comment #3.)
+            # This is redundant with the fix for that in make_inter_unit_bonds,
+            # but is still the only place we catch the related bug when rebonding
+            # the base unit to whatever we unbonded it from at the start (if anything).
+            # (That bug is untested and this fix for it is untested.)
         return None
         
     def finalize_product(self, cancelling = 0): #bruce 050228 adding cancelling=0 to help fix bug 314 and unreported bugs
@@ -1234,6 +1242,22 @@ class extrudeMode(basicMode):
         # you must first call prep_to_make_inter_unit_bonds, once
         #e this is quadratic in number of singlets, sorry; not hard to fix
         ##print "bonds are %r",bonds
+        from HistoryWidget import redmsg
+        if (not unit1.assy) or (not unit2.assy): ###@@@ better test for mol.killed?
+            #bruce 050317: don't bond to deleted units (though I doubt this
+            # is sufficient to avoid bugs from user deleting them in the MT during this mode)
+            ###@@@ this 'then clause', and the condition being inclusive enough, is untested as of 050317
+            msg = "warning: can't bond deleted repeat-units"
+                #e should collapse several warnings into one
+            self.w.history.message( redmsg( msg))
+            return
+        if unit1.part != unit2.part:
+            #bruce 050317: avoid making inter-part bonds (even if merging units could fix that)
+            msg = "warning: can't bond repeat-units in different Parts"
+                ###e could improve, name the parts, collapse several to 1 or name the units
+                # (but not high priority, since we haven't documented this as a feature)
+            self.w.history.message( redmsg( msg))
+            return
         for (offset,permitted_error,(i1,i2)) in bonds:
             # ignore offset,permitted_error; i1,i2 are singlet indices
             # assume no singlet appears twice in this list!
