@@ -1353,8 +1353,8 @@ class molecule(Node, InvalMixin):
             try:
                 res = self.compute_sel_radii_squared()
             except:
-                print "bug in %r.compute_sel_radii_squared(), using []"
-                res = []
+                print_compact_traceback("bug in %r.compute_sel_radii_squared(), using []: " % self)
+                res = [] #e len(self.atoms) copies of something would be better
             self.sel_radii_squared_private = res
             self.haveradii = 1
         return self.sel_radii_squared_private
@@ -1545,24 +1545,31 @@ class molecule(Node, InvalMixin):
             pass
         return numol
 
-    def passivate(self, p=False):
+    def Passivate(self, p=False):
+        """[Public method, does all needed invalidations:]
+        Passivate the selected atoms in this chunk, or all its atoms if p=True.
+        This transmutes real atoms to match their number of real bonds,
+        and (whether or not that succeeds) removes all their open bonds.
+        """
+        # bruce 041215 added docstring, inferred from code; capitalized name
         for a in self.atoms.values():
-            if p or a.picked: a.passivate()
-        ## self.shakedown()
+            if p or a.picked: a.Passivate()
 
     def Hydrogenate(self):
-        """(Public method, does all needed invalidations:)
+        """[Public method, does all needed invalidations:]
         Add hydrogen to all unfilled bond sites on carbon
         atoms assuming they are in a diamond lattice.
         For hilariously incorrect results, use on graphite.
         This ought to be an atom method.
         """
+        # bruce 041215 suspects docstring is wrong in implying this
+        # only affects Carbon ###k
         for a in self.atoms.values():
             a.Hydrogenate()
             
     def Dehydrogenate(self):
-        """(Public method; does all needed invalidations.)
-        Remove hydrogen atoms from selected molecule.
+        """[Public method, does all needed invalidations:]
+        Remove hydrogen atoms from this chunk.
         Return the number of atoms removed [bruce 041018 new feature].
         """
         count = 0
@@ -1698,22 +1705,6 @@ def shakedown_poly_eval_evec_axis(basepos):
 
     return polyhedron, evals, evec, axis # from shakedown_poly_evals_evec_axis
 
-
-def oneUnbonded(elem, assy, pos):
-    """[bruce comment 040928:] create one unbonded atom, of element elem,
-    at position pos, in its own new molecule."""
-    mol = molecule(assy, 'bug') # name is reset below!
-    a = atom(elem.symbol, pos, mol)
-    # bruce 041124 revised name of new mol, was gensym('Chunk.');
-    # no need for gensym since atom key makes the name unique, e.g. C1.
-    mol.name = "Chunk-%s" % str(a) ####k check direct set of mol.name
-    r = elem.rcovalent
-    if elem.bonds and elem.bonds[0][2]:
-        for dp in elem.bonds[0][2]:
-            x = atom('X', pos+r*dp, mol)
-            mol.bond(a,x)
-    assy.addmol(mol)
-    return a
 
 def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
     #bruce 041109 rewrote this, added move arg, renamed it from makeBonded

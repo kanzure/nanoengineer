@@ -864,23 +864,27 @@ class assembly:
 
     # change surface atom types to eliminate dangling bonds
     # a kludgey hack
+    # bruce 041215 added some comments.
     def modifyPassivate(self):
         if self.selwhat == 2:
             for m in self.selmols:
-                m.passivate(True)
+                m.Passivate(True) # arg True makes it work on all atoms in m
         else:
             for m in self.molecules:
-                m.passivate()
+                m.Passivate() # lack of arg makes it work on only selected atoms
+                # (maybe it could just iterate over selatoms... #e)
                 
         self.modified = 1 # could be much smarter
         self.o.paintGL()
 
     # add hydrogen atoms to each dangling bond
-    # ultimately we'll have the button call directly
     def modifyHydrogenate(self):
         self.o.mode.modifyHydrogenate()
         
     # remove hydrogen atoms from every selected atom/molecule
-    # ultimately we'll have the button call directly
     def modifyDehydrogenate(self):
         self.o.mode.modifyDehydrogenate()
+
+    # end of class assembly
+
+

@@ -972,6 +972,7 @@ class MWsemantics(MainWindow):
           
          
     # this routine sets the displays to reflect elt
+    # [bruce 041215: most of this should be made a method in elementSelector.py #e]
     def setElement(self, elt):
         # element specified as element number
         global elementwindow

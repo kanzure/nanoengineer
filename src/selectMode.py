@@ -129,15 +129,24 @@ class selectMode(basicMode):
         """Select the part containing the atom the cursor is on.
         """
         self.move() # go into move mode # bruce 040923: we use to inline the same code as is in this method
-        
 
-    def elemSet(self,elem):
+    
+    # bruce 041215: elemSet should be renamed modifyTransmute, and moved #e
+    def elemSet(self,elem): 
         # elem is an element number
+        # make it current in the element selector dialog
         self.w.setElement(elem) # bruce comment 040922 -- this line is an inlined version of the superclass method.
-        # change selected atoms to the element selected
+        # now change selected atoms to the specified element
+        # [bruce 041215: this should probably be made available for any modes
+        #  in which "selected atoms" are permitted, not just Select modes. #e]
         if self.o.assy.selatoms:
             for a in self.o.assy.selatoms.values():
-                a.mvElement(PeriodicTable[elem])
+                a.Transmute(PeriodicTable[elem])
+                # bruce 041215 fix bug 131 by replacing low-level mvElement call
+                # with new higher-level method Transmute. Note that singlets
+                # can't be selected, so the fact that Transmute does nothing to
+                # them is not (presently) relevant.
+            #e status message?
             self.o.paintGL()
        
 

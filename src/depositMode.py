@@ -708,9 +708,15 @@ class depositMode(basicMode):
     #  more info 041203:
     #  answer from josh: that's a bug, but we won't fix it for alpha.
     #  bruce thinks it has a recent bug number (eg 220-230) but forgets what it is.
+    #  Update 041215: fixed it below!
     # ]
-    # bruce comment 041215: also makes new singlets to reach desired total
-    # number of bonds.
+    # bruce comments 041215: also makes new singlets to reach desired total
+    # number of bonds. Note that these methods don't use self except to
+    # find each other... could be turned into functions for general use. #e
+    # To help fix bug 131 I'm splitting each of the old code's methods
+    # bond1 - bond4 into a new
+    # method to position and make the new atom (for any number of bonds)
+    # and methods moved to class atom to add more singlets as needed.
     
     # bruce 041123 new features:
     # return the new atom and a description of it, or None and the reason we made nothing.
@@ -718,12 +724,28 @@ class depositMode(basicMode):
         if not el.numbonds:
             return (None, "%s makes no bonds; can't attach one to an open bond" % el.name)
         spot = self.findSpot(el, singlet)
-        pl = []
-        rl = [] # real neighbors of singlets in pl [for bug 232 fix]
+        pl = [(singlet, spot)] # will grow to a list of pairs (s, its spot)
+            # bruce change 041215: always include this one in the list
+            # (probably no effect, but gives later code less to worry about;
+            #  before this there was no guarantee singlet was in the list
+            #  (tho it probably always was), or even that the list was nonempty,
+            #  without analyzing the subrs in more detail than I'd like!)
+        rl = [singlet.singlet_neighbor()]
+            # list of real neighbors of singlets in pl [for bug 232 fix]
         mol = singlet.molecule
         cr = el.rcovalent
 
-        for s in mol.nearSinglets(spot, cr*1.5):
+        # bruce 041215: might as well fix the bug about searching for open bonds
+        # in other mols too, since it's easy; search in this one first, and stop
+        # when you find enough atoms to bond to.
+        searchmols = list(self.o.assy.molecules)
+        searchmols.remove(singlet.molecule)
+        searchmols.insert(0, singlet.molecule)
+        # max number of real bonds we can make (now this can be more than 4)
+        maxpl = el.numbonds
+        
+        for mol in searchmols:
+          for s in mol.nearSinglets(spot, cr*1.5):
             #bruce 041203 quick fix for bug 232:
             # don't include two singlets on the same real atom!
             # (It doesn't matter which one we pick, in terms of which atom we'll
@@ -737,32 +759,28 @@ class depositMode(basicMode):
             if real not in rl:
                 pl += [(s, self.findSpot(el, s))]
                 rl += [real]
-            elif platform.atom_debug:
-                print "fyi (ATOM_DEBUG): depositMode.attach refrained from causing bug232 by bonding twice to %r" % real
-        # note (bruce 041215): there's no guarantee singlet appears in pl,
-        # though it's likely; probably doesn't matter
-
-        n = min(el.numbonds, len(pl)) # number of real bonds to make
-        if n == 1:
-            a = self.bond1(el, singlet, spot)
-        elif n == 2:
-            a = self.bond2(el,pl)
-        elif n == 3:
-            a = self.bond3(el,pl)
-        elif n == 4:
-            a = self.bond4(el,pl)
-        else:
-            print "too many bonds!", el.numbonds, len(pl)
-            a = None
-        if a != None:
-            desc = "%r (in %r)" % (a, a.molecule.name)
-            #e what if caller renames a.molecule??
-            if n > 1:
-                desc += " (%d bonds made)" % n
-        else:
-            desc = "bug: too many (%d) bonds to make!" % n
+          # after we're done with each mol (but not in the middle of any mol),
+          # stop if we have as many open bonds as we can use
+          if len(pl) >= maxpl:
+            break
+        del mol, s, real
+        
+        n = min(el.numbonds, len(pl)) # number of real bonds to make; always >= 1
+        pl = pl[0:n] # discard the extra pairs (old code did this too, implicitly)
+        
+        # bruce 041215 change: for n > 4, old code gave up now;
+        # new code makes all n bonds for any n, tho it won't add singlets
+        # for n > 4. (Both old and new code don't know how to add enough
+        # singlets for n >= 3 and numbonds > 4. They might add some, tho.)
+        # Note: new_bonded_n uses len(pl) as its n.
+        atm = self.new_bonded_n(el,pl)
+        atm.make_enough_singlets() # (tries its best, but doesn't always make enough)
+        desc = "%r (in %r)" % (atm, atm.molecule.name)
+        #e what if caller renames atm.molecule??
+        if n > 1: #e really: if n > (number of singlets clicked on at once)
+            desc += " (%d bonds made)" % n
         self.o.paintGL() ##e probably should be moved to caller
-        return a, desc
+        return atm, desc
 
     # given an element and a singlet, find the place an atom of the
     # element would like to be if bonded at the singlet
@@ -772,106 +790,36 @@ class depositMode(basicMode):
         cr = el.rcovalent
         pos = singlet.posn() + cr*norm(singlet.posn()-a1.posn())
         return pos
-
-    def bond1(self, el, singlet, pos):
-        obond = singlet.bonds[0]
-        a1 = obond.other(singlet)
-        mol = a1.molecule
-        a = atom(el.symbol, pos, mol)
-        obond.rebond(singlet, a)
-        if len(el.quats): #bruce 041119 revised to support "onebond" elements
-            # There is at least one other bond
-            # this rotates the atom to match the bond formed above
-            r = singlet.posn() - pos
-            rq = Q(r,el.base)
-            # if the other atom has any other bonds, align 60 deg off them
-            if len(a1.bonds)>1:
-                # don't pick ourself
-                if a==a1.bonds[0].other(a1):
-                    a2pos = a1.bonds[1].other(a1).posn()
-                else: a2pos = a1.bonds[0].other(a1).posn()
-                s1pos = pos+(rq + el.quats[0] - rq).rot(r)
-                spin = twistor(r,s1pos-pos, a2pos-a1.posn()) + Q(r, pi/3.0)
-            else: spin = Q(1,0,0,0)
-            for q in el.quats:
-                q = rq + q - rq - spin
-                x = atom('X', pos+q.rot(r), mol)
-                mol.bond(a,x)
-        return a
         
-    def bond2(self, el, lis):
+    def new_bonded_n(self, el, lis):
+        """[private method; ignores self:]
+        make and return an atom (of element el) bonded to the n singlets in lis,
+        which is a list of n pairs (singlet, pos), where each pos is the ideal
+        position for a new atom bonded to its singlet alone.
+        The new atom will always have n real bonds and no singlets.
+        We don't check whether n is too many bonds for el, nor do we care what
+        kind of bond positions el would prefer. (This is up to the caller, if
+        it matters; since the singlets typically already existed, there's not
+        a lot that could be done about the bonding pattern, anyway, though we
+        could imagine finding a position that better matched it. #e)
+        """
+        # bruce 041215 made this from the first parts of the older methods bond1
+        # through bond4; the rest of each of those have become atom methods like
+        # make_singlets_when_2_bonds. The caller (self.attach) has been revised
+        # to use these, and the result is (I think) equivalent to the old code,
+        # except when el.numbonds > 4, when it does what it can rather than
+        # doing nothing. The purpose was to fix bug 131 by using the new atom
+        # methods by themselves.
         s1, p1 = lis[0]
-        s2, p2 = lis[1]
-        pos = (p1+p2)/2.0
-        opos = s2.posn()
-
-        mol = s1.molecule
-        a = atom(el.symbol, pos, mol)
-
-        s1.bonds[0].rebond(s1, a)
-        s2.bonds[0].rebond(s2, a)
-
-        # this rotates the atom to match the bonds formed above
-        r = s1.posn() - pos           
-        rq = Q(r,el.base)
-        # this moves the second bond to a possible position
-        # note that it doesn't matter which bond goes where
-        q1 = rq + el.quats[0] -rq
-        b2p = q1.rot(r)
-        # rotate it into place
-        tw = twistor(r, b2p, opos-pos)
-        # now for all the rest
-        for q in el.quats[1:]:
-            q = rq + q - rq + tw
-            x = atom('X', pos+q.rot(r), mol)
-            mol.bond(a,x)
-        return a
-
-    def bond3(self, el, lis):
-        s1, p1 = lis[0]
-        s2, p2 = lis[1]
-        s3, p3 = lis[2]
-        pos = (p1+p2+p3)/3.0
-        opos =  (s1.posn() + s2.posn() + s3.posn())/3.0
-
-        mol = s1.molecule
-        a = atom(el.symbol, pos, mol)
-
-        s1.bonds[0].rebond(s1, a)
-        s2.bonds[0].rebond(s2, a)
-        s3.bonds[0].rebond(s3, a)
-
-        if el.numbonds > 3:
-            # bruce 041215 to fix a bug (just reported in email, no bug number):
-            # Only do this if we want more bonds.
-            # (But nothing done to handle more than 4 desired bonds; see comment
-            #  in bond4.)
-            opos = pos + el.rcovalent*norm(pos-opos)
-            x = atom('X', opos, mol)
-            mol.bond(a,x)
-        return a
-
-    def bond4(self, el, lis):
-        s1, p1 = lis[0]
-        s2, p2 = lis[1]
-        s3, p3 = lis[2]
-        s4, p4 = lis[3]
-        pos = (p1+p2+p3+p4)/4.0
-        opos =  (s1.posn() + s2.posn() + s3.posn() + s4.posn())/4.0
-
-        mol = s1.molecule
-        a = atom(el.symbol, pos, mol)
-
-        s1.bonds[0].rebond(s1, a)
-        s2.bonds[0].rebond(s2, a)
-        s3.bonds[0].rebond(s3, a)
-        s4.bonds[0].rebond(s4, a)
-        # bruce 041215 note: this assumes el.numbonds is <= 4.
-        # This is not true for all elements in our table, chem.Mendeleev,
-        # though a comment there claims we only use elements for which it's true
-        # (but nothing makes me confident that comment is up-to-date). #k
-        
-        return a
+        mol = s1.molecule # (same as its realneighbor's mol)
+        totpos = + p1 # (copy it, so += can be safely used below)
+        for sk, pk in lis[1:]: # 0 or more pairs after the first
+            totpos += pk # warning: += can modify a mutable totpos
+        pos = totpos / (0.0 + len(lis)) # use average of ideal positions
+        atm = atom(el.symbol, pos, mol)
+        for sk, pk in lis:
+            sk.bonds[0].rebond(sk, atm)
+        return atm
 
     ####################
     # buttons

@@ -504,7 +504,14 @@ class atom:
                 print "bug warning: dispdef == diDEFAULT in atom.howdraw for %r" % self
             dispdef = default_display_mode # silently work around that bug [bruce 041206]
         if self.element == Singlet:
-            disp, rad_unused = self.bonds[0].other(self).howdraw(dispdef)
+            try:
+                disp, rad_unused = self.bonds[0].other(self).howdraw(dispdef)
+            except:
+                # exceptions here (e.g. from bugs causing unbonded singlets)
+                # cause too much trouble in other places to be permitted
+                # (e.g. in selradius_squared and recomputing the array of them)
+                # [bruce 041215]
+                disp = default_display_mode
         else:
             if self.display == diDEFAULT:
                 disp = dispdef
@@ -781,10 +788,10 @@ class atom:
         # (in fact our only caller as of 041118, modifySeparate, does it redundantly)
         self.molecule.delatom(self) # this also invalidates our bonds
         numol.addatom(self)
-        for a in self.singNeighbors():
+        for atm in self.singNeighbors():
             assert self.element != Singlet # (only if we have singNeighbors!)
                 # (since hopmol would infrecur if two singlets were bonded)
-            a.hopmol(numol)
+            atm.hopmol(numol)
         return
     
     def neighbors(self):
@@ -795,25 +802,28 @@ class atom:
     def realNeighbors(self):
         """return a list of the atoms not singlets bonded to this one
         """
-        return filter(lambda a: a.element != Singlet, self.neighbors())
+        return filter(lambda atm: atm.element != Singlet, self.neighbors())
     
     def singNeighbors(self):
         """return a list of the singlets bonded to this atom
         """
-        return filter(lambda a: a.element == Singlet, self.neighbors())
+        return filter(lambda atm: atm.element == Singlet, self.neighbors())
     
     def mvElement(self, elt):
-        """(Public method:)
+        """[Public low-level method:]
         Change the element type of this atom to element elt
         (an element object for a real element, not Singlet),
         and do the necessary invalidations.
-        Note: this does not change any atom or singlet positions, so callers
-        wanting to correct bond lengths need to do that themselves.
+           Note: this does not change any atom or singlet positions, so callers
+        wanting to correct the bond lengths need to do that themselves.
+        It does not even delete or add extra singlets to match the new element
+        type; for that, use atom.Transmute.
         """
         if platform.atom_debug:
             if elt == Singlet: #bruce 041118
                 # this is unsupported; if we support it it would require
                 # moving this atom to its neighbor atom's chunk, too
+                # [btw we *do* permit self.element == Singlet before we change it]
                 print "fyi, bug?: mvElement changing %r to a singlet" % self
         self.element = elt
         for b in self.bonds:
@@ -919,7 +929,7 @@ class atom:
         return # from atom.kill
 
     def Hydrogenate(self):
-        """(Public method; does all needed invalidations)
+        """[Public method; does all needed invalidations:]
         If this atom is a singlet, change it to a hydrogen,
         and assuming it was already at the right distance from its neighbor
         when it was a singlet (not checked), move it farther away so this
@@ -937,10 +947,10 @@ class atom:
         return
 
     def Dehydrogenate(self):
-        """If this is a hydrogen atom (and if it was not already killed),
+        """[Public method; does all needed invalidations:]
+        If this is a hydrogen atom (and if it was not already killed),
         kill it and return 1 (int, not boolean), otherwise return 0.
         (Killing it should produce a singlet unless it was bonded to one.)
-        (Public method; does all needed invalidations.)
         """
         # [fyi: some new features were added by bruce, 041018 and 041029;
         #  need for callers to shakedown or kill mols removed, bruce 041116]
@@ -966,9 +976,12 @@ class atom:
         self.setposn(np)
         ## self.molecule.curpos[self.index] = np
 
-    def passivate(self):
-        """change the element type of the atom to match the number of
-        bonds with other real atoms, and delete singlets"""
+    def Passivate(self):
+        """[Public method, does all needed invalidations:]
+        Change the element type of this atom to match the number of
+        bonds with other real atoms, and delete singlets.
+        """
+        # bruce 041215 modified docstring, added comments, capitalized name
         el = self.element
         line = len(PTsenil)
         for i in range(line):
@@ -976,11 +989,16 @@ class atom:
                 line = i
                 break
         if line == len(PTsenil): return #not in table
+        # (note: we depend on singlets not being in the table)
         nrn = len(self.realNeighbors())
-        for a in self.singNeighbors():
-            a.kill()
-        try: self.mvElement(PTsenil[line][nrn])
-        except IndexError: pass
+        for atm in self.singNeighbors():
+            atm.kill()
+        try:
+            newelt = PTsenil[line][nrn]
+        except IndexError:
+            pass # bad place for status msg, since called on many atoms at once
+        else:
+            self.mvElement(newelt)
         # note that if an atom has too many bonds we'll delete the
         # singlets anyway -- which is fine
 
@@ -1011,11 +1029,185 @@ class atom:
         print "atom.update_everything() does nothing"
         return
 
+    def Transmute(self, elt): #bruce 041215, written to fix bug 131
+        """[Public method, does all needed invalidations:]
+        If this is a real atom, change its element type to elt (not Singlet),
+        and replace its singlets (if any) with new ones (if any are needed)
+        to match the desired number of bonds for the new element type.
+        Never remove real bonds, even if there are too many. Don't change
+        bond lengths (except to replaced singlets) or atom positions.
+        """
+        if self.element == Singlet:
+            return
+        if self.element == elt and len(self.bonds) == elt.numbonds:
+            # leave existing singlet positions alone, if right number
+            return
+        # in all other cases, replace all singlets with 0 or more new ones
+        for atm in self.singNeighbors():
+            atm.kill()
+                # (since atm is a singlet, this doesn't replace it with a singlet)
+        self.mvElement(elt)
+        self.make_enough_singlets()
+
+    def make_enough_singlets(self): #bruce 041215, written to fix bug 131
+        """[Public method, does all needed invalidations:]
+        Add 0 or more singlets to this real atom, until it has as many bonds
+        as its element type prefers (but at most 4, since we use special-case
+        code whose knowledge only goes that high). Add them in good positions
+        relative to existing bonds (if any) (which are not changed, whether
+        they are real or open bonds).
+        """
+        if len(self.bonds) >= self.element.numbonds:
+            return # don't want any more bonds
+        # number of existing bonds tells how to position new open bonds
+        # (for some n we can't make arbitrarily high numbers of wanted open
+        # bonds; for other n we can; we can always handle numbonds <= 4)
+        n = len(self.bonds)
+        if n == 0:
+            self.make_singlets_when_no_bonds()
+        elif n == 1:
+            self.make_singlets_when_1_bond()
+        elif n == 2:
+            self.make_singlets_when_2_bonds()
+        elif n == 3:
+            self.make_singlets_when_3_bonds() # (makes at most one open bond)
+        else:
+            pass # no code for adding open bonds to 4 or more existing bonds
+        return
+
+    # the make_singlets methods were split out of the private depositMode methods
+    # (formerly called bond1 - bond4), to help implement atom.Transmute [bruce 041215]
+
+    def make_singlets_when_no_bonds(self):
+        "[private method; see docstring for make_singlets_when_2_bonds]"
+        # unlike the others, this was split out of oneUnbonded [bruce 041215]
+        elem = self.element
+        if elem.bonds and elem.bonds[0][2]:
+            r = elem.rcovalent
+            pos = self.posn()
+            mol = self.molecule
+            for dp in elem.bonds[0][2]:
+                x = atom('X', pos+r*dp, mol)
+                mol.bond(self,x)
+        return
+    
+    def make_singlets_when_1_bond(self):
+        "[private method; see docstring for make_singlets_when_2_bonds]"
+        ## print "what the heck is this global variable named a doing here? %r" % (a,)
+        ## its value is 0.85065080835203999; where does it come from? it hide bugs. ###@@@
+        assert len(self.bonds) == 1
+        assert not self.is_singlet()
+        el = self.element
+        if len(el.quats): #bruce 041119 revised to support "onebond" elements
+            # There is at least one other bond we should make (as open bond);
+            # this rotates the atom to match the existing bond
+            pos = self.posn()
+            s1pos = self.bonds[0].ubp(self)
+            r = s1pos - pos
+            del s1pos # same varname used differently below
+            rq = Q(r,el.base)
+            # if the other atom has any other bonds, align 60 deg off them
+            # [bruce 041215 comment: might need revision if numbonds > 4]
+            a1 = self.bonds[0].other(self) # our real neighbor
+            if len(a1.bonds)>1:
+                # don't pick ourself
+                if self == a1.bonds[0].other(a1):
+                    a2pos = a1.bonds[1].other(a1).posn()
+                else:
+                    a2pos = a1.bonds[0].other(a1).posn()
+                s1pos = pos+(rq + el.quats[0] - rq).rot(r)
+                spin = twistor(r,s1pos-pos, a2pos-a1.posn()) + Q(r, pi/3.0)
+            else: spin = Q(1,0,0,0)
+            mol = self.molecule
+            for q in el.quats:
+                q = rq + q - rq - spin
+                x = atom('X', pos+q.rot(r), mol)
+                mol.bond(self,x)
+        return
+        
+    def make_singlets_when_2_bonds(self):
+        """[private method for make_enough_singlets:]
+        Given an atom with exactly 2 real bonds (and no singlets),
+        see if it wants more bonds (due to its element type),
+        and make extra singlets if so,
+        in good positions relative to the existing real bonds.
+        Precise result might depend on order of existing bonds in self.bonds.
+        """
+        assert len(self.bonds) == 2 # usually both real bonds; doesn't matter
+        el = self.element
+        if el.numbonds <= 2: return # optimization
+        # rotate the atom to match the 2 bonds it already has
+        # (i.e. figure out a suitable quat -- no effect on atom itself)
+        pos = self.posn()
+        s1pos = self.bonds[0].ubp(self)
+        s2pos = self.bonds[1].ubp(self)
+        r = s1pos - pos
+        rq = Q(r,el.base)
+        # this moves the second bond to a possible position;
+        # note that it doesn't matter which bond goes where
+        q1 = rq + el.quats[0] - rq
+        b2p = q1.rot(r)
+        # rotate it into place
+        tw = twistor(r, b2p, s2pos - pos)
+        # now for all the rest
+        # (I think this should work for any number of new bonds [bruce 041215])
+        mol = self.molecule
+        for q in el.quats[1:]:
+            q = rq + q - rq + tw
+            x = atom('X', pos+q.rot(r), mol)
+            mol.bond(self,x)
+        return
+
+    def make_singlets_when_3_bonds(self):
+        "[private method; see docstring for make_singlets_when_2_bonds]"
+        assert len(self.bonds) == 3
+        el = self.element
+        if el.numbonds > 3:
+            # bruce 041215 to fix a bug (just reported in email, no bug number):
+            # Only do this if we want more bonds.
+            # (But nothing is done to handle more than 4 desired bonds.
+            #  Our element table has a comment claiming that its elements with
+            #  numbonds > 4 are not yet used, but nothing makes me confident
+            #  that comment is up-to-date.)
+            pos = self.posn()
+            s1pos = self.bonds[0].ubp(self)
+            s2pos = self.bonds[1].ubp(self)
+            s3pos = self.bonds[2].ubp(self)
+            opos = (s1pos + s2pos + s3pos)/3.0
+            try:
+                assert vlen(pos-opos) > 0.001
+                dir = norm(pos-opos)
+            except:
+                # [bruce 041215:]
+                # fix unreported unverified bug (self at center of its neighbors):
+                if platform.atom_debug:
+                    print "fyi: atom_debug: self at center of its neighbors (more or less)",self,self.bonds
+                dir = cross(s1pos-pos,s2pos-pos) ###@@@ need to test this!
+            opos = pos + el.rcovalent*dir
+            mol = self.molecule
+            x = atom('X', opos, mol)
+            mol.bond(self,x)
+        return
+
     pass # end of class atom
 
 def singlet_atom(singlet):
     "return the atom a singlet is bonded to, checking assertions"
     return singlet.singlet_neighbor()
+
+def oneUnbonded(elem, assy, pos):
+    """[bruce comment 040928:] create one unbonded atom, of element elem,
+    at position pos, in its own new molecule."""
+    # bruce 041215 moved this from chunk.py to chem.py, and split part of it
+    # into the new atom method make_singlets_when_no_bonds, to help fix bug 131.
+    mol = molecule(assy, 'bug') # name is reset below!
+    atm = atom(elem.symbol, pos, mol)
+    # bruce 041124 revised name of new mol, was gensym('Chunk.');
+    # no need for gensym since atom key makes the name unique, e.g. C1.
+    mol.name = "Chunk-%s" % str(atm)
+    atm.make_singlets_when_no_bonds()
+    assy.addmol(mol)
+    return atm
 
 # ==
 
