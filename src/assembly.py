@@ -791,7 +791,7 @@ class assembly:
         # that function itself is not reviewed for safety when called from here,
         # but it might be ok, tho better to consolidate its messages into one
         # (as in the "extension of that fix to the clipboard" it now comments about).
-        if platform.atom_debug:
+        if 0 and platform.atom_debug: #bruce 050215 this is indeed None for mols copied by mol.copy
             print "atom_debug: fyi: sanitize_for_clipboard sees selgroup of ob is %r" % ob.find_selection_group()
             ###e if this is None, then I'll have an easy way to break bonds from this item to stuff in the main model (bug 371)
             #e i.e. break_wormholes() or break_interspace_bonds()
@@ -924,10 +924,12 @@ class assembly:
         
         if new.members:
             nshelf_before = len(self.shelf.members) #bruce 050201
-            for ob in new.members:
+            for ob in new.members[:]:
+                # [bruce 050215 copying that members list, to fix bug 360 comment #6 (item 5),
+                # which I introduced in Alpha-2 by making addmember remove ob from its prior home,
+                # thus modifying new.members during this loop]
                 self.sanitize_for_clipboard(ob) # not needed on 050131 but might be needed soon, and harmless
                 self.shelf.addmember(ob) # add new member(s) to the clipboard
-                #bruce comment 050131: this ignores prior membership in new; tolerable in this case
                 # if the new member is a molecule, move it to the center of its space
                 if isinstance(ob, molecule): ob.move(-ob.center)
             ## ob.pick() # bruce 050131 removed this
