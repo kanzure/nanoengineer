@@ -726,6 +726,9 @@ class Node:
 #    def writemdl(self, atnum, alist, f, dispdef):
 #        pass
 
+    def writepov(self, file, dispdef): #bruce 050208 added Node default method
+        pass
+
     def draw(self, o, dispdef):
         pass
         
