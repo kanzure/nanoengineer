@@ -181,12 +181,12 @@ void xyz_frame_read(void) {
 		if (avg[i].z < zmin) zmin = avg[i].z;
 		if (avg[i].z > zmax) zmax = avg[i].z;
 	}
-	Bbox[0].x = xmin;
-	Bbox[0].y = ymin;
-	Bbox[0].z = zmin;
-	Bbox[1].x = xmax;
-	Bbox[1].y = ymax;
-	Bbox[1].z = zmax;
+	Bbox[0].x = xmin - 100.0;
+	Bbox[0].y = ymin - 100.0;
+	Bbox[0].z = zmin - 100.0;
+	Bbox[1].x = xmax + 100.0;
+	Bbox[1].y = ymax + 100.0;
+	Bbox[1].z = zmax + 100.0;
 }
 
 
