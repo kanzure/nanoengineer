@@ -208,9 +208,11 @@ class basicMode(anyMode):
         self.makeMenus() # bruce 040923 moved this here, from the subclasses
         # bruce 041103 changed details of what self.makeMenus() should do
         for attr in ['Menu1','Menu2','Menu3']:
-            assert not hasattr(self, attr), "obsolete menu attr should not be defined: %r.%s" % (self, attr)
+            assert not hasattr(self, attr), \
+                "obsolete menu attr should not be defined: %r.%s" % (self, attr)
         # makeMenus should have set self.Menu_spec, and maybe some sister attrs
-        assert hasattr(self, 'Menu_spec'), "%r.makeMenus() failed to set up self.Menu_spec (to be a menu spec list)" % self
+        assert hasattr(self, 'Menu_spec'), "%r.makeMenus() failed to set up" \
+               " self.Menu_spec (to be a menu spec list)" % self
         orig_Menu_spec = list(self.Menu_spec)
             # save a copy for comparisons, before we modify it
         # define the ones not defined by makeMenus;
@@ -250,8 +252,6 @@ class basicMode(anyMode):
             # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
             # or   "Control-Command Menu" vs. "Right-Control Menu".
             # [bruce 041014]
-##            ('%s-%s Menu' % (context_menu_prefix(), shift_name()), self.Menu2),
-##            ('%s-%s Menu' % (context_menu_prefix(), control_name()), self.Menu3),
         self.Menu1 = self.makemenu(self.Menu_spec)
         self.Menu2 = self.makemenu(self.Menu_spec_shift)
         self.Menu3 = self.makemenu(self.Menu_spec_control)
@@ -690,8 +690,6 @@ class basicMode(anyMode):
     # middle mouse button actions -- these support a trackball, and
     # are the same for all modes (with a few exceptions)
     def middleDown(self, event):
-#        print "modes.py: middleDown(): Current Cursor = ", self.o.cursor()
-#        print "modes.py: middleDown(): Current Cursor saved in Oldcursor"
         self.w.OldCursor = QCursor(self.o.cursor())
         # save copy of current cursor in OldCursor
         self.o.setCursor(self.w.RotateCursor) # load RotateCursor in glpane
@@ -708,7 +706,6 @@ class basicMode(anyMode):
         self.picking = 0
 
     def middleUp(self, event):
-#        print "modes.py: middleUp(): Oldcursor restored", self.w.OldCursor
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleShiftDown(self, event):
@@ -799,25 +796,26 @@ class basicMode(anyMode):
     # right button actions... #doc
     
     def rightDown(self, event):
-        self.Menu1.popup(event.globalPos(),3)
+        self.Menu1.exec_loop(event.globalPos(),3)
+        # bruce 041103 changed .popup to .exec_loop purely for consistency --
+        # no idea whether the difference matters, or if so, which is best.
+        # Either way, the menu stays up if you click rather than drag
+        # (which I don't like); this might be fixable in the mouseup methods.
     
     def rightDrag(self, event):
         pass
     
     def rightUp(self, event):
-        #print "modes.py: rightUp()"
         pass
     
     def rightShiftDown(self, event):
         self.Menu2.exec_loop(event.globalPos(),3)
-#        print "modes.py: rightShiftDown()"
 
                 
     def rightShiftDrag(self, event):
         pass
     
     def rightShiftUp(self, event):
-#        print "modes.py: rightShiftUp()"
         pass
     
     def rightCntlDown(self, event):
