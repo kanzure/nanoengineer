@@ -152,6 +152,7 @@ def _readmmp(assy, filnam, isInsert = False):
     mol = None
     ndix={}
     assy.alist = []
+    AddAtoms = True
     #assy.tree = Group("Root", assy, None)
     groupstack = [] #stack to store (group, name) tuples
     grouplist = []     #List of top level groups will be returned by the function
@@ -161,7 +162,7 @@ def _readmmp(assy, filnam, isInsert = False):
         key=keypat.match(card)
         if not key: continue
         key = key.group(0)
-
+        
         if key == "group": # Group of Molecules and/or Groups
             ##Huaicai to fix bug 142---12/09/04
             if mol:
@@ -212,8 +213,9 @@ def _readmmp(assy, filnam, isInsert = False):
                 try: a.setDisplay(dispNames.index(disp.group(1)))
                 except ValueError: pass
                     
-            assy.alist += [a]
-            ndix[n]=a
+            if AddAtoms: 
+                assy.alist += [a]
+                ndix[n]=a
             prevatom=a
             prevcard = card
             
@@ -346,6 +348,10 @@ def _readmmp(assy, filnam, isInsert = False):
                 m = re.match("kelvin (\d+)",card)
                 n = int(m.group(1))
                 assy.temperature = n
+                
+        elif key=="end1":  # End of main tree
+            print "End of tree found"
+            AddAtoms = False
     
     return grouplist        
             
@@ -383,7 +389,6 @@ def writemmp(assy, filename):
     f.write("end1\n")
     
     assy.shelf.writemmp(atnums, assy.alist, f)
-    
                      
     f.write("end molecular machine part " + assy.name + "\n")
     f.close()
@@ -431,6 +436,11 @@ def writepov(assy, filename):
 def writemdl(assy, filename):
     assy.alist = []
     natoms = 0
+    # Specular values keyed by atom color 
+    # Only Carbon, Hydrogen and Silicon supported here
+    specValues = {(117,117,117):((183, 183, 183), 16, 44), \
+                       (256,256,256):((183, 183, 183), 15, 44), \
+                       (111,93,133):((187,176,200), 16, 44)}
 
     # Determine the number of visible atoms in the part.
     # Invisible (not hidden) atoms are drawn
@@ -478,6 +488,14 @@ def writemdl(assy, filename):
             rgb=map(int,A(color)*255) # rgb = 3-tuple of int
             color=(int(rgb[0]), int(rgb[1]), int(rgb[2]))
             f.write("DiffuseColor=%d %d %d\n"%color)
+
+            # Added specularity per John Burch's request
+            # Specular values keyed by atom color           
+            (specColor, specSize, specIntensity) = \
+             specValues.get(color, ((183,183,183),16,44))
+            f.write("SpecularColor=%d %d %d\n"%specColor)
+            f.write("SpecularSize=%d\n"%specSize)
+            f.write("SpecularIntensity=%d\n"%specIntensity)
             
             # End the group for this atom.
             f.write("[ENDGROUP]\n")
@@ -487,19 +505,6 @@ def writemdl(assy, filename):
     # ENDGROUPS
     f.write("[ENDGROUPS]\n")
 
-#    for atom in range(natoms):
-#        (xyz, size, rgb) = assy.alist[atom]
-#        print "fileIO.writemdl(): xyz = ",xyz,", size = ",size,", rgb = ",rgb
-#        f.write("[GROUP]\nName=Atom%d\nCount=80\n"%atom)
-#        for j in range(80):
-#            f.write("%d\n"%(98-j+atom*80))
-#        pos=(float(xyz[0]), float(xyz[1]), float(xyz[2]))
-#        f.write("Pivot=%f %f %f\n" % pos)
-#        color=(int(rgb[0]), int(rgb[1]), int(rgb[2]))
-#        f.write("DiffuseColor=%d %d %d\n"%color)
-#        f.write("[ENDGROUP]\n")
-#    f.write("[ENDGROUPS]\n")
-    
     # Write the footer and close
     fpos = f.tell()
     f.write(mdlfooter)
