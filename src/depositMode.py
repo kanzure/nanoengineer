@@ -214,7 +214,7 @@ class depositMode(basicMode):
 
 
     def restore_patches(self):
-        self.o.display = self.saveDisp
+    	self.o.setDisplay(self.saveDisp) #bruce 041129; see notes for bug 133
         self.o.selatom = None
 
     def clear(self):
