@@ -67,7 +67,7 @@ def createWhatsThis(self):
 
         self.editRedoAction.setWhatsThis( editRedoText )
         
-         #### Cut ####
+        #### Cut ####
         
         editCutText =  "<u><b>Cut</b></u>     (Ctrl + X)</b></p><br> "\
                        "<p><img source=\"editCut\"><br> "\
@@ -93,7 +93,7 @@ def createWhatsThis(self):
 
         self.editCopyAction.setWhatsThis( editCopyText )
         
-         #### Paste ####
+        #### Paste ####
         
         editPasteText = "<u><b>Paste</b></u>     (Ctrl + V)</b></p><br> "\
                        "<p><img source=\"editPaste\"><br> "\
@@ -159,7 +159,7 @@ def createWhatsThis(self):
 
         self.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )       
         
-         #### Zoom Tool ####
+        #### Zoom Tool ####
         
         setzoomToolActionText = "<u><b>Zoom Tool</b></u><br>"\
                        "<p><img source=\"setzoomTool\"><br> "\
@@ -174,7 +174,7 @@ def createWhatsThis(self):
         self.zoomToolAction.setWhatsThis( setzoomToolActionText )      
 
         
-         #### Pan Tool ####
+        #### Pan Tool ####
         
         setpanToolActionText = "<u><b>Pan Tool</b></u><br>"\
                        "<p><img source=\"setpanTool\"><br> "\
@@ -188,7 +188,7 @@ def createWhatsThis(self):
         self.panToolAction.setWhatsThis( setpanToolActionText )
 
         
-         #### Rotate Tool ####
+        #### Rotate Tool ####
         
         setrotateToolActionText = "<u><b>Rotate Tool</b></u><br>"\
                        "<p><img source=\"setrotateTool\"><br> "\
@@ -201,7 +201,7 @@ def createWhatsThis(self):
 
         self.rotateToolAction.setWhatsThis( setrotateToolActionText )
         
-         #### Orthographic Projection ####
+        #### Orthographic Projection ####
         
         setViewOrthoActionText = "<u><b>Orthographic Projection</b></u><br>"\
                        "<p><img source=\"setViewOrtho\"><br> "\
@@ -213,7 +213,7 @@ def createWhatsThis(self):
 
         self.setViewOrthoAction.setWhatsThis( setViewOrthoActionText )
 
-           #### Perspective Projection ####
+        #### Perspective Projection ####
         
         setViewPerspecActionText = "<u><b>Perspective Projection</b></u><br>"\
                        "<p><img source=\"setViewPerspec\"><br> "\
@@ -226,7 +226,7 @@ def createWhatsThis(self):
 
         self.setViewPerspecAction.setWhatsThis( setViewPerspecActionText )        
 
-           #### Front View ####
+        #### Front View ####
         
         setViewFrontActionText = "<u><b>Front View</b></u><br>"\
                        "<p><img source=\"setViewFront\"><br> "\
@@ -238,7 +238,7 @@ def createWhatsThis(self):
 
         self.setViewFrontAction.setWhatsThis( setViewFrontActionText )  
 
-           #### Back View ####
+        #### Back View ####
         
         setViewBackActionText = "<u><b>Back View</b></u><br>"\
                        "<p><img source=\"setViewBack\"><br> "\
@@ -250,7 +250,7 @@ def createWhatsThis(self):
 
         self.setViewBackAction.setWhatsThis( setViewBackActionText )     
         
-                   #### Top View ####
+        #### Top View ####
         
         setViewTopActionText = "<u><b>Top View</b></u><br>"\
                        "<p><img source=\"setViewTop\"><br> "\
@@ -262,7 +262,7 @@ def createWhatsThis(self):
 
         self.setViewTopAction.setWhatsThis( setViewTopActionText )      
         
-                           #### Bottom View ####
+        #### Bottom View ####
         
         setViewBottomActionText = "<u><b>Bottom View</b></u><br>"\
                        "<p><img source=\"setViewBottom\"><br> "\
@@ -355,7 +355,7 @@ def createWhatsThis(self):
                        "of the main window.  The Default Display Mode can be easily changed "\
                        "by unselecting everything (i.e. Select None) and selecting a "\
                        "different Display Mode.</p>"\
-                       "<p><b>Display Default</b> mimics <b>Display VwD</b> when the "\
+                       "<p><b>Display Default</b> mimics <b>Display VdW</b> when the "\
                        "Default Display Mode is set to <b>Display Default</b>.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispDefaultAction",
@@ -363,7 +363,7 @@ def createWhatsThis(self):
 
         self.dispDefaultAction.setWhatsThis(dispDefaultActionText )
  
-         #### Display Invisible ####
+        #### Display Invisible ####
 
         dispInvisActionText = "<u><b>Display Invisible</b></u><br>"\
                        "<p><img source=\"dispInvisAction\"><br> "\
@@ -380,7 +380,7 @@ def createWhatsThis(self):
 
         self.dispInvisAction.setWhatsThis(dispInvisActionText )       
 
-           #### Display Lines ####
+        #### Display Lines ####
 
         dispLinesActionText = "<u><b>Display Lines</b></u><br>"\
                        "<p><img source=\"dispLinesAction\"><br> "\
@@ -433,7 +433,7 @@ def createWhatsThis(self):
 
         self.dispCPKAction.setWhatsThis(dispCPKActionText ) 
         
-         #### Display VdW ####
+        #### Display VdW ####
 
         dispVdWActionText = "<u><b>Display VdW</b></u><br>"\
                        "<p><img source=\"dispVdWAction\"><br> "\
@@ -548,7 +548,7 @@ def createWhatsThis(self):
 
         self.modifyHydrogenateAction.setWhatsThis(modifyHydrogenateActionText )
 
-          #### Dehydrogenate ####
+        #### Dehydrogenate ####
 
         modifyDehydrogenateActionText = "<u><b>Dehydrogenate</b></u><br>"\
                        "<p><img source=\"modifyDehydrogenateAction\"><br> "\
@@ -670,7 +670,7 @@ def createWhatsThis(self):
        
         self. toolsSelectAtomsAction.setWhatsThis( toolsSelectAtomsActionText ) 
         
-         #### Move Chunks ####
+        #### Move Chunks ####
 
         toolsMoveMoleculeActionText = "<u><b>Move Chunks</b></u><br>"\
                        "<p><img source=\" toolsMoveMoleculeAction\"><br> "\
@@ -702,8 +702,8 @@ def createWhatsThis(self):
                                                        self. toolsCookieCutAction.iconSet().pixmap() )
        
         self. toolsCookieCutAction.setWhatsThis( toolsCookieCutActionText )
-        
-         #### Extrude Tool ####
+       
+        #### Extrude Tool ####
 
         toolsExtrudeActionText = "<u><b>Extrude Tool</b></u><br>"\
                        "<p><img source=\" toolsExtrudeAction\"><br> "\
@@ -818,7 +818,7 @@ def createWhatsThis(self):
        
         self.jigsGroundAction.setWhatsThis(jigsGroundActionText )  
         
-         #### Rotary Motor ####
+        #### Rotary Motor ####
 
         jigsMotorActionText = "<u><b>Rotary Motor</b></u><br>"\
                        "<p><img source=\"jigsMotorAction\"><br> "\
@@ -833,7 +833,7 @@ def createWhatsThis(self):
        
         self.jigsMotorAction.setWhatsThis(jigsMotorActionText )  
         
-         #### Linear Motor ####
+        #### Linear Motor ####
 
         jigsLinearMotorActionText = "<u><b>Linear Motor</b></u><br>"\
                        "<p><img source=\"jigsLinearMotorAction\"><br> "\
@@ -898,7 +898,7 @@ def createWhatsThis(self):
        
         self.dispObjectColorAction.setWhatsThis(dispObjectColorActionText ) 
         
-         #### Display Background Color ####
+        #### Display Background Color ####
 
         dispBGColorActionText = "<u><b>Background Color</b></u><br>"\
                        "<p><img source=\"dispBGColorAction\"><br> "\
