@@ -1123,6 +1123,7 @@ class molecule(Node):
         for a in mol.atoms.values():
             a.hopmol(self)
         self.shakedown()
+        mol.externs = []
         mol.kill()
 
 def oneUnbonded(elem, assy, pos):

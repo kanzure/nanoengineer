@@ -589,7 +589,6 @@ class depositMode(basicMode):
         self.w.pasteP = False
         self.pastable = None
         self.w.depositAtomDashboard.atomRB.setOn(True)
-        print 'set atom', self.w.Element
 
     ####################
     # utility routines
