@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1091</width>
-            <height>872</height>
+            <height>875</height>
         </rect>
     </property>
     <property name="caption">
@@ -120,7 +120,7 @@
     </item>
     <item text="&amp;Help" name="helpMenu">
         <action name="helpContentsAction"/>
-        <action name="helpIndexAction"/>
+        <action name="helpAssistantAction"/>
         <separator/>
         <action name="helpAboutAction"/>
     </item>
@@ -709,13 +709,10 @@
     </action>
     <action>
         <property name="name">
-            <cstring>helpIndexAction</cstring>
+            <cstring>helpAssistantAction</cstring>
         </property>
         <property name="text">
-            <string>Index</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Index...</string>
+            <string>nanoENGINEER-1 Assistant</string>
         </property>
         <property name="accel">
             <string></string>
@@ -726,10 +723,10 @@
             <cstring>helpAboutAction</cstring>
         </property>
         <property name="text">
-            <string>About</string>
+            <string>About nanoENGINEER-1</string>
         </property>
         <property name="menuText">
-            <string>&amp;About</string>
+            <string>&amp;About nanoENGINEER-1</string>
         </property>
         <property name="accel">
             <string></string>
@@ -3044,10 +3041,10 @@
         <slot>helpContents()</slot>
     </connection>
     <connection>
-        <sender>helpIndexAction</sender>
+        <sender>helpAssistantAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>helpIndex()</slot>
+        <slot>helpAssistant()</slot>
     </connection>
     <connection>
         <sender>jigsBearingAction</sender>
@@ -3583,6 +3580,7 @@
     <slot>fileInsert()</slot>
     <slot>modifyDehydrogenate()</slot>
     <slot>helpWhatsThis()</slot>
+    <slot>helpAssistant()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

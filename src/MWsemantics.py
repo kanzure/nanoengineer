@@ -12,6 +12,7 @@ from qt import SIGNAL, SLOT, QListView, QListViewItem, QFileDialog
 from GLPane import *
 import os
 import help
+import assistant
 from runSim import runSim
 from modelTree import *
 
@@ -22,6 +23,7 @@ from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
 helpwindow = None
+assistantwindow = None
 elementwindow = None
 windowList = []
 
@@ -713,10 +715,16 @@ class MWsemantics(MainWindow):
         if not helpwindow: helpwindow = help.Help()
         helpwindow.show()
 
-    def helpIndex(self):
-        print "MWsemantics.helpIndex(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
-	         "This function is not implemented yet, coming soon...")
+    def helpAssistant(self):
+        global assistantwindow
+        nedirenv = os.environ['NE1DIR']
+        if nedirenv != None:
+            home = nedirenv + '/cad/doc/html/index.html'
+
+        if not assistantwindow: 
+            assistantwindow = assistant.AssistantWindow(home,QStringList('.'),None,'help viewer')
+        assistantwindow.show()
+	         
     def helpAbout(self):
         QMessageBox.warning(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Nov 4 10:32:50 2004
+# Created: Fri Nov 5 00:26:16 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7142,7 +7142,7 @@ class MainWindow(QMainWindow):
         self.editFindAction = QAction(self,"editFindAction")
         self.editFindAction.setIconSet(QIconSet(self.image10))
         self.helpContentsAction = QAction(self,"helpContentsAction")
-        self.helpIndexAction = QAction(self,"helpIndexAction")
+        self.helpAssistantAction = QAction(self,"helpAssistantAction")
         self.helpAboutAction = QAction(self,"helpAboutAction")
         self.setViewFitToWindowAction = QAction(self,"setViewFitToWindowAction")
         self.setViewFitToWindowAction.setIconSet(QIconSet(self.image11))
@@ -7652,7 +7652,7 @@ class MainWindow(QMainWindow):
 
         self.helpMenu = QPopupMenu(self)
         self.helpContentsAction.addTo(self.helpMenu)
-        self.helpIndexAction.addTo(self.helpMenu)
+        self.helpAssistantAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
         self.helpAboutAction.addTo(self.helpMenu)
         self.MenuBar.insertItem(QString(""),self.helpMenu,10)
@@ -7660,7 +7660,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1091,872).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1091,875).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7700,7 +7700,7 @@ class MainWindow(QMainWindow):
         self.connect(self.fileSetWorkDirAction,SIGNAL("activated()"),self.fileSetWorkDir)
         self.connect(self.helpAboutAction,SIGNAL("activated()"),self.helpAbout)
         self.connect(self.helpContentsAction,SIGNAL("activated()"),self.helpContents)
-        self.connect(self.helpIndexAction,SIGNAL("activated()"),self.helpIndex)
+        self.connect(self.helpAssistantAction,SIGNAL("activated()"),self.helpAssistant)
         self.connect(self.jigsBearingAction,SIGNAL("activated()"),self.makeBearing)
         self.connect(self.jigsDynoAction,SIGNAL("activated()"),self.makeDyno)
         self.connect(self.jigsGroundAction,SIGNAL("activated()"),self.makeGround)
@@ -7813,11 +7813,11 @@ class MainWindow(QMainWindow):
         self.helpContentsAction.setText(self.__tr("Contents"))
         self.helpContentsAction.setMenuText(self.__tr("&Contents..."))
         self.helpContentsAction.setAccel(QString.null)
-        self.helpIndexAction.setText(self.__tr("Index"))
-        self.helpIndexAction.setMenuText(self.__tr("&Index..."))
-        self.helpIndexAction.setAccel(QString.null)
-        self.helpAboutAction.setText(self.__tr("About"))
-        self.helpAboutAction.setMenuText(self.__tr("&About"))
+        self.helpAssistantAction.setText(self.__tr("nanoENGINEER-1 Assistant"))
+        self.helpAssistantAction.setAccel(QString.null)
+        self.helpAssistantAction.setMenuText(self.__tr("nanoENGINEER-1 Assistant"))
+        self.helpAboutAction.setText(self.__tr("About nanoENGINEER-1"))
+        self.helpAboutAction.setMenuText(self.__tr("&About nanoENGINEER-1"))
         self.helpAboutAction.setAccel(QString.null)
         self.setViewFitToWindowAction.setText(self.__tr("Fit to Window"))
         self.setViewFitToWindowAction.setMenuText(self.__tr("&Fit to Window"))
@@ -8478,6 +8478,9 @@ class MainWindow(QMainWindow):
 
     def helpWhatsThis(self):
         print "MainWindow.helpWhatsThis(): Not implemented yet"
+
+    def helpAssistant(self):
+        print "MainWindow.helpAssistant(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
