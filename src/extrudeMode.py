@@ -60,7 +60,7 @@ def do_what_MainWindowUI_should_do(self):
     self.extrudeDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
     self.textLabel_extrude_toolbar = QLabel(self.extrudeDashboard,"textLabel_extrude_toolbar")
-    # below was "Extrude Mode", in two places in the file ########
+    # note: the string in the next line used to be "Extrude Mode", in two places in the file
     self.textLabel_extrude_toolbar.setText(self._MainWindow__tr("extrude or revolve 1")) # see note below about __tr
 
     self.extrudeDashboard.addSeparator()
@@ -141,7 +141,8 @@ def do_what_MainWindowUI_should_do(self):
             self.extrudePref1 = TogglePrefCheckBox("whole model", parent_now(), "extrudePref1",
                                                    default = False, attr = 'show_whole_model', repaintQ = True )
             self.extrudePref2 = TogglePrefCheckBox("bond-offset spheres", parent_now(), "extrudePref2",
-                                                   default = True,  attr = 'show_bond_offsets', repaintQ = True )
+                                                   default = False,  attr = 'show_bond_offsets', repaintQ = True )
+                #bruce 050218 don't show bond-offset spheres by default
         end()
         if begin(QHBox):
             insertlabel("when done: ")
@@ -238,7 +239,7 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
             right = glpane.right
             x,y,z = right # use default direction fixed in eyespace
             if not length:
-                length = 7.0 ######e needed?
+                length = 7.0 #k needed?
         except:
             print "fyi (bug?): in extrude: x,y,z = glpane.right failed"
             pass
@@ -421,7 +422,7 @@ class extrudeMode(basicMode):
             try:
                 hset = self.nice_offsets_handleset
             except AttributeError:
-                print "must be too early to patch self.nice_offsets_handleset -- could be a problem, it will miss this event #####" #######@@@
+                print "must be too early to patch self.nice_offsets_handleset -- could be a problem, it will miss this event" ###@@@
             else:
                 hset.radius_multiplier = self.bond_tolerance
             set_bond_tolerance_and_number_display(self.w, self.bond_tolerance) # number of resulting bonds not yet known, will be set later
@@ -650,7 +651,7 @@ class extrudeMode(basicMode):
             circumf = vlen(tangent) * cn
             radius = circumf / (2 * pi)
             radius_vec = cross(tangent, axis) * cn / (2 * pi)
-              ####### I might have this negative... it should point from c_center to basemol.center
+              #####k I might have this negative... it should point from c_center to basemol.center
             check_floats_near(vlen(radius_vec),radius) ##### BUG -- these are not near!!! ###### ###@@@
             c_center = basemol.center - radius_vec
             centerii = c_center + trans * ii + quatii_rel.rot(radius_vec) ##### probably wrong...
@@ -853,7 +854,7 @@ class extrudeMode(basicMode):
             self.should_update_model_tree = 0 # reset first, so crashing calls are not redone
             self.needs_repaint = 0
             self.w.win_update() # update glpane and model tree
-        elif self.needs_repaint: ###### merge with self.repaint_if_needed() #######@@@
+        elif self.needs_repaint: # merge with self.repaint_if_needed() ###@@@
             self.needs_repaint = 0
             self.o.gl_update() # just update glpane
         return
@@ -1074,7 +1075,7 @@ class extrudeMode(basicMode):
         #e repaint, or let caller do that (perhaps aftermore changes)? latter - only repaint at end of highest event funcs.
         return
 
-    def draw_bond_lines(self, unit1, unit2): #bruce 050203 experiment ####@@@@ DO NOT COMMIT until optimized (tho it might not matter)
+    def draw_bond_lines(self, unit1, unit2): #bruce 050203 experiment ####@@@@ PROBABLY NEEDS OPTIMIZATION
         "draw white lines showing the bonds we presently propose to make between the given adjacent units"
         # works now, but probably needs optim or memo of find_singlets before commit --
         # just store a mark->singlet table in the molcopies -- once when each one is made should be enough i think.
@@ -1083,7 +1084,7 @@ class extrudeMode(basicMode):
         for (pos,radius,info) in hh:
             i1,i2 = info
             ## not so simple as this: p1 = unit1.singlets[i1].posn()
-            p1 = self.find_singlet(unit1,i1).posn() # this is slow! have to optimize before putting it in (or make it optional)
+            p1 = self.find_singlet(unit1,i1).posn() # this is slow! need to optimize this (or make it optional)
             p2 = self.find_singlet(unit2,i2).posn()
             drawline(white, p1, p2)
         return
@@ -1100,6 +1101,9 @@ class extrudeMode(basicMode):
         self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
         self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
         self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
+            # (bruce 050218 comment: would the following tools be ok to allow?
+            #  No, because when they leave the mode and then reenter it, they make it
+            #  lose all its state. If we had suspend/resume for modes, they'd be fine. ###e)
         self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
         self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
         self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
