@@ -454,10 +454,6 @@ class extrudeMode(basicMode):
         self.repaint_if_needed()
         ##print "self.w.extrudePref1.isChecked() = %r" % self.w.extrudePref1.isChecked()
 
-    def now_using_this_mode_object(self): ###e refile this in modes.py basicMode?
-        "return true if the glpane is presently using this mode object (not just a mode object with the same name!)"
-        return self.o.mode == self ###k 041009
-
     def refuseEnter(self, warn):
         "if we'd refuse to enter this mode, then (iff warn) tell user why, and (always) return true."
         ok, mol = assy_extrude_unit(self.o.assy, really_make_mol = 0)
