@@ -296,6 +296,22 @@ def drawgrid(scale, center):
     #draw grid
     glDisable(GL_LIGHTING)
 
+    # bruce 041201:
+    #   Quick fix to prevent "hang" from drawing too large a cookieMode grid
+    # with our current cubic algorithm (bug 8). The constant 120.0 is still on
+    # the large side in terms of responsiveness -- on a 1.8GHz iMac G5 it can
+    # take many seconds to redraw the largest grid, or to update a selection
+    # rectangle during a drag. I also tried 200.0 but that was way too large.
+    # Since some users have slower machines, I'll be gentle and put 90.0 here.
+    #   Someday we need to fix the alg to be quadratic by teaching this code
+    # (and the cookie baker code too) about the eyespace clipping planes. 
+    #   Once we support user prefs, this should be one of them (if the alg is
+    # not fixed by then).
+    
+    MAX_GRID_SCALE = 90.0
+    if scale > MAX_GRID_SCALE:
+        scale = MAX_GRID_SCALE
+
     bblo = center-scale
     bbhi = center + scale
     i1 = int(floor(bblo[0]/DiGridSp))
