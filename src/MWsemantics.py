@@ -871,26 +871,28 @@ class MWsemantics(MainWindow):
             chunk.setcolor(None)
         self.glpane.gl_update()
         
-    def dispResetChunkDisplay(self):
-        "Resets the display mode for each atom in the selected chunks to Default display mode"
+    def dispResetAtomsDisplay(self):
+        "Resets the display setting for each atom in the selected chunks to Default display mode"
         if not self.assy.selmols: 
-            self.history.message(redmsg("Reset Chunk Display: No chunks selected."))
+            self.history.message(redmsg("Reset Atoms Display: No chunks selected."))
             return
             
-        self.assy.resetChunkDisplay()
-        msg = "Reset Chunk Display: Display mode for all atoms in selected chunk(s) reset to Default."
-        self.history.message(greenmsg(msg))
+        self.assy.resetAtomsDisplay()
+        self.history.message(greenmsg("Reset Atoms Display:"))
+        msg = "Display setting for all atoms in selected chunk(s) reset to Default."
+        self.history.message(msg)
 
         
     def dispShowInvisAtoms(self):
-        "Resets the display mode for each invisible atom in the selected chunks to Default display mode"
+        "Resets the display setting for each invisible atom in the selected chunks to Default display mode"
         if not self.assy.selmols: 
             self.history.message(redmsg("Show Invisible Atoms: No chunks selected."))
             return
             
-        nia = self.assy.resetInvisibleAtoms() # nia = Number of Invisible Atoms
-        msg = "Show Invisible Atoms: Display mode reset to Default for " + str(nia) +" atoms"
-        self.history.message(greenmsg(msg))
+        nia = self.assy.showInvisibleAtoms() # nia = Number of Invisible Atoms
+        self.history.message(greenmsg("Show Invisible Atoms:"))
+        msg = str(nia) + " invisible atoms found."
+        self.history.message(msg)
                     
     def dispBGColor(self):
         "let user change the current mode's background color"
