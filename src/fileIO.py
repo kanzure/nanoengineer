@@ -101,11 +101,11 @@ from povheader import povheader
 from mdldata import *
 from HistoryWidget import redmsg # bruce 050107
 
-nampat=re.compile("\\(([^)]*)\\)")
+nampat = re.compile("\\(([^)]*)\\)")
 old_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 new_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 datumpat = re.compile("datum \((.+)\) \((\d+), (\d+), (\d+)\) (.*) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
-keypat=re.compile("\S+")
+keypat = re.compile("\S+")
 molpat = re.compile("mol \(.*\) (\S\S\S)")
 atom1pat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\S\S\S)")
@@ -275,8 +275,10 @@ def readxyz(assy):
         
         
 def _addMolecule(mol, assy, group):
-        """Make sure to call this function before any other record operation except for record types: atom, bond, shaft and csys, dataum, walls, kelvin. This adds the previous molecule to its group """
-        
+        """Make sure to call this function before any other record operation
+        except for record types: atom, bond, shaft and csys, datum, walls,
+        kelvin. This adds the previous molecule to its group.
+        """
         assy.addmol(mol)
         mol.moveto(group)
         mol = None
@@ -284,14 +286,15 @@ def _addMolecule(mol, assy, group):
         return mol        
 
 
-def _readmmp(assy, filnam, isInsert = False):
+def _readmmp(assy, filename, isInsert = False):
     """The routine to actually reading a mmp file and save data
     into data structure"""
     #bruce 041011: added 'U' to file mode, for universal newline support.
-    l=open(filnam,"rU").readlines() 
-    if not isInsert: assy.filename=filnam
+    lines = open(filename,"rU").readlines() 
+    if not isInsert:
+        assy.filename = filename
     mol = None
-    ndix={}
+    ndix = {}
     assy.alist = []
     AddAtoms = True
     #assy.tree = Group("Root", assy, None)
@@ -299,15 +302,15 @@ def _readmmp(assy, filnam, isInsert = False):
     grouplist = []     #List of top level groups will be returned by the function
     opengroup = None #The only current group which can accept children
  
-    for card in l:
-        key=keypat.match(card)
+    for card in lines:
+        key = keypat.match(card)
         if not key: continue
         key = key.group(0)
         
         if key == "group": # Group of Molecules and/or Groups
             ##Huaicai to fix bug 142---12/09/04
             if mol:
-                    mol = _addMolecule(mol, assy, opengroup)
+                mol = _addMolecule(mol, assy, opengroup)
                     
             name = getname(card, "Grp")
             opengroup = Group(name, assy, opengroup)#assy.tree)
@@ -625,7 +628,7 @@ def _readmmp(assy, filnam, isInsert = False):
             if platform.atom_debug:
                 print "atom_debug: fyi: unrecognized mmp record type ignored (not an error): %r" % key
     
-    return grouplist
+    return grouplist # from _readmmp
 
 class mmp_interp: #bruce 050217
     "helps translate object refs in mmp file to their objects"
@@ -672,9 +675,9 @@ def readmmp_info( card, currents, interp ): #bruce 050217
     return
 
 # read a Molecular Machine Part-format file into maybe multiple molecules
-def readmmp(assy, filnam):
+def readmmp(assy, filename):
     """Reading a mmp file to create a new model """
-    grouplist = _readmmp(assy, filnam)
+    grouplist = _readmmp(assy, filename)
 
     if len(grouplist) == 2:
         #bruce 050217 upward-compatible reader extension (needs no mmpformat-record change):
@@ -701,9 +704,9 @@ def readmmp(assy, filnam):
     kluge_patch_assy_toplevel_groups(assy)
     return
     
-def insertmmp(assy, fileName):
+def insertmmp(assy, filename):
     """Reading a mmp file and insert the part into the existing model """    
-    groupList  = _readmmp(assy, fileName, isInsert = True)
+    groupList  = _readmmp(assy, filename, isInsert = True)
     
     if len(groupList) != 3: print "wrong number of top-level groups"
     assy.tree.addmember(groupList[1])
@@ -1138,7 +1141,7 @@ def writemovie(assy, mflag = False):
         msg = redmsg("Simulation failed: exit code %r " % r)
         assy.w.history.message(msg)
 
-    return r
+    return r # from writemovie
 
     
 def readElementColors(fileName):
