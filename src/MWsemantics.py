@@ -1006,7 +1006,7 @@ class MWsemantics(MainWindow):
         self.glpane.scale=self.assy.bbox.scale()
         #print "scale: ", self.glpane.scale
         #print "pov, center: ", self.glpane.pov, self.assy.center
-        self.glpane.pov = -planeXline(-self.glpane.pov, self.glpane.out, self.assy.center, self.glpane.out)
+        self.glpane.pov = -self.assy.center#-planeXline(-self.glpane.pov, self.glpane.out, self.assy.center, self.glpane.out)
         #print "Again: pov, center: ", self.glpane.pov, self.assy.center
         self.glpane.paintGL()
         

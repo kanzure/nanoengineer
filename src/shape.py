@@ -63,6 +63,8 @@ class BBox:
     def scale(self):
         if not self.data: return 10.0
         x=1.2*maximum.reduce(subtract.reduce(self.data))
+        #dd = 0.5*subtract.reduce(self.data)
+        #x = sqrt(dd[0]*dd[0] + dd[1]*dd[1] + dd[2]*dd[2])
         return max(x, 10.0)
 
     def copy(self, offset=None):
