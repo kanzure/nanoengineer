@@ -428,7 +428,10 @@ class assembly:
         # (only valid when every molecule is "frozen", i.e. basepos and 
         # curpos are same object):
         for m in self.molecules:
-            m.basepos = m.curpos = + m._savedbasepos
+            #bruce 050210 fixing "movie reset" bug reported by Josh for Alpha-2
+            assert m.basepos is m.curpos
+            m.basepos = m.curpos = m.atpos = + m._savedbasepos
+            m.changed_attr('atpos', skip = ('basepos',) )
 
         for b in self.blist.itervalues():
             b.setup_invalidate()
