@@ -8,12 +8,17 @@
 /** display stuff */
 
 
-GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};  /* White diffuse light. */
-GLfloat color_black[] = {0.0, 0.0, 0.0, 1.0};  /* Black. */
-GLfloat color_red[] = {1.0, 0.0, 0.0, 1.0};  /* Red. */
-GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};  /* Infinite light location. */
+/** White diffuse light. */
+GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+/** Black. */
+GLfloat color_black[] = {0.0, 0.0, 0.0, 1.0};
+/** Red. */
+GLfloat color_red[] = {1.0, 0.0, 0.0, 1.0};
+/** Infinite light location. */
+GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};
 
-
+/**
+ */
 void display(void) {
 	int i,j;
 	struct vdWbuf *nvb;
@@ -69,7 +74,9 @@ void display(void) {
 	glutSwapBuffers();
 }
 
-void snapshot() {
+/**
+ */
+void snapshot(int n) {
 	char fnam[25];
 	FILE *file;
 	unsigned char buf[3*SCRWID*SCRHIT], buf2[3*SCRWID*SCRHIT];
@@ -83,7 +90,8 @@ void snapshot() {
 		for (j=0;j<3*w; j++)
 			buf2[i*3*w + j]=buf[(h-i-1)*3*w + j];
 
-	sprintf(fnam,"mol%04d.ppm",ShotNo++);
+	// sprintf(fnam,"mol%04d.ppm",ShotNo++);
+	sprintf(fnam,"mol%04d.ppm", n);
 
 	file = fopen(fnam,"w");
 	fprintf(file, "P6\n%d %d\n%d\n", w, h, 255);
@@ -92,6 +100,8 @@ void snapshot() {
 }
 
 
+/**
+ */
 void display_init(int *argc, char *argv[]) {
 	double dist;
 
@@ -127,6 +137,13 @@ void display_init(int *argc, char *argv[]) {
 
 }
 
+/**
+ */
+void display_fini(void) {
+}
+
+/**
+ */
 void display_mainloop() {
 	glutMainLoop();
 }

@@ -124,6 +124,8 @@ struct atomtype {
 	int nbonds;
 	/** for display */
 	GLfloat color[4];
+	/** element's symbol on periodic table */
+	char *symbol;
 };
 
 struct dtab {			/* two interpolation tables */
@@ -339,7 +341,7 @@ extern int main(int argc, char **argv);
 /* display.c */
 extern void display(void);
 extern void init(void);
-extern void snapshot(void);
+extern void snapshot(int n);
 extern void display_init(int *argc, char *argv[]);
 extern void display_mainloop(void);
 

@@ -4,10 +4,6 @@ CC=gcc
 CFLAGS=-O3 -g
 LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 
-# Use OPENGL by default, until we decide otherwise
-LDFLAGS+=-lGL -lGLU -lglut
-GRAPHICS_SUFFIX=opengl
-
 # If we were going to use GTK, it would look something like this
 #CFLAGS+=-I/usr/include/gtk-2.0 \
 #	-I/usr/include/glib-2.0 \
@@ -26,8 +22,6 @@ GRAPHICS_SUFFIX=opengl
 #LDFLAGS+=-lglade-2.0 -lgtk-x11-2.0
 #GRAPHICS_SUFFIX=gtk
 
-DISPLAY=display-$(GRAPHICS_SUFFIX)
-
 all: mol
 
 SUFFIXES: .c .h .o ;
@@ -35,18 +29,25 @@ SUFFIXES: .c .h .o ;
 .c.o:
 	$(CC) -c $(CFLAGS) -o $@ $(@:.o=.c)
 
-CFILES=mol.c lin-alg.c $(DISPLAY).c
-HFILES=mol.h
-OBJS=$(CFILES:.c=.o)
+mol.o: mol.h
+lin-alg.o: mol.h
+display-opengl.o: mol.h
+dumpxyz.o: mol.h
 
-mol: $(OBJS)
-	$(CC) -o mol $(LDFLAGS) $(OBJS)
+MOLOBJS=mol.o lin-alg.o display-opengl.o
+SIMOBJS=mol.o lin-alg.o dumpxyz.o
+
+mol: $(MOLOBJS)
+	$(CC) -o mol $(LDFLAGS) -lGL -lGLU -lglut $(MOLOBJS)
+
+molsim: $(SIMOBJS)
+	$(CC) -o molsim $(LDFLAGS) $(SIMOBJS)
 
 clean:
 	rm -f mol *.o *.so *~ TAGS fmc.mmp
 	rm -rf html latex
 
-TAGS: $(CFILES) $(HFILES)
+TAGS:
 	etags *.c *.h
 
 fmc.mmp: ../samples/fineMotion970116.pdb ../samples/pdb2mmp.py
