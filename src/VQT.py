@@ -344,6 +344,8 @@ def planeXline(ppt, pv, lpt, lv):
     """find the intersection of a line (point lpt, vector lv)
     with a plane (point ppt, normal pv)
     return None if (almost) parallel
+    (warning to callers: retvals other than None might still be false,
+     e.g. V(0,0,0) -- untested, but likely; so don't use retval as boolean)
     """
     d=dot(lv,pv)
     if abs(d)<0.000001: return None
