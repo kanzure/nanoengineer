@@ -37,9 +37,11 @@ QA Test Procedure for nanoENGINEER-1 Installation Packages
 10. Open all file types:
   a. MMP
   b. PDB
-11. Uninstall nanoENGINEER-1
-12. Reinstall nanoENGINEER-1
-13. Quick test:
+11. Display debug menu using Shift+Alt+Control in the GLpane.  
+    Verify it does NOT include the menu item "run py code". 
+12. Uninstall nanoENGINEER-1
+13. Reinstall nanoENGINEER-1
+14. Quick test:
   a. Start nanoENGINEER-1 from Start Menu
   b. Open MMP part
   c. Run quick simulation
