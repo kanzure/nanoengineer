@@ -49,6 +49,10 @@ class cookieMode(basicMode):
         
         self.w.connect(self.w.ccLayerThicknessLineEdit,SIGNAL("textChanged( const QString &)"),
                        self.setthicktext)
+                       
+        # Disable some action items in the main window.
+        self.w.zoomWindowAction.setEnabled(0) # Disable "Zoom Window"
+        
 # methods related to exiting this mode [bruce 040922 made these
 # from old Done and Flush methods]
 
@@ -75,6 +79,8 @@ class cookieMode(basicMode):
         
         self.w.disconnect(self.w.ccLayerThicknessLineEdit,SIGNAL("textChanged( const QString &)"),
                        self.setthicktext)
+                       
+        self.w.zoomWindowAction.setEnabled(1) # Enable "Zoom Window"
         
     def restore_patches(self):
         self.o.ortho = self.savedOrtho

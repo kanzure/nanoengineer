@@ -1083,6 +1083,7 @@ class extrudeMode(basicMode):
         self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
         self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
         self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
+        self.w.zoomWindowAction.setEnabled(0) # Disable "Zoom Window"
         
         if self.is_revolve:
             self.w.toolsRevolveAction.setOn(1)
@@ -1248,6 +1249,7 @@ class extrudeMode(basicMode):
         self.w.fileOpenAction.setEnabled(1) # Enable "File Open"
         self.w.fileCloseAction.setEnabled(1) # Enable "File Close"
         self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
+        self.w.zoomWindowAction.setEnabled(1) # Enable "Zoom Window"
         
         return
 

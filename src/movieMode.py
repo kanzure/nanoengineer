@@ -40,6 +40,7 @@ class movieMode(basicMode):
         self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
         self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
         self.w.editDeleteAction.setEnabled(0) # Disable "Delete"
+        self.w.zoomWindowAction.setEnabled(0) # Disable "Zoom Window"
         
         # MP dashboard initialization.
         self.w.frameNumberSB.setValue(self.o.assy.m.currentFrame) # SB = Spinbox
@@ -70,6 +71,7 @@ class movieMode(basicMode):
         self.w.fileCloseAction.setEnabled(1) # Enable "File Close"
         self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
         self.w.editDeleteAction.setEnabled(1) # Enable "Delete"
+        self.w.zoomWindowAction.setEnabled(1) # Enable "Zoom Window"
 
     def makeMenus(self):
         self.Menu_spec = [
