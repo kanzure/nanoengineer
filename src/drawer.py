@@ -482,6 +482,7 @@ def genDiam(bblo, bbhi):
                     yield p[0]+off, p[1]+off
     yield None
 
+
 def drawgrid(scale, center):
     
     #draw grid
