@@ -1413,18 +1413,60 @@ def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
     status = "bonded atoms %r and %r" % (a1, a2)
     m1 = a1.molecule
     m2 = a2.molecule
-    if m1 != m2 and move: # move the molecule
-        status += " and moved one chunk"
-        m1.rot(Q(a1.posn()-s1.posn(), s2.posn()-a2.posn()))
-        m1.move(s2.posn()-s1.posn())
-        # bruce 041116 asks: should we do anything differently
-        # if these mols are bonded?
+    if m1 != m2 and move:
+        # Comments by bruce 041123, related to fix for bug #150:
+        #
+        # Move m1 to an ideal position for bonding to m2, but [as bruce's fix
+        # to comment #2 of bug 150, per Josh suggestion; note that this bug will
+        # be split and what we're fixing will get a new bug number] only if it
+        # has no external bonds except the one we're about to make. (Even a bond
+        # to the other of m1 or m2 will disqualify it, since that bond might get
+        # messed up by a motion. This might be a stricter limit than Josh meant
+        # to suggest, but it seems right. If bonds back to the same mol should
+        # not prevent the motion, we can use 'externs_except_to' instead.)
+        #
+        # I am not sure if moving m2 rather than m1, in case m1 is not qualified
+        # to be moved, would be a good UI feature, nor whether it would be safe
+        # for the calling code (a drag event processor in Build mode), so for now
+        # I won't permit that, though it would be easy to do.
+        #
+        # Note that this motion feature will be much more useful once we fix
+        # another bug about not often enough merging atoms into single larger
+        # molecules, in Build mode. [end of bruce 041123 comments]
+        def ok_to_move(mol1, mol2):
+            "ok to move mol1 if we're about to bond it to mol2?"
+            return mol1.externs == []
+            #e you might prefer externs_except_to(mol1, [mol2]), but probably not
+        if ok_to_move(m1,m2):
+            status += ", and moved %r to match" % m1.name
+            #e "first atom" might make no sense -- should we let caller name it??
+            m1.rot(Q(a1.posn()-s1.posn(), s2.posn()-a2.posn()))
+            m1.move(s2.posn()-s1.posn())
+        else:
+            status += " (but didn't move %r -- it already has a bond)" % m1.name
     #e [bruce 041109 asks: does it matter that the following code forgets which
     #   singlets were involved, before bonding?]
     s1.kill()
     s2.kill()
     m1.bond(a1,a2)
     return (0, status) # from bond_at_singlets
+
+def externs_except_to(mol, others): #bruce 041123; not yet used or tested
+    # [written to help bond_at_singlets fix bug 150, but not used for that]
+    """Say whether mol has external bonds (bonds to other mols)
+    except to the mols in 'others' (a list).
+    In fact, return the list of such bonds
+    (which happens to be true when nonempty, so we can be used
+    as a boolean function as well).
+    """
+    res = []
+    for bon in mol.externs:
+        mol2 = bon.othermol(mol)
+        assert mol2 != mol, "an internal bond %r was in self.externs of %r" % (bon, mol)
+        if mol not in others:
+            if mol not in res:
+                res.append(mol)
+    return res
 
 # == debug code
 
