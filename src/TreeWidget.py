@@ -1013,12 +1013,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
             item = self.nodeItem(nodes[0]) # Grab a node to find out it's height
             ih = item.height()
             h = max(1,min(3,len(nodes))) * ih + ih # the last 24 is a guess for the text at the bottom
+            w = self.get_drag_pixmap_width(nodes)
 
             if len(nodes)>3:
                 h += 10 # for the "..."
             pass
         
         pixmap = QPixmap(w,h) # should have size w,h, depth of video mode, dflt optimization
+        
         ##print pixmap,pixmap.width(),pixmap.height(),pixmap.size(),pixmap.depth()
         ## pixmap.fill(Qt.red) # makes it red; what's dragged is a pretty transparent version of this, but red... (looks nice)
 
@@ -1034,16 +1036,13 @@ class TreeWidget(TreeView, DebugMenuMixin):
         ## but it actually looks worse: very faint stripes, all faintly visible
         
         p = QPainter(pixmap)
-        
-        # Nice blue that matches selection background
-        if sys.platform == 'win32':
-            selcolor = QColor(49,106,197)
-        else:
-            selcolor = QColor(33,68,156)
 
-        pixmap.fill(selcolor) # Pixmap backgroup color
-        p.setPen(Qt.white) # Text color
-            
+        colorgroup = listview.palette().active()
+        hicolor = QColor (colorgroup.highlight ())
+        pixmap.fill(hicolor) # Pixmap backgroup color
+        textcolor = QColor (colorgroup.highlightedText ())
+        p.setPen(textcolor) # Pixmap text draw color
+
         try:
             self.paint_nodes(p, drag_type, nodes)
             return pixmap
@@ -1094,10 +1093,20 @@ class TreeWidget(TreeView, DebugMenuMixin):
         text = self.get_whatting_n_items_text(drag_type, nodes)
         w,h = 160,24 # bounding rect (hope ok if overflows pixmap, tho i think this one doesn't)
         flags = 0 # guess
-        p.setPen(Qt.yellow)
-        p.drawText(0,0,w,h,flags,text) # in this drawText version, we're supplying bounding rect, not baseline.
+        p.drawText(26,4,w,h,flags,text) # in this drawText version, we're supplying bounding rect, not baseline.
             #e want smaller font, italic, colored...
         return
+
+    def get_drag_pixmap_width(self, nodes):
+        painterTemp = QPainter(self, True)
+        fontmetrics = painterTemp.fontMetrics()
+        w = 115
+        for node in nodes:
+            item = self.nodeItem(node)
+            cw = item.width(fontmetrics, self, 0)
+            if  cw > w: w = cw
+        painterTemp.end()
+        return min(164, w + 4)
 
     def get_whatting_n_items_text(self, drag_type, nodes):
         "return something like 'moving 1 item' or 'copying 5 items'"
