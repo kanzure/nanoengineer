@@ -276,16 +276,34 @@ class depositMode(basicMode):
         self.pivot = None
         self.pivax = None
         self.w.update()
-                        
-
+    
+    def dragto(self, point, event, perp = None):
+        """Return the point to which we should drag the given point,
+        if event is the drag-motion event and we want to drag the point
+        parallel to the screen (or perpendicular to the given direction "perp"
+        if one is passed in). (Only correct for points, not extended objects,
+        unless you use the point which was clicked on (not e.g. the center)
+        as the dragged point.)
+        """
+        #bruce 041123 split this from two methods, and bugfixed to make dragging
+        # parallel to screen. (I don't know if there was a bug report for that.)
+        # Should be moved into modes.py and used in modifyMode too. ###e
+        p1, p2 = self.o.mousepoints(event)
+        if perp == None:
+            perp = self.o.out
+        point2 = planeXline(point, perp, p1, norm(p2-p1)) # args are (ppt, pv, lpt, lv)
+        if point2 == None:
+            # should never happen, but use old code as a last resort:
+            point2 = ptonline(point, p1, norm(p2-p1))
+        return point2
+        
     def leftDrag(self, event):
         """ drag the new atom around
 	"""
         if not (self.dragmol and self.o.selatom): return
         m = self.dragmol
         a = self.o.selatom
-        p1, p2 = self.o.mousepoints(event)
-        px = ptonline(a.posn(), p1, norm(p2-p1))
+        px = self.dragto(a.posn(), event)
         if self.pivot:
             po = a.posn() - self.pivot
             pxv = px - self.pivot
@@ -349,10 +367,7 @@ class depositMode(basicMode):
 	"""
         if not self.dragatom: return
         a = self.dragatom
-        p1, p2 = self.o.mousepoints(event)
-        v2 = norm(p2-p1)
-        px = ptonline(a.posn(), p1, v2)
-        
+        px = self.dragto(a.posn(), event)
         if a.element != Singlet and not self.pivot:
             # no pivot, just dragging it around
             apo = a.posn()
@@ -517,7 +532,7 @@ class depositMode(basicMode):
         mol = a1.molecule
         a = atom(el.symbol, pos, mol)
         obond.rebond(singlet, a)
-        if el.base:
+        if len(el.quats): #bruce 041119 revised to support "onebond" elements
             # There is at least one other bond
             # this rotates the atom to match the bond formed above
             r = singlet.posn() - pos
