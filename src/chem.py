@@ -108,7 +108,7 @@ class atom:
         # unique key for hashing
         self.key = atKey.next()
         # element-type object
-        self.element = PeriodicTable[EltSym2Num[sym]]
+        self.element = PeriodicTable.getElement(sym)
         # 'where' is atom's absolute location in model space,
         # until replaced with 'no' by shakedown, indicating
         # the location should be found using the formula in self.posn();
@@ -888,6 +888,7 @@ class atom:
         """
         # bruce 041215 modified docstring, added comments, capitalized name
         el = self.element
+        PTsenil = PeriodicTable.getPTsenil()
         line = len(PTsenil)
         for i in range(line):
             if el in PTsenil[i]:

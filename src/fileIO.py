@@ -103,7 +103,7 @@ def _readpdb(assy, filename, isInsert = False):
         key=card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
             sym = capitalize(card[12:14].replace(" ", "").replace("_", ""))
-            try: PeriodicTable[EltSym2Num[sym]]
+            try: assy.w.periodicTable.getElement(sym)
             except KeyError: print 'unknown element "',sym,'" in: ',card
             else:
                 xyz = map(float, [card[30:38],card[38:46],card[46:54]])
@@ -297,7 +297,7 @@ def _readmmp(assy, filename, isInsert = False):
                 print card
                 
             n=int(m.group(1))
-            sym=PeriodicTable[int(m.group(2))].symbol
+            sym=assy.w.periodicTable.getElement(int(m.group(2))).symbol
             xyz=A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
             a = atom(sym, xyz, mol)
             disp = atom2pat.match(card)
@@ -1118,14 +1118,13 @@ def readElementColors(fileName):
     
     return elemColorTable           
 
-from elements import elemprefs    
+#from elements import elemprefs    
 def saveElementColors(fileName, elemTable):
     """Write element colors (ele #, r, g, b) into a text file,  each element is on a new line.  A line starts from '#' is a comment line.
     <Parameter> fileName: a string for the input file name
-    <Parameter> elemTable: an object of 'elemprefs' 
+    <Parameter> elemTable: A dictionary object of all elements in our periodical table 
     """
     assert type(fileName) == type(" ")
-    assert isinstance(elemTable, elemprefs)
     
     try:
         f = open(fileName, "w")
@@ -1135,8 +1134,8 @@ def saveElementColors(fileName, elemTable):
    
     f.write("#Element color file in the format: element-index, r(0-255), g(0-255), b(0-255) \n")
     
-    for eleNum, eleDict in elemTable.prefs.items():
-        col = eleDict['color']
+    for eleNum, elm in elemTable.items():
+        col = elm.color
         r = int(col[0] * 255 + 0.5)
         g = int(col[1] * 255 + 0.5)
         b = int(col[2] * 255 + 0.5)

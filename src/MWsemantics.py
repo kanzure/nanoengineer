@@ -17,6 +17,7 @@ from modelTree import *
 import platform
 
 from constants import *
+from elementColors import *
 from elementSelector import *
 from fileIO import *
 from debug import print_compact_traceback
@@ -26,7 +27,8 @@ from assistant import AssistantWindow
 from HistoryWidget import greenmsg, redmsg # [moved by bruce 050107]
 
 helpwindow = None
-elementwindow = None
+elementSelectorWin = None
+elementColorsWin = None
 windowList = []
 
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
@@ -107,6 +109,9 @@ class MWsemantics(MainWindow):
 
         # start with empty window 
         self.assy = assembly(self, "Untitled")
+        
+        # Set the perodical table we'll use in the application
+        self.periodicTable = ElementPeriodicTable(self)
         
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
         self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
@@ -538,30 +543,35 @@ class MWsemantics(MainWindow):
         else: # This should never happen.
             self.history.message(redmsg( "MWSemantics.py: fileSaveAs() - File Not Saved. Unknown extension:" + ext))
 
-    def closeEvent(self,ce): # via File > Exit or clicking X titlebar button
-        
+    def closeEvent(self,ce): 
+        """  via File > Exit or clicking X titlebar button """
+        isEventAccepted = True
         if not self.assy.has_changed():
             ce.accept()
-            return
-            
-        rc = QMessageBox.warning( self, self.name(),
+        else:
+            rc = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before exiting?",
                 "&Save", "&Discard", "Cancel",
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
 
-        if rc == 0:
-            isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
-            ##Huaicai 1/6/05: While in the "Save File" dialog, if user chooses ## "Cancel", the "Exit" action should be ignored. bug 300
-            if isFileSaved:
+            if rc == 0:
+                isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+                ##Huaicai 1/6/05: While in the "Save File" dialog, if user chooses ## "Cancel", the "Exit" action should be ignored. bug 300
+                if isFileSaved:
+                    ce.accept()
+                else:
+                    ce.ignore()
+                    isEventAccepted = False
+            elif rc == 1:
                 ce.accept()
             else:
                 ce.ignore()
-        elif rc == 1:
-            ce.accept()
-        else:
-            ce.ignore()
+                isEventAccepted = False
+        
+        if isEventAccepted: self.periodicTable.close()
+            
 
     def fileClose(self):
         
@@ -874,34 +884,21 @@ class MWsemantics(MainWindow):
             self.glpane.mode.set_backgroundColor( color ) #bruce 050105
             self.glpane.gl_update()
 
-    def dispSetEltable1(self):
-        "set global atom radius/color table to choice 1 (the default)"
-        import elements
-        elements.set_element_table(1, self.assy)
-        elements.setCurrentElemTable(1)
-        self.glpane.gl_update()
-
-    def dispSetEltable2(self):
-        "set global atom radius/color table to choice 2"
-        import elements
-        elements.set_element_table(2, self.assy)
-        elements.setCurrentElemTable(2)
-        self.glpane.gl_update()
 
     # pop up Element Color Selector dialog
     def dispElementColorSettings(self):
         """Allows user to change default colors of elements and save them to a file.
         """
-        # HUAICAI TO MAKE THIS DIFFERENT FROM ELEMENT SELECTOR.
-        global elementwindow
+        global elementColorsWin
         #Huaicai 2/24/05: Create a new element selector window each time,  
         #so it will be easier to always start from the same states.
         # Make sure only a single element window is shown
-        if elementwindow and elementwindow.isShown(): return 
+        if elementColorsWin and elementColorsWin.isShown(): 
+                    return 
         
-        elementwindow = elementSelector(self)
-        elementwindow.setDisplay(self.Element)
-        elementwindow.show()
+        elementColorsWin = elementColors(self)
+        elementColorsWin.setDisplay(self.Element)
+        elementColorsWin.show()
 
     ###############################################################
     # Select Toolbar Slots
@@ -1468,44 +1465,37 @@ class MWsemantics(MainWindow):
     #######################################
     # Element Selector Slots
     #######################################
-    
-    # pop up set element box
     def modifySetElement(self):
-#        print "modifySetElement: Current Element = ", self.Element    
-        global elementwindow
+        global elementSelectorWin
         #Huaicai 2/24/05: Create a new element selector window each time,  
         #so it will be easier to always start from the same states.
         # Make sure only a single element window is shown
-        if elementwindow and elementwindow.isShown(): return 
+        if elementSelectorWin and elementSelectorWin.isShown():             return 
         
-        elementwindow = elementSelector(self)
-        elementwindow.setDisplay(self.Element)
-        elementwindow.show()
+        elementSelectorWin = elementSelector(self)
+        elementSelectorWin.setDisplay(self.Element)
+        elementSelectorWin.show()
         
-        #After the element window is shown, disable menu element colors prefs changes
-        self.dispSetEltable1Action.setEnabled(False)
-        self.dispSetEltable2Action.setEnabled(False)
         
-
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]
-        global elementwindow
-        if elementwindow and not elementwindow.isHidden():
-           elementwindow.setDisplay(self.Element)     
-           elementwindow.show()
+        global elementSelectorWin
+        if elementSelectorWin and not elementSelectorWin.isHidden():
+           elementSelectorWin.setDisplay(self.Element)     
+           #elementSelectorWin.show()
           
     # this routine sets the displays to reflect elt
     # [bruce 041215: most of this should be made a method in elementSelector.py #e]
     def setElement(self, elt):
         # element specified as element number
-        global elementwindow
+        global elementSelectorWin
         self.Element = elt
-        if elementwindow: elementwindow.setDisplay(elt)
+        if elementSelectorWin: elementSelectorWin.setDisplay(elt)
         line = eCCBtab2[elt]
         self.elemChangeComboBox.setCurrentItem(line)
 
     def setCarbon(self):
-        self.setElement(6)
+        self.setElement(6) 
 
     def setHydrogen(self):
         self.setElement(1)

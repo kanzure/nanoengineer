@@ -215,7 +215,6 @@ def fix_buttons_helper(self, but, when):
             #until all buttons are up (as I hope), this case never
             #happens; instead the above code pretends the same
             #mouse button was down during the entire drag.
-            
             print "warning: Qt gave us two mouseReleases without a mousePress;"
             print " ignoring this if we can, but it might cause bugs"
             pass # don't modify 'but'

@@ -555,7 +555,7 @@ class depositMode(basicMode):
             else:
                 return "nothing to paste" # (trying would be an error)
         else:
-            el =  PeriodicTable[self.w.Element]
+            el =  self.w.periodicTable.getElement(self.w.Element)
             return "click to deposit %s" % el.name
             
     def posn_str(self, atm): #bruce 041123
@@ -597,7 +597,7 @@ class depositMode(basicMode):
         self.pivot = self.pivax = self.dragmol = None #bruce 041130 precautions
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
         a = self.o.selatom
-        el =  PeriodicTable[self.w.Element]
+        el =  self.w.periodicTable.getElement(self.w.Element)
         self.modified = 1
         self.o.assy.changed()
         if a: # if something was "lit up"
