@@ -1158,9 +1158,10 @@ class MWsemantics(MainWindow):
         if not r: # Movie file saved successfully.
             # if duration took at least 10 seconds, print msg.
             if self.assy.w.progressbar.duration >= 10.0: 
-                msg = "Total time to create movie file: "
+                spf = "%.2f" % (self.assy.w.progressbar.duration/self.assy.m.totalFrames)
                 estr = self.assy.w.progressbar.hhmmss_str(self.assy.w.progressbar.duration)
-                self.history.message(msg + estr) 
+                msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
+                self.history.message(msg) 
             msg = "Movie written to [" + self.assy.m.filename + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
             # This makes a copy of the movie tool icon to put in the HistoryWidget.
