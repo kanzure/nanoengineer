@@ -805,6 +805,23 @@ class basicMode(anyMode):
             drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
                                  self.o.up, self.o.right, color)
 
+    ######################
+    ## some buttons that will vary by mode -- Josh 10/14
+    ######################
+
+    # add hydrogen atoms to each dangling bond
+    def modifyHydrogenate(self):
+        if self.o.assy.selmols:
+            self.o.assy.modified = 1
+            for m in self.o.assy.selmols:
+                m.Hydrogenate()
+        elif self.o.assy.selatoms:
+            self.o.assy.modified = 1
+            for a in self.o.assy.selatoms.itervalues():
+                a.Hydrogenate()
+        self.o.paintGL()
+
+
     pass # end of class basicMode
 
 # ===

@@ -42,6 +42,7 @@ class depositMode(basicMode):
         self.new = None
         self.o.selatom = None
         self.dragatom = None
+        self.dragmol = None
         self.pivot = None
         self.pivax = None
         self.baggage = []
@@ -150,36 +151,63 @@ class depositMode(basicMode):
         if a: # if something was "lit up"
             if a.element == Singlet:
                 self.attach(el, a)
+                self.o.selatom = None
+                self.dragmol = None
+                return # don't move a newly bonded atom
             # else we've grabbed an atom
+            elif a.realNeighbors(): # part of larger molecule
+                self.dragmol = a.molecule
+                e=a.molecule.externs
+                if len(e)==1: # pivot around one bond
+                    self.pivot = e[0].center
+                    self.pivax = None
+                    return
+                elif len(e)==2: # pivot around 2 bonds
+                    self.pivot = e[0].center
+                    self.pivax = norm(e[1].center-e[0].center)
+                    return
+                elif len(e)==0: # drag it around
+                    self.pivot = None
+                    self.pivax = True
+                    return
+            # no externs or more than 2 -- fall thru
         else:
             atomPos = self.getCoords(event)
             self.o.selatom = oneUnbonded(el, self.o.assy, atomPos)
-
-        for n in self.o.selatom.neighbors():
-            if n.element == Singlet:
-                self.baggage += [n]
+            self.dragmol = self.o.selatom.molecule
+        # move the molecule rigidly
+        self.pivot = None
+        self.pivax = None
         self.w.update()
                         
 
     def leftDrag(self, event):
         """ drag the new atom around
 	"""
-        if not self.o.selatom: return
+        if not (self.dragmol and self.o.selatom): return
+        m = self.dragmol
         a = self.o.selatom
         p1, p2 = self.o.mousepoints(event)
-        v2 = norm(p2-p1)
-        px = ptonline(a.posn(), p1, v2)
-        delta = px - a.posn()
-##         a.setposn(px)
-##         for at in self.baggage:
-##             at.setposn(at.posn()+delta)
+        px = ptonline(a.posn(), p1, norm(p2-p1))
+        if self.pivot:
+            po = a.posn() - self.pivot
+            pxv = px - self.pivot
+        if self.pivot and self.pivax:
+            m.pivot(self.pivot, twistor(self.pivax, po, pxv))
+        elif self.pivot:
+            q1 = twistor(self.pivot-m.center, po, pxv)
+            q2 = Q(q1.rot(po), pxv)
+            m.pivot(self.pivot, q1+q2)
+        elif self.pivax:
+            m.rot(Q(a.posn()-m.center,px-m.center))
+            m.move(px-a.posn())
+        else:
+            m.move(px-a.posn())
         self.o.paintGL()
 
     def leftUp(self, event):
-        if not self.o.selatom: return
-        self.o.selatom.molecule.shakedown()
-        self.baggage = []
-        self.bareMotion(event)
+        self.dragmol = None
+        self.o.selatom = None
 	
     def leftShiftDown(self, event):
         """If there's nothing nearby, do nothing If cursor is on a
@@ -201,6 +229,8 @@ class depositMode(basicMode):
                     self.pivot = None
                     self.pivax = None
                     self.baggage = []
+                    self.dragatom = None
+                    return
                 else: # atom on a single stalk
                     self.pivot = pivatom.posn()
                     self.pivax = norm(self.pivot-neigh[0].posn())
@@ -226,10 +256,27 @@ class depositMode(basicMode):
         
         if a.element != Singlet and not self.pivot:
             # no pivot, just dragging it around
-            delta = px - a.posn()
+            apo = a.posn()
+            # find the delta quat for the average real bond and apply
+            # it to the singlets
+            n = a.realNeighbors()
+            old = V(0,0,0)
+            new = V(0,0,0)
+            for at in n:
+                old += at.posn()-apo
+                new += at.posn()-px
+                at.adjSinglets(a, px)
+            delta = px - apo
+            if n:
+                q=Q(old,new)
+                for at in self.baggage:
+                    at.setposn(q.rot(at.posn()-apo)+px)
+            else: 
+                for at in self.baggage:
+                    at.setposn(at.posn()+delta)
+            # there's some weirdness I don't understand
+            # this doesn't work if done before the loop above
             a.setposn(px)
-            for at in self.baggage:
-                at.setposn(at.posn()+delta)
         elif self.pivax: # pivoting around an axis
             quat = twistor(self.pivax, a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
@@ -284,8 +331,10 @@ class depositMode(basicMode):
         pl = []
         mol = singlet.molecule
         cr = el.rcovalent
+
         for s in mol.nearSinglets(spot, cr*1.5):
             pl += [(s, self.findSpot(el, s))]
+
         n = min(el.numbonds, len(pl))
         if n == 1:
             self.bond1(el, singlet, spot)
@@ -295,7 +344,8 @@ class depositMode(basicMode):
             self.bond3(el,pl)
         elif n == 4:
             self.bond4(el,pl)
-        else: print "too many bonds!"
+        else:
+            print "too many bonds!", el.numbonds, len(pl)
         mol.shakedown()
         self.o.paintGL()
 
@@ -313,7 +363,6 @@ class depositMode(basicMode):
         a1 = obond.other(singlet)
         mol = a1.molecule
         a = atom(el.symbol, pos, mol)
-        self.o.selatom = a
         obond.rebond(singlet, a)
         if el.base:
             # There is at least one other bond
@@ -342,7 +391,6 @@ class depositMode(basicMode):
 
         mol = s1.molecule
         a = atom(el.symbol, pos, mol)
-        self.o.selatom = a
 
         s1.bonds[0].rebond(s1, a)
         s2.bonds[0].rebond(s2, a)
@@ -371,7 +419,6 @@ class depositMode(basicMode):
 
         mol = s1.molecule
         a = atom(el.symbol, pos, mol)
-        self.o.selatom = a
 
         s1.bonds[0].rebond(s1, a)
         s2.bonds[0].rebond(s2, a)
@@ -391,12 +438,36 @@ class depositMode(basicMode):
 
         mol = s1.molecule
         a = atom(el.symbol, pos, mol)
-        self.o.selatom = a
 
         s1.bonds[0].rebond(s1, a)
         s2.bonds[0].rebond(s2, a)
         s3.bonds[0].rebond(s3, a)
         s4.bonds[0].rebond(s4, a)
+
+    ####################
+    # buttons
+    ####################
+
+    # add hydrogen atoms to each dangling bond above the water
+    def modifyHydrogenate(self):
+        pnt = - self.o.pov
+        z = self.o.out
+        x = cross(self.o.up,z)
+        y = cross(z,x)
+        mat = transpose(V(x,y,z))
+
+        for mol in self.o.assy.molecules:
+            if mol.display != diINVISIBLE:
+                for a in mol.findAllSinglets(pnt, mat, 10000.0, -TubeRadius):
+                    a.Hydrogenate()
+        self.o.paintGL()
+        
+
+
+    ####################
+    # utility routines
+    ####################
+
 
     def Draw(self):
         """ Draw a sketch plane to indicate where the new atoms will sit

@@ -258,6 +258,25 @@ class atom:
         for b in self.bonds: b.setup()
         self.molecule.changeapp()
 
+    def adjSinglets(self, atom, nupos):
+        """We're going to move atom, a neighbor of yours, to nupos,
+        so adjust the positions of your singlets to match.
+        """
+        apo = self.posn()
+        # find the delta quat for the average real bond and apply
+        # it to the singlets
+        n = self.realNeighbors()
+        old = V(0,0,0)
+        new = V(0,0,0)
+        for at in n:
+            old += at.posn()-apo
+            if at == atom: new += nupos-apo
+            else: new += at.posn()-apo
+        if n:
+            q=Q(old,new)
+            for at in self.singNeighbors():
+                at.setposn(q.rot(at.posn()-apo)+apo)
+
     def __repr__(self):
         return self.element.symbol + str(self.key)
 
@@ -440,7 +459,7 @@ class atom:
         return filter(lambda a: a.element != Singlet, self.neighbors())
               
     def singNeighbors(self):
-        """return a list of the atoms not singlets bonded to this one
+        """return a list of the singlets bonded to this atom
         """
         return filter(lambda a: a.element == Singlet, self.neighbors())
               
@@ -716,7 +735,7 @@ class molecule(Node):
         self.atlist = array(atlist, PyObject)
         self.singlets = array(singlets, PyObject)
         self.singlpos = array(singlpos)
-        self.singlbase = self.singlpos
+        self.singlbase = self.singlpos - self.center
 
         # find extrema in many directions
         xtab = dot(self.basepos, polyXmat)
@@ -871,6 +890,18 @@ class molecule(Node):
             self.singlpos = self.center + self.quat.rot(self.singlbase)
         for bon in self.externs: bon.setup()
 
+    def pivot(self, point, q):
+        """pivot the molecule around point by quaternion q
+        """
+        r = point - self.center
+        self.center += r - q.rot(r)
+        self.quat += q
+        self.curpos = self.center + self.quat.rot(self.basepos)
+        if self.singlets:
+            self.singlpos = self.center + self.quat.rot(self.singlbase)
+        for bon in self.externs: bon.setup()
+
+
     def stretch(self, factor):
         self.basepos *= 1.1
         self.curpos = self.center + self.quat.rot(self.basepos)
@@ -957,12 +988,20 @@ class molecule(Node):
         if v[i,2]<cutoff: return None
         return self.singlets[i]
 
+    # Same, but return all that match
+    def findAllSinglets(self, point, matrix, radius, cutoff):
+        if not self.singlets: return []
+        v = dot(self.singlpos-point,matrix)
+        r = sqrt(v[:,0]**2 + v[:,1]**2)
+        lis = []
+        for i in range(len(self.singlets)):
+            if r[i]<=radius and v[i,2]>=cutoff: lis += [self.singlets[i]]
+        return lis
+
     # return the singlets in the given sphere
     # sorted by increasing distance from the center
     def nearSinglets(self, point, radius):
-        ## bruce comment 040928:
-        # returning None will cause caller's for loop to crash...
-        if not self.singlets: return None 
+        if not self.singlets: return []
         v = self.singlpos-point
         r = sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2)
         p= r<=radius
@@ -1041,7 +1080,7 @@ class molecule(Node):
         """
         pairlis = []
         ndix = {}
-        for a in mol.atoms.itervalues():
+        for a in mol.atoms.values():
             a.hopmol(self)
         self.shakedown()
         mol.kill()

@@ -641,13 +641,6 @@ class assembly:
         self.o.paintGL()
 
     # add hydrogen atoms to each dangling bond
+    # ultimately we'll have the button call directly
     def modifyHydrogenate(self):
-        if self.selmols:
-            self.modified = 1
-            for m in self.selmols:
-                m.Hydrogenate()
-        elif self.selatoms:
-            self.modified = 1
-            for a in self.selatoms.itervalues():
-                a.Hydrogenate()
-        self.o.paintGL()
+        self.o.mode.modifyHydrogenate()
