@@ -241,7 +241,7 @@ class modelTree(QListView):
     
     def kill(self):
         self.assy.kill()
-        self.update()
+        self.win.update() # Changed from self.update for deleting from MT menu. Mark [04-12-03]
     
     def modprop(self):
         if self.selectedItem: 

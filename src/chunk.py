@@ -815,6 +815,9 @@ class molecule(Node, InvalMixin):
                     drawn[bon.key] = bon
                     bon.writepov(file, disp, self.color)
 
+    def writemdl(self, alist, f):
+        for a in self.atoms.values(): a.writemdl(alist, f, self.color)
+            
     def move(self, offset):
         """Public method: translate self (a molecule) by offset;
         do all necessary invalidations, but optimize those based on the

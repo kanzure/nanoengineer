@@ -25,6 +25,7 @@ from constants import *
 from qt import *
 from Utility import *
 from MoleculeProp import *
+from mdldata import marks, links, filler
 
 from debug import print_compact_stack, print_compact_traceback, compact_stack
 
@@ -520,6 +521,42 @@ class atom:
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(TubeRadius) + "," +
                        povpoint(color) + ")\n")
+
+    # write to a MDL file.  By Chris Phoenix and Mark for John Burch [04-12-03]
+    def writemdl(self, alist, f, col):
+        color = col or self.element.color
+        disp, radius = self.howdraw(diVDW) # only need VdW radius
+        xyz=map(float, A(self.posn()))  # xyz = 3-tuple of float
+        rgb=map(int,A(color)*255) # rgb = 3-tuple of int
+        atnum = len(alist) # current atom number
+#        print "chem.writemdl(): atnum =", atnum,", xyz = ",xyz,", radius = ",radius,", rgb = ",rgb
+        
+        alist.append([xyz, radius, rgb])
+        
+        # Write spline info for this atom
+        atomOffset = 80*atnum
+        (x,y,z) = xyz;
+        for spline in range(5):
+            f.write("CPs=8\n")
+            for point in range(8):
+                index = point+spline*8
+                (px,py,pz)=marks[index]
+                px = px*radius + x; py = py*radius + y; pz = pz*radius + z;
+                if point == 7:
+                    flag = "3825467397"
+                else:
+                    flag = "3825467393"
+                f.write("%s 0 %d\n%f %f %f\n%s%s"%
+                           (flag, index+19+atomOffset, px, py, pz,
+                            filler, filler))
+        
+        for spline in range(8):
+            f.write("CPs=5\n")
+            for point in range(5):
+                index = point+spline*5
+                f.write("3825467393 1 %d\n%d\n%s%s"%
+                           (index+59+atomOffset, links[index]+atomOffset,
+                            filler, filler))
 
 
     def checkpick(self, p1, v1, disp, r=None, iPic=None):

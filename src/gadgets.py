@@ -91,7 +91,6 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
         #e don't we need to remove self from all our atoms' a.jigs? [guess: yes]
         # [bruce question 041105; looks like a bug but i will ask josh]
         Node.kill(self)
-        self.assy.o.update()###e this is too expensive; needs revision. ###@@@ [bruce 041202 comment]
     #e there might be other common methods to pull into here
     pass # class Jig
 
@@ -533,5 +532,4 @@ class Stat(Jig):
         return s + " ".join(map(str,nums)) + "\n"
 
     pass # end of class Stat
-
 

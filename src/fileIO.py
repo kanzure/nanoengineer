@@ -12,6 +12,7 @@ from chem import *
 from gadgets import *
 from Utility import *
 from povheader import povheader
+from mdldata import *
 
 nampat=re.compile("\\(([^)]*)\\)")
 csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
@@ -407,4 +408,43 @@ def writepov(assy, filename):
     # Write atoms and bonds in the part
     assy.tree.writepov(f, assy.o.display)
 
+    f.close()
+    
+
+# Create an MDL file - by Chris Phoenix and Mark for John Burch [04-12-03]
+def writemdl(assy, filename):
+    assy.alist = []
+    natoms = 0
+
+    # Determine the number of atoms in the part.         
+    for mol in assy.molecules: natoms += len(mol.atoms)
+
+    f = open(filename, 'w');
+    
+    # Write the header
+    f.write(mdlheader)
+    
+    # Write atoms with spline coordinates
+    f.write("Splines=%d\n"%(13*natoms))
+    assy.tree.writemdl(assy.alist, f)
+    
+    # Write the GROUP information
+    f.write("[ENDMESH]\n[GROUPS]\n")
+    for atom in range(natoms):
+        (xyz, size, rgb) = assy.alist[atom]
+#        print "fileIO.writemdl(): xyz = ",xyz,", size = ",size,", rgb = ",rgb
+        f.write("[GROUP]\nName=Atom%d\nCount=80\n"%atom)
+        for j in range(80):
+            f.write("%d\n"%(98-j+atom*80))
+        pos=(float(xyz[0]), float(xyz[1]), float(xyz[2]))
+        f.write("Pivot=%f %f %f\n" % pos)
+        color=(int(rgb[0]), int(rgb[1]), int(rgb[2]))
+        f.write("DiffuseColor=%d %d %d\n"%color)
+        f.write("[ENDGROUP]\n")
+    f.write("[ENDGROUPS]\n")
+    
+    # Write the footer and close
+    fpos = f.tell()
+    f.write(mdlfooter)
+    f.write("FileInfoPos=%d\n"%fpos)
     f.close()

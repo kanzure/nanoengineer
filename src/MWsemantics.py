@@ -331,7 +331,7 @@ class MWsemantics(MainWindow):
         else: sfilter = QString("Molecular machine parts (*.mmp)")
         
         fn = QFileDialog.getSaveFileName(sdir,
-                    "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov);;JPEG (*.jpg)",
+                    "Molecular Machine Part (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov);;Model MDL (*.mdl);;JPEG (*.jpg)",
                     self, "IDONTKNOWWHATTHISIS",
                     "Save As",
                     sfilter)
@@ -386,6 +386,15 @@ class MWsemantics(MainWindow):
                     self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
                     self.msgbarLabel.setText( "POV-Ray file saved: " + safile )
+            
+            elif ext == ".mdl": # Write MDL file
+                try:
+                    writemdl(self.assy, safile)
+                except:
+                    print "MWsemantics.py: fileSaveAs(): error writing file " + safile
+                    self.msgbarLabel.setText( "Problem saving file: " + safile )
+                else:
+                    self.msgbarLabel.setText( "MDL file saved: " + safile )
             
             elif ext == ".jpg": # Write JPEG file
                 try:
