@@ -661,7 +661,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         
         ##Adding "X, Y, Z" text labels for Axis. Right now, Mandrake Linux has problem for the following 
         # code---Huaicai 10/10, 04
-        if sys.platform in ['darwin', 'win32']:
+        if True:###sys.platform in ['darwin', 'win32']:
                 glDisable(GL_LIGHTING)
                 glDisable(GL_DEPTH_TEST)
                 glPushMatrix()
