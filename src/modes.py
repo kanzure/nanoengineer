@@ -79,6 +79,9 @@ import re
 from constants import *
 from debug import print_compact_traceback
 
+from platform import *
+import platform # not redundant with "from platform import *" -- we need both
+
 # set this to 1 in a debugger, to see certain debug printouts [bruce 040924]
 _debug_keys = 0
 
@@ -193,7 +196,65 @@ class basicMode(anyMode):
         self.sellist = []
         self.selLassRect = 0
 
+        self.setup_menus()
+
+    def setup_menus(self): # rewritten by bruce 041103
+        mod_attrs = ['Menu_spec_shift', 'Menu_spec_control']
+        all_attrs = ['Menu_spec'] + mod_attrs + ['debug_Menu_spec']
+        for attr in all_attrs + ['Menu1','Menu2','Menu3']:
+            if hasattr(self, attr):
+                # probably never happens
+                del self.__dict__[attr]
         self.makeMenus() # bruce 040923 moved this here, from the subclasses
+        # bruce 041103 changed details of what self.makeMenus() should do
+        for attr in ['Menu1','Menu2','Menu3']:
+            assert not hasattr(self, attr), "obsolete menu attr should not be defined: %r.%s" % (self, attr)
+        # makeMenus should have set self.Menu_spec, and maybe some sister attrs
+        assert hasattr(self, 'Menu_spec'), "%r.makeMenus() failed to set up self.Menu_spec (to be a menu spec list)" % self
+        orig_Menu_spec = list(self.Menu_spec)
+            # save a copy for comparisons, before we modify it
+        # define the ones not defined by makeMenus;
+        # make them all unique lists by copying them,
+        # to avoid trouble when we modify them later.
+        for attr in mod_attrs:
+            if not hasattr(self, attr):
+                setattr(self, attr, list(self.Menu_spec))
+                # note: spec should be a list (which is copyable)
+        for attr in ['debug_Menu_spec']:
+            if not hasattr(self, attr):
+                setattr(self, attr, [])
+        for attr in ['Menu_spec']:
+            setattr(self, attr, list(getattr(self, attr)))
+        import platform
+        if platform.atom_debug and self.debug_Menu_spec:
+            # put the debug items into the main menu
+            self.Menu_spec.extend( [None] + self.debug_Menu_spec )
+        
+        # new feature, bruce 041103:
+        # add submenus to Menu_spec for each modifier-key menu which is
+        # nonempty and different than Menu_spec
+        # (was prototyped in extrudeMode.py, bruce 041010]
+        doit = []
+        for attr, modkeyname in [
+                ('Menu_spec_shift', shift_name()),
+                ('Menu_spec_control', control_name()) ]:
+            submenu_spec = getattr(self,attr)
+            if orig_Menu_spec != submenu_spec and submenu_spec:
+                doit.append( (modkeyname, submenu_spec) )
+        if doit:
+            self.Menu_spec.append(None)
+            for modkeyname, submenu_spec in doit:
+                itemtext = '%s-%s Menu' % (context_menu_prefix(), modkeyname)
+                self.Menu_spec.append( (itemtext, submenu_spec) )
+            # note: use platform.py functions so names work on Mac or non-Mac,
+            # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
+            # or   "Control-Command Menu" vs. "Right-Control Menu".
+            # [bruce 041014]
+##            ('%s-%s Menu' % (context_menu_prefix(), shift_name()), self.Menu2),
+##            ('%s-%s Menu' % (context_menu_prefix(), control_name()), self.Menu3),
+        self.Menu1 = self.makemenu(self.Menu_spec)
+        self.Menu2 = self.makemenu(self.Menu_spec_shift)
+        self.Menu3 = self.makemenu(self.Menu_spec_control)
 
     def makeMenus(self):
         assert 0, "mode subclass %r must implement makeMenus()" % self.__class__.__name__
@@ -588,10 +649,12 @@ class basicMode(anyMode):
            unless they have a good reason not to.
         """
         if self.o.cSysToggleButton: drawer.drawaxes(5, -self.o.pov)
-        # bruce 040929 debug code -- always check for bugs in atom.picked and
-        # mol.picked for everything in the assembly; print and fix violations
-        # (we might have to remove this later, for speed, but for now it's ok)
-        self.o.assy.checkpicked(always_print = 0)
+        # bruce 040929/041103 debug code -- for developers who enable this
+        # feature, check for bugs in atom.picked and mol.picked for everything
+        # in the assembly; print and fix violations. (This might be slow, which
+        # is why we don't turn it on by default for regular users.)
+        if platform.atom_debug:
+            self.o.assy.checkpicked(always_print = 0)
 
     # left mouse button actions -- overridden in modes that respond to them
     def leftDown(self, event):
