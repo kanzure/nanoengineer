@@ -162,14 +162,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         return # from contentsMousePressedEvent
 
-    def contentsMouseMoveEvent(self, event): ###e extend for drag & drop; use fix_buttons
+    def contentsMouseMoveEvent(self, event): ###e extend for drag & drop (or use other method? still need this one); use fix_buttons
         "[overrides QListView method]"
-        # This method might be needed, to prevent QListView from messing us up.
+        # This method might be needed, to prevent QListView's version of it from messing us up.
         pass
     
     def contentsMouseReleaseEvent(self, event): ###e extend for drag & drop; use fix_buttons
         "[overrides QListView method]"
-        # This method might be needed, to prevent QListView from messing us up.
+        # This method might be needed, to prevent QListView version of it from messing us up.
         # (At least, without it, QListView emits its "clicked" signal.)
         pass 
 
@@ -197,7 +197,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
             pass # nothing selected -- don't worry about assy.selwhat
         return
 
-    # command bindings to parts of items are hardcoded in the following:
+    # command bindings for clicks on various parts of tree items
+    # are hardcoded in the 'clicked' method:
     
     def clicked( self, event, vpos, item, part, dblclick):
         """Called on every mousedown (regardless of mouse buttons / modifier keys).
@@ -229,13 +230,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
         if but & rightButton:
             # This means we want a context menu, for the given item
             # (regardless of which part of it we clicked on (even openclose or left)!),
-            # or for a set of selected items which it's part of,
-            # or for no item. Ignores modifier keys and dblclick.
-            # [for now, call a subr whose interface is compatible with the old code --
-            #  def menuReq(self, item, pos, col) - col not used, ends with mt_update, no retval]
+            # or for a set of selected items which it's part of
+            # (this is detected in following subr), or for no item if item == None.
+            # The menu (and the selection-modifying behavior before we put it up) can ignore modifier keys and dblclick.
+            ###k [verify it ignores modkeys rather than having them defeat the menu, in the mac]
             pos = event.globalPos()
-            col = -333 # not used
-            self.menuReq( item, pos, col)
+            self.menuReq( item, pos) # does all needed updates ###k even in glpane?
             return
 
         # after this point, treat clicks to left of open/close icon as if on no item.
@@ -301,22 +301,21 @@ class TreeWidget(TreeView, DebugMenuMixin):
         else:
             modifier = None
 
-        self.selection_click( item, part, modifier, permit_drag_type = drag_type )
-        ####@@@@ some or all of its behavior might belong in a subclass -- not sure
+        self.selection_click( item,
+                              modifier = modifier,
+                              group_select_kids = (part == 'icon'), ##k ok? nim anyway ###@@@ must fix for cmenu
+                              permit_drag_type = drag_type )
         
         return # from clicked
 
     # context menu requests (the menu items themselves are defined by our subclass)
     
-    def menuReq(self, item, pos, col): ####@@@@ some of this goes here (cmenus in general), maybe some in subclass (specific menus)
+    def menuReq(self, item, pos):
         """Context menu items function handler for the Model Tree View
-        [interface is compatible with a related QListView signal,
-         but it's not called that way as of 050112; col arg is not used;
+        [interface is mostly compatible with a related QListView signal,
+         but it's no longer called that way; col arg was not used and is now removed;
          pos should be the position to put up the menu, in global coords (event.globalPos).]
         """
-        ## print "menuReq got globalPos(?)",pos.x(), pos.y()
-        ##pos = QPoint(5,40) ####@@@@ test - remove it! test shows that upper left corner of menu gets to these abs screen coords.
-
         # First, what items should this context menu be about?
         #
         # Here's what the Mac (OS 10.2) Finder does:
@@ -339,7 +338,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #
         # (What about other modifier keys which normally modify selection
         # behavior? If you use them, it just does selection and ignores the
-        # control key (no context menu).)
+        # control key (no context menu). This is not what our caller does
+        # as of 050124, but I don't think it matters much... ##e)
         #
         # Note that this implies: the visible selection always shows you what
         # set of items the context menu is about and will operate on; it's easy
@@ -352,20 +352,22 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # see the text of the menu entries.
         #
         # BTW, if you click on an "open/close icon" (or to the left of an item),
-        # it acts like you clicked on no item, for this purpose.
+        # it acts like you clicked on no item, for this purpose. (As of 050124
+        # our caller behaves differently in this case too, on purpose I guess...)
         #
         # [refile?] About the menu position and duration:
         # In all cases, the menu top left corner is roughly at the click pos,
         # and the menu disappears immediately on mouseup, whether or not you
-        # choose a command from it.
+        # choose a command from it. [That last part is nim since I don't yet
+        # know how to make it happen.]
         #
         # This all seems pretty good, so I will imitate it here. [bruce 050113]
 
-        ###@@@ correct item to be None if we were not really on the item acc'd to above,
-        ### or do this in following function according to event position...
-        } self.selection_click(item, pos, col, permit_drag = False)
+        #e correct item to be None if we were not really on the item acc'd to above?
+        # no, let the caller do that, if it needs to be done.
+        self.selection_click( item, modifier = None, group_select_kids = False, permit_drag_type = None)
 
-        } ####@@@@ revise the following
+        ####@@@@ revise the following
         
         set = self.current_selection_set() # a list of items?? might be a more structured thing someday... and/or made of nodes...
             # but i think it's items for now, since some ops really involve them as items more than as nodes...
@@ -380,6 +382,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # since the menu has just been put up -- nothing has yet been chosen from it
         self.dprint("mtree.menuReq just returned from menu.popup, probably with menu there - what events are responded to?")###@@@ find out!
         self.mt_update()
+        ###e also glpane update? eg for hide, select all... ####@@@@
         return
     
     def make_cmenu_for_set(self, itemset):
@@ -400,56 +403,64 @@ class TreeWidget(TreeView, DebugMenuMixin):
         """
         return []
 
-    ###@@@ $$$ put selection_click here but merge it with below
+    # selection logic
     
-    def selection_click(self, item, pos, col, modkeys = 0, permit_drag = True):
-        """Perform the ordinary selection-modifying behavior for one click in this place
-        (i.e. at position pos ###k what coords??, on the given item (might be None), in column col [ignored now]).
-        Assume the modifier keys for this click were as given in modkeys, for purposes of selection or drag(??) semantics.
+    def selection_click(self, item, _guard_ = None, group_select_kids = True, modifier = None, permit_drag_type = None):
+        """Perform the ordinary selection-modifying behavior for one click on this item (might be None).
+        Assume the modifier keys for this click were as given in modifier, for purposes of selection or drag(??) semantics.
         We immediately modify the set of selected items -- changing the selection state of their Nodes (node.picked),
         updating tree-item highlighting (but not anything else in the application -- those will be updated when Qt resumes
          event processing after we return from handling this click ###@@@ so we need to inval the glpane to make that work!
          until then, it won't update til... when? the next paintGL call. hmm. I guess we just have to fix this now.).
     
-        If permit_drag is True (the default), this click might become the start of a drag of the same set of items it
+        If permit_drag_type is not None, this click might become the start of a drag of the same set of items it
         causes to be selected; but this routine only sets some instance variables to help a mouse move method decide whether
-        to do that.
+        to do that. The value of permit_drag_type should be 'move' or 'copy' according to which type of drag should be done
+        if it's done within this widget. (If the drop occurs outside this widget, ... #doc)
         
         #doc elsewhere: for a single plain click on a selected item, this should not unselect the other items!
         # at least finder doesn't (for sel or starting a drag)
         # and we need it to not do that for this use as well.
         """
+        assert not _guard_, "you passed too many positional arguments to this function!"
         
-        ### this is not used in place of select yet, just to test cmenus...
-        # (which in any case will be passed to us, not found in some attribute on self! since some callers filter them.)
+##        ### this is not used in place of select yet, just to test cmenus...
+##        # (which in any case will be passed to us, not found in some attribute on self! since some callers filter them.)
+##
+##        #e first filter item and pos so that positions too far to left or right don't count as being on item. NIM.
+##        # one case of this is clicks on the open/close togging icon. Not sure if they ever get here, though,
+##        # in fact, caller might do this filtering. We'll see.
+##        
+##        if item and item.object.picked: ###@@@ does this depend on modkeys?? ###@@@ do stuff to set up for drag, too
+##            return # no change! #doc why; see comments in menuReq
+##
+##        #e now perform sel logic... using item none or not, and modkeys... update .picked and item highlighting. ####@@@@
+##        ####@@@@ implem... steal some code from select, or split it into this...
+##        # stub: just toggle it for this one item. wait, above behavior defeats this... too tired, do this tomorrow.
+##        if item:
+##            node = item.object
+##            if node.picked:
+##                node.unpick() # won't happen yet...
+##            else:
+##                node.pick()
 
-        #e first filter item and pos so that positions too far to left or right don't count as being on item. NIM.
-        # one case of this is clicks on the open/close togging icon. Not sure if they ever get here, though,
-        # in fact, caller might do this filtering. We'll see.
-        
-        if item and item.object.picked: ###@@@ does this depend on modkeys?? ###@@@ do stuff to set up for drag, too
-            return # no change! #doc why; see comments in menuReq
+        self.select_0( item, group_select_kids, modifier, permit_drag_type) # does no updating?? or is that too inefficient?
 
-        #e now perform sel logic... using item none or not, and modkeys... update .picked and item highlighting. ####@@@@
-        ####@@@@ implem... steal some code from select, or split it into this...
-        # stub: just toggle it for this one item. wait, above behavior defeats this... too tired, do this tomorrow.
-        if item:
-            node = item.object
-            if node.picked:
-                node.unpick() # won't happen yet...
-            else:
-                node.pick()
-        self.update_selection_highlighting()
+        ###@@@ only sometimes do the following? have our own inval flags for these? 
+        self.update_selection_highlighting() ###@@@ remove this from select_0?
         self.win.glpane.update() ####k will this work already, just making it call paintGL? or must we inval something too??
         return
     
-    def select(self, item): ###@@@ soon to be obs, i think, or to be inlined... and some belongs in the subclass.
+    def select_0(self, item, group_select_kids, modifier, permit_drag_type):
         "item is a list view item or none"
+        ###@@@ maybe some (in this or a few callers) belongs in the subclass?
         # bruce comment 041220: this is called when widget signals that
         # user clicked on an item, or on blank part of model tree (confirmed by
         # experiment). Event (with mod keys flags) would be useful...
         # 
         self.dprint("select called")
+
+        assert group_select_kids, "group_select_kids being F is nim, but we need it!" ####@@@@
         
 ##        if item:
 ##            if isinstance(item, PartGroup):
@@ -523,7 +534,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 print "update nim"
         # that should do it!
         
-        self.update_selection_highlighting() ####@@@@ does this work?
+        self.update_selection_highlighting() ####@@@@ does this work? do it in caller (like we do?)
         return
 
     # key events ###@@@ move these?
