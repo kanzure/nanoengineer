@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Jan 30 14:28:45 2005
+# Created: Sun Jan 30 21:08:36 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7351,7 +7351,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,655,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7439,7 +7439,8 @@ class MainWindow(QMainWindow):
 
 
         self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
-        self.nullAction.addTo(self.zoomDashboard)
+        self.zoomDashboard.addSeparator()
+        self.toolsDoneAction.addTo(self.zoomDashboard)
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
 
@@ -7604,7 +7605,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1195).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1201).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7898,7 +7899,7 @@ class MainWindow(QMainWindow):
         self.setViewLeftAction.setToolTip(self.__tr("Left"))
         self.setViewHomeAction.setText(self.__tr("Home"))
         self.setViewHomeAction.setMenuText(self.__tr("&Home"))
-        self.setViewHomeAction.setToolTip(self.__tr("Home"))
+        self.setViewHomeAction.setToolTip(self.__tr("Home (Home)"))
         self.setViewHomeAction.setAccel(self.__tr("Home"))
         self.setViewRecenterAction.setText(self.__tr("Recenter"))
         self.setViewRecenterAction.setMenuText(self.__tr("&Recenter"))

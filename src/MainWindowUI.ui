@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1195</height>
+            <height>1201</height>
         </rect>
     </property>
     <property name="caption">
@@ -261,7 +261,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>657</width>
+                <width>655</width>
                 <height>29</height>
             </rect>
         </property>
@@ -523,7 +523,8 @@
                 <string>Zoom Tool</string>
             </property>
         </widget>
-        <action name="nullAction"/>
+        <separator/>
+        <action name="toolsDoneAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -1730,7 +1731,7 @@
             <string>&amp;Home</string>
         </property>
         <property name="toolTip">
-            <string>Home</string>
+            <string>Home (Home)</string>
         </property>
         <property name="accel">
             <string>Home</string>
