@@ -1227,18 +1227,34 @@ class molecule(Node):
         
     def getinfo(self):
         # Return information about the selected moledule for the msgbar [mark 2004-10-14]
-        minfo =  "Molecule Name: [" + str (self.name) + "]     Total Atoms: " + str(len(self.atoms)) + " "
         ele2Num = {}
-        # Calculating the number of element types in this molecule.
+        
+        # Determine the number of element types in this molecule.
         for a in self.atoms.itervalues():
             if not ele2Num.has_key(a.element.symbol): ele2Num[a.element.symbol] = 1 # New element found
             else: ele2Num[a.element.symbol] += 1 # Increment element
+            
         # String construction for each element to be displayed.
+        natoms = len(self.atoms) # number of atoms in the chunk
+        nsinglets = 0
+        einfo = ""
+     
         for item in ele2Num.iteritems():
-            eleStr = "[" + item[0] + ": " + str(item[1]) + "] "
-            minfo += eleStr            
-        return minfo
+            if item[0] == "X":  # It is a Singlet
+                nsinglets = int(item[1])
+                continue
+            else: eleStr = "[" + item[0] + ": " + str(item[1]) + "] "
+            einfo += eleStr
+            
+        if nsinglets: # Add singlet info to end of info string
+            eleStr = "[Singlets: " + str(nsinglets) + "]"
+            einfo += eleStr
+         
+        natoms -= nsinglets   # The real number of atoms in this chunk
 
+        minfo =  "Chunk Name: [" + str (self.name) + "]     Total Atoms: " + str(natoms) + " " + einfo
+                        
+        return minfo
 
     def pick(self):
         """select the molecule.
