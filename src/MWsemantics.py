@@ -681,8 +681,14 @@ class MWsemantics(MainWindow):
     def zoomWindow(self):
         """Rubber band window zoom.
         """
+        self.glpane.prevMode= self.glpane.mode.modename
+        self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+        
+        print "zoomWindow(): prevMode = ", self.glpane.prevMode
+        print "zoomWindow(): prevModeColor = ", self.glpane.prevModeColor
+        
         self.glpane.setMode('ZOOM')
-                
+
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
         self.glpane.ortho = 1
