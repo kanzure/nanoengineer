@@ -81,9 +81,9 @@ class Form1(QMainWindow):
         self.Done.setGeometry(QRect(20,210,80,24))
         self.Done.setText(self.trUtf8("Done"))
 
-        self.Bondall = QPushButton(self.groupBox1,"Bondall")
-        self.Bondall.setGeometry(QRect(20,250,80,24))
-        self.Bondall.setText(self.trUtf8("Bond (all)"))
+        self.Movie = QPushButton(self.groupBox1,"Movie")
+        self.Movie.setGeometry(QRect(20,250,80,24))
+        self.Movie.setText(self.trUtf8("Movie"))
 
         self.Bondedge = QPushButton(self.groupBox1,"Bondedge")
         self.Bondedge.setGeometry(QRect(20,290,80,24))
@@ -504,7 +504,7 @@ class Form1(QMainWindow):
         self.connect(self.comboBox1,SIGNAL("activated(const QString&)"),self.elemChange)
         self.connect(self.AddAtoms,SIGNAL("clicked()"),self.addAtomStart)
         self.connect(self.Done,SIGNAL("clicked()"),self.addAtomDone)
-        self.connect(self.Bondall,SIGNAL("clicked()"),self.bondAll)
+        self.connect(self.Movie,SIGNAL("clicked()"),self.movie)
         self.connect(self.Bondedge,SIGNAL("clicked()"),self.bondEdge)
         self.connect(self.UBondall,SIGNAL("clicked()"),self.ubondAll)
         self.connect(self.UBondedge,SIGNAL("clicked()"),self.ubondEdge)
@@ -893,8 +893,9 @@ class Form1(QMainWindow):
         print "Form1.addAtomDone(): Not implemented yet"
 
     # create bonds where reasonable within selection
-    def bondAll(self):
-        print "Form1.bondAll(): Not implemented yet"
+    def movie(self):
+        dir, fil, ext = fileparse(self.assy.filename)
+        self.glpane.startmovie(dir + fil + ".dpb")
 
     # create bonds where reasonable between selected and unselected
     def bondEdge(self):

@@ -458,6 +458,19 @@ class GLPane(QGLWidget):
         pic.putdata(buf)
         pic.save(filename, "JPEG", quality=85)
 
+    def startmovie(self,filename):
+        self.xfile=open(filename,'rb')
+        self.clock = unpack('i',self.xfile.read(4))[0]
+        self.startTimer(30)
+
+    def timerEvent(self, e):
+        self.clock -= 1
+        if self.clock<0: self.killTimers()
+        else:
+            self.assy.movatoms(self.xfile)
+            self.paintGL()
+
+
 
 def povpoint(p):
     # note z reversal -- povray is left-handed

@@ -78,7 +78,8 @@ class Q:
         elif name in ('z', 'k'):
             return self.vec[3]
         elif name == 'angle':
-            return 2.0*acos(self.vec[0])
+            if -1.0<self.vec[0]<1.0: return 2.0*acos(self.vec[0])
+            else: return 0.0
         elif name == 'axis':
             return V(self.vec[1], self.vec[2], self.vec[3])
         elif name == 'matrix3':
@@ -120,6 +121,7 @@ class Q:
         self.vec[1:] = norm(self.vec[1:]) * sin(theta)
         self.vec[0] = cos(theta)
         self.__reset()
+        return self
         
 
     def __reset(self):

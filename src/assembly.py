@@ -5,6 +5,7 @@ import re
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
+from struct import unpack
 
 from drawer import drawsphere, drawcylinder, drawline, drawaxes
 from drawer import segstart, drawsegment, segend, drawwirecube
@@ -24,6 +25,8 @@ class assembly:
         self.windows = []
         # list of chem.molecule's
         self.molecules=[]
+        # list of the atoms, only valid just after read or write
+        self.alist = None
         # filename if this was read from a file
         self.filename= None
         # the name if any
@@ -127,6 +130,8 @@ class assembly:
         self.filename=filnam
         mol = None
         ndix={}
+        self.alist = []
+
         for card in l:
             key=card[:4]
             if key=="part":
@@ -141,6 +146,7 @@ class assembly:
                 sym=Mendeleev[int(m.group(2))].symbol
                 xyz=A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
                 a=atom(sym, xyz, mol)
+                self.alist += [a]
                 ndix[n]=a
                 prevatom=a
                 prevcard = card
@@ -182,10 +188,12 @@ class assembly:
         f=open(filename,"w")
         atnums = {}
         atnum = 1
+        self.alist = []
         for mol in self.molecules:
             carrydisp = ("nil", "lin", "bns", "vdw")[mol.display]
             f.write("part " + carrydisp + " (" + mol.name + ")\n")
             for a in mol.atoms.itervalues():
+                self.alist += [a]
                 atnums[a.key] = atnum
                 if a.display >= 0:
                     disp = ("nil", "lin", "bns", "vdw")[a.display]
@@ -208,6 +216,18 @@ class assembly:
                 f.write(g.__repr__(atnums) + "\n")
         f.write("end molecular machine part " + self.name + "\n")
         f.close()
+
+    # move the atoms one frame as for movie or minization
+    # .dpb file is in units of 16 pm
+    # units here are angstroms
+    def movatoms(self, file):
+        if not self.alist: return
+        for a in self.alist:
+            #print unpack('bbb',file.read(3))
+            a.xyz += A(unpack('bbb',file.read(3)))*0.01
+        for m in self.molecules:
+            m.changeapp()
+        
 
     # dumb hack: find which atom the cursor is pointing at by
     # checking every atom...
