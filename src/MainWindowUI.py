@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Nov 11 15:22:27 2004
+# Created: Fri Dec 3 17:46:06 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7571,7 +7571,6 @@ class MainWindow(QMainWindow):
         self.unnamed = QPopupMenu(self)
         self.setViewHomeAction.addTo(self.unnamed)
         self.setViewFitToWindowAction.addTo(self.unnamed)
-        self.setViewReorientAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.setViewOrthoAction.addTo(self.unnamed)
         self.setViewPerspecAction.addTo(self.unnamed)
@@ -7622,14 +7621,12 @@ class MainWindow(QMainWindow):
         self.toolsDepositAtomAction.addTo(self.Tools)
         self.toolsCookieCutAction.addTo(self.Tools)
         self.toolsExtrudeAction.addTo(self.Tools)
-        self.toolsRevolveAction.addTo(self.Tools)
         self.Tools.insertSeparator()
         self.toolsSimulator_Action.addTo(self.Tools)
         self.toolsMovieAction.addTo(self.Tools)
         self.MenuBar.insertItem(QString(""),self.Tools,9)
 
         self.helpMenu = QPopupMenu(self)
-        self.helpContentsAction.addTo(self.helpMenu)
         self.helpAssistantAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
         self.helpAboutAction.addTo(self.helpMenu)
@@ -7638,7 +7635,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,979).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,988).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7834,8 +7831,8 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.setAccel(self.__tr("Del"))
         self.viewToolbarsAction.setText(self.__tr("Toolbars"))
         self.viewToolbarsAction.setMenuText(self.__tr("&Toolbars"))
-        self.dispObjectColorAction.setText(self.__tr("Object Color..."))
-        self.dispObjectColorAction.setMenuText(self.__tr("&Object Color..."))
+        self.dispObjectColorAction.setText(self.__tr("Chunk Color"))
+        self.dispObjectColorAction.setMenuText(self.__tr("&Chunk Color..."))
         self.dispOpenBondsAction.setText(self.__tr("Display Open Bonds"))
         self.dispOpenBondsAction.setMenuText(self.__tr("Display Open Bonds"))
         self.modifyHydrogenateAction.setText(self.__tr("Hydrogenate"))
@@ -7982,9 +7979,9 @@ class MainWindow(QMainWindow):
         self.setViewPerspecAction.setToolTip(self.__tr("Perspective"))
         self.setPerspectiveActionGroup.setMenuText(self.__tr("ActionGroup"))
         self.toolsModeActionGroup.setText(self.__tr("ActionGroup"))
-        self.toolsDepositAtomAction.setText(self.__tr("Deposit Atom"))
-        self.toolsDepositAtomAction.setMenuText(self.__tr("Deposit &Atom"))
-        self.toolsDepositAtomAction.setToolTip(self.__tr("Deposit Atom"))
+        self.toolsDepositAtomAction.setText(self.__tr("Build Atoms"))
+        self.toolsDepositAtomAction.setMenuText(self.__tr("Build &Atoms"))
+        self.toolsDepositAtomAction.setToolTip(self.__tr("Build Atoms"))
         self.toolsCookieCutAction.setText(self.__tr("Cookie Cutter"))
         self.toolsCookieCutAction.setMenuText(self.__tr("&Cookie Cutter"))
         self.toolsCookieCutAction.setToolTip(self.__tr("Cookie Cutter"))
@@ -8077,8 +8074,8 @@ class MainWindow(QMainWindow):
         self.nullAction.setMenuText(QString.null)
         self.jigsStatAction.setText(self.__tr("Thermostat"))
         self.jigsStatAction.setMenuText(self.__tr("&Thermostat"))
-        self.dispResetMolColorAction.setText(self.__tr("Reset Object Color"))
-        self.dispResetMolColorAction.setMenuText(self.__tr("&Reset Object Color"))
+        self.dispResetMolColorAction.setText(self.__tr("Reset Chunk Color"))
+        self.dispResetMolColorAction.setMenuText(self.__tr("&Reset Chunk Color"))
         self.helpWhatsThisAction.setText(self.__tr("What's This"))
         self.helpWhatsThisAction.setMenuText(self.__tr("What's This"))
         self.movieRewindAction.setText(self.__tr("Rewind"))
@@ -8114,7 +8111,7 @@ class MainWindow(QMainWindow):
         QWhatsThis.add(self.ccLayerThicknessSpinBox,self.__tr("Number of lattice cells"))
         self.selectAtomsDashboard.setLabel(self.__tr("Select Atoms"))
         self.textLabel2_2.setText(self.__tr("Select Atoms"))
-        self.moveMolDashboard.setLabel(self.__tr("Move Molecule"))
+        self.moveMolDashboard.setLabel(self.__tr("Move Chunks"))
         self.textLabel1.setText(self.__tr("Move Chunks"))
         self.moviePlayerDashboard.setLabel(self.__tr("Movie Player Dashboard"))
         self.textLabel1_4.setText(self.__tr("Movie Player"))

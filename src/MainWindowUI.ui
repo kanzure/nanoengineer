@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>979</height>
+            <height>988</height>
         </rect>
     </property>
     <property name="caption">
@@ -66,7 +66,6 @@
     <item text="&amp;View" name="unnamed">
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
-        <action name="setViewReorientAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
@@ -113,13 +112,11 @@
         <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
-        <action name="toolsRevolveAction"/>
         <separator/>
         <action name="toolsSimulator_Action"/>
         <action name="toolsMovieAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
-        <action name="helpContentsAction"/>
         <action name="helpAssistantAction"/>
         <separator/>
         <action name="helpAboutAction"/>
@@ -366,7 +363,7 @@
             <cstring>moveMolDashboard</cstring>
         </property>
         <property name="label">
-            <string>Move Molecule</string>
+            <string>Move Chunks</string>
         </property>
         <widget class="QLabel">
             <property name="name">
@@ -1001,10 +998,10 @@
             <iconset>image21</iconset>
         </property>
         <property name="text">
-            <string>Object Color...</string>
+            <string>Chunk Color</string>
         </property>
         <property name="menuText">
-            <string>&amp;Object Color...</string>
+            <string>&amp;Chunk Color...</string>
         </property>
     </action>
     <action>
@@ -1998,13 +1995,13 @@
                 <iconset>image69</iconset>
             </property>
             <property name="text">
-                <string>Deposit Atom</string>
+                <string>Build Atoms</string>
             </property>
             <property name="menuText">
-                <string>Deposit &amp;Atom</string>
+                <string>Build &amp;Atoms</string>
             </property>
             <property name="toolTip">
-                <string>Deposit Atom</string>
+                <string>Build Atoms</string>
             </property>
         </action>
         <action>
@@ -2575,10 +2572,10 @@
             <cstring>dispResetMolColorAction</cstring>
         </property>
         <property name="text">
-            <string>Reset Object Color</string>
+            <string>Reset Chunk Color</string>
         </property>
         <property name="menuText">
-            <string>&amp;Reset Object Color</string>
+            <string>&amp;Reset Chunk Color</string>
         </property>
     </action>
     <action>

@@ -735,6 +735,25 @@ def createWhatsThis(self):
         self.dispBGColorAction.setWhatsThis(dispBGColorActionText ) 
        
         ##############################################
+        # Help Toolbar
+        ##############################################
+        
+        #### helpAssistantAction ####
+        
+        helpAssistantText = "<u><b>nanoENGINEER-1 Assistant</b></u><br>"\
+                        "<p><img source=\"helpAssistant\"><br> "\
+                       "Opens  <b>nanoENGINEER-1 Assistant</b>, "\
+                       "the nanoENGINEER-1 Reference Documentation.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "helpAssistant",
+                                                       self.helpAssistantAction.iconSet().pixmap() )
+
+        self.helpAssistantAction.setWhatsThis( helpAssistantText )
+        
+        #### fileSaveAction ####
+       
+       
+        ##############################################
         # Datum Display Toolbar
         ##############################################
         

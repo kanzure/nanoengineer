@@ -70,7 +70,7 @@ class MWsemantics(MainWindow):
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         self.createStatusBars()
         
-        # Create nanoENGINEER-1 Assistant - Mark 11-23-2004
+        # Create Assistant - Mark 11-23-2004
         self.assistant = AssistantWindow(self, "Assistant")
         
         # Create validator(s)
@@ -509,12 +509,12 @@ class MWsemantics(MainWindow):
 
     def editUndo(self):
         print "MWsemantics.editUndo(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editRedo(self):
         print "MWsemantics.editRedo(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editCut(self):
@@ -532,7 +532,7 @@ class MWsemantics(MainWindow):
 
     def editFind(self):
         print "MWsemantics.editFind(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     ###################################
@@ -654,13 +654,13 @@ class MWsemantics(MainWindow):
 
     def dispGrid(self):
         print "MWsemantics.dispGrid(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
         
 
     def gridGraphite(self):
         print "MWsemantics.gridGraphite(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     #######################################
@@ -752,7 +752,7 @@ class MWsemantics(MainWindow):
 
     def makeHandle(self):
         print "MWsemantics.makeHandle(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def makeMotor(self):
@@ -764,20 +764,20 @@ class MWsemantics(MainWindow):
         self.update()
 
     def makeBearing(self):
-        QMessageBox.information(self, "ATOM User Notice:", 
+        QMessageBox.information(self, self.name() + " User Notice:", 
 	         "This function is not implemented yet, coming soon...")
 
     def makeSpring(self):
-        QMessageBox.information(self, "ATOM User Notice:", 
+        QMessageBox.information(self, self.name() + " User Notice:", 
 	         "This function is not implemented yet, coming soon...")
     def makeDyno(self):
         print "MWsemantics.makeDyno(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def makeHeatsink(self):
         print "MWsemantics.makeHeatsink(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     ###################################
@@ -833,7 +833,7 @@ class MWsemantics(MainWindow):
         self.assistant.openNE1Assistant()
 	         
     def helpAbout(self):
-        QMessageBox.information(self, "ATOM User Notice:", 
+        QMessageBox.information(self, self.name() + " User Notice:", 
 	         "This function is not implemented yet, coming soon...")
 	         
     def helpWhatsThis(self):
@@ -931,13 +931,13 @@ class MWsemantics(MainWindow):
     # Mirror Tool
     def toolsMirror(self):
         print "MWsemantics.toolsMirror(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:", 
+        QMessageBox.information(self, self.name() + " User Notice:", 
              "This function is not implemented yet, coming soon...")
              
     # Mirror Circular Boundary Tool
     def toolsMirrorCircularBoundary(self):
         print "MWsemantics.toolsMirrorCircularBoundary(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:", 
+        QMessageBox.information(self, self.name() + " User Notice:", 
              "This function is not implemented yet, coming soon...")
 
     # "push down" one nanometer to cut out the next layer
@@ -1024,13 +1024,13 @@ class MWsemantics(MainWindow):
     # create bonds where reasonable between selected and unselected
     def modifyEdgeBond(self):
         print "MWsemantics.modifyEdgeBond(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
         
     # create bonds where reasonable between selected and unselected
     def toolsAddBond(self):
         print "MWsemantics.modifyAddBond(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # Turn on or off the axis icon
@@ -1046,7 +1046,7 @@ class MWsemantics(MainWindow):
     # break bonds between selected and unselected atoms
     def toolsDeleteBond(self):
         print "MWsemantics.modifyDeleteBond(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # 2BDone: make a copy of the selected part, move it, and bondEdge it,
@@ -1055,7 +1055,7 @@ class MWsemantics(MainWindow):
     # between copying and bondEdging it.
     def modifyCopyBond(self):
         print "MWsemantics.modifyCopyBond(): Not implemented yet"
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     # delete selected parts or atoms
@@ -1086,22 +1086,22 @@ class MWsemantics(MainWindow):
 
     def dispDatumLines(self):
         """ Toggle on/off datum lines """
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def dispDatumPlanes(self):
         """ Toggle on/off datum planes """
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def editPrefs(self):
         """ Edit square grid line distances(dx, dy, dz) in nm/angtroms """
-        QMessageBox.information(self, "ATOM User Notice:",
+        QMessageBox.information(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
  
     def elemChangePTable(self):
