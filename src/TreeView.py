@@ -335,7 +335,8 @@ class TreeView(QListView):
         # does that mean cg could have been None?
         ## colorgroup = None #k ok? no; and this one is called arg 1; seems inconsistent...
         
-        if 1: ### for release, change to "if sys.platform == 'windows'" -- or whatever the correct name is!
+        if sys.platform == 'win32':
+#        if 1: ### for release, change to "if sys.platform == 'windows'" -- or whatever the correct name is!
             # note to Mark -- try not to change this call itself, but only what that new method does --
             # that way we confine all differences to that new method our_paintCell
             # (even calling item.setSelected(False) can be inside there, not here, if it's needed).
@@ -365,7 +366,15 @@ class TreeView(QListView):
         This is a place added by bruce for Mark to try out variations in how to call item.paintCell,
         and/or replacements of it by our own drawing code using QPainter methods on painter.
         """
-        item.paintCell( painter, colorgroup, col, width, align)
+        # iconpixmap is the node's icon from model tree (22 x 22 pixels).
+#        iconpixmap = item.pixmap(0)
+        # Add the icon to the painter's pixmap
+        # This creates the problem for Windows.
+        # Mark - 050205
+#        painter.drawPixmap ( 1, 1, iconpixmap) 
+        text = item.text(col) 
+        w, h = 160, item.height() # bounding rect
+        painter.drawText(24,1,w,h,0,text) 
         return
     
     ## def viewportResizeEvent(self, event):pass
