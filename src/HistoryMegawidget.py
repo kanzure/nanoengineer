@@ -209,10 +209,13 @@ class HistoryMegawidget:
     def next_serno(self):
         self.last_serno += 1
         return self.last_serno
+
+    saved_msg = saved_options = saved_transient_id = None
+    saved_norepeat_id = None
     
-    # public methods:
+    # public methods (except the ones starting '_', if any):
     
-    def set_status_text(self, msg, **options):
+    def set_status_text(self, msg, transient_id = None, repaint = 0, norepeat_id = None, **options):
         """Compatibility method -- pretend we're a statusbar and this is its "set text" call.
         [The following is not yet implemented as of the initial commit:]
         In reality, make sure the new end of the history looks basically like the given text,
@@ -220,9 +223,85 @@ class HistoryMegawidget:
         so that the recorded history is not too full of redundant messages.
         Soon, we might add options to help tune this, or switch to separate methods.
         [Some of these features might be in _print_msg rather than in this method directly.]
+           If transient_id is supplied, then for successive messages for which it's the same,
+        put them all in the conventional statusbar, but only print the last one into the widget.
+        (This can only be done when the next message comes. To permit this to be forced to occur
+        by client code, a msg of None or "" is permitted and ignored. [#e also clear statusbar then?])
+           When transient_id is supplied, repaint = 1 tries to repaint the statusbar after modifying it.
+        Presently this doesn't yet work, so it prints the msg instead, to be sure it's seen.
+        This option should be used during a long computation containing no Qt event processing.
+        (Which should ideally never be allowed to occur, but that's a separate issue.)
+           If norepeat_id is supplied (assumed not to co-occur with transient_id),
+        print the first message normally (out of several in a row with the same norepeat_id)
+        but discard the others.
         """
+        # first emit a saved_up message, if necessary
+        if self.saved_transient_id and self.saved_transient_id != transient_id:
+            self.widget_msg( self.saved_msg, self.saved_options)
+            self.saved_msg = self.saved_options = self.saved_transient_id = None # just an optim
+            self.transient_msg("") # no longer show it in true statusbar
+                # (this might clear someone else's message from there; no way to avoid this
+                #  that I know of; not too bad, since lots of events beyond our control do it too)
+        # never save or emit a null msg (whether or not it came with a transient_id)
+        if not msg:
+            return
+        # now handle the present msg: save (and show transiently) or emit
+        if transient_id:
+            self.transient_msg(msg, repaint = repaint) # (no html allowed in msg!)
+            # (Actually we should make a message object now, so the timestamp is
+            # made when the message was generated (not when emitted, if that's delayed),
+            # and then show its plain text version transiently (including a text
+            # timestamp), and save the same message object for later addition to the
+            # widget and file. Should be straightforward, but I'll commit it separately
+            # since it requires message objects to be created higher up, and
+            # ideally passed lower down, than they are now. ###@@@)
+            self.saved_msg = msg
+            self.saved_options = options
+            self.saved_transient_id = transient_id
+        else:
+            if norepeat_id and norepeat_id == self.saved_norepeat_id:
+                return
+            self.saved_norepeat_id = norepeat_id # whether supplied or None
+            self.widget_msg( msg, options)
+        return
+
+    def transient_msg(self, msg_text, repaint = 0):
+        """Show the message transiently (for now, as a Temporary message in Qt's main status bar).
+        This only works for plain text messages, not html.
+        If the message is too long, it might make the window become too wide, perhaps off the screen!
+        Thus use this with care.
+        Also, the message might be erased right away by events beyond our control.
+        Thus this is best used only indirectly by set_status_text with transient_id option,
+        and only for messages coming out almost continuously for some period, e.g. during a drag.
+        """
+        # This implem is a kluge, to handle some even worse kluges presently in MWsemantics;
+        # those will be cleaned up soon (I hope) and then this can be too.
+        # Kluge or not, it should probably just call a method in MWsemantics... for now it's here.
+        win = self.widget.topLevelWidget()
+            # ... use an init option instead? for win, or the sbar itself...
+        # work around the kluge in MWsemantics
+        if 1:
+            orig_sb_method = win.__class__.statusBar 
+            sbar = orig_sb_method(win)
+        else:
+            # what we'd do without that kluge
+            sbar = win.statusBar()
+        # now we can emit the message
+        if msg_text:
+            sbar.message(msg_text)
+        else:
+            sbar.clear()
+        if repaint:
+            ## this didn't work, so don't do it until I know why it didn't work:
+            ## sbar.repaint()
+            ##   #k will this help extrude show its transient msgs upon entry?
+            # so do this instead:
+            print msg_text
+        return
+    
+    def widget_msg(self, msg, options):
         #e improved timestamp?
-        #e use html for color etc?
+        #e use html for color etc? [some callers put this directly in the msg, for now]
         self._print_msg(msg)
         if options:
             msg2 = "fyi: bug: set_status_text got unsupported options: %r" % options

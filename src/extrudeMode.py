@@ -901,9 +901,10 @@ class extrudeMode(basicMode):
         # (but it does, see comments)
         mergeables = self.mergeables = {}
         sings1 = sings2 = self.basemol_singlets
+        transient_id = (self, self.__class__.recompute_for_new_unit, "scanning all pairs")
         for i1 in range(len(sings1)):
-            self.status_msg("scanning all pairs of open bonds... %d/%d done" % (i1, len(sings1)) ,
-                             suppress_rapidfire_repeats = "scanning all pairs"
+            self.w.statusBar.message("scanning open bond pairs... %d/%d done" % (i1, len(sings1)) ,
+                             transient_id = transient_id, repaint = 1
                             ) # this is our slowness warning
             ##e should correct that message for effect of i2 < i1 optim, by reporting better numbers...
             for i2 in range(len(sings2)):
@@ -920,10 +921,14 @@ class extrudeMode(basicMode):
                     print "extrude loop %d, %d got %r" % (i1, i2, (ok, ideal, err))
                 if ok:
                     mergeables[(i1,i2)] = (ideal, err)
-        print "extrude fyi: len(mergeables) = %d" % len(mergeables)
         #e self.mergeables is in an obs format... but we still use it to look up (i1,i2) or their swapped form
+
+        # final msg with same transient_id
         msg = "scanned %d open-bond pairs..." % ( len(sings1) * len(sings2) ,) # longer msg below
-        self.status_msg(msg)
+        self.w.statusBar.message( msg, transient_id = transient_id, repaint = 1 )
+        self.w.statusBar.message("") # make it get into history right away
+        del transient_id
+
         # make handles from mergeables.
         # Note added 041222: the handle (i1,i2) corresponds to the possibility
         # of bonding singlet number i1 in unit[k] to singlet number i2 in unit[k+1].
@@ -1008,12 +1013,14 @@ class extrudeMode(basicMode):
             self.offset_for_bonds = self.offset
         else:
             if not self.offset_for_bonds:
-                msg = "bond-offsets not yet computed, but computing them for %r is NIM, sorry" % self.product_type
-                self.status_msg(msg)
+                msg = "error: bond-offsets not yet computed, but computing them for %r is not yet implemented" % self.product_type
+                self.w.statusBar.message(msg, norepeat_id = msg)
                 return
             else:
-                msg = """note: using bond-offsets computed for "rod", at last offset of the rod, not current offset"""
-                self.status_msg(msg, suppress_print = 1)
+                msg = """warning: for %r, correct bond-offset computation is not yet implemented;\n""" \
+                      """using bond-offsets computed for "rod", at last offset of the rod, not current offset""" % \
+                      self.product_type
+                self.w.statusBar.message(msg, norepeat_id = msg)
             #e we could optim by returning if only offset but not tol changed, but we don't bother yet
         
         self.redo_look_of_bond_offset_spheres() # uses both self.offset and self.offset_for_bonds
@@ -1242,40 +1249,7 @@ class extrudeMode(basicMode):
             self.repaint_if_needed() # (sometimes the click method already did the repaint, so this doesn't)
         return
 
-    _last_status_text = ""
-    _last_status_now = ""
-    _last_status_counter = 0
-    def status_msg(self, text, suppress_rapidfire_repeats = None, suppress_print = 0):
-        ###@@@ this needs merging into the new set_status_text method. [bruce 041223]
-        import time
-        now = time.asctime()
-        if suppress_print:
-            self._last_status_counter = 1 # kluge
-        if suppress_rapidfire_repeats:
-            # consider not printing it (or using \r rather than \n??), but always put it into the statusbar!
-            if self._last_status_text.startswith(suppress_rapidfire_repeats) and self._last_status_now == now:
-                suppress_print = 1
-            self._last_status_text = text
-            self._last_status_now = now
-        else:
-            self._last_status_text = "" # only compress when they are adjacent
-        if not suppress_print:
-            if self._last_status_counter:
-##                sys.stdout.write("\n") # \n after 1 or more "."s #### right place? need flush?
-##                sys.stdout.flush() #### this is still not coming out soon enough -- why? never mind for now ##########
-                self._last_status_counter = 0 #### wrong place
-            print "statusbar: %r:" % now, text
-        else:
-            if 0: #### experiment -- didn't work
-                print "statusbar: %r: " % now, text.replace('\n','\r')
-            else:
-                if not self._last_status_counter:
-                    ## sys.stdout.write("statusbar: %r: %s... -- suppressing repeated msgs" % (now, suppress_rapidfire_repeats))
-                    print "statusbar: %r: %s... -- suppressing repeated msgs at same time" % (now, suppress_rapidfire_repeats)
-                self._last_status_counter = self._last_status_counter + 1
-##                sys.stdout.write(".")
-##                sys.stdout.flush()
-        assert type(text) in [type(""), type(u"")] # only after we print it...
+    def status_msg(self, text): # bruce 050106 simplified this
         self.w.statusBar.message(text)
 
     show_bond_offsets_handlesets = [] # (default value) the handlesets to be visible iff self.show_bond_offsets

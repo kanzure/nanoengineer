@@ -16,6 +16,8 @@ import drawer
 from constants import elemKeyTab
 import platform
 
+_count = 0
+
 def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.clear()
 
@@ -340,7 +342,7 @@ class depositMode(basicMode):
         self.modified = 1
         self.o.assy.modified = 1
         if a: # if something was "lit up"
-            self.w.statusBar.message("%r" % a) #bruce 041208 to zap leftover msgs
+            ## self.w.statusBar.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element == Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
                 if self.w.pasteP:
@@ -513,7 +515,7 @@ class depositMode(basicMode):
         a = self.o.selatom
         if not a: return
         # now, if something was "lit up"
-        self.w.statusBar.message("%r" % a) #bruce 041208 to zap leftover msgs
+        ## self.w.statusBar.message("%r" % a) #bruce 041208 to zap leftover msgs
         self.modified = 1
         self.o.assy.modified = 1
         if a.element == Singlet:
@@ -541,6 +543,11 @@ class depositMode(basicMode):
             self.pivax = None
             self.baggage = a.singNeighbors()
         self.dragatom = a
+        # we need to store something unique about this event;
+        # we'd use serno or time if it had one... instead this _count will do.
+        global _count
+        _count = _count + 1
+        self.dragatom_start = _count
         self.w.update()
         return
                         
@@ -601,11 +608,13 @@ class depositMode(basicMode):
                 msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
             else:
                 msg = "dragged atom %r to %s" % (a, self.posn_str(a))
-            self.w.statusBar.message(msg)
+            this_drag_id = (self.dragatom_start, self.__class__.leftShiftDrag)
+            self.w.statusBar.message(msg, transient_id = this_drag_id)
         self.o.paintGL()
         return
 
     def leftShiftUp(self, event):
+        self.w.statusBar.message("") # flush any transient message it's saving up
         if not self.dragatom: return
         self.baggage = []
         self.line = None
