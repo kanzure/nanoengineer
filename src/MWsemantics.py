@@ -904,7 +904,7 @@ class MWsemantics(MainWindow):
     ###################################
     # Modify Toolbar Slots
     ###################################
-    
+
     def modifyMinimize(self):
         """ Minimize the current assembly """
         # Make sure some chunks are in the part.
@@ -916,11 +916,13 @@ class MWsemantics(MainWindow):
         self.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
         self.toolsSimulatorAction.setEnabled(0) # Disable "Simulator" 
         self.toolsMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
-        self.history.message(greenmsg("Minimize..."))
-        self.assy.makeMinMovie()
-        self.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
-        self.toolsSimulatorAction.setEnabled(1) # Enable "Simulator"
-        self.toolsMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
+        try:
+            self.history.message(greenmsg("Minimize..."))
+            self.assy.makeMinMovie()
+        finally:
+            self.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
+            self.toolsSimulatorAction.setEnabled(1) # Enable "Simulator"
+            self.toolsMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
         self.history.message("Done")
 
     def modifyHydrogenate(self):
