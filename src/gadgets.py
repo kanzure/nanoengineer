@@ -207,9 +207,9 @@ class LinearMotor:
         
         glColor3fv(col)
         glTranslatef(self.center[0], self.center[1], self.center[2])
-	glRotate(-acos(self.axis[2])*180.0/pi, self.axis[1], -self.axis[0], 0.0)
+        glRotate(-acos(self.axis[2])*180.0/pi, self.axis[1], -self.axis[0], 0.0)
         glScale(2.0, 2.0, 10.0)
- 	glut.glutSolidCube(1.0)
+        glut.glutSolidCube(1.0)
         glPopMatrix()
 
         for a in self.atoms:
