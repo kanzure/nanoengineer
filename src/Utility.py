@@ -63,10 +63,12 @@ class Node:
 
     def hide(self):
         self.hidden = True
+        self.seticon()
         self.unpick()
         
     def unhide(self):
         self.hidden = False
+        self.seticon()
 
     def apply2all(self, fn):
         fn(self)
@@ -148,12 +150,14 @@ class Group(Node):
         self.open = True
 
     def addmember(self, obj):
+        self.assy.modified = 1
         self.members += [obj]
         obj.dad = self
         obj.assy = self.assy
 
     def delmember(self, obj):
         obj.unpick() #bruce 041029 fix bug 145
+        self.assy.modified = 1
         try:
             self.members.remove(obj)
         except: pass
@@ -164,6 +168,11 @@ class Group(Node):
         self.picked = True
         for ob in self.members:
             ob.pick()
+        
+        if self.name == self.assy.name: msg = "Part Name: [" + self.name +"]"
+        elif self.name == "Clipboard": msg = "Clipboard"
+        else: msg = "Group Name: [" + self.name +"]"
+        self.assy.w.msgbarLabel.setText( msg )
 
     def unpick(self):
         """unselect the object
@@ -171,7 +180,15 @@ class Group(Node):
         self.picked = False
         for ob in self.members:
             ob.unpick()
+            
+    def hide(self):
+        for ob in self.members:
+            ob.hide()
 
+    def unhide(self):
+        for ob in self.members:
+            ob.unhide()
+                
     def apply2all(self, fn):
         fn(self)
         for ob in self.members:
