@@ -69,6 +69,7 @@ class MWsemantics(MainWindow):
         self.cookieCutterToolbar.hide() # (bruce note: this is the cookie mode dashboard)
         self.extrudeToolbar.hide() # (... and this is the extrude mode dashboard)
         self.sketchAtomToolbar.hide()
+        self.datumDispToolbar.hide()  # (mark note: this is the datum display toolbar)
 
         # Mark - Set up primary (left) message bar in status bar area.
         self.msgbarLabel = QLabel(self, "msgbarLabel")
@@ -601,6 +602,18 @@ class MWsemantics(MainWindow):
         self.modebarLabel.setText( "Mode: Extrude" )
         self.glpane.setMode('EXTRUDE')
 
+    # Mirror Tool
+    def toolsMirror(self):
+        print "MWsemantics.toolsMirror(): Not implemented yet"
+        QMessageBox.warning(self, "ATOM User Notice:", 
+             "This function is not implemented yet, coming soon...")
+             
+    # Mirror Circular Boundary Tool
+    def toolsMirrorCircularBoundary(self):
+        print "MWsemantics.toolsMirrorCircularBoundary(): Not implemented yet"
+        QMessageBox.warning(self, "ATOM User Notice:", 
+             "This function is not implemented yet, coming soon...")
+
     # "push down" one nanometer to cut out the next layer
     def toolsCCAddLayer(self):
         if self.glpane.shape:
@@ -685,7 +698,10 @@ class MWsemantics(MainWindow):
 	QMessageBox.warning(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
  
-
+    def modifyAlignToCommonAxis(self):
+        print "MWsemantics.modifyAlignToCommonAxis(): Not implemented yet"
+        QMessageBox.warning(self, "ATOM User Notice:", 
+             "This function is not implemented yet, coming soon...")        
     
     # create bonds where reasonable between selected and unselected
     def modifyEdgeBond(self):
