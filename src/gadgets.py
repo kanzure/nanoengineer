@@ -1,5 +1,4 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-# 10/9 currently being owned by Mark
 
 """Classes for motors and jigs
 $Id$
