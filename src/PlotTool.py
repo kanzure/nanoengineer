@@ -69,10 +69,7 @@ class PlotTool(PlotToolDialog):
         # Get Date from trace file from line #3 in the header.
         #header = linecache.getline(self.traceFile, 3)
         header = traceLines[2]
-        print "trace file: ", self.traceFile
-        print "header line 3: ", header
         hlist = string.split(header, ": ")
-        print "hlist: ", hlist
         self.date = hlist[1][:-1]
         
         # Get trajectory file name from trace file from line #5 in the header.
@@ -100,6 +97,9 @@ class PlotTool(PlotToolDialog):
             return 1
         
         self.lastplot = 0
+        
+        traceFile.close()
+        
 
     def genPlot(self):
         """Generates GNUplot plotfile, then calls self.runGNUplot.
