@@ -440,7 +440,8 @@ class atom:
         self.molecule.bond(self, x)
 
     def hopmol(self, numol):
-        """move this atom to molecule numol
+        """move this atom to molecule numol.  Caller is responsible for
+        shakedown, or to zero externs if the molecule will be killed.
         """
         if self.molecule == numol: return
         nxyz = self.posn()
