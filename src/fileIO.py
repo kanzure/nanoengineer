@@ -209,7 +209,8 @@ def _readmmp(assy, filnam, isInsert = False):
                     
             if AddAtoms: 
                 assy.alist += [a]
-                ndix[n]=a
+            
+            ndix[n]=a
             prevatom=a
             prevcard = card
             
@@ -398,9 +399,12 @@ def writepov(assy, filename):
     assy.alist = []
 
     cdist = 6.0 ###5.0 # Camera distance
+    aspect = (assy.o.width + 0.0)/(assy.o.height + 0.0)
     zfactor = 0.4 # zoom factor
     up = V(0.0, zfactor, 0.0)
-    right = V(1.33 * zfactor, 0.0, 0.0)
+    right = V(aspect * zfactor, 0.0, 0.0)  ##1.33
+    import math
+    angle = 2.0*atan2(aspect, cdist)*180.0/math.pi
 
     f.write(povheader)
 
@@ -418,7 +422,7 @@ def writepov(assy, filename):
     
     eyePos = cdist * assy.o.scale*assy.o.out-assy.o.pov
     # Camera info
-    f.write("\ncamera {\n  location " + povpoint(eyePos)  + "\n  up " + povpoint(up) + "\n  right " + povpoint(right) + "\n  sky " + povpoint(assy.o.up) + "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
+    f.write("\ncamera {\n  location " + povpoint(eyePos)  + "\n  up " + povpoint(up) + "\n  right " + povpoint(right) + "\n  sky " + povpoint(assy.o.up) + "\n angle " + str(angle) + "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
  
     # write a union object, which encloses all following objects, so it's 
     # easier to set a global modifier like "Clipped_by" for all objects
@@ -527,9 +531,9 @@ def writemdl(assy, filename):
 def writemovie(assy, moviefile, mflag = False):
     """Creates a moviefile.  
     moviefile - name of either a DPB file or an XYZ trajectory file.
-                    DPB = Differential Position Bytes (binary file)
-                    XYZ = XYZ trajectory file (text file)
-    mflag - if True, creates a minimize dpb moviefile
+                    A DPB file is a binary trajectory file. 
+                    An XYZ file is a text file.
+    mflag - if True, create a minimize moviefile
     """
     # Make sure some chunks are in the part.
     if not assy.molecules: # Nothing in the part to minimize.
@@ -548,7 +552,7 @@ def writemovie(assy, moviefile, mflag = False):
     # if assy.filename is an MMP file and use it if not assy.has_changed().
     pid = os.getpid()
     mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
-        
+
     # filePath = the current directory NE-1 is running from.
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         
@@ -563,16 +567,9 @@ def writemovie(assy, moviefile, mflag = False):
     else: formarg = "-x"
         
     # Put double quotes around filenames so spawnv can handle them properly on Win32 systems.
-    # This may create a bug on Linux and MacOS, so lets leave the quotes off.
-    # Mark 050107
-    if sys.platform == 'win32':
-        outfile = '"-o%s"' % moviefile
-        infile = '"%s"' % mmpfile
-    else:
-        outfile = "-o"+moviefile
-        infile = mmpfile
-        
-#    print "infile = ",infile," outfile =",outfile
+    outfile = '"-o%s"' % moviefile
+    infile = '"%s"' % mmpfile
+    print "infile = ",infile," outfile =",outfile
 
     if mflag: # "args" = arguments for the simulator to minimize.
         args = [program, '-m', outfile, infile]
@@ -648,20 +645,12 @@ def writemovie(assy, moviefile, mflag = False):
         # Kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
         # - Mark 050107
         if sys.platform == 'win32':
-            try:
-                import win32api
-                win32api.TerminateProcess(kid, -1)
-                win32api.CloseHandle(kid)
-            except:
-                print "fyi (bug?): in fileIO.writemovie(): cannot terminate process.  kid =",kid
-                pass
+            import win32api
+            win32api.TerminateProcess(kid, -1)
+            win32api.CloseHandle(kid)
         else:
-            try:
-                import signal
-                os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
-            except:
-                print "fyi (bug?): in fileIO.writemovie(): cannot kill process.  kid =",kid
-                pass
+            os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
+            
             
     else: # Something failed...
         msg = redmsg("Simulation failed: exit code %r " % r)

@@ -749,7 +749,7 @@ class GLPane(QGLWidget, modeMixin):
         glDisable(GL_COLOR_MATERIAL)
         
         ##Adding "X, Y, Z" text labels for Axis. Right now, Mandrake Linux has problem for the following 
-        # code, not sure if this works for Mac---Huaicai 10/10, 04
+        # code---Huaicai 10/10, 04
         if sys.platform in ['darwin', 'win32']:
                 glDisable(GL_LIGHTING)
                 glDisable(GL_DEPTH_TEST)
