@@ -435,8 +435,22 @@ class assembly:
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """
+        from HistoryWidget import greenmsg, redmsg
+        
+        if not self.selatoms:
+            self.w.history.message(redmsg("Select Connected: No atom(s) selected."))
+            return
+        
+        alreadySelected = len(self.selatoms.values())
         self.marksingle()
-        self.w.win_update()
+        self.w.history.message(greenmsg("Select Connected:"))
+        totalSelected = len(self.selatoms.values())
+        self.w.history.message("%d connected atom(s) selected." % totalSelected)
+        
+        if totalSelected > alreadySelected: ## Otherwise, that just means no new atoms selected, so no update necessary    
+                #self.w.win_update()
+                self.o.paintGL()
+                
 
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
@@ -444,8 +458,21 @@ class assembly:
         bonds. Also select atoms that are connected to this group by
         one bond and have no other bonds.
         """
+        from HistoryWidget import greenmsg, redmsg
+        if not self.selatoms:
+            self.w.history.message(redmsg("Select Doubly: No atom(s) selected."))
+            return
+        self.w.history.message(greenmsg("Select Doubly:"))
+        
+        alreadySelected = len(self.selatoms.values())
         self.markdouble()
-        self.w.win_update()
+        totalSelected = len(self.selatoms.values())
+        self.w.history.message("%d doubly connected atom(s) selected." % totalSelected)
+        
+        if totalSelected > alreadySelected: ## otherwise, means nothing new selected. Am I right? ---Huaicai, not analyze the markdouble() algorithm yet 
+                #self.w.win_update()
+                self.o.paintGL()
+        
 
     def selectAtoms(self):
         self.unpickparts()
@@ -863,14 +890,15 @@ class assembly:
     def marksingle(self):
         for a in self.selatoms.values():
             self.conncomp(a, 1)
-
+       
     # connected components. DFS is elegant!
     # This is called with go=1 from eached already picked atom
     # its only problem is relatively limited stack in Python
     def conncomp(self, atom, go=0):
         if go or not atom.picked:
             atom.pick()
-            for a in atom.neighbors(): self.conncomp(a)
+            for a in atom.neighbors():
+                 self.conncomp(a)
 
     # select all atoms connected by two disjoint sequences of bonds to
     # an already selected one. This picks stiff components but doesn't
@@ -894,6 +922,7 @@ class assembly:
             for a in mol.atoms.values():
                 if len(a.bonds) == 1 and a.neighbors()[0].picked:
                     a.pick()
+
 
     # compared to that, the doubly-connected components algo is hairy.
     # cf Gibbons: Algorithmic Graph Theory, Cambridge 1985

@@ -797,9 +797,10 @@ class atom:
         If this atom is a singlet, change it to a hydrogen,
         and assuming it was already at the right distance from its neighbor
         when it was a singlet (not checked), move it farther away so this
-        is again true now that it's a hydrogen.
+        is again true now that it's a hydrogen. 
+        Huaicai 1/19/05: If hydrogenate succeeds return number 1, otherwise, 0
         """
-        if not self.element == Singlet: return
+        if not self.element == Singlet: return 0
         o = self.bonds[0].other(self)
         self.mvElement(Hydrogen)
         # bruce 041112 rewrote following code
@@ -808,7 +809,8 @@ class atom:
         singvec = norm( singpos - otherpos)
         newsingpos = singpos + Hydrogen.rcovalent * singvec
         self.setposn(newsingpos)
-        return
+        return 1
+        
 
     def Dehydrogenate(self):
         """[Public method; does all needed invalidations:]

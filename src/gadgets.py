@@ -341,15 +341,6 @@ class LinearMotor(Jig):
         for a in self.atoms:
             drawcylinder(self.color, self.center, a.posn(), self.sradius)
 
-#    def draw(self, win, dispdef):
-#        glPushMatrix()
-#        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, self.color)
-#        glTranslatef(self.center[0], self.center[1], self.center[2])
-#        glRotate(-acos(self.axis[2])*180.0/pi, self.axis[1], -self.axis[0], 0.0)
-#        glScale(2.0, 2.0, 10.0) # width1, width2, length of lmotor box
-#        glScale(self.width / 2.0, self.width / 2.0, self.length) # width1, width2, length of lmotor box
-#        glut.glutSolidCube(1.0)
-#        glPopMatrix()
             
     # Write "lmotor" and "spoke" records to POV-Ray file in the format:
     # lmotor(<cap-point>, <base-point>, box-width, <r, g, b>)

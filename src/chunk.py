@@ -1556,12 +1556,14 @@ class molecule(Node, InvalMixin):
         Add hydrogen to all unfilled bond sites on carbon
         atoms assuming they are in a diamond lattice.
         For hilariously incorrect results, use on graphite.
-        This ought to be an atom method.
+        This ought to be an atom method. Huaicai1/19/05: return the number of atoms hydrogenated
         """
         # bruce 041215 suspects docstring is wrong in implying this
         # only affects Carbon ###k
+        count = 0
         for a in self.atoms.values():
-            a.Hydrogenate()
+            count += a.Hydrogenate()
+        return count    
             
     def Dehydrogenate(self):
         """[Public method, does all needed invalidations:]

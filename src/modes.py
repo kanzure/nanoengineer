@@ -993,16 +993,31 @@ class basicMode(anyMode):
 
     # add hydrogen atoms to each dangling bond
     def modifyHydrogenate(self):
+        """Huaicai 1/19/05: Optimizate and add information for
+            the number of atoms hydrogenated """
+        numAtomHyed = 0    
+        
         if self.o.assy.selmols:
-            self.o.assy.changed()
             for m in self.o.assy.selmols:
-                m.Hydrogenate()
+                numAtomHyed += m.Hydrogenate()
         elif self.o.assy.selatoms:
-            self.o.assy.changed()
             for a in self.o.assy.selatoms.values():
                 for atm in a.neighbors():
-                    atm.Hydrogenate()
-        self.o.paintGL()
+                    numAtomHyed += atm.Hydrogenate()
+        
+        didWhat = "Hydrogenate: nothing has been hydrogenated."            
+        if (numAtomHyed > 0): ### Some atoms have really been Hyed
+                ##Not sure if fix_plurals() can deal with my English :), so
+                if numAtomHyed > 1:
+                        didWhat = "Hydrogenate: %d atoms have been hydrogenated" % numAtomHyed 
+                else:
+                        didWhat = "Hydrogenate: %d atom has been hydrogenated" % numAtomHyed
+                                
+                self.o.assy.changed()
+                self.o.paintGL()
+                
+        self.w.history.message(didWhat)        
+        
 
     # Remove hydrogen atoms from each selected atom/chunk
     # (coded by Mark ~10/18/04; bugfixed/optimized/msgd by Bruce same day,

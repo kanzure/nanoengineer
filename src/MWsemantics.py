@@ -180,9 +180,6 @@ class MWsemantics(MainWindow):
         
         return # from MWsemantics.__init__
 
-    #def resizeEvent(self, event):
-     #   print "why I am changing size? ", event
-     #   QMainWindow.resizeEvent(self, event)            
 
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]
@@ -849,27 +846,24 @@ class MWsemantics(MainWindow):
     def selectConnected(self):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
+        Huaicai 1/19/05: This is called when user clicks the tool button, but when the user choose from pop up menu, only assy.selectConnected() called. I don't think this is good by any means, so I'll try to make them almost the same, but still keep this function. 
         """
-        if not self.assy.selatoms:
-            self.history.message(redmsg("Select Connected: No atom(s) selected."))
-            return
-        self.history.message(greenmsg("Select Connected:"))
         self.assy.selectConnected()
-        self.update_mode_status() # bruce 040927... not sure if this is ever needed
+        
+        ###Huaicai 1/19/05, commented the following line out
+        ##self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
 
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
         selected atom through two or more non-overlapping sequences of
         bonds. Also select atoms that are connected to this group by
-        one bond and have no other bonds.
+        one bond and have no other bonds. 
+        Huaicai 1/19/05, see commets for the above method
         """
-        if not self.assy.selatoms:
-            self.history.message(redmsg("Select Doubly: No atom(s) selected."))
-            return
-        self.history.message(greenmsg("Select Doubly:"))
         self.assy.selectDoubly()
-        self.update_mode_status() # bruce 040927... not sure if this is ever needed
+        ##Huaicai 1/19/05 comment out, 
+        #self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     ###################################
     # Jig Toolbar Slots
