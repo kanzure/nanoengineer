@@ -1,5 +1,11 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 """
+THIS FILE IS PRESENTLY OWNED BY BRUCE -- please don't change it in any way,
+however small, unless this is necessary to make Atom work properly for other developers.
+[bruce 040921]
+
+$Id$
+
 Stub file for Extrude mode. For now, this works, but it's almost identical to cookieMode,
 except for some textLabel2-related bugs and for a different background color.
 -- bruce 040920
