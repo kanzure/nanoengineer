@@ -1220,9 +1220,13 @@ class MWsemantics(MainWindow):
             return
             
         # Check to see if a DPB file has been created.
-        if not self.assy.m.filename:
-            self.history.message(redmsg("Plot Tool: No simulation has been run yet."))
-            return
+        if not self.assy.m.filename and self.assy.filename:
+            mfile = self.assy.filename[:-4] + ".dpb"
+            if os.path.exists(mfile): 
+                self.assy.m.filename = mfile
+            else:
+                self.history.message(redmsg("Plot Tool: No simulation has been run yet."))
+                return
                 
         from PlotTool import PlotTool
         self.plotcntl = PlotTool(self.assy) # Open Plot Tool dialog
@@ -1236,14 +1240,11 @@ class MWsemantics(MainWindow):
             return
             
         # If no simulation has been run yet, check to see if there is a "partner" moviefile.
-        # If so, go ahead and play it.
+        # If so, go ahead and play it.  If not, go ahead and start the MP anyway.  The
+        # user may want to load some other DPB file.
         if not self.assy.m.filename and self.assy.filename:
             mfile = self.assy.filename[:-4] + ".dpb"
-            if os.path.exists(mfile): 
-                self.assy.m.filename = mfile
-            else: 
-                self.history.message(redmsg("Movie Player: No movie to play."))
-                return
+            if os.path.exists(mfile): self.assy.m.filename = mfile
 
         # It's showtime!!!
         self.glpane.setMode('MOVIE')
