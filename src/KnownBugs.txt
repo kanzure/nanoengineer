@@ -59,56 +59,57 @@ Known Bugs (All Platforms)
 
 11. Extrude Tool: The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
 
--- Get everything adjusted first in the 'rod mode'.  For example, select the proper bond offset sphere or arrange the copy units such that you can see their open bonds highlighted in a way you would like to bond them.
-. 
+-- Get everything adjusted first in the 'rod mode'.  For example, select the proper bond offset sphere or arrange the copy units such that you can see their open bonds highlighted in a way you would like to bond them. (In general, while in the ring mode, adjustments made from graphics area don’t work)
 
--- Then you may switch to "Ring Mode" by selecting ring from the rod pulldown menu on the dashboard. While viewing the ring, you may increase the number of copies. 
+-- Then, you may switch to "Ring Mode" by selecting ring from the rod pulldown menu on the dashboard. While viewing the ring, you may increase the number of copies. 
 
 -- If you need to do any further adjustments, switch back to "Rod Mode", make changes and switch back to the "Ring Mode". 
 
--- Select the 'Done' button on the dashboard when finished. (155) 
+-- Select the 'Done' button on the dashboard when finished. (155)
 
-12. Extrude Tool: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
+12. Exrude Tool: extrude’s ring feature doesn’t take the curvature into account for the bonds formed. (494)
 
-13. When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
+13. Extrude Tool: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
 
-14. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at www.nanorex.com/mmpformat.htm
+14. When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
 
-15. Rotary and Linear motors do not move with the chunks they are attached to. (168) 
+15. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at www.nanorex.com/mmpformat.htm
 
-16. Cannot select a jig (i.e. motor, ground, thermostat or thermometer) in the graphics area. Jigs may only be selected via the model tree. (6) 
+16. Rotary and Linear motors do not move with the chunks they are attached to. (168) 
 
-17. "Select Doubly" can often take a long time to complete. (102)
+17. Cannot select a jig (i.e. motor, ground, thermostat or thermometer) in the graphics area. Jigs may only be selected via the model tree. (6) 
 
-18. Middle mouse button "Hint Cursors" can sometimes get stuck on. Pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
+18. "Select Doubly" can often take a long time to complete. (102)
 
-19. Build Mode: The skull and crossbones cursor will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
+19. Middle mouse button "Hint Cursors" can sometimes get stuck on. Pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
 
-20. Cookie Mode: Changing views (Front, Top, Right, etc.) and then making a selection does not select properly. (236, 277) 
+20. Build Mode: The skull and crossbones cursor will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
 
-21. Cookie Mode: The thickness of the current layer does not change once selection has started, even though the thickness can be changed on the dashboard. (167)
+21. Cookie Mode: Changing views (Front, Top, Right, etc.) and then making a selection does not select properly. (236, 277) 
 
-22. Cookie Mode: When adding a new layer, there is no visual clue indicating a new layer has started. (281) 
+22. Cookie Mode: The thickness of the current layer does not change once selection has started, even though the thickness can be changed on the dashboard. (167)
 
-23. Cookie Mode: Large selections can cause response latency. (8)
+23. Cookie Mode: When adding a new layer, there is no visual clue indicating a new layer has started. (281) 
 
-24. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+24. Cookie Mode: Large selections can cause response latency. (8)
 
-25. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+25. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
 
-26. Simulator: in some cases, open bonds ‘fly away’ from the elements while running a simulation movie. (254) 
+26. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
-27. Minimize: Large values written to the MMP (or to the generated XYZ) file after minimizing a model containing overlapped open bonds or excessively stretched bonds (422)
+27. Simulator: in some cases, open bonds ‘fly away’ from the elements while running a simulation movie. (254) 
 
-28. Some bugs occur if one tries to play a movie file that is not valid for an opened MMP file.( A movie file becomes invalid if you make certain modifications to the file after creating the movie e.g. add/delete atoms, reorder the model tree etc) . This may result in loss of data. Therefore, do not try to play a movie file that is invalid for the opened part. (384)
+28. Minimize: Large values written to the MMP (or to the generated XYZ) file after minimizing a model containing overlapped open bonds or excessively stretched bonds (422)
 
-29. Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
+29. Some bugs occur if one tries to play a movie file that is not valid for an opened MMP file.( A movie file becomes invalid if you make certain modifications to the file after creating the movie e.g. add/delete atoms, reorder the model tree etc) . This may result in loss of data. Therefore, do not try to play a movie file that is invalid for the opened part. (384)
 
-30.  In the Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
+30. Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
 
-31. Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
+31.  In the Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
 
-32. Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
+32. Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
+
+33. Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
 
 
 Windows Only Bugs
