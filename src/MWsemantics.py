@@ -387,6 +387,27 @@ class MWsemantics(MainWindow):
         else:
             self.assy.DesiredElement = fullnamePeriodicTable[str(string)].symbol
 
+    def setCarbon(self):
+        self.assy.DesiredElement = "C"
+        self.comboBox1.setCurrentItem(0)
+
+    def setHydrogen(self):
+        self.assy.DesiredElement = "H"
+        self.comboBox1.setCurrentItem(1)
+
+    def setOxygen(self):
+        self.assy.DesiredElement = "O"
+        self.comboBox1.setCurrentItem(2)
+
+    def setNitrogen(self):
+        self.assy.DesiredElement = "N"
+        self.comboBox1.setCurrentItem(3)
+
+    def setBoron(self):
+        self.assy.DesiredElement = "B"
+        self.comboBox1.setCurrentItem(4)
+
+    
     ###################################
     # some unimplemented buttons:
     ###################################

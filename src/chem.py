@@ -184,7 +184,7 @@ class atom:
         # element-type object
         self.element=PeriodicTable[sym]
         # location, which will be set relative to its molecule's center
-        self.xyz=where
+        self.xyz=dot(where-mol.center,mol.quat.matrix3)
         # list of bond objects
         self.bonds=[]
         # whether the atom is selected, see also assembly.selatoms
@@ -201,8 +201,10 @@ class atom:
         """return the absolute position of the atom in space,
         by calculating rotation and translation offset from molecule
         """
-        if self.xyz != 'no': p=self.xyz
-        else: p=self.molecule.atpos[self.index]
+        if self.xyz != 'no':
+            p=self.xyz
+        else:
+            p=self.molecule.atpos[self.index]
         p=dot(self.molecule.quat.matrix3, p)
         return p + self.molecule.center
 
@@ -263,15 +265,16 @@ class atom:
                        povpoint(color) + ")\n")
 
 
-    def checkpick(self, p1, v1):
+    def checkpick(self, p1, v1, r=None):
         """check if the line through point p1 in direction v1
         goes through the atom (defined as a sphere 70% its vdW radius)
         This is a royal kludge, needs to be replaced by something
         that uses the screen representation
         """
+        if not r: r=self.element.rvdw*0.7
         if self.picked: return None
         dist, wid = orthodist(p1, v1, self.posn())
-        if wid > self.element.rvdw*0.7: return None
+        if wid > r: return None
         if dist<0: return None
         return dist
 
@@ -494,6 +497,13 @@ class molecule:
         """Find center and bounding box for atoms, and set each one's
         xyz to be relative to the center and find principal axes
         """
+        if not self.atoms:
+            self.bbox = BBox()
+            self.center = V(0,0,0)
+            self.quat = Q(1,0,0,0)
+            self.axis = V(1,0,0)
+            self.atpos = []
+            return
         atpos = []
         for a,i in zip(self.atoms.values(),range(len(self.atoms))):
             atpos += [a.posn()]
@@ -532,6 +542,8 @@ class molecule:
         # otherwise the long axis (this is a heuristic)
         if len(atpos)<=1:
             self.axis = V(1,0,0)
+        elif len(atpos) == 2:
+            self.axis = norm(subtract.reduce(atpos))
         else:
             ug = argsort(self.eval)
             if self.eval[ug[0]]/self.eval[ug[1]] >0.95:
@@ -564,6 +576,7 @@ class molecule:
         If the molecule itself is selected, draw its
         bounding box as a wireframe
         """
+
         # put it in its place
         glPushMatrix()
 
