@@ -1,4 +1,9 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# 10/4 currently being owned by Josh
+
+"""Classes for motors and jigs
+$Id$
+"""
 from VQT import *
 from drawer import drawsphere, drawcylinder, drawline, drawaxes
 from drawer import segstart, drawsegment, segend, drawwirecube
