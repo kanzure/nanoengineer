@@ -22,10 +22,48 @@ import sys, os
 from PartProp import *
 from GroupProp import *
 from debug import print_compact_stack
+import platform
+
+# utility function: global cache for QPixmaps (needed by most Node subclasses)
+
+_pixmap_image_path = None
+_pixmaps = {}
+
+def imagename_to_pixmap(imagename): #bruce 050108
+    """Given the basename of a file in our cad/images directory,
+    return a QPixmap created from that file. Cache these
+    (in our own Python directory, not Qt's QPixmapCache)
+    so that at most one QPixmap is made from each file.
+    """
+    global _pixmap_image_path, _pixmaps
+    try:
+        return _pixmaps[imagename]
+    except KeyError:
+        if not _pixmap_image_path:
+            # This runs once per Atom session (unless this directory is missing).
+            # (We don't run it until needed, in case something modifies
+            #  sys.argv[0] during init (we want the modified form in that case).
+            #  As of 050108 this is not known to ever happen.)
+            # We assume sys.argv[0] looks like .../cad/src/xxx.py
+            # and we want .../cad/images.
+            from os.path import dirname, abspath
+            cadpath = dirname(dirname(abspath(sys.argv[0]))) # ../cad
+            _pixmap_image_path = os.path.join(cadpath, "images")
+            assert os.path.isdir(_pixmap_image_path), "missing pixmap directory: \"%s\"" % _pixmap_image_path
+        iconpath = os.path.join( _pixmap_image_path, imagename)
+        icon = QPixmap(iconpath)
+        _pixmaps[imagename] = icon
+        return icon
+    pass
+
+# superclass of all Nodes
 
 class Node:
     """
-    This is the basic object, inherited by groups, molecules, and jigs.
+    This is the basic object, inherited by groups, molecules, jigs,
+    and some more specialized subclasses. The methods of Node are designed
+    to be typical of "leaf Nodes" -- most of them are overridden by Group,
+    only some of them by other Node subclasses. [bruce 050108 revised that... ####k ####@@@@ check it]
     """
 
     # leaf nodes have an immutable 0-length sequence of members [bruce 050108]
@@ -61,7 +99,7 @@ class Node:
         """
         return True
 
-    def node_icon(self, openness = False):
+    def node_icon(self, open = False):
         """#doc this
         [some subclasses should override this]
         """
@@ -72,14 +110,16 @@ class Node:
         
     name = "" # for use before __init__ runs (used in __str__ of subclasses)
     
-    def __init__(self, assembly, parent, name=None):
+    def __init__(self, assembly, parent, name=None): ###@@@ fix inconsistent arg order
         self.assy = assembly
         self.name = name or "" # assumed to be a string by some code
-        self.dad = parent
-        if self.dad: self.dad.addmember(self)
-        self.picked = False
-        self.hidden = False
-        self.icon = None
+        self.dad = parent # another Node (which must be a Group), or None ###k ###@@@
+        if self.dad:
+            self.dad.addmember(self)
+        self.picked = False # whether it's selected
+            # (for highlighting in all views, and being affected by operations)
+        self.hidden = False # whether to make it temporarily invisible in the glpane
+        self.icon = None ###@@@ to be removed? or, default retval from node_icon?
 
     def buildNode(self, obj, parent, icon, dnd=True, rename=True): ###@@@ bad here, move to mtree.py... with its calls??
         """ build a display node in the tree widget
@@ -182,7 +222,7 @@ class Node:
         node.addmember(self, before)
 
     def nodespicked(self):
-        if self.picked: return True
+        if self.picked: return True ###@@@ bruce 050108 comment: this is inconsistent, another version of this returns a number.
         else: return False
         
     def seticon(self):
@@ -206,6 +246,8 @@ class Node:
         print depth*"...", self.name
 
     def writemmp(self, atnums, alist, f):
+        if platform.atom_debug:
+            print "fyi: Node.writemmp ran" # can this ever happen? maybe for a jig? uses __repr__ nonstandardly! ###@@@ [bruce 050108]
         f.write(self.__repr__(atnums))
         
 #    def writemdl(self, atnum, alist, f, dispdef):
@@ -259,11 +301,6 @@ class Group(Node):
         self.members = []
         for ob in list: self.addmember(ob)
         self.open = True
-                
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.partIcon = QPixmap(filePath + "/../images/part.png")
-        self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
-        #e in addition, each Node should have a bounding box
 
     def buildNode(self, obj, parent, icon, dnd=True, rename=True):
         """ build a Group node in the tree widget
@@ -384,10 +421,10 @@ class Group(Node):
         return npick
         
     def seticon(self):
-        if self.name == self.assy.name:
-            self.icon = self.partIcon
+        if self.name == self.assy.name: ###@@@ kluge, use subclassing
+            self.icon = imagename_to_pixmap("part.png")
         else:
-            self.icon = self.groupCloseIcon
+            self.icon = imagename_to_pixmap("group-collapsed.png")
         
     def xxx_node_upMT(self, parent, dnd=True): ###@@@ copied here so i can see them side by side
         if not self.icon: self.seticon()
@@ -464,9 +501,7 @@ class Csys(Node):
     def __init__(self, assy, name, scale, w, x = None, y = None, z = None):
         Node.__init__(self, assy, None, name)
         self.scale = scale
-        
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.csysIcon = QPixmap(filePath + "/../images/csys.png")
+        self.csysIcon = imagename_to_pixmap("csys.png") ###@@@ can we just set self.icon?
 
         if not x and not y and not z:
             self.quat = Q(w)
@@ -509,9 +544,7 @@ class Datum(Node):
         self.x = x
         self.y = y
         self.rgb = (0,0,255)
-        
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.datumIcon = QPixmap(filePath + "/../images/datumplane.png")
+        self.datumIcon = imagename_to_pixmap("datumplane.png") ###@@@ can we just set self.icon?
 
     def buildNode(self, obj, parent, icon, dnd=False, rename=False):
         """ build a Datum node in the tree widget
@@ -542,6 +575,39 @@ class Datum(Node):
         return new
 
     pass # end of class Datum
+
+# rest of file added by bruce 050108, needs review when done ###@@@
+
+# specialized kinds of Groups:
+
+class AssemblyNode(Group):
+    """A specialized Group for holding the entire assembly's Node tree.
+    This is what the pre-050108 code made or imitated in modelTree as a Group called ROOT. ###k i think
+    This will be revised soon, because
+    (1) the assembly itself might as well be this Node,
+    (2)  the toplevel members of an assembly will differ from what they are now.
+    """
+    def xxx():pass
+    pass
+
+class ClipboardShelfGroup(Group): ###@@@ use this!
+    """A specialized Group for holding the Clipboard. [This will be revised... ###@@@]
+    """
+    def node_icon(self, open):
+        del open
+        full = (len(self.members) > 0)
+        if full:
+            kluge_icon = imagename_to_pixmap("clipboard-full.png")
+            res = imagename_to_pixmap("clipboard-full.png")
+        else:
+            kluge_icon = imagename_to_pixmap("clipboard-gray.png")
+            res = imagename_to_pixmap("clipboard-empty.png")
+        # kluge: guess: makes paste tool look enabled or disabled ###@@@ clean this up somehow
+        self.assy.w.editPasteAction.setIconSet(QIconSet(kluge_icon))
+        return res
+    pass
+
+class xxx:pass
 
 # end
 

@@ -29,12 +29,12 @@ class modelTree(QListView):
         self.setShowSortIndicator(0)
         self.setAcceptDrops(True)
 
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.groupOpenIcon = QPixmap(filePath + "/../images/group-expanded.png")
-        self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
-        self.clipboardFullIcon = QPixmap(filePath + "/../images/clipboard-full.png")
-        self.clipboardEmptyIcon = QPixmap(filePath + "/../images/clipboard-empty.png")
-        self.clipboardGrayIcon = QPixmap(filePath + "/../images/clipboard-gray.png")
+        ###@@@ all these will be moved to node classes:
+        self.groupOpenIcon = imagename_to_pixmap("group-expanded.png")
+        self.groupCloseIcon = imagename_to_pixmap("group-collapsed.png")
+        self.clipboardFullIcon = imagename_to_pixmap("clipboard-full.png")
+        self.clipboardEmptyIcon = imagename_to_pixmap("clipboard-empty.png")
+        self.clipboardGrayIcon = imagename_to_pixmap("clipboard-gray.png")
         
         self.setSorting(-1)
         self.setRootIsDecorated(1)
@@ -132,9 +132,35 @@ class modelTree(QListView):
         if isinstance(itemObj, Group):
             itemObj.open = False
             if listItem not in [self.tree, self.shelf]:
-                listItem.setPixmap(0, self.groupCloseIcon)
+                listItem.setPixmap(0, self.groupCloseIcon) ####@@@@ is this redundant with the one in Group.seticon??
 
-
+    def bruce_print_node(self, node, indent=""): ###@@@ debugging
+        print indent + "a node %r:" % node, node.name, node.__class__.__name__,"dad =",node.dad
+        try:
+            node.tritem
+        except:
+            print indent + "... no tritem"
+        else:
+            print indent + "its tritem:"
+            self.bruce_print_item(node.tritem,"  "+indent)
+        return
+    
+    def bruce_print_item(self, item, indent=""): ###@@@ debugging
+        print indent + "an item %r for:" % item, item.object.name, item.object.__class__.__name__
+        if item == self.shelf: print indent + " (mt.shelf)"
+        if item == self.tree: print indent + " (mt.tree)"
+        if item.object.name == self.assy.name:
+            print indent + " (part item, i guess: item.object.name == self.assy.name)"
+        dad = item.object.dad
+        if dad:
+            dadlen = len(dad.members)
+            ind = dad.members.index(item.object)
+            print indent + " its dad node (member index %d out of index range 0 to %d-1):" % (ind, dadlen)
+            self.bruce_print_node(dad, "| "+indent)
+        else:
+            print indent + " (dad is %r)" % (dad,)
+        return
+        
     def select(self, item):
         # bruce comment 041220: this is called when widget signals that
         # user clicked on an item, or on blank part of model tree (confirmed by
@@ -144,6 +170,7 @@ class modelTree(QListView):
         #  which defines an "event" method to process all events, making a note
         #  of their flags, then handing it off to the superclass event method. ###@@@]
         if item:
+            ## self.bruce_print_item(item) # debug
             if item.object.name == self.assy.name:
                 return
         
@@ -320,16 +347,18 @@ class modelTree(QListView):
         else: 
             self.assy.shelf.icon = self.clipboardEmptyIcon
             self.win.editPasteAction.setIconSet(QIconSet( self.clipboardGrayIcon))
+
+        ###@@@ new code for that - uses fact that that guy is a ClipboardShelfGroup; just grabs the icon
         
-        # Add clipboard members
+        # Add clipboard (bruce: a Group)
         self.shelf = self.assy.shelf.upMT(self) # upMT on that node "shelf" returns a treeitem, which is what we also call "shelf".
         self.assy.shelf.setProp(self) # Update selected items in clipboard [brucecmt: their open and sel-highlighted state, that is]
         
-        # Add part group members
+        # Add part (bruce: not sure if this is always a Group -- but it must be according to the following code)
         self.assy.tree.name = self.assy.name
         self.tree = self.assy.tree.upMT(self)
         
-        # Add data members (Csys and datum planes)
+        # Add data members (Csys and datum planes) [bruce: added individually, not as a Group -- but added to self.tree, not to self]
         for m in self.assy.data.members[::-1]:
             m.upMT(self.tree)
             
