@@ -115,7 +115,7 @@ class modelTree(QListView):
                         rMotorDialog.show()
                         rMotorDialog.exec_loop()
                 elif isinstance(jig, LinearMotor):
-                        lMotorDialog = LinearMotorProp(jig)
+                        lMotorDialog = LinearMotorProp(jig, self.win.glpane)
                         lMotorDialog.show()
                         lMotorDialog.exec_loop()
                 elif isinstance(jig, ground):

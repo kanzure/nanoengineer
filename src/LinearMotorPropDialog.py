@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\LinearMotorPropDialog.ui'
 #
-# Created: Wed Sep 22 10:10:19 2004
+# Created: Mon Sep 27 17:29:23 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,15 +69,14 @@ class LinearMotorPropDialog(QDialog):
         self.colorPixmapLabel.setPaletteBackgroundColor(QColor(175,175,175))
         self.colorPixmapLabel.setScaledContents(1)
 
-        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
-        self.colorSelectorPushButton.setGeometry(QRect(310,70,30,22))
-
         self.nameTextLabel = QLabel(self,"nameTextLabel")
         self.nameTextLabel.setGeometry(QRect(23,10,41,21))
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
         self.nameLineEdit.setGeometry(QRect(70,10,191,21))
+        self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
+        self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
 
         self.atomsTextLabel = QLabel(self,"atomsTextLabel")
         self.atomsTextLabel.setGeometry(QRect(211,41,42,21))
@@ -119,13 +118,13 @@ class LinearMotorPropDialog(QDialog):
         self.cyLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.cyLineEdit.setFrameShadow(QLineEdit.Sunken)
 
+        self.czLineEdit = QLineEdit(self.groupBox3_3,"czLineEdit")
+        self.czLineEdit.setGeometry(QRect(30,77,123,21))
+
         self.cxLineEdit = QLineEdit(self.groupBox3_3,"cxLineEdit")
         self.cxLineEdit.setGeometry(QRect(30,23,123,21))
         self.cxLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.cxLineEdit.setFrameShadow(QLineEdit.Sunken)
-
-        self.czLineEdit = QLineEdit(self.groupBox3_3,"czLineEdit")
-        self.czLineEdit.setGeometry(QRect(30,77,123,21))
 
         self.groupBox3_2_2 = QGroupBox(self,"groupBox3_2_2")
         self.groupBox3_2_2.setGeometry(QRect(183,99,164,119))
@@ -158,11 +157,6 @@ class LinearMotorPropDialog(QDialog):
         self.alignAxiPushButtons.setEnabled(0)
         self.alignAxiPushButtons.setGeometry(QRect(183,226,164,29))
 
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(12,284,108,29))
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
-
         self.cancelPushButton = QPushButton(self,"cancelPushButton")
         self.cancelPushButton.setGeometry(QRect(126,284,108,29))
         self.cancelPushButton.setAutoDefault(1)
@@ -173,10 +167,22 @@ class LinearMotorPropDialog(QDialog):
         self.applyPushButton.setAutoDefault(1)
         self.applyPushButton.setDefault(0)
 
+        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
+        self.colorSelectorPushButton.setGeometry(QRect(310,70,30,22))
+
+        self.okPushButton = QPushButton(self,"okPushButton")
+        self.okPushButton.setGeometry(QRect(12,284,108,29))
+        self.okPushButton.setAutoDefault(1)
+        self.okPushButton.setDefault(1)
+
         self.languageChange()
 
-        self.resize(QSize(359,329).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(359,332).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
+
+        self.connect(self.colorSelectorPushButton,SIGNAL("clicked()"),self.changeLinearMotorColor)
+        self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
 
         self.setTabOrder(self.forceLineEdit,self.stiffnessLineEdit)
         self.setTabOrder(self.stiffnessLineEdit,self.atomsComboBox)
@@ -185,7 +191,6 @@ class LinearMotorPropDialog(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("Linear Motor Properties"))
         self.colorTextLabel.setText(self.__tr("Color:"))
-        self.colorSelectorPushButton.setText(self.__tr("..."))
         self.nameTextLabel.setText(self.__tr("Name:"))
         self.nameLineEdit.setText(QString.null)
         self.atomsTextLabel.setText(self.__tr("Atoms:"))
@@ -203,16 +208,20 @@ class LinearMotorPropDialog(QDialog):
         self.moveCenterPushButton.setAccel(QString.null)
         self.alignAxiPushButtons.setText(self.__tr("Align Axis"))
         self.alignAxiPushButtons.setAccel(QString.null)
-        self.okPushButton.setText(self.__tr("&OK"))
-        self.okPushButton.setAccel(self.__tr("Alt+O"))
         self.cancelPushButton.setText(self.__tr("&Cancel"))
         self.cancelPushButton.setAccel(self.__tr("Alt+C"))
         self.applyPushButton.setText(self.__tr("&Apply"))
         self.applyPushButton.setAccel(self.__tr("Alt+A"))
+        self.colorSelectorPushButton.setText(self.__tr("..."))
+        self.okPushButton.setText(self.__tr("&OK"))
+        self.okPushButton.setAccel(self.__tr("Alt+O"))
 
 
     def applyButtonPressed(self):
         print "LinearMotorPropDialog.applyButtonPressed(): Not implemented yet"
+
+    def changeLinearMotorColor(self):
+        print "LinearMotorPropDialog.changeLinearMotorColor(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("LinearMotorPropDialog",s,c)

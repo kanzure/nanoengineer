@@ -137,6 +137,7 @@ class LinearMotor:
         self.atoms = []
         self.picked = 0
         self.molecule = None
+        self.color = QColor(128,128,128) # set default color of linear motor to gray
     
     # for a linear motor read from a file, the "linear motor" record
     def setCenter(self, force, stiffness, center, axis):
@@ -194,7 +195,14 @@ class LinearMotor:
     # with a thin cylinder to each atom    
     def draw(self, win, dispdef):
         glPushMatrix()
-        col= (0.5, 0.5, 0.5)
+#        col= (0.5, 0.5, 0.5)
+
+        # mark - added color support
+        red = float (qRed(self.color.rgb())) / 255.0
+        green = float (qGreen(self.color.rgb())) / 255.0
+        blue = float (qBlue(self.color.rgb())) / 255.0
+        col = (red, green, blue)
+        
         glColor3fv(col)
         glTranslatef(self.center[0], self.center[1], self.center[2])
 	glRotate(-acos(self.axis[2])*180.0/pi, self.axis[1], -self.axis[0], 0.0)
