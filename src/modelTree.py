@@ -35,6 +35,7 @@ class modelTree(QListView):
         self.lmotorIcon = QPixmap(filePath + "/../images/linearmotor.png")
         self.insertHereIcon = QPixmap(filePath + "/../images/inserthere.png")
         self.groundIcon = QPixmap(filePath + "/../images/ground.png")
+        self.statIcon = QPixmap(filePath + "/../images/stat.png")
         self.groupOpenIcon = QPixmap(filePath + "/../images/group-expanded.png")
         self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
         self.clipboardFullIcon = QPixmap(filePath + "/../images/clipboard-full.png")

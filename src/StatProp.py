@@ -17,7 +17,7 @@ class StatProp(StatPropDialog):
         self.stat.originalColor = self.stat.color
         
         self.nameLineEdit.setText(stat.name)
-        self.tempSpinBox.setValue(stat.temp)
+        self.tempSpinBox.setValue(int(stat.temp))
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
             QColor(int(stat.color[0]*255), 
@@ -66,9 +66,8 @@ class StatProp(StatPropDialog):
     # Apply Button
     #################	
     def applyButtonPressed(self):
-        
         self.stat.name = self.nameLineEdit.text()
-
+        self.stat.temp = self.tempSpinBox.value()
         self.applyPushButton.setEnabled(False)
 	
     def propertyChanged(self):

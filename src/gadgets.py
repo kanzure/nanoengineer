@@ -358,7 +358,7 @@ class Stat(Node):
 
         
     def icon(self, treewidget):
-        return treewidget.groundIcon
+        return treewidget.statIcon
    
     # Returns the MMP record for the current Stat as:
     # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
