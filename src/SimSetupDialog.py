@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Sun Feb 6 15:12:12 2005
+# Created: Wed Feb 9 14:47:36 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -133,7 +133,7 @@ class SimSetupDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(298,318).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(310,321).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.MovieButton,SIGNAL("clicked()"),self.createMoviePressed)
@@ -143,8 +143,8 @@ class SimSetupDialog(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("Simulator Setup"))
         self.textLabel5.setText(self.__tr("Total frames:"))
-        self.textLabel2.setText(self.__tr("Steps per Frame:"))
-        self.textLabel3.setText(self.__tr("Temperature(Kelvins):"))
+        self.textLabel2.setText(self.__tr("Steps per Frame (0.1 femtosecond):"))
+        self.textLabel3.setText(self.__tr("Temperature (Kelvins):"))
         self.MovieButton.setText(self.__tr("Create Movie"))
         self.CancelButton.setText(self.__tr("Cancel"))
 

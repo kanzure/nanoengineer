@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>298</width>
-            <height>318</height>
+            <width>310</width>
+            <height>321</height>
         </rect>
     </property>
     <property name="caption">
@@ -61,7 +61,7 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Steps per Frame:</string>
+                        <string>Steps per Frame (0.1 femtosecond):</string>
                     </property>
                 </widget>
                 <widget class="QSpinBox" row="1" column="0">
@@ -117,7 +117,7 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Temperature(Kelvins):</string>
+                        <string>Temperature (Kelvins):</string>
                     </property>
                 </widget>
             </grid>
