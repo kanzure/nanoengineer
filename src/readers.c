@@ -348,7 +348,7 @@ void filred(char *filnam) {
     int firstatom=1, offset;
     int atnum, atnotab[2*NATOMS];
     struct vdWbuf *nvb;
-    char nambuf[128];
+    char nambuf[128],nambuf2[128] ;
     int colr[3];
 	
     file=fopen(filnam,"r");
@@ -402,11 +402,12 @@ void filred(char *filnam) {
 	/* constraints */
 	/* welded to space: */
 	else if (0==strncasecmp("ground",buf,6)) {
-	    j=sscanf(buf+6, "(%s) (%d, %d, %d)%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
-		     nambuf, colr, colr+1, colr+2,
+	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
+	    j=sscanf(buf+j+1, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
 		     iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
 		     iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
 		     iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24);
+	    printf("%s\ngot ground (%d) %d %d %d %d \n",buf,j,iv[0],iv[1],iv[2],iv[3]);
 	    for (i=0; i<j; i++) atnotab[iv[i]];
 	    makcon(0, NULL, j, iv);
 	}
@@ -414,10 +415,11 @@ void filred(char *filnam) {
 	/* rmotor (name) (r,g,b) <torque> <speed> (<center>) (<axis>) */
 	/* torque in nN*nm  speed in gigahertz */
 	else if (0==strncasecmp("rmotor",buf,6)) {
-	    sscanf(buf+5, "(%s) (%d, %d, %d)%lf %lf (%d, %d, %d) (%d, %d, %d",
-		   nambuf, colr, colr+1, colr+2,
+	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
+	    sscanf(buf+j+1, " %lf %lf (%d, %d, %d) (%d, %d, %d",
 		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
-			
+	    printf("%s\ngot motor (%d)  %lf %lf (%d, %d, %d) (%d, %d, %d) \n",buf,j,stall,speed, ix, iy, iz, ix1, iy1, iz1
+);			
 	    vec1.x=(double)ix *0.1;
 	    vec1.y=(double)iy *0.1;
 	    vec1.z=(double)iz *0.1;

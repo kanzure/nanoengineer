@@ -543,8 +543,6 @@ void calcloop(int iters) {
 		vadd(force[bond[j].an1],f);
 		vsub(force[bond[j].an2],f);
 		
-		printf("bending %f\n", sqrt(vdot(f,f)));
-		
 	    }
 			
 	    /* do the van der Waals/London forces */
@@ -874,6 +872,7 @@ main(int argc,char **argv)
     
     printf("%d constraints:\n",Nexcon);
       for (i=0; i<Nexcon; i++) pcon(i);
+      /*
     printf("%d atoms:\n",Nexatom);
       for (i=0; i<Nexatom; i++) pa(i);
     printf("%d bonds:\n",Nexbon);
@@ -882,7 +881,7 @@ main(int argc,char **argv)
       for (i=0; i<Nextorq; i++) pq(i);
     printf("%d Waals:\n",vanderRoot);
       for (i=0; i<vanderRoot.fill; i++) pvdw(&vanderRoot,i);
-    
+      */
     orion();
 
     if (DumpAsText) outf = fopen(OutFileName, "w");  
