@@ -11,6 +11,7 @@ import elements
 from constants import globalParms
 from ThumbView import *
 import drawer
+from HistoryWidget import redmsg # Mark 050311
 
 ########################################################
 # Declaring tuples
@@ -137,8 +138,11 @@ class elementColors(ElementColorsDialog):
                 self ))
         if self.fileName:
             colorTable = readElementColors(self.fileName)
-            self.w.history.message("Element colors file loaded: [" + self.fileName + "]")
-            if colorTable:
+            
+            if not colorTable:
+                self.w.history.message(redmsg("Error in element colors file: [" + self.fileName + "]. Colors not loaded."))
+            else:
+                self.w.history.message("Element colors loaded from file: [" + self.fileName + "].")
                 for row in colorTable:
                      row[1] /= 255.0; row[2] /= 255.0; row[3] /= 255.0
                 self.elemTable.setElemColors(colorTable)     
