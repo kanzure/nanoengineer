@@ -46,7 +46,7 @@ class Node:
         if not self.picked:
             self.picked = True
             # If the picked item is on the clipboard, update the pasteCombobox on the Build dashboard
-            if self.dad.name == "Clipboard": self.assy.o.mode.init_gui() 
+            if self.dad.name == "Clipboard": self.assy.o.mode.UpdateDashboard()
 
     def unpick(self):
         """unselect the object
@@ -80,7 +80,7 @@ class Node:
     def kill(self):
         self.dad.delmember(self)
         # If a member of the clipboard, update the pasteCombobox on the Build dashboard
-        if self.dad.name == "Clipboard": self.assy.o.mode.init_gui() 
+        if self.dad.name == "Clipboard": self.assy.o.mode.UpdateDashboard() 
 
     def moveto(self, grp):
         """Move the node to a new parentage in the tree

@@ -290,6 +290,7 @@ class basicMode(anyMode):
                 print "fyi: late refusal by %r, better if it had been in refuseEnter" % self # (but sometimes it might be necessary)
         if not refused:
             self.init_gui()
+            self.update_gui() # see also UpdateDashboard
             self.update_mode_status_text()
         # caller (our glpane) will set its self.mode to point to us,
         # but only if we return false
@@ -328,9 +329,43 @@ class basicMode(anyMode):
         return None
 
     def init_gui(self):
-        "subclasses use this to set up UI stuff like dashboards, cursors, toggle icons, etc."
+        # bruce 041124 clarified docstring, revised illegitimate calls.
+        """Subclasses should define this to set up UI stuff like dashboards,
+        cursors, toggle icons, etc.
+           It should be called only once each time the mode is entered.
+        Therefore, it should not be called by other code (for that,
+        see UpdateDashboard()), nor defined by modes to do things that
+        need redoing many times per mode-entry (for that, see
+        update_gui()).
+        """
         pass
 
+    def update_gui(self): # bruce 041124
+        """Subclasses should define this to update their dashboard to reflect state
+        that might have changed in the rest of the program, e.g. selection state
+        in the model tree. Not intended to be called directly by external code;
+        for that, see UpdateDashboard().
+        """
+        pass
+
+    def UpdateDashboard(self): # bruce 041124
+        """Public method for the current mode object:
+           Make sure this mode's dashboard is updated before the processing of
+        the current user event is finished.
+           External code that might change things which some modes
+        need to reflect in their dashboard should call this one or more times
+        after any such changes, before the end of the same user event.
+           Multiple calls per event are ok (but in the initial implem might
+        be slow). Subclasses should not override this; for that, see update_gui().
+        """
+        # For now, this method just updates the dashboard immediately.
+        # This might be too slow if it's called many times per event, so someday
+        # we might split this into separate invalidation and update code;
+        # this will then be the invalidation routine, in spite of the name.
+        # We *don't* also call update_mode_status_text -- that's separate.
+        self.update_gui()
+        return
+        
     def update_mode_status_text(self):        
         """##### new method, bruce 040927; here is my guess at its doc
            [maybe already obs?]: Update the mode-status widget to show

@@ -104,18 +104,46 @@ class depositMode(basicMode):
         self.pastable = None
     
     # init_gui does all the GUI display when entering this mode [mark 041004]
-    # bruce comment 041123: Note that Josh also calls this at other times
-    # to update the UI and the value of self.pastable.
+    
+    # bruce comment 041124 -- init_gui was also being used to update the gui
+    # within the mode. That's wrong (especially when it makes someone think
+    # that external code should ever call init_gui), so I split out from it an
+    # update_gui method, which should be defined here but not called directly
+    # except by the internal mode code in modes.py; this file or other files
+    # can call mode.UpdateDashboard() when they think that's necessary,
+    # which might call mode.update_gui(), or might "invalidate the dashboard"
+    # so that mode.update_gui()
+    # gets called sometime before the user-event processing is done.
+    
     def init_gui(self):
+        "called once each time the mode is entered; should be called only by code in modes.py"
 #        print "depositMode.py: init_gui(): Cursor set to DepositAtomCursor"
         self.o.setCursor(self.w.DepositAtomCursor)
         # load default cursor for MODIFY mode
         self.w.toolsDepositAtomAction.setOn(1) # turn on the Deposit Atoms icon
+
+        self.pastable = None # by bruce 041124, for safety
+
+        # connect signals (these ought to be disconnected in restore_gui ##e)
+        self.w.connect(self.w.pasteComboBox,SIGNAL("activated(int)"),
+                       self.setPaste)
+        self.w.connect(self.w.elemChangeComboBox,SIGNAL("activated(int)"),
+                       self.setAtom)
+        self.w.connect(self.w.depositAtomDashboard.pasteRB,
+                       SIGNAL("pressed()"), self.setPaste)
+        self.w.connect(self.w.depositAtomDashboard.atomRB,
+                       SIGNAL("pressed()"), self.setAtom)
         
+        self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
+
+    def update_gui(self):
+        "can be called many times during the mode; should be called only by code in modes.py"
+        # update the contents and current item of self.w.pasteComboBox
+        # to match the clipboard
         self.w.pasteComboBox.clear()
         cx = 0
-        if self.o.assy.shelf.members: # We have a something on the clipboard
-            self.pastable = self.o.assy.shelf.members[0]
+        if self.o.assy.shelf.members: # We have something on the clipboard
+            self.pastable = self.o.assy.shelf.members[0] # (in case none picked)
             for ob,i in zip(self.o.assy.shelf.members,
                         range(len(self.o.assy.shelf.members))):
                 self.w.pasteComboBox.insertItem(ob.name)
@@ -124,25 +152,17 @@ class depositMode(basicMode):
                     self.pastable = ob # ob is the clipboard object that will be pasted.
         else: # Nothing on the clipboard
             self.pastable = None
+            #e should we insert a text label saying it's empty? [bruce 041124]
+            self.w.pasteComboBox.insertItem("(clipboard is empty)") ###k ok??
             
         # Set pasteComboBox to the picked item (cx)
+        # (or to the last picked one, if several are picked)
         self.w.pasteComboBox.setCurrentItem(cx)
             
-        self.w.connect(self.w.pasteComboBox,SIGNAL("activated(int)"),
-                       self.setPaste)
-        self.w.connect(self.w.elemChangeComboBox,SIGNAL("activated(int)"),
-                       self.setAtom)
-        
+        # update the radio buttons
         if self.w.pasteP: self.w.depositAtomDashboard.pasteRB.setOn(True)
         else: self.w.depositAtomDashboard.atomRB.setOn(True)
-            
-        self.w.connect(self.w.depositAtomDashboard.pasteRB,
-                       SIGNAL("pressed()"), self.setPaste)
-        self.w.connect(self.w.depositAtomDashboard.atomRB,
-                       SIGNAL("pressed()"), self.setAtom)
-        
-        self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
-
+    
     # methods related to exiting this mode [bruce 040922 made these from
     # old Done method, and added new code; there was no Flush method]
 
@@ -798,7 +818,8 @@ class depositMode(basicMode):
             new.pick()
             self.w.pasteP = True
             self.w.update()
-            self.init_gui()
+            # mark 041124 added the following & bruce 041124 revised it:
+            self.UpdateDashboard()
 
 
     def select(self):
