@@ -935,8 +935,11 @@ class depositMode(basicMode):
 	# so I'll do it later, after fixing bug 239.
 	# Warning: correctness of use of x vs y below has not been verified.
 	# [bruce 041214] ###@@@
+	# ... but for Alpha let's just do a quick fix by replacing 1.5 by 4.0.
+	# This should work except for very wide (or tall??) windows.
+	# [bruce 050120]
 	
-        x = y = 1.5 * self.o.scale
+        x = y = 4.0 * self.o.scale # was 1.5 before bruce 050120; still a kluge
 	glBegin(GL_QUADS)
         glVertex(-x,-y,0)
         glVertex(x,-y,0)
