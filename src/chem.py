@@ -107,6 +107,8 @@ class elem:
         # possible consequence of this change. [bruce 041217])
         self.bonds = bn
         self.numbonds = bn and bn[0][0]
+        if not self.numbonds:
+            self.numbonds = 0 # similar reason as above [bruce 041217]
         self.base = None
         self.quats = [] # ends up one shorter than self.numbonds [bruce 041217]
         if bn and bn[0][2]:
@@ -688,10 +690,16 @@ class atom:
     def getinfo(self):
         # Return information about the selected atom for the msgbar
         # [mark 2004-10-14]
-        xyzstr = self.posn()
-        ainfo = ("Atom #" + str (self.key ) + " [" + self.element.name +
-                 "] [X = " + str(xyzstr[0]) + "] [Y = " + str(xyzstr[1]) +
-                 "] [Z = " + str(xyzstr[2]) + "]")
+        # bruce 041217 revised XYZ format to %.2f, added bad-valence info
+        # (for the same atoms as self.bad(), but in case conditions are added to
+        #  that, using independent code).
+        xyz = self.posn()
+        ainfo = ("Atom #%s [%s] [X = %.2f] [Y = %.2f] [Z = %.2f]" % \
+            ( self.key, self.element.name, xyz[0], xyz[1], xyz[2] ))
+        if len(self.bonds) != self.element.numbonds:
+            # I hope this can't be called for singlets! [bruce 041217]
+            ainfo += platform.fix_plurals(" (has %d bond(s), should have %d)" % \
+                                          (len(self.bonds), self.element.numbonds))
         return ainfo
 
     def pick(self):
