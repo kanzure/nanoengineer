@@ -58,7 +58,7 @@ class assembly:
         self.data=Group("Data", self, None, grpl1)
         self.data.open=False
 
-        self.shelf = Group("Shelf", self, None, [])
+        self.shelf = Group("Clipboard", self, None, [])
         self.shelf.open = False
 
         # the model tree for this assembly
