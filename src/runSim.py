@@ -29,17 +29,24 @@ class runSim(SimSetupDialog):
         tmpFilePath = self.assy.w.tmpFilePath
         if not self.assy.filename: 
                 self.assy.filename= os.path.join(tmpFilePath, "simulate.mmp")
+        
+        #By writting the current model into simulate.mmp under ~/atom_tmp, no matter
+        # if it is a *.pdb, a *.mmp with model change or not, we'll make sure the
+        #writing of the *.dpb file will only go to the temporary directory, 
+        # otherwise user may get write permission problem.  ---Huaicai 12/07/04
+        writemmp(self.assy, os.path.join(tmpFilePath, "simulate.mmp"))
+        
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
        
-        args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper), "simulate.mmp"]
+        args = [filePath + '/../bin test/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper),  "simulate.mmp"]
         
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         oldWorkingDir = os.getcwd()
         os.chdir(tmpFilePath)
         try:
             self.assy.w.msgbarLabel.setText("Calculating...")
-            if self.assy.modified: writemmp(self.assy, self.assy.filename)
-            r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
+            #if self.assy.modified: writemmp(self.assy, self.assy.filename)
+            r = os.spawnv(os.P_WAIT, filePath + '/../bin test/simulator', args)
         except:
             print_compact_traceback("exception in simulation; continuing: ")
             s = "internal error (traceback printed elsewhere)"
@@ -47,7 +54,7 @@ class runSim(SimSetupDialog):
         os.chdir(oldWorkingDir)    
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
-            self.assy.w.msgbarLabel.setText("Movie written to "+self.assy.filename[:-3]+'dpb')
+            self.assy.w.msgbarLabel.setText("Movie written to "+ os.path.join(tmpFilePath, "simulate.dpb"))
         else:
             if not s: s = "exit code %r" % r
             self.assy.w.msgbarLabel.setText("Simulation Failed!") ##e include s?

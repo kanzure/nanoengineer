@@ -798,15 +798,13 @@ class GLPane(QGLWidget, modeMixin):
             filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
             tmpFilePath = self.win.tmpFilePath 
             writemmp(self.assy, os.path.join(tmpFilePath, "minimize.mmp"))
+            
+            #Huaicai 12/07/04, if path name for "minimize.mmp" has space, 
+            # spawnv() has problems on Windows, so changing working directory to it
             oldWorkingDir = os.getcwd()
             os.chdir(tmpFilePath)
-            args = [filePath + '/../bin/simulator', '-m ',  "minimize.mmp"]
-            r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
-            #pipe = os.popen(filePath + "/../bin test/simulator -m " + "minimize.mmp")
-            #s = pipe.read()
-            #r = pipe.close() # false (0) means success, true means failure
-            # bruce 041101 wonders whether .close() retval being exitcode is
-            # documented as working on all systems we support...
+            args = [filePath + '/../bin test/simulator', '-m ',  "minimize.mmp"]
+            r = os.spawnv(os.P_WAIT, filePath + '/../bin test/simulator', args)
             os.chdir(oldWorkingDir)
         except:
             print_compact_traceback("exception in minimize; continuing: ")

@@ -1011,9 +1011,11 @@ class MWsemantics(MainWindow):
     def toolsMovie(self):
         if not self.assy.filename: 
                 self.assy.filename=os.path.join(self.tmpFilePath, "simulate.mmp")
+                
         dir, fil, ext = fileparse(self.assy.filename)
-        #print "playing", dir+fil+'.dpb'
-        self.glpane.startmovie(os.path.join(dir, fil+'.dpb'))
+        # Huaicai 12/07/04. Change the path to the temporary directory, that's where
+        # *.dpb file stays now 
+        self.glpane.startmovie(os.path.join(self.tmpFilePath, 'simulate.dpb'))
 
     
     ###################################
