@@ -1113,6 +1113,7 @@ class molecule(Node, InvalMixin):
         """select the molecule.
         """
         if not self.picked:
+            self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
             Node.pick(self)
             self.assy.selmols.append(self)
             # bruce 041207 thinks self.havelist = 0 is no longer needed here,

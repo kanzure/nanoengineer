@@ -638,6 +638,13 @@ class assembly:
                 a.molecule.changeapp(1)
             self.selatoms = {}
 
+    def permit_pick_parts(self): #bruce 050125
+        "ensure it's legal to pick chunks"
+        if not self.selwhat:
+            self.unpickatoms()
+            self.selwhat = 2
+        return
+    
     # deselect any selected molecules or groups
     def unpickparts(self):
         self.root.unpick()
