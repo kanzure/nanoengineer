@@ -740,6 +740,17 @@ def createWhatsThis(self):
                                                        self. toolsExtrudeAction.iconSet().pixmap() )
        
         self. toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )  
+        
+        #### Fuse Chunks Tool ####
+
+        toolsFuseChunksActionText = "<u><b>Fuse Chunks Tool</b></u><br>"\
+                       "<p><img source=\" toolsFuseChunksAction\"><br> "\
+                       "<b>Fuse Chunks</b> creates bonds between two or more chunks.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( " toolsFuseChunksAction",
+                                                       self. toolsFuseChunksAction.iconSet().pixmap() )
+       
+        self.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )  
 
         #### Movie Player ####
 
