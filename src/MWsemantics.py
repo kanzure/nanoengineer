@@ -131,7 +131,7 @@ class MWsemantics(MainWindow):
         otherwise from the current mode object
         (self.glpane.mode). (The mode object has to be supplied when
         the currently stored one is incorrect, during a mode
-        transition.) #####doit
+        transition.)
 
         This method needs to be called whenever the mode status text
         might need to change.  See a comment in the method to find out
