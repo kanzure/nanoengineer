@@ -512,29 +512,38 @@ class atom:
         # bruce 041217 revised XYZ format to %.2f, added bad-valence info
         # (for the same atoms as self.bad(), but in case conditions are added to
         #  that, using independent code).
+        # bruce 050218 changing XYZ format to %.3f (after earlier discussion with Josh).
         
         if self == self.molecule.assy.ppa2: return
             
         xyz = self.posn()
-        ainfo = ("Atom %s [%s] [X = %.2f] [Y = %.2f] [Z = %.2f]" % \
+        ainfo = ("Atom %s [%s] [X = %.3f] [Y = %.3f] [Z = %.3f]" % \
             ( self, self.element.name, xyz[0], xyz[1], xyz[2] ))
         
         # ppa2 is the previously picked atom.  ppa3 is the atom picked before ppa2.
         # They are both reset to None when entering SELATOMS mode.
         # Include the distance between self and ppa2 in the info string.
         if self.molecule.assy.ppa2:
-            try: ainfo += (". Distance between %s-%s is %.2f." % \
-                                (self, self.molecule.assy.ppa2, vlen(self.posn()-self.molecule.assy.ppa2.posn())))
-            except: pass
-
+            try:
+                ainfo += (". Distance between %s-%s is %.3f." % \
+                    (self, self.molecule.assy.ppa2, vlen(self.posn()-self.molecule.assy.ppa2.posn())))
+            except:
+                print_compact_traceback("bug, fyi: ignoring exception in atom distance computation: ") #bruce 050218
+                pass
+            
             # Include the angle between self, ppa2 and ppa3 in the info string.
             if self.molecule.assy.ppa3:
-                v1 = norm(self.posn()-self.molecule.assy.ppa2.posn())
-                v2 = norm(self.molecule.assy.ppa3.posn()-self.molecule.assy.ppa2.posn())
-                ang = acos(dot(v1,v2)) * 180/pi
-                try: ainfo += (" Angle for %s-%s-%s is %.2f degrees." %\
-                                    (self, self.molecule.assy.ppa2, self.molecule.assy.ppa3, ang))
-                except: pass
+                try:
+                    # bruce 050218 protecting angle computation from exceptions
+                    # (to reduce severity of undiagnosed bug 361).
+                    v1 = norm(self.posn()-self.molecule.assy.ppa2.posn())
+                    v2 = norm(self.molecule.assy.ppa3.posn()-self.molecule.assy.ppa2.posn())
+                    ang = acos(dot(v1,v2)) * 180/pi
+                    ainfo += (" Angle for %s-%s-%s is %.2f degrees." %\
+                        (self, self.molecule.assy.ppa2, self.molecule.assy.ppa3, ang))
+                except:
+                    print_compact_traceback("bug, fyi: ignoring exception in atom angle computation: ") #bruce 050218
+                    pass
             
             # ppa3 is ppa2 for next atom picked.
             self.molecule.assy.ppa3 = self.molecule.assy.ppa2 
