@@ -239,6 +239,32 @@ struct MOT {
         double moment;
 };
 
+/**
+ * A linear motor
+ */
+struct LMOT {
+        /** point about which motor turns */
+        struct xyz center;
+        /** centers of rotation and radii */
+        struct xyz atocent[MAX_ATOMS_PER_AXLE], ator[MAX_ATOMS_PER_AXLE];
+        /** axis & frame of rotation, unit vectors */
+        struct xyz axis, roty, rotz;
+        /** atom positions about centers, */
+        double radius[MAX_ATOMS_PER_AXLE];
+        /** in polar coords */
+        double atang[MAX_ATOMS_PER_AXLE];
+        /** torque at zero speed, Dx^2 N * m */
+        double stall;
+        /** speed at zero torque, rad/Dt */
+        double speed;
+        /** previous angular position in radians */
+        double theta0;
+        /** current angular position in radians */
+        double theta;
+        /** angular inertia factor in Dt^2 / kg Dx */
+        double moment;
+};
+
 
 
 
@@ -343,7 +369,7 @@ extern void pcon(int i);
 extern void filred(char *filnam);
 extern int ShotNo;
 extern void calcloop(int iters);
-extern void minimize(void);
+extern void minimize(int NumFrames, int IterPerFrame);
 extern void keyboard(unsigned char key, int x, int y);
 extern int main(int argc, char **argv);
 

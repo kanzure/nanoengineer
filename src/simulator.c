@@ -63,8 +63,8 @@ int findtorq(int btyp1, int btyp2) {
 	if  (iabs(bendata[i].b1typ) == iabs(btyp2) &&
 	     iabs(bendata[i].b2typ) == iabs(btyp1)) return i;
     }
-    DBGPRINTF("Bend type %d-%d not found\n",btyp1,btyp2);
-    return -1;
+    // printf("Bend type %d-%d not found\n",btyp1,btyp2);
+    return 0; // the default bend type
 }
 
 /** the force between elt i and elt j (i<=j) is at
@@ -280,8 +280,11 @@ void bondinit() {
 	De = bstab[i].de;
 	Beta = bstab[i].beta;
 	tables = malloc(sizeof(struct dtab));
-	maktab(tables->t1, tables->t2, lippmor,
-	       bstab[i].start, TABLEN, bstab[i].scale);
+	if (ToMinimize)
+	    	maktab(tables->t1, tables->t2, hooke,
+		       bstab[i].start, TABLEN, bstab[i].scale);
+	else maktab(tables->t1, tables->t2, lippmor,
+		    bstab[i].start, TABLEN, bstab[i].scale);
 	bstab[i].table = tables;
     }
 	
@@ -462,14 +465,15 @@ void calcloop(int iters) {
 		if (k<0) {
 					
 		    DBGPRINTF("stretch: low --");
-		    pb(j);
+		    //pb(j);
 		    fac=t1[0]+rsq*t2[0];
 		}
 		else if (k>=TABLEN) {
 					
 		    DBGPRINTF("stretch: high --");
-		    pb(j);
-		    fac=0.0;
+		    //pb(j);
+		    if (ToMinimize) fac = t1[0]+rsq*t2[0]; //linear
+		    else fac=0.0;
 		}
 		else fac=t1[k]+rsq*t2[k];
 				
@@ -501,7 +505,7 @@ void calcloop(int iters) {
 		if (k<0 || k>=TABLEN) {
 		    theta=(180.0/3.1415)*vang(v1,v2);
 					
-		    DBGPRINTF("bend: off table -- angle = %.2f\n",theta);
+		    printf("bend: off table -- angle = %.2f\n",theta);
 		    pq(j);
 					
 		    if (k<0) k=0;
@@ -538,9 +542,9 @@ void calcloop(int iters) {
 		vsub2(f,bond[j].bff,f);
 		vadd(force[bond[j].an1],f);
 		vsub(force[bond[j].an2],f);
-		/*
-		  DBGPRINTF("bending %f\n", sqrt(vdot(f,f)));
-		*/
+		
+		printf("bending %f\n", sqrt(vdot(f,f)));
+		
 	    }
 			
 	    /* do the van der Waals/London forces */
@@ -724,7 +728,7 @@ void snapshot(int n) {
 }
 
 
-void minimize() {
+void minimize(int NumFrames, int IterPerFrame) {
     int i, j, saveNexcon;
     double tke, therm, mass;
     struct xyz v;
@@ -735,10 +739,10 @@ void minimize() {
 
     Temperature = 0.0;
 	
-    for (i=0; i<100; i++) {
+    for (i=0; i<NumFrames; i++) {
 	// stop atoms in their tracks
 	for (j=0; j<Nexatom; j++) old[j] = cur[j];
-	calcloop(10);
+	calcloop(IterPerFrame);
 	snapshot(0);
 	}
 }
@@ -807,6 +811,8 @@ main(int argc,char **argv)
 		break;
 	    case 'm':
 		ToMinimize=1;
+		NumFrames = 100;
+		IterPerFrame = 30;
 		break;
 	    case 'i':
 		IterPerFrame = atoi(argv[i]+2);
@@ -853,6 +859,9 @@ main(int argc,char **argv)
 	else strcat(OutFileName,".dpb");
     }
 
+    IterPerFrame = IterPerFrame/10;
+    if (IterPerFrame == 0) IterPerFrame = 1;
+
     printf("iters per frame = %d\n",IterPerFrame);
     printf("number of frames = %d\n",NumFrames);
     printf("timestep = %e\n",Dt);
@@ -862,19 +871,22 @@ main(int argc,char **argv)
     printf("< %s  > %s\n", buf, OutFileName);
 
     filred(buf);
-
-    /*
+    
+    printf("%d constraints:\n",Nexcon);
       for (i=0; i<Nexcon; i++) pcon(i);
+    printf("%d atoms:\n",Nexatom);
       for (i=0; i<Nexatom; i++) pa(i);
+    printf("%d bonds:\n",Nexbon);
       for (i=0; i<Nexbon; i++) pb(i);
+    printf("%d torques:\n",Nextorq);
       for (i=0; i<Nextorq; i++) pq(i);
+    printf("%d Waals:\n",vanderRoot);
       for (i=0; i<vanderRoot.fill; i++) pvdw(&vanderRoot,i);
-    */
-	
+    
     orion();
 
     if (DumpAsText) outf = fopen(OutFileName, "w");  
-    // humorously homophonic with "Pout/smile game" :-) 
+
     else {
 	ixyz=ibuf1;
 	previxyz=ibuf2;
@@ -888,7 +900,7 @@ main(int argc,char **argv)
     }
 
     if  (ToMinimize) {
-	minimize();
+	minimize(NumFrames, IterPerFrame);
     }
     else {
 	for (i=0; i<NumFrames; i++) {
@@ -896,7 +908,7 @@ main(int argc,char **argv)
 	    fflush(stdout);
 	    if ((i & 15) == 15)
 		printf("\n");
-	    calcloop(IterPerFrame/10);
+	    calcloop(IterPerFrame);
 	    snapshot(i);
 	}}
 

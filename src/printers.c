@@ -6,7 +6,7 @@
 #include "simulator.h"
 
 void pbontyp(struct bsdata *ab) {
-    DBGPRINTF("Bond between %d / %d of order %d: type %d, length %f, stiffness %f\n table %d, start %f, scale %d\n",
+    printf("Bond between %d / %d of order %d: type %d, length %f, stiffness %f\n table %d, start %f, scale %d\n",
 	      ab->a1,ab->a2,ab->ord,ab->typ,ab->r0,ab->ks,
 	      ab->table,ab->start,ab->scale);
 	
@@ -38,23 +38,23 @@ void bondump() {		/* gather bond statistics */
     }
 	
     for (i=0; i<BSTABSIZE; i++) if (totno[i]) {
-	DBGPRINTF("Bond type %s-%s, %d occurences, mean %.2f pm:\n",
+	printf("Bond type %s-%s, %d occurences, mean %.2f pm:\n",
 		  element[bstab[i].a1].symbol, element[bstab[i].a2].symbol, totno[i],
 		  means[i]/(double)totno[i]);
 	for (j=0; j<23; j++) {
-	    if ((j-1)%10) DBGPRINTF(" |");
-	    else DBGPRINTF("-+");
+	    if ((j-1)%10) printf(" |");
+	    else printf("-+");
 	    n=(80*histo[i][j])/totno[i];
-	    if (histo[i][j] && n==0) DBGPRINTF(".");
-	    for (k=0; k<n; k++) DBGPRINTF("M");
-	    DBGPRINTF("\n");
+	    if (histo[i][j] && n==0) printf(".");
+	    for (k=0; k<n; k++) printf("M");
+	    printf("\n");
 	}}
-    DBGPRINTF("Iteration %d\n",Iteration);
+    printf("Iteration %d\n",Iteration);
 }
 
 
 void pangben(struct angben *ab) {
-    DBGPRINTF("Bend between %d / %d: kb=%.2f, th0=%.2f\n\
+    printf("Bend between %d / %d: kb=%.2f, th0=%.2f\n\
  --Table[%d]: %.0f by %d:  -->%.2f/%.4f,  -->%.2f/%.4f\n",
 	      ab->b1typ,ab->b2typ,ab->kb,ab->theta0,
 	      TABLEN,ab->start,ab->scale,
@@ -92,29 +92,29 @@ void speedump() {		/* gather bond statistics */
 }
 
 void pv(struct xyz foo) {
-    DBGPRINTF("(%.2f, %.2f, %.2f)",foo.x, foo.y, foo.z);
+    printf("(%.2f, %.2f, %.2f)",foo.x, foo.y, foo.z);
 }
 void pvt(struct xyz foo) {
-    DBGPRINTF("(%.2f, %.2f, %.2f)\n",foo.x, foo.y, foo.z);
+    printf("(%.2f, %.2f, %.2f)\n",foo.x, foo.y, foo.z);
 }
 
 void pa(int i) {
     int j, b, ba;
     double v;
 	
-    if (i<0 || i>=Nexatom) DBGPRINTF("bad atom number %d\n",i);
+    if (i<0 || i>=Nexatom) printf("bad atom number %d\n",i);
     else {
-	DBGPRINTF("atom %s%d (%d bonds): ", element[atom[i].elt].symbol, i, atom[i].nbonds);
+	printf("atom %s%d (%d bonds): ", element[atom[i].elt].symbol, i, atom[i].nbonds);
 	for (j=0; j<atom[i].nbonds; j++) {
 	    b=atom[i].bonds[j];
 	    ba=(i==bond[b].an1 ? bond[b].an2 : bond[b].an1);
-	    DBGPRINTF("[%d/%d]: %s%d, ", b, bond[b].order,
+	    printf("[%d/%d]: %s%d, ", b, bond[b].order,
 		      element[atom[ba].elt].symbol, ba);
 	}
 	v=vlen(vdif(cur[i],old[i]));
-	DBGPRINTF("\n   V=%.2f, mV^2=%.6f, pos=", v,1e-4*v*v/atom[i].massacc);
+	printf("\n   V=%.2f, mV^2=%.6f, pos=", v,1e-4*v*v/atom[i].massacc);
 	pv(cur[i]); pvt(old[i]);
-	DBGPRINTF("   massacc=%e\n",atom[i].massacc);
+	printf("   massacc=%e\n",atom[i].massacc);
     }
 }
 
@@ -122,19 +122,19 @@ void checkatom(int i) {
     int j, b, ba;
     double v;
 	
-    if (i<0 || i>=Nexatom) DBGPRINTF("bad atom number %d\n",i);
+    if (i<0 || i>=Nexatom) printf("bad atom number %d\n",i);
     else if (atom[i].elt < 0 || atom[i].elt >= NUMELTS)
-	DBGPRINTF("bad element in atom %d: %d\n", i, atom[i].elt);
+	printf("bad element in atom %d: %d\n", i, atom[i].elt);
     else if (atom[i].nbonds <0 || atom[i].nbonds >NBONDS)
-	DBGPRINTF("bad nbonds in atom %d: %d\n", i, atom[i].nbonds);
+	printf("bad nbonds in atom %d: %d\n", i, atom[i].nbonds);
     else if (atom[i].elt < 0 || atom[i].elt >= NUMELTS)
-	DBGPRINTF("bad element in atom %d: %d\n", i, atom[i].elt);
+	printf("bad element in atom %d: %d\n", i, atom[i].elt);
     else for (j=0; j<atom[i].nbonds; j++) {
 	b=atom[i].bonds[j];
 	if (b < 0 || b >= Nexbon)
-	    DBGPRINTF("bad bonds number in atom %d: %d\n", i, b);
+	    printf("bad bonds number in atom %d: %d\n", i, b);
 	else if (i != bond[b].an1 && i != bond[b].an2) {
-	    DBGPRINTF("bond %d of atom %d [%d] doesn't point back\n", j, i, b);
+	    printf("bond %d of atom %d [%d] doesn't point back\n", j, i, b);
 	    exit(0);
 	}
     }
@@ -145,28 +145,28 @@ void pb(int i) {
     struct bsdata *bt;
     int index;
 	
-    if (i<0 || i>=Nexbon) DBGPRINTF("bad bond number %d\n",i);
+    if (i<0 || i>=Nexbon) printf("bad bond number %d\n",i);
     else {
 	bt = bond[i].type;
 	len = vlen(vdif(cur[bond[i].an1],cur[bond[i].an2]));
-	DBGPRINTF("bond %d[%d] [%s%d(%d)-%s%d(%d)]: length %.1f\n",
+	printf("bond %d[%d] [%s%d(%d)-%s%d(%d)]: length %.1f\n",
 		  i, bond[i].order,
 		  element[atom[bond[i].an1].elt].symbol, bond[i].an1, atom[bond[i].an1].elt,
 		  element[atom[bond[i].an1].elt].symbol, bond[i].an2, atom[bond[i].an2].elt,
 		  len);
 	index=(int)((len*len)-bt->start)/bt->scale;
 	if (index<0 || index>=TABLEN)
-	    DBGPRINTF("r0=%.1f, index=%d of %d, off table\n",  bt->r0, index, TABLEN);
-	else DBGPRINTF("r0=%.1f, index=%d of %d, value %f\n", bt->r0, index, TABLEN,
+	    printf("r0=%.1f, index=%d of %d, off table\n",  bt->r0, index, TABLEN);
+	else printf("r0=%.1f, index=%d of %d, value %f\n", bt->r0, index, TABLEN,
 		       bt->table->t1[index] + len*len*bt->table->t2[index]);
     }
 }
 
 void pq(int i) {
     struct xyz r1, r2;
-    if (i<0 || i>=Nextorq) DBGPRINTF("bad torq number %d\n",i);
+    if (i<0 || i>=Nextorq) printf("bad torq number %d\n",i);
     else {
-	DBGPRINTF("torq %s%d-%s%d-%s%d, that's %d-%d=%d-%d\n",
+	printf("torq %s%d-%s%d-%s%d, that's %d-%d=%d-%d\n",
 		  element[atom[torq[i].a1].elt].symbol, torq[i].a1,
 		  element[atom[torq[i].ac].elt].symbol, torq[i].ac,
 		  element[atom[torq[i].a2].elt].symbol, torq[i].a2,
@@ -177,18 +177,18 @@ void pq(int i) {
 		
 	r1=vdif(cur[torq[i].a1],cur[torq[i].ac]);
 	r2=vdif(cur[torq[i].a2],cur[torq[i].ac]);
-	DBGPRINTF("r1= %.1f, r2= %.1f, theta=%.2f (%.0f)\n",
+	printf("r1= %.1f, r2= %.1f, theta=%.2f (%.0f)\n",
 		  vlen(r1), vlen(r2), vang(r1, r2),
 		  (180.0/3.1415)*vang(r1, r2));
     }
 }
 
 void pvdw(struct vdWbuf *buf, int n) {
-    DBGPRINTF("vdW %s%d-%s%d: vanderTable[%d]\n",
+    printf("vdW %s%d-%s%d: vanderTable[%d]\n",
 	      element[atom[buf->item[n].a1].elt].symbol, buf->item[n].a1,
 	      element[atom[buf->item[n].a2].elt].symbol, buf->item[n].a2,
 	      buf->item[n].table - vanderTable);
-    DBGPRINTF("start; %f, scale %d, b=%f, m=%f\n",
+    printf("start; %f, scale %d, b=%f, m=%f\n",
 	      sqrt(buf->item[n].table->start), buf->item[n].table->scale,
 	      buf->item[n].table->table.t1[0],
 	      buf->item[n].table->table.t2[0]);
@@ -200,38 +200,38 @@ void pcon(int i) {
     int j;
 	
     if (i<0 || i>=Nexcon) {
-	DBGPRINTF("Bad constraint number %d\n",i);
+	printf("Bad constraint number %d\n",i);
 	return;
     }
-    DBGPRINTF("Constraint %d: ",i);
+    printf("Constraint %d: ",i);
     if (Constraint[i].type == 0) {
-	DBGPRINTF("Space weld\n atoms ");
+	printf("Space weld\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
-	    DBGPRINTF("%d ",Constraint[i].atoms[j]);
-	DBGPRINTF("\n");
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
     }
     else if (Constraint[i].type == 1) {
 	mot = Constraint[i].motor;
-	DBGPRINTF("motor; stall torque %.2e, unloaded speed %.2e\n center ",
+	printf("motor; stall torque %.2e, unloaded speed %.2e\n center ",
 		  mot->stall, mot->speed);
 	pv(mot->center);
-	DBGPRINTF(" axis ");
+	printf(" axis ");
 	pvt(mot->axis);
 		
-	DBGPRINTF(" rot basis ");
+	printf(" rot basis ");
 	pv(mot->roty); pv(mot->rotz);
-	DBGPRINTF(" angles %.0f, %.0f, %.0f\n",
+	printf(" angles %.0f, %.0f, %.0f\n",
 		  180.0*vang(mot->axis,mot->roty)/Pi,
 		  180.0*vang(mot->rotz,mot->roty)/Pi,
 		  180.0*vang(mot->axis,mot->rotz)/Pi);
 		
 	for (j=0;j<Constraint[i].natoms;j++) {
-	    DBGPRINTF(" atom %d radius %.1f angle %.2f\n   center ",
+	    printf(" atom %d radius %.1f angle %.2f\n   center ",
 		      Constraint[i].atoms[j], mot->radius[j], mot->atang[j]);
 	    pv(mot->atocent[j]);
-	    DBGPRINTF(" posn "); pvt(mot->ator[j]);
+	    printf(" posn "); pvt(mot->ator[j]);
 	}
-	DBGPRINTF(" Theta=%.2f, theta0=%.2f, moment factor =%e\n",
+	printf(" Theta=%.2f, theta0=%.2f, moment factor =%e\n",
 		  mot->theta, mot->theta0, mot->moment);
     }
 }

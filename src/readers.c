@@ -340,7 +340,7 @@ void makmot2(int i) {
 void filred(char *filnam) {
 	
     FILE *file;
-    char buf[128];
+    char buf[256];
     int i, j, n, m, b, c, ord, lastatom;
     double stall, speed;
     struct xyz vec1,vec2;
@@ -348,6 +348,8 @@ void filred(char *filnam) {
     int firstatom=1, offset;
     int atnum, atnotab[2*NATOMS];
     struct vdWbuf *nvb;
+    char nambuf[128];
+    int colr[3];
 	
     file=fopen(filnam,"r");
 	
@@ -361,7 +363,10 @@ void filred(char *filnam) {
 	      DBGPRINTF("in filred: %s %d (%d) (%d,%d,%d) \n","atom",
 	      lastatom,ie, ix, iy, iz );
 	    */
-			
+	    
+	    // hack: change singlets to hydrogen
+	    if (ie == 0) ie=1;
+
 	    atnotab[atnum]=Nexatom;
 	    lastatom = Nexatom;
 			
@@ -369,9 +374,9 @@ void filred(char *filnam) {
 	    vec1.y=(double)iy *0.1;
 	    vec1.z=(double)iz *0.1;
 	    makatom(ie,vec1);
-			
-			
 	}
+
+
 	/* bondO atno atno atno ... (where O is order) */
 	else if (0==strncasecmp("bond",buf,4)) {
 			
@@ -397,7 +402,8 @@ void filred(char *filnam) {
 	/* constraints */
 	/* welded to space: */
 	else if (0==strncasecmp("ground",buf,6)) {
-	    j=sscanf(buf+6, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
+	    j=sscanf(buf+6, "(%s) (%d, %d, %d)%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
+		     nambuf, colr, colr+1, colr+2,
 		     iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
 		     iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
 		     iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24);
@@ -405,10 +411,11 @@ void filred(char *filnam) {
 	    makcon(0, NULL, j, iv);
 	}
 		
-	/* motor <torque>, <speed>, (<center>) (<axis>) */
+	/* rmotor (name) (r,g,b) <torque> <speed> (<center>) (<axis>) */
 	/* torque in nN*nm  speed in gigahertz */
-	else if (0==strncasecmp("motor",buf,5)) {
-	    sscanf(buf+5, "%lf, %lf, (%d, %d, %d) (%d, %d, %d",
+	else if (0==strncasecmp("rmotor",buf,6)) {
+	    sscanf(buf+5, "(%s) (%d, %d, %d)%lf %lf (%d, %d, %d) (%d, %d, %d",
+		   nambuf, colr, colr+1, colr+2,
 		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
 			
 	    vec1.x=(double)ix *0.1;
@@ -429,23 +436,37 @@ void filred(char *filnam) {
 	    }
 	}
 		
-	/* part [nil|bns|vdw] */
-	else if (0==strncasecmp("part",buf,4)) {
+	/* lmotor <torque>, <speed>, (<center>) (<axis>) */
+	/* torque in nN*nm  speed in gigahertz */
+	else if (0==strncasecmp("lmotor",buf,6)) {
+	    sscanf(buf+5, "(%s) (%d, %d, %d)%lf, %lf, (%d, %d, %d) (%d, %d, %d",
+		   nambuf, colr, colr+1, colr+2,
+		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
+			
+	    vec1.x=(double)ix *0.1;
+	    vec1.y=(double)iy *0.1;
+	    vec1.z=(double)iz *0.1;
+	    vec2.x=(double)ix1 *0.1;
+	    vec2.y=(double)iy1 *0.1;
+	    vec2.z=(double)iz1 *0.1;
+	    fgets(buf,127,file);
+	    if (strncasecmp("shaft",buf,5)) DBGPRINTF("motor needs a shaft\n");
+	    else {
+		j=sscanf(buf+5, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
+			 iv, iv+1, iv+2, iv+3, iv+4, iv+5, iv+6, iv+7, iv+8, iv+9,
+			 iv+10, iv+11, iv+12, iv+13, iv+14, iv+15, iv+16, iv+17,
+			 iv+18, iv+19, iv+20, iv+21, iv+22, iv+23, iv+24);
+		for (i=0; i<j; i++) atnotab[iv[i]];
+		i=makcon(1, makmot(stall, speed, vec1, vec2), j, iv);
+	    }
+	}
+		
+	/* mol [nil|bns|vdw] */
+	else if (0==strncasecmp("mol ",buf,4)) {
 	    PartNo++;
-	    if (0==strncasecmp("nil",buf+5,3)) DisplayStyle=0;
-	    else if (0==strncasecmp("bns",buf+5,3)) DisplayStyle=1;
-	    else if (0==strncasecmp("vdw",buf+5,3)) DisplayStyle=2;
-	    else DisplayStyle=1;
 	}
 		
-	/* show [nil|bns|vdw] */
-	else if (0==strncasecmp("show",buf,4)) {
-	    if (0==strncasecmp("nil",buf+5,3)) DisplayStyle=0;
-	    else if (0==strncasecmp("bns",buf+5,3)) DisplayStyle=1;
-	    else if (0==strncasecmp("vdw",buf+5,3)) DisplayStyle=2;
-	    else DisplayStyle=1;
-	}
-		
+	
 	else if (0==strncasecmp("kelvin",buf,6)) {
 	    sscanf(buf+6, "%d", &ix);
 	    Temperature = (double)ix;
