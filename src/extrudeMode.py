@@ -1519,28 +1519,114 @@ class extrudeMode(basicMode):
         import debug
         from qtgl import QGLWidget
         print "  %r" % debug.overridden_attrs(QGLWidget, self.o)
+
+    # drawing code
     
-    def Draw(self):
-        basicMode.Draw(self) # draw axes, if displayed
-        if self.show_whole_model:
-            self.o.assy.draw(self.o)
-        else:
-            for mol in self.molcopies:
-                #e use per-repunit drawing styles...
-                dispdef = mol.get_dispdef( self.o) # not needed, since...
-                mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
-        try: #bruce 050203 experiment
-            for unit1,unit2 in zip(self.molcopies[:-1],self.molcopies[1:]):
-                self.draw_bond_lines(unit1,unit2)
+    def draw_model(self): #bruce 050218 split this out
+        try:
+            basicMode.Draw(self) # draw axes, if displayed
+            if self.show_whole_model:
+                self.o.assy.draw(self.o)
+            else:
+                for mol in self.molcopies:
+                    #e use per-repunit drawing styles...
+                    dispdef = mol.get_dispdef( self.o) # not needed, since...
+                    mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
+            try: #bruce 050203 experiment
+                for unit1,unit2 in zip(self.molcopies[:-1],self.molcopies[1:]):
+                    self.draw_bond_lines(unit1,unit2)
+            except:
+                print_compact_traceback("exception in draw_bond_lines, ignored: ")
         except:
-            print_compact_traceback("i tried: ") #####@@@@@
-        if self.show_bond_offsets:
-            for hset in self.show_bond_offsets_handlesets:
-                try:
-                    hset.draw(self.o)
-                except:
-                    print_compact_traceback("exc in some hset.draw(): ")
+            print_compact_traceback("exception in draw_model, ignored: ")
         return
+
+    transparent = 0 #bruce 050218 experiment -- set to 1 for "transparent bond-offset spheres" (works but doesn't always look good)
+
+    def Draw(self):
+        ## self.draw_model() # -- see below
+        if self.show_bond_offsets:
+            hsets = self.show_bond_offsets_handlesets
+            if self.transparent and len(hsets) == 2: #kluge, and messy experimental code [050218];
+                    # looks good w/ cookie, bad w/ dehydrogenated hoop moiety... probably better to compute colors, forget transparency.
+                    # or it might help just to sort them by depth... and/or let hits of several work (hit sees transparency); not sure
+                hset1 = self.nice_offsets_handle # opaque
+                hset2 = self.nice_offsets_handleset # transparent
+                assert hset1 in hsets
+                assert hset2 in hsets
+                
+                ### i tried drawing those backs of hset2 into depth only here, but it failed to obscure parts of the mol...
+                # OH, the mol is way above! duh. it did obscure parts of the purple handle. ok.
+                
+                # draw back faces of hset2 into depth buffer (so far this also draws a color - which one? or does it? yes, white.)
+                ## glCullFace(GL_FRONT)
+                glFrontFace(GL_CW)
+                ## glDisable(GL_LIGHTING)
+                glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
+                try:
+                    hset2.draw(self.o, color = list(self.backgroundColor))##green) # alpha factor inside draw method will be 0.25 but won't matter
+                        ###e wrong when the special_color gets mixed in
+                    # bugs 1139pm: the back faces are not altering depth buffer, when invis, but are when color = green... why?
+                    # is it list vs tuple? does tuple fail for a vector?
+                    # they are all turning white or blue in synch, which is wrong (and they are blue when *outside*, also wrong)
+                    # generally it's not working as expected... let alone looking nice
+                    # If i stop disabling lighting above, then it works better... confirms i'm now showing only insides of spheres
+                    # (with color = A(green), ) does A matter btw? seems not to.
+                    # ah, maybe the materialfv call in drawsphere assumes lighting...
+                    # [this never ended up being diagnosed, but it never came back after i stopped disabling lighting]
+                except:
+                    print_compact_traceback("exc in hset2.draw() backs: ")
+                ## glCullFace(GL_BACK)
+                glFrontFace(GL_CCW)
+                glEnable(GL_LIGHTING)
+                glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+                
+                # draw front faces (default) of hset2, transparently, not altering depth buffer
+                ## hsets = [hset2]
+                del hsets
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+                # this fails since the symbols are not defined, tho all docs say they should be:
+##                const_alpha = 0.25
+##                glBlendColor(1.0,1.0,1.0,const_alpha) # sets the CONSTANT_ALPHA to const_alpha
+##                glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA) # cf. redbook table 6-1 page 228
+                # so instead, I hacked hset2.draw to use alpha factor of 0.25, for now
+                # it looked bad until I remembered that I also need to disable writing the depth buffer.
+                # But the purple handle should have it enabled...
+                glDepthMask(GL_FALSE)
+                try:
+                    hset2.draw(self.o)
+                except:
+                    print_compact_traceback("exc in hset2.draw() fronts transparent: ")
+                glDisable(GL_BLEND)
+                glDepthMask(GL_TRUE)
+
+                # draw front faces again, into depth buffer only
+                glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
+                try:
+                    hset2.draw(self.o)
+                except:
+                    print_compact_traceback("exc in hset2.draw() fronts depth: ")
+                glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+
+                # draw model (and hset1) here, so it's obscured by those invisible front and (less importantly) back faces
+                self.draw_model()
+                try:
+                    hset1.draw(self.o) # opaque
+                except:
+                    print_compact_traceback("exc in hset1.draw(): ")
+                
+            else:
+                #pre-050218 code
+                self.draw_model()
+                for hset in hsets:
+                    try:
+                        hset.draw(self.o)
+                    except:
+                        print_compact_traceback("exc in some hset.draw(): ")
+        else:
+            self.draw_model()
+        return # from Draw
    
     def makeMenus(self): ### mostly not yet reviewed for extrude or revolve mode
         
@@ -1552,11 +1638,14 @@ class extrudeMode(basicMode):
         
         self.debug_Menu_spec = [
             ('debug: reload module', self.extrude_reload),
+            ('debug: transparent=1', self.set_transparent),
             ###e make these a submenu:
-            ('debug: print overrides', self.print_overrides),
-            ('debug: print overrides win', self.print_overrides_win),
-            ('debug: print overrides mt', self.print_overrides_mt),
-            ('debug: print overrides glpane', self.print_overrides_glpane),
+            ('debug: overrides', [
+                ('debug: print overrides', self.print_overrides),
+                ('debug: print overrides win', self.print_overrides_win),
+                ('debug: print overrides mt', self.print_overrides_mt),
+                ('debug: print overrides glpane', self.print_overrides_glpane),
+            ])
          ]
         
         self.Menu_spec_control = [
@@ -1572,6 +1661,9 @@ class extrudeMode(basicMode):
         
         return
 
+    def set_transparent(self):
+        self.transparent = 1
+        
     def extrude_reload(self):
         """for debugging: try to reload extrudeMode.py and patch your glpane
         to use it, so no need to restart Atom. Might not always work.

@@ -64,6 +64,7 @@ class HandleSet:
         offset = offset + self.origin
         radius_multiplier = self.radius_multiplier
         for (pos,radius,info) in self.handles:
+            color = tuple(color) + (1.0,) ### experiment 050218: alpha factor
             drawer.drawsphere(color, pos + offset, radius * radius_multiplier, detailLevel)
 ##    def process_optional_info(self, info):
 ##        "some subclasses should override this to let info affect draw method"
@@ -243,6 +244,8 @@ class niceoffsetsHandleSet(HandleSet): #e this really belongs in extrudeMode.py,
 ##                count += 1
             else:
                 color2 = color
+            ## experiment 050218: add alpha factor to color
+            color2 = tuple(color2) + (0.25,)
             drawer.drawsphere(color2, pos, radius, detailLevel)
 ##        self.color2_count = count # kluge, probably not used since should equal nbonds
         return
