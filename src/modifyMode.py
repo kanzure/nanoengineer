@@ -2,10 +2,7 @@
 """
 modifyMode.py
 
-BRUCE IS TEMPORARILY OWNING ALL MODE FILES for a few days starting 040922,
-in order to fix mode-related bugs by revising the interface between modes.py,
-all specific modes, and GLPane.py. During this period, please consult Bruce
-before any changes to these files.
+This file is no longer owned by Bruce; probably not by anyone. 041008
 
 $Id$
 """
