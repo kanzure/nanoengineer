@@ -55,6 +55,8 @@ from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from inval import InvalMixin
 from changes import begin_event_handler, end_event_handler
+from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS # can't yet import class assembly -- recursive import problem; do it at runtime
+
 
 # number of atoms for detail level 0
 HUGE_MODEL = 20000
@@ -70,17 +72,20 @@ class Part(InvalMixin):
     no longer exist as such (even if the chunks inside them still exist in
     some other Part).
        Note that parts are not Nodes (or at least, they are not part of the same node-tree
-    as the chunks/jigs they contain); each Part has a toplevel node self.tree,
+    as the chunks/jigs they contain); each Part has a toplevel node self.topnode,
     and a reference to the shared (per-assy) clipboard to use, self.shelf [###k].
     """
     def __init__(self, assy, topnode):
         self.init_InvalMixin()
         self.assy = assy
         self.topnode = topnode
+            # some old code refers to topnode as tree or root, but that's deprecated
+            # since it doesn't work for setting the value (it causes bugs we won't detect)
+            ######@@@@@@ so change all uses of that...
         self.nodecount = 0 # doesn't yet include topnode
         self.add(topnode)
         # for now:
-        from assembly import assembly # the class
+        from assembly import assembly
         assert isinstance(assy, assembly)
         assert isinstance(topnode, Node)
         
@@ -149,8 +154,6 @@ class Part(InvalMixin):
     def add(self, node):
         if node.part == self:
             # this is normal, e.g. in ensure_one_part, so don't complain
-##            if platform.atom_debug:
-##                print "atom_debug: warning: node added to its own part (noop):", node, self
             return
         if node.part:
             if platform.atom_debug: #e this will be common, remove it as soon as you see it (unless i do the remove explicitly)
@@ -162,11 +165,10 @@ class Part(InvalMixin):
         node.part = self
         self.nodecount += 1
         if isinstance(node, molecule): #####@@@@@ #e better if we let the node add itself to our stats and lists, i think...
-            ## not needed: self.invalidate_attrs(['molecules','selmols','selatoms'])
-            self.invalidate_attrs(['molecules']) #e or we could append it... but I doubt that's worthwhile ###@@@
-            self.adjust_natoms( len(node.atoms)) ####@@@@ might be useless if this depends on .molecules
-            #####@@@@@ also adjust or invalidate bbox, center
-        # note that node is not added to any comprehensive list of nodes, in fact, we don't have one.
+            self.invalidate_attrs(['molecules'], skip = ['natoms']) # this also invals bbox, center
+                #e or we could append node to self.molecules... but I doubt that's worthwhile ###@@@
+            self.adjust_natoms( len(node.atoms)) 
+        # note that node is not added to any comprehensive list of nodes; in fact, we don't have one.
         # presumably this function is only called when node was just, or is about to be,
         # added to a nodetree in a place which puts it into this part's tree.
         return
@@ -185,31 +187,16 @@ class Part(InvalMixin):
             if (not self.__dict__.has_key('selatoms')) or self.selatoms:
                 for atm in node.atoms.itervalues():
                     atm.unpick() #e optimize this by inlining and keeping selatoms test outside of loop
-            self.invalidate_attrs(['molecules'])
-            self.adjust_natoms(- len(node.atoms)) ####@@@@ might be useless if this depends on .molecules
-            #####@@@@@ also adjust or invalidate bbox, center
-            ## second try at the above:
-##            self.invalidate_attrs(['molecules','selmols','selatoms'])
-            ## first try at the above:
-##            try:
-##                if node.picked and self.__dict__.has_key('selmols'): # not if attr is invalid (common?? ###k)
-##                    self.selmols.remove(node)
-##                    self.changed_attr('selmols')
-##            except ValueError:
-##                if platform.atom_debug:
-##                    print "part's mol was picked but not in selmols"
-##            try:
-##                if self.__dict__.has_key('molecules'): # not if attr is invalid (common?? ###k)
-##                    self.molecules.remove(node)
-##            except ValueError:
-##                if platform.atom_debug:
-##                    print "part's mol was picked but not in molecules"
+            self.invalidate_attrs(['molecules'], skip = ['natoms']) # this also invals bbox, center
+            self.adjust_natoms(- len(node.atoms))
         self.nodecount -= 1
         node.part = None
         if self.topnode == node:
             self.topnode = None #k can this happen when any nodes are left??? if so, is it bad?
             if platform.atom_debug:
-                print "atom_debug: fyi: topnode leaves part, %d nodes remain" % self.nodecount 
+                print "atom_debug: fyi: topnode leaves part, %d nodes remain" % self.nodecount
+            # it can happen when I drag a Group out of clipboard: "atom_debug: fyi: topnode leaves part, 2 nodes remain"
+            # and it doesn't seem to be bad (the other 2 nodes were pulled out soon).
         if self.nodecount <= 0:
             assert self.nodecount == 0
             assert not self.topnode
@@ -217,10 +204,14 @@ class Part(InvalMixin):
         return
 
     def destroy(self):
-        "forget everything, let all storage be reclaimed" # implem is a guess
+        "forget everything, let all storage be reclaimed; only valid if we have no nodes left" # implem is a guess
+        if platform.atom_debug:
+            print "atom_debug: fyi: destroying part", self
+        assert self.nodecount == 0, "can't destroy a Part which still has nodes" # esp. since it doesn't have a list of them!
+            # actually it could scan self.assy.root to find them... but for now, we'll enforce this anyway.
         ## self.invalidate_all_attrs() # not needed
         for attr in self.__dict__.keys():
-            delattr(self,attr) # is this safe, in arb order??
+            delattr(self,attr) # is this safe, in arb order of attrs??
         return
 
     # incremental update methods
@@ -251,16 +242,18 @@ class Part(InvalMixin):
     # == compatibility methods
     
     def _get_tree(self): #####@@@@@ find and fix all sets of .tree or .root or .data or .shelf
+        print_compact_stack("_get_tree is deprecated: ")
         return self.topnode
 
     def _get_root(self): #k needed?
+        print_compact_stack("_get_root is deprecated: ")
         return self.topnode
     
     # == properties that might be overridden by subclasses
     
     def immortal(self):
         """Should this Part be undeletable from the UI (by cut or delete operations)?
-        When true, delete will delete its members (leaving it empty but with its topnode (aka tree) still present),
+        When true, delete will delete its members (leaving it empty but with its topnode still present),
         and cut will cut its members and move them into a copy of its topnode, which is left still present and empty.
         [can be overridden in subclasses]
         """
@@ -292,25 +285,25 @@ class Part(InvalMixin):
 
     # == attributes which should be invalidated and recomputed as needed (both inval and recompute methods follow)
 
-    #bruce 050202 for Alpha: help fix things up after a DND move in/out of assy.tree. ###@@@ revise docstring for self being a Part
-    def update_mols(self):
-        """[Semi-private method]
-        Caller is telling us that it might have moved molecules
-        into or out of assy.tree (assy == self)
-        without properly updating assy.molecules list (which causes lots of bugs if not fixed),
-        or (less important but still matters) our bbox, center, or drawLevel.
-           Rather than not tolerating such callers (for Alpha),
-        just thank them for the info and take the time now to fix things up
-        by rescanning assy.tree and remaking assy.molecules (etc) from scratch.
-           See also sanitize_for_clipboard, related but sort of an inverse,
-        perhaps not needed as much if this is called enough.
-           Note: neither this method nor sanitize_for_clipboard (which do need to be merged,
-        see also changed_dad which needs to help them know how much needs doing and/or help do it)
-        yet does enough. E.g. see bug 371 about bonds between main model and clipboard items.
-        """
-        self.invalidate_attr('molecules') # note: this also invals bbox, center, drawLevel
+##    #bruce 050202 for Alpha: help fix things up after a DND move in/out of assy.tree. ###@@@ revise docstring for self being a Part
+##    def update_mols(self):
+##        """[Semi-private method]
+##        Caller is telling us that it might have moved molecules
+##        into or out of assy.tree (assy == self)
+##        without properly updating assy.molecules list (which causes lots of bugs if not fixed),
+##        or (less important but still matters) our bbox, center, or drawLevel.
+##           Rather than not tolerating such callers (for Alpha),
+##        just thank them for the info and take the time now to fix things up
+##        by rescanning assy.tree and remaking assy.molecules (etc) from scratch.
+##           See also sanitize_for_clipboard, related but sort of an inverse,
+##        perhaps not needed as much if this is called enough.
+##           Note: neither this method nor sanitize_for_clipboard (which do need to be merged,
+##        see also changed_dad which needs to help them know how much needs doing and/or help do it)
+##        yet does enough. E.g. see bug 371 about bonds between main model and clipboard items.
+##        """
+##        self.invalidate_attr('molecules') # note: this also invals bbox, center, drawLevel
 
-    _inputs_for_molecules = [] # only invalidated directly, by update_mols #####@@@@@ need to do it in any other places too?
+    _inputs_for_molecules = [] # only invalidated directly #####@@@@@ need to do it in any other places too?
     def _recompute_molecules(self):
         self.molecules = 333 # not a sequence - detect bug of touching or using this during this method
         seen = {} # values will be new list of mols
@@ -320,10 +313,10 @@ class Part(InvalMixin):
                 # check for duplicates (mol at two places in tree) using a dict, whose values accumulate our mols list
                 if seen.get(id(n)):
                     print "bug: some chunk occurs twice in assy.tree; semi-tolerated but not fixed"
-                    return # from local func only, not from update_mols!
+                    return # from func only
                 seen[id(n)] = n
             return # from func only
-        self.tree.apply2all( func)
+        self.topnode.apply2all( func)
         self.molecules = seen.values()
             # warning: not in the same order as they are in the tree!
             # even if it was, it might elsewhere be incrementally updated.
@@ -400,7 +393,7 @@ class Part(InvalMixin):
             if isinstance(nn, molecule):
                 alist.extend(nn.atoms_in_mmp_file_order())
             return # from func_alist only
-        self.tree.apply2all( func_alist)
+        self.topnode.apply2all( func_alist)
         self.alist = alist
         return
 
@@ -414,7 +407,7 @@ class Part(InvalMixin):
             if isinstance(nn, molecule) and nn.picked:
                 res.append(nn)
             return # from func_selmols only
-        self.tree.apply2all( func_selmols)
+        self.topnode.apply2all( func_selmols)
         self.selmols = res
         if self.selmols:
             if self.selwhat != SELWHAT_CHUNKS:
@@ -447,7 +440,7 @@ class Part(InvalMixin):
                     if atm.picked:
                         res[atm.key] = atm
             return # from func_selatoms only
-        self.tree.apply2all( func_selatoms)
+        self.topnode.apply2all( func_selatoms)
         self.selatoms = res
         return
         
@@ -462,28 +455,64 @@ class Part(InvalMixin):
 ##        won't change again during the same user-event that's running now;
 ##        some code might add mol when it has no atoms, then add atoms to it).
         """
-        self.changed() #bruce 041118
+        ## not needed since done in changed_members:
+        ## self.changed() #bruce 041118
 ##        self.bbox.merge(mol.bbox) # [see also computeBoundingBox -- bruce 050202 comment]
 ##        self.center = self.bbox.center()
 ##        self.molecules += [mol]
         self.ensure_toplevel_group() # need if, e.g., we use Build mode to add to a clipboard item
-        self.tree.addmember(mol)
+        self.topnode.addchild(mol)
             #bruce 050202 comment: if you don't want this location for the added mol,
             # just call mol.moveto when you're done, like fileIO does.   
-        self.invalidate_attrs(['natoms','molecules']) #####@@@@@ does this inval bbox and center too??
+        ## done in addchild->changed_dad->inherit_part->Part.add:
+        ## self.invalidate_attrs(['natoms','molecules']) # this also invals bbox and center, via molecules
 
-    def ensure_toplevel_group(self):
+    def ensure_toplevel_group(self): #bruce 050228, 050309
         "make sure this Part's toplevel node is a Group, by Grouping it if not."
-        assert self.tree
-        if not self.tree.is_group():
-            self.tree = Group("Group", self.assy, None, [self.tree])
-            self.assy.fix_parts()
+        assert self.topnode
+        if not self.topnode.is_group():
+            # to do this correctly, I think we have to know that we're a "clipboard item";
+            # this implem might work even if we permit Groups of clipboard items someday
+            old_top = self.topnode
+            self.topnode = Group("Group", self.assy, None)
+            self.add(self.topnode)
+            # now put the new Group into the node tree in place of old_top
+            old_top.addsibling(self.topnode)
+            self.topnode.addchild(old_top) # do this last, since it makes old_top forget its old location
+            if self.assy.current_selection_group == old_top: # probably true
+                self.assy.current_selection_group = self.topnode
+                # this suggests that current part ought to be more primitive than current s.g...
+                # no need to call assy.current_selection_group_changed, AFAIK
+            # now the Part situation should be ok, no need for assy.update_parts
         return
     
     # ==
     
     def draw(self, win): ###@@@ win arg, unused, should be renamed or removed
-        self.tree.draw(self.o, self.o.display)
+        try:
+            text = self.glpane_text()
+            if text:
+                ###e get to the right place on the screen; use white, block font, large, italic... #####@@@@@
+                self.drawtext( self.o, text ) # works, but shows up at origin of model space, of course
+        except:
+            print_compact_traceback("exception in drawing part title text: ")
+        self.topnode.draw(self.o, self.o.display)
+
+    def glpane_text(self):
+        return "" # default implem, subclasses might override this
+    
+    def drawtext(self, glpane, text):
+        # code from GLPane.drawarrow
+        glDisable(GL_LIGHTING)
+        glDisable(GL_DEPTH_TEST)
+        glPushMatrix()
+        font = QFont(QString("Helvetica"), 12, QFont.Normal)
+        glpane.qglColor(QColor(75, 75, 75))
+        glpane.renderText(0.0, 0.0, 0.0, QString(text), font)
+        glPopMatrix()
+        glEnable(GL_DEPTH_TEST)
+        glEnable(GL_LIGHTING)
+        return
     
     # == movie support code
     
@@ -860,7 +889,7 @@ class Part(InvalMixin):
     
     # deselect any selected molecules or groups
     def unpickparts(self):
-        self.tree.unpick()
+        self.topnode.unpick()
         # before assy/part split, this was root, i.e. assy.tree and assy.shelf
 
     # for debugging
@@ -868,64 +897,64 @@ class Part(InvalMixin):
         for a in self.selatoms.itervalues():
             a.prin()
             
-    #bruce 050131/050201 for Alpha (really for bug 278 and maybe related ones):
-    # sanitize_for_clipboard, for cut and copy and other things that add clipboard items
-    # ####@@@@ need to use in sethotspot too??
-
-    #####@@@@@ fate of sanitize_for_clipboard, for assy/part split: [see notes]
-    
-    def sanitize_for_clipboard(self, ob): 
-        """Prepare ob for addition to the clipboard as a new toplevel item;
-        should be called just before adding ob to shelf, OR for entire toplevel items already in shelf
-        (or both; should be ok, though slower, to call more than once per item).
-        NOT SURE IF OK to call when ob still has a dad in its old location.
-        (Nor if it ever is thus called, tho i doubt it.)
-        """
-        self.sanitize_for_clipboard_0( ob) # recursive version handles per-chunk, per-group issues
-        #e now do things for the shelf-item as a whole, if any, e.g. fix bug 371 about interspace bonds
-        #e 050202: someday, should we do a version of the jig-moving workaround_for_bug_296?
-        # that function itself is not reviewed for safety when called from here,
-        # but it might be ok, tho better to consolidate its messages into one
-        # (as in the "extension of that fix to the clipboard" it now comments about).
-        if 0 and platform.atom_debug: #bruce 050215 this is indeed None for mols copied by mol.copy
-            print "atom_debug: fyi: sanitize_for_clipboard sees selgroup of ob is %r" % ob.find_selection_group()
-            ###e if this is None, then I'll have an easy way to break bonds from this item to stuff in the main model (bug 371)
-            #e i.e. break_wormholes() or break_interspace_bonds()
-        return
-    
-    def sanitize_for_clipboard_0(self, ob): #bruce 050131 for Alpha (really for bug 278 and maybe related ones)
-        """[private method:]
-        The recursive part of sanitize_for_clipboard:
-        keep clipboard items (or chunks inside them) out of assy.molecules,
-        so they can't be selected from glpane
-        """
-        #e should we do ob.unpick_top() as well?
-        if ob.assy != self: #bruce 050202, and replaced ob.assy.molecules with self.molecules
-            ob.assy = self # for now! in beta this might be its selgroup.
-            if platform.atom_debug:
-                print "sanitize_for_clipboard_0: node had wrong assy! fixed it:", ob
-                print "btw self is",self
-        if isinstance(ob, molecule):
-            if self.selatoms:
-                # bruce 050201 for Alpha: worry about selected atoms in chunks in clipboard
-                # [no bugs yet reported on this, but maybe it could happen #k]
-                #e someday ought to print atom_debug warning if this matters, to find out...
-                try:
-                    for atm in ob.atoms.values():
-                        atm.unpick()
-                except:
-                    print_compact_traceback("sanitize_for_clipboard_0 ignoring error unpicking atoms: ")
-                    pass
-            try:
-                self.molecules.remove(ob)
-                # note: don't center the molecule here -- that's only appropriate
-                # for each toplevel cut object as a whole!
-            except:
-                pass
-        elif isinstance(ob, Group): # or any subclass! e.g. the Clipboard itself (deprecated to call this on that tho).
-            for m in ob.members:
-                self.sanitize_for_clipboard_0(m)
-        return
+##    #bruce 050131/050201 for Alpha (really for bug 278 and maybe related ones):
+##    # sanitize_for_clipboard, for cut and copy and other things that add clipboard items
+##    # ####@@@@ need to use in sethotspot too??
+##
+##    #####@@@@@ fate of sanitize_for_clipboard, for assy/part split: [see notes]
+##    
+##    def sanitize_for_clipboard(self, ob): 
+##        """Prepare ob for addition to the clipboard as a new toplevel item;
+##        should be called just before adding ob to shelf, OR for entire toplevel items already in shelf
+##        (or both; should be ok, though slower, to call more than once per item).
+##        NOT SURE IF OK to call when ob still has a dad in its old location.
+##        (Nor if it ever is thus called, tho i doubt it.)
+##        """
+##        self.sanitize_for_clipboard_0( ob) # recursive version handles per-chunk, per-group issues
+##        #e now do things for the shelf-item as a whole, if any, e.g. fix bug 371 about interspace bonds
+##        #e 050202: someday, should we do a version of the jig-moving workaround_for_bug_296?
+##        # that function itself is not reviewed for safety when called from here,
+##        # but it might be ok, tho better to consolidate its messages into one
+##        # (as in the "extension of that fix to the clipboard" it now comments about).
+##        if 0 and platform.atom_debug: #bruce 050215 this is indeed None for mols copied by mol.copy
+##            print "atom_debug: fyi: sanitize_for_clipboard sees selgroup of ob is %r" % ob.find_selection_group()
+##            ###e if this is None, then I'll have an easy way to break bonds from this item to stuff in the main model (bug 371)
+##            #e i.e. break_wormholes() or break_interspace_bonds()
+##        return
+##    
+##    def sanitize_for_clipboard_0(self, ob): #bruce 050131 for Alpha (really for bug 278 and maybe related ones)
+##        """[private method:]
+##        The recursive part of sanitize_for_clipboard:
+##        keep clipboard items (or chunks inside them) out of assy.molecules,
+##        so they can't be selected from glpane
+##        """
+##        #e should we do ob.unpick_top() as well?
+##        if ob.assy != self: #bruce 050202, and replaced ob.assy.molecules with self.molecules
+##            ob.assy = self # for now! in beta this might be its selgroup.
+##            if platform.atom_debug:
+##                print "sanitize_for_clipboard_0: node had wrong assy! fixed it:", ob
+##                print "btw self is",self
+##        if isinstance(ob, molecule):
+##            if self.selatoms:
+##                # bruce 050201 for Alpha: worry about selected atoms in chunks in clipboard
+##                # [no bugs yet reported on this, but maybe it could happen #k]
+##                #e someday ought to print atom_debug warning if this matters, to find out...
+##                try:
+##                    for atm in ob.atoms.values():
+##                        atm.unpick()
+##                except:
+##                    print_compact_traceback("sanitize_for_clipboard_0 ignoring error unpicking atoms: ")
+##                    pass
+##            try:
+##                self.molecules.remove(ob)
+##                # note: don't center the molecule here -- that's only appropriate
+##                # for each toplevel cut object as a whole!
+##            except:
+##                pass
+##        elif isinstance(ob, Group): # or any subclass! e.g. the Clipboard itself (deprecated to call this on that tho).
+##            for m in ob.members:
+##                self.sanitize_for_clipboard_0(m)
+##        return
 
     # == #####@@@@@ cut/copy/paste/kill will all be revised to handle bonds better (copy or break them as appropriate)
     # incl jig-atom connections too
@@ -946,7 +975,7 @@ class Part(InvalMixin):
                 # note: we will check selatoms again, below, to know whether we emitted this message
             new = Group(gensym("Copy"), self.assy, None)
                 # bruce 050201 comment: this group is usually, but not always, used only for its members list
-            if self.immortal() and self.tree.picked:
+            if self.immortal() and self.topnode.picked:
                 ###@@@ design note: this is an issue for the partgroup but not for clips... what's the story?
                 ### Answer: some parts can be deleted by being entirely cut (top node too) or killed, others can't.
                 ### This is not a properly of the node, so much as of the Part, I think.... not clear since 1-1 corr.
@@ -955,23 +984,24 @@ class Part(InvalMixin):
                 #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
                 # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
                 # (No such restriction will be required for assy.copy, even when it copies entire groups.)
-                self.tree.unpick_top()
+                self.topnode.unpick_top()
                 ## self.w.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
                 ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
                 self.w.history.message("Can't cut the entire Part; copying its toplevel Group, cutting its members.") #bruce 050201
                 # new code to handle this case [bruce 050201]
-                self.tree.apply2picked(lambda(x): x.moveto(new))
+                self.topnode.apply2picked(lambda(x): x.moveto(new))
                 use = new
-                use.name = self.tree.name # not copying any other properties of the Group (if it has any)
+                use.name = self.topnode.name # not copying any other properties of the Group (if it has any)
                 new = Group(gensym("Copy"), self.assy, None)
                 new.addmember(use)
             else:
-                self.tree.apply2picked(lambda(x): x.moveto(new))
+                self.topnode.apply2picked(lambda(x): x.moveto(new))
                 # bruce 050131 inference from recalled bug report:
                 # this must fail in some way that addmember handles, or tolerate jigs/groups but shouldn't;
                 # one difference is that for chunks it would leave them in assy.molecules whereas copy would not;
                 # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
                 # like bug 278! Because findpick (etc) uses assy.molecules. So I fixed this with sanitize_for_clipboard, below.
+                # [later, 050307: replaced that with update_parts.]
 
             # Now we know what nodes to cut (i.e. move to the clipboard) -- the members of new.
             # And they are no longer in their original location,
@@ -1010,7 +1040,6 @@ class Part(InvalMixin):
             end_event_handler(eh) # this should fix Part membership of moved nodes, break inter-Part bonds #####@@@@@ doit
             # ... but it doesn't, so instead, do this: ######@@@@@@ and review this situation and clean it up:
             self.assy.update_parts()
-            #####@@@@@ still need to break inter-part bonds...
             self.w.win_update() ###stub of how this relates to ending the handler
         return
 
@@ -1036,7 +1065,7 @@ class Part(InvalMixin):
             ## return
         new = Group(gensym("Copy"), self.assy, None)
             # bruce 050201 comment: this group is always (so far) used only for its members list
-        # x is each node in the tree that is picked. [bruce 050201 comment: it's ok if self.tree is picked.]
+        # x is each node in the tree that is picked. [bruce 050201 comment: it's ok if self.topnode is picked.]
         # [bruce 050131 comments (not changing it in spite of bugs):
         #  the x's might be chunks, jigs, groups... but maybe not all are supported for copy.
         #  In fact, Group.copy returns 0 and Jig.copy returns None, and addmember tolerates that
@@ -1044,7 +1073,7 @@ class Part(InvalMixin):
         #  About chunk.copy: it sets numol.assy but doesn't add it to assy,
         #  and it sets numol.dad but doesn't add it to dad's members -- so we do that immediately
         #  in addmember. So we end up with a members list of copied chunks from assy.tree.]
-        self.tree.apply2picked(lambda(x): new.addmember(x.copy(None))) #bruce 050215 changed mol.copy arg from new to None
+        self.topnode.apply2picked(lambda(x): new.addmember(x.copy(None))) #bruce 050215 changed mol.copy arg from new to None
 
         # unlike for cut, no self.changed() should be needed
         
@@ -1054,7 +1083,8 @@ class Part(InvalMixin):
                 # [bruce 050215 copying that members list, to fix bug 360 comment #6 (item 5),
                 # which I introduced in Alpha-2 by making addmember remove ob from its prior home,
                 # thus modifying new.members during this loop]
-                self.sanitize_for_clipboard(ob) # not needed on 050131 but might be needed soon, and harmless
+                ## no longer needed, 050309:
+                ## self.sanitize_for_clipboard(ob) # not needed on 050131 but might be needed soon, and harmless
                 self.shelf.addmember(ob) # add new member(s) to the clipboard
                 # if the new member is a molecule, move it to the center of its space
                 if isinstance(ob, molecule): ob.move(-ob.center)
@@ -1066,16 +1096,18 @@ class Part(InvalMixin):
             if not self.selatoms:
                 #bruce 050201-bug370: we don't need this if the message for selatoms already went out
                 self.w.history.message(redmsg("Nothing to Copy.")) #bruce 050201
-        self.assy.update_parts() # stub, 050308; overkill! should just apply to the new shelf items. ######@@@@@@ 
+        self.assy.update_parts() # stub, 050308; overkill! should just apply to the new shelf items. ####@@@@ 
         self.w.win_update()
         return
 
-    def break_interpart_bonds(self): ######@@@@@@ refile, review, implem, implem for jigs
+    def break_interpart_bonds(self): ######@@@@@@ refile, review, implem for jigs
         """Break all bonds between nodes in this part and nodes in other parts;
         jig-atom connections count as bonds [but might not be handled correctly as of 050308].
         #e In future we might optimize this and only do it for specific node-trees.
         """
-        self.topnode.apply2all( lambda node: node.break_interpart_bonds() ) ######@@@@@@ IMPLEM
+        # Note: this implem assumes that the nodes in self are exactly the node-tree under self.topnode.
+        # As of 050309 this is always true (after update_parts runs), but might not be required except here.
+        self.topnode.apply2all( lambda node: node.break_interpart_bonds() )
         return
     
     def paste(self, node):
@@ -1094,14 +1126,14 @@ class Part(InvalMixin):
             self.selatoms = {} # should be redundant
         
         ## bruce 050201 removed the condition "self.selwhat == 2 or self.selmols"
-        # (previously used to decide whether to kill all picked nodes in self.tree)
+        # (previously used to decide whether to kill all picked nodes in self.topnode)
         # since selected jigs no longer force selwhat to be 2.
         # (Maybe they never did, but my guess is they did; anyway I think they shouldn't.)
         # self.changed() is not needed since removing Group members should do it (I think),
         # and would be wrong here if nothing was selected.
         if self.immortal():
-            self.tree.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
-        self.tree.apply2picked(lambda o: o.kill())
+            self.topnode.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
+        self.topnode.apply2picked(lambda o: o.kill())
 ## no longer needed after assy/Part split:
 ##        # Also kill anything picked in the clipboard
 ##        # [revised by bruce 050131 for Alpha, see cvs rev 1.117 for historical comments]
@@ -1130,19 +1162,15 @@ class Part(InvalMixin):
     # bruce 050201 for Alpha:
     #    Like I did to fix bug 370 for Delete (and cut and copy),
     # make Hide and Unhide work on jigs even when in selatoms mode.
-    #    Also make them work in clipboard (by changing
-    # self.tree to self.root below) -- no reason
-    # not to, and it's confusing when cmenu offers these choices but they do nothing.
-    # It's ok for them to operate on entire Part since they only affect leaf nodes.
     
     def Hide(self):
         "Hide all selected chunks and jigs"
-        self.root.apply2picked(lambda x: x.hide())
+        self.topnode.apply2picked(lambda x: x.hide())
         self.w.win_update()
 
     def Unhide(self):
         "Unhide all selected chunks and jigs"
-        self.root.apply2picked(lambda x: x.unhide())
+        self.topnode.apply2picked(lambda x: x.unhide())
         self.w.win_update()
 
     #bond atoms (cheap hack) #e is still used? should it be more accessible?
@@ -1239,6 +1267,8 @@ class Part(InvalMixin):
             newPositions = self.readxyz()
             if newPositions:
                 self.moveAtoms(newPositions)
+                # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
+                self.changed() # Mark - bugfix 386
             
         else: # Play multi-frame DPB movie file.
             self.m.currentFrame = 0
@@ -1554,9 +1584,16 @@ class Part(InvalMixin):
 
 class MainPart(Part):
     def immortal(self): return True
+    def location_name(self):
+        return "main part"
     pass
 
 class ClipboardItemPart(Part):
+    def glpane_text(self):
+        #e abbreviate long names...
+        return "%s (%s)" % (self.topnode.name, self.location_name())
+    def location_name(self):
+        return "clipboard item %d" % ( self.assy.shelf.members.index(self.topnode) + 1, )
     pass
 
 # ==
