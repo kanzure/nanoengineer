@@ -613,7 +613,7 @@ class basicMode(anyMode):
     def elemSet(self,elem): # bruce 040923: fyi: overridden in selectMode
         self.w.setElement(elem)
 
-    def keyPress(self,key):
+    def keyPress(self,key): # bruce 040923: fyi: overridden in depositMode
         if _debug_keys:
             print "fyi: basicMode.keyPress(%r)" % (key,)
         if sys.platform == 'darwin':
@@ -717,7 +717,8 @@ class modeMixin:
         try:
             refused = mode._enterMode()
         except:
-            print "bug: exception in _enterMode for mode %r; using default mode" % (mode.modename,)
+            msg = "bug: exception in _enterMode for mode %r; using default mode" % (mode.modename,)
+            print_compact_traceback("%s: " % msg)
             refused = 1
             # let the mode get ready for use; it can assume self.mode will be set to it, but not that it already has been.
             # It should emit a message and return True if it wants to refuse becoming the new mode.
@@ -770,7 +771,6 @@ class modeMixin:
         
         The modename argument should be the modename as a string, e.g. 'SELECT', 'DEPOSIT', 'COOKIE'.
         """
-        from debug import print_compact_traceback
         # don't try to optimize for already being in the same mode -- let individual modes do that if (and how) they wish
         try:
             self.mode.userSetMode(modename) # let current mode decide whether/how to do this
