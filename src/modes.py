@@ -720,7 +720,13 @@ class basicMode(anyMode):
            Specific modes should call this within their own Draw method,
            unless they have a good reason not to.
         """
-        if self.o.cSysToggleButton: drawer.drawaxes(5, -self.o.pov)
+        
+        # Draw the Csys "coloraxes" and the POV "blue" axes
+        # Mark 050131
+        if self.o.cSysToggleButton: 
+            drawer.drawaxes(2.5, (0.0,0.0,0.0), coloraxes=True)
+            drawer.drawaxes(5, -self.o.pov)
+            
         # bruce 040929/041103 debug code -- for developers who enable this
         # feature, check for bugs in atom.picked and mol.picked for everything
         # in the assembly; print and fix violations. (This might be slow, which
