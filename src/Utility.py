@@ -39,7 +39,7 @@ class Node:
         self.hidden = False
         self.icon = None
 
-    def buildNode(self, obj, parent, icon, dnd=True, rename=True):
+    def buildNode(self, obj, parent, icon, dnd=True, rename=True): ###@@@ bad here, move to mtree.py... with its calls??
         """ build a display node in the tree widget
         corresponding to obj (and return it)
         """
@@ -473,28 +473,6 @@ class Datum(Node):
         return new
 
     pass # end of class Datum
-
-
-### [InsertHere removed by Bruce since it is not used:]
-##class InsertHere(Node):
-##    """ Current insertion point node """
-##
-##    def __init__(self, assy, name, pos = 0, end = True):
-##        Node.__init__(self, assy, None, name)
-##        self.pos = pos
-##        self.end = end
-##        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-##        self.inserthereIcon = QPixmap(filePath + "/../images/inserthere.png")
-##
-##    def buildNode(self, obj, parent, icon, dnd=True, rename=False):
-##        """ build an Insert Here node in the tree widget
-##        to indicate the insertion point in the model tree
-##        """
-##        node = Node.buildNode(self, obj, parent, icon, dnd, rename)
-##        return node
-##               
-##    def seticon(self):
-##        self.icon = self.inserthereIcon
 
 # end
 
