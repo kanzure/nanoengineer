@@ -507,11 +507,15 @@ class MWsemantics(MainWindow):
                     
         elif ext == ".mmp" : # Write MMP file
             try:
-                tmpname = dir + fil + "-tmp" + ext
+                tmpname = os.path.join(dir, '~' + fil + '.m~')
                 writemmp(self.assy, tmpname)
             except:
                 print "MWsemantics.py: fileSaveAs(): error writing file" + safile
                 self.history.message(redmsg( "Problem saving file: " + safile ))
+                
+                # If you want to see what was wrong with the MMP file, you
+                # can comment this out so you can see what's in
+                # the temp MMP file.  Mark 050128.
                 if os.path.exists(tmpname):
                     os.remove (tmpname) # Delete tmp MMP file
             else:
@@ -568,7 +572,6 @@ class MWsemantics(MainWindow):
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
-#            print "ret =",ret
             if ret==0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
             elif ret==1:
                 self.history.message("Changes discarded.")
@@ -691,13 +694,25 @@ class MWsemantics(MainWindow):
         self.assy.changed() # Csys record changed in assy.  Mark [041215]
         
     def zoomWindow(self):
-        """Rubber band window zoom.
+        """Zoom Tool, allowing the user to specify a rectangular area 
+        by holding down the left button and dragging the mouse to zoom 
+        into a specific area of the model.
         """
         self.glpane.prevMode= self.glpane.mode.modename
         self.glpane.prevModeColor = self.glpane.mode.backgroundColor
 
         self.glpane.setMode('ZOOM')
 
+        
+    def panWindow(self):
+        """Pan Tool.
+        """
+        self.history.message("Pan Tool not implemented yet.")
+#        self.glpane.prevMode= self.glpane.mode.modename
+#        self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+
+#        self.glpane.setMode('PAN')
+        
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
         self.glpane.ortho = 1
