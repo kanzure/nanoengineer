@@ -14,6 +14,7 @@ from RotaryMotorProp import *
 from LinearMotorProp import *
 from GroundProp import *
 from StatProp import *
+from ThermoProp import *
 
 Gno = 0
 def gensym(string):
@@ -457,6 +458,7 @@ class Ground(Jig):
     pass # end of class Ground
 
 
+
 class Stat(Jig):
     '''a Stat just has a list of atoms that are set to a specific temperature'''
     
@@ -467,8 +469,10 @@ class Stat(Jig):
     # create a blank Stat with the given list of atoms, set to 300K
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
-        self.color = self.normcolor = (0.0, 0.0, 1.0) # set default color of new stat to blue
-        self.pickcolor = (1.0, 0.0, 0.0) # stat is red when picked
+        # set default color of new stat to blue
+        self.color = self.normcolor = (0.0, 0.0, 1.0) 
+        # stat is red when picked
+        self.pickcolor = (1.0, 0.0, 0.0) 
         self.temp = 300
         self.cntl = StatProp(self, assy.o)
     
@@ -533,3 +537,83 @@ class Stat(Jig):
         return s + " ".join(map(str,nums)) + "\n"
 
     pass # end of class Stat
+    
+class Thermo(Jig):
+    '''a thermometer just has a list of atoms whose temperature 
+    is measured during a simulation.
+    '''
+    
+    sym = "Thermo"
+    mticon = []
+    icon_names = ["thermo.png", "thermo-hide.png"]
+
+    # create a blank thermometer with the given list of atoms
+    def __init__(self, assy, list):
+        Jig.__init__(self, assy, list)
+        # set default color of new thermo to dark red
+        self.color = self.normcolor = (0.6, 0.0, 0.2) 
+        # thermo is red when picked
+        self.pickcolor = (1.0, 0.0, 0.0) 
+        self.cntl = ThermoProp(self, assy.o)
+    
+    def edit(self):
+        self.cntl.setup()
+        self.cntl.exec_loop()
+
+    # it's drawn as a wire cube around each atom (default color = purple)
+    def draw(self, win, dispdef):
+        if self.hidden: return
+        for a in self.atoms:
+            disp, rad = a.howdraw(dispdef)
+            drawwirecube(self.color, a.posn(), rad)
+            
+    # Write "thermo" record to POV-Ray file in the format:
+    # thermo(<box-center>,box-radius,<r, g, b>)
+    def writepov(self, file, dispdef):
+        if self.hidden: return
+        if self.picked: c = self.normcolor
+        else: c = self.color
+        for a in self.atoms:
+            disp, rad = a.howdraw(dispdef)
+            srec = "thermo(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
+            file.write(srec)
+
+    def move(self, offset):
+        pass
+
+    def getinfo(self):
+        return "[Object: Thermometer] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "]"
+
+    def getstatistics(self, stats):
+        stats.nstats += len(self.atoms)
+
+    def pick(self):
+        """select the thermometer
+        """
+        self.picked = True
+        self.assy.w.history.message(self.getinfo())
+        self.normcolor = self.color
+        self.color = self.pickcolor
+        
+    def unpick(self):
+        """unselect the thermometer
+        """
+        if self.picked:
+            self.picked = False
+            self.color = self.normcolor
+               
+    # Returns the MMP record for the current Thermo as:
+    # stat (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+    def __repr__(self, ndix=None):
+        if self.picked: c = self.normcolor
+        else: c = self.color
+        color=map(int,A(c)*255)
+        s = "thermo (%s) (%d, %d, %d) " %\
+           (self.name, color[0], color[1], color[2] )
+        if ndix:
+            nums = map((lambda a: ndix[a.key]), self.atoms)
+        else:
+            nums = map((lambda a: a.key), self.atoms)
+        return s + " ".join(map(str,nums)) + "\n"
+
+    pass # end of class Thermo
