@@ -842,7 +842,6 @@ class basicMode(anyMode):
     #  its neighbor atom, even though I fixed some such bugs, and other bugs.
     #  Also, I'm skeptical this belongs in basicMode; probably it will need
     #  rewriting as soon as some specific mode wants to do it differently.)
-    ###e needs enough testing to see each status message at least once!
     def modifyDehydrogenate(self):
         self.status_msg("Dehydrogenating...")
         from platform import fix_plurals
