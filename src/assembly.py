@@ -1245,16 +1245,16 @@ class assembly:
                     self.stack = self.stack[:pop]
                 self.p[atom] = min(self.p[atom], self.p[a2])
 
-    def modifyDeleteBond(self):
+    def modifyDeleteBonds(self):
         """Delete all bonds between selected and unselected atoms or chunks
         """
         
         if not self.selatoms and not self.selmols: # optimization, and different status msg
-            msg = redmsg("Delete Bond: Nothing selected")
+            msg = redmsg("Delete Bonds: Nothing selected")
             self.w.history.message(msg)
             return
         
-        self.w.history.message(greenmsg("Delete Bond:"))
+        self.w.history.message(greenmsg("Delete Bonds:"))
         
         cutbonds = 0
         
@@ -1312,7 +1312,7 @@ class assembly:
         # new mol? If not, then if N becomes empty, should we rename N-frag to N?
         
         if not self.selatoms: # optimization, and different status msg
-            msg = "Split: no atoms selected"
+            msg = "Separate: no atoms selected"
             self.w.history.message(msg)
             return
         numolist=[]
@@ -1327,7 +1327,7 @@ class assembly:
                 numolist+=[numol]
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
-        msg = fix_plurals("Split created %d new chunk(s)" % len(numolist))
+        msg = fix_plurals("Separate created %d new chunk(s)" % len(numolist))
         self.w.history.message(msg)
         self.w.win_update() #e do this in callers instead?
 
