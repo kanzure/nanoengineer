@@ -24,6 +24,7 @@ class StatProp(StatPropDialog):
         self.stat.originalColor = self.stat.normcolor
         
         self.nameLineEdit.setText(stat.name)
+        self.molnameLineEdit.setText(stat.mol.name)
         self.tempSpinBox.setValue(int(stat.temp))
 
         self.colorPixmapLabel.setPaletteBackgroundColor(

@@ -24,6 +24,7 @@ class ThermoProp(ThermoPropDialog):
         self.thermo.originalColor = self.thermo.normcolor
         
         self.nameLineEdit.setText(thermo.name)
+        self.molnameLineEdit.setText(thermo.mol.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
             QColor(int(thermo.normcolor[0]*255), 
