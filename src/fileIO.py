@@ -116,7 +116,7 @@ def _readmmp(assy, filnam, isInsert = False):
     into data structure """
     #bruce 041011: added 'U' to file mode, for universal newline support.
     l=open(filnam,"rU").readlines() 
-    assy.filename=filnam
+    if not isInsert: assy.filename=filnam
     mol = None
     ndix={}
     assy.alist = []

@@ -216,10 +216,10 @@ class MWsemantics(MainWindow):
             if not os.path.exists(fn): return
 
             if fn[-3:] == "mmp":
-                #print " MWsemantics.py: fileInsert(): inserting MMP file: ", fn
+                print " MWsemantics.py: fileInsert(): inserting MMP file: ", fn
                 insertmmp(self.assy, fn)
             if fn[-3:] == "pdb":
-                #print " MWsemantics.py: fileInsert(): inserting PDB file: ", fn
+                print " MWsemantics.py: fileInsert(): inserting PDB file: ", fn
                 readpdb(self.assy, fn)
 
             self.assy.modified = 1 # The file and the part are not the same
@@ -268,21 +268,12 @@ class MWsemantics(MainWindow):
 
             self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
 
-            #self.glpane.scale=self.assy.bbox.scale()
-            #self.glpane.paintGL()
             self.setViewFitToWindow()
             self.mt.update()
 
-
     def fileSave(self):
         if self.assy:
-            if self.assy.filename:
-                fn = str(self.assy.filename)
-                dir, fil, ext = fileparse(fn)
-                writemmp(self.assy, dir + fil + ".mmp")
-                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                self.assy.modified = 0 # The file and the part are now the same.
-                self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
+            if self.assy.filename: self.saveFile(self.assy.filename)
             else: self.fileSaveAs()
 
     def fileSaveAs(self):
@@ -292,12 +283,15 @@ class MWsemantics(MainWindow):
                 sdir = self.assy.filename
             else: 
                 dir, fil = "./", self.assy.name
+                ext = ".mmp"
                 sdir = globalParms['WorkingDirectory']
         else:
             self.msgbarLabel.setText( "Save Ignored: Part is currently empty." )
             return
 
-        sfilter = QString("")   
+        if ext == ".pdb": sfilter = QString("Protein Data Bank (*.pdb)")
+        else: sfilter = QString("Molecular machine parts (*.mmp)")
+        
         fn = QFileDialog.getSaveFileName(sdir,
                     "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov);;JPEG (*.jpg)",
                     self, "IDONTKNOWWHATTHISIS",
@@ -306,8 +300,8 @@ class MWsemantics(MainWindow):
         
         if fn:
             fn = str(fn)
-            dir, fil, ext = fileparse(fn)
-            ext =str(sfilter[-5:-1]) # Get the file extension from the sfilter.
+            dir, fil, ext2 = fileparse(fn)
+            ext =str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
             safile = dir + fil + ext # full path of "Save As" filename
             
             if self.assy.filename != safile: # If the current part name and "Save As" filename are not the same...
@@ -324,15 +318,27 @@ class MWsemantics(MainWindow):
                     if ret==1: # The user cancelled
                         self.msgbarLabel.setText( "Cancelled.  Part not saved." )
                         return # Cancel clicked or Alt+C pressed or Escape pressed
+            
+            self.saveFile(safile)
+
+    def saveFile(self, safile):
+        
+            dir, fil, ext = fileparse(safile)
+#            print "saveFile: ext = [",ext,"]"
 
             if ext == ".pdb": # Write PDB file.
                 try:
                     writepdb(self.assy, safile)
                 except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file" + safile
+                    print "MWsemantics.py: saveFile(): error writing file" + safile
                     self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "File saved: " + safile )
+                    self.assy.filename = safile
+                    self.assy.name = fil
+                    self.assy.modified = 0 # The file and the part are now the same.
+                    self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+                    self.msgbarLabel.setText( "PDB file saved: " + self.assy.filename )
+                    self.mt.update()
             
             elif ext == ".pov": # Write POV-Ray file
                 try:
@@ -341,7 +347,7 @@ class MWsemantics(MainWindow):
                     print "MWsemantics.py: fileSaveAs(): error writing file " + safile
                     self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "File saved: " + safile )
+                    self.msgbarLabel.setText( "POV-Ray file saved: " + safile )
             
             elif ext == ".jpg": # Write JPEG file
                 try:
@@ -350,27 +356,24 @@ class MWsemantics(MainWindow):
                     print "MWsemantics.py: fileSaveAs(): error writing file" + safile
                     self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "File saved: " + safile )
+                    self.msgbarLabel.setText( "JPEG file saved: " + safile )
 
             elif ext == ".mmp" : # Write MMP file
-                self.assy.filename = safile
-                self.assy.name = fil
                 try:
                     writemmp(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file" + safile
                     self.msgbarLabel.setText( "Problem saving file: " + safile )
                 else:
+                    self.assy.filename = safile
+                    self.assy.name = fil
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
                     self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
-                    self.assy.modified = 0 # The file and the part are now the same.
-                    self.assy.name = fil
                     self.mt.update()
             
             else: # This should never happen.
                 self.msgbarLabel.setText( "MWSemantics.py: fileSaveAs() - File Not Saved.")
-
 
     def closeEvent(self,ce):
         
@@ -384,10 +387,6 @@ class MWsemantics(MainWindow):
                 "&Save", "&Discard", "Cancel",
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
-        
-#        QMessageBox.information(self,'Qt Application Example',
-#                    'The document has been changed since the last save.',
-#                    'Save Now','Cancel','Leave Anyway',0,1)
 
         if rc == 0:
             self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
@@ -396,7 +395,6 @@ class MWsemantics(MainWindow):
             ce.accept()
         else:
             ce.ignore()
-
 
     def fileExit(self):
         if self.assy.modified:
