@@ -442,7 +442,7 @@ class Part:
     # they need further review after Alpha, and probably could use some merging. ###@@@
     # See also assy.kill (Delete operation).
     
-    def cut(self):
+    def cut(self): #####@@@@@ use MovingBondedNodes here (if i can...)
         self.w.history.message(greenmsg("Cut:"))
         if self.selatoms:
             #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
@@ -1048,6 +1048,29 @@ class MainPart(Part):
     pass
 
 class ClipboardItemPart(Part):
+    pass
+
+# ==
+
+from Utility import MovingNodes
+
+class MovingBondedNodes(MovingNodes):
+    """Guiding & History Object for moving a set of "bonded nodes", perhaps between parts.
+    """ #e does this also assume we have the selection rules of "within one part"? Does that even matter to this class?
+    # it matters to the callers, esp in whether they are in assy or part objects.
+    def begin(self, nodes):
+        ###e extend the nodes to include their desirable baggage (jigs, groups),
+        # at least in cases of inter-part moves or spatial moves (different issues? maybe not)
+        super.begin(self, nodes)
+        self.externs = [] #e extern bonds from that set of nodes as a whole --
+            # not needed yet unless we want to show it or use it for baggage
+    def end(self):
+        super.end(self) # now or later?
+        #e maintain node -> part mapping; figure out which nodes moved between parts; maintain parts' nodelists etc;
+        #e break interspace bonds - for each extern bond (from the moved set), check it? can we assume they end up in same part???
+        # no, in general we can't, so instead, just look at all externs from each node in a new part, to see which ones to break.
+        # BTW, also record these breakages in this history-object,
+        # since it caused them and explained them and they'll become part of its single undo-group.
     pass
 
 # end
