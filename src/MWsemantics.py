@@ -252,6 +252,8 @@ class MWsemantics(MainWindow):
                     self,
                     "SaveDialog",
                     "Save As")
+        
+#        fn = str(fn) + ".mmp" # TEMPORARY FIX - Mark
             
         print "QFileDialog: filename = ", fn
             
@@ -259,16 +261,22 @@ class MWsemantics(MainWindow):
             fn = str(fn)
             dir, fil, ext = fileparse(fn)
             ext = str(ext)
-            if fn[-3:] == "mmp":
+            if not ext: ext = ".mmp"
+            
+#            print "QFileDialog: filename = ", fn
+#            print "QFileDialog: ext = ", ext
+            
+            if ext == ".mmp":
                 self.assy.name = fil
-                self.assy.filename = fn
-                writemmp(self.assy, fn) # write the MMP file
+                self.assy.filename = fn + ".mmp"
+                writemmp(self.assy, self.assy.filename) # write the MMP file
                 self.assy.modified = 0 # The file and the part are now the same.
                 self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
-                print "MMP saved: filename = ", self.assy.filename
-            if fn[-3:] == "pdb":
+                print "MMP saved: ", self.assy.filename
+                self.msgbarLabel.setText( "MMP saved: " + self.assy.filename )
+            if ext == ".pdb":
                 writepdb(self.assy, dir + fil + ".pdb")
-            if fn[-3:] == "pov":
+            if ext == ".pov":
                 writepov(self.assy, dir + fil + ".pov")
 
     def fileImage(self):
