@@ -510,9 +510,7 @@ class atom:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
             self.molecule.changeapp(1)
-            # Print information about the selected atom in the msgbar
-            # [mark 2004-10-14] [bruce 041104: needs revision, but ok for now]
-            self.molecule.assy.w.statusBar.message(self.getinfo())
+            # bruce 041227 moved message from here to one caller, pick_at_event
                 
     def unpick(self):
         """make the atom unselected
@@ -526,7 +524,6 @@ class atom:
             self.picked = 0
             del self.molecule.assy.selatoms[self.key]
             self.molecule.changeapp(1)
-            #self.molecule.assy.w.statusBar.message(" ")
 
     def copy_for_mol_copy(self, numol):
         # bruce 041113 changed semantics, and renamed from copy()

@@ -194,7 +194,6 @@ class RotaryMotor(Jig):
         """
         if self.picked:
             self.picked = False
-            self.assy.w.statusBar.message(" ")
             self.color = self.normcolor
                
     # Rotary Motor is drawn as a cylinder along the axis,
@@ -336,7 +335,6 @@ class LinearMotor(Jig):
         """
         if self.picked:
             self.picked = False
-            self.assy.w.statusBar.message(" ")
             self.color = self.normcolor
                     
     # drawn as a gray box along the axis,
@@ -451,7 +449,6 @@ class Ground(Jig):
         """
         if self.picked:
             self.picked = False
-            self.assy.w.statusBar.message(" ")
             self.color = self.normcolor
                                    
     # Returns the MMP record for the current Ground as:
@@ -532,7 +529,6 @@ class Stat(Jig):
         """
         if self.picked:
             self.picked = False
-            self.assy.w.statusBar.message(" ")
             self.color = self.normcolor
                
     # Returns the MMP record for the current Stat as:

@@ -1091,7 +1091,8 @@ class molecule(Node, InvalMixin):
             einfo += eleStr
             
         if nsinglets: # Add singlet info to end of info string
-            eleStr = "[Singlets: " + str(nsinglets) + "]"
+            #bruce 041227 changed term "Singlets" to "Open bonds"
+            eleStr = "[Open bonds: " + str(nsinglets) + "]"
             einfo += eleStr
          
         natoms -= nsinglets   # The real number of atoms in this chunk
@@ -1119,9 +1120,7 @@ class molecule(Node, InvalMixin):
             # since self.draw uses self.picked outside of its display list,
             # so I'm removing that! This might speed up some things.
             ## self.havelist = 0
-            
-            # print molecule info on the msgbar. - Mark [2004-10-14]
-            self.assy.w.statusBar.message(self.getinfo())
+            # bruce 041227 moved message from here to one caller, pick_at_event
 
     def unpick(self):
         """unselect the molecule.
@@ -1132,8 +1131,6 @@ class molecule(Node, InvalMixin):
             # bruce 041207 thinks self.havelist = 0 is no longer needed here
             # (see comment in self.pick).
             ## self.havelist = 0
-            
-            # self.assy.w.statusBar.message(" ")
 
     def kill(self):
         """(Public method)

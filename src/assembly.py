@@ -4,8 +4,6 @@
 assembly.py -- provides class assembly, a set of molecules
 (plus selection state) to be shown in one glpane.
 
-[No longer owned by bruce, as of 041129.]
-
 $Id$
 """
 from Numeric import *
@@ -424,16 +422,24 @@ class assembly:
         is under the mouse at event get selected,
         in addition to whatever already was selected.
         You are not allowed to select a singlet.
+        Print a message about what you just selected (if it was an atom).
         """
+        # [bruce 041227 moved the getinfo status messages here, from the atom
+        # and molecule pick methods, since doing them there was too verbose
+        # when many items were selected at the same time. Original message
+        # code was by [mark 2004-10-14].]
         atm = self.findAtomUnderMouse(event)
         if atm:
             if self.selwhat:
-                if not self.selmols: self.selmols = []
+                if not self.selmols:
+                    self.selmols = []
                     # bruce 041214 added that, since pickpart used to do it and
                     # calls of that now come here; in theory it's never needed.
                 atm.molecule.pick()
+                self.w.statusBar.message(atm.molecule.getinfo())
             else:
                 atm.pick()
+                self.w.statusBar.message(atm.getinfo())
         return
     
     def onlypick_at_event(self, event): #renamed from onlypick; modified
