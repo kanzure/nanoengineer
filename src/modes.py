@@ -967,6 +967,7 @@ class basicMode(anyMode):
     
     def keyPress(self,key): # depositMode replaces this, other modes extend it
         if key == Qt.Key_Delete:
+            print "mode.keyPress: calling killDo()"
             self.w.killDo()
         return
     
@@ -1024,7 +1025,8 @@ class basicMode(anyMode):
     #  Bruce warns: I'm skeptical this belongs in basicMode; probably it will need
     #  rewriting as soon as some specific mode wants to do it differently.)
     def modifyDehydrogenate(self):
-        self.w.history.message("Dehydrogenating...")
+        # Moved to MWsemantics.  Mark 050116
+#        self.w.history.message("Dehydrogenating...")
         from platform import fix_plurals
         fixmols = {} # helps count modified mols for statusbar
         if self.o.assy.selmols:
@@ -1040,7 +1042,7 @@ class basicMode(anyMode):
                           % (counta, countm)
                 if len(self.o.assy.selmols) > countm:
                     didwhat += \
-                        " (%d selected chunks(s) had no hydrogens)" \
+                        " (%d selected chunk(s) had no hydrogens)" \
                         % (len(self.o.assy.selmols) - countm)
                 didwhat = fix_plurals(didwhat)
             else:
