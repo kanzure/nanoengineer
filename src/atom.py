@@ -5,6 +5,15 @@
 
 142C41+
 
+atom.py is the startup script for nanoENGINEER-1.
+OS-dependent code runs before this and somehow starts the
+right python interpreter and has it run this script
+(possibly with arguments, that might not be implemented yet),
+which imports and starts everything else.
+As of 041217 everything runs in that one process,
+except for occasional temporary subprocesses it might start.
+
+$Id$
 """
 
 __author__ = "Josh"
@@ -13,11 +22,25 @@ import sys, os
 
 # user-specific debug code to be run before any other imports [bruce 040903]
 if __name__=='__main__':
+    # gpl_only check at startup [bruce 041217]
+    try:
+        import gpl_only as _gpl_only
+            # if this module is there, this lets it verify it should be there,
+            # and if not, complain (to developers) whenever the program starts
+        print "(running a GPL distribution)" #e retain or zap this?
+    except ImportError:
+        print "(running a non-GPL distribution)" #e retain or zap this?
+        pass # this is normal for non-GPL distributions
     try:
         rc = "~/.atom-debug-rc"
         rc = os.path.expanduser(rc)
         if os.path.exists(rc):
-            execfile(rc)
+            ## execfile(rc) -- not allowed!
+            import debug as _debug
+            _debug.legally_execfile_in_globals(rc, globals(), error_exception = False)
+                # might fail in non-GPL versions; prints error message but
+                # does not raise an exception.
+                # (doing it like this is required by our licenses for Qt/PyQt)
     except:
         print """exception in execfile(%r); traceback printed to stderr or console; exiting""" % (rc,)
         raise

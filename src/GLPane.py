@@ -41,7 +41,6 @@ import struct
 from povheader import povheader
 
 from fileIO import *
-from debug import debug_run_command
 
 
 paneno = 0
@@ -900,16 +899,29 @@ class GLPane(QGLWidget, modeMixin):
         return menu
 
     def debug_menu_items(self):
-        return [
+        import debug
+        res = [
             ('print self', self._debug_printself),
             # None, # separator
-            ('run py code', self._debug_runpycode),
-            ('enable ATOM_DEBUG', self._debug_enable_atom_debug ), #bruce 041103
-         ]
+        ]
+        if debug.exec_allowed():
+            #bruce 041217 made this item conditional on whether it will work
+            res.extend( [
+                ('run py code', self._debug_runpycode),
+            ] )
+        res.extend( [
+            ('enable ATOM_DEBUG', self._debug_enable_atom_debug ),
+            ('disable ATOM_DEBUG', self._debug_disable_atom_debug ),
+        ] )
+        return res
 
-    def _debug_enable_atom_debug(self): #bruce 041103
+    def _debug_enable_atom_debug(self):
         import platform
         platform.atom_debug = 1
+    
+    def _debug_disable_atom_debug(self):
+        import platform
+        platform.atom_debug = 0
     
     def debug_event(self, event, funcname, permit_debug_menu_popup = 0):
         

@@ -21,6 +21,52 @@ $Id$
 
 import sys, os
 
+# the following are needed to comply with our Qt/PyQt license agreements.
+
+def legally_execfile_in_globals(filename, globals, error_exception = True):
+    """if/as permitted by our Qt/PyQt license agreements,
+    execute the python commands in the given file, in this process.
+    """
+    try:
+        import gpl_only
+    except ImportError:
+        msg = "execfile(%r): not allowed in this non-GPL version" % (filename,)
+        print msg #e should be in a dialog too, maybe depending on an optional arg
+        if error_exception:
+            raise ValueError, msg
+        else:
+            print "ignoring this error, doing nothing (as if the file was empty)"
+    else:
+        gpl_only._execfile_in_globals(filename, globals) # this indirection might not be needed...
+    return
+
+def legally_exec_command_in_globals( command, globals, error_exception = True ):
+    """if/as permitted by our Qt/PyQt license agreements,
+    execute the given python command (using exec) in the given globals,
+    in this process.
+    """
+    try:
+        import gpl_only
+    except ImportError:
+        msg = "exec is not allowed in this non-GPL version"
+        print msg #e should be in a dialog too, maybe depending on an optional arg
+        print " fyi: the command we hoped to exec was: %r" % (command,)
+        if error_exception:
+            raise ValueError, msg
+        else:
+            print "ignoring this error, doing nothing (as if the command was a noop)"
+    else:
+        gpl_only._exec_command_in_globals( command, globals) # this indirection might not be needed...
+    return
+
+def exec_allowed():
+    "are exec and/or execfile allowed in this version?"
+    try:
+        import gpl_only
+    except ImportError:
+        return False
+    return True
+
 # traceback
 
 def print_compact_traceback(msg = "exception ignored: "):
@@ -121,7 +167,8 @@ def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in
         print "will execute (from %s; %d lines):\n%s" % (source, nlines, command)
     command = command + '\n' #k probably not needed
     try:
-        exec command in globals()
+        ## exec command in globals()
+        legally_exec_command_in_globals( command, globals() )
     except:
         print_compact_traceback("exception from that: ")
         return 0
