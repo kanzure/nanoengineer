@@ -1121,11 +1121,12 @@ class MWsemantics(MainWindow):
         """
         product = "nanoENGINEER-1 "
         version = "v0.0.4 (Alpha)" # This should come from __version__
-        date = "Date: March 14, 2005" # This should come from __vdate__ or something similar
+        date = "Release Date: March 14, 2005" # This should come from __vdate__ or something similar
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         installdir = "Running from: " + filePath
         copyright = "Copyright (C) 2005, Nanorex, Inc."
-        website = "www.nanoengineer-1.com"
+        techsupport = "For technical support, send email to support@nanorex.com"
+        website = "Website: www.nanoengineer-1.com"
         aboutstr = product + version \
                        + "\n\n" \
                        + date \
@@ -1134,6 +1135,8 @@ class MWsemantics(MainWindow):
                        + "\n\n" \
                        + copyright \
                        + "\n\n" \
+                       + techsupport \
+                       + "\n" \
                        + website
                       
         QMessageBox.about ( self, "About nanoENGINEER-1", aboutstr)
@@ -1179,7 +1182,7 @@ class MWsemantics(MainWindow):
         self.glpane.setMode('EXTRUDE')
     
     # Open the Simulator dialog to run a simulation.
-    def toolsSimulator(self):
+    def simSetup(self):
         """Creates a movie of a molecular dynamics simulation.
         """
         if not self.assy.molecules: # Nothing in the part to minimize.
@@ -1203,11 +1206,29 @@ class MWsemantics(MainWindow):
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.toolsMoviePlayerAction.iconSet().pixmap() )
             self.history.message(msg)
+            self.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
+            self.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
         else:
             self.history.message("Cancelled.")
+
+    # Play a movie created by the simulator.
+    def simPlot(self):
+        """Opens the Plot Tool dialog.
+        """
+        if not self.assy.molecules: # No model.
+            self.history.message(redmsg("Plot Tool: Need a model."))
+            return
+            
+        # Check to see if a DPB file has been created.
+        if not self.assy.m.filename:
+            self.history.message(redmsg("Plot Tool: No simulation has been run yet."))
+            return
+                
+        from PlotTool import PlotTool
+        self.plotcntl = PlotTool(self.assy) # Open Plot Tool dialog
             
     # Play a movie created by the simulator.
-    def toolsMoviePlayer(self):
+    def simMoviePlayer(self):
         """Plays a DPB movie file created by the simulator.
         """
         if not self.assy.molecules: # No model.
@@ -1218,7 +1239,11 @@ class MWsemantics(MainWindow):
         # If so, go ahead and play it.
         if not self.assy.m.filename and self.assy.filename:
             mfile = self.assy.filename[:-4] + ".dpb"
-            if os.path.exists(mfile): self.assy.m.filename = mfile
+            if os.path.exists(mfile): 
+                self.assy.m.filename = mfile
+            else: 
+                self.history.message(redmsg("Movie Player: No movie to play."))
+                return
 
         # It's showtime!!!
         self.glpane.setMode('MOVIE')

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Mar 9 13:43:11 2005
+# Created: Thu Mar 10 00:52:15 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -4955,6 +4955,84 @@ image108_data = \
     "\x46\x32\xec\x58\xe1\x00\x38\xd2\xcc\x0b\xd7\xff" \
     "\x71\x01\x72\x06\x88\xa3\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
+image109_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x09\x49\x44\x41\x54\x78\x9c\xed\x93\x41\x4a\xc3" \
+    "\x40\x14\x86\xbf\x27\x42\xba\x9f\xe2\x15\x5c\xf5" \
+    "\x34\x06\xcc\x09\xda\x85\xb8\xf1\x08\x82\x3b\xc9" \
+    "\xae\x42\x42\x5d\xc4\x85\x44\x89\xe0\x0d\xc4\x63" \
+    "\xb8\x74\x2b\xa4\x1b\x37\xdd\xfd\x2e\x62\xe3\xd4" \
+    "\xd0\x34\xa9\xd4\x55\x3f\x78\xcc\xf0\x98\xff\x9f" \
+    "\x99\x37\x6f\x60\xcf\xbf\x11\x5f\x5f\x0a\xd8\x3a" \
+    "\xbe\xf5\x35\xe6\xcd\x55\xe4\xc9\xd6\x07\x0b\xa3" \
+    "\xc9\x8a\xdf\xe1\xef\x05\x27\xa7\xe3\xde\xa6\x4f" \
+    "\x0f\x69\x23\x77\xd0\x26\xb8\xe3\x96\x21\x03\x86" \
+    "\x0c\x98\x6b\xc4\x5c\x23\xcc\x0c\xd2\x94\xf2\xe3" \
+    "\x0d\xa0\x1e\x3b\x1b\xdf\x7c\x5e\x71\xc1\x19\x31" \
+    "\x53\x62\xa6\x00\xbc\x3c\x9e\x03\xf0\x7e\x9f\xe1" \
+    "\x9e\x5f\x01\x70\x47\xc7\x1b\x6f\xa4\x22\x4f\x24" \
+    "\x49\x99\x66\x72\x0a\x94\x69\x26\x9f\x7a\x4d\x92" \
+    "\x48\x50\x8d\x92\x8a\x3c\x59\x3e\x62\xbb\xb1\x53" \
+    "\x20\xa7\x60\xc5\x74\x29\xf6\x76\xa9\x62\x8d\x71" \
+    "\x6b\x8d\x7d\xc2\x68\x42\x9f\xae\x69\x18\x9b\x41" \
+    "\x69\x0b\x4a\x5b\x60\x46\x1d\x20\xc2\x68\xfc\x93" \
+    "\x43\x55\x58\xd3\xb4\xd7\x89\xfb\xd2\xe8\xe3\x22" \
+    "\x6f\xf6\xe4\x9f\xd8\xe5\x97\x6e\xc3\x17\x75\xd2" \
+    "\xec\xac\xc6\x9b\x76\x5f\xdb\xf4\x1d\xb4\x7b\x2a" \
+    "\xbe\x00\x38\xff\xb5\xee\xd4\x82\xa2\x2d\x00\x00" \
+    "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image110_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\xb5\x49\x44\x41\x54\x78\x9c\xed\x95\x51\x0e\x83" \
+    "\x30\x0c\x43\xe3\x69\x77\xd9\x35\xcb\x65\xd9\x31" \
+    "\xde\x3e\x58\x44\x29\xcd\x1a\x36\xf8\x5b\xa5\x28" \
+    "\x34\x35\x76\x64\x45\xad\x00\xbb\x62\xdd\x2e\x61" \
+    "\xbd\x9c\x58\x12\x99\x98\x26\xe5\x7d\x03\x0c\xb0" \
+    "\x52\x8c\x4c\x5e\x7e\xc1\x46\x61\x0e\xae\xa3\x94" \
+    "\xed\xbe\xae\xbb\xc0\x57\xc4\x51\xcd\x05\x33\xe4" \
+    "\xa9\x8e\x6b\xd2\x9f\xac\x68\x6b\xad\xd0\x29\x1d" \
+    "\xfb\xf9\xfc\x9c\xcf\xed\x78\x9d\x88\xbe\xf7\x41" \
+    "\x3c\x86\xe3\x06\xad\x05\x6b\xfd\x53\x16\x60\x52" \
+    "\x3c\xf8\x80\xda\x73\x30\x93\x62\x1c\xa0\xbb\x7f" \
+    "\x44\xc4\x66\x3d\x51\xb4\xaf\x6f\xf7\x89\xbb\xa2" \
+    "\x27\x1a\x89\x1d\x22\x1e\x93\xf4\x70\x43\x62\x69" \
+    "\xb1\xaa\x94\x63\x62\xca\x5c\xf4\x92\xc3\xdc\xdb" \
+    "\x71\x4e\x11\x3b\x79\x0a\x68\xef\x09\xf9\x3f\x4d" \
+    "\xbe\x5e\x05\x75\xc6\xa5\x06\x3c\x11\x30\x00\x00" \
+    "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image111_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x0c\x49\x44\x41\x54\x78\x9c\xd5\x95\x4d\x0e\x82" \
+    "\x30\x10\x85\xdf\x18\x4f\x00\x3d\x42\x59\xc2\x85" \
+    "\xf4\x20\x2e\xea\x4a\xa3\x1b\x8f\x81\x17\x62\xab" \
+    "\x37\xd0\x78\x85\xe7\x42\x0b\xfd\xa1\x18\x10\x17" \
+    "\x36\x99\x4c\x28\x8f\x6f\x26\x6f\x4a\x2a\x24\xf1" \
+    "\x8b\xb5\x00\x80\xaa\xaa\x66\xa7\x2f\xe6\x06\xfe" \
+    "\x1f\x58\x15\x60\x1a\x2c\x62\xbe\x2d\xe0\x83\x3b" \
+    "\xe0\x2e\x59\x28\x51\x54\x15\xe0\x31\xdf\x53\x80" \
+    "\x35\x00\x80\x24\xca\xb2\x24\x49\x10\xf0\xb3\x0d" \
+    "\xf7\xb9\xd3\x18\xbb\x77\xc8\x76\x54\x9a\x2b\x57" \
+    "\x37\x0c\x76\x73\xcf\x9e\xd2\x5c\xe5\x9a\xf1\x3b" \
+    "\x72\xd4\xf0\xb6\x10\x21\x48\xb1\x79\xf3\xd8\xd6" \
+    "\xf7\xab\xf8\x2a\x6b\x55\xdb\xf1\xab\x2b\x93\xcc" \
+    "\xef\x8e\x72\x4d\x9e\x32\xc3\xa0\x53\x5f\xef\x59" \
+    "\xe1\x7c\x9c\xf2\xfb\x94\x19\xdf\x4b\xc7\xe7\x50" \
+    "\xef\x7b\xec\x8a\xc3\x01\x92\xc8\x35\x63\x60\x62" \
+    "\xa8\x31\x38\x2c\xf0\x8e\x76\x50\xa1\x2e\xa1\x4f" \
+    "\x83\x83\x4e\x07\xa1\x3d\xb1\x1c\x3a\x06\xaa\x40" \
+    "\x7b\xe0\xef\x17\xc8\x90\x36\x5c\xd1\x71\xb3\xff" \
+    "\xba\x85\x12\xa8\xc7\x42\x23\xb0\x85\xd9\x7c\xbb" \
+    "\xe0\x3c\x05\x0a\xa0\xb3\xc2\x85\x01\x38\x4f\x81" \
+    "\xf5\x82\xa7\x76\xf6\x11\x3c\xe7\xf5\xd4\x34\x8d" \
+    "\xc8\xaf\x2e\xd3\x27\xe2\x3f\xb6\xea\xe5\xc8\xf6" \
+    "\x10\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
+    "\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -5137,6 +5215,12 @@ class MainWindow(QMainWindow):
         self.image107.loadFromData(image107_data,"PNG")
         self.image108 = QPixmap()
         self.image108.loadFromData(image108_data,"PNG")
+        self.image109 = QPixmap()
+        self.image109.loadFromData(image109_data,"PNG")
+        self.image110 = QPixmap()
+        self.image110.loadFromData(image110_data,"PNG")
+        self.image111 = QPixmap()
+        self.image111.loadFromData(image111_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -5469,6 +5553,8 @@ class MainWindow(QMainWindow):
         self.setViewHomeToCurrentAction = QAction(self,"setViewHomeToCurrentAction")
         self.modifyAlignCommonAxisAction = QAction(self,"modifyAlignCommonAxisAction")
         self.modifyAlignCommonAxisAction.setIconSet(QIconSet(self.image99))
+        self.dispSetEltable1Action = QAction(self,"dispSetEltable1Action")
+        self.dispSetEltable2Action = QAction(self,"dispSetEltable2Action")
         self.movieDoneAction = QAction(self,"movieDoneAction")
         self.movieDoneAction.setIconSet(QIconSet(self.image17))
         self.movieNextFrameAction = QAction(self,"movieNextFrameAction")
@@ -5501,6 +5587,15 @@ class MainWindow(QMainWindow):
         self.modifyDeleteBondsAction = QAction(self,"modifyDeleteBondsAction")
         self.modifyDeleteBondsAction.setIconSet(QIconSet(self.image76))
         self.dispElementColorSettingsAction = QAction(self,"dispElementColorSettingsAction")
+        self.simSetupAction = QAction(self,"simSetupAction")
+        self.simSetupAction.setEnabled(1)
+        self.simSetupAction.setIconSet(QIconSet(self.image109))
+        self.simMoviePlayerAction = QAction(self,"simMoviePlayerAction")
+        self.simMoviePlayerAction.setEnabled(1)
+        self.simMoviePlayerAction.setIconSet(QIconSet(self.image110))
+        self.simPlotToolAction = QAction(self,"simPlotToolAction")
+        self.simPlotToolAction.setEnabled(1)
+        self.simPlotToolAction.setIconSet(QIconSet(self.image111))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -5688,9 +5783,6 @@ class MainWindow(QMainWindow):
         self.toolsDepositAtomAction.addTo(self.toolsToolbar)
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
-        self.toolsToolbar.addSeparator()
-        self.toolsSimulatorAction.addTo(self.toolsToolbar)
-        self.toolsMoviePlayerAction.addTo(self.toolsToolbar)
         self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
         self.datumDispDashboard.setGeometry(QRect(0,532,30,68))
@@ -5698,6 +5790,11 @@ class MainWindow(QMainWindow):
         self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispDashboard)
         self.dispCsysAction.addTo(self.datumDispDashboard)
+        self.simToolbar = QToolBar(QString(""),self,Qt.DockRight)
+
+        self.simSetupAction.addTo(self.simToolbar)
+        self.simMoviePlayerAction.addTo(self.simToolbar)
+        self.simPlotToolAction.addTo(self.simToolbar)
 
 
         self.MenuBar = QMenuBar(self,"MenuBar")
@@ -5796,16 +5893,19 @@ class MainWindow(QMainWindow):
         self.toolsDepositAtomAction.addTo(self.Tools)
         self.toolsCookieCutAction.addTo(self.Tools)
         self.toolsExtrudeAction.addTo(self.Tools)
-        self.Tools.insertSeparator()
-        self.toolsSimulatorAction.addTo(self.Tools)
-        self.toolsMoviePlayerAction.addTo(self.Tools)
         self.MenuBar.insertItem(QString(""),self.Tools,9)
+
+        self.Simulator = QPopupMenu(self)
+        self.simSetupAction.addTo(self.Simulator)
+        self.simMoviePlayerAction.addTo(self.Simulator)
+        self.simPlotToolAction.addTo(self.Simulator)
+        self.MenuBar.insertItem(QString(""),self.Simulator,10)
 
         self.helpMenu = QPopupMenu(self)
         self.helpAssistantAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
         self.helpAboutAction.addTo(self.helpMenu)
-        self.MenuBar.insertItem(QString(""),self.helpMenu,10)
+        self.MenuBar.insertItem(QString(""),self.helpMenu,11)
 
 
         self.languageChange()
@@ -5934,6 +6034,9 @@ class MainWindow(QMainWindow):
         self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
         self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
         self.connect(self.dispElementColorSettingsAction,SIGNAL("activated()"),self.dispElementColorSettings)
+        self.connect(self.simSetupAction,SIGNAL("activated()"),self.simSetup)
+        self.connect(self.simMoviePlayerAction,SIGNAL("activated()"),self.simMoviePlayer)
+        self.connect(self.simPlotToolAction,SIGNAL("activated()"),self.simPlot)
 
 
     def languageChange(self):
@@ -6254,6 +6357,10 @@ class MainWindow(QMainWindow):
         self.setViewHomeToCurrentAction.setMenuText(self.__tr("Set Home View to &Current View"))
         self.modifyAlignCommonAxisAction.setText(self.__tr("Align to Common Axis"))
         self.modifyAlignCommonAxisAction.setMenuText(self.__tr("&Align to Common Axis"))
+        self.dispSetEltable1Action.setText(self.__tr("Set Atom Colors to Default"))
+        self.dispSetEltable1Action.setMenuText(self.__tr("Set Atom Colors to Default"))
+        self.dispSetEltable2Action.setText(self.__tr("Set Atom Colors to Alternate"))
+        self.dispSetEltable2Action.setMenuText(self.__tr("Set Atom Colors to Alternate"))
         self.movieDoneAction.setText(self.__tr("Done"))
         self.movieDoneAction.setMenuText(self.__tr("Done"))
         self.movieNextFrameAction.setText(self.__tr("Next"))
@@ -6284,6 +6391,10 @@ class MainWindow(QMainWindow):
         self.modifyDeleteBondsAction.setMenuText(self.__tr("Delete &Bonds"))
         self.dispElementColorSettingsAction.setText(self.__tr("Element Color Settings..."))
         self.dispElementColorSettingsAction.setMenuText(self.__tr("Element Color Settings..."))
+        self.simSetupAction.setText(self.__tr("Simulator Setup"))
+        self.simSetupAction.setMenuText(self.__tr("Setup..."))
+        self.simMoviePlayerAction.setText(self.__tr("Movie Player"))
+        self.simPlotToolAction.setText(self.__tr("Plot Tool"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -6318,6 +6429,7 @@ class MainWindow(QMainWindow):
         self.modifyToolbar.setLabel(self.__tr("Modify"))
         self.toolsToolbar.setLabel(self.__tr("Tools"))
         self.datumDispDashboard.setLabel(self.__tr("Datum Display"))
+        self.simToolbar.setLabel(self.__tr("Simulator"))
         if self.MenuBar.findItem(3):
             self.MenuBar.findItem(3).setText(self.__tr("&File"))
         if self.MenuBar.findItem(4):
@@ -6333,7 +6445,9 @@ class MainWindow(QMainWindow):
         if self.MenuBar.findItem(9):
             self.MenuBar.findItem(9).setText(self.__tr("&Tools"))
         if self.MenuBar.findItem(10):
-            self.MenuBar.findItem(10).setText(self.__tr("&Help"))
+            self.MenuBar.findItem(10).setText(self.__tr("Simulator"))
+        if self.MenuBar.findItem(11):
+            self.MenuBar.findItem(11).setText(self.__tr("&Help"))
 
 
     def fileNew(self):
@@ -6746,6 +6860,15 @@ class MainWindow(QMainWindow):
 
     def dispElementColorSettings(self):
         print "MainWindow.dispElementColorSettings(): Not implemented yet"
+
+    def simPlot(self):
+        print "MainWindow.simPlot(): Not implemented yet"
+
+    def simMoviePlayer(self):
+        print "MainWindow.simMoviePlayer(): Not implemented yet"
+
+    def simSetup(self):
+        print "MainWindow.simSetup(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
