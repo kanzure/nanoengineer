@@ -22,11 +22,11 @@ double uffunc(double uf) {
 // units for positions are 1e-12 meters == picometers
 // units for force are piconewtons
 struct xyz force[NATOMS];
+struct xyz old_force[NATOMS]; /* used in minimize */
 struct xyz average_positions[NATOMS];
 struct xyz position_arrays[3*NATOMS];
 struct xyz *old_positions, *new_positions, *positions; // these point into position_arrays
 
-struct xyz minimize_force[NATOMS];
 
 struct xyz Center, Bbox[2];
 
@@ -997,12 +997,22 @@ void snapshot(int n) {
 }
 
 
+static void min_debug(char *label, double rms, int frameNumber) 
+{
+    fprintf(stderr, "---------------- %s -- frame %d\nrms: %f\n", label, frameNumber, rms);
+    printAllBonds(stderr);
+}
+
 /**
  */
-void minshot(int final, double rms, double hifsq) {
+void minshot(int final, double rms, double hifsq, int frameNumber, char *callLocation) {
     int i,j;
     char c0, c1, c2;
     double xyz=1.0e-2; // .xyz files are in angstroms
+
+    if (DEBUG(D_MINIMIZE)) {
+        min_debug(callLocation, rms, frameNumber);
+    }
 
     if (DumpAsText) {
 
@@ -1038,45 +1048,37 @@ void minshot(int final, double rms, double hifsq) {
     }
 
     fprintf(tracef,"%.2f %.2f\n", rms, sqrt(hifsq));
+    if (final) {
+        printf("final RMS gradient=%f after %d iterations\n", rms, frameNumber);
+    }
 }
 
-static void min_debug(char *label, double rms, int frameNumber) 
+/* these are shared between minimizeSteepestDescent() and minimizeConjugateGradients() */
+double sum_forceSquared;
+double movcon = 4e-4;
+
+/*
+  Minimize via adaptive steepest descent.
+  
+  Will do a maximum of steepestDescentFrames iterations.  Returns true
+  if rms_force has dropped below 50 pN before the iteration limit is
+  reached.
+*/
+int
+minimizeSteepestDescent(int steepestDescentFrames,
+                        int *frameNumber)
 {
-    fprintf(stderr, "---------------- %s -- frame %d\nrms: %f\n", label, frameNumber, rms);
-    printAllBonds(stderr);
-}
-
-void minimize(int numFrames) {
-    int i, j, k;
-    int frameNumber;
-    int steepestDescentFrames;
-    double forceSquared, max_forceSquared;
-    double sum_old_force_squared;
-    double sum_forceSquared, last_sum_forceSquared;
-    double sum_force_dot_old_force;
-    double gamma; // = last_sum_forceSquared / sum_forceSquared
-    double xxx, yyy, zzz;
-    struct xyz f; // force
+    int i, j;
     struct xyz *tmp;
+    struct xyz f; // force
+    double last_sum_forceSquared;
     double rms_force;
-    double movcon = 4e-4;
-    double old_movcon = movcon;
+    double max_forceSquared;
+    double forceSquared;
     double movfac = 1.5;
-    struct xyz *old_force;
-
-    frameNumber = 1;
-    steepestDescentFrames = DumpAsText ? numFrames : numFrames / 2;
-   
-    old_force = minimize_force;
-
-    /* turn off constraints --
-       minimize is a one-shot run of the program */
-    Nexcon=0;
-
-    Temperature = 0.0;
+    double sum_force_dot_old_force;
+    double xxx, yyy;
     
-    fprintf(tracef,"\n# rms force, high force\n");
-
     // 2 fixed steps to initialize
     for (i=0; i<2; i++) {
 	max_forceSquared = 0.0;
@@ -1094,16 +1096,12 @@ void minimize(int numFrames) {
 	tmp = old_positions; old_positions=positions; positions=tmp;
 	rms_force = sqrt(sum_forceSquared/Nexatom);
     }
-    if (DEBUG(D_MINIMIZE)) {
-        min_debug("1", rms_force, frameNumber);
-    }
-    minshot(0,rms_force, max_forceSquared);
-    frameNumber++;
+    minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "1");
 
     // adaptive stepsize steepest descents until RMS gradient is under 50
-    for (; frameNumber < steepestDescentFrames && rms_force>50.0;) {
-	max_forceSquared = 0.0;
+    for (; *frameNumber < steepestDescentFrames && rms_force>50.0;) {
 	last_sum_forceSquared = sum_forceSquared;
+	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
 	sum_force_dot_old_force=0.0;
 	calcloop(1);
@@ -1116,11 +1114,7 @@ void minimize(int numFrames) {
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
 
-        if (DEBUG(D_MINIMIZE)) {
-            min_debug("2", rms_force, frameNumber);
-        }
-	minshot(0,rms_force, max_forceSquared);
-        frameNumber++;
+	minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "2");
         
 	xxx = sqrt(last_sum_forceSquared); // == previous rms_force * sqrt(Nexatom)
 	yyy = sum_force_dot_old_force/xxx;
@@ -1138,9 +1132,30 @@ void minimize(int numFrames) {
 	    vadd2(old_positions[j], positions[j], f);
 	}
 	tmp = old_positions; old_positions=positions; positions=tmp;
-
     }
+    if (rms_force <= 50.0) {
+        return 1;
+    } else {
+	minshot(1, rms_force, max_forceSquared, (*frameNumber)++, "SDfinal");
+        return 0;
+    }
+}
 
+void minimizeConjugateGradients(int numFrames, int *frameNumber)
+{
+    int i, j, k;
+    double forceSquared, max_forceSquared;
+    double sum_old_force_squared;
+    double last_sum_forceSquared;
+    double sum_force_dot_old_force;
+    double gamma; // = sum_forceSquared / last_sum_forceSquared
+    double xxx, yyy, zzz;
+    struct xyz f; // force
+    struct xyz *tmp;
+    double rms_force;
+    double old_movcon = movcon;
+    double movfac = 3.0;
+    
     max_forceSquared = 0.0;
     last_sum_forceSquared = sum_forceSquared;
     sum_forceSquared = 0.0;
@@ -1152,16 +1167,11 @@ void minimize(int numFrames) {
 	sum_forceSquared += forceSquared;
     }
     rms_force = sqrt(sum_forceSquared/Nexatom);
-    movfac=3.0;
 
     // conjugate gradients for a while
-    for (; DumpAsText ? rms_force>1.0 : frameNumber<numFrames;) {
+    for (; DumpAsText ? rms_force>1.0 : *frameNumber<numFrames;) {
 	//for (i=0; i<20 ;  i++) {
-        if (DEBUG(D_MINIMIZE)) {
-            min_debug("3", rms_force, frameNumber);
-        }
-	minshot(0,rms_force, max_forceSquared);
-        frameNumber++;
+	minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "3");
 	gamma = sum_forceSquared/last_sum_forceSquared;
 	// compute the conjugate direction 
 	last_sum_forceSquared=sum_forceSquared;
@@ -1179,7 +1189,7 @@ void minimize(int numFrames) {
 	yyy = sum_force_dot_old_force/xxx;
 	zzz = yyy;
         DPRINT(D_MINIMIZE, "xxx: %f yyy: %f\n", xxx, yyy);
-	for (k=0; k<10 && yyy*yyy>1.0 && (DumpAsText || frameNumber<numFrames); k++) {
+	for (k=0; k<10 && yyy*yyy>1.0 && (DumpAsText || *frameNumber<numFrames); k++) {
 	    for (j=0; j<Nexatom; j++) {
 		f=old_force[j];
 		vmulc(f, movcon);
@@ -1196,12 +1206,8 @@ void minimize(int numFrames) {
 		sum_force_dot_old_force += vdot(f,old_force[j]);
 	    }
 	    rms_force = sqrt(sum_forceSquared/Nexatom);
-            if (DEBUG(D_MINIMIZE)) {
-                min_debug("4", rms_force, frameNumber);
-            }
             /*
-            minshot(0,rms_force, max_forceSquared); 
-            frameNumber++;
+            minshot(0,rms_force, max_forceSquared, (*frameNumber)++, "4"); 
             */
 	    yyy = sum_force_dot_old_force/xxx;
 	    if (yyy<zzz-zzz/(movfac)) movcon *= zzz/(zzz-yyy);
@@ -1229,12 +1235,30 @@ void minimize(int numFrames) {
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
     }
-    if (DEBUG(D_MINIMIZE)) {
-        min_debug("final", rms_force, frameNumber);
-    }
-    minshot(1,rms_force, max_forceSquared);
-    printf("final RMS gradient=%f after %d iterations\n", rms_force, frameNumber);
+    minshot(1, rms_force, max_forceSquared, (*frameNumber)++, "final");
+}
 
+void minimize(int numFrames)
+{
+    int frameNumber;
+    int steepestDescentFrames;
+    
+    frameNumber = 1;
+    steepestDescentFrames = DumpAsText ? numFrames : numFrames / 2;
+
+    /* turn off constraints --
+       minimize is a one-shot run of the program */
+    Nexcon=0;
+
+    Temperature = 0.0;
+    
+    fprintf(tracef,"\n# rms force, high force\n");
+
+    if (minimizeSteepestDescent(steepestDescentFrames, &frameNumber)) {
+        minimizeConjugateGradients(numFrames, &frameNumber);
+    } else {
+        fprintf(stderr, "Warning: partial minimization\n");
+    }
 }
 
 static void usage()
@@ -1303,7 +1327,6 @@ main(int argc,char **argv)
 		break;
 	    case 'm':
 		ToMinimize=1;
-		NumFrames = 100;
 		break;
 	    case 'i':
 		IterPerFrame = atoi(argv[i]+2);
@@ -1430,14 +1453,12 @@ main(int argc,char **argv)
     }
     printheader(tracef, filename, OutFileName, TraceFileName, 
                 Nexatom, mmpkey, dpbkey, NumFrames, IterPerFrame, Temperature);
-    /*
-    printargs(tracef, argc, argv);
-    */
-    headcon(tracef);
 
     if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)Nexatom));
 	Temperature = 0.0;
+    } else {
+        headcon(tracef);
     }
 
     printf("iters per frame = %d\n",IterPerFrame /* *innerIters */ );
