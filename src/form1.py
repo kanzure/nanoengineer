@@ -14,6 +14,7 @@ helpwindow = None
 windowList = []
 
 from constants import *
+from chem import fullnamePeriodicTable
 
 def fileparse(name):
     """breaks name into directory, main name, and extension in a tuple.
@@ -227,6 +228,9 @@ class Form1(QMainWindow):
         self.dispVdWAction = QAction(self,"dispVdWAction")
         self.dispVdWAction.setText(self.trUtf8("VdW"))
         self.dispVdWAction.setMenuText(self.trUtf8("VdW"))
+        self.dispTubesAction = QAction(self,"dispTubesAction")
+        self.dispTubesAction.setText(self.trUtf8("Tubes"))
+        self.dispTubesAction.setMenuText(self.trUtf8("Tubes"))
         self.dispCPKAction = QAction(self,"dispCPKAction")
         self.dispCPKAction.setText(self.trUtf8("CPK"))
         self.dispCPKAction.setMenuText(self.trUtf8("CPK"))
@@ -376,6 +380,7 @@ class Form1(QMainWindow):
         self.dispDefaultAction.addTo(self.dispMenu)
         self.dispInvisAction.addTo(self.dispMenu)
         self.dispVdWAction.addTo(self.dispMenu)
+        self.dispTubesAction.addTo(self.dispMenu)
         self.dispCPKAction.addTo(self.dispMenu)
         self.dispLinesAction.addTo(self.dispMenu)
         self.dispMenu.insertSeparator()
@@ -460,6 +465,7 @@ class Form1(QMainWindow):
                      self.dispDefault)
         self.connect(self.dispInvisAction,SIGNAL("activated()"),self.dispInvis)
         self.connect(self.dispVdWAction,SIGNAL("activated()"),self.dispVdW)
+        self.connect(self.dispTubesAction,SIGNAL("activated()"),self.dispTubes)
         self.connect(self.dispCPKAction,SIGNAL("activated()"),self.dispCPK)
         self.connect(self.dispLinesAction,SIGNAL("activated()"),self.dispLines)
         self.connect(self.dispColorAction,SIGNAL("activated()"),self.dispColor)
@@ -640,6 +646,9 @@ class Form1(QMainWindow):
     def dispVdW(self):
         self.setdisplay(diVDW)
 
+    def dispTubes(self):
+        self.setdisplay(diTUBES)
+
     def dispCPK(self):
         self.setdisplay(diCPK)
 
@@ -794,15 +803,13 @@ class Form1(QMainWindow):
             self.assy.updateDisplays()
 
     # add hydrogen atoms to each dangling bond
-    # currently only works for carbon
     def modifyHydrogenate(self):
-        if not self.assy: return
         if self.assy.selmols:
             for m in self.assy.selmols:
-                m.hydrogenate(self.assy)
+                m.Hydrogenate()
         elif self.assy.selatoms:
             for a in self.assy.selatoms.itervalues():
-                a.hydrogenate(self.assy)
+                a.Hydrogenate()
         self.assy.updateDisplays()
 
     # form a new part (molecule) with whatever atoms are selected
@@ -848,7 +855,7 @@ class Form1(QMainWindow):
         if not self.assy: return
         if self.assy.selatoms:
             for a in self.assy.selatoms.itervalues():
-                a.mvElement(str(string))
+                a.mvElement(fullnamePeriodicTable[str(string)])
         self.assy.updateDisplays()
 
     # some unimplemented buttons:

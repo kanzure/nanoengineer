@@ -23,6 +23,8 @@ class basicMode:
         self.modename=name
         self.o = glpane
         self.o.modetab[self.modename] = self
+        self.sellist = []
+        self.selLassRect = 0
 
     def setMode(self):
         self.o.mode = self
@@ -111,7 +113,7 @@ class basicMode:
            rotate around vertical axis (left-right)
 
         """
-        self.SaveMouse(event)
+        self.o.SaveMouse(event)
         dx,dy = (self.o.MousePos - self.o.Zorg) * V(1,-1)
         ax,ay = abs(V(dx,dy))
         if self.o.Zunlocked:
@@ -208,6 +210,18 @@ class basicMode:
         return menu
 
 
+    def pickdraw(self):
+        """Draw the (possibly unfinished) freehand selection curve.
+        """
+        color = logicColor(self.selSense)
+        pl = zip(self.sellist[:-1],self.sellist[1:])
+        for pp in pl:
+            drawer.drawline(color,pp[0],color,pp[1])
+        if self.selLassRect:
+            drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
+                                 self.o.up, self.o.right, color)
+
+
 ###########################################################################
     
 class selectMode(basicMode):
@@ -218,115 +232,110 @@ class selectMode(basicMode):
         self.makeMenus()
 
     def leftDown(self, event):
-        self.selSense = 1
-        self.StartPick(event)
+        self.StartPick(event, 1)
     
     def leftShiftDown(self, event):
-        self.selSense = 0
-        self.StartPick(event)
+        self.StartPick(event, 0)
 
     def leftCntlDown(self, event):
-        self.selSense = 2
-        self.StartPick(event)
+        self.StartPick(event, 2)
 
 
-    def StartPick(self, event):
+    def StartPick(self, event, sense):
         """Start a selection curve
         """
-
-        self.o.picking = 1
+        self.selSense = sense
+        self.picking = 1
         self.o.SaveMouse(event)
         self.o.prevvec = None
 
         p1, p2 = self.o.mousepoints(event)
         self.o.normal = self.o.lineOfSight
-        self.o.sellist = [p1]
+        self.sellist = [p1]
         self.o.backlist = [p2]
-        self.o.pickLineStart = self.o.pickLinePrev = p1
-        self.o.pickLineLength = 0.0
+        self.pickLineStart = self.pickLinePrev = p1
+        self.pickLineLength = 0.0
 
     
     def leftDrag(self, event):
-        self.ContinPick(event)
+        self.ContinPick(event, 1)
     
     def leftShiftDrag(self, event):
-        self.ContinPick(event)
+        self.ContinPick(event, 0)
     
     def leftCntlDrag(self, event):
-        self.ContinPick(event)
+        self.ContinPick(event, 2)
 
-    def ContinPick(self, event):
+    def ContinPick(self, event, sense):
         """Add another segment to a selection curve
         """
-        if not self.o.picking: return
+        if not self.picking: return
+        self.selSense = sense
         p1, p2 = self.o.mousepoints(event)
 
-        self.o.sellist += [p1]
+        self.sellist += [p1]
         self.o.backlist += [p2]
-        netdist = vlen(p1-self.o.pickLineStart)
+        netdist = vlen(p1-self.pickLineStart)
 
-        self.o.pickLineLength += vlen(p1-self.o.pickLinePrev)
-        self.o.selLassRect = self.o.pickLineLength < 2*netdist
+        self.pickLineLength += vlen(p1-self.pickLinePrev)
+        self.selLassRect = self.pickLineLength < 2*netdist
 
-        self.o.pickLinePrev = p1
+        self.pickLinePrev = p1
         self.o.assy.updateDisplays()
 
     
     def leftUp(self, event):
-        self.EndPick(event)
+        self.EndPick(event, 1)
     
     def leftShiftUp(self, event):
-        self.EndPick(event)
+        self.EndPick(event, 0)
     
     def leftCntlUp(self, event):
-        self.EndPick(event)
+        self.EndPick(event, 2)
 
-    def EndPick(self, event):
+    def EndPick(self, event, selSense):
         """Close a selection curve and do the selection
         """
-        if not self.o.picking: return
-        self.o.picking = False
+        if not self.picking: return
+        self.picking = False
 
         p1, p2 = self.o.mousepoints(event)
 
-        if self.o.pickLineLength/self.o.scale < 0.03:
+        if self.pickLineLength/self.o.scale < 0.03:
             # didn't move much, call it a click
-            if self.o.selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
-            if self.o.selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
-            if self.o.selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
+            if selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
+            if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
+            if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
             self.o.assy.updateDisplays()
             return
 
-        self.o.sellist += [p1]
-        self.o.sellist += [self.o.sellist[0]]
+        self.sellist += [p1]
+        self.sellist += [self.sellist[0]]
         self.o.backlist += [p2]
         self.o.backlist += [self.o.backlist[0]]
         self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight)
         eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
-        if self.o.selLassRect:
-            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, self.o.selSense,
+        if self.selLassRect:
+            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,
                              (not self.o.ortho) and eyeball)
         else:
-            self.o.shape.pickline(self.o.backlist, -self.o.pov, self.o.selSense,
+            self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
                              (not self.o.ortho) and eyeball)
         self.o.shape.select(self.o.assy)
 
-        self.o.sellist = []
+        self.sellist = []
 
         self.o.assy.updateDisplays()
 
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.
         """
-        (p1, p2) = self.o.mousepoints(event)
-
-        self.o.assy.pickpart(p1,norm(p2-p1))
-
-        self.o.assy.updateDisplays()
+        # go into move mode
+        self.o.setMode('MODIFY')
 
     def Draw(self):
         self.griddraw()
-        if self.o.sellist: self.o.pickdraw()
+        if self.sellist: self.pickdraw()
         if self.o.assy: self.o.assy.draw(self.o)
 
     def griddraw(self):
@@ -355,6 +364,7 @@ class selectMode(basicMode):
         self.Menu3 = self.makemenu([('Default', self.o.dispDefault),
                                     ('Lines', self.o.dispLines),
                                     ('CPK', self.o.dispCPK),
+                                    ('Tubes', self.o.dispTubes),
                                     ('VdW', self.o.dispVdW),
                                     None,
                                     ('Invisible', self.o.dispInvis),
@@ -400,32 +410,31 @@ class cookieMode(basicMode):
         self.o.setMode('SELECT')
 
     def leftDown(self, event):
-        self.selSense = 1
-        self.StartDraw(event)
+        self.StartDraw(event, 1)
     
     def leftShiftDown(self, event):
-        self.selSense = 0
-        self.StartDraw(event)
+        self.StartDraw(event, 0)
 
     def leftCntlDown(self, event):
-        self.selSense = 2
-        self.StartDraw(event)
+        self.StartDraw(event, 2)
 
-    def StartDraw(self, event):
+    def StartDraw(self, event, sense):
         """Start a selection curve
         """
+        self.selSense = sense
         if self.Rubber: return
-        self.o.picking = 1
+        self.picking = 1
         self.o.SaveMouse(event)
         self.o.prevvec = None
         self.cookieQuat = Q(self.o.quat)
 
         p1, p2 = self.o.mousepoints(event)
+        
         self.o.normal = self.o.lineOfSight
-        self.o.sellist = [p1]
+        self.sellist = [p1]
         self.o.backlist = [p2]
-        self.o.pickLineStart = self.o.pickLinePrev = p1
-        self.o.pickLineLength = 0.0
+        self.pickLineStart = self.pickLinePrev = p1
+        self.pickLineLength = 0.0
     
     def leftDrag(self, event):
         self.ContinDraw(event)
@@ -439,18 +448,18 @@ class cookieMode(basicMode):
     def ContinDraw(self, event):
         """Add another segment to a selection curve
         """
-        if not self.o.picking: return
+        if not self.picking: return
         if self.Rubber: return
         p1, p2 = self.o.mousepoints(event)
 
-        self.o.sellist += [p1]
+        self.sellist += [p1]
         self.o.backlist += [p2]
-        netdist = vlen(p1-self.o.pickLineStart)
+        netdist = vlen(p1-self.pickLineStart)
 
-        self.o.pickLineLength += vlen(p1-self.o.pickLinePrev)
-        self.o.selLassRect = self.o.pickLineLength < 2*netdist
+        self.pickLineLength += vlen(p1-self.pickLinePrev)
+        self.selLassRect = self.pickLineLength < 2*netdist
 
-        self.o.pickLinePrev = p1
+        self.pickLinePrev = p1
         self.o.assy.updateDisplays()
     
     def leftUp(self, event):
@@ -468,31 +477,31 @@ class cookieMode(basicMode):
         """
         p1, p2 = self.o.mousepoints(event)
 
-        if self.o.pickLineLength/self.o.scale < 0.03:
+        if self.pickLineLength/self.o.scale < 0.03:
             # didn't move much, call it a click
-            if not (len(self.o.sellist)>1 and vlen(p1-self.o.sellist[0])<1):
-                self.o.sellist += [p1]
+            if not (len(self.sellist)>1 and vlen(p1-self.sellist[0])<1):
+                self.sellist += [p1]
                 self.o.backlist += [p2]
 
-                self.o.selLassRect = 0
+                self.selLassRect = 0
 
                 self.Rubber = True
 
                 return
 
         self.Rubber = 0
-        self.o.sellist += [p1]
-        self.o.sellist += [self.o.sellist[0]]
+        self.sellist += [p1]
+        self.sellist += [self.sellist[0]]
         self.o.backlist += [p2]
         self.o.backlist += [self.o.backlist[0]]
         if not self.o.shape: self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight,
                                       Slab(-self.o.pov, self.o.lineOfSight, 7))
         eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
-        if self.o.selLassRect:
-            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, self.o.selSense)
+        if self.selLassRect:
+            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, self.selSense)
         else:
-            self.o.shape.pickline(self.o.backlist, -self.o.pov, self.o.selSense)
-        self.o.sellist = []
+            self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense)
+        self.sellist = []
 
         self.o.assy.updateDisplays()
 
@@ -505,13 +514,13 @@ class cookieMode(basicMode):
     def bareMotion(self, e):
         if self.Rubber:
             p1, p2 = self.o.mousepoints(e)
-            try: self.o.sellist[-1]=p1
-            except: print self.o.sellist
+            try: self.sellist[-1]=p1
+            except: print self.sellist
             self.o.paintGL()
 
     def Draw(self):
         self.griddraw()
-        if self.o.sellist: self.o.pickdraw()
+        if self.sellist: self.pickdraw()
         if self.o.shape: self.o.shape.draw(self.o)
 
     def griddraw(self):
@@ -553,9 +562,9 @@ class modifyMode(basicMode):
         the mouse.
         """
         self.o.SaveMouse(event)
-        self.o.picking = True
+        self.picking = True
         p1, p2 = self.o.mousepoints(event)
-        self.o.pickLineStart = p1
+        self.pickLineStart = p1
 
     def leftDrag(self, event):
         """Move the selected object(s) in the plane of the screen following
@@ -577,19 +586,18 @@ class modifyMode(basicMode):
     def EndPick(self, event, selSense):
         """Pick if click
         """
-        if not self.o.picking: return
-        self.o.picking = False
+        if not self.picking: return
+        self.picking = False
 
         p1, p2 = self.o.mousepoints(event)
 
-        if vlen(p1-self.o.pickLineStart)/self.o.scale < 0.03:
+        if vlen(p1-self.pickLineStart)/self.o.scale < 0.03:
             # didn't move much, call it a click
             # Pick a part
             if selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
             if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
             if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
             
-
             self.o.assy.updateDisplays()
      
     def leftShiftDown(self, event):
@@ -597,10 +605,10 @@ class modifyMode(basicMode):
         """
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
-        self.o.picking = True
+        self.picking = True
         p1, p2 = self.o.mousepoints(event)
-        self.o.pickLineStart = p1
-        self.o.pickLineLength = 0.0
+        self.pickLineStart = p1
+        self.pickLineLength = 0.0
 
    
     def leftShiftDrag(self, event):
@@ -629,10 +637,10 @@ class modifyMode(basicMode):
         # start in ambivalent mode
         self.Zunlocked = 1
         self.ZRot = 0
-        self.o.picking = True
+        self.picking = True
         p1, p2 = self.o.mousepoints(event)
-        self.o.pickLineStart = p1
-        self.o.pickLineLength = 0.0
+        self.pickLineStart = p1
+        self.pickLineLength = 0.0
     
     def leftCntlDrag(self, event):
         """move part along its axis (mouse goes up or down)
@@ -673,7 +681,7 @@ class modifyMode(basicMode):
         
     def Draw(self):
         self.griddraw()
-        if self.o.sellist: self.o.pickdraw()
+        if self.sellist: self.pickdraw()
         if self.o.assy: self.o.assy.draw(self.o)
 
     def griddraw(self):
@@ -682,22 +690,24 @@ class modifyMode(basicMode):
         drawer.drawaxes(5,-self.o.pov)
 
     def makeMenus(self):
-        self.Menu1 = self.makemenu([('All', self.o.assy.selectAll),
-                                    ('None', self.o.assy.selectNone),
-                                    ('Invert', self.o.assy.selectInvert),
-                                    ('Connected', self.o.assy.selectConnected),
-                                    ('Doubly', self.o.assy.selectDoubly)])
         
-        self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
+        self.Menu1 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
                                     ('Move', self.move),
                                     ('Bond', self.o.assy.Bond),
                                     ('Unbond', self.o.assy.Unbond),
                                     ('Stretch', self.o.assy.Stretch)])
+
+        self.Menu2 = self.makemenu([('All', self.o.assy.selectAll),
+                                    ('None', self.o.assy.selectNone),
+                                    ('Invert', self.o.assy.selectInvert),
+                                    ('Connected', self.o.assy.selectConnected),
+                                    ('Doubly', self.o.assy.selectDoubly)])
         
         self.Menu3 = self.makemenu([('Default', self.o.dispDefault),
                                     ('Lines', self.o.dispLines),
                                     ('CPK', self.o.dispCPK),
+                                    ('Tubes', self.o.dispTubes),
                                     ('VdW', self.o.dispVdW),
                                     None,
                                     ('Invisible', self.o.dispInvis),

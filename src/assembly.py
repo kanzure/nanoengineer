@@ -107,7 +107,8 @@ class assembly:
         ndx={}
         hashAtomPos
         bbhi, bblo = shap.bbox.data
-        griderator = genDiam(bblo, bbhi)
+        # Widen the grid enough to get bonds that cross the box
+        griderator = genDiam(bblo-1.6, bbhi+1.6)
         pp=griderator.next()
         while (pp):
             pp0 = pp1 = None
@@ -124,6 +125,12 @@ class assembly:
                     ndx[pp1h] = pp1
                 else: pp1 = ndx[pp1h]
             if pp0 and pp1: mol.bond(pp0, pp1)
+            elif pp0:
+                x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
+                mol.bond(pp0, x)
+            elif pp1:
+                x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
+                mol.bond(pp1, x)
             pp=griderator.next()
         self.addmol(mol)
         mol.pick()
@@ -168,7 +175,8 @@ class assembly:
                 if mol: self.addmol(mol)
                 m=re.search("(\(\s+\))", card[8:])
                 mol=molecule(self, m and m.group(1))
-                mol.display = ["def", 'nil', "lin", 'bns', 'vdw'].index(card[5:8]) - 1
+                try: mol.display = dispNames.index(card[5:8])
+                except ValueError: mol.display = diDEFAULT
             elif key == "atom":
                 m=re.match("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)"
                            ,card)
@@ -233,14 +241,12 @@ class assembly:
         atnum = 1
         self.alist = []
         for mol in self.molecules:
-            carrydisp = ("nil", "lin", "bns", "vdw")[mol.display]
+            carrydisp = dispNames[mol.display]
             f.write("part " + carrydisp + " (" + mol.name + ")\n")
             for a in mol.atoms.itervalues():
                 self.alist += [a]
                 atnums[a.key] = atnum
-                if a.display >= 0:
-                    disp = ("nil", "lin", "bns", "vdw")[a.display]
-                else: disp = ("nil", "lin", "bns", "vdw")[mol.display]
+                disp = dispNames[a.display]
                 if disp != carrydisp:
                     f.write("show " + disp + "\n")
                     carrydisp = disp
@@ -354,7 +360,7 @@ class assembly:
         self.unpickparts()
         if lis:
             for mol in lis:
-                for a in mol.atoms.itervalues:
+                for a in mol.atoms.itervalues():
                     a.pick()
         self.selwhat = 0
         self.updateDisplays()
@@ -501,8 +507,6 @@ class assembly:
         aa=self.selatoms.values()
         if len(aa)==2:
             aa[0].unbond(aa[1])
-        aa[0].molecule.changeapp()
-        aa[1].molecule.changeapp()
         self.updateDisplays()
 
     #stretch a molecule

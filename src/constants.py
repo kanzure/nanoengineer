@@ -10,7 +10,12 @@ diDEFAULT = -1
 diINVISIBLE = 0
 diLINES = 1
 diCPK = 2
-diVDW = 3
+diTUBES = 3
+diVDW = 4
+
+dispNames = ["def", 'nil', "lin", 'cpk', 'tub', 'vdw']
+
+TubeRadius = 0.3
 
 #colors
 black = (0.0, 0.0, 0.0)
@@ -24,6 +29,14 @@ purple = (1.0, 0.0, 1.0)
 white = (1.0,1.0,1.0)
 gray = (0.5, 0.5, 0.5)
 
+bondColor = (0.25, 0.25, 0.25)
+
+PickedColor = (0.0, 0.0, 1.0)
 
 globalParms = {}
 globalParms['WorkingDirectory'] = "."
+
+def logicColor(logic):
+    if logic==0: return orange
+    if logic==1: return aqua
+    if logic==2: return yellow

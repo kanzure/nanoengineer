@@ -18,11 +18,8 @@ from shape import *
 from constants import *
 
 CPKvdW = 0.25
-bondColor = (0.3, 0.3, 0.3)
 
 assyList = []
-
-PickedColor = (0.2, 2.0, 1.0)
 
 Elno = 0
 
@@ -70,6 +67,7 @@ class elem:
         self.name = n
         self.mass = m
         self.rvdw = rv
+        self.rcovalent = bn and bn[0][1]/100.0
         self.bonds = bn
         self.color = col
 
@@ -80,7 +78,7 @@ class elem:
 #      sym   name          mass    rVdW  color
 #      [[Nbonds, radius, angle] ...]
 Mendeleev=[ \
- elem("Lp", "Lone Pair",   0.001,  1.0,  [0.0, 0.0, 0.0],
+ elem("X", "Singlet",      0.001,  1.1,  [1.0, 0.0, 0.0],
       [[1, 20, None]]),
  elem("H",  "Hydrogen",    1.6737, 1.2,  [0.0, 0.6, 0.6],
       [[1, 30, None]]),
@@ -92,7 +90,7 @@ Mendeleev=[ \
       [[2, 114, 666]]),
  elem("B",  "Boron",      17.949,  2.0,  [0.3, 0.3, 1.0],
       [[3, 90, 120]]),
- elem("C",  "Carbon",     19.925,  1.84, [0.22, 0.35, 0.18],
+ elem("C",  "Carbon",     19.925,  1.84, [0.04, 0.2, 0.0],
       [[4, 77, 109.5], [3, 71, 120], [2, 66, 180], [1, 59, None]]),
  elem("N",  "Nitrogen",   23.257,  1.55, [0.84, 0.37, 1.0],
       [[3, 70, 110], [2, 62, 120], [1, 54.5, None] ]),
@@ -108,7 +106,7 @@ Mendeleev=[ \
       [[2, 160, 100]]),
  elem("Al", "Aluminum",   44.7997, 2.5,  [0.5, 0.5, 0.9],
       [[3, 143, 109.5]]),
- elem("Si", "Silicon",    46.6245, 2.25, [0.37, 0.45, 0.33],
+ elem("Si", "Silicon",    46.6245, 2.25, [0.04, 0.3, 0.0],
       [[4, 117, 109.5]]),
  elem("P",  "Phosphorus", 51.429,  2.11, [0.73, 0.32, 0.87],
       [[3, 110, 110]]),
@@ -166,6 +164,8 @@ Hydrogen = PeriodicTable["H"]
 Carbon = PeriodicTable["C"]
 Nitrogen = PeriodicTable["N"]
 Oxygen = PeriodicTable["O"]
+
+Singlet = PeriodicTable["X"]
 
 
 # the elements, indexed by name (Hydrogen, Carbon ...)
@@ -229,6 +229,9 @@ class atom:
         pos = self.xyz
         if disp in [diVDW, diCPK]:
             drawsphere(color, pos, rad, level, self.picked)
+        if disp == diTUBES:
+            if len(self.bonds)<4:
+                drawsphere(color, pos, rad, level, self.picked)
         if self.picked:
             drawwirecube(PickedColor, pos, rad)
         
@@ -245,6 +248,7 @@ class atom:
         else: disp=self.display
         rad = self.element.rvdw
         if disp != diVDW: rad=rad*CPKvdW
+        if disp == diTUBES: rad = TubeRadius
         return (disp, rad)
 
     def povwrite(self, file, dispdef, col):
@@ -297,7 +301,12 @@ class atom:
         called from atom.kill of the other atom.
         """
         try: self.bonds.remove(b)
-        except ValueError: pass
+        except ValueError:
+            for bx in self.bonds[:]:
+                a = bx.other(self)
+                if a == b:
+                    self.bonds.remove(bx)
+                    b.unbond(bx)
         self.molecule.changeapp()
 
     def hopmol(self, numol):
@@ -317,11 +326,11 @@ class atom:
         """
         return map((lambda b: b.other(self)), self.bonds)
 
-    def mvElement(self, elname):
+    def mvElement(self, elt):
         """Change the element type of this atom to element elname
         (e.g. 'Oxygen')
         """
-        self.element = fullnamePeriodicTable[elname]
+        self.element = elt
         self.molecule.changeapp()
 
     def kill(self):
@@ -334,6 +343,14 @@ class atom:
             b.other(self).unbond(b)
         # may have changed appearance of the molecule
         self.molecule.changeapp()
+
+    def Hydrogenate(self):
+        """ if this is a singlet, change it to a hydrogen
+        """
+        if not self.element == Singlet: return
+        o = self.bonds[0].other(self)
+        self.mvElement(Hydrogen)
+        self.xyz += Hydrogen.rcovalent * norm(self.xyz - o.xyz)
 
 class bondtype:
     """not implemented
@@ -364,7 +381,7 @@ class bond:
     def __eq__(self, ob):
         return ob.key == self.key
 
-    def draw(self, win, dispdef, col):
+    def draw(self, win, dispdef, col, ext = 0):
         """bonds are drawn in CPK or line display mode.
         display mode is inherited from the atoms or molecule.
         lines change color from atom to atom.
@@ -374,14 +391,23 @@ class bond:
         color1 = col or self.atom1.element.color
         color2 = col or self.atom2.element.color
 
+        a1pos = self.atom1.xyz
+        a2pos = self.atom2.xyz
+        if ext:
+            a1pos = self.atom1.posn()
+            a2pos = self.atom2.posn()
+
         disp=max(self.atom1.display, self.atom2.display)
         if disp<0: disp= dispdef
         if disp == diLINES:
-            drawline(color1, self.atom1.xyz,
-                     color2, self.atom2.xyz)
+            drawline(color1, a1pos, color2, a2pos)
         if disp == diCPK:
-            drawcylinder(col or bondColor, self.atom1.xyz,
-                         self.atom2.xyz, 0.1, self.picked)
+            drawcylinder(col or bondColor, a1pos, a2pos, 0.1, self.picked)
+        if disp == diTUBES:
+            center = (a1pos + a2pos) / 2.0
+            drawcylinder(color1, a1pos, center, TubeRadius)
+            drawcylinder(color2, a2pos, center, TubeRadius)
+            
 
     def povwrite(self, file, dispdef, col):
         disp=max(self.atom1.display, self.atom2.display)
@@ -504,6 +530,9 @@ class molecule:
         q = self.quat
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
 
+
+        if self.display != diDEFAULT: disp = self.display
+        else: disp = win.display
         
         # cache molecule display as GL list
         if self.havelist:
@@ -512,17 +541,19 @@ class molecule:
         else:
             glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
 
-            if self.display != diDEFAULT: disp = self.display
-            else: disp = win.display
-
             drawn = {}
+
+            self.externs = []
 
             for atm in self.atoms.itervalues():
                 atm.draw(win, disp, self.color, level)
                 for bon in atm.bonds:
                     if bon.key not in drawn:
-                        drawn[bon.key] = bon
-                        bon.draw(win, disp, self.color)
+                        if bon.other(atm).molecule != self:
+                            self.externs += [bon]
+                        else:
+                            drawn[bon.key] = bon
+                            bon.draw(win, disp, self.color)
 
             if self.picked:
                 drawwirebox(PickedColor, V(0,0,0), self.bboxhi)
@@ -533,6 +564,9 @@ class molecule:
             glEndList()
             self.havelist = 1
         glPopMatrix()
+
+        for bon in self.externs:
+            bon.draw(win, disp, self.color, 1)
 
     # write a povray file: just draw everything inside
     def povwrite(self,file, win):
@@ -628,7 +662,7 @@ class molecule:
         # will have changed appearance of the molecule
         self.havelist = 0
 
-    def hydrogenate(self):
+    def Hydrogenate(self):
         """Add hydrogen to all unfilled bond sites on carbon
         atoms assuming they are in a diamond lattice.
         For hilariously incorrect results, use on graphite.
@@ -636,59 +670,64 @@ class molecule:
         """
         # will change appearance of the molecule
         self.havelist = 0
-        # length of Carbon-Hydrogen bond
-        lCHb = (Carbon.bonds[0][1] + Hydrogen.bonds[0][1]) / 100.0
         for a in self.atoms.values():
-            if a.element == Carbon:
-                valence = len(a.bonds)
-                # lone atom, pick 4 directions arbitrarily
-                if valence == 0:
-                    b=atom("H", a.xyz+lCHb*norm(V(-1,-1,-1)), self)
-                    c=atom("H", a.xyz+lCHb*norm(V(1,-1,1)), self)
-                    d=atom("H", a.xyz+lCHb*norm(V(1,1,-1)), self)
-                    e=atom("H", a.xyz+lCHb*norm(V(-1,1,1)), self)
-                    self.bond(a,b)
-                    self.bond(a,c)
-                    self.bond(a,d)
-                    self.bond(a,e)
+            a.Hydrogenate()
 
-                # pick an arbitrary tripod, and rotate it to
-                # center away from the one bond
-                elif valence == 1:
-                    bpos = lCHb*norm(V(-1,-1,-1))
-                    cpos = lCHb*norm(V(1,-1,1))
-                    dpos = lCHb*norm(V(1,1,-1))
-                    epos = V(-1,1,1)
-                    q1 = Q(epos, a.bonds[0].other(a).xyz - a.xyz)
-                    b=atom("H", a.xyz+q1.rot(bpos), self)
-                    c=atom("H", a.xyz+q1.rot(cpos), self)
-                    d=atom("H", a.xyz+q1.rot(dpos), self)
-                    self.bond(a,b)
-                    self.bond(a,c)
-                    self.bond(a,d)
 
-                # for two bonds, the new ones can be constructed
-                # as linear combinations of their sum and cross product
-                elif valence == 2:
-                    b=a.bonds[0].other(a).xyz - a.xyz
-                    c=a.bonds[1].other(a).xyz - a.xyz
-                    v1 = - norm(b+c)
-                    v2 = norm(cross(b,c))
-                    bpos = lCHb*(v1 + sqrt(2)*v2)/sqrt(3)
-                    cpos = lCHb*(v1 - sqrt(2)*v2)/sqrt(3)
-                    b=atom("H", a.xyz+bpos, self)
-                    c=atom("H", a.xyz+cpos, self)
-                    self.bond(a,b)
-                    self.bond(a,c)
+        
+##         # length of Carbon-Hydrogen bond
+##         lCHb = (Carbon.bonds[0][1] + Hydrogen.bonds[0][1]) / 100.0
+##         for a in self.atoms.values():
+##             if a.element == Carbon:
+##                 valence = len(a.bonds)
+##                 # lone atom, pick 4 directions arbitrarily
+##                 if valence == 0:
+##                     b=atom("H", a.xyz+lCHb*norm(V(-1,-1,-1)), self)
+##                     c=atom("H", a.xyz+lCHb*norm(V(1,-1,1)), self)
+##                     d=atom("H", a.xyz+lCHb*norm(V(1,1,-1)), self)
+##                     e=atom("H", a.xyz+lCHb*norm(V(-1,1,1)), self)
+##                     self.bond(a,b)
+##                     self.bond(a,c)
+##                     self.bond(a,d)
+##                     self.bond(a,e)
 
-                # given 3, the last one is opposite their average
-                elif valence == 3:
-                    b=a.bonds[0].other(a).xyz - a.xyz
-                    c=a.bonds[1].other(a).xyz - a.xyz
-                    d=a.bonds[2].other(a).xyz - a.xyz
-                    v = - norm(b+c+d)
-                    b=atom("H", a.xyz+lCHb*v, self)
-                    self.bond(a,b)
+##                 # pick an arbitrary tripod, and rotate it to
+##                 # center away from the one bond
+##                 elif valence == 1:
+##                     bpos = lCHb*norm(V(-1,-1,-1))
+##                     cpos = lCHb*norm(V(1,-1,1))
+##                     dpos = lCHb*norm(V(1,1,-1))
+##                     epos = V(-1,1,1)
+##                     q1 = Q(epos, a.bonds[0].other(a).xyz - a.xyz)
+##                     b=atom("H", a.xyz+q1.rot(bpos), self)
+##                     c=atom("H", a.xyz+q1.rot(cpos), self)
+##                     d=atom("H", a.xyz+q1.rot(dpos), self)
+##                     self.bond(a,b)
+##                     self.bond(a,c)
+##                     self.bond(a,d)
+
+##                 # for two bonds, the new ones can be constructed
+##                 # as linear combinations of their sum and cross product
+##                 elif valence == 2:
+##                     b=a.bonds[0].other(a).xyz - a.xyz
+##                     c=a.bonds[1].other(a).xyz - a.xyz
+##                     v1 = - norm(b+c)
+##                     v2 = norm(cross(b,c))
+##                     bpos = lCHb*(v1 + sqrt(2)*v2)/sqrt(3)
+##                     cpos = lCHb*(v1 - sqrt(2)*v2)/sqrt(3)
+##                     b=atom("H", a.xyz+bpos, self)
+##                     c=atom("H", a.xyz+cpos, self)
+##                     self.bond(a,b)
+##                     self.bond(a,c)
+
+##                 # given 3, the last one is opposite their average
+##                 elif valence == 3:
+##                     b=a.bonds[0].other(a).xyz - a.xyz
+##                     c=a.bonds[1].other(a).xyz - a.xyz
+##                     d=a.bonds[2].other(a).xyz - a.xyz
+##                     v = - norm(b+c+d)
+##                     b=atom("H", a.xyz+lCHb*v, self)
+##                     self.bond(a,b)
 
 
     def __str__(self):

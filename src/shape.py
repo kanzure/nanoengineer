@@ -11,11 +11,6 @@ from constants import *
 
 color = [0.22, 0.35, 0.18, 1.0]
 
-def logicColor(logic):
-    if logic==0: return orange
-    if logic==1: return aqua
-    if logic==2: return yellow
-
 class BBox:
     """ implement a bounding box in 3-space
     BBox(PointList)
@@ -358,7 +353,7 @@ class shape:
         """Loop thru all the atoms that are visible and select any
         that are 'in' the shape, ignoring the thickness parameter.
         """
-        if assy.selmols:
+        if assy.selwhat:
             self.partselect(assy)
             return
         c=self.curves[0]
@@ -369,8 +364,12 @@ class shape:
                     if a.display == diINVISIBLE: continue
                     if c.isin(a.posn()): a.pick()
         elif c.logic == 2:
-            for a in assy.selatoms.values():
-                if not c.isin(a.posn()): a.unpick()
+            for mol in assy.molecules:
+                if mol.display == diINVISIBLE: continue
+                for a in mol.atoms.itervalues():
+                    if a.display == diINVISIBLE: continue
+                    if c.isin(a.posn()): a.pick()
+                    else: a.unpick()
         else:
             for a in assy.selatoms.values():
                 if c.isin(a.posn()): a.unpick()

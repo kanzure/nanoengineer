@@ -431,18 +431,6 @@ class GLPane(QGLWidget):
         glLoadIdentity()
 
 
-    def pickdraw(self):
-        """Draw the (possibly unfinished) freehand selection curve.
-        """
-        color = logicColor(self.selSense)
-        pl = zip(self.sellist[:-1],self.sellist[1:])
-        for pp in pl:
-            drawer.drawline(color,pp[0],color,pp[1])
-        if self.selLassRect:
-            drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
-                                 self.up, self.right, color)
-
-
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
         """
@@ -494,6 +482,9 @@ class GLPane(QGLWidget):
 
     def dispCPK(self):
         self.setdisplay(diCPK)
+
+    def dispTubes(self):
+        self.setdisplay(diTUBES)
 
     def dispLines(self):
         self.setdisplay(diLINES)
