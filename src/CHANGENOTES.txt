@@ -7,7 +7,7 @@ INSTRUCTIONS
 ------------
 
 Developers should update this file after every commit that fixes a bug
-or adds new funtionality to nanoENGINEER-1. Please include the following
+or adds new functionality to nanoENGINEER-1. Please include the following
 information:
 
 Name:
@@ -111,3 +111,13 @@ Name: Mark Sims
 Date: 3/18/2005, PM
 File: Lots
 Summary: Added a selection filter for Select Atoms.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 3/18/2005
+Files: fileIO.py MWsemantics.py
+Summary: exclude singlets from saved PDB files; warn user when this happens
+
+----------------------------
+
