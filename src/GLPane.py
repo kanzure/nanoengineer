@@ -122,8 +122,8 @@ class GLPane(QGLWidget, modeMixin):
         self.debug_menu = self.makemenu( self.debug_menu_items() )
 
         # The background color
-        self.backgroundColor = normalBackground
-        self.gridColor = normalGridLines
+        self.backgroundColor = normalBackground ### bruce 040928 thinks backgroundColor is never used from here, only from self.mode
+        self.gridColor = normalGridLines ### bruce 040928 -- i'm not sure whether or not gridColor is still used
 
         self.trackball = Trackball(10,10)
         self.quat = Q(1, 0, 0, 0)
