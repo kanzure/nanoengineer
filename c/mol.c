@@ -95,7 +95,7 @@ char *elname[NUMELTS]=
 	 "Zn","Ga","Ge","As","Se""Br","Kr"};
 
 static struct bsdata bstab[]={
-	// order,atom1,atom2   springConstant  nominalDist, nomAngle, angularSpring
+	// order,atom1,atom2   springConstant  nominalDist, de, beta*0.01
 	bondrec(1,1,6,  460.0, 111.3, 0.671, 1.851),	/* H-C */
 	bondrec(1,1,7,  460.0, 102.3, 0.721, 1.851),	/* H-N XXX */
 	bondrec(1,1,8,  460.0,  94.2, 0.753, 1.747),	/* H-O */
@@ -133,9 +133,9 @@ static struct bsdata bstab[]={
 	 * fine motion controller work. Numbers are guaranteed
 	 * to be bogus.
 	 */
-	bondrec(1,8,14, 321.3, 173.5, 0.800, 1.750),	/* O-Si XXX */
-	bondrec(1,7,14, 321.3, 173.5, 0.800, 1.750),	/* N-Si XXX */
-	bondrec(1,7,16, 321.3, 173.5, 0.800, 1.750),	/* N-S  XXX */
+	bondrec(1,8,14, 0.3, 173.5, 0.0, 0.50),	/* O-Si XXX */
+	bondrec(1,7,14, 0.3, 173.5, 0.0, 0.50),	/* N-Si XXX */
+	bondrec(1,7,16, 0.3, 173.5, 0.0, 0.50),	/* N-S  XXX */
 };
 
 #define BSTABSIZE  (sizeof(bstab) / sizeof(struct bsdata))
@@ -195,7 +195,7 @@ void bondump() {		/* gather bond statistics */
 
 
 struct angben bendata[]={
-	// atom,order,atom,order,atom,  length,  radians
+	// atom,order,atom,order,atom,  angularSpringConstant,  radians
 	benrec(6,1,6,1,6, 450, 1.911),	/* C-C-C */
 	benrec(6,1,6,1,1, 360, 1.909),	/* C-C-H */
 	benrec(1,1,6,1,1, 320, 1.909),	/* H-C-H */
@@ -244,37 +244,37 @@ struct angben bendata[]={
 	/* Next are some kludges Will put in just to make the
 	 * fine motion controller work. Numbers guaranteed wrong.
 	 */
-	benrec(7,1,16,1,6, 720, 1.902),
-	benrec(6,1,8,1,14, 720, 1.902),
-	benrec(8,1,14,1,6, 720, 1.902),
-	benrec(8,1,14,1,1, 720, 1.902),
-	benrec(6,1,14,1,1, 720, 1.902),
-	benrec(8,1,14,1,8, 720, 1.902),
-	benrec(9,1,6,1,7, 720, 1.902),
-	benrec(7,1,14,1,8, 720, 1.902),
-	benrec(6,1,16,1,14, 720, 1.902),
-	benrec(16,1,14,1,8, 720, 1.902),
-	benrec(16,1,14,1,7, 720, 1.902),
-	benrec(14,1,7,1,14, 720, 1.902),
-	benrec(14,1,7,1,6, 720, 1.902),
-	benrec(7,1,14,1,7, 720, 1.902),
-	benrec(8,1,6,1,16, 720, 1.902),
-	benrec(1,1,6,1,16, 720, 1.902),
-	benrec(6,1,6,1,14, 720, 1.902),
-	benrec(16,1,6,1,14, 720, 1.902),
-	benrec(8,1,6,1,9, 720, 1.902),
-	benrec(7,1,16,1,7, 720, 1.902),
-	benrec(16,1,7,1,16, 720, 1.902),
-	benrec(16,1,7,1,14, 720, 1.902),
-	benrec(14,1,8,1,7, 720, 1.902),
-	benrec(1,1,14,1,7, 720, 1.902),
-	benrec(14,1,14,1,7, 720, 1.902),
-	benrec(14,1,14,1,6, 720, 1.902),
-	benrec(7,1,14,1,6, 720, 1.902),
-	benrec(14,1,6,1,1, 720, 1.902),
-	benrec(14,1,14,1,8, 720, 1.902),
-	benrec(14,1,6,1,8, 720, 1.902),
-	benrec(14,1,6,1,7, 720, 1.902),
+	benrec(7,1,16,1,6, 0, 1.902),
+	benrec(6,1,8,1,14, 0, 1.902),
+	benrec(8,1,14,1,6, 0, 1.902),
+	benrec(8,1,14,1,1, 0, 1.902),
+	benrec(6,1,14,1,1, 0, 1.902),
+	benrec(8,1,14,1,8, 0, 1.902),
+	benrec(9,1,6,1,7, 0, 1.902),
+	benrec(7,1,14,1,8, 0, 1.902),
+	benrec(6,1,16,1,14, 0, 1.902),
+	benrec(16,1,14,1,8, 0, 1.902),
+	benrec(16,1,14,1,7, 0, 1.902),
+	benrec(14,1,7,1,14, 0, 1.902),
+	benrec(14,1,7,1,6, 0, 1.902),
+	benrec(7,1,14,1,7, 0, 1.902),
+	benrec(8,1,6,1,16, 0, 1.902),
+	benrec(1,1,6,1,16, 0, 1.902),
+	benrec(6,1,6,1,14, 0, 1.902),
+	benrec(16,1,6,1,14, 0, 1.902),
+	benrec(8,1,6,1,9, 0, 1.902),
+	benrec(7,1,16,1,7, 0, 1.902),
+	benrec(16,1,7,1,16, 0, 1.902),
+	benrec(16,1,7,1,14, 0, 1.902),
+	benrec(14,1,8,1,7, 0, 1.902),
+	benrec(1,1,14,1,7, 0, 1.902),
+	benrec(14,1,14,1,7, 0, 1.902),
+	benrec(14,1,14,1,6, 0, 1.902),
+	benrec(7,1,14,1,6, 0, 1.902),
+	benrec(14,1,6,1,1, 0, 1.902),
+	benrec(14,1,14,1,8, 0, 1.902),
+	benrec(14,1,6,1,8, 0, 1.902),
+	benrec(14,1,6,1,7, 0, 1.902),
 };
 
 #define BENDATASIZE  (sizeof(bendata) / sizeof(struct angben))
