@@ -894,6 +894,15 @@ class MWsemantics(MainWindow):
         self.assy.makestat()
         self.win_update()
 
+        
+    def makeThermo(self):
+        if not self.assy.selatoms:
+            self.history.message(redmsg("Thermometer: You must first select an atom(s) you want to associate with a thermometer."))
+            return
+        self.history.message(greenmsg("Thermometer: "))
+        self.assy.makethermo()
+        self.win_update()
+        
     def makeMotor(self):
         if not self.assy.selatoms:
             self.history.message(redmsg("Rotary Motor: You must first select an atom(s) to create a rotary motor."))
