@@ -1004,6 +1004,21 @@ class TreeWidget(TreeView, DebugMenuMixin):
         ##pixmap = QPixmap("/Nanorex/Working/cad/src/butterfly.png") # this works
         ##print pixmap,pixmap.width(),pixmap.height(),pixmap.size(),pixmap.depth()
         w,h = 160,130
+        
+        if 1:
+            if 0: # Mark emailed me this:
+                    # Mark's new pixmap size
+                    # h = height of nodes plus one more row for "moving 1 item" text
+                    w,h = 160,(len(nodes) + 1) * 24
+            # but that's not good if len(nodes) is large, so use the following;
+            # note that it depends on the details of hardcoded stuff in other functions
+            # and those don't even have comments warning about that! ####@@@@
+            # [bruce 050202 10:20am]:
+            h = max(1,min(3,len(nodes))) * 24 + 24 # the last 24 is a guess for the text at the bottom
+            if len(nodes)>3:
+                h += 10 # for the "..."
+            pass
+        
         pixmap = QPixmap(w,h) # should have size w,h, depth of video mode, dflt optimization
         ##print pixmap,pixmap.width(),pixmap.height(),pixmap.size(),pixmap.depth()
         ## pixmap.fill(Qt.red) # makes it red; what's dragged is a pretty transparent version of this, but red... (looks nice)

@@ -334,7 +334,15 @@ class TreeView(QListView):
         # btw when it failed it was called arg 5 to the method -- this did not count self, i guess...
         # does that mean cg could have been None?
         ## colorgroup = None #k ok? no; and this one is called arg 1; seems inconsistent...
-        item.paintCell( painter, colorgroup, col, width, align)
+        
+        if 1: ### for release, change to "if sys.platform == 'windows'" -- or whatever the correct name is!
+            # note to Mark -- try not to change this call itself, but only what that new method does --
+            # that way we confine all differences to that new method our_paintCell
+            # (even calling item.setSelected(False) can be inside there, not here, if it's needed).
+            # But if necessary, you can try changing anything in this method paint_item too. -- bruce 050202 10:16am PST
+            self.our_paintCell( item, painter, colorgroup, col, width, align)
+        else:
+            item.paintCell( painter, colorgroup, col, width, align)
         return width
         # (now if we had not just returned, we could try some fancier things here:)
         # now how do we paint it somewhere else, ie translate the painter coords?
@@ -351,6 +359,14 @@ class TreeView(QListView):
         item.paintCell( painter, colorgroup, col, width, align) # note: honors selected state, that might be useful too.
         # also try rotate, shear.... might even be good for dragging!
         return # from debugging/example code -- the real return statement comes sooner
+
+    def our_paintCell(self, item, painter, colorgroup, col, width, align):
+        """Quick Alpha-release hack [bruce 050202]:
+        This is a place added by bruce for Mark to try out variations in how to call item.paintCell,
+        and/or replacements of it by our own drawing code using QPainter methods on painter.
+        """
+        item.paintCell( painter, colorgroup, col, width, align)
+        return
     
     ## def viewportResizeEvent(self, event):pass
         
