@@ -1,0 +1,190 @@
+[by bruce, 040920]
+
+I added a feature to atom.py so that developers can request python profiling
+of atom by setting a variable in their .atom-debug-rc (for a filename to
+receive the profiling data).
+
+This is useful not only for seeing what takes time, but for seeing which
+functions are called, or not called, when certain operations are done, which
+can be useful for studying code you're not yet familiar with, or for
+debugging.
+
+This feature will not affect normal users, or developers who don't set that
+specific variable. When the variable is not set (or if 'import profile'
+fails), profiling is not enabled.
+
+===
+
+To try it out, make sure your atom.py is up to date, and then create or edit
+your .atom-debug-rc file (an optional text file in your home directory,
+containing python commands, run when atom starts using execfile)
+
+to contain a line like
+
+  atom_debug_profile_filename = "/Users/bruce/atomprof1"
+  
+(I suggest using an absolute pathname; I don't know where the file would end
+up if the path is relative.)
+
+Then run atom normally. A few extra lines should be printed, mentioning the
+use of profiling. (See the example shell output below.)
+
+To analyze the data (also shown below), use the python documentation for the
+profile/pstats modules; this came with my Python2.3 installation in the file
+
+  file:///Library/Frameworks/Python.framework/Versions/2.3/
+    Resources/Python.app/Contents/Resources/English.lproj/
+    PythonDocumentation/lib/profile.html
+  
+  (see especially section "10.3 Instant Users Manual", profile-instant.html)
+
+and is probably somewhere in your python installation too, and/or at python.org.
+
+- Bruce
+
+===
+
+sample output from running Atom using an .atom-debug-rc that sets up profiling:
+
+	user's .atom_debug_rc requests profiling into file '/Users/bruce/atomprof1'
+	
+  [atom runs here, until I quit it; I don't know how well this works if it crashes]
+
+	profile data was presumably saved into '/Users/bruce/atomprof1'
+	Exit status: 0
+
+===
+
+sample output from looking at the resulting data, according to the "Instant Users Manual"
+mentioned above; what I did during this session was to create a small cookie:
+
+reading .login
+done .login
+[!398] ~ % file /Users/bruce/atomprof1
+/Users/bruce/atomprof1: data
+[!399] ~ % l /Users/bruce/atomprof1
+72 /Users/bruce/atomprof1
+[!400] ~ % wc /Users/bruce/atomprof1
+      18     116   32844 /Users/bruce/atomprof1
+[!401] ~ % python
+Python 2.3 (#2, Jul 30 2003, 11:45:28) 
+[GCC 3.1 20020420 (prerelease)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pstats
+>>> p = pstats.Stats('atomprof1')
+>>> p.sort_stats('name')
+<pstats.Stats instance at 0x115fa8>
+>>> p.print_stats(10)
+Mon Sep 20 12:17:06 2004    atomprof1
+
+         41648 function calls (41558 primitive calls) in 3.840 CPU seconds
+
+   Ordered by: function name
+   List reduced from 123 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    1.280    1.280    3.840    3.840 <string>:1(?)
+       75    0.000    0.000    0.000    0.000 /Users/bruce/nanorex-code-040914/cad/src/VQT.py:20(A)
+       20    0.000    0.000    0.440    0.022 /Users/bruce/nanorex-code-040914/cad/src/cookieMode.py:95(ContinDraw)
+        1    0.000    0.000    0.030    0.030 /Nanorex/CVS-code/040916-working/cad/src/modes.py:44(Done)
+        1    0.000    0.000    1.050    1.050 /Users/bruce/nanorex-code-040914/cad/src/cookieMode.py:35(Done)
+       27    0.000    0.000    1.000    0.037 /Users/bruce/nanorex-code-040914/cad/src/cookieMode.py:169(Draw)
+       14    0.000    0.000    0.120    0.009 /Users/bruce/nanorex-code-040914/cad/src/selectMode.py:127(Draw)
+        1    0.000    0.000    0.540    0.540 /Users/bruce/nanorex-code-040914/cad/src/cookieMode.py:122(EndDraw)
+        1    0.000    0.000    0.000    0.000 /Users/bruce/nanorex-code-040914/cad/src/selectMode.py:75(EndPick)
+        2    0.000    0.000    0.000    0.000 /Nanorex/CVS-code/040916-working/cad/src/GLPane.py:411(SaveMouse)
+
+
+<pstats.Stats instance at 0x115fa8>
+>>> p.sort_stats('cumulative').print_stats(10)
+Mon Sep 20 12:17:06 2004    atomprof1
+
+         41648 function calls (41558 primitive calls) in 3.840 CPU seconds
+
+   Ordered by: cumulative time
+   List reduced from 123 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    3.840    3.840 profile:0(app.exec_loop())
+        1    1.280    1.280    3.840    3.840 <string>:1(?)
+       41    0.060    0.001    1.210    0.030 /Nanorex/CVS-code/040916-working/cad/src/GLPane.py:446(paintGL)
+        1    0.000    0.000    1.050    1.050 /Nanorex/CVS-code/040920-working/cad/src/MWsemantics.py:583(toolsDone)
+        1    0.000    0.000    1.050    1.050 /Users/bruce/nanorex-code-040914/cad/src/cookieMode.py:35(Done)
+       27    0.000    0.000    1.000    0.037 /Users/bruce/nanorex-code-040914/cad/src/cookieMode.py:169(Draw)
+        1    0.100    0.100    0.930    0.930 /Users/bruce/nanorex-code-040914/cad/src/assembly.py:98(molmake)
+     3200    0.130    0.000    0.730    0.000 /Users/bruce/nanorex-code-040914/cad/src/shape.py:337(isin)
+     3200    0.220    0.000    0.600    0.000 /Users/bruce/nanorex-code-040914/cad/src/shape.py:266(isin)
+        2    0.010    0.005    0.550    0.275 /Nanorex/CVS-code/040916-working/cad/src/GLPane.py:321(mouseReleaseEvent)
+
+
+<pstats.Stats instance at 0x115fa8>
+>>> p.sort_stats('time').print_stats(10)
+Mon Sep 20 12:17:06 2004    atomprof1
+
+         41648 function calls (41558 primitive calls) in 3.840 CPU seconds
+
+   Ordered by: internal time
+   List reduced from 123 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    1.280    1.280    3.840    3.840 <string>:1(?)
+       27    0.410    0.015    0.410    0.015 /Users/bruce/nanorex-code-040914/cad/src/drawer.py:293(drawgrid)
+     3200    0.220    0.000    0.600    0.000 /Users/bruce/nanorex-code-040914/cad/src/shape.py:266(isin)
+     9231    0.220    0.000    0.220    0.000 /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/Numeric/dotblas/__init__.py:40(dot)
+     3200    0.170    0.000    0.290    0.000 /Users/bruce/nanorex-code-040914/cad/src/shape.py:86(isin)
+      192    0.140    0.001    0.220    0.001 /Users/bruce/nanorex-code-040914/cad/src/VQT.py:176(__add__)
+     3200    0.130    0.000    0.730    0.000 /Users/bruce/nanorex-code-040914/cad/src/shape.py:337(isin)
+     3078    0.110    0.000    0.110    0.000 /Users/bruce/nanorex-code-040914/cad/src/VQT.py:19(V)
+     1730    0.100    0.000    0.140    0.000 /Users/bruce/nanorex-code-040914/cad/src/VQT.py:27(vlen)
+        1    0.100    0.100    0.930    0.930 /Users/bruce/nanorex-code-040914/cad/src/assembly.py:98(molmake)
+
+
+<pstats.Stats instance at 0x115fa8>
+>>> p.strip_dirs()
+<pstats.Stats instance at 0x115fa8>
+>>> p.sort_stats('time').print_stats(10)
+Mon Sep 20 12:17:06 2004    atomprof1
+
+         41648 function calls (41558 primitive calls) in 3.840 CPU seconds
+
+   Ordered by: internal time
+   List reduced from 123 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    1.280    1.280    3.840    3.840 <string>:1(?)
+       27    0.410    0.015    0.410    0.015 drawer.py:293(drawgrid)
+     3200    0.220    0.000    0.600    0.000 shape.py:266(isin)
+     9231    0.220    0.000    0.220    0.000 __init__.py:40(dot)
+     3200    0.170    0.000    0.290    0.000 shape.py:86(isin)
+      192    0.140    0.001    0.220    0.001 VQT.py:176(__add__)
+     3200    0.130    0.000    0.730    0.000 shape.py:337(isin)
+     3078    0.110    0.000    0.110    0.000 VQT.py:19(V)
+     1730    0.100    0.000    0.140    0.000 VQT.py:27(vlen)
+        1    0.100    0.100    0.930    0.930 assembly.py:98(molmake)
+
+
+<pstats.Stats instance at 0x115fa8>
+>>> p.sort_stats('time').print_stats('cookie')
+Mon Sep 20 12:17:06 2004    atomprof1
+
+         41648 function calls (41558 primitive calls) in 3.840 CPU seconds
+
+   Ordered by: internal time
+   List reduced from 123 to 11 due to restriction <'cookie'>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       27    0.010    0.000    0.440    0.016 cookieMode.py:174(griddraw)
+        1    0.010    0.010    0.350    0.350 cookieMode.py:13(setMode)
+        1    0.000    0.000    0.000    0.000 cookieMode.py:59(leftDown)
+       20    0.000    0.000    0.440    0.022 cookieMode.py:86(leftDrag)
+       64    0.000    0.000    0.000    0.000 cookieMode.py:162(bareMotion)
+       20    0.000    0.000    0.440    0.022 cookieMode.py:95(ContinDraw)
+        1    0.000    0.000    1.050    1.050 cookieMode.py:35(Done)
+        1    0.000    0.000    0.000    0.000 cookieMode.py:68(StartDraw)
+        1    0.000    0.000    0.540    0.540 cookieMode.py:122(EndDraw)
+        1    0.000    0.000    0.540    0.540 cookieMode.py:112(leftUp)
+       27    0.000    0.000    1.000    0.037 cookieMode.py:169(Draw)
+
+
+<pstats.Stats instance at 0x115fa8>
+>>> ...
