@@ -158,10 +158,11 @@ def _readmmp(assy, filnam, isInsert = False):
             name = getname(card, "Mole")
             mol=molecule(assy,  name)
             disp = molpat.match(card)
-            mol.setDisplay(diDEFAULT)
             if disp:
                 try: mol.setDisplay(dispNames.index(disp.group(1)))
                 except ValueError: pass
+            else:
+                mol.setDisplay(diDEFAULT)
 
         elif key == "atom":
             m=atom1pat.match(card)
