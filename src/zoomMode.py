@@ -214,7 +214,7 @@ class zoomMode(basicMode):
 
     def makeMenus(self):
         self.Menu_spec = [
-            ('Cancel', self.Cancel),
+            ('Cancel', self.Done),
             ('Done', self.Done),
          ]
 
