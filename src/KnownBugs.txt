@@ -3,11 +3,15 @@ nanoENGINEER-1™ v0.0.5 (Alpha 5)
 
 Bug Fixes In Alpha 5
 
-* Bug #371
+* Bug #313 Cookie mode sends the objects (origin) deeper into the screen (graphics area) after exit from that mode. 
 
-* Bug # 433 errors/bugs when a blank PDB file is inserted into any open file using File->Insert.
+* Bug #371 Display bug associated with a cut operation on a chunk (which is bonded with another chunk). It stretches the inter-chunk bond and keeps bonded portion of cut chunk visible
 
-* Bug #
+* Bug # 433 Errors/bugs when a blank PDB file is inserted into any open file using File->Insert.
+
+* Bug #481 Cookie Mode: When adding a new layer, there is no visual clue indicating a new layer has started. (Now, cookie is drawn  with a different color for each layer) 
+
+* Bug #489  The parameters in the simulator always reset to default rather than parameters that were set last
 
 
 Unsupported Features:
@@ -89,35 +93,33 @@ Known Bugs (All Platforms)
 
 21. Cookie Mode: Changing views (Front, Top, Right, etc.) and then making a selection does not select properly. (236, 277) 
 
-22. Cookie Mode: The thickness of the current layer does not change once selection has started, even though the thickness can be changed on the dashboard. (167)
+22. Cookie Mode: When adding a new layer, there is no visual clue indicating a new layer has started. (281) 
 
-23. Cookie Mode: When adding a new layer, there is no visual clue indicating a new layer has started. (281) 
+23. Cookie Mode: Large selections can cause response latency. (8)
 
-24. Cookie Mode: Large selections can cause response latency. (8)
+24. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
 
-25. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+25. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
-26. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+26. Simulator: in some cases, open bonds ‘fly away’ from the elements while running a simulation movie. (254) 
 
-27. Simulator: in some cases, open bonds ‘fly away’ from the elements while running a simulation movie. (254) 
+27. Minimize: Large values written to the MMP (or to the generated XYZ) file after minimizing a model containing overlapped open bonds or excessively stretched bonds (422)
 
-28. Minimize: Large values written to the MMP (or to the generated XYZ) file after minimizing a model containing overlapped open bonds or excessively stretched bonds (422)
+28. Some bugs occur if one tries to play a movie file that is not valid for an opened MMP file.( A movie file becomes invalid if you make certain modifications to the file after creating the movie e.g. add/delete atoms, reorder the model tree etc) . This may result in loss of data. Therefore, do not try to play a movie file that is invalid for the opened part. (384)
 
-29. Some bugs occur if one tries to play a movie file that is not valid for an opened MMP file.( A movie file becomes invalid if you make certain modifications to the file after creating the movie e.g. add/delete atoms, reorder the model tree etc) . This may result in loss of data. Therefore, do not try to play a movie file that is invalid for the opened part. (384)
+29. Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
 
-30. Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
+30.  In the Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
 
-31.  In the Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
+31. Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
 
-32. Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
+32. Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
 
-33. Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
+33. Povray file of a model neglects the user defined lighting and displays the Povray image in nE-1’s default lighting. (447)
 
-34. Povray file of a model neglects the user defined lighting and displays the Povray image in nE-1’s default lighting. (447)
+34. Clipboard: Executing  set hotspot  on the objects already in the chunk makes another hotspot copy in clipboard and also changes the hotspot of the original copy (478)
 
-35. Clipboard: Executing  set hotspot  on the objects already in the chunk makes another hotspot copy in clipboard and also changes the hotspot of the original copy (478)
-
-36. Lighting: The time when ‘lighting dialog box’ pops up, the lighting settings of the model get modified automatically. (507)
+35. Lighting: The time when ‘lighting dialog box’ pops up, the lighting settings of the model get modified automatically if the model is not under home view. So make sure that the model is under ‘Home view’ before changing lighting preferences. (507)
 
 Windows Only Bugs
 
