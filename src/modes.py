@@ -974,11 +974,16 @@ class basicMode(anyMode):
         """Draw the (possibly unfinished) freehand selection curve.
         """
         color = logicColor(self.selSense)
-        pl = zip(self.sellist[:-1],self.sellist[1:])
-        for pp in pl:
-            drawer.drawline(color,pp[0],pp[1])
-        if self.selLassRect:
+
+        if self.o.mode.modename == 'ZOOM': # Zoom Window.  Draw only the RBW.
             drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
+                                 self.o.up, self.o.right, color)
+        else:
+            pl = zip(self.sellist[:-1],self.sellist[1:])
+            for pp in pl: # Draw the selection curve
+                drawer.drawline(color,pp[0],pp[1])
+            if self.selLassRect:  # Draw the rubber band window
+                drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
                                  self.o.up, self.o.right, color)
         
         if 0 and platform.atom_debug: # (keep awhile, might be useful)
