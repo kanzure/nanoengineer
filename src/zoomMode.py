@@ -117,6 +117,11 @@ class zoomMode(basicMode):
         self.rbw = False
         self.o.mode.Done(self.o.prevMode)
 
+    def keyPress(self,key):
+        # ESC - Exit/cancel zoom mode.
+        if key == Qt.Key_Escape: 
+            self.o.mode.Done(self.o.prevMode)
+            
     def Draw(self):
         basicMode.Draw(self)   
         if self.rbw: self.RBWdraw() # Draw rubber band window.
