@@ -2,7 +2,7 @@
 
 """ chem.py -- classes for elements, atoms, bonds.
 
-Temporarily owned by bruce 041104 for shakedown inval/update code.
+[No longer owned by bruce as of 041206]
 
 [class molecule, for chunks, was moved into chunk.py circa 041118.]
 
@@ -39,10 +39,6 @@ import platform # for atom_debug, but uses of atom_debug should all grab it
 
 
 # ==
-
-## removed, 041112: INVALID_EXTERNS = 333 #bruce 041029 -- an illegal value for mol.externs;
-# used to detect (or someday prevent) accidental use of mol.externs,
-# and (someday) to signal other code that a shakedown is needed.
 
 CPKvdW = 0.25
 
@@ -419,34 +415,41 @@ class atom:
         and its display mode (possibly inherited from dispdef).
         An atom's display mode overrides the inherited one from
         the molecule or glpane, but a molecule's color overrides the atom's
-        element-dependent one. Special cases for glpane.selatom.
+        element-dependent one. No longer treats glpane.selatom specially
+        (caller can draw selatom separately, on top of the regular atom).
         """
         assert not self.__killed
         # note use of basepos (in atom.baseposn) since it's being drawn under
         # rotation/translation of molecule
         pos = self.baseposn()
-        disp, drawrad = self.howdraw(dispdef) # (drawrad might be modified for selatom)
-        dodraw = (disp in [diVDW, diCPK, diTUBES]) # (dodraw might be modified for selatom)
+        disp, drawrad = self.howdraw(dispdef)
         if disp == diTUBES:
             pickedrad = drawrad * 1.8
         else:
             pickedrad = drawrad * 1.1
-        color = col or self.element.color # (color might be modified for selatom)
-        # selatom hack: might modify any of several local vars we set above
-        if self == glpane.selatom:
-            dodraw = 1 # Make sure selatom always gets drawn
-                # (drawrad will have been set by howdraw as if for diCPK)
-            if self.element == Singlet:
-                color = LEDon
-            else:
-                color = orange
-                if disp == diTUBES:
-                    drawrad *= 1.7 # but don't revise pickedrad!
-        if dodraw:
+        color = col or self.element.color
+        if disp in [diVDW, diCPK, diTUBES]:
             drawsphere(color, pos, drawrad, level)
         if self.picked:
             drawwiresphere(PickedColor, pos, pickedrad)
         return
+
+    def draw_as_selatom(self, glpane, dispdef, color, level):
+        #bruce 041206, to avoid need for changeapp() when selatom changes
+        # (fyi, as of 041206 the color arg is not used)
+        pos = self.baseposn()
+        disp, drawrad = self.howdraw(dispdef)
+        if self.element == Singlet:
+            color = LEDon
+            drawrad *= 1.02
+                # increased radius might not be needed, if we would modify the
+                # OpenGL depth threshhold criterion used by GL_DEPTH_TEST
+                # to overwrite when depths are equal [bruce 041206]
+        else:
+            color = orange
+            if disp == diTUBES:
+                drawrad *= 1.7
+        drawsphere(color, pos, drawrad, level) # always draw, regardless of disp
 
     def setDisplay(self, disp):
         self.display = disp
@@ -517,6 +520,8 @@ class atom:
                        "," + str(rad) + "," +
                        povpoint(color) + ")\n")
         if disp == diTUBES:
+            ###e this should be merged with other case, and should probably
+            # just use rad from howdraw [bruce 041206 comment]
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(TubeRadius) + "," +
                        povpoint(color) + ")\n")

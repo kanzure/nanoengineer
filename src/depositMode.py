@@ -258,11 +258,11 @@ class depositMode(basicMode):
         return p1+k*(p2-p1)
 
     def bareMotion(self, event, singOnly=False):
-        doPaint = 0
-        if self.o.selatom:
-            self.o.selatom.molecule.changeapp()
-            self.o.selatom = None
-            doPaint = 1
+        # bruce 041206 optimized redisplay (for some graphics chips)
+        # by keeping selatom out of its chunk's display list,
+        # so no changeapp is needed when selatom changes.
+        oldselatom = self.o.selatom
+        self.o.selatom = None
         p1, p2 = self.o.mousepoints(event)
         z = norm(p1-p2)
         x = cross(self.o.up,z)
@@ -273,11 +273,17 @@ class depositMode(basicMode):
                 a = mol.findatoms(p2, mat, TubeRadius, -TubeRadius)
                 # can't use findSinglets
                 if a and (a.element==Singlet or not singOnly):
-                    mol.changeapp()
                     self.o.selatom = a
-                    doPaint = 1
                     break
-        if doPaint: self.o.paintGL()
+        if self.o.selatom != oldselatom:
+##            if oldselatom:
+##                oldselatom.molecule.changeapp()
+##            if self.o.selatom:
+##                self.o.selatom.molecule.changeapp()
+            ## I removed this for fear it will overwrite something more important:
+            ## self.w.msgbarLabel.setText("highlighting %r" % self.o.selatom)
+            ## #e improve this text
+            self.o.paintGL() # draws selatom too, since its chunk is not hidden
 
     def posn_str(self, atm): #bruce 041123
         """return the position of an atom
@@ -444,6 +450,12 @@ class depositMode(basicMode):
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,
         # so selatom is still visible; then the next event will probably
         # set it again; all this seems ok for now, so I'll leave it alone.
+        #bruce 041206: I changed my mind, since it seems dangerous to leave
+        # it visible (seemingly active) but not active. So I'll repaint here.
+        # In future we can consider first simulating a bareMotion at the
+        # current location (to set selatom again, if appropriate), but it's
+        # not clear this would be good, so *this* is what I won't do for now.
+        self.o.paintGL()
 	
     def leftShiftDown(self, event):
         """If there's nothing nearby, do nothing. If cursor is on a

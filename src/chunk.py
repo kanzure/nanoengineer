@@ -4,7 +4,7 @@
 chunk.py -- provides class molecule, for a chunk of atoms
 which are moved and selected as a unit.
 
-Temporarily owned by bruce 041104 for shakedown inval/update code.
+[No longer owned by bruce as of 041206]
 
 [split out of chem.py by bruce circa 041118]
 
@@ -236,11 +236,11 @@ class molecule(Node, InvalMixin):
         some atom is joining or leaving this mol, do all needed invals
         (or this can be called once if many atoms are joining and/or leaving)
         """
-        ## self.externs = INVALID_EXTERNS
-            # needed if atom (when in mol) has bonds going out (extern bonds),
-            # or inside it (would be extern if atom moved out), so do it always
         self.havelist = 0
         self.invalidate_attrs(['externs','atlist'])
+            # (invalidating externs is needed if atom (when in mol) has bonds
+            # going out (extern bonds), or inside it (would be extern if atom
+            # moved out), so do it always)
         return
 
     # debugging methods (not fully tested, use at your own risk)
@@ -738,7 +738,6 @@ class molecule(Node, InvalMixin):
                 except:
                     print_compact_traceback("exception in molecule.draw_displist ignored: ")
                     # it might have left the externs incomplete # bruce 041105 night
-                    ## self.externs = INVALID_EXTERNS
                     self.invalidate_attr('externs')
                 glEndList()
                 self.havelist = 1 # always set this flag, even if exception happened,
@@ -748,6 +747,20 @@ class molecule(Node, InvalMixin):
             assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                 "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)
+            
+            selatom = glpane.selatom
+            if selatom and selatom.molecule == self:
+                # keep selatom out of the display list, to greatly speed up
+                # depositMode.bareMotion [bruce 041206]
+                try:
+                    color = self._colorfunc(selatom)
+                except: # no such attr, or it's None, or it has a bug
+                    color = self.color
+                level = self.assy.drawLevel #e or always use best level??
+                selatom.draw_as_selatom(glpane, disp, color, level)
+                    # (fyi, this doesn't use color arg as of 041206)
+            pass
+        
         except:
             print_compact_traceback("exception in molecule.draw, continuing: ")
             
@@ -1202,7 +1215,7 @@ class molecule(Node, InvalMixin):
         original.) If cauterize == 0, the copy has atoms with lower valence
         instead, wherever the original had outgoing bonds (not recommended).
            Note that the copy has the same assembly as self, but is not added
-        added to that assembly; caller should call assy.addmol if desired.
+        to that assembly; caller should call assy.addmol if desired.
         """
         # bruce added cauterize feature 041116, and its hotspot behavior 041123.
         # Without hotspot feature, Build mode pasting could have an exception.
