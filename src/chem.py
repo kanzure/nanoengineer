@@ -702,12 +702,17 @@ class atom:
         """[Public low-level method:]
         Change the element type of this atom to element elt
         (an element object for a real element, not Singlet),
-        and do the necessary invalidations.
+        and do the necessary invalidations (including if the
+        *prior* element type was Singlet).
            Note: this does not change any atom or singlet positions, so callers
         wanting to correct the bond lengths need to do that themselves.
         It does not even delete or add extra singlets to match the new element
         type; for that, use atom.Transmute.
         """
+        if (self.element == Singlet) != (elt == Singlet):
+            # set of singlets is changing
+            #bruce 050224: fix bug 372 by invalidating singlets
+            self.molecule.invalidate_attr('singlets')
         if platform.atom_debug:
             if elt == Singlet: #bruce 041118
                 # this is unsupported; if we support it it would require
