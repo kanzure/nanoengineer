@@ -13,6 +13,7 @@ from shape import *
 from qt import QPixmap
 import sys, os
 from PartProp import *
+from GroupProp import *
 from debug import print_compact_stack
 
 class Node:
@@ -30,6 +31,7 @@ class Node:
         self.picked = False
         self.hidden = False
         self.icon = None
+        
         # in addition, each Node should have a bounding box
 
     # for a leaf node, add it to the dad node just after us
@@ -94,14 +96,14 @@ class Node:
         self.dad.delmember(self)
         grp.addmember(self)
 
-    def seticon(self, tw):
-        self.icon = tw.partIcon
+    def seticon(self):
+        pass
 
     ## Note the icon() method is removed and replaced with the icon
     ## member variable. This can simply be set externally to change
     ## the node's icon.
     def upMT(self, tw, parent, dnd=True):
-        if not self.icon: self.seticon(tw)
+        if not self.icon: self.seticon()
         self.tritem = tw.buildNode(self, parent, self.icon, dnd)
         return self.tritem
     
@@ -136,6 +138,11 @@ class Group(Node):
         self.members = []
         for ob in list: self.addmember(ob)
         self.open = True
+                
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.partIcon = QPixmap(filePath + "/../images/part.png")
+        self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
+        # in addition, each Node should have a bounding box
 
     def setopen(self):
         self.open = True
@@ -206,8 +213,14 @@ class Group(Node):
         if self.dad:
             self.dad.delmember(self)
 
+    def seticon(self):
+        if self.name == self.assy.name:
+            self.icon = self.partIcon
+        else:
+            self.icon = self.groupCloseIcon
+        
     def upMT(self, tw, parent, dnd=True):
-        if not self.icon: self.seticon(tw)
+        if not self.icon: self.seticon()
         self.tritem = tw.buildNode(self, parent, self.icon, dnd)
         for x in self.members:
             x.upMT(tw, self.tritem, dnd)
@@ -224,12 +237,11 @@ class Group(Node):
             ob.setProp(tw)
 
     def edit(self):
-        if self.name == self.assy.name:
-            # the part properties menu item has been selected
-            cntl = PartProp(self.assy)    
-            cntl.exec_loop()
-            self.assy.mt.update()
-        pass
+        if self.name == self.assy.name: cntl = PartProp(self.assy) # Part prop
+        elif self.name == "Clipboard": return
+        else: cntl = GroupProp(self) # Normal group prop
+        cntl.exec_loop()
+        self.assy.mt.update()
 
     def dumptree(self, depth=0):
         print depth*"...", self.name
@@ -263,14 +275,16 @@ class Csys(Node):
     def __init__(self, assy, name, scale, w, x = None, y = None, z = None):
         Node.__init__(self, assy, None, name)
         self.scale = scale
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.csysIcon = QPixmap(filePath + "/../images/csys.png")
 
         if not x and not y and not z:
             self.quat = Q(w)
         else:
             self.quat = Q(x, y, z, w)
 
-    def seticon(self, treewidget):
-        self.icon = treewidget.csysIcon
+    def seticon(self):
+        self.icon = self.csysIcon
 
     def writemmp(self, atnums, alist, f):
         v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale)
@@ -298,8 +312,11 @@ class Datum(Node):
         self.y = y
         self.rgb = (0,0,255)
         
-    def seticon(self, treewidget):
-        self.icon = treewidget.datumIcon
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.datumIcon = QPixmap(filePath + "/../images/datumplane.png")
+        
+    def seticon(self):
+        self.icon = self.datumIcon
         
     def writemmp(self, atnums, alist, f):
         f.write("datum (" + self.name + ") " +

@@ -101,6 +101,10 @@ class RotaryMotor(Jig):
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 2.0 # default cylinder radius
         self.sradius = 0.5 #default spoke radius
+        
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.rmotorIcon = QPixmap(filePath + "/../images/rmotor.png")
+        
         self.cntl = RotaryMotorProp(self, assy.o)
 
     # set the properties for a Rotary Motor read from a (MMP) file
@@ -156,8 +160,8 @@ class RotaryMotor(Jig):
     def axen(self):
         return self.axis
    
-    def seticon(self, treewidget):
-        self.icon = treewidget.rmotorIcon
+    def seticon(self):
+        self.icon = self.rmotorIcon
 
     def getinfo(self):
         return "[Object: Rotary Motor] [Name: " + str(self.name) + "] [Torque = " + str(self.torque) + "] [Speed = " +str(self.speed) + "]"
@@ -248,6 +252,8 @@ class LinearMotor(Jig):
         self.width = 2.0 # default box width
         self.sradius = 0.5 #default spoke radius
         self.cntl = LinearMotorProp(self, assy.o)
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.lmotorIcon = QPixmap(filePath + "/../images/lmotor.png")
 
     # set the properties for a Linear Motor read from a (MMP) file
     def setProps(self, name, color, force, stiffness, center, axis):
@@ -300,8 +306,8 @@ class LinearMotor(Jig):
     def axen(self):
         return self.axis
    
-    def seticon(self, treewidget):
-        self.icon = treewidget.lmotorIcon
+    def seticon(self):
+        self.icon = self.lmotorIcon
         
     def getinfo(self):
         return "[Object: Linear Motor] [Name: " + str(self.name) + \
@@ -394,6 +400,8 @@ class Ground(Jig):
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
         self.pickcolor = (1.0, 0.0, 0.0) # ground is red when picked
         self.cntl = GroundProp(self, assy.o)
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.groundIcon = QPixmap(filePath + "/../images/ground.png")
         
 ##        for a in list: a.jigs += [self]
 
@@ -422,8 +430,8 @@ class Ground(Jig):
     def move(self, offset):
         pass
 
-    def seticon(self, treewidget):
-        self.icon = treewidget.groundIcon
+    def seticon(self):
+        self.icon = self.groundIcon
         
     def getinfo(self):
         return "[Object: Ground] [Name: " + str(self.name) + "] [Total Grounds: " + str(len(self.atoms)) + "]"
@@ -477,6 +485,10 @@ class Stat(Jig):
         self.color = self.normcolor = (0.0, 0.0, 1.0) # set default color of new stat to blue
         self.pickcolor = (1.0, 0.0, 0.0) # stat is red when picked
         self.temp = 300
+        
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.statIcon = QPixmap(filePath + "/../images/stat.png")
+        
         self.cntl = StatProp(self, assy.o)
         
 ##        for a in list: a.jigs += [self]   
@@ -506,8 +518,8 @@ class Stat(Jig):
     def move(self, offset):
         pass
 
-    def seticon(self, treewidget):
-        self.icon = treewidget.statIcon
+    def seticon(self):
+        self.icon = self.statIcon
 
     def getinfo(self):
         return "[Object: Thermostat] [Name: " + str(self.name) + "] [Temp = " + str(self.temp) + "K]" + "] [Total Stats: " + str(len(self.atoms)) + "]"
