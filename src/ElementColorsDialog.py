@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ElementColorsDialog.ui'
+# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/ElementColorsDialog.ui'
 #
-# Created: Wed Mar 9 17:57:29 2005
+# Created: Thu Mar 10 13:06:22 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -222,8 +222,8 @@ class ElementColorsDialog(QDialog):
         self.groupBox1.setPaletteBackgroundColor(QColor(213,229,231))
         self.groupBox1.setFrameShadow(QGroupBox.Raised)
         self.groupBox1.setColumnLayout(0,Qt.Vertical)
-        self.groupBox1.layout().setSpacing(6)
-        self.groupBox1.layout().setMargin(11)
+        self.groupBox1.layout().setSpacing(1)
+        self.groupBox1.layout().setMargin(1)
         groupBox1Layout = QGridLayout(self.groupBox1.layout())
         groupBox1Layout.setAlignment(Qt.AlignTop)
 
@@ -240,6 +240,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton54 = QPushButton(self.groupBox1,"pushButton54")
         self.pushButton54.setEnabled(0)
+        self.pushButton54.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton54.sizePolicy().hasHeightForWidth()))
         pushButton54_font = QFont(self.pushButton54.font())
         pushButton54_font.setBold(1)
         self.pushButton54.setFont(pushButton54_font)
@@ -251,6 +252,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton34 = QPushButton(self.groupBox1,"pushButton34")
         self.pushButton34.setEnabled(1)
+        self.pushButton34.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton34.sizePolicy().hasHeightForWidth()))
         pushButton34_font = QFont(self.pushButton34.font())
         pushButton34_font.setBold(1)
         self.pushButton34.setFont(pushButton34_font)
@@ -262,6 +264,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton32 = QPushButton(self.groupBox1,"pushButton32")
         self.pushButton32.setEnabled(1)
+        self.pushButton32.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton32.sizePolicy().hasHeightForWidth()))
         pushButton32_font = QFont(self.pushButton32.font())
         pushButton32_font.setBold(1)
         self.pushButton32.setFont(pushButton32_font)
@@ -273,6 +276,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton32,3,1)
 
         self.pushButton14 = QPushButton(self.groupBox1,"pushButton14")
+        self.pushButton14.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton14.sizePolicy().hasHeightForWidth()))
         pushButton14_font = QFont(self.pushButton14.font())
         pushButton14_font.setBold(1)
         self.pushButton14.setFont(pushButton14_font)
@@ -284,6 +288,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton10 = QPushButton(self.groupBox1,"pushButton10")
         self.pushButton10.setEnabled(1)
+        self.pushButton10.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton10.sizePolicy().hasHeightForWidth()))
         pushButton10_font = QFont(self.pushButton10.font())
         pushButton10_font.setBold(1)
         self.pushButton10.setFont(pushButton10_font)
@@ -294,6 +299,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton10,1,5)
 
         self.pushButton15 = QPushButton(self.groupBox1,"pushButton15")
+        self.pushButton15.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton15.sizePolicy().hasHeightForWidth()))
         pushButton15_font = QFont(self.pushButton15.font())
         pushButton15_font.setBold(1)
         self.pushButton15.setFont(pushButton15_font)
@@ -304,6 +310,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton15,2,2)
 
         self.pushButton7 = QPushButton(self.groupBox1,"pushButton7")
+        self.pushButton7.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton7.sizePolicy().hasHeightForWidth()))
         pushButton7_font = QFont(self.pushButton7.font())
         pushButton7_font.setBold(1)
         self.pushButton7.setFont(pushButton7_font)
@@ -315,6 +322,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton51 = QPushButton(self.groupBox1,"pushButton51")
         self.pushButton51.setEnabled(0)
+        self.pushButton51.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton51.sizePolicy().hasHeightForWidth()))
         pushButton51_font = QFont(self.pushButton51.font())
         pushButton51_font.setBold(1)
         self.pushButton51.setFont(pushButton51_font)
@@ -325,6 +333,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton51,4,2)
 
         self.pushButton16 = QPushButton(self.groupBox1,"pushButton16")
+        self.pushButton16.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton16.sizePolicy().hasHeightForWidth()))
         pushButton16_font = QFont(self.pushButton16.font())
         pushButton16_font.setBold(1)
         self.pushButton16.setFont(pushButton16_font)
@@ -348,6 +357,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton36 = QPushButton(self.groupBox1,"pushButton36")
         self.pushButton36.setEnabled(1)
+        self.pushButton36.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton36.sizePolicy().hasHeightForWidth()))
         pushButton36_font = QFont(self.pushButton36.font())
         pushButton36_font.setBold(1)
         self.pushButton36.setFont(pushButton36_font)
@@ -359,6 +369,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton53 = QPushButton(self.groupBox1,"pushButton53")
         self.pushButton53.setEnabled(0)
+        self.pushButton53.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton53.sizePolicy().hasHeightForWidth()))
         pushButton53_font = QFont(self.pushButton53.font())
         pushButton53_font.setBold(1)
         self.pushButton53.setFont(pushButton53_font)
@@ -370,6 +381,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton52 = QPushButton(self.groupBox1,"pushButton52")
         self.pushButton52.setEnabled(0)
+        self.pushButton52.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton52.sizePolicy().hasHeightForWidth()))
         pushButton52_font = QFont(self.pushButton52.font())
         pushButton52_font.setBold(1)
         self.pushButton52.setFont(pushButton52_font)
@@ -380,6 +392,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton52,4,3)
 
         self.pushButton8 = QPushButton(self.groupBox1,"pushButton8")
+        self.pushButton8.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton8.sizePolicy().hasHeightForWidth()))
         pushButton8_font = QFont(self.pushButton8.font())
         pushButton8_font.setBold(1)
         self.pushButton8.setFont(pushButton8_font)
@@ -390,6 +403,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton8,1,3)
 
         self.pushButton6 = QPushButton(self.groupBox1,"pushButton6")
+        self.pushButton6.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton6.sizePolicy().hasHeightForWidth()))
         pushButton6_font = QFont(self.pushButton6.font())
         pushButton6_font.setBold(1)
         self.pushButton6.setFont(pushButton6_font)
@@ -402,6 +416,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton35 = QPushButton(self.groupBox1,"pushButton35")
         self.pushButton35.setEnabled(1)
+        self.pushButton35.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton35.sizePolicy().hasHeightForWidth()))
         pushButton35_font = QFont(self.pushButton35.font())
         pushButton35_font.setBold(1)
         self.pushButton35.setFont(pushButton35_font)
@@ -413,6 +428,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton18 = QPushButton(self.groupBox1,"pushButton18")
         self.pushButton18.setEnabled(1)
+        self.pushButton18.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton18.sizePolicy().hasHeightForWidth()))
         pushButton18_font = QFont(self.pushButton18.font())
         pushButton18_font.setBold(1)
         self.pushButton18.setFont(pushButton18_font)
@@ -423,6 +439,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton18,2,5)
 
         self.pushButton13 = QPushButton(self.groupBox1,"pushButton13")
+        self.pushButton13.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton13.sizePolicy().hasHeightForWidth()))
         pushButton13_font = QFont(self.pushButton13.font())
         pushButton13_font.setBold(1)
         self.pushButton13.setFont(pushButton13_font)
@@ -447,6 +464,7 @@ class ElementColorsDialog(QDialog):
 
         self.pushButton33 = QPushButton(self.groupBox1,"pushButton33")
         self.pushButton33.setEnabled(1)
+        self.pushButton33.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton33.sizePolicy().hasHeightForWidth()))
         pushButton33_font = QFont(self.pushButton33.font())
         pushButton33_font.setBold(1)
         self.pushButton33.setFont(pushButton33_font)
@@ -457,6 +475,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton33,3,2)
 
         self.pushButton17 = QPushButton(self.groupBox1,"pushButton17")
+        self.pushButton17.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton17.sizePolicy().hasHeightForWidth()))
         self.pushButton17.setBackgroundOrigin(QPushButton.ParentOrigin)
         pushButton17_font = QFont(self.pushButton17.font())
         pushButton17_font.setBold(1)
@@ -468,6 +487,7 @@ class ElementColorsDialog(QDialog):
         groupBox1Layout.addWidget(self.pushButton17,2,4)
 
         self.pushButton9 = QPushButton(self.groupBox1,"pushButton9")
+        self.pushButton9.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton9.sizePolicy().hasHeightForWidth()))
         pushButton9_font = QFont(self.pushButton9.font())
         pushButton9_font.setBold(1)
         self.pushButton9.setFont(pushButton9_font)
@@ -514,7 +534,7 @@ class ElementColorsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(554,527).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(412,451).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okButton,SIGNAL("clicked()"),self.ok)

@@ -939,7 +939,7 @@ def writemovie(assy, mflag = False):
 
     # filePath = the current directory NE-1 is running from.
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        
+         
     # "program" is the full path to the simulator executable. 
     if sys.platform == 'win32': 
         program = os.path.normpath(filePath + '/../bin/simulator.exe')
