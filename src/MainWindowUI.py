@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Mar 23 11:49:44 2005
+# Created: Thu Mar 24 12:38:31 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5691,7 +5691,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,679,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,681,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -5739,7 +5739,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.moveMolDashboard)
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,29,1034,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,29,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6514,6 +6514,7 @@ class MainWindow(QMainWindow):
         self.SAFilterList.insertItem(self.__tr("Aluminum"))
         self.SAFilterList.insertItem(self.__tr("Silicon"))
         self.SAFilterList.insertItem(self.__tr("Phosphorus"))
+        self.SAFilterList.insertItem(self.__tr("Sulfur"))
         self.SAFilterList.insertItem(self.__tr("Chlorine"))
         self.SAFilterList.insertItem(self.__tr("Argon"))
         self.SAFilterList.insertItem(self.__tr("Germanium"))
