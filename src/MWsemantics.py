@@ -466,7 +466,7 @@ class MWsemantics(MainWindow):
             try:
                 writepdb(self.assy, safile)
             except:
-                print "MWsemantics.py: saveFile(): error writing file" + safile
+                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
                 self.history.message(redmsg( "Problem saving file: " + safile ))
             else:
                 self.assy.filename = safile

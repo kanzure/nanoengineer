@@ -131,18 +131,30 @@ def insertpdb(assy,filename):
     mol  = _readpdb(assy, filename, isInsert = True)
     assy.addmol(mol)
 
-# Write a single molecule into a Protein DataBank-format file 
+# Write all molecules into a Protein DataBank-format file
+# [bruce 050318 revised comments, and made it not write singlets or their bonds,
+#  and made it not write useless 1-atom CONECT records, and include each bond
+#  in just one CONECT record instead of two.]
 def writepdb(assy, filename):
     f = open(filename, "w")
-    # Atom object is the key, the atomIndex is the value  
+    # Atom object's key is the key, the atomIndex is the value  
     atomsTable = {}
-    # Each element is a list of atoms connected with the 1rst atom
+    # Each element of connectList is a list of atoms to be connected with the
+    # 1st atom in the list, i.e. the atoms to write into a CONECT record
     connectList = []
 
     atomIndex = 1
 
+    def exclude(atm): #bruce 050318
+        "should we exclude this atom (and bonds to it) from the file?"
+        return atm.element == Singlet
+
+    excluded = 0
     for mol in assy.molecules:
         for a in mol.atoms.itervalues():
+            if exclude(a):
+                excluded += 1
+                continue
             aList = []
             f.write("ATOM  ")
             f.write("%5d" % atomIndex)
@@ -156,10 +168,21 @@ def writepdb(assy, filename):
             atomsTable[a.key] = atomIndex
             aList.append(a)
             for b in a.bonds:
-                aList.append(b.other(a))
+                a2 = b.other(a)
+                if a2.key in atomsTable:
+                    assert not exclude(a2) # see comment below
+                    aList.append(a2)
+                #bruce 050318 comment: the old code wrote every bond twice
+                # (once from each end). I doubt we want that, so now I only
+                # write them from the 2nd-seen end. (This also serves to
+                # not write bonds to excluded atoms, without needing to check
+                # that directly. The assert verifies this claim.)
 
             atomIndex += 1
-            connectList.append(aList)
+            if len(aList) > 1:
+                connectList.append(aList)
+                #bruce 050318 comment: shouldn't we leave it out if len(alist) == 1?
+                # I think so, so I'm doing that (unlike the previous code).
 
             f.write("\n")
 
@@ -170,8 +193,14 @@ def writepdb(assy, filename):
             f.write("%5d" % index)
         f.write("\n")
 
-    f.write("END")
-    f.close()   
+    f.write("END\n") #bruce 050318 added newline
+    f.close()
+    if excluded:
+        from platform import fix_plurals
+        msg = "Warning: excluded %d open bond(s) from saved PDB file; consider Hydrogenating and resaving." % excluded
+        msg = fix_plurals(msg)
+        assy.w.history.message( redmsg( msg))
+    return # from writepdb
 
 # Huaicai to implement readxyz - Mark 050120
 def readxyz(assy):
