@@ -138,7 +138,6 @@ class modelTree(QListView):
             self.modifier = 'Cntl'
         if e.key() == Qt.Key_Shift:
             self.modifier = 'Shift'
-            print "shift key pressed"
         print "key pressed"
         
     def keyReleaseEvent(self, key):
@@ -167,7 +166,7 @@ class modelTree(QListView):
         pnt = event.pos() - QPoint(0,24)
         item = self.itemAt(self.contentsToViewport(pnt))
         if item:
-            print "Moving", self.selectedItem, "to", item.object
+            #print "Moving", self.selectedItem, "to", item.object
             self.selectedItem.moveto(item.object)
             self.update()
             self.win.assy.root.dumptree()
