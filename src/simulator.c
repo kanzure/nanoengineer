@@ -864,7 +864,7 @@ void calcloop(int iters) {
 
 		for (k=0; k<Constraint[j].natoms; k++) {
 		    vsub2(rx,positions[Constraint[j].atoms[k]], foo);
-		    v2x(bar,rx,force[Constraint[j].atoms[k]]);
+		    v2x(bar,rx,force[Constraint[j].atoms[k]]); // bar = rx cross force[]
 		    vadd(q1,bar);
 		}
 		vmulc(q1,deltaTframe);
@@ -1116,10 +1116,34 @@ void minshot(int final, double rms, double hifsq, int frameNumber, char *callLoc
     fprintf(tracef,"%.2f %.2f\n", rms, sqrt(hifsq));
     if (final) {
         printf("final RMS gradient=%f after %d iterations\n", rms, frameNumber);
+        if (!DumpAsText && frameNumber != NumFrames) {
+            rewind(outf);
+            fwrite(&frameNumber, sizeof(int), 1, outf);
+        }
     }
     if (interrupted && !interruptionWarning) {
         WARNING("minimizer run was interrupted");
         interruptionWarning = 1;
+    }
+}
+
+static int groundExists = 1;
+
+void groundAtoms(struct xyz *oldPositions, struct xyz *newPositions) 
+{
+    int j, k;
+    int foundAGround = 0;
+
+    if (groundExists) {
+	for (j=0;j<Nexcon;j++) {	/* for each constraint */
+	    if (Constraint[j].type == CODEground) { /* welded to space */
+                foundAGround = 1;
+		for (k=0; k<Constraint[j].natoms; k++) {
+		    newPositions[Constraint[j].atoms[k]] = oldPositions[Constraint[j].atoms[k]];
+		}
+	    }
+        }
+        groundExists = foundAGround ;
     }
 }
 
@@ -1165,6 +1189,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	}
 	tmp = old_positions; old_positions=positions; positions=tmp;
 	rms_force = sqrt(sum_forceSquared/Nexatom);
+        groundAtoms(old_positions, positions);
     }
     minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "1");
 
@@ -1206,6 +1231,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	    vadd2(old_positions[j], positions[j], f);
 	}
 	tmp = old_positions; old_positions=positions; positions=tmp;
+        groundAtoms(old_positions, positions);
     }
     if (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED) {
         fprintf(tracef, "# Switching to Conjugate-Gradient\n");
@@ -1270,6 +1296,7 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 		vmulc(f, movcon);
 		vadd2(positions[j],old_positions[j], f);
 	    }
+            groundAtoms(old_positions, positions);
 	    sum_forceSquared = 0.0;
 	    sum_force_dot_old_force=0.0;
 	    calcloop(0);
@@ -1298,6 +1325,7 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	    vmulc(f, movcon);
 	    vadd(positions[j], f);
 	}
+        groundAtoms(old_positions, positions);
 	if (movcon<0) movcon = old_movcon+movcon;
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
@@ -1320,12 +1348,6 @@ void minimize(int numFrames)
     
     frameNumber = 1;
     steepestDescentFrames = DumpAsText ? numFrames : numFrames / 2;
-
-    /* turn off constraints --
-       minimize is a one-shot run of the program */
-    Nexcon=0;
-
-    Temperature = 0.0;
     
     fprintf(tracef,"\n# rms force, high force\n");
 
