@@ -699,31 +699,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         print " pov: ", self.pov
         print " quat ", self.quat
 
-    def image(self, filename):
-        """saves an image of the screen to file filename
-        width and height default to current size
-        (and only that works currently)
-        """
-        if not filename: return
-
-        width = self.width
-        height = self.height
-        if filename[-3:] == "pov": self.writepov(filename, width, height)
-        else:  self.jpgwrite(filename, width, height)
-
-    def jpgwrite(self, filename, width, height):
-
-        buf = array(glReadPixelsub(0, 0, width, height, GL_RGB))
-        buf = reshape(buf, (height, width, 3))
-        
-        buf = reshape(buf[::-1],(width*height,3))
-
-        buf = map(lambda x: struct.unpack("BBB", x), buf)
-
-        pic = Image.new("RGB", (width, height))
-        pic.putdata(buf)
-        pic.save(filename, "JPEG", quality=85)
-
     def __str__(self):
         return "<GLPane " + self.name + ">"
 
