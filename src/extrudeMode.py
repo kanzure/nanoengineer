@@ -440,7 +440,7 @@ class extrudeMode(basicMode):
 ##    def refuseEnter(self, warn):
 ##        "if we'd refuse to enter this mode, then (iff warn) tell user why, and (always) return true."
 ##        from debug import print_compact_stack # re-import each time, so reload(debug) is effective at runtime
-##        print_compact_stack("refuseEnter")
+##        print_compact_stack("refuseEnter:\n")
 ##        assy = self.o.assy
 ##        if len(assy.selmols) != 1:
 ##            if warn:
@@ -1225,7 +1225,7 @@ class extrudeMode(basicMode):
                 #e will be printed lots of times, oh well
                 print "extrude warning: one or both of singlets %d,%d slated to bond in more than one way, not all bonds made" % (i1,i2)
         unit1.shakedown()
-        unit2.shakedown()
+        unit2.shakedown() ###e this ends up doing a shakedown twice per unit; whereas if we're merging units, 0 times would be better.
         unit1.changeapp()
         unit2.changeapp()
 
@@ -1254,13 +1254,13 @@ class extrudeMode(basicMode):
     
     def merge_units_and_kill(self, mol1, mol2):
         "merge mol2 into mol1, where these might be units, or the base, or (nim) the base's home molecule"
-        ############@@@ temporary kluge to work around a new bug in mol.kill. 041015 650pm
-        ## mol2.externs = [] # josh fixed it now
-        # end kluge
         mol1.merge(mol2) # this does mol2.kill() as a side effect (bad in general, imho, but ok here)
           # (note: if mol2 bonded to singlets in some other mol
           #  (should never happen), they'd also get merged into mol1.)
-        mol1.changeapp() # (already done a lot inside .merge, but do it here anyway)
+        # This also does mol1.shakedown().
+        # That makes it quadratic time when we're merging many units in a row!
+        ####################e I should optimize that.
+        mol1.changeapp() # (already done a lot inside .merge (incl in its shakedown), but do it here anyway)
         return
     
     def StateCancel(self):
