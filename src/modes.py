@@ -797,10 +797,24 @@ class basicMode(anyMode):
     
     def rightDown(self, event):
         self.Menu1.exec_loop(event.globalPos(),3)
-        # bruce 041103 changed .popup to .exec_loop purely for consistency --
-        # no idea whether the difference matters, or if so, which is best.
-        # Either way, the menu stays up if you click rather than drag
-        # (which I don't like); this might be fixable in the mouseup methods.
+        # [bruce 041104 comment:] Huaicai says that menu.popup and menu.exec_loop
+        # differ in that menu.popup returns immediately, whereas menu.exec_loop
+        # returns after the menu is dismissed. What matters most for us is whether
+        # the callable in the menu item is called (and returns) just before
+        # menu.exec_loop returns, or just after (outside of all event processing).
+        # I would guess "just before", in which case we have to worry about order
+        # of side effects for any code we run after calling exec_loop, since in
+        # general, our Qt event processing functions assume they are called purely
+        # sequentially. I also don't know for sure whether the rightUp() method
+        # would be called by Qt during or after the exec_loop call. If any of this
+        # ever matters, we need to test it. Meanwhile, exec_loop is probably best
+        # for context menus, provided we run no code in the same method after it
+        # returns, nor in the corresponding mouseUp() method, whose order we don't
+        # yet know. (Or at least I don't yet know.)
+        #  With either method (popup or exec_loop), the menu stays up if you just
+        # click rather than drag (which I don't like); this might be fixable in
+        # the corresponding mouseup methods, but that requires worrying about the
+        # above-described issues.
     
     def rightDrag(self, event):
         pass
