@@ -268,6 +268,7 @@ class Group(Node):
 
     def ungroup(self):
         if self.dad:
+            if self.name == self.assy.name: return
             for x in self.members[:]:
                 x.moveto(self.dad)
             self.kill()
