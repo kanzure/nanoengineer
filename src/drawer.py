@@ -97,6 +97,11 @@ digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
         [[sp2, sp4, sp2], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp2, sp2]],
         [[sp4, sp0, sp4], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp2, sp2, sp4]],
         [[sp2, sp2, sp4], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
+        
+cubeVertices = [[-1, 1, -1], [-1, 1, 1], [1, 1, 1], [1, 1, -1], [-1, -1, -1], [-1, -1, 1], [1, -1, 1], [1, -1, -1]]
+sq3 = sqrt(3.0)/3.0
+cubeNormals = [[-sq3, sq3, -sq3], [-sq3, sq3, sq3], [sq3, sq3, sq3], [sq3, sq3, -sq3], [-sq3, -sq3, -sq3], [-sq3, -sq3, sq3], [sq3, -sq3, sq3], [sq3, -sq3, -sq3]]
+cubeIndices = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [0, 3, 7, 4], [4, 7, 6, 5]]        
 
 digrid = A(digrid)
 
@@ -104,10 +109,10 @@ DiGridSp = sp4
 
 sphereList = []
 numSphereSizes = 3
-CylList = GridList = CapList = CubeList = None
+CylList = GridList = CapList = CubeList = solidCubeList = None
 
 def setup():
-    global CylList, GridList, CapList, CubeList
+    global CylList, GridList, CapList, CubeList, solidCubeList
     global sphereList
 
     listbase = glGenLists(numSphereSizes + 4)
@@ -179,6 +184,19 @@ def setup():
     glVertex(( 1,-1,-1))
     glEnd()
     glEndList()
+    
+    solidCubeList = CubeList + 1
+    glNewList(solidCubeList, GL_COMPILE)
+    glBegin(GL_QUADS)
+    for i in xrange(len(cubeIndices)):
+        for j in xrange(4):    
+                nTuple = tuple(cubeNormals[cubeIndices[i][j]])
+                vTuple = tuple(cubeVertices[cubeIndices[i][j]])
+                glNormal3fv(nTuple)
+                glVertex3fv(vTuple)
+    glEnd()
+    glEndList()                
+    
 
 def drawsphere(color, pos, radius, detailLevel):
 
@@ -367,9 +385,11 @@ def drawbrick(color, center, axis, l, h, w):
     glScale(h, w, l)
     ###Huaicai 1/15/05: to fix the linear motor display problem. 
     glFrontFace(GL_CW)
-    glut.glutSolidCube(1.0)
+    #glut.glutSolidCube(1.0)
+    glCallList(solidCubeList)
     glFrontFace(GL_CCW)
     glPopMatrix()
+    
     
 def drawlinelist(color,lines):
     glDisable(GL_LIGHTING)
