@@ -459,14 +459,14 @@ def createWhatsThis(self):
         
         ####Stretch####
 
-        modifyStretchMoleculeActionText = "<u><b>Stretch</b></u><br>"\
-                       "<p><img source=\"modifyStretchMoleculeAction\"><br> "\
+        modifyStretchActionText = "<u><b>Stretch</b></u><br>"\
+                       "<p><img source=\"modifyStretchAction\"><br> "\
                        "Stretches the bonds of the selected chunk(s).</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyStretchMoleculeAction",
-                                                       self.modifyStretchMoleculeAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyStretchAction",
+                                                       self.modifyStretchAction.iconSet().pixmap() )
 
-        self.modifyStretchMoleculeAction.setWhatsThis(modifyStretchMoleculeActionText )
+        self.modifyStretchAction.setWhatsThis(modifyStretchActionText )
 
         ####Separate####
 
@@ -481,16 +481,16 @@ def createWhatsThis(self):
         
         ####Weld Chunks####
 
-        modifyWeldMoleculeActionText = "<u><b>Weld Chunks</b></u><br>"\
-                       "<p><img source=\"modifyWeldMoleculeAction\"><br> "\
+        modifyWeldActionText = "<u><b>Weld Chunks</b></u><br>"\
+                       "<p><img source=\"modifyWeldAction\"><br> "\
                        "Merges two or more chunks into one chunk when in <b>Select Chunks</b> mode. "\
                        "Creates one or more new chunks when in <b>Select Atoms</b> mode. "\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyWeldMoleculeAction",
-                                                       self.modifyWeldMoleculeAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyWeldAction",
+                                                       self.modifyWeldAction.iconSet().pixmap() )
        
-        self.modifyWeldMoleculeAction.setWhatsThis(modifyWeldMoleculeActionText )  
+        self.modifyWeldAction.setWhatsThis(modifyWeldActionText )  
 
         ####Align to Common Axis####
 

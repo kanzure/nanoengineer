@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>994</height>
+            <height>1003</height>
         </rect>
     </property>
     <property name="caption">
@@ -66,6 +66,7 @@
     <item text="&amp;View" name="unnamed">
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
+        <action name="setViewHomeToCurrentAction"/>
         <separator/>
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
@@ -104,8 +105,8 @@
         <action name="modifyDehydrogenateAction"/>
         <action name="modifySetElementAction"/>
         <action name="modifySeparateAction"/>
-        <action name="modifyStretchMoleculeAction"/>
-        <action name="modifyWeldMoleculeAction"/>
+        <action name="modifyStretchAction"/>
+        <action name="modifyWeldAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </item>
     <item text="&amp;Tools" name="Tools">
@@ -488,9 +489,9 @@
         <action name="modifyDehydrogenateAction"/>
         <action name="modifyPassivateAction"/>
         <action name="modifySetElementAction"/>
-        <action name="modifyStretchMoleculeAction"/>
+        <action name="modifyStretchAction"/>
         <action name="modifySeparateAction"/>
-        <action name="modifyWeldMoleculeAction"/>
+        <action name="modifyWeldAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </toolbar>
     <toolbar dock="4">
@@ -1766,16 +1767,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>modifyWeldMoleculeAction</cstring>
+            <cstring>modifyWeldAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image59</iconset>
         </property>
         <property name="text">
-            <string>Weld Chunk</string>
+            <string>Weld</string>
         </property>
         <property name="menuText">
-            <string>&amp;Weld Chunk</string>
+            <string>&amp;Weld</string>
         </property>
     </action>
     <action>
@@ -2295,7 +2296,7 @@
     </actiongroup>
     <action>
         <property name="name">
-            <cstring>modifyStretchMoleculeAction</cstring>
+            <cstring>modifyStretchAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image85</iconset>
@@ -2648,13 +2649,13 @@
     </action>
     <action>
         <property name="name">
-            <cstring>setViewReorientAction</cstring>
+            <cstring>setViewHomeToCurrentAction</cstring>
         </property>
         <property name="text">
-            <string>Reorient</string>
+            <string>Set Home View to Current View</string>
         </property>
         <property name="menuText">
-            <string>R&amp;eorient</string>
+            <string>Set Home View to &amp;Current View</string>
         </property>
     </action>
     <action>
@@ -3318,16 +3319,16 @@
         <slot>modifySetElement()</slot>
     </connection>
     <connection>
-        <sender>modifyStretchMoleculeAction</sender>
+        <sender>modifyStretchAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyStretchMolecule()</slot>
+        <slot>modifyStretch()</slot>
     </connection>
     <connection>
-        <sender>modifyWeldMoleculeAction</sender>
+        <sender>modifyWeldAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyWeldMolecule()</slot>
+        <slot>modifyWeld()</slot>
     </connection>
     <connection>
         <sender>orient100Action</sender>
@@ -3635,6 +3636,12 @@
         <receiver>MainWindow</receiver>
         <slot>validateThickness()</slot>
     </connection>
+    <connection>
+        <sender>setViewHomeToCurrentAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewHomeToCurrent()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3710,7 +3717,7 @@
     <slot>toolsBackUp()</slot>
     <slot>toolsStartOver()</slot>
     <slot>dispGrid()</slot>
-    <slot>modifyWeldMolecule()</slot>
+    <slot>modifyWeld()</slot>
     <slot>modifyEdgeBond()</slot>
     <slot>toggleModelDispTbar()</slot>
     <slot>toggleEditTbar()</slot>
@@ -3741,7 +3748,7 @@
     <slot>toolsSelectAtoms()</slot>
     <slot>toolsSelectMolecules()</slot>
     <slot>toolsMoveMolecule()</slot>
-    <slot>modifyStretchMolecule()</slot>
+    <slot>modifyStretch()</slot>
     <slot>toolsSelectJigs()</slot>
     <slot>toolsSelect()</slot>
     <slot>makeStat()</slot>
@@ -3753,6 +3760,7 @@
     <slot>modifyAlignCommonAxis()</slot>
     <slot>validateThickness()</slot>
     <slot>updateThinkness()</slot>
+    <slot>setViewHomeToCurrent()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

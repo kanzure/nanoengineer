@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Dec 7 22:56:53 2004
+# Created: Mon Dec 13 12:23:56 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7106,8 +7106,8 @@ class MainWindow(QMainWindow):
         self.modifyCopyBondAction.setIconSet(QIconSet(self.image57))
         self.modifyEdgeBondAction = QAction(self,"modifyEdgeBondAction")
         self.modifyEdgeBondAction.setIconSet(QIconSet(self.image58))
-        self.modifyWeldMoleculeAction = QAction(self,"modifyWeldMoleculeAction")
-        self.modifyWeldMoleculeAction.setIconSet(QIconSet(self.image59))
+        self.modifyWeldAction = QAction(self,"modifyWeldAction")
+        self.modifyWeldAction.setIconSet(QIconSet(self.image59))
         self.toggleDatumDispTbarAction = QAction(self,"toggleDatumDispTbarAction")
         self.toggleDatumDispTbarAction.setToggleAction(1)
         self.toggleDatumDispTbarAction.setOn(0)
@@ -7193,8 +7193,8 @@ class MainWindow(QMainWindow):
         self.toolsSelectJigsAction = QAction(self.toolsModeActionGroup,"toolsSelectJigsAction")
         self.toolsSelectJigsAction.setToggleAction(1)
         self.toolsSelectJigsAction.setIconSet(QIconSet(self.image84))
-        self.modifyStretchMoleculeAction = QAction(self,"modifyStretchMoleculeAction")
-        self.modifyStretchMoleculeAction.setIconSet(QIconSet(self.image85))
+        self.modifyStretchAction = QAction(self,"modifyStretchAction")
+        self.modifyStretchAction.setIconSet(QIconSet(self.image85))
         self.moveMolActionGroup = QActionGroup(self,"moveMolActionGroup")
         self.moveMolActionGroup.setUsesDropDown(0)
         self.moveMolXAction = QAction(self.moveMolActionGroup,"moveMolXAction")
@@ -7253,7 +7253,7 @@ class MainWindow(QMainWindow):
         self.moviePauseAction = QAction(self,"moviePauseAction")
         self.moviePlayAction = QAction(self,"moviePlayAction")
         self.moviePlayAction.setIconSet(QIconSet(self.image99))
-        self.setViewReorientAction = QAction(self,"setViewReorientAction")
+        self.setViewHomeToCurrentAction = QAction(self,"setViewHomeToCurrentAction")
         self.modifyAlignCommonAxisAction = QAction(self,"modifyAlignCommonAxisAction")
         self.modifyAlignCommonAxisAction.setIconSet(QIconSet(self.image75))
 
@@ -7390,9 +7390,9 @@ class MainWindow(QMainWindow):
         self.modifyDehydrogenateAction.addTo(self.modifyToolbar)
         self.modifyPassivateAction.addTo(self.modifyToolbar)
         self.modifySetElementAction.addTo(self.modifyToolbar)
-        self.modifyStretchMoleculeAction.addTo(self.modifyToolbar)
+        self.modifyStretchAction.addTo(self.modifyToolbar)
         self.modifySeparateAction.addTo(self.modifyToolbar)
-        self.modifyWeldMoleculeAction.addTo(self.modifyToolbar)
+        self.modifyWeldAction.addTo(self.modifyToolbar)
         self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
@@ -7455,6 +7455,7 @@ class MainWindow(QMainWindow):
         self.unnamed = QPopupMenu(self)
         self.setViewHomeAction.addTo(self.unnamed)
         self.setViewFitToWindowAction.addTo(self.unnamed)
+        self.setViewHomeToCurrentAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.setViewOrthoAction.addTo(self.unnamed)
         self.setViewPerspecAction.addTo(self.unnamed)
@@ -7496,8 +7497,8 @@ class MainWindow(QMainWindow):
         self.modifyDehydrogenateAction.addTo(self.Modify)
         self.modifySetElementAction.addTo(self.Modify)
         self.modifySeparateAction.addTo(self.Modify)
-        self.modifyStretchMoleculeAction.addTo(self.Modify)
-        self.modifyWeldMoleculeAction.addTo(self.Modify)
+        self.modifyStretchAction.addTo(self.Modify)
+        self.modifyWeldAction.addTo(self.Modify)
         self.modifyAlignCommonAxisAction.addTo(self.Modify)
         self.MenuBar.insertItem(QString(""),self.Modify,8)
 
@@ -7519,7 +7520,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,994).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1003).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7579,8 +7580,8 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
         self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
         self.connect(self.modifySetElementAction,SIGNAL("activated()"),self.modifySetElement)
-        self.connect(self.modifyStretchMoleculeAction,SIGNAL("activated()"),self.modifyStretchMolecule)
-        self.connect(self.modifyWeldMoleculeAction,SIGNAL("activated()"),self.modifyWeldMolecule)
+        self.connect(self.modifyStretchAction,SIGNAL("activated()"),self.modifyStretch)
+        self.connect(self.modifyWeldAction,SIGNAL("activated()"),self.modifyWeld)
         self.connect(self.orient100Action,SIGNAL("activated()"),self.orient100)
         self.connect(self.orient110Action,SIGNAL("activated()"),self.orient110)
         self.connect(self.orient111Action,SIGNAL("activated()"),self.orient111)
@@ -7632,6 +7633,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSimulator_Action,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.ccLayerThicknessLineEdit,SIGNAL("textChanged(const QString&)"),self.validateThickness)
+        self.connect(self.setViewHomeToCurrentAction,SIGNAL("activated()"),self.setViewHomeToCurrent)
 
 
     def languageChange(self):
@@ -7829,8 +7831,8 @@ class MainWindow(QMainWindow):
         self.modifyCopyBondAction.setMenuText(self.__tr("&Copy Bond"))
         self.modifyEdgeBondAction.setText(self.__tr("Edge Bond"))
         self.modifyEdgeBondAction.setMenuText(self.__tr("Ed&ge Bond"))
-        self.modifyWeldMoleculeAction.setText(self.__tr("Weld Chunk"))
-        self.modifyWeldMoleculeAction.setMenuText(self.__tr("&Weld Chunk"))
+        self.modifyWeldAction.setText(self.__tr("Weld"))
+        self.modifyWeldAction.setMenuText(self.__tr("&Weld"))
         self.toggleDatumDispTbarAction.setText(self.__tr("Datum Display"))
         self.toggleDatumDispTbarAction.setMenuText(self.__tr("Datum Display"))
         self.modifySetElementAction.setText(self.__tr("Change Element"))
@@ -7912,8 +7914,8 @@ class MainWindow(QMainWindow):
         self.toolsSelectJigsAction.setToolTip(self.__tr("Select Jigs"))
         self.toolsSelectJigsAction.setMenuText(self.__tr("Select Jigs"))
         self.toolsModeActionGroup.setMenuText(self.__tr("ActionGroup"))
-        self.modifyStretchMoleculeAction.setText(self.__tr("Stretch"))
-        self.modifyStretchMoleculeAction.setMenuText(self.__tr("S&tretch"))
+        self.modifyStretchAction.setText(self.__tr("Stretch"))
+        self.modifyStretchAction.setMenuText(self.__tr("S&tretch"))
         self.moveMolActionGroup.setText(self.__tr("Move Group"))
         self.moveMolXAction.setText(self.__tr("X Translate"))
         self.moveMolXAction.setToolTip(self.__tr("X Translate"))
@@ -7975,8 +7977,8 @@ class MainWindow(QMainWindow):
         self.moviePlayAction.setText(self.__tr("Play"))
         self.moviePlayAction.setToolTip(self.__tr("Play Movie"))
         self.moviePlayAction.setMenuText(self.__tr("Play"))
-        self.setViewReorientAction.setText(self.__tr("Reorient"))
-        self.setViewReorientAction.setMenuText(self.__tr("R&eorient"))
+        self.setViewHomeToCurrentAction.setText(self.__tr("Set Home View to Current View"))
+        self.setViewHomeToCurrentAction.setMenuText(self.__tr("Set Home View to &Current View"))
         self.modifyAlignCommonAxisAction.setText(self.__tr("Align to Common Axis"))
         self.modifyAlignCommonAxisAction.setMenuText(self.__tr("&Align to Common Axis"))
         self.fileToolbar.setLabel(self.__tr("File"))
@@ -8243,8 +8245,8 @@ class MainWindow(QMainWindow):
     def dispGrid(self):
         print "MainWindow.dispGrid(): Not implemented yet"
 
-    def modifyWeldMolecule(self):
-        print "MainWindow.modifyWeldMolecule(): Not implemented yet"
+    def modifyWeld(self):
+        print "MainWindow.modifyWeld(): Not implemented yet"
 
     def modifyEdgeBond(self):
         print "MainWindow.modifyEdgeBond(): Not implemented yet"
@@ -8336,8 +8338,8 @@ class MainWindow(QMainWindow):
     def toolsMoveMolecule(self):
         print "MainWindow.toolsMoveMolecule(): Not implemented yet"
 
-    def modifyStretchMolecule(self):
-        print "MainWindow.modifyStretchMolecule(): Not implemented yet"
+    def modifyStretch(self):
+        print "MainWindow.modifyStretch(): Not implemented yet"
 
     def toolsSelectJigs(self):
         print "MainWindow.toolsSelectJigs(): Not implemented yet"
@@ -8371,6 +8373,9 @@ class MainWindow(QMainWindow):
 
     def updateThinkness(self):
         print "MainWindow.updateThinkness(): Not implemented yet"
+
+    def setViewHomeToCurrent(self):
+        print "MainWindow.setViewHomeToCurrent(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

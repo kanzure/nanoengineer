@@ -543,6 +543,28 @@ class MWsemantics(MainWindow):
     # functions from the "View" menu
     ###################################
 
+    def setViewHome(self):
+        """Reset view to Home view"""
+        self.glpane.quat = self.assy.csys.quat # Q(1,0,0,0)
+        self.glpane.paintGL()
+
+    def setViewFitToWindow(self):
+        """ Fit to Window """
+        #Recalculate center and bounding box for the assembly    
+        self.assy.computeBoundingBox()     
+
+        self.glpane.scale=self.assy.bbox.scale()
+        self.assy.csys.scale = self.glpane.scale
+        #print "scale: ", self.glpane.scale
+        #print "pov, center: ", self.glpane.pov, self.assy.center
+        self.glpane.pov = -self.assy.center#-planeXline(-self.glpane.pov, self.glpane.out, self.assy.center, self.glpane.out)
+        #print "Again: pov, center: ", self.glpane.pov, self.assy.center
+        self.glpane.paintGL()
+            
+    def setViewHomeToCurrent(self):
+        """Changes Home view to the current view.  This saves the view info in the Csys"""
+        print "MWsemantics.setViewHomeToCurrent is a stub."
+        
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
         self.glpane.ortho = 1
@@ -562,10 +584,6 @@ class MWsemantics(MainWindow):
 
     def setViewFront(self):
         self.glpane.quat = Q(1,0,0,0)
-        self.glpane.paintGL()
-
-    def setViewHome(self):
-        self.glpane.quat = self.assy.csys.quat#Q(1,0,0,0)
         self.glpane.paintGL()
 
     def setViewLeft(self):
@@ -787,34 +805,40 @@ class MWsemantics(MainWindow):
     ###################################
     # functions from the "Modify" menu
     ###################################
+    
+    def modifyMinimize(self):
+        """ Minimize the selection """
+        self.glpane.minimize()
 
-    # change surface atom types to eliminate dangling bonds
-    # a kludgey hack
-    def modifyPassivate(self):
-        self.assy.modifyPassivate()
-
-    # add hydrogen atoms to each dangling bond
     def modifyHydrogenate(self):
+        """ Add hydrogen atoms to each singlet in the selection """
         self.assy.modifyHydrogenate()
         
     # remove hydrogen atoms from selected atoms/molecules
     def modifyDehydrogenate(self):
+        """ Remove all hydrogen atoms from the selection """
         self.assy.modifyDehydrogenate()
-
-    # form a new part (molecule) with whatever atoms are selected
-    def modifySeparate(self):
-        self.assy.modifySeparate()
+        
+    def modifyPassivate(self):
+        """ Passivate the selection by changing surface atoms to eliminate singlets """
+        self.assy.modifyPassivate()
     
-    # stretch selected molecule(s)    
-    def modifyStretchMolecule(self):
+    def modifyStretch(self):
+        """ Stretch/expand the selected chunk(s) """
         self.assy.Stretch()
         
+    def modifySeparate(self):
+        """ Form a new chunk from the selected atoms """
+        self.assy.modifySeparate()
+
     # bring molecules together and bond unbonded sites
-    def modifyWeldMolecule(self):
+    def modifyWeld(self):
+        """ Create a single chunk from two of more selected chunks """
         self.assy.weld()
         self.update()
 
     def modifyAlignCommonAxis(self):
+        """ Align selected chunks by rotating them """
         self.assy.align()
         self.update()
         
@@ -1066,17 +1090,6 @@ class MWsemantics(MainWindow):
         self.simCntl = runSim(self.assy)
         self.simCntl.show()
 
-    def setViewFitToWindow(self):
-        """ Fit to Window """
-        #Recalculate center and bounding box for the assembly    
-        self.assy.computeBoundingBox()     
-
-        self.glpane.scale=self.assy.bbox.scale()
-        #print "scale: ", self.glpane.scale
-        #print "pov, center: ", self.glpane.pov, self.assy.center
-        self.glpane.pov = -self.assy.center#-planeXline(-self.glpane.pov, self.glpane.out, self.assy.center, self.glpane.out)
-        #print "Again: pov, center: ", self.glpane.pov, self.assy.center
-        self.glpane.paintGL()
         
     def setViewRecenter(self):
         """ Fit to Window """
