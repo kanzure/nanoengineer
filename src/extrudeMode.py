@@ -2,13 +2,14 @@
 """
 THIS FILE IS PRESENTLY OWNED BY BRUCE -- please don't change it in any way,
 however small, unless this is necessary to make Atom work properly for other developers.
-[bruce 040921]
+[bruce 040921, 041015, ...]
 
 $Id$
 
-Stub file for Extrude mode. It's getting less and less identical to cookieMode.
+Extrude mode. Supposedly ok for Josh's demo.
+Being extended to also have algorithms suitable for Revolve...
 
--- bruce 040924/041011
+-- bruce 040924/041011/041015
 """
 
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
@@ -20,6 +21,19 @@ from qt import QSpinBox, QDoubleValidator
 
 from handles import *
 from debug import print_compact_traceback
+import math #k needed?
+
+
+show_revolve_ui_features = 1 # for now
+
+class BendData:
+    """instances hold sets of attributes related to a single "bend value" (inter-unit rotation-quat, etc).
+    
+    This class (and concept) exists only to support Revolve, but it can also be used for bend-features in Extrude.
+    We'll be set up to permit, in general, placing successive units around any spiral or screw
+    (though the UI may or may not permit this level of generality to be used).
+    """
+    pass # not yet used or fully designed; see a notesfile    
 
 class FloatSpinBox(QSpinBox):
     "spinbox for a coordinate in angstroms -- permits negatives, floats"
@@ -95,6 +109,9 @@ MAX_NCOPIES = 100 # max number of extrude-unit copies. Should be larger. ####e
 def do_what_MainWindowUI_should_do(self):
     "self should be the main MWSemantics object -- at the moment this is a function, not a method"
 
+    ### for now we must set up dashboards for both extrude and revolve. at first they are just the same one.
+    # and when we show it we should patch the label...
+
     ##print "extrude debug: do_what_MainWindowUI_should_do"
 
     from qt import SIGNAL, QToolBar, QLabel, QLineEdit, QSpinBox
@@ -103,14 +120,17 @@ def do_what_MainWindowUI_should_do(self):
     # (based on the code for cookieCutterToolbar in MainWindowUI)
 
     self.extrudeDashboard = QToolBar(QString(""),self,Qt.DockBottom)
-    self.extrudeToolbar = self.extrudeDashboard # bruce 041007 so I don't have to rename this in MWsemantics.py yet
+    ## self.extrudeToolbar = self.extrudeDashboard # bruce 041007 so I don't have to rename this in MWsemantics.py yet
+
+    self.revolveDashboard = self.extrudeDashboard
+    ### for now, let them be the same... should be ok unless we show new before hiding old
 
     self.extrudeDashboard.setGeometry(QRect(0,0,515,29)) ### will probably be wrong once we modify the contents
     self.extrudeDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
     self.textLabel_extrude_toolbar = QLabel(self.extrudeDashboard,"textLabel_extrude_toolbar")
     # below was "Extrude Mode", in two places in the file ########
-    self.textLabel_extrude_toolbar.setText(self._MainWindow__tr("Extrude")) # see note below about __tr
+    self.textLabel_extrude_toolbar.setText(self._MainWindow__tr("extrude or revolve 1")) # see note below about __tr
 
     self.extrudeDashboard.addSeparator()
 
@@ -131,9 +151,25 @@ def do_what_MainWindowUI_should_do(self):
         label.setText(self._MainWindow__tr(text)) # initial text
         return label # caller doesn't usually need this, except to vary the text
 
-    insertlabel(" N ")
-    self.extrudeSpinBox_n = QSpinBox(self.extrudeDashboard, "extrudeSpinBox_n")
+    if show_revolve_ui_features:
+        if begin(QVBox):
+            if begin(QHBox):
+                insertlabel(" N ")
+                self.extrudeSpinBox_n = QSpinBox(parent_now(), "extrudeSpinBox_n") # dup code to below
+            end()
+            if begin(QHBox):
+                insertlabel("(m)")
+                self.extrudeSpinBox_circle_n = QSpinBox(parent_now(), "extrudeSpinBox_circle_n") # really for revolve
+            end()
+        end()
+    else:
+        insertlabel(" N ")
+        self.extrudeSpinBox_n = QSpinBox(parent_now(), "extrudeSpinBox_n") # dup code to above
+        self.extrudeSpinBox_circle_n = None
+    #
+    
     self.extrudeSpinBox_n.setRange(1,MAX_NCOPIES)
+    
     self.extrudeDashboard.addSeparator()
 
     if begin(QVBox):
@@ -207,7 +243,7 @@ def do_what_MainWindowUI_should_do(self):
     self.toolsCancelAction.addTo(self.extrudeDashboard)
 
     # note: python name-mangling would turn __tr, within class MainWindow, into _MainWindow__tr (I think... seems to be right)
-    self.extrudeDashboard.setLabel(self._MainWindow__tr("Extrude")) # "Extrude Mode" was wider than I liked... space is tight
+    self.extrudeDashboard.setLabel(self._MainWindow__tr("extrude or revolve 2"))
 
     # stuff *after* the dashboard... make it on the right? prefs settings. experimental.
     # QCheckBox::QCheckBox ( const QString & text, QWidget * parent, const char * name = 0 )
@@ -222,6 +258,12 @@ def do_what_MainWindowUI_should_do(self):
     
     return
 
+def patch_modename_labels(win, modename):
+    "call with Extrude or Revolve" # "Extrude Mode" was wider than I liked... space is tight
+    self = win
+    self.textLabel_extrude_toolbar.setText(self._MainWindow__tr(modename)) # i think this is the visible one...
+    self.extrudeDashboard.setLabel(self._MainWindow__tr(modename)) # not sure whether this ever shows up
+    
 def lambda_tol_nbonds(tol, nbonds):
     if nbonds == -1:
         nbonds_str = "?"
@@ -233,12 +275,14 @@ def lambda_tol_nbonds(tol, nbonds):
     tol_str = tol_str + "%"
     return "tolerance: %s => %s bonds" % (tol_str,nbonds_str)
 
-import math
-
 def reinit_extrude_controls(win, glpane = None, length = None, attr_target = None):
     "reinitialize the extrude controls; used whenever we enter the mode; win should be the main window (MWSemantics object)"
     self = win
+    
     self.extrudeSpinBox_n.setValue(3)
+    if self.extrudeSpinBox_circle_n:
+        self.extrudeSpinBox_circle_n.setValue(0) #e for true Revolve the initial value would be small but positive...
+
     x,y,z = 5,5,5 # default dir in modelspace, to be used as a last resort
     if glpane:
         # use it to set direction
@@ -258,6 +302,7 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
         rr = float(length) / ll
         x,y,z = (x * rr, y * rr, z * rr)
     set_extrude_controls_xyz(win, (x,y,z))
+
     self.extrude_pref_toggles = [self.extrudePref1, self.extrudePref2, self.extrudePref3, self.extrudePref4]
     for toggle in self.extrude_pref_toggles:
         if attr_target and toggle.attr: # do this first, so the attrs needed by the slot functions are there
@@ -351,6 +396,7 @@ def set_controls_minimal(win): #e would be better to try harder to preserve xyz 
 class extrudeMode(basicMode):
 
     # class constants
+    is_revolve = 0
     backgroundColor = 200/256.0, 100/256.0, 100/256.0 # different than in cookieMode
     modename = 'EXTRUDE'
     default_mode_status_text = "Mode: Extrude"
@@ -385,7 +431,7 @@ class extrudeMode(basicMode):
         ## but we should destroy conn when we exit the mode... but i guess i can save that for later... since spinbox won't be shown then
         # and since redundant conns will not kill me for now.
         # self.w is a guess for where to put the conn, not sure it matters as long as its a Qt object
-        self.w.connect(self.w.extrudeSpinBox_n,SIGNAL("valueChanged(int)"),self.spinbox_value_changed) #####k
+        self.w.connect(self.w.extrudeSpinBox_n,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
         self.w.connect(self.w.extrudeSpinBox_x,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
         self.w.connect(self.w.extrudeSpinBox_y,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
         self.w.connect(self.w.extrudeSpinBox_z,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
@@ -396,10 +442,15 @@ class extrudeMode(basicMode):
 
         slider = self.w.extrudeBondCriterionSlider
         self.w.connect(slider, SIGNAL("valueChanged(int)"), self.slider_value_changed)
+
+        if self.w.extrudeSpinBox_circle_n:
+            self.w.connect(self.w.extrudeSpinBox_circle_n,SIGNAL("valueChanged(int)"),self.circle_n_value_changed)
         return
 
-    bond_tolerance = -1.0 # initial value can't agree with slider
+    bond_tolerance = -1.0 # this initial value can't agree with value computed from slider
+    
     def slider_value_changed(self):
+        ######k why don't we check suppress_value_changed? maybe we never set its value with that set?
         if not self.now_using_this_mode_object():
             return
         old = self.bond_tolerance
@@ -450,7 +501,7 @@ class extrudeMode(basicMode):
         return self.o.mode == self ###k 041009
         
     def Enter(self):
-        self.status_msg("entering extrude mode...")
+        self.status_msg("entering %s..." % self.msg_modename)
           # this msg won't last long enough to be seen, if all goes well
         self.clear() ##e see comment there
         reinit_extrude_controls(self.w, self.o, length = 7.0, attr_target = self)
@@ -467,7 +518,7 @@ class extrudeMode(basicMode):
         if not ok:
             whynot = mol
             #e show the reason why not in a dialog??
-            self.status_msg("extrude mode refused: %r" % (whynot,)) #e improve
+            self.status_msg("%s refused: %r" % (self.msg_modename, whynot,)) #e improve
             return 1 # refused!
         self.basemol = mol
         mark_singlets(self.basemol, self.colorfunc)
@@ -500,7 +551,7 @@ class extrudeMode(basicMode):
         __main__.mode = self
 
         
-        print "fyi: extrude debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
+        print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
         print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
 
     singlet_color = {}
@@ -511,8 +562,28 @@ class extrudeMode(basicMode):
         assert len(self.molcopies) == self.ncopies
         assert self.molcopies[0] == self.basemol
 
+    circle_n = 0 ###### do in clear() ... use -1 here?? nah
+    def circle_n_value_changed(self, val):
+        val = "arg not used"
+        global suppress_valuechanged
+        if suppress_valuechanged:
+            return
+        if not self.now_using_this_mode_object():
+            return
+        spinbox = self.w.extrudeSpinBox_circle_n
+        if not spinbox:
+            return #k?
+        val = spinbox.value()
+        old = self.circle_n
+        if old != val:
+            print "will use circle_n of %d (nim)" % val
+            self.circle_n = val
+            #e recompute... ###@@@ this is what needs doing... maybe also switch memoized data *right here*... this_bend thisbend
+            self.w.update() # or just repaint
+        return
+
     def spinbox_value_changed(self, val):
-        "call this when any spinbox value changed, except length."
+        "call this when any extrude spinbox value changed, except length."
         global suppress_valuechanged
         if suppress_valuechanged:
             return
@@ -805,9 +876,17 @@ class extrudeMode(basicMode):
     # == this belongs higher up...
     
     def init_gui(self):
+        ##print "hi my msg_modename is",self.msg_modename
         self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
-        self.w.toolsExtrudeAction.setOn(1) # make the Extrude tool icon look pressed (and the others not)
-        self.w.extrudeDashboard.show()
+        if self.is_revolve:
+            self.w.toolsRevolveAction.setOn(1)
+            self.w.revolveDashboard.show()
+            patch_modename_labels(self.w, "Revolve")
+        else:
+            self.w.toolsExtrudeAction.setOn(1) # make the Extrude tool icon look pressed (and the others not)
+            self.w.extrudeDashboard.show()
+            patch_modename_labels(self.w, "Extrude")
+        return
 
     # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
 
@@ -939,6 +1018,9 @@ class extrudeMode(basicMode):
     
     def merge_units_and_kill(self, mol1, mol2):
         "merge mol2 into mol1, where these might be units, or the base, or (nim) the base's home molecule"
+        ############@@@ temporary kluge to work around a new bug in mol.kill. 041015 650pm
+        ## mol2.externs = [] # josh fixed it now
+        # end kluge
         mol1.merge(mol2) # this does mol2.kill() as a side effect (bad in general, imho, but ok here)
           # (note: if mol2 bonded to singlets in some other mol
           #  (should never happen), they'd also get merged into mol1.)
@@ -951,7 +1033,11 @@ class extrudeMode(basicMode):
         return self.StateDone() # closest we can come to cancelling
     
     def restore_gui(self):
-        self.w.extrudeDashboard.hide()    
+        if self.is_revolve:
+            self.w.revolveDashboard.hide()
+        else:
+            self.w.extrudeDashboard.hide()
+        return
 
     # mouse events ### wrong -- i should let you drag one of the repeated units; see code in move mode which does similar
 
@@ -1172,7 +1258,7 @@ class extrudeMode(basicMode):
 ##            draw_mergeables(self.mergeables, self.o)
         return
    
-    def makeMenus(self): ### mostly not yet reviewed for extrude mode
+    def makeMenus(self): ### mostly not yet reviewed for extrude or revolve mode
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
                                     ('Separate', self.o.assy.modifySeparate),
@@ -1198,7 +1284,8 @@ class extrudeMode(basicMode):
                                     ('Move', self.move),
                                     ('Copy', self.copy),
                                     ## ('debug: EXTRUDE-UPDATE (obsolete!)', self.extrude_update),
-                                    ('debug: EXTRUDE-RELOAD', self.extrude_reload),####experimental
+                                    ('debug: EXTRUDE-REVOLVE-RELOAD', self.extrude_reload),
+                                    ('debug: bend by...', self.bend_by),####experimental (for Revolve) 041015
                                     None,
                                     # note: use platform.py functions so names work on Mac or non-Mac,
                                     # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
@@ -1219,6 +1306,24 @@ class extrudeMode(basicMode):
 ##        print "extrude_update done"
 ##        return ### for now
 
+    circle_units = 0
+    def bend_by_obs(self):
+        caption = "caption"
+        label = "label"
+        val, min, max = 0, 0, 1000
+        # 0 means not bending (ie infinity), other vals mean bend so that that many form a circle
+        step = 1
+        parent = self.w
+        print "bend_by - tell it how many units form a circle"
+        myint = QInputDialog.getInteger(caption, label, val, min, max, step, parent)
+        print "bend_by got %d" % myint # not an int -- TypeError: not all arguments converted during string formatting
+        self.circle_units = myint
+        self.w.update()
+
+    def bend_by(self):
+        self.status_msg("trying to add a spinbox, will it work??")
+        
+        
     def extrude_reload(self):
         """for debugging: try to reload extrudeMode.py and patch your glpane
         to use it, so no need to restart Atom. Might not always work.
@@ -1311,8 +1416,12 @@ def assy_extrude_unit(assy):
         def new_old(new, old):
             assert new.atoms
             res.append(new) #e someday we might use old too, eg for undo or for heuristics to help deal with neighbor-atoms...
+        try:
+            assy.selwhat = 0 # josh says: It should correspond, or there's a bug. You can always set it... [bruce 041015]
+        except:
+            pass # (tho the above should work even if the attr becomes obsolete!)
         assy.modifySeparate(new_old_callback = new_old) # make the selected atoms into their own mols
-        assert res, "what happened to all those selected atoms???"
+        assert res, "what happened to all those selected atoms???" # (or did assy.selwhat check in modifySeparate mess us up?)
         if len(res) > 1:
             return False, "more than one mol contains selected atoms, and stub code can't yet merge them"
         else:
@@ -1536,9 +1645,9 @@ def makeBonded_without_moving_or_shakedown(s1, s2): # modified from chem.makeBon
 
 
 
-#end
- # remember to unpatch colorfunc from the mols when i'm done
-# and info from the atoms? not needed but might as well
+#end of extrude
+ # + remember to unpatch colorfunc from the mols when i'm done
+# and info from the atoms? not needed but might as well [nah]
 
 # not done:
 
@@ -1547,3 +1656,16 @@ def makeBonded_without_moving_or_shakedown(s1, s2): # modified from chem.makeBon
 # this is not yet justified, and if false will crash it when it makes bonds
 
 
+##### low upper limit on ncopies? 20...
+
+class revolveMode(extrudeMode):
+    "revolve, a slightly different version of Extrude, someday with a different dashboard"
+
+    # class constants
+    backgroundColor = 150/256.0, 200/256.0, 100/256.0 # different than in extrudeMode
+    modename = 'REVOLVE'
+    msg_modename = "revolve mode" #e need to fix up anything else?
+    default_mode_status_text = "Mode: Revolve"
+    is_revolve = 1
+
+    pass

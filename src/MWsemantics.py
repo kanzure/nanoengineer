@@ -42,6 +42,8 @@ class MWsemantics(MainWindow):
         # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
         import extrudeMode as _extrudeMode
         _extrudeMode.do_what_MainWindowUI_should_do(self)
+        # (the above function will set up both Extrude and Revolve)
+        
         import depositMode as _depositMode
         _depositMode.do_what_MainWindowUI_should_do(self)
 
@@ -787,18 +789,19 @@ class MWsemantics(MainWindow):
              "This function is not implemented yet, coming soon...")
         
     def toolsMoveMolecule(self):
-        ## bruce 040928 suspects that the next line was part of the cvs merge error as well, so is changing it:
-        self.glpane.setMode('MODIFY') ## was: self.assy.o.setMode('MODIFY')
+        self.glpane.setMode('MODIFY')
             
     # get into cookiecutter mode
     def toolsCookieCut(self):
-        ##self.modebarLabel.setText( "Mode: Cookie Cutter" ) # bruce 040927 let mode control this
         self.glpane.setMode('COOKIE')
 
     # get into Extrude mode
     def toolsExtrude(self):
-        ##self.modebarLabel.setText( "Mode: Extrude" ) # bruce 040927 let mode control this
         self.glpane.setMode('EXTRUDE')
+
+    # get into Revolve mode [bruce 041015]
+    def toolsRevolve(self):
+        self.glpane.setMode('REVOLVE')
 
     # Mirror Tool
     def toolsMirror(self):
@@ -902,11 +905,6 @@ class MWsemantics(MainWindow):
         QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
-    def toolsRevolve(self):
-        print "MWsemantics.toolsRevolve(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:", 
-             "This function is not implemented yet, coming soon...")  
-              
     def toolsAlignToCommonAxis(self):
         print "MWsemantics.modifyAlignToCommonAxis(): Not implemented yet"
         QMessageBox.warning(self, "ATOM User Notice:", 
@@ -1159,8 +1157,9 @@ class MWsemantics(MainWindow):
         #self.update_mode_status() # bruce 040927            
         
     def hideDashboards(self):
-        self.cookieCutterDashboard.hide() # (bruce note: this is the cookie mode dashboard)
-        self.extrudeToolbar.hide() # (... and this is the extrude mode dashboard)
+        self.cookieCutterDashboard.hide()
+        self.extrudeDashboard.hide()
+        self.revolveDashboard.hide()
         self.depositAtomDashboard.hide()
         self.datumDispDashboard.hide()  # (mark note: this is the datum display toolbar)
         self.selectMolDashboard.hide()
