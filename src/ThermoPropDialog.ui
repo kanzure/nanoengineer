@@ -1,0 +1,331 @@
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<class>ThermoPropDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>ThermoPropDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>299</width>
+            <height>213</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>7</hsizetype>
+            <vsizetype>7</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="caption">
+        <string>Thermometer Properties</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <property name="sizeGripEnabled">
+        <bool>true</bool>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout7</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="1" column="0">
+                    <property name="name">
+                        <cstring>layout11</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout121</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>colorTextLabel</cstring>
+                                    </property>
+                                    <property name="font">
+                                        <font>
+                                            <pointsize>9</pointsize>
+                                            <bold>1</bold>
+                                        </font>
+                                    </property>
+                                    <property name="text">
+                                        <string>Color:</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>colorPixmapLabel</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>5</hsizetype>
+                                            <vsizetype>5</vsizetype>
+                                            <horstretch>1</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>0</height>
+                                        </size>
+                                    </property>
+                                    <property name="paletteBackgroundColor">
+                                        <color>
+                                            <red>0</red>
+                                            <green>0</green>
+                                            <blue>0</blue>
+                                        </color>
+                                    </property>
+                                    <property name="scaledContents">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>colorSelectorPushButton</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>true</bool>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>1</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>...</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Change color</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>layout9</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>nameTextLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>5</hsizetype>
+                                    <vsizetype>5</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="font">
+                                <font>
+                                    <pointsize>9</pointsize>
+                                    <bold>1</bold>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>Name:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>nameLineEdit</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>true</bool>
+                            </property>
+                            <property name="frameShape">
+                                <enum>LineEditPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignLeft</set>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout34</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okPushButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>&amp;OK</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+O</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancelPushButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+C</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>applyPushButton</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Apply</string>
+                    </property>
+                    <property name="accel">
+                        <string></string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="739">789cadcebd0ac23010c0f1bd4f119aad88fd205283f80882a3200e7797061dba681d447c777327488b89207864f9f323c79585da6d37aa28b3cb00c389141de1ac0a77edfbdbfeb0be6779d3a8f096aace67598e8a94aedbca572d27709ace58d3703a4ef0e000393527764828d971fadada56fe7ac9051a2b4a92be0ac3397f258f647426a201745c405e4c505e5c3029e93f7fdd469494e4b62f7f7edee680085c4418463492001dd3a7a0c0fb8689f884846d3ebe2d7d4120c4d1d58f55f604f6499d82</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>cancelPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ThermoPropDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>okPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ThermoPropDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>nameLineEdit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>ThermoPropDialog</receiver>
+        <slot>propertyChanged()</slot>
+    </connection>
+    <connection>
+        <sender>applyPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ThermoPropDialog</receiver>
+        <slot>applyButtonPressed()</slot>
+    </connection>
+    <connection>
+        <sender>colorSelectorPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ThermoPropDialog</receiver>
+        <slot>changeThermoColor()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>cancelPushButton</tabstop>
+</tabstops>
+<slots>
+    <slot>applyButtonPressed()</slot>
+    <slot>changeThermoColor()</slot>
+    <slot>propertyChanged()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
