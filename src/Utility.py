@@ -52,9 +52,8 @@ class Node:
     def addmember(self, node, before=False):
         """add leaf node after (default) or before self
         """
-#        print "Utility.Node.addmember: adding node [",node.name,"] after/before [",self.name,"]"
-
         if node == self: return
+#        print "Utility.Node.addmember: adding node [",node.name,"] after/before [",self.name,"]"
         m = self.dad.members
         if before: i = m.index(self) # Insert node before self
         else: i = m.index(self) + 1 # Insert node after self
@@ -207,6 +206,7 @@ class Group(Node):
     def addmember(self, node, top=False):
         """add leaf node to bottom (default) or top of self
         """
+        if not node: return
 #        print "Utility.Group.addmember: adding node [",node.name,"] to the bottom/top of group [",self.name,"]"
         self.assy.modified = 1
         if top: self.members.insert(0, node) # Insert node at the very top
@@ -285,11 +285,9 @@ class Group(Node):
                 x.moveto(self.dad)
             self.kill()
 
-    def copy(self, dad, offset):
-        new = Group(self.name + "!", self.assy, dad)
-        for x in self.members:
-            self.addmember(x.copy(new, offset))
-        return new
+    def copy(self, dad):
+        self.assy.w.statusBar.message("Groups cannot be copied")
+        return 0
              
     def kill(self):
         if self.dad:
@@ -474,4 +472,3 @@ class InsertHere(Node):
                
     def seticon(self):
         self.icon = self.inserthereIcon
-

@@ -46,6 +46,7 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
                 a.jigs += [self]
         #e it might make sense to init other attrs here too, like color
         return
+        
     #bruce 041202 made the icons class constants, so they will be loaded once
     # per Atom run per subclass, rather than every time we create another jig!
     # But they can't be actually loaded when this module is imported
@@ -72,21 +73,28 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
                 pixmap = None # stub, will cause later crash -- improve this
             self.mticon.append(pixmap)
         return
+        
     def seticon(self):
         "a subclass should override this if it uses mticon[] indices differently"
         self.icon = self.mticon[self.hidden]
+        
     def setAtoms(self, atomlist):
         if self.atoms:
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
         self.atoms = atomlist
         for a in atomlist:
             a.jigs += [self]
+            
+    def copy(self, dad):
+        self.assy.w.statusBar.message("Jigs cannot be copied")
+        
     # josh 10/26 to fix bug 85
     def rematom(self, a):
         self.atoms.remove(a)
         # should check and delete the jig if no atoms left
         if not self.atoms:
             self.kill()
+            
     def kill(self):
         #e don't we need to remove self from all our atoms' a.jigs? [guess: yes]
         # [bruce question 041105; looks like a bug but i will ask josh]
@@ -204,7 +212,6 @@ class RotaryMotor(Jig):
         if self.hidden: return
         c = self.posn()
         a = self.axen()
-        print "gadgets.py: writepov(): writing rotar motor record"
         file.write("rmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + povpoint(c-(self.length / 2.0)*a)  + "," + str (self.radius) +
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
         for a in self.atoms:
@@ -351,7 +358,6 @@ class LinearMotor(Jig):
         if self.hidden: return
         c = self.posn()
         a = self.axen()
-        print "gadgets.py: writepov(): writing lmotor record"
         file.write("lmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + 
                     povpoint(c-(self.length / 2.0)*a)  + "," + str (self.width / 2.0) + 
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
