@@ -29,12 +29,14 @@ class fusechunksMode(modifyMode):
     tol = 1.0
     
     def init_gui(self):
+        self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
         self.w.toolsFuseChunksAction.setOn(1) # toggle on the Fuse Chunks icon
         self.w.fuseChunksDashboard.show() # show the Fuse Chunks dashboard
         self.w.toleranceLCD.display((self.w.toleranceSL.value() + 50) * .01)
         self.w.connect(self.w.makeBondsPB,SIGNAL("clicked()"),self.make_bonds)
         self.w.connect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
         self.o.assy.unpickparts()
+        self.selected_chunk = None
     
     def restore_gui(self):
         self.w.fuseChunksDashboard.hide()
@@ -51,6 +53,8 @@ class fusechunksMode(modifyMode):
         """Move the selected chunk in the plane of the screen following
         the mouse.
         """
+        if not self.selected_chunk: return
+        
         # Need to look at moving all this back into modifyMode.leftDrag
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
@@ -73,6 +77,8 @@ class fusechunksMode(modifyMode):
         """move chunk along its axis (mouse goes up or down)
            rotate around its axis (left-right)
         """
+        if not self.selected_chunk: return
+            
         self.o.setCursor(self.w.MoveRotateMolCursor)
         
         w=self.o.width+0.0
@@ -82,16 +88,14 @@ class fusechunksMode(modifyMode):
         a =  dot(self.Zmat, deltaMouse)
         dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
 
-        ##### This is the only difference b/w fusechunks and modify #####
-        
-        ma = self.selected_chunk.getaxis()
-        self.selected_chunk.move(dx*ma)
-        self.selected_chunk.rot(Q(ma,-dy))
-
+        # This is always be only one chunk.
+        for mol in self.o.assy.selmols:
+            ma = mol.getaxis()
+            mol.move(dx*ma)
+            mol.rot(Q(ma,-dy))
+            
         self.find_bondable_pairs() # Find bondable pairs of singlets
-        
-        ####################################################
-        
+
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
         self.o.gl_update()
@@ -99,6 +103,8 @@ class fusechunksMode(modifyMode):
     def leftCntlDrag(self, event):
         """Do an incremental trackball action on each selected part.
         """
+        if not self.selected_chunk: return
+        
         self.o.setCursor(self.w.RotateMolCursor)
         
         w=self.o.width+0.0
