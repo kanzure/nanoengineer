@@ -910,7 +910,17 @@ class assembly:
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
         self.unpickatoms()
-
+        
+    # attaches a thermometer to all the selected atoms.
+    def makethermo(self):
+        """Attaches a thermometer to all the selected atoms.
+        """
+        if not self.selatoms: return
+        m=Thermo(self, self.selatoms.values())
+        mol = self.selatoms.values()[0].molecule
+        mol.dad.addmember(m)
+        self.unpickatoms()
+        
     # select all atoms connected by a sequence of bonds to
     # an already selected one
     def marksingle(self):
