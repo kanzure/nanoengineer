@@ -3,10 +3,29 @@
 from qt import Qt
 
 leftButton = 1
-rightButton = 2
+rightButton = 2 # in Qt/Mac, control key with left mouse button simulates right mouse button.
 midButton = 4
 shiftButton = 256
-cntlButton = 512
+cntlButton = 512 # in Qt/Mac, this flag indicates the command key rather than the control key.
+
+altButton = 1024 # in Qt/Mac, this flag indicates the Alt/Option modifier key.
+
+# Note: it would be better if we replaced the above by the equivalent named constants provided
+# by Qt. Before doing this, we have to find out how they correspond on each platform -- for example,
+# I don't know whether Qt's named constant for the control key will have the same numeric value
+# on Windows and Mac, as our own named constant 'cntlButton' does. So no one should replace the
+# above numbers by Qt's declared names before they check this out on each platform. -- bruce 040916
+
+
+# debugButtons should be an unusual combination of modifier keys, used to bring up an undocumented
+# debug menu intended just for developers (if a suitable preference is set). The following value is
+# good for the Mac; someone on Windows or Linux can decide what value would be good for those platforms,
+# and make this conditional on the platform. (If that's done, note that sys.platform on Mac might not be
+# what you'd guess -- it can be either "darwin" or "mac" (I think), depending on the python installation.)
+# -- bruce 040916
+
+debugButtons = cntlButton | shiftButton | altButton # on the mac, this really means command-shift-alt
+
 
 diDEFAULT = 0
 diINVISIBLE = 1
