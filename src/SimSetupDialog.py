@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Tue Nov 2 20:24:09 2004
+# Created: Mon Nov 22 16:45:07 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -101,6 +101,14 @@ class SimSetupDialog(QDialog):
         self.NumFramesWidget.setLineStep(15)
         self.NumFramesWidget.setValue(900)
 
+        self.GoButton = QPushButton(self,"GoButton")
+        self.GoButton.setGeometry(QRect(140,350,110,30))
+        self.GoButton.setDefault(1)
+
+        self.textLabel6 = QLabel(self,"textLabel6")
+        self.textLabel6.setGeometry(QRect(10,10,250,37))
+        self.textLabel6.setAlignment(QLabel.WordBreak | QLabel.AlignCenter)
+
         self.FileFormatWidget = QButtonGroup(self,"FileFormatWidget")
         self.FileFormatWidget.setGeometry(QRect(10,260,250,71))
 
@@ -113,17 +121,9 @@ class SimSetupDialog(QDialog):
         self.TextFile.setGeometry(QRect(20,40,190,22))
         self.FileFormatWidget.insert( self.TextFile,1)
 
-        self.GoButton = QPushButton(self,"GoButton")
-        self.GoButton.setGeometry(QRect(140,350,110,30))
-        self.GoButton.setDefault(1)
-
-        self.textLabel6 = QLabel(self,"textLabel6")
-        self.textLabel6.setGeometry(QRect(10,10,250,37))
-        self.textLabel6.setAlignment(QLabel.WordBreak | QLabel.AlignCenter)
-
         self.languageChange()
 
-        self.resize(QSize(270,399).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(270,402).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.NumFramesWidget,SIGNAL("valueChanged(int)"),self.NumFramesValueChanged)
@@ -145,11 +145,11 @@ class SimSetupDialog(QDialog):
         self.textLabel5.setText(self.__tr("Total frames"))
         self.textLabel3.setText(self.__tr("Temperature\n"
 "(Kelvins)"))
-        self.FileFormatWidget.setTitle(self.__tr("File Format"))
-        self.BinFileWidget.setText(self.__tr("Binary trajectory file"))
-        self.TextFile.setText(self.__tr("Text trajectory file"))
         self.GoButton.setText(self.__tr("Go"))
         self.textLabel6.setText(self.__tr("<b><h1>Simulation Setup</h1></b>"))
+        self.FileFormatWidget.setTitle(self.__tr("File Format"))
+        self.BinFileWidget.setText(self.__tr("Binary trajectory file (*.dpb)"))
+        self.TextFile.setText(self.__tr("Text trajectory file (*.xyz)"))
 
 
     def NumFramesValueChanged(self,a0):

@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>270</width>
-            <height>399</height>
+            <height>402</height>
         </rect>
     </property>
     <property name="caption">
@@ -58,7 +58,9 @@
         <property name="text">
             <string>Timestep
 
+
 (hundredths of
+
 
 femtosecond)</string>
         </property>
@@ -164,6 +166,7 @@ femtosecond)</string>
         <property name="text">
             <string>Temperature
 
+
 (Kelvins)</string>
         </property>
     </widget>
@@ -191,63 +194,6 @@ femtosecond)</string>
         <property name="value">
             <number>900</number>
         </property>
-    </widget>
-    <widget class="QButtonGroup">
-        <property name="name">
-            <cstring>FileFormatWidget</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>260</y>
-                <width>250</width>
-                <height>71</height>
-            </rect>
-        </property>
-        <property name="title">
-            <string>File Format</string>
-        </property>
-        <widget class="QRadioButton">
-            <property name="name">
-                <cstring>BinFileWidget</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>20</x>
-                    <y>20</y>
-                    <width>190</width>
-                    <height>22</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Binary trajectory file</string>
-            </property>
-            <property name="checked">
-                <bool>true</bool>
-            </property>
-            <property name="buttonGroupId">
-                <number>0</number>
-            </property>
-        </widget>
-        <widget class="QRadioButton">
-            <property name="name">
-                <cstring>TextFile</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>20</x>
-                    <y>40</y>
-                    <width>190</width>
-                    <height>22</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Text trajectory file</string>
-            </property>
-            <property name="buttonGroupId">
-                <number>1</number>
-            </property>
-        </widget>
     </widget>
     <widget class="QPushButton">
         <property name="name">
@@ -286,6 +232,63 @@ femtosecond)</string>
         <property name="alignment">
             <set>WordBreak|AlignCenter</set>
         </property>
+    </widget>
+    <widget class="QButtonGroup">
+        <property name="name">
+            <cstring>FileFormatWidget</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>260</y>
+                <width>250</width>
+                <height>71</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>File Format</string>
+        </property>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>BinFileWidget</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>20</y>
+                    <width>190</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Binary trajectory file (*.dpb)</string>
+            </property>
+            <property name="checked">
+                <bool>true</bool>
+            </property>
+            <property name="buttonGroupId">
+                <number>0</number>
+            </property>
+        </widget>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>TextFile</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>40</y>
+                    <width>190</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Text trajectory file (*.xyz)</string>
+            </property>
+            <property name="buttonGroupId">
+                <number>1</number>
+            </property>
+        </widget>
     </widget>
 </widget>
 <images>
