@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Mar 30 11:41:39 2005
+# Created: Thu Mar 31 11:54:47 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5694,7 +5694,7 @@ class MainWindow(QMainWindow):
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.cookieCutterDashboard.setEnabled(1)
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,1115,31))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,1088,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -5769,7 +5769,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.moveMolDashboard)
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,60,1089,32))
+        self.moviePlayerDashboard.setGeometry(QRect(0,58,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -5828,7 +5828,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.zoomDashboard)
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.panDashboard.setGeometry(QRect(270,92,111,31))
+        self.panDashboard.setGeometry(QRect(243,87,104,29))
         self.panDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -5837,7 +5837,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.panDashboard)
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.rotateDashboard.setGeometry(QRect(381,92,132,31))
+        self.rotateDashboard.setGeometry(QRect(347,87,120,29))
         self.rotateDashboard.setPaletteBackgroundColor(QColor(230,231,230))
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
@@ -5849,7 +5849,7 @@ class MainWindow(QMainWindow):
         self.textLabel1_5 = QLabel(self.fuseChunksDashboard,"textLabel1_5")
         self.fuseChunksDashboard.addSeparator()
 
-        self.toleranceLB = QLabel(self.fuseChunksDashboard,"toleranceLB")
+        self.tolLB = QLabel(self.fuseChunksDashboard,"tolLB")
         spacer3 = QSpacerItem(10,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         QApplication.sendPostedEvents(self.fuseChunksDashboard,QEvent.ChildInserted)
         self.fuseChunksDashboard.boxLayout().addItem(spacer3)
@@ -5858,6 +5858,11 @@ class MainWindow(QMainWindow):
         self.toleranceSL.setMaxValue(300)
         self.toleranceSL.setValue(100)
         self.toleranceSL.setOrientation(QSlider.Horizontal)
+
+        self.toleranceLB = QLabel(self.fuseChunksDashboard,"toleranceLB")
+        spacer5 = QSpacerItem(10,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        QApplication.sendPostedEvents(self.fuseChunksDashboard,QEvent.ChildInserted)
+        self.fuseChunksDashboard.boxLayout().addItem(spacer5)
 
         self.makeBondsPB = QPushButton(self.fuseChunksDashboard,"makeBondsPB")
 
@@ -5870,7 +5875,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.fuseChunksDashboard)
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.depositAtomDashboard.setGeometry(QRect(0,123,19,16))
+        self.depositAtomDashboard.setGeometry(QRect(0,116,19,16))
         self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
@@ -5917,7 +5922,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1115,37))
+        self.MenuBar.setGeometry(QRect(0,0,1115,33))
         self.MenuBar.setPaletteBackgroundColor(QColor(236,233,216))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
@@ -6609,7 +6614,8 @@ class MainWindow(QMainWindow):
         self.rotateTextLabel.setText(self.__tr("Rotate Tool"))
         self.fuseChunksDashboard.setLabel(self.__tr("Toolbar"))
         self.textLabel1_5.setText(self.__tr("Fuse Chunks"))
-        self.toleranceLB.setText(self.__tr("Tolerance:"))
+        self.tolLB.setText(self.__tr("Tolerance:"))
+        self.toleranceLB.setText(self.__tr("100% => 0 Bonds"))
         self.makeBondsPB.setText(self.__tr("Make Bonds"))
         self.mergeCB.setText(self.__tr("Merge Chunks"))
         self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))

@@ -37,7 +37,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>37</height>
+            <height>33</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -288,8 +288,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1115</width>
-                <height>31</height>
+                <width>1088</width>
+                <height>29</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -640,9 +640,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>60</y>
-                <width>1089</width>
-                <height>32</height>
+                <y>58</y>
+                <width>1036</width>
+                <height>29</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -820,10 +820,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>270</x>
-                <y>92</y>
-                <width>111</width>
-                <height>31</height>
+                <x>243</x>
+                <y>87</y>
+                <width>104</width>
+                <height>29</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -856,10 +856,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>381</x>
-                <y>92</y>
-                <width>132</width>
-                <height>31</height>
+                <x>347</x>
+                <y>87</y>
+                <width>120</width>
+                <height>29</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -901,7 +901,7 @@
         <separator/>
         <widget class="QLabel">
             <property name="name">
-                <cstring>toleranceLB</cstring>
+                <cstring>tolLB</cstring>
             </property>
             <property name="text">
                 <string>Tolerance:</string>
@@ -936,6 +936,31 @@
             </property>
             <property name="orientation">
                 <enum>Horizontal</enum>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>toleranceLB</cstring>
+            </property>
+            <property name="text">
+                <string>100% =&gt; 0 Bonds</string>
+            </property>
+        </widget>
+        <widget class="Spacer">
+            <property name="name">
+                <cstring>spacer5</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>10</width>
+                    <height>20</height>
+                </size>
             </property>
         </widget>
         <widget class="QPushButton">
@@ -984,7 +1009,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>123</y>
+                <y>116</y>
                 <width>19</width>
                 <height>16</height>
             </rect>
