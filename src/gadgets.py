@@ -112,8 +112,8 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
 
     def unpick(self):
         """unselect the Jig"""
-        if self.picked: #e should use Node.unpick(self)
-            self.picked = False
+        if self.picked:
+            Node.unpick(self) # bruce 050126 -- required now
             self.color = self.normcolor
 
     #e there might be other common methods to pull into here

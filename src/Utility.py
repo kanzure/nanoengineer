@@ -250,7 +250,7 @@ class Node:
         # clipboard selection no longer affects Build mode dashboard. [bruce 050124]
 
     def unpick(self):
-        """unselect the object
+        """unselect the object, and all its ancestor nodes.
         [extended in many subclasses, notably in Group]
         [Note: only Node methods should directly alter self.picked,
          since in the future these methods will sometimes invalidate other state
@@ -259,15 +259,27 @@ class Node:
         ###@@@ I don't know whether that new rule is yet followed by external code [bruce 050124].
         if self.picked:
             self.picked = False
+        # bruce 050126 change: also set *all its ancestors* to be unpicked.
+        # this is required to strictly enforce the rule
+        # "selected groupnode implies all selected members".
+        # We'd do this inside the 'if' -- but only once we're sure all other code
+        # no longer bypasses this method and sets node.picked = False directly;
+        # this way, if that happens, we might happen to fix up the situation later.
+        if self.dad and self.dad.picked:
+            self.dad.unpick_top() # use the method, in case a Group subclass overrides it
 
     def pick_top(self): #bruce 050124
-        """select the object -- but (unlike Group.pick) don't change selection state of its members.
+        """select the object -- but (unlike Group.pick) don't change selection state
+        of its members. Note that this violates the principle "selected groupnode
+        implies all selected members". This means it should be used either never
+        or rarely (as of 050126 I don't know which).
         [unlike pick, this is generally NOT extended in subclasses]
         """
         Node.pick(self)
 
     def unpick_top(self): #bruce 050124
-        """unselect the object -- but (unlike Group.unpick) don't change selection state of its members.
+        """unselect the object -- but (unlike Group.unpick) don't change
+        the selection state of its members. But do unselect all its ancestor nodes.
         [unlike unpick, this is generally NOT extended in subclasses]
         """
         Node.unpick(self)

@@ -35,16 +35,16 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self._init_time = time.asctime() # for debugging; do before DebugMenuMixin._init1
         DebugMenuMixin._init1(self) ###e will this be too early re subclass init actions??
 
-        ###@@@ soon obs, if not already:
-        self.last_selected_node = None #k what's this for? ###@@@ mainly context menus?
-         # actually it has several uses which need to be split:
-         # - sometimes records last item user clicked on to select it (but not to unselect).
-         # - tells context menu what to be about, if not asked for when over an item. [surely obs]
-         # - used by context menu to record the item, if it *is* on an item. (even if it refuses to put up a menu) [surely obs]
-         # - used as the "item to drag" in drag and drop (regardless of event posns or selection!). [obs]
-            #bruce 050109 renamed this from selectedItem since that's
-            # a Qt method in QListView! In theory this might fix bugs...
-            # didn't notice any though.
+##        ###@@@ soon obs, if not already:
+##        self.last_selected_node = None #k what's this for? ###@@@ mainly context menus?
+##         # actually it has several uses which need to be split:
+##         # - sometimes records last item user clicked on to select it (but not to unselect).
+##         # - tells context menu what to be about, if not asked for when over an item. [surely obs]
+##         # - used by context menu to record the item, if it *is* on an item. (even if it refuses to put up a menu) [surely obs]
+##         # - used as the "item to drag" in drag and drop (regardless of event posns or selection!). [obs]
+##            #bruce 050109 renamed this from selectedItem since that's
+##            # a Qt method in QListView! In theory this might fix bugs...
+##            # didn't notice any though.
 
         ###@@@ setCurrentItem might help it process keys... ###@@@ try it... maybe i did and it failed, not sure 050110
 
@@ -312,7 +312,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         self.selection_click( item, # might be None
                               modifier = modifier,
-                              group_select_kids = (part == 'icon'), ##k ok? could we use dblclick to mean this??
+                              ## group_select_kids = (part == 'icon'), ##k ok? could we use dblclick to mean this??
+                              group_select_kids = True, # bruce 050126 after email discussion with Josh
                               permit_drag_type = drag_type )
             # note: the same selection_click method, called differently,
             # also determines the selection for context menus.
@@ -378,8 +379,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #e correct item to be None if we were not really on the item acc'd to above?
         # no, let the caller do that, if it needs to be done.
         
-        self.selection_click( item, modifier = None, group_select_kids = False, permit_drag_type = None)
+        self.selection_click( item, modifier = None, group_select_kids = True, permit_drag_type = None)
             # this does all needed invals/updates except update_select_mode
+            # bruce 050126: group_select_kids changed to True after discussion with Josh...
+            # the same principle applies to context menu ops as to everything else.
+            # Also, ###@@@ ##e should I change modifier to include shift (and be called then)?
 
         nodeset = self.topmost_selected_nodes() # seems better than selected_nodes for most existing cmenu commands...
         menu = self.make_cmenu_for_set( nodeset)
@@ -641,57 +645,57 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.win.history.transient_msg("")
         return oldname
 
-    # drag and drop (ALL DETAILS ARE WRONG AND OBS ###@@@)
-    
-    ###@@@ bruce 050110 - this overrides a Qt method, is that intended?? the one we should override is dragObject
-    ###@@@ let's try this change
-##    def startDrag(self): 
-#        print "MT.startDrag: self.last_selected_node = [",self.last_selected_node,"]"
-##        if self.last_selected_node:
+##    # drag and drop (ALL DETAILS ARE WRONG AND OBS ###@@@)
+##    
+##    ###@@@ bruce 050110 - this overrides a Qt method, is that intended?? the one we should override is dragObject
+##    ###@@@ let's try this change
+####    def startDrag(self): 
+###        print "MT.startDrag: self.last_selected_node = [",self.last_selected_node,"]"
+####        if self.last_selected_node:
+####            foo = QDragObject(self)
+####            foo.drag()
+##    def dragObject(self):
+##        self.dprint("dragObject, last_selected_node is %r" % self.last_selected_node)
+##        if self.last_selected_node: # Qt doc says "depending on the selected nodes"
 ##            foo = QDragObject(self)
-##            foo.drag()
-    def dragObject(self):
-        self.dprint("dragObject, last_selected_node is %r" % self.last_selected_node)
-        if self.last_selected_node: # Qt doc says "depending on the selected nodes"
-            foo = QDragObject(self)
-            return foo
-            ##foo.drag()
-
-    def dropEvent(self, event):
-        above = False
-        pnt = event.pos() - QPoint(0,24)
-        # mark comments [04-12-10]
-        # We need to check where we are dropping the selected item.  We cannot allow it 
-        # to be dropped into the Data group.  This is what we are checking for here.
-        # mmtop = 5 top nodes * (
-        #                treeStepSize (space b/w parent and child nodes = 20 pixels) + 
-        #                5 pixels (space b/w nodes ))
-        mttop = 5 * (self.treeStepSize() + 5) # Y pos past top 5 nodes of MT (after last datum plane node).
-#        print "modelTree.dropEvent: mttop = ",mttop
-        if pnt.y() < mttop:
-            pnt.setY(mttop) # We dropped above the first chunk (onto datum plane/csys). Mark 041210
-            above = True # If we move node, insert it above first node in MT.
-        droptarget = self.itemAt(self.contentsToViewport(pnt))
-        if droptarget:
-# bruce 050121 removing all these obs special cases, even tho not yet replaced with revised ones,
-# since these entire routines are all wrong and will be totally replaced.
-##            sdaddy = self.last_selected_node.whosurdaddy() # Selected item's daddy (source)
-##            tdaddy = droptarget.object.whosurdaddy() # Drop target item's daddy (target)
-###            print "Source selected item:", self.last_selected_node,", sdaddy: ", sdaddy
-###            print "Target drop item:", droptarget.object,", tdaddy: ", tdaddy
-##            if sdaddy == "Data": return # selected item is in the Data group.  Do nothing.
-##            if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.    
-            if isinstance(droptarget.object, Group): above = True # If drop target is a Group
-            self.last_selected_node.moveto(droptarget.object, above)
-#            if sdaddy != tdaddy: 
-#                if sdaddy == "Clipboard" or droptarget.object.name == "Clipboard": 
-#                    self.win.win_update() # Selected item moved to/from clipboard. Update both MT and GLpane.
-#                    return
-#            self.mt_update() # Update MT only
-            self.win.win_update()
-
-    def dragMoveEvent(self, event):
-        event.accept()
+##            return foo
+##            ##foo.drag()
+##
+##    def dropEvent(self, event):
+##        above = False
+##        pnt = event.pos() - QPoint(0,24)
+##        # mark comments [04-12-10]
+##        # We need to check where we are dropping the selected item.  We cannot allow it 
+##        # to be dropped into the Data group.  This is what we are checking for here.
+##        # mmtop = 5 top nodes * (
+##        #                treeStepSize (space b/w parent and child nodes = 20 pixels) + 
+##        #                5 pixels (space b/w nodes ))
+##        mttop = 5 * (self.treeStepSize() + 5) # Y pos past top 5 nodes of MT (after last datum plane node).
+###        print "modelTree.dropEvent: mttop = ",mttop
+##        if pnt.y() < mttop:
+##            pnt.setY(mttop) # We dropped above the first chunk (onto datum plane/csys). Mark 041210
+##            above = True # If we move node, insert it above first node in MT.
+##        droptarget = self.itemAt(self.contentsToViewport(pnt))
+##        if droptarget:
+### bruce 050121 removing all these obs special cases, even tho not yet replaced with revised ones,
+### since these entire routines are all wrong and will be totally replaced.
+####            sdaddy = self.last_selected_node.whosurdaddy() # Selected item's daddy (source)
+####            tdaddy = droptarget.object.whosurdaddy() # Drop target item's daddy (target)
+#####            print "Source selected item:", self.last_selected_node,", sdaddy: ", sdaddy
+#####            print "Target drop item:", droptarget.object,", tdaddy: ", tdaddy
+####            if sdaddy == "Data": return # selected item is in the Data group.  Do nothing.
+####            if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.    
+##            if isinstance(droptarget.object, Group): above = True # If drop target is a Group
+##            self.last_selected_node.moveto(droptarget.object, above)
+###            if sdaddy != tdaddy: 
+###                if sdaddy == "Clipboard" or droptarget.object.name == "Clipboard": 
+###                    self.win.win_update() # Selected item moved to/from clipboard. Update both MT and GLpane.
+###                    return
+###            self.mt_update() # Update MT only
+##            self.win.win_update()
+##
+##    def dragMoveEvent(self, event):
+##        event.accept()
 
     # debug menu items
 
