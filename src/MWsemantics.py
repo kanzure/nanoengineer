@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 '''
 MWsemantics.py provides the main window class, MWsemantics.
 
@@ -15,6 +15,7 @@ import help
 from math import ceil
 from runSim import runSim
 from modelTree import *
+import platform
 
 from constants import *
 from elementSelector import *
@@ -53,6 +54,10 @@ class MWsemantics(MainWindow):
         global windowList
 
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
+
+        # bruce 050104 moved this here so it can be used earlier
+        # (it might need to be moved into atom.py at some point)
+        self.tmpFilePath = platform.find_or_make_Nanorex_prefs_directory()
 
         # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
         import extrudeMode as _extrudeMode
@@ -115,11 +120,12 @@ class MWsemantics(MainWindow):
 
         # Create the history area at the bottom
         from HistoryMegawidget import HistoryMegawidget
-        self.history = HistoryMegawidget(vsplitter) # not a Qt widget, but its owner;
+        histfile = platform.make_history_filename()
+        self.history = HistoryMegawidget(vsplitter, filename = histfile, mkdirs = 1)
+            # this is not a Qt widget, but its owner;
             # use self.history.widget for Qt calls that need the widget itself
         
-        # ... and some final vsplitter setup
-        # guesses... ###@@@ bruce 041223
+        # ... and some final vsplitter setup [bruce 041223]
         vsplitter.setResizeMode(self.history.widget, QSplitter.KeepSize)
         vsplitter.setOpaqueResize(False)
         self.setCentralWidget(vsplitter) # this was required (what exactly does it do?)
@@ -129,7 +135,7 @@ class MWsemantics(MainWindow):
         from ProgressBar import ProgressBar
         self.progressbar = ProgressBar()
                     
-        # do here to avoid a cirDialogcular dependency
+        # do here to avoid a circular dependency
         self.assy.o = self.glpane
         self.assy.mt = self.mt
 
@@ -153,35 +159,13 @@ class MWsemantics(MainWindow):
         # Huaicai 12/14/04, the following property should be really a property of Csys, which
         # stores the center view point of the current home view. This needs to change when
         # we update the mmp file format
-        self.currentPov = V(0.0, 0.0, 0.0) 
+        self.currentPov = V(0.0, 0.0, 0.0)
+
+        # bruce 050104 moved find_or_make_Nanorex_prefs_directory to an earlier time
         
-        #Create the temporary file directory if not exist [by huaicai ~041201]
-        # bruce 041202 comments about future changes to this code:
-        # - we'll probably rename this, sometime before Alpha goes out,
-        #   since its purpose will become more user-visible and general.
-        # - it might be good to create a README file in the directory
-        #   when we create it. And maybe to tell the user we created it,
-        #   in a dialog.
-        # - If creating it fails, we might want to create it in /tmp
-        #   (or wherever some python function says is a good temp dir)
-        #   rather than leaving an ususable path in tmpFilePath. This
-        #   could affect someone giving a demo on a strange machine!
-        # - If it exists already, we might want to test that it's a
-        #   directory and is writable. If we someday routinely create
-        #   a new file in it for each session, that will be a good-
-        #   enough test.
-
-        self.tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/"))
-        if not os.path.exists(self.tmpFilePath):
-           try :
-              os.mkdir(self.tmpFilePath)
-           except :
-              #bruce 041202 fixed minor bug in next line; removed return statement
-              print_compact_traceback("exception in creating temporary directory: %r" % self.tmpFilePath)
-
         self.initialised = 1
         self.update() # bruce 041222
-   
+        
         return # from MWsemantics.__init__
 
     def set_status_text(self, text, **options):
@@ -261,8 +245,9 @@ class MWsemantics(MainWindow):
     def update(self):
         if not self.initialised:
             return #bruce 041222
-        self.glpane.paintGL()
+        self.glpane.paintGL() ###e should inval instead
         self.mt.update()
+        self.history.update() #bruce 050104
         
 
     ###################################
@@ -1287,7 +1272,6 @@ class MWsemantics(MainWindow):
             -1, -1)
                         
         # Create "DepositAtomCursor" cursor [differently for Mac or non-Mac]
-        import platform
         if not platform.is_macintosh():
           # use original code
           self.DepositAtomCursor = QCursor(
