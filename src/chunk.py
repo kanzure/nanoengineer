@@ -94,7 +94,7 @@ class molecule(Node, InvalMixin):
                         
         return # from molecule.__init__
         
-    # bruce 041202 revised the following icon code; see longer comment about
+    # bruce 041202/050109 revised the icon code; see longer comment about
     # Jig.init_icons for explanation; this might be moved into class Node later
     mticon_names = [
 	"moldefault.png",
@@ -125,11 +125,20 @@ class molecule(Node, InvalMixin):
         for name in self.hideicon_names:
             self.hideicon.append( imagename_to_pixmap( name))
         return
+
+    # the following will no longer be needed after bruce's local mods are committed (soon): ###@@@
     def seticon(self):
         if self.hidden:
             self.icon = self.hideicon[self.display]
         else:
             self.icon = self.mticon[self.display]
+        
+    # the following is needed for bruce's local mods, not yet committed as of 050125: ###@@@
+    def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]
+        if self.hidden:
+            return self.hideicon[self.display]
+        else:
+            return self.mticon[self.display]
     
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to atom at2.
@@ -1040,7 +1049,7 @@ class molecule(Node, InvalMixin):
         self.display = disp
         self.havelist = 0
         self.haveradii = 0
-        self.seticon()
+        self.seticon() ###@@@ this seticon will be no longer needed after my modeltree commit soon [bruce 050125]
         self.assy.changed()
         
     def changeapp(self, atoms):
