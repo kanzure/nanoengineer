@@ -2,9 +2,8 @@
 """
 GLPane.py -- Atom's main model view, based on Qt's OpenGL widget.
 
-(As of 040928 ~1:30pm edt, no one owns this file.)
-
 Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-24.
+Revised by many other developers since then (and perhaps before).
 
 $Id$
 """
@@ -833,24 +832,30 @@ class GLPane(QGLWidget, modeMixin):
         return "<GLPane " + self.name + ">"
 
     def makemenu(self, lis):
-#bruce 040909-16 moved this method from basicMode to GLPane,
-# leaving a delegator for it in basicMode.
+        # bruce 040909-16 moved this method from basicMode to GLPane,
+        # leaving a delegator for it in basicMode.
         """make and return a reusable popup menu from lis,
         which gives pairs of command names and callables,
         or None for a separator.
         New feature [bruce 041010]:
         the "callable" can instead be a QPopupMenu object,
+        or [bruce 041103] a list
+        (indicating a menu spec like our 'lis' argument),
         to be used as a submenu.
         """
         win = self
         menu = QPopupMenu(win)
         for m in lis:
-            if m and isinstance(m[1], QPopupMenu):
-                #bruce 041010 added this case
-                menu.insertItem( win.trUtf8(m[0]), m[1] )
-                    # (similar code might work for other case too, not sure)
-                    #e (maybe letting m[1] be a list would be nice too)
+            if m and isinstance(m[1], QPopupMenu): #bruce 041010 added this case
+                submenu = m[1]
+                menu.insertItem( win.trUtf8(m[0]), submenu )
+                    # (similar code might work for QAction case too, not sure)
+            elif m and isinstance(m[1], type([])): #bruce 041103 added this case
+                submenu = self.makemenu(m[1])
+                menu.insertItem( win.trUtf8(m[0]), submenu )
             elif m:
+                assert callable(m[1]), \
+                    "%r[1] needs to be a callable" % (m,) #bruce 041103
                 act = QAction(win,m[0]+'Action')
                 act.setText(win.trUtf8(m[0]))
                 act.setMenuText(win.trUtf8(m[0]))
@@ -865,8 +870,13 @@ class GLPane(QGLWidget, modeMixin):
             ('print self', self._debug_printself),
             # None, # separator
             ('run py code', self._debug_runpycode),
+            ('enable ATOM_DEBUG', self._debug_enable_atom_debug ), #bruce 041103
          ]
 
+    def _debug_enable_atom_debug(self): #bruce 041103
+        import platform
+        platform.atom_debug = 1
+    
     def debug_event(self, event, funcname, permit_debug_menu_popup = 0):
         
         """Debugging method -- no effect on normal users.  Does two
