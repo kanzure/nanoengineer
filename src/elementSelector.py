@@ -56,7 +56,7 @@ class elementSelector(elementSelectorForm):
         self.image17 = QPixmap(image17_data)
 
 # Set the default element here (carbon)
-        self.setElementInfo(6)
+        #self.setElementInfo(6)  # commet out by Huaicai
 
     # called as a slot from button push
     def setElementInfo(self,value):

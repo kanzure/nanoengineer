@@ -78,8 +78,8 @@ class assembly:
         for mol in self.molecules:
 	    num += len(mol.atoms)
         self.drawLevel = 2
-	if num > LARGE_MODEL: self.drawLevel = 1
-	if num > HUGE_MODEL: self.drawLevel = 0
+        if num > LARGE_MODEL: self.drawLevel = 1
+        if num > HUGE_MODEL: self.drawLevel = 0
 
 
     # to draw, just draw everything inside
@@ -126,8 +126,8 @@ class assembly:
                 mol.bond(pp1, x)
             pp=griderator.next()
         self.addmol(mol)
-	self.unpickatoms()
-	self.selwhat = 2
+        self.unpickatoms()
+        self.selwhat = 2
         mol.pick()
 
     # read a Protein DataBank-format file into a single molecule
@@ -179,7 +179,7 @@ class assembly:
                 f.write("%8.3f%8.3f%8.3f" % fpos)
 
                 atomsTable[a.key] = atomIndex
-		aList.append(a)
+                aList.append(a)
                 for b in a.bonds:
                     aList.append(b.other(a))
                 
@@ -481,8 +481,6 @@ class assembly:
             for a in self.selatoms.itervalues():
                 a.picked = 0
                 a.molecule.changeapp()
-#                if (self.o.mode == self.o.modetab["SELECT"]) :
-#                    a.molecule.setSelectionState(self.o.mode, a.molecule, True)
             self.selatoms = {}
 
     # deselect any selected molecules
@@ -491,6 +489,8 @@ class assembly:
             for mol in self.selmols:
                 mol.picked = 0
                 mol.changeapp()
+                if (self.o.mode == self.o.modetab["SELECT"]) :
+                    mol.setSelectionState(self.o.mode, mol, False)
             self.selmols = []
 
     # for debugging

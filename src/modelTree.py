@@ -27,6 +27,7 @@ class modelTree(QListView):
         self.partIcon = QPixmap(filePath + "/../images/part.png")
         self.motorIcon = QPixmap(filePath + "/../images/motor.png")
        	self.insertHereIcon = QPixmap(filePath + "/../images/inserthere.png")
+       	self.groundIcon = QPixmap(filePath + "/../images/ground.png")
 
         self.dropItem = 0
         self.oldCurrent = None
@@ -150,7 +151,10 @@ class modelTree(QListView):
                 gIndex = 1
                 for g in mol.gadgets:
                    item = QListViewItem(rootItem, g.__class__.__name__ + str(gIndex))
-                   item.setPixmap(0, self.motorIcon)
+                   if isinstance(g, ground):
+                      item.setPixmap(0, self.groundIcon)
+                   else:
+                      item.setPixmap(0, self.motorIcon)
                    item.setDragEnabled(False)
                    item.setDropEnabled(True)
                    self.treeItems[item] = g

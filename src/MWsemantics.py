@@ -581,15 +581,21 @@ class MWsemantics(MainWindow):
 
     # pop up set element box
     def modifySetElement(self):
+        print self.Element    
         global elementwindow
         if not elementwindow:
             elementwindow = elementSelector(self)
         elementwindow.setDisplay(self.Element)
         elementwindow.show()
 
-    def elemChange(self,a0):
-        print "elemchange",a0
-
+    def elemChange(self, a0):
+        self.Element = eCCBtab1[a0]
+        global elementwindow
+        if not elementwindow.isHidden():
+           elementwindow.setDisplay(self.Element)     
+           elementwindow.show()
+          
+         
     # this routine sets the displays to reflect elt
     def setElement(self, elt):
         # element specified as element number
