@@ -1197,7 +1197,11 @@ class MWsemantics(MainWindow):
     # get into Extrude mode
     def toolsExtrude(self):
         self.glpane.setMode('EXTRUDE')
-    
+
+    # get into Fuse Chunks mode
+    def toolsFuseChunks(self):
+        self.glpane.setMode('FUSECHUNKS')
+            
     def simSetup(self): #bruce 050324 moved most of this into new class simSetup_CommandRun
         """Creates a movie of a molecular dynamics simulation.
         """
@@ -1812,6 +1816,7 @@ class MWsemantics(MainWindow):
         self.zoomDashboard.hide()
         self.panDashboard.hide()
         self.rotateDashboard.hide()
+        self.fuseChunksDashboard.hide()
 
         # This section used by Mark and David to hide toolbars, etc when creating
         # tutorial videos.        
@@ -1820,7 +1825,7 @@ class MWsemantics(MainWindow):
         ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
         objList = self.queryList("QToolBar")
         for obj in objList:
-                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard, self.panDashboard, self.rotateDashboard]:
+                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard, self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard]:
                          self.setAppropriate(obj, False)
 
     # Import code for What's This support        
