@@ -1541,7 +1541,8 @@ class extrudeMode(basicMode):
             print_compact_traceback("exception in draw_model, ignored: ")
         return
 
-    transparent = 0 #bruce 050218 experiment -- set to 1 for "transparent bond-offset spheres" (works but doesn't always look good)
+    transparent = 1 #bruce 050222 - mark wants this "always on" for now... but I ought to clean up the code sometime soon ###@@@
+        #bruce 050218 experiment -- set to 1 for "transparent bond-offset spheres" (works but doesn't always look good)
 
     def Draw(self):
         ## self.draw_model() # -- see below
