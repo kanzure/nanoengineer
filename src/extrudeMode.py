@@ -203,10 +203,10 @@ def do_what_MainWindowUI_should_do(self):
     self.extrudeDashboard.addSeparator()
 
     if begin(QVBox):
-        fmt_f_d = "tolerance: %0.2f => %d bonds"
-        lbl = insertlabel(fmt_f_d % (1.0, 0) ) # text varies
+        global lambda_tol_nbonds
+        lbl = insertlabel(lambda_tol_nbonds(1.0,-1)) # text changed later
         self.extrudeBondCriterionLabel = lbl
-        self.extrudeBondCriterionLabel_fmt_f_d = fmt_f_d
+        self.extrudeBondCriterionLabel_lambda_tol_nbonds = lambda_tol_nbonds
         self.extrudeBondCriterionSlider_dflt = dflt = 100
         # int minValue, int maxValue, int pageStep, int value, orientation, parent, name:
         self.extrudeBondCriterionSlider = QSlider(0,300,5,dflt,Qt.Horizontal,parent_now()) # 100 = the built-in criterion
@@ -237,6 +237,17 @@ def do_what_MainWindowUI_should_do(self):
     reinit_extrude_controls(self) # moved to end, will that fix the reload issues??
     
     return
+
+def lambda_tol_nbonds(tol, nbonds):
+    if nbonds == -1:
+        nbonds_str = "?"
+    else:
+        nbonds_str = "%d" % (nbonds,)
+    tol_str = ("      %d" % int(tol*100.0))[-3:]
+    # fixed-width (3 digits) but using initial spaces
+    # (doesn't have all of desired effect, due to non-fixed-width font)
+    tol_str = tol_str + "%"
+    return "tolerance: %s => %s bonds" % (tol_str,nbonds_str)
 
 import math
 
@@ -277,10 +288,10 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
     set_bond_tolerance_slider( win, tol)
     return
 
-def set_bond_tolerance_and_number_display(win, tol, num = -1): #e -1 indicates not yet known ###e '?' would look nicer
+def set_bond_tolerance_and_number_display(win, tol, nbonds = -1): #e -1 indicates not yet known ###e '?' would look nicer
     self = win
-    fmt_f_d = self.extrudeBondCriterionLabel_fmt_f_d
-    self.extrudeBondCriterionLabel.setText(fmt_f_d % (tol,num))
+    lambda_tol_nbonds = self.extrudeBondCriterionLabel_lambda_tol_nbonds
+    self.extrudeBondCriterionLabel.setText(lambda_tol_nbonds(tol,nbonds))
     
 def set_bond_tolerance_slider(win, tol):
     self = win
@@ -419,8 +430,8 @@ class extrudeMode(basicMode):
             else:
                 hset.radius_multiplier = self.bond_tolerance
             set_bond_tolerance_and_number_display(self.w, self.bond_tolerance) # number of resulting bonds not yet known, will be set later
-            self.recompute_bonds() ######### re-updates set_bond_tolerance_and_number_display when done
-            self.repaint_if_needed()
+            self.recompute_bonds() # re-updates set_bond_tolerance_and_number_display when done
+            self.repaint_if_needed() ##e merge with self.update_offset_bonds_display, call that instead?? no need for now.
         return
             
     def toggle_value_changed(self):
@@ -473,6 +484,7 @@ class extrudeMode(basicMode):
             self.status_msg("extrude mode refused: %r" % (whynot,)) #e improve
             return 1 # refused!
         self.basemol = mol
+        mark_singlets(self.basemol, self.colorfunc)
         offset = V(15.0,16.0,17.0) # initial value doesn't matter
         self.offset = offset
         
@@ -504,6 +516,10 @@ class extrudeMode(basicMode):
         
         print "fyi: extrude debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
         print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
+
+    singlet_color = {}
+    def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol.colorfunc
+        return self.singlet_color.get(atom.info) # ok if this is None
 
     def asserts(self):
         assert len(self.molcopies) == self.ncopies
@@ -537,6 +553,8 @@ class extrudeMode(basicMode):
         update_xyz_controls_from_length(self.w)
         self.update_from_controls()
 
+    should_update_model_tree = 0 # avoid doing this when we don't need to (like during a drag)
+    
     def update_from_controls(self):
         """make the number and position of the copies of basemol what they should be, based on current control values.
         Never modify the control values! (That would infloop.)
@@ -544,8 +562,7 @@ class extrudeMode(basicMode):
         It's also called during a mousedrag event if the user is dragging one of the repeated units.
         """
         self.asserts()
-        should_update_model_tree = 0 # avoid doing this when we don't need to (like during a drag)
-
+        
         # get control values
         want_n = self.w.extrudeSpinBox_n.value()
         (want_x, want_y, want_z) = get_extrude_controls_xyz(self.w)
@@ -562,7 +579,7 @@ class extrudeMode(basicMode):
         ncopies_common = min(ncopies_wanted,self.ncopies)
         if offset_wanted != self.offset:
             ####### clear all memoized data which is specific to the offset, like which singlets you might join
-            self.have_offset_specific_data = 0 # this just invalidates it, i guess ######k
+            self.have_offset_specific_data = 0 # this just invalidates it
             for ii in range(ncopies_common):
                 if ii:
                     motion = (offset_wanted - self.offset)*ii
@@ -572,7 +589,7 @@ class extrudeMode(basicMode):
         # now delete or make copies as needed (but don't adjust view until the end)
         while self.ncopies > ncopies_wanted:
             # delete a copy we no longer want
-            should_update_model_tree = 1
+            self.should_update_model_tree = 1
             ii = self.ncopies - 1
             self.ncopies = ii
             old = self.molcopies.pop(ii)
@@ -581,7 +598,7 @@ class extrudeMode(basicMode):
             self.asserts()
         while self.ncopies < ncopies_wanted:
             # make a new copy we now want
-            should_update_model_tree = 1
+            self.should_update_model_tree = 1
             #e the fact that it shows up immediately in model tree would permit user to change its color, etc;
             #e but we'll probably want to figure out a decent name for it, make a special group to put these in, etc
             ii = self.ncopies
@@ -598,59 +615,44 @@ class extrudeMode(basicMode):
         if self.keeppicked:
             self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
         else:
-            self.basemol.unpick() # do this even if no copies made (matters e.g. when entering the mode) 
+            self.basemol.unpick() # do this even if no copies made (matters e.g. when entering the mode)
+
+        ###@@@ now this looks like a general update function... hmm
+
+        self.needs_repaint = 1 # assume this is always true, due to what calls us
+        self.update_offset_bonds_display()
+
+    def update_offset_bonds_display(self):
+        # should be the last function called by some user event method (??)... not sure if it always is! some weird uses of it...
+        "update whatever is needed of the offset_specific_data, the bonds, and the display itself"
         ###### now, if needed, recompute (or start recomputing) the offset-specific data
         #####e worry about whether to do this with every mousedrag event... or less often if it takes too long
         ##### but ideally we do it, so as to show bonding that would happen at current offset
         if not self.have_offset_specific_data:
-            ##### actually clear it? no, in the func.
             self.have_offset_specific_data = 1 # even if the following has an exception
             try:
                 self.recompute_offset_specific_data()
             except:
                 print_compact_traceback("error in recompute_offset_specific_data: ")
+                return # no more updates #### should just raise, once callers cleaner
+            pass
+        #obs comment in this loc?
         #e now we'd adjust view, or make drawing show if stuff is out of view; make atom overlaps transparent or red; etc...
-        if should_update_model_tree:
+
+        # now update bonds (needed by most callers (not ncopies change!), so don't bother to have an invalid flag, for now...)
+        if 1:
+            self.recompute_bonds() # sets self.needs_repaint if bonds change; actually updates bond-specific ui displays
+        
+        # update model tree and/or glpane, as needed
+        if self.should_update_model_tree:
+            self.should_update_model_tree = 0 # reset first, so crashing calls are not redone
+            self.needs_repaint = 0
             self.w.update() # update glpane and model tree
-        else:
+        elif self.needs_repaint: ###### merge with self.repaint_if_needed() #######@@@
+            self.needs_repaint = 0
             self.o.paintGL() # just update glpane
-        self.needs_repaint = 0
         return
 
-    have_offset_specific_data = 0 #### do in clear() too
-
-    bonds_for_current_offset = ()
-    def recompute_offset_specific_data(self):
-        ##### actually clear it
-        if 1:
-            pass ## print "extrude fyi: recompute_offset_specific_data"
-        # recompute what singlets to show in diff color, what bonds to consider making or breaking, what nice offsets to show(no)
-
-        # kluge:
-        try:
-            hset2 = self.nice_offsets_handle
-            hset2.handle_setpos( 1, self.offset )
-        except:
-            print "fyi: hset2 kluge failed" ###
-        
-        # basic idea: see which nice-offset-handles contain the offset, count them, and recolor singlets they come from.
-        # move this into a method... find handles with a point in them...
-        hset = self.nice_offsets_handleset #e revise this code if we cluster these, esp. if we change their radius
-        hh = hset.findHandles_containing(self.offset)
-        # kluge for comparing it with prior value
-        hh = tuple(hh)
-        if hh != self.bonds_for_current_offset:
-            msg = "new set of %d nice bonds: %r" % (len(hh), hh)
-            print msg ## self.status_msg(msg) -- don't obscure the scan msg yet #######
-            self.bonds_for_current_offset = hh
-        for (pos,radius,info) in hh:
-            pass # print pos ######
-        return #e do more?
-
-    def recompute_bonds(self):
-        ##print "recompute_bonds NIM"
-        pass ######
-    
     # ==
 
     # These methods recompute things that depend on other things named in the methodname.
@@ -662,6 +664,11 @@ class extrudeMode(basicMode):
         "recompute things which depend on the choice of rep unit (for now we use self.basemol to hold that)"
         # for now we use self.basemol,
         #e but later we might not split it from a larger mol, but have a separate mol for it
+
+        # these are redundant, do we need them?
+        self.have_offset_specific_data = 0
+        self.bonds_for_current_offset_and_tol = (17,)
+        
         self.show_bond_offsets_handlesets = [] # for now, assume no other function wants to keep things in this list
         hset = self.basemol_atoms_handleset = repunitHandleSet(target = self)
         for atom in self.basemol.atoms.itervalues():
@@ -738,7 +745,56 @@ class extrudeMode(basicMode):
         "recompute things which depend on the choice of bend between units (for revolve)"
         ##print "recompute_for_new_bend(): pass" ######
         pass
+
+    have_offset_specific_data = 0 # we do this in clear() too
+
+    def recompute_offset_specific_data(self):
+        "#doc"
+        # kluge:
+        try:
+            hset2 = self.nice_offsets_handle
+            hset2.handle_setpos( 1, self.offset )
+        except:
+            print "fyi: hset2 kluge failed" ###
+        # don't call recompute_bonds, our callers do that if nec.
+        return 
+
+    bonds_for_current_offset_and_tol = (17,) # we do this in clear() too
+    def recompute_bonds(self):
+        # recompute what singlets to show in diff color, what bonds to make...
+        # call when offset or tol changes
         
+        # basic idea: see which nice-offset-handles contain the offset, count them, and recolor singlets they come from.
+        hset = self.nice_offsets_handleset #e revise this code if we cluster these, esp. if we change their radius
+        hh = hset.findHandles_containing(self.offset)
+            # semi-kluge: this takes into account self.bond_tolerance, since it was patched into hset.radius_multiplier
+        # kluge for comparing it with prior value; depends on order stability of handleset, etc
+        hh = tuple(hh)
+        if hh != self.bonds_for_current_offset_and_tol:
+            self.needs_repaint = 1 # usually true at this point
+            msg = "new set of %d nice bonds: %r" % (len(hh), hh)
+            print msg ## self.status_msg(msg) -- don't obscure the scan msg yet #######
+            self.bonds_for_current_offset_and_tol = hh
+            # change singlet color dict(??) for i1,i2 in ..., proc(i1, col1), proc(i2,col2)...
+            self.singlet_color = {}
+            for (pos,radius,info) in hh:
+                i1,i2 = info
+                ####stub; we need to worry about repeated instances of the same one (as same of i1,i2 or not)
+                def doit(ii, color):
+                    basemol_singlet = self.basemol_singlets[ii]
+                    mark = basemol_singlet.info
+                    self.singlet_color[mark] = color # when we draw atoms, somehow they find self.singlet_color and use it...
+                doit(i1, blue)
+                doit(i2, green)
+                ###e now how do we make that affect the look of the base and rep units? patch atom.draw?
+                # but as we draw the atom, do we look up itskey? is that the same in the mol.copy??
+        nbonds = len(hh)
+        set_bond_tolerance_and_number_display(self.w, self.bond_tolerance, nbonds)
+        #e repaint, or let caller do that (perhaps aftermore changes)? latter - only repaint at end of highest event funcs.
+        return
+    
+    # == this belongs higher up...
+    
     def init_gui(self):
         self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
         self.w.toolsExtrudeAction.setOn(1) # make the Extrude tool icon look pressed (and the others not)
@@ -878,10 +934,10 @@ class extrudeMode(basicMode):
         ## was: self.o.assy.movesel(move)
         self.repaint_if_needed()
     
-    def repaint_if_needed(self):
+    def repaint_if_needed(self): # see also the end of update_offset_bonds_display -- we're inlined ######fix
         if self.needs_repaint:
-            self.o.paintGL()
             self.needs_repaint = 0
+            self.o.paintGL()
         return
     
     def drag_repunit(self, copy_id, motion):
@@ -953,7 +1009,8 @@ class extrudeMode(basicMode):
         self.mergeables = {}
         self.moused_over = None #k?
         self.dragdist = 0.0
-        self.have_offset_specific_data = 0 #### also clear that data
+        self.have_offset_specific_data = 0 #### also clear that data itself...
+        self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
         #e lots more ivars too
         return
 
@@ -1073,19 +1130,20 @@ class extrudeMode(basicMode):
 
 # ==
 
-# should be a method in assembly:
+# should be a method in assembly (tho it also uses my local customizations to mol.copy and atom.copy)
 def assy_copy(assy, mols, offset = V(10.0, 10.0, 10.0)):
     """in assy, copy the mols in the list of mols; return list of new mols.
     The code is modified from pre-041007 assembly.copy [is that code used? correct? it doesn't do anything with nulist].
     But then extended to handle post-041007 by bruce, 041007-08
-    Note, as a side effect (of molecule.copy), the new mols are picked and the old mols are unpicked. ####k
+    Note, as a side effect (of molecule.copy), the new mols are picked and the old mols are unpicked. ####k [not anymore 041014]
     """
     self = assy
     if mols:
         self.modified = 1
         nulist=[]
         for mol in mols[:]: # copy the list in case it happens to be self.selmols (needed??)
-            numol=mol.copy(mol.dad,offset)
+            ##numol=mol.copy(mol.dad,offset)
+            numol = mol_copy( mol, mol.dad, offset)
             nulist += [numol]
             self.addmol(numol)
     return nulist
@@ -1275,4 +1333,46 @@ def molecule_dispdef(mol, glpane):
     else: disp = o.display
     return disp
 
+# custom-modified versions of atom and molecule copy methods
+
+def atom_copy(self, numol):
+    """create a copy of the atom
+    (to go in numol, a copy of its molecule)
+    """
+    nuat = atom(self.element.symbol, 'no', numol)
+    nuat.index = self.index
+    nuat.info = self.info # bruce
+    return nuat
+
+def mol_copy(self, dad=None, offset=V(0,0,0)):
+    """Copy the molecule to a new molecule.
+    offset tells where it will go relative to the original.
+    """
+    pairlis = []
+    ndix = {}
+    numol = molecule(self.assy, gensym(self.name))
+    for a in self.atoms.itervalues():
+        ## na = a.copy(numol)
+        na = atom_copy(a, numol) # bruce; also copies a.info
+        pairlis += [(a, na)]
+        ndix[a.key] = na
+    for (a, na) in pairlis:
+        for b in a.bonds:
+            if b.other(a).key in ndix:
+                numol.bond(na,ndix[b.other(a).key])
+    numol.curpos = self.curpos+offset
+    numol.shakedown()
+    numol.setDisplay(self.display)
+    numol.dad = dad
+    numol.colorfunc = self.colorfunc # bruce
+    return numol
+
+def mark_singlets(basemol, colorfunc):
+    for a in basemol.atoms.itervalues():
+        a.info = a.key
+    basemol.colorfunc = colorfunc # maps atoms to colors (due to a hack i will add)
+    return
+
 #end
+ # remember to unpatch colorfunc from the mols when i'm done
+# and info from the atoms? not needed but might as well
