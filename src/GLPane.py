@@ -74,6 +74,7 @@ for q in pquats:
 
 allQuats = quats100 + quats110 + quats111
 
+debug_menu_enabled = 1 # enable the undocumented debug menu by default [bruce 040920]
 debug_events = 0 # set this to 1 to print info about most mouse events
 
 class GLPane(QGLWidget):
@@ -649,18 +650,17 @@ class GLPane(QGLWidget):
            and for other OS's I predict it either never happens or happens only for some similar set of 3 modifier keys.
            -- bruce 040916
         """
-        if not debug_events:
-            return 0
         # in constants.py: debugButtons = cntlButton | shiftButton | altButton # on the mac, this really means command-shift-alt
-        if permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
+        if debug_menu_enabled and permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
             print "\n* * * fyi: got debug click, will try to put up a debug menu...\n"
             self.do_debug_menu(event)
             return 1 # caller should detect this and not run its usual event code...
-        try:
-            after = event.stateAfter()
-        except:
-            after = "<no stateAfter>" # needed for Wheel events, at least
-        print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, event.state(), after, time.asctime())
+        if debug_events:
+            try:
+                after = event.stateAfter()
+            except:
+                after = "<no stateAfter>" # needed for Wheel events, at least
+            print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, event.state(), after, time.asctime())
         # It seems, from doc and experiments, that event.state() is from just before the event (e.g. a button press or release, or move),
         # and event.stateAfter() is from just after it, so they differ in one bit which is the button whose state changed (if any).
         # But the doc is vague, and the experiments incomplete, so there is no guarantee that they don't sometimes differ in other ways.
