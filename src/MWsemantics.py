@@ -248,8 +248,9 @@ class MWsemantics(MainWindow):
 
             self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
 
-            self.glpane.scale=self.assy.bbox.scale()
-            self.glpane.paintGL()
+            #self.glpane.scale=self.assy.bbox.scale()
+            #self.glpane.paintGL()
+            self.setViewFitToWindow()
             self.mt.update()
 
 
@@ -1003,9 +1004,11 @@ class MWsemantics(MainWindow):
     def setViewFitToWindow(self):
         """ Fit to Window """
         self.glpane.scale=self.assy.bbox.scale()
+        #print "scale: ", self.glpane.scale
+        #print "pov, center: ", self.glpane.pov, self.assy.center
+        self.glpane.pov = -planeXline(-self.glpane.pov, self.glpane.out, self.assy.center, self.glpane.out)
+        #print "Again: pov, center: ", self.glpane.pov, self.assy.center
         self.glpane.paintGL()
-#        QMessageBox.warning(self, "ATOM User Notice:",
-#	         "This function is not implemented yet, coming soon...")
         
     def setViewRecenter(self):
         """ Fit to Window """

@@ -570,7 +570,9 @@ class GLPane(QGLWidget, modeMixin):
         x = event.pos().x()
         y = self.height - event.pos().y()
 
-        p1 = A(gluUnProject(x, y, 0.0))
+        #Trivial optimization, change the point of the next line from(x, y, 0.0) to (x, y, 0.01)
+        #So we don't need the p1 calculation next to the return statment---Huaicai 10/18, 04
+        p1 = A(gluUnProject(x, y, 0.01))
         p2 = A(gluUnProject(x, y, 1.0))
 
         los = self.lineOfSight
@@ -578,7 +580,7 @@ class GLPane(QGLWidget, modeMixin):
         k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
 
         p2 = p1 + k*(p2-p1)
-        p1 = A(gluUnProject(x, y, 0.01))
+        #p1 = A(gluUnProject(x, y, 0.01))
         return (p1, p2)
 
     def SaveMouse(self, event):

@@ -423,6 +423,15 @@ class assembly:
         for mol in self.selmols:
             self.modified = 1
             mol.move(move)
+            
+            #Update its bounding box
+            mol.bbox.data += move
+        
+        #Recalculate center and bounding box for the assembly    
+        self.bbox = BBox()
+        for mol in self.molecules:
+              self.bbox.merge(mol.bbox)
+        self.center = self.bbox.center()    
 
     # rotate any selected parts in space ("rot" is a quaternion)
     def rotsel(self, rot):

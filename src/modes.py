@@ -722,6 +722,8 @@ class basicMode(anyMode):
         else:
             h=self.o.height+0.0
             self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
+            #The above line of code can't do zoom for orthographic projection, should use the
+            # scale variable instead. Huaicai 10/18/04
                 
         self.picking = 0
         self.o.paintGL()
@@ -780,6 +782,8 @@ class basicMode(anyMode):
         if but & shiftButton: dScale *= 0.5
         if but & cntlButton: dScale *= 2.0
         self.o.scale *= 1.0 + dScale * event.delta()
+        ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
+        ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
         self.o.paintGL()
 
     # [remaining methods not yet analyzed by bruce 040922]
