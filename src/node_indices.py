@@ -101,7 +101,13 @@ def node_new_index(node, root, after_these):
         # up = fewer indices, back = last index smaller);
         # and as far back as we can.
         first_after = min(afterposns)
-        grouppos = common_prefix( first_after, last_after )
+        # As pointed out by Huaicai, diagnosing a bug found by Ninad
+        # (see Ninad's comment which reopened bug 296), the following
+        # is wrong when first_after == last_after:
+        ## grouppos = common_prefix( first_after, last_after )
+        # Instead, we should find the innermost group equal to or containing
+        # the *groups containing* those leaf node positions:
+        grouppos = common_prefix( first_after[:-1], last_after[:-1] )
         # put it in that group, just after the element containing
         # the last of these two posns
         ind = last_after[len(grouppos)] + 1
