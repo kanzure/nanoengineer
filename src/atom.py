@@ -42,9 +42,7 @@ if __name__=='__main__':
     rc = os.path.expanduser("~/.atomrc")
     if os.path.exists(rc):
         f=open(rc,'r')
-        wd = f.readline()
-        # wd has a <cr> at the end which needs to be stripped for Win32 - Mark [2004-10-13]
-        globalParms['WorkingDirectory'] = wd[:-1] 
+        globalParms['WorkingDirectory'] = os.path.normpath(f.readline())
         f.close()
         
     QApplication.setColorSpec(QApplication.CustomColor)
