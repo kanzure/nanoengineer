@@ -311,12 +311,48 @@ class assembly:
         some code might add mol when it has no atoms, then add atoms to it).
         """
         self.changed() #bruce 041118
-        self.bbox.merge(mol.bbox)
+        self.bbox.merge(mol.bbox) # [see also computeBoundingBox -- bruce 050202 comment]
         self.center = self.bbox.center()
         self.molecules += [mol]
         self.tree.addmember(mol)
+            #bruce 050202 comment: if you don't want this location for the added mol,
+            # just call mol.moveto when you're done, like fileIO does.
+            # (Not suitable for mols *already in a group* being added to tree as a whole... ####e) #####@@@@@
    
         self.setDrawLevel()
+
+    #bruce 050202 for Alpha: help fix things up after a DND move in/out of assy.tree.
+    def update_mols(self):
+        """[Semi-private method]
+        Caller is telling us that it might have moved molecules
+        into or out of assy.tree (assy == self)
+        without properly updating assy.molecules list (which causes lots of bugs if not fixed),
+        or (less important but still matters) our bbox, center, or drawLevel.
+           Rather than not tolerating such callers (for Alpha),
+        just thank them for the info and take the time now to fix things up
+        by rescanning assy.tree and remaking assy.molecules (etc) from scratch.
+           See also sanitize_for_clipboard, related but sort of an inverse,
+        perhaps not needed as much if this is called enough.
+           Note: neither this method nor sanitize_for_clipboard (which do need to be merged,
+        see also changed_dad which needs to help them know how much needs doing and/or help do it)
+        yet does enough. E.g. see bug 371 about bonds between main model and clipboard items.
+        """
+        self.molecules = 333 # not a sequence - detect bug of touching or using this during this method
+        seen = {} # values will be new list of mols
+        def func(n):
+            "run this exactly once on all molecules that properly belong in this assy"
+            if isinstance(n, molecule):
+                # check for duplicates (mol at two places in tree) using a dict, whose values accumulate our mols list
+                if seen.get(id(n)):
+                    print "bug: some chunk occurs twice in assy.tree; semi-tolerated but not fixed"
+                    return # from local func only, not from update_mols!
+                seen[id(n)] = n
+            return # from func only
+        self.tree.apply2all( func)
+        self.molecules = seen.values()
+        self.setDrawLevel()
+        self.computeBoundingBox()
+        return
         
     ## Calculate the number of atoms in an assembly, which is used to
     ## control the detail level of sphere subdivision
@@ -741,11 +777,17 @@ class assembly:
     
     def sanitize_for_clipboard(self, ob): 
         """Prepare ob for addition to the clipboard as a new toplevel item;
-        should be called just before adding ob to shelf, OR for items already in it
+        should be called just before adding ob to shelf, OR for entire toplevel items already in shelf
         (or both; should be ok, though slower, to call more than once per item).
+        NOT SURE IF OK to call when ob still has a dad in its old location.
+        (Nor if it ever is thus called, tho i doubt it.)
         """
         self.sanitize_for_clipboard_0( ob) # recursive version handles per-chunk, per-group issues
-        #e now do things for the shelf-item as a whole, if any
+        #e now do things for the shelf-item as a whole, if any, e.g. fix bug 371 about interspace bonds
+        #e 050202: someday, should we do a version of the jig-moving workaround_for_bug_296?
+        # that function itself is not reviewed for safety when called from here,
+        # but it might be ok, tho better to consolidate its messages into one
+        # (as in the "extension of that fix to the clipboard" it now comments about).
         if platform.atom_debug:
             print "atom_debug: fyi: sanitize_for_clipboard sees selgroup of ob is %r" % ob.find_selection_group()
             ###e if this is None, then I'll have an easy way to break bonds from this item to stuff in the main model (bug 371)
@@ -758,11 +800,16 @@ class assembly:
         keep clipboard items (or chunks inside them) out of assy.molecules,
         so they can't be selected from glpane
         """
+        #e should we do ob.unpick_top() as well?
+        if ob.assy != self: #bruce 050202, and replaced ob.assy.molecules with self.molecules
+            ob.assy = self # for now! in beta this might be its selgroup.
+            if platform.atom_debug:
+                print "sanitize_for_clipboard_0: node had wrong assy! fixed it:", ob
         if isinstance(ob, molecule):
             if self.selatoms:
                 # bruce 050201 for Alpha: worry about selected atoms in chunks in clipboard
-                # [no bugs yet reported on this, but maybe it could happen]
-                #k someday ought to print atom_debug warning if this matters, to find out...
+                # [no bugs yet reported on this, but maybe it could happen #k]
+                #e someday ought to print atom_debug warning if this matters, to find out...
                 try:
                     for atm in ob.atoms.values():
                         atm.unpick()
@@ -770,12 +817,12 @@ class assembly:
                     print_compact_traceback("sanitize_for_clipboard_0 ignoring error unpicking atoms: ")
                     pass
             try:
-                ob.assy.molecules.remove(ob)
+                self.molecules.remove(ob)
                 # note: don't center the molecule here -- that's only appropriate
                 # for each toplevel cut object as a whole!
             except:
                 pass
-        elif isinstance(ob, Group): # or any subclass! e.g. the Clipboard itself.
+        elif isinstance(ob, Group): # or any subclass! e.g. the Clipboard itself (deprecated to call this on that tho).
             for m in ob.members:
                 self.sanitize_for_clipboard_0(m)
         return
@@ -1032,7 +1079,7 @@ class assembly:
 
     def computeBoundingBox(self):
         """Compute the bounding box for the assembly. This should be
-        called whenever the geomety model has been changed, like new
+        called whenever the geometry model has been changed, like new
         parts added, parts/atoms deleted, parts moved/rotated(not view
         move/rotation), etc."""
         

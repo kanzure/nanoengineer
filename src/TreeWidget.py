@@ -774,7 +774,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     #e [do we also want versions with node arguments, which search only in subtrees?
     #   if so, those should just be (or call) Node methods.]
     
-    def selected_nodes(self):
+    def selected_nodes(self): #bruce 050202 comment: this is not presently used
         "return a list of all currently selected nodes (perhaps including both groups and some of their members)"
         # For now, it's ok if this is slow, since it's only used to help make a context menu.
         # (Later we might need a fast version, for each subtree,
@@ -1157,12 +1157,13 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         sbar_text = self.get_whatting_n_items_text( drag_type, nodes)
         
-        desc = sbar_text + " [not yet implemented]"
+        desc = sbar_text
         # now everything we do with desc is wrong, needs revision, but might work for now [050131]:
         # stuff it into drag_handler (kluge, bad boundary) for use when we ask it this during update_drop_point_highlighting: 
         self.drag_handler.describe_drag = desc
         # early warning to the statusbar: probably ok, tho will normally be overwritten soon (with itself)
-        self.statusbar_msg( desc + " <this suffix should not be seen>" ) ###e remove suffix when flickers
+        ## self.statusbar_msg( desc + " <this suffix should not be seen>" ) ###e remove suffix when flickers -- suffix not for Alpha!
+        self.statusbar_msg( desc)
         if 0:
             # prototype code & suggestions for making original nodes look different...
             for node in nodes:
@@ -1271,7 +1272,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # The following statusbar_msg suffix is the only way users are told
         # why the drop-point highlighting disappeared, or what to do about it.
         # It must be short but clear!
-        self.drop_disabled_because = "drop disabled by autoscroll, until mouse moves" #k still too long??
+        self.drop_disabled_because = "drop disabled by autoscroll, until mouse moves" #k still too long?? ###@@@ comes out at wrong time
         self.update_drop_point_highlighting()
         return
     
@@ -1304,7 +1305,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.last_dragMove_ok = False # not needed right now, but might matter
             # after the next dragEnter but before the next dragMove
         self.last_dragMove_cpos = None
-        self.drop_disabled_because = "(drop outside model tree is not supported)" # maybe no need for text like this? ##e
+        ## self.drop_disabled_because = "(drop outside model tree would drop a short text string, not what you want)" # maybe no need for text like this? ##e
+        self.drop_disabled_because = "(drop outside model tree -- not yet supported)"
         self.update_drop_point_highlighting()
         return
     
@@ -1347,6 +1349,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         one, that too (the inactive ones) would be done separately for the same reasons.
         """
         assert not undo_only
+        bugmsg = 0 # set to 1 to zap wrong msgs for alpha since no time to fix them #bruce 050202
+        alpha_wrong_msgs = ["drop disabled by autoscroll, until mouse moves", "<bug if you see this>"]
         undo_true_dragMove_cpos = self.true_dragMove_cpos # undo whatever was done for this pos
             # that only works if we're sure the items have not moved,
             # otherwise we'd need to record not just this position
@@ -1371,13 +1375,23 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # use self.last_event_type somehow (revise it so we can)#####@@@@@
             substatus = " -- " + self.drop_disabled_because
                 # substatus is independent of whether drag is initiated in this widget
+            if self.drop_disabled_because in alpha_wrong_msgs:
+                bugmsg = 1
         # now figure out where the drag came from and what it means, to mention in statsubar
         if self.drag_handler:
             # if this exists, then it should be the source... or this message will report that bug
             desc = self.drag_handler.describe_your_drag_and_drop()
         else:
             desc = "drag from outside tree widget" #e subclass should supply widget description
-        self.statusbar_msg( desc + substatus )
+            bugmsg = 1
+        actualmsg = desc + substatus
+        if bugmsg:
+            if platform.atom_debug:
+                print "alpha wanted to put this into statusbar but it's probably a bug, so not doing that:"
+                print " " + actualmsg
+            actualmsg = " " # sigh... in fact, don't put it there since it erases our results msg.
+        else:
+            self.statusbar_msg( actualmsg ) 
 
         # now it's time to figure out where we are, if anywhere, and what drop points we would hit
 
@@ -1442,7 +1456,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 pass ####@@@@@ stubbly here...
 
         listview.itemAt
-        ###
+        ### got about this far when the alpha deadline hit...
 
         # now undo old drawing and do new drawing. #####@@@@@
         
@@ -1668,28 +1682,49 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.statusbar_msg(" ") # probably a good idea -- not sure!
         return
 
-    def doit(self, event, drag_type, nodes): #######@@@@@@@ where i am (but shouldn't be yet)
+    def doit(self, event, drag_type, nodes): #bruce 050201 quick hack for Alpha ###@@@ review #e rename
         "stub to do a drop"
-        ## not there anymore: cpos = self.true_dragMove_cpos # None or a tuple
-        pos = event.pos()
+        from Utility import node_name
+        # can't do this: cpos = self.true_dragMove_cpos # None or a tuple
+        # since attr has been set to None already by our caller
+        pos = event.pos() # this pos is more recent anyway -- but we might be in the middle of autoscroll, oh well
         cpos = tupleFromQPoint(pos)
         if not cpos:
-            print "drop not in widget"
+            # don't print this, let the flyback effect show the result (or maybe it succeeds in dropping text somewhere!)
+            ## print "drop not in widget"
             return
         x,y = cpos
         item = self.itemAtCposXY(x,y) # item you might want to drop on directly, or None
         if not item:
-            print "drop not on an item"
+            self.redmsg( "drop into empty space ignored (drops under groups are not yet supported; drop right onto them instead)")
             return
         #e worry about where on the item?
         node = item.object
         if not node.drop_on_ok(drag_type, nodes):
-            from Utility import node_name
-            print "drop refused by %r" % node_name(node)
+            self.redmsg( "drop refused by %r" % node_name(node) )
             return
-        print "about to do node.drop_on(drag_type, nodes) # implems untested!"
-        node.drop_on(drag_type, nodes) # implems untested!
-        print "did it!"
+        ## print "about to do node.drop_on(drag_type, nodes) # implems untested!"
+
+        #bruce 050202 last minute change:
+        # first guess if a bug will happen...
+        try:
+            s1 = node.find_selection_group()
+            s2 = nodes[0].find_selection_group()
+            shouldwarn = (s1 != s2)
+            n1 = node_name(s1) # destination
+            n2 = node_name(s2) # source
+            if shouldwarn:
+                msgw = "alpha warning: drag between clipboard items and the part often causes bugs; doing it anyway, from %r to %r" % (n2,n1)
+                self.redmsg( msgw)
+        except:
+            pass
+        node.drop_on(drag_type, nodes) # implems untested! well, now tested for a day or so, for assy.tree ... 050202
+        ## print "did it!"
+        # ... too common for a history message, i guess...
+        msg = "dragged and dropped %d item(s) onto %r" % (len(nodes), node_name(node))
+            #e should be more specific about what happened to them... ask the target node itself??
+        msg = fix_plurals(msg)
+        self.statusbar_msg( msg)
         self.mt_update()
         return
     

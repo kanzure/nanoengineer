@@ -539,6 +539,11 @@ def workaround_for_bug_296(assy):
     all chunks whose atoms they connect to.
     """
     # bruce 050111 temp fix for bug 296 (maybe enough for Alpha)
+    # bruce 050202 adds:
+    # I developed an extension to this fix for jigs in clipboard items,
+    # but decided not to commit it for Alpha. It's in a diff -c, mailed to cad
+    # for inclusion as a bug296 comment, for testing and use after Alpha.
+    # It might as well be put in as soon as anyone has time, after Alpha goes out.
     def errfunc(msg):
         "local function for error message output"
         assy.w.history.message( redmsg( msg))

@@ -1605,6 +1605,7 @@ def assy_copy(assy, mols, offset = V(10.0, 10.0, 10.0)):
         numol = mol.copy( mol.dad, offset)
         nulist += [numol]
         self.addmol(numol) ###k ###@@@ why was this not already done in mol.copy?? [bruce 041116 question]
+            # answer: because mol.copy makes mols meant for the clipboard, too! addmol for them is very wrong. [bruce 050202]
         # what does it, when mol is actually copied by UI? 
     return nulist
 
