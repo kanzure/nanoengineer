@@ -197,7 +197,6 @@ def _make_prefs_shelf():
         del _shelf[key]
         del _cache[key]
     ###@@@ following should be revised to handle junk contents gracefully,
-    # and to store a format version in the shelf,
     # and to notice the existing format version and handle older formats appropriately
     # or reject them gracefully.
     _store_while_open('_format_version', 'preferences.py/v050106')
@@ -207,7 +206,7 @@ def _make_prefs_shelf():
     # store a comment about the last process to start using this shelf
     # (nothing yet looks at this comment)
     proc_info = "process: pid = %d, starttime = %r" % (os.getpid(), time.asctime())
-    _store_while_open( '_fyi/last_proc', proc_info )
+    _store_while_open( '_fyi/last_proc', proc_info ) # (nothing yet looks at this)
     _close()
     return
 
@@ -286,7 +285,7 @@ class _prefs_context:
 _global_context = _prefs_context("allmodules")
 
 def prefs_context():
-    ###@@@ stub: always use the context for *this* module. Or, just always use the same context, not for any module.
+    ###@@@ stub: always use the same context, not customized to the calling module.
     return _global_context
 
 
@@ -315,8 +314,7 @@ once they are formalized.
 
 if __name__ == '__main__':
 ##    defaults = dict(hi=2,lo=1)
-##    print "grabbing %r, got %r" % (defaults, grab_some_prefs_from_cache(defaults)) ###@@@ somehow this defaults dict got modified!
-##        # i must have a logic bug in which i update the wrong one, and that might be cause of the other bug as well. ###@@@
+##    print "grabbing %r, got %r" % (defaults, grab_some_prefs_from_cache(defaults))
 ##    new = dict(hi = time.asctime())
 ##    print "now will store new values %r" % new
 ##    store_some_prefs(new)
