@@ -38,6 +38,7 @@ class zoomMode(basicMode):
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
         self.OldCursor = QCursor(self.o.cursor())
+        self.w.zoomToolAction.setOn(1) # toggle on the Zoom Tool icon
         self.o.setCursor(self.w.ZoomCursor)
         self.w.zoomDashboard.show()
             
@@ -56,6 +57,7 @@ class zoomMode(basicMode):
         Alpha goes out; see also the removal of Done from weird_to_override
         in modes.py. [bruce and mark 050130]
         """
+        self.w.zoomToolAction.setOn(0) # toggle off the Zoom Tool icon
         ## [bruce's symbol to get him to review it soon: ####@@@@]
         if new_mode == None:
             try:

@@ -27,6 +27,7 @@ class panMode(basicMode):
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
         self.OldCursor = QCursor(self.o.cursor())
+        self.w.panToolAction.setOn(1) # toggle on the Pan Tool icon
         self.o.setCursor(self.w.MoveCursor)
         self.w.panDashboard.show()
             
@@ -45,6 +46,7 @@ class panMode(basicMode):
         Alpha goes out; see also the removal of Done from weird_to_override
         in modes.py. [bruce and mark 050130]
         """
+        self.w.panToolAction.setOn(0) # toggle off the Pan Tool icon
         ## [bruce's symbol to get him to review it soon: ####@@@@]
         if new_mode == None:
             try:
