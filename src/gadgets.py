@@ -39,7 +39,7 @@ class Jig(Node):
     def __init__(self, assy, atomlist):
         "each subclass needs to call this"
         self.init_icons()
-        Node.__init__(self, assy, None, gensym("%s." % self.sym))
+        Node.__init__(self, assy, gensym("%s." % self.sym))
         self.atoms = atomlist # this is always [] for some subclasses
             # but is apparently required to be always nonempty for others
         if atomlist:

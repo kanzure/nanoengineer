@@ -84,16 +84,17 @@ class Node:
         
     name = "" # for use before __init__ runs (used in __str__ of subclasses)
     
-    def __init__(self, assembly, parent, name=None): ###@@@ fix inconsistent arg order
+    def __init__(self, assembly, name, dad = None): #bruce 050216 fixed inconsistent arg order, made name required
         """Make a new node (Node or any subclass), in the given assembly
         (I think assembly must always be supplied, but I'm not sure),
-        with the given dad (parent) (a Group node or None),
-        adding it to that dad as a new member if necessary,
-        with the optionally given name (or "" if none is supplied).
-        All args are supplied positionally, even the named arg 'name'.
-        Warning: arg order is inconsistent with some Node subclasses' __init__ methods.
+        with the given name (or "" if the supplied name is None),
+        and with the optionally specified dad (a Group node or None),
+        adding it to that dad as a new member (unless it's None or not specified, which is typical).
+        All args are supplied positionally, even the optional one.
+           Warning: arg order was revised by bruce 050216 to be more consistent with subclasses,
+        but Group's arg order was and still is inconsistent with all other Node classes' arg order.
         """
-        #bruce 050205 added docstring
+        #bruce 050205 added docstring; bruce 050216 revised it
         
         self.assy = assembly
         self.name = name or "" # assumed to be a string by some code
@@ -117,9 +118,9 @@ class Node:
         #end bruce 050205 new fields
 
         self.dad = None        
-        if parent: # another Node (which must be a Group), or None
-            parent.addchild(self) #bruce 050206 changed addmember to addchild, enforcing dad correctness
-            assert self.dad == parent
+        if dad: # another Node (which must be a Group), or None
+            dad.addchild(self) #bruce 050206 changed addmember to addchild, enforcing dad correctness
+            assert self.dad == dad
         return
 
     def is_group(self): #bruce 050216
@@ -756,8 +757,8 @@ class Group(Node):
     Its members can be Groups, jigs, or molecules.
     """
     
-    def __init__(self, name, assembly,  parent, list = []): ###@@@ review inconsistent arg order
-        Node.__init__(self, assembly, parent, name)
+    def __init__(self, name, assembly,  dad, list = []): ###@@@ review inconsistent arg order
+        Node.__init__(self, assembly, name, dad)
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
         self.members = []
         for ob in list: self.addmember(ob)
@@ -1337,7 +1338,7 @@ class Csys(DataNode):
 
     def __init__(self, assy, name, scale, pov, zoomFactor, w, x = None, y = None, z = None):
         self.const_icon = imagename_to_pixmap("csys.png")
-        Node.__init__(self, assy, None, name)
+        Node.__init__(self, assy, name)
         self.scale = scale
         assert type(pov) == type(V(1, 0, 0))
         self.pov = V(pov[0], pov[1], pov[2])
@@ -1378,7 +1379,7 @@ class Datum(DataNode):
     
     def __init__(self, assy, name, type, cntr, x = V(0,0,1), y = V(0,1,0)):
         self.const_icon = imagename_to_pixmap("datumplane.png")
-        Node.__init__(self, assy, None, name)
+        Node.__init__(self, assy, name)
         self.type = type
         self.center = cntr
         self.x = x

@@ -38,7 +38,7 @@ from inval import InvalMixin
 # since we need to ensure it's always done by the end of any user event.)
 
 class molecule(Node, InvalMixin):
-    def __init__(self, assembly, nam=None, dad=None):
+    def __init__(self, assembly, name = None):
         # note [bruce 041116]:
         # new molecules are NOT automatically added to assembly.
         # this has to be done separately (if desired) by assembly.addmol
@@ -50,7 +50,9 @@ class molecule(Node, InvalMixin):
         if not self.mticon:
             self.init_icons()
         self.init_InvalMixin()
-        Node.__init__(self, assembly, dad, nam or gensym("Chunk."))
+        ## dad = None #bruce 050216 removed dad from __init__ args, since no calls pass it
+            # and callers need to do more to worry about the location anyway (see comments above) 
+        Node.__init__(self, assembly, name or gensym("Chunk."))
         
         # atoms in a dictionary, indexed by atom.key
         self.atoms = {}
