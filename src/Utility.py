@@ -143,9 +143,14 @@ class Node:
         # a node (representing a filesystem directory) is actually opened.
         return False
 
+    ###e API and method/attr names related to "rename" needs review, since the text
+    # shown by some nodes in a tree widget (in the future) might not be "their name".
+    # [bruce 050128]
+    
     def rename_enabled(self):
-        """whether tree widgets should permit the user to rename this node,
-        (they will call try_rename to actually request renaming for a specific new name)
+        """Should tree widgets permit the user to rename this node?
+        (If so, they will call self.try_rename(newname) to actually request
+        renaming for a specific new name.)
         [some subclasses should override this and/or try_rename]
         """
         return True

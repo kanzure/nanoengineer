@@ -156,9 +156,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # (eg advice from Build mode in glpane)
         ###e [should replace it with "our current sbar text", not " " --
         # see comment near a call of history.transient_msg]
-        self.sbar_msg(" ") # bruce 050126; works
+        self.statusbar_msg(" ") # bruce 050126; works
 
-    def sbar_msg(self, msg):
+    def statusbar_msg(self, msg):
         self.win.history.transient_msg( msg)
 
     # external update methods
@@ -598,11 +598,28 @@ class TreeWidget(TreeView, DebugMenuMixin):
         """
         self.dprint("maybe_beginrename(%r, %r, %r)"%(item,pos,col))
         if not item: return
+        # Given the event bindings that call this as of 050128,
+        # the first click of the double-click that gets here selects the item
+        # (including its members, if it's a group); this might be bad (esp. if
+        # it's left selected at the end), but
+        # changing it requires updates (to mtree and glpane) we're not doing now,
+        # whether we change it before or after the rename,
+        # and during the rename it might be useful to see what you're renaming
+        # in the glpane too (and glpane redraw might be slow).
+        # So I think we'll only unpick when the renaming is done;
+        # if it's cancelled, we currently never notice this, so we have no place
+        # to unpick; that's ok for now. [bruce 050128]
+##        item.object.unpick() #bruce 050128 precautionary change -- undo the picking done by the first click of the double-click
+##        ###e probably need to update the display too? not sure. ####@@@@
+##        if item.object.picked: print "didn't wpork!"######@@@@@@
+##        else: print "did work!"
         if col != 0: return
-        if not item.renameEnabled(col): return
+        if not item.renameEnabled(col):
+            self.statusbar_msg("renaming %r is not allowed" % item.object.name) #k will this last too long?
+            return
         istr = str(item.text(0))
         msg = "(renaming %r; complete by <Return> or click; cancel by <Escape>)" % istr # text, not html!
-        self.win.history.transient_msg( msg)
+        self.statusbar_msg( msg)
             # this happened even for a Datum plane object for which the rename does not work... does it still? ###@@@
         ###@@@ some minor bugs about that statusbar message: [050126]
         # - it needs to reappear in enterEvent rather than having " " appear then
@@ -621,28 +638,46 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.dprint("slot_itemRenamed(%r, %r, %r)" % (item,col,text))
         if col != 0: return
         oldname = self.done_renaming()
+        if oldname != item.object.name: #bruce 050128 #e clean all this up, see comments below
+            if platform.atom_debug:
+                print "atom_debug: bug, fyi: oldname != item.object.name: %r, %r" % (oldname, item.object.name)
         what = (oldname and "%r" % oldname) or "something" # not "node %r"
-        del oldname
+        ## del oldname
         # bruce 050119 rewrote/bugfixed the following, including the code by
         # Huaicai & Mark to strip whitespace, reject null name, and update
         # displayed item text if different from whatever ends up as the node's
         # name; moved much of that into Node.try_rename.
-        text = str(text) # turn QString into python string
-        # use text (not further changed) for comparison with final name
-        (ok, newname) = item.object.try_rename(text) #e pass col?
+        text_now_displayed = str(text) # turn QString into python string
+        del text
+        # use text_now_displayed (not further changed) for comparison with final name that should be displayed
+        (ok, newname) = item.object.try_rename(text_now_displayed) #e pass col?
         if ok:
             res = "renamed %s to %r" % (what, newname)
+            if newname != item.object.name: #bruce 050128
+                if platform.atom_debug:
+                    print "atom_debug: bug, fyi: newname != item.object.name: %r, %r" % (newname, item.object.name)
         else:
-            res = "can't rename %s to %r" % (what, newname) #e redmsg too?
-        if text != newname:
+            reason = newname
+            del newname
+            ## newname = oldname # since newname should be what we want to show in the node now!
+            ##      # [bruce 050128 to fix new bug mentioned by Ninad and in the catchall bug report]
+            res = "can't rename %s to \"%s\": %s" % (what, text_now_displayed, reason) #e redmsg too?
+            ##e not sure this is legal (it's a func but maybe not a method): res = self.win.history.redmsg(res)
+        newname = item.object.name # better to just get it from here -- shouldn't even return it from try_rename! #e
+        if text_now_displayed != newname:
             # (this can happen for multiple reasons, depending on Node.try_rename:
             #  new name refused, whitespace stripped, etc)
             # update the display to reflect the actual new name
             # (might happen later, too, if try_rename invalidated this node;
             #  even so it's good to do it now so user sees it a bit sooner)
             item.setText(col, newname)
-        self.win.history.message(" (%s)" % res)
-        return # no need for more mtree updating than that, I hope (maybe selection? not sure)
+        self.win.history.message( res)
+        #obs: # no need for more mtree updating than that, I hope (maybe selection? not sure)
+        #bruce 050128 precautionary change -- undo the picking done by the
+        # first click of the double-click that started the renaming
+        item.object.unpick()
+        self.win.win_update()
+        return 
 
     def done_renaming(self):
         "call this when renaming is done (and if possible when it's cancelled, tho I don't yet know how)"
@@ -651,7 +686,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         except:
             oldname = ""
         self.renaming_this_item = None
-        self.win.history.transient_msg("")
+        self.statusbar_msg("")
         return oldname
 
     # debug menu items
