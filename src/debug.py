@@ -305,6 +305,12 @@ class DebugMenuMixin:
             # it with a fake "paste" event?
         if ok:
             self.setFont(newfont)
+            try:
+                import platform
+                if platform.atom_debug:
+                    print "atom_debug: new font.toString():", newfont.toString()
+            except:
+                print_compact_traceback("new font.toString() failed: ")
         return
     
     def _debug_enable_atom_debug(self):
