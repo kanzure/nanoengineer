@@ -194,10 +194,11 @@ class RotaryMotor(Jig):
     #  with a spoke to each atom
     def draw(self, win, dispdef):
         if self.hidden: return
-        drawcylinder(self.color,
-                    self.center + (self.length / 2.0) * self.axis,
-                    self.center - (self.length / 2.0) * self.axis,
-                    self.radius, 1)
+        bCenter = self.center - (self.length / 2.0) * self.axis
+        tCenter = self.center + (self.length / 2.0) * self.axis
+        drawcylinder(self.color, bCenter, tCenter, self.radius, 1 )
+        ### Draw the rotation sign #####
+        drawRotateSign((0,0,0), bCenter, tCenter, self.radius)            
         for a in self.atoms:
             drawcylinder(self.color, self.center, a.posn(), self.sradius)
             
@@ -336,6 +337,7 @@ class LinearMotor(Jig):
     def draw(self, win, dispdef):
         if self.hidden: return
         drawbrick(self.color, self.center, self.axis, self.length, self.width, self.width)
+        drawLinearSign((0,0,0), self.center, self.axis, self.length, self.width, self.width)
         for a in self.atoms:
             drawcylinder(self.color, self.center, a.posn(), self.sradius)
 

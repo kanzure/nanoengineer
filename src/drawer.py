@@ -81,6 +81,25 @@ cap0n=(0.0, 0.0, -1.0)
 cap1n=(0.0, 0.0, 1.0)
 drum0.reverse()
 
+###data structure to construct the rotation sign for rotary motor
+numSeg = 20
+rotS = map((lambda n: pi/2+n*2.0*pi/numSeg), range(numSeg*3/4 + 1))
+zOffset = 0.005; scaleS = 0.4
+rotS0n = map((lambda a: (scaleS*cos(a), scaleS*sin(a), 0.0 - zOffset)), rotS)
+rotS1n = map((lambda a: (scaleS*cos(a), scaleS*sin(a), 1.0 + zOffset)), rotS)
+halfEdge = scaleS * sin(pi/numSeg)
+arrow0Vertices = [(rotS0n[-1][0]-halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
+                            (rotS0n[-1][0]+halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
+                            (rotS0n[-1][0], rotS0n[-1][1] + 2.0*halfEdge, rotS0n[-1][2])] 
+arrow0Vertices.reverse()                            
+arrow1Vertices = [(rotS1n[-1][0]-halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
+                            (rotS1n[-1][0]+halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
+                            (rotS1n[-1][0], rotS1n[-1][1] + 2.0*halfEdge, rotS1n[-1][2])]                             
+
+###Linear motor arrow sign data structure
+halfEdge = 1.0/8.0
+linearArrowVertices = [(0.0, -halfEdge, 0.0), (0.0, halfEdge, 0.0), (0.0, 0.0,2*halfEdge)]
+
 # a chunk of diamond grid, to be tiled out in 3d
 
 sp0 = 0.0
@@ -110,12 +129,15 @@ DiGridSp = sp4
 sphereList = []
 numSphereSizes = 3
 CylList = GridList = CapList = CubeList = solidCubeList = None
+rotSignList = linearLineList = linearArrowList = None
+
+halfHeight = 0.45
 
 def setup():
     global CylList, GridList, CapList, CubeList, solidCubeList
-    global sphereList
+    global sphereList, rotSignList, linearLineList, linearArrowList
 
-    listbase = glGenLists(numSphereSizes + 4)
+    listbase = glGenLists(numSphereSizes + 10)
 
     for i in range(numSphereSizes):
         sphereList += [listbase+i]
@@ -196,6 +218,139 @@ def setup():
                 glVertex3fv(vTuple)
     glEnd()
     glEndList()                
+
+    rotSignList = solidCubeList + 1
+    glNewList(rotSignList, GL_COMPILE)
+    glBegin(GL_LINE_STRIP)
+    for ii in xrange(len(rotS0n)):
+            glVertex3fv(tuple(rotS0n[ii]))
+    glEnd()
+    glBegin(GL_LINE_STRIP)
+    for ii in xrange(len(rotS1n)):
+            glVertex3fv(tuple(rotS1n[ii]))
+    glEnd()
+    glBegin(GL_TRIANGLES)
+    for v in arrow0Vertices + arrow1Vertices:
+        glVertex3f(v[0], v[1], v[2])
+    glEnd()
+    glEndList()
+
+    linearArrowList = rotSignList + 1
+    glNewList(linearArrowList, GL_COMPILE)
+    glBegin(GL_TRIANGLES)
+    for v in linearArrowVertices:
+        glVertex3f(v[0], v[1], v[2])
+    glEnd()
+    glEndList()
+
+    linearLineList = linearArrowList + 1
+    glNewList(linearLineList, GL_COMPILE)
+    glEnable(GL_LINE_SMOOTH)
+    glBegin(GL_LINES)
+    glVertex3f(0.0, 0.0, -halfHeight)
+    glVertex3f(0.0, 0.0, halfHeight)
+    glEnd()
+    glDisable(GL_LINE_SMOOTH)
+    glEndList()     
+
+def drawLinearArrows(longScale):   
+    glCallList(linearArrowList)
+    newPos = halfHeight*longScale
+    glPushMatrix()
+    glTranslate(0.0, 0.0, -newPos)
+    glCallList(linearArrowList)
+    glPopMatrix()
+    glPushMatrix()
+    glTranslate(0.0, 0.0, newPos -2.0*halfEdge)
+    glCallList(linearArrowList)
+    glPopMatrix()
+
+
+def drawLinearSign(color, center, axis, l, h, w):
+        """Linear motion sign on the side of squa-linder """
+        depthOffset = 0.005
+        glPushMatrix()
+        glColor3fv(color)
+        glDisable(GL_LIGHTING)
+        glTranslatef(center[0], center[1], center[2])
+    
+        ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+        ## display problem on some platforms
+        angle = -acos(axis[2])*180.0/pi
+        if (axis[2]*axis[2] >= 1.0):
+                glRotate(angle, 0.0, 1.0, 0.0)
+        else:
+                glRotate(angle, axis[1], -axis[0], 0.0)
+
+        glPushMatrix()
+        glTranslate(h/2.0 + depthOffset, 0.0, 0.0)
+        glPushMatrix()
+        glScale(1.0, 1.0, l)
+        glCallList(linearLineList)
+        glPopMatrix()
+        drawLinearArrows(l)
+        glPopMatrix()
+        
+        glPushMatrix()
+        glTranslate(-h/2.0 - depthOffset, 0.0, 0.0)
+        glRotate(180.0, 0.0, 0.0, 1.0)
+        glPushMatrix()
+        glScale(1.0, 1.0, l)
+        glCallList(linearLineList)
+        glPopMatrix()
+        drawLinearArrows(l)
+        glPopMatrix()
+        
+        glPushMatrix()
+        glTranslate(0.0, w/2.0 + depthOffset, 0.0)
+        glRotate(90.0, 0.0, 0.0, 1.0)
+        glPushMatrix()
+        glScale(1.0, 1.0, l)
+        glCallList(linearLineList)
+        glPopMatrix()
+        drawLinearArrows(l)
+        glPopMatrix()
+        
+        glPushMatrix()
+        glTranslate(0.0, -w/2.0 - depthOffset, 0.0 )
+        glRotate(-90.0, 0.0, 0.0, 1.0)
+        glPushMatrix()
+        glScale(1.0, 1.0, l)
+        glCallList(linearLineList)
+        glPopMatrix()
+        drawLinearArrows(l)
+        glPopMatrix()
+        
+        glEnable(GL_LIGHTING)
+        glPopMatrix()
+        
+
+        
+def drawRotateSign(color, pos1, pos2, radius):
+        """Rotate sign on top of the caps of the cylinder """
+        glPushMatrix()
+        glColor3fv(color)
+        vec = pos2-pos1
+        axis = norm(vec)
+        glTranslatef(pos1[0], pos1[1], pos1[2])
+    
+        ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+        ## display problem on some platforms
+        angle = -acos(axis[2])*180.0/pi
+        if (axis[2]*axis[2] >= 1.0):
+                glRotate(angle, 0.0, 1.0, 0.0)
+        else:
+                glRotate(angle, axis[1], -axis[0], 0.0)
+        glScale(radius,radius,vlen(vec))
+        
+        glLineWidth(2.0)
+        glDisable(GL_LIGHTING)
+        glCallList(rotSignList)
+        glEnable(GL_LIGHTING)
+        glLineWidth(1.0)
+        
+        glPopMatrix()
+        
 
 def drawsphere(color, pos, radius, detailLevel):
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
@@ -396,8 +551,8 @@ def drawbrick(color, center, axis, l, h, w):
         glRotate(angle, axis[1], -axis[0], 0.0)
   
     glScale(h, w, l)
-    #glut.glutSolidCube(1.0)
-    glCallList(solidCubeList)
+    glut.glutSolidCube(1.0)
+    #glCallList(solidCubeList)
     glPopMatrix()
     
     
