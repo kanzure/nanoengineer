@@ -709,7 +709,9 @@ class MWsemantics(MainWindow):
     def helpAbout(self):
         QMessageBox.warning(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
-
+	         
+    def helpWhatsThis(self):
+        QWhatsThis.enterWhatsThisMode ()
 
     ######################################################
     # functions for toggling (hiding/unhiding) toolbars  #
@@ -1173,57 +1175,7 @@ class MWsemantics(MainWindow):
         self.datumDispDashboard.hide()  # (mark note: this is the datum display toolbar)
         self.selectMolDashboard.hide()
         self.selectAtomsDashboard.hide()
-
         self.moveMolDashboard.hide()
 
-        
-    def createWhatsThis(self):
-        
-        # Create WhatsThis button for Help toolbar
-        QWhatsThis.whatsThisButton( self.helpToolbar )
-        
-        ##############################################
-        # File Toolbar
-        ##############################################
-        
-        #### fileOpenAction ####
-        
-        fileOpenText = "<u><b>Open File</b></u><br> "\
-                        "<p><img source=\"fileopen\"> "\
-                       "   Click this button to open a <em>new file</em>. <br>"\
-                       "You can also select the <b>Open</b> command "\
-                       "from the <b>File</b> menu.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "fileopen",
-                                                       self.fileOpenAction.iconSet().pixmap() )
-
-        self.fileOpenAction.setWhatsThis( fileOpenText )
-        
-        #### fileSaveAction ####
-        
-        fileSaveText = "<p><img source=\"filesave\"> "\
-                       "Click this button to save the <em>current part</em>. <br>"\
-                       "You can also select the <b>Save</b> command "\
-                       "from the <b>File</b> menu.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "filesave",
-                                                       self.fileSaveAction.iconSet().pixmap() )
-
-        self.fileSaveAction.setWhatsThis( fileSaveText )
-        
-        
-        ##############################################
-        # Edit Toolbar
-        ##############################################
-        
-        #### editUndoAction ####
-        
-        editUndoText = "<p><img source=\"editUndo\"> "\
-                       "Click this button to undo the last operation."\
-                       "You can also select the <b>Undo</b> command "\
-                       "from the <b>Edit</b> menu.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "editUndo",
-                                                       self.editUndoAction.iconSet().pixmap() )
-
-        self.editUndoAction.setWhatsThis( editUndoText )
+    # Import code for What's This support        
+    from whatsthis import createWhatsThis
