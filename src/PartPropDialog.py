@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\PartPropDialog.ui'
 #
-# Created: Sun Nov 7 17:55:10 2004
+# Created: Tue Nov 9 09:38:36 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -11,194 +11,51 @@
 from qt import *
 
 image0_data = [
-"22 22 165 2",
-"#7 c #040404",
-"#. c #050505",
-"aw c #070707",
-"#J c #0a0a0a",
-"#h c #0b0b0b",
-"#8 c #0c0c0c",
-"#F c #0d0d0d",
-".M c #0f0f0f",
-"ax c #121212",
-".x c #141414",
-"#6 c #161616",
-".1 c #171717",
-"#b c #171817",
-".9 c #181818",
-"ak c #191919",
-"#i c #1a1a1a",
-".m c #1a1a1b",
-".z c #1b1b1b",
-"#u c #1c1c1c",
-"#0 c #1d1d1f",
-"ab c #1e1f1e",
-"#1 c #1f1f1f",
-".S c #1f201f",
-"#c c #202120",
-"aF c #212121",
-".D c #222222",
-".u c #232323",
-".N c #242424",
-"#o c #252525",
-".o c #262626",
-"#C c #282828",
-"#M c #292929",
-".v c #2a2a2a",
-"#3 c #2b2b2b",
-".6 c #2c2c2c",
-".p c #2d2d2d",
-".G c #2e2e2e",
-"ad c #2f2f2f",
-"#Y c #303030",
-"#a c #313231",
-"ao c #333333",
-"ai c #333433",
-"## c #343434",
-"#A c #343534",
-"#V c #353535",
-"#B c #363736",
-".8 c #383838",
-"az c #383938",
-"aC c #3a3a3a",
-".J c #3c3c3c",
-"#d c #3d3d3f",
-"#4 c #3d3e3d",
-".7 c #3e3f3e",
-"ar c #404040",
-"af c #414141",
-".n c #424242",
-".5 c #454645",
-"#P c #474847",
-"aI c #494949",
-".w c #494a49",
-".F c #4a4a4a",
-"#5 c #4b4b4b",
-"#v c #4d4d4d",
-"#W c #4f504f",
-".l c #505051",
-"#L c #505150",
-"at c #515151",
-"#q c #515251",
-"#s c #525352",
-".Y c #545454",
-"#N c #545554",
-"#z c #555555",
-".R c #565756",
-"#2 c #575757",
-"ac c #575857",
-"#9 c #595959",
-"aH c #595a59",
-"ag c #5a5a5a",
-"am c #5c5c5c",
-".E c #5e5e5e",
-"ah c #5f5f5f",
-".h c #606060",
-"#e c #626362",
-"#j c #666666",
-".b c #676767",
-"aj c #686868",
-"ae c #686968",
-"#p c #696969",
-"#k c #696a69",
-"as c #6a6a6a",
-"av c #6b6c6b",
-"#Z c #6c6d6c",
-"#T c #6f706f",
-"#I c #727372",
-".C c #757575",
-"#K c #757675",
-"aD c #787878",
-".a c #79797a",
-"#E c #7b7b7b",
-".2 c #7c7d7c",
-"a. c #818281",
-".0 c #828382",
-".T c #838383",
-"ap c #838483",
-"#U c #848484",
-".t c #858585",
-"#r c #858685",
-"aa c #878887",
-".i c #888988",
-".4 c #8a8b8a",
-".A c #8b8c8b",
-"aA c #8c8d8c",
-"#t c #8e8e8e",
-"aE c #8f908f",
-".H c #929292",
-".Z c #939493",
-".g c #949594",
-"al c #969696",
-".P c #979897",
-".q c #989998",
-"#G c #9b9c9b",
-"aB c #9e9f9e",
-"#Q c #9fa09f",
-".c c #a1a1a1",
-".U c #a1a2a1",
-"a# c #a9aaa9",
-"#D c #acacac",
-"#g c #acadac",
-"#X c #adaead",
-"an c #b2b3b2",
-".W c #b3b3b3",
-".O c #b7b8b7",
-"aG c #b9bab9",
-".L c #bdbebd",
-"#l c #c0c1c0",
-".Q c #c4c5c4",
-".f c #c6c6c6",
-"#O c #c7c8c7",
-".3 c #c8c8cf",
-".y c #c8c9c8",
-"#y c #cacbca",
-"#n c #cdcecd",
-"au c #cecece",
-"#m c #cecfce",
-".# c #cfcfcf",
-".V c #cfd0cf",
-".d c #d0d1d0",
-".B c #d2d3d2",
-"aq c #d3d4d3",
-".X c #d4d5d4",
-"#S c #d6d7d6",
-".I c #d9dad9",
-".j c #dadbda",
-"#x c #dcdddc",
-".s c #dddedd",
-"ay c #dedede",
-"#H c #dedfde",
-".K c #dfe0df",
-"#w c #e0e1d9",
-"#R c #e0e1e0",
-"#f c #e1e2e1",
-".k c #e2e3e2",
-".r c #e3e4e3",
-".e c #e5e6e5",
-"Qt c #e6e7e6",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQt.#.a.b.c.dQtQtQt.e.f.g.h.i.jQtQtQtQt",
-"QtQtQt.k.l.m.n.o.p.q.r.s.t.u.v.w.x.tQtQtQtQt",
-"QtQtQt.y.z.A.k.B.C.D.E.F.G.H.I.r.E.J.KQtQtQt",
-"QtQtQt.c.z.LQtQt.e.g.M.N.OQtQtQt.P.z.yQtQtQt",
-"QtQtQt.c.D.QQtQt.j.R.G.S.T.rQt.e.U.o.VQtQtQt",
-"QtQtQt.y.u.W.j.X.Y.u.Z.0.1.2.j.3.4.5.kQtQtQt",
-"QtQtQt.B.6.7.8.9#..D###a#b#.#c#d.G#e#fQtQtQt",
-"Qt.e#g.8#h#i#j.9#k#l#m#n.W.n#o#p#h.M#q.QQtQt",
-".e#r#i#s#t#u#v.F.XQt#wQt#x#y.v#z#A.Z#B#C#DQt",
-".y#u#E.s#f.J#F#G#HQt.n#cQt#n#I#J#KQt.d#L.J.K",
-".d#M#N#OQt#P#.#Q.IQt#c.n#R#S#T#.#U.e.W#V#W.k",
-"Qt#X#Y.N#Z#0#1#2#x#RQt.e.I.X#3.o#4.E.1#5#OQt",
-"QtQt#y#j#6#7.u#8#9a.a#.Uaa#B.Mab#7.oa..jQtQt",
-"QtQtQt.eacadae.G#Fafagahai#h.7ajakalQtQtQtQt",
-"QtQtQt.k.5amQt.j.h.Nan.Z.9aa.r.dao.tQtQtQtQt",
-"QtQtQt.j.6apQtQtaqar#3#uas.rQt.j.YahQtQtQtQt",
-"QtQtQt.eatajQt#fauavawax.4ayQt#HazaaQtQtQtQt",
-"QtQtQtQtaA.6aB.0aC.9aD#j#6#5aE.qaFaGQtQtQtQt",
-"QtQtQtQt.d.Fao.6aH.W.e.r#GaI#M.G#p#fQtQtQtQt",
-"QtQtQtQtQt.K.j.j.eQtQtQtQt.k.j.j.kQtQtQtQtQt"
+"22 22 22 1",
+"a c #2d2d2d",
+"g c #404040",
+"f c #535353",
+"b c #959595",
+"c c #acacac",
+"s c #b0b0b0",
+"r c #b4b4b4",
+"o c #bababa",
+"t c #bebebe",
+"m c #c3c3c3",
+"q c #c7c7c7",
+"e c #c9c9c9",
+"p c #cacaca",
+"n c #cecece",
+"l c #d3d3d3",
+"k c #d8d8d8",
+"j c #d9d9d9",
+"i c #dddddd",
+"h c #dfdfdf",
+"# c #e2e2e2",
+"d c #f4f4f4",
+". c #ffffff",
+"......................",
+"......................",
+"......................",
+".......#aaaaaaaaaaa...",
+"......#abccccccccda...",
+".....#aeeeeeeeee.fa...",
+"....#aeeeeeeeeedgga...",
+"...#aeeeeeeeee.fgfa...",
+"...a..........ggfga...",
+"...a######hhhegfgfa...",
+"...a#######hheggfga...",
+"...aiijjjjjjjegfgfa...",
+"...a##jjjjjjheggfga...",
+"...aiijjjjjjjegfgfa...",
+"...akklllllllmggfga...",
+"...alnnnnnnnnogfgfa...",
+"...anpqqqqqqqrggfac...",
+"...appmmmmmmmsgfac....",
+"...atcccccccccgac.....",
+"...aaaaaaaaaaaac......",
+"......................",
+"......................"
 ]
 
 class PartPropDialog(QDialog):
@@ -222,6 +79,16 @@ class PartPropDialog(QDialog):
         self.nameLabel_2 = QLabel(self,"nameLabel_2")
         self.nameLabel_2.setGeometry(QRect(11,53,60,21))
         self.nameLabel_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+
+        self.cancelPushButton = QPushButton(self,"cancelPushButton")
+        self.cancelPushButton.setGeometry(QRect(190,430,82,29))
+        self.cancelPushButton.setAutoDefault(1)
+        self.cancelPushButton.setDefault(0)
+
+        self.okPushButton = QPushButton(self,"okPushButton")
+        self.okPushButton.setGeometry(QRect(102,430,82,29))
+        self.okPushButton.setAutoDefault(1)
+        self.okPushButton.setDefault(1)
 
         self.tabWidget3 = QTabWidget(self,"tabWidget3")
         self.tabWidget3.setGeometry(QRect(0,10,370,410))
@@ -303,19 +170,9 @@ class PartPropDialog(QDialog):
         self.tempLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
         self.tabWidget3.insertTab(self.tab_2,QString(""))
 
-        self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setGeometry(QRect(190,430,82,29))
-        self.cancelPushButton.setAutoDefault(1)
-        self.cancelPushButton.setDefault(0)
-
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(102,430,82,29))
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
-
         self.languageChange()
 
-        self.resize(QSize(378,483).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(378,489).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
@@ -326,6 +183,10 @@ class PartPropDialog(QDialog):
         self.setCaption(self.__tr("Part Properties"))
         self.nameLineEdit_2.setText(QString.null)
         self.nameLabel_2.setText(self.__tr("Name:"))
+        self.cancelPushButton.setText(self.__tr("&Cancel"))
+        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
+        self.okPushButton.setText(self.__tr("&OK"))
+        self.okPushButton.setAccel(self.__tr("Alt+O"))
         self.authorLineEdit.setText(QString.null)
         self.mdateLabel.setText(self.__tr("Modified Date"))
         self.adateLabel.setText(self.__tr("Accessed Date"))
@@ -345,10 +206,6 @@ class PartPropDialog(QDialog):
         self.nameLabel2.setText(self.__tr("Name:"))
         self.tempLabel.setText(self.__tr("Temp:"))
         self.tabWidget3.changeTab(self.tab_2,self.__tr("CSys"))
-        self.cancelPushButton.setText(self.__tr("&Cancel"))
-        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
-        self.okPushButton.setText(self.__tr("&OK"))
-        self.okPushButton.setAccel(self.__tr("Alt+O"))
 
 
     def applyButtonClicked(self):
