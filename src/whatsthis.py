@@ -148,17 +148,17 @@ def createWhatsThis(self):
         
          #### Zoom Tool ####
         
-        setzoomWindowActionText = "<u><b>Zoom Tool</b></u><br>"\
-                       "<p><img source=\"setzoomWindow\"><br> "\
+        setzoomToolActionText = "<u><b>Zoom Tool</b></u><br>"\
+                       "<p><img source=\"setzoomTool\"><br> "\
                        "Allows the user to specify a rectangular area by holding "\
                        "down the left button and dragging the mouse "\
                        "to zoom into a specific area of the model."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setzoomWindow",
-                                                       self.zoomWindowAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "setzoomTool",
+                                                       self.zoomToolAction.iconSet().pixmap() )
 
-        self.zoomWindowAction.setWhatsThis(  setzoomWindowActionText )      
+        self.zoomToolAction.setWhatsThis(  setzoomToolActionText )      
 
         
          #### Orthographic Projection ####
