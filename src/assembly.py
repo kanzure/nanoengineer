@@ -4,7 +4,7 @@
 assembly.py -- provides class assembly, a set of molecules
 (plus selection state) to be shown in one glpane.
 
-Temporarily owned by bruce 041104 for shakedown inval/update code.
+[No longer owned by bruce, as of 041129.]
 
 $Id$
 """
@@ -353,6 +353,7 @@ class assembly:
             disp = self.o.display
             if mol.hidden and not iInv: continue
             if mol.display != diDEFAULT: disp = mol.display
+            #e bruce 041129 comment: check disp == diINVISIBLE here??
             for a in mol.atoms.itervalues():
                 if a.display == diINVISIBLE and not iInv: continue
                 dist = a.checkpick(p1, v1, disp, r, iPic)

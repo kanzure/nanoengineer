@@ -329,9 +329,9 @@ class atom:
         """
         #bruce 041104,041112 revised docstring
         if self.xyz != 'no':
-            return self.xyz
+            return self.xyz #bruce 041124: this should return a copy, use '+' ###@@@
         else:
-            return self.molecule.curpos[self.index]
+            return self.molecule.curpos[self.index] ###@@@ ditto
 
     def baseposn(self): #bruce 041107 night
         """Like posn, but return the mol-relative position.
@@ -408,9 +408,9 @@ class atom:
 
     def draw(self, glpane, dispdef, col, level):
         """draw the atom depending on whether it is picked
-        and its (possibly inherited) display mode.
+        and its display mode (possibly inherited from dispdef).
         An atom's display mode overrides the inherited one from
-        the molecule, but a molecule's color overrides the atom's
+        the molecule or glpane, but a molecule's color overrides the atom's
         element-dependent one
         """
         assert not self.__killed
@@ -430,6 +430,7 @@ class atom:
                 # or wants the choice of visible display mode to influence that,
                 # all it needs to do is not store them in glpane.selatom (which
                 # it also needs to do to avoid acting on them). [bruce 041104]
+                # [bruce 041129: also rad = TubeRadius? I guess not.]
         # note use of basepos (in atom.baseposn) since it's being drawn under
         # rotation/translation of molecule
         pos = self.baseposn()
@@ -459,15 +460,21 @@ class atom:
         # no invals are needed if their appearance changes.
 
     def howdraw(self, dispdef):
-        """ tell how to draw the atom depending on
-        its (possibly inherited) display mode.
-        An atom's display mode overrides the inherited one from
-        the molecule, but a molecule's color overrides the atom's
-        element-dependent one.
-        return display mode and radius to use, in a tuple
+        """Tell how to draw the atom depending on its display mode (possibly
+        inherited from dispdef). An atom's display mode overrides the inherited
+        one from the molecule or glpane, but a molecule's color overrides the
+        atom's element-dependent one (color is done in atom.draw, not here).
+        Return display mode and radius to use, in a tuple (disp, rad).
+        Note that atom.draw further modifies the radius in some cases.
         """
+        if dispdef == diDEFAULT: #bruce 041129 permanent debug code, re bug 21
+            if platform.atom_debug:
+                print "bug warning: dispdef == diDEFAULT in atom.howdraw for %r" % self
+            ## this workaround would be possible, but I'm not doing it:
+            ## dispdef = default_display_mode
         if self.element == Singlet:
             disp,rad = self.bonds[0].other(self).howdraw(dispdef)
+            # note: this rad is going to be replaced, below
         else:
             if self.display == diDEFAULT: disp=dispdef
             else: disp=self.display

@@ -556,11 +556,17 @@ class MWsemantics(MainWindow):
             for ob in self.assy.selmols:
                 ob.setDisplay(form)
         else:
-            if self.glpane.display == form: return
+            if self.glpane.display == form:
+                pass ## was 'return' # no change needed
+                # bruce 041129 removing this optim, tho correct in theory,
+                # since it's not expensive to changeapp and repaint if user
+                # hits a button, so it's more important to fix any bugs that
+                # might be in other code failing to call changeapp when needed.
             self.glpane.setDisplay(form)
         self.glpane.paintGL()
 
     def setdisplay(self, a0):
+        #bruce 041129 suspects this is obsolete
         print 'setdisplay', a0
 
 
