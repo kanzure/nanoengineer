@@ -115,14 +115,16 @@ class Node:
             # addmember might change this to dad.assy
         self.selgroup = -1 # cached find_selection_group() retval, a Node or None, -1 means invalid #e or use getattr? or maintain?
         #end bruce 050205 new fields
-        
-        self.dad = parent # another Node (which must be a Group), or None
-        if self.dad:
-            self.dad.addchild(self) #bruce 050206 changed addmember to addchild, enforcing dad correctness
+
+        self.dad = None        
+        if parent: # another Node (which must be a Group), or None
+            parent.addchild(self) #bruce 050206 changed addmember to addchild, enforcing dad correctness
+            assert self.dad == parent
         return
 
     def redmsg(self, msg): #bruce 050203
         from HistoryWidget import redmsg
+        ###@@@ we ought to make this work even after assy set to None in Node.kill!
         self.assy.w.history.message( redmsg( msg ))
 
 ##    def select_enabled(self): #obs, better to just override self.pick() [bruce 050206]
@@ -334,19 +336,23 @@ class Node:
         """
         return True #e probably change to False for leaf nodes, once we support dropping into gaps
 
-    def drop_on(self, drag_type, nodes): #####@@@@@ used in doit, is it safe?
+    def drop_on(self, drag_type, nodes): ###@@@ needs a big cleanup
         #e rewrite to use copy_nodes (nim)? (also rewrite the assy methods? not for alpha)
         "Like drop_on_ok, but (assuming it's ok -- error if it's not) actually perform the drop."
-        res = [] #bruce 050203: return any new nodes this creates (toplevel only, for copied groups)
+        res = [] #bruce 050203: return any new nodes this creates (toplevel nodes only, for copied groups)
+        #bruce 050216: order is correct if you're dropping on a group, but (for the ops used below)
+        # wrong if you're dropping on a node. This needs a big cleanup, but for now, use this kluge:
+        if not isinstance(self, Group):
+            nodes = nodes[::-1] # reverse order if self is a leaf node
         if drag_type == 'move':
-            for node in nodes[::-1]:
-                node.moveto(self) ###k guess/stub #####@@@@@
+            for node in nodes[:]:
+                node.moveto(self) ###k guess/stub; works
         else:
-            for node in nodes[::-1]:
-                nc = node.copy(self)
+            for node in nodes[:]:
+                nc = node.copy(None) # note: before 050215 we passed dad=self -- weird, but due to other weirdness in copy, didn't matter
                 if nc: # can be None if the copy is refused (since nim for that Node subclass, as for Group as of 050203)
                     res.append(nc)
-                    self.addmember(nc) ###k guess/stub #####@@@@@
+                    self.addmember(nc) ###k guess/stub; works
         #bruce 050203: adding a quick bugfix for clipboard-DND bugs
         # which was written 050202 and intended for Alpha-1, but didn't make it in.
         # In the future this might be optimized to only call update_mols when necessary,
@@ -544,7 +550,7 @@ class Node:
         (I.e., in both cases, are we the Clipboard or in its tree?)
         [This only works as long as self.assy.shelf is the Clipboard and works like it does now, 050205.
          It's only useful as long as the rest of the code has special cases for clipboard vs main part --
-         hopefully not for much longer.]
+         hopefully not for much longer. In other words, this method is "deprecated at birth".]
         """
         try:
             return self.assy.shelf.is_ascendant(self)
@@ -952,7 +958,8 @@ class Group(Node):
             # those methods never did that. Soon after Alpha we should fix them all and then
             # make this a detected error and no longer tolerate it.
             if platform.atom_debug:
-                print "atom_debug: addchild setting newchild.dad to None since newchild not in dad's members:",self,newchild
+                msg = "atom_debug: addchild setting newchild.dad to None since newchild not in dad's members: %s, %s" % (self,newchild)
+                print_compact_stack(msg)
             newchild.dad = None
         if newchild.is_ascendant(self):
             #bruce 050205 adding this for safety (should prevent DND-move cycles as a last resort, tho might lose moved nodes)
@@ -1472,10 +1479,11 @@ class ClipboardShelfGroup(Group):
         if len(nodes) > 1 and drag_type == 'move': ####@@@@ desired for copy too, but below implem would be wrong for that...
             ###e import gensym?? make it a global name?
             new = Group("Grouped nodes", self.assy, None) ###k review last arg ####@@@@
-            for node in nodes[::-1]:
+            for node in nodes[:]: #bruce 050216 don't reverse the order, it's already correct
                 node.moveto(new) ####@@@@ guess, same as in super.drop_on (move here, regardless of drag_type? no, not correct!)
+                node.unpick() #bruce 050216; don't know if needed or matters
             nodes = [new] # a new length-1 list of nodes
-            self.assy.w.history.message( "Grouped some nodes to keep them in one space" ) ###e improve text
+            self.assy.w.history.message( "(fyi: Grouped some nodes to keep them in one space)" ) ###e improve text
         return Group.drop_on(self, drag_type, nodes)
     def permits_ungrouping(self): return False
     def openable(self): # overrides Node.openable()

@@ -1721,16 +1721,16 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.redmsg( "drop into empty space ignored (drops under groups are not yet supported; drop right onto them instead)")
             return
         #e worry about where on the item?
-        node = item.object
-        if not node.drop_on_ok(drag_type, nodes):
-            self.redmsg( "drop refused by %r" % node_name(node) )
+        targetnode = item.object
+        if not targetnode.drop_on_ok(drag_type, nodes):
+            self.redmsg( "drop refused by %r" % node_name(targetnode) )
             return
-        ## print "about to do node.drop_on(drag_type, nodes) # implems untested!"
 
         #bruce 050202 last minute change:
         # first guess if a bug will happen...
+        #bruce 050216 comment: note that this belongs in the subclass, not here. ###@@@
         try:
-            s1 = node.find_selection_group()
+            s1 = targetnode.find_selection_group()
             s2 = nodes[0].find_selection_group()
             shouldwarn = (s1 != s2)
             n1 = node_name(s1) # destination
@@ -1740,34 +1740,42 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 self.redmsg( msgw)
         except:
             pass
-        copiednodes = node.drop_on(drag_type, nodes) # implems untested! well, now tested for a day or so, for assy.tree ... 050202
+        copiednodes = targetnode.drop_on(drag_type, nodes) # implems untested! well, now tested for a day or so, for assy.tree ... 050202
         #bruce 050203: copiednodes is a list of copied nodes made by drop_on (toplevel only, when groups are copied).
         # for a move, it's []. We use it to select the copies, below.
 
-        ###e careful, "node" is a variable we will use below in some messages -- fix this!
-        # my loop trashed it bfr i renamed it node1. #####@@@@@
-        
-        #bruce 050203 cause moved nodes to remain picked; for copied nodes, we want the copies not originals to be picked
-        # but that's not so easy so saving it for later, but meanwhile, should we at least unpick the originals?? ####
-        # (We'll unpick all, for move, in case not all nodes participated for some reason.)
+        #bruce 050203 cause moved nodes to remain picked;
+        # for copied nodes, we want the copies not originals to be picked.
         if drag_type == 'move':
             self.unpick_all()
-             # pick the moved nodes -- this is not yet right if they were grouped by the clipboard! hmm.... ####@@@@
-            for node1 in nodes:
-                node1.pick()
+            # pick the moved nodes
+            #bruce 050216: don't do this if they were moved into the clipboard.
+            # Note that this behavior should be subclass-specific, as should any knowledge of "the clipboard" at all!
+            # This needs review and cleanup -- maybe all this selection behavior needs to ask nodes what to do.
+            if not targetnode.in_clipboard():
+                for node1 in nodes:
+                    node1.pick()
         else:
             self.unpick_all()
+            # obs comment:
             # pick the copies (even if they are in the clipboard? for now, yes.)
             # note, the rule about selection limited to only one clipboard item
             # makes only the last one end up picked, and a warning come out!
             # We should probably make the clipboard consolidate dropped nodes
             # (for move or copy) into one Group.
-            for node1 in copiednodes:
-                node1.pick()
+            #
+            # [later: As of a few days before 050216, it does that for 'move'
+            #  but not yet for 'copy', though both need it just as much.
+            #  So I no longer pick the copies if in the clipboard.
+            #  I also wonder if I should instead pick the originals then, or always??
+            #  Not for now.]
+            if not targetnode.in_clipboard():
+                for node1 in copiednodes:
+                    node1.pick()
             
         ## print "did it!"
         # ... too common for a history message, i guess...
-        msg = "dragged and dropped %d item(s) onto %r" % (len(nodes), node_name(node))
+        msg = "dragged and dropped %d item(s) onto %r" % (len(nodes), node_name(targetnode))
             #e should be more specific about what happened to them... ask the target node itself??
         msg = fix_plurals(msg)
         self.statusbar_msg( msg)
