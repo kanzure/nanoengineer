@@ -302,7 +302,7 @@ class modelTree(TreeWidget):
                 res.append(( fix_plurals("%d jig(s)" % allstats.njigs), noop, 'disabled' ))
             
             if allstats.nhidden:
-                res.append(( fix_plurals("(%d of these are hidden)" % allstats.nhidden), noop, 'disabled' ))
+                res.append(( "(%d of these are hidden)" % allstats.nhidden, noop, 'disabled' ))
 
 ##        ##e following msg is not true, since nodeset doesn't include selection under selected groups!
 ##        # need to replace it with a better breakdown of what's selected,

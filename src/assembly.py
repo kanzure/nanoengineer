@@ -250,18 +250,21 @@ class assembly:
         """[private method] #doc this... see self.changed() docstring.
         """
         self._modified = 0
-    
-    def selectingWhat(self):
-        """return 'Atoms' or 'Molecules' to indicate what is currently
-        being selected [by bruce 040927; might change]
-        """
-        # bruce 040927: this seems to be wrong sometimes,
-        # e.g. when no atoms or molecules exist in the assembly... not sure.
-        return {0: "Atoms", 2: "Molecules"}[self.selwhat]
+
+# bruce 050201: this is not currently used. If confirmed, zap it in a few days.
+##    def selectingWhat(self):
+##        """return 'Atoms' or 'Molecules' to indicate what is currently
+##        being selected [by bruce 040927; might change]
+##        """
+##        # bruce 040927: this seems to be wrong sometimes,
+##        # e.g. when no atoms or molecules exist in the assembly... not sure.
+##        return {0: "Atoms", 2: "Molecules"}[self.selwhat]
 
     def checkpicked(self, always_print = 0):
         """check whether every atom and molecule has its .picked attribute
         set correctly. Fix errors, too. [bruce 040929]
+        Note that this only checks molecules in assy.tree, not assy.shelf,
+        since self.molecules only includes those. [bruce 050201 comment]
         """
         if always_print: print "fyi: checkpicked()..."
         self.checkpicked_atoms(always_print = 0)
@@ -484,7 +487,8 @@ class assembly:
         If some parts are selected, select all atoms in those parts.
         If some atoms are selected, select all atoms in the parts
         in which some atoms are selected.
-        """
+        [bruce 050201 observes that this docstring is wrong.]
+        """ ###@@@
         if self.selwhat:
             for m in self.molecules:
                 m.pick()
@@ -731,12 +735,65 @@ class assembly:
         for a in self.selatoms.itervalues():
             a.prin()
 
+    #bruce 050131/050201 for Alpha (really for bug 278 and maybe related ones):
+    # sanitize_for_clipboard, for cut and copy and other things that add clipboard items
+    # #####@@@@@ need to use in sethotspot too??
+    
+    def sanitize_for_clipboard(self, ob): 
+        """Prepare ob for addition to the clipboard as a new toplevel item;
+        should be called just before adding ob to shelf, OR for items already in it
+        (or both; should be ok, though slower, to call more than once per item).
+        """
+        self.sanitize_for_clipboard_0( ob) # recursive version handles per-chunk, per-group issues
+        #e now do things for the shelf-item as a whole, if any
+        if platform.atom_debug:
+            print "atom_debug: fyi: sanitize_for_clipboard sees selgroup of ob is %r" % ob.find_selection_group()
+            ###e if this is None, then I'll have an easy way to break bonds from this item to stuff in the main model (bug 371)
+            #e i.e. break_wormholes() or break_interspace_bonds()
+        return
+    
+    def sanitize_for_clipboard_0(self, ob): #bruce 050131 for Alpha (really for bug 278 and maybe related ones)
+        """[private method:]
+        The recursive part of sanitize_for_clipboard:
+        keep clipboard items (or chunks inside them) out of assy.molecules,
+        so they can't be selected from glpane
+        """
+        if isinstance(ob, molecule):
+            if self.selatoms:
+                # bruce 050201 for Alpha: worry about selected atoms in chunks in clipboard
+                # [no bugs yet reported on this, but maybe it could happen]
+                #k someday ought to print atom_debug warning if this matters, to find out...
+                try:
+                    for atm in ob.atoms.values():
+                        atm.unpick()
+                except:
+                    print_compact_traceback("sanitize_for_clipboard_0 ignoring error unpicking atoms: ")
+                    pass
+            try:
+                ob.assy.molecules.remove(ob)
+                # note: don't center the molecule here -- that's only appropriate
+                # for each toplevel cut object as a whole!
+            except:
+                pass
+        elif isinstance(ob, Group): # or any subclass! e.g. the Clipboard itself.
+            for m in ob.members:
+                self.sanitize_for_clipboard_0(m)
+        return
+
+    # bruce 050131/050201 revised these Cut and Copy methods to fix some Alpha bugs;
+    # they need further review after Alpha, and probably could use some merging. ###@@@
+    # See also assy.kill (Delete operation).
+    
     def cut(self):
         self.w.history.message(greenmsg("Cut:"))
-        if self.selwhat==0:
+        if self.selatoms:
+            #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
+            # changed condition to not use selwhat, since jigs can be selected even in Select Atoms mode
             self.w.history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
-            return
+            ## return #bruce 050201-bug370: don't return yet, in case some jigs were selected too.
+            # note: we will check selatoms again, below, to know whether we emitted this message
         new = Group(gensym("Copy"),self,None)
+            # bruce 050201 comment: this group is usually, but not always, used only for its members list
         if self.tree.picked:
             #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
             # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
@@ -775,21 +832,11 @@ class assembly:
             self.w.history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
                 ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
         else:
-            self.w.history.message(redmsg("Nothing to cut.")) #bruce 050201
+            if not self.selatoms:
+                #bruce 050201-bug370: we don't need this if the message for selatoms already went out
+                self.w.history.message(redmsg("Nothing to cut.")) #bruce 050201
         
         self.w.win_update()
-
-    def sanitize_for_clipboard(self, ob): #bruce 050131 for Alpha (really for bug 278 and maybe related ones)
-        "keep clipboard items (or chunks inside them) out of assy.molecules, so they can't be selected from glpane"
-        if isinstance(ob, molecule):
-            try:
-                ob.assy.molecules.remove(ob)
-            except:
-                pass
-        elif isinstance(ob, Group): # or any subclass! e.g. the Clipboard itself.
-            for m in ob.members:
-                self.sanitize_for_clipboard(m)
-        return
 
     # copy any selected parts (molecules) [making a new clipboard item... #doc #k]
     #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
@@ -807,10 +854,12 @@ class assembly:
     #  for now) the group members are in bottom-to-top order.)
     def copy(self):
         self.w.history.message(greenmsg("Copy:"))
-        if self.selwhat==0:
+        if self.selatoms:
+            #bruce 050201-bug370: revised this in same way as for assy.cut (above)
             self.w.history.message(redmsg("Copying selected atoms is not yet supported.")) #bruce 050131
-            return
+            ## return
         new = Group(gensym("Copy"),self,None)
+            # bruce 050201 comment: this group is always (so far) used only for its members list
         # x is each node in the tree that is picked. [bruce 050201 comment: it's ok if self.tree is picked.]
         # [bruce 050131 comments (not changing it in spite of bugs):
         #  the x's might be chunks, jigs, groups... but maybe not all are supported for copy.
@@ -820,11 +869,13 @@ class assembly:
         #  and it sets numol.dad but doesn't add it to dad's members -- so we do that immediately
         #  in addmember. So we end up with a members list of copied chunks from assy.tree.]
         self.tree.apply2picked(lambda(x): new.addmember(x.copy(new)))
+
+        # unlike for cut, no self.changed() should be needed
         
         if new.members:
             nshelf_before = len(self.shelf.members) #bruce 050201
-            for ob in (new.members):
-                self.sanitize_for_clipboard(ob) # not needed on 050131 but will be needed soon, and harmless
+            for ob in new.members:
+                self.sanitize_for_clipboard(ob) # not needed on 050131 but might be needed soon, and harmless
                 self.shelf.addmember(ob) # add new member(s) to the clipboard
                 #bruce comment 050131: this ignores prior membership in new; tolerable in this case
                 # if the new member is a molecule, move it to the center of its space
@@ -834,7 +885,9 @@ class assembly:
             self.w.history.message( fix_plurals("Copied %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
                 ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
         else:
-            self.w.history.message(redmsg("Nothing to Copy.")) #bruce 050201
+            if not self.selatoms:
+                #bruce 050201-bug370: we don't need this if the message for selatoms already went out
+                self.w.history.message(redmsg("Nothing to Copy.")) #bruce 050201
 
         self.w.win_update()
 
@@ -860,14 +913,22 @@ class assembly:
              
 
     def kill(self): # bruce 041118 simplified this after shakedown changes
-        "delete whatever is selected from this assembly"
+        #bruce 050201 for Alpha: revised this to fix bug 370
+        "delete whatever is selected from this assembly [except the PartGroup node itself]"
         self.w.history.message(greenmsg("Delete:"))
+        ###@@@ #e this also needs a results-message, below.
         if self.selatoms:
             self.changed()
             for a in self.selatoms.values():
                 a.kill()
             self.selatoms = {} # should be redundant
-        if self.selwhat == 2 or self.selmols:
+        if 1:
+            ## bruce 050201 removed the condition "self.selwhat == 2 or self.selmols"
+            # since selected jigs no longer force selwhat to be 2.
+            # (Maybe they never did, but my guess is they did; anyway I think they shouldn't.)
+            # self.changed() is not needed since removing Group members should do it (I think),
+            # and would be wrong here if nothing was selected.
+            self.tree.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
             self.tree.apply2picked(lambda o: o.kill())
             # Also kill anything picked in the clipboard
             # [revised by bruce 050131 for Alpha, see cvs rev 1.117 for historical comments]
@@ -882,17 +943,23 @@ class assembly:
 ##        self.setDrawLevel()
 
 
+    # bruce 050201 for Alpha:
+    #    Like I did to fix bug 370 for Delete (and cut and copy),
+    # make Hide and Unhide work on jigs even when in selatoms mode.
+    #    Also make them work in clipboard (by changing
+    # self.tree to self.root below) -- no reason
+    # not to, and it's confusing when cmenu offers these choices but they do nothing.
+    # It's ok for them to operate on entire Part since they only affect leaf nodes.
+    
     def Hide(self):
-        "Hide all selected chunks"
-        if self.selwhat == 2:
-            self.tree.apply2picked(lambda x: x.hide())
-            self.w.win_update()
+        "Hide all selected chunks and jigs"
+        self.root.apply2picked(lambda x: x.hide())
+        self.w.win_update()
 
     def Unhide(self):
-        "Unhide all selected chunks"
-        if self.selwhat == 2:
-            self.tree.apply2picked(lambda x: x.unhide())
-            self.w.win_update()
+        "Unhide all selected chunks and jigs"
+        self.root.apply2picked(lambda x: x.unhide())
+        self.w.win_update()
 
     #bond atoms (cheap hack)
     def Bond(self):

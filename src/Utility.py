@@ -117,7 +117,17 @@ class Node:
         of nodes from different selection groups are unsafe.
         [To be overridden by the PartGroup and any "clipboard item".]
         """
-        # Following is correct for most nodes --
+        ###@@@ [General discussion of implem of selection groups, 050201:
+        # in hindsight the implem should just store the selgroup
+        # in each node, and maintain this when dad changes, like for .assy.
+        # In fact, for Beta the selgroup probably *will* be the value of .assy,
+        # which will be different for each clipboard item; or it might be a
+        # separate field like .selgroup or .space or .part, depending on what
+        # we end up calling "the part or any clipboard item, ie anything you
+        # want to show in the glpane at once, and think of as being in one
+        # physical space, where collisions and bonds are possible".]
+        #
+        # Following implem is correct for most nodes --
         # determine whether self is a "clipboard item".
         # But this must be overridden by PartGroup.
         return self.dad and self.dad.is_selection_group_container()
@@ -1269,7 +1279,8 @@ def kluge_patch_assy_toplevel_groups(assy): #bruce 050109 ... ###@@@ should be t
             assy.tree.kluge_set_initial_nonmember_kids( lis )
             fixroot = 1
         if assy.root.__class__ == Group or fixroot:
-            assy.sanitize_for_clipboard( assy.shelf) # needed for when Groups in clipboard are read from mmp files
+            for m in assy.shelf.members:
+                assy.sanitize_for_clipboard( m) # needed for when Groups in clipboard are read from mmp files
             #e make new Root Group in there too -- and btw, use it in model tree widgets for the entire tree...
             # would it work better to use kluge_change_class for this?
             # academic Q, since it would not be correct, members are not revised ones we made above.
