@@ -22,6 +22,22 @@ _count = 0
 #bruce 050121 split out hotspot helper functions, for slightly more general use
 
 def is_pastable(obj): #e refile and clean up
+    "whether to include a clipboard object on Build's pastable spinbox"
+    #bruce 050127 make this more liberal, so it includes things which are
+    # not pastable onto singlets but are still pastable into free space
+    # (as it did before my changes of a few days ago)
+    # but always run is_pastable_onto_singlet in case it has a klugy bugfixing side-effect
+    return is_pastable_onto_singlet(obj) or is_pastable_into_free_space(obj)
+
+# these separate is_pastable_xxx functions make a distinction which might not yet be used,
+# but which should be used soon to display these kinds of pastables differently
+# in the model tree and/or spinbox [bruce 050127]:
+
+def is_pastable_into_free_space(obj):#bruce 050127
+    return isinstance(obj, molecule) # for now; later we might include Groups too
+
+def is_pastable_onto_singlet(obj): #bruce 050121 (renamed 050127)
+    # this might have a klugy bugfixing side-effect -- not sure
     ok, spot_or_whynot = find_hotspot_for_pasting(obj)
     return ok
 
@@ -494,15 +510,18 @@ class depositMode(basicMode):
         #  this copies a lot of logic from leftDown, which is bad, should be merged somehow --
         #  maybe as one routine to come up with a command object, with a str method for messages,
         #  called from here to say potential cmd or from leftDown to give actual cmd to do ##e]
+        # WARNING: this runs with every bareMotion (even when selatom doesn't change),
+        # so it had better be fast.
+        onto_open_bond = selatom and selatom.is_singlet()
         try:
-            what = self.describe_paste_action() # always a string
+            what = self.describe_paste_action(onto_open_bond) # always a string
             if what and len(what) > 60: # guess at limit
                 what = what[:60] + "..."
         except:
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: describe_paste_action failed: ")
             what = "click to paste"
-        if selatom and selatom.is_singlet():
+        if onto_open_bond:
             cmd = "%s onto open bond at %s" % (what, self.posn_str(selatom))
         elif selatom:
             cmd = "click to drag %r" % selatom
@@ -511,14 +530,22 @@ class depositMode(basicMode):
             #e cmd += " at position ..."
         return cmd
         
-    def describe_paste_action(self): # bruce 050124
+    def describe_paste_action(self, onto_open_bond): # bruce 050124; added onto_open_bond flag, 050127
         "return a description of what leftDown would paste or deposit (and how user could do that), if done now"
         #e should be split into "determine what to paste" and "describe it"
         # so the code for "determine it" can be shared with leftDown
         # rather than copied from it as now
         if self.w.pasteP:
-            if self.pastable:
-                return "click to paste %s" % self.pastable.name
+            p = self.pastable
+            if p:
+                if onto_open_bond:
+                    ok = is_pastable_onto_singlet( p) #e if this is too slow, we'll memoize it
+                else:
+                    ok = is_pastable_into_free_space( p) # probably always true, but might as well check
+                if ok:
+                    return "click to paste %s" % self.pastable.name
+                else:
+                    return "can't paste %s" % self.pastable.name
             else:
                 return "nothing to paste" # (trying would be an error)
         else:
