@@ -1843,6 +1843,7 @@ class MWsemantics(MainWindow):
         self.panDashboard.hide()
         self.rotateDashboard.hide()
         self.fuseChunksDashboard.hide()
+        self.cookieSelectDashboard.hide()
 
         # This section used by Mark and David to hide toolbars, etc when creating
         # tutorial videos.        
@@ -1851,7 +1852,7 @@ class MWsemantics(MainWindow):
         ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
         objList = self.queryList("QToolBar")
         for obj in objList:
-                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard, self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard]:
+                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard, self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard, self.cookieSelectDashboard]:
                          self.setAppropriate(obj, False)
 
     # Import code for What's This support        
