@@ -79,6 +79,7 @@ class Part(InvalMixin):
         self.nodecount = 0 # doesn't yet include topnode
         self.add(topnode)
         # for now:
+        from assembly import assembly # the class
         assert isinstance(assy, assembly)
         assert isinstance(topnode, Node)
         
@@ -86,13 +87,13 @@ class Part(InvalMixin):
         
         # coord sys stuff? data? lastCsys homeCsys xy yz zx ###@@@ review which ivars needed; do we want unique names?? no.
         # the coordinate system (Actually default view) ####@@@@ does this belong to each Part?? guess: yes
-        self.homeCsys = Csys(self, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
-        self.lastCsys = Csys(self, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0) 
-        self.xy = Datum(self, "XY", "plane", V(0,0,0), V(0,0,1))
-        self.yz = Datum(self, "YZ", "plane", V(0,0,0), V(1,0,0))
-        self.zx = Datum(self, "ZX", "plane", V(0,0,0), V(0,1,0))
+        self.homeCsys = Csys(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
+        self.lastCsys = Csys(self.assy, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0) 
+        self.xy = Datum(self.assy, "XY", "plane", V(0,0,0), V(0,0,1))
+        self.yz = Datum(self.assy, "YZ", "plane", V(0,0,0), V(1,0,0))
+        self.zx = Datum(self.assy, "ZX", "plane", V(0,0,0), V(0,1,0))
         grpl1=[self.homeCsys, self.lastCsys, self.xy, self.yz, self.zx]
-        self.data=Group("Data", self, None, grpl1)
+        self.data=Group("Data", self.assy, None, grpl1)
         self.data.open=False
 
         # name? no, at least not yet, until there's a Part Tree Widget.
@@ -102,7 +103,7 @@ class Part(InvalMixin):
         # some attrs are recomputed as needed (see below for their _recompute_ or _get_ methods):
         # e.g. molecules, bbox, center, drawLevel
 
-        ### not yet here: alist, selatoms, selmols
+        # not here: alist, selatoms, selmols - they're all done by a _recompute_xxx
 
         
         
@@ -276,8 +277,6 @@ class Part(InvalMixin):
             # even if it was, it might elsewhere be incrementally updated.
         return
     
-    ###e what about selmols, selatoms?? #####@@@@@
-
     ###### what called this? it had a diff name...
     def update_content_summaries(): #bruce 050228 split this from other methods #####@@@@@ wrong, change each method to inval, use _get
         "[private method] recompute bbox and drawLevel attributes"
@@ -342,17 +341,46 @@ class Part(InvalMixin):
         # we could store an array of atoms followed by chunking and grouping info, instead of
         # using tree order at all to determine the atom order in the file. Or, we could change
         # the movie file format to not depend so strongly on atom order.)
-        self.alist = 333
+        self.alist = 333 # not a valid Python sequence
         alist = []
-        def func(nn):
-            "run this exactly once on all molecules in this part, in tree order"
+        def func_alist(nn):
+            "run this exactly once on all molecules (or other nodes) in this part, in tree order"
             if isinstance(nn, molecule):
                 alist.extend(nn.atoms_in_mmp_file_order())
-            return # from func only
-        self.tree.apply2all( func)
+            return # from func_alist only
+        self.tree.apply2all( func_alist)
         self.alist = alist
         return
 
+    _inputs_for_selmols = [] # only inval directly, since often stays the same when molecules changes, and might be incrly updated
+    def _recompute_selmols(self):
+        self.selmols = 333 # not a valid Python sequence
+        res = []
+        def func_selmols(nn):
+            "run this exactly once on all molecules (or other nodes) in this part (in any order)"
+            if isinstance(nn, molecule) and nn.picked:
+                res.append(nn)
+            return # from func_selmols only
+        self.tree.apply2all( func_selmols)
+        self.selmols = res
+        return
+
+    _inputs_for_selatoms = [] # only inval directly (same reasons as selmols; this one is *usually* updated incrementally, for speed)
+    def _recompute_selatoms(self):
+        ###e should optim by using selwhat #####@@@@@
+        self.selatoms = 333 # not a valid dictlike thing
+        res = {}
+        def func_selatoms(nn):
+            "run this exactly once on all molecules (or other nodes) in this part (in any order)"
+            if isinstance(nn, molecule):
+                for atm in nn.atoms.itervalues():
+                    if atm.picked:
+                        res[atm.key] = atm
+            return # from func_selatoms only
+        self.tree.apply2all( func_selatoms)
+        self.selatoms = res
+        return
+        
     # ==
     
     def addmol(self, mol): #bruce 050228 revised this for Part (was on assy) and for inval/update of part-summary attrs.
@@ -1435,7 +1463,7 @@ class ClipboardItemPart(Part):
 
 # ==
 
-def process_changed_dads_fix_parts:
+def process_changed_dads_fix_parts():
     """Grab (and reset) the global set of nodes with possibly-changed dads,
     and use this info (and our memory from prior times we ran??)
     to fix Parts of all affected nodes.
