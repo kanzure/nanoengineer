@@ -5,7 +5,7 @@
 	<TITLE></TITLE>
 	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.0  (Linux)">
 	<META NAME="CREATED" CONTENT="20041006;8283500">
-	<META NAME="CHANGED" CONTENT="20041007;8114900">
+	<META NAME="CHANGED" CONTENT="20041007;9475500">
 </HEAD>
 <BODY LANG="en-US" DIR="LTR">
 <H1>mmp file format (Alpha)</H1>
@@ -22,7 +22,11 @@ and <STRONG>bond</STRONG> records. The bonds must be back-references,
 i.e. if <EM>atom1</EM> and <EM>atom2</EM> are bonded, <EM>atom1</EM>
 will have no bond record, while <EM>atom2</EM> will have a record
 pointing back to <EM>atom1</EM>.</P>
-<P>MMP files begin with a <strong>csys</strong> record, followed by standard <strong>datum</strong> plane objects (RIGHT, FRONT and TOP), followed by the rest of the part. The final (optional) section of the MMP file can include cut/paste objects that are defined after the <strong>end1</strong> record. The intent of this section of the file is to support cut/paste when the user cuts a selection, then immediately saves the file. The final record in the MMP file is the <strong>end</strong> record. </P>
+<P>MMP files begin with a group containing a <strong>csys</strong>
+record, followed by standard <strong>datum</strong> plane objects
+(XY, YZ and XZ). Then is a group containing the rest of the
+part. This is followed by an <STRONG>end1</STRONG> record. The final
+section of the MMP file is a group that can include cut/paste objects. The intent of this section of the file is to support cut/paste when the user cuts a selection, then immediately saves the file. The final record in the MMP file is the <strong>end</strong> record. </P>
 <H2>Record types</H2>
 <P>Note parentheses and commas are required. Braces are metacomments.
 </P>
@@ -33,7 +37,7 @@ pointing back to <EM>atom1</EM>.</P>
 <P>Begins a new molecule. Applies to all atoms until the next <STRONG>mol</STRONG>
 record, where:</P>
 <UL>
-	<LI><P STYLE="margin-bottom: 0in"><STRONG><STRONG><EM>name</EM></STRONG>
+	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM><STRONG>name</STRONG></EM>
 	- </STRONG>name of the molecule that appears in the model tree 
 	</P>
 	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>mode</EM></STRONG> -
@@ -60,8 +64,8 @@ record, where:</P>
 <P>Creates a new atom, where: 
 </P>
 <UL>
-	<LI><P STYLE="margin-bottom: 0in"><EM><B>mode</B> &ndash; <SPAN STYLE="font-style: normal">the
-	display mode for the atom, same list as above</SPAN></EM></P>
+	<LI><P STYLE="margin-bottom: 0in"><EM><B>mode</B> &ndash; the
+	display mode for the atom, same list as above</EM></P>
 	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>n</EM></STRONG> - atom
 	number, a unique atom ID 
 	</P>
@@ -85,12 +89,13 @@ and <STRONG>bond4</STRONG> for <EM>double</EM>, <EM>triple</EM>, and
 <P><FONT SIZE=4><STRONG>waals </STRONG><EM>atom1 atom2 ... atom25 {up
 to 25}</EM></FONT></P>
 <P><FONT SIZE=4>I</FONT>ndicates van der Waals interaction to be
-simulated between indicated and last-defined atoms within the same molecule. (NB vdW
+simulated between indicated and last-defined atoms (NB vdW
 interactions are automatically simulated between atoms of different
-molecules). </P>
+molecules) 
+</P>
 <HR>
-<P><FONT SIZE=4><STRONG>ground </STRONG><EM>(name) (r, g, b) atom1 atom2 ...
-atom25 {up to 25}</EM></FONT> 
+<P><FONT SIZE=4><STRONG>ground </STRONG><EM>(name) (r, g, b) atom1
+atom2 ... atom25 {up to 25}</EM></FONT> 
 </P>
 <P>Creates a ground object in which atoms are anchored in space,
 where:</P>
@@ -98,10 +103,10 @@ where:</P>
 	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>name</EM></STRONG> -
 	name of the ground 
 	</P>
-	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>r, g, b</STRONG></EM>
+	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>r, g, b</EM></STRONG>
 	- red, green, and blue color components, between 0-255 (int) 
 	</P>
-	<LI><P><EM><STRONG>atoms</STRONG></EM> - atoms of mol that are
+	<LI><P><STRONG><EM>atoms</EM></STRONG> - atoms of mol that are
 	anchored in space 
 	</P>
 </UL>
@@ -118,13 +123,13 @@ stiffness (cx, cy, cz) (ax, ay, az)</EM> </FONT>
 	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>r, g, b</STRONG></EM>
 	- red, green, and blue color components, between 0-255 (int) 
 	</P>
-	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>force</EM></STRONG> -
+	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>force</STRONG></EM> -
 	force of motor in nN*nm (float) 
 	</P>
-	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>stiffness</STRONG></EM>
+	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>stiffness</EM></STRONG>
 	- stiffness of motor in N/m (float) 
 	</P>
-	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>cx, cy, cz</STRONG></EM>
+	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>cx, cy, cz</EM></STRONG>
 	- center of rotation (same format as atom positions) 
 	</P>
 	<LI><P><STRONG><EM>ax, xy, az</EM></STRONG> - axis of rotation (same
@@ -142,7 +147,7 @@ speed (cx, cy, cz) (ax, ay, az)</EM></FONT></P>
 <P>Creates a rotary motor, where: 
 </P>
 <UL>
-	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>name</EM></STRONG> -
+	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>name</STRONG></EM> -
 	name of the linear motor 
 	</P>
 	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>r, g, b</STRONG></EM>
@@ -154,7 +159,7 @@ speed (cx, cy, cz) (ax, ay, az)</EM></FONT></P>
 	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>speed</EM></STRONG> -
 	speed of motor in gHz (float) 
 	</P>
-	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>cx, cy, cz</STRONG></EM>
+	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>cx, cy, cz</EM></STRONG>
 	- center of rotation (same format as atom positions) 
 	</P>
 	<LI><P><STRONG><EM>ax, xy, az</EM></STRONG> - axis of rotation (same
@@ -170,7 +175,7 @@ must follow <STRONG>rmotor</STRONG> immediately)</P>
 <P><FONT SIZE=4><STRONG>kelvin </STRONG><EM>n</EM></FONT></P>
 <P>The temperature of the part, where:</P>
 <UL>
-	<LI><P><EM><STRONG>n</STRONG></EM> - the temperature in kelvins
+	<LI><P><STRONG><EM>n</EM></STRONG> - the temperature in kelvins
 	(int) 
 	</P>
 </UL>
@@ -192,21 +197,21 @@ for the part, where:</P>
 </UL>
 <P>There can only be one csys record per part (file).</P>
 <HR>
-<P><FONT SIZE=4><STRONG>datum</STRONG> <EM>(name) <font color="#FF0000">(r, g, b)</font> type (x1, y1, z1)
-(x2, y2, z2) (x3, y3, z3)</EM></FONT></P>
+<P><FONT SIZE=4><STRONG>datum</STRONG> <EM>(name) <EM><FONT SIZE=4>(r,
+g, b)
+</FONT></EM>type (x1, y1, z1) (x2, y2, z2) (x3, y3, z3)</EM></FONT></P>
 <P><EM>Creates a datum (point, line or plane) object, where:</EM></P>
 <UL>
-	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>name</STRONG></EM> -
-	the name of the datum object that appears in the model tree </P>    
-	<LI>
-    <P STYLE="margin-bottom: 0in"><EM><STRONG><font color="#FF0000">r, g, b</font></STRONG></EM><font color="#FF0000"> - red, green, and blue color components, between 0-255 (int) </font></P>    
+	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>name</EM></STRONG> -
+	the name of the datum object that appears in the model tree 
+	</P>
 	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>type - </STRONG></EM>one
 	of &quot;point&quot;, &quot;line&quot; or &quot;plane&quot; 
 	</P>
 	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>x1, y1, z1 &ndash;</EM></STRONG>
 	center point for object 
 	</P>
-	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>x2, y2, z2 &ndash;</STRONG></EM>
+	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>x2, y2, z2 &ndash;</EM></STRONG>
 	direction vector for line and normal for plane 
 	</P>
 	<LI><P><STRONG><EM>x3, y3, z3</EM></STRONG> &ndash; orientation
@@ -217,25 +222,28 @@ for the part, where:</P>
 <HR>
 <P><FONT SIZE=4><STRONG>group</STRONG> <EM>(name)</EM></FONT></P>
 <P><B><FONT SIZE=4>egroup</FONT></B> <I><FONT SIZE=4>(name)</FONT></I></P>
-<P>Creates/begins (<strong>group</strong>) and ends (<strong>egroup</strong>) a group object, where: 
+<P>Creates/begins (group) and ends (egroup) a group object, where: 
 </P>
 <UL>
-	<LI>
-	  <P STYLE="margin-bottom: 0in"><EM><STRONG>name</STRONG></EM> -
-	the group name (which appears in the model tree)</P>
+	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>name</STRONG></EM> -
+	the group name that appears in the model tree 
+	</P>
 </UL>
 <P STYLE="margin-bottom: 0in">These records enclose a list of other
 objects or groups. The names should match for checking purposes but
 do not have to be unique.</P>
 <HR>
-<P><FONT SIZE=4><STRONG>stat </STRONG><EM>(name) (r, g, b) temp atom1 atom2 ...
-atom25 {up to 25}</EM></FONT> 
+<P><FONT SIZE=4><STRONG>stat </STRONG><EM>(name) (r, g, b) temp atom1
+atom2 ... atom25 {up to 25}</EM></FONT> 
 </P>
 <P>Creates a thermostat jig that specifies the temperature of the
 listed atoms, where:</P>
 <UL>
-	<LI><P STYLE="margin-bottom: 0in"><STRONG><EM>name</EM></STRONG> -
+	<LI><P STYLE="margin-bottom: 0in"><EM><STRONG>name</STRONG></EM> -
 	name of the thermostat 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><STRONG>r, g, b</STRONG> - red,
+	green, and blue color components, between 0-255 (int) 
 	</P>
 	<LI><P STYLE="margin-bottom: 0in"><EM>t<B>emp</B> &ndash;
 	temperature the thermostat maintains, integer, in kelvins</EM> 
