@@ -284,6 +284,17 @@ class atom:
         else:
             numbonds = elt.numbonds
         return numbonds != len(self.bonds)
+
+    def overdraw_with_special_color(self, color, level = None):
+        "Draw this atom slightly larger than usual with the given special color and optional drawlevel."
+        #bruce 050324; meant for use in Fuse Chunks mode;
+        # also could perhaps speed up Extrude's singlet-coloring #e
+        if level == None:
+            level = self.molecule.assy.drawLevel
+        pos = self.posn() # note, unlike for draw_as_selatom, this is in main model coordinates
+        drawrad = self.selatom_radius() # slightly larger than normal drawing radius
+        drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
+        return
     
     def draw_as_selatom(self, glpane, dispdef, color, level):
         #bruce 041206, to avoid need for changeapp() when selatom changes
@@ -292,7 +303,7 @@ class atom:
             color = LEDon
         else:
             color = orange
-        pos = self.baseposn()
+        pos = self.baseposn() # note, this is for use in the mol's coordinate system
         drawrad = self.selatom_radius(dispdef)
         drawsphere(color, pos, drawrad, level) # always draw, regardless of disp
 
