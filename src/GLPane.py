@@ -564,17 +564,21 @@ class GLPane(QGLWidget, modeMixin):
         self.debug_event(event, 'wheelEvent')
         self.mode.Wheel(event)
         
-    def mousepoints(self,event):
-        """Returns a pair (tuple) of points (arrays) that lie under
-        the mouse pointer at (just beyond) the near clipping plane
-        and in the plane of the center of view.
+    def mousepoints(self, event, just_beyond = 0.0):
+        """Returns a pair (tuple) of points (Numeric arrays of x,y,z)
+        that lie under the mouse pointer at (or just beyond) the near clipping
+        plane and in the plane of the center of view. Optional argument
+        just_beyond = 0.0 tells how far beyond the near clipping plane
+        the first point should lie. Before 041214 this was 0.01.
         """
         x = event.pos().x()
         y = self.height - event.pos().y()
+        # bruce 041214 made just_beyond = 0.0 an optional argument,
+        # rather than a hardcoded 0.01 (but put 0.01 into most callers)
 
         #Trivial optimization, change the point of the next line from(x, y, 0.0) to (x, y, 0.01)
         #So we don't need the p1 calculation next to the return statment---Huaicai 10/18, 04
-        p1 = A(gluUnProject(x, y, 0.01))
+        p1 = A(gluUnProject(x, y, just_beyond))
         p2 = A(gluUnProject(x, y, 1.0))
 
         los = self.lineOfSight
@@ -582,7 +586,7 @@ class GLPane(QGLWidget, modeMixin):
         k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
 
         p2 = p1 + k*(p2-p1)
-        #p1 = A(gluUnProject(x, y, 0.01))
+        #p1 = A(gluUnProject(x, y, just_beyond))
         return (p1, p2)
 
     def SaveMouse(self, event):
@@ -625,7 +629,7 @@ class GLPane(QGLWidget, modeMixin):
         self.display = disp
         self.assy.w.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
         for mol in self.assy.molecules:
-            if mol.display == diDEFAULT: mol.changeapp()
+            if mol.display == diDEFAULT: mol.changeapp(1)
 
     def paintGL(self):
         """the main screen-drawing function.
@@ -692,6 +696,10 @@ class GLPane(QGLWidget, modeMixin):
         if aspect < 1.0:
              vdist /= aspect
 	glTranslatef(0.0, 0.0, - vdist)
+	# bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
+	# (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
+	# We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
+	# clipping planes, etc, like we do now for right, up, etc. ###e
 
         q = self.quat
         

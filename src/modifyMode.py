@@ -61,7 +61,6 @@ class modifyMode(basicMode):
         """
         self.o.SaveMouse(event)
         self.picking = True
-        p1, p2 = self.o.mousepoints(event)
         self.dragdist = 0.0
 
     def leftDrag(self, event):
@@ -87,14 +86,12 @@ class modifyMode(basicMode):
         if not self.picking: return
         self.picking = False
 
-        p1, p2 = self.o.mousepoints(event)
-
         if self.dragdist<7:
             # didn't move much, call it a click
             # Pick a part
-            if selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
-            if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
-            if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
+            if selSense == 0: self.o.assy.unpick_at_event(event)
+            if selSense == 1: self.o.assy.pick_at_event(event)
+            if selSense == 2: self.o.assy.onlypick_at_event(event)
             
             self.w.update()
      

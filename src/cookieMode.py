@@ -135,7 +135,7 @@ class cookieMode(basicMode):
         self.o.prevvec = None
         self.cookieQuat = Q(self.o.quat)
 
-        p1, p2 = self.o.mousepoints(event)
+        p1, p2 = self.o.mousepoints(event, 0.01)
         
         self.o.normal = self.o.lineOfSight
         self.sellist = [p1]
@@ -157,7 +157,7 @@ class cookieMode(basicMode):
         """
         if not self.picking: return
         if self.Rubber: return
-        p1, p2 = self.o.mousepoints(event)
+        p1, p2 = self.o.mousepoints(event, 0.01)
 
         self.sellist += [p1]
         self.o.backlist += [p2]
@@ -182,7 +182,7 @@ class cookieMode(basicMode):
     def EndDraw(self, event):
         """Close a selection curve and do the selection
         """
-        p1, p2 = self.o.mousepoints(event)
+        p1, p2 = self.o.mousepoints(event, 0.01)
 
         if self.pickLineLength/self.o.scale < 0.03:
             # didn't move much, call it a click
@@ -212,10 +212,13 @@ class cookieMode(basicMode):
         self.sellist += [self.sellist[0]]
         self.o.backlist += [p2]
         self.o.backlist += [self.o.backlist[0]]
+        # bruce 041213 comment: shape might already exist, from prior drags
         if not self.o.shape:
             self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight)
 
         # took out kill-all-previous-curves code -- Josh
+
+        # bruce 041213 comment: eyeball computed here is not presently used
         eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
         
         if self.selLassRect:
@@ -239,9 +242,9 @@ class cookieMode(basicMode):
         else:
             self.surfset(self.o.snap2trackball())
             
-    def bareMotion(self, e):
+    def bareMotion(self, event):
         if self.Rubber:
-            p1, p2 = self.o.mousepoints(e)
+            p1, p2 = self.o.mousepoints(event, 0.01)
             try: self.sellist[-1]=p1
             except: print self.sellist
             self.o.paintGL()

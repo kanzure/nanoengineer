@@ -89,6 +89,7 @@ class molecule(Node, InvalMixin):
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0 # note: havelist is not handled by InvalMixin
+        self.haveradii = 0 # ditto
         # default place to bond this molecule -- should be a singlet or None
         self.hotspot = None
                         
@@ -237,6 +238,7 @@ class molecule(Node, InvalMixin):
         (or this can be called once if many atoms are joining and/or leaving)
         """
         self.havelist = 0
+        self.haveradii = 0
         self.invalidate_attrs(['externs','atlist'])
             # (invalidating externs is needed if atom (when in mol) has bonds
             # going out (extern bonds), or inside it (would be extern if atom
@@ -249,6 +251,7 @@ class molecule(Node, InvalMixin):
         "debugging method"
         self.invalidate_all_bonds()
         self.havelist = 0
+        self.haveradii = 0
         attrs  = self.invalidatable_attrs()
         attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
@@ -361,6 +364,10 @@ class molecule(Node, InvalMixin):
 
     _inputs_for_singlets = ['atlist']
     def _recompute_singlets(self):
+        # (Filter always returns a python list, even if atlist is a Numeric.array
+        # [bruce 041207, by separate experiment]. Some callers test the boolean
+        # value we compute for self.singlets. Since the elements are pyobjs,
+        # this would probably work even if filter returned an array.)
         return filter( lambda atm: atm.element == Singlet, self.atlist )
 
     _inputs_for_singlpos = ['singlets','atpos']
@@ -419,6 +426,7 @@ class molecule(Node, InvalMixin):
         """
         # full inval:
         self.havelist = 0
+        self.haveradii = 0
         self.invalidate_attrs(['atlist','externs']) # invalidates everything, I think
         assert not self.valid_attrs(), "full_inval_and_update forgot to invalidate something: %r" % self.valid_attrs()
         # full update (but invals bonds):
@@ -428,6 +436,7 @@ class molecule(Node, InvalMixin):
         self.singlpos
         self.externs
         self.axis
+        self.get_sel_radii_squared()
         assert not self.invalid_attrs(), "full_inval_and_update forgot to update something: %r" % self.invalid_attrs()
         return
 
@@ -569,8 +578,6 @@ class molecule(Node, InvalMixin):
         self.invalidate_internal_bonds()
         self.changed_attr('basepos')
         self.havelist = 0
-            # (havelist is reset by invalled bonds, so this is redundant,
-            #  but it's deprecated to depend on that.)
     
     def invalidate_internal_bonds(self):
         self.invalidate_all_bonds() # easiest to just do this
@@ -658,12 +665,15 @@ class molecule(Node, InvalMixin):
           # (reset basepos, basecenter, and quat to usual values, etc)
         assert not self.__dict__.has_key('basepos')
 
-    def get_dispdef(self, glpane):
+    def get_dispdef(self, glpane = None):
         "reveal what dispdef we will use to draw this molecule"
         # copied out of molecule.draw by bruce 041109 for use in extrudeMode.py
         if self.display != diDEFAULT:
             disp = self.display
         else:
+            if not glpane:
+                # this possibility added by bruce 041207
+                glpane = self.assy.o
             disp = glpane.display
         return disp
 
@@ -747,11 +757,12 @@ class molecule(Node, InvalMixin):
             assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                 "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)
-            
+
+            # redraw selatom, if it's ours (over the same atom, drawn in the usual way)
+            # (this keeps it from affecting the display list, so depositMode.bareMotion
+            #  can change selatom without havelist=0, for a large speedup [bruce 041206])
             selatom = glpane.selatom
             if selatom and selatom.molecule == self:
-                # keep selatom out of the display list, to greatly speed up
-                # depositMode.bareMotion [bruce 041206]
                 try:
                     color = self._colorfunc(selatom)
                 except: # no such attr, or it's None, or it has a bug
@@ -1038,16 +1049,25 @@ class molecule(Node, InvalMixin):
         self.havelist = 0
 
     def setDisplay(self, disp):
+        "change the molecule's display mode"
         self.display = disp
         self.havelist = 0
+        self.haveradii = 0
         self.seticon()
         self.assy.modified = 1
         
-    def changeapp(self):
+    def changeapp(self, atoms):
         """call when you've changed appearance of the molecule
-        (but you don't need to call it if only the external bonds look different)
+        (but you don't need to call it if only the external bonds look different).
+        Arg atoms = 1 means that not only the entire mol appearance,
+        but specifically the set of atoms or atomic radii
+        (for purposes of selection), have changed.
         """ 
         self.havelist = 0
+        if atoms: #bruce 041207 added this arg and its effect
+            self.haveradii = 0 # invalidate self.sel_radii_squared
+            # (using self.invalidate_attr would be too slow)
+        return
         
     def getinfo(self):
         # Return information about the selected moledule for the msgbar [mark 2004-10-14]
@@ -1086,9 +1106,11 @@ class molecule(Node, InvalMixin):
         if not self.picked:
             Node.pick(self)
             self.assy.selmols.append(self)
-            # may have changed appearance of the molecule
-            self.havelist = 0
-
+            # bruce 041207 thinks self.havelist = 0 is no longer needed here,
+            # since self.draw uses self.picked outside of its display list,
+            # so I'm removing that! This might speed up some things.
+            ## self.havelist = 0
+            
             # print molecule info on the msgbar. - Mark [2004-10-14]
             self.assy.w.msgbarLabel.setText(self.getinfo())
 
@@ -1098,8 +1120,10 @@ class molecule(Node, InvalMixin):
         if self.picked:
             Node.unpick(self)
             if self in self.assy.selmols: self.assy.selmols.remove(self)
-            # may have changed appearance of the molecule
-            self.havelist = 0
+            # bruce 041207 thinks self.havelist = 0 is no longer needed here
+            # (see comment in self.pick).
+            ## self.havelist = 0
+            
             # self.assy.w.msgbarLabel.setText(" ")
 
     def kill(self):
@@ -1150,44 +1174,276 @@ class molecule(Node, InvalMixin):
             self.assy = None
         return # from molecule.kill
 
-    # point is some point on the line of sight
-    # matrix is a rotation matrix with z along the line of sight,
-    # positive z out of the plane
-    # return positive points only, sorted by distance
-    # [bruce 041104 observes that we return None or one atom, so the above
-    #  comment must be out of date]
-    def findatoms(self, point, matrix, radius, cutoff):
-        v = dot(self.curpos-point,matrix)
-        r = sqrt(v[:,0]**2 + v[:,1]**2)
-        i = argmax(v[:,2] - 100000.0*(r>radius))
-        if r[i]>radius: return None
-        if v[i,2]<cutoff: return None
-        return self.atlist[i]
+    # New method for finding atoms or singlets under mouse. Helps fix bug 235
+    # and many other bugs (mostly never reported). [bruce 041214]
+    # (We should use this in extrude, too! #e)
 
+    def findAtomUnderMouse( self, point, matrix, **kws):
+        """[Public method, but for a more convenient interface see its caller:]
+        For each visible atom or singlet (using current display modes and radii,
+        but not self.hidden), determine whether its front surface hits the given
+        line (encoded in point and matrix), within the optional near and far
+        cutoffs (clipping or water planes, parallel to screen) given in **kws.
+           Return a list of pairs (z, atom), where z is the z coordinate where
+        the line hits the atom's front surface (treating the surface as a sphere)
+        after transformation by matrix (closer atoms must have higher z);
+        this list always contains either 0 or 1 pair (but in the future we might
+        add options to let it contain more pairs).
+           Note that a line might hit an atom on the front and/or back of the
+        atom's surface (perhaps only on the back, if a cutoff occurs inside the
+        atom!). This implem never includes back-surface hits (though it would be
+        easy to add them), since the current drawing code doesn't draw them.
+        Someday this implem will be obsolete, replaced by OpenGL-based hit tests.
+        (Then atom hits will be obscured by bonds, as they should be, since they
+        are already visually obscured by them. #e)
+           We have a special kluge for selatom -- see the code. As of 041214,
+        it's checked twice, at both the radii it's drawn at.
+           We have no option to exclude singlets, since that would be wrong to
+        do for individual molecules (it would make them fail to obscure atoms in
+        other molecules for selection, even when they are drawn over them).
+        See our caller in assembly for that.
+        """
+        if not self.atoms:
+            return []
+        #e Someday also check self.bbox as a speedup -- but that might be slower
+        #  when there are only a few atoms.
+        atpos = self.atpos # a Numeric array; might be recomputed here
+        
+        # assume line of sight hits water surface (parallel to screen) at point
+        # (though the docstring doesn't mention this assumption since it is
+        #  probably not required as long as z direction == glpane.out);
+        # transform array of atom centers (xy parallel to water, z towards user).
+        v = dot( atpos - point, matrix)
+        
+        # compute xy distances-squared between line of sight and atom centers
+        r_xy_2 = v[:,0]**2 + v[:,1]**2
+        ## r_xy = sqrt(r_xy_2) # not needed
+        
+        # Select atoms which are hit by the line of sight (as array of indices).
+        # See comments in findAtomUnderMouse_Numeric_stuff for more details.
+        # (Optimize for the slowest case: lots of atoms, most fail lineofsight
+        # test, but a lot still pass it since we have a thick molecule; do
+        # "slab" test separately on smaller remaining set of atoms.)
 
-    # Methods for finding certain singlets:
+        # self.sel_radii_squared (not a real attribute, just the way we refer to
+        # the value of its get method, in comments like this one)
+        # is array over atoms of squares of radii to be
+        # used for selection (perhaps equal to display radii, or a bit larger)
+        # (using mol's and glpane's current display modes), or -1 for invisible
+        # atoms (whether directly diINVISIBLE or by inheriting that from the mol
+        # or glpane).
+        
+        # For atoms with more than one radius (currently just selatom),
+        # we patch this to include the largest radius, then tell
+        # the subroutine how to also notice the smaller radii. (This avoids
+        # flicker of selatom when only its larger radius hits near clipping plane.)
+        # (This won't be needed once we switch to OpenGL-based hit detection. #e)
+        
+        radii_2 = self.get_sel_radii_squared() # might be recomputed now
+        assert len(radii_2) == len(self.atoms)
+        selatom = self.assy.o.selatom
+        unpatched_seli_radius2 = None
+        if selatom and selatom.molecule == self:
+            # need to patch for selatom, and warn subr of its smaller radii too
+            seli = selatom.index
+            unpatched_seli_radius2 = radii_2[seli]
+            radii_2[seli] = selatom.selatom_radius() ** 2
+            # (note: selatom is drawn even if "invisible")
+            if unpatched_seli_radius2 > 0.0:
+                kws['alt_radii'] = [(seli, unpatched_seli_radius2)]
+        try:
+            # note: kws here might include alt_radii as produced above
+            res = self.findAtomUnderMouse_Numeric_stuff( v, r_xy_2, radii_2, **kws)
+        except:
+            print_compact_traceback("bug in findAtomUnderMouse_Numeric_stuff: ")
+            res = []
+        if unpatched_seli_radius2 != None:
+            radii_2[seli] = unpatched_seli_radius2
+        return res # from findAtomUnderMouse
+
+    def findAtomUnderMouse_Numeric_stuff(self, v, r_xy_2, radii_2, \
+                    far_cutoff = None, near_cutoff = None, alt_radii = [] ):
+        "private helper routine for findAtomUnderMouse"
+        ## removed support for backs_ok, since atom backs are not drawn
+        from Numeric import take, nonzero, compress # and more...
+        p1 = (r_xy_2 <= radii_2) # indices of candidate atoms
+        if not p1:
+            # no atoms hit by line of sight (common when several mols shown)
+            return []
+        p1inds = nonzero(p1) # indices of the nonzero elements of p1
+        # note: now compress(p1, arr, dim) == take(arr, p1inds, dim)
+        vp1 = take( v, p1inds, 0) # transformed positions of atoms hit by line of sight
+        vp1z = vp1[:,2] # depths (above water = positive) of atoms in p1
+        
+        # i guess i'll do fewer steps -- no slab test until i get actual hit depths.
+        # this is suboptimal if the slab test becomes a good one (likely, in the future).
+        
+        # atom half-thicknesses at places they're hit
+        r_xy_2_p1 = take( r_xy_2, p1inds)
+        radii_2_p1 = take( radii_2, p1inds)
+        thicks_p1 = sqrt( radii_2_p1 - r_xy_2_p1 )
+        # now front surfaces are at vp1z + thicks_p1, backs at vp1z - thicks_p1
+
+        fronts = vp1z + thicks_p1 # arbitrary order (same as vp1)
+        ## if backs_ok: backs = vp1z - thicks_p1
+
+        # Note that due to varying radii, the sort orders of atom centers,
+        # front surface hits, and back surface hits might all be different.
+        # We want the closest hit (front or back) that's not too close
+        # (or too far, but we can ignore that until we find the closest one);
+        # so in terms of distance from the near_cutoff, we want the smallest one
+        # that's still positive, from either array. Since one or both arrays might
+        # have no positive elements, it's easiest to just form a list of candidates.
+        # This helps handle our selatom kluge (i.e our alt_radii option) too.
+
+        pairs = [] # list of 0 to 2 (z, mainindex) pairs which pass near_cutoff
+
+        if near_cutoff != None:
+            # returned index will be None if there was no positive elt; checked below
+            closest_front_p1i = index_of_smallest_positive_elt(near_cutoff - fronts)
+            ## if backs_ok: closest_back_p1i = index_of_smallest_positive_elt(near_cutoff - backs)
+        else:
+            closest_front_p1i = index_of_largest_elt(fronts)
+            ## if backs_ok: closest_back_p1i = index_of_largest_elt(backs)
+
+##        if not backs_ok:
+##            closest_back_p1i = None
+        
+        if closest_front_p1i != None:
+            pairs.append( (fronts[closest_front_p1i], p1inds[closest_front_p1i] ) )
+##        if closest_back_p1i != None:
+##            pairs.append( (backs[closest_back_p1i], closest_back_p1i) )
+
+        # add selatom if necessary:
+        # add in alt_radii (at most one; ok to assume that for now if we have to)
+        # (ignore if not near_cutoff, since larger radii obscure smaller ones)
+        if alt_radii and near_cutoff:
+            for ind, rad2 in alt_radii:
+                if p1[ind]:
+                    # big radius was hit, need to worry about smaller ones
+                    # redo above Numeric steps, just for this atom
+                    r_xy_2_0 = r_xy_2[ind]
+                    radii_2_0 = rad2
+                    if r_xy_2_0 <= radii_2_0:
+                        thick_0 = sqrt( radii_2_0 - r_xy_2_0 )
+                        zz = v[ind][2] + thick_0
+                        if zz < near_cutoff:
+                            pairs.append( (zz,ind) )
+        
+        if not pairs:
+            return []
+        pairs.sort() # the one we want is at the end (highest z == closest)
+        (closest_z, closest_z_ind) = pairs[-1]
+        
+        # We've narrowed it down to a single candidate, which passes near_cutoff!
+        # Does it pass far_cutoff?
+        if far_cutoff != None:
+            if closest_z < far_cutoff:
+                return []
+
+        atm = self.atlist[ closest_z_ind ]
+        
+        return [(closest_z, atm)] # from findAtomUnderMouse_Numeric_stuff
+
+    # self.sel_radii_squared is not a real attribute, since invalling it
+    # would be too slow. Instead we have these methods:
     
-    # [note: as of bruce 041111, self.singlets is still memoized,
-    # but self.singlpos is recomputed as needed. This should be
-    # ok since these functions are not used in ways that need to
-    # be fast. Maintaining self.singlpos is not worth the trouble.
-    # I might decide to memoize self.singlpos, but not to incrementally
-    # maintain it when atoms or the whole mol is moved, as was done before.]
+    def get_sel_radii_squared(self):
+        if not self.haveradii:
+            try:
+                res = self.compute_sel_radii_squared()
+            except:
+                print "bug in %r.compute_sel_radii_squared(), using []"
+                res = []
+            self.sel_radii_squared_private = res
+            self.haveradii = 1
+        return self.sel_radii_squared_private
+    
+    def compute_sel_radii_squared(self):
+        lis = map( lambda atm: atm.selradius_squared(), self.atlist )
+        if not lis:
+            return lis
+        else:
+            return A( lis )
+        pass
+
+    # Old methods for finding certain atoms or singlets
+    
+    # [bruce 041207 comment: these ought to be unified, and perhaps bugfixed.
+    #  To help with this, I'm adding comments, listing their callers,
+    #  and removing the ones with no callers.
+    #  See also some relevant code used in extrudeMode.py,
+    #  actually findHandles_exact in handles.py,
+    #  which will be useful for postprocessing lists of atoms
+    #  found by code like the following.
+    # ]
 
     # point is some point on the line of sight
     # matrix is a rotation matrix with z along the line of sight,
     # positive z out of the plane
     # return positive points only, sorted by distance
-    def findSinglets(self, point, matrix, radius, cutoff):
-        if not self.singlets: return None
-        v = dot(self.singlpos-point,matrix)
-        r = sqrt(v[:,0]**2 + v[:,1]**2)
-        i = argmax(v[:,2] - 100000.0*(r>radius))
-        if r[i]>radius: return None
-        if v[i,2]<cutoff: return None
-        return self.singlets[i]
+    
+    # [bruce 041104 observes that we return None or one atom, so the above
+    #  comment must be out of date, and the method is also misnamed.]
+    
+    # [bruce 041207 comments: this is only called from depositMode.bareMotion.
+    #  It ignores issues of invisible mols or atoms, relevant to bug 229,
+    #  but that's ok since these are best addressed by scanning a list of
+    #  candidate atoms. It uses a fixed radius for efficiency; that too can be
+    #  fixed by postscanning (extrude has example code for this).
+    #  It assumes curpos is up-to-date -- I should make it use atpos instead.
+    #  Worst, it only returns one atom, making sensiuble post-scans impossible.
+    #  For this reason, it's deprecated.
+    # ]
+##    def findatoms(self, point, matrix, radius, cutoff):
+##        """Using point and matrix (see above comment, and sole caller)
+##        to define a "z out-of-screen direction" and a "water xy plane",
+##        and assuming a line of sight going through point,
+##        find the atoms (including singlets) which are within the given fixed
+##        radius of the line of sight, and above the water (shifted by cutoff,
+##        positive = closer); return the closest-to-user such atom, or None
+##        if there are no such atoms in this chunk.
+##           Assumes self.curpos is up to date without checking.
+##        Ignores issues of invisible chunk (self) or atoms.
+##        Ignores actual atom display mode or display radius (thus deprecated
+##         by bruce 041207).
+##        """
+##        # docstring and all comments by bruce 041207:
+##        v = dot(self.curpos-point,matrix)
+##        r = sqrt(v[:,0]**2 + v[:,1]**2) # xy distance, used only as a cutoff
+##        i = argmax(v[:,2] - 100000.0*(r>radius))
+##            # assumes model depth < 100000.0
+##            # "max" means it favors points closer to user, since z in mat is out
+##        # i is index of closest atom within radius of lineofsight, if any
+##        if r[i]>radius: return None # this might assume len(curpos) > 0
+##        if v[i,2]<cutoff: return None
+##        return self.atlist[i]
+
+## bruce 041207 is commenting out the ones that are not currently used
+
+##    # [note: as of bruce 041111, self.singlets is still memoized,
+##    # but self.singlpos is recomputed as needed. This should be
+##    # ok since these functions are not used in ways that need to
+##    # be fast. Maintaining self.singlpos is not worth the trouble.
+##    # I might decide to memoize self.singlpos, but not to incrementally
+##    # maintain it when atoms or the whole mol is moved, as was done before.]
+##
+##    # point is some point on the line of sight
+##    # matrix is a rotation matrix with z along the line of sight,
+##    # positive z out of the plane
+##    # return positive points only, sorted by distance
+##    def findSinglets(self, point, matrix, radius, cutoff):
+##        if not self.singlets: return None
+##        v = dot(self.singlpos-point,matrix)
+##        r = sqrt(v[:,0]**2 + v[:,1]**2)
+##        i = argmax(v[:,2] - 100000.0*(r>radius))
+##        if r[i]>radius: return None
+##        if v[i,2]<cutoff: return None
+##        return self.singlets[i]
 
     # Same, but return all that match
+    # bruce 041207 comment: this is only used in depositMode.modifyHydrogenate,
+    # and that's likely to be revised soon.
     def findAllSinglets(self, point, matrix, radius, cutoff):
         if not self.singlets: return []
         v = dot(self.singlpos-point,matrix)
@@ -1199,6 +1455,7 @@ class molecule(Node, InvalMixin):
 
     # return the singlets in the given sphere (point, radius),
     # sorted by increasing distance from point
+    # bruce 041207 comment: this is only used in depositMode.attach.
     def nearSinglets(self, point, radius):
         if not self.singlets: return []
         v = self.singlpos-point
@@ -1207,6 +1464,7 @@ class molecule(Node, InvalMixin):
         i=argsort(compress(p,r))
         return take(compress(p,self.singlets),i)
 
+    
     def update_curpos(self):
         "private method: make sure self.curpos includes all atoms"
         self.atpos # recompute atpos if necessary, to update curpos
@@ -1358,12 +1616,10 @@ class molecule(Node, InvalMixin):
                 # since even if we did this before moving atm,
                 # the other atom might be moved by now).
         self.atoms.update(mol.atoms)
-        self.invalidate_attrs(['atlist','externs'])
-        self.havelist = 0
+        self.invalidate_atom_lists()
         # be safe, since we just stole all mol's atoms:
         mol.atoms = {}
-        mol.invalidate_attrs(['atlist','externs'])
-        mol.havelist = 0
+        mol.invalidate_atom_lists()
         mol.kill()
         return # from merge
 
@@ -1580,6 +1836,19 @@ def mol_copy_name(name): # bruce 041124
         # name must look like xxx-copy<n>
         name = "-copy".join(parts[:-1]) # this is the xxx part
     return gensym(name + "-copy") # we assume this adds a number to the end
+
+# Numeric.array utilities [bruce 041207/041213]
+
+def index_of_smallest_positive_elt(arr, retval_if_none = None):
+    # use same kluge value as findatoms (an assumption of max model depth)
+    res = argmax( - arr - 100000.0*(arr < 0) )
+    if arr[res] > 0.0:
+        return res
+    else:
+        return retval_if_none
+
+def index_of_largest_elt(arr):
+    return argmax(arr) #e inline it?
 
 # == debug code
 

@@ -1092,7 +1092,7 @@ class extrudeMode(basicMode):
             # change singlet color dict(??) for i1,i2 in ..., proc(i1, col1), proc(i2,col2)...
             self.singlet_color = {}
             for mol in self.molcopies:
-                mol.changeapp()
+                mol.changeapp(0)
                 ##e if color should vary with bond closeness, we'd need changeapp for every offset change;
                 # then for speed, we'd want to repeatedly draw one mol, not copies like now
                 # (maybe we'd like to do that anyway).
@@ -1139,7 +1139,7 @@ class extrudeMode(basicMode):
         for mol in self.molcopies:
             try:
                 del mol._colorfunc
-                mol.changeapp()
+                mol.changeapp(0)
             except:
                 pass
         self.finalize_product() # ... and emit status message about it
@@ -1354,7 +1354,7 @@ class extrudeMode(basicMode):
             # [bruce 041019]
 ##            self.status_msg("(click or drag not yet implemented for product type %r; sorry)" % self.product_type)
 ##            return None
-        p1, p2 = self.o.mousepoints(event) # (no side effect. p1 is just beyond near clipping plane; p2 in center of view plane)
+        p1, p2 = self.o.mousepoints(event) # (no side effect. p1 is just at near clipping plane; p2 in center of view plane)
         ##print "touchedthing for p1 = %r, p2 = %r" % (p1,p2)
         res = [] # (dist, handle) pairs, arb. order, but only the frontmost one from each handleset
         if self.show_bond_offsets:

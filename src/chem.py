@@ -372,6 +372,12 @@ class atom:
             # The position being stored in the atom implies it's never been used
             # in the molecule (in curpos or atpos or anything derived from them),
             # so we don't need to invalidate anything in the molecule.
+            # [bruce 041207 wonders: not even self.molecule.havelist = 0??
+            #  I guess so, since mol.draw recomputes basepos, but not sure.
+            #  But I also see no harm in doing it, and it was being done by
+            #  deprecated code in setup_invalidate below, so I think I'll do it
+            #  just to be safe.]
+            self.molecule.havelist = 0
         else:
             # the position is stored in the molecule, so let it figure out the
             # proper way of adjusting it -- this also does the necessary invals.
@@ -442,23 +448,33 @@ class atom:
     def draw_as_selatom(self, glpane, dispdef, color, level):
         #bruce 041206, to avoid need for changeapp() when selatom changes
         # (fyi, as of 041206 the color arg is not used)
-        pos = self.baseposn()
-        disp, drawrad = self.howdraw(dispdef)
         if self.element == Singlet:
             color = LEDon
+        else:
+            color = orange
+        pos = self.baseposn()
+        drawrad = self.selatom_radius(dispdef)
+        drawsphere(color, pos, drawrad, level) # always draw, regardless of disp
+
+    def selatom_radius(self, dispdef = None): #bruce 041207, should integrate with draw_as_selatom
+        if dispdef == None:
+            dispdef = self.molecule.get_dispdef()
+        disp, drawrad = self.howdraw(dispdef)
+        if self.element == Singlet:
             drawrad *= 1.02
                 # increased radius might not be needed, if we would modify the
                 # OpenGL depth threshhold criterion used by GL_DEPTH_TEST
                 # to overwrite when depths are equal [bruce 041206]
         else:
-            color = orange
             if disp == diTUBES:
                 drawrad *= 1.7
-        drawsphere(color, pos, drawrad, level) # always draw, regardless of disp
-
+            else:
+                drawrad *= 1.02
+        return drawrad
+        
     def setDisplay(self, disp):
         self.display = disp
-        self.molecule.changeapp()
+        self.molecule.changeapp(1)
         self.molecule.assy.modified = 1 # bruce 041206 bugfix (unreported bug)
         # bruce 041109 comment:
         # atom.setDisplay changes appearance of this atom's bonds,
@@ -470,7 +486,8 @@ class atom:
 
     def howdraw(self, dispdef):
         """Tell how to draw the atom depending on its display mode (possibly
-        inherited from dispdef). An atom's display mode overrides the inherited
+        inherited from dispdef, usually the molecule's effective dispdef).
+        An atom's display mode overrides the inherited
         one from the molecule or glpane, but a molecule's color overrides the
         atom's element-dependent one (color is handled in atom.draw, not here,
         so this is just FYI).
@@ -497,6 +514,49 @@ class atom:
         if disp != diVDW: rad=rad*CPKvdW
         if disp == diTUBES: rad = TubeRadius * 1.1 #bruce 041206 added "* 1.1"
         return (disp, rad)
+
+    def selradius_squared(self):
+        """Return square of desired "selection radius",
+        or -1.0 if atom should not be selectable (e.g. invisible).
+        This might depend on whether atom is selected (and that
+        might even override the effect of invisibility); in fact
+        this is the case for this initial implem.
+        It also depends on the current display mode of
+        self, its mol, and its glpane.
+        Ignore self.molecule.hidden and whether self == selatom.
+        Note: self.visible() should agree with self.selradius_squared() >= 0.0.
+        """
+        #bruce 041207. Invals for this are subset of those for changeapp/havelist.
+        disp, rad = self.howdraw( self.molecule.get_dispdef() )
+        if disp == diINVISIBLE and not self.picked:
+            return -1.0
+        else:
+            return rad ** 2
+
+    def visible(self, dispdef = None): #bruce 041214
+        """Say whether this atom is currently visible, for purposes of selection.
+        Note that this depends on self.picked, and display modes of self, its
+        chunk, and its glpane, unless you pass disp (for speed) which is treated
+        as the chunk's (defined or inherited) display mode.
+        Ignore self.molecule.hidden and whether self == selatom.
+        Return a correct value for singlets even though no callers [as of 041214]
+        would care what we returned for them.
+        Note: self.visible() should agree with self.selradius_squared() >= 0.0.
+        """
+        if self.picked:
+            return True # even for invisible atoms
+        if self.element == Singlet:
+            disp = self.bonds[0].other(self).display
+        else:
+            disp = self.display
+        if disp == diDEFAULT: # usual case; use dispdef
+            # (note that singlets are assumed to reside in same chunks as their
+            # real neighbor atoms, so the same dispdef is valid for them)
+            if dispdef == None:
+                disp = self.molecule.get_dispdef()
+            else:
+                disp = dispdef
+        return not (disp == diINVISIBLE)
 
     def writemmp(self, atnums, alist, f):
         atnums['NUM'] += 1
@@ -568,8 +628,8 @@ class atom:
                             filler, filler))
 
 
-    def checkpick(self, p1, v1, disp, r=None, iPic=None): # called only in one place, from assy.findpick ###@@@ bruce 041206
-        """Selection function for atoms:
+    def checkpick(self, p1, v1, disp, r=None, iPic=None):
+        """Selection function for atoms: [Deprecated! bruce 041214]
         Check if the line through point p1 in direction v1 goes through the
         atom (treated as a sphere with the same radius it would be drawn with,
         which might depend on disp, or with the passed-in radius r if that's
@@ -579,11 +639,13 @@ class atom:
         (which might be 0.0, which is false!), or None if that distance is < 0.
         """
         #bruce 041206 revised docstring to match code
+        #bruce 041207 comment: the only call of checkpick is from assy.findpick
         if self.element == Singlet: return None
         if not r:
             disp, r = self.howdraw(disp)
-        ## if disp == diINVISIBLE: return None #bruce 041206 ###@@@ review callers to see if needed/wanted
-        if self.picked and not iPic: return None
+        # bruce 041214:
+        # this is surely bad in only remaining use (depositMode.getCoords):
+        ## if self.picked and not iPic: return None 
         dist, wid = orthodist(p1, v1, self.posn())
         if wid > r: return None
         if dist<0: return None
@@ -605,7 +667,7 @@ class atom:
         if not self.picked:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
-            self.molecule.changeapp()
+            self.molecule.changeapp(1)
             # Print information about the selected atom in the msgbar
             # [mark 2004-10-14] [bruce 041104: needs revision, but ok for now]
             self.molecule.assy.w.msgbarLabel.setText(self.getinfo())
@@ -614,11 +676,14 @@ class atom:
         """make the atom unselected
         """
         # note: this is inlined into assembly.unpickatoms
-        if self.element == Singlet: return
+        # bruce 041214: should never be picked, so Singlet test is not needed,
+        # and besides if it ever *does* get picked (due to a bug) you should let
+        # the user unpick it!
+        ## if self.element == Singlet: return 
         if self.picked:
             self.picked = 0
             del self.molecule.assy.selatoms[self.key]
-            self.molecule.changeapp()
+            self.molecule.changeapp(1)
             #self.molecule.assy.w.msgbarLabel.setText(" ")
 
     def copy_for_mol_copy(self, numol):
@@ -753,7 +818,7 @@ class atom:
         self.element = elt
         for b in self.bonds:
             b.setup_invalidate()
-        self.molecule.changeapp()
+        self.molecule.changeapp(1)
         # no need to invalidate shakedown-related things, I think [bruce 041112]
 
     def invalidate_bonds(self): # also often inlined
@@ -1130,22 +1195,15 @@ class Bond:
         else:
             # assume other attrs are also there
             del self.c2, self.center, self.a1pos, self.a2pos, self.toolong
-        # for internal bonds, or bonds that used to be internal
-        # (which we can't detect, so this means for *all* bonds),
-        # also reset mol.havelist (for each affected mol).
-        #e (This might not be needed if all callers remember to do this,
-        # as they should have. And it might cause unnecessary redrawing of
-        # display lists, if callers know better than we do when to do it.
-        # So we should make all callers do it when needed, and not do it here.
-        # ###e optimize by doing that... NEW CALLERS: DON'T ASSUME WE INVAL HAVELISTS HERE)
-
-        # (These mols might sometimes be _nullMol but should never be None:)
-        self.atom1.molecule.havelist = 0 
-        self.atom2.molecule.havelist = 0
-        ###e should be removed if we have time; see comment above and all callers;
-        # but more likely I'll just decide to not bother invalling bonds at all
-        # (but then, certainly, i have to ensure callers do their own havelist=0)
-        # ###@@@ bruce 041118
+        # For internal bonds, or bonds that used to be internal,
+        # callers need to have reset havelist of affected mols,
+        # but the changes in atoms that required them to call setup_invalidate
+        # mean they should have done that anyway (except for bond making and
+        # breaking, in this file, which does this in invalidate_bonded_mols).
+        # Bruce 041207 scanned all callers and concluded they do this as needed,
+        # so I'm removing the explicit resets of havelist here, which were often
+        # more than needed since they hit both mols of external bonds.
+        # This change might speed up some redraws, esp. in move or deposit modes.
         return
 
     def __setup_update(self):

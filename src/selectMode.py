@@ -44,7 +44,7 @@ class selectMode(basicMode):
         self.o.SaveMouse(event)
         self.o.prevvec = None
 
-        p1, p2 = self.o.mousepoints(event)
+        p1, p2 = self.o.mousepoints(event, 0.01)
         self.o.normal = self.o.lineOfSight
         self.sellist = [p1]
         self.o.backlist = [p2]
@@ -66,7 +66,7 @@ class selectMode(basicMode):
         """
         if not self.picking: return
         self.selSense = sense
-        p1, p2 = self.o.mousepoints(event)
+        p1, p2 = self.o.mousepoints(event, 0.01)
 
         self.sellist += [p1]
         self.o.backlist += [p2]
@@ -93,13 +93,13 @@ class selectMode(basicMode):
         if not self.picking: return
         self.picking = False
 
-        p1, p2 = self.o.mousepoints(event)
+        p1, p2 = self.o.mousepoints(event, 0.01)
 
         if self.pickLineLength/self.o.scale < 0.03:
             # didn't move much, call it a click
-            if selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
-            if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
-            if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
+            if selSense == 0: self.o.assy.unpick_at_event(event)
+            if selSense == 1: self.o.assy.pick_at_event(event)
+            if selSense == 2: self.o.assy.onlypick_at_event(event)
             self.w.update()
             return
 
@@ -108,8 +108,7 @@ class selectMode(basicMode):
         self.o.backlist += [p2]
         self.o.backlist += [self.o.backlist[0]]
         self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight)
-        eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
-        
+        eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov        
         if self.selLassRect:
             self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,
                              eye=(not self.o.ortho) and eyeball)
@@ -119,8 +118,10 @@ class selectMode(basicMode):
         
         self.o.shape.select(self.o.assy)
         self.o.shape = None
-
+        
         self.sellist = []
+            # (for debug, it's sometimes useful to not reset sellist here,
+            #  so you can see it at the same time as the selection it caused.)
 
         self.w.update()
 

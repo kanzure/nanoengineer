@@ -244,6 +244,23 @@ class depositMode(basicMode):
         """ Retrieve the object coordinates of the point on the screen
 	with window coordinates(int x, int y) 
 	"""
+        # bruce 041207 comment: only called for depositMode leftDown in empty
+        # space, to decide where to place a newly deposited chunk.
+        # So it's a bit weird that it calls findpick at all!
+        # In fact, the caller has already called a similar method indirectly
+        # via bareMotion on the same event. BUT, that search for atoms might
+        # have used a smaller radius than we do here, so this call of findpick
+        # might sometimes cause the depth of a new chunk to be the same as an
+        # existing atom instead of at the water surface. So I will leave it
+        # alone for now, until I have a chance to review it with Josh [bug 269].
+        # bruce 041214: it turns out it's intended, but only for atoms nearer
+        # than the water! Awaiting another reply from Josh for details.
+        # Until then, no changes and no reviews/bugfixes (eg for invisibles).
+        # BTW this is now the only remaining call of findpick.
+        # Best guess: this should ignore invisibles and be limited by water
+        # and near clipping; but still use 2.0 radius. ###@@@
+
+        # bruce 041214 comment: this looks like an inlined mousepoints...
         x = event.pos().x()
         y = self.o.height - event.pos().y()
 
@@ -255,34 +272,28 @@ class depositMode(basicMode):
         k = (dot(self.o.lineOfSight,  pnt - p1) /
              dot(self.o.lineOfSight, p2 - p1))
 
-        return p1+k*(p2-p1)
+        return p1+k*(p2-p1) # always return a point on the line from p1 to p2
 
-    def bareMotion(self, event, singOnly=False):
+    def bareMotion(self, event, singOnly = False):
+        "keep selatom up-to-date, as atom under mouse"
         # bruce 041206 optimized redisplay (for some graphics chips)
         # by keeping selatom out of its chunk's display list,
         # so no changeapp is needed when selatom changes.
+        # bruce 041213 fixed several bugs using new findAtomUnderMouse,
+        # including an unreported one for atoms right at the eyeball position.
+        
         oldselatom = self.o.selatom
-        self.o.selatom = None
-        p1, p2 = self.o.mousepoints(event)
-        z = norm(p1-p2)
-        x = cross(self.o.up,z)
-        y = cross(z,x)
-        mat = transpose(V(x,y,z))
-        for mol in self.o.assy.molecules:
-            if not mol.hidden:
-                a = mol.findatoms(p2, mat, TubeRadius, -TubeRadius)
-                # can't use findSinglets
-                if a and (a.element==Singlet or not singOnly):
-                    self.o.selatom = a
-                    break
+        # warning: don't change self.o.selatom yet, since findAtomUnderMouse uses
+        # its current value to support hysteresis for its selection radius.
+        atm = self.o.assy.findAtomUnderMouse(event, water_cutoff = True, singlet_ok = True)
+        assert oldselatom == self.o.selatom
+        if atm and (atm.element==Singlet or not singOnly):
+            pass # we'll use this atm as the new selatom
+        else:
+            atm = None
+        self.o.selatom = atm
         if self.o.selatom != oldselatom:
-##            if oldselatom:
-##                oldselatom.molecule.changeapp()
-##            if self.o.selatom:
-##                self.o.selatom.molecule.changeapp()
-            ## I removed this for fear it will overwrite something more important:
-            ## self.w.msgbarLabel.setText("highlighting %r" % self.o.selatom)
-            ## #e improve this text
+            ## self.w.msgbarLabel.setText("%r" % (atm,)) # might obscure other messages?? not sure.
             self.o.paintGL() # draws selatom too, since its chunk is not hidden
 
     def posn_str(self, atm): #bruce 041123
@@ -295,7 +306,24 @@ class depositMode(basicMode):
         except AttributeError:
             x,y,z = atm # kluge to accept either arg type
         return "(%.2f, %.2f, %.2f)" % (x,y,z)
-    
+
+    def ensure_visible(self, chunk, status):
+        """if chunk is not visible now, make it visible by changing its
+        display mode, and append a warning about this to the given status message
+        """
+        # By bruce 041207, to fix bug 229 part B (as called in comment #2),
+        # by making each deposited chunk visible if it otherwise would not be.
+        # Note that the chunk is now (usually?) the entire newly deposited thing,
+        # but after future planned changes to the code, it might instead be a
+        # preexisting chunk which was extended. Either way, we'll make the
+        # entire chunk visible if it's not.
+        if chunk and chunk.get_dispdef(self.o) == diINVISIBLE:
+            chunk.setDisplay(diTUBES) # Build mode's own default display mode
+            status += " (warning: gave it Tubes display mode)"
+        elif platform.atom_debug:
+            pass ## status += " (atom_debug: already visible)"
+        return status
+        
     def leftDown(self, event):
         """If there's nothing nearby, deposit a new atom.
         If cursor is on a singlet, deposit an atom bonded to it.
@@ -308,14 +336,15 @@ class depositMode(basicMode):
         self.modified = 1
         self.o.assy.modified = 1
         if a: # if something was "lit up"
+            self.w.msgbarLabel.setText("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element == Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
                 if self.w.pasteP:
                     # user wants to paste something
                     if self.pastable:
-                        thing, desc = self.pasteBond(a)
-                        if thing:
-                            status = "replaced open bond on %r with %s (%s)" % (a0, thing.name, desc)
+                        chunk, desc = self.pasteBond(a)
+                        if chunk:
+                            status = "replaced open bond on %r with %s (%s)" % (a0, chunk.name, desc)
                         else:
                             status = desc
                             # bruce 041123 added status message, to fix bug 163,
@@ -324,16 +353,20 @@ class depositMode(basicMode):
                     else:
                         # do nothing
                         status = "nothing selected to paste" #k correct??
+                        chunk = None #bruce 041207
                 else:
                     # user wants to create an atom of element el
                     a1, desc = self.attach(el, a)
                     if a1 != None:
                         status = "replaced open bond on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
+                        chunk = a1.molecule #bruce 041207
                     else:
                         status = desc
+                        chunk = None #bruce 041207
                     del a1, desc
                 self.o.selatom = None
                 self.dragmol = None
+                status = self.ensure_visible(chunk, status) #bruce 041207
                 self.w.msgbarLabel.setText(status)
                 self.w.update()
                 return # don't move a newly bonded atom
@@ -379,16 +412,21 @@ class depositMode(basicMode):
             atomPos = self.getCoords(event)
             if self.w.pasteP:
                 if self.pastable:
-                    thing, desc = self.pasteFree(atomPos)
+                    chunk, desc = self.pasteFree(atomPos)
                     self.dragmol = None
-                    status = "pasted %s (%s) at %s" % (thing.name, desc, self.posn_str(atomPos))
+                    status = "pasted %s (%s) at %s" % (chunk.name, desc, self.posn_str(atomPos))
                 else:
                     # do nothing
                     status = "nothing selected to paste" #k correct??
+                    chunk = None #bruce 041207
             else:
                 self.o.selatom = oneUnbonded(el, self.o.assy, atomPos)
                 self.dragmol = self.o.selatom.molecule
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
+                chunk = self.o.selatom.molecule #bruce 041207
+            # now fix bug 229 part B (as called in comment #2),
+            # by making this new chunk visible if it otherwise would not be
+            status = self.ensure_visible(chunk, status) #bruce 041207
             self.w.msgbarLabel.setText(status)
             # fall thru
         # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
@@ -471,6 +509,7 @@ class depositMode(basicMode):
         a = self.o.selatom
         if not a: return
         # now, if something was "lit up"
+        self.w.msgbarLabel.setText("%r" % a) #bruce 041208 to zap leftover msgs
         self.modified = 1
         self.o.assy.modified = 1
         if a.element == Singlet:
@@ -545,7 +584,7 @@ class depositMode(basicMode):
             quat = Q(a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
-        self.bareMotion(event, True) # indicate singlets we might bond to
+        self.bareMotion(event, singOnly = True) # indicate singlets we might bond to
             #bruce 041130 asks: is it correct to do that when a is real?
         if a.element == Singlet:
             self.line = [a.posn(), px]
@@ -566,7 +605,7 @@ class depositMode(basicMode):
         if not self.dragatom: return
         self.baggage = []
         self.line = None
-        self.bareMotion(event, True)
+        self.bareMotion(event, singOnly = True)
         if self.dragatom.is_singlet():
             if self.o.selatom and self.o.selatom != self.dragatom:
                 dragatom = self.dragatom
@@ -574,6 +613,7 @@ class depositMode(basicMode):
                 if selatom.is_singlet(): #bruce 041119, just for safety
                     self.dragged_singlet_over_singlet(dragatom, selatom)
         self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
+        self.o.selatom = None #bruce 041208 for safety in case it's killed
         self.o.paintGL()
 
     def dragged_singlet_over_singlet(self, dragatom, selatom):
@@ -601,6 +641,7 @@ class depositMode(basicMode):
         if a:
             # this may change hybridization someday
             if a.element == Singlet: return
+            self.w.msgbarLabel.setText("deleting %r" % a) #bruce 041208
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
             self.o.assy.modified = 1
@@ -906,12 +947,20 @@ class depositMode(basicMode):
 	q = self.o.quat
 	glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
 	glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
-        x = 1.5*self.o.scale
+
+        # The following is wrong for wide windows (bug 264).
+	# To fix it requires looking at how scale is set (differently
+	# and perhaps wrongly (related to bug 239) for tall windows),
+	# so I'll do it later, after fixing bug 239.
+	# Warning: correctness of use of x vs y below has not been verified.
+	# [bruce 041214] ###@@@
+	
+        x = y = 1.5 * self.o.scale
 	glBegin(GL_QUADS)
-        glVertex(-x,-x,0)
-        glVertex(x,-x,0)
-        glVertex(x,x,0)
-        glVertex(-x,x,0)
+        glVertex(-x,-y,0)
+        glVertex(x,-y,0)
+        glVertex(x,y,0)
+        glVertex(-x,y,0)
 	glEnd()
 	glPopMatrix()
         glDisable(GL_BLEND)

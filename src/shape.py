@@ -482,14 +482,16 @@ class shape:
         if c.logic == 1:
             for mol in assy.molecules:
                 if mol.hidden: continue
+                disp = mol.get_dispdef()
                 for a in mol.atoms.itervalues():
-                    if c.isin(a.posn()) and a.visible():
+                    if c.isin(a.posn()) and a.visible(disp):
                         a.pick()
         elif c.logic == 2:
             for mol in assy.molecules:
                 if mol.hidden: continue
+                disp = mol.get_dispdef()
                 for a in mol.atoms.itervalues():
-                    if c.isin(a.posn()) and a.visible():
+                    if c.isin(a.posn()) and a.visible(disp):
                         a.pick()
                     else:
                         a.unpick()
@@ -521,16 +523,18 @@ class shape:
         if c.logic == 1 or c.logic == 2 : # shift drag selection
             for mol in assy.molecules:
                 if mol.hidden: continue
+                disp = mol.get_dispdef()
                 for a in mol.atoms.itervalues():
-                    if c.isin(a.posn()) and a.visible(): 
+                    if c.isin(a.posn()) and a.visible(disp):
                               a.molecule.pick()
                               break
     
         if c.logic == 0:  # Ctrl drag slection --everything selected inside dragging area unselected
             for m in assy.selmols[:]:
                 if m.hidden: continue #bruce 041214
+                disp = m.get_dispdef()
                 for a in m.atoms.itervalues():
-                        if c.isin(a.posn()) and a.visible(): 
+                        if c.isin(a.posn()) and a.visible(disp):
                                 m.unpick()
                                 break   
                                 

@@ -246,7 +246,7 @@ class assembly:
             b.setup_invalidate()
             
         for m in self.molecules:
-            m.changeapp()
+            m.changeapp(0)
 
     # regularize the atoms' new positions after the motion
     def movend(self):
@@ -346,59 +346,119 @@ class assembly:
 
     # dumb hack: find which atom the cursor is pointing at by
     # checking every atom...
-    def findpick(self, p1, v1, r=None, iPic = None, iInv=None):
-        distance=1000000
-        atom=None
+    # [bruce 041214 comment: findpick is now mostly replaced by findAtomUnderMouse;
+    #  its only remaining call is in depositMode.getcoords, which uses a constant
+    #  radius other than the atoms' radii, and doesn't use iPic or iInv,
+    #  but that too might be replaced in the near future, once bug 269 response
+    #  is fully decided upon.
+    #  Meanwhile, I'll make this one only notice visible atoms, and clean it up.
+    #  BTW it's now the only caller of atom.checkpick().]
+    
+    def findpick(self, p1, v1, r=None):
+        distance = 1000000
+        atom = None
         for mol in self.molecules:
-            disp = self.o.display
-            if mol.hidden and not iInv: continue
-            if mol.display != diDEFAULT: disp = mol.display
-            #e bruce 041129 comment: check disp == diINVISIBLE here??
+            if mol.hidden: continue
+            disp = mol.get_dispdef()
             for a in mol.atoms.itervalues():
-                if a.display == diINVISIBLE and not iInv: continue
-                dist = a.checkpick(p1, v1, disp, r, iPic)
+                if not a.visible(disp): continue
+                dist = a.checkpick(p1, v1, disp, r, None)
                 if dist:
-                    if dist<distance:
-                        distance=dist
-                        atom=a
+                    if dist < distance:
+                        distance = dist
+                        atom = a
         return atom
 
-    # make something selected
-    def pick(self, p1, v1):
-        a = self.findpick(p1, v1)
-        if a and self.selwhat: a.molecule.pick()
-        elif a: a.pick()
+    # bruce 041214, for fixing bug 235 and some unreported ones:
+    def findAtomUnderMouse(self, event, water_cutoff = False, singlet_ok = False):
+        """Return the atom (if any) whose front surface should be visible at the
+        position of the given mouse event, or None if no atom is drawn there.
+        This takes into account all known effects that affect drawing, except
+        bonds and other non-atom things, which are treated as invisible.
+        (Someday we'll fix this by switching to OpenGL-based hit-detection. #e)
+           Note: if several atoms are drawn there, the correct one to return is
+        the one that obscures the others at that exact point, which is not always
+        the one whose center is closest to the screen!
+           When water_cutoff is true, also return None if the atom you would
+        otherwise return (more precisely, if the place its surface is touched by
+        the mouse) is under the "water surface".
+           Normally never return a singlet (though it does prevent returning
+        whatever is behind it). Optional arg singlet_ok permits returning one.
+        """
+        p1, p2 = self.o.mousepoints(event, 0.0)
+        z = norm(p1-p2)
+        x = cross(self.o.up,z)
+        y = cross(z,x)
+        matrix = transpose(V(x,y,z))
+        point = p2
+        cutoffs = dot( A([p1,p2]) - point, matrix)[:,2]
+        near_cutoff = cutoffs[0]
+        if water_cutoff:
+            far_cutoff = cutoffs[1]
+            # note: this can be 0.0, which is false, so an expression like
+            # (water_cutoff and cutoffs[1] or None) doesn't work!
+        else:
+            far_cutoff = None
+        z_atom_pairs = []
+        for mol in self.molecules:
+            if mol.hidden: continue
+            pairs = mol.findAtomUnderMouse(point, matrix, \
+                far_cutoff = far_cutoff, near_cutoff = near_cutoff )
+            z_atom_pairs.extend( pairs)
+        if not z_atom_pairs:
+            return None
+        z_atom_pairs.sort() # smallest z == farthest first; we want nearest
+        res = z_atom_pairs[-1][1] # nearest hit atom
+        if res.element == Singlet and not singlet_ok:
+            return None
+        return res
 
-    # make something unselected
-    def unpick(self, p1, v1):
-        a = self.findpick(p1, v1, None, True, True)
-        if a and self.selwhat: a.molecule.unpick()
-        elif a: a.unpick()
-
-    # select, make everything else unselected
-    def onlypick(self, p1, v1):
+    #bruce 041214 renamed and rewrote the following pick_event methods, as part of
+    # fixing bug 235 (and perhaps some unreported bugs).
+    # I renamed them to distinguish them from the many other "pick" (etc) methods
+    # for Node subclasses, with common semantics different than these have.
+    # I removed some no-longer-used related methods.
+    
+    def pick_at_event(self, event): #renamed from pick; modified
+        """Make whatever visible atom or chunk (depending on self.selwhat)
+        is under the mouse at event get selected,
+        in addition to whatever already was selected.
+        You are not allowed to select a singlet.
+        """
+        atm = self.findAtomUnderMouse(event)
+        if atm:
+            if self.selwhat:
+                if not self.selmols: self.selmols = []
+                    # bruce 041214 added that, since pickpart used to do it and
+                    # calls of that now come here; in theory it's never needed.
+                atm.molecule.pick()
+            else:
+                atm.pick()
+        return
+    
+    def onlypick_at_event(self, event): #renamed from onlypick; modified
+        """Unselect everything in the glpane; then select whatever visible atom
+        or chunk (depending on self.selwhat) is under the mouse at event.
+        If no atom or chunk is under the mouse, nothing in glpane is selected.
+        """
         if self.selwhat:
             self.unpickparts()
-            self.pickpart(p1, v1)
         else:
             self.unpickatoms()
-            self.pick(p1, v1)
-
-    # make an atom selected: deselects all parts
-    def pickatom(self, p1, v1):
-	self.selwhat = 0
-        self.unpickparts()
-        if not self.selatoms: self.selatoms = {}
-        a = self.findpick(p1, v1)
-        if a: a.pick()
-
-    # make a part selected: deselects all atoms
-    def pickpart(self, p1, v1):
-	self.selwhat = 2
-        self.unpickatoms()
-        if not self.selmols: self.selmols = []
-        a = self.findpick(p1, v1)
-        if a: a.molecule.pick()
+        self.pick_at_event(event)
+    
+    def unpick_at_event(self, event): #renamed from unpick; modified
+        """Make whatever visible atom or chunk (depending on self.selwhat)
+        is under the mouse at event get un-selected,
+        but don't change whatever else is selected.
+        """
+        atm = self.findAtomUnderMouse(event)
+        if atm:
+            if self.selwhat:
+                atm.molecule.unpick()
+            else:
+                atm.unpick()
+        return
                 
     # deselect any selected atoms
     def unpickatoms(self):
@@ -406,13 +466,15 @@ class assembly:
             for a in self.selatoms.itervalues():
                 # this inlines and optims atom.unpick
                 a.picked = 0
-                a.molecule.changeapp()
+                a.molecule.changeapp(1)
             self.selatoms = {}
 
     # deselect any selected molecules
     def unpickparts(self):
         self.root.unpick()
         self.data.unpick()
+        # bruce 041214 comment:
+        # note that selected items in the clipboard remain selected (I think)
 
     # for debugging
     def prin(self):
@@ -522,7 +584,7 @@ class assembly:
             self.w.update()
 
     def Unhide(self):
-        "Hide all selected chunks"
+        "Unhide all selected chunks"
         if self.selwhat == 2:
             self.tree.apply2picked(lambda x: x.unhide())
             self.w.update()
@@ -535,8 +597,8 @@ class assembly:
             self.modified = 1
             aa[0].molecule.bond(aa[0], aa[1])
             #bruce 041028 bugfix: bring following lines inside the 'if'
-            aa[0].molecule.changeapp()
-            aa[1].molecule.changeapp()
+            aa[0].molecule.changeapp(0)
+            aa[1].molecule.changeapp(0)
             self.o.paintGL()
 
     #unbond atoms (cheap hack)
@@ -737,13 +799,6 @@ class assembly:
             if numol.atoms:
                 self.addmol(numol)
                 numolist+=[numol]
-# no longer needed as of 041116:
-##                numol.shakedown() #bruce 041104 bugfix? try selatom in depositMode on it...
-##                # need to redo the old one too, unless we removed all its atoms
-##                if mol.atoms:
-##                    mol.shakedown()
-##                else:
-##                    self.killmol(mol)
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
                     
