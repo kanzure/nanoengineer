@@ -3,25 +3,27 @@
 node_indices.py
 
 Utilities for finding node indices in a tree,
-and moving them around.
+and using them to help move the nodes around.
 
-And other things useful for fixing bug 296 by moving jigs
+(And other things useful for fixing bug 296 by moving jigs
 after the chunks they connect to, or for related operations
-on the node tree.
+on the node tree.)
 
-Some of this should become Node and Group methods,
-but some of it probably makes sense in its own module like this one.
+Some of this should perhaps become Node and Group methods,
+but most of it probably makes sense to leave here in its own module,
+so Utility.py can stay small and to the point.
 """
-__author__ = "bruce" ###@@@ all prints are debug only ###@@@ needs nicer new place ###@@@ has bug in what it moves, maybe
+__author__ = "bruce"
 
-from Utility import *
+from Utility import Node, Group
 from gadgets import Jig
 
-### quick try at fixing bug 296 for josh emergency use!
-# doing it all in this file, though ideally it would involve new code
-# in utility and/or gadgets (but I have local mods in both those files which
-# i am not ready to commit yet, thus it's easier for me to not change them now).
-#  [bruce 050111]
+# quick try at fixing bug 296 for josh emergency use!
+# doing it all in this file, though ideally some small part of this code
+# (the part that says "isinstance", mainly) belongs in utility.py and/or
+# gadgets.py (but I have local mods in both those files which i am not
+# ready to commit yet, thus it's easier for me to not change them now).
+# [bruce 050111]
 
 def node_must_follow_what_nodes(node):
     """If this node is a leaf node which must come after some other leaf nodes
@@ -86,10 +88,8 @@ def node_new_index(node, root, after_these):
         afterposns = map( lambda node1: node_position(node1, root), after_these)
     except ValueError:
         raise ValueError, node ###stub; need a better detail
-    print "in node_new_index(%r,%r,%r), afterposns is %r" % (node, root, after_these, afterposns)
     last_after = max(afterposns) # last chunk of the ones node must come after
-    print "last_after = max of those is %r" % (last_after,)
-    if ourpos > last_after: ###@@@ bug, should be ourpos not node
+    if ourpos > last_after:
         res = None
     else:
         ## res = just_after(last_after)
@@ -105,7 +105,6 @@ def node_new_index(node, root, after_these):
         ind = last_after[len(grouppos)] + 1
         res = grouppos + [ind]
         assert is_list_of_ints(res)
-    print "res is %r" % (res,)
     return res
 
 def common_prefix( seq1, seq2 ):
@@ -153,7 +152,6 @@ def move_one_node(node, root, newpos):
     newpos is the old position, may not be the new one
     since removing the node will change indices in the tree
     """
-    print "moving one node",node, root, newpos###@@@
     assert is_list_of_ints(newpos)
     # First find a node to move it just before,
     # or a group to make it the last child of
