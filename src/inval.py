@@ -221,6 +221,8 @@ class InvalMixin:
         since we presume you changed them all to correct values.
         For example, if a affects b, b affects c, and you tell us you
         changed a and b, we'll end up invalling c but not b.
+        Thus, this is not the same as calling changed_attr on each one --
+        that would do too much invalidation.
         """
         self.validate_attrs(attrs)
         for attr in attrs:
