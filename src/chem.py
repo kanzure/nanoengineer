@@ -843,8 +843,11 @@ class atom:
         except IndexError: pass
         # note that if an atom has too many bonds we'll delete the
         # singlets anyway -- which is fine
+
+    def is_singlet(self):
+        return self.element == Singlet
     
-    def singlet_sole_neighbor(self): #bruce 041109 moved here from extrudeMode.py
+    def singlet_neighbor(self): #bruce 041109 moved here from extrudeMode.py
         "return the atom self (a known singlet) is bonded to, checking assertions"
         assert self.element == Singlet
         obond = self.bonds[0]
@@ -872,7 +875,7 @@ class atom:
 
 def singlet_atom(singlet):
     "return the atom a singlet is bonded to, checking assertions"
-    return singlet.singlet_sole_neighbor()
+    return singlet.singlet_neighbor()
 
 # ==
 
@@ -890,11 +893,16 @@ class bondtype:
 
 # == Bond
 
+def bonded(at1, at2): #bruce 041119
+    "are these atoms (or singlets) already directly bonded?"
+    return at2 in at1.neighbors()
+
 def bond_atoms(at1,at2):
     """Make a new bond between atoms at1 and at2 (and add it to their lists of bonds),
     if they are not already bonded; if they are already bonded do nothing. Return None.
     (The new bond object, if one is made, can't be found except by scanning the bonds
     of one of the atoms.)
+       If at1 == at2, this is an error; print a warning and do nothing.
        This increases the number of bonds on each atom (when it makes a new bond) --
     it never removes any singlets. Therefore it is mostly for low-level use.
     It could be called directly, but is usually called via the method molecule.bond,
@@ -907,6 +915,11 @@ def bond_atoms(at1,at2):
     # either makes (as the constructor does) or doesn't make (when the atoms are
     # already bonded). The test for a prior bond makes more sense outside of the
     # Bond constructor.
+    if at1 == at2: #bruce 041119, partial response to bug #203
+        print "BUG: bond_atoms was asked to bond %r to itself." % at1
+        print "Doing nothing (but further bugs may be caused by this)."
+        print_compact_stack()
+        return
 
     b = Bond(at1,at2) # (this does all necessary invals)
     

@@ -93,6 +93,7 @@ class molecule(Node, InvalMixin):
         
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to atom at2.
+        Error if at1 == at2 (causes printed warning and does nothing).
         (This should really be a separate function, not a method on molecule,
         since the specific molecule asked to do this need not be either atom's
         molecule, and is not used in the method at all.)
@@ -1338,28 +1339,64 @@ def oneUnbonded(elem, assy, pos):
 
     return a
 
-def bond_at_singlets(s1, s2, move = 1):
+def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
     #bruce 041109 rewrote this, added move arg, renamed it from makeBonded
-    """s1 and s2 are singlets; make a bond between their real atoms in
-    their stead. If they are in different molecules, and if move = 1
+    #bruce 041119 added args and retvals to help fix bugs #203 and #121
+    """(Public method; does all needed invalidations.)
+    s1 and s2 are singlets; make a bond between their real atoms in
+    their stead.
+       If the real atoms are in different molecules, and if move = 1
     (the default), move s1's molecule to match the bond, and
-    [bruce 041109 suspects this last part is not yet implemented] set its
-    center to the bond point and its axis to the line of the bond.
-    (Public method; does all needed invalidations.)
+    [bruce 041109 observes that this last part is not yet implemented]
+    set its center to the bond point and its axis to the line of the bond.
+       It's an error if s1 == s2, or if they're on the same atom. It's a
+    warning (no error, but no bond made) if the real atoms of the singlets
+    are already bonded. (We might add more error or warning conditions later.)
+       The return value says whether there was an error, and what was done:
+    we return (flag, status) where flag is 0 for ok (a bond was made)
+    or 1 or 2 for no bond made (1 = not an error, 2 = an error),
+    and status is a string explaining what was done, or why nothing was
+    done, suitable for displaying in a status bar.
+       If no bond is made due to an error, and if print_error_details = 1
+    (the default), then we also print a nasty warning with the details
+    of the error, saying it's a bug. 
     """
-        # comment from depositMode.py also:
-        # bruce 041116 asks, re bug 121: what should we do if
-        # these two atoms are already bonded? Now, it kills
-        # the singlets but (apparently, as viewed on screen)
-        # leaves them with one bond, which
-        # reduces their valence, which is wrong.
-    assert s1 != s2 #bruce 041109
-    a1 = singlet_atom(s1) # does assertions
+    def do_error(status, error_details):
+        if print_error_details and error_details:
+            print "BUG: bond_at_singlets:", error_details
+            print "Doing nothing (but further bugs may be caused by this)."
+            print_compact_stack()
+        if error_details: # i.e. if it's an error
+            flag = 2
+        else:
+            flag = 1
+        status = status or "can't bond here"
+        return (flag, status)
+    if not s1.is_singlet():
+        return do_error("not both singlets", "not a singlet: %r" % s1)
+    if not s2.is_singlet():
+        return do_error("not both singlets", "not a singlet: %r" % s2)
+    a1 = singlet_atom(s1)
     a2 = singlet_atom(s2)
+    if s1 == s2: #bruce 041119
+        return do_error("can't bond a singlet to itself",
+          "asked to bond atom %r to itself,\n"
+          " from the same singlet %r (passed twice)" % (a1, s1)) # untested formatting
+    if a1 == a2: #bruce 041119, part of fix for bug #203
+        return do_error("can't bond an atom (%r) to itself" % a1,
+          "asked to bond atom %r to itself,\n"
+          " from different singlets, %r and %r." % (a1, s1, s2))
+    if bonded(a1,a2):
+        #bruce 041119, part of fix for bug #121
+        # not an error (so arg2 is None)
+        return do_error("can't make another bond between atoms %r and %r;" \
+                        " they are already bonded" % (a1,a2), None)
+    # ok, now we'll really do it.
+    status = "bonded atoms %r and %r" % (a1, a2)
     m1 = a1.molecule
     m2 = a2.molecule
-
     if m1 != m2 and move: # move the molecule
+        status += " and moved one chunk"
         m1.rot(Q(a1.posn()-s1.posn(), s2.posn()-a2.posn()))
         m1.move(s2.posn()-s1.posn())
         # bruce 041116 asks: should we do anything differently
@@ -1369,8 +1406,7 @@ def bond_at_singlets(s1, s2, move = 1):
     s1.kill()
     s2.kill()
     m1.bond(a1,a2)
-    return
-
+    return (0, status) # from bond_at_singlets
 
 # == debug code
 

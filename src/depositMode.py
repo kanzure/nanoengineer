@@ -400,16 +400,31 @@ class depositMode(basicMode):
         self.baggage = []
         self.line = None
         self.bareMotion(event, True)
-        if self.dragatom.element == Singlet:
+        if self.dragatom.is_singlet():
             if self.o.selatom and self.o.selatom != self.dragatom:
-                bond_at_singlets(self.dragatom, self.o.selatom)
-                # bruce 041116 asks, re bug 121: what should we do if
-                # these two atoms are already bonded? Now, it kills
-                # the singlets but (apparently, as viewed on screen)
-                # leaves them with one bond, which
-                # reduces their valence, which is wrong.
+                dragatom = self.dragatom
+                selatom = self.o.selatom
+                if selatom.is_singlet(): #bruce 041119, just for safety
+                    self.dragged_singlet_over_singlet(dragatom, selatom)
         self.o.paintGL()
-        
+
+    def dragged_singlet_over_singlet(self, dragatom, selatom):
+        #bruce 041119 split this out and added checks to fix bugs #203
+        # (for bonding atom to itself) and #121 (atoms already bonded).
+        # I fixed 121 by doing nothing to already-bonded atoms, but in
+        # the future we might want to make a double bond. #e
+        if selatom.singlet_neighbor() == dragatom.singlet_neighbor():
+            # this is a bug according to the subroutine, but not to us
+            print_error_details = 0
+        else:
+            # for any other error, let subr print a bug report,
+            # since we think we caught them all before calling it
+            print_error_details = 1
+        flag, status = bond_at_singlets(dragatom, selatom, \
+                         print_error_details = print_error_details)
+        # we ignore flag, which says whether it's ok, warning, or error
+        self.w.msgbarLabel.setText("%s: %s" % (self.msg_modename, status))
+        return
 
     ## delete with cntl-left mouse
     def leftCntlDown(self, event):
