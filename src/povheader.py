@@ -69,20 +69,6 @@ finish {
    finish {Atomic}
    }
 #end
-
-#macro ground(pos, rad, col) 
-  box { pos - rad*0.95,  pos + rad*0.95
-    pigment { rgb col }
-    finish {Atomic}
-    }
-#end
-
-#macro stat(pos, rad, col) 
-  box { pos - rad*0.95,  pos + rad*0.95
-    pigment { rgb col }
-    finish {Atomic}
-    }
-#end
   
 #macro atom(pos, rad, col) 
   sphere { pos, rad
@@ -135,6 +121,73 @@ finish {
   cylinder {pos1, pos2, 0.05
     pigment { Black }
     }
+#end
+
+#macro wirebox(pos, rad, col)
+#declare  c1 = pos - rad;
+#declare  c2 = pos - <-rad,rad,rad>;
+#declare  c3 = pos - <-rad,-rad,rad>;
+#declare  c4 = pos - <rad,-rad,rad>;
+#declare  c5 = pos + <-rad,-rad,rad>;
+#declare  c6 = pos + <rad,-rad,rad>;
+#declare  c7 = pos + rad;
+#declare  c8 = pos + <-rad,rad,rad>;
+  cylinder { c1,  c2, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c2,  c3, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c3,  c4, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c4,  c1, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c5,  c6, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c6,  c7, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c7,  c8, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c8,  c5, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c1,  c5, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c2,  c6, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c3,  c7, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+  cylinder { c4,  c8, 0.05
+    pigment { rgb col }
+    finish {Atomic}    
+    }
+#end
+
+#macro ground(pos, rad, col)
+  wirebox( pos, rad, col )
+#end
+
+#macro stat(pos, rad, col)
+  wirebox( pos, rad, col )
 #end
 
 """
