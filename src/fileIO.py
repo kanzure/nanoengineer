@@ -731,7 +731,7 @@ def writemovie(assy, mflag = False):
     # - Mark 050105 
     if formarg == "-x":
         if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
-            filesize = (natoms * 32) + 25 # single-frame xyz filesize (estimate)
+            filesize = natoms * 32 # single-frame xyz filesize (estimate)
         else:
             filesize = assy.m.totalFrames * ((natoms * 32) + 25) # multi-frame xyz filesize (estimate)
     else: 
