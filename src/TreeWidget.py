@@ -240,12 +240,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         ###@@@ correct item to be None if we were not really on the item acc'd to above,
         ### or do this in following function according to event position...
-        self.selection_click(item, pos) # imitate ordinary sel behavior for one click in this place ###@@@ IMPLEM
-        ###@@@ make sure that ignores all mod keys, and updates the sel-state (highlighting) of ALL items (incl far away ones)
-        # and returns the actual item to treat this as being about? or the sel-set? or grab that elsewhere now?
-        # ALSO, for a single plain click on a selected item, this should not unselect the other items!
-        # at least finder doesn't (for sel or starting a drag)
-        # and we need it to not do that for this use as well.
+        self.selection_click(item, pos, col, permit_drag = False) 
+        
         set = self.current_selection_set() # a list of items?? might be a more structured thing someday... and/or made of nodes...
             # but i think it's items for now, since some ops really involve them as items more than as nodes...
             # otoh not all of the selected nodes might have real items in the widget, but all should be in this...
@@ -271,21 +267,45 @@ class TreeWidget(TreeView, DebugMenuMixin):
             return False
         return item.isSelected() #k guess ###@@@stub, not sure this is the right/best/ok place to store this state
     
-    def selection_click(self, item, pos):
-        ###stub(or maybe actually ok?) - we can't yet trust pos! also not used in place of select yet, just to test cmenus, so ignore mod keys.
+    def selection_click(self, item, pos, col, modkeys = 0, permit_drag = True):
+        """Perform the ordinary selection-modifying behavior for one click in this place
+        (i.e. at position pos ###k what coords??, on the given item (might be None), in column col [ignored now]).
+        Assume the modifier keys for this click were as given in modkeys, for purposes of selection or drag(??) semantics.
+        We immediately modify the set of selected items -- changing the selection state of their Nodes (node.picked),
+        updating tree-item highlighting (but not anything else in the application -- those will be updated when Qt resumes
+         event processing after we return from handling this click ###@@@ so we need to inval the glpane to make that work!
+         until then, it won't update til... when? the next paintGL call. hmm. I guess we just have to fix this now.).
+    
+        If permit_drag is True (the default), this click might become the start of a drag of the same set of items it
+        causes to be selected; but this routine only sets some instance variables to help a mouse move method decide whether
+        to do that.
+        
+        #doc elsewhere: for a single plain click on a selected item, this should not unselect the other items!
+        # at least finder doesn't (for sel or starting a drag)
+        # and we need it to not do that for this use as well.
+        """
+        
+        ### this is not used in place of select yet, just to test cmenus...
         # (which in any case will be passed to us, not found in some attribute on self! since some callers filter them.)
-        if self.item_is_selected(item): #### according to what saved state??
-            ### only valid if self.selected_items exists and is correct, which is not yet true... so fake it if other code didn't do it right:
-            if not hasattr(self, 'selected_items'):
-                self.selected_items = [] # or could make it from existing sel state of all items? not yet! first figure out who *should*.
-            if item not in self.selected_items:
-                self.selected_items = [item] # safer than appending it, i think...
+
+        #e first filter item and pos so that positions too far to left or right don't count as being on item. NIM.
+        # one case of this is clicks on the open/close togging icon. Not sure if they ever get here, though,
+        # in fact, caller might do this filtering. We'll see.
+        
+        if item and item.object.picked: ###@@@ does this depend on modkeys?? ###@@@ do stuff to set up for drag, too
             return # no change! #doc why; see comments in menuReq
-        self.selected_items = (item and [item]) or []
-        self.set_node_sel_from_selected_items( self.selected_items) ####@@@@ implem... steal some code from select, or split it into this...
-        ## old name: self.update_all_selected_state()
-        ## name I wrongly recalled: self.update_selection_state()
+
+        #e now perform sel logic... using item none or not, and modkeys... update .picked and item highlighting. ####@@@@
+        ####@@@@ implem... steal some code from select, or split it into this...
+        # stub: just toggle it for this one item. wait, above behavior defeats this... too tired, do this tomorrow.
+        if item:
+            node = item.object
+            if node.picked:
+                node.unpick() # won't happen yet...
+            else:
+                node.pick()
         self.update_selection_highlighting()
+        self.win.glpane.update() ####k will this work already, just making it call paintGL? or must we inval something too??
         return
 
     def current_selection_set(self):
