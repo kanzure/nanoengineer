@@ -42,11 +42,13 @@ def fileparse(name):
     return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
 
 class MWsemantics(MainWindow):
-    def __init__(self,parent = None, name = None, fl = 0):
+    def __init__(self, parent = None, name = None):
+#    def __init__(self,parent = None, name = None, fl = 0):
 	
         global windowList
 
-        MainWindow.__init__(self, parent, name, fl)
+#        MainWindow.__init__(self, parent, name, fl)
+        MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
 
         # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
         import extrudeMode as _extrudeMode
@@ -368,6 +370,33 @@ class MWsemantics(MainWindow):
             
             else: # This should never happen.
                 self.msgbarLabel.setText( "MWSemantics.py: fileSaveAs() - File Not Saved.")
+
+
+    def closeEvent(self,ce):
+        
+        if not self.assy.modified:
+            ce.accept()
+            return
+            
+        rc = QMessageBox.warning( self, self.name(),
+                "The part has been changed since the last save.\n"
+                "Do you want to save the changes before exiting?",
+                "&Save", "&Discard", "Cancel",
+                0,      # Enter == button 0
+                2 )     # Escape == button 2
+        
+#        QMessageBox.information(self,'Qt Application Example',
+#                    'The document has been changed since the last save.',
+#                    'Save Now','Cancel','Leave Anyway',0,1)
+
+        if rc == 0:
+            self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            ce.accept()
+        elif rc == 1:
+            ce.accept()
+        else:
+            ce.ignore()
+
 
     def fileExit(self):
         if self.assy.modified:
