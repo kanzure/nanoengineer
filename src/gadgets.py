@@ -26,21 +26,74 @@ def povpoint(p):
     # note z reversal -- povray is left-handed
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
 
-class RotaryMotor(Node):
+
+class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
+    "abstract superclass for all jigs"
+    # each subclass needs to define sym as a class constant
+    def __init__(self, assy, atomlist):
+        "each subclass needs to call this"
+        Node.__init__(self, assy, None, gensym("%s." % self.sym))
+        ## self.picked = 0 # redundant with Node.__init__
+        self.atoms = atomlist # this is always [] for some subclasses
+            # but is apparently required to be always nonempty for others
+        if atomlist:
+            #e should really split this jig if attached to more than one mol
+            self.molecule = atomlist[0].molecule
+            self.molecule.gadgets += [self]
+              # note: mol.gadgets is never used, as of sometime before 041105,
+              # probably as of josh's fix to bug 85 on 041026 [bruce 041105]
+            for a in atomlist:
+                # bruce 041105: I don't think multiple mols causes bugs anymore:
+                ## if a.molecule is not self.molecule:
+                ##    print "fyi: bug? %r has atoms from different chunks" % self
+                a.jigs += [self]
+        else:
+            self.molecule = None
+        #e it might make sense to init other attrs here too, like color
+        return
+    def setAtoms(self, atomlist):
+        # the subclass code I made this from did nothing to set
+        # self.molecule or its .gadgets member; presumably neither
+        # is needed (at least for the calling subclasses) [bruce 041105]
+        ## assert not self.atoms # otherwise we'd have to delete them properly
+        if self.atoms:
+            print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
+        self.atoms = atomlist
+        for a in atomlist:
+            a.jigs += [self]
+    # josh 10/26 to fix bug 85
+    def rematom(self, a):
+        self.atoms.remove(a)
+        # should check and delete the jig if no atoms left
+        if not self.atoms:
+            self.kill()
+    def kill(self):
+        #e don't we need to remove self from self.molecule.gadgets?? [guess: no]
+        # and also remove self from all our atoms' a.jigs? [guess: yes]
+        # [bruce question 041105; looks like a bug but i will ask josh]
+        Node.kill(self)
+    #e there might be other common methods to pull into here
+    pass # class Jig
+
+
+class RotaryMotor(Jig):
     '''A Rotary Motor has an axis, represented as a point and
        a direction vector, a stall torque, a no-load speed, and
        a set of atoms connected to it
        To Be Done -- selecting & manipulation'''
-
+    
+    sym = "Rotary Motor"
+    
 # create a blank Rotary Motor not connected to anything    
     def __init__(self, assy):
-        Node.__init__(self, assy, None, gensym("Rotary Motor."))
+##        Node.__init__(self, assy, None, gensym("Rotary Motor."))
+        Jig.__init__(self, assy, [])
         self.torque = 0.0
         self.speed = 0.0
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
-        self.atoms = []
-        self.molecule = None
+##        self.atoms = []
+##        self.molecule = None
         self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
         self.pickcolor = (1.0, 0.0, 0.0)
         self.length = 10.0 # default length of Rotary Motor cylinder
@@ -59,18 +112,20 @@ class RotaryMotor(Node):
 
     # for a motor read from a file, the "shaft" record
     def setShaft(self, shft):
-        self.atoms = shft
-        # josh 10/26 to fix bug 85
-        for a in shft: a.jigs += [self]
+        self.setAtoms(shft) #bruce 041105 code cleanup
+##        self.atoms = shft
+##        # josh 10/26 to fix bug 85
+##        for a in shft: a.jigs += [self]
 
     # for a motor created by the UI, center is average point and
     # axis (kludge) is the average of the cross products of
     # vectors from the center to successive points
     # los is line of sight into the screen
     def findCenter(self, shft, los):
-        self.atoms=shft
-        # josh 10/26 to fix bug 85
-        for a in shft: a.jigs += [self]
+        self.setAtoms(shft) #bruce 041105 code cleanup
+##        self.atoms=shft
+##        # josh 10/26 to fix bug 85
+##        for a in shft: a.jigs += [self]
         # array of absolute atom positions
         # can't use xyz, might be from different molecules
         pos=A(map((lambda a: a.posn()), shft))
@@ -120,16 +175,7 @@ class RotaryMotor(Node):
             self.picked = False
             self.assy.w.msgbarLabel.setText(" ")
             self.color = self.normcolor
-
-    # josh 10/26 to fix bug 85
-    def rematom(self, a):
-        self.atoms.remove(a)
-        
-        # should check and delete the jig if no atoms left
-        if not self.atoms:
-                self.kill()
-        
-           
+               
     # Rotary Motor is drawn as a cylinder along the axis,
     #  with a spoke to each atom
     def draw(self, win, dispdef):
@@ -174,23 +220,26 @@ class RotaryMotor(Node):
         return s + "shaft " + " ".join(map(str,nums)) + "\n"
 
 
-class LinearMotor(Node):
+class LinearMotor(Jig):
     '''A Linear Motor has an axis, represented as a point and
        a direction vector, a force, a stiffness, and
        a set of atoms connected to it
        To Be Done -- selecting & manipulation'''
 
+    sym = "Linear Motor"
+
 # create a blank Linear Motor not connected to anything
     def __init__(self, assy):
-        Node.__init__(self, assy, None, gensym("Linear Motor."))
+##        Node.__init__(self, assy, None, gensym("Linear Motor."))
+        Jig.__init__(self, assy, [])
         
         self.force = 0.0
         self.stiffness = 0.0
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
-        self.atoms = []
-        self.picked = 0
-        self.molecule = None
+##        self.atoms = []
+##        self.picked = 0
+##        self.molecule = None
         self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
         self.pickcolor = (1.0, 0.0, 0.0)
         self.length = 10.0 # default length of Linear Motor box
@@ -207,26 +256,21 @@ class LinearMotor(Node):
         self.center = center
         self.axis = norm(axis)
 
-    def rematom(self, a):
-        self.atoms.remove(a)
-        
-        # should check and delete the jig if no atoms left
-        if not self.atoms:
-                self.kill()
-
     # for a linear motor read from a file, the "shaft" record
     def setShaft(self, shaft):
-        self.atoms = shaft
-        for a in shaft: a.jigs += [self]
+        self.setAtoms(shaft) #bruce 041105 code cleanup
+##        self.atoms = shaft
+##        for a in shaft: a.jigs += [self]
  
     # for a motor created by the UI, center is average point and
     # axis (kludge) is the average of the cross products of
     # vectors from the center to successive points
     # los is line of sight into the screen
     def findCenter(self, shft, los):
-        self.atoms=shft
-        for a in shft: a.jigs += [self]
-          # array of absolute atom positions
+        self.setAtoms(shft) #bruce 041105 code cleanup
+##        self.atoms=shft
+##        for a in shft: a.jigs += [self]
+        # array of absolute atom positions
         # can't use xyz, might be from different molecules
         pos=A(map((lambda a: a.posn()), shft))
         self.center=sum(pos)/len(pos)
@@ -330,32 +374,26 @@ class LinearMotor(Node):
         return s + "shaft " + " ".join(map(str, nums)) + "\n"
 
 # a Ground is just has a list of atoms anchored in space
-class Ground(Node):
+class Ground(Jig):
     '''a Ground just has a list of atoms that are anchored in space'''
 
-# create a blank Ground with an empty list of atoms
+    sym = "Ground"
+
+# create a blank Ground with the given list of atoms
     def __init__(self, assy, list):
-        Node.__init__(self, assy, None, gensym("Ground."))
-        self.atoms =list
-        # should really split ground if attached to more than one mol
-        self.molecule = list[0].molecule
-        self.molecule.gadgets += [self]
-        self.picked = 0
+##        Node.__init__(self, assy, None, gensym("Ground."))
+##        self.atoms =list
+##        # should really split ground if attached to more than one mol
+##        self.molecule = list[0].molecule
+##        self.molecule.gadgets += [self]
+##        self.picked = 0
+        Jig.__init__(self, assy, list)
         self.color = (0.0, 0.0, 0.0)
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
         self.pickcolor = (1.0, 0.0, 0.0) # ground is red when picked
         self.cntl = GroundProp(self, assy.o)
         
-        for a in list: a.jigs += [self]
-
-     
-    def rematom(self, a):
-        self.atoms.remove(a)
-        
-        # should check and delete the jig if no atoms left
-        if not self.atoms:
-                self.kill()   
-
+##        for a in list: a.jigs += [self]
 
     def edit(self):
         self.cntl.setup()
@@ -420,33 +458,27 @@ class Ground(Node):
 
         return s + " ".join(map(str,nums)) + "\n"
         
-class Stat(Node):
+class Stat(Jig):
     '''a Stat just has a list of atoms that are set to a specific temperature'''
-
-# create a blank Stat with an empty list of atoms, set to 300K
+    
+    sym = "Stat"
+    
+# create a blank Stat with the given list of atoms, set to 300K
     def __init__(self, assy, list):
-        Node.__init__(self, assy, None, gensym("Stat."))
-        self.atoms =list
-        # should really split stat if attached to more than one mol
-        self.molecule = list[0].molecule
-        self.molecule.gadgets += [self]
-        self.picked = 0
+##        Node.__init__(self, assy, None, gensym("Stat."))
+##        self.atoms =list
+##        # should really split stat if attached to more than one mol
+##        self.molecule = list[0].molecule
+##        self.molecule.gadgets += [self]
+##        self.picked = 0
+        Jig.__init__(self, assy, list)
         self.color = self.normcolor = (0.0, 0.0, 1.0) # set default color of new stat to blue
         self.pickcolor = (1.0, 0.0, 0.0) # stat is red when picked
         self.temp = 300
         self.cntl = StatProp(self, assy.o)
         
-        for a in list: a.jigs += [self]   
+##        for a in list: a.jigs += [self]   
     
-    
-    def rematom(self, a):
-        self.atoms.remove(a)
-        
-        # should check and delete the jig if no atoms left
-        if not self.atoms:
-                self.kill()    
-
-
     def edit(self):
         self.cntl.setup()
         self.cntl.exec_loop()
