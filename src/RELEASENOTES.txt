@@ -1,0 +1,53 @@
+RELEASE NOTES FOR nanoENGINEER-1 v0.0.4 (Alpha 4)
+March 14, 2005
+
+What's new in 0.0.4:
+
+1. Element Selector: 
+  - removed controls for changing element colors.
+  - Refined buttons to be easier to read, especially on MacOSX.
+2. Element Color Settings:
+  - new control panel for changing element colors.
+  - accessed by "Display > Element Color Settings..."
+  - element colors saved to nE-1 preferences database
+  - element colors can be saved to a text file in human readable format
+  - load element colors from a file
+  - can restore default nE-1 element colors
+3. Lighting: New Lighting control panel for changing lighting settings.
+4. Plot Tool: 
+  - new control panel for plotting simulator trace file output using 
+   GNUplot.
+  - buttons on control panel open trace and plot files in a text editor.
+  - plot files can be edited by hand and replotted using "Plot" button 
+5. Simulator trace files now created next to DPB trajectory file, with the name
+   dpb_filename-trace.txt
+6. Simulator: new toolbar/menu contains Simulator, Movie Player and Plot Tool.
+
+
+in 0.0.3 (2/28/2005):
+
+1. Select > Doubly: The cursor displays the "Wait Cursor" (hourglass) while 
+   Select > Doubly is working.
+2. Model Tree: Improved Drag and Drop behavour in the Model Tree widget.
+3. Clipboard: Fixed some bugs related to the Clipboard. More stable now.
+4. Movie Player: Program no longer displays errors when selecting Done 
+   while movie is playing. 
+5. Element Selector: Users can change element colors for all supported 
+   element types. 
+6. Element Selector: Users can load/save custom element colors from/to a file. 
+7. Extrude Tool: The bond-offset spheres are turned off by default. 
+   They can be turned on from the dashboard. 
+8. Extrude Tool: The bond-offset spheres are rendered in a manner to clue 
+   the user on which configurations will produce the most bonds. 
+
+
+in 0.0.2 (2/14/2005):
+
+1. Simulator works on MacOSX.
+2. Fixed bug in cad that limited the simulator to no more than 940 frames
+   on Windows.
+
+
+in 0.0.1 (2/2/2005):
+
+1. Everything
