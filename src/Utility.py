@@ -265,6 +265,11 @@ class Group(Node):
                 ob.apply2picked(fn)
 
     def hindmost(self):
+        """Thinking of nodes as subtrees of the model tree, return the smallest
+        subtree of self which contains all picked nodes in this subtree, or None
+        if there are no picked nodes in this subtree. Note that the result does
+        not depend on the order of traversal of the members of a Group.
+        """ #bruce 041208 added docstring, inferred from code
         if self.picked: return self
         node = None
         for x in self.members:
@@ -469,3 +474,4 @@ class InsertHere(Node):
                
     def seticon(self):
         self.icon = self.inserthereIcon
+
