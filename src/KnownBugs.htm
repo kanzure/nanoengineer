@@ -1,92 +1,970 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Untitled Document</title>
-<style type="text/css">
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 11">
+<meta name=Originator content="Microsoft Word 11">
+<link rel=File-List href="KnownBugs_files/filelist.xml">
+<title>nanoENGINEER-1™ v0</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Mark Sims</o:Author>
+  <o:LastAuthor>Ninad Sathaye</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>236</o:TotalTime>
+  <o:Created>2005-03-14T21:48:00Z</o:Created>
+  <o:LastSaved>2005-03-14T21:48:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>1259</o:Words>
+  <o:Characters>7177</o:Characters>
+  <o:Company> </o:Company>
+  <o:Lines>59</o:Lines>
+  <o:Paragraphs>16</o:Paragraphs>
+  <o:CharactersWithSpaces>8420</o:CharactersWithSpaces>
+  <o:Version>11.5703</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" LatentStyleCount="156">
+ </w:LatentStyles>
+</xml><![endif]-->
+<style>
 <!--
-.style4 {font-size: x-large}
-.style5 {font-size: large}
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+pre
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:58408378;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1338069730 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l1
+	{mso-list-id:154533987;
+	mso-list-type:hybrid;
+	mso-list-template-ids:744921428 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l2
+	{mso-list-id:175778039;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-2075104952 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l2:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3
+	{mso-list-id:261844739;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1076012566 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l3:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4
+	{mso-list-id:529997489;
+	mso-list-template-ids:1778527844;}
+@list l4:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l4:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;}
+@list l4:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:1.75in;
+	mso-level-number-position:right;
+	margin-left:1.75in;
+	text-indent:-9.0pt;}
+@list l4:level4
+	{mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:-.25in;}
+@list l4:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:2.75in;
+	mso-level-number-position:left;
+	margin-left:2.75in;
+	text-indent:-.25in;}
+@list l4:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:3.25in;
+	mso-level-number-position:right;
+	margin-left:3.25in;
+	text-indent:-9.0pt;}
+@list l4:level7
+	{mso-level-tab-stop:3.75in;
+	mso-level-number-position:left;
+	margin-left:3.75in;
+	text-indent:-.25in;}
+@list l4:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:4.25in;
+	mso-level-number-position:left;
+	margin-left:4.25in;
+	text-indent:-.25in;}
+@list l4:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:4.75in;
+	mso-level-number-position:right;
+	margin-left:4.75in;
+	text-indent:-9.0pt;}
+@list l5
+	{mso-list-id:1167598358;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1865887944 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l5:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6
+	{mso-list-id:1331367766;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-261446978 -1764821430 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l6:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	color:windowtext;
+	mso-ansi-font-style:normal;}
+@list l7
+	{mso-list-id:1581214150;
+	mso-list-type:hybrid;
+	mso-list-template-ids:972188998 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l7:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8
+	{mso-list-id:1726486692;
+	mso-list-type:hybrid;
+	mso-list-template-ids:135687748 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l8:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l9
+	{mso-list-id:1754203299;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1179695266 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l9:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l10
+	{mso-list-id:1794859402;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1778527844 67698689 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l10:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l11
+	{mso-list-id:1890922846;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1343137110 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l11:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l12
+	{mso-list-id:2001932014;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-540117228 -1764821430 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l12:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	color:windowtext;
+	mso-ansi-font-style:normal;}
+@list l13
+	{mso-list-id:2108502688;
+	mso-list-template-ids:-1338069730;}
+@list l13:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l13:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:"Courier New";}
+@list l13:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l13:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l13:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:"Courier New";}
+@list l13:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l13:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l13:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:"Courier New";}
+@list l13:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
 -->
 </style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-ansi-language:#0400;
+	mso-fareast-language:#0400;
+	mso-bidi-language:#0400;}
+</style>
+<![endif]-->
 </head>
 
-<body>
-<H1 align="center" class=flash style4>nanoENGINEER-1<span class="style5">&reg;</span></H1>
-<H1 align="center" class=flash><a name="bugs"></a><span class="style4">Known Bugs/Unsupported Features </span></H1>
-<DIV id=contentBody>
-  <h3>All Platforms</h3>
-    <P>The following list of bugs applies to all platforms.</P>
-    <ol>
-      <li>        Delete operation cannot be undone. In fact, Undo/Redo are not implemented yet. SAVE YOUR WORK OFTEN!</li>
-      <li>        If you select the part icon (top icon in the model tree) and hit the delete key (or click Delete), the entire part will be deleted without asking the user for confirmation. (147) </li>
-      <li>        During Minimize, the progress bar will stay at 0% until the last moment, then jumps to 100% before hiding.</li>
-      <li>        Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results.</li>
-      <li>        Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list.</li>
-      <li>        Dragging and dropping items onto a group folder places them at the bottom of the group, not the top. </li>
-      <li>Dragging and dropping items between the clipboard and model tree can sometimes have unexpected results. Use cut, copy and paste instead. </li>
-      <li>        The front clipping plane will sometimes clip objects that should not be clipped.</li>
-      <li>        Align to common axis averages the axis vectors of the selected chunks. The resultant  vector is (usually) different than the axis vectors of any of the chunks. (187)</li>
-      <li>        Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215)</li>
-      <li>        After drawing a 'cookie' in the cookie cutter, if the orientation view is changed and then any new cookie drawn will be placed at a wrong location. Thus, the user should not change the views while in the cookie cutter. (236)</li>
-      <li>        User can not save exclusive features of nanoENGINEER-1  into the PDB file format. nanoENGINEER-1 doesn't give any warning message for users trying to save such features in a .pdb file. (252)</li>
-      <li>        There is a display bug associated with a cut operation on a chunk. It stretches the interchunk bond and keeps bonded portion of cut chunk visible. If this happens, select the visible chunk and use &quot;Delete Bonds&quot; to remove the bonds between the two chunks. </li>
-      <li>        Extrude Mode's 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: <ol type="a">
-        <li>          Get everything adjusted first in the 'rod mode'. For example, adjust the number of copies (N), check boxes on the dashboard about the final product and the way you want bonding between chunks to form. </li>
-        <li>          Then you may switch to &quot;Rod Mode&quot; by selecting <strong>ring</strong> from the <strong>rod</strong> pulldown menu on the dashboard. While viewing the ring, you may increase the number of copies. </li>
-        <li>          If you need to do any further adjustments,  switch back to &quot;Rod Mode&quot;, make changes and switch back to the &quot;Ring Mode&quot;. </li>
-        <li>          Select the  'Done' button on the dashboard when finished. (155) </li>
-        </ol>
-      </li>
-      <li>        When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)</li>
-      <li>        The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at <a href="http://www.nanorex.com/mmpformat.htm">www.nanorex.com/mmpformat.htm</a></li>
-      <li>Rotary and Linear motors do not move  with the chunks they are attached to. (168) </li>
-      <li>Cannot select a motor, ground, thermostat or thermometer in the GLpane. These may only be selected via the model tree. (6) </li>
-      <li>&quot;Select Doubly&quot; can take a long time without indication to the user that it is still working.</li>
-      <li>&quot;Hint Cursors&quot; can sometimes get stuck on. Pressing Shift or Cntl/Cmd will usually unstick the cursor. (113, 158)</li>
-      <li>Build Mode: The skull and crossbones cursor will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)</li>
-      <li>Cookie Mode: Changing views (Front, Top, Right, etc.) and then making a selection does not select properly. (236, 277) </li>
-      <li>Cookie Mode: Cannot change the thickness of the current layer once  selection has started.</li>
-      <li>Cookie Mode: When adding a new layer, there is no visual cue indicating a new layer has started. (281) </li>
-      <li>Cookie Mode: Large selections can cause response latency.</li>
-      <li>Larger atoms can obscure open bonds when displayed in VdW mode. (258) </li>
-      <li>Movie Player: If you immediately select the Movie Player after Minimize, you will get the error message &quot;Movie file [/homedir/Nanorex/sim-PID#.xyz] not valid for the current part&quot;. </li>
-      <li>Simulator: The parameters in the simulator always reset to 900 frames, 10 steps per frame and 300K rather than the last parameters entered from the previous simulation run.</li>
-      <li>The Zoom Tool is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.</li>
-    </ol>
-    <p>&nbsp;</p>
-    <p><strong>The following list of unsupported features applies to all platforms.</strong></p>
-    <ol>
-      <li>        Undo/Redo not implemented. </li>
-      <li>        Cannot change color of individual atoms.(189)</li>
-      <li>        Can not move, translate or rotate a chunk by editing its coordinates or providing an x, y, z offset. (9)</li>
-      <li>        Datum objects (points, lines, and planes) are not implemented yet. (47) </li>
-      <li>        Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. </li>
-      <li>        The 'Clipboard'  has limitations and some bugs. </li>
-      <li>        Do not drag and drop anything between the model tree and the clipboard. </li>
-      <li>The symmetry information for a selected chunk cannot be obtained. (261)</li>
-      <li>sp and sp2 bonds are not supported.</li>
-      <li>aromatic bonds are not supported.</li>
-      <li>Bonds are not selectable.</li>
-      </ol>
-    <h3>&nbsp;</h3>
-    <h3>Windows Only </h3>
-    <P>The following list applies to Win32 systems only.</P>
-    <ol><li>      In the Cookie Cutter, Shift+Left only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) </li>
-      <li>        During drag-and-drop,  node icons are not shown in the cursor's drag object. </li>
-    </ol>
-    <h3>&nbsp;</h3>
-    <h3>Macintosh Only </h3>
-    <P>The following list applies to Macintosh only.</P>
-    <ol><li>      Sometimes a cursor's bitmask will suddenly not work, leaving a white square  around the cursor. </li>
-    </ol>
-    <h3>&nbsp;</h3>
-    <h3>Linux Only</h3>
-    <ol>
-      <li> In the Cookie Cutter, Shift+Left  deletes items outside the selection, but doesn't draw inside the lasso/ rectangle (190) </li>
-    </ol>
-    <p>&nbsp;</p>
-</DIV>
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoNormal><span class=GramE><b><span style='font-size:20.0pt;
+font-family:Arial'>nanoENGINEER-1</span></b></span><b><span style='font-size:
+20.0pt;font-family:Arial'>™ v0.0.4 (Alpha 4)<o:p></o:p></span></b></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><b><u><span style='font-size:16.0pt;font-family:Arial'>Bug
+Fixes In Alpha 4 <o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l1 level1 lfo1;tab-stops:list .5in'><span
+     style='font-family:Arial'>Bug #130: ‘Hydrogenate’ add hydrogen atoms to
+     all open bonds above waterline in Build mode. Thus, its implementation is
+     different than Dehydrogenate and Passivate in that mode (these two <span
+     class=GramE>work<span style='mso-spacerun:yes'>  </span>only</span> on a
+     selection). Now, Hydrogenate is implemented in such a way that it works
+     only when a chunk is selected. <o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l1 level1 lfo1;tab-stops:list .5in'><span
+     style='font-family:Arial'>Bug #360 (item 8): Single cut operation for
+     multiple selected objects places copies of only alternate objects in the
+     clipboard.<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l1 level1 lfo1;tab-stops:list .5in'><span
+     style='font-family:Arial'>Bug #381: Deleting a group (by selecting it in
+     the Model Tree and pressing the Delete key) appears to delete the selected
+     chunks, but they can still be available in Extrude mode. <o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l1 level1 lfo1;tab-stops:list .5in'><span
+     style='font-family:Arial'>Bug #386 (item 2): File-&gt;Close operation
+     after minimizing an opened model closes the file without saving changes due
+     to minimize(and without prompting the user to save the changes made after
+     minimization)<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l1 level1 lfo1;tab-stops:list .5in'><span
+     style='font-family:Arial'>About nanoENGINEER-1 dialog background now
+     displays the proper metallic/aqua color on <span class=SpellE>MacOSX</span>.<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><b><u><span style='font-size:16.0pt;font-family:Arial'>Unsupported
+Features:<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Undo/Redo not implemented. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=2 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Cannot change color of individual atoms.(189)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=3 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Can not move, translate or rotate a chunk by
+     editing its coordinates or providing an x, y, z offset. (9)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=4 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Points, lines, and planes are not implemented
+     yet. (47) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=5 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Simulator will support bonding between elements
+     specified in the element selector of nanoENGINEER-1. Multiple bonding is
+     not supported for alpha. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=6 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>The 'Clipboard' has limitations and some bugs. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=7 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Do not drag and drop anything between the model
+     tree and the clipboard. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=8 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>The symmetry information for a selected chunk
+     cannot be obtained. (261)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=9 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     class=GramE><span style='font-family:Arial'>sp</span></span><span
+     style='font-family:Arial'> and sp2 bonds are not supported.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=10 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Aromatic bonds are not supported.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=11 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Bonds are not selectable.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=12 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo8;tab-stops:list .5in'><span
+     style='font-family:Arial'>Linear motors are not supported by the
+     simulator. (393) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><b><u><span style='font-size:16.0pt;font-family:Arial'>Known
+Bugs (All Platforms)<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Delete operation cannot be undone. In fact,
+     Undo/Redo <span class=GramE>are</span> not implemented yet. SAVE YOUR WORK
+     OFTEN!<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=2 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>If you select the part icon (top icon in the
+     model tree) and hit the delete key (or click Delete), the entire part will
+     be deleted without asking the user for confirmation. (147) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=3 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>During Minimize, the progress bar will stay at
+     0% until the last moment, then jumps to 100% before hiding.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=4 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Only open one main window. Opening more than one
+     nanoENGINEER-1 application window will have unexpected results. (362)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=5 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Dragging and dropping objects onto the part icon
+     at the top of the list places the items(s) at the bottom of the list.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=6 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Dragging and dropping items onto a group folder
+     places them at the bottom of the group, not the top. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=7 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Dragging and dropping items between the
+     clipboard and model tree can sometimes have unexpected results. Use <span
+     class=GramE>cut,</span> copy and paste instead. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=8 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>The front clipping plane will sometimes clip
+     objects that should not be clipped.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=9 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Align to common axis averages the axis vectors
+     of the selected chunks. The resultant vector is (usually) different than
+     the axis vectors of any of the chunks. (187)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=10 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Any file currently opened by nanoENGINEER-1 can
+     be manually deleted from the computer without any warning message. (215)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=11 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>After drawing a 'cookie' in the cookie cutter,
+     if the orientation view is changed and then any new cookie drawn will be
+     placed at a wrong location. Thus, the user should not change the views
+     while in the cookie cutter. (236)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=12 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>User can not save exclusive features of
+     nanoENGINEER-1 into the PDB file format. <span class=GramE>nanoENGINEER-1</span>
+     doesn't give any warning message for users trying to save such features in
+     a .<span class=SpellE>pdb</span> file. (252)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=13 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>There is a display bug associated with a cut
+     operation on a chunk. It stretches the inter-chunk bond and keeps bonded
+     portion of cut chunk visible. If this happens, select the visible chunk
+     and use &quot;Delete Bonds&quot; to remove the bonds between the two
+     chunks. (371) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=14 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Extrude Tool: The 'extrude a ring' feature has
+     some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To
+     use <span class=SpellE>extrude's</span> 'Ring Mode' effectively, make sure
+     you follow these steps: <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.75in'><span style='font-family:Arial'>--
+Get everything adjusted first in the 'rod mode'. For example, adjust the number
+of copies (N), check boxes on the dashboard about the final product and the way
+you want bonding between chunks to form. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.75in'><span style='font-family:Arial'>--
+Then you may switch to &quot;Rod Mode&quot; by selecting ring from the rod <span
+class=SpellE>pulldown</span> menu on the dashboard. While viewing the ring, you
+may increase the number of copies. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.75in'><span style='font-family:Arial'>--
+If you need to do any further adjustments, switch back to &quot;Rod Mode&quot;,
+make changes and switch back to the &quot;Ring Mode&quot;. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.75in'><span style='font-family:Arial'>--
+Select the 'Done' button on the dashboard when finished. (155) <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=15 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Extrude Tool: <span class=SpellE>Multple</span>
+     chunks are automatically merged into a single chuck, even when cancel is
+     hit. (397)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=16 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>When starting a new part or opening a new file,
+     the object name indexing is not reset to 1. For example, new chunk names
+     continue to increment from the previous part's index number. (64)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=17 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>The MMP File Format specification included in
+     the nanoENGINEER-1 Assistant is obsolete. The most current version can be
+     found at www.nanorex.com/mmpformat.htm<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=18 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Rotary and Linear motors do not move with the
+     chunks they are attached to. (168) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=19 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Cannot select a jig (i.e. motor, ground,
+     thermostat or thermometer) in the graphics area. Jigs may only be selected
+     via the model tree. (6) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=20 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>&quot;Select <span class=GramE>Doubly</span>&quot;
+     can often take a long time to complete. (102)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=21 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Middle mouse button &quot;Hint Cursors&quot; can
+     sometimes get stuck on. Pressing the Shift or <span class=SpellE>Cntl/Cmd</span>
+     key will usually fix the cursor. (113, 158)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=22 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Build Mode: The skull and crossbones cursor will
+     not display (when pressing Ctrl/<span class=SpellE>Cmd</span>) after
+     clicking in the Model Tree area. (217)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=23 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Cookie Mode: Changing views (Front, Top, Right,
+     etc.) and then making a selection does not select properly. (236, 277) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=24 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Cookie Mode: The thickness of the current layer
+     does not change once selection has started, even though the thickness can
+     be changed on the dashboard. (167)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=25 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Cookie Mode: When adding a new layer, there is
+     no visual cue indicating a new layer has started. (281) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=26 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Cookie Mode: Large selections can cause response
+     latency. (8)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=27 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Display: Larger atoms can obscure open bonds
+     when displayed in <span class=SpellE>VdW</span> mode. (258) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=28 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Movie Player: If you immediately select the
+     Movie Player after Minimize, you will get the error message &quot;Movie
+     file [/<span class=SpellE>homedir/Nanorex/sim-PID#.xyz</span>] not valid
+     for the current part&quot;. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=29 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Simulator: The parameters in the simulator
+     always reset to 900 frames, 10 steps per frame and 300K rather than the
+     last parameters entered from the previous simulation run.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=30 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     class=GramE><span style='font-family:Arial'>Zoom</span></span><span
+     style='font-family:Arial'> Tool: It is still experimental. Some Mac users
+     report cosmetic bugs. It is a good idea to save your work before using it.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=31 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>There are some bugs that occur when a blank PDB
+     file is inserted into any open file using File-&gt;Insert. Therefore,
+     avoid inserting a blank PDB file. (433) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=32 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Hydrogenate/Dehydrogenate/Passivate work for
+     clipboard objects (411)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=33 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Simulator: in some cases, open bonds ‘fly away’
+     from the elements while running a simulation movie. (254) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=34 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Minimize: Large values written to the MMP (or to
+     the generated XYZ) file after minimizing a model containing overlapped open
+     bonds or excessively stretched bonds (422)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=35 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Some bugs occur if one tries to play an invalid
+     movie file for a part. This may result in loss of data. Therefore, do not
+     try to play a movie file that is invalid for the opened part. (384) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=36 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Can not select a chunk if cursor is inside the
+     selection polyhedron but not pointing inside perimeter of any of the atoms
+     in that chunk. (11)<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=37 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'><span style='mso-spacerun:yes'> </span>In the
+     Cookie Cutter, <span class=SpellE>Shift+Left</span> Mouse drag only
+     deletes drawing that is outside but doesn't draw inside the lasso/
+     rectangle (190) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=38 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><span
+     style='font-family:Arial'>Extrude: Separates the chunk permanently when
+     atoms are partially selected and then extrude mode is cancelled. (198) <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><b><u><span style='font-size:16.0pt;font-family:Arial'>Windows
+Only Bugs<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo12;tab-stops:list .5in'><span
+     style='font-family:Arial'>During drag-and-drop, node icons are not shown
+     in the cursor's drag object. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><b><u><span style='font-size:16.0pt;font-family:Arial'>Macintosh
+Only Bugs<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo11;tab-stops:list .5in'><span
+     style='font-family:Arial'>Sometimes a cursor's <span class=SpellE>bitmask</span>
+     will suddenly not work, leaving a white square around the cursor. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=2 type=1>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo11;tab-stops:list .5in'><span
+     style='font-family:Arial'>Icon tray/bar redrawing of the icon images will
+     show up overlapped, <span class=SpellE>zig-zagged</span>, cracked, etc. in
+     certain situations. In worst cases, the right-side icon bars will go
+     invisible until the invisible bar is clicked on, which redraws the bar but
+     changes your button. <o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=3 type=1>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo11;tab-stops:list .5in'><span
+     style='font-family:Arial'>Occasionally, bouncing between programs will
+     lead to the menu (screen top) disappearing, only to re-appear with <span
+     class=SpellE>mouseover</span> (or <span class=SpellE>mouseover+click</span>).<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><b><u><span style='font-size:16.0pt;font-family:Arial'>Linux
+Only Bugs<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l11 level1 lfo13;tab-stops:list .5in'><span
+     style='font-family:Arial'>Plot tool dialog doesn’t stay on the top of plots
+     it generates for windows and Linux (427)<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l11 level1 lfo13;tab-stops:list .5in'><span
+     style='font-family:Arial'>Opening a plot file from the plot tool dialogs
+     needs ‘<span class=SpellE>kwrite</span>’ editor which is available with
+     only with KDE desktop (434)<o:p></o:p></span></li>
+</ol>
+
+</div>
+
 </body>
+
 </html>
