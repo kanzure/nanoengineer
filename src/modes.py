@@ -147,7 +147,7 @@ class basicMode:
                 self.o.ZRot = 0
         if self.o.ZRot:
             w=self.o.width+0.0
-            self.o.quat = self.o.Zq + Q(V(0,1,0),2*pi*dx/w)
+            self.o.quat = self.o.Zq + Q(V(0,0,1),2*pi*dx/w)
         else:
             h=self.o.height+0.0
             self.o.scale = self.o.Zscale*10.0**(0.5*dy/h)
@@ -236,7 +236,7 @@ class basicMode:
         color = logicColor(self.selSense)
         pl = zip(self.sellist[:-1],self.sellist[1:])
         for pp in pl:
-            drawer.drawline(color,pp[0],color,pp[1])
+            drawer.drawline(color,pp[0],pp[1])
         if self.selLassRect:
             drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
                                  self.o.up, self.o.right, color)

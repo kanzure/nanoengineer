@@ -368,14 +368,14 @@ class assembly:
 
     # dumb hack: find which atom the cursor is pointing at by
     # checking every atom...
-    def findpick(self, p1, v1, r=None):
+    def findpick(self, p1, v1, r=None, iPic = None, iInv=None):
         distance=1000000
         atom=None
         for mol in self.molecules:
-            if mol.display == diINVISIBLE: continue
+            if mol.display == diINVISIBLE and not iInv: continue
             for a in mol.atoms.itervalues():
-                if a.display == diINVISIBLE: continue
-                dist = a.checkpick(p1, v1, r)
+                if a.display == diINVISIBLE and not iInv: continue
+                dist = a.checkpick(p1, v1, r, iPic)
                 if dist:
                     if dist<distance:
                         distance=dist
@@ -390,7 +390,7 @@ class assembly:
 
     # make something unselected
     def unpick(self, p1, v1):
-        a = self.findpick(p1, v1)
+        a = self.findpick(p1, v1, None, True, True)
         if a and self.selwhat: a.molecule.unpick()
         elif a: a.unpick()
 

@@ -22,7 +22,11 @@ class cookieMode(basicMode):
         self.o.snap2trackball()
 
     def Flush(self):
-        pass
+        self.o.shape = None
+
+        self.o.ortho = self.savedOrtho
+        self.o.setMode('SELECT')
+
 
     def Done(self):
         if self.o.shape:
@@ -31,6 +35,17 @@ class cookieMode(basicMode):
 
         self.o.ortho = self.savedOrtho
         self.o.setMode('SELECT')
+
+    def Backup(self):
+        if self.o.shape:
+            self.o.shape.undo()
+        self.o.assy.updateDisplays()
+        
+    def Restart(self):
+        if self.o.shape:
+            self.o.shape.clear()
+        self.o.assy.updateDisplays()
+        
 
     def leftDown(self, event):
         self.StartDraw(event, 1)
@@ -169,15 +184,15 @@ class cookieMode(basicMode):
 
    
     def makeMenus(self):
-        self.Menu1 = self.makemenu([('All', self.o.assy.selectAll),
-                                    ('None', self.o.assy.selectNone),
-                                    ('Invert', self.o.assy.selectInvert),
+        self.Menu1 = self.makemenu([('Cancel', self.Flush),
+                                    ('Restart', self.Restart),
+                                    ('Backup', self.Backup),
                                     None,
-                                    ('Connected', self.o.assy.selectConnected),
-                                    ('Doubly', self.o.assy.selectDoubly),
+                                    ('Layer', self.Layer),
+                                    ('Thickness', self.Thickness),
                                     None,
-                                    ('Atoms', self.o.assy.selectAtoms),
-                                    ('Parts', self.o.assy.selectParts)])
+                                    ('Move', self.move),
+                                    ('Copy', self.copy)])
         
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
@@ -196,3 +211,16 @@ class cookieMode(basicMode):
                                     None,
                                     ('Color', self.w.dispColor)])
 
+    def copy(self):
+        print 'NYI'
+
+    def move(self):
+        print 'NYI'
+
+    def Layer(self):
+        if self.o.shape:
+            self.o.pov -= self.o.shape.pushdown()
+        
+
+    def Thickness(self):
+        print 'NYI'

@@ -197,12 +197,11 @@ def drawcylinder(color, pos1, pos2, radius, picked=0, capped=0):
     glPopMatrix()
     if picked: glDisable(GL_LIGHT2)
 
-def drawline(color1,pos1,color2,pos2):
+def drawline(color,pos1,pos2):
     glDisable(GL_LIGHTING)
-    glColor3fv(color1)
+    glColor3fv(color)
     glBegin(GL_LINES)
     glVertex(pos1[0], pos1[1], pos1[2])
-    glColor3fv(color2)
     glVertex(pos2[0], pos2[1], pos2[2])
     glEnd()
     glEnable(GL_LIGHTING)

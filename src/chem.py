@@ -78,7 +78,7 @@ class elem:
 #      [[Nbonds, radius, angle] ...]
 Mendeleev=[ \
  elem("X", "Singlet",      0.001,  1.1,  [1.0, 0.0, 0.0],
-      [[1, 20, None]]),
+      [[1, 0, None]]),
  elem("H",  "Hydrogen",    1.6737, 1.2,  [0.0, 0.6, 0.6],
       [[1, 30, None]]),
  elem("He", "Helium",      6.646,  1.4,  [1.0, 0.27, 0.67],
@@ -265,14 +265,14 @@ class atom:
                        povpoint(color) + ")\n")
 
 
-    def checkpick(self, p1, v1, r=None):
+    def checkpick(self, p1, v1, r=None, iPic=None):
         """check if the line through point p1 in direction v1
         goes through the atom (defined as a sphere 70% its vdW radius)
         This is a royal kludge, needs to be replaced by something
         that uses the screen representation
         """
         if not r: r=self.element.rvdw*0.7
-        if self.picked: return None
+        if self.picked and not iPic: return None
         dist, wid = orthodist(p1, v1, self.posn())
         if wid > r: return None
         if dist<0: return None
@@ -406,7 +406,7 @@ class bond:
     def __eq__(self, ob):
         return ob.key == self.key
 
-    def draw(self, win, dispdef, col):
+    def draw(self, win, dispdef, col, level):
         """bonds are drawn in CPK or line display mode.
         display mode is inherited from the atoms or molecule.
         lines change color from atom to atom.
@@ -419,18 +419,36 @@ class bond:
         disp=max(self.atom1.display, self.atom2.display)
         if disp == diDEFAULT: disp= dispdef
         if disp == diLINES:
-            drawline(color1, self.a1pos, color2, self.a2pos)
+            if self.center:
+                drawline(color1, self.a1pos, self.center)
+                drawline(color2, self.a2pos, self.center)
+            else:
+                drawline(color1, self.a1pos, self.c1)
+                drawline(color2, self.a2pos, self.c2)
+                drawline(red, self.c1, self.c2)
         if disp == diCPK:
             drawcylinder(col or bondColor, self.a1pos, self.a2pos,
                          0.1, self.picked)
         if disp == diTUBES:
+            v1 = self.atom1.display != diINVISIBLE
+            v2 = self.atom2.display != diINVISIBLE
             if self.center:
-                drawcylinder(color1, self.a1pos, self.center, TubeRadius)
-                drawcylinder(color2, self.a2pos, self.center, TubeRadius)
+                if v1:
+                    drawcylinder(color1, self.a1pos, self.center, TubeRadius)
+                if v2:
+                    drawcylinder(color2, self.a2pos, self.center, TubeRadius)
+                if not (v1 and v2):
+                    drawsphere(black, self.center, TubeRadius, level)
             else:
-                drawcylinder(color1, self.a1pos, self.c1, TubeRadius)
                 drawcylinder(red, self.c1, self.c2, TubeRadius)
-                drawcylinder(color2, self.a2pos, self.c2, TubeRadius)
+                if v1:
+                    drawcylinder(color1, self.a1pos, self.c1, TubeRadius)
+                else:
+                    drawsphere(black, self.c1, TubeRadius, level)
+                if v2:
+                    drawcylinder(color2, self.a2pos, self.c2, TubeRadius)
+                else:
+                    drawsphere(black, self.c2, TubeRadius, level)
 
     def povwrite(self, file, dispdef, col):
         disp=max(self.atom1.display, self.atom2.display)
@@ -563,7 +581,7 @@ class molecule:
                         self.externs += [bon]
                     else:
                         drawn[bon.key] = bon
-                        bon.setup()
+                    bon.setup()
 
         self.havelist = 0
         
@@ -611,7 +629,7 @@ class molecule:
                             self.externs += [bon]
                         else:
                             drawn[bon.key] = bon
-                            bon.draw(win, disp, self.color)
+                            bon.draw(win, disp, self.color, level)
 
 
             for g in self.gadgets:
@@ -622,7 +640,7 @@ class molecule:
         glPopMatrix()
 
         for bon in self.externs:
-            bon.draw(win, disp, self.color)
+            bon.draw(win, disp, self.color, level)
 
     # write a povray file: just draw everything inside
     def povwrite(self,file, win):

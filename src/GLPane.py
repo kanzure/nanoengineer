@@ -155,7 +155,7 @@ class GLPane(QGLWidget):
     # return space vectors corresponding to various directions
     # relative to the screen
     def __getattr__(self, name):
-        if name in ('lineOfSight', 'in'):
+        if name == 'lineOfSight':
             return dot(V(0,0,-1), self.quat.matrix3)
         elif name == 'right':
             return dot(V(1,0,0), self.quat.matrix3)
@@ -445,6 +445,8 @@ class GLPane(QGLWidget):
         width and height default to current size
         (and only that works currently)
         """
+        if not filename: return
+
         width = self.width
         height = self.height
         if filename[-3:] == "pov": self.povwrite(filename, width, height)
@@ -484,6 +486,8 @@ class GLPane(QGLWidget):
 
         f.close()
         print "povray +P +W" + str(width) + " +H" +str(height)  + " +A " + filename
+
+        
     def jpgwrite(self, filename, width, height):
 
         buf = array(glReadPixelsub(0, 0, width, height, GL_RGB))

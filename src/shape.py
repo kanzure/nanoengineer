@@ -61,7 +61,8 @@ class BBox:
 
     def scale(self):
         if not self.data: return 10.0
-        return 1.2*maximum.reduce(subtract.reduce(self.data))
+        x=1.2*maximum.reduce(subtract.reduce(self.data))
+        return max(x, 10.0)
 
     def copy(self, offset=None):
         if offset: return BBox(self.data[0]+offset, self.data[1]+offset)
@@ -190,8 +191,8 @@ class curve:
                 if not self.matrix[i,j]:
                     p= (V(i,j)+self.matbase)/8.0
                     p=p[0]*self.x + p[1]*self.y + self.z
-                    drawline(col,p,col,p+dx+dy)
-                    drawline(col,p+dx,col,p+dy)
+                    drawline(col,p,p+dx+dy)
+                    drawline(col,p+dx,p+dy)
 
     def draw(self):
         """Draw two projections of the curve at the limits of the
@@ -201,17 +202,17 @@ class curve:
         color = logicColor(self.logic)
         pl = zip(self.points[:-1],self.points[1:])
         for p in pl:
-            drawline(color,p[0],color,p[1])
+            drawline(color,p[0],p[1])
         
             
         # for debugging
         self.bbox.draw()
         #if self.eyeball:
         #    for p in self.points:
-        #        drawline(red,self.eyeball,white,p)
-        #drawline(white,self.org,white,self.org+10*self.z)
-        #drawline(white,self.org,white,self.org+10*self.x)
-        #drawline(white,self.org,white,self.org+10*self.y)
+        #        drawline(red,self.eyeball,p)
+        #drawline(white,self.org,self.org+10*self.z)
+        #drawline(white,self.org,self.org+10*self.x)
+        #drawline(white,self.org,self.org+10*self.y)
 
         
 
@@ -297,6 +298,13 @@ class shape:
         self.slab = slab
         self.bbox = BBox()
 
+    def pushdown(self):
+        
+        th = self.slab.thickness
+        n = self.normal
+        mov = - th * n
+        self.slab = Slab(self.center+mov, n, th)
+        return mov
 
     def pickline(self, ptlist, point, logic, eye=None):
         """Add a new curve to the shape.
@@ -381,9 +389,7 @@ class shape:
                     if c.isin(a.posn()): a.pick()
         elif c.logic == 2:
             for mol in assy.molecules:
-                if mol.display == diINVISIBLE: continue
                 for a in mol.atoms.itervalues():
-                    if a.display == diINVISIBLE: continue
                     if c.isin(a.posn()): a.pick()
                     else: a.unpick()
         else:
@@ -415,17 +421,11 @@ class shape:
         if self.curves: self.curves = self.curves[:-1]
         self.havelist = 0
 
-    def drawlines(self,win):
-        pass
-
-    def drawvdw(self, win):
-        pass
-
-    def drawbns(self, win):
-        pass
-
-    def drawpick(self, win):
-        pass
+    def clear(self):
+        """This would work for shapes, if anyone called it.
+        """
+        self.curves = []
+        self.havelist = 0
 
     def __str__(self):
         return "<Shape at " + `self.center` + ">"
