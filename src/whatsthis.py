@@ -130,9 +130,9 @@ def createWhatsThis(self):
                        "When you create a new model, it appears in a default view orientation (FRONT view). When you open an existing model, it appears in the orientation it was last saved.  You can change the default orientation by selecting <b>Set Home View to Current View</b> from the <b>View</b> menu.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewHome",
-                                                       self. setViewHomeAction.iconSet().pixmap() )
+                                                       self.setViewHomeAction.iconSet().pixmap() )
 
-        self.setViewHomeAction.setWhatsThis(  setViewHomeActionText )
+        self.setViewHomeAction.setWhatsThis( setViewHomeActionText )
 
         #### Fit to Window ####
         
@@ -142,9 +142,22 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewFitToWindow",
-                                                       self. setViewFitToWindowAction.iconSet().pixmap() )
+                                                       self.setViewFitToWindowAction.iconSet().pixmap() )
 
-        self.setViewFitToWindowAction.setWhatsThis(  setViewFitToWindowActionText )       
+        self.setViewFitToWindowAction.setWhatsThis( setViewFitToWindowActionText )   
+
+        #### Recenter ####
+        
+        setViewRecenterActionText = "<u><b>Recenter</b></u><br>"\
+                       "<p><img source=\"setViewRecenter\"><br> "\
+                       "Changes the view center and zoom factor so that the origin is in the "\
+                       "center of the view and you can view the entire model."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setViewRecenter",
+                                                       self.setViewRecenterAction.iconSet().pixmap() )
+
+        self.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )       
         
          #### Zoom Tool ####
         
@@ -158,7 +171,7 @@ def createWhatsThis(self):
         QMimeSourceFactory.defaultFactory().setPixmap( "setzoomTool",
                                                        self.zoomToolAction.iconSet().pixmap() )
 
-        self.zoomToolAction.setWhatsThis(  setzoomToolActionText )      
+        self.zoomToolAction.setWhatsThis( setzoomToolActionText )      
 
         
          #### Pan Tool ####
@@ -172,7 +185,7 @@ def createWhatsThis(self):
         QMimeSourceFactory.defaultFactory().setPixmap( "setpanTool",
                                                        self.panToolAction.iconSet().pixmap() )
 
-        self.panToolAction.setWhatsThis(  setpanToolActionText )
+        self.panToolAction.setWhatsThis( setpanToolActionText )
 
         
          #### Rotate Tool ####
@@ -186,7 +199,7 @@ def createWhatsThis(self):
         QMimeSourceFactory.defaultFactory().setPixmap( "setrotateTool",
                                                        self.rotateToolAction.iconSet().pixmap() )
 
-        self.rotateToolAction.setWhatsThis(  setrotateToolActionText )
+        self.rotateToolAction.setWhatsThis( setrotateToolActionText )
         
          #### Orthographic Projection ####
         
@@ -196,9 +209,9 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewOrtho",
-                                                       self. setViewOrthoAction.iconSet().pixmap() )
+                                                       self.setViewOrthoAction.iconSet().pixmap() )
 
-        self.setViewOrthoAction.setWhatsThis(  setViewOrthoActionText )
+        self.setViewOrthoAction.setWhatsThis( setViewOrthoActionText )
 
            #### Perspective Projection ####
         
@@ -209,9 +222,9 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewPerspec",
-                                                       self. setViewPerspecAction.iconSet().pixmap() )
+                                                       self.setViewPerspecAction.iconSet().pixmap() )
 
-        self.setViewPerspecAction.setWhatsThis(  setViewPerspecActionText )        
+        self.setViewPerspecAction.setWhatsThis( setViewPerspecActionText )        
 
            #### Front View ####
         
@@ -221,9 +234,9 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewFront",
-                                                       self. setViewFrontAction.iconSet().pixmap() )
+                                                       self.setViewFrontAction.iconSet().pixmap() )
 
-        self.setViewFrontAction.setWhatsThis(  setViewFrontActionText )  
+        self.setViewFrontAction.setWhatsThis( setViewFrontActionText )  
 
            #### Back View ####
         
@@ -233,9 +246,9 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewBack",
-                                                       self. setViewBackAction.iconSet().pixmap() )
+                                                       self.setViewBackAction.iconSet().pixmap() )
 
-        self.setViewBackAction.setWhatsThis(  setViewBackActionText )     
+        self.setViewBackAction.setWhatsThis( setViewBackActionText )     
         
                    #### Top View ####
         
@@ -245,9 +258,9 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewTop",
-                                                       self. setViewTopAction.iconSet().pixmap() )
+                                                       self.setViewTopAction.iconSet().pixmap() )
 
-        self.setViewTopAction.setWhatsThis(  setViewTopActionText )      
+        self.setViewTopAction.setWhatsThis( setViewTopActionText )      
         
                            #### Bottom View ####
         
@@ -257,9 +270,9 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewBottom",
-                                                       self. setViewBottomAction.iconSet().pixmap() )
+                                                       self.setViewBottomAction.iconSet().pixmap() )
 
-        self.setViewBottomAction.setWhatsThis(  setViewBottomActionText )  
+        self.setViewBottomAction.setWhatsThis( setViewBottomActionText )  
         
         #### Left View ####
         
@@ -269,9 +282,9 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewLeft",
-                                                       self. setViewLeftAction.iconSet().pixmap() )
+                                                       self.setViewLeftAction.iconSet().pixmap() )
 
-        self.setViewLeftAction.setWhatsThis(  setViewLeftActionText )
+        self.setViewLeftAction.setWhatsThis( setViewLeftActionText )
         
         #### Right View ####
         
@@ -281,9 +294,9 @@ def createWhatsThis(self):
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewRight",
-                                                       self. setViewRightAction.iconSet().pixmap() )
+                                                       self.setViewRightAction.iconSet().pixmap() )
 
-        self.setViewRightAction.setWhatsThis(  setViewRightActionText )
+        self.setViewRightAction.setWhatsThis( setViewRightActionText )
         
         ##############################################
         # Grids Toolbar
