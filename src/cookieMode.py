@@ -190,7 +190,7 @@ class cookieMode(basicMode):
         drawer.drawgrid(1.5*self.o.scale, -self.o.pov)
         glDisable(GL_CLIP_PLANE0)
         glDisable(GL_CLIP_PLANE1)
-        drawer.drawaxes(5,-self.o.pov)
+        #drawer.drawaxes(5,-self.o.pov)
 
    
     def makeMenus(self):

@@ -105,6 +105,9 @@ class GLPane(QGLWidget):
         # the little corner axis icon
         self.drawAxisIcon = 1
 
+        # the toggle button state for Csys
+        self.cSysToggleButton = True
+ 
         # point of view, and half-height of window in Angstroms
         self.pov = V(0.0, 0.0, 0.0)
         self.scale = 10.0
@@ -487,6 +490,7 @@ class GLPane(QGLWidget):
         glTranslatef(self.pov[0], self.pov[1], self.pov[2])
 
         # draw according to mode
+        if self.cSysToggleButton: drawer.drawaxes(5, -self.pov)
         self.mode.Draw()
         glFlush()                           # Tidy up
         self.swapBuffers()

@@ -1,10 +1,10 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
-from SimulatorUI import *
+from SimSetupDialog import *
 
-class runSim(simSetup):
+class runSim(SimSetupDialog):
     def __init__(self, assy):
-        simSetup.__init__(self)
+        SimSetupDialog.__init__(self)
         self.assy = assy
         self.nframes = 900
         self.temp = 300

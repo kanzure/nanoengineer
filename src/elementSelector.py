@@ -1,6 +1,6 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
-from ElementSelectorUI import *
+from ElementSelectorDialog import *
 from elementpixmaps import *
 
 #########################################################################
@@ -36,9 +36,9 @@ b = { 1: 205, 2 : 255,
 
 ############################################################
 
-class elementSelector(elementSelectorForm):
+class elementSelector(ElementSelectorDialog):
     def __init__(self, win):
-        elementSelectorForm.__init__(self)
+        ElementSelectorDialog.__init__(self)
         self.w = win
 
 # Create the pixmaps for each element        

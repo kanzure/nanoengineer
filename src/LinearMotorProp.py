@@ -1,17 +1,17 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
-from LinearMotorPropUI import *
+from LinearMotorPropDialog import *
 
 
-class LinearMotorProp(LinearMotorPropForm):
+class LinearMotorProp(LinearMotorPropDialog):
     def __init__(self, linearMotor):
-        LinearMotorPropForm.__init__(self)
+        LinearMotorPropDialog.__init__(self)
         self.motor = linearMotor
 
         self.stiffness.setText(str(linearMotor.stiffness))
         self.force.setText(str(linearMotor.force))
         self.aX.setText(str(linearMotor.axis[0]))
-        self.aY.setText(str(linearMotor.axis[1]))
+        self.aY.setText(str(linearMotor.axis[1])) 
         self.aZ.setText(str(linearMotor.axis[2]))
 
         self.cX.setText(str(linearMotor.center[0]))	

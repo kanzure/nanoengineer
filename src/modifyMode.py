@@ -128,7 +128,7 @@ class modifyMode(basicMode):
         self.Done()
         
     def Draw(self):
-        self.griddraw()
+       # self.griddraw()
         if self.sellist: self.pickdraw()
         if self.o.assy: self.o.assy.draw(self.o)
 

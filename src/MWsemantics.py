@@ -683,6 +683,11 @@ class MWsemantics(MainWindow):
         self.glpane.drawAxisIcon = not self.glpane.drawAxisIcon
         self.glpane.paintGL()
 
+    def dispCsys(self):
+        """ Toggle on/off center coordinate axes """
+        self.glpane.cSysToggleButton = not self.glpane.cSysToggleButton
+        self.glpane.paintGL()
+
     # break bonds between selected and unselected atoms
     def modifyDeleteBond(self):
         print "MWsemantics.modifyDeleteBond(): Not implemented yet"
@@ -722,11 +727,6 @@ class MWsemantics(MainWindow):
     ##############################################################
     # Some future slot functions for the UI                      #
     ##############################################################
-
-    def dispCsys(self):
-	""" Toggle on/off center coordinate axes """
-	QMessageBox.warning(self, "ATOM User Notice:", 
-	         "This function is not implemented yet, coming soon...")
 
     def dispDatumLines(self):
         """ Toggle on/off datum lines """

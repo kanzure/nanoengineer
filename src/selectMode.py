@@ -125,7 +125,7 @@ class selectMode(basicMode):
        
 
     def Draw(self):
-        self.griddraw()
+        #self.griddraw()
         if self.sellist: self.pickdraw()
         self.o.assy.draw(self.o)
 

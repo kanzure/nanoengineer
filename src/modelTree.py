@@ -1,6 +1,6 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
-from RotMotorProp import RotMotorProp
+from RotaryMotorProp import RotaryMotorProp
 from LinearMotorProp import LinearMotorProp
 from TreeListViewItem import TreeListViewItem
 from constants import *
@@ -97,8 +97,7 @@ class modelTree(QListView):
             elif id == 4: #Hide/Unhide
                  self.hiddenItems += [self.selectedTreeItem]
                  self.selectedTreeItem.setVisible(False)
-            elif id == 5: # Propertiesself.hiddenItems += [self.selectedTreeItem]
-                 self.selectedTreeItem.setVisible(False)
+            elif id == 5: # Properties
                  pass
                   
     def processJigMenu(self, id):
@@ -110,10 +109,17 @@ class modelTree(QListView):
                  self.hiddenItems += [self.selectedTreeItem]
                  self.selectedTreeItem.setVisible(False)            
             elif id == 3: # Properties
-                rotaryMotor = self.treeItems[self.selectedTreeItem]
-                rMotorDialog = RotMotorProp(rotaryMotor)
-                rMotorDialog.show()
-                rMotorDialog.exec_loop()
+                jig = self.treeItems[self.selectedTreeItem]
+                if isinstance(jig, motor):
+                        rMotorDialog = RotaryMotorProp(jig)
+                        rMotorDialog.show()
+                        rMotorDialog.exec_loop()
+                elif isinstance(jig, LinearMotor):
+                        lMotorDialog = LinearMotorProp(jig)
+                        lMotorDialog.show()
+                        lMotorDialog.exec_loop()
+                elif isinstance(jig, ground):
+                        pass
 
                   
     def processInsertHereMenu(self, id):

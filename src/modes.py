@@ -46,7 +46,7 @@ class basicMode:
         self.o.setMode(self.prevmode.modename)
     
     def Draw(self):
-        drawer.drawaxes(5,-self.o.pov)
+        pass#drawer.drawaxes(5,-self.o.pov)
 
     def leftDown(self, event):
         pass
@@ -226,5 +226,4 @@ class basicMode:
         if self.selLassRect:
             drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
                                  self.o.up, self.o.right, color)
-
 
