@@ -173,11 +173,29 @@ def makemenu_helper(self, lis):
         elif m:
             assert callable(m[1]), \
                 "%r[1] needs to be a callable" % (m,) #bruce 041103
-            act = QAction(win,m[0]+'Action')
-            act.setText(win.trUtf8(m[0]))
-            act.setMenuText(win.trUtf8(m[0]))
-            act.addTo(menu)
-            win.connect(act, SIGNAL("activated()"), m[1])
+            if len(m) == 2:
+                # old code
+                # (this case might not be needed anymore, but it's known to work)
+                act = QAction(win,m[0]+'Action')
+                act.setText(win.trUtf8(m[0]))
+                act.setMenuText(win.trUtf8(m[0]))
+                act.addTo(menu)
+                win.connect(act, SIGNAL("activated()"), m[1])
+            else:
+                # new code to support some additional menu item options
+                # (likely to be expanded to support more).
+                # Only used for len(m) > 2, though it presumably works
+                # just as well for len 2 (try it sometime). [bruce 050112]
+                mitem_id = menu.insertItem( win.trUtf8(m[0]) )
+                menu.connectItem(mitem_id, m[1]) # semi-guess
+                for option in m[2:]:
+                    if option == 'checked':
+                        menu.setItemChecked(mitem_id, True)
+                    if option == 'disabled':
+                        menu.setItemEnabled(mitem_id, False)
+                    #e and something to use QMenuData.setAccel
+                    #e and something to run whatever func you want on menu and mitem_id
+                pass
         else:
             menu.insertSeparator()
     return menu

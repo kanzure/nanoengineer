@@ -173,12 +173,19 @@ class selectMode(basicMode):
 
     def makeMenus(self): # menu item names modified by bruce 041217
 
-        def fixit(item):
-            if self.default_mode_status_text == "Mode: " + item:
-                item = "(%s)" % item #e it would be better to add a checkmark
-            return item
+        def fixit3(text, func):
+            if self.default_mode_status_text == "Mode: " + text:
+                # this menu item indicates the current mode --
+                # add a checkmark and disable it [bruce 050112]
+                 ###e need to put this into Move and Build modes too...
+                return text, func, 'checked', 'disabled'
+            else:
+                return text, func
         
         self.Menu_spec = [
+            ###e these accelerators should be changed to be Qt-official
+            # by extending widgets.makemenu_helper to use Qt's setAccel...
+            # [bruce 050112]
             ('Select All                     Ctrl+A', self.o.assy.selectAll),
             ('Select None                Ctrl+D', self.o.assy.selectNone),
             ('Invert Selection   Ctrl+Shift+I', self.o.assy.selectInvert),
@@ -190,11 +197,8 @@ class selectMode(basicMode):
             # modes they enter, and added Move Chunks too. (It was already
             # present but in a different menu. I left it there, too, for the
             # sake of existing users. But it would be better to remove it.)
-            # (Ideally we would also add a checkmark to the menu item for
-            #  the mode we're in. As a placeholder, I'll parenthesize it
-            #  instead. This is just an experiment.)
-            (fixit('Select Atoms'), self.w.toolsSelectAtoms),
-            (fixit('Select Chunks'), self.w.toolsSelectMolecules),
+            fixit3(('Select Atoms'), self.w.toolsSelectAtoms),
+            fixit3(('Select Chunks'), self.w.toolsSelectMolecules),
             ('Move Chunks', self.w.toolsMoveMolecule), 
             ('Build Atoms', self.w.toolsAtomStart),
             ]
