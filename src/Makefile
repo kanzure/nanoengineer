@@ -2,7 +2,10 @@
 
 CC=gcc
 CFLAGS=-O3 -g
-LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
+#LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
+LDFLAGS=-L/usr/lib -lm
+
+EXE_DIRECTORY=../../cad/bin
 
 ifeq ($(PROFILING),1)
 CFLAGS+=-pg
@@ -27,8 +30,10 @@ all: simulator
 
 simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
-	mv simulator ~/bin
-
+	if [ ! -d $(EXE_DIRECTORY) ] ; then \
+		mkdir $(EXE_DIRECTORY) ;\
+	fi
+	mv simulator $(EXE_DIRECTORY) 
 
 clean:
 	rm -f simulator moldisp molsim physeng
