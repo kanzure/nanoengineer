@@ -22,6 +22,10 @@ from Utility import *
 from MoleculeProp import *
 from debug import print_compact_stack, print_compact_traceback
 
+INVALID_EXTERNS = 333 #bruce 041029 -- an illegal value for mol.externs;
+# used to detect (or someday prevent) accidental use of mol.externs,
+# and (someday) to signal other code that a shakedown is needed.
+
 CPKvdW = 0.25
 
 Elno = 0
@@ -220,6 +224,7 @@ class atom:
         at location where (e.g. V(36, 24, 36))
         belonging to molecule mol, which is part of assembly assy
         """
+        self.__killed = 0
         # unique key for hashing
         self.key = atKey.next()
         # element-type object
@@ -299,7 +304,6 @@ class atom:
         the molecule, but a molecule's color overrides the atom's
         element-dependent one
         """
-
         color = col or self.element.color
         disp, rad = self.howdraw(dispdef)
         # note use of basepos since it's being drawn under
@@ -430,11 +434,29 @@ class atom:
         return nuat
 
     def unbond(self, b):
-        """remove bond b from the atom.
-        called from atom.kill of the other atom.
+        """Remove bond b from the atom (error if b not in atom.bonds).
+        Replace it with a new bond to a new singlet,
+        unless self or the old neighbor atom is a singlet.
+        Private method, called from atom.kill of the other atom,
+        and from bond.bust. Caller is responsible for shakedown
+        or kill (after clearing externs) of affected molecules.
+        We invalidate externs of both molecules if they are different,
+        and we always invalidate appearance of both molecules.
+        [code and docstring revised by bruce 041029]
         """
-        # the caller needs to do a shakedown
-        self.bonds.remove(b)
+        at2 = b.other(self)
+        if self.molecule != at2.molecule:
+            self.molecule.externs = at2.molecule.externs = INVALID_EXTERNS
+        self.molecule.havelist = at2.molecule.havelist = 0 # changeapp()
+        # the caller needs to do a shakedown or kill of both molecules
+        try:
+            self.bonds.remove(b)
+        except ValueError: # list.remove(x): x not in list
+            # this is always a bug in the caller, but we catch it here to
+            # prevent turning it into a worse bug [bruce 041028]
+            msg = "fyi: atom.unbond: bond %r should be in bonds %r\n of atom %r, " \
+                  "but is not:\n " % (b, self.bonds, self)
+            print_compact_traceback(msg)
         if self.element == Singlet: return
         # normally replace an atom with a singlet,
         # but don't replace a singlet with a singlet
@@ -444,9 +466,13 @@ class atom:
 
     def hopmol(self, numol):
         """move this atom to molecule numol.  Caller is responsible for
-        shakedown, or to zero externs if the molecule will be killed.
+        shakedown (of both involved molecules), or to clear externs if
+        this molecule will be killed.
+        We invalidate the externs of both involved molecules
+        so that their erroneous use will be detected.
         """
         if self.molecule == numol: return
+        self.molecule.externs = numol.externs = INVALID_EXTERNS # [bruce 041029]
         nxyz = self.posn()
         del self.molecule.atoms[self.key]
         self.unpick()
@@ -484,23 +510,70 @@ class atom:
         for b in self.bonds: b.setup()            
         self.molecule.changeapp()
 
+    def killed(self): #bruce 041029
+        """For an ordinary atom, return False.
+        For an atom which has been properly killed, return True.
+        For an atom which has something clearly wrong with it,
+        print an error message, try to fix the problem,
+        effectively kill it, and return True.
+        Don't call this on an atom still being initialized.
+        """
+        try:
+            killed = not (self.key in self.molecule.atoms)
+            if killed:
+                assert self.__killed == 1
+                assert not self.picked
+                assert not self.key in self.molecule.assy.selatoms
+                assert not self.bonds
+                assert not self.jigs
+            else:
+                assert self.__killed == 0
+            return killed
+        except:
+            print_compact_traceback("fyi: atom.killed detects some problem" \
+                " in atom %r, trying to work around it:\n " % self )
+            try:
+                self.__killed = 0 # make sure kill tries to do something
+                self.kill()
+            except:
+                print_compact_traceback("fyi: atom.killed: ignoring" \
+                    " exception when killing atom %r:\n " % self )
+            return True
+        pass # end of atom.killed()
+        
     def kill(self):
         """kill an atom: remove it from molecule.atoms,
-        and remove bonds to it from its neighbors
-        caller is responsible for shakedown
+        and remove bonds to it from its neighbors.
+        caller is responsible for shakedown or kill of all affected molecules.
         """
-        try: del self.molecule.atoms[self.key]
-        except KeyError: pass
+        if self.__killed:
+            print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
+            return
+        self.__killed = 1 # do this now, to reduce repeated exceptions (works??)
+        try:
+            self.unpick() #bruce 041029
+        except:
+            print_compact_traceback("fyi: atom.kill: ignoring error in unpick: ")
+            pass
+        try:
+            del self.molecule.atoms[self.key]
+        except KeyError:
+            print "fyi: atom.kill: atom %r not in its molecule (killed twice?)" % self
+            pass
         for b in self.bonds:
             n = b.other(self)
-            n.unbond(b)
+            n.unbond(b) # this can create a new singlet on n
             if n.element == Singlet: n.kill()
+        self.bonds = [] #bruce 041029 mitigate repeated kills
         # josh 10/26 to fix bug 85
         for j in self.jigs: j.rematom(self)
             # bruce comment 041018: it looks like killing singlets
             # might mess up other molecules, if singlets are in other
             # molecules and caller doesn't know about those in order
             # to do a shakedown on them as well. ###e needs bugfix
+        self.jigs = [] #bruce 041029 mitigate repeated kills
+        
+        return # from atom.kill
 
     def Hydrogenate(self):
         """ if this is a singlet, change it to a hydrogen
@@ -514,14 +587,16 @@ class atom:
         ###e needs review
 
     def Dehydrogenate(self):
-        """ if this is a hydrogen atom, kill it and return 1 (int, not boolean),
-        otherwise return 0. [bruce 041018 added retval feature]
+        """If this is a hydrogen atom (and if it was not already killed),
+        kill it and return 1 (int, not boolean), otherwise return 0.
         [bruce comment 041018: I think caller MUST do a shakedown on all
          affected molecules (those of self and its neighbor), or remove them
          if they are left with no atoms.
          But I think it would be wrong to do any of that here.]
         """
-        if self.element == Hydrogen :
+        # [fyi: some new features were added by bruce, 041018 and 041029]
+        if self.element == Hydrogen and not self.killed():
+            #bruce 041029 added self.killed() check to fix bug 152
             self.kill()
             return 1
         else:
@@ -554,17 +629,44 @@ class bond:
     """essentially a record pointing to two atoms
     """
     
-    def __init__(self, at1, at2):
+    def __init__(self, at1, at2): # also called from self.rebond()
         """create a bond from atom at1 to atom at2.
         the key created will be the same whichever order the atoms are
         given, and is used to compare bonds.
+        [further comments by bruce 041029:]
+        Private method (that is, creating of bond objects is private, for
+        affected molecules and/or atoms). Note: the bond is not actually added
+        to the atoms' molecules! Caller must do that, and must do any necessary
+        invalidation or shakedown of those molecules.
         """
         self.atom1 = at1
         self.atom2 = at2
-        self.picked = 0
+        ## self.picked = 0 # bruce 041029 removed this since it seems unused
         self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key)
+        if self.setup_ok():
+            self.setup()
+        # [bruce 041029] We call self.setup() to fix a bug in Bond menu item,
+        # and on the general principle of keeping things safe. Probably ok,
+        # but needs testing, in case bonds are made on atoms which have not
+        # yet been properly initialized. The exception when not self.setup_ok()
+        # is needed for making certain molecules (no basepos before shakedown)
+        # but should not prevent this from helping with bonds made later,
+        # like in molecule.bond().
 
+    def setup_ok(self):
+        "check whether it's ok (or too early) to call self.setup" #bruce 041029
+        try:
+            self.a1pos = self.atom1.molecule.basepos[self.atom1.index]
+            self.a2pos = self.atom2.molecule.basepos[self.atom2.index]
+            return 1
+        except:
+            return 0
+        pass
+    
     def setup(self):
+        """Call this whenever the position or element of either bonded atom is
+        changed. Also called from bond.__init__ when self.setup_ok().
+        """
         self.a1pos = self.atom1.molecule.basepos[self.atom1.index]
         self.a2pos = self.atom2.molecule.basepos[self.atom2.index]
         if self.atom1.molecule != self.atom2.molecule:
@@ -585,6 +687,7 @@ class bond:
         """Given one atom the bond is connected to, return the other one
         """
         if self.atom1 == at: return self.atom2
+        assert self.atom2 == at #bruce 041029
         return self.atom1
     
     def ubp(self, atom):
@@ -592,6 +695,11 @@ class bond:
         if self.atom1.molecule != self.atom2.molecule:
             off = V(0,0,0)
         else: off = atom.molecule.center
+##        try:
+##            self.c1
+##        except:
+##            #bruce 041029 added this to prevent a bug seen in Bond/Unbond menu items
+##            self.setup()
         if atom==self.atom1: return self.c1 + off
         else: return self.c2 + off
 
@@ -612,11 +720,18 @@ class bond:
         if self.atom1 == old: self.atom1 = new
         if self.atom2 == old: self.atom2 = new
         new.bonds += [self]
+        # bruce 041028 wonders why we don't old.bonds.remove(self)...
+        # I suggest adding a comment here explaining that.
         self.__init__(self.atom1, self.atom2)
         
 
     def __eq__(self, ob):
         return ob.key == self.key
+
+    def __ne__(self, ob):
+        # bruce 041028 -- python doc advises defining __ne__
+        # whenever you define __eq__
+        return not self.__eq__(ob)
 
     def draw(self, win, dispdef, col, level):
         """bonds are drawn in CPK or line display mode.
@@ -746,11 +861,18 @@ class molecule(Node):
         """Cause atom at1 to be bonded to at2
         """
         b=bond(at1,at2)
+        #bruce 041029 precautionary change -- I find in debugging that the bond
+        # can be already in one but not the other of at1.bonds and at2.bonds,
+        # as a result of prior bugs. To avoid worsening those bugs, we should
+        # change this... but for now I'll just print a message about it.
+        if (b in at1.bonds) != (b in at2.bonds):
+            print "fyi: debug: for new bond %r, (b in at1.bonds) != (b in at2.bonds)" % b
         if not b in at2.bonds:
             at1.bonds += [b]
             at2.bonds += [b]
         # may have changed appearance of the molecule
         self.havelist = 0
+        ###e bruce 041029: what about havelist of the other molecule??
 
     def shakedown(self):
         """Find center and bounding box for atoms, and set each one's
@@ -762,6 +884,11 @@ class molecule(Node):
             self.quat = Q(1,0,0,0)
             self.axis = V(1,0,0)
             self.basepos = self.curpos = []
+            #bruce 041029 take more precautions:
+            self.atlist = self.singlets = self.singlpos = self.singlbase = []
+            del self.polyhedron, self.eval, self.evec, self.axis
+            self.externs = []
+            self.havelist = 0
             return
         atpos = []
         atlist = []
@@ -1066,19 +1193,30 @@ class molecule(Node):
             # self.assy.w.msgbarLabel.setText(" ")
 
     def kill(self):
+        #e bruce 041029 thinks we'll someday want to detect killing a mol or Node twice
         self.unpick()
         Node.kill(self)
         try:
             self.assy.molecules.remove(self)
             self.assy.modified = 1
-        except ValueError: pass
+        except ValueError:
+            print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
+            pass
         for b in self.externs:
             b.bust(self)
+        self.externs = [] #bruce 041029 precaution against repeated kills
         
         #10/28/04, delete all atoms, so gadgets attached can be deleted when no atoms
         #  attaching the gadget . Huaicai
         for a in self.atoms.values(): a.kill()
-        
+
+        #bruce 041029 precautions:
+        if self.atoms:
+            print "fyi: bug (ignored): %r mol.kill retains killed atoms %r" % (self,self.atoms)
+        self.atoms = {}
+        self.shakedown() # this is fast, now that we have no atoms
+        return # from molecule.kill
+
     # point is some point on the line of sight
     # matrix is a rotation matrix with z along the line of sight,
     # positive z out of the plane
