@@ -1,5 +1,12 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-"""Handle the freehand curves for selection and cookie-cutting"""
+"""
+shape.py
+
+Handle the freehand curves for selection and cookie-cutting
+
+$Id$
+"""
+__author__ = "Josh"
 
 from Numeric import array, zeros, logical_or
 
@@ -10,7 +17,10 @@ from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 from drawer import *
 from constants import *
 
-color = [0.22, 0.35, 0.18, 1.0]
+from debug import print_compact_traceback
+import platform 
+
+## color = [0.22, 0.35, 0.18, 1.0] # bruce 041214 thinks this is unused
 
 class BBox:
     """ implement a bounding box in 3-space
@@ -119,38 +129,145 @@ def fill(mat,p,dir):
     fill(mat, p-od+o1, -dir)
     fill(mat, p-od-o1, -dir)
 
-class curve:
+
+#bruce 041214 made a common superclass for curve and rectangle classes,
+# so I can fix some bugs in a single place, and since there's a
+# lot of common code. Some of it could be moved into class shape (for more
+# efficiency when several curves in one shape), but I didn't do that, since
+# I'm not sure we'll always want to depend on that agreement of coord systems
+# for everything in one shape.
+
+
+class simple_shape_2d: 
+    "common code for selection curve and selection rectangle"
+    def __init__(self, shp, ptlist, origin, logic, opts):
+        """ptlist is a list of 3d points describing a selection
+        (in a subclass-specific manner).
+        origin is the center of view, and shp.normal gives the direction
+        of the line of light.
+        """
+        # store orthonormal screen-coordinates from shp
+        self.right = shp.right
+        self.up = shp.up
+        self.normal = shp.normal
+        
+        # store other args
+        self.ptlist = ptlist
+        self.org = origin + 0.0
+        self.logic = logic
+        self.slab = opts.get('slab', None) # how thick in what direction
+        self.eyeball = opts.get('eye', None) # for projecting if not in ortho mode
+        
+        # project the (3d) path onto the plane. Warning: arbitrary 2d origin!
+        # Note: original code used project_2d_noeyeball, and I think this worked
+        # since the points were all in the same screen-parallel plane as
+        # self.org (this is a guess), but it seems better to not require this
+        # but just to use project_2d here (taking eyeball into account).
+        self.pt2d = map( self.project_2d, ptlist)
+        assert not (None in self.pt2d)
+        
+        # compute bounding rectangle (2d)
+        self.bboxhi = reduce(maximum, self.pt2d)
+        self.bboxlo = reduce(minimum, self.pt2d)
+        bboxlo, bboxhi = self.bboxlo, self.bboxhi
+        
+        # compute 3d bounding box
+        if self.slab:
+            x, y = self.right, self.up
+            self.bbox = BBox(V(bboxlo, bboxhi), V(x,y), self.slab)
+        else:
+            self.bbox = BBox()
+        return
+
+    def project_2d_noeyeball(self, pt):
+        """Project a point into our plane (ignoring eyeball).
+           Warning: arbitrary origin!
+        """
+        x, y = self.right, self.up
+        return V(dot(pt, x), dot(pt, y))
+
+    def project_2d(self, pt):
+        """like project_2d_noeyeball, but take into account self.eyeball;
+        return None for a point that is too close to eyeball to be projected
+        [in the future this might include anything too close to be drawn #e]
+        """
+        p = self.project_2d_noeyeball(pt)
+        if self.eyeball:
+            # bruce 041214: use "pfix" to fix bug 30 comment #3
+            pfix = self.project_2d_noeyeball(self.org)
+            p -= pfix
+            try:
+                ###e we recompute this a lot; should cache it in self or self.shp
+                p = p / (dot(pt - self.eyeball, self.normal) / 
+                         vlen(self.org - self.eyeball))
+            except:
+                # bruce 041214 fix of unreported bug:
+                # point is too close to eyeball for in-ness to be determined!
+                # [More generally, do we want to include points which are
+                #  projectable without error, but too close to the eyeball
+                #  to be drawn? I think not, but I did not fix this yet
+                #  (or report the bug). ###e]
+                if platform.atom_debug:
+                    print_compact_traceback("atom_debug: ignoring math error for point near eyeball: ")
+                return None
+            p += pfix
+        return p
+
+    def isin_bbox(self, pt):
+        "say whether a point is in the optional slab, and 2d bbox (uses eyeball)"
+        # this is inlined and extended by curve.isin
+        if self.slab and not self.slab.isin(pt):
+            return False
+        p = self.project_2d(pt)
+        if p == None:
+            return False
+        return p[0]>=self.bboxlo[0] and p[1]>=self.bboxlo[1] \
+            and p[0]<=self.bboxhi[0] and p[1]<=self.bboxhi[1]
+
+    pass # end of class simple_shape_2d
+
+
+class rectangle(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
+    "selection rectangle"
+    def __init__(self, shp, pt1, pt2, origin, logic, **opts):
+        simple_shape_2d.__init__( self, shp, [pt1, pt2], origin, logic, opts)        
+    def isin(self, pt):
+        return self.isin_bbox(pt)
+    def draw(self):
+        """Draw the rectangle"""
+        color = logicColor(self.logic)
+        drawrectangle(self.ptlist[0], self.ptlist[1], self.right, self.up, color)
+    pass
+
+
+class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
     """Represents a single closed curve in 3-space, projected to a
     specified plane.
     """
-    def __init__(self, shp, ptlist, point, logic, **xx):
+    def __init__(self, shp, ptlist, origin, logic, **opts):
         """ptlist is a list of 3d points describing a selection.
-        point is the center of view, and normal gives the direction
+        origin is the center of view, and normal gives the direction
         of the line of light. Form a structure for telling whether
         arbitrary points fall inside the curve from the point of view.
         """
-        normal = shp.normal
-        c=sum(ptlist)/len(ptlist)
-        # establish a plane thru point normal to normal
-        # its axes are (3-vectors) x and y
-        x = norm(ptlist[0]-c)
-        y = norm(cross(normal, x))
-        # project the (3d) path onto the plane
-#        pt2d = map(lambda p: V(dot(p-point, x), dot(p-point, y)), ptlist)
-        pt2d = map(lambda p: V(dot(p, x), dot(p, y)), ptlist)
-        # 2d bounding box
-        bboxhi = reduce(maximum,pt2d)
-        bboxlo = reduce(minimum,pt2d)
-        # again in integer (scaled 8 to the angstrom)
-        ibbhi = array(map(int,ceil(8*bboxhi)+2))
-        ibblo = array(map(int,floor(8*bboxlo)-2))
+        # bruce 041214 rewrote some of this method
+        simple_shape_2d.__init__( self, shp, ptlist, origin, logic, opts)
+        
+        # bounding rectangle, in integers (scaled 8 to the angstrom)
+        ibbhi = array(map(int,ceil(8*self.bboxhi)+2))
+        ibblo = array(map(int,floor(8*self.bboxlo)-2))
+        bboxlo = self.bboxlo
+
         # draw the curve in these matrices and fill it
+        # [bruce 041214 adds this comment: this might be correct but it's very
+        # inefficient -- we should do it geometrically someday. #e]
         mat = zeros(ibbhi-ibblo)
         mat1 = zeros(ibbhi-ibblo)
         mat1[0,:] = 1
         mat1[-1,:] = 1
         mat1[:,0] = 1
         mat1[:,-1] = 1
+        pt2d = self.pt2d
         pt0 = pt2d[0]
         for pt in pt2d[1:]:
             l=ceil(vlen(pt-pt0)*8)
@@ -163,34 +280,34 @@ class curve:
         mat1 += mat
         fill(mat1,array([1,1]),1)
         mat1 -= mat
-
-        # line of sight
-        self.normal = norm(normal)
-        # axes of the plane
-        self.x = x
-        self.y = y
-        # only used for debugging
-        self.z = self.normal
-        # how thick in what direction
-        self.slab = xx.get('slab',None)
+        
         # boolean raster of filled-in shape
         self.matrix = mat1
         # where matrix[0,0] is in x,y space
         self.matbase = ibblo
-        # bounding rectangle (2d)
-        self.bboxhi = bboxhi
-        self.bboxlo = bboxlo
-        # 3d bounding box
-        if self.slab: self.bbox = BBox(V(bboxlo, bboxhi), V(x,y), self.slab)
-        else: self.bbox = BBox()
-        # 2-d points of the curve
-        self.points=ptlist
-        # origin to which x and y are relative
-        self.org = point+0.0
-        # cookie front and back, measured along normal
-        self.logic = logic
-        # for projecting if not in ortho mode
-        self.eyeball = xx.get('eye',None)
+
+        # axes of the plane; only used for debugging
+        self.x = self.right
+        self.y = self.up
+        self.z = self.normal
+
+    def isin(self, pt):
+        """Project pt onto the curve's plane and return 1 if it falls
+        inside the curve.
+        """
+        # this inlines some of isin_bbox, since it needs an
+        # intermediate value computed by that method
+        if self.slab and not self.slab.isin(pt):
+            return False
+        p = self.project_2d(pt)
+        if p == None:
+            return False
+        in_bbox = p[0]>=self.bboxlo[0] and p[1]>=self.bboxlo[1] \
+               and p[0]<=self.bboxhi[0] and p[1]<=self.bboxhi[1]
+        if not in_bbox:
+            return False
+        ij = map(int,p*8)-self.matbase
+        return not self.matrix[ij]
 
     def xdraw(self):
         """draw the actual grid of the matrix in 3-space.
@@ -211,97 +328,42 @@ class curve:
         """Draw two projections of the curve at the limits of the
         thickness that defines the cookie volume.
         The commented code is for debugging.
+        [bruce 041214 adds comment: the code looks like it
+        only draws one projection.]
         """
         color = logicColor(self.logic)
-        pl = zip(self.points[:-1],self.points[1:])
+        pl = zip(self.ptlist[:-1],self.ptlist[1:])
         for p in pl:
             drawline(color,p[0],p[1])
         
-            
         # for debugging
         #self.bbox.draw()
         #if self.eyeball:
-        #    for p in self.points:
+        #    for p in self.ptlist:
         #        drawline(red,self.eyeball,p)
         #drawline(white,self.org,self.org+10*self.z)
         #drawline(white,self.org,self.org+10*self.x)
         #drawline(white,self.org,self.org+10*self.y)
 
-        
+    pass # end of class curve
 
-    def isin(self, pt):
-        """Project pt onto the curve's plane and return 1 if it falls
-        inside the curve.
-        """
-        if self.slab and not self.slab.isin(pt): return 0
-        p2 = V(dot(pt, self.x), dot(pt, self.y))
-        if self.eyeball:
-            p2 = p2 / (dot(pt - self.eyeball, self.normal) / 
-                       vlen(self.eyeball))
-        if logical_or.accumulate(less(p2,self.bboxlo)): return 0
-        if logical_or.accumulate(greater(p2,self.bboxhi)): return 0
-        ij = map(int,p2*8)-self.matbase
-        return not self.matrix[ij]
-
-class rectangle:
-    def __init__(self, shp, pt1, pt2, origin, logic, **xx):
-        self.point1 = pt1
-        self.point2 = pt2
-        self.logic = logic
-        
-        self.right = shp.right
-        self.up = shp.up
-        self.normal = shp.normal
-        self.org = origin+0.0
-
-        self.slab = xx.get('slab',None)
-
-        pt2d1 = V(dot(pt1,self.right), dot(pt1, self.up))
-        pt2d2 = V(dot(pt2,self.right), dot(pt2, self.up))
-
-        self.bboxlo = minimum(pt2d1, pt2d2)
-        self.bboxhi = maximum(pt2d1, pt2d2)
-        
-        # 3d bounding box
-        if self.slab: self.bbox = BBox(V(self.bboxlo, self.bboxhi),
-                                       V(self.right, self.up), self.slab)
-        else: self.bbox = BBox()
-
-        # for projecting if not in ortho mode
-        self.eyeball = xx.get('eye',None)
-
-    def isin(self, pt):
-
-        if self.slab and not self.slab.isin(pt): return 0
-
-        p = V(dot(pt, self.right), dot(pt, self.up))
-
-        if self.eyeball:
-            p = p / (dot(pt - self.eyeball, self.normal) / 
-                     vlen(self.org - self.eyeball))
-        
-        v = p[0]>=self.bboxlo[0] and p[1]>=self.bboxlo[1]
-        v = v and p[0]<=self.bboxhi[0] and p[1]<=self.bboxhi[1]
-        return v
-        
-    def draw(self):
-        """Draw the rectangle
-        """
-        color = logicColor(self.logic)
-        drawrectangle(self.point1, self.point2, self.right, self.up, color)
- 
 
 class shape:
     """Represents a sequence of curves, each of which may be
     additive or subtractive.
+    [This class should be renamed, since there is also an unrelated
+    Numeric function called shape().]
     """
     def __init__(self, right, up, normal):
         """A shape is a set of curves defining the whole cutout.
         """
         self.curves = []
+        
+        # These arguments are required to be orthonormal:
         self.right = right
         self.up = up
         self.normal = normal
+        
         self.bboxhi=None
         self.bboxlo=None
         self.picked=[]
@@ -322,18 +384,18 @@ class shape:
         mov = th * n
         return mov
 
-    def pickline(self, ptlist, point, logic, **xx):
+    def pickline(self, ptlist, origin, logic, **xx):
         """Add a new curve to the shape.
         Args define the curve (see curve) and the logic operator
         for the curve telling whether it adds or removes material.
         """
         self.havelist = 0
-        c = curve(self, ptlist, point, logic, **xx)
+        c = curve(self, ptlist, origin, logic, **xx)
         self.bbox.merge(c.bbox)
         self.curves += [c]
 
     def pickrect(self, pt1, pt2, org, logic, eye=None, slab=None):
-        """Add a new retangle to the shape.
+        """Add a new rectangle to the shape.
         Args define the rectangle and the logic operator
         for the curve telling whether it adds or removes material.
         """
@@ -348,6 +410,10 @@ class shape:
         curve.logic = 0 ==> remove if inside
         curve.logic = 2 ==> remove if outside
         """
+        # bruce 041214 comment: this might be a good place to exclude points
+        # which are too close to the screen to be drawn. Not sure if this
+        # place would be sufficient (other methods call c.isin too).
+        # Not done yet. ###e
         val = 0
         for c in self.curves:
             if c.logic == 1: val = val or c.isin(pt)
@@ -366,7 +432,7 @@ class shape:
         saved as a GL call list for fast drawing.
         
         """
-        global color
+        ## global color # bruce 041214 thinks this is unused
         if not self.curves: return
         for c in self.curves: c.draw()
         if self.havelist:
@@ -392,7 +458,7 @@ class shape:
             # list, or OpenGL will be left in an unusable state (due to the lack
             # of a matching glEndList) in which any subsequent glNewList is an
             # invalid operation. (Also done in chem.py; see more comments there.)
-            print "exception in shape.draw's displist ignored" #e print traceback?
+            print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
         glEndList()
         self.havelist = 1 # always set this flag, even if exception happened.
 
@@ -400,6 +466,15 @@ class shape:
         """Loop thru all the atoms that are visible and select any
         that are 'in' the shape, ignoring the thickness parameter.
         """
+        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
+        # also added .hidden check to the last of 3 cases. Left everything else
+        # as I found it. This code ought to be cleaned up to make it clear that
+        # it uses the same way of finding the selection-set of atoms, for all
+        # three logic cases in each of select and partselect. If anyone adds
+        # back any differences, this needs to be explained and justified in a
+        # comment; lacking that, any such differences should be considered bugs.
+        # (BTW I don't know whether it's valid to care about logic of only the
+        # first curve in the shape, as this code does.)
         if assy.selwhat:
             self.partselect(assy)
             return
@@ -408,20 +483,21 @@ class shape:
             for mol in assy.molecules:
                 if mol.hidden: continue
                 for a in mol.atoms.itervalues():
-                    if a.display == diINVISIBLE: continue
-                    if c.isin(a.posn()): a.pick()
+                    if c.isin(a.posn()) and a.visible():
+                        a.pick()
         elif c.logic == 2:
             for mol in assy.molecules:
                 if mol.hidden: continue
                 for a in mol.atoms.itervalues():
-                    if (c.isin(a.posn()) and
-                        a.molecule.display != diINVISIBLE and
-                        a.display != diINVISIBLE):
+                    if c.isin(a.posn()) and a.visible():
                         a.pick()
-                    else: a.unpick()
+                    else:
+                        a.unpick()
         else:
             for a in assy.selatoms.values():
-                if c.isin(a.posn()): a.unpick()
+                if a.molecule.hidden: continue #bruce 041214
+                if c.isin(a.posn()) and a.visible():
+                    a.unpick()
 
     def partselect(self, assy):
         """Loop thru all the atoms that are visible and select any
@@ -432,30 +508,29 @@ class shape:
         #---selection of molecules
         #---Some very tricky bugs related to unpick, which will remove items from the looplist, so the 
         #---next element in the looplist will not go into the loop
-        
+
+        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
+        # also added .hidden check to the last of 3 cases. Same in self.select().
         c=self.curves[0]
         if c.logic == 2:
             # drag selection: unselect any selected molecule not in the area, 
             # modified by Huaicai to fix the selection bug 10/05/04
             for m in assy.selmols[:]:
-                #for a in m.atoms.values():
-                      #if not c.isin(a.posn()): 
-                            m.unpick()
-                            #break
+                m.unpick()
                             
         if c.logic == 1 or c.logic == 2 : # shift drag selection
             for mol in assy.molecules:
                 if mol.hidden: continue
                 for a in mol.atoms.itervalues():
-                    if a.display == diINVISIBLE: continue
-                    if c.isin(a.posn()): 
+                    if c.isin(a.posn()) and a.visible(): 
                               a.molecule.pick()
                               break
     
         if c.logic == 0:  # Ctrl drag slection --everything selected inside dragging area unselected
             for m in assy.selmols[:]:
-                for a in m.atoms.values():
-                        if c.isin(a.posn()): 
+                if m.hidden: continue #bruce 041214
+                for a in m.atoms.itervalues():
+                        if c.isin(a.posn()) and a.visible(): 
                                 m.unpick()
                                 break   
                                 
@@ -474,3 +549,7 @@ class shape:
 
     def __str__(self):
         return "<Shape of " + `len(self.curves)` + ">"
+
+    pass # end of class shape
+
+
