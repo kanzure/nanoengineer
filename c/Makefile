@@ -56,7 +56,7 @@ moldisp: $(DISPOBJS)
 clean:
 	rm -f mol moldisp molsim
 	rm -f *.o *.so *~ TAGS fmc.mmp dumpstruct.xyz
-	rm -rf html latex
+	rm -rf html gmon.out
 
 TAGS:
 	etags *.c *.h
