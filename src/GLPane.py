@@ -782,28 +782,30 @@ class GLPane(QGLWidget, modeMixin):
 
     def minimize(self):
         from debug import print_compact_traceback
-        self.win.msgbarLabel.setText( "Minimizing...")
-        # Initial message [mark 040924 via bruce]
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        # Put up the hourglass cursor. [mark 040924 via bruce]
+        ## bruce 041101 removed this since it's immediately overwritten below:
+        ## self.win.msgbarLabel.setText( "Minimizing...")
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # hourglass
         try:
             self.win.msgbarLabel.setText("Calculating...")
             writemmp(self.assy, "minimize.mmp")
             pipe = os.popen("simulator -m minimize.mmp")
             s = pipe.read()
-            r = pipe.close()
+            r = pipe.close() # false (0) means success, true means failure
+            # bruce 041101 wonders whether .close() retval being exitcode is
+            # documented as working on all systems we support...
         except:
             print_compact_traceback("exception in minimize; continuing: ")
-            # bruce 040924
             s = "internal error (traceback printed elsewhere)"
-            assert not s.startswith("Minimize")
-        QApplication.restoreOverrideCursor()
-        # Restore the cursor [mark 040924 via bruce]
+            ## assert not s.startswith("Minimize") # obsolete [bruce 041101]
+            r = -1 # simulate failure [bruce 041101 bugfix]
+        QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
             self.win.msgbarLabel.setText("Minimizing...")
             self.startmovie("minimize.dpb")
         else:
-            self.win.msgbarLabel.setText("Minimization Failed!")
+            if not s: #bruce 041101
+                s = "exit code %r" % r
+            self.win.msgbarLabel.setText("Minimization Failed!") ##e include s?
             QMessageBox.warning(self, "Minimization Failed:", s)
         return
 
