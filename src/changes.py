@@ -147,6 +147,8 @@ class event_handler:
         return self.prior_handler
     pass
 
+handler = None # dynamic variable -- current handler [not sure if public (so anyone can send it tracking records) or private]
+
 def begin_event_handler( whats_running = None):
     """Start tracking everything needed when the UI handles one user-event.
     whats_running is presently an optional command-name for debugging or messages;

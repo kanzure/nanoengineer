@@ -54,6 +54,7 @@ from Utility import *
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from inval import InvalMixin
+from changes import begin_event_handler, end_event_handler
 
 # number of atoms for detail level 0
 HUGE_MODEL = 20000
@@ -104,8 +105,6 @@ class Part(InvalMixin):
         # e.g. molecules, bbox, center, drawLevel
 
         # not here: alist, selatoms, selmols - they're all done by a _recompute_xxx
-
-        
         
         ## moved from assy init, not yet edited for here; some of these will be inval/update vars ###@@@
 ##        # list of chem.molecule's
@@ -141,20 +140,32 @@ class Part(InvalMixin):
 
     # == membership maintenance
 
+    # Note about selection of nodes moving between parts:
+    # when nodes are removed or added to parts, we ensure they (or their atoms) are not picked,
+    # so that we needn't worry about updating selatoms, selmols, or current selection group;
+    # this also seems best in terms of the UI. But note that it's not enough, if .part revision
+    # follows tree revision, since picked nodes control selection group using tree structure alone.
+
     def add(self, node):
         if node.part == self:
-            if platform.atom_debug:
-                print "atom_debug: warning: node added to its own part (noop):", node, self
+            # this is normal, e.g. in ensure_one_part, so don't complain
+##            if platform.atom_debug:
+##                print "atom_debug: warning: node added to its own part (noop):", node, self
             return
         if node.part:
             if platform.atom_debug: #e this will be common, remove it as soon as you see it (unless i do the remove explicitly)
                 print "atom_debug: fyi: node added to new part so removed from old part first:", node, self, node.part
             node.part.remove(node)
         assert node.part == None
+        assert not node.picked # since remove did it, or it was not in a part and could not have been picked (I think!)
+        #e assert a mol's atoms not picked too (too slow to do it routinely; bugs in this are likely to be noticed)
         node.part = self
         self.nodecount += 1
         if isinstance(node, molecule): #####@@@@@ #e better if we let the node add itself to our stats and lists, i think...
-            self.invalidate_attrs(['molecules','selmols','selatoms'])
+            ## not needed: self.invalidate_attrs(['molecules','selmols','selatoms'])
+            self.invalidate_attrs(['molecules']) #e or we could append it... but I doubt that's worthwhile ###@@@
+            self.adjust_natoms( len(node.atoms)) ####@@@@ might be useless if this depends on .molecules
+            #####@@@@@ also adjust or invalidate bbox, center
         # note that node is not added to any comprehensive list of nodes, in fact, we don't have one.
         # presumably this function is only called when node was just, or is about to be,
         # added to a nodetree in a place which puts it into this part's tree.
@@ -164,11 +175,22 @@ class Part(InvalMixin):
         """Remove node (a member of this part) from this part's lists and stats;
         reset node.part; DON'T look for interspace bonds yet (since this node
         and some of its neighbors might be moving to the same new part).
+        Node (and its atoms, if it's a chunk) will be unpicked before the removal.
         """
         assert node.part == self
+        node.unpick() # this maintains selmols if necessary
         if isinstance(node, molecule):
-            self.invalidate_attrs(['molecules','selmols','selatoms'])
-            ## first try at that:
+            # need to unpick the atoms? [would be better to let the node itself have a method for this]
+            # (#####@@@@@ fix atom.unpick to not remake selatoms if missing, or to let this part maintain it)
+            if (not self.__dict__.has_key('selatoms')) or self.selatoms:
+                for atm in node.atoms.itervalues():
+                    atm.unpick() #e optimize this by inlining and keeping selatoms test outside of loop
+            self.invalidate_attrs(['molecules'])
+            self.adjust_natoms(- len(node.atoms)) ####@@@@ might be useless if this depends on .molecules
+            #####@@@@@ also adjust or invalidate bbox, center
+            ## second try at the above:
+##            self.invalidate_attrs(['molecules','selmols','selatoms'])
+            ## first try at the above:
 ##            try:
 ##                if node.picked and self.__dict__.has_key('selmols'): # not if attr is invalid (common?? ###k)
 ##                    self.selmols.remove(node)
@@ -200,6 +222,31 @@ class Part(InvalMixin):
         for attr in self.__dict__.keys():
             delattr(self,attr) # is this safe, in arb order??
         return
+
+    # incremental update methods
+    
+    def selmols_append(self, mol):
+        if self.__dict__.has_key('selmols'):
+            assert mol not in self.selmols
+            self.selmols.append(mol)
+        return
+
+    def selmols_remove(self, mol):
+        if self.__dict__.has_key('selmols'):
+            ## might not always be true in current code, though it should be:
+            ## assert mol in self.selmols
+            try:
+                self.selmols.remove(mol)
+            except ValueError: # not in the list
+                if platform.atom_debug:
+                    print_compact_traceback("selmols_remove finds mol not in selmols (might not be a bug): ")
+        return
+
+    def adjust_natoms(self, delta):
+        "adjust the number of atoms, if known. Useful since drawLevel depends on this and is often recomputed."
+        if self.__dict__.has_key('natoms'):
+            self.natoms += delta
+        return
     
     # == compatibility methods
     
@@ -222,11 +269,16 @@ class Part(InvalMixin):
     # == attributes which should be delegated to self.assy
     
     # attrnames to delegate to self.assy (ideally for writing as well as reading, until all using-code is upgraded)
-    assy_attrs = ['w','o','mt']
-    assy_attrs_temporary = ['changed','alist']#####@@@@@ wrong, just for testing
-    assy_attrs_review = ['selwhat','shelf']
+    assy_attrs = ['w','o','mt','selwhat']
+        # 050308: selwhat will be an official assy attribute;
+        # some external code assigns to assy.selwhat directly,
+        # and for now can keep doing that. Within the Part, perhaps we should
+        # use a set_selwhat method if we need one, but for now we just assign
+        # directly to self.assy.selwhat.
+    assy_attrs_temporary = ['changed'] # tolerable, but might be better to track per-part changes, esp. re movies #####@@@@@
+    assy_attrs_review = ['shelf']
         #e in future, we'll split out our own methods for some of these, incl .changed
-        #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat)
+        #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat).
     assy_attrs_all = assy_attrs + assy_attrs_temporary + assy_attrs_review
     
     def __getattr__(self, attr):
@@ -354,6 +406,7 @@ class Part(InvalMixin):
 
     _inputs_for_selmols = [] # only inval directly, since often stays the same when molecules changes, and might be incrly updated
     def _recompute_selmols(self):
+        #e not worth optimizing for selwhat... but assert it was consistent, below.
         self.selmols = 333 # not a valid Python sequence
         res = []
         def func_selmols(nn):
@@ -363,11 +416,28 @@ class Part(InvalMixin):
             return # from func_selmols only
         self.tree.apply2all( func_selmols)
         self.selmols = res
+        if self.selmols:
+            if self.selwhat != SELWHAT_CHUNKS:
+                msg = "bug: part has selmols but selwhat != SELWHAT_CHUNKS"
+                if platform.atom_debug:
+                    print_compact_stack(msg)
+                else:
+                    print msg
         return
 
     _inputs_for_selatoms = [] # only inval directly (same reasons as selmols; this one is *usually* updated incrementally, for speed)
     def _recompute_selatoms(self):
-        ###e should optim by using selwhat #####@@@@@
+        if self.selwhat != SELWHAT_ATOMS:
+            # optimize, by trusting selwhat to be correct.
+            # This is slightly dangerous until changes to assy's current selgroup/part
+            # also fix up selatoms, and perhaps even verify no atoms selected in new part.
+            # But it's likely that there are no such bugs, so we can try it this way for now.
+            # BTW, someday we might permit selecting atoms and chunks at same time,
+            # and this will need revision -- perhaps we'll have a selection-enabled boolean
+            # for each type of selectable thing; perhaps we'll keep selatoms at {} when they're
+            # known to be unselectable.
+            # [bruce 050308]
+            return {} # caller (InvalMixin.__getattr__) will store this into self.selatoms
         self.selatoms = 333 # not a valid dictlike thing
         res = {}
         def func_selatoms(nn):
@@ -400,7 +470,7 @@ class Part(InvalMixin):
         self.tree.addmember(mol)
             #bruce 050202 comment: if you don't want this location for the added mol,
             # just call mol.moveto when you're done, like fileIO does.   
-        self.invalidate_attrs(['natoms','molecules'])
+        self.invalidate_attrs(['natoms','molecules']) #####@@@@@ does this inval bbox and center too??
 
     def ensure_toplevel_group(self):
         "make sure this Part's toplevel node is a Group, by Grouping it if not."
@@ -537,10 +607,11 @@ class Part(InvalMixin):
         in which some atoms are selected.
         [bruce 050201 observes that this docstring is wrong.]
         """ ###@@@
-        if self.selwhat:
+        if self.selwhat == SELWHAT_CHUNKS:
             for m in self.molecules:
                 m.pick()
         else:
+            assert self.selwhat == SELWHAT_ATOMS
             for m in self.molecules:
                 for a in m.atoms.itervalues():
                     a.pick()
@@ -561,12 +632,13 @@ class Part(InvalMixin):
         # revised by bruce 041217 after discussion with Josh;
         # previous version inverted selatoms only in chunks with
         # some selected atoms.
-        if self.selwhat:
+        if self.selwhat == SELWHAT_CHUNKS:
             newpicked = filter( lambda m: not m.picked, self.molecules )
             self.unpickparts()
             for m in newpicked:
                 m.pick()
         else:
+            assert self.selwhat == SELWHAT_ATOMS
             for m in self.molecules:
                 for a in m.atoms.itervalues():
                     if a.picked: a.unpick()
@@ -622,7 +694,7 @@ class Part(InvalMixin):
     
     def selectAtoms(self):
         self.unpickparts()
-        self.selwhat = 0
+        self.assy.selwhat = SELWHAT_ATOMS
         self.w.win_update()
             
     def selectParts(self):
@@ -630,7 +702,7 @@ class Part(InvalMixin):
         self.w.win_update()
 
     def pickParts(self):
-        self.selwhat = 2
+        self.assy.selwhat = SELWHAT_CHUNKS
         lis = self.selatoms.values()
         self.unpickatoms()
         for atm in lis:
@@ -729,7 +801,7 @@ class Part(InvalMixin):
         # code was by [mark 2004-10-14].]
         atm = self.findAtomUnderMouse(event)
         if atm:
-            if self.selwhat:
+            if self.selwhat == SELWHAT_CHUNKS:
                 if not self.selmols:
                     self.selmols = []
                     # bruce 041214 added that, since pickpart used to do it and
@@ -737,6 +809,7 @@ class Part(InvalMixin):
                 atm.molecule.pick()
                 self.w.history.message(atm.molecule.getinfo())
             else:
+                assert self.selwhat == SELWHAT_ATOMS
                 atm.pick()
                 self.w.history.message(atm.getinfo())
         return
@@ -746,9 +819,10 @@ class Part(InvalMixin):
         or chunk (depending on self.selwhat) is under the mouse at event.
         If no atom or chunk is under the mouse, nothing in glpane is selected.
         """
-        if self.selwhat:
+        if self.selwhat == SELWHAT_CHUNKS:
             self.unpickparts() # (fyi, this unpicks in clipboard as well)
         else:
+            assert self.selwhat == SELWHAT_ATOMS
             self.unpickatoms()
         self.pick_at_event(event)
     
@@ -759,9 +833,10 @@ class Part(InvalMixin):
         """
         atm = self.findAtomUnderMouse(event)
         if atm:
-            if self.selwhat:
+            if self.selwhat == SELWHAT_CHUNKS:
                 atm.molecule.unpick()
             else:
+                assert self.selwhat == SELWHAT_ATOMS
                 atm.unpick()
         return
 
@@ -778,15 +853,15 @@ class Part(InvalMixin):
 
     def permit_pick_parts(self): #bruce 050125
         "ensure it's legal to pick chunks"
-        if not self.selwhat:
+        if self.assy.selwhat != SELWHAT_CHUNKS:
             self.unpickatoms()
-            self.selwhat = 2
+            self.assy.selwhat = SELWHAT_CHUNKS
         return
     
-    # deselect any selected molecules or groups #####@@@@@ needs review
+    # deselect any selected molecules or groups
     def unpickparts(self):
-        self.root.unpick() # root contains self.tree and self.shelf
-        #####@@@@@ not needed for now: self.data.unpick()
+        self.tree.unpick()
+        # before assy/part split, this was root, i.e. assy.tree and assy.shelf
 
     # for debugging
     def prin(self):
@@ -829,6 +904,7 @@ class Part(InvalMixin):
             ob.assy = self # for now! in beta this might be its selgroup.
             if platform.atom_debug:
                 print "sanitize_for_clipboard_0: node had wrong assy! fixed it:", ob
+                print "btw self is",self
         if isinstance(ob, molecule):
             if self.selatoms:
                 # bruce 050201 for Alpha: worry about selected atoms in chunks in clipboard
@@ -859,7 +935,7 @@ class Part(InvalMixin):
     # See also assy.kill (Delete operation).
     
     def cut(self):
-        eh = begin_event_handler("Cut") #####@@@@@  this supercedes the plan to use MovingBondedNodes here (if i can...)
+        eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
         try:
             self.w.history.message(greenmsg("Cut:"))
             if self.selatoms:
@@ -897,9 +973,18 @@ class Part(InvalMixin):
                 # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
                 # like bug 278! Because findpick (etc) uses assy.molecules. So I fixed this with sanitize_for_clipboard, below.
 
+            # Now we know what nodes to cut (i.e. move to the clipboard) -- the members of new.
+            # And they are no longer in their original location,
+            # but neither they nor the group "new" is in its final location.
+            # (But they still belong to their original Part, until this is changed later.)
+            
             #e much of the following might someday be done automatically by end_event_handler and by methods in a Cut command object
             
             if new.members:
+                # move them to the clipboard (individually for now, though this
+                # is wrong if they are bonded; also, this should be made common code
+                # with DND move to clipboard, though that's more complex since
+                # it might move nodes inside an existing item. [bruce 050307 comment])
                 self.changed() # bruce 050201 doing this earlier; 050223 made it conditional on new.members
                 nshelf_before = len(self.shelf.members) #bruce 050201
                 for ob in new.members[:]:
@@ -909,7 +994,7 @@ class Part(InvalMixin):
                     # bruce 050131 try fixing bug 278 in a limited, conservative way
                     # (which won't help the underlying problem in other cases like drag & drop, sorry),
                     # based on the theory that chunks remaining in assy.molecules is the problem:
-                    self.sanitize_for_clipboard(ob)
+                    ## self.sanitize_for_clipboard(ob) ## zapped 050307 since obs
                     self.shelf.addmember(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
                     # if the new member is a molecule, move it to the center of its space
                     if isinstance(ob, molecule): ob.move(-ob.center)
@@ -922,7 +1007,10 @@ class Part(InvalMixin):
                     #bruce 050201-bug370: we don't need this if the message for selatoms already went out
                     self.w.history.message(redmsg("Nothing to cut.")) #bruce 050201
         finally:
-            end_event_handler(eh)
+            end_event_handler(eh) # this should fix Part membership of moved nodes, break inter-Part bonds #####@@@@@ doit
+            # ... but it doesn't, so instead, do this: ######@@@@@@ and review this situation and clean it up:
+            self.assy.update_parts()
+            #####@@@@@ still need to break inter-part bonds...
             self.w.win_update() ###stub of how this relates to ending the handler
         return
 
@@ -978,9 +1066,18 @@ class Part(InvalMixin):
             if not self.selatoms:
                 #bruce 050201-bug370: we don't need this if the message for selatoms already went out
                 self.w.history.message(redmsg("Nothing to Copy.")) #bruce 050201
-
+        self.assy.update_parts() # stub, 050308; overkill! should just apply to the new shelf items. ######@@@@@@ 
         self.w.win_update()
+        return
 
+    def break_interpart_bonds(self): ######@@@@@@ refile, review, implem, implem for jigs
+        """Break all bonds between nodes in this part and nodes in other parts;
+        jig-atom connections count as bonds [but might not be handled correctly as of 050308].
+        #e In future we might optimize this and only do it for specific node-trees.
+        """
+        self.topnode.apply2all( lambda node: node.break_interpart_bonds() ) ######@@@@@@ IMPLEM
+        return
+    
     def paste(self, node):
         pass # to be implemented
 
@@ -1009,7 +1106,7 @@ class Part(InvalMixin):
 ##        # Also kill anything picked in the clipboard
 ##        # [revised by bruce 050131 for Alpha, see cvs rev 1.117 for historical comments]
 ##        self.shelf.apply2picked(lambda o: o.kill()) # kill by Mark(?), 11/04
-        self.invalidate_attr('natoms')
+        self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
         return
 
     # ==
@@ -1421,10 +1518,11 @@ class Part(InvalMixin):
     # a kludgey hack
     # bruce 041215 added some comments.
     def modifyPassivate(self):
-        if self.selwhat == 2:
+        if self.selwhat == SELWHAT_CHUNKS:
             for m in self.selmols:
                 m.Passivate(True) # arg True makes it work on all atoms in m
         else:
+            assert self.selwhat == SELWHAT_ATOMS
             for m in self.molecules:
                 m.Passivate() # lack of arg makes it work on only selected atoms
                 # (maybe it could just iterate over selatoms... #e)
