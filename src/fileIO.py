@@ -265,17 +265,19 @@ def writeMolecule(mol, atnum, alist, atnums, f):
                 
         for g in mol.gadgets:
             f.write(g.__repr__(atnums) + "\n")
+            
+        return atnum    
 
 
 def writeGroup(group, atnum, alist, atnums, f):
         for m in group.members:
                 if isinstance(m, molecule):
-                        writeMolecule(m, atnum, alist, atnums, f)
+                        atnum = writeMolecule(m, atnum, alist, atnums, f)
                 else:
-                        writeGroup(m, atnum, alist, atnums, f)
+                        atnum = writeGroup(m, atnum, alist, atnums, f)
         f.write(group.__str__() + "\n")
                         
-        
+        return atnum
 
 # write all molecules, motors, grounds into an MMP file
 def writemmp(assy, filename):
@@ -288,9 +290,9 @@ def writemmp(assy, filename):
     
     for mem in  assy.orderedItemsList:
         if isinstance(mem, molecule):
-                writeMolecule(mem, atnum, assy.alist, atnums, f)
+                atnum = writeMolecule(mem, atnum, assy.alist, atnums, f)
         elif isinstance(mem, Group):
-                writeGroup(mem, atnum, assy.alist, atnums, f)
+                atnum = writeGroup(mem, atnum, assy.alist, atnums, f)
 
     f.write(assy.csys.__str__() + "\n")
     
