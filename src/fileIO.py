@@ -783,7 +783,7 @@ def writemovie(assy, mflag = False):
         if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
             filesize = natoms * 16 # single-frame xyz filesize (estimate)
         else:
-            filesize = assy.m.totalFrames * ((natoms * 32) + 25) # multi-frame xyz filesize (estimate)
+            filesize = assy.m.totalFrames * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
     else: 
         if mflag: filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
         else:      filesize = (assy.m.totalFrames * natoms * 3) + 4
