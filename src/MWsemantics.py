@@ -450,77 +450,85 @@ class MWsemantics(MainWindow):
 
     def saveFile(self, safile):
         
-            dir, fil, ext = fileparse(safile)
+        dir, fil, ext = fileparse(safile)
 #            print "saveFile: ext = [",ext,"]"
 
-            if ext == ".pdb": # Write PDB file.
-                try:
-                    writepdb(self.assy, safile)
-                except:
-                    print "MWsemantics.py: saveFile(): error writing file" + safile
-                    self.history.message(redmsg( "Problem saving file: " + safile ))
-                else:
-                    self.assy.filename = safile
-                    self.assy.name = fil
-                    self.assy.reset_changed() # The file and the part are now the same.
-                    self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                    self.history.message( "PDB file saved: " + self.assy.filename )
-                    self.mt.mt_update()
+        if ext == ".pdb": # Write PDB file.
+            try:
+                writepdb(self.assy, safile)
+            except:
+                print "MWsemantics.py: saveFile(): error writing file" + safile
+                self.history.message(redmsg( "Problem saving file: " + safile ))
+            else:
+                self.assy.filename = safile
+                self.assy.name = fil
+                self.assy.reset_changed() # The file and the part are now the same.
+                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+                self.history.message( "PDB file saved: " + self.assy.filename )
+                self.mt.mt_update()
             
-            elif ext == ".pov": # Write POV-Ray file
-                try:
-                    writepov(self.assy, safile)
-                except:
-                    print "MWsemantics.py: saveFile(): error writing file " + safile
-                    self.history.message(redmsg( "Problem saving file: " + safile ))
-                else:
-                    self.history.message( "POV-Ray file saved: " + safile )
+        elif ext == ".pov": # Write POV-Ray file
+            try:
+                writepov(self.assy, safile)
+            except:
+                print "MWsemantics.py: saveFile(): error writing file " + safile
+                self.history.message(redmsg( "Problem saving file: " + safile ))
+            else:
+                self.history.message( "POV-Ray file saved: " + safile )
             
-            elif ext == ".mdl": # Write MDL file
-                try:
-                    writemdl(self.assy, safile)
-                except:
-                    print "MWsemantics.py: saveFile(): error writing file " + safile
-                    self.history.message(redmsg( "Problem saving file: " + safile ))
-                else:
-                    self.history.message( "MDL file saved: " + safile )
+        elif ext == ".mdl": # Write MDL file
+            try:
+                writemdl(self.assy, safile)
+            except:
+                print "MWsemantics.py: saveFile(): error writing file " + safile
+                self.history.message(redmsg( "Problem saving file: " + safile ))
+            else:
+                self.history.message( "MDL file saved: " + safile )
             
-            elif ext == ".jpg": # Write JPEG file
-                try:
-                    image = self.glpane.grabFrameBuffer()
-                    image.save(safile, "JPEG")
-                except:
-                    print "MWsemantics.py: saveFile(): error writing file" + safile
-                    self.history.message(redmsg( "Problem saving file: " + safile ))
-                else:
-                    self.history.message( "JPEG file saved: " + safile )
+        elif ext == ".jpg": # Write JPEG file
+            try:
+                image = self.glpane.grabFrameBuffer()
+                image.save(safile, "JPEG", 85)
+            except:
+                print "MWsemantics.py: saveFile(): error writing file" + safile
+                self.history.message(redmsg( "Problem saving file: " + safile ))
+            else:
+                self.history.message( "JPEG file saved: " + safile )
             
-            elif ext == ".png": # Write PNG file
-                try:
-                    image = self.glpane.grabFrameBuffer()
-                    image.save(safile, "PNG")
-                except:
-                    print "MWsemantics.py: saveFile(): error writing file" + safile
-                    self.history.message(redmsg( "JPEGProblem saving file: " + safile ))
-                else:
-                    self.history.message( "PNG file saved: " + safile )
+        elif ext == ".png": # Write PNG file
+            try:
+                image = self.glpane.grabFrameBuffer()
+                image.save(safile, "PNG")
+            except:
+                print "MWsemantics.py: saveFile(): error writing file" + safile
+                self.history.message(redmsg( "JPEGProblem saving file: " + safile ))
+            else:
+                self.history.message( "PNG file saved: " + safile )
                     
-            elif ext == ".mmp" : # Write MMP file
-                try:
-                    writemmp(self.assy, safile)
-                except:
-                    print "MWsemantics.py: fileSaveAs(): error writing file" + safile
-                    self.history.message(redmsg( "Problem saving file: " + safile ))
-                else:
-                    self.assy.filename = safile
-                    self.assy.name = fil
-                    self.assy.reset_changed() # The file and the part are now the same.
-                    self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                    self.history.message( "MMP file saved: " + self.assy.filename )
-                    self.mt.mt_update()
+        elif ext == ".mmp" : # Write MMP file
+            try:
+                tmpname = dir + fil + "-tmp" + ext
+                writemmp(self.assy, tmpname)
+            except:
+                print "MWsemantics.py: fileSaveAs(): error writing file" + safile
+                self.history.message(redmsg( "Problem saving file: " + safile ))
+                if os.path.exists(tmpname):
+                    os.remove (tmpname) # Delete tmp MMP file
+            else:
+                if os.path.exists(safile):
+                    os.remove (safile) # Delete original MMP file
+
+                os.rename( tmpname, safile) # Move tmp file to saved filename. 
+                
+                self.assy.filename = safile
+                self.assy.name = fil
+                self.assy.reset_changed() # The file and the part are now the same.
+                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+                self.history.message( "MMP file saved: " + self.assy.filename )
+                self.mt.mt_update()
             
-            else: # This should never happen.
-                self.history.message( "MWSemantics.py: fileSaveAs() - File Not Saved. Unknown extension:" + ext)
+        else: # This should never happen.
+            self.history.message(redmsg( "MWSemantics.py: fileSaveAs() - File Not Saved. Unknown extension:" + ext))
 
     def closeEvent(self,ce): # via File > Exit or clicking X titlebar button
         
@@ -560,7 +568,7 @@ class MWsemantics(MainWindow):
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
-            print "ret =",ret
+#            print "ret =",ret
             if ret==0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
             elif ret==1:
                 self.history.message("Changes discarded.")
@@ -574,12 +582,8 @@ class MWsemantics(MainWindow):
 
 
     def fileSetWorkDir(self):
-        """ Sets working directory (need dialogue window) """
-        # Windows Users: .ne1rc must be placed in C:\Documents and Settings\[username]\.ne1rc
-        # .ne1rc contains one line - the "Working Directory"
-        # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
-        # Mark [2004-10-13]
-        
+        """Sets working directory"""
+
         self.history.message(greenmsg("Set Working Directory:"))
         
         wd = globalParms['WorkingDirectory']
@@ -601,17 +605,6 @@ class MWsemantics(MainWindow):
             from preferences import prefs_context
             prefs = prefs_context()
             prefs['WorkingDirectory'] = wd
-
-##            # Write ~/.ne1rc file with new Working Directory
-##            rc = os.path.expanduser("~/.ne1rc")
-##            try:
-##                f=open(rc,'w')
-##            except:
-##                print "Trouble opening file: [", rc, "]"
-##                self.history.message( redmsg( "Trouble opening file [" + rc + "]" ))
-##            else:
-##                f.write(wd)
-##                f.close()
                 
     def __clear(self):
         # assyList refs deleted by josh 10/4
