@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Untitled Document</title>
+<style type="text/css">
+<!--
+.style4 {font-size: x-large}
+.style5 {font-size: large}
+-->
+</style>
+</head>
+
+<body>
+<H1 align="center" class=flash style4>nanoENGINEER-1<span class="style5">&reg;</span></H1>
+<H1 align="center" class=flash><a name="bugs"></a><span class="style4">Known Bugs/Unsupported Features </span></H1>
+<DIV id=contentBody>
+  <h3>All Platforms</h3>
+    <P>The following list of bugs applies to all platforms.</P>
+    <ol>
+      <li>
+        <p>Delete operation cannot be undone. In fact, Undo/Redo are not implemented yet. SAVE YOUR WORK OFTEN!</p>
+      </li>
+      <li>
+        <p>If you select the part icon (top icon in the model tree) and hit the delete key (or click Delete), the entire part will be deleted without asking the user for confirmation. (147) </p>
+      </li>
+      <li>
+        <p>Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results.</p>
+      </li>
+      <li>
+        <p>Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list.</p>
+      </li>
+      <li>
+        <p>Dragging and dropping items onto a group folder places them at the bottom of the group, not the top. </p>
+      </li>
+      <li>
+        <p>The front clipping plane will sometimes clip objects that should not be clipped.</p>
+      </li>
+      <li>
+        <p>Align to common axis averages the axis vectors of the participating chunks. The resultant  vector is (usually) different than the axis vectors of any of the chunks.(187)</p>
+      </li>
+      <li>
+        <p>Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message (215)</p>
+      </li>
+      <li>
+        <p>After drawing a 'cookie' in the cookie cutter, if the orientation view is changed and then any new cookie drawn will be placed at a wrong location. Thus, the user should not change the views while in the cookie cutter. (236)</p>
+      </li>
+      <li>
+        <p>User can not save exclusive features of nanoENGINEER-1  into the PDB file format. nanoENGINEER-1 doesn't give any warning message for users trying to save such features in a .pdb file. (252)</p>
+      </li>
+      <li>
+        <p>There is a display bug associated with a cut operation on a chunk. It stretches the interchunk bond and keeps bonded portion of cut chunk visible. </p>
+      </li>
+      <li>
+        <p>Extrude Mode's 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: </p>
+        <ol type="a">
+          <li>
+            <p>Get everything adjusted first in the 'rod mode'. For example, adjust the number of copies (N), check boxes on the dashboard about the final product and the way you want bonding between chunks to form. </p>
+          </li>
+          <li>
+            <p>Then you may switch to &quot;Rod Mode&quot; by selecting <strong>ring</strong> from the <strong>rod</strong> pulldown menu on the dashboard. While viewing the ring, you may increase the number of copies. </p>
+          </li>
+          <li>
+            <p>If you need to do any further adjustments,  switch back to &quot;Rod Mode&quot;, make changes and switch back to the &quot;Ring Mode&quot;. </p>
+          </li>
+          <li>
+            <p>Select the  'Done' button on the dashboard when finished. (155) </p>
+          </li>
+          </ol>
+      </li>
+      <li>
+        <p>When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)</p>
+      </li>
+      <li>The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at <a href="www.nanorex.com/mmpformat.htm">www.nanorex.com/mmpformat.htm</a></li>
+    </ol>
+    <p>The following list of unsupported features applies to all platforms.</p>
+    <ol>
+      <li>
+        <p>Undo/Redo.</p>
+      </li>
+      <li>
+        <p>When moving a chunk, any rotary and/or linear motors attached to it will not move with the chunk. (166) </p>
+      </li>
+      <li>
+        <p>Cannot change color of individual atoms.(189)</p>
+      </li>
+      <li>
+        <p> Can not move, translate or rotate a chunk in a precise manner (e.g. by editing the cartesian or cylindrical coordinates) (9)</p>
+      </li>
+      <li>
+        <p>Reference axis is implemented but the reference planes for modeling purpose is not implemented yet. (47) </p>
+      </li>
+      <li>
+        <p>Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. </p>
+      </li>
+      <li>
+        <p>The 'Clipboard'  has limitations and some bugs. </p>
+      </li>
+      <li>
+        <p>Do not drag and drop anything between the model tree and the clipboard. </p>
+      </li>
+      <li>The symmetry information for a selected chunk cannot be obtained. This is planned for future release of the software.(261)</li>
+  </ol>
+    <h3>Windows Only </h3>
+    <P>The following list applies to Win32 systems only.</P>
+    <ol><li>
+      <p>In the Cookie Cutter, Shift+Left only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) </p>
+    </li>
+      <li>
+        <p>During drag-and-drop,  node icons are not shown in the cursor's drag object. </p>
+      </li>
+    </ol>
+    <h3>Macintosh Only </h3>
+    <P>The following list applies to Macintosh only.</P>
+    <ol><li>
+      <p>Sometimes a cursor's bitmask will suddenly not work, leaving a white square  around the cursor. </p>
+      </li>
+    </ol>
+    <h3>Linux Only</h3>
+    <ol>
+      <li> In the Cookie Cutter, Shift+Left  deletes items outside the selection, but doesn't draw inside the lasso/ rectangle (190) </li>
+    </ol>
+    <p>&nbsp;</p>
+</DIV>
+</body>
+</html>
