@@ -16,7 +16,7 @@ class LightingTool(LightingToolDialog):
         self.exec_loop()
 
     def setup(self):
-        """ Setup sliders and checkboxes.
+        """ Setup sliders and checkboxes. Return true on error (not yet possible).
         """
         self.lights = self.glpane.getLighting()
 #        print "Lights = ", self.lights
@@ -63,7 +63,7 @@ class LightingTool(LightingToolDialog):
         self.diffuseLight3LCD.display(val * .01)
         self.setLights()
 
-    def setLights(self):
+    def setLights(self): # [bruce question: is this also called directly when checkboxes are changed?]
         
         light1 = [self.ambLight1SL.value() * .01, \
                 self.diffuseLight1SL.value() * .01, \
@@ -76,16 +76,25 @@ class LightingTool(LightingToolDialog):
                 self.light3CB.isChecked()]
                 
         self.glpane.setLighting([light1, light2, light3])
-        
+
+    def restore(self): # bruce 050311 addition, not yet tested or used ###@@@
+        "implement a button for Use Defaults or Restore Default Values, if one is added to the UI"
+        self.glpane.restoreDefaultLighting() # set default lighting in glpane
+        save_lights = self.lights # save original lights, in case of Cancel after this restore
+        self.setup() # set sliders to the restored values; also does unwanted set of self.lights
+        self.lights = save_lights # fix that unwanted set
+        return
+    
     #################
     # Save Button
     #################
     def accept(self):
+        self.glpane.saveLighting() # save current lighting to preferences database
         QDialog.accept(self)
         
     #################
     # Cancel Button
     #################
     def reject(self):
-        self.glpane.setLighting(self.lights)
+        self.glpane.setLighting(self.lights) # restore lighting from when dialog was entered
         QDialog.reject(self)

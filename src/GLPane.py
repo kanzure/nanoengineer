@@ -49,6 +49,7 @@ from platform import fix_buttons_helper
 import platform # for platform.atom_debug
 from widgets import makemenu_helper
 from debug import DebugMenuMixin, print_compact_traceback
+import preferences
 
 
 paneno = 0
@@ -198,6 +199,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         drawer.setup()
 
         self.setAssy(assem)
+
+        self.loadLighting() #bruce 050311
         
         return # from GLPane.__init__        
         
@@ -353,13 +356,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         else:
             raise AttributeError, 'GLPane has no "%s"' % name
 
-    # == lighting methods [bruce 050311 rush order for Alpha4] [interface is ok, but they don't yet do anything ###@@@]
+    # == lighting methods [bruce 050311 rush order for Alpha4]
     
     def setLighting(self, lights, _guard_ = 6574833, gl_update = True): 
         """Set current lighting parameters as specified
-        [for now, to a list of 6 floats from 0 to 1; format may be revised #### HAS BEEN REVISED, need to redoc it].
-        [#e someday we might also schedule an event to save them in prefs soon,
-         or maybe we'll leave that to the caller]
+        (using the format as described in the getLighting method docstring).
+        This does not save them in the preferences file; for that see the saveLighting method.
         If option gl_update is False, then don't do a gl_update, let caller do that if they want to.
         """
         assert _guard_ == 6574833 # don't permit optional args to be specified positionally!!
@@ -403,6 +405,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # for each of 3 lights (at hardcoded positions for now), this stores (a,d,e)
         # giving gray levels for GL_AMBIENT and GL_DIFFUSE and an enabled boolean
 
+    _default_lights = list( _lights) # this copy will never be changed
+
     need_setup_lighting = True # whether the next paintGL needs to call it
     
     def _setup_lighting(self):
@@ -410,9 +414,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         Set up lighting in the model (according to self._lights).
         [Called from both initializeGL and paintGL.]
         """
-        if platform.atom_debug:
-            print "atom_debug: _setup_lighting called; _lights are %r" % (self._lights,)
-        
         glEnable(GL_NORMALIZE) # bruce comment 050311: I don't know if this relates to lighting or not
 
         try:
@@ -478,7 +479,29 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
     def saveLighting(self):
         "save the current lighting values in the standard preferences database"
-        print "saveLighting NIM" ###@@@
+        try:
+            prefs = preferences.prefs_context()
+            key = "glpane lighting" # hardcoded in two methods
+            # we'll store everything in a single value at this key,
+            # making it a dict of dicts so it's easy to add more lighting attrs (or lights) later
+            # in an upward-compatible way.
+            
+            # first, verify format of self._lights is what we expect:
+            ((a0,d0,e0),(a1,d1,e1),(a2,d2,e2)) = self._lights #e might revise format
+            # now process it in a cleaner way
+            val = {}
+            for (i, (a,d,e)) in zip(range(3),self._lights):
+                name = "light%d" % i
+                ambient_color = (a,a,a) # someday we'll store any color; for now, reading code assumes r==g==b in this color
+                diffuse_color = (d,d,d)
+                params = dict( ambient = ambient_color, diffuse = diffuse_color, enabled = e )
+                val[name] = params
+            # save the prefs to the database file
+            prefs[key] = val
+            self.win.history.message( greenmsg( "Lighting preferences saved" ))
+        except:
+            print_compact_traceback("bug: exception in saveLighting (pref changes not saved): ")
+            #e redmsg?
         return
 
     def loadLighting(self, gl_update = True):
@@ -486,8 +509,43 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         if correct values were loaded, start using them, and do gl_update unless option for that is False;
         return True if you loaded new values, False if that failed
         """
-        print "loadLighting NIM" ###@@@
-        return False
+        try:
+            prefs = preferences.prefs_context()
+            key = "glpane lighting" # hardcoded in two methods
+            try:
+                val = prefs[key]
+            except KeyError:
+                # none were saved; not an error and not even worthy of a message
+                # since this is called on startup and it's common for nothing to be saved.
+                # Return with no changes.
+                return False
+            # At this point, you have a saved prefs val, and if this is wrong it's an error.        
+            # val format is described (partly implicitly) in saveLighting method.
+            res = [] # will become new argument to pass to self.setLighting method, if we succeed
+            for name in ['light0','light1','light2']:
+                params = val[name] # a dict of ambient, diffuse, enabled
+                ac = params['ambient'] # ambient color
+                dc = params['diffuse'] # diffuse color
+                e = params['enabled'] # boolean
+                a = ac[0] # only grays are saved for now
+                d = dc[0]
+                res.append( (a,d,e) )
+            self.setLighting( res, gl_update = gl_update)
+            ## self.win.history.message( greenmsg( "Lighting preferences loaded" )) # not desired for now
+            if platform.atom_debug:
+                print "atom_debug: fyi: Lighting preferences loaded"
+            return True
+        except:
+            print_compact_traceback("bug: exception in loadLighting (current prefs not altered): ")
+            #e redmsg?
+            return False
+        pass
+
+    def restoreDefaultLighting(self, gl_update = True): # not yet tested, sole caller not yet used ###@@@
+        "restore the default (built-in) lighting preferences (but don't save them)."
+        self.setLighting( self._default_lights,  gl_update = gl_update )
+        ## self.win.history.message( greenmsg( "Lighting preferences restored to defaults (but not saved)" )) # not desired for now
+        return True
     
     # ==
     
