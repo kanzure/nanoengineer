@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Mar 24 12:38:31 2005
+# Created: Fri Mar 25 01:37:20 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5637,6 +5637,7 @@ class MainWindow(QMainWindow):
         self.dispResetAtomsDisplayAction = QAction(self,"dispResetAtomsDisplayAction")
         self.dispShowInvisAtomsAction = QAction(self,"dispShowInvisAtomsAction")
         self.toolsFuseChunksAction = QAction(self,"toolsFuseChunksAction")
+        self.toolsFuseChunksAction.setToggleAction(1)
         self.toolsFuseChunksAction.setIconSet(QIconSet(self.image112))
 
 
@@ -5691,7 +5692,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,681,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,678,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -5739,7 +5740,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.moveMolDashboard)
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,29,1036,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,87,1033,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -5798,7 +5799,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.zoomDashboard)
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.panDashboard.setGeometry(QRect(243,58,104,29))
+        self.panDashboard.setGeometry(QRect(0,174,104,29))
         self.panDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -5807,15 +5808,42 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.panDashboard)
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.rotateDashboard.setGeometry(QRect(347,58,120,29))
+        self.rotateDashboard.setGeometry(QRect(0,203,120,32))
         self.rotateDashboard.setPaletteBackgroundColor(QColor(230,231,230))
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
         self.rotateDashboard.addSeparator()
         self.toolsDoneAction.addTo(self.rotateDashboard)
+        self.fuseChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
+
+        self.textLabel1_5 = QLabel(self.fuseChunksDashboard,"textLabel1_5")
+        self.fuseChunksDashboard.addSeparator()
+
+        self.textLabel2_3 = QLabel(self.fuseChunksDashboard,"textLabel2_3")
+
+        self.toleranceLCD = QLCDNumber(self.fuseChunksDashboard,"toleranceLCD")
+        self.toleranceLCD.setPaletteForegroundColor(QColor(170,255,0))
+        self.toleranceLCD.setPaletteBackgroundColor(QColor(0,0,0))
+        self.toleranceLCD.setSegmentStyle(QLCDNumber.Flat)
+        spacer3 = QSpacerItem(10,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        QApplication.sendPostedEvents(self.fuseChunksDashboard,QEvent.ChildInserted)
+        self.fuseChunksDashboard.boxLayout().addItem(spacer3)
+
+        self.toleranceSL = QSlider(self.fuseChunksDashboard,"toleranceSL")
+        self.toleranceSL.setMaxValue(100)
+        self.toleranceSL.setValue(50)
+        self.toleranceSL.setOrientation(QSlider.Horizontal)
+
+        self.makeBondsPB = QPushButton(self.fuseChunksDashboard,"makeBondsPB")
+        spacer4 = QSpacerItem(20,27,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        QApplication.sendPostedEvents(self.fuseChunksDashboard,QEvent.ChildInserted)
+        self.fuseChunksDashboard.boxLayout().addItem(spacer4)
+        self.toolsDoneAction.addTo(self.fuseChunksDashboard)
+        self.toolsCancelAction.addTo(self.fuseChunksDashboard)
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.depositAtomDashboard.setGeometry(QRect(467,58,19,29))
+        self.depositAtomDashboard.setGeometry(QRect(0,235,19,16))
         self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
@@ -6537,6 +6565,10 @@ class MainWindow(QMainWindow):
         self.panTextLabel.setText(self.__tr("Pan Tool"))
         self.rotateDashboard.setLabel(self.__tr("Rotate Tool"))
         self.rotateTextLabel.setText(self.__tr("Rotate Tool"))
+        self.fuseChunksDashboard.setLabel(self.__tr("Toolbar"))
+        self.textLabel1_5.setText(self.__tr("Fuse Chunks"))
+        self.textLabel2_3.setText(self.__tr("Tolerance:"))
+        self.makeBondsPB.setText(self.__tr("Make Bonds"))
         self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
         self.modifyToolbar.setLabel(self.__tr("Modify"))
         self.toolsToolbar.setLabel(self.__tr("Tools"))
