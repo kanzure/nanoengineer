@@ -190,14 +190,17 @@ def move_one_node(node, root, newpos):
     # now put it where it belongs, relative to marker
     if where == 'end':
         assert isinstance(marker, Group)
-        marker.addmember(node) # adds at end by default
+        marker.addchild(node) # adds at end by default
     else:
         # Warning: marker might or might not be a Group; current addmember can't handle that!
-        # (That is, we want what Node.addmeber does, never what Group.addmember does,
+        # (That is, we want what Node.addmember (addsibling) does, never what Group.addmember (addchild) does,
         #  whether or not marker is a Group.)
-        # We should (and will) fix addmember, by splitting it into new methods
+        # We should (and will [and did]) fix addmember, by splitting it into new methods
         # addchild and addsibling; but until we fix it, use this kluge here:
-        Node.addmember(marker, node, before=True)
+        ## Node.addmember(marker, node, before=True)
+        marker.addsibling( node, before = True) #bruce 050128 fix of reopened bug 296
+            # it was reopened by my commit to Utility a few days ago
+            # which changed the name of the addmember optional argument. Oops. [bruce 050128]
     return
 
 def is_list_of_ints(thing):
