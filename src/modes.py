@@ -1007,11 +1007,11 @@ class basicMode(anyMode):
     # add hydrogen atoms to each dangling bond
     def modifyHydrogenate(self):
         if self.o.assy.selmols:
-            self.o.assy.modified = 1
+            self.o.assy.changed()
             for m in self.o.assy.selmols:
                 m.Hydrogenate()
         elif self.o.assy.selatoms:
-            self.o.assy.modified = 1
+            self.o.assy.changed()
             for a in self.o.assy.selatoms.values():
                 for atm in a.neighbors():
                     atm.Hydrogenate()
@@ -1074,7 +1074,7 @@ class basicMode(anyMode):
         else:
             didwhat = "Dehydrogenate: nothing selected"
         if fixmols:
-            self.o.assy.modified = 1 #e shouldn't we do this in lower-level methods?
+            self.o.assy.changed() #e shouldn't we do this in lower-level methods?
             self.w.win_update()
         self.w.history.message(didwhat)
         return

@@ -290,7 +290,7 @@ class MWsemantics(MainWindow):
                     print "MWsemantics.py: fileInsert(): error inserting file" + fn
                     self.history.message( "Problem inserting MMP file: " + fn )
                 else:
-                    self.assy.modified = 1 # The file and the part are not the same.
+                    self.assy.changed() # The file and the part are not the same.
                     self.history.message( "MMP file inserted: " + fn )
             
             if fn[-3:] in ["pdb","PDB"]:
@@ -300,7 +300,7 @@ class MWsemantics(MainWindow):
                     print "MWsemantics.py: fileInsert(): error inserting PDB file" + fn
                     self.history.message( "Problem inserting file: " + fn )
                 else:
-                    self.assy.modified = 1 # The file and the part are not the same.
+                    self.assy.changed() # The file and the part are not the same.
                     self.history.message( "PDB file inserted: " + fn )
             
             self.glpane.scale=self.assy.bbox.scale()
@@ -308,7 +308,7 @@ class MWsemantics(MainWindow):
             self.mt.mt_update()
 
     def fileOpen(self):
-        if self.assy.modified:
+        if self.assy.has_changed():
             ret = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before opening a new part?",
@@ -351,7 +351,7 @@ class MWsemantics(MainWindow):
             dir, fil, ext = fileparse(fn)
             self.assy.name = fil
             self.assy.filename = fn
-            self.assy.modified = 0 # The file and the part are now the same
+            self.assy.reset_changed() # The file and the part are now the same
 
             self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
 
@@ -437,7 +437,7 @@ class MWsemantics(MainWindow):
                 else:
                     self.assy.filename = safile
                     self.assy.name = fil
-                    self.assy.modified = 0 # The file and the part are now the same.
+                    self.assy.reset_changed() # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
                     self.history.message( "PDB file saved: " + self.assy.filename )
                     self.mt.mt_update()
@@ -478,7 +478,7 @@ class MWsemantics(MainWindow):
                 else:
                     self.assy.filename = safile
                     self.assy.name = fil
-                    self.assy.modified = 0 # The file and the part are now the same.
+                    self.assy.reset_changed() # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
                     self.history.message( "MMP file saved: " + self.assy.filename )
                     self.mt.mt_update()
@@ -488,7 +488,7 @@ class MWsemantics(MainWindow):
 
     def closeEvent(self,ce): # via File > Exit or clicking X titlebar button
         
-        if not self.assy.modified:
+        if not self.assy.has_changed():
             ce.accept()
             return
             
@@ -513,7 +513,7 @@ class MWsemantics(MainWindow):
 
     def fileClose(self):
         isFileSaved = True
-        if self.assy.modified:
+        if self.assy.has_changed():
             ret = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before closing this part?",
@@ -625,7 +625,7 @@ class MWsemantics(MainWindow):
         self.assy.csys.quat = Q(self.glpane.quat)
         self.assy.csys.scale = self.glpane.scale
         self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
-        self.assy.modified = 1 # Csys record changed in assy.  Mark [041215]
+        self.assy.changed() # Csys record changed in assy.  Mark [041215]
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):

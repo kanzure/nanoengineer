@@ -552,7 +552,7 @@ def writemovie(assy, moviefile, mflag = False):
         return -1
 
     # We always save the current part to an MMP file.  In the future, we may want to check
-    # if assy.filename is an MMP file and use it if assy.modified = 0.
+    # if assy.filename is an MMP file and use it if not assy.has_changed().
     pid = os.getpid()
     mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
         

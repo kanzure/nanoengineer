@@ -102,7 +102,7 @@ class MoleculeProp(MoleculePropDialog):
         if text: self.mol.name = str(text)
         self.nameLineEdit.setText(self.mol.name)
         self.mol.assy.w.win_update() # Update model tree
-        self.mol.assy.modified = 1
+        self.mol.assy.changed()
         self.applyPushButton.setEnabled(False) 
 
     def accept(self):

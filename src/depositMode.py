@@ -340,7 +340,7 @@ class depositMode(basicMode):
         a = self.o.selatom
         el =  PeriodicTable[self.w.Element]
         self.modified = 1
-        self.o.assy.modified = 1
+        self.o.assy.changed()
         if a: # if something was "lit up"
             ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element == Singlet:
@@ -517,7 +517,7 @@ class depositMode(basicMode):
         # now, if something was "lit up"
         ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
         self.modified = 1
-        self.o.assy.modified = 1
+        self.o.assy.changed()
         if a.element == Singlet:
             pivatom = a.neighbors()[0]
             neigh = pivatom.realNeighbors()
@@ -657,7 +657,7 @@ class depositMode(basicMode):
             self.w.history.message("deleting %r" % a) #bruce 041208
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
-            self.o.assy.modified = 1
+            self.o.assy.changed()
         self.w.win_update()
 
 # removed by bruce 041217:

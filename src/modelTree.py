@@ -245,7 +245,7 @@ class modelTree(QListView):
         # Mark [04-12-07]
         if text: 
             listItem.object.name = str(text)
-            self.assy.modified = 1
+            self.assy.changed()
         else: self.mt_update() # Force MT update.
 
     def beginrename(self, item, pos, col):

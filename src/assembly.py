@@ -33,7 +33,11 @@ def hashAtomPos(pos):
 # the class for groups of parts (molecules)
 # currently only one level, but should be recursive
 class assembly:
-    def __init__(self, win, nm=None):
+    def __init__(self, win, nm = None):
+        # ignore changes to this assembly during __init__;
+        # this will be set back to 0 at the end of __init__:
+        self._modified = 1 
+        
         # nothing is done with this now, but should have a
         # control for browsing/managing the list
         global assyList
@@ -92,12 +96,56 @@ class assembly:
         self.selmotors=[]
         self.undolist=[]
         # 1 if there is a structural difference between assy and file
-        self.modified = 0
+        self._modified = 0 # note: this was set to 1 at start of __init__
         
         ### Some information needed for the simulation or coming from mmp file
         self.temperature = 300
         self.waals = None
 
+        return # from assembly.__init__
+
+    def has_changed(self): # bruce 050107
+        """Report whether this assembly (or something it contains)
+        has been changed since it was last saved or loaded from a file.
+        See self.changed() docstring and comments for more info.
+        Don't use or set self._modified directly! We might rename it
+        to enforce that.
+           We might also make this method query the current mode
+        to see if it has changes which belong in this assembly before
+        it should be saved.
+        """
+        return self._modified
+    
+    def changed(self): # bruce 050107
+        """Record the fact that this assembly (or something it contains)
+        has been changed, in the sense that saving it into a file would
+        produce meaningfully different file contents than if that had been
+        done before the change, or (more generally) that the change matters
+        for any other kind of observer, like the model tree or the glpane.
+        """
+        # bruce 050107 added this; as of now, all method names (in all
+        # classes) of the form changed or changed_xxx are hereby reserved
+        # for this purpose! [For beta, I plan to put in a uniform system for
+        # efficiently recording and propogating change-notices of that kind,
+        # as part of implementing Undo.]
+        if not self._modified:
+            self._modified = 1
+            # Feel free to add more side effects here, even if they are slow!
+            # They will only run the first time you modify this, since its
+            # modified flag was most recently reset [i.e. since it was saved].
+            # [For Beta, they might run more often (once per undoable user-
+            #  event), so we'll review them for speed at that time. For now,
+            #  only saving this assembly to file (or loading or clearing it)
+            # is permitted to reset this flag to 0.]
+            self.w.history.message("(assembly has been modified)") #e revise terminology?
+            pass
+        return
+
+    def reset_changed(self): # bruce 050107
+        """[private method] #doc this... see self.changed() docstring.
+        """
+        self._modified = 0
+    
     def selectingWhat(self):
         """return 'Atoms' or 'Molecules' to indicate what is currently
         being selected [by bruce 040927; might change]
@@ -154,7 +202,7 @@ class assembly:
         won't change again during the same user-event that's running now;
         some code might add mol when it has no atoms, then add atoms to it).
         """
-        self.modified = 1 #bruce 041118
+        self.changed() #bruce 041118
         self.bbox.merge(mol.bbox)
         self.center = self.bbox.center()
         self.molecules += [mol]
@@ -180,7 +228,7 @@ class assembly:
     
     # make a new molecule using a cookie-cut shape
     def molmake(self,shap):
-        self.modified = 1 # The file and the part are now out of sync.
+        self.changed() # The file and the part are now out of sync.
         mol = molecule(self, gensym("Cookie."))
         ndx={}
         hashAtomPos 
@@ -506,7 +554,7 @@ class assembly:
                 if isinstance(ob, molecule): ob.move(-ob.center)
             ob.pick()
 
-        self.modified = 1
+        self.changed()
         self.w.win_update()
 
 
@@ -545,21 +593,21 @@ class assembly:
     # move any selected parts in space ("move" is an offset vector)
     def movesel(self, move):
         for mol in self.selmols:
-            self.modified = 1
+            self.changed()
             mol.move(move)
  
  
     # rotate any selected parts in space ("rot" is a quaternion)
     def rotsel(self, rot):
         for mol in self.selmols:
-            self.modified = 1
+            self.changed()
             mol.rot(rot)
              
 
     def kill(self): # bruce 041118 simplified this after shakedown changes
         "delete whatever is selected from this assembly"
         if self.selatoms:
-            self.modified = 1
+            self.changed()
             for a in self.selatoms.values():
                 a.kill()
             self.selatoms = {} # should be redundant
@@ -612,7 +660,7 @@ class assembly:
         if not self.selatoms: return
         aa=self.selatoms.values()
         if len(aa)==2:
-            self.modified = 1
+            self.changed()
             aa[0].molecule.bond(aa[0], aa[1])
             #bruce 041028 bugfix: bring following lines inside the 'if'
             aa[0].molecule.changeapp(0)
@@ -622,7 +670,7 @@ class assembly:
     #unbond atoms (cheap hack)
     def Unbond(self):
         if not self.selatoms: return
-        self.modified = 1
+        self.changed()
         aa=self.selatoms.values()
         if len(aa)==2:
             #bruce 041028 bugfix: add [:] to copy following lists,
@@ -634,7 +682,7 @@ class assembly:
 
     #stretch a molecule
     def Stretch(self):
-        self.modified = 1
+        self.changed()
         if not self.selmols: return
         for m in self.selmols:
             m.stretch(1.1)
@@ -888,7 +936,7 @@ class assembly:
                 m.Passivate() # lack of arg makes it work on only selected atoms
                 # (maybe it could just iterate over selatoms... #e)
                 
-        self.modified = 1 # could be much smarter
+        self.changed() # could be much smarter
         self.o.paintGL()
 
     # add hydrogen atoms to each dangling bond

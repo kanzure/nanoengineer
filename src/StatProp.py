@@ -77,7 +77,7 @@ class StatProp(StatPropDialog):
         if text: self.stat.name = str(text)
         self.nameLineEdit.setText(self.stat.name)
         self.stat.assy.w.win_update() # Update model tree
-        self.stat.assy.modified = 1
+        self.stat.assy.changed()
         
         self.stat.color = self.stat.normcolor = self.newcolor        
         self.glpane.paintGL()

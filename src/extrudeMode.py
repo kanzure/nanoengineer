@@ -1531,7 +1531,7 @@ def assy_copy(assy, mols, offset = V(10.0, 10.0, 10.0)):
     self = assy
     nulist = [] # moved out of loop; is that a bug in assy.copy too?? ###k
     for mol in mols[:]: # copy the list in case it happens to be self.selmols (needed??)
-        self.modified = 1 # only if loop runs
+        self.changed() # only if loop runs
         numol = mol.copy( mol.dad, offset)
         nulist += [numol]
         self.addmol(numol) ###k ###@@@ why was this not already done in mol.copy?? [bruce 041116 question]

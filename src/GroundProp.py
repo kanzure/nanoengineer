@@ -73,7 +73,7 @@ class GroundProp(GroundPropDialog):
         if text: self.ground.name = str(text)
         self.nameLineEdit.setText(self.ground.name)
         self.ground.assy.w.win_update() # Update model tree
-        self.ground.assy.modified = 1
+        self.ground.assy.changed()
 
         self.ground.color = self.ground.normcolor = self.newcolor        
         self.glpane.paintGL()

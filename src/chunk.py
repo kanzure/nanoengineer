@@ -1054,7 +1054,7 @@ class molecule(Node, InvalMixin):
         self.havelist = 0
         self.haveradii = 0
         self.seticon()
-        self.assy.modified = 1
+        self.assy.changed()
         
     def changeapp(self, atoms):
         """call when you've changed appearance of the molecule
@@ -1062,6 +1062,8 @@ class molecule(Node, InvalMixin):
         Arg atoms = 1 means that not only the entire mol appearance,
         but specifically the set of atoms or atomic radii
         (for purposes of selection), have changed.
+           Note that changeapp does not itself call self.assy.changed(),
+        since it's not clear that would always be correct to do.
         """ 
         self.havelist = 0
         if atoms: #bruce 041207 added this arg and its effect
@@ -1173,7 +1175,7 @@ class molecule(Node, InvalMixin):
         if self.assy:
             try:
                 self.assy.molecules.remove(self)
-                self.assy.modified = 1
+                self.assy.changed()
             except ValueError:
                 print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
                 pass

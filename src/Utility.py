@@ -220,7 +220,7 @@ class Group(Node):
         """
         if not node: return
 #        print "Utility.Group.addmember: adding node [",node.name,"] to the bottom/top of group [",self.name,"]"
-        self.assy.modified = 1
+        self.assy.changed()
         if top: self.members.insert(0, node) # Insert node at the very top
         else: self.members += [node] # Add node to the bottom
         node.dad = self
@@ -228,7 +228,7 @@ class Group(Node):
 
     def delmember(self, obj):
         obj.unpick() #bruce 041029 fix bug 145
-        self.assy.modified = 1
+        self.assy.changed()
         try:
             self.members.remove(obj)
         except: pass

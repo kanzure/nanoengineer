@@ -308,7 +308,7 @@ class atom:
     def setDisplay(self, disp):
         self.display = disp
         self.molecule.changeapp(1)
-        self.molecule.assy.modified = 1 # bruce 041206 bugfix (unreported bug)
+        self.molecule.assy.changed() # bruce 041206 bugfix (unreported bug)
         # bruce 041109 comment:
         # atom.setDisplay changes appearance of this atom's bonds,
         # so: do we need to invalidate the bonds? No, they don't store display

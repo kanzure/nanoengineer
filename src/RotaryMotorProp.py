@@ -85,7 +85,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         if text: self.motor.name = str(text)
         self.nameLineEdit.setText(self.motor.name)
         self.motor.assy.w.win_update() # Update model tree
-        self.motor.assy.modified = 1
+        self.motor.assy.changed()
                
         self.applyPushButton.setEnabled(False)
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 GroupProp.py
 
@@ -34,4 +34,4 @@ class GroupProp(GroupPropDialog):
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
         if text:
             self.group.name = str(text)
-            self.group.assy.modified = 1
+            self.group.assy.changed()
