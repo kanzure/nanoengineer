@@ -190,11 +190,11 @@ class RotaryMotor(Jig):
     # Write "rmotor" and "spoke" records to POV-Ray file in the format:
     # rmotor(<cap-point>, <base-point>, cylinder-radius, <r, g, b>)
     # spoke(<cap-point>, <base-point>, scylinder-radius, <r, g, b>)
-    def povwrite(self, file, dispdef):
+    def writepov(self, file, dispdef):
         if self.hidden: return
         c = self.posn()
         a = self.axen()
-        print "gadgets.py: povwrite(): writing rotar motor record"
+        print "gadgets.py: writepov(): writing rotar motor record"
         file.write("rmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + povpoint(c-(self.length / 2.0)*a)  + "," + str (self.radius) +
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
         for a in self.atoms:
@@ -343,11 +343,11 @@ class LinearMotor(Jig):
     # Write "lmotor" and "spoke" records to POV-Ray file in the format:
     # lmotor(<cap-point>, <base-point>, box-width, <r, g, b>)
     # spoke(<cap-point>, <base-point>, sbox-radius, <r, g, b>)
-    def povwrite(self, file, dispdef):
+    def writepov(self, file, dispdef):
         if self.hidden: return
         c = self.posn()
         a = self.axen()
-        print "gadgets.py: povwrite(): writing lmotor record"
+        print "gadgets.py: writepov(): writing lmotor record"
         file.write("lmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + 
                     povpoint(c-(self.length / 2.0)*a)  + "," + str (self.width / 2.0) + 
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
@@ -408,7 +408,7 @@ class Ground(Jig):
             
     # Write "ground" record to POV-Ray file in the format:
     # ground(<box-center>,box-radius,<r, g, b>)
-    def povwrite(self, file, dispdef):
+    def writepov(self, file, dispdef):
         if self.hidden: return
         if self.picked: c = self.normcolor
         else: c = self.color
@@ -492,7 +492,7 @@ class Stat(Jig):
             
     # Write "stat" record to POV-Ray file in the format:
     # stat(<box-center>,box-radius,<r, g, b>)
-    def povwrite(self, file, dispdef):
+    def writepov(self, file, dispdef):
         if self.hidden: return
         if self.picked: c = self.normcolor
         else: c = self.color

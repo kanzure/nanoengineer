@@ -732,21 +732,18 @@ class molecule(Node, InvalMixin):
             a.writemmp(atnums, alist, f)
 
     # write to a povray file:  draw the atoms and bonds inside a molecule
-    def povwrite(self, file, disp):
+    def writepov(self, file, disp):
         if self.hidden: return
-#    def povwrite(self, file, win):
 
         if self.display != diDEFAULT: disp = self.display
-#        else: disp = win.display
-#        disp = self.display
-        
+
         drawn = {}
         for atm in self.atoms.values():
-            atm.povwrite(file, disp, self.color)
+            atm.writepov(file, disp, self.color)
             for bon in atm.bonds:
                 if bon.key not in drawn:
                     drawn[bon.key] = bon
-                    bon.povwrite(file, disp, self.color)
+                    bon.writepov(file, disp, self.color)
 
     def move(self, offset):
         """Public method: translate self (a molecule) by offset;

@@ -243,7 +243,7 @@ class Group(Node):
         if self.hidden: return
         for x in self.members:
             print "Utility.py: writepov: member name = [",x.name,"]"
-            x.povwrite(f, dispdef)
+            x.writepov(f, dispdef)
 
     def __str__(self):
         return "<group " + self.name +">"

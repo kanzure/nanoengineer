@@ -487,7 +487,7 @@ class atom:
             f.write("bond1 " + " ".join(map(str,bl)) + "\n")
 
     # write to a povray file:  draw a single atom
-    def povwrite(self, file, dispdef, col):
+    def writepov(self, file, dispdef, col):
         color = col or self.element.color
         color = color * V(1,1,-1) # kluge for povpoint(color)
         disp, rad = self.howdraw(dispdef)
@@ -1265,7 +1265,7 @@ class Bond:
     #  and I want to avoid a cvs merge conflict. When this is fixed,
     #  note that I have changed self.center and added self.toolong; see
     #  self.draw() for details. -- bruce 041112 ###e]
-    def povwrite(self, file, dispdef, col):
+    def writepov(self, file, dispdef, col):
         disp=max(self.atom1.display, self.atom2.display)
         if disp == diDEFAULT: disp= dispdef
         color1 = self.atom1.element.color * V(1,1,-1)

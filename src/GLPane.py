@@ -766,7 +766,7 @@ class GLPane(QGLWidget, modeMixin):
 
         width = self.width
         height = self.height
-        if filename[-3:] == "pov": self.povwrite(filename, width, height)
+        if filename[-3:] == "pov": self.writepov(filename, width, height)
         else:  self.jpgwrite(filename, width, height)
 
     def jpgwrite(self, filename, width, height):
