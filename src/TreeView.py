@@ -482,6 +482,37 @@ class TreeView(QListView):
             # w/o flag do_setOpen=0 it might do illegal changes for a slot function... not sure
         return
 
+    def item_isOpenable(self, item, strict = False): ###@@@ use in more places [050125]
+        """Is the given item openable?
+        If not strict, then say yes if it's open,
+        even if node.openable() says it shouldn't be,
+        so the user has a way to close an open item!
+        WARNING: The Qt method item.isExpandable is misnamed;
+        it's usually False even for expandable items.
+        (It should have been named isExpandableWhenEmpty.)
+        """
+        node = item.object
+        if strict:
+            return node.openable()
+        try:
+            open = node.open
+        except:
+            open = False
+        # Make sure to let user close open items, even if node.openable() says they
+        # should not be able to be open! (It might dynamically change what it returns.)
+        return open or item.isOpen() or node.openable()
+
+    def item_isOpen(self, item): ###@@@ use in more places [050125]
+        """Should the given item be open?
+        """
+        node = item.object
+        try:
+            open = node.open
+        except:
+            open = False
+        # 'strict' is to let dynamic changes to node.openable() immediately close open items.
+        return open and self.item_isOpenable(item, strict = True)
+    
     # default implems, subclasses could override (but don't, so far); also,
     # self.isOpen(item) (nim) ought to be separated from display_prefs and not included in them.
     def display_prefs_for_node(self, node):

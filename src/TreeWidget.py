@@ -105,6 +105,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # where in the item did we click? relevant Qt things:
             # QListViewItem::width - width of text in col k (without cropping)
             # ... see also PyQt example code, examples3/dirview.py, search for rootIsDecorated
+            # Note: if we click to right of col0, we never get here, since item is already None.
             rootIsDecorated = 1
                 # more generally: 0 or 1 depending on self.rootIsDecorated()
             header = self.header()
@@ -115,15 +116,16 @@ class TreeWidget(TreeView, DebugMenuMixin):
             x_past_openclose = vpos.x() - (col0_left_x + indent)
                 # this tells whether we hit the left edge of the icon
                 # (by when it's positive), for a very big icon.
-            if x_past_openclose > 22: #e probably need to adjust this cutoff; depends on our icon sizes
+            if x_past_openclose > 22: # this cutoff seems ok now; depends on our icon sizes
                 part = 'text'
                 #e incorrect if we're to the right of the visible text;
                 # Qt docs show how to check text width to find out; should use that
                 # (also we're not checking for still being in column 0, just assuming that)
-            elif x_past_openclose > 2: #e might need to adjust this cutoff (btw it's a bit subjective)
+            elif x_past_openclose > 2: # this cutoff seems ok (tho it's a bit subjective)
                 part = 'icon'
-            elif (x_past_openclose > -12) and item.isExpandable(): #k method name, semantics
-                ###e surely need to adjust this; depends on desired size of "click area" around openclose
+            elif (x_past_openclose > -15) and self.item_isOpenable(item):
+                # warning: item.isExpandable() is wrong here; see item_isOpenable docstring
+                # this cutoff seems ok; depends on desired size of "click area" around openclose
                 part = 'openclose'
             elif vpos.x() >= col0_left_x:
                 part = 'left'
@@ -162,7 +164,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
         "[overrides QListView method]"
         # This method might be needed, to prevent QListView version of it from messing us up.
         # (At least, without it, QListView emits its "clicked" signal.)
-        pass 
+        pass
+
+    def contentsMouseEnterEvent(self, event): #k guess at method name
+        print "contentsMouseEnterEvent" ###@@@ this is not called - methname? some flag or setting?? ####@@@@
+        self.sbar_msg(" ") # experiment; needed to hide msg appropriate only to glpane (eg advice from Build)
+
+    def sbar_msg(self, msg):
+        self.win.history.transient_msg( msg)
 
     # external update methods
     
