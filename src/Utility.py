@@ -1639,7 +1639,8 @@ class ClipboardShelfGroup(Group):
         # (In theory this grouping need only be done for the subsets of them which are bonded;
         #  for now that's too hard -- maybe not for long, similar to bug 371.)
         if len(nodes) > 1 and drag_type == 'move': ####@@@@ desired for copy too, but below implem would be wrong for that...
-            new = Group("Grouped nodes", self.assy, None) ###k review last arg ####@@@@
+            name = self.assy.name_autogrouped_nodes_for_clipboard( nodes, howmade = drag_type )
+            new = Group(name, self.assy, None) ###k review last arg ####@@@@
             for node in nodes[:]: #bruce 050216 don't reverse the order, it's already correct
                 node.unpick() #bruce 050216; don't know if needed or matters; 050307 moved from after to before moveto
                 node.moveto(new) ####@@@@ guess, same as in super.drop_on (move here, regardless of drag_type? no, not correct!)
@@ -1647,10 +1648,12 @@ class ClipboardShelfGroup(Group):
             self.assy.w.history.message( "(fyi: Grouped some nodes to keep them in one clipboard item)" ) ###e improve text
         return Group.drop_on(self, drag_type, nodes)
     def permits_ungrouping(self): return False
-    def openable(self): # overrides Node.openable()
-        "whether tree widgets should permit the user to open/close their view of this node"
-        non_empty = (len(self.members) > 0)
-        return non_empty
+    ##bruce 050316: does always being openable work around the bugs in which this node is not open when it should be?
+    ###e btw we need to make sure it becomes open whenever it contains the current part. ####@@@@
+##    def openable(self): # overrides Node.openable()
+##        "whether tree widgets should permit the user to open/close their view of this node"
+##        non_empty = (len(self.members) > 0)
+##        return non_empty
     def node_icon(self, display_prefs):
         del display_prefs # unlike most Groups, we don't even care about 'open'
         non_empty = (len(self.members) > 0)

@@ -487,8 +487,9 @@ class Part(InvalMixin):
             # to do this correctly, I think we have to know that we're a "clipboard item";
             # this implem might work even if we permit Groups of clipboard items someday
             old_top = self.topnode
+            name = self.assy.name_autogrouped_nodes_for_clipboard( [old_top])
             # beginning of section during which assy's Part structure is invalid
-            self.topnode = Group("Group", self.assy, None)
+            self.topnode = Group(name, self.assy, None)
             self.add(self.topnode)
             # now put the new Group into the node tree in place of old_top
             old_top.addsibling(self.topnode)

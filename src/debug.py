@@ -350,7 +350,7 @@ class DebugMenuMixin:
         # <cntrl><shift><alt><left click>" [in the glpane, one of our callers].
         
         if debug_menu_enabled and permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
-            print "\n* * * fyi: got debug click, will try to put up a debug menu...\n"
+            ## print "\n* * * fyi: got debug click, will try to put up a debug menu...\n" # bruce 050316 removing this
             self.do_debug_menu(event)
             return 1 # caller should detect this and not run its usual event code...
         if debug_events:

@@ -947,15 +947,17 @@ class depositMode(basicMode):
         paste a copy of it onto the given singlet;
         return (the copy, description) or (None, whynot)
         """
+        pastable = self.pastable
+            # as of 050316 addmol can change self.pastable! See comments in pasteFree.
         # bruce 041123 added return values (and guessed docstring).
         # bruce 050121 using subr split out from this code
-        ok, hotspot_or_whynot = find_hotspot_for_pasting(self.pastable)
+        ok, hotspot_or_whynot = find_hotspot_for_pasting(pastable)
         if not ok:
             whynot = hotspot_or_whynot
             return None, whynot
         hotspot = hotspot_or_whynot
         
-        numol = self.pastable.copy(None)
+        numol = pastable.copy(None)
         # bruce 041116 added (implicitly, by default) cauterize = 1
         # to mol.copy() above; change this to cauterize = 0 here if unwanted,
         # and for other uses of mol.copy in this file.
@@ -969,7 +971,7 @@ class depositMode(basicMode):
         # hotspot is retrieved (since it can become invalid in many other ways too),
         # so there's no need to explicitly forget it here.
         self.o.assy.addmol(numol) # do this last, in case it computes bbox
-        return numol, "copy of %r" % self.pastable.name
+        return numol, "copy of %r" % pastable.name
         
     # paste the pastable object where the cursor is (at pos)
     # warning: some of the following comment is obsolete (read all of it for the details)
@@ -985,7 +987,13 @@ class depositMode(basicMode):
     # objectionable after this, it can be removed (or made a nondefault preference).
     # ... bruce 050124: that feature bothers me, decided to remove it completely.
     def pasteFree(self, pos):
-        numol = self.pastable.copy(None)
+        pastable = self.pastable
+            # as of 050316 addmol can change self.pastable!
+            # (if we're operating in the same clipboard item it's stored in,
+            #  and if adding numol makes that item no longer pastable.)
+            # And someday the copy operation itself might auto-addmol, for some reason;
+            # so to be safe, save pastable here before we change current part at all.
+        numol = pastable.copy(None)
         #bruce 050217 fix_bad_hotspot no longer needed
         # [#e should we also remove the hotspot copied by mol.copy? I don't think so.]
 ##        fix_bad_hotspot(numol) # works around some possible bugs in other code
@@ -997,8 +1005,8 @@ class depositMode(basicMode):
 ##        else:
 ##            cursor_spot = numol.center
         numol.move(pos - cursor_spot)
-        self.o.assy.addmol(numol)
-        return numol, "copy of %r" % self.pastable.name
+        self.o.assy.addmol(numol) 
+        return numol, "copy of %r" % pastable.name
 
 
     ###################################################################

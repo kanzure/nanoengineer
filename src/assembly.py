@@ -183,6 +183,20 @@ class assembly:
     def init_current_selgroup(self):
         self._last_current_selgroup = self.tree
         return
+
+    def name_autogrouped_nodes_for_clipboard(self, nodes, howmade = ""):
+        """Make up a default initial name for an automatically made Group
+        whose purpose is to keep some nodes in one clipboard item.
+           The nodes in question might be passed, but this is optional
+        (but you have to pass None or [] if you don't want to pass them),
+        and they might not yet be in the clipboard, might not be the complete set,
+        and should not be disturbed by this method in any way.
+           A word or phrase describing how the nodes needing this group were made
+        can also optionally be passed.
+           Someday we might use these args (or anything else, e.g. self.filename)
+        to help make up the name.
+        """
+        return "<Clipboard item>"
     
     # == Parts
     
@@ -539,6 +553,12 @@ class assembly:
 ##            try:
                 sg = self.current_selgroup() # this fixes it if possible; should always be a node but maybe with no Part during init
                 ## return self.parts[node_id(sg)]
+                if 1:
+                    # open all containing nodes below assy.root (i.e. the clipboard, if we're a clipboard item)
+                    containing_node = sg.dad
+                    while containing_node and containing_node != self.root:
+                        containing_node.open = True
+                        containing_node = containing_node.dad
                 part = self.selgroup_part(sg)
                 if not part:
                     #e [this IS REDUNDANT with debug prints inside selgroup_part] [which for debugging are now asserts #####@@@@@]
