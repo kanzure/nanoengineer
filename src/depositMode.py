@@ -123,10 +123,10 @@ def do_what_MainWindowUI_should_do(w):
     w.elemChangeComboBox.insertItem("Selenium")
     w.elemChangeComboBox.insertItem("Bromine")
     w.elemChangeComboBox.insertItem("Krypton")
-    w.elemChangeComboBox.insertItem("Antimony")
-    w.elemChangeComboBox.insertItem("Tellurium")
-    w.elemChangeComboBox.insertItem("Iodine")
-    w.elemChangeComboBox.insertItem("Xenon")
+    #w.elemChangeComboBox.insertItem("Antimony")
+    #w.elemChangeComboBox.insertItem("Tellurium")
+    #w.elemChangeComboBox.insertItem("Iodine")
+    #w.elemChangeComboBox.insertItem("Xenon")
     w.connect(w.elemChangeComboBox,SIGNAL("activated(int)"),w.elemChange)
 
 class depositMode(basicMode):

@@ -248,6 +248,7 @@ class elemprefs:
         self.prefs = {}
         for eltnum, el in PeriodicTable.items():
             self.prefs[eltnum] = dict(color = el.color, rvdw = el.rvdw)
+    
     def use(self):
         """change the element table to use the prefs in this set;
         does not invalidate display lists or repaint, caller needs to do that
@@ -266,6 +267,45 @@ class elemprefs:
         eltnum = sym_or_name_or_num_to_num(sym_or_name_or_num)
         dict1 = self.prefs[eltnum]
         dict1.update(attrs)
+    
+    def deepCopy(self, anotherPrefs):
+        """Huaicai: deep copy the contents of <param> anotherPrefs to create a new instance of elemprefs """
+        assert isinstance(anotherPrefs, elemprefs)
+        if anotherPrefs == self: return self
+        
+        self.prefs = {}
+        for eleNum, dict1 in anotherPrefs.prefs.items():
+            newDict = {}
+            newDict['color'] = dict1['color'][:]
+            newDict['rvdw'] = dict1['rvdw']
+            self.prefs[eleNum] =newDict
+        
+        return self
+    
+    def getElemColor(self, sym_or_name_or_num):
+        """Huaicai: Return the element color as a triple list for <sym_or_name_or_num> """
+        eltnum = sym_or_name_or_num_to_num(sym_or_name_or_num)
+        dict1 = self.prefs[eltnum]
+        return dict1['color']
+    
+    def getElemRvdw(self, sym_or_name_or_num):
+        """Huaicai: Return the element rvdw  for <sym_or_name_or_num> """
+        eltnum = sym_or_name_or_num_to_num(sym_or_name_or_num)
+        dict1 = self.prefs[eltnum]
+        return dict1['rvdw']
+    
+    def getElemSymbol(self, eleNum):
+        """ <Param> eleNum: element index
+            <Return>  the symbol for the element
+        """
+        assert type(eleNum) == type(1)
+        try:
+            elem = PeriodicTable[eleNum]
+            return elem.symbol
+        except:
+            print "Can't find element: ", eleNum
+            return None
+            
     pass
 
 # our two hardcoded choices for elem drawing prefs, named 1 and 2 for now;
@@ -331,14 +371,15 @@ for symrad in _sym_rad:
 
 # color values from John Burch (in email to Mark Sims, circa 041221)
 # (also has radius values redundant with above string; these are not required here)
-elemtables[2].change("Hydrogen", color = V(1.0, 1.0, 1.0),       rvdw = 1.135 )
+elemtables[2].change("Hydrogen", color = [1.0, 1.0, 1.0],       rvdw = 1.135 )
 elemtables[2].change("Carbon",   color = V(117, 117, 117)/255.0, rvdw = 1.431 )
 elemtables[2].change("Silicon",  color = V(111,  93, 133)/255.0, rvdw = 1.825 )
 
+##Huaicai 2/24/05 Comment out the following changes 
 # commented-out John Burch values, from above 
-elemtables[3].change("Hydrogen", color = V(1.0, 1.0, 1.0),       rvdw = 1.135 )
-elemtables[3].change("Carbon",   color = V(117, 117, 117)/255.0, rvdw = 1.462 )
-elemtables[3].change("Silicon",  color = V(111,  93, 133)/255.0, rvdw = 2.25  )
+#elemtables[3].change("Hydrogen", color = [1.0, 1.0, 1.0],       rvdw = 1.135 )
+#elemtables[3].change("Carbon",   color = V(117, 117, 117)/255.0, rvdw = 1.462 )
+#elemtables[3].change("Silicon",  color = V(111,  93, 133)/255.0, rvdw = 2.25  )
 
 def set_element_table(num, assy): # called from some menu items in select modes
     "start using the element table named num; invalidate as needed, but caller has to repaint"

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>348</width>
-            <height>489</height>
+            <width>519</width>
+            <height>690</height>
         </rect>
     </property>
     <property name="palette">
@@ -268,1025 +268,1453 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <grid>
+    <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QButtonGroup" row="0" column="0">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>elementButtonGroup</cstring>
+                <cstring>layout18</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout17</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="spacing">
+                            <number>0</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>elemInfoLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>5</hsizetype>
+                                    <vsizetype>5</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>1</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>80</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>227</red>
+                                    <green>211</green>
+                                    <blue>231</blue>
+                                </color>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="textFormat">
+                                <enum>RichText</enum>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignCenter</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>elemColorLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>5</hsizetype>
+                                    <vsizetype>5</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>80</width>
+                                    <height>50</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="textFormat">
+                                <enum>RichText</enum>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignCenter</set>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QFrame">
+                    <property name="name">
+                        <cstring>elementFrame</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>5</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>120</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="frameShape">
+                        <enum>Box</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Raised</enum>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout16</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>40</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout11</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QSlider">
+                                    <property name="name">
+                                        <cstring>redSlider</cstring>
+                                    </property>
+                                    <property name="paletteForegroundColor">
+                                        <color>
+                                            <red>255</red>
+                                            <green>0</green>
+                                            <blue>0</blue>
+                                        </color>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>255</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Above</enum>
+                                    </property>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout10</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel2</cstring>
+                                            </property>
+                                            <property name="paletteBackgroundColor">
+                                                <color>
+                                                    <red>255</red>
+                                                    <green>0</green>
+                                                    <blue>0</blue>
+                                                </color>
+                                            </property>
+                                            <property name="text">
+                                                <string></string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>redSpinBox</cstring>
+                                            </property>
+                                            <property name="maxValue">
+                                                <number>255</number>
+                                            </property>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout11_2</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QSlider">
+                                    <property name="name">
+                                        <cstring>greenSlider</cstring>
+                                    </property>
+                                    <property name="paletteForegroundColor">
+                                        <color>
+                                            <red>0</red>
+                                            <green>255</green>
+                                            <blue>0</blue>
+                                        </color>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>255</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Above</enum>
+                                    </property>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout10_2</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel2_2</cstring>
+                                            </property>
+                                            <property name="paletteBackgroundColor">
+                                                <color>
+                                                    <red>0</red>
+                                                    <green>255</green>
+                                                    <blue>0</blue>
+                                                </color>
+                                            </property>
+                                            <property name="text">
+                                                <string></string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>greenSpinBox</cstring>
+                                            </property>
+                                            <property name="maxValue">
+                                                <number>255</number>
+                                            </property>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout11_3</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QSlider">
+                                    <property name="name">
+                                        <cstring>blueSlider</cstring>
+                                    </property>
+                                    <property name="paletteForegroundColor">
+                                        <color>
+                                            <red>0</red>
+                                            <green>0</green>
+                                            <blue>255</blue>
+                                        </color>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>255</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="tickmarks">
+                                        <enum>Above</enum>
+                                    </property>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout10_3</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel2_3</cstring>
+                                            </property>
+                                            <property name="paletteBackgroundColor">
+                                                <color>
+                                                    <red>0</red>
+                                                    <green>0</green>
+                                                    <blue>255</blue>
+                                                </color>
+                                            </property>
+                                            <property name="text">
+                                                <string></string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>blueSpinBox</cstring>
+                                            </property>
+                                            <property name="maxValue">
+                                                <number>255</number>
+                                            </property>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </vbox>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>elementGroupBox</cstring>
+            </property>
+            <property name="paletteForegroundColor">
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="paletteBackgroundColor">
+                <color>
+                    <red>208</red>
+                    <green>203</green>
+                    <blue>231</blue>
+                </color>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+            <property name="lineWidth">
+                <number>1</number>
             </property>
             <property name="title">
                 <string></string>
             </property>
-            <property name="exclusive">
-                <bool>true</bool>
-            </property>
-            <widget class="QFrame">
+            <widget class="QLayoutWidget">
                 <property name="name">
-                    <cstring>elementFrame</cstring>
+                    <cstring>layout6_2</cstring>
                 </property>
                 <property name="geometry">
                     <rect>
-                        <x>6</x>
-                        <y>7</y>
-                        <width>235</width>
-                        <height>110</height>
+                        <x>60</x>
+                        <y>0</y>
+                        <width>349</width>
+                        <height>56</height>
                     </rect>
                 </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>60</red>
-                        <green>215</green>
-                        <blue>205</blue>
-                    </color>
-                </property>
-                <property name="frameShape">
-                    <enum>StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Raised</enum>
-                </property>
-                <widget class="QLabel">
+                <hbox>
                     <property name="name">
-                        <cstring>elementNumberLabel</cstring>
+                        <cstring>unnamed</cstring>
                     </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>2</y>
-                            <width>100</width>
-                            <height>30</height>
-                        </rect>
-                    </property>
-                    <property name="font">
-                        <font>
-                        </font>
-                    </property>
-                    <property name="text">
-                        <string>1</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignCenter</set>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>amuLabel</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>77</y>
-                            <width>100</width>
-                            <height>30</height>
-                        </rect>
-                    </property>
-                    <property name="font">
-                        <font>
-                        </font>
-                    </property>
-                    <property name="text">
-                        <string>1.008</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignCenter</set>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>elementSymbolLabel</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>29</y>
-                            <width>100</width>
-                            <height>52</height>
-                        </rect>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <pointsize>26</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
-                    <property name="text">
-                        <string>H</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignCenter</set>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>pixmapLabel1</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>125</x>
-                            <y>5</y>
-                            <width>100</width>
-                            <height>100</height>
-                        </rect>
-                    </property>
-                    <property name="scaledContents">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton13</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>6</x>
-                        <y>201</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>170</red>
-                        <green>170</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>9</pointsize>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>13
-Al</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>13</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton2</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>true</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>201</x>
-                        <y>123</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>210</red>
-                        <green>210</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>2
-He</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>2</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton5</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>6</x>
-                        <y>162</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>80</red>
-                        <green>135</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>5
-B</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>5</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton6</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>45</x>
-                        <y>162</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>35</red>
-                        <green>165</green>
-                        <blue>75</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>6
-C</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>6</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton7</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>84</x>
-                        <y>162</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>170</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>7
-N</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>7</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton8</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>123</x>
-                        <y>162</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>191</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>8
-O</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>8</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton10</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>true</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>201</x>
-                        <y>162</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>210</red>
-                        <green>210</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>10
-Ne</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>10</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton14</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>45</x>
-                        <y>201</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>156</red>
-                        <green>156</green>
-                        <blue>156</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>14
-Si</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>14</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton15</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>84</x>
-                        <y>201</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>170</red>
-                        <green>85</green>
-                        <blue>200</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>15
-P</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>15</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton16</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>123</x>
-                        <y>201</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>213</green>
-                        <blue>73</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>16
-S</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>16</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton32</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>true</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>45</x>
-                        <y>240</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>206</red>
-                        <green>206</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>32
-Ge</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="on">
-                    <bool>false</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>32</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton34</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>true</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>123</x>
-                        <y>240</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>230</red>
-                        <green>144</green>
-                        <blue>23</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>34
-Se</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>34</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton52</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>false</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>123</x>
-                        <y>279</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>238</red>
-                        <green>183</green>
-                        <blue>53</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>52
-Te</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>52</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton33</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>true</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>84</x>
-                        <y>240</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>229</red>
-                        <green>62</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>33
-As</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>33</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton51</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>false</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>84</x>
-                        <y>279</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>170</red>
-                        <green>0</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>51
-Sb</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>51</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton54</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>false</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>201</x>
-                        <y>279</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>210</red>
-                        <green>210</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>54
-Xe</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>54</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton36</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>true</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>201</x>
-                        <y>240</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>210</red>
-                        <green>210</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>36
-Kr</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>36</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton18</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>true</bool>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>201</x>
-                        <y>201</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>210</red>
-                        <green>210</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>18
-Ar</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>18</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton17</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>162</x>
-                        <y>201</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>149</red>
-                        <green>223</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="backgroundOrigin">
-                    <enum>WindowOrigin</enum>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>17
-Cl</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>17</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton9</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>162</x>
-                        <y>162</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>85</red>
-                        <green>255</green>
-                        <blue>127</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>9
-F</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>9</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>pushButton1</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>162</x>
-                        <y>123</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>60</red>
-                        <green>215</green>
-                        <blue>205</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>1
+                    <spacer>
+                        <property name="name">
+                            <cstring>spacer5</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>171</width>
+                                <height>31</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton1</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>1</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>1
+
+
+
+
+
+
+
+
+
+
 H</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="on">
-                    <bool>false</bool>
-                </property>
-                <property name="default">
-                    <bool>false</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>1</number>
-                </property>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="on">
+                            <bool>false</bool>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="default">
+                            <bool>false</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton2</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>1</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>2
+
+
+
+
+
+
+
+
+
+
+He</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                </hbox>
             </widget>
-            <widget class="QPushButton">
+            <widget class="QLayoutWidget">
                 <property name="name">
-                    <cstring>pushButton35</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>true</bool>
+                    <cstring>layout7</cstring>
                 </property>
                 <property name="geometry">
                     <rect>
-                        <x>162</x>
-                        <y>240</y>
-                        <width>40</width>
-                        <height>40</height>
+                        <x>10</x>
+                        <y>70</y>
+                        <width>524</width>
+                        <height>56</height>
                     </rect>
                 </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>77</red>
-                        <green>202</green>
-                        <blue>156</blue>
-                    </color>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton5</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>5
+
+
+
+
+
+
+
+
+
+
+B</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton6</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>6
+
+
+
+
+
+
+
+
+
+
+C</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="on">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton7</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>7
+
+
+
+
+
+
+
+
+
+
+N</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton8</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>8
+
+
+
+
+
+
+
+
+
+
+O</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton9</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>9
+
+
+
+
+
+
+
+
+
+
+F</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton10</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>10
+
+
+
+
+
+
+
+
+
+
+Ne</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                </hbox>
+            </widget>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout8</cstring>
                 </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
+                <property name="geometry">
+                    <rect>
+                        <x>20</x>
+                        <y>136</y>
+                        <width>524</width>
+                        <height>60</height>
+                    </rect>
                 </property>
-                <property name="text">
-                    <string>35
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton13</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <pointsize>9</pointsize>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>13
+
+
+
+
+
+
+
+
+
+
+Al</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton14</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>14
+
+
+
+
+
+
+
+
+
+
+Si</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton15</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>15
+
+
+
+
+
+
+
+
+
+
+P</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton16</cstring>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>16
+
+
+
+
+
+
+
+
+
+
+S</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton17</cstring>
+                        </property>
+                        <property name="backgroundOrigin">
+                            <enum>WindowOrigin</enum>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>17
+
+
+
+
+
+
+
+
+
+
+Cl</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton18</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="text">
+                            <string>18
+
+
+
+
+
+
+
+
+
+
+Ar</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                </hbox>
+            </widget>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout9</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>50</x>
+                        <y>206</y>
+                        <width>483</width>
+                        <height>56</height>
+                    </rect>
+                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <spacer>
+                        <property name="name">
+                            <cstring>spacer6</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>41</width>
+                                <height>21</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton32</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>32
+
+
+
+
+
+
+
+
+
+
+Ge</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="on">
+                            <bool>false</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton33</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>33
+
+
+
+
+
+
+
+
+
+
+As</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton34</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>34
+
+
+
+
+
+
+
+
+
+
+Se</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton35</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>35
+
+
+
+
+
+
+
+
+
+
 Br</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>35</number>
-                </property>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton36</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>36
+
+
+
+
+
+
+
+
+
+
+Kr</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                </hbox>
             </widget>
-            <widget class="QPushButton">
+            <widget class="QLayoutWidget">
                 <property name="name">
-                    <cstring>pushButton53</cstring>
-                </property>
-                <property name="enabled">
-                    <bool>false</bool>
+                    <cstring>layout10</cstring>
                 </property>
                 <property name="geometry">
                     <rect>
-                        <x>162</x>
-                        <y>279</y>
-                        <width>40</width>
-                        <height>40</height>
+                        <x>90</x>
+                        <y>280</y>
+                        <width>445</width>
+                        <height>56</height>
                     </rect>
                 </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>0</red>
-                        <green>180</green>
-                        <blue>135</blue>
-                    </color>
-                </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>53
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <spacer>
+                        <property name="name">
+                            <cstring>spacer7</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>91</width>
+                                <height>21</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton51</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>51
+
+
+
+
+
+
+
+
+Sb</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton52</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>52
+
+
+
+
+
+
+
+
+Te</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton53</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>53
+
+
+
+
+
+
+
+
 I</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="buttonGroupId">
-                    <number>53</number>
-                </property>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>pushButton54</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <bold>1</bold>
+                            </font>
+                        </property>
+                        <property name="focusPolicy">
+                            <enum>NoFocus</enum>
+                        </property>
+                        <property name="text">
+                            <string>54
+
+
+
+
+
+
+
+
+Xe</string>
+                        </property>
+                        <property name="toggleButton">
+                            <bool>true</bool>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>-1</number>
+                        </property>
+                    </widget>
+                </hbox>
             </widget>
         </widget>
-        <widget class="QLayoutWidget" row="1" column="0">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout11</cstring>
+                <cstring>layout21</cstring>
             </property>
-            <grid>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="2">
+                <property name="spacing">
+                    <number>13</number>
+                </property>
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>transmuteCheckBox</cstring>
+                        <cstring>layout19</cstring>
                     </property>
-                    <property name="text">
-                        <string>Check if transmuted atoms
-should keep all existing bonds, 
-even if chemistry is wrong.</string>
-                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="spacing">
+                            <number>27</number>
+                        </property>
+                        <widget class="QPushButton" row="1" column="0">
+                            <property name="name">
+                                <cstring>loadColorsPB</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Load Colors ...</string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>false</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Load element colors from an external text file.</string>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="0" column="1">
+                            <property name="name">
+                                <cstring>transmuteCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Keep Bonds</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Check if transmuted atoms should keep all existing bonds, even if chemistry is wrong.</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton" row="1" column="1">
+                            <property name="name">
+                                <cstring>saveColorsPB</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Save Colors ...</string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>false</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Save the current color setting for elements in a text file.</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton" row="0" column="0">
+                            <property name="name">
+                                <cstring>TransmuteButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Transmute</string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                    </grid>
                 </widget>
-                <widget class="QPushButton" row="0" column="0">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>TransmuteButton</cstring>
+                        <cstring>layout20</cstring>
                     </property>
-                    <property name="text">
-                        <string>Transmute</string>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>1</number>
+                        </property>
+                        <property name="spacing">
+                            <number>27</number>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>okButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Ok</string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>false</bool>
+                            </property>
+                            <property name="default">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>cancelButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Cancel</string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-                <widget class="QPushButton" row="0" column="1">
-                    <property name="name">
-                        <cstring>closePTableButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Close</string>
-                    </property>
-                </widget>
-            </grid>
+            </vbox>
         </widget>
-    </grid>
+    </vbox>
 </widget>
 <images>
     <image name="image0">
@@ -1295,16 +1723,10 @@ even if chemistry is wrong.</string>
 </images>
 <connections>
     <connection>
-        <sender>closePTableButton</sender>
+        <sender>okButton</sender>
         <signal>clicked()</signal>
         <receiver>ElementSelectorDialog</receiver>
-        <slot>close()</slot>
-    </connection>
-    <connection>
-        <sender>elementButtonGroup</sender>
-        <signal>clicked(int)</signal>
-        <receiver>ElementSelectorDialog</receiver>
-        <slot>setElementInfo()</slot>
+        <slot>ok()</slot>
     </connection>
     <connection>
         <sender>TransmuteButton</sender>
@@ -1312,10 +1734,98 @@ even if chemistry is wrong.</string>
         <receiver>ElementSelectorDialog</receiver>
         <slot>transmutePressed()</slot>
     </connection>
+    <connection>
+        <sender>loadColorsPB</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>read_element_rgb_table()</slot>
+    </connection>
+    <connection>
+        <sender>saveColorsPB</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>write_element_rgb_table()</slot>
+    </connection>
+    <connection>
+        <sender>redSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>changeSpinRed(int)</slot>
+    </connection>
+    <connection>
+        <sender>redSpinBox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>changeSliderRed(int)</slot>
+    </connection>
+    <connection>
+        <sender>blueSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>changeSpinBlue(int)</slot>
+    </connection>
+    <connection>
+        <sender>blueSpinBox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>changeSliderBlue(int)</slot>
+    </connection>
+    <connection>
+        <sender>greenSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>changeSpinGreen(int)</slot>
+    </connection>
+    <connection>
+        <sender>greenSpinBox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>changeSliderGreen(int)</slot>
+    </connection>
+    <connection>
+        <sender>cancelButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementSelectorDialog</receiver>
+        <slot>cancel()</slot>
+    </connection>
 </connections>
+<tabstops>
+    <tabstop>redSlider</tabstop>
+    <tabstop>redSpinBox</tabstop>
+    <tabstop>greenSlider</tabstop>
+    <tabstop>greenSpinBox</tabstop>
+    <tabstop>blueSlider</tabstop>
+    <tabstop>blueSpinBox</tabstop>
+    <tabstop>TransmuteButton</tabstop>
+    <tabstop>transmuteCheckBox</tabstop>
+    <tabstop>loadColorsPB</tabstop>
+    <tabstop>saveColorsPB</tabstop>
+    <tabstop>okButton</tabstop>
+    <tabstop>cancelButton</tabstop>
+    <tabstop>pushButton13</tabstop>
+    <tabstop>pushButton14</tabstop>
+    <tabstop>pushButton15</tabstop>
+    <tabstop>pushButton16</tabstop>
+    <tabstop>pushButton17</tabstop>
+    <tabstop>pushButton18</tabstop>
+    <tabstop>pushButton51</tabstop>
+    <tabstop>pushButton52</tabstop>
+    <tabstop>pushButton53</tabstop>
+    <tabstop>pushButton54</tabstop>
+</tabstops>
 <slots>
     <slot>setElementInfo()</slot>
     <slot>transmutePressed()</slot>
+    <slot>read_element_rgb_table()</slot>
+    <slot>write_element_rgb_table()</slot>
+    <slot>changeSliderBlue(int)</slot>
+    <slot>ok()</slot>
+    <slot>changeSpinRed(int)</slot>
+    <slot>changeSliderRed(int)</slot>
+    <slot>changeSpinBlue(int)</slot>
+    <slot>changeSpinGreen(int)</slot>
+    <slot>changeSliderGreen(int)</slot>
+    <slot>cancel()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

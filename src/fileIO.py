@@ -1136,3 +1136,59 @@ def writemovie(assy, mflag = False):
         assy.w.history.message(msg)
 
     return r
+
+    
+def readElementColors(fileName):
+    """Read element colors (ele #, r, g, b) from a text file,   each element is on a new line.  A line starts from '#' is a comment line.
+    <Parameter> fileName: a string for the input file name
+    <Return>:  A list of quardral tuples--(ele #, r, g, b) if succeed, otherwise 'None' 
+    """
+    try:
+        lines = open(fileName, "rU").readlines()         
+    except:
+        print "Exception occurred to open file: ", fileName
+        return None
+    
+    elemColorTable = []
+    for line in lines: 
+        if not line.startswith('#'):
+            try:
+                words = line.split()
+                row = map(int, words[:4])
+                if row[0] < 0 or row[1] < 0 or row[1] > 255 or row[2] < 0 or row[2] > 255 or row[3] < 0 or row[3] > 255:
+                      raise ValueError, "Value not in a valid range." 
+                elemColorTable += [row]
+            except:
+               print "In file %s,  line systax error: %s " % (fileName, line)
+               return None
+    
+    return elemColorTable           
+
+from elements import elemprefs    
+def saveElementColors(fileName, elemTable):
+    """Write element colors (ele #, r, g, b) into a text file,  each element is on a new line.  A line starts from '#' is a comment line.
+    <Parameter> fileName: a string for the input file name
+    <Parameter> elemTable: an object of 'elemprefs' 
+    """
+    assert type(fileName) == type(" ")
+    assert isinstance(elemTable, elemprefs)
+    
+    try:
+        f = open(fileName, "w")
+    except:
+        print "Exception occurred to open file %s to write: " % fileName
+        return None
+   
+    f.write("#Element color file in the format: element-index, r(0-255), g(0-255), b(0-255) \n")
+    
+    for eleNum, eleDict in elemTable.prefs.items():
+        col = eleDict['color']
+        r = int(col[0] * 255 + 0.5)
+        g = int(col[1] * 255 + 0.5)
+        b = int(col[2] * 255 + 0.5)
+        f.write(str(eleNum) + "  " + str(r) + "  " + str(g) + "  " + str(b) + "\n")
+    
+    f.close()    
+        
+   
+   
