@@ -197,6 +197,7 @@ class Group(Node):
         corresponding to obj (and return it)
         """
         if self.name == "Clipboard": rename = False # Do not allow the clipboard to be renamed
+        if self.name == self.assy.name: rename = False # Do not allow the part node to be renamed
         node = Node.buildNode(self, obj, parent, icon, dnd, rename)
         return node
         
