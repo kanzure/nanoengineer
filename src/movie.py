@@ -76,13 +76,13 @@ class Movie:
         if r == 1:
             msg = redmsg("Cannot play movie file [" + self.filename + "]. It does not exist.")
             self.assy.w.history.message(msg)
-            return
+            return r
         
         elif r == 2: 
             msg = redmsg("Movie file [" + self.filename + "] not valid for the current part")
             self.assy.w.history.message(msg)
             self._controls(0) # Disable movie control buttons.
-            return
+            return r
             
         self._controls(1) # Enable movie control buttons.
             
@@ -122,6 +122,8 @@ class Movie:
         self.assy.w.frameLabel.setText(flabel) # Spinbox label
 
         self._info()
+        
+        return 0
         
         # Debugging Code
         if DEBUG1:
@@ -173,8 +175,7 @@ class Movie:
         """
         if DEBUG0: print "movie._continue() called. Direction = ", playDirection[ self.playDirection ]
         
-        # In case the movie is playing
-        # This is temporary.  I intend to 
+        # In case the movie is already playing (usually the other direction).
         self._pause(0) 
         
         if hflag: self.assy.w.history.message("Movie continued: " + playDirection[ self.playDirection ])
@@ -453,7 +454,7 @@ class Movie:
         else:
             filename = self.filename
         
-        filesize = os.path.getsize(filename)
+        filesize = os.path.getsize(filename) - 4
         
         f=open(filename,'rb')
         
