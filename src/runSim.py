@@ -41,7 +41,7 @@ class SimRunner:
     # but not looking at them, then the old writemovie might call this class to do most of its work
     # but also call other classes to use the results.
     
-    def __init__(self, part, mflag):
+    def __init__(self, part, mflag, simaspect = None):
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
         self.tmpFilePath = assy.w.tmpFilePath
@@ -49,11 +49,13 @@ class SimRunner:
         self.win = assy.w  # might be used only for self.win.progressbar.launch
         self.part = part # needed?
         self.mflag = mflag # see docstring
-        self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted) ###@@@DOIT
+        self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
+        self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         return
     
-    def run_using_old_movie_obj_to_hold_sim_params(self, movie, options, part_or_simaspect):
+    def run_using_old_movie_obj_to_hold_sim_params(self, movie, options):
         self._movie = movie # general kluge for old-code compat (lots of our methods still use this and modify it)
+        # note, this movie object (really should be a simsetup object?) does not yet know a proper alist (or any alist, I hope) [bruce 050404]
         self.errcode = self.set_options_errQ( options) # options include everything that affects the run except the set of atoms and the part
         if self.errcode: # used to be a local var 'r'
             return
@@ -61,10 +63,10 @@ class SimRunner:
         self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
         self.set_waitcursor(True)
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
-            self.write_sim_input_file( part_or_simaspect )
-                #e also save that arg? or do that in this subr if nec? or not?
-                # maybe the next use of it (to interpret the result file) is in other code, not this class.
-            self.spawn_process() ##also includes monitor_progress, for now; result error code (or abort button flag) in self.errcode
+            self.write_sim_input_file() #e should use simaspect to write file; this or something must put it into movie.alist too ####@@@@
+            self.spawn_process()
+                # spawn_process also includes monitor_progress [and insert results back into part]
+                # for now; result error code (or abort button flag) stored in self.errcode
 ##            if self.run_in_foreground:
 ##                self.monitor_progress() # and wait for it to be done or for abort to be requested and done
         except:
@@ -114,10 +116,14 @@ class SimRunner:
         movie = self._movie
 
         # set up alist (list of atoms for sim input and output files, in order)
+        if movie.alist != None:
+            # this movie object is being reused, which is a bug. complain... and try to work around.
+            if platform.atom_debug: # since I expect this is possible for "save movie file" until fixed... [bruce 050404] (maybe not? it had assert 0)
+                print "BUG (worked around??): movie object being reused unexpectedly"
+            movie.alist = None
         movie.alist_fits_entire_part = False # might be changed below
-        if not movie.alist:
-            # we don't yet know what atoms to minimize. Use the ones in part.
-            # in future this might be different or always be done by caller...
+        if not self.simaspect:
+            # No prescribed subset of atoms to minimize. Use all atoms in the part.
             # Make sure some chunks are in the part.
             if not part.molecules: # Nothing in the part to minimize.
                 msg = redmsg("Can't create movie.  No chunks in part.")
@@ -132,12 +138,10 @@ class SimRunner:
                 # anymore if the part changes! it's temporary... not sure it deserves to be an attr
                 # rather than local var or retval.
         else:
-            # movie already knows what to minimize...
-            # assert they're all in this Part.
-            assert 0 # [might happen with mimimize selection, but doesn't yet happen - bruce 050325]
-                # if this assert fails it might mean we reused this movie obj w/o meaning to...
-                # should check that some other way even after this case can happen legit...
-            for atm in movie.alist:
+            # the simaspect should know what to minimize...
+            alist = self.simaspect.atomslist()
+            movie.set_alist(alist)
+            for atm in movie.alist: # redundant with set_alist so remove when works
                 assert atm.molecule.part == part
 
         # set up filenames
@@ -244,43 +248,32 @@ class SimRunner:
         #  and in any case would only work for the main Part (assy.tree.part).]
         return self.tmp_file_prefix + ".mmp" ## "sim-%d.mmp" % pid
     
-    def write_sim_input_file(self, part_or_simaspect):
-        """Write the appropriate data from part_or_simaspect
+    def write_sim_input_file(self):
+        """Write the appropriate data from self.part (as modified by self.simaspect)
         to an input file for the simulator (presently always in mmp format)
         using the filename self.sim_input_file
         (overwriting any existing file of the same name).
         """
-        part = part_or_simaspect # only Parts are supported for now
+        part = self.part
         mmpfile = self.sim_input_file # the filename to write to
         movie = self._movie # old-code compat kluge
+        assert movie.alist != None #bruce 050404
         
         # Tell user we're creating the movie file...
     #    msg = "Creating movie file [" + moviefile + "]"
     #    history.message(msg)
 
-        if movie.alist_fits_entire_part:
+        if not self.simaspect: ## was: if movie.alist_fits_entire_part:
             part.writemmpfile( mmpfile)
         else:
-            assert 0 # can't yet happen (until minimize selection) and won't yet work 
+            # note: simaspect has already been used to set up movie.alist; simaspect's own alist copy is used in following:
+            self.simaspect.writemmpfile( mmpfile)
+            # obs comments:
+            # can't yet happen (until minimize selection) and won't yet work 
             # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
             # But beware, this might only be ok right away for minimize, not simulate (since for sim it has to write all jigs as well).
-            write_mmpfile_for_sim( movie.alist, mmpfile) ###e new func below? won't yet work for clips with jigs, i think...
-
-##        # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR writemovie()!
-##        # writemmp must come before computing "natoms".  This ensures that writemovie
-##        # will work when creating a movie for a file without an assy.alist.  Examples of this
-##        # situation include:
-##        # 1)  The part is a PDB file.
-##        # 2) We have chunks, but no assy.alist.  This happens when the user opens a 
-##        #      new part, creates something and simulates before saving as an MMP file.
-##        # 
-##        # I do not know if it was intentional, but assy.alist is not created until an mmp file 
-##        # is created.  We are simply taking advantage of this "feature" here.
-##        # - Mark 050106
-##
-##    ##    writemmp(assy, mmpfile, False) ###@@@ this should be the Part in this function, not assy -- will be changed.
-
-        movie.natoms = natoms = len(movie.alist)
+        
+        ## movie.natoms = natoms = len(movie.alist) # removed by bruce 050404 since now done in set_alist etc.
         ###@@@ why does that trash a movie param? who needs that param? it's now redundant with movie.alist
         return
     
@@ -495,7 +488,7 @@ class SimRunner:
 #  to accept the movie to use as an argument; and, perhaps, mainly called by a Movie method.
 #  For now, I renamed assy.m -> assy.current_movie, and never grab it here at all
 #  but let it be passed in instead.] ###@@@
-def writemovie(part, movie, mflag = 0):
+def writemovie(part, movie, mflag = 0, simaspect = None):
     """Write an input file for the simulator, then run the simulator,
     in order to create a moviefile (.dpb file), or an .xyz file containing all
     frames(??), or an .xyz file containing what would have
@@ -516,31 +509,37 @@ def writemovie(part, movie, mflag = 0):
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
-    simrun = SimRunner( part, mflag) #e in future mflag should choose subclass (or caller should)
+    simrun = SimRunner( part, mflag, simaspect = simaspect) #e in future mflag should choose subclass (or caller should)
     options = "not used i think"
-    simrun.run_using_old_movie_obj_to_hold_sim_params(movie, options, part)
-        # messes needing cleanup: part passed twice, once might be simaspect; options useless now
+    simrun.run_using_old_movie_obj_to_hold_sim_params(movie, options)
+        # messes needing cleanup: options useless now
     return simrun.errcode
 
 # ==
 
 #bruce 050324 moved readxyz here from fileIO, added filename and alist args,
 # removed assy arg (though soon we'll need it or a history arg),
-# standardized indentation, revised docstring and some comments.
-# Didn't yet change prints to history messages, etc. ###@@@
+# standardized indentation, revised docstring [again, 050404] and some comments.
+#bruce 050404 reworded messages & revised their printed info,
+# and changed error return to return the error message string
+# (so caller can print it to history if desired). ###@@@doit in callers
 # The original in fileIO was by Huaicai shortly after 050120.
 def readxyz(filename, alist):
     """Read a single-frame XYZ file created by the simulator, typically for
     minimizing a part. Check file format, check element types against those
-    in alist (the number and order of atoms must agree). Return a list of atom new positions
+    in alist (the number of atoms and order of their elements must agree).
+       On error, print a message to stdout
+    [###e should be changed to print redmsg to history] and return None.
+       On success, return a list of atom new positions
     in the same order as alist (assuming that's the order in the xyz file).
     """
     xyzFile = filename ## was assy.m.filename
     lines = open(xyzFile, "rU").readlines()
     
     if len(lines) < 3: ##Invalid file format
-        print "%s: File format error." % xyzFile
-        return
+        msg = "readxyz: %s: File format error (fewer than 3 lines)." % xyzFile
+        print msg
+        return msg
     
     atomList = alist ## was assy.alist, with assy passed as an arg
         # bruce comment 050324: this list or its atoms are not modified in this function
@@ -551,30 +550,41 @@ def readxyz(filename, alist):
         numAtoms = int(lines[0]) # bruce comment 050324: numAtoms is not used
         rms = float(lines[1][4:]) # bruce comment 050324: rms is not used
     except ValueError:
-        print "%s: File format error in Line 1 and/or Line 2" % xyzFile
-        return
+        msg = "readxyz: %s: File format error in Line 1 and/or Line 2" % xyzFile
+        print msg
+        return msg
     
     atomIndex = 0
     for line in lines[2:]:
         words = line.split()
         if len(words) != 4:
-            print "%s: Line %d format error." % (lines.index(line), xyzFile)
-            return
+            msg = "readxyz: %s: Line %d format error." % (xyzFile, lines.index(line) + 1)
+                #bruce 050404 fixed order of printfields, added 1 to index
+            print msg
+            return msg
         try:        
             if words[0] != atomList[atomIndex].element.symbol:
-                print "%s: atom %d is not matching." % (xyzFile, atomIndex)
-                return
-            
+                msg = "readxyz: %s: atom %d (%s) has wrong element type." % (xyzFile, atomIndex+1, atomList[atomIndex])
+                    #bruce 050404: atomIndex is not very useful, so I added 1
+                    # (to make it agree with likely number in mmp file)
+                    # and the atom name from the model.
+                    ###@@@ need to fix this for H vs singlet (then do we revise posn here or in caller?? probably in caller)
+                print msg
+                return msg
             newAtomsPos += [map(float, words[1:])]
         except ValueError:
-            print "%s: atom %d position number format error." % (xyzFile, atomIndex)
-            return
+            msg = "readxyz: %s: atom %d (%s) position number format error." % (xyzFile, atomIndex+1, atomList[atomIndex])
+                #bruce 050404: same revisions as above.
+            print msg
+            return msg
         
         atomIndex += 1
     
     if (len(newAtomsPos) != len(atomList)): #bruce 050225 added some parameters to this error message
-        print "readxyz: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
+        msg = "readxyz: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
               (xyzFile, len(newAtomsPos), len(atomList))
+        print msg
+        return msg #bruce 050404 added error return after the above print statement; not sure if its lack was new or old bug
     
     return newAtomsPos
 
@@ -682,6 +692,11 @@ class simSetup_CommandRun(CommandRun):
 
     pass # end of class simSetup_CommandRun
 
+enable_minsel = False #bruce 050405 so I can commit this now... ###@@@ DO NOT COMMIT WITH THIS SET TO True
+    # set this True (at runtime) (and beg out of me the new file minsel.py,
+    #  which won't be committed under that name)
+    # to enable partly-working Minimize Selection code and bug-254-fixing code
+    # (singlets written as H).
 
 class Minimize_CommandRun(CommandRun):
     """Class for single runs of the Minimize command; create it
@@ -697,14 +712,43 @@ class Minimize_CommandRun(CommandRun):
         if not self.part.molecules: # Nothing in the part to minimize.
             self.history.message(redmsg("Minimize: Nothing to minimize."))
             return
+
+        if enable_minsel:
+            selection = self.part.selection() # compact rep of the currently selected subset of the Part's stuff
+            if not selection.nonempty():
+                msg1 = "Warning: Minimize: nothing selected. For now, we'll minimize entire Part like before."
+                msg2 = "SOON, THIS MIGHT REQUIRE SELECT ALL to be done first!"
+                self.history.message(redmsg( msg1 + "\n" + msg2 )) # <br> might be worse than \n for small window width
+                entire_part = True # use old code
+            else:
+                entire_part = False # use new code
+            self.selection = selection #e might become a feature of all CommandRuns, at some point
+            self.entire_part = entire_part #e might also be set later if selection includes everything...
+        else:
+            if platform.atom_debug and 0: # 0 because minsel.py is not committed
+                msg = "atom_debug: set runSim.enable_minsel = True if you want to try out Minimize Selection (partly NIM)"
+                self.history.message(redmsg(msg))
+            self.entire_part = entire_part = True # always use old code
+
+        if not entire_part:
+            # use new code
+            ######@@@@@@ DO NOT COMMIT before minsel.py committed, or renamed and committed, or its code moved here
+            import minsel
+            reload(minsel) # only during devel; very useful!
+            #e following func will be renamed
+            simaspect = minsel.sim_aspect( self.part, selection.atomslist() ) # note: atomslist gets atoms from selected chunks too
+            startmsg = "Minimize Selection: ..."
+        else:
+            simaspect = None
+            startmsg = "Minimize: ..."
         
         # Disable Minimize, Simulator and Movie Player during the minimize function.
         self.win.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
         self.win.simSetupAction.setEnabled(0) # Disable "Simulator" 
         self.win.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
-            self.history.message(greenmsg("Minimize..."))
-            self.makeMinMovie(mtype = 1) # 1 = single-frame XYZ file. [this also sticks results back into the part]
+            self.history.message(greenmsg( startmsg))
+            self.makeMinMovie(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
             #self.makeMinMovie(mtype = 2) # 2 = multi-frame DPB file.
         finally:
             self.win.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
@@ -712,8 +756,8 @@ class Minimize_CommandRun(CommandRun):
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
         self.history.message("Done")
         return
-    def makeMinMovie(self, mtype = 1):
-        """Minimize self.part and display the results.
+    def makeMinMovie(self, mtype = 1, simaspect = None):
+        """Minimize self.part, or its given simulatable aspect if supplied, and display the results.
         mtype:
             1 = tell writemovie() to create a single-frame XYZ file.
             2 = tell writemovie() to create a multi-frame DPB moviefile. [###@@@ not presently used, might not work anymore]
@@ -744,7 +788,7 @@ class Minimize_CommandRun(CommandRun):
             # by passing it some specialized options... ###@@@ not sure
             
         
-        r = writemovie(self.part, movie, mtype) # write input for sim, and run sim
+        r = writemovie(self.part, movie, mtype, simaspect = simaspect) # write input for sim, and run sim; also sets movie.alist from simaspect
         if r:
             # We had a problem writing the minimize file.
             # Simply return (error message already emitted by writemovie). ###k
@@ -752,13 +796,16 @@ class Minimize_CommandRun(CommandRun):
         
         if mtype == 1:  # Load single-frame XYZ file.
             newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]
-            if newPositions:
+            # retval is either a list of atom posns or an error message string.
+            assert type(newPositions) in [type([]),type("")]
+            if type(newPositions) == type([]):
                 movie.moveAtoms(newPositions)
                 # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
                 self.part.changed() # Mark - bugfix 386
                 self.part.gl_update()
             else:
-                pass #e print error message; or make readxyz do so ###@@@
+                #bruce 050404: print error message to history
+                self.history.message(redmsg( newPositions))
         else: # Play multi-frame DPB movie file.
             ###@@@ bruce 050324 comment: can this still happen? [no] is it correct [probably not]
             # (what about changing mode to movieMode, does it ever do that?) [don't know]

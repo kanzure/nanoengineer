@@ -6,8 +6,6 @@ part.py
 Provides class Part, for all chunks and jigs in a single physical space,
 together with their selection state and grouping structure (shown in the model tree).
 
-TEMPORARILY OWNED BY BRUCE 050202 for the Part/assembly split ####@@@@
-
 $Id$
 
 see assembly.py docstring, some of which is really about this module. ###@@@ revise
@@ -1402,7 +1400,14 @@ class Part(InvalMixin):
     def writemmpfile(self, filename):
         from fileIO import writemmpfile_part
         writemmpfile_part( self, filename)
-    
+
+    def selection(self): #bruce 050404 experimental feature for initial use in Minimize Selection
+        "return an object which represents the contents of the current selection, independently of part attrs... how long valid??"
+        # the idea is that this is a snapshot of selection even if it changes
+        # but it's not clear how valid it is after the part contents itself starts changing...
+        # so don't worry about this yet, consider it part of the experiment...
+        return Selection( self, self.selatoms, self.selmols )
+        
     # end of class Part
 
 # subclasses of Part
@@ -1434,6 +1439,32 @@ class ClipboardItemPart(Part):
         # but this stub will work for now. Would it be better to just return ""? Not sure. Probably not.
         return "-%d" % ( self.clipboard_item_number(), )
     pass
+
+# other
+
+class Selection: #bruce 050404 experimental feature for initial use in Minimize Selection
+    def __init__(self, part, selatoms, selmols): #e revise init args
+        self.part = part
+        self.topnode = part.topnode # might change...
+        self.selatoms = dict(selatoms) # copy the dict
+        self.selmols = list(selmols) # copy the list
+        assert not (self.selatoms and self.selmols) #e could this change? try not to depend on it
+        #e jigs?
+        return
+    def nonempty(self): #e make this the object's boolean value too?
+        return self.selatoms or self.selmols
+    def atomslist(self):
+        #e memoize this!
+        if self.selmols:
+            res = dict(self.selatoms)
+            for mol in self.selmols:
+                res.update(mol.atoms)
+        else:
+            res = self.selatoms
+        items = res.items()
+        items.sort() # sort by atom key; might not be needed
+        return [atom for key, atom in items]
+    pass # end of class Selection
 
 # ==
 

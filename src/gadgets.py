@@ -143,7 +143,7 @@ class Jig(Node):
                 self.rematom(atm) # this might kill self, if we remove them all
         return
 
-    def fixes_atom(self, atm): #bruce 050321
+    def anchors_atom(self, atm): #bruce 050321, renamed 050404
         "does this jig hold this atom fixed in space? [should be overridden by subclasses as needed]"
         return False # for most jigs
 
@@ -483,7 +483,7 @@ class Ground(Jig):
     # Returns the MMP record for the current Ground as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}    
     def mmp_record(self, ndix = None):
-        
+        # shares some code with fake_Ground_mmp_record [bruce 050404]
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
@@ -496,12 +496,26 @@ class Ground(Jig):
 
         return s + " ".join(map(str,nums)) + "\n"
 
-    def fixes_atom(self, atm): #bruce 050321
+    def anchors_atom(self, atm): #bruce 050321
         "does this jig hold this atom fixed in space? [overrides Jig method]"
         return atm in self.atoms
     
     pass # end of class Ground
 
+def fake_Ground_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize Selection
+    """Return an mmp record (one or more lines with \n at end)
+    for a fake Ground jig for use in an mmp file meant only for simulator input.
+       Note: unlike creating and writing out a new real Ground object,
+    which adds itself to each involved atom's .jigs list (perhaps just temporarily),
+    perhaps causing unwanted side effects (like calling some .changed() method),
+    this function has no side effects.
+    """
+    ndix = mapping.atnums
+    c = black
+    color = map(int,A(c)*255)
+    s = "ground (%s) (%d, %d, %d) " % ("name", color[0], color[1], color[2])
+    nums = map((lambda a: ndix[a.key]), atoms)
+    return s + " ".join(map(str,nums)) + "\n"
 
 class Stat(Jig):
     '''A Stat is a Langevin thermostat, which sets a chunk to a specific

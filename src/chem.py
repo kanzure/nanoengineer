@@ -423,12 +423,24 @@ class atom:
 ##        num = atnums['NUM']
 ##        alist += [self]
 ##        atnums[self.key] = num
-        disp = mapping.dispname(self.display)
-        #####e also we want special code for singlets when mapping.sim is true
-        xyz = self.posn()*1000
-        n = (num_str, self.element.eltnum,
+        disp = mapping.dispname(self.display) # note: affected by mapping.sim flag
+        posn = self.posn() # might be revised below
+        eltnum = self.element.eltnum # might be revised below
+        if mapping.sim and self.element == Singlet:
+            # special case for singlets in mmp files meant only for simulator:
+            # pretend we're a Hydrogen, and revise posn and eltnum accordingly
+            # (for writing only, not stored in our attrs)
+            # [bruce 050404 to help fix bug 254]
+            eltnum = Hydrogen.eltnum
+            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), elem = Hydrogen )
+            disp = "singlet" # kluge, meant as a comment in the file
+        xyz = posn * 1000
+            # note, xyz has floats, rounded below (watch out for this
+            # if it's used to make a hash) [bruce 050404 comment]
+        print_fields = (num_str, eltnum,
            int(xyz[0]), int(xyz[1]), int(xyz[2]), disp)
-        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % n)
+        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
+        # write only the bonds which have now had both atoms written
         bl = [] # (note: in pre-050322 code bl held ints, not strings)
         for b in self.bonds:
             oa = b.other(self)
@@ -734,6 +746,8 @@ class atom:
         """return a list of the singlets bonded to this atom
         """
         return filter(lambda atm: atm.element == Singlet, self.neighbors())
+
+    singletNeighbors = singNeighbors #bruce 050404, soon should just rename it and all the uses ###e ###@@@
     
     def mvElement(self, elt):
         """[Public low-level method:]
@@ -755,7 +769,7 @@ class atom:
                 # this is unsupported; if we support it it would require
                 # moving this atom to its neighbor atom's chunk, too
                 # [btw we *do* permit self.element == Singlet before we change it]
-                print "fyi, bug?: mvElement changing %r to a singlet" % self
+                print "atom_debug: fyi, bug?: mvElement changing %r to a singlet" % self
         self.element = elt
         for b in self.bonds:
             b.setup_invalidate()
@@ -875,6 +889,10 @@ class atom:
         o = self.bonds[0].other(self)
         self.mvElement(Hydrogen)
         # bruce 041112 rewrote following code
+        #bruce 050404 comment: should fix this to not depend on old pos
+        # being correct (or on singvec being nonzero),
+        # and merge with same code in atom.writemmp;
+        # to do this, just use ideal_posn_re_neighbor method once it's debugged ####@@@@
         singpos = self.posn()
         otherpos = o.posn()
         singvec = norm( singpos - otherpos)
@@ -882,7 +900,32 @@ class atom:
         self.setposn(newsingpos)
         return 1
         
-
+    def ideal_posn_re_neighbor(self, neighbor, elem = None): #bruce 050404 to help with bug 254 and maybe Hydrogenate ####@@@@ use there
+        """Given one of our neighbor atoms (real or singlet)
+        [neighborness not verified! only posn is used, not the bond --
+         this might change when we have bond-types #e]
+        and assuming it should remain fixed and our bond to it should
+        remain in the same direction, and pretending (with no side effects)
+        that our element is elem if this is given,
+        what position should we ideally have
+        so that our bond to neighbor has the correct length?
+        """
+        me = self.posn()
+        it = neighbor.posn()
+        length = vlen( me - it )
+        if not length:
+            #e atom_debug warning?
+            #e choose a better direction? only caller knows what to do, i guess...
+            return me # not great...
+        it_to_me_direction = norm( me - it )
+        it_to_me_direction = norm( it_to_me_direction )
+            # for original len close to 0, this might help make new len 1 [bruce 050404]
+        my_elem = elem or self.element
+        its_elem = neighbor.element
+        # assume bond-type is single bond for now
+        newlen = my_elem.rcovalent + its_elem.rcovalent #k Singlet.rcovalent better be 0, check this
+        return it + newlen * it_to_me_direction
+        
     def Dehydrogenate(self):
         """[Public method; does all needed invalidations:]
         If this is a hydrogen atom (and if it was not already killed),
@@ -1133,7 +1176,7 @@ class atom:
                 # [bruce 041215:]
                 # fix unreported unverified bug (self at center of its neighbors):
                 if platform.atom_debug:
-                    print "fyi: atom_debug: self at center of its neighbors (more or less)",self,self.bonds
+                    print "atom_debug: fyi: self at center of its neighbors (more or less)",self,self.bonds
                 dir = norm(cross(s1pos-pos,s2pos-pos)) ###@@@ need to test this!
             opos = pos + el.rcovalent*dir
             mol = self.molecule

@@ -158,6 +158,7 @@ class Movie:
             assert atm.molecule.part == atm0.molecule.part
         # all atoms have the same Part, which is not None, and there's at least one atom.
         self.alist = alist
+        self.natoms = len(alist) #bruce 050404; note, some old code might reset this (perhaps wrongly?) when reading a .dpb file
         return
 
     def set_alist_from_entire_part(self, part):
