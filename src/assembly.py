@@ -698,7 +698,7 @@ class assembly:
             
         numolist=[]
         for mol in self.molecules:
-            numol = molecule(self, mol.name + gensym("-frag"))
+            numol = molecule(self, gensym(mol.name + "-frag"))
             for a in mol.atoms.values():
                 if a.picked:
                     a.unpick()
@@ -741,7 +741,7 @@ class assembly:
             oldmols[id(m)] = m ###k could we use key of just m, instead??
         newmols = {}
         for old in oldmols.values():
-            numol = molecule(self, mol.name + "-frag")
+            numol = molecule(self, gensym(mol.name + "-frag"))
             newmols[id(old)] = numol # same keys as in oldmols
         nuats = {}
         for a in self.selatoms.values():

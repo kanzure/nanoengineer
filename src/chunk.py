@@ -44,7 +44,7 @@ class molecule(Node, InvalMixin):
         # this has to be done separately (if desired) by assembly.addmol
         # (or the equivalent). [comment by bruce 041116]
         self.init_InvalMixin()
-        Node.__init__(self, assembly, dad, nam or gensym("Mol"))
+        Node.__init__(self, assembly, dad, nam or gensym("Chunk."))
         
         # atoms in a dictionary, indexed by atom.key
         self.atoms = {}
@@ -165,7 +165,7 @@ class molecule(Node, InvalMixin):
         if not _nullMol:
             # this caused a bus error when done right after class molecule
             # defined; don't know why (class Node not yet ok??) [bruce 041116]
-            _nullMol = molecule("<not an assembly>")
+            _nullMol = molecule("<not an assembly>", 'name-of-_nullMol')
         atm.molecule = _nullMol # not a real mol; absorbs invals without harm
         # (note, we *don't* add atm to _nullMol.atoms, or do invals on it here;
         #  see comment about _nullMol where it's defined)
@@ -1144,7 +1144,11 @@ class molecule(Node, InvalMixin):
         self.update_curpos()
         pairlis = []
         ndix = {}
-        numol = molecule(self.assy, gensym(self.name))
+        newname = mol_copy_name(self.name)
+        #bruce 041124 added "-copy<n>" (or renumbered it, if already in name),
+        # similar to Ninad's suggestion for improving bug 163's status message
+        # by making it less misleading.
+        numol = molecule(self.assy, newname)
         for a in self.atoms.itervalues():
             na = a.copy_for_mol_copy(numol) # has same .index, meant for new molecule
             pairlis += [(a, na)]
@@ -1160,13 +1164,13 @@ class molecule(Node, InvalMixin):
                     # external bond - after loop done, make a singlet in the copy
                     extern_atoms_bonds.append( (a,b) ) # ok if several times for one 'a'
         if extern_atoms_bonds:
-            print "fyi: mol.copy didn't copy %d extern bonds..." % len(extern_atoms_bonds)
+            pass ## print "fyi: mol.copy didn't copy %d extern bonds..." % len(extern_atoms_bonds)
         copied_hotspot = self.hotspot # might be None
         if cauterize:
             # do something about non-copied bonds (might be useful for extrude)
             # [experimental code, bruce 041112]
             if extern_atoms_bonds:
-                print "... but it will make them into singlets"
+                ## print "... but it will make them into singlets"
                 # don't make our hotspot ambiguous, if it wasn't already
                 if not self.hotspot and len(self.singlets) == 1:
                     # we have an implicit but unambiguous hotspot:
@@ -1228,7 +1232,7 @@ class molecule(Node, InvalMixin):
         ###e bruce 041109 comment: don't we want to repaint the glpane, too?
 
     def __str__(self):
-        return "<Molecule of " + self.name + ">"
+        return "<Chunk %r>" % self.name # bruce 041124 revised this
 
     def __repr__(self): #bruce 041117
         # Note: if you extend this, make sure it doesn't recompute anything
@@ -1355,15 +1359,17 @@ def shakedown_poly_eval_evec_axis(basepos):
 def oneUnbonded(elem, assy, pos):
     """[bruce comment 040928:] create one unbonded atom, of element elem,
     at position pos, in its own new molecule."""
-    mol = molecule(assy, gensym('Chunk.'))
+    mol = molecule(assy, 'bug') # name is reset below!
     a = atom(elem.symbol, pos, mol)
+    # bruce 041124 revised name of new mol, was gensym('Chunk.');
+    # no need for gensym since atom key makes the name unique, e.g. C1.
+    mol.name = "Chunk-%s" % str(a) ####k check direct set of mol.name
     r = elem.rcovalent
     if elem.bonds and elem.bonds[0][2]:
         for dp in elem.bonds[0][2]:
             x = atom('X', pos+r*dp, mol)
             mol.bond(a,x)
     assy.addmol(mol)
-
     return a
 
 def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
@@ -1475,6 +1481,18 @@ def externs_except_to(mol, others): #bruce 041123; not yet used or tested
             if mol not in res:
                 res.append(mol)
     return res
+
+def mol_copy_name(name): # bruce 041124
+    "turn xxx or xxx-copy<n> into xxx-copy<m> for a new number <m>"
+    try:
+        parts = name.split("-copy")
+        assert parts[-1] and (parts[-1].isdigit()) # often fails, that's ok
+    except: # lots of kinds of exceptions are possible, that's ok
+        pass
+    else:
+        # name must look like xxx-copy<n>
+        name = "-copy".join(parts[:-1]) # this is the xxx part
+    return gensym(name + "-copy") # we assume this adds a number to the end
 
 # == debug code
 
