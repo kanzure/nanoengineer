@@ -596,6 +596,17 @@ def createWhatsThis(self):
 
         self.modifyStretchAction.setWhatsThis(modifyStretchActionText )
 
+        #### Delete Bonds ####
+
+        modifyDeleteBondActionText = "<u><b>Delete Bond</b></u><br>"\
+                       "<p><img source=\"modifyDeleteBondAction\"><br> "\
+                       "Delete all bonds between selected and unselected atoms or chunks.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyDeleteBondAction",
+                                                       self.modifyDeleteBondAction.iconSet().pixmap() )
+
+        self.modifyDeleteBondAction.setWhatsThis(modifyDeleteBondActionText )  
+        
         #### Split ####
 
         modifySplitActionText = "<u><b>Split</b></u><br>"\
