@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>SimSetupDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -8,43 +8,39 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>375</width>
-            <height>480</height>
+            <width>270</width>
+            <height>399</height>
         </rect>
     </property>
     <property name="caption">
-        <string>Form1</string>
+        <string>Simulator</string>
     </property>
-    <widget class="QLabel">
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <property name="modal">
+        <bool>true</bool>
+    </property>
+    <widget class="QSpinBox">
         <property name="name">
-            <cstring>textLabel2</cstring>
+            <cstring>TimeStepWidget</cstring>
         </property>
         <property name="geometry">
             <rect>
                 <x>10</x>
-                <y>200</y>
-                <width>130</width>
+                <y>130</y>
+                <width>90</width>
                 <height>30</height>
             </rect>
         </property>
-        <property name="text">
-            <string>steps per frame</string>
+        <property name="maxValue">
+            <number>999</number>
         </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel6</cstring>
+        <property name="minValue">
+            <number>1</number>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>40</x>
-                <y>10</y>
-                <width>290</width>
-                <height>37</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&lt;b&gt;&lt;h1&gt;Simulation Setup&lt;/h1&gt;&lt;/b&gt;</string>
+        <property name="value">
+            <number>10</number>
         </property>
     </widget>
     <widget class="QLabel">
@@ -54,48 +50,52 @@
         <property name="geometry">
             <rect>
                 <x>10</x>
-                <y>70</y>
+                <y>60</y>
                 <width>130</width>
                 <height>60</height>
             </rect>
         </property>
         <property name="text">
             <string>Timestep
+
 (hundredths of
+
 femtosecond)</string>
         </property>
     </widget>
     <widget class="QLabel">
         <property name="name">
-            <cstring>textLabel5</cstring>
+            <cstring>textLabel2</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>210</x>
-                <y>190</y>
-                <width>100</width>
-                <height>41</height>
+                <x>11</x>
+                <y>181</y>
+                <width>110</width>
+                <height>17</height>
             </rect>
         </property>
         <property name="text">
-            <string>Total frames</string>
+            <string>Steps per Frame</string>
         </property>
     </widget>
-    <widget class="QLabel">
+    <widget class="QSpinBox">
         <property name="name">
-            <cstring>textLabel3</cstring>
+            <cstring>StepsPerFrameWidget</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>210</x>
-                <y>80</y>
-                <width>100</width>
-                <height>31</height>
+                <x>10</x>
+                <y>210</y>
+                <width>80</width>
+                <height>30</height>
             </rect>
         </property>
-        <property name="text">
-            <string>Temperature
-(Kelvins)</string>
+        <property name="minValue">
+            <number>1</number>
+        </property>
+        <property name="value">
+            <number>10</number>
         </property>
     </widget>
     <widget class="QPushButton">
@@ -104,33 +104,67 @@ femtosecond)</string>
         </property>
         <property name="geometry">
             <rect>
-                <x>30</x>
-                <y>400</y>
-                <width>121</width>
-                <height>41</height>
+                <x>20</x>
+                <y>350</y>
+                <width>110</width>
+                <height>30</height>
             </rect>
         </property>
         <property name="text">
             <string>Name File</string>
         </property>
     </widget>
-    <widget class="QPushButton">
+    <widget class="QLabel">
         <property name="name">
-            <cstring>GoButton</cstring>
+            <cstring>textLabel5</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>210</x>
-                <y>400</y>
-                <width>131</width>
-                <height>41</height>
+                <x>171</x>
+                <y>181</y>
+                <width>110</width>
+                <height>17</height>
             </rect>
         </property>
         <property name="text">
-            <string>Go</string>
+            <string>Total frames</string>
         </property>
-        <property name="default">
-            <bool>true</bool>
+    </widget>
+    <widget class="QSpinBox">
+        <property name="name">
+            <cstring>TemperatureWidget</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>170</x>
+                <y>130</y>
+                <width>81</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="maxValue">
+            <number>999</number>
+        </property>
+        <property name="value">
+            <number>300</number>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>170</x>
+                <y>80</y>
+                <width>100</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Temperature
+
+(Kelvins)</string>
         </property>
     </widget>
     <widget class="QSpinBox">
@@ -139,8 +173,8 @@ femtosecond)</string>
         </property>
         <property name="geometry">
             <rect>
-                <x>210</x>
-                <y>240</y>
+                <x>170</x>
+                <y>210</y>
                 <width>90</width>
                 <height>30</height>
             </rect>
@@ -158,66 +192,6 @@ femtosecond)</string>
             <number>900</number>
         </property>
     </widget>
-    <widget class="QSpinBox">
-        <property name="name">
-            <cstring>TemperatureWidget</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>210</x>
-                <y>140</y>
-                <width>81</width>
-                <height>31</height>
-            </rect>
-        </property>
-        <property name="maxValue">
-            <number>999</number>
-        </property>
-        <property name="value">
-            <number>300</number>
-        </property>
-    </widget>
-    <widget class="QSpinBox">
-        <property name="name">
-            <cstring>StepsPerFrameWidget</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>240</y>
-                <width>80</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="minValue">
-            <number>1</number>
-        </property>
-        <property name="value">
-            <number>10</number>
-        </property>
-    </widget>
-    <widget class="QSpinBox">
-        <property name="name">
-            <cstring>TimeStepWidget</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>140</y>
-                <width>90</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="maxValue">
-            <number>999</number>
-        </property>
-        <property name="minValue">
-            <number>1</number>
-        </property>
-        <property name="value">
-            <number>10</number>
-        </property>
-    </widget>
     <widget class="QButtonGroup">
         <property name="name">
             <cstring>FileFormatWidget</cstring>
@@ -225,8 +199,8 @@ femtosecond)</string>
         <property name="geometry">
             <rect>
                 <x>10</x>
-                <y>300</y>
-                <width>351</width>
+                <y>260</y>
+                <width>250</width>
                 <height>71</height>
             </rect>
         </property>
@@ -235,32 +209,13 @@ femtosecond)</string>
         </property>
         <widget class="QRadioButton">
             <property name="name">
-                <cstring>TextFile</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>20</x>
-                    <y>40</y>
-                    <width>310</width>
-                    <height>22</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Text trajectory file</string>
-            </property>
-            <property name="buttonGroupId">
-                <number>1</number>
-            </property>
-        </widget>
-        <widget class="QRadioButton">
-            <property name="name">
                 <cstring>BinFileWidget</cstring>
             </property>
             <property name="geometry">
                 <rect>
                     <x>20</x>
                     <y>20</y>
-                    <width>300</width>
+                    <width>190</width>
                     <height>22</height>
                 </rect>
             </property>
@@ -274,8 +229,70 @@ femtosecond)</string>
                 <number>0</number>
             </property>
         </widget>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>TextFile</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>40</y>
+                    <width>190</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Text trajectory file</string>
+            </property>
+            <property name="buttonGroupId">
+                <number>1</number>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>GoButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>140</x>
+                <y>350</y>
+                <width>110</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Go</string>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel6</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>250</width>
+                <height>37</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&lt;b&gt;&lt;h1&gt;Simulation Setup&lt;/h1&gt;&lt;/b&gt;</string>
+        </property>
+        <property name="alignment">
+            <set>WordBreak|AlignCenter</set>
+        </property>
     </widget>
 </widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="830">789cadd1b16ac3301006e0dd4f21accd94c696d344a2f4110a1d0ba58374ba931c274b9b0ea5f4ddab9393e2880432e4c7367cfed159b6178d787d7916cda2fadcdbfd0002a2fd108dffdaedbedfde9f7eaa5a29918e6e29bafaaeaa9d0021db1ce6f648222632bb9ea85d332d53a306ad9803d33c90d24ba667da8ec8001332c16a63981b26b63df596799fb9c235ae983113d078cda44c4fa8f2a891993671d8649868cc34594ee4e4c96773a346ce1beb4e63ff1b07a771b346ce53361e91c8852863d10ce83d81db84728d479fd6390863281ac4fc0029c7f15cc353cb663bcf95cda537bdfc75e294742f5d653aaf6d0e93e254dcea9f1e9bdfc7ea0f79efc943</data>
+    </image>
+</images>
 <connections>
     <connection>
         <sender>NumFramesWidget</sender>
