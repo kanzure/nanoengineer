@@ -64,11 +64,12 @@ class elem:
         Elno += 1
         self.symbol = sym
         self.name = n
+        self.color = col
         self.mass = m
         self.rvdw = rv
         self.rcovalent = bn and bn[0][1]/100.0
         self.bonds = bn
-        self.color = col
+        self.numbonds = bn and bn[0][0]
         self.base = None
         self.quats = []
         if bn and bn[0][2]:
@@ -131,6 +132,7 @@ Mendeleev=[ \
       [[1, 99, None]]),
  elem("Ar", "Argon",      66.33,   1.88, [0.85, 0.24, 0.57],
       None),
+ # not used after this
  elem("K",  "Potassium",  64.9256, 5.0,  [0.0, 0.3, 0.3],
       [[1, 231, None]]),
  elem("Ca", "Calcium",    66.5495, 4.0,  [0.79, 0.55, 0.8],
@@ -795,11 +797,15 @@ class molecule:
         if v[i,2]<cutoff: return None
         return self.singlets[i]
 
+    # return the singlets in the given sphere
+    # sorted by increasing distance from the center
     def nearSinglets(self, point, radius):
         if not self.singlets: return None
         v = self.singlpos-point
-        r = sqrt(A(v[:,0]**2) + A(v[:,1]**2) + A(v[:,2]**2))
-        return compress(r<=radius,self.singlets)
+        r = sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2)
+        p= r<=radius
+        i=argsort(compress(p,r))
+        return take(compress(p,self.singlets),i)
 
     def copy(self, offset):
         """Copy the molecule to a new molecule.

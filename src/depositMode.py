@@ -150,48 +150,121 @@ class depositMode(basicMode):
     # bond the new atom to it, and any other ones around you'd
     # expect it to form bonds with
     def attach(self, el, singlet):
+        if not el.numbonds: return
+        spot = self.findSpot(el, singlet)
+        pl = []
+        mol = singlet.molecule
+        cr = el.rcovalent
+        for s in mol.nearSinglets(spot, cr*1.5):
+            pl += [(s, self.findSpot(el, s))]
+        n = min(el.numbonds, len(pl))
+        if n == 1:
+            self.bond1(el, singlet, spot)
+        elif n == 2:
+            self.bond2(el,pl)
+        elif n == 3:
+            self.bond3(el,pl)
+        elif n == 4:
+            self.bond4(el,pl)
+        else: print "too many bonds!"
+        mol.shakedown()
+        self.o.assy.updateDisplays()
+
+    # given an element and a singlet, find the place an atom of the
+    # element would like to be if bonded at the singlet
+    def findSpot(self, el, singlet):
         obond = singlet.bonds[0]
         a1 = obond.other(singlet)
         cr = el.rcovalent
         pos = singlet.posn() + cr*norm(singlet.posn()-a1.posn())
+        return pos
+
+    def bond1(self, el, singlet, pos):
+        obond = singlet.bonds[0]
+        a1 = obond.other(singlet)
         mol = a1.molecule
         a = atom(el.symbol, pos, mol)
         obond.rebond(singlet, a)
         del mol.atoms[singlet.key]
-        # ok, the first bond is formed.  Look for others
         if el.base:
             # There is at least one other bond
             # this rotates the atom to match the bond formed above
             r = singlet.posn() - pos           
             rq = Q(r,el.base)
-            more = list(mol.nearSinglets(pos, cr+2.0*TubeRadius))
-            # don't redo the one we started with
-            del more[more.index(singlet)]
-            if not more:
-                # nothing to bond to, position randomly
-                for q in el.quats:
-                    q = rq + q - rq
-                    x = atom('X', pos+q.rot(r), mol)
-                    mol.bond(a,x)
-            elif len(more) == 1:
-                opos = more[0].posn()
-                if len(el.quats)>=1:
-                    # this moves the second bond to a possible position
-                    q1 = rq + el.quats[0] -rq
-                    b2p = q1.rot(r)
-                    # rotate it into place
-                    tw = twistor(r, b2p, opos-pos)
-                    ob2 = more[0].bonds[0]
-                    ob2.rebond(more[0], a)
-                    del mol.atoms[more[0].key]
-                    # now for all the rest
-                    for q in el.quats[1:]:
-                        q = rq + q - rq + tw
-                        x = atom('X', pos+q.rot(r), mol)
-                        mol.bond(a,x)
-            
-        mol.shakedown()
-        self.o.assy.updateDisplays()                  
+            for q in el.quats:
+                q = rq + q - rq
+                x = atom('X', pos+q.rot(r), mol)
+                mol.bond(a,x)
+        
+    def bond2(self, el, lis):
+        s1, p1 = lis[0]
+        s2, p2 = lis[1]
+        pos = (p1+p2)/2.0
+        opos = s2.posn()
+
+        mol = s1.molecule
+        a = atom(el.symbol, pos, mol)
+
+        s1.bonds[0].rebond(s1, a)
+        del mol.atoms[s1.key]
+        s2.bonds[0].rebond(s2, a)
+        del mol.atoms[s2.key]
+
+        # this rotates the atom to match the bonds formed above
+        r = s1.posn() - pos           
+        rq = Q(r,el.base)
+        # this moves the second bond to a possible position
+        # note that it doesn't matter which bond goes where
+        q1 = rq + el.quats[0] -rq
+        b2p = q1.rot(r)
+        # rotate it into place
+        tw = twistor(r, b2p, opos-pos)
+        # now for all the rest
+        for q in el.quats[1:]:
+            q = rq + q - rq + tw
+            x = atom('X', pos+q.rot(r), mol)
+            mol.bond(a,x)
+
+    def bond3(self, el, lis):
+        s1, p1 = lis[0]
+        s2, p2 = lis[1]
+        s3, p3 = lis[2]
+        pos = (p1+p2+p3)/3.0
+        opos =  (s1.posn() + s2.posn() + s3.posn())/3.0
+
+        mol = s1.molecule
+        a = atom(el.symbol, pos, mol)
+
+        s1.bonds[0].rebond(s1, a)
+        del mol.atoms[s1.key]
+        s2.bonds[0].rebond(s2, a)
+        del mol.atoms[s2.key]
+        s3.bonds[0].rebond(s3, a)
+        del mol.atoms[s3.key]
+
+        opos = pos + el.rcovalent*norm(pos-opos)
+        x = atom('X', opos, mol)
+        mol.bond(a,x)
+
+    def bond4(self, el, lis):
+        s1, p1 = lis[0]
+        s2, p2 = lis[1]
+        s3, p3 = lis[2]
+        s4, p4 = lis[3]
+        pos = (p1+p2+p3+p4)/4.0
+        opos =  (s1.posn() + s2.posn() + s3.posn() + s4.posn())/4.0
+
+        mol = s1.molecule
+        a = atom(el.symbol, pos, mol)
+
+        s1.bonds[0].rebond(s1, a)
+        del mol.atoms[s1.key]
+        s2.bonds[0].rebond(s2, a)
+        del mol.atoms[s2.key]
+        s3.bonds[0].rebond(s3, a)
+        del mol.atoms[s3.key]
+        s4.bonds[0].rebond(s4, a)
+        del mol.atoms[s3.key]
 
 
     def Draw(self):
