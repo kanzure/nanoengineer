@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'LinearMotorPropUI.ui'
+# Form implementation generated from reading ui file 'LinearMotorPropDialog.ui'
 #
-# Created: Mon Sep 20 18:32:19 2004
+# Created: Tue Sep 21 10:13:08 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -10,50 +10,38 @@
 
 from qt import *
 
-image0_data = [
-"22 22 10 1",
-"# c #000000",
-"h c #a8a8a8",
-"b c #b0b0b0",
-"g c #b8b8b8",
-"f c #c0c0c0",
-"e c #cacaca",
-"a c #d4d4d4",
-"d c #dfdfdf",
-"c c #efefef",
-". c #ffffff",
-"......................",
-"......................",
-"......................",
-".................#a...",
-".................##a..",
-"...........#######.#..",
-"...........bbbbbb##a..",
-".................#a...",
-"......................",
-".###.###.###.###.###..",
-".#c###c###c###c###d##.",
-".#aaaaaeeeeeeeeeefff#.",
-".#gggggggbbbbbbbbbbh#.",
-".####################.",
-"......................",
-"..a#..................",
-".a##..................",
-".#.#######............",
-".a##bbbbbb............",
-"..a#..................",
-"......................",
-"......................"
-]
+image0_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\xcc\x49\x44\x41\x54\x78\x9c\xcd\x95\x3b\x0e\x84" \
+    "\x30\x0c\x44\xc7\x2b\x0e\xc6\x11\x38\x2a\x87\x71" \
+    "\x6a\x1a\x7a\x3a\x44\xf7\xb6\x58\x12\x88\x16\x56" \
+    "\x44\x10\x69\x47\x4a\xe1\x7c\xec\xc9\x78\x02\x06" \
+    "\xa8\x06\x5e\x55\xb2\xfe\x7d\x62\x33\x23\x84\x90" \
+    "\x6b\x0a\xdc\x1e\x92\x90\x84\xbb\x13\xe7\x9a\x52" \
+    "\x66\x67\x6b\x80\xcc\x2c\x16\x2a\x4b\xdc\xf7\xfd" \
+    "\xe1\x7c\xd7\x75\x32\x33\xb9\x7b\x5e\xe9\x09\x29" \
+    "\xf6\x32\x00\xb2\x5a\x3e\xce\xc4\xff\x84\xf7\x63" \
+    "\x60\xb3\xdb\x34\x4d\x92\xb6\x06\x95\xc6\xc3\x30" \
+    "\x64\xb1\xad\xdd\x24\x13\x7e\xc5\x3c\xcf\x97\x6e" \
+    "\xbd\xdf\xd7\xb6\xad\x00\x4b\xae\x18\xc7\xf1\xf4" \
+    "\xe0\xb2\x2c\x97\x0a\xec\xf7\x25\xc6\x97\x4e\x5e" \
+    "\x04\x60\xd5\x5c\x91\x9a\x17\x42\xe0\x51\xe6\x80" \
+    "\xdc\xfd\xcb\x2e\x77\x47\xd2\x38\xbe\xf5\x1f\x04" \
+    "\xce\x17\x0f\xd0\x48\x92\xbb\xa7\xa4\x67\xdf\x83" \
+    "\x62\x44\xea\x51\x8e\x47\xa5\xa8\x81\x6a\xbf\xa6" \
+    "\x37\x5d\x04\x83\x5a\x0e\x5d\x6a\x62\x00\x00\x00" \
+    "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
-class LinearMotorPropForm(QDialog):
+class LinearMotorPropDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
-        self.image0 = QPixmap(image0_data)
-
+        self.image0 = QPixmap()
+        self.image0.loadFromData(image0_data,"PNG")
         if not name:
-            self.setName("LinearMotorPropForm")
+            self.setName("LinearMotorPropDialog")
 
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
@@ -247,7 +235,7 @@ class LinearMotorPropForm(QDialog):
 
 
     def applyButtonPressed(self):
-        print "LinearMotorPropForm.applyButtonPressed(): Not implemented yet"
+        print "LinearMotorPropDialog.applyButtonPressed(): Not implemented yet"
 
     def __tr(self,s,c = None):
-        return qApp.translate("LinearMotorPropForm",s,c)
+        return qApp.translate("LinearMotorPropDialog",s,c)

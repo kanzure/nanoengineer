@@ -3,9 +3,9 @@ from qt import *
 from LinearMotorPropUI import *
 
 
-class LinearMotorProp(LinearMotorPropUI):
+class LinearMotorProp(LinearMotorPropForm):
     def __init__(self, linearMotor):
-        LinearMotorPropUI.__init__(self)
+        LinearMotorPropForm.__init__(self)
         self.motor = linearMotor
 
         self.stiffness.setText(str(linearMotor.stiffness))

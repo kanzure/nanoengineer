@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'RotaryMotorPropUI.ui'
+# Form implementation generated from reading ui file 'RotaryMotorPropDialog.ui'
 #
-# Created: Mon Sep 20 18:32:19 2004
+# Created: Tue Sep 21 10:13:08 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -79,14 +79,14 @@ image0_data = \
     "\x80\x81\xd4\x4f\xfd\xdb\x64\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
 
-class RotaryMotorPropForm(QDialog):
+class RotaryMotorPropDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
         self.image0 = QPixmap()
         self.image0.loadFromData(image0_data,"PNG")
         if not name:
-            self.setName("RotaryMotorPropForm")
+            self.setName("RotaryMotorPropDialog")
 
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
@@ -288,7 +288,7 @@ class RotaryMotorPropForm(QDialog):
 
 
     def applyButtonPressed(self):
-        print "RotaryMotorPropForm.applyButtonPressed(): Not implemented yet"
+        print "RotaryMotorPropDialog.applyButtonPressed(): Not implemented yet"
 
     def __tr(self,s,c = None):
-        return qApp.translate("RotaryMotorPropForm",s,c)
+        return qApp.translate("RotaryMotorPropDialog",s,c)

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ElementSelectorUI.ui'
+# Form implementation generated from reading ui file 'ElementSelectorDialog.ui'
 #
-# Created: Mon Sep 20 18:29:26 2004
+# Created: Tue Sep 21 10:13:08 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -10,48 +10,42 @@
 
 from qt import *
 
-image0_data = [
-"22 22 8 1",
-". c None",
-"# c #2d2d2d",
-"e c #b4b5b4",
-"c c #bfc0bf",
-"b c #c2c3c2",
-"f c #c8c9c8",
-"a c #d2d2d2",
-"d c #dbdcdb",
-"......................",
-"......................",
-"......................",
-".###.............###a.",
-".#b#.............#b#cd",
-".#b#.........#####b#ef",
-".#b#.........#b#b#b#ef",
-".#b###########b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".#b#b#b#b#b#b#b#b#b#ef",
-".###################ef",
-".aceeeeeeeeeeeeeeeeeef",
-"..d###############dddf",
-"...#bbbbbbbbbbbbb#a...",
-"...###############ca..",
-"...#bbbbbbbbbbbbb#ef..",
-"...###############ef..",
-"...aceeeeeeeeeeeeeef..",
-"...dddffffffffffffff.."
-]
+image0_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\xf4\x49\x44\x41\x54\x78\x9c\xed\x94\x31\x8e\xc2" \
+    "\x30\x10\x45\xbf\x57\x69\x8c\x52\x2d\x66\x2b\x5f" \
+    "\x6a\xb9\x44\xa4\xe4\x20\xe1\x02\xac\x94\x03\xb8" \
+    "\x85\x5b\xf8\x30\xa0\xa1\x9a\x81\xd2\x5b\x44\x31" \
+    "\x90\x88\x95\x62\x9c\x6e\x7f\x63\xcb\x92\x9f\x9e" \
+    "\xed\xf1\x28\xef\x3d\x96\xc8\xc7\x22\xd4\x25\xc1" \
+    "\x05\x00\x54\x55\x15\x86\x85\xae\xeb\xd4\x5c\xc8" \
+    "\xe3\x7e\xe7\x1c\x98\x59\x45\xe3\xfd\xcf\xfe\x2d" \
+    "\xc3\x61\x3f\x5d\x08\x9b\xaf\x4d\x28\x52\x20\x8f" \
+    "\x86\xe3\x88\x08\x88\x28\xfd\x8e\x07\xc3\x57\x27" \
+    "\x9d\x18\xff\x65\x33\x27\x13\xe3\xb1\xc9\xab\x71" \
+    "\x36\x38\x57\xfe\xc1\x31\xca\x7b\x9f\xad\x12\x00" \
+    "\xa0\xdd\xb5\x30\xc6\xf4\xe0\xb2\x2c\x03\x5d\x08" \
+    "\x22\x92\x05\x6e\x8c\xe9\xeb\x98\x99\x95\xb5\x36" \
+    "\x6c\xbf\xb7\xc9\xb0\xc3\xf1\x10\xe7\x44\x74\xff" \
+    "\x20\xe7\xd3\x59\x01\x08\x29\x3d\xa3\xa9\x1b\xdc" \
+    "\xae\x37\x30\x73\x6c\x60\x93\x9f\xd7\xd4\xcd\x6c" \
+    "\x30\xd0\x37\x9f\xf5\xe7\x3a\x0c\xf0\x09\x38\xd5" \
+    "\x58\x44\xa0\xb5\x8e\x6b\xd9\x8c\xc7\x79\x02\x3b" \
+    "\xe7\x90\xab\x3a\x9e\xc0\x7a\xa5\x61\x57\x16\x40" \
+    "\xff\xb2\xef\xe4\x17\x53\x25\x6b\x9e\x8d\xaf\x32" \
+    "\x99\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
+    "\x82"
 
-class elementSelectorForm(QDialog):
+class ElementSelectorDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
-        self.image0 = QPixmap(image0_data)
-
+        self.image0 = QPixmap()
+        self.image0.loadFromData(image0_data,"PNG")
         if not name:
-            self.setName("elementSelectorForm")
+            self.setName("ElementSelectorDialog")
 
         pal = QPalette()
         cg = QColorGroup()
@@ -463,10 +457,10 @@ class elementSelectorForm(QDialog):
 
 
     def setElementInfo(self):
-        print "elementSelectorForm.setElementInfo(): Not implemented yet"
+        print "ElementSelectorDialog.setElementInfo(): Not implemented yet"
 
     def transmutePressed(self):
-        print "elementSelectorForm.transmutePressed(): Not implemented yet"
+        print "ElementSelectorDialog.transmutePressed(): Not implemented yet"
 
     def __tr(self,s,c = None):
-        return qApp.translate("elementSelectorForm",s,c)
+        return qApp.translate("ElementSelectorDialog",s,c)

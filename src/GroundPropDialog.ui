@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>GroundPropForm</class>
+<class>GroundPropDialog</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>GroundPropForm</cstring>
+        <cstring>GroundPropDialog</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -225,20 +225,20 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="1145">789cb5d14b6fda401405e03dbfc2821daa08e01728ca0230b0aad465a52a8bf19d318f00c930769c49d5ff5ece214949e32c738f379f8ec69a6b5f75839f3fbe07ddab962b55b99140d6ea187475b5dffb5fb737bf5bede130383d611c0cdadf5a6d1b48d0e973c047709022604d8e1150488d8007709823e01369107001867d04dc933102ae4941c092d40898811107ccc918010b30d608a8c1244ca2240437a44e4cc2f6194cfb08e8c91001e72f8cce7c2093344d1370479ab448b9d13d381a20e0910c47d1886727a446c029592060058ef3b18cf9ad1ca84469c5f557a45646f1ec0ccca33cceb9be01259644b8be22531909ff518754928b02b7a416237cd59234520857b8034d6252c3057b60c1211be7bfa6f349a372d1a6b1c98bd57ad3d46c6575b7db379ed1ebdde1beb1310ff6b86dbe9bb3ee935b7f7563ad3d5c34e5c96f4df5ee4cf5f8d654b5bb68dc53f5da1c7a9ed5b971b5ef95ff6ee0ebe7899bdae96ce24fc5bbbbf9bace329b65f5b9b8bcb5f316e3ddc77d66f3855dcc674d9b2e9d77cbe66f7039ed3fd7adbff38bffe8</data>
+        <data format="PNG" length="532">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001db49444154789ced95b16fda4014c6bfab3af01f80072b151b3242c06624900825959a256d2406d6746ca693d2a959d21135e96c668bc11edda9599c8091d2009140320b4390e0cff83a546e82083953a95b3fe92d77f7fdf4fcfcee9d20897fa117db1cbef979133f0b92ca08fa01ebf53a755de7d18723767b5daa3cb1323efd7c8a542a858b6f17988653743a1da547091e0c070cc31007ef0e609a26766bbbe8077d25f8a5ea40b150147b6ff678fef51c77b53bb88e8b46a3a104c7aa71b7d7e5c9a71302e0d99733de0e6e953556660c0025b32496cb25012093c9a058280a9567ab76db46ffc1eb602104a3c866b35b0d904aa5c2c7fe157024ab6d613c1e2bfffa63f9be2facb6856432f9b018f51d005a6d8b9aa6d1719db53e755c870036eee572395a6d8bbf917c001b86419290523e09df04765c879aa6514a49922897cb5cb920d1e7b75a2d0180c71f8f717d754d5dd7b1f36a07f3fb3900607e3f87f7dde3349c62b158c0b66d349bcdc807dff705b061564470dbb601008661fcd9f33c0ff080c96402002bd0153d77df1dd7a1949200d6424af964bd63cd8ac3f7872291481002b8fc7189d168847c3e8fdaeb1aaad52af6dfee6fec1e11e7cd1b8e869ccd66087a01cc9289743a8d42bef06c4bc602ff8d7e019453a4e9343a15a30000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
     <connection>
         <sender>cancelPushButton</sender>
         <signal>clicked()</signal>
-        <receiver>GroundPropForm</receiver>
+        <receiver>GroundPropDialog</receiver>
         <slot>reject()</slot>
     </connection>
     <connection>
         <sender>okPushButton</sender>
         <signal>clicked()</signal>
-        <receiver>GroundPropForm</receiver>
+        <receiver>GroundPropDialog</receiver>
         <slot>accept()</slot>
     </connection>
 </connections>

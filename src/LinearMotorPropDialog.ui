@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>LinearMotorPropForm</class>
+<class>LinearMotorPropDialog</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>LinearMotorPropForm</cstring>
+        <cstring>LinearMotorPropDialog</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -596,7 +596,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="770">789cad90bd0ac2301485f73c45e8dd8ab4697128888f20380ae2709b34ad4317ad8388ef6e4eaa55fa63113ca7817e7c24b9240ee56ebb91612cce0d37472d75c527199a4b5d5ff787f54d04692add972899040b1190d492940fb0027286027360ae5060e931438116a8150a2c3c320a64a059a240e3d1a2400d2c2c0a8c80d6c7e368fe6688270d54cf509b880626f719db3377cf7b367f726f3d8d76ff9fcb38d51a468a2eeed55ea66c9377a9a8bb6790d977639a304c5386baf71ad9d38ef4c33d5f661b35f795780019359ada</data>
+        <data format="PNG" length="261">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000cc49444154789ccd953b0e84300c44c72b0ec611382a87716a1a7a3a44f7b65812881656441069474ae17cecc9780206a8065e55b2fe7d62332384906b0adc1e929084bb13e79a5266676b80cc2c162a4bdcf7fde17cd7753233b97b5ee90929f63200b25a3ecec4ff84f76360b3db344d92b60695c6c33064b1addd24137ec53ccf976ebddfd7b6ad004bae18c7f1f4e0b22c970aecf725c6974e5e0460d55c919a1742e051e680dcfdcb2e7747d238bef51f04ce170fd04892bba7a467df836244ea518e47a5a8816abfa6375d04835a0e5d6a620000000049454e44ae426082</data>
     </image>
 </images>
 <tabstops>

@@ -1,8 +1,8 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
-<class>elementSelectorForm</class>
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>ElementSelectorDialog</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>elementSelectorForm</cstring>
+        <cstring>ElementSelectorDialog</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -1334,26 +1334,26 @@ Ne</string>
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="736">789cbd91b10ac2301086f73e4568b6225663858af8088aa3200eb9bb041daaa07510f1ddcdc562da541707ffcb902f1f978424cfc466bd14599e5c6a5d1f50e05e9f4546d7aaba6d778b7b922a25dc28c5381d24e950a0589d8e86e7d2cda5222e46c308054ca160448f164760198111154e50315a8f25ceb064d48c7e276fc9231012f8433fe66723a5ec2c3ad68d81c88044ea19c901696cdf80af60426213d7bf4d3f8dd1687a799921451d44d41877523bee3ddfbf10f5a00ea6db63ecb79e96896f170c5fa613671ef3e409d6a6a692</data>
+        <data format="PNG" length="301">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000f449444154789ced94318ec2301045bf57698c522d662b5f6ab944a4e420e102ac9403b8855bf830a0a19a81d25b4431908895629c6e7f63cb929f9eedf128ef3d96c8c722d425c105005455158685aeebd45cc8e37ee71c985945e3fdcffe2dc3613f5d089baf4d2852208f86e388088828fd8e07c357279d18ff65332713e3b1c9ab71363857fec131ca7b9fad1200a0ddb530c6f4e0b22c035d082292056e8ce9eb989995b5366cbfb7c9b0c3f110e74474ff20e7d3590108293da3a91bdcae3730736c60939fd7d4cd6c30d0379ff5e73a0cf00938d55844a0b58e6bd98cc779023be790ab3a9ec07aa561571640ffb2efe41753256b9e8daf32990000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
     <connection>
         <sender>closePTableButton</sender>
         <signal>clicked()</signal>
-        <receiver>elementSelectorForm</receiver>
+        <receiver>ElementSelectorDialog</receiver>
         <slot>close()</slot>
     </connection>
     <connection>
         <sender>elementButtonGroup</sender>
         <signal>clicked(int)</signal>
-        <receiver>elementSelectorForm</receiver>
+        <receiver>ElementSelectorDialog</receiver>
         <slot>setElementInfo()</slot>
     </connection>
     <connection>
         <sender>TransmuteButton</sender>
         <signal>clicked()</signal>
-        <receiver>elementSelectorForm</receiver>
+        <receiver>ElementSelectorDialog</receiver>
         <slot>transmutePressed()</slot>
     </connection>
 </connections>

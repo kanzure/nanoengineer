@@ -1,26 +1,26 @@
-PYFILES=MainWindowUI.py ElementSelectorUI.py SimulatorUI.py GroundPropUI.py LinearMotorPropUI.py RotaryMotorPropUI.py
+PYFILES=MainWindowUI.py ElementSelectorDialog.py SimSetupDialog.py GroundPropDialog.py LinearMotorPropDialog.py RotaryMotorPropDialog.py
 
 atom:	$(PYFILES)
 
 MainWindowUI.py: MainWindowUI.ui
 	pyuic MainWindowUI.ui > MainWindowUI.py
 
-ElementSelectorUI.py: ElementSelectorUI.ui
-	pyuic ElementSelectorUI.ui > ElementSelectorUI.py
+ElementSelectorDialog.py: ElementSelectorDialog.ui
+	pyuic ElementSelectorDialog.ui > ElementSelectorDialog.py
 
-SimulatorUI.py: SimulatorUI.ui
-	pyuic SimulatorUI.ui > SimulatorUI.py
+SimSetupDialog.py: SimSetupDialog.ui
+	pyuic SimSetupDialog.ui > SimSetupDialog.py
 
 # Jig Property Dialogs
 
-GroundPropUI.py: GroundPropUI.ui
-	pyuic GroundPropUI.ui > GroundPropUI.py
+GroundPropDialog.py: GroundPropDialog.ui
+	pyuic GroundPropDialog.ui > GroundPropDialog.py
 
-LinearMotorPropUI.py: LinearMotorPropUI.ui
-	pyuic LinearMotorPropUI.ui > LinearMotorPropUI.py
+LinearMotorPropDialog.py: LinearMotorPropDialog.ui
+	pyuic LinearMotorPropDialog.ui > LinearMotorPropDialog.py
 
-RotaryMotorPropUI.py: RotaryMotorPropUI.ui
-	pyuic RotaryMotorPropUI.ui > RotaryMotorPropUI.py
+RotaryMotorPropDialog.py: RotaryMotorPropDialog.ui
+	pyuic RotaryMotorPropDialog.ui > RotaryMotorPropDialog.py
 
 clean:
 	rm $(PYFILES)

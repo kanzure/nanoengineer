@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>RotaryMotorPropForm</class>
+<class>RotaryMotorPropDialog</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>RotaryMotorPropForm</cstring>
+        <cstring>RotaryMotorPropDialog</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -606,13 +606,13 @@
     <connection>
         <sender>cancelPushButton</sender>
         <signal>clicked()</signal>
-        <receiver>RotaryMotorPropForm</receiver>
+        <receiver>RotaryMotorPropDialog</receiver>
         <slot>reject()</slot>
     </connection>
     <connection>
         <sender>okPushButton</sender>
         <signal>clicked()</signal>
-        <receiver>RotaryMotorPropForm</receiver>
+        <receiver>RotaryMotorPropDialog</receiver>
         <slot>accept()</slot>
     </connection>
 </connections>

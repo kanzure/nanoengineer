@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'SimulatorUI.ui'
+# Form implementation generated from reading ui file 'SimSetupDialog.ui'
 #
-# Created: Mon Sep 20 18:32:19 2004
+# Created: Tue Sep 21 10:13:08 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -11,12 +11,12 @@
 from qt import *
 
 
-class simSetup(QDialog):
+class SimSetupDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
         if not name:
-            self.setName("simSetup")
+            self.setName("SimSetupDialog")
 
 
 
@@ -109,25 +109,25 @@ class simSetup(QDialog):
 
 
     def NumFramesValueChanged(self,a0):
-        print "simSetup.NumFramesValueChanged(int): Not implemented yet"
+        print "SimSetupDialog.NumFramesValueChanged(int): Not implemented yet"
 
     def NameFilePressed(self):
-        print "simSetup.NameFilePressed(): Not implemented yet"
+        print "SimSetupDialog.NameFilePressed(): Not implemented yet"
 
     def GoPressed(self):
-        print "simSetup.GoPressed(): Not implemented yet"
+        print "SimSetupDialog.GoPressed(): Not implemented yet"
 
     def StepsChanged(self,a0):
-        print "simSetup.StepsChanged(int): Not implemented yet"
+        print "SimSetupDialog.StepsChanged(int): Not implemented yet"
 
     def TemperatureChanged(self,a0):
-        print "simSetup.TemperatureChanged(int): Not implemented yet"
+        print "SimSetupDialog.TemperatureChanged(int): Not implemented yet"
 
     def TimeStepChanged(self,a0):
-        print "simSetup.TimeStepChanged(int): Not implemented yet"
+        print "SimSetupDialog.TimeStepChanged(int): Not implemented yet"
 
     def FileFormat(self,a0):
-        print "simSetup.FileFormat(int): Not implemented yet"
+        print "SimSetupDialog.FileFormat(int): Not implemented yet"
 
     def __tr(self,s,c = None):
-        return qApp.translate("simSetup",s,c)
+        return qApp.translate("SimSetupDialog",s,c)

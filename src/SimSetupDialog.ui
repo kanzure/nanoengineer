@@ -1,8 +1,8 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
-<class>simSetup</class>
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>SimSetupDialog</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>simSetup</cstring>
+        <cstring>SimSetupDialog</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -280,43 +280,43 @@ femtosecond)</string>
     <connection>
         <sender>NumFramesWidget</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>simSetup</receiver>
+        <receiver>SimSetupDialog</receiver>
         <slot>NumFramesValueChanged(int)</slot>
     </connection>
     <connection>
         <sender>FileFormatWidget</sender>
         <signal>clicked(int)</signal>
-        <receiver>simSetup</receiver>
+        <receiver>SimSetupDialog</receiver>
         <slot>FileFormat(int)</slot>
     </connection>
     <connection>
         <sender>NameFileButton</sender>
         <signal>clicked()</signal>
-        <receiver>simSetup</receiver>
+        <receiver>SimSetupDialog</receiver>
         <slot>NameFilePressed()</slot>
     </connection>
     <connection>
         <sender>GoButton</sender>
         <signal>clicked()</signal>
-        <receiver>simSetup</receiver>
+        <receiver>SimSetupDialog</receiver>
         <slot>GoPressed()</slot>
     </connection>
     <connection>
         <sender>StepsPerFrameWidget</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>simSetup</receiver>
+        <receiver>SimSetupDialog</receiver>
         <slot>StepsChanged(int)</slot>
     </connection>
     <connection>
         <sender>TemperatureWidget</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>simSetup</receiver>
+        <receiver>SimSetupDialog</receiver>
         <slot>TemperatureChanged(int)</slot>
     </connection>
     <connection>
         <sender>TimeStepWidget</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>simSetup</receiver>
+        <receiver>SimSetupDialog</receiver>
         <slot>TimeStepChanged(int)</slot>
     </connection>
 </connections>

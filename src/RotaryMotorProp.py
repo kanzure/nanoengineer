@@ -3,9 +3,9 @@ from qt import *
 from RotaryMotorPropUI import *
 from VQT import V
 
-class RotMotorProp(RotMotorPropUI):
+class RotMotorProp(RotaryMotorPropForm):
     def __init__(self, rotMotor):
-        RotMotorPropUI__init__(self)
+        RotaryMotorPropForm.__init__(self)
         self.motor = rotMotor
 
         self.torqueLineEdit.setText(str(rotMotor.torque))
