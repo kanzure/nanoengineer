@@ -416,13 +416,6 @@
                             <blue>205</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -464,13 +457,6 @@
                             <blue>255</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -502,13 +488,6 @@
                             <green>165</green>
                             <blue>75</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -542,13 +521,6 @@
                             <blue>255</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -581,13 +553,6 @@
                             <blue>0</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -619,13 +584,6 @@
                             <green>255</green>
                             <blue>127</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -662,13 +620,6 @@
                             <blue>255</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -700,13 +651,6 @@
                             <green>213</green>
                             <blue>73</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -743,13 +687,6 @@
                     <property name="backgroundOrigin">
                         <enum>ParentOrigin</enum>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -785,13 +722,6 @@
                             <blue>255</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -826,13 +756,6 @@
                             <green>206</green>
                             <blue>0</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -872,13 +795,6 @@
                             <blue>255</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -913,13 +829,6 @@
                             <green>144</green>
                             <blue>23</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -956,13 +865,6 @@
                             <blue>156</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -997,13 +899,6 @@
                             <green>210</green>
                             <blue>255</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -1040,13 +935,6 @@
                             <blue>255</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1081,13 +969,6 @@
                             <green>183</green>
                             <blue>53</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -1124,13 +1005,6 @@
                             <blue>135</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1166,13 +1040,6 @@
                             <blue>255</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1204,13 +1071,6 @@
                             <green>85</green>
                             <blue>200</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -1244,13 +1104,6 @@
                             <blue>156</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1283,13 +1136,6 @@
                             <blue>255</blue>
                         </color>
                     </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1321,13 +1167,6 @@
                             <green>135</green>
                             <blue>255</blue>
                         </color>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Times</family>
-                            <pointsize>10</pointsize>
-                            <bold>1</bold>
-                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
