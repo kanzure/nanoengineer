@@ -61,4 +61,53 @@ def middle_button_prefix():
         return "Middle" # refers to middle mouse button
     pass
 
+# here are some functions involving user messages, which don't really belong in
+# this file, but there is not yet a better place for them. [bruce 041018]
+
+def fix_plurals(text, between = 1):
+    """fix plurals in text (a message for the user) by changing:
+      1 thing(s) -> 1 thing
+      2 thing(s) -> 2 things
+    permitting at most 'between' extra words in between,
+    e.g. by default
+      2 green thing(s) -> 2 green things.
+    #"""
+    words = text.split(" ")
+    numpos = -1
+    count = 0
+    for word,i in zip(words,range(len(words))):
+        if word and word[-1].isdigit():
+            # if word ends with a digit, call it a number (e.g. "(1" )
+            numpos = i
+        elif word.endswith("(s)"):
+            count += 1
+            if numpos >= 0 and (i-numpos) <= (between+1): # not too far back
+                # fix word for whether number is 1
+                nw = words[numpos]
+                assert nw and nw[-1].isdigit()
+                # consider only the adjacent digits at the end
+                num = ""
+                for cc in nw:
+                    num += cc
+                    if not cc.isdigit():
+                        num = ""
+                if num == "1":
+                    words[i] = words[i][:-3]
+                else:
+                    words[i] = words[i][:-3] + "s"
+            else:
+                # error, but no change to words[i]
+                print "fyi, cosmetic bug: fix_plurals(%r) found no number close enough to affect %r" % (text,word)
+            numpos = -1 # don't permit "2 dog(s) cat(s)" -> "2 dogs cats"
+    if not count:
+        print """fyi, possible cosmetic bug: fix_plurals(%r) got text with no "(s)", has no effect""" % (text,)
+    return " ".join(words)
+
 # end
+
+if __name__ == "__main__":
+    print fix_plurals('Dehydrogenate: removed 4 atom(s) from 1 molecule(s) (1 selected molecule(s) had no hydrogens)')
+    
+'''
+    fyi, cosmetic bug: fix_plurals('Dehydrogenate: removed 4 atom(s) from 1 molecule(s) (1 selected molecule(s) had no hydrogens)') found no number close enough to affect 'molecule(s)'
+'''
