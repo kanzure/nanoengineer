@@ -197,8 +197,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
         self.setAssy(assem)
         
-        return # from GLPane.__init__
-   
+        return # from GLPane.__init__        
+        
     def setInitialView(self, assy):
         """Huaicai 1/27/05: part of the code of this method comes
             from original setAssy() method. This method can be called after setAssy() has been called, for example, when open a mmp file. Set the initial view  """   
@@ -351,12 +351,46 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         else:
             raise AttributeError, 'GLPane has no "%s"' % name
 
-
-    def initializeGL(self):
-        """set up lighting in the model
+    # == lighting methods [bruce 050311 rush order for Alpha4] [interface is ok, but they don't yet do anything ###@@@]
+    
+    def setLighting(self, lights, _guard_ = 6574833, gl_update = True): 
+        """Set current lighting parameters as specified
+        [for now, to a list of 6 floats from 0 to 1; format may be revised].
+        [#e someday we might also schedule an event to save them in prefs soon,
+         or maybe we'll leave that to the caller]
+        If option gl_update is False, then don't do a gl_update, let caller do that if they want to.
         """
-        self.makeCurrent()
-        glEnable(GL_NORMALIZE)
+        from debug import print_compact_traceback
+        assert _guard_ == 6574833 # don't permit optional args to be specified positionally!!
+        try:
+            lights = list(lights) # local copy, in case caller modifies the list
+            a,b,c,d,e,f = lights
+            for i in lights:
+                assert 0.0 <= i <= 1.0
+        except:
+            print_compact_traceback("erroneous lights %r (ignored): " % lights)
+            return
+        self._lights = lights
+        #e set a flag so we'll use them and maybe later save them in prefs...
+        if gl_update:
+            self.gl_update()
+        return
+
+    def getLighting(self):
+        "return the current lighting parameters [for now, as a list of 6 floats from 0 to 1]"
+        return list(self._lights)
+
+    # default value of instance variable:
+    _lights = [0.3,0.8, 0.4,0.4, 1.0,1.0]
+        # 6 values, gray levels for GL_AMBIENT and GL_DIFFUSE for each of 3 lights at fixed positions
+    
+    def _setup_lighting(self):
+        """[private method]
+        Set up lighting in the model (according to self._lights).
+        [Called from both initializeGL and paintGL.]
+        """
+        ####@@@@ doesn't yet use self._lights values!
+        glEnable(GL_NORMALIZE) # bruce comment 050311: I don't know if this relates to lighting or not
         glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
@@ -373,12 +407,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glEnable(GL_LIGHT0)
         glEnable(GL_LIGHT1)
         glDisable(GL_LIGHT2)
+        return
+    
+    def initializeGL(self):
+        "#doc [called by Qt]"
+        self.makeCurrent() # bruce comment 050311: probably not needed since Qt does it before calling this
+        self._setup_lighting()
         glShadeModel(GL_SMOOTH)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_CULL_FACE)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-      
+        return
 
     def fix_buttons(self, but, when):
         return fix_buttons_helper(self, but, when)
