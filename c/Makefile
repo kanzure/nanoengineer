@@ -33,15 +33,20 @@ mol.o: mol.h
 lin-alg.o: mol.h
 display-opengl.o: mol.h
 dumpxyz.o: mol.h
+xyzreader.o: mol.h
 
 MOLOBJS=mol.o lin-alg.o display-opengl.o
 SIMOBJS=mol.o lin-alg.o dumpxyz.o
+DISPOBJS=xyzreader.o lin-alg.o display-opengl.o
 
 mol: $(MOLOBJS)
 	$(CC) -o mol $(LDFLAGS) -lGL -lGLU -lglut $(MOLOBJS)
 
 molsim: $(SIMOBJS)
 	$(CC) -o molsim $(LDFLAGS) $(SIMOBJS)
+
+moldisp: $(DISPOBJS)
+	$(CC) -o moldisp $(LDFLAGS) -lGL -lGLU -lglut $(DISPOBJS)
 
 clean:
 	rm -f mol *.o *.so *~ TAGS fmc.mmp

@@ -407,16 +407,16 @@ void speedump() {		/* gather bond statistics */
 		histo[iv]++;
 	}
 	
-	DBGPRINTF("Kinetic energies:\n");
+	printf("Kinetic energies:\n");
 	for (j=0; j<21; j++) {
-		if (j%5) DBGPRINTF(" |");
-		else DBGPRINTF("-+");
+		if (j%5) printf(" |");
+		else printf("-+");
 		n=(70*histo[j])/Nexatom;
-		if (histo[j] && n==0) DBGPRINTF(".");
-		for (k=0; k<n; k++) DBGPRINTF("M");
-		DBGPRINTF("\n");
+		if (histo[j] && n==0) printf(".");
+		for (k=0; k<n; k++) printf("M");
+		printf("\n");
 	}
-	DBGPRINTF("Iteration %d, KE %e --> %e\n",Iteration,TotalKE,FoundKE);
+	printf("Iteration %d, KE %e --> %e\n",Iteration,TotalKE,FoundKE);
 }
 
 
@@ -1641,8 +1641,11 @@ void minimize() {
 
 
 void keyboard(unsigned char key, int x, int y) {
-	
-	if (key == '?') DBGPRINTF("\n\
+
+	int calcspeed = 5;
+	switch (key) {
+	case '?':
+		fprintf(stderr, "\n\
 q -- quit\n\
 s -- snapshot\n\
 b -- bond info\n\
@@ -1651,31 +1654,52 @@ m -- minimize energy of molecule\n\
 v -- velocity info\n\
 r -- reverse atoms in their tracks\n\
 f -- iterate forever\n");
-	
-	if (key == 'q') exit(0);
-	if (key == 's') snapshot(ShotNo++);
-	if (key == 'b') bondump();
-	if (key == 'm') minimize();
-	if (key == 'v') speedump();
-	if (key == 'r') {tmp=old; old=cur; cur=tmp;}
-	if (key == 'f') while (1) {calcloop(1); display();speedump();}
-	if (key == 'p') {
-		DBGPRINTF("making movie\n");
+		break;
+	case 'q':
+		exit(0);
+		break;
+	case 's':
+		snapshot(ShotNo++);
+		break;
+	case 'b':
+		bondump();
+		break;
+	case 'm':
+		minimize();
+		break;
+	case 'v':
+		speedump();
+		break;
+	case 'r':
+		tmp=old;
+		old=cur;
+		cur=tmp;
+		break;
+	case 'f':
+		while (1) {
+			calcloop(1);
+			display();
+			speedump();
+		}
+	case 'p':
+		fprintf(stderr, "making movie\n");
 		for (x=0; x<1000; x++) {
 			calcloop(15);
 			display();
 			snapshot(ShotNo++);
 		}
 		exit(0);
+	case 'z':
+		calcspeed = 1;
+		break;
+	default:
+		/* anything else, do calcloop */
+		break;
 	}
 	
 	
-	calcloop(((key == 'z') ? 1 : 5));
-	
+	calcloop(calcspeed);
 	display();
-	/*
-	  snapshot();
-	*/
 }
 
 /**
