@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Jan 31 23:39:39 2005
+# Created: Sat Feb 5 14:08:03 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7268,8 +7268,10 @@ class MainWindow(QMainWindow):
         self.movieInfoAction = QAction(self,"movieInfoAction")
         self.movieInfoAction.setIconSet(QIconSet(self.image103))
         self.zoomToolAction = QAction(self,"zoomToolAction")
+        self.zoomToolAction.setToggleAction(1)
         self.zoomToolAction.setIconSet(QIconSet(self.image104))
         self.panToolAction = QAction(self,"panToolAction")
+        self.panToolAction.setToggleAction(1)
         self.panToolAction.setIconSet(QIconSet(self.image105))
         self.rotateWindowAction = QAction(self,"rotateWindowAction")
         self.rotateWindowAction.setIconSet(QIconSet(self.image106))
@@ -7278,6 +7280,7 @@ class MainWindow(QMainWindow):
         self.panDoneAction = QAction(self,"panDoneAction")
         self.panDoneAction.setIconSet(QIconSet(self.image17))
         self.rotateToolAction = QAction(self,"rotateToolAction")
+        self.rotateToolAction.setToggleAction(1)
         self.rotateToolAction.setIconSet(QIconSet(self.image108))
 
 
@@ -7297,7 +7300,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(202,0,347,29))
+        self.viewToolbar.setGeometry(QRect(202,0,282,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -7306,15 +7309,12 @@ class MainWindow(QMainWindow):
         self.panToolAction.addTo(self.viewToolbar)
         self.rotateToolAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
-        self.setViewOrthoAction.addTo(self.viewToolbar)
-        self.setViewPerspecAction.addTo(self.viewToolbar)
-        self.viewToolbar.addSeparator()
         self.setViewFrontAction.addTo(self.viewToolbar)
         self.setViewTopAction.addTo(self.viewToolbar)
         self.setViewRightAction.addTo(self.viewToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(549,0,188,29))
+        self.molecularDispToolbar.setGeometry(QRect(484,0,188,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -7589,7 +7589,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1207).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1213).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)

@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1207</height>
+            <height>1213</height>
         </rect>
     </property>
     <property name="caption">
@@ -186,7 +186,7 @@
             <rect>
                 <x>202</x>
                 <y>0</y>
-                <width>347</width>
+                <width>282</width>
                 <height>29</height>
             </rect>
         </property>
@@ -203,9 +203,6 @@
         <action name="panToolAction"/>
         <action name="rotateToolAction"/>
         <separator/>
-        <action name="setViewOrthoAction"/>
-        <action name="setViewPerspecAction"/>
-        <separator/>
         <action name="setViewFrontAction"/>
         <action name="setViewTopAction"/>
         <action name="setViewRightAction"/>
@@ -216,7 +213,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>549</x>
+                <x>484</x>
                 <y>0</y>
                 <width>188</width>
                 <height>29</height>
@@ -2769,6 +2766,9 @@
         <property name="name">
             <cstring>zoomToolAction</cstring>
         </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
         <property name="iconSet">
             <iconset>image104</iconset>
         </property>
@@ -2782,6 +2782,9 @@
     <action>
         <property name="name">
             <cstring>panToolAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
         </property>
         <property name="iconSet">
             <iconset>image105</iconset>
@@ -2832,6 +2835,9 @@
     <action>
         <property name="name">
             <cstring>rotateToolAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
         </property>
         <property name="iconSet">
             <iconset>image108</iconset>
