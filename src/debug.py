@@ -3,7 +3,12 @@
 '''
 debug.py -- debugging functions
 
-Names and behavior partly modelled after code by Sam Rushing in asyncore.py
+(Collects various functions related to debugging.)
+
+$Id$
+
+Names and behavior of some functions here (print_compact_traceback, etc)
+are partly modelled after code by Sam Rushing in asyncore.py
 in the Python library, but this implementation is newly written from scratch;
 see PythonDocumentation/ref/types.html for traceback, frame, and code objects,
 and sys module documentation about exc_info() and _getframe().
@@ -15,11 +20,20 @@ and sys module documentation about exc_info() and _getframe().
 - in compact_stack, include info about how many times each frame has been
 previously printed, and/or when it was first seen (by storing something in the
 frame when it's first seen, and perhaps incrementing it each time it's seen).
-
-$Id$
 '''
 
-import sys, os
+import sys, os, time
+from constants import debugButtons
+
+# note: some debug features run user-supplied code in this module's
+# global namespace (on platforms where this is permitted by our licenses).
+
+# enable the undocumented debug menu by default [bruce 040920]
+# (moved here from GLPane, now applies to all widgets using DebugMenuMixin [bruce 050112])
+debug_menu_enabled = 1 
+debug_events = 0 # set this to 1 to print info about many mouse events
+
+# ==
 
 # the following are needed to comply with our Qt/PyQt license agreements.
 
@@ -138,10 +152,9 @@ if __name__ == '__main__':
 
 # ===
 
-# import some things to make debugging commands more convenient
-import sys, os, time
-
-# run python commands from various sorts of integrated debugging UIs (for users who are developers); used in GLPane.py.
+# run python commands from various sorts of integrated debugging UIs
+# (for users who are developers); used in GLPane.py [or in code farther below
+#  which used to live in GLPane.py].
 # (moved here from GLPane.py by bruce 040928; docstring and messages maybe not yet fixed)
 
 def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in GLPane.py; modified 040928
@@ -190,6 +203,130 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
     else:
         print "run py code: cancelled"
     return
+
+# ==
+
+# Mixin class to help some of our widgets offer a debug menu.
+# [split from some GLPane methods and moved here by bruce 050112]
+
+class DebugMenuMixin:
+    """Helps widgets have the "standard undocumented debug menu".
+    Provides some methods and attrs to its subclasses,
+    all starting debug or _debug, especially self.debug_event().
+    """
+    #doc better
+    #e rename private attrs to start with '_debug' instead of 'debug'
+    #e generalize so the debug menu can be customized? not sure it's needed.
+
+    debug_menu = None # needed for use before _init1 or if that fails
+    
+    def _init1(self):
+        try:
+            self._debug_classname = "class " + self.__class__.__name__
+        except:
+            self._debug_classname = "<some class>"
+        try:
+            self.makemenu # subclass needs to provide this!
+        except:
+            print "warning: bug: %s forgot to define a makemenu() method; debug_menu unavailable" % self._debug_classname
+        else:
+            self.debug_menu = self.makemenu( self.debug_menu_items() )
+        return
+    
+    def debug_menu_items(self):
+        "[subclasses can in theory override this, but probably needn't and shouldn't]"
+        import debug
+        res = [
+            ('print self', self._debug_printself),
+            # None, # separator
+        ]
+        if debug.exec_allowed():
+            #bruce 041217 made this item conditional on whether it will work
+            res.extend( [
+                ('run py code', self._debug_runpycode),
+            ] )
+        res.extend( [
+            ('enable ATOM_DEBUG', self._debug_enable_atom_debug ),
+            ('disable ATOM_DEBUG', self._debug_disable_atom_debug ),
+        ] )
+        return res
+
+    def _debug_enable_atom_debug(self):
+        import platform
+        platform.atom_debug = 1
+    
+    def _debug_disable_atom_debug(self):
+        import platform
+        platform.atom_debug = 0
+    
+    def debug_event(self, event, funcname, permit_debug_menu_popup = 0):
+        """[the main public method for subclasses]
+           Debugging method -- no effect on normal users.  Does two
+           things -- if a global flag is set, prints info about the
+           event; if a certain modifier key combination is pressed,
+           and if caller passed permit_debug_menu_popup = 1, puts up
+           an undocumented debugging menu, and returns 1 to caller.
+           As of 040916, the debug menu is put up by
+           Shift-Option-Command-click on the Mac, and for other OS's I
+           predict it either never happens or happens only for some
+           similar set of 3 modifier keys.
+           -- bruce 040916
+        """
+        # in constants.py: debugButtons = cntlButton | shiftButton | altButton
+        # on the mac, this really means command-shift-alt
+        
+        if debug_menu_enabled and permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
+            print "\n* * * fyi: got debug click, will try to put up a debug menu...\n"
+            self.do_debug_menu(event)
+            return 1 # caller should detect this and not run its usual event code...
+        if debug_events:
+            try:
+                after = event.stateAfter()
+            except:
+                after = "<no stateAfter>" # needed for Wheel events, at least
+            print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, event.state(), after, time.asctime())
+            
+        # It seems, from doc and experiments, that event.state() is
+        # from just before the event (e.g. a button press or release,
+        # or move), and event.stateAfter() is from just after it, so
+        # they differ in one bit which is the button whose state
+        # changed (if any).  But the doc is vague, and the experiments
+        # incomplete, so there is no guarantee that they don't
+        # sometimes differ in other ways.
+        # -- bruce ca. 040916
+        return 0
+
+    def do_debug_menu(self, event):
+        "[public method for subclasses] #doc"
+        menu = self.debug_menu
+        self.current_event = event # (so debug commands can see it)
+        
+        # this code written from Qt/PyQt docs... note that some Atom
+        # modules use menu.exec_loop() but others use menu.popup(); I
+        # don't know for sure whether this matters here, or which is
+        # best. -- bruce ca. 040916
+        
+        menu.exec_loop(event.globalPos(), 1)
+        self.current_event = None
+        return 1
+
+    def _debug_printself(self):
+        print self
+
+    def debug_menu_source_name(self): #bruce 050112
+        "can be overriden by subclasses" #doc more
+        try:
+            return "%s debug menu" % self.__class__.__name__
+        except:
+            return "some debug menu"
+
+    def _debug_runpycode(self):
+        from debug import debug_runpycode_from_a_dialog
+        debug_runpycode_from_a_dialog( source = self.debug_menu_source_name() )
+            # e.g. "GLPane debug menu"
+        return
+
+    pass # end of class DebugMenuMixin
 
 # ===
 

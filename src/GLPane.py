@@ -45,6 +45,7 @@ from fileIO import *
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_buttons_helper
 from widgets import makemenu_helper
+from debug import DebugMenuMixin
 
 paneno = 0
 #  ... what a Pane ...
@@ -93,11 +94,8 @@ for q in pquats:
 
 allQuats = quats100 + quats110 + quats111
 
-# enable the undocumented debug menu by default [bruce 040920]
-debug_menu_enabled = 1 
-debug_events = 0 # set this to 1 to print info about most mouse events
 
-class GLPane(QGLWidget, modeMixin):
+class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
     """Mouse input and graphics output in the main view window.
     """
     # Note: external code expects self.mode to always be a working
@@ -105,6 +103,16 @@ class GLPane(QGLWidget, modeMixin):
     # themselves expect certain other attributes (like
     # self.default_mode, self.modetab) to be present.  This is all set
     # up and maintained by our mixin class, modeMixin. [bruce 040922]
+    #
+    # [bruce 050112 adds: the reason the glpane is central to holding
+    #  and switching a mode object might be that the mode object gets
+    #  to process most mouse events on the glpane... but it might also
+    #  be somewhat of a historical accident, since (esp. in the future)
+    #  the mode might filter some other widgets' events too, esp. some
+    #  of the operation buttons in the toolbars. Or, alternatively,
+    #  modes might turn out to often apply to specific objects displayed
+    #  in the glpane rather than to the pane as a whole. We'll see.
+    #  For now, here it is.]
 
     # constants needed by modeMixin:
     default_mode_class = selectMolsMode
@@ -112,7 +120,7 @@ class GLPane(QGLWidget, modeMixin):
     
     def __init__(self, assem, master=None, name=None, win=None):
         
-        self.win = win # bruce 040922 moved this earlier in __init__
+        self.win = win
 
         modeMixin._init1(self)
         
@@ -122,7 +130,7 @@ class GLPane(QGLWidget, modeMixin):
         paneno += 1
         self.initialised = 0
 
-        self.debug_menu = self.makemenu( self.debug_menu_items() )
+        DebugMenuMixin._init1(self) # provides self.debug_event(); needs self.makemenu()
 
         # The background color
         ### bruce 040928 thinks backgroundColor is never used from here,
@@ -551,7 +559,7 @@ class GLPane(QGLWidget, modeMixin):
         # or on the window's title bar (just one repaint); another case is when
         # you switch *out* of the app by clicking on some other app's window.
         # Guess: it's a special method name known to the superclass widget.
-        # (Presumably the QT docs spell this out... find out sometime! #k)
+        # (Presumably the Qt docs spell this out... find out sometime! #k)
 
         if not self.initialised: return
 
@@ -561,7 +569,7 @@ class GLPane(QGLWidget, modeMixin):
 
         ###e bruce 040923: I'd like to reset the OpenGL state
         # completely, here, incl the stack depths, to mitigate some
-        # bugs. How??  Note that there might be some openGL init code
+        # bugs. How??  Note that there might be some OpenGL init code
         # earlier which I'll have to not mess up. Incl displaylists in
         # drawer.setup.  What I ended up doing is just to measure the
         # stack depth and pop it 0 or more times to make the depth 1
@@ -721,93 +729,9 @@ class GLPane(QGLWidget, modeMixin):
     def makemenu(self, lis):
         return makemenu_helper(self, lis)
 
-    def debug_menu_items(self):
-        import debug
-        res = [
-            ('print self', self._debug_printself),
-            # None, # separator
-        ]
-        if debug.exec_allowed():
-            #bruce 041217 made this item conditional on whether it will work
-            res.extend( [
-                ('run py code', self._debug_runpycode),
-            ] )
-        res.extend( [
-            ('enable ATOM_DEBUG', self._debug_enable_atom_debug ),
-            ('disable ATOM_DEBUG', self._debug_disable_atom_debug ),
-        ] )
-        return res
-
-    def _debug_enable_atom_debug(self):
-        import platform
-        platform.atom_debug = 1
-    
-    def _debug_disable_atom_debug(self):
-        import platform
-        platform.atom_debug = 0
-    
-    def debug_event(self, event, funcname, permit_debug_menu_popup = 0):
-        
-        """Debugging method -- no effect on normal users.  Does two
-           things -- if a global flag is set, prints info about the
-           event; if a certain modifier key combination is pressed,
-           and if caller passed permit_debug_menu_popup = 1, puts up
-           an undocumented debugging menu, and returns 1 to caller.
-           As of 040916, the debug menu is put up by
-           Shift-Option-Command-click on the Mac, and for other OS's I
-           predict it either never happens or happens only for some
-           similar set of 3 modifier keys.
-           
-           -- bruce 040916
-        """
-        
-        # in constants.py: debugButtons = cntlButton | shiftButton | altButton
-        # on the mac, this really means command-shift-alt
-        
-        if debug_menu_enabled and permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
-            print "\n* * * fyi: got debug click, will try to put up a debug menu...\n"
-            self.do_debug_menu(event)
-            return 1 # caller should detect this and not run its usual event code...
-        if debug_events:
-            try:
-                after = event.stateAfter()
-            except:
-                after = "<no stateAfter>" # needed for Wheel events, at least
-            print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, event.state(), after, time.asctime())
-            
-        # It seems, from doc and experiments, that event.state() is
-        # from just before the event (e.g. a button press or release,
-        # or move), and event.stateAfter() is from just after it, so
-        # they differ in one bit which is the button whose state
-        # changed (if any).  But the doc is vague, and the experiments
-        # incomplete, so there is no guarantee that they don't
-        # sometimes differ in other ways.
-        # -- bruce ca. 040916
-        return 0
-
-    def do_debug_menu(self, event):
-        menu = self.debug_menu
-        self.current_event = event # (so debug commands can see it)
-        
-        # this code written from Qt/PyQt docs... note that some Atom
-        # modules use menu.exec_loop() but others use menu.popup(); I
-        # don't know for sure whether this matters here, or which is
-        # best. -- bruce ca. 040916
-        
-        menu.exec_loop(event.globalPos(), 1)
-        self.current_event = None
-        return 1
-
-    def _debug_printself(self):
-        print self
-
-    def _debug_runpycode(self):
-        from debug import debug_runpycode_from_a_dialog
-        debug_runpycode_from_a_dialog( source = "GLPane debug menu")
-        return
-
     pass # end of class GLPane
 
+# ==
 
 def povpoint(p):
     # note z reversal -- povray is left-handed
@@ -836,3 +760,5 @@ def rectgrid(o):
     glEnd()
     glEnable(GL_LIGHTING)
     glPopMatrix()
+
+# end
