@@ -170,13 +170,12 @@ class PlotTool(PlotToolDialog):
         environVb = None
         if sys.platform == 'darwin':
             aquaPath = os.path.join(os.path.normpath(filePath + '/../bin'), 'AquaTerm.app')
-	        environVb =  QStringList(QString('AQUATERM_PATH= %s' % aquaPath))
+            environVb =  QStringList(QString('AQUATERM_PATH=%s' % aquaPath))
 	 
-	        #It seems the environment variable passed to the QProcess is not working, so set it in the parent process using the Python way.      
-            os.environ['AQUATERM_PATH']=aquaPath
+	        #The other option is to set it in the parent process using the Python way, 
+	        # but the previous way is better.    
+            #os.environ['AQUATERM_PATH']=aquaPath
         
-        #It seems the environment variable passed to the QProcess is not working, so disable it.
-        environVb = None        
 
         # Make sure GNUplot executable exists
         if not os.path.exists(program):
