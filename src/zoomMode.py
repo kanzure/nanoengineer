@@ -17,7 +17,7 @@ class zoomMode(basicMode):
     
     # flag indicating when to draw the rubber band window.
     rbw = False
-    selSense = 1 # Color of rubber band window.
+    rbwcolor = navy
 
     # no __init__ method needed
     
@@ -25,7 +25,13 @@ class zoomMode(basicMode):
     
     def Enter(self):
         # Set background color to the previous mode's bg color
-        self.backgroundColor = self.o.prevModeColor
+        bg = self.backgroundColor = self.o.prevModeColor
+        
+        # Set RBW color based on brightness of bg color
+        brightness = bg[0] + bg[1] + bg[2]
+        if brightness >= 1.5: self.rbwcolor = navy
+        else: self.rbwcolor = white
+        
         basicMode.Enter(self)
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
@@ -105,8 +111,14 @@ class zoomMode(basicMode):
 
     def Draw(self):
         basicMode.Draw(self)   
-        if self.rbw: self.pickdraw() # Draw rubber band window.
+        if self.rbw: self.RBWdraw() # Draw rubber band window.
         self.o.assy.draw(self.o)
+        
+    def RBWdraw(self):
+        """Draw the rubber-band window.
+        """
+        drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
+                                 self.o.up, self.o.right, self.rbwcolor)
           
     def makeMenus(self):
         self.Menu_spec = [
