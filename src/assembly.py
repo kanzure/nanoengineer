@@ -338,9 +338,7 @@ class assembly:
     # make something selected
     def pick(self, p1, v1):
         a = self.findpick(p1, v1)
-        if a and self.selwhat: 
-            a.molecule.pick()
-#            self.w.msgbarLabel.setText( "Molecule name" + str (a.index ) + ", " + a.element.name)
+        if a and self.selwhat: a.molecule.pick()
         elif a: a.pick()
 
     # make something unselected
