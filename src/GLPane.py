@@ -570,15 +570,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         redrawing, rather than directly calling paintGL, unless it really
         knows it needs to wait until the redrawing has been finished
         (which should be very rare).
-           In the near future, this method's implementation will be changed
-        so that it can be called many times during the handling of one
-        user event, but this will cause only one call of paintGL, after
+           Unlike calling paintGL directly (which can be very slow for
+        large models, and redoes all its work each time it's called),
+        this method is ok to call many times during the handling of one
+        user event, since this will cause only one call of paintGL, after
         that user event handler has finished.
-           But for now [050127], it just calls paintGL, so it is not good
-        to call it more than once per user event handler (since paintGL
-        can be very slow for a large model).
-        #"""
-        self.paintGL()
+        """
+        # (To restore the pre-050127 behavior, it would be sufficient to
+        # change the next line from "self.update()" to "self.paintGL()".)
+        self.update()
+            # QWidget.update() method -- ask Qt to call self.paintGL()
+            # (via some sort of paintEvent to our superclass)
+            # very soon after the current event handler returns
         return
     
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
@@ -589,7 +592,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
            Sets up point of view projection, position, angle.
         Calls draw member fns for everything in the screen.
         """
-        # bruce comment 041220: besides our own calls of this function, it can
+        # bruce comment 041220: besides our own calls of this function
+        # [later: which no longer exist after 050127], it can
         # be called directly from the app.exec_loop() in atom.py; I'm not sure
         # exactly why or under what circumstances, but one case (on Mac) is when you
         # switch back into the app by clicking in the blank part of the model tree
