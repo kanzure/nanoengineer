@@ -219,7 +219,8 @@ class depositMode(basicMode):
         
         self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
         
-        self.w.zoomWindowAction.setEnabled(0) # Disable "Zoom Window"
+        self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
+        self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
 
         self.dont_update_gui = False
 
@@ -403,7 +404,8 @@ class depositMode(basicMode):
     # [mark 041004]
     def restore_gui(self):
         self.w.depositAtomDashboard.hide() # Stow away dashboard
-        self.w.zoomWindowAction.setEnabled(1) # Enable "Zoom Window"
+        self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
+        self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
 
 
     def restore_patches(self):
