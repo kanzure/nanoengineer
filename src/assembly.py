@@ -142,7 +142,14 @@ class assembly:
     # bounding boxes, do some housekeeping
 
     def addmol(self,mol):
-        mol.shakedown()
+        """(Public method:)
+        Add a chunk to this assembly.
+        Merge bboxes and update our drawlevel
+        (though there is no guarantee that mol's bbox and/or number of atoms
+        won't change again during the same user-event that's running now;
+        some code might add mol when it has no atoms, then add atoms to it).
+        """
+        self.modified = 1 #bruce 041118
         self.bbox.merge(mol.bbox)
         self.center = self.bbox.center()
         self.molecules += [mol]
@@ -218,15 +225,25 @@ class assembly:
                 self.blist[b.key]=b
         pass
 
-    # move the atoms one frame as for movie or minization
+    # move the atoms one frame as for movie or minimization
     # .dpb file is in units of 16 pm
     # units here are angstroms
     def movatoms(self, file):
         if not self.alist: return
+        ###e bruce 041104 thinks this should first check whether the
+        # molecules involved have been updated in an incompatible way
+        # (which might change the indices of atoms); otherwise crashes
+        # might occur. It might be even worse if a shakedown would run
+        # during this replaying! (This is just a guess; I haven't tested
+        # it or fully analyzed all related code, or checked whether
+        # those dangerous mods are somehow blocked during the replay.)
         for a in self.alist:
+            # (assuming mol still frozen, this will change both basepos and
+            #  curpos since they are the same object; it won't update or
+            #  invalidate other attrs of the mol, however -- ok?? [bruce 041104])
             a.molecule.basepos[a.index] += A(unpack('bbb',file.read(3)))*0.01
         for b in self.blist.itervalues():
-            b.setup()
+            b.setup_invalidate()
             
         for m in self.molecules:
             m.changeapp()
@@ -386,6 +403,7 @@ class assembly:
     def unpickatoms(self):
         if self.selatoms:
             for a in self.selatoms.itervalues():
+                # this inlines and optims atom.unpick
                 a.picked = 0
                 a.molecule.changeapp()
             self.selatoms = {}
@@ -445,31 +463,14 @@ class assembly:
             mol.rot(rot)
              
 
-    # delete whatever is selected
-    def kill(self):
-        if self.selwhat == 0 and self.selatoms:
+    def kill(self): # bruce 041118 simplified this after shakedown changes
+        "delete whatever is selected from this assembly"
+        if self.selatoms:
             self.modified = 1
-            changedMols = []
             for a in self.selatoms.values():
-                m = a.molecule
-                if m not in changedMols: changedMols += [m]
                 a.kill()
-                # note: as of 041029 a.kill also invalidates externs if necessary,
-                # which affects not only m but molecules of neighbor atoms,
-                # which means this list of changed mols is not large enough.
-                # However, I think this doesn't matter anymore, since I added
-                # code today to recompute invalid externs whenever needed.
-                # So the only mols to worry about here are the ones we remove
-                # atoms from, and these are taken care of here. [bruce 041029]
-            self.selatoms={}
-            for m in changedMols:
-                if len(m.atoms) == 0:
-                    self.killmol(m)
-                    #e (this is quadratic in number of mols, due to setDrawLevel)
-                else:
-                    m.shakedown()
-
-        if self.selwhat == 2:
+            self.selatoms = {} # should be redundant
+        if self.selwhat == 2 or self.selmols:
             self.tree.apply2picked(lambda o: o.kill())
         
         self.shelf.apply2picked(lambda o: o.kill()) # Kill anything picked in the clipboard
@@ -477,10 +478,10 @@ class assembly:
         self.setDrawLevel()
 
 
-    # actually remove a given molecule from the list
-    def killmol(self, mol):
-        mol.kill()
-        self.setDrawLevel()
+##    # actually remove a given molecule from the list [no longer used]
+##    def killmol(self, mol):
+##        mol.kill()
+##        self.setDrawLevel()
 
 
     def Hide(self):
@@ -688,6 +689,10 @@ class assembly:
         if not self.selatoms: #always wind up in part pick mode
             #self.pickParts()
             self.w.toolsSelectMolecules()
+            # (This would be bad when entering Extrude, but Extrude only calls
+            #  us when self.selatoms, so it doesn't happen then.
+            #  But it's done below, always, and I don't yet know why that
+            #  doesn't cause trouble (or maybe it does). [bruce 041116])
             return
             
         numolist=[]
@@ -695,16 +700,18 @@ class assembly:
             numol = molecule(self, mol.name + gensym("-frag"))
             for a in mol.atoms.values():
                 if a.picked:
-                    a.hopmol(numol)
                     a.unpick()
+                    a.hopmol(numol)
             if numol.atoms:
                 self.addmol(numol)
                 numolist+=[numol]
-                # need to redo the old one too, unless we removed all its atoms
-                if mol.atoms:
-                    mol.shakedown()
-                else:
-                    self.killmol(mol)
+# no longer needed as of 041116:
+##                numol.shakedown() #bruce 041104 bugfix? try selatom in depositMode on it...
+##                # need to redo the old one too, unless we removed all its atoms
+##                if mol.atoms:
+##                    mol.shakedown()
+##                else:
+##                    self.killmol(mol)
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
                     
@@ -714,6 +721,59 @@ class assembly:
         for m in numolist: m.pick()
         
         self.w.update()
+
+    def copySelatomFrags(self):
+        #bruce 041116, combining modifySeparate and mol.copy; for extrude
+        """
+           For each molecule (named N) containing any selected atoms,
+           copy the selected atoms of N to make a new molecule named N-frag
+           (which is not added to the assembly, self). The old mol N is unchanged.
+           The copy is done as if by molecule.copy (with cauterize = 1),
+           except that all bonds between selected atoms are copied, even if not in same mol.
+           Return a list of pairs of new and old molecules [(N1-frag,N1),...].
+           (#e Should we optionally return a list of pairs of new and old atoms, too?
+           And one of new bonds or singlets and old external atoms, or the equiv?)
+        """
+        oldmols = {}
+        for a in self.selatoms.values():
+            m = a.molecule
+            oldmols[id(m)] = m ###k could we use key of just m, instead??
+        newmols = {}
+        for old in oldmols.values():
+            numol = molecule(self, mol.name + "-frag")
+            newmols[id(old)] = numol # same keys as in oldmols
+        nuats = {}
+        for a in self.selatoms.values():
+            old = a.molecule
+            numol = newmols[id(old)]
+            a.info = id(a) # lets copied atoms correspond (useful??)
+            nuat = a.copy() # uses new copy method as of bruce 041116
+            numol.addatom(nuat)
+            nuats[id(a)] = nuat
+        extern_atoms_bonds = []
+        for a in self.selatoms.values():
+            assert a.picked
+            for b in a.bonds:
+                a2 = b.other(a)
+                if a2.picked:
+                    # copy the bond (even if it's a mol-mol bond), but only once per bond
+                    if id(a) < id(a2):
+                        bond_atoms(nuats[id(a)], nuats[id(a2)])
+                else:
+                    # make a singlet instead of this bond (when we're done)
+                    extern_atoms_bonds.append( (a,b) ) # ok if several times for one 'a'
+                    #e in future, might keep more info
+        for a,b in extern_atoms_bonds:
+            # compare to code in Bond.unbond(): ###e make common code
+            nuat = nuats[id(a)]
+            x = atom('X', + b.ubp(a), nuat.molecule)
+            bond_atoms(nuat, x)
+        res = []
+        for old in oldmols.values():
+            new = newmols[id(old)]
+            res.append( (new,old) )
+        return res
+        
 
     # change surface atom types to eliminate dangling bonds
     # a kludgey hack
