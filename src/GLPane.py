@@ -1,4 +1,14 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+GLPane.py -- Atom's main model view, based on Qt's OpenGL widget.
+
+BRUCE IS TEMPORARILY OWNING this file (and all mode files) for a few days starting 040922,
+in order to fix mode-related bugs by revising the interface between modes.py,
+all specific modes, and GLPane.py. During this period, please consult Bruce
+before any changes to these files.
+
+$Id$
+"""
 from qt import *
 from qtgl import *
 from OpenGL.GL import *

@@ -1,4 +1,14 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+depositMode.py
+
+BRUCE IS TEMPORARILY OWNING ALL MODE FILES for a few days starting 040922,
+in order to fix mode-related bugs by revising the interface between modes.py,
+all specific modes, and GLPane.py. During this period, please consult Bruce
+before any changes to these files.
+
+$Id$
+"""
 from Numeric import *
 from modes import *
 from VQT import *
