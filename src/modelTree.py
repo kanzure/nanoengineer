@@ -44,6 +44,7 @@ class modelTree(QListView):
         self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
         self.clipboardFullIcon = QPixmap(filePath + "/../images/clipboard-full.png")
         self.clipboardEmptyIcon = QPixmap(filePath + "/../images/clipboard-empty.png")
+        self.clipboardGrayIcon = QPixmap(filePath + "/../images/clipboard-gray.png")
         self.statIcon = QPixmap(filePath + "/../images/stat.png")
         
         self.setSorting(-1)
@@ -197,8 +198,13 @@ class modelTree(QListView):
         self.assy = self.win.assy
         self.clear()
         
-        if self.assy.shelf.members: self.assy.shelf.icon = self.clipboardFullIcon
-        else: self.assy.shelf.icon = self.clipboardEmptyIcon
+        if self.assy.shelf.members: 
+            self.assy.shelf.icon = self.clipboardFullIcon
+            self.win.editPasteAction.setIconSet(QIconSet( self.clipboardFullIcon))
+        else: 
+            self.assy.shelf.icon = self.clipboardEmptyIcon
+            self.win.editPasteAction.setIconSet(QIconSet( self.clipboardGrayIcon))
+        
         self.shelf = self.assy.shelf.upMT(self, self)
         self.assy.shelf.setProp(self)
         

@@ -461,8 +461,9 @@ class MWsemantics(MainWindow):
         self.update()
 
     def editPaste(self):
-        self.pasteP = True
-        self.glpane.setMode('DEPOSIT')
+        if self.assy.shelf.members:
+            self.pasteP = True
+            self.glpane.setMode('DEPOSIT')
 
     def editFind(self):
         print "MWsemantics.editFind(): Not implemented yet"
