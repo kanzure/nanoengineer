@@ -500,6 +500,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 self.mode.rightDrag(event)
 
         else:
+            #Huaicai: To fix bugs related to multiple rendering contexts existed in our application. See comments in mousePressEvent() for more detail.
+            self.makeCurrent()
+            
             self.mode.bareMotion(event)
 
     def wheelEvent(self, event):
