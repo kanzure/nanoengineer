@@ -1298,7 +1298,8 @@ class Bond:
             if (not at1.molecule.assy) or (not at2.molecule.assy):
                 print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r" % (at1,at2))
             elif (not at1.molecule.part) or (not at2.molecule.part): # assume false means None, maybe untrue if bugs happen
-                print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r" % (at1,at2))
+                if 0: #bruce 050321 this happens a lot when reading an mmp file, so disable it for now
+                    print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r" % (at1,at2))
             elif at1.molecule.part != at2.molecule.part:
                 print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r" % (at1,at2))
         return

@@ -308,7 +308,7 @@ class assembly:
                 node.apply2all( kids.append ) # includes node itself
                 for kid in kids:
                     assert kid.part == node.part
-                assert node.part.nodecount == len(kids)
+                assert node.part.nodecount == len(kids), "node.part.nodecount %d != len(kids) %d" % (node.part.nodecount, len(kids))
             except:
                 print "exception while checking part-related stuff about node:", node
                 raise

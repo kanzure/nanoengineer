@@ -477,7 +477,9 @@ class Part(InvalMixin):
             # just call mol.moveto when you're done, like fileIO does.   
         ## done in addchild->changed_dad->inherit_part->Part.add:
         ## self.invalidate_attrs(['natoms','molecules']) # this also invals bbox and center, via molecules
-        if platform.atom_debug:
+        #bruce 050321 disabling the following debug code, since not yet ok for all uses of _readmmp;
+        # btw does readmmp even need to call addmol anymore?? #####@@@@@ #k
+        if 0 and platform.atom_debug:
             self.assy.checkparts()
 
     def ensure_toplevel_group(self): #bruce 050228, 050309
@@ -1508,7 +1510,7 @@ class Part(InvalMixin):
             return
         numolist=[]
         for mol in self.molecules[:]: # new mols are added during the loop!
-            numol = molecule(self, gensym(mol.name + "-frag"))
+            numol = molecule(self.assy, gensym(mol.name + "-frag"))
             for a in mol.atoms.values():
                 if a.picked:
                     # leave the moved atoms picked, so still visible
@@ -1540,7 +1542,7 @@ class Part(InvalMixin):
             oldmols[id(m)] = m ###k could we use key of just m, instead??
         newmols = {}
         for old in oldmols.values():
-            numol = molecule(self, gensym(mol.name + "-frag"))
+            numol = molecule(self.assy, gensym(mol.name + "-frag"))
             newmols[id(old)] = numol # same keys as in oldmols
         nuats = {}
         for a in self.selatoms.values():
