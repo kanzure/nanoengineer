@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Oct 11 12:24:01 2004
+# Created: Mon Oct 11 13:17:00 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7587,7 +7587,7 @@ class MainWindow(QMainWindow):
         self.modifyWeldMoleculeAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,294,30,434))
+        self.toolsToolbar.setGeometry(QRect(0,294,30,441))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
@@ -7598,6 +7598,7 @@ class MainWindow(QMainWindow):
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
         self.toolsRevolveAction.addTo(self.toolsToolbar)
+        self.toolsToolbar.addSeparator()
         self.toolsMirrorAction.addTo(self.toolsToolbar)
         self.toolsMirrorCircularBoundaryAction.addTo(self.toolsToolbar)
         self.toolsToolbar.addSeparator()
@@ -7744,7 +7745,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,926).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,929).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)

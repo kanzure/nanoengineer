@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>926</height>
+            <height>929</height>
         </rect>
     </property>
     <property name="caption">
@@ -596,7 +596,7 @@
                 <x>0</x>
                 <y>294</y>
                 <width>30</width>
-                <height>434</height>
+                <height>441</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -618,6 +618,7 @@
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <action name="toolsRevolveAction"/>
+        <separator/>
         <action name="toolsMirrorAction"/>
         <action name="toolsMirrorCircularBoundaryAction"/>
         <separator/>
