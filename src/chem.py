@@ -96,14 +96,19 @@ class elem:
         self.mass = m
         self.rvdw = rv
         self.rcovalent = bn and bn[0][1]/100.0
-            # bruce 041216 comment:
-            # this is None for nonbonding elements like Helium, but most bonding
-            # code will fail unless it's a number, so it's necessary to avoid
-            # ever making a bond to a nonbonding element.
+        if not self.rcovalent:
+            self.rcovalent = 0.0
+        # (Note: rcovalent used to be None for nonbonding elements like Helium,
+        # which made most uses of it errors (e.g. when drawing bonds to Helium).
+        # Once we decided such bonds should be allowed to exist, we made it act
+        # like 0.0 in the drawing code, then replaced that with this more
+        # general change to 0.0, hoping to avoid possible other (hypothetical)
+        # bugs. As far as I know this is ok, but I have not fully analyzed every
+        # possible consequence of this change. [bruce 041217])
         self.bonds = bn
         self.numbonds = bn and bn[0][0]
         self.base = None
-        self.quats = []
+        self.quats = [] # ends up one shorter than self.numbonds [bruce 041217]
         if bn and bn[0][2]:
             s = bn[0][2][0]
             self.base = s
@@ -1455,11 +1460,10 @@ class Bond:
         vec = self.a2pos - self.a1pos
         leng = 0.98 * vlen(vec)
         vec = norm(vec)
-        # don't crash for Helium, etc (whose rcovalent is None), just consider
-        # the entire bond to be too long (since it's a bug to make it)
-        # [bruce 041216]
-        rcov1 = (self.atom1.element.rcovalent or 0.0)
-        rcov2 = (self.atom2.element.rcovalent or 0.0)
+        # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
+        #  etc, so the entire bond is drawn as if "too long".)
+        rcov1 = self.atom1.element.rcovalent
+        rcov2 = self.atom2.element.rcovalent
         self.c1 = self.a1pos + vec*rcov1
         self.c2 = self.a2pos - vec*rcov2
         self.toolong = (leng > rcov1 + rcov2)
