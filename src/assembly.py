@@ -327,10 +327,12 @@ class assembly:
         distance=1000000
         atom=None
         for mol in self.molecules:
+            disp = self.o.display
             if mol.display == diINVISIBLE and not iInv: continue
+            if mol.display != diDEFAULT: disp = mol.display
             for a in mol.atoms.itervalues():
                 if a.display == diINVISIBLE and not iInv: continue
-                dist = a.checkpick(p1, v1, r, iPic)
+                dist = a.checkpick(p1, v1, disp, r, iPic)
                 if dist:
                     if dist<distance:
                         distance=dist

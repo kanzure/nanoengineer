@@ -338,14 +338,15 @@ class atom:
                        povpoint(color) + ")\n")
 
 
-    def checkpick(self, p1, v1, r=None, iPic=None):
+    def checkpick(self, p1, v1, disp, r=None, iPic=None):
         """check if the line through point p1 in direction v1
         goes through the atom (defined as a sphere 70% its vdW radius)
         This is a royal kludge, needs to be replaced by something
         that uses the screen representation
         """
         if self.element == Singlet: return None
-        if not r: r=self.element.rvdw*0.7
+        if not r:
+            disp, r = self.howdraw(disp)
         if self.picked and not iPic: return None
         dist, wid = orthodist(p1, v1, self.posn())
         if wid > r: return None
@@ -604,13 +605,8 @@ class bond:
 # Huaicai: It's completely possible to create a molecule without any atoms,
 # so don't assume it always has atoms.   09/30/04
 class molecule(Node):
-    def __init__(self, assembly, nam=None):
-        self.assy = assembly
-        # name doesn't get used yet, except as a comment
-        # in mmp file output, but could be used to name
-        # separate molecule files
-        if nam: self.name = nam
-        else: self.name = gensym("Part")
+    def __init__(self, assembly, nam=None, dad=None):
+        Node.__init__(self, assembly, dad, nam or gensym("Mol"))
         # atoms in a dictionary, indexed by atom.key
         self.atoms = {}
         # motors, grounds
