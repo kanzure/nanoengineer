@@ -77,7 +77,7 @@
     <keyword ref="./keyboardaccelerators.htm">shortcuts</keyword>
     </section>
     <section ref="./modeltreepic.htm" title="Model Tree Navigation">
-    <keyword ref="./modeltreepic.htm.htm">model tree</keyword>
+    <keyword ref="./modeltreepic.htm">model tree</keyword>
     </section>    
     <section ref="./mmpformat.htm" title="Molecular Machine Part (MMP) Format">
     <keyword ref="./mmpformat.htm">Molecular Record</keyword>
