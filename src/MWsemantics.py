@@ -186,6 +186,7 @@ class MWsemantics(MainWindow):
 
     def fileClear(self):
         self.__clear()
+        self.modelTreeView.updateModelTree()
         self.glpane.paintGL()
 
 
@@ -199,6 +200,8 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
     def __clear(self):
+        global assyList
+        del assyList[:]
         self.assy = assembly(self, "Empty")
         self.glpane.setAssy(self.assy)
 
