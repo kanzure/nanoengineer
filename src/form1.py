@@ -91,7 +91,7 @@ class Form1(QMainWindow):
 
         self.UBondall = QPushButton(self.groupBox1,"UBondall")
         self.UBondall.setGeometry(QRect(20,340,80,24))
-        self.UBondall.setText(self.trUtf8("Unbond (all)"))
+        self.UBondall.setText(self.trUtf8("Axis"))
 
         self.UBondedge = QPushButton(self.groupBox1,"UBondedge")
         self.UBondedge.setGeometry(QRect(20,380,90,24))
@@ -910,9 +910,10 @@ class Form1(QMainWindow):
     def bondEdge(self):
         print "Form1.bondEdge(): Not implemented yet"
 
-    # break all bonds between selected atoms
+    # (stolen button) turn on or off the axis icon
     def ubondAll(self):
-        print "Form1.ubondAll(): Not implemented yet"
+        self.glpane.drawAxisIcon = not self.glpane.drawAxisIcon
+        self.glpane.paintGL()
 
     # break bonds between selected and unselected atoms
     def ubondEdge(self):

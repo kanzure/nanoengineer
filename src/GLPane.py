@@ -3,6 +3,7 @@ from qtgl import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
+from OpenGL.GLE import *
 import math
 from math import asin
 
@@ -45,6 +46,9 @@ class GLPane(QGLWidget):
 
         # Current coordinates of the mouse.
         self.MousePos = V(0,0)
+
+        # the little corner axis icon
+        self.drawAxisIcon = 1
 
         # point of view, and half-height of window in Angstroms
         self.pov = V(0.0, 0.0, 0.0)
@@ -343,8 +347,13 @@ class GLPane(QGLWidget):
         glClearColor(c[0], c[1], c[2], 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
+
+        if self.drawAxisIcon: self.drawarrow(aspect)
+        
         vdist = 6.0 * self.scale
         if self.ortho:
             glOrtho(-self.scale*aspect, self.scale*aspect,
@@ -356,7 +365,7 @@ class GLPane(QGLWidget):
                       vdist*self.near, vdist*self.far)
 
         glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+
         glTranslatef(0.0, 0.0, - vdist)
 
         q = self.quat
@@ -370,6 +379,27 @@ class GLPane(QGLWidget):
         if self.assy: self.assy.draw(self)
         glFlush()                           # Tidy up
         self.swapBuffers()
+
+    def drawarrow(self, aspect):
+        glOrtho(-50*aspect, 5*aspect, -50, 5,  -5, 5)
+        q = self.quat
+        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+        glEnable(GL_COLOR_MATERIAL)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        glDisable(GL_CULL_FACE)
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
+        glePolyCone([[-1,0,0], [0,0,0], [4,0,0], [3,0,0], [5,0,0], [6,0,0]],
+                    [[0,0,0], [1,1,1], [0,1,0], [1,0,0], [1,0,0], [0,0,0]],
+                    [.3,.3,.3,1,0,0])
+        glePolyCone([[0,-1,0], [0,0,0], [0,4,0], [0,3,0], [0,5,0], [0,6,0]],
+                    [[0,0,0], [1,1,1], [1,0,0], [0,0,1], [0,0,1], [0,0,0]],
+                    [.3,.3,.3,1,0,0])
+        glePolyCone([[0,0,-1], [0,0,0], [0,0,4], [0,0,3], [0,0,5], [0,0,6]],
+                    [[0,0,0], [1,1,1], [0,0,1], [0,1,0], [0,1,0], [0,0,0]],
+                    [.3,.3,.3,1,0,0])
+        glEnable(GL_CULL_FACE)
+        glDisable(GL_COLOR_MATERIAL)
+        glLoadIdentity()
 
     def griddraw(self, *dummy):
         """This finction is replaced with whatever grid-drawing
