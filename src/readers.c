@@ -1,3 +1,4 @@
+// Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

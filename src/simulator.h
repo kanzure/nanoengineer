@@ -1,3 +1,4 @@
+// Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
 
 #if 0
 #define DBGPRINTF(x...) fprintf(stderr, ## x)
