@@ -976,9 +976,9 @@ class basicMode(anyMode):
 
     # the old key event API (for modes which don't override keyPressEvent etc)
     
-    def keyPress(self,key): # depositMode replaces this, other modes extend it
+    def keyPress(self,key): # several modes extend this method, some might replace it
         if key == Qt.Key_Delete:
-            print "mode.keyPress: calling killDo()"
+            ## print "mode.keyPress: calling killDo()"
             self.w.killDo()
         return
     
