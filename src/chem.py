@@ -692,7 +692,7 @@ class molecule:
 
         if self.picked:
             drawlinelist(PickedColor, self.bbLines)
-            drawddhh(red,self.ddhh)
+            #drawddhh(red,self.ddhh)
 
         if self.display != diDEFAULT: disp = self.display
         else: disp = o.display
