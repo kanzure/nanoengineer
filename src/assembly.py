@@ -423,13 +423,17 @@ class assembly:
         if self.selwhat==0: return
         new = Group(gensym("Copy"),self,None)
         self.tree.apply2picked(lambda(x): x.moveto(new))
+        
         if new.members:
-            if len(new.members)==1:
-                new = new.members[0]
-            self.shelf.addmember(new)
-            new.pick()
+            for ob in (new.members):
+                self.shelf.addmember(ob) # add new member(s) to the clipboard
+                # if the new member is a molecule, move the center a little.
+                if isinstance(ob, molecule): ob.move(-ob.center)
+            ob.pick()
+
         self.modified = 1
         self.w.update()
+
 
     # copy any selected parts (molecules)
     #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
