@@ -11,10 +11,10 @@ diINVISIBLE = 1
 diLINES = 2
 diCPK = 3
 diTUBES = 4
-diCOVALENT = 5
+diMIXED = 5
 diVDW = 6
 
-dispNames = ["def", 'nil', "lin", 'cpk', 'tub', 'cov', 'vdw']
+dispNames = ["def", 'nil', "lin", 'cpk', 'tub', 'mix', 'vdw']
 
 TubeRadius = 0.3
 
