@@ -1482,6 +1482,7 @@ class Bond:
                 if not (v1 and v2):
                     drawsphere(black, self.center, TubeRadius, level)
             else:
+                #print "In Draw(), the 4 points are: ", self.a1pos, self.c1, self.c2, self.a2pos    
                 drawcylinder(red, self.c1, self.c2, TubeRadius)
                 if v1:
                     drawcylinder(color1, self.a1pos, self.c1, TubeRadius)
@@ -1501,48 +1502,53 @@ class Bond:
     #  note that I have changed self.center and added self.toolong; see
     #  self.draw() for details. -- bruce 041112 ###e]
     def writepov(self, file, dispdef, col):
+        ##Huaicai 1/6/05: Remove some redundant code and fix bug ##227   
         disp=max(self.atom1.display, self.atom2.display)
         if disp == diDEFAULT: disp= dispdef
-        color1 = self.atom1.element.color * V(1,1,-1)
-        color2 = self.atom2.element.color * V(1,1,-1)
-        a1pos = self.atom1.posn()
-        a2pos = self.atom2.posn()
-        vec = a2pos - a1pos
-        len = 0.98 * vlen(vec)
-        c1 = a1pos + vec*self.atom1.element.rcovalent
-        c2 = a2pos - vec*self.atom2.element.rcovalent
+        #color1 = self.atom1.element.color * V(1,1,-1)
+        #color2 = self.atom2.element.color * V(1,1,-1)
+        color1 = col or self.atom1.element.color
+        color2 = col or self.atom2.element.color
+        
+        ##a1pos = self.atom1.posn()
+        ##a2pos = self.atom2.posn()
+        ##vec = a2pos - a1pos
+        ##len = 0.98 * vlen(vec)
+        ##c1 = a1pos + vec*self.atom1.element.rcovalent
+        ##c2 = a2pos - vec*self.atom2.element.rcovalent
         # This conditional should change to account for compressed bonds.  Mark [041215]
-        if len > self.atom1.element.rcovalent + self.atom2.element.rcovalent:
-            center = None
-        else:
-            center = (c1 + c2) /2.0
+        ##if len > self.atom1.element.rcovalent + self.atom2.element.rcovalent:
+          ##  center = None
+        ##else:
+          ##  center = (c1 + c2) /2.0
         
         if disp<0: disp= dispdef
         if disp == diLINES:
-            file.write("line(" + povpoint(a1pos) +
-                       "," + povpoint(a2pos) + ")\n")
+            file.write("line(" + povpoint(self.a1pos) +
+                       "," + povpoint(self.a2pos) + ")\n")
         if disp == diCPK:
-            file.write("bond(" + povpoint(a1pos) +
-                       "," + povpoint(a2pos) + ")\n")
+            file.write("bond(" + povpoint(self.a1pos) +
+                       "," + povpoint(self.a2pos) + ")\n")
         if disp == diTUBES:
             # The conditional below has a problem when we have a compressed bond. 
             # Center will will be non-zero value and a red tube will be drawn.
             # We end up with red tubes rendered on top of the normal tube (bond).
             # Fix for beta.  Mark [041215]
-            if center:
-                file.write("tube2(" + povpoint(a1pos) +
+            #print "In writepov(), the 4 points are: ", self.a1pos, self.c1, self.c2, self.a2pos
+            if not self.toolong:
+                file.write("tube2(" + povpoint(self.a1pos) +
                            "," + povpoint(color1) +
-                           "," + povpoint(center) + "," +
-                           povpoint(a2pos) + "," +
+                           "," + povpoint(self.center) + "," +
+                           povpoint(self.a2pos) + "," +
                            povpoint(color2) + ")\n")
             else:
                 # Switched points c1 and c2.  This still has problems with compressed bonds.
                 # Maybe even with stretched bonds, but a couple tests looked OK.  Mark [041215]
-                file.write("tube1(" + povpoint(a1pos) +
+                file.write("tube1(" + povpoint(self.a1pos) +
                            "," + povpoint(color1) +
-                           "," + povpoint(c2) + "," +
-                           povpoint(c1) + "," + 
-                           povpoint(a2pos) + "," +
+                           "," + povpoint(self.c1) + "," +
+                           povpoint(self.c2) + "," + 
+                           povpoint(self.a2pos) + "," +
                            povpoint(color2) + ")\n")
 
     def __str__(self):

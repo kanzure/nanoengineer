@@ -403,7 +403,7 @@ def writepov(assy, filename):
     atnums['NUM'] = 0
     assy.alist = []
 
-    cdist = 5.0 # Camera distance
+    cdist = 6.0 ###5.0 # Camera distance
     zfactor = 0.4 # zoom factor
     up = V(0.0, zfactor, 0.0)
     right = V(1.33 * zfactor, 0.0, 0.0)
@@ -422,11 +422,30 @@ def writepov(assy, filename):
     f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color Gray40 parallel\n}\n")
     f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color Gray40 parallel\n}\n")
     
+    eyePos = cdist * assy.o.scale*assy.o.out-assy.o.pov
     # Camera info
-    f.write("\ncamera {\n  location " + povpoint(cdist * assy.o.scale*assy.o.out-assy.o.pov) + "\n  up " + povpoint(up) + "\n  right " + povpoint(right) + "\n  sky " + povpoint(assy.o.up) + "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
+    f.write("\ncamera {\n  location " + povpoint(eyePos)  + "\n  up " + povpoint(up) + "\n  right " + povpoint(right) + "\n  sky " + povpoint(assy.o.up) + "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
+ 
+    # write a union object, which encloses all following objects, so it's 
+    # easier to set a global modifier like "Clipped_by" for all objects
+    # Huaicai 1/6/05
+    f.write("\nunion {\t\n") ##Head of the union object
  
     # Write atoms and bonds in the part
     assy.tree.writepov(f, assy.o.display)
+    
+    farPos = -cdist*assy.o.scale*assy.o.out*assy.o.far + eyePos
+    nearPos = -cdist*assy.o.scale*assy.o.out*assy.o.near + eyePos
+    
+    pov_out = (assy.o.out[0], assy.o.out[1], -assy.o.out[2])
+    pov_far =  (farPos[0], farPos[1], -farPos[2])
+    pov_near =  (nearPos[0], nearPos[1], -nearPos[2])
+    #nearDir = -assy.o.out
+    pov_in = (-assy.o.out[0], -assy.o.out[1], assy.o.out[2])
+    
+    f.write("clipped_by { plane { " + povpoint(-assy.o.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
+    f.write("                    plane { " + povpoint(assy.o.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
+    f.write("}\n\n")  
 
     f.close()
     

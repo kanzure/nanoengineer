@@ -313,9 +313,9 @@ class MWsemantics(MainWindow):
                 2 )     # Escape == button 2
             
             if ret==0: # Save clicked or Alt+S pressed or Enter pressed.
-                self.fileSave()
-                ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action
-                #self.__clear() # Clear the part - we're loading a new file.
+                ##Huaicai 1/6/05: If user canceled save operation, return 
+                ## without letting user open another file
+                if not self.fileSave(): return
                 
             ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
             elif ret==1: pass#self.__clear() 
@@ -360,9 +360,15 @@ class MWsemantics(MainWindow):
             self.mt.update()
 
     def fileSave(self):
+        #Huaicai 1/6/05: by returning a boolean value to say if it is really 
+        # saved or not, user may choose "Cancel" in the "File Save" dialog          
         if self.assy:
-            if self.assy.filename: self.saveFile(self.assy.filename)
-            else: self.fileSaveAs()
+            if self.assy.filename: 
+                self.saveFile(self.assy.filename)
+                return True
+            else: 
+                return self.fileSaveAs()
+
 
     def fileSaveAs(self):
         if self.assy:
@@ -375,7 +381,7 @@ class MWsemantics(MainWindow):
                 sdir = globalParms['WorkingDirectory']
         else:
             self.statusBar.message( "Save Ignored: Part is currently empty." )
-            return
+            return False
 
         if ext == ".pdb": sfilter = QString("Protein Data Bank (*.pdb)")
         else: sfilter = QString("Molecular machine parts (*.mmp)")
@@ -405,9 +411,13 @@ class MWsemantics(MainWindow):
 
                     if ret==1: # The user cancelled
                         self.statusBar.message( "Cancelled.  Part not saved." )
-                        return # Cancel clicked or Alt+C pressed or Escape pressed
+                        return False # Cancel clicked or Alt+C pressed or Escape pressed
             
             self.saveFile(safile)
+            return True
+            
+        else: return False ## User canceled.
+            
 
     def saveFile(self, safile):
         
@@ -486,8 +496,12 @@ class MWsemantics(MainWindow):
                 2 )     # Escape == button 2
 
         if rc == 0:
-            self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
-            ce.accept()
+            isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            ##Huaicai 1/6/05: While in the "Save File" dialog, if user chooses ## "Cancel", the "Exit" action should be ignored. bug 300
+            if isFileSaved:
+                ce.accept()
+            else:
+                ce.ignore()
         elif rc == 1:
             ce.accept()
         else:
@@ -500,6 +514,7 @@ class MWsemantics(MainWindow):
     #    self.update()
 
     def fileClose(self):
+        isFileSaved = True
         if self.assy.modified:
             ret = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
@@ -508,11 +523,13 @@ class MWsemantics(MainWindow):
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
-            if ret==0: self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            if ret==0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
             elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
+        
+        if isFileSaved: 
+                self.__clear()
+                self.update()
 
-        self.__clear()
-        self.update()
 
     def fileSetWorkDir(self):
         """ Sets working directory (need dialogue window) """
