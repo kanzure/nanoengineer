@@ -21,7 +21,7 @@ from constants import *
 from qt import *
 from Utility import *
 from MoleculeProp import *
-from debug import print_compact_stack
+from debug import print_compact_stack, print_compact_traceback
 
 CPKvdW = 0.25
 
@@ -891,31 +891,55 @@ class molecule(Node):
         else:
             glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
 
-            drawn = {}
+            # bruce 041028 -- protect against exceptions while making display
+            # list, or OpenGL will be left in an unusable state (due to the lack
+            # of a matching glEndList) in which any subsequent glNewList is an
+            # invalid operation. (Also done in shape.py; not needed in drawer.py.)
+            try:
+                self.draw_displist(o, disp)
+            except:
+                print_compact_traceback("exception in molecule.draw_displist ignored: ")
+            glEndList()
+            self.havelist = 1 # always set this flag, even if exception happened,
+            # so it doesn't keep happening with every redraw of this molecule.
+            #e (in future it might be safer to remake the display list to contain
+            # only a known-safe thing, like a bbox and an indicator of the bug.)
+            
+        glPopMatrix()
 
-            self.externs = []
+        for bon in self.externs:
+            bon.draw(o, disp, self.color, self.assy.drawLevel)
+        return # from molecule.draw()
 
-            for atm in self.atoms.itervalues():
+    def draw_displist(self, glpane, disp): #bruce 041028 split this out of molecule.draw
+
+        drawLevel = self.assy.drawLevel
+        drawn = {}
+        self.externs = []
+        
+        for atm in self.atoms.itervalues():
+            try:
                 # bruce 041014 hack for extrude -- use colorfunc if present
                 try:
                     color = self.colorfunc(atm)
                 except: # no such attr, or it's None, or it has a bug
                     color = self.color
-                # end bruce hack, except for use of color rather than self.color in atm.draw
-                atm.draw(o, disp, color, self.assy.drawLevel)
+                # end bruce hack, except for use of color rather than
+                # self.color in atm.draw (but not in bon.draw -- good??)
+                atm.draw(glpane, disp, color, drawLevel)
                 for bon in atm.bonds:
                     if bon.key not in drawn:
                         if bon.other(atm).molecule != self:
                             self.externs += [bon]
                         else:
                             drawn[bon.key] = bon
-                            bon.draw(o, disp, self.color, self.assy.drawLevel)
-            glEndList()
-            self.havelist = 1
-        glPopMatrix()
-
-        for bon in self.externs:
-            bon.draw(o, disp, self.color, self.assy.drawLevel)
+                            bon.draw(glpane, disp, self.color, drawLevel)
+            except:
+                # [bruce 041028 general workaround to make bugs less severe]
+                # exception in drawing one atom. Ignore it and try to draw the
+                # other atoms. #e In future, draw a bug-symbol in its place.
+                print_compact_traceback("exception in drawing one atom or bond ignored: ")
+        return # from molecule.draw_displist()
 
     def writemmp(self, atnums, alist, f):
         disp = dispNames[self.display]

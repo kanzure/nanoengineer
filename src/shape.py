@@ -368,21 +368,28 @@ class shape:
             glCallList(self.displist)
             return
         glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
-        bblo, bbhi = self.bbox.data[1], self.bbox.data[0]
-        self.bbox.draw()
+        try:
+            bblo, bbhi = self.bbox.data[1], self.bbox.data[0]
+            self.bbox.draw()
 
-        griderator = genDiam(bblo, bbhi)
-        pp=griderator.next()
-        while (pp):
-            if self.isin(pp[0]):
-                if self.isin(pp[1]):
-                    drawcylinder(gray,pp[0], pp[1], 0.2)
-                else: drawcylinder(gray,pp[0], (pp[1]+pp[0])/2, 0.2)
-            elif self.isin(pp[1]):
-                drawcylinder(gray, (pp[1]+pp[0])/2, pp[1], 0.2)
+            griderator = genDiam(bblo, bbhi)
             pp=griderator.next()
+            while (pp):
+                if self.isin(pp[0]):
+                    if self.isin(pp[1]):
+                        drawcylinder(gray,pp[0], pp[1], 0.2)
+                    else: drawcylinder(gray,pp[0], (pp[1]+pp[0])/2, 0.2)
+                elif self.isin(pp[1]):
+                    drawcylinder(gray, (pp[1]+pp[0])/2, pp[1], 0.2)
+                pp=griderator.next()
+        except:
+            # bruce 041028 -- protect against exceptions while making display
+            # list, or OpenGL will be left in an unusable state (due to the lack
+            # of a matching glEndList) in which any subsequent glNewList is an
+            # invalid operation. (Also done in chem.py; see more comments there.)
+            print "exception in shape.draw's displist ignored" #e print traceback?
         glEndList()
-        self.havelist = 1
+        self.havelist = 1 # always set this flag, even if exception happened.
 
     def select(self, assy):
         """Loop thru all the atoms that are visible and select any
