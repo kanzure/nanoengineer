@@ -145,7 +145,7 @@ class MWsemantics(MainWindow):
         #   a new file in it for each session, that will be a good-
         #   enough test.
 
-        self.tmpFilePath = os.path.normpath(os.path.expanduser("~/nanorex/"))
+        self.tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/"))
         if not os.path.exists(self.tmpFilePath):
            try :
               os.mkdir(self.tmpFilePath)
