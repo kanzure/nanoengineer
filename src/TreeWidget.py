@@ -122,7 +122,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 # (also we're not checking for still being in column 0, just assuming that)
             elif x_past_openclose > 2: #e might need to adjust this cutoff (btw it's a bit subjective)
                 part = 'icon'
-            elif x_past_openclose > -12 and item.isExpandable(): #k method name, semantics
+            elif (x_past_openclose > -12) and item.isExpandable(): #k method name, semantics
                 ###e surely need to adjust this; depends on desired size of "click area" around openclose
                 part = 'openclose'
             elif vpos.x() >= col0_left_x:
@@ -130,6 +130,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
             else:
                 part = item = None # to the left of column 0 (not currently possible I think)
             pass
+        else:
+            col0_left_x = x_past_openclose = -1000 # debug kluge
+
+        print "mouse press on %r, part %r, from x %r, x_past_openclose %r, and borders reltothat of %r" % (
+                item, part, vpos.x(), x_past_openclose, (col0_left_x, -12, 2, 22) ) ####@@@@
+        if item:
+            print "item.isExpandable() =", item.isExpandable()
+            print "item.object.name =",item.object.name
         
         # If this click's data differs from the prior one, this event shouldn't
         # be counted as a double click. Or the same, if too much time passed since prior click,
@@ -174,6 +182,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         mode = self.win.glpane.mode
         if not isinstance(mode, selectMode):
             return
+        assy = self.assy
         if assy.selatoms and isinstance( mode, selectMolsMode):
             self.win.toolsSelectAtoms() ###k check tool name - this case not needed by treewidget
         elif assy.selmols and isinstance( mode, selectAtomsMode):
@@ -208,6 +217,17 @@ class TreeWidget(TreeView, DebugMenuMixin):
         but = event.stateAfter()
         but = self.fix_buttons(but, 'press')
 
+        # figure out modifier (not stored, just used here & passed to subrs)
+        # (option/alt key (mac) aka midButton (other platforms) is used separately below)
+        if (but & (shiftButton|cntlButton)) == (shiftButton|cntlButton):
+            modifier = 'ShiftCntl'
+        elif but & shiftButton:
+            modifier = 'Shift'
+        elif but & cntlButton:
+            modifier = 'Cntl'
+        else:
+            modifier = None
+
         # Now check for various user commands, performing the first one that applies,
         # and doing whatever inval or update is needed within the tree widget itself,
         # but not necessarily all needed external updates (some of these are done
@@ -215,7 +235,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         # handle context menu request.
         
-        if but & rightButton:
+        if but & rightButton:  # regardless of other modifier keys (unlike Mac - change this?)
             # This means we want a context menu, for the given item
             # (regardless of which part of it we clicked on (even openclose or left)!),
             # or for a set of selected items which it's part of
@@ -244,31 +264,33 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #   if some of it is a fixed label or addendum... to implem that,
         #   just call item.setText first, within the subroutine.)
 
-        # (for now, this is done for middle click too, and it ignores modifier keys)
-        if dblclick and part == 'text':
+        if dblclick and part == 'text' and not modifier: # but midButton will also do this, for now
             # presumably the first click selected this item... does this matter?? #k
-            # BTW it would not be true if this was a Control-double-click!
+            # BTW it would not be true if this was a Control-double-click! This is not allowed now.
             # If we wanted to be paranoid, we'd return unless the modkeys and button
-            # were identical with the saved prior click (and were null)... #e do that now? ###@@@
+            # were identical with the saved prior click... #e
             col = 0
             return self.maybe_beginrename( item, vpos, col)
 
         # what's left?
         # - selection.
         # - drag-starting, whether for d&d or (saved for later #e) a selection range or rect.
-        # - hover behaviors (tooltip, cmenu) (saved for later. #e)
-        #####@@@@ need code to save event info for drag-starting ###@@@ merge with selection_click, elsewhere
+        # - hover behaviors (tooltip with help info or longer name; cmenu) (saved for later. #e)
+        #####@@@@ need code to save event info for drag-starting
 
         # handle selection-click, and/or start of a drag
         # (we can't in general distinguish these until more events come)
 
-        if dblclick:
-            # Too likely this 2nd click was a mistake -- let the first click handle
-            # it alone. (This only matters for Control-click, which toggles selection,
-            # once the feature of discarding dblclick flag when item/part
-            # changed is implemented.)
-            return
+##        if dblclick:
+##            # Too likely this 2nd click was a mistake -- let the first click handle
+##            # it alone. (This only matters for Control-click, which toggles selection,
+##            # once the feature of discarding dblclick flag when item/part
+##            # changed is implemented.)
+##            return
 
+        # after this point, double click acts just like two single clicks
+        # (since dblclick flag is ignored).
+        
         # if buttons are not what we expect, return now (thus avoiding bad effects
         # from some possible bugs in the above code)
         allButtons = (leftButton|midButton|rightButton)
@@ -279,19 +301,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         drag_should_copy = but & midButton # standard for Mac; don't know about others
         drag_type = (drag_should_copy and 'copy') or 'move'
 
-        # set modifier (not stored, just passed) as for the old code's select() routine
-        if but & (shiftButton|cntlButton):
-            modifier = 'ShiftCntl'
-        elif but & shiftButton:
-            modifier = 'Shift'
-        elif but & cntlButton:
-            modifier = 'Cntl'
-        else:
-            modifier = None
-
         self.selection_click( item, # might be None
                               modifier = modifier,
-                              group_select_kids = (part == 'icon'), ##k ok? nim anyway ###@@@ must fix for cmenu
+                              group_select_kids = (part == 'icon'), ##k ok? could we use dblclick to mean this??
                               permit_drag_type = drag_type )
             # note: the same selection_click method, called differently,
             # also determines the selection for context menus.
@@ -478,15 +490,17 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         # warning: in future the pick and unpick methods we're calling here
         # might call incremental updaters back in this module or treeview!
+
+        ###DOC - comments below are WRONG, they're from before group_select_kids option was honored ####@@@@
         
         if modifier == 'ShiftCntl': # bruce 050124 new behavior [or use Option key? #e]
             # toggle the sel state of the clicked item ONLY (no effect on members);
             # noop if no item.
             if item:
                 if item.object.picked:
-                    item.object.unpick_top() # group_select_kids = False
+                    self.unpick( item, group_select_kids = group_select_kids)
                 else:
-                    item.object.pick_top()
+                    self.pick( item, group_select_kids = group_select_kids)
         elif modifier == 'Cntl':
             # unselect the clicked item (and all its members); noop if no item.
             if item:
@@ -669,21 +683,47 @@ class TreeWidget(TreeView, DebugMenuMixin):
         usual = super.debug_menu_items(self)
             # list of (text, callable) pairs, None for separator
         ours = [
-                ("reload TreeWidget.py", self._reload_TreeWidget),
-                ("reload modelTree.py", self._reload_modelTree), ###@@@ mnove to subclass?
+                ("reload modules and remake widget", self._reload_and_remake),
                 ("(treewidget instance created %s)" % self._init_time, lambda x:None, 'disabled'),
                 ]
         ours.append(None)
         ours.extend(usual)
         return ours
 
-    def _reload_this_module(self): ####@@@@ revise for my having split the modules, maybe move some to subclass...
-        """reload this module, and replace the existing tree widget
-        with a new one made from the new module"""
+    def _reload_and_remake(self):  ###@@@ untested, and needs rewriting to let subclass help with the details...
+        """reload all necessary modules (not just this one), and replace the existing tree widget
+        (an instance of some subclass of this class)
+        with a new one made using the reloaded modules
+        """
         # for now we might just plop the new one over the existing one! hope that works.
-        print "\n_reload_this_module (modelTree.py I assume)"
-        import modelTree
-        reload(modelTree)
+        print "_reload_this_module... i mean all needed modules for the tree widget, and remake it..."
+
+        # figure out which modules to reload. The ones of the classes...
+        print "finding modules we should reload, innermost first:"
+        class1 = self.__class__
+        ## print "class:",class1
+        bases = class1.__bases__ # base classes (tuple), not including class1 - this is not the superclass list!
+        ## print "bases:",bases
+        # there is some method to get supers, but for now let's be quick and simple
+        classes = [class1]
+        while bases: # loop on class1 and bases; we've already included class1 in our list
+            from TreeView import TreeView
+            if class1 == TreeView:
+                break # beyond that we get things whose modules print as:
+                      # constants (lots of times), sip, and __builtin__
+            super = bases[0] # ignore mixins, if any
+            classes.append(super)
+            class1 = super
+            bases = class1.__bases__
+        modulenames = map( lambda c: c.__module__, classes ) # __module__ is misnamed, it's only a module name
+        modules = map( lambda n: sys.modules[n], modulenames )
+        print "module names:", modulenames
+        print "reloading all these %d modules, outermost first" % len(modules)
+        modules.reverse()
+        for mod in modules:
+            print "reloading",mod
+            reload(mod)
+        print "now remaking the model tree widget" #e should let subclass give us these details...
         from modelTree import modelTree
         # figure out where we are
         splitter = self.parent()
@@ -700,8 +740,6 @@ class TreeWidget(TreeView, DebugMenuMixin):
         print "done reloading... I guess"
         win.history.message( "reloaded model tree, init time %s" % win.mt._init_time)
         return
-
-    _reload_TreeWidget = _reload_modelTree = _reload_this_module ####@@@@
 
     pass # end of class TreeWidget
 
