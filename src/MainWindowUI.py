@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Mar 10 00:52:15 2005
+# Created: Fri Mar 11 12:33:56 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5596,6 +5596,7 @@ class MainWindow(QMainWindow):
         self.simPlotToolAction = QAction(self,"simPlotToolAction")
         self.simPlotToolAction.setEnabled(1)
         self.simPlotToolAction.setIconSet(QIconSet(self.image111))
+        self.dispLightingAction = QAction(self,"dispLightingAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -5648,7 +5649,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,701,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,640,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -5773,7 +5774,7 @@ class MainWindow(QMainWindow):
         self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,284,30,248))
+        self.toolsToolbar.setGeometry(QRect(0,284,30,188))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
@@ -5785,7 +5786,7 @@ class MainWindow(QMainWindow):
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
         self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.datumDispDashboard.setGeometry(QRect(0,532,30,68))
+        self.datumDispDashboard.setGeometry(QRect(0,472,30,68))
         self.datumDispDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispDashboard)
@@ -5799,7 +5800,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1115,37))
+        self.MenuBar.setGeometry(QRect(0,0,1115,33))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
@@ -5861,6 +5862,7 @@ class MainWindow(QMainWindow):
         self.dispBGColorAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.dispElementColorSettingsAction.addTo(self.unnamed)
+        self.dispLightingAction.addTo(self.unnamed)
         self.MenuBar.insertItem(QString(""),self.unnamed,6)
 
         self.Jigs = QPopupMenu(self)
@@ -6037,6 +6039,7 @@ class MainWindow(QMainWindow):
         self.connect(self.simSetupAction,SIGNAL("activated()"),self.simSetup)
         self.connect(self.simMoviePlayerAction,SIGNAL("activated()"),self.simMoviePlayer)
         self.connect(self.simPlotToolAction,SIGNAL("activated()"),self.simPlot)
+        self.connect(self.dispLightingAction,SIGNAL("activated()"),self.dispLighting)
 
 
     def languageChange(self):
@@ -6395,6 +6398,8 @@ class MainWindow(QMainWindow):
         self.simSetupAction.setMenuText(self.__tr("Setup..."))
         self.simMoviePlayerAction.setText(self.__tr("Movie Player"))
         self.simPlotToolAction.setText(self.__tr("Plot Tool"))
+        self.dispLightingAction.setText(self.__tr("Lighting"))
+        self.dispLightingAction.setMenuText(self.__tr("Lighting..."))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -6869,6 +6874,9 @@ class MainWindow(QMainWindow):
 
     def simSetup(self):
         print "MainWindow.simSetup(): Not implemented yet"
+
+    def dispLighting(self):
+        print "MainWindow.dispLighting(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

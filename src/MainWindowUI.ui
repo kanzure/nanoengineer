@@ -37,7 +37,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>37</height>
+            <height>33</height>
         </rect>
     </property>
     <property name="backgroundOrigin">
@@ -99,6 +99,7 @@
         <action name="dispBGColorAction"/>
         <separator/>
         <action name="dispElementColorSettingsAction"/>
+        <action name="dispLightingAction"/>
     </item>
     <item text="&amp;Jigs" name="Jigs">
         <action name="jigsMotorAction"/>
@@ -262,7 +263,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>701</width>
+                <width>640</width>
                 <height>29</height>
             </rect>
         </property>
@@ -627,7 +628,7 @@
                 <x>0</x>
                 <y>284</y>
                 <width>30</width>
-                <height>248</height>
+                <height>188</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -656,7 +657,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>532</y>
+                <y>472</y>
                 <width>30</width>
                 <height>68</height>
             </rect>
@@ -3071,7 +3072,17 @@
         <property name="text">
             <string>Plot Tool</string>
         </property>
->>>>>>> 1.68
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispLightingAction</cstring>
+        </property>
+        <property name="text">
+            <string>Lighting</string>
+        </property>
+        <property name="menuText">
+            <string>Lighting...</string>
+        </property>
     </action>
 </actions>
 <images>
@@ -4157,6 +4168,12 @@
         <receiver>MainWindow</receiver>
         <slot>simPlot()</slot>
     </connection>
+    <connection>
+        <sender>dispLightingAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispLighting()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4299,6 +4316,7 @@
     <slot>simPlot()</slot>
     <slot>simMoviePlayer()</slot>
     <slot>simSetup()</slot>
+    <slot>dispLighting()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
