@@ -281,14 +281,15 @@ class modelTree(TreeWidget):
 ##        
 ##        res.append(( fix_plurals("(%d selected item(s))" % len(nodeset)), noop, 'disabled' ))
 
-        # pre-alpha warning [050126] (hope to be able to remove this for alpha):
-        shelf_npicked = self.shelf_node.nodespicked() - int(self.shelf_node.picked)
-            # clipboard itself, picked alone, probably has no bad bugs to warn about
-        if shelf_npicked:
-            res.append(None) # separator
-            res.append(( fix_plurals("(%d selected item(s) in clipboard)" % shelf_npicked), noop, 'disabled' ))
-            res.append(( "WARNING (alpha): some operations or modes don't work", noop ))
-            res.append(( "or have bugs for selected items in clipboard", noop ))
+        ## bruce 050316: this warning should be no longer needed.
+##        # pre-alpha warning [050126] (hope to be able to remove this for alpha):
+##        shelf_npicked = self.shelf_node.nodespicked() - int(self.shelf_node.picked)
+##            # clipboard itself, picked alone, probably has no bad bugs to warn about
+##        if shelf_npicked:
+##            res.append(None) # separator
+##            res.append(( fix_plurals("(%d selected item(s) in clipboard)" % shelf_npicked), noop, 'disabled' ))
+##            res.append(( "WARNING (alpha): some operations or modes don't work", noop ))
+##            res.append(( "or have bugs for selected items in clipboard", noop ))
 
         return res # from make_cmenuspec_for_set
 
