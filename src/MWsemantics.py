@@ -1211,29 +1211,55 @@ class MWsemantics(MainWindow):
         return
 
     def simPlot(self):
-        """Opens the Plot Tool dialog.
+        """Opens the Plot Tool dialog, for the current movie if there is one,
+        otherwise for a previously saved dpb file with the same name as the current part,
+        if one can be found.
         """
-        if not self.assy.molecules: # No model.
-            self.history.message(redmsg("Plot Tool: Need a model."))
-            return
-            
-        # Check to see if a DPB file has been created.
-        if not self.assy.current_movie.filename and self.assy.filename:
-            mfile = self.assy.filename[:-4] + ".dpb"
-            if os.path.exists(mfile): 
-                self.assy.current_movie.filename = mfile
-            else:
-                self.history.message(redmsg("Plot Tool: No simulation has been run yet."))
-                return
-                
-        self.history.message(greenmsg("Plot Tool:"))
-                
+        #bruce 050326 inferred docstring from code, then revised to fit my recent changes
+        # to assy.current_movie, but didn't yet try to look for alternate dpb file names
+        # when the current part is not the main part. (I'm sure that we'll soon have a wholly
+        # different scheme for letting the user look around for preexisting related files to use,
+        # like movie files applicable to the current part.)
+        #    I did reorder the code, and removed the check on the current part having atoms
+        # (since plotting from an old file shouldn't require movie to be valid for current part).
+        #    This method should be moved into some other file.
+        
         from PlotTool import PlotTool
-        self.plotcntl = PlotTool(self.assy) # Open Plot Tool dialog [and wait until it's dismissed]
-        # [bruce comment 050324: self.plotcntl is never used. Conceivably, keeping it matters
-        #  due to its refcount, but I doubt it.]
-        return
+##        if not self.assy.molecules: # No model.
+##            self.history.message(redmsg("Plot Tool: Need a model."))
+##            return
+        self.history.message(greenmsg("Plot Tool:")) # do before other messages, tho success is not yet known
 
+        if self.assy.current_movie and self.assy.current_movie.filename:
+            # (bruce 050326 asks: can an existing movie ever not have a filename? Depends on whether stored on error...)
+            self.plotcntl = PlotTool(self.assy, self.assy.current_movie) # Open Plot Tool dialog [and wait until it's dismissed]
+            # [bruce comment 050324: self.plotcntl is never used. Conceivably, keeping it matters
+            #  due to its refcount, but I doubt it.]
+            return
+
+        # no valid current movie, look for saved one with same name as assy
+        self.history.message("Plot Tool: No simulation has been run yet.")
+        if self.assy.filename:
+            if self.assy.part != self.assy.tree.part:
+                self.history.message("Plot Tool: Warning: Looking for saved movie for main part, not for displayed clipboard item.")
+            mfile = self.assy.filename[:-4] + ".dpb"
+            movie = find_saved_movie( self.assy, mfile)
+                # just checks existence, not validity for current part or main part
+            if movie:
+                #e should we set this as current_movie? I don't see a good reason to do that,
+                # user can open it if they want to. But I'll do it if we don't have one yet.
+                if not self.assy.current_movie:
+                    self.assy.current_movie = movie
+                #e should we switch to the part for which this movie was made?
+                # No current way to tell how to do that, and this might be done even if it's not valid
+                # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
+                # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
+                self.history.message("Plot Tool: using previously saved movie for this part.")
+                self.plotcntl = PlotTool(self.assy, movie)
+            else:
+                self.history.message(redmsg("Plot Tool: Can't find previously saved movie for this part."))
+        return
+    
     def simMoviePlayer(self):
         """Plays a DPB movie file created by the simulator.
         """

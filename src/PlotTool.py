@@ -13,9 +13,11 @@ import sys, os, string, linecache
 from HistoryWidget import redmsg
 
 class PlotTool(PlotToolDialog):
-    def __init__(self, assy):
+    def __init__(self, assy, movie): #bruce 050326 added movie arg
         PlotToolDialog.__init__(self)
-        self.assy = assy
+        ## self.assy = assy
+        self.history = assy.w.history #bruce 050326
+        self.movie = movie # before bruce 050326 was assy.current_movie
         if self.setup(): return
         self.exec_loop()
 
@@ -34,23 +36,23 @@ class PlotTool(PlotToolDialog):
         # 4. Populate the plot combobox with the graph names
         
         # Make sure there is a DPB file for the assy. 
-        if not self.assy.current_movie or not self.assy.current_movie.filename:
+        if not self.movie or not self.movie.filename:
             msg = "Plot Tool: No tracefile exists for this part.  To create one, run a simulation."
-            self.assy.w.history.message(redmsg(msg))
+            self.history.message(redmsg(msg))
             return 1
         
         # Construct the trace file name.
-        self.traceFile = self.assy.current_movie.get_trace_filename()
+        self.traceFile = self.movie.get_trace_filename()
 #        print "PlotTool: Trace file = ", self.traceFile
         
         # Make sure the tracefile exists
         if not os.path.exists(self.traceFile):
             msg = "Plot Tool: Trace file [" + self.traceFile + "] is missing.  Plot aborted."
-            self.assy.w.history.message(redmsg(msg))
+            self.history.message(redmsg(msg))
             return 1
             
         # Construct the GNUplot filename.
-        self.plotFile = self.assy.current_movie.get_GNUplot_filename()
+        self.plotFile = self.movie.get_GNUplot_filename()
 #        print "Plot file = ", self.plotFile
         
         # Now we read specific lines of the traceFile to read parts of the header we need.
@@ -93,7 +95,7 @@ class PlotTool(PlotToolDialog):
                 self.plotCB.insertItem(gname[2:-1])
         else: # No jigs in the part, so nothing to plot.
             msg = "Plot Tool: No jigs in this part.  Nothing to plot."
-            self.assy.w.history.message(redmsg(msg))
+            self.history.message(redmsg(msg))
             return 1
         
         self.lastplot = 0
@@ -154,7 +156,7 @@ class PlotTool(PlotToolDialog):
         # Make sure plotfile exists
         if not os.path.exists(plotfile):
             msg = "Plot Tool: Plotfile [" + program + "] is missing.  Plot aborted."
-            self.assy.w.history.message(redmsg(msg))
+            self.history.message(redmsg(msg))
             return
             
         # filePath = the current directory NE-1 is running from.
@@ -180,7 +182,7 @@ class PlotTool(PlotToolDialog):
         # Make sure GNUplot executable exists
         if not os.path.exists(program):
             msg = "Plot Tool: GNUplot executable [" + program + "] is missing.  Plot aborted."
-            self.assy.w.history.message(redmsg(msg))
+            self.history.message(redmsg(msg))
             return
         
         # Create arguments list for plotProcess.
@@ -199,9 +201,9 @@ class PlotTool(PlotToolDialog):
             rst = plotProcess.start(environVb)
                
             if not rst: 
-                self.assy.w.history.message(redmsg("GNUplot failed to run!"))
+                self.history.message(redmsg("GNUplot failed to run!"))
             else: 
-                self.assy.w.history.message("Running GNUplot file: " + plotfile)
+                self.history.message("Running GNUplot file: " + plotfile)
             
         except: # We had an exception.
             print"exception in GNUplot; continuing: "
@@ -223,6 +225,11 @@ class PlotTool(PlotToolDialog):
     def openPlotFile(self, file):
         """Opens a file in a standard text editor.
         """
+        if not os.path.exists(file): #bruce 050326 added this check
+            msg = "File does not exist: " + file
+            self.history.message(redmsg(msg))
+            return
+        
         editor = self.get_text_editor()
         
         if os.path.exists(editor):
@@ -236,13 +243,13 @@ class PlotTool(PlotToolDialog):
             except: # We had an exception.
                 print_compact_traceback("Exception in editor; continuing: ")
                 msg = "Cannot open file " + file + ".  Trouble spawning editor " + editor
-                self.assy.w.history.message(redmsg(msg))
+                self.history.message(redmsg(msg))
         else:
             msg = "Cannot open file " + file + ".  Editor " + editor + " not found."
-            self.assy.w.history.message(redmsg(msg))
+            self.history.message(redmsg(msg))
             
     def get_text_editor(self):
-        """Returns then name of a text editor for this platform.
+        """Returns the name of a text editor for this platform.
         """
         if sys.platform == 'win32': # Windows
             editor = "C:/WINDOWS/notepad.exe"

@@ -43,6 +43,11 @@ class Movie:
     # and have one for .xyz and one for .dpb, and put that ext code
     # into one of them as methods. ###@@@
     def __init__(self, assembly, name=None):
+        """###doc; note that this Movie might be made to hold params for a sim run,
+        and then be told its filename, or to read a previously saved file;
+        pre-050326 code always stored filename from outside and didn't tell this object
+        how it was becoming valid, etc...
+        """
         self.assy = assembly
         self.win = self.assy.w
         self.glpane = self.assy.o ##e if in future there's more than one glpane, recompute this whenever starting to play the movie
@@ -51,7 +56,7 @@ class Movie:
         # for future use: name of the movie that appears in the modelTree. 
         self.name = name or "" # assumed to be a string by some code
         # the name of the movie file
-        self.filename = ""
+        self.filename = "" #bruce 050326 comment: so far this is only set by external code; i'll change that
         # movie "file object"
         self.fileobj = None
         # the total number of frames actually in our moviefile [might differ from number requested]
@@ -110,6 +115,28 @@ class Movie:
         # for now, just break cycles.
         self.win = self.assy = self.part = self.alist = self.history = self.fileobj = None
 
+    # == methods for letting this object represent a previously saved movie file
+
+    def represent_this_moviefile( self, mfile, part = None): #bruce 050326
+        """Try to start representing the given moviefile;
+        return true iff this succeeds; if it fails emit error message.
+        if part is supplied, also make sure mfile is valid for current state of that part.
+        """
+        #e should the checking be done in the caller (a helper function)?
+        assert mfile.endswith(".dpb") # for now
+        if os.path.exists(mfile):
+            self.filename = mfile
+            ###e do more... but what is needed? set alist? only if we need to play it, and we might not... (PlotTool doesn't)
+            assert not part # this is nim; should call the validity checker
+            return True
+        else:
+            pass #e self.history.message(redmsg(...)) -- is this a good idea? I think caller wants to do this... ###k
+            self.destroy()
+            return False
+        pass
+
+    # == methods for letting this object represent a movie (or xyz) file we're about to make, or just did make
+    
     def set_alist(self, alist): #bruce 050325
         """Verify this list of atoms is legal (as an alist to make a movie from),
         and set it as this movie's alist. This only makes sense before making a moviefile,
@@ -162,7 +189,7 @@ class Movie:
 ##        self.set_alist(res) #e could optimize (bypass checks in that method)
 ##        return None
         
-# movie methods ##########################
+    # == methods for playing the movie file we know about (ie the movie we represent)
 
     def _setup(self, hflag = True):
         """Setup this movie for playing
@@ -534,6 +561,8 @@ class Movie:
         self.moveToEnd = True
         self._playFrame(self.totalFramesActual)
 
+    # ==
+    
     def _controls(self, On = True):
         """Enable or disable movie controls.
         """
@@ -545,7 +574,9 @@ class Movie:
         self.win.frameNumberSL.setEnabled(On)
         self.win.frameNumberSB.setEnabled(On)
         self.win.fileSaveMovieAction.setEnabled(On)
-        
+
+    # ==
+    
     def _info(self):
         """Print info about movie
         """
@@ -680,6 +711,17 @@ class Movie:
         self.glpane.gl_update()
 
     pass # end of class Movie
+
+# == helper functions
+
+def find_saved_movie( assy, mfile):
+    "look for a .dpb file of the given name; if found, return a Movie object for it"
+    movie = Movie(assy)
+    if movie.represent_this_moviefile( mfile):
+        # succeeded
+        return movie
+    # otherwise it failed and already emitted error messages about that
+    return None
 
 def _checkMovieFile(part, filename, history = None):
     """Returns 0 if filename is (or might be) a valid movie file for the specified part.
