@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Fri Mar 11 16:08:26 2005
+# Created: Sat Mar 12 10:54:58 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -127,7 +127,7 @@ class SimSetupDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(347,321).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(272,214).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.MovieButton,SIGNAL("clicked()"),self.createMoviePressed)
