@@ -227,7 +227,7 @@ class DebugMenuMixin:
         # figure out this mixin's idea of main window
         if not win:
             try:
-                self.win ###@@@ assert isinstance( self.win, QWidget)
+                self.win # no need: assert isinstance( self.win, QWidget)
             except AttributeError:
                 pass
             else:
@@ -314,8 +314,10 @@ class DebugMenuMixin:
            similar set of 3 modifier keys.
            -- bruce 040916
         """
-        # in constants.py: debugButtons = cntlButton | shiftButton | altButton
-        # on the mac, this really means command-shift-alt
+        # In constants.py: debugButtons = cntlButton | shiftButton | altButton
+        # On the mac, this really means command-shift-alt [alt == option].
+        # On Linux, reports Josh (050118), "I get the debug menu with
+        # <cntrl><shift><alt><left click>" [in the glpane, one of our callers].
         
         if debug_menu_enabled and permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
             print "\n* * * fyi: got debug click, will try to put up a debug menu...\n"
