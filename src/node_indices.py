@@ -2,6 +2,8 @@
 """
 node_indices.py
 
+$Id$
+
 Utilities for finding node indices in a tree,
 and using them to help move the nodes around.
 
