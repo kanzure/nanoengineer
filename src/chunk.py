@@ -1182,26 +1182,32 @@ class molecule(Node, InvalMixin):
         if self == _nullMol:
             return
         # all the following must be ok for an already-killed molecule!
-        self.unpick()
-        for b in self.externs:
+        self.unpick() #bruce 050214 comment: keep doing this here even though Node.kill now does it too
+        for b in self.externs[:]: #bruce 050214 copy list as a precaution
             b.bust()
         self.externs = [] #bruce 041029 precaution against repeated kills
         
         #10/28/04, delete all atoms, so gadgets attached can be deleted when no atoms
         #  attaching the gadget . Huaicai
-        for a in self.atoms.values(): a.kill()
-        # [this would also serve to bust the extern bonds, but it seems safer
-        #  to do that explicitly and to do it first -- bruce 041109 comment]
+        for a in self.atoms.values():
+            a.kill()
+            # this will recursively kill this chunk! Should be ok,
+            # though I ought to rewrite it so that if that does happen here,
+            # I don't redo everything and have to worry whether that's safe.
+            # [bruce 050214 comment] 
+            # [this would also serve to bust the extern bonds, but it seems safer
+            #  to do that explicitly and to do it first -- bruce 041109 comment]
         #bruce 041029 precautions:
         if self.atoms:
             print "fyi: bug (ignored): %r mol.kill retains killed atoms %r" % (self,self.atoms)
         self.atoms = {}
         self.invalidate_attr('atlist') # probably not needed; covers atpos
             # and basepos too, due to rules; externs were correctly set to []
-        if self.dad:
-            Node.kill(self) # this assumes Node.kill is as it was on 041116
-            self.dad = None
+##        if self.dad:
+##            Node.kill(self) # this assumes Node.kill is as it was on 041116
+##            self.dad = None
         if self.assy:
+            # remove from assy.molecules, if necessary
             try:
                 self.assy.molecules.remove(self)
                 self.assy.changed()
@@ -1217,7 +1223,8 @@ class molecule(Node, InvalMixin):
                     print "atom_debug: possible bug (not sure): killed mol was not in clipboard but not in assy.molecules:", self
                 ## print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
                 pass
-            self.assy = None
+            ## self.assy = None # [done by Node.kill as of 050214]
+        Node.kill(self) #bruce 050214 moved this here, made it unconditional ###k review ok to happen twice! #####@@@@@
         return # from molecule.kill
 
     # New method for finding atoms or singlets under mouse. Helps fix bug 235

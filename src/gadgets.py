@@ -31,7 +31,7 @@ def povpoint(p):
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
 
 
-class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
+class Jig(Node):
     "abstract superclass for all jigs"
     sym = "Jig"
     # each subclass can define sym as a class constant,
@@ -94,7 +94,7 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
             self.kill()
             
     def kill(self):
-        #e don't we need to remove self from all our atoms' a.jigs? [guess: yes]
+        #e don't we need to remove self from all our atoms' a.jigs? [guess: yes] ####@@@@
         # [bruce question 041105; looks like a bug but i will ask josh]
         Node.kill(self)
 

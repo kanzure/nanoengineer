@@ -642,10 +642,21 @@ class Node:
         return
 
     def kill(self):
-        self.dad.delmember(self)
-        # If a member of the clipboard, update the pasteCombobox on the Build dashboard
-        ## this has been replaced by a side effect of delmember for subscribers like depmode
-        ## if self.dad.name == "Clipboard": self.assy.o.mode.UpdateDashboard() 
+        ###@@@ bruce 050214 changes and comments:
+        #e needs docstring;
+        #  as of now, intended to be called at end (not start middle or never) of all subclass kill methods
+        #  ok to call twice on a node (i.e. to call on an already-killed node); subclass methods should preserve this property
+        # added condition on self.dad existing, before delmember
+        # added unpick (*after* dad.delmember)
+        # added self.assy = None
+        # also modified the Group.kill method, which extends this method
+        if self.dad:
+            self.dad.delmember(self)
+                # this does assy.changed (if assy), dad = None, and unpick,
+                # but the unpick might be removed someday, so we do it below too
+                # [bruce 050214]
+        self.unpick() # must come after delmember (else would unpick dad) and before forgetting self.assy
+        self.assy = None #bruce 050214 added this ###k review more
 
     def is_ascendant(self, node): # implem corrected by bruce 050121; was "return None"
         """Is node in the subtree of nodes headed by self?
@@ -1015,7 +1026,7 @@ class Group(Node):
         if obj.dad != self: # bruce 050205 new feature -- check for this (but do nothing about it)
             if platform.atom_debug:
                 print_compact_stack( "atom_debug: fyi: delmember finds obj.dad != self: ") #k does this ever happen?
-        obj.unpick() #bruce 041029 fix bug 145
+        obj.unpick() #bruce 041029 fix bug 145 [callers should not depend on this happening! see below]
             #k [bruce 050202 comment, added 050205]: review this unpick again sometime, esp re DND drag_move
             # (it might be more relevant for addchild than for here; more likely it should be made not needed by callers)
             # [bruce 050203 review: still needed, to keep killed obj out of selmols,
@@ -1166,9 +1177,13 @@ class Group(Node):
             self.kill()
 
     #bruce 050131 implemented this since it seems safe now... ###@@@ test it
-    # but it's not yet used -- it's replaced by the following older method
+    # but it's NOT YET USED -- it's replaced by the following older method
     # which refuses to copy Groups, since it's past the Alpha new-feature deadline.
-    def copy(self, dad): 
+    #bruce 050214 comment: this might be safe, but is not yet good enough,
+    # e.g. it doesn't handle bonds between copied chunks... probably better to redo all copying
+    # as a 2-pass algorithm, and until then, leave groups uncopyable.
+    def copy(self, dad):
+        assert 0, "this is not yet used!"
         ###@@@ need to review all copy methods for inconsistent semantics
         # (internal like mol.copy, or menu-event-handlers?)
         if self.__class__ != Group:
@@ -1188,9 +1203,12 @@ class Group(Node):
             ###@@@ should remove that limitation
         return None # bruce 050131 changed this from "return 0"
     
-    def kill(self): ###@@@ should merge with Node.kill
-        if self.dad:
-            self.dad.delmember(self)
+    def kill(self):
+        #bruce 050214: called Node.kill instead of inlining it; enhanced Node.kill;
+        # and fixed bug 381 by killing all members first. [untested #####@@@@@]
+        for m in self.members[:]:
+            m.kill()
+        Node.kill(self)
 
     def is_ascendant(self, node): #e rename nodetree_contains?
         """Returns True iff self is an ascendant of node,

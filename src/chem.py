@@ -762,7 +762,7 @@ class atom:
         # since delatom resets self.molecule to None.
         
         # josh 10/26 to fix bug 85 - remove from jigs
-        for j in self.jigs:
+        for j in self.jigs[:]: #bruce 050214 copy list as a precaution
             try:
                 j.rematom(self)
             except:
@@ -770,7 +770,7 @@ class atom:
         self.jigs = [] #bruce 041029 mitigate repeated kills
         
         # remove bonds
-        for b in self.bonds:
+        for b in self.bonds[:]: #bruce 050214 copy list as a precaution
             n = b.other(self)
             n.unbond(b) # note: this can create a new singlet on n, if n is real,
                         # which requires computing b.ubp which uses self.posn()

@@ -983,7 +983,7 @@ class assembly:
             # Also kill anything picked in the clipboard
             # [revised by bruce 050131 for Alpha, see cvs rev 1.117 for historical comments]
             self.shelf.apply2picked(lambda o: o.kill()) # kill by Mark(?), 11/04
-        self.setDrawLevel()
+        self.setDrawLevel() #e should this update bbox too?? or more? [bruce 050214 comment]
         return
 
 
