@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 
 """Atom
 
@@ -83,35 +83,19 @@ if __name__=='__main__':
         meth()
 
     # Determine the screen resolution and compute the normal window size for NE-1
-    
-    # Create desktop widget to obtain screen resolution
-    dtop=QDesktopWidget()
-    screensize = QRect (dtop.screenGeometry (0))
-#    print "Screen resolution = ",screensize.width(),"x",screensize.height()
-    
-    # Determine normal window origin and size
-    # These dimensions work for WinXP. 
-    # Not sure what they should be for Mac and Linux. [mark 041230]
-    #
     # [bruce 041230 corrected this for Macintosh, and made sure it never exceeds
     #  screen size even on a very small screen.]
+    # [bruce 050118 further modified this and removed some older comments
+    #  (see cvs for those); also split out some code into platform.py.]
     import platform as _platform
-    if _platform.is_macintosh():
-        # menubar_height = 44 was measured (approximately) on an iMac G5 20 inch
-        # screen; I don't know if it's the same on all Macs (or whether it can
-        # vary with OS or user settings). (Is there any way of getting this info
-        # from Qt? #e)
-        menubar_height = 44
-    else:
-        menubar_height = 0
-    
-    screen_w = screensize.width()
-    screen_h = screensize.height() # of which menubar_height is in use at the top
+    ((x0, y0), (screen_w, screen_h)) = _platform.screen_pos_size()
+    # note: y0 is nonzero on mac, due to menubar at top of screen.
     
     # use 85% of screen width and 90% of screen height, or more if that would be
     # less than 780 by 560 pixels, but never more than the available space.
     norm_w = int( min(screen_w - 2, max(780, screen_w * 0.85)))
-    norm_h = int( min(screen_h - 2, max(560, (screen_h - menubar_height) * 0.90)))
+    norm_h = int( min(screen_h - 2, max(560, screen_h * 0.90)))
+        #bruce 050118 reduced max norm_h to never overlap mac menubar (bugfix?)
     
     # determine normal window origin
     # [bruce 041230 changed this to center it, but feel free to change this back
@@ -119,15 +103,15 @@ if __name__=='__main__':
     center_it = 1
     if center_it:
         # centered in available area
-        norm_x = (screen_w - norm_w) / 2
-        norm_y = (screen_h - menubar_height - norm_h) / 2 + menubar_height
+        norm_x = (screen_w - norm_w) / 2 + x0
+        norm_y = (screen_h - norm_h) / 2 + y0
     else:
         # at the given absolute position within the available area
         # (but moved towards (0,0) from that, if necessary to keep it all on-screen)
         want_x = 4 # Left (4 pixels)
         want_y = 36 # Top (36 pixels)
-        norm_x = min( want_x, (screen_w - norm_w))
-        norm_y = min( want_y, (screen_h - menubar_height - norm_h)) + menubar_height
+        norm_x = min( want_x, (screen_w - norm_w)) + x0
+        norm_y = min( want_y, (screen_h - norm_h)) + y0
     
     # Set the main window geometry, then show the window 
     foo.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))

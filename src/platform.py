@@ -11,7 +11,7 @@ $Id$
 __author__ = "bruce"
 
 import sys, os, time
-from qt import Qt
+from qt import Qt, QDesktopWidget, QRect
 from constants import * # e.g. for leftButton
 
 # file utilities
@@ -364,6 +364,7 @@ except:
     except:
         pass
     atom_debug = not not atom_debug
+
 if atom_debug:
     print "fyi: user has requested ATOM_DEBUG feature; extra debugging code enabled; might be slower"
 
@@ -418,6 +419,125 @@ def fix_plurals(text, between = 1):
     if not count:
         print """fyi, possible cosmetic bug: fix_plurals(%r) got text with no "(s)", has no effect""" % (text,)
     return " ".join(words)
+
+# ==
+
+# code for determining screen size (different for Mac due to menubar)
+
+#e (I should also pull in some more related code from atom.py...)
+
+def screen_pos_size(): ###e this copies code in atom.py -- atom.py should call this
+    """Return (x,y),(w,h), where the main screen area
+    (not including menubar, for Mac) is in a rect of size w,h,
+    topleft at x,y. Note that x,y is 0,0 except for Mac.
+    Current implementation guesses Mac menubar size since it doesn't
+    know how to measure it.
+    """
+    # Create desktop widget to obtain screen resolution
+    dtop = QDesktopWidget()
+    screensize = QRect (dtop.screenGeometry (0))
+    
+    if is_macintosh():
+        # menubar_height = 44 was measured (approximately) on an iMac G5 20 inch
+        # screen; I don't know if it's the same on all Macs (or whether it can
+        # vary with OS or user settings). (Is there any way of getting this info
+        # from Qt? #e)
+        menubar_height = 44
+    else:
+        menubar_height = 0
+    
+    screen_w = screensize.width()
+    screen_h = screensize.height() # of which menubar_height is in use at the top
+
+    x,y = 0,0
+    w,h = screen_w, screen_h
+    
+    y += menubar_height
+    h -= menubar_height
+
+    return (x,y), (w,h)
+
+# ==
+
+# main window layout save/restore
+# [not sure in which file this belongs -- not really this one]
+# and other code related to main window size [which does belong here]
+
+def fullkey(keyprefix, *subkeys): #e this func belongs in preferences.py
+    res = keyprefix
+    for subkey in subkeys:
+        res += "/" + subkey
+    return res
+
+def size_pos_keys( keyprefix):
+    return fullkey(keyprefix, "geometry", "size"), fullkey(keyprefix, "geometry", "pos")
+
+def tupleFromQPoint(qpoint):
+    return qpoint.x(), qpoint.y()
+
+def tupleFromQSize(qsize):
+    return qsize.width(), qsize.height()
+
+# def qpointFromTuple - not needed
+
+def get_window_pos_size(win):
+    size = tupleFromQSize( win.size())
+    pos = tupleFromQPoint( win.pos())
+    return pos, size
+
+def save_window_pos_size( win, keyprefix, histmessage = None):
+    """Save the size and position of the given main window, win,
+    in the preferences database, using keys based on the given keyprefix,
+    which caller ought to reserve for geometry aspects of the main window.
+    (#e Someday, maybe save more aspects like dock layout and splitter bar positions??)
+    """
+    from preferences import prefs_context
+    prefs = prefs_context()
+    ksize, kpos = size_pos_keys( keyprefix)
+    pos, size = get_window_pos_size(win)
+    changes = { ksize: size, kpos: pos }
+    prefs.update( changes) # use update so it only opens/closes dbfile once
+    if histmessage:
+        histmessage("saved window position %r and size %r" % (pos,size))
+    return
+
+def load_window_pos_size( win, keyprefix, defaults = None, screen = None, histmessage = None):
+    """Load the last-saved size and position of the given main window, win,
+    from the preferences database, using keys based on the given keyprefix,
+    which caller ought to reserve for geometry aspects of the main window.
+    Then set win's actual position and size (using supplied defaults, and
+    limited by supplied screen size, both given as ((pos_x,pos_y),(size_x,size_y)).
+    (#e Someday, maybe restore more aspects like dock layout and splitter bar positions??)
+    """
+    if defaults == None:
+        defaults = get_window_pos_size(win)
+    dpos, dsize = defaults
+    px,py = dpos # check correctness of args, even if not used later
+    sx,sy = dsize
+    if screen == None:
+        screen = screen_pos_size()
+    ((x0,y0),(w,h)) = screen
+    x1 = x0 + w
+    y1 = y0 + h
+    import preferences
+    prefs = preferences.prefs_context()
+    ksize, kpos = size_pos_keys( keyprefix)
+    pos = prefs.get(kpos, dpos)
+    size = prefs.get(ksize, dsize)
+    # now use pos and size, within limits set by screen
+    px,py = pos # (reuses varnames from dpos check above)
+    sx,sy = size
+    if sx > w: sx = w
+    if sy > h: sy = h
+    if px < x0: px = x0
+    if py < y0: py = y0
+    if px > x1 - sx: px = x1 - sx
+    if py > y1 - sy: py = y1 - sy
+    if histmessage:
+        histmessage("restoring last-saved window position %r and size %r" % ((px,py),(sx,sy)))
+    win.resize(sx,sy)
+    win.move(px,py)
+    return
 
 # == test code
 

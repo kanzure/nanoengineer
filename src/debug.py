@@ -213,6 +213,9 @@ class DebugMenuMixin:
     """Helps widgets have the "standard undocumented debug menu".
     Provides some methods and attrs to its subclasses,
     all starting debug or _debug, especially self.debug_event().
+    Caller of _init1 should provide main window win, or [temporary kluge?]
+    let this be found at self.win; some menu items affect it or emit
+    history messages to it.
     """
     #doc better
     #e rename private attrs to start with '_debug' instead of 'debug'
@@ -220,11 +223,22 @@ class DebugMenuMixin:
 
     debug_menu = None # needed for use before _init1 or if that fails
     
-    def _init1(self):
+    def _init1(self, win = None):
+        # figure out this mixin's idea of main window
+        if not win:
+            try:
+                self.win ###@@@ assert isinstance( self.win, QWidget)
+            except AttributeError:
+                pass
+            else:
+                win = self.win
+        self._debug_win = win
+        # figure out classname for #doc
         try:
             self._debug_classname = "class " + self.__class__.__name__
         except:
             self._debug_classname = "<some class>"
+        # make the menu
         try:
             self.makemenu # subclass needs to provide this!
         except:
@@ -232,7 +246,15 @@ class DebugMenuMixin:
         else:
             self.debug_menu = self.makemenu( self.debug_menu_items() )
         return
-    
+
+    def _debug_history(self):
+        # figure out where to send history messages
+        # (can't be done at init time since value of win.history can change)
+        try:
+            return self._debug_win.history
+        except: # (more than one error possible here)
+            return None
+
     def debug_menu_items(self):
         "[subclasses can in theory override this, but probably needn't and shouldn't]"
         import debug
@@ -249,7 +271,27 @@ class DebugMenuMixin:
             ('enable ATOM_DEBUG', self._debug_enable_atom_debug ),
             ('disable ATOM_DEBUG', self._debug_disable_atom_debug ),
         ] )
+        if self._debug_win:
+            res.extend( [
+                ('save window layout', self._debug_save_window_layout ),
+                ('load window layout', self._debug_load_window_layout ),
+                    #bruce 050117 prototype "save window layout" here; when it works, move it elsewhere
+            ] )
         return res
+
+    def _debug_save_window_layout(self):
+        from platform import save_window_pos_size
+        win = self._debug_win
+        keyprefix = "main window/geometry"
+        histfunc = self._debug_history().message
+        save_window_pos_size( win, keyprefix, histmessage = histfunc)
+
+    def _debug_load_window_layout(self):
+        from platform import load_window_pos_size
+        win = self._debug_win
+        keyprefix = "main window/geometry"
+        histfunc = self._debug_history().message
+        load_window_pos_size( win, keyprefix, histmessage = histfunc)
 
     def _debug_enable_atom_debug(self):
         import platform
