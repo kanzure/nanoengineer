@@ -18,6 +18,7 @@ class cookieMode(basicMode):
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
     gridColor = 223/256.0, 149/256.0, 0/256.0
     modename = 'COOKIE'
+    default_mode_status_text = "Mode: Cookie Cutter"
     
     # default initial values
     savedOrtho = 0

@@ -20,6 +20,7 @@ class selectMode(basicMode):
     backgroundColor = 190/256.0, 229/256.0, 239/256.0
     gridColor = (0.0, 0.0, 0.6)
     modename = 'SELECT'
+    # no default_mode_status_text, since it varies
     
     # default initial values
     savedOrtho = 0
@@ -30,6 +31,15 @@ class selectMode(basicMode):
 ##        basicMode.__init__(self, glpane)
 ##        self.picking = 0
 
+    def get_mode_status_text(self):
+        # bruce 040927; ###k is this queried often enough??
+        try:
+            what = self.o.assy.selectingWhat() # 'Atoms' or 'Molecules'
+            # bruce 040927: this seems to be wrong sometimes, e.g. when no atoms or molecules exist in the assembly... not sure.
+        except:
+            what = '...' # hopefully this will never show up...
+        return "Mode: Select %s" % what
+    
     def leftDown(self, event):
         self.StartPick(event, 1)
     

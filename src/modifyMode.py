@@ -19,6 +19,7 @@ class modifyMode(basicMode):
     backgroundColor = 255/256.0, 174/256.0, 247/256.0
     gridColor = 52/256.0, 129/256.0, 26/256.0
     modename = 'MODIFY'
+    default_mode_status_text = "Mode: Move Molecules"
     
     # no __init__ method needed
 

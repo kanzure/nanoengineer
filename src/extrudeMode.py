@@ -76,6 +76,7 @@ class extrudeMode(basicMode):
     backgroundColor = 200/256.0, 100/256.0, 100/256.0 # different than in cookieMode
     ##gridColor = 223/256.0, 149/256.0, 0/256.0
     modename = 'EXTRUDE'
+    default_mode_status_text = "Mode: Extrude"
 
     # default initial values
     savedOrtho = 0

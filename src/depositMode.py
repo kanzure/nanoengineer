@@ -25,6 +25,7 @@ class depositMode(basicMode):
     gridColor = 74/256.0, 187/256.0, 227/256.0
     modename = 'DEPOSIT' #e we can rename this to SKETCH later, when we modify MWSemantics
     msg_modename = "sketch mode" # bruce 040923 renamed this after checking with Josh
+    default_mode_status_text = "Mode: Sketch Atoms"
 
     # no __init__ method needed... once we confirm that the following code is obsolete [bruce 040923]
     
