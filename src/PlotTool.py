@@ -165,7 +165,20 @@ class PlotTool(PlotToolDialog):
             program = os.path.normpath(filePath + '/../bin/wgnuplot.exe')
         else:
             program = os.path.normpath(filePath + '/../bin/gnuplot')
+
+        #Huaicai 3/18:  set environment variable to make gluplot use a specific AquaTerm on Mac
+        environVb = None
+        if sys.platform == 'darwin':
+             aquaPath = os.path.join(os.path.normpath(filePath + '/../bin'), 'AquaTerm.app')
+	 #print "aquaPath: ", aquaPath
+             environVb =  QStringList(QString('AQUATERM_PATH= %s' % aquaPath))
+	 
+	 #It seems the environment variable passed to the QProcess is not working, so set it in the parent process using the Python way.      
+             os.environ['AQUATERM_PATH']=aquaPath
         
+        #It seems the environment variable passed to the QProcess is not working, so disable it.
+        environVb = None        
+
         # Make sure GNUplot executable exists
         if not os.path.exists(program):
             msg = "Plot Tool: GNUplot executable [" + program + "] is missing.  Plot aborted."
@@ -185,7 +198,9 @@ class PlotTool(PlotToolDialog):
         try:
             plotProcess = QProcess()
             plotProcess.setArguments(arguments)
-            if not plotProcess.start(): 
+            rst = plotProcess.start(environVb)
+               
+            if not rst: 
                 self.assy.w.history.message(redmsg("GNUplot failed to run!"))
             else: 
                 self.assy.w.history.message("Running GNUplot file: " + plotfile)
