@@ -1332,8 +1332,11 @@ class extrudeMode(basicMode):
     
     def touchedThing(self, event):
         "return None or the thing touched by this event"
+        touchable_molecules = True
         if self.product_type != "straight rod":
-            # This function won't work properly in this case.
+            touchable_molecules = False
+            # old comment:
+            #  This function won't work properly in this case.
             # Be conservative until that bug is fixed. It's not even safe to permit
             # a click on a handle (which this code is correct in finding),
             # since it might be obscured on the screen
@@ -1343,8 +1346,13 @@ class extrudeMode(basicMode):
             # or the base unit (useful only once we permit dragging the model using it).
             #  I might come back and make those exceptions here,
             # if I don't fix the overall bug soon enough. [bruce 041017]
-            self.status_msg("(click or drag not yet implemented for product type %r; sorry)" % self.product_type)
-            return None
+            #
+            # newer comment:
+            #  Only disable dragging repunits, don't disable dragging or clicking bond-offset spheres
+            # (even though they might be clicked by accident when visually behind a repunit of the ring).
+            # [bruce 041019]
+##            self.status_msg("(click or drag not yet implemented for product type %r; sorry)" % self.product_type)
+##            return None
         p1, p2 = self.o.mousepoints(event) # (no side effect. p1 is just beyond near clipping plane; p2 in center of view plane)
         ##print "touchedthing for p1 = %r, p2 = %r" % (p1,p2)
         res = [] # (dist, handle) pairs, arb. order, but only the frontmost one from each handleset
@@ -1354,20 +1362,24 @@ class extrudeMode(basicMode):
                 if dh:
                     res.append(dh)
         #e scan other handlesets here, if we have any
-        #e now try molecules (if we have not coded them as their own handlesets too) -- only the base and rep units for now
-        hset = self.basemol_atoms_handleset
-        for ii in range(self.ncopies):
-            ##print "try touch",ii
-            offset = self.offset * ii
-            dh = hset.frontDistHandle(p1, p2, offset = offset, copy_id = ii)
-            if dh:
-                res.append(dh) #e dh's handle contains copy_id, a code for which repunit
+        if touchable_molecules:
+            #e now try molecules (if we have not coded them as their own handlesets too) -- only the base and rep units for now
+            hset = self.basemol_atoms_handleset
+            for ii in range(self.ncopies):
+                ##print "try touch",ii
+                offset = self.offset * ii
+                dh = hset.frontDistHandle(p1, p2, offset = offset, copy_id = ii)
+                if dh:
+                    res.append(dh) #e dh's handle contains copy_id, a code for which repunit
         if res:
             res.sort()
             dh = res[0]
             handle = dh[1]
             ##print "touched %r" % (handle,)
             return handle
+        # nothing touched... need to warn?
+        if not touchable_molecules:
+            self.status_msg("(dragging of repeat units not yet implemented for product type %r; sorry)" % self.product_type)
         return None
 
     def leftDrag(self, event):
