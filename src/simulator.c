@@ -2,10 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <signal.h>
 
 #include "simulator.h"
 
 int debug_flags = 0;
+
+int interrupted = 0; /* set to 1 when a SIGTERM is received */
 
 /** indicate next avail/total number of stretch bonds, bend bonds, and atoms */
 int Nexbon=0, Nextorq=0, Nexatom=0;
@@ -513,7 +516,7 @@ void calcloop(int iters) {
 	vsetc(average_positions[j],0.0);
     }
 	
-    for (loop=0, i=innerIters; loop<iters; loop++, i--) {
+    for (loop=0, i=innerIters; loop<iters && !interrupted; loop++, i--) {
 		
 	Iteration++;
 
@@ -1003,6 +1006,8 @@ static void min_debug(char *label, double rms, int frameNumber)
     printAllBonds(stderr);
 }
 
+static int interruptionWarning = 0;
+
 /**
  */
 void minshot(int final, double rms, double hifsq, int frameNumber, char *callLocation) {
@@ -1050,6 +1055,10 @@ void minshot(int final, double rms, double hifsq, int frameNumber, char *callLoc
     fprintf(tracef,"%.2f %.2f\n", rms, sqrt(hifsq));
     if (final) {
         printf("final RMS gradient=%f after %d iterations\n", rms, frameNumber);
+    }
+    if (interrupted && !interruptionWarning) {
+        WARNING("minimizer run was interrupted");
+        interruptionWarning = 1;
     }
 }
 
@@ -1099,7 +1108,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
     minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "1");
 
     // adaptive stepsize steepest descents until RMS gradient is under 50
-    for (; *frameNumber < steepestDescentFrames && rms_force>50.0;) {
+    for (; *frameNumber < steepestDescentFrames && rms_force>50.0 && !interrupted;) {
 	last_sum_forceSquared = sum_forceSquared;
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
@@ -1169,7 +1178,7 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
     rms_force = sqrt(sum_forceSquared/Nexatom);
 
     // conjugate gradients for a while
-    for (; DumpAsText ? rms_force>1.0 : *frameNumber<numFrames;) {
+    for (; (DumpAsText ? rms_force>1.0 : *frameNumber<numFrames) && !interrupted;) {
 	//for (i=0; i<20 ;  i++) {
 	minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "3");
 	gamma = sum_forceSquared/last_sum_forceSquared;
@@ -1189,7 +1198,7 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	yyy = sum_force_dot_old_force/xxx;
 	zzz = yyy;
         DPRINT(D_MINIMIZE, "xxx: %f yyy: %f\n", xxx, yyy);
-	for (k=0; k<10 && yyy*yyy>1.0 && (DumpAsText || *frameNumber<numFrames); k++) {
+	for (k=0; k<10 && yyy*yyy>1.0 && (DumpAsText || *frameNumber<numFrames) && !interrupted; k++) {
 	    for (j=0; j<Nexatom; j++) {
 		f=old_force[j];
 		vmulc(f, movcon);
@@ -1257,7 +1266,27 @@ void minimize(int numFrames)
     if (minimizeSteepestDescent(steepestDescentFrames, &frameNumber)) {
         minimizeConjugateGradients(numFrames, &frameNumber);
     } else {
-        WARNING("partial minimization");
+        if (!interruptionWarning) {
+            WARNING("partial minimization");
+        }
+    }
+}
+
+void SIGTERMhandler(int sig) 
+{
+    interrupted = 1;
+}
+
+static void installSIGTERMhandler() 
+{
+    struct sigaction act;
+
+    act.sa_handler = &SIGTERMhandler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    if (sigaction(SIGTERM, &act, NULL) < 0) {
+        perror("sigaction()");
+        exit(1);
     }
 }
 
@@ -1292,6 +1321,8 @@ main(int argc,char **argv)
     char buf[1024], *filename, *ofilename, *tfilename, *c;
 	
     double x,y,z, end, theta;
+
+    installSIGTERMhandler();
 
     maktab(uft1, uft2, uffunc, UFSTART, UFTLEN, UFSCALE);
 	
