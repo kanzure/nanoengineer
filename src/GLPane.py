@@ -789,9 +789,9 @@ class GLPane(QGLWidget, modeMixin):
         try:
             self.win.msgbarLabel.setText("Calculating...")
             writemmp(self.assy, "minimize.mmp")
-            s = getoutput("simulator -m minimize.mmp")
-            # s might or might not start with "Minimize" --
-            # if not, it's used as an error message
+            pipe = os.popen("simulator -m minimize.mmp")
+            s = pipe.read()
+            r = pipe.close()
         except:
             print_compact_traceback("exception in minimize; continuing: ")
             # bruce 040924
@@ -799,9 +799,7 @@ class GLPane(QGLWidget, modeMixin):
             assert not s.startswith("Minimize")
         QApplication.restoreOverrideCursor()
         # Restore the cursor [mark 040924 via bruce]
-
-        # heh heh let's try: "Minimize" means success
-        if s.startswith("Minimize"):
+        if not r:
             self.win.msgbarLabel.setText("Minimizing...")
             self.startmovie("minimize.dpb")
         else:
@@ -813,7 +811,6 @@ class GLPane(QGLWidget, modeMixin):
         self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
-        print self.clock, 'frames'
         self.startTimer(30)
 
     def timerEvent(self, e):
