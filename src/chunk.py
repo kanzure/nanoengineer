@@ -251,7 +251,7 @@ class molecule(Node, InvalMixin):
         # arrays that store pos directly (everything else depends on them):
         self.curpos[ind] = pos
         atpos = self.__dict__.get('atpos')
-        if not atpos:
+        if atpos == None:
             # nothing more to do -- everything else depends on atpos
             return
         assert atpos is self.curpos, "atpos should be same object as curpos"
@@ -314,7 +314,10 @@ class molecule(Node, InvalMixin):
         # we must access self.atpos, since we depend on it in our inval rules
         # (if that's too slow, then anyone invalling atpos must inval this too #e)
         return A( map( lambda atm: atm.posn(), self.singlets ) )
-
+        #bruce 041119 added "or []" to fix a bug - try recompute everything for no-sing mol...
+        # but bruce 041123 removed "or []" again, for fear of singlpos = A([[0.0,0.0,0.0]])
+        # being false (which it would be, though it's an unlikely value of singlpos).
+    
     # These 4 attrs are stored in one tuple, so they can be invalidated
     # quickly as a group.
     
@@ -462,6 +465,8 @@ class molecule(Node, InvalMixin):
                             # position stored in curpos is changed!
         self.atpos = atpos
 
+        assert len(atpos) == len(atlist)
+
         self._recompute_average_position() # sets self.average_position from self.atpos
         self.basecenter = + self.average_position # not an invalidatable attribute
             # unary '+' prevents mods to basecenter from affecting average_position;
@@ -477,6 +482,9 @@ class molecule(Node, InvalMixin):
         else:
             self.basepos = []
             # this has wrong type, so requires special code in mol.move etc
+
+        assert len(self.basepos) == len(atlist)
+        
         # note: basepos must be a separate array object (except when mol is frozen),
         # but atpos (when defined) and curpos must always be the same object.
         self.changed_basecenter_or_quat_while_atoms_fixed()
@@ -634,52 +642,58 @@ class molecule(Node, InvalMixin):
         # put it in its place
         glPushMatrix()
 
-        origin = self.basecenter
+        try: #bruce 041119: do our glPopMatrix no matter what
+            origin = self.basecenter
+            glTranslatef(origin[0], origin[1], origin[2])
+            q = self.quat
+            glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
 
-        glTranslatef(origin[0], origin[1], origin[2])
-        
-        q = self.quat
-        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+            if self.picked:
+                try:
+                    drawlinelist(PickedColor,self.polyhedron or [])
+                except:
+                    # bruce 041119 debug code;
+                    # also "or []" failsafe (above)
+                    # in case recompute exception makes it None
+                    print_compact_traceback("exception in drawlinelist: ")
+                    print "(self.polyhedron is %r)" % self.polyhedron
 
-        if self.picked:
-            drawlinelist(PickedColor,self.polyhedron)
+            disp = self.get_dispdef(glpane) #bruce 041109 split into separate method
+            # disp is passed to two methods below... but if we use a cached display
+            # list, it's not reflected in that, and we don't check for this here;
+            # this would cause bugs in redrawing after changing the glpane's display
+            # mode, except that doing that calls changeapp() on the required mols,
+            # so it's ok in theory. [comment by bruce 041109/041123]
 
-        disp = self.get_dispdef(glpane) #bruce 041109 split into separate method
-        # disp is passed to two methods below... but if we use a cached display
-        # list, it's not reflected in that, and we don't check for this here;
-        # this might cause bugs in redrawing after changing the glpane's display
-        # mode (unless doing that calls changeapp() on all its mols). ###e fix?
-        # [comment by bruce 041109]
+            # cache molecule display as GL list
+            if self.havelist:
+                glCallList(self.displist)
+            else:
+                glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
 
-        # cache molecule display as GL list
-        if self.havelist:
-            glCallList(self.displist)
-
-        else:
-            glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
-
-            # bruce 041028 -- protect against exceptions while making display
-            # list, or OpenGL will be left in an unusable state (due to the lack
-            # of a matching glEndList) in which any subsequent glNewList is an
-            # invalid operation. (Also done in shape.py; not needed in drawer.py.)
-            try:
-                self.draw_displist(glpane, disp) # also recomputes self.externs
-            except:
-                print_compact_traceback("exception in molecule.draw_displist ignored: ")
-                # it might have left the externs incomplete # bruce 041105 night
-                ## self.externs = INVALID_EXTERNS
-                self.invalidate_attr('externs')
-            glEndList()
-            self.havelist = 1 # always set this flag, even if exception happened,
-            # so it doesn't keep happening with every redraw of this molecule.
-            #e (in future it might be safer to remake the display list to contain
-            # only a known-safe thing, like a bbox and an indicator of the bug.)
+                # bruce 041028 -- protect against exceptions while making display
+                # list, or OpenGL will be left in an unusable state (due to the lack
+                # of a matching glEndList) in which any subsequent glNewList is an
+                # invalid operation. (Also done in shape.py; not needed in drawer.py.)
+                try:
+                    self.draw_displist(glpane, disp) # also recomputes self.externs
+                except:
+                    print_compact_traceback("exception in molecule.draw_displist ignored: ")
+                    # it might have left the externs incomplete # bruce 041105 night
+                    ## self.externs = INVALID_EXTERNS
+                    self.invalidate_attr('externs')
+                glEndList()
+                self.havelist = 1 # always set this flag, even if exception happened,
+                # so it doesn't keep happening with every redraw of this molecule.
+                #e (in future it might be safer to remake the display list to contain
+                # only a known-safe thing, like a bbox and an indicator of the bug.)
+            assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
+                "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
+                # (we use `x` == `y` since x == y doesn't work well for these data types)
+        except:
+            print_compact_traceback("exception in molecule.draw, continuing: ")
             
         glPopMatrix()
-
-        assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
-            "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
-            # (we use `x` == `y` since x == y doesn't work well for these data types)
         
         for bon in self.externs:
             bon.draw(glpane, disp, self.color, self.assy.drawLevel)
@@ -824,8 +838,10 @@ class molecule(Node, InvalMixin):
         if not point:
             point = self.center # not basecenter!
         factor = float(factor)
-
-        if not self.basepos:
+        
+        #bruce 041119 bugfix in following test of array having elements --
+        # use len(), since A([[0.0,0.0,0.0]]) is false!
+        if not len(self.basepos):
             # we need this 0 atoms case (though it probably never occurs)
             # since the remaining code won't work for it,
             # since self.basepos has the wrong type then (in fact it's []);
@@ -878,15 +894,15 @@ class molecule(Node, InvalMixin):
         assert self.__dict__.has_key('basepos'), \
                "internal error in changed_basecenter_or_quat_to_move_atoms for %r" % (self,)
         
-        if not self.basepos:
+        if not len(self.basepos): #bruce 041119 bugfix -- use len()
             # we need this 0 atoms case (though it probably never occurs)
             # since the remaining code won't work for it,
             # since self.basepos has the wrong type then (in fact it's []);
             # note that no changes or invals are needed for 0 atoms.
             return
-        
-        self.curpos = self.basecenter + self.quat.rot(self.basepos)
+
         # imitate the recomputes done by _recompute_atpos
+        self.curpos = self.basecenter + self.quat.rot(self.basepos)
         self.atpos = self.curpos
         # no change in atlist; no change needed in our atoms' .index attributes
         # no change here in basepos or bbox (if caller changed them, it should
@@ -1284,8 +1300,10 @@ def shakedown_poly_eval_evec_axis(basepos):
     # and renamed self.eval to evals (just in this function) to avoid
     # confusion with python's built-in function eval.
     
-    if not basepos:
-        return None, None, None, V(1,0,0)
+    if not len(basepos): #bruce 041119 bugfix -- use len()
+        ## wrong: return None, None, None, V(1,0,0)
+        return [], [], [], V(1,0,0) # also a guess, but should be safer
+        #e do we need to figure out better values to return for 0 atoms??
     
     # find extrema in many directions
     xtab = dot(basepos, polyXmat)
@@ -1308,7 +1326,7 @@ def shakedown_poly_eval_evec_axis(basepos):
     # Pick a principal axis: if square or circular, the axle;
     # otherwise the long axis (this is a heuristic)
 
-    ### bruce 041112 suspects it was a bug in original source
+    # note: bruce 041112 suspects it was a bug in original source
     # to say atpos rather than basepos. Evidence: axis as used
     # in self.getaxis should be in base coords; axis computed
     # below from evec (when > 2 atoms) is in base coords.
