@@ -250,7 +250,6 @@ class depositMode(basicMode):
             # else we've grabbed an atom
             elif a.realNeighbors(): # part of larger molecule
                 self.dragmol = a.molecule
-                a.molecule.fix_externs() #bruce 041029
                 e=a.molecule.externs
                 if len(e)==1: # pivot around one bond
                     self.pivot = e[0].center
@@ -403,7 +402,12 @@ class depositMode(basicMode):
         self.bareMotion(event, True)
         if self.dragatom.element == Singlet:
             if self.o.selatom and self.o.selatom != self.dragatom:
-                makeBonded(self.dragatom, self.o.selatom)
+                bond_at_singlets(self.dragatom, self.o.selatom)
+                # bruce 041116 asks, re bug 121: what should we do if
+                # these two atoms are already bonded? Now, it kills
+                # the singlets but (apparently, as viewed on screen)
+                # leaves them with one bond, which
+                # reduces their valence, which is wrong.
         self.o.paintGL()
         
 
@@ -435,9 +439,12 @@ class depositMode(basicMode):
         if len(m.singlets)==0: return
         if len(m.singlets)>1 and not m.hotspot: return
         numol = self.pastable.copy(None)
+        # bruce 041116 added by (implicitly, by default) cauterize = 1
+        # to mol.copy(); change this to cauterize = 0 here if unwanted,
+        # and for other uses of mol.copy in this file.
         hs = numol.hotspot or numol.singlets[0]
         self.o.assy.addmol(numol)
-        makeBonded(hs,sing)
+        bond_at_singlets(hs,sing)
         
         
     # paste the pastable object where the cursor is
@@ -455,6 +462,7 @@ class depositMode(basicMode):
     # singlet is supposedly the lit-up singlet we're pointing to.
     # bond the new atom to it, and any other ones around you'd
     # expect it to form bonds with
+    # [bruce comment 041115: only bonds to singlets in same molecule; why?]
     def attach(self, el, singlet):
         if not el.numbonds: return
         spot = self.findSpot(el, singlet)
@@ -700,7 +708,6 @@ class depositMode(basicMode):
         if self.o.selatom:
             m = self.o.selatom.molecule
             print "mol", m.name, len(m.atoms), len(m.atlist), len(m.curpos)
-            m.fix_externs() #bruce 041029
             print 'externs', m.externs
             for a in m.atlist:
                 print a
