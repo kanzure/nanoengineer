@@ -11,6 +11,7 @@ from modelTree import *
 
 from constants import *
 from elementSelector import *
+from fileIO import *
 
 from MainWindowUI import MainWindow
 helpwindow = None
@@ -92,9 +93,9 @@ class MWsemantics(MainWindow):
         if not os.path.exists(fn): return
         assy = assembly(self, "Empty")
         if fn[-3:] == "pdb":
-            assy.readpdb(fn)
+            readpdb(assy,fn)
         if fn[-3:] == "mmp":
-            assy.readmmp(fn)
+            readmmp(assy,fn)
 
         dir, fil, ext = fileparse(fn)
         assy.name = fil
@@ -118,9 +119,9 @@ class MWsemantics(MainWindow):
         fn = str(fn)
         if not os.path.exists(fn): return
         if fn[-3:] == "pdb":
-            self.assy.readpdb(fn)
+            readpdb(self.assy,fn)
         if fn[-3:] == "mmp":
-            self.assy.readmmp(fn)
+            readmmp(self.assy,fn)
 
         dir, fil, ext = fileparse(fn)
         self.assy.name = fil
@@ -140,7 +141,7 @@ class MWsemantics(MainWindow):
             if self.assy.filename:
                 fn = str(self.assy.filename)
                 dir, fil, ext = fileparse(fn)
-                self.assy.writemmp(dir + fil + ".mmp")
+                writemmp(self.assy, dir + fil + ".mmp")
             else: self.fileSaveAs()
 
     def fileSaveAs(self):
@@ -164,11 +165,11 @@ class MWsemantics(MainWindow):
                 ext = fileDialog.selectedFilter()
                 ext = str(ext)
                 if ext[-4:-1] == "mmp":
-                    self.assy.writemmp(dir + fil + ".mmp")
+                    writemmp(self.assy, dir + fil + ".mmp")
                     self.assy.filename = dir + fil + ".mmp"
                     self.assy.modified = 0
                 elif ext[-4:-1] == "pdb":
-                    self.assy.writepdb(dir + fil + ".pdb")
+                    writepdb(self.assy, dir + fil + ".pdb")
                     self.assy.filename = dir + fil + ".pdb"
                     self.assy.modified = 0
                 elif ext[-4:-1] == "pov":
