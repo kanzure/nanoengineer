@@ -3,7 +3,7 @@
 """Classes for objects in the model.
 This file should have a more descriptive name, but that can wait.
 
-Temporarily owned by bruce 041104 for shakedown inval/update code.
+[No longer owned by bruce, as of 041129.]
 
 $Id$
 """
@@ -38,6 +38,11 @@ class Node:
         m = self.dad.members
         i = m.index(self)
         m.insert(i,obj)
+        # bruce 041129 comments:
+        # 1. Note that this inserts obj *before* self in the
+        # list m, but since the list is backwards relative to what's displayed
+        # in the model tree widget, it ends up "just after us" as promised.
+        # 2. Is it safe if this is called twice? I see no auto-remove then.
         obj.dad = self.dad
 
     def pick(self):
