@@ -110,6 +110,8 @@ class nullMode(anyMode):
     # (this mode is not put into the glpane's modetab)
     modename = 'nullMode'
     msg_modename = 'nullMode'
+    backgroundColor = 0.5, 0.5, 0.5
+        # this will be overwritten when modes are changing [bruce 050106]
     # needs no __init__ method; constructor takes no arguments
     def noop_method(self, *args):
         print "fyi: nullMode noop method called -- probably ok, but please tell bruce if this ever happens!" ###
@@ -1176,6 +1178,11 @@ class modeMixin:
             # we weren't sending you events anyway, what are you
             # talking about?!?" #k not sure this is an error
             print "fyi (for developers): stop_sending_us_events: self.mode is not mode: %r, %r" % (self.mode, mode) ###
+        self.use_nullmode()
+
+    def use_nullmode(self):
+        self.nullmode.backgroundColor = self.mode.backgroundColor
+            # [bruce 050106 to try to fix bug 141]
         self.mode = self.nullmode
         
     def start_using_mode(self, mode):
@@ -1193,7 +1200,7 @@ class modeMixin:
         #   it will accept, and the switch to it, so the prior mode
         #   needn't worry about its state if the new mode won't even
         #   accept.)
-        self.mode = self.nullmode
+        self.use_nullmode()
         # temporary (prevent bug-risk of reentrant event processing by
         # current mode)
         mode = self._find_mode(mode)
