@@ -248,13 +248,13 @@ class basicMode(anyMode):
            Exception: if we're already in that mode, do nothing.
            [bruce 040922]
         """
-        if self.modename == modename:
-            if self.o.mode == self:
+        ##if self.modename == modename:
+        ##    if self.o.mode == self:
                 # changing from the active mode to itself -- do nothing (special case, not equivalent to behavior without it)
-                return
-            else:
+        ##        return
+        ##    else:
                 # I don't think this can happen, but if it does, it's either a bug or we're some fake mode like nullMode. #k
-                print "fyi (for developers): self.modename == modename but not self.o.mode == self (probably ok)" ###
+        ##        print "fyi (for developers): self.modename == modename but not self.o.mode == self (probably ok)" ###
                 # now change modes in the normal way
         if self.haveNontrivialState():
             msg = "%s contains changes -- you must choose Done or Cancel\nbefore switching to mode %r." % (self.msg_modename, modename)

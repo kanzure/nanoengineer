@@ -182,6 +182,8 @@ class cookieMode(basicMode):
         self.o.paintGL()
 
     def middleUp(self,event):
+        basicMode.middleUp(self, event)    
+        
         if self.cookieQuat:
             self.o.quat = Q(self.cookieQuat)
             self.o.paintGL()

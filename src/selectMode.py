@@ -52,9 +52,9 @@ class selectMode(basicMode):
     
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
-        if self.o.assy.selwhat == 2:
+        #if self.o.assy.selwhat == 2:
             self.w.selectMolDashboard.hide()
-        elif self.o.assy.selwhat == 0:
+        #elif self.o.assy.selwhat == 0:
             self.w.selectAtomsDashboard.hide()
     
     def leftDown(self, event):
