@@ -356,8 +356,8 @@ class basicMode(anyMode):
         """##### new method, bruce 040927; doc is tentative [maybe
            already obs?]; btw this overrides an AnyMode method:        
            Return the correct text to show right now in the
-           mode-status widget (e.g."Mode: Sketch Atoms",
-           "Mode: Select Molecules").           
+           mode-status widget (e.g."Mode: Build",
+           "Mode: Select Chunks").           
            The default implementation is suitable for modes in which this
            text never varies, assuming they properly define the class
            constant default_mode_status_text; other modes will need to
@@ -915,10 +915,10 @@ class basicMode(anyMode):
                     atm.Hydrogenate()
         self.o.paintGL()
 
-    # remove hydrogen atoms from each selected atom/molecule
+    # remove hydrogen atoms from each selected atom/chunk
     # (coded by Mark ~10/18/04; bugfixed/optimized/msgd by Bruce same day.
     #  Bruce warns: I did not fully analyze and fix all potential bugs
-    #  caused by removing a hydrogen which is in a different molecule than
+    #  caused by removing a hydrogen which is in a different chunk than
     #  its neighbor atom, even though I fixed some such bugs, and other bugs.
     #  Also, I'm skeptical this belongs in basicMode; probably it will need
     #  rewriting as soon as some specific mode wants to do it differently.)
@@ -936,20 +936,20 @@ class basicMode(anyMode):
                     countm += 1
                     fixmols[id(m)] = m
                     ###e In theory, we might have removed an H whose neighbor
-                    # is in a different molecule, which therefore might need a
+                    # is in a different chunk/molecule, which therefore might need a
                     # shakedown... I have not tried to fix that, and I'm not
                     # sure it's a bug (since Dehydrogenate did changeapp on it,
                     # and maybe that's enough -- this needs review).
             if counta:
-                didwhat = "Dehydrogenate: removed %d atom(s) from %d molecule(s)" \
+                didwhat = "Dehydrogenate: removed %d atom(s) from %d chunk(s)" \
                           % (counta, countm)
                 if len(self.o.assy.selmols) > countm:
                     didwhat += \
-                        " (%d selected molecule(s) had no hydrogens)" \
+                        " (%d selected chunks(s) had no hydrogens)" \
                         % (len(self.o.assy.selmols) - countm)
                 didwhat = fix_plurals(didwhat)
             else:
-                didwhat = "Dehydrogenate: selected molecules contain no hydrogens"
+                didwhat = "Dehydrogenate: selected chunks contain no hydrogens"
         elif self.o.assy.selatoms:
             count = 0
             for a in self.o.assy.selatoms.values():
@@ -964,7 +964,7 @@ class basicMode(anyMode):
                         fixmols[id(matm)] = matm
             if fixmols:
                 didwhat = \
-                    "Dehydrogenate: removed %d atom(s) from %d molecule(s)" \
+                    "Dehydrogenate: removed %d atom(s) from %d chunk(s)" \
                     % (count, len(fixmols))
                 didwhat = fix_plurals(didwhat)
                 # Technically, we *should* say ", affected" instead of "from"

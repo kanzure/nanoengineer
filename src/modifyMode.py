@@ -16,7 +16,7 @@ class modifyMode(basicMode):
     backgroundColor = 255/256.0, 174/256.0, 247/256.0
     gridColor = 52/256.0, 129/256.0, 26/256.0
     modename = 'MODIFY'
-    default_mode_status_text = "Mode: Move Molecules"
+    default_mode_status_text = "Mode: Move Chunks"
     
     # no __init__ method needed
 
@@ -30,7 +30,7 @@ class modifyMode(basicMode):
     # init_gui handles all the GUI display when entering this mode [mark 041004]
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
-        self.w.toolsMoveMoleculeAction.setOn(1) # toggle on the Move Molecules icon
+        self.w.toolsMoveMoleculeAction.setOn(1) # toggle on the Move Chunks icon
         self.w.moveMolDashboard.show() # show the Move Molecules dashboard
     
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]

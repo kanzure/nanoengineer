@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\PartPropDialog.ui'
 #
-# Created: Sat Oct 16 18:16:05 2004
+# Created: Fri Nov 5 09:22:03 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -251,11 +251,6 @@ class PartPropDialog(QDialog):
         self.cdateLabel.setGeometry(QRect(81,98,270,20))
         self.cdateLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
 
-        self.statsView = QListView(self.tab,"statsView")
-        self.statsView.addColumn(self.__tr("Statistic Name"))
-        self.statsView.addColumn(self.__tr("Value"))
-        self.statsView.setGeometry(QRect(80,180,270,180))
-
         self.mdateLabel = QLabel(self.tab,"mdateLabel")
         self.mdateLabel.setGeometry(QRect(80,121,270,20))
         self.mdateLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
@@ -293,6 +288,11 @@ class PartPropDialog(QDialog):
         self.nameLabel = QLabel(self.tab,"nameLabel")
         self.nameLabel.setGeometry(QRect(11,23,60,21))
         self.nameLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+
+        self.statsView = QListView(self.tab,"statsView")
+        self.statsView.addColumn(self.__tr("Statistic Name"))
+        self.statsView.addColumn(self.__tr("Value"))
+        self.statsView.setGeometry(QRect(80,180,270,180))
         self.tabWidget3.insertTab(self.tab,QString(""))
 
         self.tab_2 = QWidget(self.tabWidget3,"tab_2")
@@ -319,7 +319,7 @@ class PartPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(378,474).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(378,477).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
 
@@ -335,11 +335,20 @@ class PartPropDialog(QDialog):
         self.nameLabel_2.setText(self.__tr("Name:"))
         self.authorLineEdit.setText(QString.null)
         self.cdateLabel.setText(self.__tr("Created Date"))
+        self.mdateLabel.setText(self.__tr("Modified Date"))
+        self.textLabel2_4.setText(self.__tr("Accessed:"))
+        self.statsLabel.setText(self.__tr("Statistics:"))
+        self.adateLabel.setText(self.__tr("Accessed Date"))
+        self.textLabel2.setText(self.__tr("Created:"))
+        self.textLabel1_2.setText(self.__tr("Author:"))
+        self.textLabel2_3.setText(self.__tr("Modified:"))
+        self.nameLineEdit.setText(QString.null)
+        self.nameLabel.setText(self.__tr("Name:"))
         self.statsView.header().setLabel(0,self.__tr("Statistic Name"))
         self.statsView.header().setLabel(1,self.__tr("Value"))
         self.statsView.clear()
         item = QListViewItem(self.statsView,None)
-        item.setText(0,self.__tr("Molecules:"))
+        item.setText(0,self.__tr("Chunks:"))
 
         item = QListViewItem(self.statsView,item)
         item.setText(0,self.__tr("Atoms:"))
@@ -356,15 +365,6 @@ class PartPropDialog(QDialog):
         item = QListViewItem(self.statsView,item)
         item.setText(0,self.__tr("Thermostats:"))
 
-        self.mdateLabel.setText(self.__tr("Modified Date"))
-        self.textLabel2_4.setText(self.__tr("Accessed:"))
-        self.statsLabel.setText(self.__tr("Statistics:"))
-        self.adateLabel.setText(self.__tr("Accessed Date"))
-        self.textLabel2.setText(self.__tr("Created:"))
-        self.textLabel1_2.setText(self.__tr("Author:"))
-        self.textLabel2_3.setText(self.__tr("Modified:"))
-        self.nameLineEdit.setText(QString.null)
-        self.nameLabel.setText(self.__tr("Name:"))
         self.tabWidget3.changeTab(self.tab,self.__tr("General"))
         self.nameLabel_3.setText(self.__tr("Name:"))
         self.textLabel1_2_2.setText(self.__tr("Temp:"))

@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>378</width>
-            <height>474</height>
+            <height>477</height>
         </rect>
     </property>
     <property name="caption">
@@ -194,125 +194,6 @@
                     <set>AlignVCenter|AlignLeft</set>
                 </property>
             </widget>
-            <widget class="QListView">
-                <column>
-                    <property name="text">
-                        <string>Statistic Name</string>
-                    </property>
-                    <property name="clickable">
-                        <bool>true</bool>
-                    </property>
-                    <property name="resizable">
-                        <bool>true</bool>
-                    </property>
-                </column>
-                <column>
-                    <property name="text">
-                        <string>Value</string>
-                    </property>
-                    <property name="clickable">
-                        <bool>true</bool>
-                    </property>
-                    <property name="resizable">
-                        <bool>true</bool>
-                    </property>
-                </column>
-            <item>
-                <property name="text">
-                    <string>Molecules:</string>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Atoms:</string>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Rotary Motors:</string>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Linear Motors:</string>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Grounds:</string>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Thermostats:</string>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-                <property name="pixmap">
-                    <pixmap></pixmap>
-                </property>
-            </item>
-                <property name="name">
-                    <cstring>statsView</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>80</x>
-                        <y>180</y>
-                        <width>270</width>
-                        <height>180</height>
-                    </rect>
-                </property>
-            </widget>
             <widget class="QLabel">
                 <property name="name">
                     <cstring>mdateLabel</cstring>
@@ -488,6 +369,125 @@
                 </property>
                 <property name="alignment">
                     <set>AlignVCenter|AlignLeft</set>
+                </property>
+            </widget>
+            <widget class="QListView">
+                <column>
+                    <property name="text">
+                        <string>Statistic Name</string>
+                    </property>
+                    <property name="clickable">
+                        <bool>true</bool>
+                    </property>
+                    <property name="resizable">
+                        <bool>true</bool>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>Value</string>
+                    </property>
+                    <property name="clickable">
+                        <bool>true</bool>
+                    </property>
+                    <property name="resizable">
+                        <bool>true</bool>
+                    </property>
+                </column>
+            <item>
+                <property name="text">
+                    <string>Chunks:</string>
+                </property>
+                <property name="text">
+                    <string></string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Atoms:</string>
+                </property>
+                <property name="text">
+                    <string></string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Rotary Motors:</string>
+                </property>
+                <property name="text">
+                    <string></string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Linear Motors:</string>
+                </property>
+                <property name="text">
+                    <string></string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Grounds:</string>
+                </property>
+                <property name="text">
+                    <string></string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Thermostats:</string>
+                </property>
+                <property name="text">
+                    <string></string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+            </item>
+                <property name="name">
+                    <cstring>statsView</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>80</x>
+                        <y>180</y>
+                        <width>270</width>
+                        <height>180</height>
+                    </rect>
                 </property>
             </widget>
         </widget>

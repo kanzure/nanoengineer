@@ -190,7 +190,7 @@ class selectMode(basicMode):
     
 class selectMolsMode(selectMode):
         modename = 'SELECTMOLS'
-        default_mode_status_text = "Mode: Select Molecules"
+        default_mode_status_text = "Mode: Select Chunks"
     
         def Enter(self): 
             basicMode.Enter(self)
@@ -202,7 +202,7 @@ class selectMolsMode(selectMode):
 #            print "selectMode.py: init_gui(): Cursor set to SelectMolsCursor"
             self.o.setCursor(self.w.SelectMolsCursor)
             self.w.OldCursor = QCursor(self.o.cursor())
-            self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Molecules" tools icon
+            self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Chunks" tools icon
             self.w.selectMolDashboard.show() 
             
         def restore_gui(self):
