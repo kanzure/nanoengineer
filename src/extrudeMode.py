@@ -286,6 +286,7 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
     tol = self.extrudeBondCriterionSlider_dflt / 100.0
     set_bond_tolerance_and_number_display( win, tol)
     set_bond_tolerance_slider( win, tol)
+    ### bug: at least after the reload menu item, reentering mode did not reinit slider to 100%. don't know why.
     return
 
 def set_bond_tolerance_and_number_display(win, tol, nbonds = -1): #e -1 indicates not yet known ###e '?' would look nicer
@@ -772,11 +773,16 @@ class extrudeMode(basicMode):
         hh = tuple(hh)
         if hh != self.bonds_for_current_offset_and_tol:
             self.needs_repaint = 1 # usually true at this point
-            msg = "new set of %d nice bonds: %r" % (len(hh), hh)
-            print msg ## self.status_msg(msg) -- don't obscure the scan msg yet #######
+            ##msg = "new set of %d nice bonds: %r" % (len(hh), hh)
+            ##print msg ## self.status_msg(msg) -- don't obscure the scan msg yet #######
             self.bonds_for_current_offset_and_tol = hh
             # change singlet color dict(??) for i1,i2 in ..., proc(i1, col1), proc(i2,col2)...
             self.singlet_color = {}
+            for mol in self.molcopies:
+                mol.changeapp()
+                ##e if color should vary with bond closeness, we'd need changeapp for every offset change;
+                # then for speed, we'd want to repeatedly draw one mol, not copies like now
+                # (maybe we'd like to do that anyway).
             for (pos,radius,info) in hh:
                 i1,i2 = info
                 ####stub; we need to worry about repeated instances of the same one (as same of i1,i2 or not)
@@ -806,6 +812,13 @@ class extrudeMode(basicMode):
         return self.ncopies != 1 # more or less...
 
     def StateDone(self):
+        for mol in self.molcopies:
+            try:
+                del mol.colorfunc
+                mol.changeapp()
+            except:
+                pass
+        self.status_msg("extrude warning: bonding/merging of product (%d units) not yet implemented" % len(self.molcopies) )
         ###e make bonds if not yet done, merge base and rep units,
         # merge base back into its fragmented ancestral molecule...
         return None
