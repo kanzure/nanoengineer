@@ -175,11 +175,11 @@ void pq(int i) {
 		
 	r1=vdif(cur[torq[i].a1],cur[torq[i].ac]);
 	r2=vdif(cur[torq[i].a2],cur[torq[i].ac]);
-	printf("r1= %.1f, r2= %.1f, theta=%.2f (%.0f)",
+	printf("r1= %.1f, r2= %.1f, theta=%.2f (%.0f)\n",
 		  vlen(r1), vlen(r2), vang(r1, r2),
 		  (180.0/3.1415)*vang(r1, r2));
-	printf(" theta0=%f, Kb=%f\n",torq[i].type->theta0,
-	       torq[i].type->kb);
+	printf(" theta0=%f, Kb=%f, Ks=%f\n",torq[i].theta0, torq[i].kb1,
+	       torq[i].kb1/(vlen(r1) * vlen(r2)));
     }
 }
 
@@ -204,50 +204,52 @@ void pcon(int i) {
 	return;
     }
     printf("Constraint %d: ",i);
-    if (Constraint[i].type == CODEground) {
+
+    switch (Constraint[i].type) {
+	case CODEground: 
 	printf("Ground:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
 	    printf("%d ",Constraint[i].atoms[j]);
 	printf("\n");
-    }
-    else if (Constraint[i].type == CODEtemp) {
+	break;
+    case CODEtemp:
 	printf("Thermometer %s:\n atoms ",Constraint[i].name);
 	for (j=0;j<Constraint[i].natoms;j++)
 	    printf("%d ",Constraint[i].atoms[j]);
 	printf("\n");
-    }
-    else if (Constraint[i].type == CODEstat) {
+	break;
+    case CODEstat:
 	printf("Thermostat %s (%f):\n atoms ",
 	       Constraint[i].name,Constraint[i].data);
 	for (j=0;j<Constraint[i].natoms;j++)
 	    printf("%d ",Constraint[i].atoms[j]);
 	printf("\n");
-    }
-    else if (Constraint[i].type == CODEbearing) {
+	break;
+    case CODEbearing:
 	printf("Bearing:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
 	    printf("%d ",Constraint[i].atoms[j]);
 	printf("\n");
-    }
-    else if (Constraint[i].type == CODElmotor) {
+	break;
+    case CODElmotor:
 	printf("Linear motor:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
 	    printf("%d ",Constraint[i].atoms[j]);
 	printf("\n");
-    }
-    else if (Constraint[i].type == CODEspring) {
+	break;
+    case CODEspring:
 	printf("Spring:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
 	    printf("%d ",Constraint[i].atoms[j]);
 	printf("\n");
-    }
-    else if (Constraint[i].type == CODEslider) {
+	break;
+    case CODEslider:
 	printf("Slider:\n atoms ");
 	for (j=0;j<Constraint[i].natoms;j++)
 	    printf("%d ",Constraint[i].atoms[j]);
 	printf("\n");
-    }
-    else if (Constraint[i].type == CODEmotor) {
+	break;
+    case CODEmotor:
 	mot = Constraint[i].motor;
 	printf("motor; stall torque %.2e, unloaded speed %.2e\n center ",
 		  mot->stall, mot->speed);
@@ -270,6 +272,19 @@ void pcon(int i) {
 	}
 	printf(" Theta=%.2f, theta0=%.2f, moment factor =%e\n",
 		  mot->theta, mot->theta0, mot->moment);
+	break;
+    case CODEangle:   
+	printf("Angle meter %s:\n atoms ",Constraint[i].name);
+	for (j=0;j<Constraint[i].natoms;j++)
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
+	break;
+    case CODEradius:  
+	printf("radius measure %s:\n atoms ",Constraint[i].name);
+	for (j=0;j<Constraint[i].natoms;j++)
+	    printf("%d ",Constraint[i].atoms[j]);
+	printf("\n");
+	break;
     }
 }
 
@@ -320,6 +335,9 @@ void tracon(FILE *f) {
 
     for (i=0; i<Nexcon; i++) {
         switch (Constraint[i].type) {
+	case CODEangle:  
+	    fprintf(f, "%8.5f",Constraint[i].data);
+	    break;
 	case CODEground: 
 	    x=vlen(Constraint[i].xdata)/1e4;
 	    fprintf(f, "%8.2f",x/Constraint[i].data);
@@ -332,13 +350,12 @@ void tracon(FILE *f) {
 	case CODElmotor: 
 	case CODEspring: 
 	case CODEslider: 
-	case CODEangle:  
 	case CODEradius: 
 	    fprintf(f, "%8.2f",Constraint[i].data);
 	    Constraint[i].data = 0.0;
 	    break;
 	case CODEmotor:  
-	    fprintf(f, "%8.4f%8.4f",Constraint[i].data,
+	    fprintf(f, "%8.3f%8.3f",Constraint[i].data/(Dt*2e9*Pi),
 		    Constraint[i].temp/((1e-9/Dx)*(1e-9/Dx)));
 	    Constraint[i].data = 0.0;
 	    Constraint[i].temp = 0.0;

@@ -108,10 +108,11 @@ struct A {
 /* a (stretch) bond.   */
 /* r points from an2 to an1 */
 struct B {
-        int an1, an2, order;
-        struct bsdata *type;
-        struct xyz r, ru;        /* bond vector, unit version threreof */
-        struct xyz aff, bff;     /* axial force,  bending force */
+    int an1, an2, order;
+    double invlen;
+    struct bsdata *type;
+    struct xyz r, ru;        /* bond vector, unit version threreof */
+    struct xyz aff, bff;     /* axial force,  bending force */
 };
 /* note that the bending "force" is a torque pair, e.g. +bff applies
    to an1 and -bff to an2 (and aff is a linear pair likewise) */
@@ -327,6 +328,7 @@ extern double Pi;
 extern double Kb;
 extern double Ks;
 extern double De;
+extern double Tq;
 extern double Beta;
 extern double R0;
 extern double R1;

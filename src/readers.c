@@ -29,8 +29,8 @@ void makatom(int elem, struct xyz posn) {
     old[Nexatom]=posn;
     avg[Nexatom]=posn;
     // assuming the structure is minimized, half of this will 
-    // disappear into Pe on average (1.875 is empirical)
-    therm = sqrt(1.875*(Boltz*Temperature)/mass)*Dt/Dx;
+    // disappear into Pe on average 
+    therm = sqrt(2.0*(Boltz*Temperature)/mass)*Dt/Dx;
     v=gxyz(therm);
     vsub(old[Nexatom],v);
 	
@@ -120,10 +120,15 @@ void maktorq(int a, int b) {
     torq[Nextorq].b2=bond+b;
     torq[Nextorq].type = bendata+tq;
     torq[Nextorq].theta0 = torq[Nextorq].type->theta0;
+    /*
     // the kb in the torq record is the torqtype Ktheta / bond's R0
     torq[Nextorq].kb1 = torq[Nextorq].type->kb/torq[Nextorq].b1->type->r0;
     torq[Nextorq].kb2 = torq[Nextorq].type->kb/torq[Nextorq].b2->type->r0;
-	
+    */
+    torq[Nextorq].kb1 = torq[Nextorq].type->kb;
+    //torq[Nextorq].kb2 = torq[Nextorq].type->kb * Tq;
+    torq[Nextorq].kb2 = cos(torq[Nextorq].theta0);
+
     if (bond[a].an1==bond[b].an1) {
 	torq[Nextorq].dir1=1;
 	torq[Nextorq].dir2=1;
@@ -256,7 +261,10 @@ void makmot2(int i) {
 		
 	mominert += mot->radius[j]*mass;
     }
-    mot->moment = (Dt*Dt)/mominert;
+    // mot->moment = (Dt*Dt)/mominert;
+    // give the motor a flywheel w/ Tc about a picosecond
+    mot->moment = (Dt*Dt)/(mot->stall*1e8*1e-27/(1e-9/Dx));
+    printf("moment %e\n", mot->moment);
     mot->theta = 0.0;
     mot->theta0 = 0.0;
 	
@@ -271,6 +279,7 @@ void makmot2(int i) {
 	r=uvec(mot->ator[j]);
 	mot->atang[j] = atan2(vdot(r,mot->rotz),vdot(r,mot->roty));
     }
+    if (mot->speed==0.0) mot->theta = mot->atang[0];
 }
 
 int readname(char *buf, char **ret) {
@@ -385,14 +394,25 @@ void filred(char *filnam) {
 	  Constraint[i].name = strg;
 	}
 
-	// angle
+	// angle meter
 	// angle (name) <atoms>
 	else if (0==strncasecmp("angle",buf,5)) {
 
 	  j=readname(buf+6,&strg);
-	  printf("got thermometer (%s) @%d\n", strg, j);
+	  printf("got angle meter (%s) @%d\n", strg, j);
 	  j=readshaft(buf+6+j, iv, atnotab);
 	  i=makcon(CODEangle, NULL, j, iv);
+	  Constraint[i].name = strg;
+	}
+
+	// radius meter
+	// radius (name) <atoms>
+	else if (0==strncasecmp("radius",buf,6)) {
+
+	  j=readname(buf+7,&strg);
+	  printf("got radius meter (%s) @%d\n", strg, j);
+	  j=readshaft(buf+7+j, iv, atnotab);
+	  i=makcon(CODEradius, NULL, j, iv);
 	  Constraint[i].name = strg;
 	}
 
@@ -412,11 +432,11 @@ void filred(char *filnam) {
 	/* rmotor (name) (r,g,b) <torque> <speed> (<center>) (<axis>) */
 	/* torque in nN*nm  speed in gigahertz */
 	else if (0==strncasecmp("rmotor",buf,6)) {
-	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
-	    sscanf(buf+j+1, " %lf %lf (%d, %d, %d) (%d, %d, %d",
-		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
-	    printf("%s\ngot motor (%d)  %lf %lf (%d, %d, %d) (%d, %d, %d) \n",
-		   buf,j,stall,speed, ix, iy, iz, ix1, iy1, iz1);
+	    j=readname(buf+7,&strg);
+	    sscanf(buf+j+7, " (%[0-9, ]) %lf %lf (%d, %d, %d) (%d, %d, %d",
+		   nambuf, &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
+	    // printf("%s\ngot motor (%s)  %lf %lf (%d, %d, %d) (%d, %d, %d) \n",
+	    //	   buf,strg,stall,speed, ix, iy, iz, ix1, iy1, iz1);
 	    vec1.x=(double)ix *0.1;
 	    vec1.y=(double)iy *0.1;
 	    vec1.z=(double)iz *0.1;
@@ -431,6 +451,7 @@ void filred(char *filnam) {
 	      i=makcon(CODEmotor, makmot(stall, speed, vec1, vec2), j, iv);
 	      makmot2(i);
 	    }
+	    Constraint[i].name = strg;
 	}
 
 	// bearing 

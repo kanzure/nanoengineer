@@ -149,12 +149,9 @@ struct xyz Cog, P, Omega;
 
 double totClipped=0.0;  // internal thermostat for numerical stability
 
-
-// thermometer averaging variables noTherm, totTherm
-int notherm; // total number of atoms in thermometers
-double totTherm; // used to average the temps in thermometers
-
 double Gamma = 0.01; // for Langevin thermostats
+// double G1=(1.01-0.27*Gamma)*1.4*sqrt(Gamma);
+double G1=(1.01-0.27*0.01)*1.4*0.1;
 
 // definitions for command line args
 
@@ -453,7 +450,7 @@ void calcloop(int iters) {
 	
     double fac, pe,ke;
     int i,j, k, loop, a1, a2, ac, n;
-    double rsq, br, ff, m, theta, z, totorq;
+    double rsq, br, ff, m, theta, z, totorq, motorq, omega;
     struct xyz f, v1, v2, rx, foo,bar, totforce, q1, q2;
     struct vdWbuf *nvb;
     struct MOT *mot;
@@ -461,6 +458,9 @@ void calcloop(int iters) {
     double *t1, *t2;
     double start, deltaTframe;
     int scale;
+
+    double therm;
+    double modrag = 0.001;
 
     deltaTframe = 1.0/(iters*innerIters);
 	
@@ -517,7 +517,8 @@ void calcloop(int iters) {
 		rsq = vdot(f,f);
 				
 		/* while we're at it, set unit bond vector and clear bend force */
-		ufac(ff,k,rsq);
+		ff = 1.0/sqrt(rsq);
+		bond[j].invlen = ff;
 		vmul2c(bond[j].ru,f,ff);
 		vsetc(bond[j].bff,0.0);
 				
@@ -530,14 +531,14 @@ void calcloop(int iters) {
 		k=(int)(rsq-start)/scale;
 		if (k<0) {
 					
-		    // printf("stretch: low --");
-		    //pb(j);
+		    printf("stretch: low --");
+		    pb(j);
 		    fac=t1[0]+rsq*t2[0];
 		}
 		else if (k>=TABLEN) {
 					
-		    // printf("stretch: high --");
-		    //pb(j);
+		    printf("stretch: high --");
+		    pb(j);
 		    if (ToMinimize)  //flat
 			fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*t2[TABLEN-1];
 		    else fac=0.0;
@@ -548,13 +549,31 @@ void calcloop(int iters) {
 		vmul2c(f,f,fac);
 		vadd(force[bond[j].an1],f);
 		vsub(force[bond[j].an2],f);
-		//printf("force %f \n", sqrt(vdot(f,f)));
+		//printf("length %f, force %f \n", vlen(bond[j].r), sqrt(vdot(f,f)));
+		//printf("inverse length %f \n", bond[j].invlen);
 				
 	    }
 			
 	    /* now the forces for each bend */
 			
 	    for (j=0; j<Nextorq; j++) {
+
+		// v1, v2 are the vectors FROM the central atom TO the neighbors
+		if (torq[j].dir1) {vsetn(v1,torq[j].b1->ru);}
+		else {vset(v1,torq[j].b1->ru);}
+		if (torq[j].dir2) {vsetn(v2,torq[j].b2->ru);}
+		else {vset(v2,torq[j].b2->ru);}
+
+		z = vdot(v1,v2);
+		m = torq[j].kb1 * (torq[j].kb2 - z);
+		vmul2c(q1, v1, z);
+		vmul2c(q2, v2, z);
+		vsub(q1, v2);
+		vsub(q2, v1);
+		vmulc(q1, m * torq[j].b1->invlen);
+		vmulc(q2, m * torq[j].b2->invlen);
+		    
+		/*
 		
 		// v1, v2 are the vectors FROM the central atom TO the neighbors
 		if (torq[j].dir1) {vsetn(v1,torq[j].b1->r);}
@@ -562,8 +581,8 @@ void calcloop(int iters) {
 		if (torq[j].dir2) {vsetn(v2,torq[j].b2->r);}
 		else {vset(v2,torq[j].b2->r);}
 				
-		
-		z = 1.0/sqrt(vdot(v1,v1)*vdot(v2,v2));
+		// z = 1.0/sqrt(vdot(v1,v1)*vdot(v2,v2));
+		z = torq[j].b1->invlen * torq[j].b2->invlen;
 		theta = acos(vdot(v1, v2)*z);
 
 		v2x(foo, v1, v2);
@@ -571,17 +590,22 @@ void calcloop(int iters) {
 		q1=uvec(vx(v1, foo));
 		q2=uvec(vx(foo, v2));
 		
-		ff = (theta - torq[j].theta0) * torq[j].kb1;
+		ff = (theta - torq[j].theta0) * torq[j].kb1 * torq[j].b1->invlen;
 		vmulc(q1,ff);
-		ff = (theta - torq[j].theta0) * torq[j].kb2;
+		ff = (theta - torq[j].theta0) * torq[j].kb2 * torq[j].b2->invlen;
 		vmulc(q2,ff);
+		*/
+
+		
 		
 		vadd(force[torq[j].ac],q1);
 		vsub(force[torq[j].a1],q1);
 		vadd(force[torq[j].ac],q2);
 		vsub(force[torq[j].a2],q2);
-
-		//printf("theta %f, torq %f \n",theta, sqrt(vdot(q1,q1)));
+		/*
+		printf("dtheta %f, torq %f \n",theta - torq[j].theta0, 
+		       sqrt(vdot(q1,q1)));
+		*/
 	    }
 
 	    /* do the van der Waals/London forces */
@@ -628,6 +652,8 @@ void calcloop(int iters) {
 		    vsub(force[nvb->item[j].a2],f);
 		}
 		
+	    if (ToMinimize) return;  // just calc forces, once
+
 	    // pre-force constraints
 	    for (j=0;j<Nexcon;j++) {	/* for each constraint */
 		if (Constraint[j].type == CODEmotor) { /* motor */
@@ -656,6 +682,24 @@ void calcloop(int iters) {
 
 			    vadd(force[a1],f);
 			}
+			// data for printing speed trace
+			Constraint[j].temp = mot->stall; // torque
+
+			rx=uvec(vdif(cur[Constraint[j].atoms[0]],mot->center));
+			
+			theta = atan2(vdot(rx,mot->rotz),vdot(rx,mot->roty));
+			/* update the motor's position */
+			if (theta>Pi) {
+			    mot->theta0 = mot->theta-2.0*Pi;
+			    mot->theta = theta-2.0*Pi;
+			}
+			else {
+			    mot->theta0 = mot->theta;
+			    mot->theta = theta;
+			}
+			theta = mot->theta - mot->theta0;
+
+			Constraint[j].data += theta * deltaTframe;
 		    }
 		}
 	    }
@@ -730,17 +774,26 @@ void calcloop(int iters) {
 			}
 		    
 			//printf("*** input torque %f\n", totorq);
-		    
+
+
+			omega = mot->theta - mot->theta0;
+			motorq = mot->stall - omega*mot->stall/(mot->speed);
+			theta = mot->theta + omega +
+			        mot->moment*(motorq + totorq);
+  
 			/* theta_i+1 = 2theta_i - theta_i-1 + totorq + motorq
 			   motorq = stall - omega*(stall/speed)
 			   omega = (theta_i+1 - theta_i-1)/ 2Dt
 			   solve for theta_i+1 -- preserves Verlet reversibility  */
+			/*
 			z = mot->moment;
 			m = - z * mot->stall / (2.0 *  mot->speed);
 			theta = (2.0*mot->theta - (1.0+m)*mot->theta0 +
 				 z*(mot->stall + totorq))  / (1.0 - m);
-		    
-			// printf("***  Theta = %f, %f, %f\n",theta, mot->theta, mot->theta0);
+			*/
+
+			// printf("***  Theta = %f, %f, %f\n",
+			//          theta*1e5, mot->theta*1e5, mot->theta0*1e5);
 		    
 			/* put atoms in their new places */
 			for (k=0; k<Constraint[j].natoms; k++) {
@@ -762,9 +815,8 @@ void calcloop(int iters) {
 			    mot->theta = theta;
 			}
 			// data for printing speed trace
-			Constraint[j].data += mot->theta - mot->theta0;
-			ff = (mot->theta - mot->theta0) / mot->speed;
-			Constraint[j].temp += ff * mot->stall * deltaTframe;
+			Constraint[j].data += omega * deltaTframe;
+			Constraint[j].temp += (motorq) * deltaTframe;
 		    }
 		}
 
@@ -783,17 +835,31 @@ void calcloop(int iters) {
 		    Constraint[j].data += ff*z;
 		}
 
-		else if (Constraint[j].type == CODEstat) { // thermostat
+		else if (Constraint[j].type == CODEstat) { // Langevin thermostat
+
+		    z=deltaTframe/(3*(1+Constraint[j].atoms[1]-
+				      Constraint[j].atoms[0]));
+		    ke=0.0;
 
 		    for (a1 = Constraint[j].atoms[0];
 			 a1 <= Constraint[j].atoms[1];
 			 a1++) {
+			therm = sqrt((Boltz*Constraint[j].temp)/
+				     (element[atom[a1].elt].mass * 1e-27))*Dt/Dx;
 			v1 = vdif(new[a1],cur[a1]);
-			fac= vlen(v1);
-			vmulc(v1,1.0/fac);
-			vmul2c(v2,v1,Gamma);
-			vsub(new[a1],v2);
+			ff = vdot(v1, v1)*element[atom[a1].elt].mass;
+			vmulc(v1,1.0-Gamma);
+			v2= gxyz(G1*therm);
+			vadd(v1, v2);
+			vadd2(new[a1],cur[a1],v1);
+
+			// add up the energy
+			ke += vdot(v1, v1)*element[atom[a1].elt].mass - ff;
+
 		    }
+		    ke *= 0.5 * Dx*Dx/(Dt*Dt) * 1e-27 * 1e18;
+		    Constraint[j].data += ke;
+
 		}
 		else if (Constraint[j].type == CODEangle) { // angle meter
 		    // better have 3 atoms exactly
@@ -805,6 +871,14 @@ void calcloop(int iters) {
 		    z=acos(vdot(v1,v2)/(vlen(v1)*vlen(v2)));
 
 		    Constraint[j].data = z;
+		}
+		else if (Constraint[j].type == CODEradius) { // radius meter
+		    // better have 2 atoms exactly
+
+		    vsub2(v1,new[Constraint[j].atoms[0]],
+			  new[Constraint[j].atoms[1]]);
+
+		    Constraint[j].data = vlen(v1);
 		}
 	    }
 	    
@@ -861,6 +935,8 @@ void snapshot(int n) {
 
     tracon(tracef);
 
+    fflush(outf);
+
     // printf("found Ke = %e\n",FoundKE);
 
 }
@@ -868,8 +944,10 @@ void snapshot(int n) {
 
 void minimize(int NumFrames) {
     int i, j, k, saveNexcon;
-    double tke, therm, mass;
-    struct xyz v;
+    double tke, therm, mass, ff, totf, hif;
+    struct xyz v, f;
+
+    double movcon = 8e-4;
    
     /* turn off constraints --
        minimize is a one-shot run of the program */
@@ -878,12 +956,28 @@ void minimize(int NumFrames) {
     Temperature = 0.0;
 	
     for (i=0; i<NumFrames; i++) {
-	// stop atoms in their tracks
-	for (j=0; j<Nexatom; j++) old[j] = cur[j];
-	k=max(1,(i*i)/NumFrames);
-	calcloop(k);
-	snapshot(0);
+	totf = 0.0;
+	hif = 0.0;
+	calcloop(1);
+	for (j=0; j<Nexatom; j++) {
+	    f= force[j];
+	    ff = vlen(f);
+	    totf += ff;
+	    if (ff>hif) hif = ff;
+	    old[j] = f;
+	    vmulc(f, movcon);
+	    vadd(cur[j], f);
+	    avg[j]=cur[j];
 	}
+	fprintf(tracef," %.2f %.2f ", totf/Nexatom, hif);
+
+/* 	// stop atoms in their tracks */
+/* 	for (j=0; j<Nexatom; j++) old[j] = cur[j]; */
+/* 	k=max(1,(i*i)/NumFrames); */
+/* 	calcloop(k); */
+
+ 	snapshot(0); 
+    }
 }
 
 
@@ -1101,7 +1195,7 @@ main(int argc,char **argv)
 	    calcloop(IterPerFrame);
 	    snapshot(i);
 	}
-	*/
+	 */
     }
 
     fclose(outf);
