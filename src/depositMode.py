@@ -16,6 +16,7 @@ import drawer
 from constants import elemKeyTab
 import platform
 from debug import print_compact_traceback
+from elements import PeriodicTable
 
 _count = 0
 
@@ -564,7 +565,7 @@ class depositMode(basicMode):
             else:
                 return "nothing to paste" # (trying would be an error)
         else:
-            el =  self.w.periodicTable.getElement(self.w.Element)
+            el =  PeriodicTable.getElement(self.w.Element)
             return "click to deposit %s" % el.name
             
     def posn_str(self, atm): #bruce 041123
@@ -606,7 +607,7 @@ class depositMode(basicMode):
         self.pivot = self.pivax = self.dragmol = None #bruce 041130 precautions
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
         a = self.o.selatom
-        el =  self.w.periodicTable.getElement(self.w.Element)
+        el =  PeriodicTable.getElement(self.w.Element)
         self.modified = 1
         self.o.assy.changed()
         if a: # if something was "lit up"

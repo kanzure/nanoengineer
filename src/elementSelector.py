@@ -6,8 +6,8 @@ $Id$
 '''
 
 from ElementSelectorDialog import *
-#from elementpixmaps import *
 from elementColors import ElementView
+from elements import PeriodicTable
 
 #########################################################################
 # Declaring tuples
@@ -23,7 +23,7 @@ class elementSelector(ElementSelectorDialog):
     def __init__(self, win):
         ElementSelectorDialog.__init__(self, win)
         self.w = win
-        self.elemTable = self.w.periodicTable
+        self.elemTable = PeriodicTable
         
         self.elemGLPane = ElementView(self.elementFrame, "element glPane", self.w.glpane)
         # Put the GL widget inside the frame
@@ -48,9 +48,9 @@ class elementSelector(ElementSelectorDialog):
     def _updateElemGraphDisplay(self, elemNum):
         """Update non user interactive controls display for current selected element: element label info and element graphics info """
         self.color = self.elemTable.getElemColor(elemNum)
-        self.rad = self.elemTable.getElemRvdw(elemNum)
+        elm = self.elemTable.getElement(elemNum)
         
-        self.elemGLPane.refreshDisplay(self.color, self.rad)
+        self.elemGLPane.refreshDisplay(elm)
          
         r =  int(self.color[0]*255 + 0.5)
         g = int(self.color[1]*255 + 0.5)

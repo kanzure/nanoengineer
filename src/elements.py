@@ -75,7 +75,7 @@ class Singleton(object):
         return cls._singletons[cls]
 
 class ElementPeriodicTable(Singleton):
-    """Implement all elements related properties and functionality. Only one instance will be availabe for the whole application.It's better to have 'class elem' as an inner class, so user will not be able to create an element him/her-self, which normally will cause trouble. By doing that, it makes our code more modular and bugs more localized, easier to test---Huaicai 3/8/05"""
+    """Implement all elements related properties and functionality. Only one instance will be availabe for the whole application.It's better to have 'class elem' as an inner class, so user will not be able to create an element him/her-self, which normally will cause trouble. By doing that, it makes our code more modular and bugs more localized, easier to test. Whenever any element color/rad changes, it will depend on the user who use the element to update its display---Huaicai 3/8/05"""
     
     # the formations of bonds -- standard offsets
     uvec = norm(V(1,1,1))
@@ -174,8 +174,8 @@ class ElementPeriodicTable(Singleton):
     _eltName2Num = {}
     _eltSym2Num = {}
     
-    def __init__(self, win):
-        if win: self.w = win
+    def __init__(self):
+        #if win: self.w = win
         if  not self._perodicalTable:
            self._createElements(0, self._mendeleev)
            self._createElements(51, self._appendix)
@@ -211,7 +211,7 @@ class ElementPeriodicTable(Singleton):
                     elm.color = rad_color[1]
                 pass
                     
-        self._updateModelDisplay()
+        #self._updateModelDisplay()
                 
     def loadDefaults(self):
         """Update the elements properties in the _periodicalTable as that from _defaultRad_Color"""
@@ -240,14 +240,14 @@ class ElementPeriodicTable(Singleton):
         assert type(colTab) == type([1,1, 1,1])
         for elm in colTab:
             self._perodicalTable[elm[0]].color = [elm[1], elm[2], elm[3]]
-        self._updateModelDisplay()
+        #self._updateModelDisplay()
     
     def setElemColor(self, eleNum, c):
         """Set element <eleNum> color as <c> """
         assert type(eleNum) == type(1)
         assert type(c) == type([1,1,1])
         self._perodicalTable[eleNum].color = c
-        self._updateModelDisplay()
+        #self._updateModelDisplay()
         
     def getElemColor(self, eleNum):
         """Return the element color as a triple list for <eleNum> """
@@ -313,12 +313,12 @@ class ElementPeriodicTable(Singleton):
             print "Can't find element: ", eleNum
             return None
      
-    def _updateModelDisplay(self):
-         """Update model display """
-         for mol in self.w.assy.molecules: 
-            mol.changeapp(1)
+    #def _updateModelDisplay(self):
+    #    """Update model display """
+    #     for mol in self.w.assy.molecules: 
+    #        mol.changeapp(1)
         
-         self.w.glpane.gl_update()
+   #      self.w.glpane.gl_update()
     
     def close(self):
           ## The 'def __del__(self)' is not guranteed to be called. It is not called in my try on Windows. 
@@ -332,7 +332,8 @@ class ElementPeriodicTable(Singleton):
 
 ###Some global definitons, it's not necessary, but currently I don't want
 ### to change a lot of code ---Huaicai 3/9/05
-PeriodicTable = ElementPeriodicTable(None)
+
+PeriodicTable  = ElementPeriodicTable()
 Hydrogen = PeriodicTable.getElement(1)
 Carbon = PeriodicTable.getElement(6)
 Nitrogen = PeriodicTable.getElement(7)
@@ -341,8 +342,8 @@ Singlet = PeriodicTable.getElement(0)
 
 ##Test          
 if __name__ == '__main__':
-        pt1 = ElementPeriodicTable(None)
-        pt2 = ElementPeriodicTable(None)
+        pt1 = ElementPeriodicTable()
+        pt2 = ElementPeriodicTable()
         
         assert pt1 == pt2
         

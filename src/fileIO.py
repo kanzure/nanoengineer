@@ -48,6 +48,7 @@ from Utility import *
 from povheader import povheader
 from mdldata import *
 from HistoryWidget import redmsg # bruce 050107
+from elements import PeriodicTable
 
 nampat = re.compile("\\(([^)]*)\\)")
 old_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
@@ -103,7 +104,7 @@ def _readpdb(assy, filename, isInsert = False):
         key=card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
             sym = capitalize(card[12:14].replace(" ", "").replace("_", ""))
-            try: assy.w.periodicTable.getElement(sym)
+            try: PeriodicTable.getElement(sym)
             except KeyError: print 'unknown element "',sym,'" in: ',card
             else:
                 xyz = map(float, [card[30:38],card[38:46],card[46:54]])
@@ -323,7 +324,7 @@ def _readmmp(assy, filename, isInsert = False):
                 print card
                 
             n=int(m.group(1))
-            sym=assy.w.periodicTable.getElement(int(m.group(2))).symbol
+            sym=PeriodicTable.getElement(int(m.group(2))).symbol
             xyz=A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
             a = atom(sym, xyz, mol)
             disp = atom2pat.match(card)
@@ -1191,7 +1192,7 @@ def readElementColors(fileName):
     
     return elemColorTable           
 
-#from elements import elemprefs    
+
 def saveElementColors(fileName, elemTable):
     """Write element colors (ele #, r, g, b) into a text file,  each element is on a new line.  A line starts from '#' is a comment line.
     <Parameter> fileName: a string for the input file name

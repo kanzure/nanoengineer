@@ -110,9 +110,6 @@ class MWsemantics(MainWindow):
         # start with empty window 
         self.assy = assembly(self, "Untitled")
         
-        # Set the perodical table we'll use in the application
-        self.periodicTable = ElementPeriodicTable(self)
-        
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
         self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
 
@@ -570,7 +567,7 @@ class MWsemantics(MainWindow):
                 ce.ignore()
                 isEventAccepted = False
         
-        if isEventAccepted: self.periodicTable.close()
+        #if isEventAccepted: self.periodicTable.close()
             
 
     def fileClose(self):
@@ -1551,7 +1548,7 @@ class MWsemantics(MainWindow):
         global elementSelectorWin
         if elementSelectorWin and not elementSelectorWin.isHidden():
            elementSelectorWin.setDisplay(self.Element)     
-           #elementSelectorWin.show()
+           elementSelectorWin.show()
           
     # this routine sets the displays to reflect elt
     # [bruce 041215: most of this should be made a method in elementSelector.py #e]

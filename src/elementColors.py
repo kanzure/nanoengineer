@@ -6,7 +6,7 @@ $Id$
 '''
 from ElementColorsDialog import *
 from fileIO import readElementColors, saveElementColors
-import elements 
+from elements import PeriodicTable 
 from constants import globalParms, diVDW, diCPK, diTUBES 
 from ThumbView import *
 from chem import atom
@@ -32,8 +32,8 @@ class elementColors(ElementColorsDialog):
         self.fileName = None
         self.isElementModified = False
         self.isFileSaved = False
-        self.oldTable = self.w.periodicTable.deepCopy()
-        self.elemTable = self.w.periodicTable
+        self.oldTable = PeriodicTable.deepCopy()
+        self.elemTable = PeriodicTable
         self.displayMode = self._displayList[0]
         
         buttons = [(self.pushButton1, 1), (self.pushButton2, 2), (self.pushButton5, 5), (self.pushButton6, 6), (self.pushButton7,7), (self.pushButton8, 8), (self.pushButton9, 9), (self.pushButton10, 10), (self.pushButton13, 13), (self.pushButton14, 14), (self.pushButton15, 15), (self.pushButton16, 16), (self.pushButton17, 17), (self.pushButton18, 18), (self.pushButton32,32), (self.pushButton33, 33), (self.pushButton34, 34), (self.pushButton35, 35), (self.pushButton36, 36), (self.pushButton51, 51), (self.pushButton52, 52), (self.pushButton53, 53), (self.pushButton54, 54)]
@@ -77,6 +77,7 @@ class elementColors(ElementColorsDialog):
     def loadDefaultProp(self):
         """Load default set of color/rvdw for the current periodic table """    
         self.elemTable.loadDefaults()
+        self._updateModelDisplay()
         elemNum =  self.buttonGroup.selectedId()
         self.setDisplay(elemNum)
         self.isElementModified = True
@@ -84,6 +85,7 @@ class elementColors(ElementColorsDialog):
     def loadAlterProp(self):
         """Load alternate set of color/rvdw for the current periodic table """ 
         self.elemTable.loadAlternates()
+        self._updateModelDisplay()
         elemNum =  self.buttonGroup.selectedId()
         self.setDisplay(elemNum)
         self.isElementModified = True
@@ -164,7 +166,8 @@ class elementColors(ElementColorsDialog):
                 self.w.history.message("Element colors loaded from file: [" + self.fileName + "].")
                 for row in colorTable:
                      row[1] /= 255.0; row[2] /= 255.0; row[3] /= 255.0
-                self.elemTable.setElemColors(colorTable)     
+                self.elemTable.setElemColors(colorTable)
+                self._updateModelDisplay()     
                 
                 elemNum =  self.buttonGroup.selectedId()
                 self.setDisplay(elemNum)
@@ -211,6 +214,7 @@ class elementColors(ElementColorsDialog):
         self.blueSlider.setValue(a0)
         elemNum =  self.buttonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], self.color[1], a0/255.0])
+        self._updateModelDisplay()
         self.connect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
         self.updateElemGraphDisplay()
         self.isElementModified = True
@@ -220,6 +224,7 @@ class elementColors(ElementColorsDialog):
         self.redSpinBox.setValue(a0)
         elemNum =  self.buttonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [a0/255.0, self.color[1], self.color[2]])
+        self._updateModelDisplay()
         self.connect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
         self.updateElemGraphDisplay()
         self.isElementModified = True
@@ -229,6 +234,7 @@ class elementColors(ElementColorsDialog):
         self.redSlider.setValue(a0)
         elemNum =  self.buttonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [a0/255.0, self.color[1], self.color[2]])
+        self._updateModelDisplay()
         self.connect(self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
         self.updateElemGraphDisplay()
         self.isElementModified = True
@@ -238,6 +244,7 @@ class elementColors(ElementColorsDialog):
         self.blueSpinBox.setValue(a0)
         elemNum =  self.buttonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], self.color[1], a0/255.0])
+        self._updateModelDisplay()
         self.connect(self.blueSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderBlue)
         self.updateElemGraphDisplay()
         self.isElementModified = True
@@ -247,6 +254,7 @@ class elementColors(ElementColorsDialog):
         self.greenSpinBox.setValue(a0)
         elemNum =  self.buttonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], a0/255.0, self.color[2]])
+        self._updateModelDisplay()
         self.connect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
         self.updateElemGraphDisplay()
         self.isElementModified = True
@@ -256,6 +264,7 @@ class elementColors(ElementColorsDialog):
         self.greenSlider.setValue(a0)
         elemNum =  self.buttonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], a0/255.0, self.color[2]])
+        self._updateModelDisplay()
         self.connect(self.greenSlider,SIGNAL("valueChanged(int)"),self.changeSpinGreen)
         self.updateElemGraphDisplay()
         self.isElementModified = True
@@ -265,8 +274,11 @@ class elementColors(ElementColorsDialog):
             #ret = QMessageBox.question(self, "Warnings", "Do you want to save the element colors into a file?", QMessageBox.Yes, QMessageBox.No)
             #if ret == QMessageBox.Yes:
             #    self.write_element_rgb_table()
-        
-        self.accept()
+            
+         ##Save the color preference
+         self.elemTable.close()
+         
+         self.accept()
         
         
     def reject(self):
@@ -274,8 +286,18 @@ class elementColors(ElementColorsDialog):
         current pref to originial since our dialog is reused """
         if self.isElementModified or self.fileName:  
             self.elemTable.resetElemTable(self.oldTable)
+            self._updateModelDisplay()
         
         QDialog.reject(self)
+    
+    
+    def _updateModelDisplay(self):
+        """Update model display """
+        for mol in self.w.assy.molecules: 
+            mol.changeapp(1)
+        
+        self.w.glpane.gl_update()
+    
     
 
 class ElementView(ThumbView):
@@ -296,7 +318,7 @@ class ElementView(ThumbView):
         if self.mol:
            self.mol.draw(self, None)
 
-    def refreshDisplay(self, elm, dispMode):
+    def refreshDisplay(self, elm, dispMode=diVDW):
         """Display the new element or the same element but new display mode"""   
         self.makeCurrent()
         self.mol = self._constructModel(elm, self.pos, dispMode) 

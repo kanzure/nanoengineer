@@ -37,7 +37,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>33</height>
+            <height>37</height>
         </rect>
     </property>
     <property name="backgroundOrigin">
@@ -272,7 +272,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>637</width>
+                <width>794</width>
                 <height>29</height>
             </rect>
         </property>
@@ -296,6 +296,21 @@
         <action name="orient111Action"/>
         <separator/>
         <action name="ccAddLayerAction"/>
+        <widget class="QComboBox">
+            <item>
+                <property name="text">
+                    <string>1</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>2</string>
+                </property>
+            </item>
+            <property name="name">
+                <cstring>CurrentLayerCB</cstring>
+            </property>
+        </widget>
         <separator/>
         <widget class="QLabel">
             <property name="name">

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Mar 17 21:32:47 2005
+# Created: Fri Mar 18 16:35:49 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5652,7 +5652,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,637,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,794,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -5662,6 +5662,8 @@ class MainWindow(QMainWindow):
         self.orient111Action.addTo(self.cookieCutterDashboard)
         self.cookieCutterDashboard.addSeparator()
         self.ccAddLayerAction.addTo(self.cookieCutterDashboard)
+
+        self.CurrentLayerCB = QComboBox(0,self.cookieCutterDashboard,"CurrentLayerCB")
         self.cookieCutterDashboard.addSeparator()
 
         self.textLabel1_3 = QLabel(self.cookieCutterDashboard,"textLabel1_3")
@@ -5809,7 +5811,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1115,33))
+        self.MenuBar.setGeometry(QRect(0,0,1115,37))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
@@ -6435,6 +6437,9 @@ class MainWindow(QMainWindow):
         self.helpToolbar.setLabel(self.__tr("Help"))
         self.cookieCutterDashboard.setLabel(self.__tr("Cookie Cutter"))
         self.textLabel2.setText(self.__tr(" Cookie Cutter"))
+        self.CurrentLayerCB.clear()
+        self.CurrentLayerCB.insertItem(self.__tr("1"))
+        self.CurrentLayerCB.insertItem(self.__tr("2"))
         self.textLabel1_3.setText(self.__tr("Thickness (Angstroms):"))
         QToolTip.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))
         QWhatsThis.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))
