@@ -3,9 +3,9 @@ nanoENGINEER-1™ v0.0.4 (Alpha 4)
 
 Bug Fixes In Alpha 4 
 
-* Bug #130: ‘Hydrogenate’ adds hydrogen atoms to all open bonds above waterline in Build mode. Thus, its implementation is different than Dehydrogenate and Passivate in that mode (these two work  only on a selection). Now, in Build mode, Hydrogenate is implemented in such a way that it works only when the chunk is selected. 
+* Bug #130: ‘Hydrogenate’ adds hydrogen atoms to all open bonds above waterline in Build mode. Thus, its implementation is different than Dehydrogenate and Passivate in that mode (these two work only on a selection). Now, in Build mode, Hydrogenate is implemented in such a way that it works only when the chunk is selected. 
 
-* Bug #360 (item 8): Single cut operation for multiple selected objects places copies of only alternate objects in the clipboard.
+* Bug #360 (item 8): Single cut operation for multiple selected objects places copies of only alternate objects into the clipboard.
 
 * Bug #381: Deleting a group (by selecting it in the Model Tree and pressing the Delete key) appears to delete the selected chunks, but they can still be available in Extrude mode. 
 
@@ -128,13 +128,16 @@ Known Bugs (All Platforms)
 
 38. Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
 
+39. Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
+
 
 
 
 Windows Only Bugs
 
 
-1. During drag-and-drop, node icons are not shown in the cursor's drag object. 
+1. During drag-and-drop, node icons are not shown in the cursor's drag object.
+
 
 
 Macintosh Only Bugs
@@ -149,5 +152,4 @@ Macintosh Only Bugs
 Linux Only Bugs
 
 
-1. Plot tool dialog doesn’t stay on the top of plots it generates for windows and Linux (427)
-2. Opening a plot file from the plot tool dialogs needs ‘kwrite’ editor which is available with only with KDE desktop (434)
+1. Opening a plot file from the plot tool dialogs needs ‘kwrite’ editor which is available with only with KDE desktop (434)
