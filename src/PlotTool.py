@@ -185,19 +185,42 @@ class PlotTool(PlotToolDialog):
     def openTraceFile(self):
         """Opens the current tracefile in an editor.
         """
-        if sys.platform == 'win32': 
-            os.system("notepad.exe " + self.traceFile)
-        elif sys.platform == 'darwin':
-            os.system("/usr/bin/open " + self.traceFile)
-        else:
-            print "PlotTool.openTraceFile: Not implemented yet for Linux"
+        self.openPlotFile(self.traceFile)
 
     def openGNUplotFile(self):
         """Opens the current GNUplot file in an editor.
         """
-        if sys.platform == 'win32': 
-            os.system("notepad.exe " + self.plotFile)
-        elif sys.platform == 'darwin':
-            os.system("/usr/bin/open " + self.plotFile)
+        self.openPlotFile(self.plotFile)
+
+    def openPlotFile(self, file):
+        """Opens a file in a standard text editor.
+        """
+        editor = self.get_text_editor()
+        
+        if os.path.exists(editor):
+            args = [editor, file]
+#            print  "editor = ",editor
+#            print  "Spawnv args are %r" % (args,)
+
+            try:
+                # Spawn the editor.
+                kid = os.spawnv(os.P_NOWAIT, editor, args)
+            except: # We had an exception.
+                print_compact_traceback("Exception in editor; continuing: ")
+                msg = "Cannot open file " + file + ".  Trouble spawning editor " + editor
+                self.assy.w.history.message(redmsg(msg))
         else:
-            print "PlotTool.openGNUplotFile: Not implemented yet for Linux"
+            msg = "Cannot open file " + file + ".  Editor " + editor + " not found."
+            self.assy.w.history.message(redmsg(msg))
+            
+    def get_text_editor(self):
+        """Returns then name of a text editor for this platform.
+        """
+        if sys.platform == 'win32': # Windows
+            editor = "C:/WINDOWS/notepad.exe"
+        elif sys.platform == 'darwin': # MacOSX
+            editor = "/usr/bin/open"
+        else: # Linux
+            editor = "/usr/bin/kwrite"
+            
+        return editor
