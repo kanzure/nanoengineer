@@ -183,7 +183,7 @@ class assembly:
                 mol.bond(pp1, x)
             pp=griderator.next()
             
-        if len(mol.atoms) > 0:  #Added by huaicai to fixed some bugs for the 0 atoms molecule 09/30/04
+        if len(mol.atoms) > 0:  #Added by huaicai to fix some bugs for the 0 atoms molecule 09/30/04
                 self.addmol(mol)
                 self.unpickatoms()
                 self.selwhat = 2

@@ -409,19 +409,30 @@ class shape:
         that are 'in' the shape, ignoring the thickness parameter.
         pick the parts that contain them
         """
+        #---This function has been modified by Huaicai on 10/05/04 to fix bugs of shift & Ctrl drag#---selection of molecules
         c=self.curves[0]
-        if c.logic == 1:
+        if c.logic == 1 or c.logic == 2: # drag selection
             for mol in assy.molecules:
                 if mol.display == diINVISIBLE: continue
                 for a in mol.atoms.itervalues():
                     if a.display == diINVISIBLE: continue
                     if c.isin(a.posn()): a.molecule.pick()
-        elif c.logic == 2:
-            for a in assy.selatoms.values():
-                if not c.isin(a.posn()): a.molecule.unpick()
-        else:
-            for a in assy.selatoms.values():
-                if c.isin(a.posn()): a.molecule.unpick()
+        if c.logic == 2: #ctrl drag selection, modified by Huaicai to fix the selection bug 10/05/04
+            for m in assy.selmols:
+                for a in m.atoms.values():
+                      if not c.isin(a.posn()): 
+                            a.molecule.unpick()
+                            break
+                            
+        else:  # Shift drag slection ---everything selected inside dragging area unselected
+            # The following lines are commented out by Huaicai 10/05/04 to fix the bugs
+            #for a in assy.selatoms.values(): 
+                #if c.isin(a.posn()): a.molecule.unpick()
+            for m in assy.selmols:
+                 for a in m.atoms.values():
+                        if c.isin(a.posn()): 
+                                m.unpick()
+                                break    
 
     def undo(self):
         """This would work for shapes, if anyone called it.
