@@ -215,14 +215,12 @@ class GLPane(QGLWidget, modeMixin):
 
     def update_after_new_mode(self):
         """do whatever updates are needed after self.mode might have changed
-        (ok if this is called more than needed)"""
-        
-        #This following line was commented out by Huaicai 9/29/04
-        #self.win.modelTreeView.updateModelTree()
-        #bruce comment 040922:
-        #  I'm not positive this is the right place to do this...
-        ###e also update tool-icon visual state in the toolbar
-        self.paintGL()
+        (ok if this is called more than needed, except it might be slower)
+        """
+        #e also update tool-icon visual state in the toolbar?
+        # bruce 041222 changed this to a full update, and changed MWsemantics to
+        # make that safe during our __init__.
+        self.win.update()
 
     # def setMode(self, modename) -- moved to modeMixin [bruce 040922]
     
