@@ -177,7 +177,15 @@ class MWsemantics(MainWindow):
         return # from MWsemantics.__init__
 
     def set_status_text(self, text, **options):
-        self.history.set_status_text( text, **options)
+        try:
+            self.history
+        except AttributeError:
+            if platform.atom_debug:
+                print "fyi: too early for this status msg:", text
+            pass # too early
+        else:
+            self.history.set_status_text( text, **options)
+        return
 
     #def resizeEvent(self, event):
      #   print "why I am changing size? ", event
