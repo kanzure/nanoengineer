@@ -6,7 +6,7 @@ datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000,
 datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
 egroup (Data)
 group (MarkIII(k)_PlanetaryGearBox3)
-mol (Planet Carrier) vdw
+mol (Planet Carrier) def
 atom 1 (6) (7041, -6105, 8361) def
 atom 2 (6) (10807, -6127, 1947) def
 atom 3 (6) (9562, -6122, -5401) def
@@ -1727,7 +1727,7 @@ bond1 899
 atom 927 (1) (-1308, -20350, 3605) def
 bond1 900
 group (Planet Gears)
-mol (Casing) vdw
+mol (Casing) def
 atom 928 (1) (1, 16259, 14121) def
 atom 929 (1) (3041, 16257, 13787) def
 atom 930 (1) (5926, 16257, 12809) def
@@ -4947,7 +4947,7 @@ atom 2608 (1) (-7331, -17649, 15939) def
 bond1 2550
 atom 2609 (1) (-3733, -17649, 17143) def
 bond1 2551
-mol (Planet Gear 9) vdw
+mol (Planet Gear 9) def
 atom 2610 (8) (1713, 1261, -9698) def
 atom 2611 (8) (5808, 1236, -8864) def
 atom 2612 (8) (3579, 3535, -8239) def
@@ -5031,7 +5031,7 @@ atom 2660 (8) (2182, -1096, -11992) def
 bond1 2639 2632
 atom 2661 (6) (4307, 4527, -12024) def
 bond1 2640 2656 2657 2633
-mol (Planet Gear 8) vdw
+mol (Planet Gear 8) def
 atom 2662 (1) (12121, 5344, -5209) def
 atom 2663 (1) (11244, 5348, -7297) def
 atom 2664 (6) (9152, 56, -6905) def
@@ -5122,7 +5122,7 @@ atom 2712 (6) (11154, -2217, -5223) def
 bond1 2705 2690 2671 2673
 atom 2713 (6) (8890, 2348, -4293) def
 bond1 2691 2693 2669 2682
-mol (Planet Gear 7) vdw
+mol (Planet Gear 7) def
 atom 2714 (6) (9840, 2344, 1084) def
 atom 2715 (6) (9770, 113, 1073) def
 atom 2716 (8) (12849, -1148, 3376) def
@@ -5206,7 +5206,7 @@ atom 2764 (6) (12358, 4515, 2855) def
 bond1 2740 2756 2734
 atom 2765 (6) (12511, 4514, 1325) def
 bond1 2741 2757 2764 2735
-mol (Planet Gear 6) vdw
+mol (Planet Gear 6) def
 atom 2766 (6) (7994, 4526, 9948) def
 atom 2767 (6) (8844, 4536, 8666) def
 bond1 2766
@@ -5294,7 +5294,7 @@ atom 2816 (8) (6158, 1295, 6462) def
 bond1 2794 2785
 atom 2817 (8) (5938, -1091, 10539) def
 bond1 2796 2787
-mol (Planet Gear 5) vdw
+mol (Planet Gear 5) def
 atom 2818 (6) (-71, 4526, 12804) def
 atom 2819 (8) (-2243, 1230, 10088) def
 atom 2820 (8) (2050, 1188, 12277) def
@@ -5379,7 +5379,7 @@ atom 2868 (8) (-216, 1329, 8868) def
 bond1 2844 2837
 atom 2869 (8) (1933, 1301, 9889) def
 bond1 2845 2838
-mol (Planet Gear 4) vdw
+mol (Planet Gear 4) def
 atom 2870 (8) (-8640, -1058, 6438) def
 atom 2871 (6) (-9017, 4500, 8702) def
 atom 2872 (6) (-8080, 4516, 9922) def
@@ -5465,7 +5465,7 @@ atom 2920 (8) (-6447, 1308, 6309) def
 bond1 2897 2889
 atom 2921 (8) (-5744, -1030, 10319) def
 bond1 2899 2901
-mol (Planet Gear 3) vdw
+mol (Planet Gear 3) def
 atom 2922 (1) (-11616, 5413, -359) def
 atom 2923 (1) (-10934, 5421, 4150) def
 atom 2924 (6) (-11115, -2174, 322) def
@@ -5556,7 +5556,7 @@ atom 2972 (6) (-10652, -2168, 3380) def
 bond1 2925 2931 2933 2951
 atom 2973 (6) (-9849, 145, 911) def
 bond1 2971 2929 2941 2948
-mol (Planet Gear 2) vdw
+mol (Planet Gear 2) def
 atom 2974 (6) (-10855, 4509, -6753) def
 atom 2975 (6) (-11390, 4495, -5311) def
 bond1 2974
@@ -5642,7 +5642,7 @@ atom 3024 (8) (-8235, 1302, -3765) def
 bond1 3004 2995
 atom 3025 (8) (-8740, -1040, -7809) def
 bond1 3005 2996
-mol (Planet Gear 1) vdw
+mol (Planet Gear 1) def
 atom 3026 (6) (-5407, 4521, -11041) def
 atom 3027 (8) (-5464, -1016, -8714) def
 atom 3028 (6) (-4838, -2137, -9307) def
@@ -5730,7 +5730,7 @@ bond1 3054 3046
 atom 3077 (6) (-2785, 4580, -11690) def
 bond1 3066 3072 3043 3031
 egroup (Planet Gears)
-mol (Sun Gear) vdw
+mol (Sun Gear) def
 atom 3078 (1) (1995, 22091, 5177) def
 atom 3079 (1) (3848, 22087, 3993) def
 atom 3080 (1) (5070, 22084, 2243) def

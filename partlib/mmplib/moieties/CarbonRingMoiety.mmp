@@ -6,7 +6,7 @@ datum (XZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000,
 datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
 egroup (Data)
 group (CarbonRingMoiety)
-mol (Moiety) cpk
+mol (Moiety) def
 atom 1 (6) (1377, -2003, -2960) def
 atom 2 (6) (8, -2429, -2989) def
 bond1 1

@@ -6,7 +6,7 @@ datum (XZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000,
 datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
 egroup (Data)
 group (DifferentialGearBox)
-mol (Bottom Shaft) vdw
+mol (Bottom Shaft) def
 atom 1 (14) (747, -24576, 6413) def
 atom 2 (14) (-1002, -23201, 8440) def
 atom 3 (16) (4641, -23244, 8985) def
@@ -1411,7 +1411,7 @@ atom 741 (1) (-1235, -29027, 5276) def
 bond1 180
 atom 742 (1) (-3647, -28798, 6594) def
 bond1 181
-mol (Gear Box) vdw
+mol (Gear Box) def
 atom 743 (14) (-14232, -8962, 20058) def
 atom 744 (8) (3894, -8392, 23994) def
 atom 745 (14) (-481, -8530, 24924) def
@@ -12845,7 +12845,7 @@ atom 6713 (1) (14657, -13425, -14118) def
 bond1 3964
 atom 6714 (1) (-19479, -13524, -2703) def
 bond1 4044
-mol (Top Shaft) vdw
+mol (Top Shaft) def
 atom 6715 (1) (6606, 12322, -1373) def
 atom 6716 (1) (3149, 12942, -3494) def
 atom 6717 (1) (714, 29731, 3898) def
@@ -14184,7 +14184,7 @@ bond1 7099 7159 7160 7163
 atom 7456 (1) (2902, 13123, 3387) def
 bond1 6991
 group (Bevel Gears)
-mol (Bevel Gear.4) vdw
+mol (Bevel Gear.4) def
 atom 7457 (6) (-9794, -4024, 214) def
 atom 7458 (16) (-13437, -5495, 432) def
 atom 7459 (6) (-11608, -5500, 357) def
@@ -14526,7 +14526,7 @@ atom 7664 (14) (-13202, -7860, 2854) def
 bond1 7460 7525 7639
 atom 7665 (14) (-13827, -7600, 533) def
 bond1 7659 7664 7458 7497
-mol (Bevel Gear.3) vdw
+mol (Bevel Gear.3) def
 atom 7666 (1) (-2244, -3252, 8474) def
 atom 7667 (1) (-2469, -1291, 9801) def
 atom 7668 (1) (3000, -1112, 9544) def
@@ -14915,7 +14915,7 @@ atom 7873 (1) (-660, -2051, 9902) def
 bond1 7713
 atom 7874 (1) (316, -3702, 8456) def
 bond1 7722
-mol (Bevel Gear.2) vdw
+mol (Bevel Gear.2) def
 atom 7875 (14) (14250, -3120, -6730) def
 atom 7876 (6) (10077, 3932, -968) def
 atom 7877 (8) (11494, 4041, -1089) def
@@ -15315,7 +15315,7 @@ atom 8082 (6) (11846, -2217, -5030) def
 bond1 8076 8081 8052
 atom 8083 (16) (13672, -2101, -4950) def
 bond1 8082 7875
-mol (Bevel Gear.1) vdw
+mol (Bevel Gear.1) def
 atom 8084 (16) (475, -8029, -11184) def
 atom 8085 (6) (1728, -3596, -9585) def
 atom 8086 (8) (1692, -3678, -11018) def

@@ -6,7 +6,7 @@ datum (XZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000,
 datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
 egroup (Data)
 group (PlanetaryGearBox1)
-mol (Carrier Gear) vdw
+mol (Carrier Gear) def
 atom 1 (8) (-15998, 11301, 1573) def
 atom 2 (6) (-13484, 10681, 1666) def
 atom 3 (1) (-13373, 11498, 2383) def

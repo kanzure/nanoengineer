@@ -6,7 +6,7 @@ datum (XZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000,
 datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
 egroup (Data)
 group (Bearing)
-mol (Outer Sleeve) vdw
+mol (Outer Sleeve) def
 atom 1 (6) (582, 1270, -20850) def
 atom 2 (6) (582, -48, -20006) def
 bond1 1
@@ -2766,7 +2766,7 @@ atom 1379 (1) (593, -4625, 20513) def
 bond1 1195
 atom 1380 (1) (594, 7207, 20507) def
 bond1 1196
-mol (Inner Sleeve) vdw
+mol (Inner Sleeve) def
 atom 1381 (6) (4228, 1274, -13064) def
 atom 1382 (6) (4471, 2560, -13928) def
 bond1 1381
