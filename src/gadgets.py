@@ -87,7 +87,8 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
             a.jigs += [self]
             
     def copy(self, dad):
-        self.assy.w.history.message("Jigs cannot be copied")
+        self.assy.w.history.message( redmsg("Jigs cannot yet be copied"))
+        return None
         
     # josh 10/26 to fix bug 85
     def rematom(self, a):
@@ -103,13 +104,16 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
 
     # bruce 050125 centralized pick and unpick (they were identical on all Jig
     # subclasses -- with identical bugs!), added comments; didn't yet fix the bugs.
+    #bruce 050131 for Alpha: more changes to it (still needs review after Alpha is out)
     
     def pick(self): 
         """select the Jig"""
-        self.picked = True #e should be Node.pick(self)
-        self.assy.w.history.message(self.getinfo())
-        self.normcolor = self.color # bug if this is done twice in a row!
-        self.color = self.pickcolor
+        self.assy.w.history.message(self.getinfo()) 
+        if not self.picked: #bruce 050131 added this condition (maybe good for history.message too?)
+            Node.pick(self) #bruce 050131 for Alpha: using Node.pick
+            self.normcolor = self.color # bug if this is done twice in a row! [bruce 050131 maybe fixed now due to the 'if']
+            self.color = self.pickcolor
+        return
 
     def unpick(self):
         """unselect the Jig"""

@@ -20,6 +20,7 @@ and split it into three modules:
 from TreeWidget import * # including class TreeWidget itself, and Node, Group
 from chunk import molecule
 from gadgets import Jig
+import platform # for atom_debug
 
 
 # helpers for making context menu commands
@@ -94,7 +95,7 @@ class modelTree(TreeWidget):
 ##            None,
 ##            ["Copy",   self.cm_copy],
 ##            ["Cut",    self.cm_cut],
-##            ["Delete", self.cm_kill],
+##            ["Delete", self.cm_delete],
 ##            None,
 ##            ["Properties", self.cm_properties],
 ##            ])
@@ -110,7 +111,7 @@ class modelTree(TreeWidget):
 ##            None,
 ##            ["Copy",   self.cm_copy],
 ##            ["Cut",    self.cm_cut],
-##            ["Delete", self.cm_kill],
+##            ["Delete", self.cm_delete],
 ##            None,
 ##            ["Properties", self.cm_properties],
 ##            ])
@@ -124,7 +125,7 @@ class modelTree(TreeWidget):
 ##        # Clipboard Menu
 ##        self.clipboardmenu_spec = ([
 ##            
-##            ["Delete",     self.cm_kill],
+##            ["Delete",     self.cm_delete],
 ##            None,
 ##            ["Properties", self.cm_properties],
 ##            ])
@@ -226,17 +227,6 @@ class modelTree(TreeWidget):
             res.append(( 'Hide', self.cm_hide ))
 
         res.append(None) # separator
-        
-        # Edit Properties command -- only provide this when there's exactly one thing to apply it to,
-        # and it says it can handle it.
-        ###e Command name should depend on what the thing is, e.g. "Part Properties", "Chunk Properties".
-        # Need to add methods to return that "user-visible class name".
-        if len(nodeset) == 1 and nodeset[0].edit_props_enabled():
-            res.append(( 'Properties', self.cm_properties ))
-        else:
-            res.append(( 'Properties', noop, 'disabled' )) # nim for multiple items
-
-        res.append(None) # separator
 
         # Group command -- only when more than one thing is picked, and they're all in the same "assembly-node" --
         # kluging this for now as "PartGroup or a Shelf member", but it ought to be determined more rationally.
@@ -259,8 +249,38 @@ class modelTree(TreeWidget):
             res.append(( 'Ungroup', self.cm_ungroup ))
         else:
             res.append(( 'Ungroup', noop, 'disabled' ))
+
+        ## res.append(None) # separator - from now on, add these at start of optional sets, not at end
+
+        # Special clipboard-selection commands
+        # [bruce 050131 -- only available when ATOM_DEBUG is set,
+        #  since Alpha new-feature deadline has passed
+        #  and since not yet useful enough except for debugging, anyway]
+        if platform.atom_debug:
+            if len(nodeset) >= 1 and nodeset[0].find_selection_group() != self.tree_node:
+                # selection is in a selection group which is not the one usually displayed (i.e. in a clipboard item)
+                res.append(None) # separator
+                res.append(( 'Briefly Show', self.cm_briefly_show ))
+        
+        # Edit Properties command -- only provide this when there's exactly one thing to apply it to,
+        # and it says it can handle it.
+        ###e Command name should depend on what the thing is, e.g. "Part Properties", "Chunk Properties".
+        # Need to add methods to return that "user-visible class name".
+        res.append(None) # separator
+        if len(nodeset) == 1 and nodeset[0].edit_props_enabled():
+            res.append(( 'Properties', self.cm_properties ))
+        else:
+            res.append(( 'Properties', noop, 'disabled' )) # nim for multiple items
          
-        ###e more to follow... e.g. copy, cut, delete, maybe duplicate...
+        # copy, cut, delete, maybe duplicate...
+        # some of them are not-for-use-in-clipboard [bruce 050131]
+        res.append(None) # separator
+        if len(nodeset) >= 1 and nodeset[0].find_selection_group() == self.tree_node:
+            # selection is in the main part
+            res.append(( 'Copy', self.cm_copy )) ###@@@ review or fix for being ok in clipboard?
+            res.append(( 'Cut', self.cm_cut )) ###@@@ ditto
+        res.append(('Delete', self.cm_delete )) # ok for part or clipboard
+        #e duplicate?
 
         # add basic info on what's selected at the end (later might turn into commands related to subclasses of nodes)
 
@@ -297,7 +317,8 @@ class modelTree(TreeWidget):
         if shelf_npicked:
             res.append(None) # separator
             res.append(( fix_plurals("(%d selected item(s) in clipboard)" % shelf_npicked), noop, 'disabled' ))
-            res.append(( "WARNING (pre-alpha): clipboard selections have bugs", noop ))
+            res.append(( "WARNING (alpha): some operations or modes don't work", noop ))
+            res.append(( "or have bugs for selected items in clipboard", noop ))
 
         return res # from make_cmenuspec_for_set
 
@@ -390,7 +411,28 @@ class modelTree(TreeWidget):
         #e history.message?
         self.mt_update()
 
-    # not yet reviewed: [050126] ###@@@
+    def cm_briefly_show(self): #bruce 050131 experiment (only user-visible when ATOM_DEBUG is set)
+        nodeset = self.topmost_selected_nodes()
+        if len(nodeset) == 0: return
+        selgroup = nodeset[0].find_selection_group()
+        ## if selgroup != self.tree_node: return
+        ##     # should never be called this way so far, tho it'd work if it was
+        # begin kluge block: [I don't yet know if this will work! #####@@@@@]
+        from HistoryWidget import greenmsg #e or use redmsg here? or orange, for a warning?
+        from Utility import node_name
+        msg = "briefly showing %r; most operations unsafe in Alpha; click in model tree to end" % node_name(selgroup)
+        self.win.history.message( greenmsg( msg ))
+        oldtree = selgroup.assy.tree
+        selgroup.assy.tree = selgroup
+        try:
+            self.win.glpane.paintGL() # direct repaint
+        finally:
+            selgroup.assy.tree = oldtree
+        return # without updating!
+
+    # copy and cut and delete are doable by tool buttons
+    # so they might as well be available from here as well;
+    # anyway I tried to fix or mitigate their bugs [bruce 050131]:
     
     def cm_copy(self):
         self.assy.copy()
@@ -400,8 +442,8 @@ class modelTree(TreeWidget):
         self.assy.cut()
         self.mt_update()
     
-    def cm_kill(self):
-        # note: this is essentially the same as MWsemantics.killDo. [bruce 041220 comment]
+    def cm_delete(self): # renamed from cm_kill which was renamed from kill
+        # note: this is now the same code as MWsemantics.killDo. [bruce 050131]
         self.assy.kill()
         self.win.win_update() # Changed from self.mt_update for deleting from MT menu. Mark [04-12-03]
 

@@ -24,6 +24,7 @@ class cookieMode(basicMode):
     
     def Enter(self): # bruce 040922 split setMode into Enter and init_gui (fyi)
         basicMode.Enter(self)
+
         self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
 

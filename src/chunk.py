@@ -767,7 +767,10 @@ class molecule(Node, InvalMixin):
                 selatom.draw_as_selatom(glpane, disp, color, level)
                     # (fyi, this doesn't use color arg as of 041206)
             pass
-        
+
+            if platform.atom_debug and self.hotspot:
+                self.overdraw_hotspot(glpane, disp)
+
         except:
             print_compact_traceback("exception in molecule.draw, continuing: ")
             
@@ -817,6 +820,37 @@ class molecule(Node, InvalMixin):
                 else:
                     print "Source of current atom:", atom_source
         return # from molecule.draw_displist()
+
+    def overdraw_hotspot(self, glpane, disp):
+        # bruce 050131: this is to support a new debugging feature
+        # (which soon after Alpha can be replaced with a more useful real feature),
+        # namely the model tree's "briefly show" menu command
+        # (only available when ATOM_DEBUG is set, since more frustrating than useful
+        #  and added after the new-feature deadline passed for Alpha).
+        #    If atom_debug and if this chunk is a clipboard item, display its hotspot
+        # (if there is one), like we do selatom (so no worries about resetting havelist).
+        if not platform.atom_debug:
+            return # redundant with caller
+        try:
+            # if any of this fails (which is normal), it means don't use this feature for self.
+            assert self in self.assy.shelf.members
+            hs = self.hotspot
+            assert hs and hs.is_singlet() and hs.key in self.atoms and hs != glpane.selatom
+        except:
+            pass
+        else:
+            try:
+                color = green
+                level = self.assy.drawLevel #e or always use best level??
+                ## code copied from selatom.draw_as_selatom(glpane, disp, color, level)
+                pos1 = hs.baseposn()
+                drawrad1 = hs.selatom_radius(disp)
+                drawsphere(color, pos1, drawrad1, level) # always draw, regardless of disp
+            except:
+                raise # ok since this never happens unless platform.atom_debug
+                pass
+            pass
+        pass
 
     def writemmp(self, atnums, alist, f):
         disp = dispNames[self.display]
@@ -1114,6 +1148,7 @@ class molecule(Node, InvalMixin):
         """
         if not self.picked:
             self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
+                # (might not be needed for other kinds of leaf nodes... not sure. [bruce 050131])
             Node.pick(self)
             self.assy.selmols.append(self)
             # bruce 041207 thinks self.havelist = 0 is no longer needed here,

@@ -520,7 +520,10 @@ def readmmp(assy, filnam):
     assy.shelf.name = "Clipboard"
     assy.data.open = assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
-
+    #bruce 050131 for Alpha:
+    from Utility import kluge_patch_assy_toplevel_groups
+    kluge_patch_assy_toplevel_groups(assy)
+    return
     
 def insertmmp(assy, fileName):
     """Reading a mmp file and insert the part into the existing model """    

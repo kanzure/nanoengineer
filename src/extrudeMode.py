@@ -1662,6 +1662,9 @@ def assy_extrude_unit(assy, really_make_mol = 1):
        and return either (True, "not a mol") or (False, whynot).
     """
     # bruce 041222: adding really_make_mol flag.
+
+    assy.unselect_clipboard_items() #bruce 050131 for Alpha
+
     assy_fix_selmol_bugs(assy)
     resmol = "not a mol"
     if assy.selmols:

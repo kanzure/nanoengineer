@@ -770,6 +770,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
             item.object.pick()
         else:
             item.object.pick_top()
+            # as of 050131, this is: illegal (since it violates an invariant),
+            # incorrectly implemented (since it doesn't do leaf-specific pick funcs,
+            # though this could probably be easily fixed just as I'll fix unpick_top),
+            # and never called (since group_select_kids is always True).
         return
 
     def unpick( self, item, group_select_kids = True ):
@@ -1179,6 +1183,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
 ##                    self.last_dragMove_cpos[1], self.true_dragMove_cpos[1] )
         else:
             self.true_dragMove_cpos = None
+            ####@@@@ the following is only valid if a dragLeave (I think) was the last event we had in the app! (or so)
+            # now, this shows up even for a "copy" event which moves the scrollbar! #####@@@@@
             substatus = " -- " + self.drop_disabled_because
                 # substatus is independent of whether drag is initiated in this widget
         # now figure out where the drag came from and what it means, to mention in statsubar
@@ -1553,11 +1559,19 @@ class TreeWidget(TreeView, DebugMenuMixin):
         ours = [
                 ("reload modules and remake widget", self._reload_and_remake),
                 ("(treewidget instance created %s)" % self._init_time, lambda x:None, 'disabled'),
+                ("call win_update()", self._call_win_update),
+                ("call mt_update()", self._call_mt_update),
                 ]
         ours.append(None)
         ours.extend(usual)
         return ours
 
+    def _call_win_update(self):
+        self.win.win_update()
+
+    def _call_mt_update(self):
+        self.mt_update()
+        
     def _reload_and_remake(self):  ###e needs rewriting to let subclass help with the details...
         """reload all necessary modules (not just this one), and replace the existing tree widget
         (an instance of some subclass of this class)

@@ -189,7 +189,7 @@ class TreeView(QListView):
     # (###@@@ #e though we might want to override them here to mask QListView from seeing them -- but maybe no need)
     
     def update(self):
-        if platform.atom_debug and debug_prints:
+        if debug_prints:
             self.dprinttime()
             print_compact_stack("stack in update(): ")
             ## this happens twice early, not from exec_loop:
@@ -201,14 +201,14 @@ class TreeView(QListView):
         return QListView.update(self)
 
     def updateContents(self):
-        if platform.atom_debug:
+        if debug_prints:
             self.dprinttime()
             print "fyi: modelTree.updateContents() called (by Qt, maybe by triggerUpdate)"
             print_compact_stack("stack in updateContents(): ")
         return QListView.updateContents(self)
 
     def resize(self): #k does this get called? no.
-        if platform.atom_debug:
+        if debug_prints:
             self.dprinttime()
             print "fyi: modelTree.resize() called (by Qt, presumably)"
             print_compact_stack("stack in resize(): ")
@@ -218,7 +218,7 @@ class TreeView(QListView):
         # maybe it needs to do updateContents to avoid a bug
         # when window's top toolbar dock gets taller, covering the top of mtree...
         # or is there some other func to call then? and will this one even get called then?
-        if platform.atom_debug:
+        if debug_prints:
             self.dprinttime()
             ## print "fyi: modelTree.resizeEvent() called (by Qt, presumably)"
             print_compact_stack("stack in resizeEvent(e): ")
@@ -249,7 +249,7 @@ class TreeView(QListView):
         return res
 
     def repaint(self, *args):
-        if platform.atom_debug:
+        if debug_prints:
             self.dprinttime()
             print "fyi: modelTree.repaint() called (by Qt, presumably)"
             print_compact_stack("stack in repaint(): ")
@@ -342,7 +342,7 @@ class TreeView(QListView):
         
     def paintEvent(self, event):
         # this is the only one that gets called, out of update, repaint, paintEvent, contentsPaintEvent -- see viewportPaintEvent
-        if platform.atom_debug:
+        if debug_prints:
             self.dprinttime()
             ##print "fyi: modelTree.paintEvent() called (by Qt, presumably), event = %r" % event
             print_compact_stack("stack in PaintEvent(e): ") # just shows app.exec_loop and this method
@@ -387,7 +387,7 @@ class TreeView(QListView):
             pass
 
     def contentsPaintEvent(self, event): #k don't know if this exists; but viewportPaintEvent does, i think
-        if platform.atom_debug:
+        if debug_prints:
             self.dprinttime()
             print "fyi: modelTree.contentsPaintEvent(e) called (by Qt, presumably), event = %r" % event
             print_compact_stack("stack in contentsPaintEvent(e): ")

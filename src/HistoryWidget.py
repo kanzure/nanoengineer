@@ -310,7 +310,7 @@ class HistoryWidget:
         # Kluge or not, it should probably just call a method in MWsemantics... for now it's here.
         win = self.widget.topLevelWidget()
             # ... use an init option instead? for win, or the sbar itself...
-        # work around the kluge in MWsemantics [not anymore! bruce 050107] ####@@@@ redoc
+        # work around the kluge in MWsemantics [not anymore! bruce 050107] ###@@@ redoc
         if 0:
             orig_sb_method = win.__class__.statusBar 
             sbar = orig_sb_method(win)

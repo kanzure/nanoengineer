@@ -632,13 +632,14 @@ class MWsemantics(MainWindow):
     def editRedo(self):
         self.history.message(redmsg("Redo: Not implemented yet."))
 
+    # bruce 050131 moved some history messages from the following methods
+    # into the assy methods they call, so the menu command versions also have them
+    
     def editCut(self):
-        self.history.message(greenmsg("Cut:"))
         self.assy.cut()
         self.win_update()
 
     def editCopy(self):
-        self.history.message(greenmsg("Copy:"))
         self.assy.copy()
         self.win_update()
 
@@ -652,10 +653,10 @@ class MWsemantics(MainWindow):
     def killDo(self):
         """ Deletes selected atoms, chunks, jigs and groups.
         """
-        self.history.message(greenmsg("Delete:"))
         self.assy.kill()
-        self.glpane.gl_update()
-        self.mt.mt_update()
+        self.win_update() #bruce 050131 made this identical with mtree cmenu version
+        ## self.glpane.gl_update()
+        ## self.mt.mt_update()
 
     def editFind(self):
         self.history.message(redmsg("Find: Not implemented yet."))

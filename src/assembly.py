@@ -22,6 +22,7 @@ from chem import *
 from movie import *
 from gadgets import *
 from Utility import *
+from HistoryWidget import greenmsg, redmsg
 
 # number of atoms for detail level 0
 HUGE_MODEL = 20000
@@ -70,6 +71,21 @@ class assembly:
         # the model tree for this assembly
         self.tree = Group(self.name, self, None)
         self.root = Group("ROOT", self, None, [self.tree, self.shelf])
+
+        # bruce 050131 for Alpha:
+        # For each assembly, maintain one Node or Group which is the
+        # "current selection group" (the PartGroup or one of the
+        # clipboard items), in which all selection is required to reside.
+        #    It might sometimes be an out-of-date node, either a
+        # former shelf item or a node from a previously loaded file --
+        # not sure if these can happen, but "user beware".
+        #    Sometime after Alpha, we'll show this group in the glpane
+        # and let operations (which now look at self.tree or self.molecules)
+        # affect it instead of affecting the main model
+        # (or having bugs whenever clipboard items are selected, as they
+        # often do now).
+        self.current_selection_group = None
+
         # list of chem.molecule's
         self.molecules=[]
         # list of the atoms, only valid just after read or write
@@ -85,6 +101,11 @@ class assembly:
         self.selmols=[]
         # what to select: 0=atoms, 2 = molecules
         self.selwhat = 2
+
+        #bruce 050131 for Alpha:
+        from Utility import kluge_patch_assy_toplevel_groups
+        kluge_patch_assy_toplevel_groups( self)
+
         # level of detail to draw
         self.drawLevel = 2
         # currently unimplemented
@@ -108,6 +129,57 @@ class assembly:
         self.waals = None
 
         return # from assembly.__init__
+    
+    def set_current_selection_group(self, node): #bruce 050131 for Alpha
+        prior = self.current_selection_group
+        self.current_selection_group = node
+##        if platform.atom_debug:
+##            print "atom_debug: set_current_selection_group(): from %r to %r" % (node_name(prior),node_name(node))
+        if self.is_nonstd_selection_group(node) and not self.is_nonstd_selection_group(prior):
+            try:
+                msgfunc = self.w.history.message
+                # decided to be conservative for now, even though this might be pretty common
+                # and I'm tempted to use transient_msg so as to not mess up the history
+                ## msgfunc = self.w.history.transient_msg
+            except:
+                pass # too early?
+            else:
+                msg = "Warning (alpha): some operations don't work or have bugs for selected clipboard items"
+                msgfunc(redmsg(msg)) # don't use redmsg if we change to transient_msg above
+        if prior != node:
+            self.current_selection_group_changed( prior)
+        return
+
+    def current_selection_group_changed(self, prior = 0): #bruce 050131 for Alpha
+        "#doc; prior == 0 means unknown -- caller might pass None"
+        #e in future (post-Alpha) this might revise self.molecules, what to show in glpane, etc
+        # for now, make sure nothing outside it is picked!
+        didany = self.root.unpick_all_except( self.current_selection_group )
+        if didany:
+            try: # precaution against new bugs in this alpha-bug-mitigation code
+                # what did we deselect?
+                if prior and not isinstance(prior, Group):
+                    what = node_name(prior)
+                elif prior:
+                    what = "some items in " + node_name(prior)
+                else:
+                    what = "some items"
+                ## why = "since selection should not involve more than one clipboard item or part at a time" #e wording??
+                why = "to limit selection to one clipboard item or the part" #e wording??
+                    #e could make this more specific depending on which selection groups were involved
+                msg = "Warning: deselected %s, %s" % (what, why)
+            except:
+                if platform.atom_debug:
+                    raise 
+                msg = "Warning: deselected some previously selected items"
+            try:
+                self.w.history.message( redmsg( msg))
+            except:
+                pass # too early? (can this happen?)
+        pass
+
+    def is_nonstd_selection_group(self, node):
+        return node and node != self.tree
 
     def has_changed(self): # bruce 050107
         """Report whether this assembly (or something it contains)
@@ -453,8 +525,6 @@ class assembly:
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """
-        from HistoryWidget import greenmsg, redmsg
-        
         if not self.selatoms:
             self.w.history.message(redmsg("Select Connected: No atom(s) selected."))
             return
@@ -476,7 +546,6 @@ class assembly:
         bonds. Also select atoms that are connected to this group by
         one bond and have no other bonds.
         """
-        from HistoryWidget import greenmsg, redmsg
         if not self.selatoms:
             self.w.history.message(redmsg("Select Doubly: No atom(s) selected."))
             return
@@ -616,7 +685,7 @@ class assembly:
         If no atom or chunk is under the mouse, nothing in glpane is selected.
         """
         if self.selwhat:
-            self.unpickparts()
+            self.unpickparts() # (fyi, this unpicks in clipboard as well)
         else:
             self.unpickatoms()
         self.pick_at_event(event)
@@ -652,11 +721,8 @@ class assembly:
     
     # deselect any selected molecules or groups
     def unpickparts(self):
-        self.root.unpick()
+        self.root.unpick() # root contains self.tree and self.shelf
         self.data.unpick()
-        # bruce 050124: the following is wrong, since shelf is in root:
-        # bruce 041214 comment:
-        # note that selected items in the clipboard remain selected (I think)
 
     # for debugging
     def prin(self):
@@ -664,22 +730,44 @@ class assembly:
             a.prin()
 
     def cut(self):
+        self.w.history.message(greenmsg("Cut:"))
         if self.selwhat==0: return
         new = Group(gensym("Copy"),self,None)
         self.tree.apply2picked(lambda(x): x.moveto(new))
+            ###@@@ bruce 050131 inference from recalled bug report:
+            # this must fail in some way that addmember handles, or tolerate jigs/groups but shouldn't;
+            # one difference is that for chunks it would leave them in assy.molecules whereas copy would not;
+            # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
+            # like bug 278! Because findpick (etc) uses assy.molecules.
         
         if new.members:
-            for ob in (new.members):
-                self.shelf.addmember(ob) # add new member(s) to the clipboard
-                # if the new member is a molecule, move the center a little.
+            for ob in new.members:
+                # bruce 050131 try fixing bug 278 in a limited, conservative way
+                # (which won't help the underlying problem in other cases like drag & drop, sorry),
+                # based on the theory that chunks remaining in assy.molecules is the problem:
+                self.sanitize_for_clipboard(ob)
+                self.shelf.addmember(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
+                # if the new member is a molecule, move it to the center of its space
                 if isinstance(ob, molecule): ob.move(-ob.center)
-            ob.pick()
-
-        self.changed()
+            ## ob.pick() # bruce 050131 removed this
+        
+        self.changed() # bruce 050131 resisted temptation to make this conditional on new.members
+        
         self.w.win_update()
 
+    def sanitize_for_clipboard(self, ob): #bruce 050131 for Alpha (really for bug 278 and maybe related ones)
+        "keep clipboard items (or chunks inside them) out of assy.molecules, so they can't be selected from glpane"
+        if isinstance(ob, molecule):
+            try:
+                ob.assy.molecules.remove(ob)
+            except:
+                pass
+        elif isinstance(ob, Group): # or any subclass! e.g. the Clipboard itself.
+            for m in ob.members:
+                self.sanitize_for_clipboard(m)
+        return
 
-    # copy any selected parts (molecules)
+    # copy any selected parts (molecules) [making a new clipboard item... #doc #k]
     #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
     #  Bruce's comments (based on reading the code, not all verified by test):
     #    0. If groups are not allowed in the clipboard (bug 213 doesn't say,
@@ -694,22 +782,38 @@ class assembly:
     #  clipboard? (This will be the topmost selected item, since (at least
     #  for now) the group members are in bottom-to-top order.)
     def copy(self):
-        if self.selwhat==0: return
+        self.w.history.message(greenmsg("Copy:"))
+        if self.selwhat==0:
+            self.w.history.message(redmsg("Copying selected atoms is not yet supported.")) #bruce 050131
+            return
         new = Group(gensym("Copy"),self,None)
-        # x is each item in the tree that is picked.
+        # x is each node in the tree that is picked.
+        # [bruce 050131 comments (not changing it in spite of bugs):
+        #  the x's might be chunks, jigs, groups... but maybe not all are supported for copy.
+        #  In fact, Group.copy returns 0 and Jig.copy returns None, and addmember tolerates that
+        #  and does nothing!!
+        #  About chunk.copy: it sets numol.assy but doesn't add it to assy,
+        #  and it sets numol.dad but doesn't add it to dad's members -- so we do that immediately
+        #  in addmember. So we end up with a members list of copied chunks from assy.tree.]
         self.tree.apply2picked(lambda(x): new.addmember(x.copy(new)))
         
         if new.members:
             for ob in (new.members):
+                self.sanitize_for_clipboard(ob) # not needed on 050131 but will be needed soon, and harmless
                 self.shelf.addmember(ob) # add new member(s) to the clipboard
-                # if the new member is a molecule, move the center a little.
+                #bruce comment 050131: this ignores prior membership in new; tolerable in this case
+                # if the new member is a molecule, move it to the center of its space
                 if isinstance(ob, molecule): ob.move(-ob.center)
-            ob.pick()
+            ## ob.pick() # bruce 050131 removed this
 
         self.w.win_update()
 
     def paste(self, node):
         pass # to be implemented
+
+    def unselect_clipboard_items(self): #bruce 050131 for Alpha
+        "to be called before operations which are likely to fail when any clipboard items are selected"
+        self.set_current_selection_group( self.tree)
 
     # move any selected parts in space ("move" is an offset vector)
     def movesel(self, move):
@@ -727,6 +831,7 @@ class assembly:
 
     def kill(self): # bruce 041118 simplified this after shakedown changes
         "delete whatever is selected from this assembly"
+        self.w.history.message(greenmsg("Delete:"))
         if self.selatoms:
             self.changed()
             for a in self.selatoms.values():
@@ -734,28 +839,11 @@ class assembly:
             self.selatoms = {} # should be redundant
         if self.selwhat == 2 or self.selmols:
             self.tree.apply2picked(lambda o: o.kill())
-
-        # Kill anything picked in the clipboard
-        
-        # [bruce 041129 thinks this was added by Mark (and is needed).
-        #  But I think it can be unintended and go unseen if user selected
-        #  using glpane, so maybe it should depend on focus and/or on whether
-        #  clipboard is open. So for now I think I'll add a check for clipboard
-        #  being open, which is a kluge but at least ensures the kill is seen.
-        #  A better fix might be for clipboard to have its own focus, distinct
-        #  from the main tree/glpane, but that has to wait for the future.
-        #  Digression: won't picking atoms unpick anything in the clipboard,
-        #  and is this intended (in case it messes up pasting)?]
-        
-        if self.shelf.open: # condition by bruce 041129
-            # [bruce 041220: should we also require event not from glpane,
-            #  and nothing selected in glpane?? so nothing but click in mtree
-            #  would work... issue is related to click in mtree not unseling in
-            #  clipboard, but we need that too, since its sel defines pastable.
-            #  This whole thing needs to be rethought even before Alpha... ###@@@]
+            # Also kill anything picked in the clipboard
+            # [revised by bruce 050131 for Alpha, see cvs rev 1.117 for historical comments]
             self.shelf.apply2picked(lambda o: o.kill()) # kill by Mark(?), 11/04
-            
         self.setDrawLevel()
+        return
 
 
 ##    # actually remove a given molecule from the list [no longer used]
@@ -803,22 +891,34 @@ class assembly:
 
     #stretch a molecule
     def Stretch(self):
+        if not self.selmols:
+            self.w.history.message(redmsg("no selected chunks to stretch")) #bruce 050131
+            return
         self.changed()
-        if not self.selmols: return
         for m in self.selmols:
             m.stretch(1.1)
         self.o.gl_update()
 
     #weld selected molecules together
     def weld(self):
-        if len(self.selmols) < 2: return
+        #bruce 050131 comment: might now be safe for clipboard items
+        # since all selection is now forced to be in the same one;
+        # this is mostly academic since there's no pleasing way to use it on them,
+        # though it's theoretically possible (since Groups can be cut and maybe copied).
+        if len(self.selmols) < 2:
+            self.w.history.message(redmsg("need two or more selected chunks to weld")) #bruce 050131
+            return
+        self.changed() #bruce 050131 bugfix or precaution
         mol = self.selmols[0]
         for m in self.selmols[1:]:
             mol.merge(m)
 
 
     def align(self):
-        if len(self.selmols) < 2: return
+        if len(self.selmols) < 2:
+            self.w.history.message(redmsg("need two or more selected chunks to align")) #bruce 050131
+            return
+        self.changed() #bruce 050131 bugfix or precaution
         ax = V(0,0,0)
         for m in self.selmols:
             ax += m.getaxis()

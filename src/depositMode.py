@@ -324,10 +324,6 @@ class depositMode(basicMode):
                 # Good!
             enabled = 1
         
-        ## the following fails to dim it as I'd hoped, so don't do it for now:
-            # well, uh, maybe that;s because of this: AttributeError: depositMode instance has no attribute 'box'
-            # i must be more tired than i thought... ####@@@@
-            # ok try it without that typo
         self.w.pasteComboBox.setEnabled(enabled)
         
         #e future: if model tree indicates self.pastable somehow, e.g. by color of
