@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Feb 9 14:11:46 2005
+# Created: Thu Mar 3 16:03:17 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7284,6 +7284,7 @@ class MainWindow(QMainWindow):
         self.rotateToolAction.setIconSet(QIconSet(self.image108))
         self.modifyDeleteBondsAction = QAction(self,"modifyDeleteBondsAction")
         self.modifyDeleteBondsAction.setIconSet(QIconSet(self.image76))
+        self.dispElementColorSettingsAction = QAction(self,"dispElementColorSettingsAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7548,6 +7549,7 @@ class MainWindow(QMainWindow):
         self.unnamed.insertSeparator()
         self.dispSetEltable1Action.addTo(self.unnamed)
         self.dispSetEltable2Action.addTo(self.unnamed)
+        self.dispElementColorSettingsAction.addTo(self.unnamed)
         self.MenuBar.insertItem(QString(""),self.unnamed,6)
 
         self.Jigs = QPopupMenu(self)
@@ -7594,7 +7596,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1234).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1237).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7719,6 +7721,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
         self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
+        self.connect(self.dispElementColorSettingsAction,SIGNAL("activated()"),self.dispElementColorSettings)
 
 
     def languageChange(self):
@@ -8071,6 +8074,8 @@ class MainWindow(QMainWindow):
         self.rotateToolAction.setMenuText(self.__tr("Rotate Tool"))
         self.modifyDeleteBondsAction.setText(self.__tr("Delete Bonds"))
         self.modifyDeleteBondsAction.setMenuText(self.__tr("Delete &Bonds"))
+        self.dispElementColorSettingsAction.setText(self.__tr("Element Color Settings..."))
+        self.dispElementColorSettingsAction.setMenuText(self.__tr("Element Color Settings..."))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8530,6 +8535,9 @@ class MainWindow(QMainWindow):
 
     def modifyDeleteBonds(self):
         print "MainWindow.modifyDeleteBonds(): Not implemented yet"
+
+    def dispElementColorSettings(self):
+        print "MainWindow.dispElementColorSettings(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

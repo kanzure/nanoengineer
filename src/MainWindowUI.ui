@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1234</height>
+            <height>1237</height>
         </rect>
     </property>
     <property name="caption">
@@ -100,6 +100,7 @@
         <separator/>
         <action name="dispSetEltable1Action"/>
         <action name="dispSetEltable2Action"/>
+        <action name="dispElementColorSettingsAction"/>
     </item>
     <item text="&amp;Jigs" name="Jigs">
         <action name="jigsMotorAction"/>
@@ -2875,6 +2876,14 @@
             <string>Delete &amp;Bonds</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>dispElementColorSettingsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Element Color Settings...</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -3938,6 +3947,12 @@
         <receiver>MainWindow</receiver>
         <slot>modifySeparate()</slot>
     </connection>
+    <connection>
+        <sender>dispElementColorSettingsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispElementColorSettings()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4076,6 +4091,7 @@
     <slot>panDone()</slot>
     <slot>rotateTool()</slot>
     <slot>modifyDeleteBonds()</slot>
+    <slot>dispElementColorSettings()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

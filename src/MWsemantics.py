@@ -889,6 +889,20 @@ class MWsemantics(MainWindow):
         elements.setCurrentElemTable(2)
         self.glpane.gl_update()
 
+    # pop up Element Color Selector dialog
+    def dispElementColorSettings(self):
+        """Allows user to change default colors of elements and save them to a file.
+        """
+        # HUAICAI TO MAKE THIS DIFFERENT FROM ELEMENT SELECTOR.
+        global elementwindow
+        #Huaicai 2/24/05: Create a new element selector window each time,  
+        #so it will be easier to always start from the same states.
+        # Make sure only a single element window is shown
+        if elementwindow and elementwindow.isShown(): return 
+        
+        elementwindow = elementSelector(self)
+        elementwindow.setDisplay(self.Element)
+        elementwindow.show()
 
     ###############################################################
     # Select Toolbar Slots
