@@ -356,11 +356,11 @@ class MWsemantics(MainWindow):
         self.glpane.paintGL()
 
     def setViewLeft(self):
-        self.glpane.quat = Q(V(0,1,0),-pi/2)
+        self.glpane.quat = Q(V(0,1,0),pi/2)
         self.glpane.paintGL()
 
     def setViewRight(self):
-        self.glpane.quat = Q(V(0,1,0),pi/2)
+        self.glpane.quat = Q(V(0,1,0),-pi/2)
         self.glpane.paintGL()
 
     def setViewTop(self):
