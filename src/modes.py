@@ -5,8 +5,6 @@ modeMixin, for GLPane.
 
 $Id$
 
-Ownership: Mark [2004-10-10].
-
 ==
 
 Originally written by Josh.

@@ -2,8 +2,6 @@
 """
 selectMode.py -- the default mode for Atom's main model view.
 
-Ownership: Mark owns this file as of 2004-10-10.
-
 $Id$
 """
 
@@ -243,7 +241,7 @@ class selectAtomsMode(selectMode):
             selectMode.init_gui(self)
             self.o.setCursor(self.w.SelectAtomsCursor)
             self.w.toolsSelectAtomsAction.setOn(1) # toggle on the "Select Atoms" tools icon
-            self.w.selectMolDashboard.show() 
+            self.w.selectAtomsDashboard.show() 
             
         def restore_gui(self):
             self.w.selectAtomsDashboard.hide()
