@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Feb 8 03:10:37 2005
+# Created: Wed Feb 9 09:02:56 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7072,8 +7072,8 @@ class MainWindow(QMainWindow):
         self.jigsGroundAction.setIconSet(QIconSet(self.image37))
         self.jigsHandleAction = QAction(self,"jigsHandleAction")
         self.jigsHandleAction.setIconSet(QIconSet(self.image38))
-        self.modifySeparateAction = QAction(self,"modifySeparateAction")
-        self.modifySeparateAction.setIconSet(QIconSet(self.image39))
+        self.modifySplitAction = QAction(self,"modifySplitAction")
+        self.modifySplitAction.setIconSet(QIconSet(self.image39))
         self.orient100Action = QAction(self,"orient100Action")
         self.orient100Action.setIconSet(QIconSet(self.image40))
         self.orient110Action = QAction(self,"orient110Action")
@@ -7392,6 +7392,11 @@ class MainWindow(QMainWindow):
         self.movieMoveToEndAction.addTo(self.moviePlayerDashboard)
         self.moviePlayerDashboard.addSeparator()
 
+        self.skipTL = QLabel(self.moviePlayerDashboard,"skipTL")
+
+        self.skipSB = QSpinBox(self.moviePlayerDashboard,"skipSB")
+        self.moviePlayerDashboard.addSeparator()
+
         self.frameLabel = QLabel(self.moviePlayerDashboard,"frameLabel")
 
         self.frameNumberSB = QSpinBox(self.moviePlayerDashboard,"frameNumberSB")
@@ -7451,7 +7456,7 @@ class MainWindow(QMainWindow):
         self.modifySetElementAction.addTo(self.modifyToolbar)
         self.modifyDeleteBondAction.addTo(self.modifyToolbar)
         self.modifyStretchAction.addTo(self.modifyToolbar)
-        self.modifySeparateAction.addTo(self.modifyToolbar)
+        self.modifySplitAction.addTo(self.modifyToolbar)
         self.modifyWeldAction.addTo(self.modifyToolbar)
         self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
@@ -7560,7 +7565,7 @@ class MainWindow(QMainWindow):
         self.modifyDehydrogenateAction.addTo(self.Modify)
         self.modifySetElementAction.addTo(self.Modify)
         self.modifyDeleteBondAction.addTo(self.Modify)
-        self.modifySeparateAction.addTo(self.Modify)
+        self.modifySplitAction.addTo(self.Modify)
         self.modifyStretchAction.addTo(self.Modify)
         self.modifyWeldAction.addTo(self.Modify)
         self.modifyAlignCommonAxisAction.addTo(self.Modify)
@@ -7589,7 +7594,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1222).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1231).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7645,26 +7650,32 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsMotorAction,SIGNAL("activated()"),self.makeMotor)
         self.connect(self.jigsSpringAction,SIGNAL("activated()"),self.makeSpring)
         self.connect(self.jigsStatAction,SIGNAL("activated()"),self.makeStat)
+        self.connect(self.jigsThermoAction,SIGNAL("activated()"),self.makeThermo)
         self.connect(self.modifyAlignCommonAxisAction,SIGNAL("activated()"),self.modifyAlignCommonAxis)
         self.connect(self.modifyCopyBondAction,SIGNAL("activated()"),self.modifyCopyBond)
         self.connect(self.modifyDehydrogenateAction,SIGNAL("activated()"),self.modifyDehydrogenate)
+        self.connect(self.modifyDeleteBondAction,SIGNAL("activated()"),self.modifyDeleteBond)
         self.connect(self.modifyEdgeBondAction,SIGNAL("activated()"),self.modifyEdgeBond)
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
         self.connect(self.modifyMinimizeAction,SIGNAL("activated()"),self.modifyMinimize)
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
-        self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
         self.connect(self.modifySetElementAction,SIGNAL("activated()"),self.modifySetElement)
+        self.connect(self.modifySplitAction,SIGNAL("activated()"),self.modifySplit)
         self.connect(self.modifyStretchAction,SIGNAL("activated()"),self.modifyStretch)
         self.connect(self.modifyWeldAction,SIGNAL("activated()"),self.modifyWeld)
         self.connect(self.movieDoneAction,SIGNAL("activated()"),self.movieDone)
+        self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
+        self.connect(self.movieMoveToEndAction,SIGNAL("activated()"),self.movieMoveToEnd)
         self.connect(self.moviePauseAction,SIGNAL("activated()"),self.moviePause)
         self.connect(self.moviePlayAction,SIGNAL("activated()"),self.moviePlay)
         self.connect(self.moviePlayRevAction,SIGNAL("activated()"),self.moviePlayRev)
         self.connect(self.movieResetAction,SIGNAL("activated()"),self.movieReset)
-        self.connect(self.movieMoveToEndAction,SIGNAL("activated()"),self.movieMoveToEnd)
         self.connect(self.orient100Action,SIGNAL("activated()"),self.orient100)
         self.connect(self.orient110Action,SIGNAL("activated()"),self.orient110)
         self.connect(self.orient111Action,SIGNAL("activated()"),self.orient111)
+        self.connect(self.panDoneAction,SIGNAL("activated()"),self.panDone)
+        self.connect(self.panToolAction,SIGNAL("activated()"),self.panTool)
+        self.connect(self.rotateToolAction,SIGNAL("activated()"),self.rotateTool)
         self.connect(self.selectAllAction,SIGNAL("activated()"),self.selectAll)
         self.connect(self.selectConnectedAction,SIGNAL("activated()"),self.selectConnected)
         self.connect(self.selectDoublyAction,SIGNAL("activated()"),self.selectDoubly)
@@ -7707,13 +7718,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
         self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
-        self.connect(self.jigsThermoAction,SIGNAL("activated()"),self.makeThermo)
-        self.connect(self.panToolAction,SIGNAL("activated()"),self.panTool)
-        self.connect(self.panDoneAction,SIGNAL("activated()"),self.panDone)
-        self.connect(self.rotateToolAction,SIGNAL("activated()"),self.rotateTool)
-        self.connect(self.modifyDeleteBondAction,SIGNAL("activated()"),self.modifyDeleteBond)
 
 
     def languageChange(self):
@@ -7858,8 +7863,8 @@ class MainWindow(QMainWindow):
         self.jigsGroundAction.setMenuText(self.__tr("&Ground"))
         self.jigsHandleAction.setText(self.__tr("Handle"))
         self.jigsHandleAction.setMenuText(self.__tr("&Handle"))
-        self.modifySeparateAction.setText(self.__tr("Separate"))
-        self.modifySeparateAction.setMenuText(self.__tr("&Separate"))
+        self.modifySplitAction.setText(self.__tr("Split"))
+        self.modifySplitAction.setMenuText(self.__tr("&Split"))
         self.orient100Action.setText(self.__tr("Surface 100"))
         self.orient100Action.setMenuText(self.__tr("Surface 100"))
         self.orient110Action.setText(self.__tr("Surface 110"))
@@ -8085,6 +8090,7 @@ class MainWindow(QMainWindow):
         self.textLabel1.setText(self.__tr("Move Chunks"))
         self.moviePlayerDashboard.setLabel(self.__tr("Movie Player Dashboard"))
         self.textLabel1_4.setText(self.__tr("Movie Player"))
+        self.skipTL.setText(self.__tr("Skip:"))
         self.frameLabel.setText(self.__tr("Frame (500 total):"))
         self.frameNumberSB.setPrefix(QString.null)
         self.selectMolDashboard.setLabel(self.__tr("Select Molecule"))
@@ -8249,8 +8255,8 @@ class MainWindow(QMainWindow):
     def modifyPassivate(self):
         print "MainWindow.modifyPassivate(): Not implemented yet"
 
-    def modifySeparate(self):
-        print "MainWindow.modifySeparate(): Not implemented yet"
+    def modifySplit(self):
+        print "MainWindow.modifySplit(): Not implemented yet"
 
     def orient100(self):
         print "MainWindow.orient100(): Not implemented yet"

@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1222</height>
+            <height>1231</height>
         </rect>
     </property>
     <property name="caption">
@@ -115,7 +115,7 @@
         <action name="modifyDehydrogenateAction"/>
         <action name="modifySetElementAction"/>
         <action name="modifyDeleteBondAction"/>
-        <action name="modifySeparateAction"/>
+        <action name="modifySplitAction"/>
         <action name="modifyStretchAction"/>
         <action name="modifyWeldAction"/>
         <action name="modifyAlignCommonAxisAction"/>
@@ -400,6 +400,20 @@
         <separator/>
         <widget class="QLabel">
             <property name="name">
+                <cstring>skipTL</cstring>
+            </property>
+            <property name="text">
+                <string>Skip:</string>
+            </property>
+        </widget>
+        <widget class="QSpinBox">
+            <property name="name">
+                <cstring>skipSB</cstring>
+            </property>
+        </widget>
+        <separator/>
+        <widget class="QLabel">
+            <property name="name">
                 <cstring>frameLabel</cstring>
             </property>
             <property name="text">
@@ -599,7 +613,7 @@
         <action name="modifySetElementAction"/>
         <action name="modifyDeleteBondAction"/>
         <action name="modifyStretchAction"/>
-        <action name="modifySeparateAction"/>
+        <action name="modifySplitAction"/>
         <action name="modifyWeldAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </toolbar>
@@ -1558,16 +1572,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>modifySeparateAction</cstring>
+            <cstring>modifySplitAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image39</iconset>
         </property>
         <property name="text">
-            <string>Separate</string>
+            <string>Split</string>
         </property>
         <property name="menuText">
-            <string>&amp;Separate</string>
+            <string>&amp;Split</string>
         </property>
     </action>
     <action>
@@ -3511,6 +3525,12 @@
         <slot>makeStat()</slot>
     </connection>
     <connection>
+        <sender>jigsThermoAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeThermo()</slot>
+    </connection>
+    <connection>
         <sender>modifyAlignCommonAxisAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3527,6 +3547,12 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>modifyDehydrogenate()</slot>
+    </connection>
+    <connection>
+        <sender>modifyDeleteBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyDeleteBond()</slot>
     </connection>
     <connection>
         <sender>modifyEdgeBondAction</sender>
@@ -3553,16 +3579,16 @@
         <slot>modifyPassivate()</slot>
     </connection>
     <connection>
-        <sender>modifySeparateAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>modifySeparate()</slot>
-    </connection>
-    <connection>
         <sender>modifySetElementAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>modifySetElement()</slot>
+    </connection>
+    <connection>
+        <sender>modifySplitAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifySplit()</slot>
     </connection>
     <connection>
         <sender>modifyStretchAction</sender>
@@ -3581,6 +3607,18 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>movieDone()</slot>
+    </connection>
+    <connection>
+        <sender>movieInfoAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieInfo()</slot>
+    </connection>
+    <connection>
+        <sender>movieMoveToEndAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieMoveToEnd()</slot>
     </connection>
     <connection>
         <sender>moviePauseAction</sender>
@@ -3607,12 +3645,6 @@
         <slot>movieReset()</slot>
     </connection>
     <connection>
-        <sender>movieMoveToEndAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>movieMoveToEnd()</slot>
-    </connection>
-    <connection>
         <sender>orient100Action</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3629,6 +3661,24 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>orient111()</slot>
+    </connection>
+    <connection>
+        <sender>panDoneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>panDone()</slot>
+    </connection>
+    <connection>
+        <sender>panToolAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>panTool()</slot>
+    </connection>
+    <connection>
+        <sender>rotateToolAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>rotateTool()</slot>
     </connection>
     <connection>
         <sender>selectAllAction</sender>
@@ -3883,46 +3933,10 @@
         <slot>toolsStartOver()</slot>
     </connection>
     <connection>
-        <sender>movieInfoAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>movieInfo()</slot>
-    </connection>
-    <connection>
         <sender>zoomToolAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>zoomTool()</slot>
-    </connection>
-    <connection>
-        <sender>jigsThermoAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>makeThermo()</slot>
-    </connection>
-    <connection>
-        <sender>panToolAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>panTool()</slot>
-    </connection>
-    <connection>
-        <sender>panDoneAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>panDone()</slot>
-    </connection>
-    <connection>
-        <sender>rotateToolAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>rotateTool()</slot>
-    </connection>
-    <connection>
-        <sender>modifyDeleteBondAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>modifyDeleteBond()</slot>
     </connection>
 </connections>
 <slots>
@@ -3970,7 +3984,7 @@
     <slot>makeSpring()</slot>
     <slot>modifyHydrogenate()</slot>
     <slot>modifyPassivate()</slot>
-    <slot>modifySeparate()</slot>
+    <slot>modifySplit()</slot>
     <slot>orient100()</slot>
     <slot>orient110()</slot>
     <slot>orient111()</slot>

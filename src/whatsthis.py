@@ -596,16 +596,16 @@ def createWhatsThis(self):
 
         self.modifyStretchAction.setWhatsThis(modifyStretchActionText )
 
-        #### Separate ####
+        #### Split ####
 
-        modifySeparateActionText = "<u><b>Separate</b></u><br>"\
-                       "<p><img source=\"modifySeparateAction\"><br> "\
+        modifySplitActionText = "<u><b>Split</b></u><br>"\
+                       "<p><img source=\"modifySplitAction\"><br> "\
                        "Creates a new chunk from the currently selected atoms.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifySeparateAction",
-                                                       self.modifySeparateAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifySplitAction",
+                                                       self.modifySplitAction.iconSet().pixmap() )
 
-        self.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
+        self.modifySplitAction.setWhatsThis(modifySplitActionText )  
         
         #### Weld Chunks ####
 
