@@ -417,6 +417,7 @@ class depositMode(basicMode):
             a.kill()
             if m.atoms: m.shakedown()
             else: m.kill()
+            self.o.assy.modified = 1
         self.w.update()
 
     def middleDouble(self, event):
