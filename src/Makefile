@@ -2,6 +2,7 @@
 
 CC=gcc
 CFLAGS=-O3 -g
+#CFLAGS=-g
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
 
@@ -34,6 +35,8 @@ all: simulator
 
 simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
+
+install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
 		mkdir $(EXE_DIRECTORY) ;\
 	fi

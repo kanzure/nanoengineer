@@ -1160,7 +1160,26 @@ void minimize(int NumFrames) {
     minshot(1,rms, hif); 
     printf("final RMS gradient=%f after %d iterations\n",rms, nmfr-NumFrames);
 
-} 
+}
+
+static void usage()
+{
+                
+    printf("command line parameters:\n\
+   -dx -- dump, x= a: atoms; b: bonds; c: constraints\n\
+   -n -- expect <number> of atoms\n\
+   -m -- minimize the structure\n\
+   -i -- number of iterations per frame\n\
+   -f -- number of frames\n\
+   -s -- timestep\n\
+   -t -- temperature\n\
+   -x -- write positions as (text) .xyz file(s)\n\
+   -r -- repress frame numbers\n\
+   -o -- output file name (otherwise same as input)\n\
+   -q -- trace file name (otherwise trace)\n\
+   filename -- if no ., add .mmp to read, .dpb to write\n");
+    exit(0);
+}
 
 
 /**
@@ -1207,20 +1226,7 @@ main(int argc,char **argv)
 	if (argv[i][0] == '-') {
 	    switch (argv[i][1]) {
 	    case 'h':
-		printf("command line parameters:\n\
-   -dx -- dump, x= a: atoms; b: bonds; c: constraints\n\
-   -n -- expect <number> of atoms\n\
-   -m -- minimize the structure\n\
-   -i -- number of iterations per frame\n\
-   -f -- number of frames\n\
-   -s -- timestep\n\
-   -t -- temperature\n\
-   -x -- write positions as (text) .xyz file(s)\n\
-   -r -- repress frame numbers\n\
-   -o -- output file name (otherwise same as input)\n\
-   -q -- trace file name (otherwise trace)\n\
-   filename -- if no ., add .mmp to read, .dpb to write\n");
-		exit(0);
+                usage();
 	    case 'd':
 		if (argv[i][2]=='a') da = 1;
 		if (argv[i][2]=='b') db = 1;
@@ -1270,9 +1276,12 @@ main(int argc,char **argv)
 	}
     }
 
+    if (!filename) {
+        usage();
+    }
+
     if (ToMinimize) printf("Minimize\n");
-	
-    if (! filename) filename="sample";
+
     if (strchr(filename, '.')) sprintf(buf, "%s", filename);
     else sprintf(buf, "%s.mmp", filename);
 

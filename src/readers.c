@@ -327,6 +327,10 @@ void filred(char *filnam) {
     int colr[3];
 	
     file=fopen(filnam,"r");
+    if (file==NULL) {
+      perror(filnam);
+      exit(1);
+    }
 	
     while (fgets(buf,255,file)) {
 	/* atom number (element) (posx, posy, posz) */
