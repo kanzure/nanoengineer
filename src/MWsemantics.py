@@ -39,11 +39,11 @@ for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
 
 def greenmsg(text):
-    """Display text in green in the HistoryMegawidget"""
+    """Display text in green in the HistoryWidget"""
     return "<span style=\"color:#006600\">" + text + "</span>"
     
 def redmsg(text):
-    """Display text in red in the HistoryMegawidget"""
+    """Display text in red in the HistoryWidget"""
     return "<span style=\"color:#ff0000\">" + text + "</span>"
     
 def fileparse(name):
@@ -127,9 +127,9 @@ class MWsemantics(MainWindow):
         splitter.setOpaqueResize(False)
 
         # Create the history area at the bottom
-        from HistoryMegawidget import HistoryMegawidget
+        from HistoryWidget import HistoryWidget
         histfile = platform.make_history_filename()
-        self.history = HistoryMegawidget(vsplitter, filename = histfile, mkdirs = 1)
+        self.history = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
             # this is not a Qt widget, but its owner;
             # use self.history.widget for Qt calls that need the widget itself
         

@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 '''
 runSim.py
 
@@ -102,7 +102,7 @@ class runSim(SimSetupDialog):
             self.assy.w.statusBar.message(msg) 
             msg = "Movie written to [" + moviefile + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
-            # This makes a copy of the movie tool icon to put in the HistoryMegawidget.
+            # This makes a copy of the movie tool icon to put in the HistoryWidget.
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.assy.w.toolsMoviePlayerAction.iconSet().pixmap() )
             self.assy.w.statusBar.message(msg)
