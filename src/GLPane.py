@@ -812,7 +812,9 @@ class GLPane(QGLWidget, modeMixin):
         pic.save(filename, "JPEG", quality=85)
 
     def minimize(self):
-        if not self.assy.alist: return # Nothing in the part to minimize.
+        if not self.assy.molecules: # Nothing in the part to minimize.
+            self.win.statusBar.message("<span style=\"color:#ff0000\">Minimize: Nothing to minimize.</span>")
+            return
 
         #bruce 041215 fixed some bugs and changed some error messages
         # in the case when the simulator executable is not found.
