@@ -828,7 +828,14 @@ class basicMode(anyMode):
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleDouble(self, event):
-        pass
+        """ End the current mode """
+        self.Done()
+        return
+        # bruce 041214 put this in, since I recall we agreed to make this work
+        # for all modes (on a conference call months ago). If I'm wrong, you
+        # can remove it. (We also agreed to make leftDouble NOT do this, except
+        # in modifyMode, and it looks like that might be implemented properly,
+        # but I have not reviewed that in detail, or changed it, today.)
 
     # right button actions... #doc
     
@@ -932,6 +939,12 @@ class basicMode(anyMode):
         if self.selLassRect:
             drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
                                  self.o.up, self.o.right, color)
+        
+        if 0 and platform.atom_debug: # (keep awhile, might be useful)
+            # debug code bruce 041214: also draw back of selection curve
+            pl = zip(self.o.backlist[:-1],self.o.backlist[1:])
+            for pp in pl:
+                drawer.drawline(color,pp[0],pp[1])
 
     ######################
     ## some buttons that will vary by mode -- Josh 10/14
