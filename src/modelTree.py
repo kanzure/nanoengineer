@@ -122,7 +122,6 @@ class modelTree(QListView):
 
 
     def select(self, item):
-        if not item: return
         self.win.assy.unpickatoms()
         
         if isinstance(self.win.glpane.mode, selectMode): 
@@ -132,12 +131,13 @@ class modelTree(QListView):
         
         if not self.modifier: self.win.assy.unpickparts()
         
-        if self.modifier == 'Cntl':
-            item.object.unpick()
-            self.selectedItem = None
-        else:
-            item.object.pick()
-            self.selectedItem = item.object
+        if item: 
+            if self.modifier == 'Cntl':
+                item.object.unpick()
+                self.selectedItem = None
+            else:
+                item.object.pick()
+                self.selectedItem = item.object
             
         self.win.update()
 
