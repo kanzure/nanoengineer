@@ -9,12 +9,21 @@ __author__ = "Mark"
 
 #from modes import *
 from modifyMode import *
-from extrudeMode import mergeable_singlets_Q_and_offset, lambda_tol_nbonds
+from extrudeMode import mergeable_singlets_Q_and_offset
 from chunk import bond_at_singlets
 from HistoryWidget import redmsg
 
-offset = V(0,0,0)
-
+def lambda_tol_nbonds(tol, nbonds):
+    if nbonds == -1:
+        nbonds_str = "?"
+    else:
+        nbonds_str = "%d" % (nbonds,)
+    tol_str = ("      %d" % int(tol*100.0))[-3:]
+    # fixed-width (3 digits) but using initial spaces
+    # (doesn't have all of desired effect, due to non-fixed-width font)
+    tol_str = tol_str + "%"
+    return "%s => %s bonds" % (tol_str,nbonds_str)
+    
 class fusechunksMode(modifyMode):
     "Allows user to move one chunk and fuse it to other chunks in the part"
 
@@ -28,8 +37,8 @@ class fusechunksMode(modifyMode):
     bondable_pairs = [] # List of bondable singlets
     ways_of_bonding = {} # Number of bonds each singlet found
     bondable_pairs_atoms = [] # List of atom pairs that have been bonded.
-    tol = 1.0 # tol is the distance (in Angstroms) between two bondable singlets.
-    rfactor = .75 # TO BE DOCUMENTED
+    tol = 1.0 # tol is the distance between two bondable singlets.
+    rfactor = .75 # 
     
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
@@ -95,7 +104,6 @@ class fusechunksMode(modifyMode):
         """Move the selected chunk in the plane of the screen following
         the mouse.
         """
-        if not self.o.assy.selmols: return
         
         # Need to look at moving all this back into modifyMode.leftDrag
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -110,7 +118,8 @@ class fusechunksMode(modifyMode):
         self.o.assy.movesel(point - self.movingPoint)
         
         # This is the only line that is different from modifyMode.leftDrag.
-        self.find_bondable_pairs() # Find bondable pairs of singlets
+        if self.selected_chunk: 
+            self.find_bondable_pairs() # Find bondable pairs of singlets
 
         self.o.gl_update()
         self.movingPoint = point
@@ -120,8 +129,7 @@ class fusechunksMode(modifyMode):
         """move chunk along its axis (mouse goes up or down)
            rotate around its axis (left-right)
         """
-        if not self.o.assy.selmols: return
-            
+
         self.o.setCursor(self.w.MoveRotateMolCursor)
         
         w=self.o.width+0.0
@@ -138,7 +146,8 @@ class fusechunksMode(modifyMode):
             mol.rot(Q(ma,-dy))
         
         # This is the only line that is different from modifyMode.leftShiftDrag.    
-        self.find_bondable_pairs() # Find bondable pairs of singlets
+        if self.selected_chunk: 
+            self.find_bondable_pairs() # Find bondable pairs of singlets
 
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
@@ -147,7 +156,6 @@ class fusechunksMode(modifyMode):
     def leftCntlDrag(self, event):
         """Do an incremental trackball action on each selected part.
         """
-        if not self.o.assy.selmols: return
         
         self.o.setCursor(self.w.RotateMolCursor)
         
@@ -162,7 +170,8 @@ class fusechunksMode(modifyMode):
         self.o.assy.rotsel(q)
 
         # This is the only line that is different from modifyMode.leftCntlDrag.
-        self.find_bondable_pairs() # Find bondable pairs of singlets
+        if self.selected_chunk: 
+            self.find_bondable_pairs() # Find bondable pairs of singlets
         
         self.o.gl_update()
         
@@ -240,7 +249,7 @@ class fusechunksMode(modifyMode):
             # Skip this chunk if it's bounding box does not overlap the selected chunk's bbox.
             mol_ctr = mol.bbox.center()
             mol_rad = mol.bbox.scale()* self.rfactor
-            if vlen (mol_ctr - self.selected_chunk_ctr) > mol_rad + self.selected_chunk_rad:
+            if vlen (mol_ctr - self.selected_chunk_ctr) > mol_rad + self.selected_chunk_rad + self.tol:
                 # Skip this chunk.
                 # print "Skipped ", mol.name
                 continue
@@ -254,10 +263,10 @@ class fusechunksMode(modifyMode):
                         # I substituted the line below in place of mergeable_singlets_Q_and_offset,
                         # which compares the distance between s1 and s2.  If the distance
                         # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
-                        # a proper use of tol, but it work for now.   Mark 050327
+                        # a proper use of tol, but it works for now.   Mark 050327
                         if vlen (s1.posn() - s2.posn()) <= self.tol:
                             
-                        # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset, self.tol)
+                        # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset2 = V(0,0,0), self.tol)
                         # if ok:
                         # we can ignore ideal and err, we know s1, s2 can bond at this tol
                                     
