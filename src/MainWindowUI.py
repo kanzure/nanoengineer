@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Nov 5 00:26:16 2004
+# Created: Fri Nov 5 09:09:46 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7660,7 +7660,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1091,875).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1091,878).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7968,8 +7968,8 @@ class MainWindow(QMainWindow):
         self.modifyCopyBondAction.setMenuText(self.__tr("&Copy Bond"))
         self.modifyEdgeBondAction.setText(self.__tr("Edge Bond"))
         self.modifyEdgeBondAction.setMenuText(self.__tr("Ed&ge Bond"))
-        self.modifyWeldMoleculeAction.setText(self.__tr("Weld Molecule"))
-        self.modifyWeldMoleculeAction.setMenuText(self.__tr("&Weld Molecule"))
+        self.modifyWeldMoleculeAction.setText(self.__tr("Weld Chunk"))
+        self.modifyWeldMoleculeAction.setMenuText(self.__tr("&Weld Chunk"))
         self.toggleDatumDispTbarAction.setText(self.__tr("Datum Display"))
         self.toggleDatumDispTbarAction.setMenuText(self.__tr("Datum Display"))
         self.modifySetElementAction.setText(self.__tr("Change Element"))
@@ -8038,12 +8038,12 @@ class MainWindow(QMainWindow):
         self.toolsSelectAtomsAction.setText(self.__tr("Select Atoms"))
         self.toolsSelectAtomsAction.setToolTip(self.__tr("Select Atoms"))
         self.toolsSelectAtomsAction.setMenuText(self.__tr("Select Atoms"))
-        self.toolsSelectMoleculesAction.setText(self.__tr("Select Molecules"))
-        self.toolsSelectMoleculesAction.setToolTip(self.__tr("Select Molecules"))
-        self.toolsSelectMoleculesAction.setMenuText(self.__tr("Select Molecules"))
-        self.toolsMoveMoleculeAction.setText(self.__tr("Move Molecule"))
-        self.toolsMoveMoleculeAction.setToolTip(self.__tr("Move Molecule"))
-        self.toolsMoveMoleculeAction.setMenuText(self.__tr("Move Molecule"))
+        self.toolsSelectMoleculesAction.setText(self.__tr("Select Chunks"))
+        self.toolsSelectMoleculesAction.setToolTip(self.__tr("Select Chunks"))
+        self.toolsSelectMoleculesAction.setMenuText(self.__tr("Select Chunks"))
+        self.toolsMoveMoleculeAction.setText(self.__tr("Move Chunk"))
+        self.toolsMoveMoleculeAction.setToolTip(self.__tr("Move Chunk"))
+        self.toolsMoveMoleculeAction.setMenuText(self.__tr("Move Chunk"))
         self.toolsSelectAction.setText(self.__tr("Select"))
         self.toolsSelectAction.setMenuText(self.__tr("&Select"))
         self.toolsSelectAction.setToolTip(self.__tr("Select"))

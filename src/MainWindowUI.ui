@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1091</width>
-            <height>875</height>
+            <height>878</height>
         </rect>
     </property>
     <property name="caption">
@@ -1706,10 +1706,10 @@
             <iconset>image58</iconset>
         </property>
         <property name="text">
-            <string>Weld Molecule</string>
+            <string>Weld Chunk</string>
         </property>
         <property name="menuText">
-            <string>&amp;Weld Molecule</string>
+            <string>&amp;Weld Chunk</string>
         </property>
     </action>
     <action>
@@ -2163,10 +2163,10 @@
                 <iconset>image80</iconset>
             </property>
             <property name="text">
-                <string>Select Molecules</string>
+                <string>Select Chunks</string>
             </property>
             <property name="toolTip">
-                <string>Select Molecules</string>
+                <string>Select Chunks</string>
             </property>
         </action>
         <action>
@@ -2180,10 +2180,10 @@
                 <iconset>image81</iconset>
             </property>
             <property name="text">
-                <string>Move Molecule</string>
+                <string>Move Chunk</string>
             </property>
             <property name="toolTip">
-                <string>Move Molecule</string>
+                <string>Move Chunk</string>
             </property>
         </action>
         <action>
