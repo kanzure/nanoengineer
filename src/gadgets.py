@@ -149,13 +149,16 @@ class RotaryMotor(Jig):
         self.cntl = RotaryMotorProp(self, assy.o)
 
     # set the properties for a Rotary Motor read from a (MMP) file
-    def setProps(self, name, color, torque, speed, center, axis):
+    def setProps(self, name, color, torque, speed, center, axis, length, radius, sradius):
         self.name = name
         self.color = color
         self.torque = torque
         self.speed = speed
         self.center = center
         self.axis = norm(axis)
+        self.length = length
+        self.radius = radius
+        self.sradius = sradius
 
     # for a motor read from a file, the "shaft" record
     def setShaft(self, shft):
@@ -234,10 +237,11 @@ class RotaryMotor(Jig):
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
-        s="rmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d)\n" %\
+        s="rmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f\n" %\
            (self.name, color[0], color[1], color[2], self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
-            int(axyz[0]), int(axyz[1]), int(axyz[2]))
+            int(axyz[0]), int(axyz[1]), int(axyz[2]),
+            self.length, self.radius, self.sradius)
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
@@ -274,13 +278,16 @@ class LinearMotor(Jig):
         self.cntl = LinearMotorProp(self, assy.o)
 
     # set the properties for a Linear Motor read from a (MMP) file
-    def setProps(self, name, color, force, stiffness, center, axis):
+    def setProps(self, name, color, force, stiffness, center, axis, length, width, sradius):
         self.name = name
         self.color = color
         self.force = force
         self.stiffness = stiffness
         self.center = center
         self.axis = norm(axis)
+        self.length = length
+        self.width = width
+        self.sradius = sradius
 
     # for a linear motor read from a file, the "shaft" record
     def setShaft(self, shaft):
@@ -360,10 +367,11 @@ class LinearMotor(Jig):
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
-        s = "lmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d)\n" %\
+        s = "lmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f\n" %\
            (self.name, color[0], color[1], color[2], self.stiffness, self.force, 
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
-            int(axyz[0]), int(axyz[1]), int(axyz[2]))
+            int(axyz[0]), int(axyz[1]), int(axyz[2]),
+            self.length, self.width, self.sradius)
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
