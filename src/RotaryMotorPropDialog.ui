@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>RotaryMotorPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -48,6 +48,12 @@
                     <property name="name">
                         <cstring>speedLineEdit</cstring>
                     </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
                     <property name="alignment">
                         <set>AlignLeft</set>
                     </property>
@@ -77,7 +83,7 @@
                         <cstring>textLabel2</cstring>
                     </property>
                     <property name="text">
-                        <string>gHz</string>
+                        <string>GHz</string>
                     </property>
                 </widget>
                 <widget class="QLabel" row="1" column="2">
@@ -85,7 +91,7 @@
                         <cstring>textLabel1_4</cstring>
                     </property>
                     <property name="text">
-                        <string>nN*nm</string>
+                        <string>nN-nm</string>
                     </property>
                 </widget>
                 <widget class="QLabel" row="1" column="0">
@@ -347,7 +353,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="1517">789c75d35b53da401c86f17b3e4546ee9c4e248404994e2f3c6bf17cd64e2f960d1117319845143bfdeee579ed3860cb3e5ce4c77f429205569683ebe3836079a5e24766746f03db3365b09c3d0f06931f3fbffdaa2cd5ebc1f495d68268e94b65290c6c70583c7639de9e1e576b4d8207a2217806a31ac17d3126f85d4c09466246f048cc093ec37a44f058d4824e6c10bc1613827b6293e0585c2558155b04ef4443d08a96e08b98111c8839c11d18d709be8909c12d312798c186162cc48460474c091e8a4d826be22ac127d110cc454b70286604af601211ac89ba301c8929c15d7195e0a668083e881d828fa225d813338237306d12acc3664c3011b5e08998136c403dae6ef252ec126c8b39c118b66a046fc588e0a918135c17138246cc089e8b5d825da89f86bedf0b312538115b04fb6287e02beca404efc516c152ec12dc803626e8619692fe80ff5d73936ab5ba6862fe9d746c1676f3aab9ebdd8799ebcc4c6cdf3e0c1e8b7e31b44fae743393cc96857f5f45e9b2d9eb3c14be3f7a1e6bd49fbd4ef7e575f2b6b63e7d7fc37b373bc937cbde1627986de377763f26d6ee15fe7b9b81db3f30fed0b9bf13678cf747fde9c4b9fded636f8c9b3dc79ef069a767de9f3f7d9c1386bda1efd98be9e472c7fb716ff6aef7bcbfbabeb9ad4575df1ecfeddbdaf441e361316cf84991849ff6c0680bda9ff6c09676d7b9a22cc6e3647edfd8eb3076c69d879ff6fa7d39e3167c73ce2e9a2cfe1dcc4f7e7fadfc0107c95abd</data>
+        <data format="PNG" length="855">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000031e49444154789cb5944f482a6d14c67f7309b248692929516e8afe4005157759b4375a448b102218689112b9992235290684122511a4361104862d4202035741d31f22c8da94a410881491b41244e65b355cf5de8b1f7cdfb33ac3fb9c679ef39e735ee1e2e282ff030df590e6e7e7d5ef786f6f4fa827e747bd0e9c4e67bd54a0cab1c7e35173b91c46a311afd72ba4d369351a8d6ae78220100e87d5d9d959f47abde072b9d46c368bc562c1e3f1545452e13897cbe176bbc9e7f3844221756b6b8bd6d656cc663306830193c944a150607979998d8d0d359bcd128944787979f9bb63a3d1c8fafa3ac160105996393c3cac200702012d76381c4422114451a4a3a3a34658a89e8a5028a4bebdbd110804787c7ce4e8e8889b9b1b1a1b1b393e3eaee03a1c0e4451c46432d534b4e22ad2e9b47a7f7fcfd2d212a9540a9fcfc7d7d7174ea7b342f4e3e343ab4092a41ab735c2d16894fefe7e743a1df1789ce6e666b6b7b7191b1bd3388aa230313181a22800180c0682c1a04a157e0088a2a88aa2a83e3f3ff3fefe8ed16824914830393959415614055996696969617171114551383838e0f3f3139bcda6da6c36ed070d00c562512be9e7cf9f0034353561369b2b846559d6e272b9cce6e626f1789ce9e9e99af306009d4e87dfefa7542ad1dede4e201040afd7f3f0f0406f6faf463e393921994cb2b6b6c6dddd1d00979797c462319e9e9e2a4c340044221101201c0eab85420180c1c14162b1185d5d5d0c0c0c6809a552098bc5a27dfb7c3e868787d9dfdf176a84bfb1b0b020cccdcda9009224b1baba8adbed667c7c9c9e9e1ececfcfb9babad24a4f24125a1e55a89963afd7ab96cb656d19cecece482693148b45743a1da3a3a34c4d4d914aa5d8dddd65686808abd5fa776197cba5e6f3796df3666666b466fe8a4422c1e9e9299224699be7f57aff7c15dfa276bb9dbebe3eadcb9d9d9d4892842ccbbcbebe0260b55a1145515beb6a5408b7b5b561b7db311a8dd8ed7601e0fafa5addd9d92193c990c964585959a1bbbb5b00b8bdbd554551ac68e66f85ab9f3e8091911101d006ff5b14a829ff57d4fdd0fbfdfe7aa9c06fa6e2bf42dd8eff2dfe01d6234d14d17e8f6b0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
