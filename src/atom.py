@@ -88,17 +88,21 @@ if __name__=='__main__':
     dtop=QDesktopWidget()
     screensize = QRect (dtop.screenGeometry (0))
 #    print "Screen resolution = ",screensize.width(),"x",screensize.height()
-    
-    # Determine normal window size
-    normw = int (max (780, screensize.width()*.8))
-    normh = int (max (560, screensize.height()*.9))
 
-    # Set the main window geometry, then show the window maximized for full screen
-    foo.setGeometry(QRect(0,32,normw,normh))   # Set normal window origin and size
+    # Determine normal window origin and size
+    # These dimensions work for WinXP. 
+    # Not sure what they should be for Mac and Linux.
+    x = 4 # Left (4 pixels)  
+    y = 36 # Top (36 pixels)
+    normw = int (screensize.width()*.85) # 85% of screen width
+    normh = int (screensize.height()*.9) # 90% of screen height
+
+    # Set the main window geometry, then show the window 
+    foo.setGeometry(QRect(x,y,normw,normh))   # Set normal window origin 
+    foo.show()
+
+# This is debugging code used to find out the origin and size of the fullscreen window
 #    foo.setGeometry(QRect(600,50,1000,800)) # KEEP FOR DEBUGGING
-    foo.showMaximized() # Show full screen
-    
-    # This is debugging code used to find out the origin and size of the fullscreen window
 #    fooge = QRect(foo.geometry())
 #    print "Window origin = ",fooge.left(),",",fooge.top()
 #    print "Window width =",fooge.width(),", Window height =",fooge.height()
