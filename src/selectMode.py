@@ -150,9 +150,10 @@ class selectMode(basicMode):
         # now change selected atoms to the specified element
         # [bruce 041215: this should probably be made available for any modes
         #  in which "selected atoms" are permitted, not just Select modes. #e]
+        from elements import PeriodicTable
         if self.o.assy.selatoms:
             for atm in self.o.assy.selatoms.values():
-                atm.Transmute(self.w.periodicTable.getElement(elem), force = force)
+                atm.Transmute(PeriodicTable.getElement(elem), force = force)
                 # bruce 041215 fix bug 131 by replacing low-level mvElement call
                 # with new higher-level method Transmute. Note that singlets
                 # can't be selected, so the fact that Transmute does nothing to
@@ -163,7 +164,7 @@ class selectMode(basicMode):
         elif self.o.assy.selmols:
             for mol in self.o.assy.selmols[:]:
                 for atm in mol.atoms.values():
-                    atm.Transmute(self.w.periodicTable.getElement(elem), force = force)
+                    atm.Transmute(PeriodicTable.getElement(elem), force = force)
                         # this might run on some killed singlets; should be ok
             self.o.gl_update()
         return
