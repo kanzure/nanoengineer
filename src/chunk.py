@@ -1203,9 +1203,6 @@ class molecule(Node, InvalMixin):
         self.atoms = {}
         self.invalidate_attr('atlist') # probably not needed; covers atpos
             # and basepos too, due to rules; externs were correctly set to []
-##        if self.dad:
-##            Node.kill(self) # this assumes Node.kill is as it was on 041116
-##            self.dad = None
         if self.assy:
             # remove from assy.molecules, if necessary
             try:
@@ -1224,7 +1221,7 @@ class molecule(Node, InvalMixin):
                 ## print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
                 pass
             ## self.assy = None # [done by Node.kill as of 050214]
-        Node.kill(self) #bruce 050214 moved this here, made it unconditional ###k review ok to happen twice! #####@@@@@
+        Node.kill(self) #bruce 050214 moved this here, made it unconditional
         return # from molecule.kill
 
     # New method for finding atoms or singlets under mouse. Helps fix bug 235

@@ -1205,7 +1205,7 @@ class Group(Node):
     
     def kill(self):
         #bruce 050214: called Node.kill instead of inlining it; enhanced Node.kill;
-        # and fixed bug 381 by killing all members first. [untested #####@@@@@]
+        # and fixed bug 381 by killing all members first.
         for m in self.members[:]:
             m.kill()
         Node.kill(self)
