@@ -1,11 +1,61 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 
 """
-assembly.py -- provides class assembly, a set of molecules
-(plus selection state) to be shown in one glpane.
+assembly.py -- provides class assembly, for everything stored in one file,
+including one main part and zero or more clipboard items;
+
+and class Part, for all chunks and jigs in a single physical space,
+together with their selection state and grouping structure (shown in the model tree).
+
+
+TEMPORARILY OWNED BY BRUCE 050202 for the Part/assembly split ####@@@@
 
 $Id$
+
+
+Each assembly has a set of Parts, of which one is always "current"; the curpart
+is what is displayed in the glpane and operated on by most operations,
+and (for now, as of 050222) the assy attributes selmols, selatoms, and molecules
+always refer to the same-named attrs of the current Part.
+
+All selected objects (even atoms) must be in the current part;
+the current part is changed by using the model tree to select something
+in some other part. The main model is one part, and each clipboard item is another part.
+It is not yet possible to form Groups of separate parts in the Clipboard,
+but this might be added somehow in the future.
+
+Once several known bugs (like 371) are fixed, then bonds between parts will not be allowed
+(since they would be bonds between atoms or jigs in different physical spaces),
+and bonds that become "interspace bonds" (due to move or copy operations)
+will be automatically broken, or will cause things to be placed into the same space
+in order not to break them.
+
+Note that the assy contains info central to its named file, but not just info
+stored directly in that file -- it also refers to info in related files, like
+movie files, or (someday) files referenced from within its main file.
+
+==
+
+This module also contains a lot of code for specific operations on sets of molecules,
+which ideally would be moved to some other file, even though it does consist mostly
+of "methods on the current part". Maybe we'll split Part and those methods
+into a separate file at some point.
+
+Both Part and assembly might well be renamed. We don't yet know the best terms
+with which to refer to these concepts, or even the exact ideal boundary between them in the code.
+
+==
+
+History: the Part/assembly distinction was introduced by bruce 050222
+(though some of its functionality was anticipated by the "current selection group"
+introduced earlier, just before Alpha-1). [I also rewrote this entire docstring then.]
+
+The Part/assembly distinction is unfinished, particularly in how it relates to some modes and to movie files.
+
+Prior history unclear; almost certainly originated by Josh.
+
 """
+
 from Numeric import *
 from VQT import *
 from string import *
@@ -34,18 +84,12 @@ LARGE_MODEL = 5000
 def hashAtomPos(pos):
         return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
 
-# the class for groups of parts (molecules)
-# currently only one level, but should be recursive
 class assembly:
     def __init__(self, win, nm = None):
         # ignore changes to this assembly during __init__;
         # this will be set back to 0 at the end of __init__:
         self._modified = 1 
         
-        # nothing is done with this now, but should have a
-        # control for browsing/managing the list
-        global assyList
-        assyList += [self]
         # the MWsemantics displaying this assembly. 
         self.w = win
         # self.mt = win.modelTreeView
@@ -54,10 +98,8 @@ class assembly:
         
         # the name if any
         self.name = nm or gensym("Assembly")
-        # all the Nodes in the assembly registered here
-        self.dict = {}
         
-        # the coordinate system (Actually default view)
+        # the coordinate system (Actually default view) ####@@@@ does this belong to each Part??
         self.homeCsys = Csys(self, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
         self.lastCsys = Csys(self, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0) 
         self.xy = Datum(self, "XY", "plane", V(0,0,0), V(0,0,1))
@@ -110,9 +152,6 @@ class assembly:
 
         # level of detail to draw
         self.drawLevel = 2
-        # currently unimplemented
-        self.selmotors=[]
-        self.undolist=[]
         # 1 if there is a structural difference between assy and file
         self._modified = 0 # note: this was set to 1 at start of __init__
         # the Movie object.
@@ -316,9 +355,7 @@ class assembly:
         self.molecules += [mol]
         self.tree.addmember(mol)
             #bruce 050202 comment: if you don't want this location for the added mol,
-            # just call mol.moveto when you're done, like fileIO does.
-            # (Not suitable for mols *already in a group* being added to tree as a whole... ####e) #####@@@@@
-   
+            # just call mol.moveto when you're done, like fileIO does.   
         self.setDrawLevel()
 
     #bruce 050202 for Alpha: help fix things up after a DND move in/out of assy.tree.
@@ -781,7 +818,7 @@ class assembly:
 
     #bruce 050131/050201 for Alpha (really for bug 278 and maybe related ones):
     # sanitize_for_clipboard, for cut and copy and other things that add clipboard items
-    # #####@@@@@ need to use in sethotspot too??
+    # ####@@@@ need to use in sethotspot too??
     
     def sanitize_for_clipboard(self, ob): 
         """Prepare ob for addition to the clipboard as a new toplevel item;
@@ -923,7 +960,7 @@ class assembly:
         #  About chunk.copy: it sets numol.assy but doesn't add it to assy,
         #  and it sets numol.dad but doesn't add it to dad's members -- so we do that immediately
         #  in addmember. So we end up with a members list of copied chunks from assy.tree.]
-        self.tree.apply2picked(lambda(x): new.addmember(x.copy(None))) #bruce 050215 changing mol.copy arg from new to None #####@@@@@ test
+        self.tree.apply2picked(lambda(x): new.addmember(x.copy(None))) #bruce 050215 changed mol.copy arg from new to None
 
         # unlike for cut, no self.changed() should be needed
         
