@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MoleculePropDialog.ui'
 #
-# Created: Tue Dec 28 15:25:27 2004
+# Created: Thu Jan 13 17:51:29 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -164,7 +164,7 @@ class MoleculePropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(334,355).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(334,358).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
