@@ -19,9 +19,12 @@ class Node:
     """
     This is the basic object, inherited by groups, molecules, and jigs.
     """
+    
+    name = "" # for use before __init__ runs (used in __str__ of subclasses)
+    
     def __init__(self, assembly, parent, name=None):
         self.assy = assembly
-        self.name = name
+        self.name = name or "" # assumed to be a string by some code
         self.dad = parent
         if self.dad: self.dad.addmember(self)
         self.picked = False
