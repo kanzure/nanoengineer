@@ -89,7 +89,7 @@ class MoleculeProp(MoleculePropDialog):
         self.mol.glpane.gl_update()
         
     def makeAtomsVisible(self):
-        self.mol.reset_invisible_atoms()
+        self.mol.show_invisible_atoms()
         self.mol.glpane.gl_update()
         
     def nameChanged(self):
