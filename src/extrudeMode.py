@@ -101,7 +101,7 @@ class TogglePrefCheckBox(QCheckBox):
         self.setValue(self.default)
     pass
         
-MAX_NCOPIES = 100 # max number of extrude-unit copies. Should be larger. ####e
+MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
 
 # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
 # (FYI: I will remove this, and the call to this, after MainWindowUI does the same stuff.
@@ -151,16 +151,27 @@ def do_what_MainWindowUI_should_do(self):
         label.setText(self._MainWindow__tr(text)) # initial text
         return label # caller doesn't usually need this, except to vary the text
 
+    self.extrudeSpinBox_circle_n = None # if not set later
+    
     if show_revolve_ui_features:
+        w = self
+        w.extrude_productTypeComboBox = QComboBox(0,parent_now(),"extrude_productTypeComboBox") ###k what is '0'?
+        w.extrude_productTypeComboBox.clear() #k needed??
+        w.extrude_productTypeComboBox.insertItem("rod") # these names are seen by user but not by our code
+        w.extrude_productTypeComboBox.insertItem("ring")
+        ## w.extrude_productTypeComboBox.insertItem("screw") ### remove this one, doesn't work yet
+        #e add twist? (twisted rod)
+        w.extrude_productTypeComboBox_ptypes = ["straight rod", "closed ring", "corkscrew"] # names used in the code, same order
+
         if begin(QVBox):
             if begin(QHBox):
                 insertlabel(" N ")
                 self.extrudeSpinBox_n = QSpinBox(parent_now(), "extrudeSpinBox_n") # dup code to below
             end()
-            if begin(QHBox):
-                insertlabel("(m)")
-                self.extrudeSpinBox_circle_n = QSpinBox(parent_now(), "extrudeSpinBox_circle_n") # really for revolve
-            end()
+##            if begin(QHBox):
+##                insertlabel("(m)")
+##                self.extrudeSpinBox_circle_n = QSpinBox(parent_now(), "extrudeSpinBox_circle_n") # really for revolve
+##            end()
         end()
     else:
         insertlabel(" N ")
@@ -211,9 +222,16 @@ def do_what_MainWindowUI_should_do(self):
         end()
         if begin(QHBox):
             insertlabel("when done: ")
-            # these only affect what we do at the end -- no repaint needed
+            # these only affect what we do at the end -- no repaint needed.
+            # History: when there were only two "when done" prefs, the names were "make bonds", "join into one part".
+            # Other names tried and rejected (and the reasons):
+            # - "bonds" (unclear), "make bonds" (good), "bond parts" (good);
+            # - "merge parts" (unclear, but might be ok),
+            #   "single part" (sounds like "set ncopies = 1"), "one part" (same), "all one part" (good? maybe unclear);
+            #   "join parts" (sounds like "bond");
+            # - "ring" (unclear), "make ring" (might be ok), "bend into ring" (too long?).
             self.extrudePref3 = TogglePrefCheckBox("make bonds", parent_now(), "extrudePref3", attr = 'whendone_make_bonds')
-            self.extrudePref4 = TogglePrefCheckBox("join into one part", parent_now(), "extrudePref4", attr = 'whendone_all_one_part')
+            self.extrudePref4 = TogglePrefCheckBox("merge parts", parent_now(), "extrudePref4", attr = 'whendone_all_one_part')
         end()
     end()
 
@@ -278,8 +296,15 @@ def lambda_tol_nbonds(tol, nbonds):
 def reinit_extrude_controls(win, glpane = None, length = None, attr_target = None):
     "reinitialize the extrude controls; used whenever we enter the mode; win should be the main window (MWSemantics object)"
     self = win
+
+    #e refile these
+    self.extrudeSpinBox_n_dflt_per_ptype = [3, 30] # default N depends on product type... not yet sure how to use this info
+      ## in fact we can't use it while the bugs in changing N after going to a ring, remain...
+    dflt_ncopies = self.extrudeSpinBox_n_dflt_per_ptype[0] #e 0 -> a named constant, it's also used far below
     
-    self.extrudeSpinBox_n.setValue(3)
+    self.extrudeSpinBox_n.setValue(dflt_ncopies)
+
+    
     if self.extrudeSpinBox_circle_n:
         self.extrudeSpinBox_circle_n.setValue(0) #e for true Revolve the initial value would be small but positive...
 
@@ -316,6 +341,8 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
     set_bond_tolerance_and_number_display( win, tol)
     set_bond_tolerance_slider( win, tol)
     ### bug: at least after the reload menu item, reentering mode did not reinit slider to 100%. don't know why.
+
+    self.extrude_productTypeComboBox.setCurrentItem(0)
     return
 
 def set_bond_tolerance_and_number_display(win, tol, nbonds = -1): #e -1 indicates not yet known ###e '?' would look nicer
@@ -422,6 +449,8 @@ class extrudeMode(basicMode):
 
     def connect_controls(self):
         "connect the dashboard controls to their slots in this method"
+        #k i call this from Enter; depositMode calls the equivalent from init_gui -- which is better?
+        
         ###e we'll need to disconnect these when we're done, but we don't do that yet
         # (predict this is a speed hit, but probably not a bug)
 
@@ -443,10 +472,26 @@ class extrudeMode(basicMode):
         slider = self.w.extrudeBondCriterionSlider
         self.w.connect(slider, SIGNAL("valueChanged(int)"), self.slider_value_changed)
 
-        if self.w.extrudeSpinBox_circle_n:
+        if self.w.extrudeSpinBox_circle_n and self.is_revolve: ###k??
             self.w.connect(self.w.extrudeSpinBox_circle_n,SIGNAL("valueChanged(int)"),self.circle_n_value_changed)
+
+        self.w.connect(self.w.extrude_productTypeComboBox,SIGNAL("activated(int)"), self.ptype_value_changed)
         return
 
+    def ptype_value_changed(self, val):
+        if not self.now_using_this_mode_object():
+            return
+        old = self.product_type
+        new = self.w.extrude_productTypeComboBox_ptypes[val]
+        if new != old:
+            print "product_type = %r" % (new,) ####@@@Debug
+            self.product_type = new
+            self.needs_repaint = 1 #k not needed since update_from_controls would do this too, i hope!
+            self.update_from_controls()
+            ## not yet effective, even if we did it: self.recompute_bonds()
+            self.repaint_if_needed() #k not needed since done at end of update_from_controls
+        return
+    
     bond_tolerance = -1.0 # this initial value can't agree with value computed from slider
     
     def slider_value_changed(self):
@@ -504,6 +549,8 @@ class extrudeMode(basicMode):
         self.status_msg("entering %s..." % self.msg_modename)
           # this msg won't last long enough to be seen, if all goes well
         self.clear() ##e see comment there
+        self.initial_down = self.o.down
+        self.initial_out = self.o.out
         reinit_extrude_controls(self.w, self.o, length = 7.0, attr_target = self)
         basicMode.Enter(self)
         assy = self.o.assy
@@ -552,7 +599,7 @@ class extrudeMode(basicMode):
 
         
         print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
-        print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
+        ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
 
     singlet_color = {}
     def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol.colorfunc
@@ -562,16 +609,19 @@ class extrudeMode(basicMode):
         assert len(self.molcopies) == self.ncopies
         assert self.molcopies[0] == self.basemol
 
-    circle_n = 0 ###### do in clear() ... use -1 here?? nah
-    def circle_n_value_changed(self, val):
+    circle_n = 0 # we also do this in clear()
+    def circle_n_value_changed(self, val): # note: will not be used when first committed, but will be used later
+        # see also "closed ring"
         val = "arg not used"
         global suppress_valuechanged
         if suppress_valuechanged:
             return
         if not self.now_using_this_mode_object():
             return
+        assert self.is_revolve ###k for now
         spinbox = self.w.extrudeSpinBox_circle_n
         if not spinbox:
+            #k should never happen??
             return #k?
         val = spinbox.value()
         old = self.circle_n
@@ -579,6 +629,7 @@ class extrudeMode(basicMode):
             print "will use circle_n of %d (nim)" % val
             self.circle_n = val
             #e recompute... ###@@@ this is what needs doing... maybe also switch memoized data *right here*... this_bend thisbend
+            self.update_from_controls() ###k guess -- this control is not even present as i write this line, tho it might be soon
             self.w.update() # or just repaint
         return
 
@@ -611,38 +662,125 @@ class extrudeMode(basicMode):
         self.update_from_controls()
 
     should_update_model_tree = 0 # avoid doing this when we don't need to (like during a drag)
-    
+
+    def want_center_and_quat(self, ii, ptype = None):
+        offset = self.offset
+        cn = self.circle_n
+        basemol = self.basemol
+        if not ptype:
+            ptype = self.product_type
+        if ptype == "straight rod": # default for Extrude
+            centerii = basemol.center + ii * offset
+            # quatii = Q(1,0,0,0)
+            quatii = basemol.quat
+        elif ptype == "corkscrew": # not yet accessible??
+            # stub, to extrude to right and then down -- axis is out of screen -- varies with pov!!!
+            # Q(V(x,y,z), theta) = axis vector and angle
+            
+            quat1 = Q(self.o.out, 2 * pi / cn)
+            quatii_rel = Q(self.o.out, 2 * pi * ii / cn)
+            print quatii_rel
+            # offset in plane of quat is tangent to circle; perp to it is preserved...
+            axis = quat1.axis
+            trans = dot(offset,axis) * axis
+            tangent = offset - trans
+            circumf = vlen(tangent) * cn
+            radius = circumf / (2 * pi)
+            radius_vec = cross(tangent, axis) * cn / (2 * pi)
+              ####### I might have this negative... it should point from c_center to basemol.center
+            check_floats_near(vlen(radius_vec),radius) ##### BUG -- these are not near!!! ###### ###@@@
+            c_center = basemol.center - radius_vec
+            centerii = c_center + trans * ii + quatii_rel.rot(radius_vec) ##### probably wrong...
+            quatii = basemol.quat + quatii_rel
+        elif ptype == "closed ring": # default for Revolve
+            #e We store self.o.down (etc) when we enter the mode...
+            # now we pick a circle in plane of that and current offset.
+            # If this is ambiguous, we favor a circle in plane of initial down and out.
+            down = self.initial_down ###implem
+            out = self.initial_out
+            tangent = norm(offset)
+            axis = cross(down,tangent) # example, I think: left = cross(down,out)  ##k
+            if ii == 2: # avoid too many prints per recompute
+                print "down",down
+                print "out",out
+                print "axis",axis ########@@@ debug
+            if vlen(axis) < 0.001: #k guess
+                axis = cross(down,out)
+                self.status_msg("error: offset too close to straight down, picking down/out circle")
+                # worry: offset in this case won't quite be tangent to that circle. We'll have to make it so. ###NIM
+            axis = norm(axis) # direction only
+            # note: negating this direction makes the circle head up rather than down,
+            # but doesn't change whether bonds are correct.
+            
+            # now all our quats (relative to basemol.quat) are around axis. Note: axis might be backwards, need to test this. ##k
+            quat1 = Q(axis, 2 * pi / cn)
+            quatii_rel = Q(axis, 2 * pi * ii / cn)
+            if "try2 bugfix": ###@@@ why? could just be convention for theta the reverse of my guess
+                quat1 = quat1 * -1.0
+                quatii_rel = quatii_rel * -1.0 #k would -1 work too?
+            quatii = basemol.quat + quatii_rel # (i think) this doesn't depend on where we are around the circle!
+            towards_center = cross(offset,axis) # these are perp, axis is unit, so only cn is needed to make this correct length
+            neg_radius_vec = towards_center * cn / (2 * pi)
+            c_center = basemol.center + neg_radius_vec # circle center
+            self.circle_center = c_center # be able to draw the axis
+            self.axis_dir = axis
+            radius_vec = - neg_radius_vec
+            self.radius_vec = radius_vec # be able to draw "spokes", useful in case the axis is off-screen
+            centerii = c_center + quatii_rel.rot( radius_vec ) # (as predicted, unrot is quite wrong!)
+        else:
+            self.status_msg("bug: unimplemented product type %r" % ptype)
+            return self.want_center_and_quat(ii, "straight rod")
+        return centerii, quatii
+
+    __old_ptype = None # hopefully not needed in clear(), but i'm not sure, so i added it
     def update_from_controls(self):
         """make the number and position of the copies of basemol what they should be, based on current control values.
         Never modify the control values! (That would infloop.)
         This should be called in Enter and whenever relevant controls might change.
         It's also called during a mousedrag event if the user is dragging one of the repeated units.
+
+        We optimize by checking which controls changed and only recomputing what might depend on those.
+        When that's not possible (e.g. when no record of prior value to compare to current value),
+        we'd better check an invalid flag for some of what we compute,
+        and/or a changed flag for some of the inputs we use.
         """
+
+        self.circle_n = self.ncopies ######## kluge until we add it back
+        
         self.asserts()
         
         # get control values
         want_n = self.w.extrudeSpinBox_n.value()
         (want_x, want_y, want_z) = get_extrude_controls_xyz(self.w)
         ncopies_wanted = want_n
-        ncopies_wanted = min(20,ncopies_wanted) # low upper limit, for safety, for now ### even less than MAX_NCOPIES
+        ncopies_wanted = min(MAX_NCOPIES,ncopies_wanted) # upper limit (in theory, also enforced by the spinbox)
         ncopies_wanted = max(1,ncopies_wanted) # always at least one copy ###e fix spinbox's value too?? also think about it on exit...
         if ncopies_wanted != want_n:
-            print "fyi, ncopies_wanted is limited to safe value %r, not your requested value %r" % (ncopies_wanted, want_n)
+            msg = "ncopies_wanted is limited to safer value %r, not your requested value %r" % (ncopies_wanted, want_n)
+            self.status_msg(msg)
 
         offset_wanted = V(want_x, want_y, want_z) # (what are the offset units btw? i guess angstroms, but verify #k)
+
+        # kluge? figure out whether product type might have changed -- affects pos/rot of molcopies
+        ptype_changed = 0
+        if self.__old_ptype != self.product_type:
+            ptype_changed = 1
+            self.__old_ptype = self.product_type
 
         # update the state:
         # first move the copies in common, if offset changed
         ncopies_common = min(ncopies_wanted,self.ncopies)
-        if offset_wanted != self.offset:
-            ####### clear all memoized data which is specific to the offset, like which singlets you might join
-            self.have_offset_specific_data = 0 # this just invalidates it
-            for ii in range(ncopies_common):
-                if ii:
+        if offset_wanted != self.offset or ptype_changed:
+            # invalidate all memoized data which is specific to the offset
+            self.have_offset_specific_data = 0
+            self.offset = offset_wanted
+            for ii in range(1, ncopies_common):
+                if 0: # this might accumulate position errors - don't do it:
                     motion = (offset_wanted - self.offset)*ii
                     self.molcopies[ii].move(motion) #### does this change picked state????
-                    ####### we might accumulate position errors if we do it this way!   ########## ###@@@ set from basemol pos
-            self.offset = offset_wanted
+                else:
+                    c, q = self.want_center_and_quat(ii)
+                    mol_set_center_and_quat(self.molcopies[ii], c, q)
         # now delete or make copies as needed (but don't adjust view until the end)
         while self.ncopies > ncopies_wanted:
             # delete a copy we no longer want
@@ -660,7 +798,7 @@ class extrudeMode(basicMode):
             #e but we'll probably want to figure out a decent name for it, make a special group to put these in, etc
             ii = self.ncopies
             self.ncopies = ii + 1
-            newmols = assy_copy(self.assy, [self.basemol], offset = self.offset * ii)
+            newmols = assy_copy(self.assy, [self.basemol]) # fyi: offset is redundant with mol_set_center_and_quat (below) 
             new = newmols[0]
             if self.keeppicked:
                 pass ## done later: self.basemol.pick()
@@ -668,6 +806,8 @@ class extrudeMode(basicMode):
                 ## self.basemol.unpick()
                 new.unpick() # undo side effect of assy_copy
             self.molcopies.append(new)
+            c, q = self.want_center_and_quat(ii)
+            mol_set_center_and_quat(self.molcopies[ii], c, q)
             self.asserts()
         if self.keeppicked:
             self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
@@ -908,12 +1048,20 @@ class extrudeMode(basicMode):
     def finalize_product(self):
         "if requested, make bonds and/or join units into one part"
         #nim: #e merge base back into its fragmented ancestral molecule...
-        self.final_msg_accum = "extrude done: "
+        
+        desc = " (N = %d)" % self.ncopies  #e later, also include circle_n if different and matters; and more for other product_types
+        
+        ##self.final_msg_accum = "extrude done: "
+        self.final_msg_accum = "%s making %s%s: " % (self.msg_modename.split()[0], self.product_type, desc) # first word of modename
+        
         msg0 = "leaving mode, finalizing product..." # if this lasts long enough to read, something went wrong
         self.status_msg(self.final_msg_accum + msg0)
 
+        print "fyi: extrude params not mentioned in statusbar: offset = %r, tol = %r" % (self.offset, self.bond_tolerance)
+
         if self.whendone_make_bonds:
-            # rebond base unit with its home molecule, if any -- NIM
+            # NIM - rebond base unit with its home molecule, if any
+            #  (but not if product is a closed ring, right? not sure, actually, deps on which singlets are involved)
             #e even the nim-warning msg is nim...
             #e (once we do this, maybe do it even when not self.whendone_make_bonds??)
 
@@ -929,9 +1077,12 @@ class extrudeMode(basicMode):
                 for ii in range(1, self.ncopies): # 1 thru n-1 (might be empty range, that's ok)
                     # bond unit ii with unit ii-1
                     self.make_inter_unit_bonds( self.molcopies[ii-1], self.molcopies[ii], bonds ) # uses self.basemol_singlets, etc
+                if self.product_type == "closed ring":
+                    # close the ring
+                    self.make_inter_unit_bonds( self.molcopies[self.ncopies-1], self.molcopies[0], bonds )
                 bonds_msg = "made %d bonds per unit" % len(bonds)
                 self.status_msg(self.final_msg_accum + bonds_msg)
-            self.final_msg_accum = self.final_msg_accum + bonds_msg
+            self.final_msg_accum += bonds_msg
             
         if self.whendone_all_one_part:
             # rejoin base unit with its home molecule, if any -- NIM
@@ -1232,7 +1383,18 @@ class extrudeMode(basicMode):
         self.dragdist = 0.0
         self.have_offset_specific_data = 0 #### also clear that data itself...
         self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
+        if self.is_revolve:
+            self.product_type = "closed ring"
+            self.circle_n = 20 #k guess
+        else:
+            self.product_type = "straight rod" #e someday have a combobox for this
+            self.circle_n = 0
+        self.__old_ptype = None
         #e lots more ivars too
+##        # experiment: need to not do this for instance methods; will the im_func attr (same_method, modes.py) help?? #####
+##        for attr in dir(self.__class__):
+##            if getattr(self.__class__,attr) != getattr(self,attr):
+##                print "extrudeMode clear: do we need to add attr %r?" % attr
         return
 
     ## toggle attrs, no need to init:
@@ -1283,9 +1445,7 @@ class extrudeMode(basicMode):
                                     None,
                                     ('Move', self.move),
                                     ('Copy', self.copy),
-                                    ## ('debug: EXTRUDE-UPDATE (obsolete!)', self.extrude_update),
-                                    ('debug: EXTRUDE-REVOLVE-RELOAD', self.extrude_reload),
-                                    ('debug: bend by...', self.bend_by),####experimental (for Revolve) 041015
+                                    ('debug: reload', self.extrude_reload),
                                     None,
                                     # note: use platform.py functions so names work on Mac or non-Mac,
                                     # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
@@ -1296,39 +1456,12 @@ class extrudeMode(basicMode):
                                    ])
         return
 
-##    def extrude_update(self):
-##        print "extrude_update -- this is obs, might mess up other stuff"
-##        try:
-##            ## explore(self.basemol, self.basemol, self) ###e arg order; make it a method
-##            self.mergeables = bondable_singlet_pairs_proto1(self.basemol, self.basemol)
-##        except:
-##            raise # let Qt print traceback, for now
-##        print "extrude_update done"
-##        return ### for now
-
-    circle_units = 0
-    def bend_by_obs(self):
-        caption = "caption"
-        label = "label"
-        val, min, max = 0, 0, 1000
-        # 0 means not bending (ie infinity), other vals mean bend so that that many form a circle
-        step = 1
-        parent = self.w
-        print "bend_by - tell it how many units form a circle"
-        myint = QInputDialog.getInteger(caption, label, val, min, max, step, parent)
-        print "bend_by got %d" % myint # not an int -- TypeError: not all arguments converted during string formatting
-        self.circle_units = myint
-        self.w.update()
-
-    def bend_by(self):
-        self.status_msg("trying to add a spinbox, will it work??")
-        
-        
     def extrude_reload(self):
         """for debugging: try to reload extrudeMode.py and patch your glpane
         to use it, so no need to restart Atom. Might not always work.
         [But it did work at least once!]
         """
+        global extrudeMode, revolveMode
         print "extrude_reload: here goes...."
         try:
             self.w.extrudeSpinBox_n.setValue(1)
@@ -1340,21 +1473,23 @@ class extrudeMode(basicMode):
             self.restore_gui()
         except:
             print_compact_traceback("exc in self.restore_gui(), ignored: ")
-        try:
-            self.o.other_mode_classes.remove(self.__class__)
-        except ValueError:
-            print "mode class was not in modetab (normal if last reload of it had syntax error)"
+        for clas in [extrudeMode, revolveMode]:
+            try:
+                self.o.other_mode_classes.remove(clas) # was: self.__class__
+            except ValueError:
+                print "a mode class was not in modetab (normal if last reload of it had syntax error)"
         import handles
         reload(handles)
-        import extrudeMode
-        reload(extrudeMode)
-        from extrudeMode import extrudeMode, do_what_MainWindowUI_should_do
+        import extrudeMode as _exm
+        reload(_exm)
+        from extrudeMode import extrudeMode, revolveMode, do_what_MainWindowUI_should_do
         try:
             do_what_MainWindowUI_should_do(self.w) # remake interface (dashboard), in case it's different [041014]
         except:
             print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
         ## self.o.modetab['EXTRUDE'] = extrudeMode
         self.o.other_mode_classes.append(extrudeMode)
+        self.o.other_mode_classes.append(revolveMode)
         print "about to reinit modes"
         self.o._reinit_modes()
         print "done with reinit modes, now see if you can select the reloaded mode"
@@ -1509,49 +1644,6 @@ else:
     print "reloading extrudeMode.py"
 pass
 
-#e this will soon be obs, replaced by something called when the offset changes...
-# find it by it also calling mergeable_singlets_Q_and_offset
-def bondable_singlet_pairs_proto1(mol1, mol2): ## was: def explore(mol1, mol2, self)
-    "for bondable pairs of singlets in mol1 and mol2 (if mol2 can be arbitrarily translated), ... #doc"
-    sings1 = mol_singlets(mol1) 
-    sings2 = mol_singlets(mol2)
-    ##e quadratic, slow alg; worry about too many singlets
-    mergeables = {}
-    for i1 in range(len(sings1)):
-        for i2 in range(len(sings2)):
-            if i2 > i1:
-                continue # results are negative of swapped i1,i2
-            # (but for i1 == i2 we do the calc -- no guarantee mol1 is identical to mol2.)
-            s1 = sings1[i1]
-            s2 = sings2[i2]
-            (ok, ideal, err) = mergeable_singlets_Q_and_offset(s1, s2)
-            if extrude_loop_debug:
-                print "extrude loop %d, %d got %r" % (i1, i2, (ok, ideal, err))
-            #### more code, once we test the above
-            if ok:
-                mergeables[(i1,i2)] = (ideal, err)
-    print "len(mergeables) = %d" % len(mergeables)
-    return mergeables
-
-
-
-draw_mergeables_debug = 0
-
-def draw_mergeables(mergeables, glpane): #### obs, use HandleSet.draw() -- even if i have to change radius etc.
-    assert 0, "using draw_mergeables, should be using self.nice_offsets_handleset.draw()"
-    color = (0.5,0.5,0.5)
-    radius = 0.33
-    detailLevel = 0 # just an icosahedron
-    drawer.drawsphere(purple, V(0,0,0), radius * 2, detailLevel) # show the center -- make this draggable??
-    if draw_mergeables_debug:
-        print "draw_mergeables, number of them is %d" % len(mergeables)
-    for (i1,i2),(ideal,error) in mergeables.items():
-        pos = ideal
-        #e (i might prefer an octahedron, or a miniature-convex-hull-of-extrude-unit)
-        drawer.drawsphere(color, pos, radius, detailLevel)
-        drawer.drawsphere(color, - pos, radius, detailLevel)
-    return
-
 def mol_singlets(mol):
     "return a sequence of the singlets of molecule mol"
     #e see also mol.singlpos, an array of the singlet positions,
@@ -1585,7 +1677,10 @@ def atom_copy(self, numol):
     """
     nuat = atom(self.element.symbol, 'no', numol)
     nuat.index = self.index
-    nuat.info = self.info # bruce
+    try:
+        nuat.info = self.info # bruce
+    except AttributeError:
+        pass
     return nuat
 
 def mol_copy(self, dad=None, offset=V(0,0,0)):
@@ -1608,7 +1703,10 @@ def mol_copy(self, dad=None, offset=V(0,0,0)):
     numol.shakedown()
     numol.setDisplay(self.display)
     numol.dad = dad
-    numol.colorfunc = self.colorfunc # bruce
+    try:
+        numol.colorfunc = self.colorfunc # bruce
+    except AttributeError:
+        pass
     return numol
 
 def mark_singlets(basemol, colorfunc):
@@ -1655,8 +1753,7 @@ def makeBonded_without_moving_or_shakedown(s1, s2): # modified from chem.makeBon
             # assume no singlet appears twice in this list!
 # this is not yet justified, and if false will crash it when it makes bonds
 
-
-##### low upper limit on ncopies? 20...
+#### make ring default is T should be F
 
 class revolveMode(extrudeMode):
     "revolve, a slightly different version of Extrude, someday with a different dashboard"
@@ -1669,3 +1766,27 @@ class revolveMode(extrudeMode):
     is_revolve = 1
 
     pass
+
+
+# more customized should-be mol methods
+
+def mol_set_center_and_quat(mol, center, quat):
+    "change mol's center and quat to the specified values"
+    ##print 'mol_set_center_and_quat', mol, center, quat
+    # modified from mol.move and mol.rot as of 041015 night
+    # make sure mol owns its new center and quat,
+    # since it might destructively modify them later!
+    self = mol
+    self.center = V(0,0,0) + center
+    self.quat = Q(1,0,0,0) + quat
+    self.curpos = self.center + self.quat.rot(self.basepos)
+    if self.singlets:
+        self.singlpos = self.center + self.quat.rot(self.singlbase)
+    for bon in self.externs: bon.setup()
+
+def floats_near(f1,f2):
+    return abs( f1-f2 ) <= 0.0000001 # just for use in sanity-check assertions
+
+def check_floats_near(f1,f2):
+    if not floats_near(f1,f2):
+        print "not near:",f1,f2 # printing a lot...
