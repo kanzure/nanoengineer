@@ -647,10 +647,11 @@ class depositMode(basicMode):
             self.o.assy.modified = 1
         self.w.update()
 
-    def middleDouble(self, event):
-        """ End deposit mode
-	"""
-	self.Done()
+# removed by bruce 041217:
+##    def middleDouble(self, event):
+##        """ End deposit mode
+##	"""
+##	self.Done()
 
     ###################################################################
     #   Cutting and pasting                                           #
@@ -935,10 +936,18 @@ class depositMode(basicMode):
         
         self.Menu_spec = [
             ('Set Hotspot', self.setHotSpot),
-            ('Select', self.select) ] # bruce 041103 capitalized 'Select'
+            ('Select', self.select),
+                #e bruce 041217 thinks Select needs a more explicit name
+            None,
+            # bruce 041217 added the following, rather than just Done:
+            ('Select Atoms', self.w.toolsSelectAtoms), 
+            ('Select Chunks', self.w.toolsSelectMolecules),
+            ('Move Chunks', self.w.toolsMoveMolecule),
+            ('(Build Atoms)', self.skip),
+        ]
 
         self.debug_Menu_spec = [
-            ("dump", self.dump)
+            ("debug: dump", self.dump)
         ]
 
         # Ninad asks whether we should add more elements to this [bruce 041103]
@@ -985,6 +994,8 @@ class depositMode(basicMode):
         return
 
     def select(self):
+        "select the chunk containing the highlighted atom or singlet"
+        # bruce 041217 guessed docstring from code
         if self.o.selatom:
             self.o.assy.pickParts()
             self.o.assy.unpickparts()

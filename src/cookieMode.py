@@ -282,6 +282,7 @@ class cookieMode(basicMode):
             ('Cancel', self.Cancel),
             ('Start Over', self.StartOver),
             ('Backup', self.Backup),
+            ('Done', self.Done), # bruce 041217
             None,
             ('Layer', self.Layer),
             # bruce 041103 removed Copy, per Ninad email;

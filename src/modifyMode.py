@@ -167,6 +167,10 @@ class modifyMode(basicMode):
     def leftDouble(self, event):
         self.Done() # bruce 040923: how to do this need not change
         # (tho josh in bug#15 asks us to change the functionality -- not yet done ###e)
+        # (as of now, my understanding is that we want to leave leftDouble in,
+        #  for Select and Move mode only -- but I'm not sure. I think we once wanted it
+        #  to get back into the same one of Select Atoms or Select Chunks that the
+        #  user was last in, but I'm not changing that now. [bruce 041217])
         
     def Draw(self):
         # bruce comment 040922: code is almost identical with selectMode.Draw
@@ -181,14 +185,22 @@ class modifyMode(basicMode):
 ##        """
 ##        drawer.drawaxes(5,-self.o.pov)
 
-    def makeMenus(self): # menus modified by bruce 041103
+    def makeMenus(self): # menus modified by bruce 041103, 041217
         
         self.Menu_spec = [
-            ('Cancel', self.Cancel),
             ('Separate', self.o.assy.modifySeparate),
             ('Stretch', self.o.assy.Stretch),
             ('Delete', self.o.assy.kill),
-            ('Hide', self.o.assy.Hide) ]
+            ('Hide', self.o.assy.Hide),
+            None,
+            # bruce 041217 added the following (rather than just Done)
+            ('Select Atoms', self.w.toolsSelectAtoms), 
+            ('Select Chunks', self.w.toolsSelectMolecules),
+            ('(Move Chunks)', self.w.toolsMoveMolecule),
+                # The parens are an experiment. A checkmark would be better.
+                # We should merge this with fixit() in selectMode.py by making
+                # that an accessible utility in basicMode. #e
+         ]
 
         self.debug_Menu_spec = [
             ('debug: invalidate selection', self.invalidate_selection),

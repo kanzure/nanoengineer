@@ -1534,10 +1534,11 @@ class extrudeMode(basicMode):
         self.Menu_spec = [
             ('Cancel', self.Cancel),
             ('Start Over', self.StartOver),
+            ('Done', self.Done), #bruce 041217
          ]
         
         self.debug_Menu_spec = [
-            ('debug-reload', self.extrude_reload)
+            ('debug: reload module', self.extrude_reload)
          ]
         
         self.Menu_spec_control = [

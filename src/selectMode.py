@@ -128,7 +128,10 @@ class selectMode(basicMode):
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.
         """
-        self.move() # go into move mode # bruce 040923: we use to inline the same code as is in this method
+        self.move() # go into move mode
+        # bruce 040923: we use to inline the same code as is in this method
+        # bruce 041217: I am guessing we still intend to leave this in,
+        # here and in Move mode (to get back).
 
     
     # bruce 041216: renamed elemSet to modifyTransmute, added force option,
@@ -168,7 +171,12 @@ class selectMode(basicMode):
         if self.sellist: self.pickdraw()
         self.o.assy.draw(self.o)
 
-    def makeMenus(self):
+    def makeMenus(self): # menu item names modified by bruce 041217
+
+        def fixit(item):
+            if self.default_mode_status_text == "Mode: " + item:
+                item = "(%s)" % item #e it would be better to add a checkmark
+            return item
         
         self.Menu_spec = [
             ('All', self.o.assy.selectAll),
@@ -178,12 +186,21 @@ class selectMode(basicMode):
             ('Connected', self.o.assy.selectConnected),
             ('Doubly', self.o.assy.selectDoubly),
             None,
-            ('Atoms', self.w.toolsSelectAtoms),
-            ('Chunks', self.w.toolsSelectMolecules) ]
+            # bruce 041217 renamed Atoms and Chunks to the full names of the
+            # modes they enter, and added Move Chunks too. (It was already
+            # present but in a different menu. I left it there, too, for the
+            # sake of existing users. But it would be better to remove it.)
+            # (Ideally we would also add a checkmark to the menu item for
+            #  the mode we're in. As a placeholder, I'll parenthesize it
+            #  instead. This is just an experiment.)
+            (fixit('Select Atoms'), self.w.toolsSelectAtoms),
+            (fixit('Select Chunks'), self.w.toolsSelectMolecules),
+            ('Move Chunks', self.w.toolsMoveMolecule), 
+            ]
         
         self.Menu_spec_shift = [
             ('Delete', self.o.assy.kill),
-            ('Move', self.move),
+            ('Move', self.move), # redundant but intentionally left in for now
             None,
             ('Hide', self.o.assy.Hide),
             None,

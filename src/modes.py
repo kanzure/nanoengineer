@@ -826,16 +826,20 @@ class basicMode(anyMode):
 
     def middleCntlUp(self, event):
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
-    
+
     def middleDouble(self, event):
-        """ End the current mode """
-        self.Done()
-        return
-        # bruce 041214 put this in, since I recall we agreed to make this work
-        # for all modes (on a conference call months ago). If I'm wrong, you
-        # can remove it. (We also agreed to make leftDouble NOT do this, except
-        # in modifyMode, and it looks like that might be implemented properly,
-        # but I have not reviewed that in detail, or changed it, today.)
+        pass
+
+# removed by bruce 041217, having been added by bruce a few days before:
+##    def middleDouble(self, event): # overrides the one just above!
+##        """ End the current mode """
+##        self.Done()
+##        return
+##        # bruce 041214 put this in, since I recall we agreed to make this work
+##        # for all modes (on a conference call months ago). If I'm wrong, you
+##        # can remove it. (We also agreed to make leftDouble NOT do this, except
+##        # in modifyMode, and it looks like that might be implemented properly,
+##        # but I have not reviewed that in detail, or changed it, today.)
 
     # right button actions... #doc
     
