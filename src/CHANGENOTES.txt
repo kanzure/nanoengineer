@@ -152,3 +152,10 @@ Files: LightingToolDialog, MainWindow
 Summary: 
  - Fixed bug 473, added "Restore Defaults" button
  - Fixed bug 463, added "Sulfur" to SA Filter
+
+----------------------------
+
+Name: Mark Sims
+Date: 3/25/2005
+Files: MainWindow, MWsemanitcs, fusechunksMode, GLpane
+Summary: Added support for new Fuse Chunks Tool
