@@ -540,7 +540,7 @@ def writemovie(assy, moviefile, mflag = False):
     # Make sure some chunks are in the part.
     if not assy.molecules: # Nothing in the part to minimize.
         msg = "<span style=\"color:#ff0000\">Can't create movie.  No chunks in part.</span>"
-        assy.w.statusBar.message(msg)
+        assy.w.history.message(msg)
         return -1
             
     # Check that the moviefile has a valid extension.
@@ -596,7 +596,7 @@ def writemovie(assy, moviefile, mflag = False):
 
     # Tell user we're creating the movie file...
     msg = "<span style=\"color:#006600\">Creating movie file [" + moviefile + "]</span>"
-    assy.w.statusBar.message(msg)
+    assy.w.history.message(msg)
 
     # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR saveMovie!
     # writemmp must come before computing "natoms".  This ensures that saveMovie
@@ -650,7 +650,7 @@ def writemovie(assy, moviefile, mflag = False):
         
     if r == 1: # User pressed Abort button in progress dialog.
         msg = "<span style=\"color:#ff0000\">Simulator: Aborted.</span>"
-        assy.w.statusBar.message(msg)         
+        assy.w.history.message(msg)         
         # Kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
         # - Mark 050107
         if sys.platform == 'win32':
@@ -671,6 +671,6 @@ def writemovie(assy, moviefile, mflag = False):
             
     else: # Something failed...
         msg = "<span style=\"color:#ff0000\">Simulation failed: exit code %r </span>" % r
-        assy.w.statusBar.message(msg)
+        assy.w.history.message(msg)
 
     return r

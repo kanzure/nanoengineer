@@ -86,7 +86,7 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
             a.jigs += [self]
             
     def copy(self, dad):
-        self.assy.w.statusBar.message("Jigs cannot be copied")
+        self.assy.w.history.message("Jigs cannot be copied")
         
     # josh 10/26 to fix bug 85
     def rematom(self, a):
@@ -185,7 +185,7 @@ class RotaryMotor(Jig):
         """select the rotary motor
         """
         self.picked = True
-        self.assy.w.statusBar.message(self.getinfo())
+        self.assy.w.history.message(self.getinfo())
         self.normcolor = self.color
         self.color = self.pickcolor
 
@@ -326,7 +326,7 @@ class LinearMotor(Jig):
         """select the linear motor
         """
         self.picked = True
-        self.assy.w.statusBar.message(self.getinfo())
+        self.assy.w.history.message(self.getinfo())
         self.normcolor = self.color
         self.color = self.pickcolor
 
@@ -440,7 +440,7 @@ class Ground(Jig):
         """select the ground
         """
         self.picked = True
-        self.assy.w.statusBar.message(self.getinfo())
+        self.assy.w.history.message(self.getinfo())
         self.normcolor = self.color
         self.color = self.pickcolor
         
@@ -520,7 +520,7 @@ class Stat(Jig):
         """select the thermostat
         """
         self.picked = True
-        self.assy.w.statusBar.message(self.getinfo())
+        self.assy.w.history.message(self.getinfo())
         self.normcolor = self.color
         self.color = self.pickcolor
         

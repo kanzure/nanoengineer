@@ -1024,7 +1024,7 @@ class basicMode(anyMode):
     #  Bruce warns: I'm skeptical this belongs in basicMode; probably it will need
     #  rewriting as soon as some specific mode wants to do it differently.)
     def modifyDehydrogenate(self):
-        self.w.statusBar.message("Dehydrogenating...")
+        self.w.history.message("Dehydrogenating...")
         from platform import fix_plurals
         fixmols = {} # helps count modified mols for statusbar
         if self.o.assy.selmols:
@@ -1076,7 +1076,7 @@ class basicMode(anyMode):
         if fixmols:
             self.o.assy.modified = 1 #e shouldn't we do this in lower-level methods?
             self.w.win_update()
-        self.w.statusBar.message(didwhat)
+        self.w.history.message(didwhat)
         return
 
     def surfset(self, num):
@@ -1220,7 +1220,7 @@ class modeMixin:
             # also, not clear if we should use get_mode_status_text instead.
         import MWsemantics
         greenmsg = MWsemantics.greenmsg
-        self.win.statusBar.message( greenmsg( msg), norepeat_id = msg )
+        self.win.history.message( greenmsg( msg), norepeat_id = msg )
         
         self.update_after_new_mode()
         

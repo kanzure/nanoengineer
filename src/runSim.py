@@ -69,7 +69,7 @@ class runSim(SimSetupDialog):
                         1 )     # Escape == button 1
 
                 if ret==1: # The user cancelled
-                    self.assy.w.statusBar.message( "Cancelled.  File not saved." )
+                    self.assy.w.history.message( "Cancelled.  File not saved." )
                     return # Cancel clicked or Alt+C pressed or Escape pressed
             
             if ext == '.dpb': ftype = 'DPB'
@@ -80,7 +80,7 @@ class runSim(SimSetupDialog):
             r = writemovie(self.assy, safile) # Save moviefile
             
             if not r: # Movie file saved successfully.
-                self.assy.w.statusBar.message( ftype + " file saved: " + safile)
+                self.assy.w.history.message( ftype + " file saved: " + safile)
 
 
     def createMoviePressed(self):
@@ -99,13 +99,13 @@ class runSim(SimSetupDialog):
         
         if not r: # Movie file saved successfully.
             msg = "Total time to create movie file: %d seconds" % self.assy.w.progressbar.duration
-            self.assy.w.statusBar.message(msg) 
+            self.assy.w.history.message(msg) 
             msg = "Movie written to [" + moviefile + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
             # This makes a copy of the movie tool icon to put in the HistoryWidget.
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.assy.w.toolsMoviePlayerAction.iconSet().pixmap() )
-            self.assy.w.statusBar.message(msg)
+            self.assy.w.history.message(msg)
             
             self.assy.moviename = moviefile
 

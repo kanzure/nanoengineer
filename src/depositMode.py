@@ -299,7 +299,7 @@ class depositMode(basicMode):
             atm = None
         self.o.selatom = atm
         if self.o.selatom != oldselatom:
-            ## self.w.statusBar.message("%r" % (atm,)) # might obscure other messages?? not sure.
+            ## self.w.history.message("%r" % (atm,)) # might obscure other messages?? not sure.
             self.o.paintGL() # draws selatom too, since its chunk is not hidden
 
     def posn_str(self, atm): #bruce 041123
@@ -342,7 +342,7 @@ class depositMode(basicMode):
         self.modified = 1
         self.o.assy.modified = 1
         if a: # if something was "lit up"
-            ## self.w.statusBar.message("%r" % a) #bruce 041208 to zap leftover msgs
+            ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element == Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
                 if self.w.pasteP:
@@ -373,7 +373,7 @@ class depositMode(basicMode):
                 self.o.selatom = None
                 self.dragmol = None
                 status = self.ensure_visible(chunk, status) #bruce 041207
-                self.w.statusBar.message(status)
+                self.w.history.message(status)
                 self.w.win_update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
@@ -433,7 +433,7 @@ class depositMode(basicMode):
             # now fix bug 229 part B (as called in comment #2),
             # by making this new chunk visible if it otherwise would not be
             status = self.ensure_visible(chunk, status) #bruce 041207
-            self.w.statusBar.message(status)
+            self.w.history.message(status)
             # fall thru
         # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
         self.pivot = None
@@ -515,7 +515,7 @@ class depositMode(basicMode):
         a = self.o.selatom
         if not a: return
         # now, if something was "lit up"
-        ## self.w.statusBar.message("%r" % a) #bruce 041208 to zap leftover msgs
+        ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
         self.modified = 1
         self.o.assy.modified = 1
         if a.element == Singlet:
@@ -609,12 +609,12 @@ class depositMode(basicMode):
             else:
                 msg = "dragged atom %r to %s" % (a, self.posn_str(a))
             this_drag_id = (self.dragatom_start, self.__class__.leftShiftDrag)
-            self.w.statusBar.message(msg, transient_id = this_drag_id)
+            self.w.history.message(msg, transient_id = this_drag_id)
         self.o.paintGL()
         return
 
     def leftShiftUp(self, event):
-        self.w.statusBar.message("") # flush any transient message it's saving up
+        self.w.history.message("") # flush any transient message it's saving up
         if not self.dragatom: return
         self.baggage = []
         self.line = None
@@ -644,7 +644,7 @@ class depositMode(basicMode):
         flag, status = bond_at_singlets(dragatom, selatom, \
                          print_error_details = print_error_details)
         # we ignore flag, which says whether it's ok, warning, or error
-        self.w.statusBar.message("%s: %s" % (self.msg_modename, status))
+        self.w.history.message("%s: %s" % (self.msg_modename, status))
         return
 
     ## delete with cntl-left mouse
@@ -654,7 +654,7 @@ class depositMode(basicMode):
         if a:
             # this may change hybridization someday
             if a.element == Singlet: return
-            self.w.statusBar.message("deleting %r" % a) #bruce 041208
+            self.w.history.message("deleting %r" % a) #bruce 041208
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
             self.o.assy.modified = 1
@@ -872,7 +872,7 @@ class depositMode(basicMode):
                 # remove it from the statusbar when it's no longer
                 # accurate!
                 #
-                ## self.w.statusBar.message("Ready to paste %r" % self.pastable.name)
+                ## self.w.history.message("Ready to paste %r" % self.pastable.name)
             except: # IndexError (or its name is messed up)
                 # should never happen, but be robust [bruce 041124]
                 self.pastable = None

@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 THIS FILE IS PRESENTLY OWNED BY BRUCE -- please don't change it in any way,
 however small, unless this is necessary to make Atom work properly for other developers.
@@ -6,7 +6,7 @@ however small, unless this is necessary to make Atom work properly for other dev
 
 $Id$
 
-Extrude mode. Not yet finished (especially ring mode), as of 041230.
+Extrude mode. Not yet finished (especially ring mode), as of 050107.
 
 -- bruce 040924/041011/041015
 """
@@ -903,7 +903,7 @@ class extrudeMode(basicMode):
         sings1 = sings2 = self.basemol_singlets
         transient_id = (self, self.__class__.recompute_for_new_unit, "scanning all pairs")
         for i1 in range(len(sings1)):
-            self.w.statusBar.message("scanning open bond pairs... %d/%d done" % (i1, len(sings1)) ,
+            self.w.history.message("scanning open bond pairs... %d/%d done" % (i1, len(sings1)) ,
                              transient_id = transient_id, repaint = 1
                             ) # this is our slowness warning
             ##e should correct that message for effect of i2 < i1 optim, by reporting better numbers...
@@ -925,8 +925,8 @@ class extrudeMode(basicMode):
 
         # final msg with same transient_id
         msg = "scanned %d open-bond pairs..." % ( len(sings1) * len(sings2) ,) # longer msg below
-        self.w.statusBar.message( msg, transient_id = transient_id, repaint = 1 )
-        self.w.statusBar.message("") # make it get into history right away
+        self.w.history.message( msg, transient_id = transient_id, repaint = 1 )
+        self.w.history.message("") # make it get into history right away
         del transient_id
 
         # make handles from mergeables.
@@ -1014,13 +1014,13 @@ class extrudeMode(basicMode):
         else:
             if not self.offset_for_bonds:
                 msg = "error: bond-offsets not yet computed, but computing them for %r is not yet implemented" % self.product_type
-                self.w.statusBar.message(msg, norepeat_id = msg)
+                self.w.history.message(msg, norepeat_id = msg)
                 return
             else:
                 msg = """warning: for %r, correct bond-offset computation is not yet implemented;\n""" \
                       """using bond-offsets computed for "rod", at last offset of the rod, not current offset""" % \
                       self.product_type
-                self.w.statusBar.message(msg, norepeat_id = msg)
+                self.w.history.message(msg, norepeat_id = msg)
             #e we could optim by returning if only offset but not tol changed, but we don't bother yet
         
         self.redo_look_of_bond_offset_spheres() # uses both self.offset and self.offset_for_bonds
@@ -1250,7 +1250,7 @@ class extrudeMode(basicMode):
         return
 
     def status_msg(self, text): # bruce 050106 simplified this
-        self.w.statusBar.message(text)
+        self.w.history.message(text)
 
     show_bond_offsets_handlesets = [] # (default value) the handlesets to be visible iff self.show_bond_offsets
     

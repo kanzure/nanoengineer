@@ -886,11 +886,11 @@ class atom:
             # transmuting would break valence rules
             if force:
                 msg = "warning: Transmute broke valence rules, made (e.g.) %s with %d bonds" % (elt.name, nbonds)
-                self.molecule.assy.w.statusBar.message(msg)
+                self.molecule.assy.w.history.message(msg)
                 # fall through
             else:
                 msg = "warning: Transmute refused to make (e.g.) a %s with %d bonds" % (elt.name, nbonds)
-                self.molecule.assy.w.statusBar.message(msg)
+                self.molecule.assy.w.history.message(msg)
                 return
         # in all other cases, replace all singlets with 0 or more new ones
         for atm in self.singNeighbors():

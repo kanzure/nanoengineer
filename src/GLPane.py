@@ -239,7 +239,7 @@ class GLPane(QGLWidget, modeMixin):
         
         """[experimental method by bruce 040922]
 
-            ###@@@ need to merge this with set_status_text or make a sibling method! [bruce 041223]
+            ###@@@ need to merge this with self.win.history.message or make a sibling method! [bruce 041223]
         
            Show a warning to the user, without interrupting them
            (i.e. not in a dialog) unless bother_user_with_dialog is
@@ -287,7 +287,7 @@ class GLPane(QGLWidget, modeMixin):
         print msg 
         
         if use_status_bar: # do this first
-            ## WRONG CODE NOW: self.win.statusBar().message( msg)
+            ## [this would work again as of 050107:] self.win.statusBar().message( msg)
             assert 0 # this never happens for now
         if use_dialog:
             # use this only when it's worth interrupting the user to make
@@ -814,13 +814,13 @@ class GLPane(QGLWidget, modeMixin):
     def minimize(self):
         # Make sure some chunks are in the part.
         if not self.assy.molecules: # Nothing in the part to minimize.
-            self.win.statusBar.message("<span style=\"color:#ff0000\">Minimize: Nothing to minimize.</span>")
+            self.win.history.message("<span style=\"color:#ff0000\">Minimize: Nothing to minimize.</span>")
             return
 
         minmovie = os.path.join(self.win.tmpFilePath, "minimize.dpb")
         r = writemovie(self.assy, minmovie, 1)
         if not r: # Minimization worked.  Start movie.
-            self.win.statusBar.message("Minimizing...")
+            self.win.history.message("Minimizing...")
             self.startmovie(minmovie)
 
         return
@@ -829,13 +829,13 @@ class GLPane(QGLWidget, modeMixin):
         """Start movie
         """
         if not os.path.exists(filename): 
-            self.win.statusBar.message("Cannot play movie file [" + filename + "]. It does not exist.")
+            self.win.history.message("Cannot play movie file [" + filename + "]. It does not exist.")
             return
         self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
         self.framenum = 0
-        self.win.statusBar.message("Playing movie file [" + filename + "]  Total Frames: " + str(self.clock))
+        self.win.history.message("Playing movie file [" + filename + "]  Total Frames: " + str(self.clock))
         self.win.movieProgressBar.setTotalSteps(self.clock)
         self.win.movieProgressBar.setProgress(0)
         self.startTimer(30)
@@ -844,7 +844,7 @@ class GLPane(QGLWidget, modeMixin):
         """Pause movie
         """
         self.killTimers()
-        self.win.statusBar.message("Movie paused.")
+        self.win.history.message("Movie paused.")
         self.win.moviePauseAction.setVisible(0)
         self.win.moviePlayAction.setVisible(1)
         
@@ -852,7 +852,7 @@ class GLPane(QGLWidget, modeMixin):
         """Continue playing movie
         """
         self.startTimer(30)
-        self.win.statusBar.message("Movie continued.")
+        self.win.history.message("Movie continued.")
         self.win.moviePlayAction.setVisible(0)
         self.win.moviePauseAction.setVisible(1)
         
@@ -862,7 +862,7 @@ class GLPane(QGLWidget, modeMixin):
         if self.clock<0:
             self.killTimers()
             self.assy.movend()
-            self.win.statusBar.message("Done playing movie.")
+            self.win.history.message("Done playing movie.")
             self.xfile.close()
         else:
             self.win.frameNumber.display(self.framenum)

@@ -70,6 +70,7 @@ class History_QTextEdit(QTextEdit):
         # this is getting called for various events, but of the ones in the QTextEdit, not for any mouse events,
         # but is called for KeyEvents (2 each, presumably one press res T, and one release res F).
         # Could this be a difference in PyQt and Qt? Or, is it because we're outside the scrollview?
+        # I should try overriding contentsEvent instead... ###e
         debug = platform.atom_debug and 0
         if debug:
             try:
@@ -216,9 +217,9 @@ class HistoryWidget:
     saved_msg = saved_options = saved_transient_id = None
     saved_norepeat_id = None
     
-    # public methods (except the ones starting '_', if any):
+    # the main public method, typically accessed as win.history.message():
     
-    def set_status_text(self, msg, transient_id = None, repaint = 0, norepeat_id = None, **options):
+    def message(self, msg, transient_id = None, repaint = 0, norepeat_id = None, **options):
         """Compatibility method -- pretend we're a statusbar and this is its "set text" call.
         [The following is not yet implemented as of the initial commit:]
         In reality, make sure the new end of the history looks basically like the given text,
@@ -274,7 +275,7 @@ class HistoryWidget:
         If the message is too long, it might make the window become too wide, perhaps off the screen!
         Thus use this with care.
         Also, the message might be erased right away by events beyond our control.
-        Thus this is best used only indirectly by set_status_text with transient_id option,
+        Thus this is best used only indirectly by self.message with transient_id option,
         and only for messages coming out almost continuously for some period, e.g. during a drag.
         """
         # This implem is a kluge, to handle some even worse kluges presently in MWsemantics;
@@ -282,8 +283,8 @@ class HistoryWidget:
         # Kluge or not, it should probably just call a method in MWsemantics... for now it's here.
         win = self.widget.topLevelWidget()
             # ... use an init option instead? for win, or the sbar itself...
-        # work around the kluge in MWsemantics
-        if 1:
+        # work around the kluge in MWsemantics [not anymore! bruce 050107] ####@@@@ redoc
+        if 0:
             orig_sb_method = win.__class__.statusBar 
             sbar = orig_sb_method(win)
         else:
@@ -307,7 +308,7 @@ class HistoryWidget:
         #e use html for color etc? [some callers put this directly in the msg, for now]
         self._print_msg(msg)
         if options:
-            msg2 = "fyi: bug: set_status_text got unsupported options: %r" % options
+            msg2 = "fyi: bug: widget_msg got unsupported options: %r" % options
             print msg2 # too important to only print in the history file --
                 # could indicate that not enough info is being saved there
             self._print_msg(msg2)

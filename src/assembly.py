@@ -443,10 +443,10 @@ class assembly:
                     # bruce 041214 added that, since pickpart used to do it and
                     # calls of that now come here; in theory it's never needed.
                 atm.molecule.pick()
-                self.w.statusBar.message(atm.molecule.getinfo())
+                self.w.history.message(atm.molecule.getinfo())
             else:
                 atm.pick()
-                self.w.statusBar.message(atm.getinfo())
+                self.w.history.message(atm.getinfo())
         return
     
     def onlypick_at_event(self, event): #renamed from onlypick; modified
@@ -804,7 +804,7 @@ class assembly:
         
         if not self.selatoms: # optimization, and different status msg
             msg = "Separate: no atoms selected"
-            self.w.statusBar.message(msg)
+            self.w.history.message(msg)
             return
         numolist=[]
         for mol in self.molecules[:]: # new mols are added during the loop!
@@ -820,7 +820,7 @@ class assembly:
                     new_old_callback(numol, mol) # new feature 040929
         from platform import fix_plurals
         msg = fix_plurals("Separate created %d new chunk(s)" % len(numolist))
-        self.w.statusBar.message(msg)
+        self.w.history.message(msg)
         self.w.win_update() #e do this in callers instead?
 
     def copySelatomFrags(self):

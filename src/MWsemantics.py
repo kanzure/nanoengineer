@@ -53,9 +53,19 @@ def fileparse(name):
     m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
     return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
 
+class pre_init_fake_history_widget:
+    def message(self, msg, **options):
+        """This exists to handle messages sent to win.history during
+        win.__init__, before the history widget has been created!"""
+        if platform.atom_debug:
+            print "fyi: too early for this status msg:", msg
+        pass # too early
+    pass
+
 class MWsemantics(MainWindow):
     
     initialised = 0 #bruce 041222
+    history = pre_init_fake_history_widget() #bruce 050107
     
     def __init__(self, parent = None, name = None):
     
@@ -86,7 +96,7 @@ class MWsemantics(MainWindow):
         self.hideDashboards()
         
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
-        # (see also self.set_status_text())
+        # (see also self.history.message())
         self.createStatusBars()
         
         # Create Assistant - Mark 11-23-2004
@@ -175,17 +185,6 @@ class MWsemantics(MainWindow):
         self.win_update() # bruce 041222
         
         return # from MWsemantics.__init__
-
-    def set_status_text(self, text, **options):
-        try:
-            self.history
-        except AttributeError:
-            if platform.atom_debug:
-                print "fyi: too early for this status msg:", text
-            pass # too early
-        else:
-            self.history.set_status_text( text, **options)
-        return
 
     #def resizeEvent(self, event):
      #   print "why I am changing size? ", event
@@ -298,20 +297,20 @@ class MWsemantics(MainWindow):
                     insertmmp(self.assy, fn)
                 except:
                     print "MWsemantics.py: fileInsert(): error inserting file" + fn
-                    self.statusBar.message( "Problem inserting MMP file: " + fn )
+                    self.history.message( "Problem inserting MMP file: " + fn )
                 else:
                     self.assy.modified = 1 # The file and the part are not the same.
-                    self.statusBar.message( "MMP file inserted: " + fn )
+                    self.history.message( "MMP file inserted: " + fn )
             
             if fn[-3:] in ["pdb","PDB"]:
                 try:
                     insertpdb(self.assy, fn)
                 except:
                     print "MWsemantics.py: fileInsert(): error inserting PDB file" + fn
-                    self.statusBar.message( "Problem inserting file: " + fn )
+                    self.history.message( "Problem inserting file: " + fn )
                 else:
                     self.assy.modified = 1 # The file and the part are not the same.
-                    self.statusBar.message( "PDB file inserted: " + fn )
+                    self.history.message( "PDB file inserted: " + fn )
             
             self.glpane.scale=self.assy.bbox.scale()
             self.glpane.paintGL()
@@ -394,7 +393,7 @@ class MWsemantics(MainWindow):
                 ext = ".mmp"
                 sdir = globalParms['WorkingDirectory']
         else:
-            self.statusBar.message( "Save Ignored: Part is currently empty." )
+            self.history.message( "Save Ignored: Part is currently empty." )
             return False
 
         if ext == ".pdb": sfilter = QString("Protein Data Bank (*.pdb)")
@@ -424,7 +423,7 @@ class MWsemantics(MainWindow):
                         1 )     # Escape == button 1
 
                     if ret==1: # The user cancelled
-                        self.statusBar.message( "Cancelled.  Part not saved." )
+                        self.history.message( "Cancelled.  Part not saved." )
                         return False # Cancel clicked or Alt+C pressed or Escape pressed
             
             self.saveFile(safile)
@@ -443,13 +442,13 @@ class MWsemantics(MainWindow):
                     writepdb(self.assy, safile)
                 except:
                     print "MWsemantics.py: saveFile(): error writing file" + safile
-                    self.statusBar.message( "Problem saving file: " + safile )
+                    self.history.message( "Problem saving file: " + safile )
                 else:
                     self.assy.filename = safile
                     self.assy.name = fil
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                    self.statusBar.message( "PDB file saved: " + self.assy.filename )
+                    self.history.message( "PDB file saved: " + self.assy.filename )
                     self.mt.mt_update()
             
             elif ext == ".pov": # Write POV-Ray file
@@ -457,44 +456,44 @@ class MWsemantics(MainWindow):
                     writepov(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file " + safile
-                    self.statusBar.message( "Problem saving file: " + safile )
+                    self.history.message( "Problem saving file: " + safile )
                 else:
-                    self.statusBar.message( "POV-Ray file saved: " + safile )
+                    self.history.message( "POV-Ray file saved: " + safile )
             
             elif ext == ".mdl": # Write MDL file
                 try:
                     writemdl(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file " + safile
-                    self.statusBar.message( "Problem saving file: " + safile )
+                    self.history.message( "Problem saving file: " + safile )
                 else:
-                    self.statusBar.message( "MDL file saved: " + safile )
+                    self.history.message( "MDL file saved: " + safile )
             
             elif ext == ".jpg": # Write JPEG file
                 try:
                     self.glpane.image(safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file" + safile
-                    self.statusBar.message( "Problem saving file: " + safile )
+                    self.history.message( "Problem saving file: " + safile )
                 else:
-                    self.statusBar.message( "JPEG file saved: " + safile )
+                    self.history.message( "JPEG file saved: " + safile )
 
             elif ext == ".mmp" : # Write MMP file
                 try:
                     writemmp(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file" + safile
-                    self.statusBar.message( "Problem saving file: " + safile )
+                    self.history.message( "Problem saving file: " + safile )
                 else:
                     self.assy.filename = safile
                     self.assy.name = fil
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                    self.statusBar.message( "MMP file saved: " + self.assy.filename )
+                    self.history.message( "MMP file saved: " + self.assy.filename )
                     self.mt.mt_update()
             
             else: # This should never happen.
-                self.statusBar.message( "MWSemantics.py: fileSaveAs() - File Not Saved.")
+                self.history.message( "MWSemantics.py: fileSaveAs() - File Not Saved.")
 
     def closeEvent(self,ce): # via File > Exit or clicking X titlebar button
         
@@ -553,7 +552,7 @@ class MWsemantics(MainWindow):
             wd = str(wd)
             wd = os.path.normpath(wd)
             globalParms['WorkingDirectory'] = wd
-            self.statusBar.message( "Working Directory set to " + wd )
+            self.history.message( "Working Directory set to " + wd )
             
             # Write ~/.ne1rc file with new Working Directory
             rc = os.path.expanduser("~/.ne1rc")
@@ -578,10 +577,10 @@ class MWsemantics(MainWindow):
     ###################################
 
     def editUndo(self):
-        self.statusBar.message("<span style=\"color:#ff0000\">Undo: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Undo: Not implemented yet.</span>")
 
     def editRedo(self):
-        self.statusBar.message("<span style=\"color:#ff0000\">Redo: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Redo: Not implemented yet.</span>")
 
     def editCut(self):
         self.assy.cut()
@@ -605,7 +604,7 @@ class MWsemantics(MainWindow):
         self.mt.mt_update()
 
     def editFind(self):
-        self.statusBar.message("<span style=\"color:#ff0000\">Find: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Find: Not implemented yet.</span>")
 
     ###################################
     # View Toolbar Slots
@@ -613,7 +612,7 @@ class MWsemantics(MainWindow):
 
     def setViewHome(self):
         """Reset view to Home view"""
-        self.statusBar.message(greenmsg("Current View: HOME"))
+        self.history.message(greenmsg("Current View: HOME"))
         self.glpane.quat = Q(self.assy.csys.quat) 
         self.glpane.scale = self.assy.csys.scale
         self.glpane.pov = V(self.currentPov[0], self.currentPov[1], self.currentPov[2])
@@ -647,32 +646,32 @@ class MWsemantics(MainWindow):
         self.glpane.paintGL()
 
     def setViewBack(self):
-        self.statusBar.message(greenmsg("Current View: BACK"))
+        self.history.message(greenmsg("Current View: BACK"))
         self.glpane.quat = Q(V(0,1,0),pi)
         self.glpane.paintGL()
 
     def setViewBottom(self):
-        self.statusBar.message(greenmsg("Current View: BOTTOM"))
+        self.history.message(greenmsg("Current View: BOTTOM"))
         self.glpane.quat = Q(V(1,0,0),-pi/2)
         self.glpane.paintGL()
 
     def setViewFront(self):
-        self.statusBar.message(greenmsg("Current View: FRONT"))
+        self.history.message(greenmsg("Current View: FRONT"))
         self.glpane.quat = Q(1,0,0,0)
         self.glpane.paintGL()
 
     def setViewLeft(self):
-        self.statusBar.message(greenmsg("Current View: LEFT"))
+        self.history.message(greenmsg("Current View: LEFT"))
         self.glpane.quat = Q(V(0,1,0),pi/2)
         self.glpane.paintGL()
 
     def setViewRight(self):
-        self.statusBar.message(greenmsg("Current View: RIGHT"))
+        self.history.message(greenmsg("Current View: RIGHT"))
         self.glpane.quat = Q(V(0,1,0),-pi/2)
         self.glpane.paintGL()
 
     def setViewTop(self):
-        self.statusBar.message(greenmsg("Current View: TOP"))
+        self.history.message(greenmsg("Current View: TOP"))
         self.glpane.quat = Q(V(1,0,0),pi/2)
         self.glpane.paintGL()
 
@@ -804,7 +803,7 @@ class MWsemantics(MainWindow):
         selected atom through a sequence of bonds.
         """
         if not self.assy.selatoms:
-            self.statusBar.message("<span style=\"color:#ff0000\">Select Connected: No atom(s) selected.</span>")
+            self.history.message("<span style=\"color:#ff0000\">Select Connected: No atom(s) selected.</span>")
             return
         self.assy.selectConnected()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
@@ -817,7 +816,7 @@ class MWsemantics(MainWindow):
         one bond and have no other bonds.
         """
         if not self.assy.selatoms:
-            self.statusBar.message("<span style=\"color:#ff0000\">Select Doubly: No atom(s) selected.</span>")
+            self.history.message("<span style=\"color:#ff0000\">Select Doubly: No atom(s) selected.</span>")
             return
         self.assy.selectDoubly()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
@@ -946,7 +945,7 @@ class MWsemantics(MainWindow):
         """Creates a movie of a molecular dynamics simulation.
         """
         if not self.assy.molecules: # Nothing in the part to minimize.
-            self.statusBar.message("<span style=\"color:#ff0000\">Simulator: Nothing to simulate.</span>")
+            self.history.message("<span style=\"color:#ff0000\">Simulator: Nothing to simulate.</span>")
             return
         self.simCntl = runSim(self.assy)
         self.simCntl.show()
@@ -965,12 +964,12 @@ class MWsemantics(MainWindow):
         if not self.assy.moviename or not os.path.exists(self.assy.moviename):
 
             msg = "<span style=\"color:#ff0000\">Movie Player: No movie file.</span>"
-            self.statusBar.message(msg)
+            self.history.message(msg)
 
             msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
             QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
                         self.toolsSimulator_Action.iconSet().pixmap() )
-            self.statusBar.message(msg)
+            self.history.message(msg)
             return
 
         # We have a moviefile ready to go.  It's showtime!!!
@@ -1005,11 +1004,11 @@ class MWsemantics(MainWindow):
         
     # Mirror Tool
     def toolsMirror(self):
-        self.statusBar.message("<span style=\"color:#ff0000\">Mirror Tool: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Mirror Tool: Not implemented yet.</span>")
              
     # Mirror Circular Boundary Tool
     def toolsMirrorCircularBoundary(self):
-        self.statusBar.message("<span style=\"color:#ff0000\">Mirror Circular Boundary Tool: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Mirror Circular Boundary Tool: Not implemented yet.</span>")
 
     ###################################
     # Slots for Dashboard widgets
@@ -1173,19 +1172,19 @@ class MWsemantics(MainWindow):
 
     def dispDatumLines(self):
         """ Toggle on/off datum lines """
-        self.statusBar.message("<span style=\"color:#ff0000\">Display Datum Lines: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Display Datum Lines: Not implemented yet.</span>")
 
     def dispDatumPlanes(self):
         """ Toggle on/off datum planes """
-        self.statusBar.message("<span style=\"color:#ff0000\">Display Datum Planes: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Display Datum Planes: Not implemented yet.</span>")
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
-        self.statusBar.message("<span style=\"color:#ff0000\">Display Open Bonds: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Display Open Bonds: Not implemented yet.</span>")
 
     def editPrefs(self):
         """ Edit square grid line distances(dx, dy, dz) in nm/angstroms """
-        self.statusBar.message("<span style=\"color:#ff0000\">Edit Preferences: Not implemented yet.</span>")
+        self.history.message("<span style=\"color:#ff0000\">Edit Preferences: Not implemented yet.</span>")
  
     def elemChangePTable(self):
         """ Future: element change via periodic table
@@ -1332,39 +1331,38 @@ class MWsemantics(MainWindow):
             QBitmap(filePath + "/../images/ZoomCursor.bmp"),
             QBitmap(filePath + "/../images/ZoomCursor-bm.bmp"),
             10, 10)
-                
-            
+
+        return # from loadCursors
+    
     def createStatusBars(self):
-        self.statusBar = self.statusBar()
-        # bruce comment 041223: it's bad to reuse this Qt-defined method name
-        # for an attribute! I'll remove this as soon as practical.
+        """Create some widgets inside the Qt-supplied statusbar, self.statusBar()."""
+## I can finally zap this now! [bruce 050107]
+##        self.statusBar = self.statusBar()
+##        # bruce comment 041223: it's bad to reuse this Qt-defined method name
+##        # for an attribute! I'll remove this as soon as practical.
 
-        # (see also self.set_status_text())
+        # (see also self.history.message())
 
-        # Mark - Set up primary (left) message bar in status bar area.
-        #self.msgbarLabel = QLabel(self.statusBar, "msgbarLabel")
-        #self.msgbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        #self.msgbarLabel.setText( " " )
-        #self.statusBar.addWidget(self.msgbarLabel, 1, 0)
-
-        # Mark - Set up mode bar (right) in status bar area.        
-        self.dispbarLabel = QLabel(self.statusBar, "dispbarLabel")
+        # Mark - Set up display mode bar (right) in status bar area.        
+        self.dispbarLabel = QLabel(self.statusBar(), "dispbarLabel")
         self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.statusBar.addWidget(self.dispbarLabel, 0, True)
+        self.statusBar().addWidget(self.dispbarLabel, 0, True)
         
         # Mark - Set up mode bar (right) in status bar area.        
-        self.modebarLabel = QLabel(self.statusBar, "modebarLabel")
+        self.modebarLabel = QLabel(self.statusBar(), "modebarLabel")
         self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.statusBar.addWidget(self.modebarLabel, 0, True)
+        self.statusBar().addWidget(self.modebarLabel, 0, True)
 
-        # bruce 041223 temporary compatibility kluge:
-        # replace self.statusBar with a compatibility object, just until all
-        # other files' uses of it (including everyone's local mods which are
-        # not yet committed) are changed.
-        class nullclass: pass
-        self.statusBar = nullclass()
-            # that could be anything whose message attribute we can overwrite!
-        self.statusBar.message = self.set_status_text
+##        # bruce 041223 temporary compatibility kluge:
+##        # replace self.statusBar with a compatibility object, just until all
+##        # other files' uses of it (including everyone's local mods which are
+##        # not yet committed) are changed.
+##        class nullclass: pass
+##        self.statusBar = nullclass()
+##            # that could be anything whose message attribute we can overwrite!
+##        self.statusBar.message = self.history.message [provided it runs after
+##            self.history has been set in the instance... never reviewed since
+##            that system was changed, 050107]
         
         return
     
