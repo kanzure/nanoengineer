@@ -879,11 +879,11 @@ class assembly:
         
     def makeRotaryMotor(self, sightline):
         """Creates a Rotary Motor connected to the selected atoms.
-        There is a limit of 25 atoms.  Any more will choke the file parser
+        There is a limit of 30 atoms.  Any more will choke the file parser
         in the simulator.
         """
         if not self.selatoms: return
-        if len(self.selatoms) > 25: return
+        if len(self.selatoms) > 30: return
         m=RotaryMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
@@ -895,11 +895,11 @@ class assembly:
       
     def makeLinearMotor(self, sightline):
         """Creates a Linear Motor connected to the selected atoms.
-        There is a limit of 25 atoms.  Any more will choke the file parser
+        There is a limit of 30 atoms.  Any more will choke the file parser
         in the simulator.
         """
         if not self.selatoms: return
-        if len(self.selatoms) > 25: return
+        if len(self.selatoms) > 30: return
         m = LinearMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
@@ -912,11 +912,11 @@ class assembly:
     def makeground(self):
         """Grounds (anchors) all the selected atoms so that 
         they will not move during a simulation run.
-        There is a limit of 25 atoms.  Any more will choke the file parser
+        There is a limit of 30 atoms.  Any more will choke the file parser
         in the simulator.
         """
         if not self.selatoms: return
-        if len(self.selatoms) > 25: return
+        if len(self.selatoms) > 30: return
         m=Ground(self, self.selatoms.values())
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
