@@ -20,18 +20,16 @@ but has all different code than before.)
 __author__ = "Mark"
 
 from SimSetupDialog import *
-## from commands import *  # bruce 050324 question -- what's this?? ## bruce 050325 removing
-## from debug import * ## bruce 050325 removing
-import os ## bruce 050324 removing: import re, signal, sys
-## from constants import * ## bruce 050325 removing
+import os
+from movie import Movie
 
-class SimSetup(SimSetupDialog): # before 050325 was called class runSim
+class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
     "dialog class for setting up a simulator run"
     def __init__(self, assy, previous_movie):
         "use previous_movie for default values; make a new movie and store it as movie ###@@@ not yet, reuse same one for now"
         SimSetupDialog.__init__(self)
         self.assy = assy
-        self.previous_movie = previous_movie
+        self.previous_movie = previous_movie or Movie() # used only for its parameter settings
         self.movie = self.previous_movie ## assy.current_movie
             #######@@@@@@@ bruce 050324 comments:
             # We should make a new Movie here instead (but only when we return with success).
@@ -47,11 +45,11 @@ class SimSetup(SimSetupDialog): # before 050325 was called class runSim
         
     def setup(self):
         self.movie.cancelled = True # We will assume the user will cancel
-        #bruce 050324 comment: shouldn't these be calling setValue, not assigning to it?? ###@@@
-        self.nframesSB.setValue = self.previous_movie.totalFrames
-        self.tempSB.setValue = self.previous_movie.temp
-        self.stepsperSB.setValue = self.previous_movie.stepsper
-#        self.timestepSB.setValue = self.previous_movie.timestep # Not supported in Alpha
+        #bruce 050324: shouldn't these be calling setValue, not assigning to it? See if it fixes bug...
+        self.nframesSB.setValue( self.previous_movie.totalFramesRequested )
+        self.tempSB.setValue( self.previous_movie.temp )
+        self.stepsperSB.setValue( self.previous_movie.stepsper )
+#        self.timestepSB.setValue( self.previous_movie.timestep ) # Not supported in Alpha
     
     def createMoviePressed(self):
         """Creates a DPB (movie) file of the current part.  
@@ -63,10 +61,10 @@ class SimSetup(SimSetupDialog): # before 050325 was called class runSim
         # and the dialog's caller should then create the file. Not sure if/when user can rename the file.
         QDialog.accept(self)
         self.movie.cancelled = False
-        self.movie.totalFrames = self.nframesSB.value()
+        self.movie.totalFramesRequested = self.nframesSB.value()
         self.movie.temp = self.tempSB.value()
         self.movie.stepsper = self.stepsperSB.value()
-#        self.movie.timestep = self.timestepSB.value()
+#        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
         
         if self.assy.filename: # Could be an MMP or PDB file.
             self.movie.filename = self.assy.filename[:-4] + '.dpb'

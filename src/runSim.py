@@ -147,7 +147,7 @@ def writemovie(assy, movie, mflag = 0):
         # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
         # The timestep argument "-s + (assy.timestep)" is not supported for Alpha.
         args = [program, 
-                    '-f' + str(movie.totalFrames),
+                    '-f' + str(movie.totalFramesRequested),
                     '-t' + str(movie.temp), 
                     '-i' + str(movie.stepsper), 
                     '-r',
@@ -189,7 +189,7 @@ def writemovie(assy, movie, mflag = 0):
             pbarMsg = "Minimizing..."
         # Write XYZ trajectory file.
         else:
-            filesize = movie.totalFrames * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
+            filesize = movie.totalFramesRequested * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
             pbarCaption = "Save File"
             pbarMsg = "Saving XYZ trajectory file " + os.path.basename(moviefile) + "..."
     else: 
@@ -199,10 +199,10 @@ def writemovie(assy, movie, mflag = 0):
             pbarCaption = "Minimize"
         # Simulate
         else:
-            filesize = (movie.totalFrames * natoms * 3) + 4
+            filesize = (movie.totalFramesRequested * natoms * 3) + 4
             pbarCaption = "Simulator"
             pbarMsg = "Creating movie file " + os.path.basename(moviefile) + "..."
-            msg = "Simulation started: Total Frames: " + str(movie.totalFrames)\
+            msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
                     + ", Steps per Frame: " + str(movie.stepsper)\
                     + ", Temperature: " + str(movie.temp)
             history.message(msg)
@@ -383,7 +383,7 @@ class simSetup_CommandRun(CommandRun):
             # if duration took at least 10 seconds, print msg.
             self.progressbar = self.win.progressbar
             if self.progressbar.duration >= 10.0: 
-                spf = "%.2f" % (self.progressbar.duration / movie.totalFrames)
+                spf = "%.2f" % (self.progressbar.duration / movie.totalFramesRequested) #e should read and use totalFramesActual
                 estr = self.progressbar.hhmmss_str(self.progressbar.duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 self.history.message(msg) 

@@ -25,7 +25,12 @@ playDirection = { FWD : "Forward", REV : "Reverse" }
 
 class Movie:
     """
-    Movie object.
+    Movie object. Holds state of one playable or playing movie,
+    and provides methods for playing it,
+    and has moviefile name and metainfo;
+    also (before its moviefile is made) holds parameters needed
+    for setting up a new simulator run
+    (even for Minimize, though it might never make a moviefile).
     """
     # bruce 050324 comment: note that this class is misnamed --
     # it's really a SimRunnerAndResultsUser... which might
@@ -45,8 +50,10 @@ class Movie:
         self.filename = ""
         # movie "file object"
         self.fileobj = None
-        # the total number of frames in this movie
-        self.totalFrames = 0
+        # the total number of frames actually in our moviefile [might differ from number requested]
+        self.totalFramesActual = 0
+            # bruce 050324 split uses of self.totalFrames into totalFramesActual and totalFramesRequested
+            # to help fix some bugs, especially when these numbers differ
         # the most recent frame number of this movie that was played
         self.currentFrame = 0
         # the starting (current) frame number when entering MOVIE mode
@@ -67,15 +74,23 @@ class Movie:
         self.moveToEnd = False
         # a flag that indicates if the wait (hourglass) cursor is displayed.
         self.waitCursor = False
-        # simulator parameters that were used when creating this movie
+        # simulator parameters to be used when creating this movie,
+        # or that were used when it was created;
         # these should be stored in the dpb file header so they
-        # can be retrieved later.  These are the default values used by
-        # the simsetup dialog.
+        # can be retrieved later. These will be the default values used by
+        # the simsetup dialog, or were the values entered by the user.
+        self.totalFramesRequested = 900
+            # bruce 050325 added totalFramesRequested, changed some uses of totalFrames to this
         self.temp = 300
         self.stepsper = 10
         self.timestep = 10
+            # Note [bruce 050325]: varying the timestep is not yet supported,
+            # and this attribute is not presently used in the cad code.
+        
 ##        # bruce 050324 added this: #### NOT YET, IT WON'T WORK UNTIL WE DELAY CREATION OF THIS OBJECT
 ##        self.part = self.assy.part # movie is assumed valid only for the current part at its time of creation
+        return
+    
     def __getattr__(self, attr): # temporary kluge ###@@@
         if attr == 'part': return self.assy.tree.part
         if attr == 'history': return self.assy.w.history
@@ -120,26 +135,26 @@ class Movie:
         if DEBUG1: print "movie._setup(). self.isOpen =", self.isOpen
         
         # Read header (4 bytes) from file containing the number of frames in the moviefile.
-        self.totalFrames = unpack('i',self.fileobj.read(4))[0]
+        self.totalFramesActual = unpack('i',self.fileobj.read(4))[0]
 
         # Compute natoms
         filesize = os.path.getsize(self.filename)
-        self.natoms = (filesize - 4) / (self.totalFrames * 3)
+        self.natoms = (filesize - 4) / (self.totalFramesActual * 3)
         
         # Set file position at currentFrame.
         filepos = (self.currentFrame * self.natoms * 3) + 4
         self.fileobj.seek( filepos )
 
-        self.win.frameNumberSL.setMaxValue(self.totalFrames)      
+        self.win.frameNumberSL.setMaxValue(self.totalFramesActual)      
         self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
         
-#        self.win.movieProgressBar.setTotalSteps(self.totalFrames) # Progress bar
+#        self.win.movieProgressBar.setTotalSteps(self.totalFramesActual) # Progress bar
 #        self.win.movieProgressBar.setProgress(self.currentFrame)
 
         self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
-        self.win.frameNumberSB.setMaxValue(self.totalFrames)
+        self.win.frameNumberSB.setMaxValue(self.totalFramesActual)
 
-        flabel = "Frame (" + str(self.totalFrames) + " total):"
+        flabel = "Frame (" + str(self.totalFramesActual) + " total):"
         self.win.frameLabel.setText(flabel) # Spinbox label
 
         if hflag: self._info()
@@ -151,7 +166,7 @@ class Movie:
         
         # Debugging Code
         if DEBUG1:
-            msg = "Movie Ready: Number of Frames: " + str(self.totalFrames) + \
+            msg = "Movie Ready: Number of Frames: " + str(self.totalFramesActual) + \
                     ", Current Frame:" +  str(self.currentFrame) +\
                     ", Number of Atoms:" + str(self.natoms)
             self.history.message(msg)
@@ -180,7 +195,7 @@ class Movie:
 
         if DEBUG0: print "movie._play() called.  Direction = ", playDirection[ direction ]
         
-        if direction == FWD and self.currentFrame == self.totalFrames: return
+        if direction == FWD and self.currentFrame == self.totalFramesActual: return
         if direction == REV and self.currentFrame == 0: return
         
         self.playDirection = direction
@@ -205,7 +220,7 @@ class Movie:
         self.showEachFrame = True
 
         # Continue playing movie.
-        if self.playDirection == FWD: self._playFrame(self.totalFrames)
+        if self.playDirection == FWD: self._playFrame(self.totalFramesActual)
         else: self._playFrame(0)
 
     def _pause(self, hflag = True):
@@ -236,7 +251,7 @@ class Movie:
         self.isPaused = False
         
         # Don't let movie run out of bounds.
-        if fnum < 0 or fnum > self.totalFrames or fnum == self.currentFrame:
+        if fnum < 0 or fnum > self.totalFramesActual or fnum == self.currentFrame:
             self.isPaused = True # May not be needed.  Doing it anyway.
             return
            
@@ -379,8 +394,8 @@ class Movie:
         if fnum == self.currentFrame: return
         
         # Don't let movie run out of bounds.
-        if fnum < 0 or fnum > self.totalFrames:
-            print "Warning: Slider out of bounds.  Slider value =",fnum,", Number of frames =", self.totalFrames
+        if fnum < 0 or fnum > self.totalFramesActual:
+            print "Warning: Slider out of bounds.  Slider value =",fnum,", Number of frames =", self.totalFramesActual
             self.isPaused = True # May not be needed.  Doing it anyway.
             return
 
@@ -447,10 +462,10 @@ class Movie:
         """
         """
         if DEBUG0: print "movie._moveToEnd() called"
-        if self.currentFrame == self.totalFrames: return
+        if self.currentFrame == self.totalFramesActual: return
         self._pause(0)
         self.moveToEnd = True
-        self._playFrame(self.totalFrames)
+        self._playFrame(self.totalFramesActual)
 
     def _controls(self, On = True):
         """Enable or disable movie controls.
@@ -472,7 +487,7 @@ class Movie:
             self.history.message("No movie file loaded.")
             return
         self.history.message("Filename: [" + self.filename + "]")
-        msg = "Number of Frames: " + str(self.totalFrames) + ".  Number of Atoms: " + str(self.natoms)
+        msg = "Number of Frames: " + str(self.totalFramesActual) + ".  Number of Atoms: " + str(self.natoms)
         self.history.message(msg)
 #        self.history.message("Temperature:" + str(self.temp) + "K")
 #        self.history.message("Steps per Frame:" + str(self.stepsper))
