@@ -374,7 +374,7 @@ def insertmmp(assy, fileName):
     assy.tree.addmember(groupList[1])
     
 # write all molecules, motors, grounds into an MMP file
-def writemmp(assy, filename):
+def writemmp(assy, filename, addshelf = True):
     f = open(filename,"w")
     atnums = {}
     atnums['NUM'] = 0
@@ -387,7 +387,7 @@ def writemmp(assy, filename):
 
     f.write("end1\n")
     
-    assy.shelf.writemmp(atnums, assy.alist, f)
+    if addshelf: assy.shelf.writemmp(atnums, assy.alist, f)
                      
     f.write("end molecular machine part " + assy.name + "\n")
     f.close()
