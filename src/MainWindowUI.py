@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sat Jan 22 16:20:20 2005
+# Created: Mon Jan 24 17:04:27 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6577,38 +6577,96 @@ image94_data = [
 "......................"
 ]
 image95_data = [
-"22 22 9 1",
-"c c #170f07",
-"a c #4e4942",
-"e c #afadab",
-"# c #bebcbb",
-". c #e6e7e6",
-"f c #f19977",
-"g c #f5b49b",
-"d c #ff0000",
-"b c #ffffff",
-"......................",
-".........#aa#.........",
-".........abba.........",
-".........cbbc.........",
-".........cbcc.........",
-".........cbbc.........",
-".........cbbc.........",
-".........cbcc.........",
-".........cbbc.........",
-".........cddc.........",
-".........cdcc.........",
-".........cddc.........",
-".........cddc.........",
-".........cdcc.........",
-"........eaddae........",
-".......eaddddae.......",
-".......addfddda.......",
-".......cdfddddc.......",
-".......cdgddddc.......",
-".......addgddda.......",
-".......eaddddae.......",
-"........eaccae........"
+"22 22 67 2",
+"Qt c None",
+".Z c #000000",
+".# c #0111e5",
+".6 c #0112e5",
+".a c #0211e4",
+".x c #0312db",
+".f c #0613c8",
+"#a c #0715c4",
+".2 c #0a18b4",
+".3 c #18286b",
+".m c #1a1a1a",
+".n c #1e1e1e",
+".o c #1f2e4a",
+".b c #202020",
+".c c #212121",
+".1 c #212c34",
+".G c #222b2b",
+".U c #222e2e",
+".4 c #222f2e",
+".5 c #223030",
+".w c #223434",
+".d c #232323",
+".h c #233030",
+".H c #233131",
+".v c #233232",
+".O c #233333",
+".X c #233434",
+".l c #233535",
+".e c #242424",
+".D c #243232",
+".k c #243434",
+".i c #243636",
+".p c #243939",
+".L c #253a3a",
+".g c #253d3d",
+".Q c #253e3e",
+".T c #264141",
+".9 c #264242",
+".j c #264343",
+".P c #272727",
+"#. c #274a4a",
+".y c #275256",
+"## c #285050",
+".8 c #285454",
+".K c #295655",
+".E c #2b2b2b",
+".u c #308281",
+".q c #308282",
+".0 c #339393",
+".W c #339695",
+".I c #349c9b",
+".7 c #35a3a2",
+".N c #36a9a8",
+".F c #37b0af",
+".C c #3ac3c2",
+".S c #3ccbca",
+".V c #3ccfce",
+".t c #3ed9d8",
+".z c #3edcdb",
+".r c #3fe0df",
+".M c #404040",
+".Y c #40e6e6",
+".R c #41edec",
+".J c #42f2f1",
+".s c #42f3f2",
+".A c #44fdfc",
+".B c #44fefd",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt.#.#.#.#.#.#.#.#.#.#.#.#.#QtQt",
+"QtQtQtQtQtQt.#.aQt.b.c.c.d.eQtQtQtQt.#.#QtQt",
+"QtQtQtQtQt.#Qt.f.g.h.i.j.k.i.l.mQt.#Qt.#QtQt",
+"QtQtQtQt.#Qt.n.o.p.q.r.s.t.u.v.w.xQtQt.#QtQt",
+"QtQtQt.#Qt.b.v.y.z.A.B.B.B.A.C.#.D.EQt.#QtQt",
+"QtQt.#.#.#.#.#.#.#.#.#.#.#.#.#.F.G.pQt.#QtQt",
+"QtQt.#Qt.b.H.I.B.B.B.B.B.B.B.#.J.K.L.M.#QtQt",
+"QtQt.#Qt.c.H.t.B.B.B.B.B.B.B.#.B.N.O.P.#QtQt",
+"QtQt.#Qt.c.Q.R.B.B.B.B.B.B.B.#.B.S.T.P.#QtQt",
+"QtQt.#Qt.d.U.V.B.B.B.B.B.B.B.#.B.W.X.P.#QtQt",
+"QtQt.#Qt.e.i.u.A.B.B.B.B.B.B.#.Y.j.Q.Z.#QtQt",
+"QtQt.#QtQt.l.v.C.B.B.B.B.B.B.#.0.1.2.a.#QtQt",
+"QtQt.#QtQt.m.3.p.F.J.B.B.B.J.#.4.5.Z.#QtQtQt",
+"QtQt.#QtQt.6.P.D.G.K.N.S.7.8.#.5.Z.#QtQtQtQt",
+"QtQt.#Qt.6QtQt.E.p.9#.###..T#a.Z.#QtQtQtQtQt",
+"QtQt.#.6QtQtQtQtQtQtQtQtQtQt.#.#QtQtQtQtQtQt",
+"QtQt.#.#.#.#.#.#.#.#.#.#.#.#.#QtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
 image96_data = [
 "22 22 3 1",
@@ -7024,111 +7082,109 @@ image106_data = [
 "......................"
 ]
 image107_data = [
-"22 22 84 2",
+"22 22 82 2",
 "Qt c None",
 ".# c #000000",
-"#o c #000000",
-".b c #000000",
-"#n c #283c00",
+"#m c #283c00",
 ".a c #2d3641",
-"#q c #496e00",
-"#a c #4d5d6f",
-".w c #4e5a71",
-".c c #515f78",
-".g c #5e626f",
-".G c #697991",
-".d c #6b7b9f",
-".h c #6d778f",
-"#r c #70af00",
-".o c #727c94",
-".f c #7284a8",
-".e c #7587ab",
-".n c #8292b6",
-".0 c #8599ba",
-".Q c #869abb",
-"#b c #8ea0c3",
-".i c #96a5ce",
-".S c #99b9e0",
-".j c #9bb2dc",
-".k c #9bb7df",
-".R c #9bb8e0",
-".s c #9cbadc",
-".l c #9eb9e4",
-".1 c #9ebbe3",
-".t c #9fc0e3",
-".A c #a0bbd9",
-".m c #a1b8e2",
-".r c #a1bad9",
-".J c #a1bee0",
-".T c #a1c1e7",
-".2 c #a1c1e8",
-".u c #a3c1e3",
-"#. c #a4c0e8",
-".B c #a4c5e8",
-".3 c #a5c5eb",
-".K c #a6c8ee",
-".H c #a7c0e8",
-".v c #aac7e9",
-".C c #aaccef",
-"#c c #accaec",
-".U c #adcff5",
-".D c #b0d3f3",
-".L c #b0d3fd",
-".E c #b1d2f1",
-".9 c #b3c4d7",
-".4 c #b4d5f8",
-".I c #b5cff0",
-".M c #b7d8ff",
-".V c #b7d9ff",
-".x c #b8c7ee",
-"#d c #b8d7f3",
-"#m c #bbc6d3",
-".N c #bbdbff",
-".F c #bcd5f4",
-"#p c #bcff3b",
-".O c #bfdefd",
-"#j c #c0d9f7",
-".W c #c1e2ff",
-"#i c #c3cbd3",
-".P c #c3dcfa",
-".5 c #c4deff",
-"#e c #c7dff7",
-"#k c #cbdff7",
-".X c #cbe6ff",
-".6 c #cde4ff",
-".z c #cee0f6",
-".p c #d3ddf6",
-".Y c #d4ebff",
-".q c #d7e5ff",
-"#f c #d7e8fa",
-".7 c #d8ecff",
-"#l c #dae7f8",
-".Z c #ddedfc",
-".8 c #e0f0ff",
-"#g c #e1edf9",
-"## c #e6f3ff",
-"#h c #ecf5fc",
-".y c #f1ffff",
+"#o c #496e00",
+"## c #4d5d6f",
+".v c #4e5a71",
+".b c #515f78",
+".f c #5e626f",
+".F c #697991",
+".c c #6b7b9f",
+".g c #6d778f",
+"#p c #70af00",
+".n c #727c94",
+".e c #7284a8",
+".d c #7587ab",
+".m c #8292b6",
+".Z c #8599ba",
+".P c #869abb",
+"#a c #8ea0c3",
+".h c #96a5ce",
+".R c #99b9e0",
+".i c #9bb2dc",
+".j c #9bb7df",
+".Q c #9bb8e0",
+".r c #9cbadc",
+".k c #9eb9e4",
+".0 c #9ebbe3",
+".s c #9fc0e3",
+".z c #a0bbd9",
+".l c #a1b8e2",
+".q c #a1bad9",
+".I c #a1bee0",
+".S c #a1c1e7",
+".1 c #a1c1e8",
+".t c #a3c1e3",
+".9 c #a4c0e8",
+".A c #a4c5e8",
+".2 c #a5c5eb",
+".J c #a6c8ee",
+".G c #a7c0e8",
+".u c #aac7e9",
+".B c #aaccef",
+"#b c #accaec",
+".T c #adcff5",
+".C c #b0d3f3",
+".K c #b0d3fd",
+".D c #b1d2f1",
+".8 c #b3c4d7",
+".3 c #b4d5f8",
+".H c #b5cff0",
+".L c #b7d8ff",
+".U c #b7d9ff",
+".w c #b8c7ee",
+"#c c #b8d7f3",
+"#l c #bbc6d3",
+".M c #bbdbff",
+".E c #bcd5f4",
+"#n c #bcff3b",
+".N c #bfdefd",
+"#i c #c0d9f7",
+".V c #c1e2ff",
+"#h c #c3cbd3",
+".O c #c3dcfa",
+".4 c #c4deff",
+"#d c #c7dff7",
+"#j c #cbdff7",
+".W c #cbe6ff",
+".5 c #cde4ff",
+".y c #cee0f6",
+".o c #d3ddf6",
+".X c #d4ebff",
+".p c #d7e5ff",
+"#e c #d7e8fa",
+".6 c #d8ecff",
+"#k c #dae7f8",
+".Y c #ddedfc",
+".7 c #e0f0ff",
+"#f c #e1edf9",
+"#. c #e6f3ff",
+"#g c #ecf5fc",
+".x c #f1ffff",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQt.#.a.b.b.a.#QtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQt.a.b.c.d.e.f.b.aQtQtQtQtQtQtQtQtQtQtQt",
-"QtQt.b.g.h.i.j.k.l.m.n.bQtQtQtQtQtQtQtQtQtQt",
-"Qt.#.b.o.p.q.r.s.t.u.v.a.#QtQtQtQtQtQtQtQtQt",
-"Qt.a.w.x.y.z.A.B.C.D.E.F.aQtQtQtQtQtQtQtQtQt",
-"Qt.b.G.H.I.J.K.L.M.N.O.P.bQtQtQtQtQtQtQtQtQt",
-"Qt.b.Q.R.S.T.U.V.W.X.Y.Z.bQtQtQtQtQtQtQtQtQt",
-"Qt.a.0.1.2.3.4.5.6.7.8.9.aQtQtQtQtQtQtQtQtQt",
-"Qt.#.a#..3.4.5.6.7.8###a.#QtQtQtQtQtQtQtQtQt",
-"QtQt.b#b#c#d#e#f#g#h#i.bQtQtQtQtQtQtQtQtQtQt",
-"QtQtQt.b#a#j#k#l#m#a.b.b#nQtQtQtQtQtQtQtQtQt",
-"QtQtQtQt#o.b.b.b.b.#.b.b#p#nQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQt.b#q#p#nQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQt.b#r#p#nQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQt.b#r#p#nQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQt.b#r#p#nQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.b#r#p#nQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.b#r#p#nQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.b#nQtQtQt",
+"QtQtQtQt.#.a.#.#.a.#QtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQt.a.#.b.c.d.e.#.aQtQtQtQtQtQtQtQtQtQtQt",
+"QtQt.#.f.g.h.i.j.k.l.m.#QtQtQtQtQtQtQtQtQtQt",
+"Qt.#.#.n.o.p.q.r.s.t.u.a.#QtQtQtQtQtQtQtQtQt",
+"Qt.a.v.w.x.y.z.A.B.C.D.E.aQtQtQtQtQtQtQtQtQt",
+"Qt.#.F.G.H.I.J.K.L.M.N.O.#QtQtQtQtQtQtQtQtQt",
+"Qt.#.P.Q.R.S.T.U.V.W.X.Y.#QtQtQtQtQtQtQtQtQt",
+"Qt.a.Z.0.1.2.3.4.5.6.7.8.aQtQtQtQtQtQtQtQtQt",
+"Qt.#.a.9.2.3.4.5.6.7#.##.#QtQtQtQtQtQtQtQtQt",
+"QtQt.##a#b#c#d#e#f#g#h.#QtQtQtQtQtQtQtQtQtQt",
+"QtQtQt.####i#j#k#l##.#.##mQtQtQtQtQtQtQtQtQt",
+"QtQtQtQt.#.#.#.#.#.#.#.##n#mQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQt.##o#n#mQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQt.##p#n#mQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQt.##p#n#mQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQt.##p#n#mQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.##p#n#mQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.##p#n#mQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.##mQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
@@ -7262,6 +7318,38 @@ image109_data = [
 "......................",
 "......................"
 ]
+image110_data = [
+"22 22 7 1",
+". c None",
+"# c #170f07",
+"a c #4e4942",
+"d c #f19977",
+"e c #f5b49b",
+"c c #ff0000",
+"b c #ffffff",
+"......................",
+"..........#aa#........",
+"..........abba........",
+"..........#bb#........",
+"..........#b##........",
+"..........#bb#........",
+"..........#bb#........",
+"..........#b##........",
+"..........#bb#........",
+"..........#cc#........",
+"..........#c##........",
+"..........#cc#........",
+"..........#cc#........",
+"..........#c##........",
+".........#acca#.......",
+"........#acccca#......",
+"........accdccca......",
+"........#cdcccc#......",
+"........#cecccc#......",
+"........acceccca......",
+"........#acccca#......",
+".........#a##a#......."
+]
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -7378,6 +7466,7 @@ class MainWindow(QMainWindow):
         self.image107 = QPixmap(image107_data)
         self.image108 = QPixmap(image108_data)
         self.image109 = QPixmap(image109_data)
+        self.image110 = QPixmap(image110_data)
 
         if not name:
             self.setName("MainWindow")
@@ -7722,6 +7811,8 @@ class MainWindow(QMainWindow):
         self.panWindowAction.setIconSet(QIconSet(self.image108))
         self.rotateWindowAction = QAction(self,"rotateWindowAction")
         self.rotateWindowAction.setIconSet(QIconSet(self.image109))
+        self.jigsThermoAction = QAction(self,"jigsThermoAction")
+        self.jigsThermoAction.setIconSet(QIconSet(self.image110))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7777,7 +7868,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,656,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7977,6 +8068,7 @@ class MainWindow(QMainWindow):
         self.jigsLinearMotorAction.addTo(self.Jigs)
         self.jigsGroundAction.addTo(self.Jigs)
         self.jigsStatAction.addTo(self.Jigs)
+        self.jigsThermoAction.addTo(self.Jigs)
         self.MenuBar.insertItem(QString(""),self.Jigs,7)
 
         self.Modify = QPopupMenu(self)
@@ -8014,7 +8106,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1144).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1150).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -8141,6 +8233,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
         self.connect(self.zoomWindowAction,SIGNAL("activated()"),self.zoomWindow)
+        self.connect(self.jigsThermoAction,SIGNAL("activated()"),self.makeThermo)
 
 
     def languageChange(self):
@@ -8463,7 +8556,7 @@ class MainWindow(QMainWindow):
         self.nullAction.setText(QString.null)
         self.nullAction.setMenuText(QString.null)
         self.jigsStatAction.setText(self.__tr("Thermostat"))
-        self.jigsStatAction.setMenuText(self.__tr("&Thermostat"))
+        self.jigsStatAction.setMenuText(self.__tr("Thermo&stat"))
         self.dispResetMolColorAction.setText(self.__tr("Reset Chunk Color"))
         self.dispResetMolColorAction.setMenuText(self.__tr("&Reset Chunk Color"))
         self.helpWhatsThisAction.setText(self.__tr("What's This"))
@@ -8509,6 +8602,8 @@ class MainWindow(QMainWindow):
         self.panWindowAction.setMenuText(self.__tr("Action"))
         self.rotateWindowAction.setText(self.__tr("Action"))
         self.rotateWindowAction.setMenuText(self.__tr("Action"))
+        self.jigsThermoAction.setText(self.__tr("Thermometer"))
+        self.jigsThermoAction.setMenuText(self.__tr("&Thermometer"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8948,6 +9043,9 @@ class MainWindow(QMainWindow):
 
     def zoomWindow(self):
         print "MainWindow.zoomWindow(): Not implemented yet"
+
+    def makeThermo(self):
+        print "MainWindow.makeThermo(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

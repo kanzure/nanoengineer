@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1144</height>
+            <height>1150</height>
         </rect>
     </property>
     <property name="caption">
@@ -103,6 +103,7 @@
         <action name="jigsLinearMotorAction"/>
         <action name="jigsGroundAction"/>
         <action name="jigsStatAction"/>
+        <action name="jigsThermoAction"/>
     </item>
     <item text="&amp;Modify" name="Modify">
         <action name="modifyMinimizeAction"/>
@@ -259,7 +260,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>656</width>
+                <width>657</width>
                 <height>29</height>
             </rect>
         </property>
@@ -2616,7 +2617,7 @@
             <string>Thermostat</string>
         </property>
         <property name="menuText">
-            <string>&amp;Thermostat</string>
+            <string>Thermo&amp;stat</string>
         </property>
     </action>
     <action>
@@ -2862,6 +2863,20 @@
         </property>
         <property name="text">
             <string>Action</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsThermoAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image110</iconset>
+        </property>
+        <property name="text">
+            <string>Thermometer</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Thermometer</string>
         </property>
     </action>
 </actions>
@@ -3152,7 +3167,7 @@
         <data format="XPM.GZ" length="634">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022430543251d2e253d856405e554b354f3543330172b189519952120536bcd05002a5c716c</data>
     </image>
     <image name="image95">
-        <data format="XPM.GZ" length="754">789cad8ebd0ac2301485f73c4568b622f6876808e223088e8238dcdc24d5a18bd641c477373782b4980882872c1f5feee15425df6d37bcacd86580e1841c8f70e6a5bdf6fd6d7f58df59d1b63c3ccd9b62c68ae0b96854ed6b450884d2492d5b4247081e2c184241689c4113714ee8964eb925a127f48dd62a5675111746eaf8d946f47508a1792125562533310240a40d180369138662ce60d6e46ffeda666dd664dbbedcfcdce6c05a70094362a44626084fead36014ef0d13d3654c68ebd26df90541218e563f56ec098801a3be</data>
+        <data format="XPM.GZ" length="2173">789cbdd4c96edb301006e0bb9f42886e4131914849b650f4907d5f9c3d297a90282aabb3da59d1772ff9cfd87063a5e8296620e4937e8da821ed99e9e0786733989e693df68bfe8509cc79f1104c57835eeff5e7af1fefad29a502f797b50335f5ad35d5ed0726d8babdb11e74ea1046f8c0211cc7b14de14cacc405acdcf5047e8175acaa12aee12cd6a6e31d72be1da786f30a2ee24ec9d6de71477532bebf07177ec037b0f503be856b6513be5e7aabc80fd8c0b11f702c369a9fb70c2b552a7ede81d82aae9f886b71cad691e6facfe244ea55b0f6033e678ff22be258f37c9ec4ee06785bec3ef0b17858ff5a9c6aeebf85133fe005f6a8de957878ff8538d3197c27ce750e6fc0a92e34f7f34c5ce90aee8aade67eecc3591227fc3eb9d84d08be14bb09c03b70db0fec07622785acdf2b3b5529e61762ffa94e1aa5dcbf8e3849f97dd6e13ccd52eec7225c8ed673e0ad23b7a1787ef723f3fc22d8bf3ecfef489ce55c6f154e729373bd369cbaf6f0fd5b7056e405f6372dc1ed322a6a781e2e8c369cdf838d290dbfefa1b836dccf3e6cabbce27a6f6223dfa707b8b651c5f537bd93c80ff8846d33cbebbb0bc7b6b2065e83dd76aeb91f8f625df3fc66e1a4ae6acecf896d5df18fc5ff8fafcf53f8d968cabbf3853b9664dca8c88e5799ccfb7354d3199dd3055dd2953b5e534fce4fe471f6866ee98eeee9811ea94f037aa2677a195e1dcf235dbaebaff446b33487314bf36e260bb4f831fff95bd2122dd3dd641ed55768552a0f47486bb44e1bb4d990372edf9fc8cfd1166dd34e63be4bbb0df93dda6fcc577440870df9233a6ecc5bd7efc1a837c3fc895b892e9d4ee6ddf1daf573fe433ea29814158df91e69b75a4bae279c5e73f984d261f5897ce6e6b9e0fabdee7ab2476deab8fc58fac3fc33fcb7e89e90bb850a43a2fdb0184fffb5be59d37e1feecb86fc3f76fd177e1f7f7f6ffd01b97f1367</data>
     </image>
     <image name="image96">
         <data format="XPM.GZ" length="661">789c7dd2c10e82300c00d0fbbea261376240f168fc048d4713e3a1418d1ed044f1608cffeed6b2b52340c361e3adaceb2873d8ef369097e6d5627baba1bee213f2d3bb693e87e3fa6bb2aa02f72c6191cd4c56400ddbc7fdecc7d68ded9cc24fd14f2f14b47230a6c58e8b22e4088291d0726090401e10993a61425ecd148468583c8d882325b20f11178c496d214b365342e71088e7498f54a81e444ac5bd5349d435d56bdb2b40eec74a1ba4b6a24f698e7c4eedd3dd8d4def76e23ff8adcc1f5d5a8961</data>
@@ -3188,13 +3203,16 @@
         <data format="XPM.GZ" length="801">789cad92cd4e84301080ef3c45436fc4ecb665a1351b1f41e3d1c478185abab07f26ba1e8cf1dd65a6055696a807e7345fbf32d34e5966ece1fe9665cbe4f504a7d632dbc00bcbdcdbe1f0fef874f391a44a3125995c31995e25e9825976f77cac31df7739175d1881e80296052844183047dc442c83e50392ad109534427bc4965019a9a9d19630374a3bc486d019d0546a47589b2aa047cc8b6b5902628d5808d02b2a65119df25ed09917b371663850f0a989eba3ebcd99882a9a28aa6a54c1f4c2da5105035303d10c4dfa6a002e1898896fa62b66e70daa7f30fcd2f0dfee133faabbb3594fe966985bd8d8b4db5d3f9cc944fb26fb3fbdcf0f6f7af91f7cae932f39e9cebf</data>
     </image>
     <image name="image107">
-        <data format="XPM.GZ" length="2445">789ca5d4594f1c391007f0773ec5887a4351a56f776bb50fb94f08e42489f2e093733886210989f6bbaffb5fb52c01322085e1e52757d965bbdc7757269bebab9395bb4b27733bdff113bf6d679395703a9d9e7dfef2f7cfa5e5aa9ae4ffbe9954cb77969637e6133f593b3c88239832a8c0df683afcd5ec2e8d1f8caefadaebb88543dd3525c68f47374317351ee34d68439710ff0d8ead3588673fba2ddb647a780b8e5da5f14f4677831906890fb0336e90f16d3818d3c3341b6d0a9bb43eecc754c60f0d9cc47d6365bd08b7bdb10ec6fefa6aa85c0717703b0ccec21b7037588778c2f9f4d116bec6f8cee8a1b3ad97f37d030f6e8852cf2eec5c153cbca73641f6f35add6bfc09ec9dd5f87d38e6f9643fa5da45597f0e275fa8ef8db685736180a77099e74733f04c6d75fcb93aeafa6fc5be8c06aece2de7770ad7d9588f186ef2fa327e5fddaa6bb8cd96f37e0177be8f725e4f61739eff15b6de44a9ef81da47b96ff44fa68d723eefe0e0536ae187a35d11ea24e7f1f2dc017e0497a14ad25f035cfb26c87e1b383770927a9ec16d9e5fce671536a14f727fefd583fa3bdce7fab13f0ae260a41ec27d38e7bb20f5ad8983d3fcc7b0cfebe3bee9489c522de7f70a4e21ca7e08fde58bbcbed4ff012e6325f311fad3d7dee97aebe27c60d2df2ddce4f9241eefc3e7ee94f908fd9ab3d5bc298e9dd6dbc12136ea1f70eea624ef09f5873a04f547b889ffed17df8f6062abeb2775aff519b88f5ec7f11e828d46efe7131c6248d20ffde8bc7aa1f1f8bec4328fa39f08dfbf5c7dade3f89ee4d95bcd3f1b9dca94647c637efbdfc57826b6ecf2cf32dd1c8f58cf8123a73167717c8ed8e26ddee15ddee37d9ef201bbdfc7e74a1c1ff2111ff38c4f78cea7fcf5faaa34def237fece67fc83eff17d7ec00ff9113fbeae268d77fc849ff2337ece2ff825aff21abfe2f5eb2a3a8fdfe0d7fc86dff23b7ecf1f78933ff2a705f1960b2eb9e29a1b6eb963c33d0f0beac9274f7c319a8816ec77ac881c790a1429d1166dd3cea2f3d40c4bbbb447fb3425dc331d2cee073a44378c3f42fcd1d58cdff75b8e3fbe9ab1a83f73c6ec72c6e27ebe9a7153ff5fceb8f9bdfc9a719bf77531e376eff1ffbbf893f77babf87ffe5afa17096896cf</data>
+        <data format="XPM.GZ" length="2413">789ca5d4594f55311007f0773ec50d7d2366387b4f637c10f7050417048c0f5d59ef65bb2868fceef6fc674414bc90c805925f3ad34edbe95d5c186dac2e8f1616e74ea776baeb477ec79e8c16c2d9787cf1e9f383ef73f35535cabf7dfe3f7f6f6e7e6d3af2a395c3491c402a4315f819acc683abbef66cb270a8bba6c4f8e1e0c67451e291df84367409f15fe0d85a8d787283dbb24dba87131cbb4ae29f0eee8c3686e33decb4333cbe0d07ad7b581d0dd6854d52df04aeb4370d1cd97d6379bd00b7bdb60ec6fefaca54ae83b7e0d61867e155b833d6215e61ff7db485af31be33d874b6f57c7e6f61e34ce47a7661e7aae0e13db10ebc9f35712ff127b07756e2f7e198e7e3fd14621779fd5338f942fc6db02d9c0b063e80cb3c3f2e9b8ec556c65f88a3acff8eedcba8e1f2d27c7e53b8cee6f50cdce4f579fca1b81557709bcde7fd12ee7c1ff9bc9ec1fa32ff0cb65e47ae6f49ec23df37fa27d3463e9ff770f029b5f0a3c1ae0875e2fa5e5d3ac08fe1325489fbab876bdf04de6f0de7064e5ccf73b8cdf3f3f9bc8675e813dfdf07b1117f85fb5c3ff6a73c3b68ae47e13e9cf35de0fa96d9c149fe13d8e7f571df6ac24ea9e6f35b815388bc1f85fef2455e9feb5f87cb58f17c0afde96bef64bd37ec7c60dcdf0ddce4f9381eefc3e7eee4f914fa35678be9233b76526f0b87d8882fe0dc4d89df13be1f421d8278036ee2affde2fd061d5b593f8a7ba9af83fbe8651cef21d8a8e57e36e11043e27ed083f3ea85c4e3fb2596791cfda408ee522de3f83ec9b3b7927f3e389529f1f8daf4ee9fabf1a4c8e63ffcbf3d1eb18e3c058a43ceecf81c91689b766897f6689f0e687cf31a1c8f2a26744847744c27744a533abbb92a89b7f485bed2395dd0377a484bf4881ed3939b6aba9cff293da3e7f4825ed22b7a4dcbb4426f66ccaf6895d6e82dbda3f7f481d6e9236dd0e6cc7ab6a8a0922aaaa9a1963ad2d4cfacc792b91a9d0f40fd7bfe214359e59457414595d4b6da99759e92a1d4aeda53fbea60983b7b7c6b3ffcf15193eb19ffeeb71c7f783d63567fe68ca3bf3366f7f3f58cdbfaffef8cdbdfcb9f1977795f5733eef61e7fdfc5ffbcdf3bc5ffb83ff71383ad88db</data>
     </image>
     <image name="image108">
         <data format="XPM.GZ" length="947">789c8dd14b6e83301006e03da7b0f00e550e8fd087aa1ea1559795aa2ecc0081244002745155bd7bf1d8e3b4e044b12ce0d3cfd8835905ecedf599052b6f18e55803834af62cc83f9be6ebfde3e9dbf3e398e919f9379e2f18b097ae2dd473373df33009a7a1d818c69a1cb9a674b08c157bcb54f1609929d68691ae2d9129716bb8d694c85bdaa8b27c50cc0c4d5723f28e6a73e43dd51e8911b2354c740ac86c5a2c51dc21735ab94096f4f25e314ac234c2b3da289638f0189d6396f07389e4993b9100205d0980c8d5c5910851e0d5d54171b6375826667910162629816a3678ab28e1305b0db84e3840bd85d3d8ed8137baa65dd474b40fc0bf040e57f476e17b2e274073998038bacf5a7d970d66fbf4c3e977cf3a18ff74f0f3e8fd024dd7bf9b</data>
     </image>
     <image name="image109">
         <data format="XPM.GZ" length="1487">789cadd34b4fe2601886e13dbfa2811d99602907219359202aa28288a8e86416e56ba1282d02e5e464fefb703f4e0c4d5899796f16bdf2a6078b1c65ad7ea765658f528bd88dc7c632813bb7b2de320cb73f7ffdf89d4a3b8eb5fb942a563efd2d95ce59c66a4f239fe368779cb13530141d8213b148702a9608be8ac70403b142b02eba049fc401c1b5e81174449fe0833824d885799be056d4c058740876c402c1be5824b811cb042fc50a414fac123c1707042f4443f051f408b6459f600bea45ea998da881be5822782f9609be88558277a221f826fa04f3e290e0292c6860412c125c8986e08938243880fab6f5cc4b51ef0e9e89ba161c8a1af82e9608de8a15824dd1277805f57fa41bf5c43cc11bb1407021ead2d016cb049fc50ac16bb14ad0150dc1b1e8111cc1b24d7026ea6b800db148702e6a60467409d64443fa891d9caf6f323a7607c6f387a3c426d8adc62faf93300aa7c1db6c6f1305f3451cc5cb596eb65a471b776fb39bedfbc7556a27f5cd7c7f333dfdbcf7d979f21caf71e8d9d844178d039bfffb0ef6a7b9e6a69787ceb9aa2737abebcf552bdcdf8ce2f6cdbf45679b3ce736eede2d6ab94ceffea1d35924eed37b9cacfb9bfe53689e73393bf904cdbc13750b1f176d7ced2ffdf33df51726d735b8</data>
+    </image>
+    <image name="image110">
+        <data format="XPM.GZ" length="721">789cad90cb0ac2301045f7f98ad0d915b10f2221889fa0b814c445324dd14515b42e44fc7733116c858c20386491c3e1de0c2972b9592f655e884b6ffb034adcdbb3cc9b6bd7ddb6bbc55d64752dc3d1b2ca26229b4a94abd3d1d31dc21d2a5db6a526b484ca2ba36ac286b0ad8cd1d1fa8833a78c23c4886d1986d0bd9026be929c4f03d642da58e72c93718ec98003d6f099bfb621b2866dfb92f9b90d2ce2fb4bc786c4a0c6268886542213052632809e31a1cd336dec0641010c5b3fe6e20947ba912d</data>
     </image>
 </images>
 <connections>
@@ -3942,6 +3960,12 @@
         <receiver>MainWindow</receiver>
         <slot>zoomWindow()</slot>
     </connection>
+    <connection>
+        <sender>jigsThermoAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeThermo()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4075,6 +4099,7 @@
     <slot>movieSlider()</slot>
     <slot>movieInfo()</slot>
     <slot>zoomWindow()</slot>
+    <slot>makeThermo()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
