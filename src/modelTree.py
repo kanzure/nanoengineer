@@ -274,7 +274,7 @@ class modelTree(QListView):
         i = self.itemAt( vp )
         droppable = True
         
-        if  i and i.dropEnabled():
+        if  i and i.dropEnabled() and i != self.oldCurrent:
             for child in self.descendants:
                    if child == i:
                         droppable = False
@@ -578,14 +578,16 @@ class modelTree(QListView):
     def getDescendants(self, item):
         """ Get all the childern, grandchildren of the item """
         list = []
+        nList = []
         
         child = item.firstChild()
-        nextSibling = item.nextSibling()
         while child :
-                if child == nextSibling:
-                        break
                 list += [child]
-                child = child.itemBelow()
+                nList += [child]
+                child = child.nextSibling()
+                
+        for m in nList:
+              list += self.getDescendants(m)
          
         return list
                            
