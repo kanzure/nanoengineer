@@ -950,6 +950,8 @@ class PartGroup(Group):
         only have one .dad at a time. Use of it means you can't assume node.dad
         corresponds to model tree item parent!]
         """
+        lis = filter( lambda node: node.show_in_model_tree(), lis)
+            # bruce 050127; for now this is the only place that honors node.show_in_model_tree()!
         self._initialkids = list(lis)
     def kids(self, display_prefs):
         "overrides Group.kids"
