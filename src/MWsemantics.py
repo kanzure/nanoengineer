@@ -81,6 +81,30 @@ class MWsemantics(MainWindow):
         foo = MWsemantics()
         foo.show()
 
+    def fileInsert(self):
+        wd = globalParms['WorkingDirectory']
+        fn = QFileDialog.getOpenFileName(wd, "Molecular machine parts (*.mmp);;Molecules (*.pdb);;Molecular parts assemblies (*.mpa);; All of the above (*.pdb *.mmp *.mpa)",
+                                         self )
+        fn = str(fn)
+        if not os.path.exists(fn): return
+        if fn[-3:] == "pdb":
+            self.assy.readpdb(fn)
+        if fn[-3:] == "mmp":
+            self.assy.readmmp(fn)
+
+        dir, fil, ext = fileparse(fn)
+        self.assy.name = fil
+        self.assy.filename = fn
+
+        self.setCaption(self.trUtf8("Atom: " + self.assy.name))
+
+	#update the model tree
+        self.modelTreeView.updateModelTree()
+
+        self.glpane.scale=self.assy.bbox.scale()
+        self.glpane.paintGL()
+
+
     def fileOpen(self):
         self.__clear()
         
@@ -709,4 +733,3 @@ class MWsemantics(MainWindow):
         """ Fit to Window """
 	QMessageBox.warning(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
-
