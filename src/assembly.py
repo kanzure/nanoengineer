@@ -95,6 +95,8 @@ class assembly:
         self.m=Movie(self)
         # movie ID, for future use.
         self.movieID=0
+        # ppa = previous picked atoms.
+        self.ppa2 = self.ppa3 = None
         
         ### Some information needed for the simulation or coming from mmp file
         self.temperature = 300
