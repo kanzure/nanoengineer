@@ -39,7 +39,6 @@ from panMode import panMode
 from rotateMode import rotateMode
 from modes import modeMixin
 
-import Image
 import operator
 import struct
 from povheader import povheader
