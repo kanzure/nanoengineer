@@ -518,27 +518,37 @@ class bond:
         if disp == diDEFAULT: disp= dispdef
         color1 = self.atom1.element.color * V(1,1,-1)
         color2 = self.atom2.element.color * V(1,1,-1)
+        a1pos = self.atom1.posn()
+        a2pos = self.atom2.posn()
+        vec = a2pos - a1pos
+        len = 0.98 * vlen(vec)
+        c1 = a1pos + vec*self.atom1.element.rcovalent
+        c2 = a2pos - vec*self.atom2.element.rcovalent
+        if len > self.atom1.element.rcovalent + self.atom2.element.rcovalent:
+            center = None
+        else:
+            center = (c1 + c2) /2.0
         
         if disp<0: disp= dispdef
         if disp == diLINES:
-            file.write("line(" + povpoint(self.atom1.posn()) +
-                       "," + povpoint(self.atom2.posn()) + ")\n")
+            file.write("line(" + povpoint(a1pos) +
+                       "," + povpoint(a2pos) + ")\n")
         if disp == diCPK:
-            file.write("bond(" + povpoint(self.atom1.posn()) +
-                       "," + povpoint(self.atom2.posn()) + ")\n")
+            file.write("bond(" + povpoint(a1pos) +
+                       "," + povpoint(a2pos) + ")\n")
         if disp == diTUBES:
-            if self.center:
-                file.write("tube2(" + povpoint(self.atom1.posn()) +
+            if center:
+                file.write("tube2(" + povpoint(a1pos) +
                            "," + povpoint(color1) +
-                           "," + povpoint(self.center) + "," +
-                           povpoint(self.atom2.posn()) + "," +
+                           "," + povpoint(center) + "," +
+                           povpoint(a2pos) + "," +
                            povpoint(color2) + ")\n")
             else:
-                file.write("tube1(" + povpoint(self.atom1.posn()) +
+                file.write("tube1(" + povpoint(a1pos) +
                            "," + povpoint(color1) +
-                           "," + povpoint(self.c1) + "," +
-                           povpoint(self.c2) + "," + 
-                           povpoint(self.atom2.posn()) + "," +
+                           "," + povpoint(c1) + "," +
+                           povpoint(c2) + "," + 
+                           povpoint(a2pos) + "," +
                            povpoint(color2) + ")\n")
 
 
