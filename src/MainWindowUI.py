@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Feb 9 09:02:56 2005
+# Created: Wed Feb 9 14:11:46 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7072,8 +7072,8 @@ class MainWindow(QMainWindow):
         self.jigsGroundAction.setIconSet(QIconSet(self.image37))
         self.jigsHandleAction = QAction(self,"jigsHandleAction")
         self.jigsHandleAction.setIconSet(QIconSet(self.image38))
-        self.modifySplitAction = QAction(self,"modifySplitAction")
-        self.modifySplitAction.setIconSet(QIconSet(self.image39))
+        self.modifySeparateAction = QAction(self,"modifySeparateAction")
+        self.modifySeparateAction.setIconSet(QIconSet(self.image39))
         self.orient100Action = QAction(self,"orient100Action")
         self.orient100Action.setIconSet(QIconSet(self.image40))
         self.orient110Action = QAction(self,"orient110Action")
@@ -7282,8 +7282,8 @@ class MainWindow(QMainWindow):
         self.rotateToolAction = QAction(self,"rotateToolAction")
         self.rotateToolAction.setToggleAction(1)
         self.rotateToolAction.setIconSet(QIconSet(self.image108))
-        self.modifyDeleteBondAction = QAction(self,"modifyDeleteBondAction")
-        self.modifyDeleteBondAction.setIconSet(QIconSet(self.image76))
+        self.modifyDeleteBondsAction = QAction(self,"modifyDeleteBondsAction")
+        self.modifyDeleteBondsAction.setIconSet(QIconSet(self.image76))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7454,9 +7454,9 @@ class MainWindow(QMainWindow):
         self.modifyDehydrogenateAction.addTo(self.modifyToolbar)
         self.modifyPassivateAction.addTo(self.modifyToolbar)
         self.modifySetElementAction.addTo(self.modifyToolbar)
-        self.modifyDeleteBondAction.addTo(self.modifyToolbar)
+        self.modifyDeleteBondsAction.addTo(self.modifyToolbar)
         self.modifyStretchAction.addTo(self.modifyToolbar)
-        self.modifySplitAction.addTo(self.modifyToolbar)
+        self.modifySeparateAction.addTo(self.modifyToolbar)
         self.modifyWeldAction.addTo(self.modifyToolbar)
         self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
@@ -7564,8 +7564,8 @@ class MainWindow(QMainWindow):
         self.modifyHydrogenateAction.addTo(self.Modify)
         self.modifyDehydrogenateAction.addTo(self.Modify)
         self.modifySetElementAction.addTo(self.Modify)
-        self.modifyDeleteBondAction.addTo(self.Modify)
-        self.modifySplitAction.addTo(self.Modify)
+        self.modifyDeleteBondsAction.addTo(self.Modify)
+        self.modifySeparateAction.addTo(self.Modify)
         self.modifyStretchAction.addTo(self.Modify)
         self.modifyWeldAction.addTo(self.Modify)
         self.modifyAlignCommonAxisAction.addTo(self.Modify)
@@ -7594,7 +7594,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1231).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1234).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7654,13 +7654,12 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyAlignCommonAxisAction,SIGNAL("activated()"),self.modifyAlignCommonAxis)
         self.connect(self.modifyCopyBondAction,SIGNAL("activated()"),self.modifyCopyBond)
         self.connect(self.modifyDehydrogenateAction,SIGNAL("activated()"),self.modifyDehydrogenate)
-        self.connect(self.modifyDeleteBondAction,SIGNAL("activated()"),self.modifyDeleteBond)
+        self.connect(self.modifyDeleteBondsAction,SIGNAL("activated()"),self.modifyDeleteBonds)
         self.connect(self.modifyEdgeBondAction,SIGNAL("activated()"),self.modifyEdgeBond)
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
         self.connect(self.modifyMinimizeAction,SIGNAL("activated()"),self.modifyMinimize)
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
         self.connect(self.modifySetElementAction,SIGNAL("activated()"),self.modifySetElement)
-        self.connect(self.modifySplitAction,SIGNAL("activated()"),self.modifySplit)
         self.connect(self.modifyStretchAction,SIGNAL("activated()"),self.modifyStretch)
         self.connect(self.modifyWeldAction,SIGNAL("activated()"),self.modifyWeld)
         self.connect(self.movieDoneAction,SIGNAL("activated()"),self.movieDone)
@@ -7719,6 +7718,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
+        self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
 
 
     def languageChange(self):
@@ -7863,8 +7863,8 @@ class MainWindow(QMainWindow):
         self.jigsGroundAction.setMenuText(self.__tr("&Ground"))
         self.jigsHandleAction.setText(self.__tr("Handle"))
         self.jigsHandleAction.setMenuText(self.__tr("&Handle"))
-        self.modifySplitAction.setText(self.__tr("Split"))
-        self.modifySplitAction.setMenuText(self.__tr("&Split"))
+        self.modifySeparateAction.setText(self.__tr("Separate"))
+        self.modifySeparateAction.setMenuText(self.__tr("&Separate"))
         self.orient100Action.setText(self.__tr("Surface 100"))
         self.orient100Action.setMenuText(self.__tr("Surface 100"))
         self.orient110Action.setText(self.__tr("Surface 110"))
@@ -8069,8 +8069,8 @@ class MainWindow(QMainWindow):
         self.panDoneAction.setMenuText(self.__tr("Done"))
         self.rotateToolAction.setText(self.__tr("Rotate Tool"))
         self.rotateToolAction.setMenuText(self.__tr("Rotate Tool"))
-        self.modifyDeleteBondAction.setText(self.__tr("Delete Bond"))
-        self.modifyDeleteBondAction.setMenuText(self.__tr("Delete &Bond"))
+        self.modifyDeleteBondsAction.setText(self.__tr("Delete Bonds"))
+        self.modifyDeleteBondsAction.setMenuText(self.__tr("Delete &Bonds"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8255,8 +8255,8 @@ class MainWindow(QMainWindow):
     def modifyPassivate(self):
         print "MainWindow.modifyPassivate(): Not implemented yet"
 
-    def modifySplit(self):
-        print "MainWindow.modifySplit(): Not implemented yet"
+    def modifySeparate(self):
+        print "MainWindow.modifySeparate(): Not implemented yet"
 
     def orient100(self):
         print "MainWindow.orient100(): Not implemented yet"
@@ -8528,8 +8528,8 @@ class MainWindow(QMainWindow):
     def rotateTool(self):
         print "MainWindow.rotateTool(): Not implemented yet"
 
-    def modifyDeleteBond(self):
-        print "MainWindow.modifyDeleteBond(): Not implemented yet"
+    def modifyDeleteBonds(self):
+        print "MainWindow.modifyDeleteBonds(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

@@ -1060,19 +1060,18 @@ class MWsemantics(MainWindow):
         self.history.message(greenmsg("Passivate:"))
         self.assy.modifyPassivate()
     
-    def modifyDeleteBond(self):
+    def modifyDeleteBonds(self):
         """ Delete all bonds between selected and unselected atoms or chunks"""
-        self.assy.modifyDeleteBond()
+        self.assy.modifyDeleteBonds()
             
     def modifyStretch(self):
         """ Stretch/expand the selected chunk(s) """
         self.history.message(greenmsg("Stretch:"))
         self.assy.Stretch()
         
-    def modifySplit(self):
+    def modifySeparate(self):
         """ Form a new chunk from the selected atoms """
-        self.history.message(greenmsg("Split:"))
-        #m assy.modifySeparate() needs to be changed to assy.modifySplit()
+        self.history.message(greenmsg("Separate:"))
         self.assy.modifySeparate()
 
     # bring molecules together and bond unbonded sites

@@ -598,25 +598,25 @@ def createWhatsThis(self):
 
         #### Delete Bonds ####
 
-        modifyDeleteBondActionText = "<u><b>Delete Bond</b></u><br>"\
-                       "<p><img source=\"modifyDeleteBondAction\"><br> "\
+        modifyDeleteBondsActionText = "<u><b>Delete Bonds</b></u><br>"\
+                       "<p><img source=\"modifyDeleteBondsAction\"><br> "\
                        "Delete all bonds between selected and unselected atoms or chunks.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyDeleteBondAction",
-                                                       self.modifyDeleteBondAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyDeleteBondsAction",
+                                                       self.modifyDeleteBondsAction.iconSet().pixmap() )
 
-        self.modifyDeleteBondAction.setWhatsThis(modifyDeleteBondActionText )  
+        self.modifyDeleteBondsAction.setWhatsThis(modifyDeleteBondsActionText )  
         
-        #### Split ####
+        #### Separate ####
 
-        modifySplitActionText = "<u><b>Split</b></u><br>"\
-                       "<p><img source=\"modifySplitAction\"><br> "\
+        modifySeparateActionText = "<u><b>Separate</b></u><br>"\
+                       "<p><img source=\"modifySeparateAction\"><br> "\
                        "Creates a new chunk from the currently selected atoms.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifySplitAction",
-                                                       self.modifySplitAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifySeparateAction",
+                                                       self.modifySeparateAction.iconSet().pixmap() )
 
-        self.modifySplitAction.setWhatsThis(modifySplitActionText )  
+        self.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
         
         #### Weld Chunks ####
 

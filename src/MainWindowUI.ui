@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1231</height>
+            <height>1234</height>
         </rect>
     </property>
     <property name="caption">
@@ -114,8 +114,8 @@
         <action name="modifyHydrogenateAction"/>
         <action name="modifyDehydrogenateAction"/>
         <action name="modifySetElementAction"/>
-        <action name="modifyDeleteBondAction"/>
-        <action name="modifySplitAction"/>
+        <action name="modifyDeleteBondsAction"/>
+        <action name="modifySeparateAction"/>
         <action name="modifyStretchAction"/>
         <action name="modifyWeldAction"/>
         <action name="modifyAlignCommonAxisAction"/>
@@ -611,9 +611,9 @@
         <action name="modifyDehydrogenateAction"/>
         <action name="modifyPassivateAction"/>
         <action name="modifySetElementAction"/>
-        <action name="modifyDeleteBondAction"/>
+        <action name="modifyDeleteBondsAction"/>
         <action name="modifyStretchAction"/>
-        <action name="modifySplitAction"/>
+        <action name="modifySeparateAction"/>
         <action name="modifyWeldAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </toolbar>
@@ -1572,16 +1572,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>modifySplitAction</cstring>
+            <cstring>modifySeparateAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image39</iconset>
         </property>
         <property name="text">
-            <string>Split</string>
+            <string>Separate</string>
         </property>
         <property name="menuText">
-            <string>&amp;Split</string>
+            <string>&amp;Separate</string>
         </property>
     </action>
     <action>
@@ -2863,16 +2863,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>modifyDeleteBondAction</cstring>
+            <cstring>modifyDeleteBondsAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image76</iconset>
         </property>
         <property name="text">
-            <string>Delete Bond</string>
+            <string>Delete Bonds</string>
         </property>
         <property name="menuText">
-            <string>Delete &amp;Bond</string>
+            <string>Delete &amp;Bonds</string>
         </property>
     </action>
 </actions>
@@ -3549,10 +3549,10 @@
         <slot>modifyDehydrogenate()</slot>
     </connection>
     <connection>
-        <sender>modifyDeleteBondAction</sender>
+        <sender>modifyDeleteBondsAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyDeleteBond()</slot>
+        <slot>modifyDeleteBonds()</slot>
     </connection>
     <connection>
         <sender>modifyEdgeBondAction</sender>
@@ -3583,12 +3583,6 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>modifySetElement()</slot>
-    </connection>
-    <connection>
-        <sender>modifySplitAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>modifySplit()</slot>
     </connection>
     <connection>
         <sender>modifyStretchAction</sender>
@@ -3938,6 +3932,12 @@
         <receiver>MainWindow</receiver>
         <slot>zoomTool()</slot>
     </connection>
+    <connection>
+        <sender>modifySeparateAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifySeparate()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3984,7 +3984,7 @@
     <slot>makeSpring()</slot>
     <slot>modifyHydrogenate()</slot>
     <slot>modifyPassivate()</slot>
-    <slot>modifySplit()</slot>
+    <slot>modifySeparate()</slot>
     <slot>orient100()</slot>
     <slot>orient110()</slot>
     <slot>orient111()</slot>
@@ -4075,7 +4075,7 @@
     <slot>panTool()</slot>
     <slot>panDone()</slot>
     <slot>rotateTool()</slot>
-    <slot>modifyDeleteBond()</slot>
+    <slot>modifyDeleteBonds()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
