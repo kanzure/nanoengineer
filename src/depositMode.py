@@ -24,8 +24,8 @@ class depositMode(basicMode):
     backgroundColor = 74/256.0, 187/256.0, 227/256.0
     gridColor = 74/256.0, 187/256.0, 227/256.0
     modename = 'DEPOSIT' #e we can rename this to SKETCH later, when we modify MWSemantics
-    msg_modename = "sketch mode" # bruce 040923 renamed this after checking with Josh
-    default_mode_status_text = "Mode: Sketch Atoms"
+    msg_modename = "Deposit Atoms mode" # bruce 040923 renamed this after checking with Josh
+    default_mode_status_text = "Mode: Deposit Atoms"
 
     # no __init__ method needed... once we confirm that the following code is obsolete [bruce 040923]
     
@@ -35,7 +35,7 @@ class depositMode(basicMode):
 
     # methods related to entering this mode
     
-    def Enter(self): # bruce 040922 split setMode into Enter and show_toolbars (fyi)
+    def Enter(self): # bruce 040922 split setMode into Enter and init_gui (fyi)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         basicMode.Enter(self)
         self.o.assy.unpickatoms()
@@ -46,9 +46,11 @@ class depositMode(basicMode):
         self.new = None
         self.o.singlet = None
         self.modified = 0 # bruce 040923 new code
-        
-    def show_toolbars(self):
-        self.w.sketchAtomToolbar.show()
+    
+    # init_gui handles all the GUI display when entering this mode [mark 041004]    
+    def init_gui(self):
+        self.o.setCursor(self.w.DepositAtomCursor) 
+        self.w.depositAtomDashboard.show()
 
     # methods related to exiting this mode [bruce 040922 made these from old Done method, and added new code; there was no Flush method]
 
@@ -68,8 +70,9 @@ class depositMode(basicMode):
         self.warning( msg, bother_user_with_dialog = 1)
         return True # refuse the Cancel
     
-    def hide_toolbars(self):
-        self.w.sketchAtomToolbar.hide()
+    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+    def restore_gui(self):
+        self.w.depositAtomDashboard.hide()
 
     def restore_patches(self):
         self.o.display = self.saveDisp

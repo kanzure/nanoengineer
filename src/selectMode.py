@@ -40,14 +40,37 @@ class selectMode(basicMode):
             what = '...' # hopefully this will never show up...
         return "Mode: Select %s" % what
     
-    def leftDown(self, event):
-        self.StartPick(event, 1)
+    # init_gui handles all the GUI display when entering this mode [mark 041004]    
+    def init_gui(self):
+        self.o.setCursor(self.w.SelectCursor)
+        if self.o.assy.selwhat == 2:
+            self.w.toolsSelectMoleculesAction.setOn(1) # mark - toggle the select molecule tools icon on
+            self.w.selectMolDashboard.show() 
+        elif self.o.assy.selwhat == 0:
+            self.w.selectAtomsDashboard.show()
+         
     
-    def leftShiftDown(self, event):
+    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+    def restore_gui(self):
+        if self.o.assy.selwhat == 2:
+            self.w.selectMolDashboard.hide()
+        elif self.o.assy.selwhat == 0:
+            self.w.selectAtomsDashboard.hide()
+    
+    def leftDown(self, event):
+        self.StartPick(event, 2) 
+    
+    def leftCntlDown(self, event):
+        self.w.OldCursor = QCursor(self.o.cursor())
+        self.o.setCursor(self.w.SelectSubtractCursor)
+        
         self.StartPick(event, 0)
 
-    def leftCntlDown(self, event):
-        self.StartPick(event, 2)
+    def leftShiftDown(self, event):
+        self.w.OldCursor = QCursor(self.o.cursor())
+        self.o.setCursor(self.w.SelectAddCursor)
+        
+        self.StartPick(event, 1) 
 
 
     def StartPick(self, event, sense):
@@ -67,13 +90,13 @@ class selectMode(basicMode):
 
     
     def leftDrag(self, event):
-        self.ContinPick(event, 1)
-    
-    def leftShiftDrag(self, event):
-        self.ContinPick(event, 0)
+        self.ContinPick(event, 2)
     
     def leftCntlDrag(self, event):
-        self.ContinPick(event, 2)
+        self.ContinPick(event, 0)
+    
+    def leftShiftDrag(self, event):
+        self.ContinPick(event, 1)
 
     def ContinPick(self, event, sense):
         """Add another segment to a selection curve
@@ -93,13 +116,15 @@ class selectMode(basicMode):
         self.o.paintGL()
 
     def leftUp(self, event):
-        self.EndPick(event, 1)
-    
-    def leftShiftUp(self, event):
-        self.EndPick(event, 0)
+        self.EndPick(event, 2)
     
     def leftCntlUp(self, event):
-        self.EndPick(event, 2)
+        self.o.setCursor(self.w.OldCursor)
+        self.EndPick(event, 0)
+    
+    def leftShiftUp(self, event):
+        self.o.setCursor(self.w.OldCursor)
+        self.EndPick(event, 1)
 
     def EndPick(self, event, selSense):
         """Close a selection curve and do the selection
@@ -123,14 +148,16 @@ class selectMode(basicMode):
         self.o.backlist += [self.o.backlist[0]]
         self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight)
         eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
+        
         if self.selLassRect:
             self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,
                              (not self.o.ortho) and eyeball)
         else:
             self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
                              (not self.o.ortho) and eyeball)
+        
         self.o.shape.select(self.o.assy)
-	self.o.shape = None
+        self.o.shape = None
 
         self.sellist = []
 

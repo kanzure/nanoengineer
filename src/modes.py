@@ -20,11 +20,11 @@ methods they call (listed below) rather than those methods themselves. The code 
 in the mode-specific overrides of those methods has been divided up as follows:
 
 Code for entering a specific mode (which used to be in the mode's setMode method) is now in
-the methods Enter and show_toolbars (in the mode-specific subclass). From the glpane, this is
+the methods Enter and init_gui (in the mode-specific subclass). From the glpane, this is
 reached via basicMode._enterMode, called by methods from the glpane's modeMixin.
 
 Code for Cancelling a mode (which used to be in the mode's Flush method) is now divided
-between the methods haveNontrivialState, StateCancel, hide_toolbars, restore_patches, and clear.
+between the methods haveNontrivialState, StateCancel, restore_gui, restore_patches, and clear.
 Most of these methods are also used by Cancel. The glpane's modeMixin reaches it via basicMode.Cancel.
 
 (For specialized uses there is a new related way to reach some of the Cancelling code, basicMode.Abandon.
@@ -33,7 +33,7 @@ hopefully it can go away when problems in that external code (e.g. file opening,
 state) are fixed. BTW I described these problems in some other comment; I don't know for sure they're real.)
 
 Code for leaving a mode via Done is now divided between mode-specific methods haveNontrivialState,
-StateDone, hide_toolbars, restore_patches, and clear. Most of these methods are also used by Done.
+StateDone, restore_gui, restore_patches, and clear. Most of these methods are also used by Done.
 The glpane's modeMixin reaches it via basicMode.Done, as before.
 
 See the method docstrings in this file for details.
@@ -180,7 +180,7 @@ class basicMode(anyMode):
             if refused:
                 print "fyi: late refusal by %r, better if it had been in refuseEnter" % self # (but sometimes it might be necessary)
         if not refused:
-            self.show_toolbars()
+            self.init_gui()
             self.update_mode_status_text()
         # caller (our glpane) will set its self.mode to point to us, but only if we return false
         return refused
@@ -194,7 +194,7 @@ class basicMode(anyMode):
         """
         return 0
     
-    def Enter(self): # bruce 040922 split each subclass setMode into Enter and show_toolbars -- see file head comment for details
+    def Enter(self): # bruce 040922 split each subclass setMode into Enter and init_gui -- see file head comment for details
         """Subclasses should override this: first call basicMode.Enter(self).
            Then set whatever internal state you need to upon being entered,
            modify settings in your glpane (self.o) if necessary,
@@ -207,7 +207,7 @@ class basicMode(anyMode):
         self.picking = False # (this seems to be set and used in almost every mode)
         return None
 
-    def show_toolbars(self):
+    def init_gui(self):
         "subclasses with toolbars should override this to show them all"
         pass
 
@@ -387,11 +387,11 @@ class basicMode(anyMode):
         # (the following are probably only called together, but it's good to split up their effects as documented
         #  in case we someday call them separately, and also just for code clarity. -- bruce 040923)
         self.o.stop_sending_us_events( self) # stop receiving events from our glpane
-        self.hide_toolbars()
+        self.restore_gui()
         self.restore_patches()
         self.clear() # clear our internal state, if any
         
-    def hide_toolbars(self):
+    def restore_gui(self):
         "subclasses with toolbars should hide them all"
         pass
 
@@ -483,6 +483,10 @@ class basicMode(anyMode):
 
     # middle mouse button actions -- these support a trackball, and are the same for all modes (with a few exceptions)
     def middleDown(self, event):
+        
+        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
+        self.o.setCursor(self.w.RotateCursor) # load RotateCursor in glpane
+        
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = 0
@@ -495,9 +499,12 @@ class basicMode(anyMode):
         self.picking = 0
 
     def middleUp(self, event):
-        pass
+        self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleShiftDown(self, event):
+        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
+        self.o.setCursor(self.w.MoveCursor) # load MoveCursor in glpane
+        
         self.o.SaveMouse(event)
         self.picking = 0
     
@@ -518,11 +525,13 @@ class basicMode(anyMode):
         self.picking = 0
     
     def middleShiftUp(self, event):
-        pass
+        self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleCntlDown(self, event):
         """ Set up for zooming or rotating
         """
+        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
+        
         self.o.SaveMouse(event)
         self.Zorg = self.o.MousePos
         self.Zq = Q(self.o.quat)
@@ -544,10 +553,12 @@ class basicMode(anyMode):
             self.Zunlocked = ax<10 and ay<10
             if ax>ay:
                 # rotating
+                self.o.setCursor(self.w.RotateZCursor) # load RotateZCursor in glpane
                 self.o.pov = self.Zpov
                 self.ZRot = 1
             else:
                 # zooming
+                self.o.setCursor(self.w.ZoomCursor) # load ZoomCursor in glpane
                 self.o.quat = Q(self.Zq)
                 self.ZRot = 0
         if self.ZRot:
@@ -561,7 +572,7 @@ class basicMode(anyMode):
         self.o.paintGL()
 
     def middleCntlUp(self, event):
-        pass
+        self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleDouble(self, event):
         pass
@@ -786,14 +797,13 @@ class modeMixin:
             print_compact_traceback("userSetMode: ")
             print "bug: userSetMode(%r) had bug when in mode %r; changing back to default mode" % (modename, self.mode,)
             # for some bugs, the old mode will have left its toolbar up;
-            # we should probably try to call its hide_toolbars method directly... ok, I added this, though it's untested! ###k
+            # we should probably try to call its restore_gui method directly... ok, I added this, though it's untested! ###k
             # It looks safe, and only runs if there's a definite bug anyway. [bruce 040924]
             try:
-                self.mode.hide_toolbars()
+                self.mode.restore_gui()
             except:
-                print "(...even the old mode's hide_toolbars method, run by itself, had a bug...)"
+                print "(...even the old mode's restore_gui method, run by itself, had a bug...)"
             self.start_using_mode( self.default_mode)
         return
 
     pass # end of class modeMixin
-

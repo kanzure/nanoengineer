@@ -23,18 +23,29 @@ class modifyMode(basicMode):
     
     # no __init__ method needed
 
-    def Enter(self): # bruce 040922 renamed setMode to Enter (and split out show_toolbars, but that's not needed in this class)
+    def Enter(self): # bruce 040922 renamed setMode to Enter (and split out init_gui)
         basicMode.Enter(self)
         self.o.assy.selectParts()
         self.dragdist = 0.0
 
-    # no method overrides needed for exiting this mode
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
+
+    # init_gui handles all the GUI display when entering this mode [mark 041004]
+    def init_gui(self):
+        self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
+        self.w.moveMolDashboard.show()    
+    
+    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+    def restore_gui(self):
+        self.w.moveMolDashboard.hide()
 
     def leftDown(self, event):
         """Move the selected object(s) in the plane of the screen following
         the mouse.
         """
+        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
+        self.o.setCursor(self.w.MoveSelectCursor) # load MoveSelectCursor in glpane
+      
         self.o.SaveMouse(event)
         self.picking = True
         p1, p2 = self.o.mousepoints(event)
@@ -55,7 +66,8 @@ class modifyMode(basicMode):
         self.o.SaveMouse(event)
 
     def leftUp(self, event):
-        self.EndPick(event, 1)
+        self.o.setCursor(self.w.OldCursor) # Restore cursor
+        self.EndPick(event, 2)
         
     def EndPick(self, event, selSense):
         """Pick if click
@@ -74,18 +86,23 @@ class modifyMode(basicMode):
             
             self.o.paintGL()
      
-    def leftShiftDown(self, event):
+    def leftCntlDown(self, event):
         """Setup a trackball action on each selected part.
         """
+        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
+        self.o.setCursor(self.w.MoveSubtractCursor)
+         
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
         self.dragdist = 0.0
 
    
-    def leftShiftDrag(self, event):
+    def leftCntlDrag(self, event):
         """Do an incremental trackball action on each selected part.
         """
+        self.o.setCursor(self.w.RotateMolCursor)
+        
         w=self.o.width+0.0
         h=self.o.height+0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -97,14 +114,18 @@ class modifyMode(basicMode):
         self.o.assy.rotsel(q)
         self.o.paintGL()
 
-    def leftShiftUp(self, event):
+    def leftCntlUp(self, event):
+        self.o.setCursor(self.w.OldCursor) # Restore cursor
         self.EndPick(event, 0)
     
     
-    def leftCntlDown(self, event):
+    def leftShiftDown(self, event):
         """ Set up for sliding or rotating the selected part
         unlike select zoom/rotate, can have combined motion
         """
+        self.w.OldCursor = QCursor(self.o.cursor()) # save copy of current cursor in OldCursor
+        self.o.setCursor(self.w.MoveAddCursor)
+      
         self.o.SaveMouse(event)
         ma = V(0,0,0)
         for mol in self.o.assy.selmols:
@@ -115,11 +136,12 @@ class modifyMode(basicMode):
         self.dragdist = 0.0
 
     
-    def leftCntlDrag(self, event):
+    def leftShiftDrag(self, event):
         """move part along its axis (mouse goes up or down)
            rotate around its axis (left-right)
-
         """
+        self.o.setCursor(self.w.MoveRotateMolCursor)
+        
         w=self.o.width+0.0
         h=self.o.height+0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -136,8 +158,9 @@ class modifyMode(basicMode):
         self.o.paintGL()
 
     
-    def leftCntlUp(self, event):
-        self.EndPick(event, 2)
+    def leftShiftUp(self, event):
+        self.o.setCursor(self.w.OldCursor) # Restore cursor
+        self.EndPick(event, 1)
 
     def leftDouble(self, event):
         self.Done() # bruce 040923: how to do this need not change
@@ -187,5 +210,3 @@ class modifyMode(basicMode):
         pass
 
     pass # end of class modifyMode
-
-

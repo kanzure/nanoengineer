@@ -37,7 +37,7 @@ b = { 1: 205, 2 : 255,
 
 class elementSelector(ElementSelectorDialog):
     def __init__(self, win):
-        ElementSelectorDialog.__init__(self)
+        ElementSelectorDialog.__init__(self, win)
 	self.w = win
 
 # Create the pixmaps for each element        

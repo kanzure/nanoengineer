@@ -42,6 +42,14 @@ class MWsemantics(MainWindow):
         import extrudeMode as _extrudeMode
         _extrudeMode.do_what_MainWindowUI_should_do(self)
         
+        #Load cursors
+        self.loadCursors()
+        
+        #Hide all dashboards
+        self.hideDashboards()
+                
+        self.createStatusBars()
+        
         windowList += [self]
         if name == None:
             self.setName("Atom")
@@ -66,24 +74,7 @@ class MWsemantics(MainWindow):
 
         self.setFocusPolicy(QWidget.StrongFocus)
 
-        self.cookieCutterToolbar.hide() # (bruce note: this is the cookie mode dashboard)
-        self.extrudeToolbar.hide() # (... and this is the extrude mode dashboard)
-        self.sketchAtomToolbar.hide()
-        self.datumDispToolbar.hide()  # (mark note: this is the datum display toolbar)
-
-        # Mark - Set up primary (left) message bar in status bar area.
-        self.msgbarLabel = QLabel(self, "msgbarLabel")
-        self.msgbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.msgbarLabel.setText( " " )
-        
-        self.statusBar().addWidget(self.msgbarLabel,1,1)
-
-        # Mark - Set up mode bar (right) in status bar area.        
-        self.modebarLabel = QLabel(self, "modebarLabel")
-        self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        
-        self.statusBar().addWidget(self.modebarLabel,0,1)
-        self.update_mode_status() # bruce 040927
+        self.update_mode_status()
 
         # start with Carbon
         self.Element = 6
@@ -122,6 +113,7 @@ class MWsemantics(MainWindow):
         try:
             widget = self.modebarLabel
         except AttributeError:
+            print "AttributeError: self.modebarLabel"
             pass # this is normal, before the widget exists
         else:
             mode_obj = mode_obj or self.glpane.mode
@@ -533,6 +525,10 @@ class MWsemantics(MainWindow):
     # form a new part (molecule) with whatever atoms are selected
     def modifySeparate(self):
         self.assy.modifySeparate()
+    
+    # stretch selected molecule(s)    
+    def modifyStretchMolecule(self):
+        self.assy.Stretch()
 
     ###################################
     # Functions from the "Help" menu
@@ -630,15 +626,20 @@ class MWsemantics(MainWindow):
     ###############################################################
 
     def toolsSelectAtoms(self):
-        ##self.modebarLabel.setText( "Mode: Select Atoms" ) # bruce 040927 let mode and/or assy control this
-        self.assy.selectAtoms()
-        self.update_mode_status() # bruce 040927 (restored 040928 after cvs merge error)
-
+        self.glpane.assy.selwhat = 0
+        self.glpane.setMode('SELECT')
+        #self.assy.selectAtoms()
+ 
     def toolsSelectMolecules(self):
-        ##self.modebarLabel.setText( "Mode: Select Molecules" )
-        self.assy.selectParts()
-        self.update_mode_status() # bruce 040927 (restored 040928 after cvs merge error)
+        #self.assy.selectParts()
+        self.glpane.assy.selwhat = 2
+        self.glpane.setMode('SELECT')
 
+    def toolsSelectJigs(self):
+        print "MWsemantics.toolsSelectJigs(): Not implemented yet"
+        QMessageBox.warning(self, "ATOM User Notice:", 
+             "This function is not implemented yet, coming soon...")
+        
     def toolsMoveMolecule(self):
         ## bruce 040928 suspects that the next line was part of the cvs merge error as well, so is changing it:
         self.glpane.setMode('MODIFY') ## was: self.assy.o.setMode('MODIFY')
@@ -863,3 +864,113 @@ class MWsemantics(MainWindow):
         """ Fit to Window """
         QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
+	         
+#######  Load Cursors #########################################
+    def loadCursors(self):
+
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+        # Create "SelectCursor" cursor
+        self.SelectCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectCursor-bm.bmp"),
+            0, 0)
+        
+        # Create "SelectAddCursor" cursor
+        self.SelectAddCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectAddCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAddCursor-bm.bmp"),
+            0, 0)
+
+        # Create "SelectSubtractCursor" cursor
+        self.SelectSubtractCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectSubtractCursor-bm.bmp"),
+            0, 0)
+            
+        # Create "RotateCursor" cursor
+        self.RotateCursor = QCursor(
+            QBitmap(filePath + "/../images/RotateCursor.bmp"),
+            QBitmap(filePath + "/../images/RotateCursor-bm.bmp"),
+            0, 0)
+
+            
+        # Create "RotateZCursor" cursor
+        self.RotateZCursor = QCursor(
+            QBitmap(filePath + "/../images/RotateZCursor.bmp"),
+            QBitmap(filePath + "/../images/RotateZCursor-bm.bmp"),
+            0, 0)
+
+            
+        # Create "MoveCursor" cursor
+        self.MoveCursor = QCursor(
+            QBitmap(filePath + "/../images/MoveCursor.bmp"),
+            QBitmap(filePath + "/../images/MoveCursor-bm.bmp"),
+            0, 0)
+            
+        # Create "MoveSelectCursor" cursor
+        self.MoveSelectCursor = QCursor(
+            QBitmap(filePath + "/../images/MoveSelectCursor.bmp"),
+            QBitmap(filePath + "/../images/MoveSelectCursor-bm.bmp"),
+            -1, -1)
+
+        # Create "MoveAddCursor" cursor
+        self.MoveAddCursor = QCursor(
+            QBitmap(filePath + "/../images/MoveAddCursor.bmp"),
+            QBitmap(filePath + "/../images/MoveAddCursor-bm.bmp"),
+            -1, -1)
+            
+        # Create "MoveSubtractCursor" cursor
+        self.MoveSubtractCursor = QCursor(
+            QBitmap(filePath + "/../images/MoveSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/MoveSubtractCursor-bm.bmp"),
+            -1, -1)
+                                    
+        # Create "MoveRotateMolCursor" cursor
+        self.MoveRotateMolCursor = QCursor(
+            QBitmap(filePath + "/../images/MoveRotateMolCursor.bmp"),
+            QBitmap(filePath + "/../images/MoveRotateMolCursor-bm.bmp"),
+            -1, -1)
+                                    
+        # Create "RotateMolCursor" cursor
+        self.RotateMolCursor = QCursor(
+            QBitmap(filePath + "/../images/RotateMolCursor.bmp"),
+            QBitmap(filePath + "/../images/RotateMolCursor-bm.bmp"),
+            -1, -1)
+                        
+        # Create "DepositAtomCursor" cursor
+        self.DepositAtomCursor = QCursor(
+            QBitmap(filePath + "/../images/DepositAtomCursor.bmp"),
+            QBitmap(filePath + "/../images/DepositAtomCursor-bm.bmp"),
+            0, 32)
+                        
+        # Create "ZoomCursor" cursor
+        self.ZoomCursor = QCursor(
+            QBitmap(filePath + "/../images/ZoomCursor.bmp"),
+            QBitmap(filePath + "/../images/ZoomCursor-bm.bmp"),
+            10, 10)
+                
+            
+    def createStatusBars(self):
+        # Mark - Set up primary (left) message bar in status bar area.
+        self.msgbarLabel = QLabel(self, "msgbarLabel")
+        self.msgbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.msgbarLabel.setText( " " )
+        
+        self.statusBar().addWidget(self.msgbarLabel,1,1)
+
+        # Mark - Set up mode bar (right) in status bar area.        
+        self.modebarLabel = QLabel(self, "modebarLabel")
+        self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        
+        self.statusBar().addWidget(self.modebarLabel,0,1)
+        #self.update_mode_status() # bruce 040927            
+        
+    def hideDashboards(self):
+        self.cookieCutterDashboard.hide() # (bruce note: this is the cookie mode dashboard)
+        self.extrudeToolbar.hide() # (... and this is the extrude mode dashboard)
+        self.depositAtomDashboard.hide()
+        self.datumDispDashboard.hide()  # (mark note: this is the datum display toolbar)
+        self.selectMolDashboard.hide()
+        self.selectAtomsDashboard.hide()
+        self.moveMolDashboard.hide()        

@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>1062</width>
-            <height>871</height>
+            <width>1086</width>
+            <height>914</height>
         </rect>
     </property>
     <property name="caption">
@@ -33,9 +33,12 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>1062</width>
+            <width>1086</width>
             <height>33</height>
         </rect>
+    </property>
+    <property name="backgroundOrigin">
+        <enum>WidgetOrigin</enum>
     </property>
     <item text="&amp;File" name="fileMenu">
         <action name="fileNewAction"/>
@@ -99,13 +102,6 @@
             <action name="toggleSelectTbarAction"/>
         </item>
     </item>
-    <item text="&amp;Select" name="Select">
-        <action name="selectAllAction"/>
-        <action name="selectNoneAction"/>
-        <action name="selectInvertAction"/>
-        <action name="selectConnectedAction"/>
-        <action name="selectDoublyAction"/>
-    </item>
     <item text="&amp;Display" name="unnamed">
         <separator/>
         <action name="dispDefaultAction"/>
@@ -138,11 +134,12 @@
         <action name="modifySetElementAction"/>
         <action name="modifySeparateAction"/>
         <action name="modifyCopyBondAction"/>
+        <action name="modifyStretchMoleculeAction"/>
         <action name="modifyEdgeBondAction"/>
         <action name="modifyWeldMoleculeAction"/>
     </item>
     <item text="&amp;Tools" name="Tools">
-        <action name="toolsSketchAtomAction"/>
+        <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <action name="toolsRevolveAction"/>
@@ -183,6 +180,14 @@
         <property name="name">
             <cstring>editToolbar</cstring>
         </property>
+        <property name="geometry">
+            <rect>
+                <x>96</x>
+                <y>0</y>
+                <width>188</width>
+                <height>29</height>
+            </rect>
+        </property>
         <property name="label">
             <string>Edit</string>
         </property>
@@ -204,6 +209,9 @@
                 <width>217</width>
                 <height>29</height>
             </rect>
+        </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
         </property>
         <property name="label">
             <string>View</string>
@@ -265,7 +273,7 @@
             <cstring>selectToolbar</cstring>
         </property>
         <property name="label">
-            <string>Select</string>
+            <string>Select Toolbar</string>
         </property>
         <action name="selectAllAction"/>
         <action name="selectNoneAction"/>
@@ -275,13 +283,13 @@
     </toolbar>
     <toolbar dock="3">
         <property name="name">
-            <cstring>cookieCutterToolbar</cstring>
+            <cstring>cookieCutterDashboard</cstring>
         </property>
         <property name="geometry">
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>533</width>
+                <width>551</width>
                 <height>29</height>
             </rect>
         </property>
@@ -296,7 +304,7 @@
                 <cstring>textLabel2</cstring>
             </property>
             <property name="text">
-                <string>Cookie Cut</string>
+                <string> Cookie Cutter</string>
             </property>
         </widget>
         <separator/>
@@ -329,7 +337,57 @@
     </toolbar>
     <toolbar dock="3">
         <property name="name">
-            <cstring>sketchAtomToolbar</cstring>
+            <cstring>selectAtomsDashboard</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
+        <property name="label">
+            <string>Select Atoms</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel2_2</cstring>
+            </property>
+            <property name="text">
+                <string>Select Atoms</string>
+            </property>
+        </widget>
+        <action name="nullAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>moveMolDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Move Molecule</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="text">
+                <string> Move Molecule</string>
+            </property>
+        </widget>
+        <separator/>
+        <action name="moveMolFreeAction"/>
+        <action name="rotateMolFreeAction"/>
+        <action name="moveRotateMolAction"/>
+        <separator/>
+        <action name="toolsDoneAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>depositAtomDashboard</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>29</y>
+                <width>345</width>
+                <height>29</height>
+            </rect>
         </property>
         <property name="paletteBackgroundColor">
             <color>
@@ -338,16 +396,19 @@
                 <blue>230</blue>
             </color>
         </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
+        </property>
         <property name="label">
-            <string>Sketch Atom</string>
+            <string>Deposit Atom</string>
         </property>
         <separator/>
         <widget class="QLabel">
             <property name="name">
-                <cstring>sketchAtomLabel</cstring>
+                <cstring>depositAtomLabel</cstring>
             </property>
             <property name="text">
-                <string>Sketch Atom</string>
+                <string>Deposit Atoms</string>
             </property>
         </widget>
         <separator/>
@@ -480,6 +541,23 @@
         <action name="toolsDoneAction"/>
         <action name="toolsCancelAction"/>
     </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>selectMolDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Select Molecule</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1_2</cstring>
+            </property>
+            <property name="text">
+                <string>Select Molecules</string>
+            </property>
+        </widget>
+        <action name="nullAction"/>
+    </toolbar>
     <toolbar dock="4">
         <property name="name">
             <cstring>modifyToolbar</cstring>
@@ -489,8 +567,15 @@
                 <x>0</x>
                 <y>0</y>
                 <width>30</width>
-                <height>266</height>
+                <height>294</height>
             </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
         </property>
         <property name="label">
             <string>Modify</string>
@@ -501,6 +586,7 @@
         <action name="modifyPassivateAction"/>
         <action name="modifySetElementAction"/>
         <action name="modifyCopyBondAction"/>
+        <action name="modifyStretchMoleculeAction"/>
         <action name="modifySeparateAction"/>
         <action name="modifyEdgeBondAction"/>
         <action name="modifyWeldMoleculeAction"/>
@@ -512,9 +598,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>266</y>
+                <y>294</y>
                 <width>30</width>
-                <height>413</height>
+                <height>441</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -529,8 +615,9 @@
         </property>
         <action name="toolsSelectMoleculesAction"/>
         <action name="toolsSelectAtomsAction"/>
+        <action name="toolsSelectJigsAction"/>
         <action name="toolsMoveMoleculeAction"/>
-        <action name="toolsSketchAtomAction"/>
+        <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <action name="toolsRevolveAction"/>
@@ -545,7 +632,7 @@
     </toolbar>
     <toolbar dock="4">
         <property name="name">
-            <cstring>datumDispToolbar</cstring>
+            <cstring>datumDispDashboard</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -554,6 +641,13 @@
                 <width>30</width>
                 <height>182</height>
             </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -1990,12 +2084,15 @@
         <property name="text">
             <string>ActionGroup</string>
         </property>
+        <property name="exclusive">
+            <bool>true</bool>
+        </property>
         <property name="usesDropDown">
             <bool>false</bool>
         </property>
         <action>
             <property name="name">
-                <cstring>toolsSketchAtomAction</cstring>
+                <cstring>toolsDepositAtomAction</cstring>
             </property>
             <property name="toggleAction">
                 <bool>true</bool>
@@ -2004,13 +2101,13 @@
                 <iconset>image68</iconset>
             </property>
             <property name="text">
-                <string>Sketch Atom</string>
+                <string>Deposit Atom</string>
             </property>
             <property name="menuText">
-                <string>Sketch &amp;Atom</string>
+                <string>Deposit &amp;Atom</string>
             </property>
             <property name="toolTip">
-                <string>Sketch Atom</string>
+                <string>Deposit Atom</string>
             </property>
         </action>
         <action>
@@ -2167,7 +2264,7 @@
                 <string>Simulator</string>
             </property>
             <property name="menuText">
-                <string>&amp;Simulator</string>
+                <string>S&amp;imulator</string>
             </property>
             <property name="toolTip">
                 <string>Simulator</string>
@@ -2232,7 +2329,7 @@
                 <bool>true</bool>
             </property>
             <property name="on">
-                <bool>true</bool>
+                <bool>false</bool>
             </property>
             <property name="iconSet">
                 <iconset>image80</iconset>
@@ -2261,7 +2358,307 @@
                 <string>Move Molecule</string>
             </property>
         </action>
+        <action>
+            <property name="name">
+                <cstring>toolsSelectAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="on">
+                <bool>false</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image82</iconset>
+            </property>
+            <property name="text">
+                <string>Select</string>
+            </property>
+            <property name="menuText">
+                <string>&amp;Select</string>
+            </property>
+            <property name="toolTip">
+                <string>Select</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>toolsSelectJigsAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image83</iconset>
+            </property>
+            <property name="text">
+                <string>Select Jigs</string>
+            </property>
+            <property name="toolTip">
+                <string>Select Jigs</string>
+            </property>
+        </action>
     </actiongroup>
+    <action>
+        <property name="name">
+            <cstring>modifyStretchMoleculeAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image84</iconset>
+        </property>
+        <property name="text">
+            <string>Stretch</string>
+        </property>
+        <property name="menuText">
+            <string>S&amp;tretch</string>
+        </property>
+    </action>
+    <actiongroup>
+        <property name="name">
+            <cstring>moveMolActionGroup</cstring>
+        </property>
+        <property name="text">
+            <string>Move Group</string>
+        </property>
+        <property name="usesDropDown">
+            <bool>false</bool>
+        </property>
+        <action>
+            <property name="name">
+                <cstring>moveMolXAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image85</iconset>
+            </property>
+            <property name="text">
+                <string>X Translate</string>
+            </property>
+            <property name="toolTip">
+                <string>X Translate</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>moveMolYAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image86</iconset>
+            </property>
+            <property name="text">
+                <string>Y Translation</string>
+            </property>
+            <property name="toolTip">
+                <string>Y Translation</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>moveMolZAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image87</iconset>
+            </property>
+            <property name="text">
+                <string>Z Translation</string>
+            </property>
+            <property name="toolTip">
+                <string>Z Translation</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>moveMolRotXAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image88</iconset>
+            </property>
+            <property name="text">
+                <string>X Rotation</string>
+            </property>
+            <property name="toolTip">
+                <string>X Rotation</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>moveMolRotYAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image89</iconset>
+            </property>
+            <property name="text">
+                <string>Y Rotation</string>
+            </property>
+            <property name="toolTip">
+                <string>Y Rotation</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>moveMolRotZAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image90</iconset>
+            </property>
+            <property name="text">
+                <string>Z Rotation</string>
+            </property>
+            <property name="toolTip">
+                <string>Z Rotation</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>moveMolFreeAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="on">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image91</iconset>
+            </property>
+            <property name="text">
+                <string>Move Unconstrained</string>
+            </property>
+            <property name="toolTip">
+                <string>Move Unconstrained</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>rotateMolFreeAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image92</iconset>
+            </property>
+            <property name="text">
+                <string>Rotate Molecule Unconstrained</string>
+            </property>
+            <property name="toolTip">
+                <string>Rotate Molecule Unconstrained</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>moveRotateMolAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image93</iconset>
+            </property>
+            <property name="text">
+                <string>Move/Rotate Constrained</string>
+            </property>
+            <property name="toolTip">
+                <string>Move/Rotate Constrained</string>
+            </property>
+        </action>
+    </actiongroup>
+    <actiongroup>
+        <property name="name">
+            <cstring>selectActionGroup</cstring>
+        </property>
+        <property name="text">
+            <string>Select Group</string>
+        </property>
+        <property name="usesDropDown">
+            <bool>false</bool>
+        </property>
+        <action>
+            <property name="name">
+                <cstring>selectAtomsAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image79</iconset>
+            </property>
+            <property name="text">
+                <string>Select Atoms</string>
+            </property>
+            <property name="toolTip">
+                <string>Select Atoms</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>selectMoleculesAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="on">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image80</iconset>
+            </property>
+            <property name="text">
+                <string>Select Molecules</string>
+            </property>
+            <property name="toolTip">
+                <string>Select Molecules</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>selectJigsAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image83</iconset>
+            </property>
+            <property name="text">
+                <string>Select Jigs</string>
+            </property>
+            <property name="toolTip">
+                <string>Select Jigs</string>
+            </property>
+        </action>
+    </actiongroup>
+    <action>
+        <property name="name">
+            <cstring>nullAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image94</iconset>
+        </property>
+        <property name="text">
+            <string></string>
+        </property>
+        <property name="visible">
+            <bool>true</bool>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -2509,6 +2906,45 @@
     </image>
     <image name="image81">
         <data format="XPM.GZ" length="2256">789c95d3c76e1b311405d0bdbe42107746f03c7d480459b897b8773bc882d36cd9967b0ff2efe1bbe430526225b29e47c0312fcb90d4f454f7686bbd3b35ddb97fd00ffdb25b9ee9bbee54f53818bc7efbfee547a717455df3979befdea74e8f76bb65570471603ef0b273e42ce0a46d17da1bfdc5eff614f963ef025e6a1ddaf9669c4337fe2d9c7acf3a27ce76beccaf4f79dbf1eebd159cb70e63b87076ef232a38f7e39fc2d28f9fb40ead579d63d7fee6dcf6b7e369dffe0a1766463bff225cf9fdecc38dcf2fb0c33848c31abe604715177cc34e022ef892ad522e781bcea456b67feddcc81c5e837395c8103e83a5ac25fa0b9b972a9509dab760a50269cf6fc53951b67f0c6b63090770696640bb20b852995bcf83b31911de732e640937706ddaed7eed7b67f00e5b072ad376bc13e74235f057e7d2f52fe1d0acd0de8f756b1d487b5f319f8e742431bec0fdd0896a14d6236cff5435dabeef002eb9e0885d045cf0119c70c19bec32e6820fe19c0b7e8615171cc298003e772e9c0fe09a0bde60573117fc02a76559d9fd48e1bc2c9c65ebdae6af61c905cfc38a0bcee0c28c6fe79b83f1819fe0860bbe63d76195d676bf1ee1888bbd8df3afb33aafed795eb11b7c6cfbe4353e4fe22379d224a898346fd2255554939e30df98e7d43c671f587f7fb2f5d3395dfc59e3f3485fd2c0541fdf03bafa679ed3d743754537efe7e9d6e5af46eac6e6e98eee87f366b7dbf11fe9c9d7739b372d2f7c82366fd2aff44633346bf27334ef8bf30ba616cdb36452cb2ebf42abf495d668dde4af69c3d7a6c9f33b6fd136edd02eedf9f5ecdbfb62f20774e8eb68683dc77432f2be81cb8766d4b6a2a17c3c663f072335b29befe6c79eed7fee4f42a93d8309eea7a08c7292a426bb9f828410e61723fefac58c5b8f284525ea49eeb3efd1bcf7dfdecfcf9d5f65fc52b3</data>
+    </image>
+    <image name="image82">
+        <data format="XPM.GZ" length="965">789c75d1cb6e83301085e13d4f61915d5411821d03aafa0895baac5475e131265c42aeb0a8aabe7b7b466a019778b2f9f263b060b316af2fcf62bd096ebde96b2b6c65ae625d0c5df7f1f6fef419844922f093621b3e0421092b56312fb0626aa37209d6cc3c93a9065ba6957162c12bb8d518b00013a59c32e0994918b061da34d1cc0b2895dc49051e419560c01edc251870c5e4051e981a0396a096a63429b867a618d032730ce89816039ec0cc6536e30775205fcb77be8126cef38c2f1e4022d2c46736a095764bfcae22d069973ade1b2daeb1acccdd42e64eb1c53c8dc595f334967d59cdd2acccd2bc4c935726c92f63f24add34bf695a9aa66ada9f574a5e39942db535755de7ef39b6743a57c5e5ffd9ae748b4e45b57036fc65cee5df26effbf4e326af4c36f9dfb42f5a5a2ee672e76e51340ccb2798acf0eb31f8061265d249</data>
+    </image>
+    <image name="image83">
+        <data format="XPM.GZ" length="739">789c8d8ebd0ac2301446f73e45c8dd8af427422d888f20380ae2905f7470d13a88f8eef64b6dad3641cf2d81c321e9cd53b6ddac599a2797463647cdf4419e596aaea7d36db75fdd132e046bbf9a957c9670629a51e1815a68e9813aa85018a8f46a30500dad0b0c5441b5d0732da019d45676612ba8813a8faf417e1722996592e8758c8bd252cae1a071f9605cbef867830e8a178a1643d1f24e9332a469e953a0188a962e858ab5b1ffa8e06bce19172c562917dc00f497a6a5bde4c22573dd0afcb14c9ea3d1976a</data>
+    </image>
+    <image name="image84">
+        <data format="XPM.GZ" length="1070">789c75d2cb6e82401406e03d4f4164671ae4225ed274a1fb265d3669ba1818a6288ea2e2b5e9bb97ffcc05d19663d48f9f399ecc38e8bbef6faf6e7fe0ec6b562f32372bd8ceedf38394978fcf976fa717456ef38a0337ec3d39bddacd5c2f8883e602779a9122230e4d3ab38cc0ab65022e894910aa87379a43c5943832ad2e96d46a653905334d3dc69c3836adf6c409a6063d4d9dae8969b33a0639519887b7601807499883028c380a94e03040810b3099a2c023c8221478222628f08b38428107225d6005a6090acc8913145880d914059e413ece522e401fcc47f938a7ce2528e8a2f4cfeb36f17cc69ab7c7c4eb7cb489bac1daaf26514a5966a112dd216dd6a4a60325f6577dde4ed3993a17fcab33b56783a258089d31b366a982a22885efaf4ce2a96945593681147a7895b035db7051556529a5d86e19dbd96e7baca9aa4a4a5a53b7ddb05e25e2a077e266b6a310951427ff6e363db60d1ef7e07cb7073a624d5d3afb66f7fa3a6b8fe1ee7ce68fe7e3ff7fa674cff36efe073fcfce2fb5c6e1d6</data>
+    </image>
+    <image name="image85">
+        <data format="XPM.GZ" length="860">789cc5d1cd4ac3401405e07d9e62c8ec82a4e9d8262de223082e0571317333bf6dbad0ba10f1ddcdb913904820b8f29e2ef2713a990bd954e2e9f141549be2edaaaf910405fd2aaafe7d183e9e5fee3f8b522931feb6add8963745d90b12b271cd6dd38012541d0212b347c008ee1a041c40ad10f0c2dc23a065b6087866f28027d0ec14290213738f80867940400d524707e2ad1cf3888035685bdb59bec883ce29a30c183231fce7c5e146ea5acb3f365a8e596cea8562edccfa06867afbeb9e3c869c23b2f3c64f85738126e6c6e39142188bc88d9f1acf43298510e3296b7626a514e3fc4c7e716ee83cbb8767204a912e4b5b8fdbfd14f5caf7f9dfe6ebaef8063951ba30</data>
+    </image>
+    <image name="image86">
+        <data format="XPM.GZ" length="845">789c9dd1414bc33018c6f17b3f45686e45321bec3a113f82e051100f49dea449b65e741e44fceef6792b6cae99a27976f9f18736acab463cdcdf896655bdeccd3e39e1a279160dbd8ee3dbe3d3ed7b556b2da65fdb89b6bea86a2f9c90ba6dc93025b3c740cbb4da06031293303081579718b8038dc6c091d9616060ae3170cbe40366d07618e8981b0c34a0ebddc6f1ad06e635062ad0af7deff9c9110c7cb8160f176994914c7bae586bbf1723a7cde190e6f7cca1f034a5a4fa6f71e4c369f90ac3401496056118222d0bc53885542a39c798ce949c7e28b45d961d514e34966e3dddee10d4c9f759fe07bf95c257384a7f7fcfd1a93f6eaa4f0e54b513</data>
+    </image>
+    <image name="image87">
+        <data format="XPM.GZ" length="935">789c7dd0cb4e834014c6f13d4f3129bbc64c69190688f1114c5c9a1817732d14a67717c6f8eef21dd356b9f41c363ffe090c2ce6ecf5e599cd17d1e9acceb561a6524736b71f217cbebd3f7d45b3d58ae15ab2e5ec219aad996171e2933449c0185ce558d0132d163c80a950692a404d2c5c9616600b8a040b6ec04c68f7cb2d28332b6406eec1426a5148d080a570b2a4279f88aea3038fa0cab0604594587047a40103a8332ce8880516b444e7724d4f56a0c94d61e87b6b62890539e8a4cb1dbda8013d0dd5d1a11263464b376aaaa858ddeee96e2ee55fe0dc5c4b2f586d2ea51f2cd7bdb339bfae28fc3d1ba750d7de6f2cef1784ba6e3c1f14df345d68c74a084dd34e94d04e946d57fc6e58f6071f5a7fe48362f5c9f95bb8147dfdc04131fd702ddaf0a9821f3f5646e64ef97e8c7e00372dcb59</data>
+    </image>
+    <image name="image88">
+        <data format="XPM.GZ" length="2352">789c8d94595353411085dff91529e68db29a64ee36b72c1f44545c101059d4f261b60b8120c82241cbffeecce926263158de062a5fe64ccfe9eeb9acaef40eb7377b2bab4b57d7f67ae87bfed85ef656c2cdd9d9dde72f4f7e2e2d6bdd4b3f8de9e9e5474bcb647bbea77493033c06871ce0e799cb7e0ef087cc56e700ef81ab1ce03b709d03bc0dc603dec8ecaa1ce05bb0c90176997de38d673f4fc16d0ef065e658a528c1d7e03a96b1007be13a22ffcefd7a13d94f0037c106ce5709bbc0fe368543f0e05de6a8e320b31a824de8fb0e3c121e04eecf33e13a707d5ad804aee725b84d15b29f5af8bede6fc2e91be477c2ceb3bf7de1e0d9df0bb0759d8be037ccbeefe08f5e09179ee7f543b896f3fb60e7ace37e7c057beb645e5138583e6f281c2ddf8f8fcc6ee0b8fe3370b0c6f23cd7c1b18d2df4aa13ee5af85576c2ecf72db86bab96e77b286c5ace7795b9eb1b63b85f5bc2d170fd063c30da605e743161aeff3b58376d837ad509b8ac75cdfa4eb8ac719f94174e0f380aa70b0e7d09ae2a53b19f1de1b662bf23615bf179a7c2be423f1531d7fd9afb5780eb4a57ece73db8294d89fc4a09bbd2619dfd9b22163c8f56b82bb81fac6f8bb2e0f7a311ae0aeeef8db02b38df39d86aa799df097bcdf31f08a717027e0273a10beeef917021e7bd063b9d1ef0a970da80fd47c2a960ac1f08cbff23752cdc6abe9f9fc07e905e3830af7713bf6bccf9e1f7ffffe3213da9a9cf965cfaebc82ed693a740eacf8e7fe9933252474774fc674756f2efbc9e867442a734a2b3e9fcf73be6fdd3573aa70bfa469773fe17e64fb9cfe98a16d5bec07ff27d43dfefd5744be31477ffd0c7e4fbc794fa698aa93db3fd4f1dec52957e469d638dc60bf5cf92f775c93e4eaa35513f7f40ff22b97939d16fa45883fa21fd2b7a4d6f66f41b504ff4f4364d6473a20ff48eb616e8c7b42d3764443b73f5bea75dac7d405f36a0de931cfb744087d3f3a58ff489fa930971fff726bc4503d233fa5d2aa8a46ae1ddaea921337fffd3b7ada2bf77cc7e3f73dff28a52964f4655fbc949339d65f63e2ba73c1da8a0a2ea520747ea481d93993ef3aff7c5ab21adab13754a3bea247d1a2d9ad7ffc7f2afc74bbf018fba6c4c</data>
+    </image>
+    <image name="image89">
+        <data format="XPM.GZ" length="2384">789c8dd35953134b1407f0773e458a7ea36e1d677ab6eeb2ee03a2e206022202b7ee434f2f2c21882c51b4fcee76fffb2424215ace012a3ffa3f935ece3c591b1cee6c0dd69eacdcdc9adb333bb0a7e67ab0e6ee46a3fbfffefff7c7caaa9483f8a38a815cfd676595e4c00e44e94a172cfc2e59c62bf4b0802b59b14fe1a650be4c1667d9b2e1710377a9e0e389f3b83887b5d49cbf847bd90703efc2565af61876a9e01af6d2e77171921ca727399f1d2ff67b761d34f204d755934dafe1aeead837705ff56cccb772950f0af7637d95af42363d4fae8b54f047b8ab55c0fa8585fbbacfa636b9291b195ab883bb468506de8755a3d9435837265b8c60db58769fdc166dc1be80cb56861af707b86aeb6c911d2f36ceb335ade1fc6d72a73b1dd01f02e7af4a2503ce9b3ec372ea2f70a754c8ebdf83bdf2eced645debc607b8809556ec0dd869ef3dfc0af63a640b078789e953b291a9e043b849057f85d382f2fe623f8c32cae7fef900e38247ecdee7fef7b0358e8dfe36ce787699dc177dc9de849b54f01dac52c115ac7be373bfbf807d1f7cfefe2d38d882fd3639b67fc5fe06b7b665bf64773ef727cedf7656d9dc5f7a621ebf8295d5ec7b58a7c2fe62bdd6d89ec78f606b5db640ffd9e00a9ffb1fefab2b5c994dcfe0c6b5ec06ee9c62e3fc9c8e1b98e7a760e37af61bd83ac7de819dab5c3eef83645fc6173e8f5fc395af7d3edfef70930ab6ec368fefa29fa33aceaf27075c79fcefeb777912339f0df5f16f4f66799e2c39120f77fc291f939e029dd0692cbe2325f3ef629ecee83c3e794817b3cf9fdcb1387f1ad1257da62bb2f3f3cf735a5c6f7cf6257da1ebe5fbb2988ff3bea1db499aee681cebeb1ff23ecef8db4cfa3ed6c23d0ff9b88321aef2fb5c3ad53a8d97e69fc5b96ff0d3c731b5cee9e7bfc9bf88b37939cd6fc65a477a9aa757f49ade4cf36fe91d6dcde537917ec86fd37bda99e61dedd2de92fc983e70870c697f61bd1fe900639fb02f9b481ff2338ee8988ab9fd2c495235ddedbcff8753ef514dcd5cfe805aea482d3d5b1d9b493cea072d8ce81fdf31ffffb97e4b2356b8fccd58d511edc567cf3c65be9f8517818ec589388dfbbd4d437126ce8598fdce47ef8b1543da10176244fbe2227eba5c76be7f5fab3f9faefc022aca75e0</data>
+    </image>
+    <image name="image90">
+        <data format="XPM.GZ" length="2352">789c8d93494fe3401085effc8a88bea15191d871dbd6680eecfbbe339a83973684b01308309aff3eaf5f8510439048e5902ff55ccbebf6f454e3787ba331353df1d0cb7a9da2519c67f78da9f2f1eaeae5f79f5f7f272683a0816f9c3482c91f139312348a86693917b51c79dd7310ba2808c95d721bdc269f936d913713cf66c0c85be63372ec837c4a4e90577d879c8253e66fc805b820f7c9a50ff28e32f2ca6d7205ae58aff21c062e0a759f3332e60f75fe2d32e60f75fe941c8123b22163be90f3498f9c3b1be6e40bb203d31fa3fa0accfeb2e0b9ddf4413e2027ceb675df9c5c80753feb390a9c8d74de980c7da4fdf7c92958fdb92467e08cf5944b30fd30f4db369db5ec6f785e16f5add6a73fb60de6fec6912d98e765e897457dcbfaf2e83946ff98fd8d784e5ace262de66fc9a89f68fd7b32e64f74fe5d32fc4af43e6d7a4ed13f55ff9b64e853d5cf93b14faae7bb42c6f3a9fa5d90e177aa7e1f79ce021fe46372e483fc4cb63ec85764f4cbb4df1e991ff23519e79de979d39f0cf3643a4f67c0f1805b9ef3a68b733def6572e483fc444e7c9043720abd9ee722d981d59f0d7205d6fdd63c17818b0bddef856cc1ba4f498e8ba4d0f76b491979e53b7202d6feafe4d407fdd4e733e475ff137201e6fd34bcef25f62b75bf397204d6fd2232fa95da8fe75362bf52f74bc8a85f6afd5532ea977affb7c9fea3efe7a167d772b1d3fbf5400ec19a9f2147ce3abd3ff98063c77976f8be221b3bf567d673c58fe6bf1f5fe9c58cfccede62bc5e7229c48c3ec17fcb717a289d547226e70853574bf9512f1db990ae5cca55bdfe9bbaae976bb9915bb993fcc3fc43f5a81eb56fe45e1ec6ec3e54bfeb31774f1edfd4f2247dc4f3d7fe60cbaebc8ca85f1123cfd4ebc3c10a5bced4d43e66a53f563f87d9e707d5fb50cd0ed40b5fe81731cdd250bf8c98a57aa8971538bc3ad4afc9ba6cd4f4cb54bfeb37654bb687fa427664778cbe2f7b831b7229fb1ff63d9043e68ee8cb32d5c7831a27722acd9aff2d09241c9e90fa7f3ce45d694b54d31f8a955892b1777b4952239feec3923126fbfc44fdffda7df399dc14da995b9d609274b44afd3e9bd2383935953983df9b7269ce4dc7c868cf4fef4b6e2e64de740dfc335dfcba1877bedf8fc97f3f27fe03d6c569c7</data>
+    </image>
+    <image name="image91">
+        <data format="XPM.GZ" length="1550">789c95d4d96eda401406e07b9ec2c2775145bcdba3aa17d9c942427692aa17e3b11d18c0490c2490aaefde39bf675cb5858bcc01c99ffee1cc6289ed2d6bd0ef595bdbadd99ccf47c212435e595bd9623a5d7dfff1ed67abed7996fa449ee5b6bfb4da6796b06cc777d420ee6a7a356d3030a9d7d023ba0d4362bf614adc317431f94dd3ad5b4dc1d0f05d33a8c9c1c8acfbd810ad5e1a32e2c0d0f589a9a63e4208c6a6730126a6f39da10bee6bfa75bad0d4bfcd406ed23998aaa5b0ee0798997587606126af88aeef846e4e94442fa32256c4c0a1229e1059947086c9b96691c4c44330664182371881090b9380780c32e624780b7b9a01c3e45b902b26c42b50a866481d306351bdeeaba66a46ec69a689209e83b94a23e229913b2ce2f8eda566ca0ae281a660b82b01ba6a2378a14735b9938031e8712f41e76b438ed4070356306c23004356701ce1a62615710c4654c40b1083d805051571494c432ae2084ca88813a26054c419310b85c870c027301669cd07c31ce7bd07d3cccf7039cfc4dccdc21c7bee80511ee7d864492c3090ae1dff24f6a684dbe9fa848b2ce71bba154f9bd6197e3a19c9e1786d3292938994e3bf93a90e269352763acf2f4d62bfaa4759962aa854d299d93ab1e78bb7f7a15c2ecbb2aae4ea63b563efd6c9defec1e1515725cb4a25dde393d3b39eee764ef75527f2423df62f9b1d5ca9efb594cb4aded0be6eff3f4f1d7cee76ee3624f6fde0e1716da2fe366d7f7db7208c36ad13ff796cfffadafa0d7f1a477b</data>
+    </image>
+    <image name="image92">
+        <data format="XPM.GZ" length="980">789c95d2db6ac2401405d0f77cc5a06f52c6182fb1947e42a18f85d2877366e66862126f5128a5ffdeec9348094468670b71b9994b62a613f3f6fa6226d3e85c539d39e3b67432137f29cbcff78fe7af689424069f85998d1ea2111b67c6b10e70a39478de52c0c423e0119cc708e8950e010b701123a0537a04dc81ab35025ec1748980a532a49206f00cd28c12d243ee950902d6ca25026e952b043c297580d4915b56202f113028d7089881ee11010fa08f11f0a224041c2b9df75e6fdf826115d2a0c7c841d1a16d6f8cbb6bbf21b696071b26e6c186c95a37d490d77aa0f1f65e73fb6da009b2d9f61a1c88b5c83291a683a99dc3d8829b22cb72c18edcadc63b4c973c6f8a028dddb1365ceac25255795eb48dddb3be63746baae2d61c8eed6af4dbc809dfcfdc9d9ab1138b5485d4d65eaeccbff7a3276f3abd947f7f06fe6e73ff59eb24ffcfffb4ff1e7c3f453f8147dfa4</data>
+    </image>
+    <image name="image93">
+        <data format="XPM.GZ" length="1310">789c75d2cb6eda501485e1394f61c10c5584708faa0ee20412420824a34a55071bdb60080402385ca2be7bcfbfe47291d2b390e0f3c29c6de38bbcf7b3dff5f21799d5dad6e3c00b625b7af93099cd76bf7efff8cc644b25cfbd2a35ef32fb2d937df7022f57ac1168b01412b887952281cfd0ca0476c52a814bb146602c6ac1473122f0431c12f8020745027db14a605fac13b8101b0446a2169c88018123189409ec881502e7628dc0955827f0416c1098885704f644ed045f452d782f8604eec488c0993824f00eeaae97e0ad5826f046ac10188a35029b629dc027b141604bbc22f04d3402afc501816b510b0ec588c0ad3824700ca3228153f192c08158223010cb04b6c50a8139b14a6041ac11b881432db5272b77f874ded8e03fcdc0ecab2608239e53ced4dba119bae3a3f49cf8b4194fec759aee135b7c6c8291cdfe6de08ac2b179b3b9fbf6c2de972a4e2658d99a2249dce6f1d96c1f6e6b8a24d9d8d9d45bdbb961371b57eccf9bd0ae5de3fb9bcd9ee6c66e7369d3b4961a7fafe6ceeedb6933b5071a730d0374f8623ac1a3b5b9727f6f5d77d51ddb1e9ac45a0b8b1746e1b649da87666d0b5ba4434d27f67498cddaae08d2bfa263bdf6b1e9ba73ace90ee4c2becd83e3f5f0fbc9b359a7e3ee4e12144e1bf78f4c67bed94b6ffbe57370bab27fbe67fe028f3d3d9a</data>
+    </image>
+    <image name="image94">
+        <data format="XPM.GZ" length="634">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022430543251d2e253d856405e554b354f3543330172b189519952120536bcd05002a5c716c</data>
     </image>
 </images>
 <connections>
@@ -2825,6 +3261,12 @@
         <slot>modifySetElement()</slot>
     </connection>
     <connection>
+        <sender>modifyStretchMoleculeAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyStretchMolecule()</slot>
+    </connection>
+    <connection>
         <sender>modifyWeldMoleculeAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -2993,6 +3435,18 @@
         <slot>toggleViewTbar()</slot>
     </connection>
     <connection>
+        <sender>toolsAddBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsAddBond()</slot>
+    </connection>
+    <connection>
+        <sender>toolsAlignToCommonAxisAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsAlignToCommonAxis()</slot>
+    </connection>
+    <connection>
         <sender>toolsBackUpAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3011,6 +3465,12 @@
         <slot>toolsCookieCut()</slot>
     </connection>
     <connection>
+        <sender>toolsDeleteBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsDeleteBond()</slot>
+    </connection>
+    <connection>
         <sender>toolsDoneAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -3021,24 +3481,6 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>toolsExtrude()</slot>
-    </connection>
-    <connection>
-        <sender>toolsSketchAtomAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>addAtomStart()</slot>
-    </connection>
-    <connection>
-        <sender>toolsStartOverAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsStartOver()</slot>
-    </connection>
-    <connection>
-        <sender>toolsRevolveAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsRevolve()</slot>
     </connection>
     <connection>
         <sender>toolsMirrorAction</sender>
@@ -3053,40 +3495,22 @@
         <slot>toolsMirrorCircularBoundary()</slot>
     </connection>
     <connection>
+        <sender>toolsMoveMoleculeAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsMoveMolecule()</slot>
+    </connection>
+    <connection>
         <sender>toolsMovieAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>toolsMovie()</slot>
     </connection>
     <connection>
-        <sender>toolsSimulator_Action</sender>
+        <sender>toolsRevolveAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>toolsSimulator()</slot>
-    </connection>
-    <connection>
-        <sender>toolsAlignToCommonAxisAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsAlignToCommonAxis()</slot>
-    </connection>
-    <connection>
-        <sender>toolsAddBondAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsAddBond()</slot>
-    </connection>
-    <connection>
-        <sender>toolsDeleteBondAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsDeleteBond()</slot>
-    </connection>
-    <connection>
-        <sender>toolsSelectMoleculesAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toolsSelectMolecules()</slot>
+        <slot>toolsRevolve()</slot>
     </connection>
     <connection>
         <sender>toolsSelectAtomsAction</sender>
@@ -3095,10 +3519,58 @@
         <slot>toolsSelectAtoms()</slot>
     </connection>
     <connection>
-        <sender>toolsMoveMoleculeAction</sender>
+        <sender>toolsSelectMoleculesAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>toolsMoveMolecule()</slot>
+        <slot>toolsSelectMolecules()</slot>
+    </connection>
+    <connection>
+        <sender>toolsSimulator_Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSimulator()</slot>
+    </connection>
+    <connection>
+        <sender>toolsDepositAtomAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>addAtomStart()</slot>
+    </connection>
+    <connection>
+        <sender>toolsStartOverAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsStartOver()</slot>
+    </connection>
+    <connection>
+        <sender>selectAtomsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelectAtoms()</slot>
+    </connection>
+    <connection>
+        <sender>selectMoleculesAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelectMolecules()</slot>
+    </connection>
+    <connection>
+        <sender>selectJigsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelectJigs()</slot>
+    </connection>
+    <connection>
+        <sender>toolsSelectAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelect()</slot>
+    </connection>
+    <connection>
+        <sender>toolsSelectJigsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSelectJigs()</slot>
     </connection>
 </connections>
 <slots>
@@ -3206,6 +3678,9 @@
     <slot>toolsSelectAtoms()</slot>
     <slot>toolsSelectMolecules()</slot>
     <slot>toolsMoveMolecule()</slot>
+    <slot>modifyStretchMolecule()</slot>
+    <slot>toolsSelectJigs()</slot>
+    <slot>toolsSelect()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Sep 28 00:09:16 2004
+# Created: Mon Oct 4 22:51:54 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6140,6 +6140,813 @@ image81_data = [
 "QtQtQtQtQtQtQtQtQtQt#c#d#eQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQt#fQtQtQtQtQtQtQtQtQtQt"
 ]
+image82_data = [
+"22 22 23 1",
+"b c #000000",
+"h c #06a493",
+"i c #098376",
+"k c #0c302c",
+"r c #161616",
+"d c #244e4a",
+"p c #2b2b2b",
+"j c #2c726b",
+"q c #343534",
+"n c #424242",
+"t c #525252",
+"# c #555555",
+"l c #565656",
+"f c #63afa7",
+"g c #676767",
+"c c #696969",
+"e c #6c6c6c",
+"o c #8e8c82",
+"m c #969696",
+"s c #a0998c",
+"u c #bbb6b4",
+"a c #c3c1b3",
+". c #e6e7e6",
+"......................",
+"......#a..............",
+"......#ba.............",
+"......cdba............",
+"......efdba...........",
+"......gfhdba..........",
+"......gfhhdba.........",
+"......gfhhhdba........",
+"......gfhhhhdba.......",
+"......gfhhhhhdba......",
+"......gfhhhijjdba.....",
+"......gfjjhjkbbbb.....",
+"......lfkbkibmmma.....",
+"......nkbophdq........",
+"......rbs.odhba.......",
+"......ba..apfdq.......",
+"...........tdhba......",
+"...........apfdq......",
+"............tdkb......",
+"............aqba......",
+".............uu.......",
+"......................"
+]
+image83_data = [
+"22 22 8 1",
+"# c #000000",
+"e c #111111",
+"f c #2b2b2b",
+"a c #2d2d2d",
+"c c #808080",
+"b c #c2c3c2",
+". c #e6e7e6",
+"d c #ffffff",
+"......................",
+"......................",
+"....##a..a##..a##.....",
+"....#bcaaabcaaabcaa#..",
+"....#bbbbbbbbbbbbbb#..",
+"....################..",
+"......................",
+"..........#...........",
+"..........##..........",
+"..........#d#.........",
+"..........#dd#........",
+"..........#ddd#.......",
+"..........#dddd#......",
+"..........#ddddd#.....",
+"..........#dddddd#....",
+"..........#dddddee....",
+"..........#dddd#b.....",
+"..........#dffdfb.....",
+"..........#ebbfd#.....",
+"..............fdfb....",
+"..............bfdf....",
+"...............f#b...."
+]
+image84_data = [
+"22 22 30 1",
+"t c #030000",
+"r c #030200",
+"a c #040000",
+"A c #040002",
+"z c #040005",
+"j c #050100",
+"o c #050400",
+"b c #060000",
+"y c #060002",
+"l c #060009",
+"c c #060200",
+"B c #070400",
+"s c #080300",
+"# c #080400",
+"n c #0b0603",
+"d c #0f0300",
+"q c #13051e",
+"f c #2d2d2d",
+"m c #404040",
+"i c #595959",
+"v c #a2a2a2",
+"w c #a5a5a5",
+"g c #a6a6a6",
+"u c #aaaaaa",
+"p c #b5b5b5",
+"e c #b8b8b8",
+"h c #c9c9c9",
+"x c #d7cbdf",
+". c #e6e7e6",
+"k c #ffffff",
+"......................",
+"........#.aa.#........",
+".......#......#.......",
+".....#.....a....#.....",
+"....#.....bac....#....",
+"..#......b.a.b.....#..",
+".#.........d........#.",
+".........efdg.........",
+"#.......efhhifg......a",
+"....j..efhhhhkf..l...a",
+"#..a...fkkhhkmf...a...",
+"#.anaodfppkkmmfqqaar.a",
+"...s...fpppmmmf...t..a",
+"#...a..fpppmmfu..a....",
+"#......vffpmfw.......a",
+".........effw.........",
+".#.........dx.......#.",
+"..#......a.a.y.....#..",
+"....#.....zAa....#....",
+".....#.....B....#.....",
+".......#......#.......",
+"........#.##.#........"
+]
+image85_data = [
+"22 22 16 1",
+"d c #0f0300",
+"# c #272727",
+"c c #2d2d2d",
+"i c #404040",
+"m c #a2a2a2",
+"n c #a5a5a5",
+"e c #a6a6a6",
+"l c #aaaaaa",
+"k c #b42c2c",
+"j c #b5b5b5",
+"b c #b8b8b8",
+"a c #c7c8c7",
+"f c #c9c9c9",
+". c #e6e7e6",
+"g c #ff2b2b",
+"h c #ffffff",
+"......................",
+".#a.a#................",
+".#a.a#................",
+".a#a#a................",
+"..a#a.................",
+".a#a#a................",
+".#a.a#................",
+".#a.a#...bcde.........",
+"........bcffcce.......",
+"...g...bcffffhc...g...",
+"..gg...chhffhic...gg..",
+".ggggggcjjhhiikgggggg.",
+"..gg...cjjjiiic...gg..",
+"...g...cjjjiicl...g...",
+".......mccjicn........",
+".........bccn.........",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................"
+]
+image86_data = [
+"22 22 15 1",
+"e c #211da1",
+"# c #272727",
+"b c #2b2bfa",
+"d c #2d2d2d",
+"i c #404040",
+"l c #a2a2a2",
+"m c #a5a5a5",
+"f c #a6a6a6",
+"k c #aaaaaa",
+"j c #b5b5b5",
+"c c #b8b8b8",
+"a c #c7c8c7",
+"g c #c9c9c9",
+". c #e6e7e6",
+"h c #ffffff",
+"......................",
+".#a.a#.....b..........",
+".#a.a#....bbb.........",
+".a#a#a...bbbbb........",
+"..a#a......b..........",
+"...#.......b..........",
+"...#.......b..........",
+"...#.....cdef.........",
+"........cdggddf.......",
+".......cdgggghd.......",
+".......dhhgghid.......",
+".......djjhhiid.......",
+".......djjjiiid.......",
+".......djjjiidk.......",
+".......lddjidm........",
+".........cddm.........",
+"...........b..........",
+"...........b..........",
+".........bbbbb........",
+"..........bbb.........",
+"...........b..........",
+"......................"
+]
+image87_data = [
+"22 22 21 1",
+"g c #0f0300",
+"# c #272727",
+"f c #2d2d2d",
+"q c #34a334",
+"b c #38e538",
+"l c #404040",
+"j c #54be40",
+"n c #65d465",
+"p c #86b486",
+"c c #94e694",
+"s c #9ee69e",
+"r c #a5a5a5",
+"h c #a6a6a6",
+"o c #aaaaaa",
+"m c #b5b5b5",
+"e c #b8b8b8",
+"d c #bee7be",
+"a c #c7c8c7",
+"i c #c9c9c9",
+". c #e6e7e6",
+"k c #ffffff",
+"......................",
+".#####................",
+"....a#................",
+"...a#a..........bbbb..",
+"..a#a............cbb..",
+".a#a............dbcb..",
+".#a............dbd.b..",
+".#####...efgh.dbd.....",
+"........efiiffjd......",
+".......efiiiikf.......",
+".......fkkiiklf.......",
+".......fmmkkllf.......",
+".......fmmmlllf.......",
+".......fmnmllfo.......",
+".......pqfmlfr........",
+"......dbseffr.........",
+"...b.dbd..............",
+"...bcbd...............",
+"...bbc................",
+"...bbbb...............",
+"......................",
+"......................"
+]
+image88_data = [
+"22 22 78 2",
+".a c #272727",
+".x c #2d2d2d",
+".E c #404040",
+".T c #a2a2a2",
+".U c #a5a5a5",
+".y c #a6a6a6",
+".P c #aaaaaa",
+".H c #b5b5b5",
+".w c #b8b8b8",
+".b c #c7c8c7",
+".A c #c9c9c9",
+".r c #e5e5e4",
+".t c #e6e4e3",
+".c c #e6e6e5",
+"Qt c #e6e7e6",
+".d c #e7dad9",
+".5 c #e7dbda",
+".M c #e7dddc",
+".S c #e7e2e1",
+"#i c #e8d0cf",
+"#l c #e8d1d0",
+".C c #e8d6d5",
+".2 c #e8d8d7",
+".G c #e9c7c6",
+".6 c #e9c8c7",
+".q c #e9c9c8",
+"#b c #e9cbca",
+".V c #e9cdcc",
+".F c #eabfbe",
+".K c #eac0bf",
+".I c #eac3c2",
+".z c #eac6c6",
+".0 c #ebbab9",
+".n c #ecabaa",
+".e c #ecadac",
+".i c #ecaead",
+".Y c #ecb1b0",
+".m c #eda8a8",
+".D c #ee9e9d",
+"#f c #ee9f9e",
+"#a c #ee9f9f",
+".L c #ef9594",
+".X c #ef9898",
+".s c #f08887",
+".O c #f08e8e",
+".8 c #f18281",
+".p c #f18282",
+".v c #f27979",
+"#j c #f46261",
+".f c #f46463",
+"#c c #f46666",
+"#e c #f46a6a",
+".4 c #f55857",
+".Q c #f55958",
+".l c #f55a59",
+"#k c #f55c5c",
+"#. c #f56060",
+".3 c #f65251",
+".R c #f74847",
+"## c #f74b4b",
+".j c #f83e3d",
+".9 c #f83f3e",
+".# c #f93433",
+".7 c #f93534",
+".u c #f93b3b",
+".o c #fa2b2b",
+".N c #fa2c2c",
+".1 c #fa2e2e",
+"#d c #fa3232",
+".g c #fa3333",
+".J c #fb2222",
+".k c #fb2323",
+"#g c #fb2525",
+".W c #fb2727",
+"#h c #fb2929",
+".Z c #fc1d1d",
+".h c #ff2b2b",
+".B c #ffffff",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQt.#QtQtQtQtQt.a.bQt.b.aQt",
+"QtQtQtQtQtQtQtQt.c.d.#.#QtQtQtQt.a.bQt.b.aQt",
+"QtQtQtQtQtQt.d.e.f.g.h.#.#QtQtQt.b.a.b.a.bQt",
+"QtQtQtQtQt.i.j.k.l.m.#.#QtQtQtQtQt.b.a.bQtQt",
+"QtQtQtQt.n.o.p.q.rQt.#QtQtQtQtQt.b.a.b.a.bQt",
+"QtQtQt.i.o.s.tQtQtQtQtQtQtQtQtQt.a.bQt.b.aQt",
+"QtQt.d.u.v.tQtQtQt.w.x.x.yQtQtQt.a.bQt.b.aQt",
+"QtQt.e.k.zQtQtQt.w.x.A.A.x.x.yQtQtQtQtQtQtQt",
+"Qt.c.f.l.cQtQt.w.x.A.A.A.A.B.xQtQtQtQtQtQtQt",
+"Qt.C.o.DQtQtQt.x.B.B.A.A.B.E.xQtQtQtQtQtQtQt",
+"Qt.F.k.GQtQtQt.x.H.H.B.B.E.E.xQtQtQtQtQtQtQt",
+"Qt.I.J.KQtQtQt.x.H.H.H.E.E.E.xQtQtQt.L.#.MQt",
+"Qt.d.N.OQtQtQt.x.H.H.H.E.E.x.PQtQt.c.l.QQtQt",
+"Qt.c.f.R.SQtQt.T.x.x.H.E.x.UQtQtQt.V.W.XQtQt",
+"QtQt.Y.Z.0QtQtQtQt.w.x.x.UQtQtQtQt.O.1.2QtQt",
+"QtQt.S.3.4.5QtQtQtQtQtQtQtQtQtQt.6.7.8QtQtQt",
+"QtQtQt.6.9#..5QtQtQtQtQtQtQtQt.6.9#..5QtQtQt",
+"QtQtQtQt.6.9###a.2QtQtQt.c.V.O.7#..5QtQtQtQt",
+"QtQtQtQtQt#b#c.W#d#e#f.L.l#g#h.8.5QtQtQtQtQt",
+"QtQtQtQtQtQt.c#i.D#j#k.Q#j.D#lQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
+]
+image89_data = [
+"22 22 80 2",
+".2 c #1d1dfc",
+".L c #2222fb",
+".# c #2323fb",
+".h c #2508e1",
+"#i c #2525fb",
+".a c #272727",
+".Z c #2727fb",
+"#j c #2929fb",
+".n c #2b2bfa",
+".Q c #2c2cfa",
+".v c #2d2d2d",
+".4 c #2e2efa",
+"#g c #3232fa",
+".g c #3333fa",
+".O c #3334f9",
+"#. c #3435f9",
+".I c #3737f9",
+".s c #3b3bf9",
+".j c #3d3ef8",
+"#a c #3e3ff8",
+".D c #404040",
+".U c #4748f7",
+"#c c #4b4bf7",
+".6 c #5152f6",
+".7 c #5758f5",
+".T c #5859f5",
+".k c #595af5",
+"#m c #5c5cf5",
+"#b c #6060f5",
+"#l c #6162f4",
+".f c #6364f4",
+"#f c #6666f4",
+"#h c #6a6af4",
+".t c #7979f2",
+"## c #8182f1",
+".o c #8282f1",
+".q c #8788f0",
+".R c #8e8ef0",
+".N c #9495ef",
+".0 c #9898ef",
+".C c #9d9eee",
+".H c #9e9fee",
+"#d c #9f9fee",
+".W c #a2a2a2",
+".X c #a5a5a5",
+".w c #a6a6a6",
+".l c #a8a8ed",
+".S c #aaaaaa",
+".m c #aaabec",
+".e c #acadec",
+".i c #adaeec",
+".1 c #b0b1ec",
+".G c #b5b5b5",
+".u c #b8b8b8",
+".3 c #b9baeb",
+".E c #bebfea",
+".M c #bfc0ea",
+".K c #c2c3ea",
+".x c #c6c6ea",
+".F c #c6c7e9",
+".b c #c7c8c7",
+".9 c #c7c8e9",
+".p c #c8c9e9",
+".y c #c9c9c9",
+"#e c #cacbe9",
+".Y c #cccde9",
+"#k c #cfd0e8",
+"#n c #d0d1e8",
+".B c #d5d6e8",
+".5 c #d7d8e8",
+".d c #d9dae7",
+".8 c #dadbe7",
+".J c #dcdde7",
+".P c #ddd3de",
+".V c #e1e2e7",
+".r c #e3e4e6",
+".z c #e5e5e5",
+".c c #e5e6e6",
+"Qt c #e6e7e6",
+".A c #ffffff",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQt.#QtQtQtQtQt.a.bQt.b.aQt",
+"QtQtQtQtQtQtQtQt.c.d.#.#QtQtQtQt.a.bQt.b.aQt",
+"QtQtQtQtQtQt.d.e.f.g.h.h.#QtQtQt.b.a.b.a.bQt",
+"QtQtQtQtQt.i.j.#.k.l.#.#QtQtQtQtQt.b.a.bQtQt",
+"QtQtQtQt.m.n.o.p.cQt.#QtQtQtQtQtQtQt.aQtQtQt",
+"QtQtQt.i.n.q.rQtQtQtQtQtQtQtQtQtQtQt.aQtQtQt",
+"QtQt.d.s.t.rQtQtQt.u.v.v.wQtQtQtQtQt.aQtQtQt",
+"QtQt.e.#.xQtQtQt.u.v.y.y.v.v.wQtQtQtQtQtQtQt",
+"Qt.c.f.k.zQtQt.u.v.y.y.y.y.A.vQtQtQtQtQtQtQt",
+"Qt.B.n.CQtQtQt.v.A.A.y.y.A.D.vQtQtQtQtQtQtQt",
+"Qt.E.#.FQtQtQt.v.G.G.A.A.D.D.vQtQtQt.H.I.JQt",
+"Qt.K.L.MQtQtQt.v.G.G.G.D.D.D.vQtQtQt.N.O.PQt",
+"Qt.d.Q.RQtQtQt.v.G.G.G.D.D.v.SQtQt.c.k.TQtQt",
+"Qt.c.f.U.VQtQt.W.v.v.G.D.v.XQtQtQt.Y.Z.0QtQt",
+"QtQt.1.2.3QtQtQtQt.u.v.v.XQtQtQtQt.R.4.5QtQt",
+"QtQt.V.6.7.8QtQtQtQtQtQtQtQtQtQt.9#.##QtQtQt",
+"QtQtQt.9#a#b.8QtQtQtQtQtQtQtQt.9#a#b.8QtQtQt",
+"QtQtQtQt.9#a#c#d.5QtQtQt.c.Y.R#.#b.8QtQtQtQt",
+"QtQtQtQtQt#e#f.Z#g#h.H.N.k#i#j##.8QtQtQtQtQt",
+"QtQtQtQtQtQt.c#k.C#l#m.T#l.C#nQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
+]
+image90_data = [
+"22 22 78 2",
+".2 c #1ee51e",
+".L c #23e523",
+".k c #24e524",
+".h c #26cb08",
+"#h c #26e526",
+".a c #272727",
+".Z c #28e528",
+"#i c #29e529",
+".o c #2ce52c",
+".w c #2d2d2d",
+".Q c #2de52d",
+".4 c #2fe52f",
+"#f c #32e532",
+".g c #33e533",
+".O c #34e534",
+".9 c #35e535",
+".# c #38e538",
+".t c #3be63b",
+".j c #3ee63e",
+"## c #3fe63f",
+".E c #404040",
+".U c #48e648",
+"#b c #4ce64c",
+".6 c #52e652",
+".7 c #58e658",
+".T c #59e659",
+".l c #5ae65a",
+"#l c #5de65d",
+"#a c #60e660",
+"#k c #62e662",
+".f c #64e664",
+"#e c #66e666",
+"#g c #6ae66a",
+".u c #79e679",
+"#. c #81e681",
+".p c #82e682",
+".r c #88e688",
+".R c #8ee68e",
+".N c #94e694",
+".0 c #98e698",
+".D c #9de69d",
+".I c #9ee69e",
+"#c c #9fe69f",
+".W c #a2a2a2",
+".X c #a5a5a5",
+".x c #a6a6a6",
+".m c #a8e6a8",
+".S c #aaaaaa",
+".n c #abe6ab",
+".e c #ade6ad",
+".i c #ade7ad",
+".1 c #b0e7b0",
+".H c #b5b5b5",
+".v c #b8b8b8",
+".3 c #b9e7b9",
+".F c #bee7be",
+".M c #bfe7bf",
+".K c #c2e7c2",
+".y c #c6e7c6",
+".d c #c7c8c7",
+".G c #c7e7c7",
+".q c #c8e7c8",
+".z c #c9c9c9",
+"#d c #cae7ca",
+".Y c #cce7cc",
+"#j c #d0e7d0",
+".C c #d5e7d5",
+".5 c #d7e7d7",
+".c c #d9e7d9",
+".8 c #dae7da",
+".J c #dce7dc",
+".P c #ddddd3",
+".V c #e1e7e1",
+".s c #e3e7e3",
+".A c #e5e6e4",
+".b c #e5e7e5",
+"Qt c #e6e7e6",
+".B c #ffffff",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQt.#QtQtQtQtQt.a.a.a.a.aQt",
+"QtQtQtQtQtQtQtQt.b.c.#.#QtQtQtQtQtQtQt.d.aQt",
+"QtQtQtQtQtQt.c.e.f.g.h.h.#QtQtQtQtQt.d.a.dQt",
+"QtQtQtQtQt.i.j.k.l.m.#.#QtQtQtQtQt.d.a.dQtQt",
+"QtQtQtQt.n.o.p.q.bQt.#QtQtQtQtQt.d.a.dQtQtQt",
+"QtQtQt.i.o.r.sQtQtQtQtQtQtQtQtQt.a.dQtQtQtQt",
+"QtQt.c.t.u.sQtQtQt.v.w.w.xQtQtQt.a.a.a.a.aQt",
+"QtQt.e.k.yQtQtQt.v.w.z.z.w.w.xQtQtQtQtQtQtQt",
+"Qt.b.f.l.AQtQt.v.w.z.z.z.z.B.wQtQtQtQtQtQtQt",
+"Qt.C.o.DQtQtQt.w.B.B.z.z.B.E.wQtQtQtQtQtQtQt",
+"Qt.F.k.GQtQtQt.w.H.H.B.B.E.E.wQtQtQt.I.#.JQt",
+"Qt.K.L.MQtQtQt.w.H.H.H.E.E.E.wQtQtQt.N.O.PQt",
+"Qt.c.Q.RQtQtQt.w.H.H.H.E.E.w.SQtQt.b.l.TQtQt",
+"Qt.b.f.U.VQtQt.W.w.w.H.E.w.XQtQtQt.Y.Z.0QtQt",
+"QtQt.1.2.3QtQtQtQt.v.w.w.XQtQtQtQt.R.4.5QtQt",
+"QtQt.V.6.7.8QtQtQtQtQtQtQtQtQtQt.G.9#.QtQtQt",
+"QtQtQt.G###a.8QtQtQtQtQtQtQtQt.G###a.8QtQtQt",
+"QtQtQtQt.G###b#c.5QtQtQt.b.Y.R.9#a.8QtQtQtQt",
+"QtQtQtQtQt#d#e.Z#f#g.I.N.l#h#i#..8QtQtQtQtQt",
+"QtQtQtQtQtQt.b#j.D#k#l.T#k.D#jQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
+]
+image91_data = [
+"22 22 62 1",
+"L c #030000",
+"B c #030200",
+"# c #040000",
+"2 c #040002",
+"1 c #040005",
+"P c #04000b",
+"A c #040012",
+"v c #040100",
+"m c #050100",
+"w c #050400",
+"a c #060000",
+"Z c #060002",
+"p c #060009",
+"X c #060013",
+"b c #060200",
+"5 c #070400",
+"f c #080000",
+"V c #080010",
+"D c #080300",
+"u c #080400",
+"d c #0a0300",
+"t c #0b0603",
+"z c #0d0200",
+"h c #0f0300",
+"y c #13051e",
+"j c #2d2d2d",
+"r c #404040",
+"J c #968a9e",
+"e c #968f87",
+"F c #979481",
+"6 c #989584",
+"I c #99908b",
+"C c #999491",
+"U c #9a9498",
+"R c #9c9791",
+"0 c #9d969e",
+"q c #9d9990",
+"M c #9d9b8c",
+"N c #9e9996",
+"K c #a096ae",
+"Q c #a09b9f",
+"E c #a09c93",
+"c c #a19a92",
+"G c #a1a082",
+"7 c #a2a286",
+"S c #a2a2a2",
+"3 c #a49f9c",
+"4 c #a59fa1",
+"T c #a5a5a5",
+"k c #a6a6a6",
+"O c #aaaaaa",
+"H c #acacac",
+"x c #b5b5b5",
+"i c #b8b8b8",
+"l c #c9c9c9",
+"s c #d5ccdf",
+"g c #d7cbdf",
+"Y c #d7cbe3",
+"W c #dbd3de",
+"o c #e1d5e1",
+". c #e6e7e6",
+"n c #ffffff",
+"......................",
+"...........#..........",
+"..........a#b.........",
+".........acdea........",
+"...........fg.........",
+"...........hg.........",
+"...........hg.........",
+".........ijhk.........",
+"........ijlljjk.......",
+"...m...ijllllnj..op...",
+"..#q...jnnllnrj...s#..",
+".#tuvwhjxxnnrrjyzyA#B.",
+".CDEFGHjxxxrrrjHIJKLM.",
+"..N#...jxxxrrjO...PQ..",
+"...R...SjjxrjT....U...",
+".........ijjT.........",
+"...........hg.........",
+"...........Vg.........",
+".........#WXYZ........",
+".........012#3........",
+"..........456.........",
+"...........7.........."
+]
+image92_data = [
+"22 22 24 1",
+"b c #000000",
+"g c #0f0300",
+"f c #2d2d2d",
+"q c #303030",
+"d c #3c3c3c",
+"l c #404040",
+"c c #4d4d4d",
+"k c #686868",
+"v c #757575",
+"m c #7e7f7e",
+"s c #a1a2a1",
+"o c #a2a2a2",
+"t c #a5a5a5",
+"h c #a6a6a6",
+"r c #aaaaaa",
+"a c #aaabaa",
+"n c #b5b5b5",
+"e c #b8b8b8",
+"i c #c9c9c9",
+"p c #d0d0d0",
+"u c #dadada",
+"# c #dcdddc",
+". c #e6e7e6",
+"j c #ffffff",
+"..............#.......",
+"..........ab..b.......",
+"..........babbb.......",
+".........ba..cb.......",
+"........ad....b.......",
+"........d.....b.......",
+"........b.............",
+"........befgh.........",
+"abbbb..befiiffh..bbbba",
+"..bd...bfiiiijf...db..",
+".bk....fjjiijlf....kb.",
+"bm.....fnnjjllf.....ob",
+"da.....fnnnlllf.....pq",
+".ba....fnnnllfr....sb.",
+"..bbk..bffnlft..uvbb..",
+"....abbbbbffbbbbbm....",
+"........b.............",
+"........d.............",
+"........ad....b.......",
+".........d...db.......",
+"..........babbb.......",
+"..........ab..b......."
+]
+image93_data = [
+"22 22 46 1",
+"q c #060606",
+"a c #2d2d2d",
+"z c #404040",
+"Q c #a3a3a3",
+"M c #a5a5a5",
+"r c #a6a6a6",
+"h c #aaaaaa",
+"L c #aeaeae",
+"v c #afafaf",
+"R c #b0b0b0",
+"B c #b5b5b5",
+"P c #b7b7b7",
+"p c #b8b8b8",
+"e c #bbbbbb",
+"j c #bcbcbc",
+"g c #c3c3c3",
+"K c #c4c4c4",
+"o c #c6c6c6",
+"s c #c7c7c7",
+"J c #c8c8c8",
+"u c #c9c9c9",
+"O c #cbcbcb",
+"k c #cccccc",
+"H c #cdcdcd",
+"y c #cecece",
+"m c #cfcfcf",
+"G c #d2d2d2",
+"D c #d3d3d3",
+"C c #d4d4d4",
+"d c #d6d6d6",
+"E c #d7d7d7",
+"N c #d8d8d8",
+"F c #d9d9d9",
+"n c #dadada",
+"A c #dbdbdb",
+"t c #dddddd",
+"f c #dedede",
+"x c #dfdfdf",
+"i c #e0e0e0",
+"l c #e1e1e1",
+"b c #e2e2e2",
+"c c #e3e3e3",
+"I c #e4e4e4",
+"# c #e5e5e5",
+". c #e6e6e6",
+"w c #ffffff",
+"............#.........",
+"..........ab#.........",
+".........baa#.........",
+"......cdeaaaa...aaaa..",
+".....feaagaa#....haa..",
+"....ijakl.ab#...haha..",
+"...cgam........hah.a..",
+"...nao#..paqr.hah.....",
+"...sat..pauuaaah......",
+"...va#.pauuuuwa.......",
+"..xay..awwuuwza.......",
+"..daA..aBBwwzza..CaD#.",
+"..EaF..aBBBzzza..GaHI.",
+"..laJ..aBaBzzah..KaF..",
+"...LaI.haaBzaM..iKax..",
+"...uaFpahpaaM...CauI..",
+"...tapap.......ljaN...",
+"..aIpapc......bKaOI...",
+"..aMapaaEI..#dPaoc....",
+"..aaM.uQaaKKaaauc.....",
+"..aaaa.lmBaaROx.......",
+"......................"
+]
+image94_data = [
+"22 22 1 1",
+". c #e6e7e6",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................",
+"......................"
+]
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6228,6 +7035,19 @@ class MainWindow(QMainWindow):
         self.image79 = QPixmap(image79_data)
         self.image80 = QPixmap(image80_data)
         self.image81 = QPixmap(image81_data)
+        self.image82 = QPixmap(image82_data)
+        self.image83 = QPixmap(image83_data)
+        self.image84 = QPixmap(image84_data)
+        self.image85 = QPixmap(image85_data)
+        self.image86 = QPixmap(image86_data)
+        self.image87 = QPixmap(image87_data)
+        self.image88 = QPixmap(image88_data)
+        self.image89 = QPixmap(image89_data)
+        self.image90 = QPixmap(image90_data)
+        self.image91 = QPixmap(image91_data)
+        self.image92 = QPixmap(image92_data)
+        self.image93 = QPixmap(image93_data)
+        self.image94 = QPixmap(image94_data)
 
         if not name:
             self.setName("MainWindow")
@@ -6430,10 +7250,11 @@ class MainWindow(QMainWindow):
         self.setViewPerspecAction.setOn(1)
         self.setViewPerspecAction.setIconSet(QIconSet(self.image67))
         self.toolsModeActionGroup = QActionGroup(self,"toolsModeActionGroup")
+        self.toolsModeActionGroup.setExclusive(1)
         self.toolsModeActionGroup.setUsesDropDown(0)
-        self.toolsSketchAtomAction = QAction(self.toolsModeActionGroup,"toolsSketchAtomAction")
-        self.toolsSketchAtomAction.setToggleAction(1)
-        self.toolsSketchAtomAction.setIconSet(QIconSet(self.image68))
+        self.toolsDepositAtomAction = QAction(self.toolsModeActionGroup,"toolsDepositAtomAction")
+        self.toolsDepositAtomAction.setToggleAction(1)
+        self.toolsDepositAtomAction.setIconSet(QIconSet(self.image68))
         self.toolsCookieCutAction = QAction(self.toolsModeActionGroup,"toolsCookieCutAction")
         self.toolsCookieCutAction.setToggleAction(1)
         self.toolsCookieCutAction.setIconSet(QIconSet(self.image69))
@@ -6469,11 +7290,65 @@ class MainWindow(QMainWindow):
         self.toolsSelectAtomsAction.setIconSet(QIconSet(self.image79))
         self.toolsSelectMoleculesAction = QAction(self.toolsModeActionGroup,"toolsSelectMoleculesAction")
         self.toolsSelectMoleculesAction.setToggleAction(1)
-        self.toolsSelectMoleculesAction.setOn(1)
+        self.toolsSelectMoleculesAction.setOn(0)
         self.toolsSelectMoleculesAction.setIconSet(QIconSet(self.image80))
         self.toolsMoveMoleculeAction = QAction(self.toolsModeActionGroup,"toolsMoveMoleculeAction")
         self.toolsMoveMoleculeAction.setToggleAction(1)
         self.toolsMoveMoleculeAction.setIconSet(QIconSet(self.image81))
+        self.toolsSelectAction = QAction(self.toolsModeActionGroup,"toolsSelectAction")
+        self.toolsSelectAction.setToggleAction(1)
+        self.toolsSelectAction.setOn(0)
+        self.toolsSelectAction.setIconSet(QIconSet(self.image82))
+        self.toolsSelectJigsAction = QAction(self.toolsModeActionGroup,"toolsSelectJigsAction")
+        self.toolsSelectJigsAction.setToggleAction(1)
+        self.toolsSelectJigsAction.setIconSet(QIconSet(self.image83))
+        self.modifyStretchMoleculeAction = QAction(self,"modifyStretchMoleculeAction")
+        self.modifyStretchMoleculeAction.setIconSet(QIconSet(self.image84))
+        self.moveMolActionGroup = QActionGroup(self,"moveMolActionGroup")
+        self.moveMolActionGroup.setUsesDropDown(0)
+        self.moveMolXAction = QAction(self.moveMolActionGroup,"moveMolXAction")
+        self.moveMolXAction.setToggleAction(1)
+        self.moveMolXAction.setIconSet(QIconSet(self.image85))
+        self.moveMolYAction = QAction(self.moveMolActionGroup,"moveMolYAction")
+        self.moveMolYAction.setToggleAction(1)
+        self.moveMolYAction.setIconSet(QIconSet(self.image86))
+        self.moveMolZAction = QAction(self.moveMolActionGroup,"moveMolZAction")
+        self.moveMolZAction.setToggleAction(1)
+        self.moveMolZAction.setIconSet(QIconSet(self.image87))
+        self.moveMolRotXAction = QAction(self.moveMolActionGroup,"moveMolRotXAction")
+        self.moveMolRotXAction.setToggleAction(1)
+        self.moveMolRotXAction.setIconSet(QIconSet(self.image88))
+        self.moveMolRotYAction = QAction(self.moveMolActionGroup,"moveMolRotYAction")
+        self.moveMolRotYAction.setToggleAction(1)
+        self.moveMolRotYAction.setIconSet(QIconSet(self.image89))
+        self.moveMolRotZAction = QAction(self.moveMolActionGroup,"moveMolRotZAction")
+        self.moveMolRotZAction.setToggleAction(1)
+        self.moveMolRotZAction.setIconSet(QIconSet(self.image90))
+        self.moveMolFreeAction = QAction(self.moveMolActionGroup,"moveMolFreeAction")
+        self.moveMolFreeAction.setToggleAction(1)
+        self.moveMolFreeAction.setOn(1)
+        self.moveMolFreeAction.setIconSet(QIconSet(self.image91))
+        self.rotateMolFreeAction = QAction(self.moveMolActionGroup,"rotateMolFreeAction")
+        self.rotateMolFreeAction.setToggleAction(1)
+        self.rotateMolFreeAction.setIconSet(QIconSet(self.image92))
+        self.moveRotateMolAction = QAction(self.moveMolActionGroup,"moveRotateMolAction")
+        self.moveRotateMolAction.setToggleAction(1)
+        self.moveRotateMolAction.setIconSet(QIconSet(self.image93))
+        self.selectActionGroup = QActionGroup(self,"selectActionGroup")
+        self.selectActionGroup.setUsesDropDown(0)
+        self.selectAtomsAction = QAction(self.selectActionGroup,"selectAtomsAction")
+        self.selectAtomsAction.setToggleAction(1)
+        self.selectAtomsAction.setIconSet(QIconSet(self.image79))
+        self.selectMoleculesAction = QAction(self.selectActionGroup,"selectMoleculesAction")
+        self.selectMoleculesAction.setToggleAction(1)
+        self.selectMoleculesAction.setOn(1)
+        self.selectMoleculesAction.setIconSet(QIconSet(self.image80))
+        self.selectJigsAction = QAction(self.selectActionGroup,"selectJigsAction")
+        self.selectJigsAction.setToggleAction(1)
+        self.selectJigsAction.setIconSet(QIconSet(self.image83))
+        self.nullAction = QAction(self,"nullAction")
+        self.nullAction.setIconSet(QIconSet(self.image94))
+        self.nullAction.setVisible(1)
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6484,6 +7359,7 @@ class MainWindow(QMainWindow):
         self.fileSaveAction.addTo(self.fileToolbar)
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.editToolbar.setGeometry(QRect(96,0,188,29))
         self.editUndoAction.addTo(self.editToolbar)
         self.editRedoAction.addTo(self.editToolbar)
         self.editCutAction.addTo(self.editToolbar)
@@ -6493,6 +7369,7 @@ class MainWindow(QMainWindow):
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.viewToolbar.setGeometry(QRect(284,0,217,29))
+        self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
         self.setViewOrthoAction.addTo(self.viewToolbar)
@@ -6523,66 +7400,92 @@ class MainWindow(QMainWindow):
         self.selectInvertAction.addTo(self.selectToolbar)
         self.selectConnectedAction.addTo(self.selectToolbar)
         self.selectDoublyAction.addTo(self.selectToolbar)
-        self.cookieCutterToolbar = QToolBar(QString(""),self,Qt.DockBottom)
+        self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterToolbar.setGeometry(QRect(0,0,533,29))
-        self.cookieCutterToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,551,29))
+        self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
-        self.textLabel2 = QLabel(self.cookieCutterToolbar,"textLabel2")
-        self.cookieCutterToolbar.addSeparator()
-        self.ccGraphiteAction.addTo(self.cookieCutterToolbar)
-        self.cookieCutterToolbar.addSeparator()
-        self.orient100Action.addTo(self.cookieCutterToolbar)
-        self.orient110Action.addTo(self.cookieCutterToolbar)
-        self.orient111Action.addTo(self.cookieCutterToolbar)
-        self.cookieCutterToolbar.addSeparator()
-        self.ccAddLayerAction.addTo(self.cookieCutterToolbar)
-        self.cookieCutterToolbar.addSeparator()
+        self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
+        self.cookieCutterDashboard.addSeparator()
+        self.ccGraphiteAction.addTo(self.cookieCutterDashboard)
+        self.cookieCutterDashboard.addSeparator()
+        self.orient100Action.addTo(self.cookieCutterDashboard)
+        self.orient110Action.addTo(self.cookieCutterDashboard)
+        self.orient111Action.addTo(self.cookieCutterDashboard)
+        self.cookieCutterDashboard.addSeparator()
+        self.ccAddLayerAction.addTo(self.cookieCutterDashboard)
+        self.cookieCutterDashboard.addSeparator()
 
-        self.ccLayerThicknessLineEdit = QLineEdit(self.cookieCutterToolbar,"ccLayerThicknessLineEdit")
+        self.ccLayerThicknessLineEdit = QLineEdit(self.cookieCutterDashboard,"ccLayerThicknessLineEdit")
 
-        self.ccLayerThicknessSpinBox = QSpinBox(self.cookieCutterToolbar,"ccLayerThicknessSpinBox")
+        self.ccLayerThicknessSpinBox = QSpinBox(self.cookieCutterDashboard,"ccLayerThicknessSpinBox")
         self.ccLayerThicknessSpinBox.setValue(1)
-        self.cookieCutterToolbar.addSeparator()
-        self.toolsBackUpAction.addTo(self.cookieCutterToolbar)
-        self.toolsStartOverAction.addTo(self.cookieCutterToolbar)
-        self.toolsDoneAction.addTo(self.cookieCutterToolbar)
-        self.toolsCancelAction.addTo(self.cookieCutterToolbar)
-        self.sketchAtomToolbar = QToolBar(QString(""),self,Qt.DockBottom)
+        self.cookieCutterDashboard.addSeparator()
+        self.toolsBackUpAction.addTo(self.cookieCutterDashboard)
+        self.toolsStartOverAction.addTo(self.cookieCutterDashboard)
+        self.toolsDoneAction.addTo(self.cookieCutterDashboard)
+        self.toolsCancelAction.addTo(self.cookieCutterDashboard)
+        self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.sketchAtomToolbar.setPaletteBackgroundColor(QColor(230,231,230))
-        self.sketchAtomToolbar.addSeparator()
+        self.selectAtomsDashboard.setEnabled(1)
 
-        self.sketchAtomLabel = QLabel(self.sketchAtomToolbar,"sketchAtomLabel")
-        self.sketchAtomToolbar.addSeparator()
+        self.textLabel2_2 = QLabel(self.selectAtomsDashboard,"textLabel2_2")
+        self.nullAction.addTo(self.selectAtomsDashboard)
+        self.moveMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.elemChangeComboBox = QComboBox(0,self.sketchAtomToolbar,"elemChangeComboBox")
+
+        self.textLabel1 = QLabel(self.moveMolDashboard,"textLabel1")
+        self.moveMolDashboard.addSeparator()
+        self.moveMolFreeAction.addTo(self.moveMolDashboard)
+        self.rotateMolFreeAction.addTo(self.moveMolDashboard)
+        self.moveRotateMolAction.addTo(self.moveMolDashboard)
+        self.moveMolDashboard.addSeparator()
+        self.toolsDoneAction.addTo(self.moveMolDashboard)
+        self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
+        self.depositAtomDashboard.setGeometry(QRect(0,29,345,29))
+        self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
+        self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
+        self.depositAtomDashboard.addSeparator()
+
+        self.depositAtomLabel = QLabel(self.depositAtomDashboard,"depositAtomLabel")
+        self.depositAtomDashboard.addSeparator()
+
+        self.elemChangeComboBox = QComboBox(0,self.depositAtomDashboard,"elemChangeComboBox")
         self.elemChangeComboBox.setSizeLimit(14)
-        self.sketchAtomToolbar.addSeparator()
-        self.toolsBackUpAction.addTo(self.sketchAtomToolbar)
-        self.toolsStartOverAction.addTo(self.sketchAtomToolbar)
-        self.toolsDoneAction.addTo(self.sketchAtomToolbar)
-        self.toolsCancelAction.addTo(self.sketchAtomToolbar)
+        self.depositAtomDashboard.addSeparator()
+        self.toolsBackUpAction.addTo(self.depositAtomDashboard)
+        self.toolsStartOverAction.addTo(self.depositAtomDashboard)
+        self.toolsDoneAction.addTo(self.depositAtomDashboard)
+        self.toolsCancelAction.addTo(self.depositAtomDashboard)
+        self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
+
+        self.textLabel1_2 = QLabel(self.selectMolDashboard,"textLabel1_2")
+        self.nullAction.addTo(self.selectMolDashboard)
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.modifyToolbar.setGeometry(QRect(0,0,30,266))
+        self.modifyToolbar.setGeometry(QRect(0,0,30,294))
+        self.modifyToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.modifyMinimizeAction.addTo(self.modifyToolbar)
         self.modifyHydrogenateAction.addTo(self.modifyToolbar)
         self.modifyDehydrogenateAction.addTo(self.modifyToolbar)
         self.modifyPassivateAction.addTo(self.modifyToolbar)
         self.modifySetElementAction.addTo(self.modifyToolbar)
         self.modifyCopyBondAction.addTo(self.modifyToolbar)
+        self.modifyStretchMoleculeAction.addTo(self.modifyToolbar)
         self.modifySeparateAction.addTo(self.modifyToolbar)
         self.modifyEdgeBondAction.addTo(self.modifyToolbar)
         self.modifyWeldMoleculeAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,266,30,413))
+        self.toolsToolbar.setGeometry(QRect(0,294,30,441))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
+        self.toolsSelectJigsAction.addTo(self.toolsToolbar)
         self.toolsMoveMoleculeAction.addTo(self.toolsToolbar)
-        self.toolsSketchAtomAction.addTo(self.toolsToolbar)
+        self.toolsDepositAtomAction.addTo(self.toolsToolbar)
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
         self.toolsExtrudeAction.addTo(self.toolsToolbar)
         self.toolsRevolveAction.addTo(self.toolsToolbar)
@@ -6594,21 +7497,23 @@ class MainWindow(QMainWindow):
         self.toolsToolbar.addSeparator()
         self.toolsMovieAction.addTo(self.toolsToolbar)
         self.toolsSimulator_Action.addTo(self.toolsToolbar)
-        self.datumDispToolbar = QToolBar(QString(""),self,Qt.DockRight)
+        self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.datumDispToolbar.setGeometry(QRect(30,0,30,182))
-        self.datumDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
-        self.dispTrihedronAction.addTo(self.datumDispToolbar)
-        self.dispOpenBondsAction.addTo(self.datumDispToolbar)
-        self.dispDatumPlanesAction.addTo(self.datumDispToolbar)
-        self.dispDatumLinesAction.addTo(self.datumDispToolbar)
-        self.dispCsysAction.addTo(self.datumDispToolbar)
-        self.dispGridAction.addTo(self.datumDispToolbar)
+        self.datumDispDashboard.setGeometry(QRect(30,0,30,182))
+        self.datumDispDashboard.setPaletteBackgroundColor(QColor(230,231,230))
+        self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
+        self.dispTrihedronAction.addTo(self.datumDispDashboard)
+        self.dispOpenBondsAction.addTo(self.datumDispDashboard)
+        self.dispDatumPlanesAction.addTo(self.datumDispDashboard)
+        self.dispDatumLinesAction.addTo(self.datumDispDashboard)
+        self.dispCsysAction.addTo(self.datumDispDashboard)
+        self.dispGridAction.addTo(self.datumDispDashboard)
 
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1062,33))
+        self.MenuBar.setGeometry(QRect(0,0,1086,33))
+        self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
         self.fileNewAction.addTo(self.fileMenu)
@@ -6627,7 +7532,7 @@ class MainWindow(QMainWindow):
         self.fileMenu.insertSeparator()
         self.fileExitAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
-        self.MenuBar.insertItem(QString(""),self.fileMenu,2)
+        self.MenuBar.insertItem(QString(""),self.fileMenu,3)
 
         self.editMenu = QPopupMenu(self)
         self.editUndoAction.addTo(self.editMenu)
@@ -6641,7 +7546,7 @@ class MainWindow(QMainWindow):
         self.editFindAction.addTo(self.editMenu)
         self.editMenu.insertSeparator()
         self.editPreferencesAction.addTo(self.editMenu)
-        self.MenuBar.insertItem(QString(""),self.editMenu,3)
+        self.MenuBar.insertItem(QString(""),self.editMenu,4)
 
         self.unnamed = QPopupMenu(self)
         self.setViewHomeAction.addTo(self.unnamed)
@@ -6671,15 +7576,7 @@ class MainWindow(QMainWindow):
         self.toggleDatumDispTbarAction.addTo(self.popupMenu_43)
         self.toggleToolsTbarAction.addTo(self.popupMenu_43)
         self.toggleSelectTbarAction.addTo(self.popupMenu_43)
-        self.MenuBar.insertItem(QString(""),self.unnamed,4)
-
-        self.Select = QPopupMenu(self)
-        self.selectAllAction.addTo(self.Select)
-        self.selectNoneAction.addTo(self.Select)
-        self.selectInvertAction.addTo(self.Select)
-        self.selectConnectedAction.addTo(self.Select)
-        self.selectDoublyAction.addTo(self.Select)
-        self.MenuBar.insertItem(QString(""),self.Select,5)
+        self.MenuBar.insertItem(QString(""),self.unnamed,5)
 
         self.unnamed = QPopupMenu(self)
         self.unnamed.insertSeparator()
@@ -6715,12 +7612,13 @@ class MainWindow(QMainWindow):
         self.modifySetElementAction.addTo(self.Modify)
         self.modifySeparateAction.addTo(self.Modify)
         self.modifyCopyBondAction.addTo(self.Modify)
+        self.modifyStretchMoleculeAction.addTo(self.Modify)
         self.modifyEdgeBondAction.addTo(self.Modify)
         self.modifyWeldMoleculeAction.addTo(self.Modify)
         self.MenuBar.insertItem(QString(""),self.Modify,8)
 
         self.Tools = QPopupMenu(self)
-        self.toolsSketchAtomAction.addTo(self.Tools)
+        self.toolsDepositAtomAction.addTo(self.Tools)
         self.toolsCookieCutAction.addTo(self.Tools)
         self.toolsExtrudeAction.addTo(self.Tools)
         self.toolsRevolveAction.addTo(self.Tools)
@@ -6742,7 +7640,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1062,871).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,914).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -6797,6 +7695,7 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
         self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
         self.connect(self.modifySetElementAction,SIGNAL("activated()"),self.modifySetElement)
+        self.connect(self.modifyStretchMoleculeAction,SIGNAL("activated()"),self.modifyStretchMolecule)
         self.connect(self.modifyWeldMoleculeAction,SIGNAL("activated()"),self.modifyWeldMolecule)
         self.connect(self.orient100Action,SIGNAL("activated()"),self.orient100)
         self.connect(self.orient110Action,SIGNAL("activated()"),self.orient110)
@@ -6825,24 +7724,29 @@ class MainWindow(QMainWindow):
         self.connect(self.toggleSelectTbarAction,SIGNAL("activated()"),self.toggleSelectTbar)
         self.connect(self.toggleToolsTbarAction,SIGNAL("activated()"),self.toggleToolsTbar)
         self.connect(self.toggleViewTbarAction,SIGNAL("activated()"),self.toggleViewTbar)
+        self.connect(self.toolsAddBondAction,SIGNAL("activated()"),self.toolsAddBond)
+        self.connect(self.toolsAlignToCommonAxisAction,SIGNAL("activated()"),self.toolsAlignToCommonAxis)
         self.connect(self.toolsBackUpAction,SIGNAL("activated()"),self.toolsBackUp)
         self.connect(self.toolsCancelAction,SIGNAL("activated()"),self.toolsCancel)
         self.connect(self.toolsCookieCutAction,SIGNAL("activated()"),self.toolsCookieCut)
+        self.connect(self.toolsDeleteBondAction,SIGNAL("activated()"),self.toolsDeleteBond)
         self.connect(self.toolsDoneAction,SIGNAL("activated()"),self.toolsDone)
         self.connect(self.toolsExtrudeAction,SIGNAL("activated()"),self.toolsExtrude)
-        self.connect(self.toolsSketchAtomAction,SIGNAL("activated()"),self.addAtomStart)
-        self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.toolsRevolveAction,SIGNAL("activated()"),self.toolsRevolve)
         self.connect(self.toolsMirrorAction,SIGNAL("activated()"),self.toolsMirror)
         self.connect(self.toolsMirrorCircularBoundaryAction,SIGNAL("activated()"),self.toolsMirrorCircularBoundary)
-        self.connect(self.toolsMovieAction,SIGNAL("activated()"),self.toolsMovie)
-        self.connect(self.toolsSimulator_Action,SIGNAL("activated()"),self.toolsSimulator)
-        self.connect(self.toolsAlignToCommonAxisAction,SIGNAL("activated()"),self.toolsAlignToCommonAxis)
-        self.connect(self.toolsAddBondAction,SIGNAL("activated()"),self.toolsAddBond)
-        self.connect(self.toolsDeleteBondAction,SIGNAL("activated()"),self.toolsDeleteBond)
-        self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
-        self.connect(self.toolsSelectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
         self.connect(self.toolsMoveMoleculeAction,SIGNAL("activated()"),self.toolsMoveMolecule)
+        self.connect(self.toolsMovieAction,SIGNAL("activated()"),self.toolsMovie)
+        self.connect(self.toolsRevolveAction,SIGNAL("activated()"),self.toolsRevolve)
+        self.connect(self.toolsSelectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
+        self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
+        self.connect(self.toolsSimulator_Action,SIGNAL("activated()"),self.toolsSimulator)
+        self.connect(self.toolsDepositAtomAction,SIGNAL("activated()"),self.addAtomStart)
+        self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
+        self.connect(self.selectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
+        self.connect(self.selectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
+        self.connect(self.selectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
+        self.connect(self.toolsSelectAction,SIGNAL("activated()"),self.toolsSelect)
+        self.connect(self.toolsSelectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
 
 
     def languageChange(self):
@@ -7075,9 +7979,9 @@ class MainWindow(QMainWindow):
         self.setViewPerspecAction.setToolTip(self.__tr("Perspective"))
         self.setPerspectiveActionGroup.setMenuText(self.__tr("ActionGroup"))
         self.toolsModeActionGroup.setText(self.__tr("ActionGroup"))
-        self.toolsSketchAtomAction.setText(self.__tr("Sketch Atom"))
-        self.toolsSketchAtomAction.setMenuText(self.__tr("Sketch &Atom"))
-        self.toolsSketchAtomAction.setToolTip(self.__tr("Sketch Atom"))
+        self.toolsDepositAtomAction.setText(self.__tr("Deposit Atom"))
+        self.toolsDepositAtomAction.setMenuText(self.__tr("Deposit &Atom"))
+        self.toolsDepositAtomAction.setToolTip(self.__tr("Deposit Atom"))
         self.toolsCookieCutAction.setText(self.__tr("Cookie Cutter"))
         self.toolsCookieCutAction.setMenuText(self.__tr("&Cookie Cutter"))
         self.toolsCookieCutAction.setToolTip(self.__tr("Cookie Cutter"))
@@ -7100,7 +8004,7 @@ class MainWindow(QMainWindow):
         self.toolsMovieAction.setMenuText(self.__tr("&Movie"))
         self.toolsMovieAction.setToolTip(self.__tr("Movie"))
         self.toolsSimulator_Action.setText(self.__tr("Simulator"))
-        self.toolsSimulator_Action.setMenuText(self.__tr("&Simulator"))
+        self.toolsSimulator_Action.setMenuText(self.__tr("S&imulator"))
         self.toolsSimulator_Action.setToolTip(self.__tr("Simulator"))
         self.toolsAddBondAction.setText(self.__tr("Add Bond"))
         self.toolsAddBondAction.setToolTip(self.__tr("Add Bond"))
@@ -7117,17 +8021,71 @@ class MainWindow(QMainWindow):
         self.toolsMoveMoleculeAction.setText(self.__tr("Move Molecule"))
         self.toolsMoveMoleculeAction.setToolTip(self.__tr("Move Molecule"))
         self.toolsMoveMoleculeAction.setMenuText(self.__tr("Move Molecule"))
+        self.toolsSelectAction.setText(self.__tr("Select"))
+        self.toolsSelectAction.setMenuText(self.__tr("&Select"))
+        self.toolsSelectAction.setToolTip(self.__tr("Select"))
+        self.toolsSelectJigsAction.setText(self.__tr("Select Jigs"))
+        self.toolsSelectJigsAction.setToolTip(self.__tr("Select Jigs"))
+        self.toolsSelectJigsAction.setMenuText(self.__tr("Select Jigs"))
         self.toolsModeActionGroup.setMenuText(self.__tr("ActionGroup"))
+        self.modifyStretchMoleculeAction.setText(self.__tr("Stretch"))
+        self.modifyStretchMoleculeAction.setMenuText(self.__tr("S&tretch"))
+        self.moveMolActionGroup.setText(self.__tr("Move Group"))
+        self.moveMolXAction.setText(self.__tr("X Translate"))
+        self.moveMolXAction.setToolTip(self.__tr("X Translate"))
+        self.moveMolXAction.setMenuText(self.__tr("X Translate"))
+        self.moveMolYAction.setText(self.__tr("Y Translation"))
+        self.moveMolYAction.setToolTip(self.__tr("Y Translation"))
+        self.moveMolYAction.setMenuText(self.__tr("Y Translation"))
+        self.moveMolZAction.setText(self.__tr("Z Translation"))
+        self.moveMolZAction.setToolTip(self.__tr("Z Translation"))
+        self.moveMolZAction.setMenuText(self.__tr("Z Translation"))
+        self.moveMolRotXAction.setText(self.__tr("X Rotation"))
+        self.moveMolRotXAction.setToolTip(self.__tr("X Rotation"))
+        self.moveMolRotXAction.setMenuText(self.__tr("X Rotation"))
+        self.moveMolRotYAction.setText(self.__tr("Y Rotation"))
+        self.moveMolRotYAction.setToolTip(self.__tr("Y Rotation"))
+        self.moveMolRotYAction.setMenuText(self.__tr("Y Rotation"))
+        self.moveMolRotZAction.setText(self.__tr("Z Rotation"))
+        self.moveMolRotZAction.setToolTip(self.__tr("Z Rotation"))
+        self.moveMolRotZAction.setMenuText(self.__tr("Z Rotation"))
+        self.moveMolFreeAction.setText(self.__tr("Move Unconstrained"))
+        self.moveMolFreeAction.setToolTip(self.__tr("Move Unconstrained"))
+        self.moveMolFreeAction.setMenuText(self.__tr("Move Unconstrained"))
+        self.rotateMolFreeAction.setText(self.__tr("Rotate Molecule Unconstrained"))
+        self.rotateMolFreeAction.setToolTip(self.__tr("Rotate Molecule Unconstrained"))
+        self.rotateMolFreeAction.setMenuText(self.__tr("Rotate Molecule Unconstrained"))
+        self.moveRotateMolAction.setText(self.__tr("Move/Rotate Constrained"))
+        self.moveRotateMolAction.setToolTip(self.__tr("Move/Rotate Constrained"))
+        self.moveRotateMolAction.setMenuText(self.__tr("Move/Rotate Constrained"))
+        self.moveMolActionGroup.setMenuText(self.__tr("Move Group"))
+        self.selectActionGroup.setText(self.__tr("Select Group"))
+        self.selectAtomsAction.setText(self.__tr("Select Atoms"))
+        self.selectAtomsAction.setToolTip(self.__tr("Select Atoms"))
+        self.selectAtomsAction.setMenuText(self.__tr("Select Atoms"))
+        self.selectMoleculesAction.setText(self.__tr("Select Molecules"))
+        self.selectMoleculesAction.setToolTip(self.__tr("Select Molecules"))
+        self.selectMoleculesAction.setMenuText(self.__tr("Select Molecules"))
+        self.selectJigsAction.setText(self.__tr("Select Jigs"))
+        self.selectJigsAction.setToolTip(self.__tr("Select Jigs"))
+        self.selectJigsAction.setMenuText(self.__tr("Select Jigs"))
+        self.selectActionGroup.setMenuText(self.__tr("Select Group"))
+        self.nullAction.setText(QString.null)
+        self.nullAction.setMenuText(QString.null)
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
         self.gridsToolbar.setLabel(self.__tr("Grids"))
         self.molecularDispToolbar.setLabel(self.__tr("Molecular Display"))
-        self.selectToolbar.setLabel(self.__tr("Select"))
-        self.cookieCutterToolbar.setLabel(self.__tr("Cookie Cutter"))
-        self.textLabel2.setText(self.__tr("Cookie Cut"))
-        self.sketchAtomToolbar.setLabel(self.__tr("Sketch Atom"))
-        self.sketchAtomLabel.setText(self.__tr("Sketch Atom"))
+        self.selectToolbar.setLabel(self.__tr("Select Toolbar"))
+        self.cookieCutterDashboard.setLabel(self.__tr("Cookie Cutter"))
+        self.textLabel2.setText(self.__tr(" Cookie Cutter"))
+        self.selectAtomsDashboard.setLabel(self.__tr("Select Atoms"))
+        self.textLabel2_2.setText(self.__tr("Select Atoms"))
+        self.moveMolDashboard.setLabel(self.__tr("Move Molecule"))
+        self.textLabel1.setText(self.__tr(" Move Molecule"))
+        self.depositAtomDashboard.setLabel(self.__tr("Deposit Atom"))
+        self.depositAtomLabel.setText(self.__tr("Deposit Atoms"))
         self.elemChangeComboBox.clear()
         self.elemChangeComboBox.insertItem(self.__tr("Hydrogen"))
         self.elemChangeComboBox.insertItem(self.__tr("Helium"))
@@ -7152,19 +8110,19 @@ class MainWindow(QMainWindow):
         self.elemChangeComboBox.insertItem(self.__tr("Tellurium"))
         self.elemChangeComboBox.insertItem(self.__tr("Iodine"))
         self.elemChangeComboBox.insertItem(self.__tr("Xenon"))
+        self.selectMolDashboard.setLabel(self.__tr("Select Molecule"))
+        self.textLabel1_2.setText(self.__tr("Select Molecules"))
         self.modifyToolbar.setLabel(self.__tr("Modify"))
         self.toolsToolbar.setLabel(self.__tr("Tools"))
-        self.datumDispToolbar.setLabel(self.__tr("Datum Display"))
-        if self.MenuBar.findItem(2):
-            self.MenuBar.findItem(2).setText(self.__tr("&File"))
+        self.datumDispDashboard.setLabel(self.__tr("Datum Display"))
         if self.MenuBar.findItem(3):
-            self.MenuBar.findItem(3).setText(self.__tr("&Edit"))
+            self.MenuBar.findItem(3).setText(self.__tr("&File"))
+        if self.MenuBar.findItem(4):
+            self.MenuBar.findItem(4).setText(self.__tr("&Edit"))
         self.unnamed.changeItem(self.unnamed.idAt(7),self.__tr("Orientations"))
         self.unnamed.changeItem(self.unnamed.idAt(9),self.__tr("&Toolbars"))
-        if self.MenuBar.findItem(4):
-            self.MenuBar.findItem(4).setText(self.__tr("&View"))
         if self.MenuBar.findItem(5):
-            self.MenuBar.findItem(5).setText(self.__tr("&Select"))
+            self.MenuBar.findItem(5).setText(self.__tr("&View"))
         if self.MenuBar.findItem(6):
             self.MenuBar.findItem(6).setText(self.__tr("&Display"))
         if self.MenuBar.findItem(7):
@@ -7488,6 +8446,15 @@ class MainWindow(QMainWindow):
 
     def toolsMoveMolecule(self):
         print "MainWindow.toolsMoveMolecule(): Not implemented yet"
+
+    def modifyStretchMolecule(self):
+        print "MainWindow.modifyStretchMolecule(): Not implemented yet"
+
+    def toolsSelectJigs(self):
+        print "MainWindow.toolsSelectJigs(): Not implemented yet"
+
+    def toolsSelect(self):
+        print "MainWindow.toolsSelect(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

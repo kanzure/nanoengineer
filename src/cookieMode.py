@@ -27,7 +27,7 @@ class cookieMode(basicMode):
     
     # methods related to entering this mode
     
-    def Enter(self): # bruce 040922 split setMode into Enter and show_toolbars (fyi)
+    def Enter(self): # bruce 040922 split setMode into Enter and init_gui (fyi)
         basicMode.Enter(self)
         self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
@@ -39,8 +39,10 @@ class cookieMode(basicMode):
         self.Rubber = None
         self.o.snap2trackball()
 
-    def show_toolbars(self):
-        self.w.cookieCutterToolbar.show()
+    # init_gui handles all the GUI display when entering this mode [mark 041004
+    def init_gui(self):
+        self.o.setCursor(self.w.SelectCursor)
+        self.w.cookieCutterDashboard.show()
 
     # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
 
@@ -59,8 +61,9 @@ class cookieMode(basicMode):
         # it probably doesn't matter in effect, in this case. To be safe (e.g. in case of Abandon), I put it in more than one place.
         return None
     
-    def hide_toolbars(self):
-        self.w.cookieCutterToolbar.hide()
+    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+    def restore_gui(self):
+        self.w.cookieCutterDashboard.hide()
 
     def restore_patches(self):
         self.o.ortho = self.savedOrtho
@@ -262,4 +265,3 @@ class cookieMode(basicMode):
         print 'NYI'
 
     pass # end of class cookieMode
-
