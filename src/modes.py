@@ -1016,7 +1016,6 @@ class basicMode(anyMode):
         """
         from platform import fix_plurals
         fixmols = {} # helps count modified mols for statusbar
-        didWhat = "Selection had no open bonds."
         if self.o.assy.selmols:
             counta = countm = 0
             for m in self.o.assy.selmols:
@@ -1030,7 +1029,7 @@ class basicMode(anyMode):
                           % (counta, countm)
                 if len(self.o.assy.selmols) > countm:
                     didwhat += \
-                        " (%d selection had no open bonds)" \
+                        " (%d selected chunk(s) had no open bonds)" \
                         % (len(self.o.assy.selmols) - countm)
                 didwhat = fix_plurals(didwhat)
             else:
