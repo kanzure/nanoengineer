@@ -15,7 +15,8 @@ class runSim(SimSetupDialog):
         self.stepsper = 10
         self.timestep = 10
         self.filename = ''
-        self.fileform = 0
+        self.fileform = ''
+        self.mext = '.dpb'
 
     def NumFramesValueChanged(self,a0):
         self.nframes = a0
@@ -30,7 +31,7 @@ class runSim(SimSetupDialog):
         if not self.assy.filename: 
                 self.assy.filename= os.path.join(tmpFilePath, "simulate.mmp")
         
-        #By writting the current model into simulate.mmp under ~/atom_tmp, no matter
+        #By writting the current model into simulate.mmp under ~/nanorex, no matter
         # if it is a *.pdb, a *.mmp with model change or not, we'll make sure the
         #writing of the *.dpb file will only go to the temporary directory, 
         # otherwise user may get write permission problem.  ---Huaicai 12/07/04
@@ -38,7 +39,7 @@ class runSim(SimSetupDialog):
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
        
-        args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper),  "simulate.mmp"]
+        args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper),  str(self.fileform),  "simulate.mmp"]
         
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         oldWorkingDir = os.getcwd()
@@ -55,7 +56,7 @@ class runSim(SimSetupDialog):
         os.chdir(oldWorkingDir)    
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
-            self.assy.w.msgbarLabel.setText("Movie written to "+ os.path.join(tmpFilePath, "simulate.dpb"))
+            self.assy.w.msgbarLabel.setText("Movie written to "+ os.path.join(tmpFilePath, "simulate" + self.mext))
         else:
             if not s: s = "exit code %r" % r
             self.assy.w.msgbarLabel.setText("Simulation Failed!") ##e include s?
@@ -72,5 +73,9 @@ class runSim(SimSetupDialog):
         self.timestep = 10
 
     def FileFormat(self,a0):
-        self.fileform = a0
-       
+        if a0 == 0: # DPB file format
+            self.fileform = ''
+            self.mext = '.dpb'
+        else: # XYZ file format
+            self.fileform = '-x'
+            self.mext = '.xyz'
