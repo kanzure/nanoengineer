@@ -58,16 +58,42 @@ if __name__=='__main__':
     # the default (1000) bombs with large molecules
     sys.setrecursionlimit(5000)
 
-    # Windows Users: .ne1rc must be placed in C:\Documents and Settings\[username]\.ne1rc
-    # .ne1rc contains one line, the Working Directory
-    # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
+    # bruce 050119: get working directory from preferences database.
+    # (It used to be stored in ~/.ne1rc; this file is now optional,
+    #  used only if preferences doesn't find anything; it's no longer
+    #  ever created or written to.)
+    from preferences import prefs_context
+    prefs = prefs_context()
+    where = "preferences database" # only matters when wd is non-null
+    wd = prefs.get('WorkingDirectory')
+    if not wd:
+        # see if it's stored in the old location
+        # (this won't be needed in the Alpha release, but is needed for our own
+        #  internal users who have these files lying around - but only until the
+        #  next time they run the program, since we'll write wd found in .ne1rc
+        #  into the prefs db, too.)
+        # old code [slightly modified by bruce 050119]:
+        # Windows Users: .ne1rc must be placed in C:\Documents and Settings\[username]\.ne1rc
+        # .ne1rc contains one line, the Working Directory
+        # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
+        rc = os.path.expanduser("~/.ne1rc")
+        if os.path.exists(rc):
+            where = rc
+            f=open(rc,'r')
+            wd = os.path.normpath(f.readline())
+            f.close()
+            prefs['WorkingDirectory'] = wd # whether or not isdir(wd)!
+             # After this, in theory, this ~/.ne1rc is never again needed.
+    if wd:
+        if os.path.isdir(wd):
+            globalParms['WorkingDirectory'] = wd
+        else:
+            print "Warning: working directory \"%s\" (from %s)" % (wd, where)
+            print " no longer exists; using \"%s\" for this session." % globalParms['WorkingDirectory']
+            #e Ideally we'd print this into win.history, but that doesn't exist yet.
+            #e Someday we should save it up somewhere and print it into the history when that's created.
+        pass
     
-    rc = os.path.expanduser("~/.ne1rc")
-    if os.path.exists(rc):
-        f=open(rc,'r')
-        globalParms['WorkingDirectory'] = os.path.normpath(f.readline())
-        f.close()
-                        
     QApplication.setColorSpec(QApplication.CustomColor)
     app=QApplication(sys.argv)
     app.connect(app,SIGNAL("lastWindowClosed ()"),app.quit)

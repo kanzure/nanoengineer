@@ -136,7 +136,7 @@ class MWsemantics(MainWindow):
         self.history = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
             # this is not a Qt widget, but its owner;
             # use self.history.widget for Qt calls that need the widget itself
-        
+
         # ... and some final vsplitter setup [bruce 041223]
         vsplitter.setResizeMode(self.history.widget, QSplitter.KeepSize)
         vsplitter.setOpaqueResize(False)
@@ -582,18 +582,24 @@ class MWsemantics(MainWindow):
             wd = str(wd)
             wd = os.path.normpath(wd)
             globalParms['WorkingDirectory'] = wd
-            self.history.message( "Working Directory set to " + wd )
             
-            # Write ~/.ne1rc file with new Working Directory
-            rc = os.path.expanduser("~/.ne1rc")
-            try:
-                f=open(rc,'w')
-            except:
-                print "Trouble opening file: [", rc, "]"
-                self.history.message( redmsg( "Trouble opening file [" + rc + "]" ))
-            else:
-                f.write(wd)
-                f.close()
+            self.history.message( "Working Directory set to " + wd )
+
+            # bruce 050119: store this in prefs database so no need for ~/.ne1rc
+            from preferences import prefs_context
+            prefs = prefs_context()
+            prefs['WorkingDirectory'] = wd
+
+##            # Write ~/.ne1rc file with new Working Directory
+##            rc = os.path.expanduser("~/.ne1rc")
+##            try:
+##                f=open(rc,'w')
+##            except:
+##                print "Trouble opening file: [", rc, "]"
+##                self.history.message( redmsg( "Trouble opening file [" + rc + "]" ))
+##            else:
+##                f.write(wd)
+##                f.close()
                 
     def __clear(self):
         # assyList refs deleted by josh 10/4
