@@ -547,7 +547,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 q = q2
                 what = n
         self.quat = Q(q)
-        self.paintGL()
+        self.gl_update()
         return what
 
     def setDisplay(self, disp):
@@ -565,9 +565,28 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
     def getZoomFactor(self):
             return self.zoomFactor        
 
-    def paintGL(self):
-        """the main screen-drawing function.
-        Sets up point of view projection, position, angle.
+    def gl_update(self): #bruce 050127
+        """External code should call this when it thinks the GLPane needs
+        redrawing, rather than directly calling paintGL, unless it really
+        knows it needs to wait until the redrawing has been finished
+        (which should be very rare).
+           In the near future, this method's implementation will be changed
+        so that it can be called many times during the handling of one
+        user event, but this will cause only one call of paintGL, after
+        that user event handler has finished.
+           But for now [050127], it just calls paintGL, so it is not good
+        to call it more than once per user event handler (since paintGL
+        can be very slow for a large model).
+        #"""
+        self.paintGL()
+        return
+    
+    def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
+        """[PRIVATE METHOD -- call gl_update instead!]
+        The main screen-drawing function, called internally by Qt when our
+        superclass needs to repaint. THIS SHOULD NO LONGER BE CALLED DIRECTLY
+        BY EXTERNAL CODE -- CALL gl_update INSTEAD.
+           Sets up point of view projection, position, angle.
         Calls draw member fns for everything in the screen.
         """
         # bruce comment 041220: besides our own calls of this function, it can
@@ -658,6 +677,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glFlush()                           # Tidy up
         self.swapBuffers()
 
+        return # from paintGL
+
     def drawarrow(self, aspect):
         glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500)
         q = self.quat
@@ -694,7 +715,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 glEnable(GL_LIGHTING)
         
         glLoadIdentity()
-
+        return
 
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
@@ -707,9 +728,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         if not self.initialised:
             self.initialised = 1
         self.trackball.rescale(width, height)
-        self.paintGL()
-
-
+        self.gl_update()
+        return
 
     def xdump(self):
         """for debugging"""
