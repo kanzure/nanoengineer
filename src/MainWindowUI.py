@@ -90,17 +90,17 @@ class MainWindow(QMainWindow):
         self.Movie.setGeometry(QRect(20,250,80,24))
         self.Movie.setText(self.trUtf8("Movie"))
 
-        self.Bondedge = QPushButton(self.groupBox1,"Bondedge")
-        self.Bondedge.setGeometry(QRect(20,290,80,24))
-        self.Bondedge.setText(self.trUtf8("Bond (edge)"))
+        self.bondEdgeButton = QPushButton(self.groupBox1,"Bondedge")
+        self.bondEdgeButton.setGeometry(QRect(20,290,80,24))
+        self.bondEdgeButton.setText(self.trUtf8("Bond (edge)"))
 
-        self.UBondall = QPushButton(self.groupBox1,"UBondall")
-        self.UBondall.setGeometry(QRect(20,340,80,24))
-        self.UBondall.setText(self.trUtf8("Axis"))
+        self.displayTrihedron = QPushButton(self.groupBox1,"Switch on/off Trihedron")
+        self.displayTrihedron.setGeometry(QRect(20,340,80,24))
+        self.displayTrihedron.setText(self.trUtf8("Axis"))
 
-        self.UBondedge = QPushButton(self.groupBox1,"UBondedge")
-        self.UBondedge.setGeometry(QRect(20,380,90,24))
-        self.UBondedge.setText(self.trUtf8("UnBond (edge)"))
+        self.deleteBond = QPushButton(self.groupBox1,"modifyDeleteBond")
+        self.deleteBond.setGeometry(QRect(20,380,90,24))
+        self.deleteBond.setText(self.trUtf8("UnBond (edge)"))
 
         self.Unsel = QPushButton(self.groupBox1,"Unsel")
         self.Unsel.setGeometry(QRect(20,440,80,24))
@@ -110,9 +110,9 @@ class MainWindow(QMainWindow):
         self.Copybut.setGeometry(QRect(20,490,80,24))
         self.Copybut.setText(self.trUtf8("Copy"))
 
-        self.CopyBond = QPushButton(self.groupBox1,"CopyBond")
-        self.CopyBond.setGeometry(QRect(20,530,86,24))
-        self.CopyBond.setText(self.trUtf8("Copy && Bond"))
+        self.copyBond = QPushButton(self.groupBox1,"modifyCopyBond")
+        self.copyBond.setGeometry(QRect(20,530,86,24))
+        self.copyBond.setText(self.trUtf8("Copy && Bond"))
 
         self.KillBut = QPushButton(self.groupBox1,"KillBut")
         self.KillBut.setGeometry(QRect(20,590,80,24))
@@ -249,9 +249,9 @@ class MainWindow(QMainWindow):
         self.dispInvisAction.setText(self.trUtf8("Invis"))
         self.dispInvisAction.setMenuText(self.trUtf8("Invis"))
         
-        self.dispColorAction = QAction(self,"dispColorAction")
-        self.dispColorAction.setText(self.trUtf8("Color"))
-        self.dispColorAction.setMenuText(self.trUtf8("Color"))
+        self.dispObjectColorAction = QAction(self,"dispObjectColorAction")
+        self.dispObjectColorAction.setText(self.trUtf8("Color"))
+        self.dispObjectColorAction.setMenuText(self.trUtf8("Color"))
 
         self.gridNoneAction = QAction(self,"gridNoneAction")
         self.gridNoneAction.setText(self.trUtf8("None"))
@@ -393,7 +393,7 @@ class MainWindow(QMainWindow):
         self.dispLinesAction.addTo(self.dispMenu)
         self.dispMenu.insertSeparator()
         
-        self.dispColorAction.addTo(self.dispMenu)
+        self.dispObjectColorAction.addTo(self.dispMenu)
         self.MenuBar.insertItem(self.trUtf8("Display"),self.dispMenu)
 
         self.gridMenu = QPopupMenu(self)
@@ -466,10 +466,10 @@ class MainWindow(QMainWindow):
         self.connect(self.editFindAction,SIGNAL("activated()"),self.editFind)
 
         self.connect(self.dispNewViewAction,SIGNAL("activated()"),
-                     self.dispNewView)
-        self.connect(self.dispOrthoAction,SIGNAL("activated()"),self.dispOrtho)
+                     self.windowNewWindow)
+        self.connect(self.dispOrthoAction,SIGNAL("activated()"),self.viewOrtho)
         self.connect(self.dispPerspecAction,SIGNAL("activated()"),
-                     self.dispPerspec)
+                     self.viewPerspec)
         self.connect(self.dispDefaultAction,SIGNAL("activated()"),
                      self.dispDefault)
         self.connect(self.dispInvisAction,SIGNAL("activated()"),self.dispInvis)
@@ -477,7 +477,7 @@ class MainWindow(QMainWindow):
         self.connect(self.dispTubesAction,SIGNAL("activated()"),self.dispTubes)
         self.connect(self.dispCPKAction,SIGNAL("activated()"),self.dispCPK)
         self.connect(self.dispLinesAction,SIGNAL("activated()"),self.dispLines)
-        self.connect(self.dispColorAction,SIGNAL("activated()"),self.dispColor)
+        self.connect(self.dispObjectColorAction,SIGNAL("activated()"),self.dispObjectColor)
         self.connect(self.gridNoneAction,SIGNAL("activated()"),self.gridNone)
         self.connect(self.gridSquareAction,SIGNAL("activated()"),
                      self.gridSquare)
@@ -523,19 +523,19 @@ class MainWindow(QMainWindow):
         self.connect(self.helpIndexAction,SIGNAL("activated()"),self.helpIndex)
         self.connect(self.helpAboutAction,SIGNAL("activated()"),self.helpAbout)
 
-        self.connect(self.Cookie,SIGNAL("clicked()"),self.cookieCut)
-        self.connect(self.Layer,SIGNAL("clicked()"),self.cookieLayer)
-        self.connect(self.Bake,SIGNAL("clicked()"),self.cookieBake)
+        self.connect(self.Cookie,SIGNAL("clicked()"),self.toolsCookieCut)
+        self.connect(self.Layer,SIGNAL("clicked()"),self.toolsCCAddLayer)
+        self.connect(self.Bake,SIGNAL("clicked()"),self.toolsDone)
         self.connect(self.comboBox1,SIGNAL("activated(const QString&)"),self.elemChange)
         self.connect(self.AddAtoms,SIGNAL("clicked()"),self.addAtomStart)
         self.connect(self.Done,SIGNAL("clicked()"),self.addAtomDone)
-        self.connect(self.Movie,SIGNAL("clicked()"),self.movie)
-        self.connect(self.Bondedge,SIGNAL("clicked()"),self.bondEdge)
-        self.connect(self.UBondall,SIGNAL("clicked()"),self.ubondAll)
-        self.connect(self.UBondedge,SIGNAL("clicked()"),self.ubondEdge)
+        self.connect(self.Movie,SIGNAL("clicked()"),self.toolsMovie)
+        self.connect(self.bondEdgeButton,SIGNAL("clicked()"),self.bondEdge)
+        self.connect(self.displayTrihedron,SIGNAL("clicked()"),self.dispTrihedron)
+        self.connect(self.deleteBond,SIGNAL("clicked()"),self.modifyDeleteBond)
         self.connect(self.Unsel,SIGNAL("clicked()"),self.selectNone)
         self.connect(self.Copybut,SIGNAL("clicked()"),self.copyDo)
-        self.connect(self.CopyBond,SIGNAL("clicked()"),self.copyBond)
+        self.connect(self.copyBond,SIGNAL("clicked()"),self.modifyCopyBond)
         self.connect(self.KillBut,SIGNAL("clicked()"),self.killDo)
 
     # functions from the "File" menu
@@ -578,15 +578,15 @@ class MainWindow(QMainWindow):
     # functions from the "Display" menu
 
     # this will pop up a new window onto the same assembly
-    def dispNewView(self):
+    def windowNewWindow(self):
         pass
 	
 
     # GLPane.ortho is checked in GLPane.paintGL
-    def dispOrtho(self):
+    def viewOrtho(self):
         pass
 
-    def dispPerspec(self):
+    def viewPerspec(self):
         pass
 
     # set display formats in whatever is selected,
@@ -616,7 +616,7 @@ class MainWindow(QMainWindow):
     # set the color of the selected part(s) (molecule)
     # or the background color if no part is selected.
     # atom colors cannot be changed singly
-    def dispColor(self):
+    def dispObjectColor(self):
         pass
       
 
@@ -735,18 +735,18 @@ class MainWindow(QMainWindow):
     # functions from the buttons down the left side of the display
 
     # set up cookiecutter mode
-    def cookieCut(self):
+    def toolsCookieCut(self):
         pass
 
 
     # "push down" one nanometer to cut out the next layer
-    def cookieLayer(self):
+    def toolsCCAddLayer(self):
         pass
 
 
     # fill the shape created in the cookiecutter with actual
     # carbon atoms in a diamond lattice (including bonds)
-    def cookieBake(self):
+    def toolsDone(self):
         pass
 
     # the elements combobox:
@@ -764,7 +764,7 @@ class MainWindow(QMainWindow):
         print "Form1.addAtomDone(): Not implemented yet"
 
     # create bonds where reasonable within selection
-    def movie(self):
+    def toolsMovie(self):
         pass
 
     # create bonds where reasonable between selected and unselected
@@ -772,12 +772,12 @@ class MainWindow(QMainWindow):
         print "Form1.bondEdge(): Not implemented yet"
 
     # (stolen button) turn on or off the axis icon
-    def ubondAll(self):
+    def dispTrihedron(self):
         pass
 
     # break bonds between selected and unselected atoms
-    def ubondEdge(self):
-        print "Form1.ubondEdge(): Not implemented yet"
+    def modifyDeleteBond(self):
+        print "Form1.modifyDeleteBond(): Not implemented yet"
 
     # Make a copy of the selected part (molecule)
     # cannot copy individual atoms
@@ -788,8 +788,8 @@ class MainWindow(QMainWindow):
     # having unselected the original and selected the copy.
     # the motion is to be the same relative motion done to a part
     # between copying and bondEdging it.
-    def copyBond(self):
-        print "Form1.copyBond(): Not implemented yet"
+    def modifyCopyBond(self):
+        print "Form1.modifyCopyBond(): Not implemented yet"
 
     # delete selected parts or atoms
     def killDo(self):

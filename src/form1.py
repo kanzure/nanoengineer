@@ -12,6 +12,8 @@ import icons
 
 #Added by huaicai
 from MotorPropDialog import *
+from depositMode import *
+
 
 helpwindow = None
 windowList = []
@@ -758,8 +760,11 @@ class MainWindow(QMainWindow):
 
     # turn on and off an "add atom with a mouse click" mode
     def addAtomStart(self):
-        print "Form1.addAtomStart(): Not implemented yet"
-    
+        #print "Form1.addAtomStart(): Not implemented yet"
+        self.glpane.mode = DepositMode(self.glpane)
+        self.glpane.updateGL()
+
+
     def addAtomDone(self):
         print "Form1.addAtomDone(): Not implemented yet"
 

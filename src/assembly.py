@@ -161,6 +161,48 @@ class assembly:
                     mol.bond(a1, a2)
         self.addmol(mol)
 
+    # Write a single molecule into a Protein DataBank-format file 
+    def writepdb(self, filename):
+        f = open(filename, "w")
+        
+        atomsTable = {} #Atom object is the key, the atomIndex is the value  
+        connectList = [] #Each element of the list is a list of atoms connected with the 1rst atom
+        atomIndex = 1
+
+        for mol in self.selmols:
+            for a in mol.atoms.itervalues():
+                aList = []
+                f.write("ATOM  ")
+                f.write("%5d" % atomIndex)
+                f.write("%3s" % a.element.symbol)
+                pos = a.posn()
+                fpos = (float(pos[0]), float(pos[1]), float(pos[2]))
+                space = " "
+                f.write("%16s" % space)
+                f.write("%8.3f%8.3f%8.3f" % fpos)
+
+                atomsTable[a.key] = atomIndex
+		aList.append(a)
+                for b in a.bonds:
+                    aList.append(b.other(a))
+                
+                atomIndex += 1
+                connectList.append(aList)
+
+                f.write("\n")
+               
+                     
+        for aList in connectList:
+            f.write("CONECT")
+            for a in aList:
+                index = atomsTable[a.key]
+                f.write("%5d" % index)
+            f.write("\n")
+        
+        f.write("END")
+        f.close()   
+            
+
     # read a Molecular Machine Part-format file into maybe multiple molecules
     def readmmp(self,filnam):
         l=open(filnam,"r").readlines()

@@ -147,7 +147,7 @@ class selectMode(basicMode):
                                     None,
                                     ('Invisible', self.w.dispInvis),
                                     None,
-                                    ('Color', self.w.dispColor)])
+                                    ('Color', self.w.dispObjectColor)])
 
     def move(self):
         # go into move mode

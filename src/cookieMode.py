@@ -210,7 +210,7 @@ class cookieMode(basicMode):
                                     None,
                                     ('Invisible', self.w.dispInvis),
                                     None,
-                                    ('Color', self.w.dispColor)])
+                                    ('Color', self.w.dispObjectColor)])
 
     def copy(self):
         print 'NYI'

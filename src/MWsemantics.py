@@ -23,21 +23,26 @@ def fileparse(name):
     return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
 
 class MWsemantics(MainWindow):
-    def __init__(self,parent = None,name = None,fl = 0):
+    def __init__(self,parent = None, name = None, fl = 0):
+	
+        ### Added by Huaicai
+        #self.glpane = GLPane(self.assy)	
 
         global windowList
-        MainWindow.__init__(self,parent,name,fl)
+        MainWindow.__init__(self, parent, name, fl)
         
-        # start with empty window
-        self.assy = assembly(self)
         windowList += [self]
+	# start with empty window
+        self.assy = assembly(self)
         if name == None:
             self.setName("Atom")
 
 
         self.glpane = GLPane(self.assy, self.frame4, "glpane", self)
-
+        
+	
         self.frame4Layout.addWidget(self.glpane)
+
 
     ###################################
     # functions from the "File" menu
@@ -86,13 +91,23 @@ class MWsemantics(MainWindow):
             if self.assy.filename:
                 dir, fil, ext = fileparse(self.assy.filename)
             else: dir, fil = "./", self.assy.name
-            fn = QFileDialog.getSaveFileName(dir + fil + ".mmp",
-                                             "Molecular machine parts (*.mmp)",
-                                             self )
+            
+	    fileDialog = QFileDialog(dir, "Molecular machine parts (*.mmp);;Molecules (*.pdb)", 								        self, "Save File As", 1)
+            if self.assy.filename:
+                fileDialog.setSelection(fil)
+
+            fileDialog.setMode(QFileDialog.AnyFile)
+	    if fileDialog.exec_loop() == QDialog.Accepted:
+            	fn = fileDialog.selectedFile()
             if fn:
                 fn = str(fn)
                 dir, fil, ext = fileparse(fn)
-                self.assy.writemmp(dir + fil + ".mmp")
+                ext = fileDialog.selectedFilter()
+                ext = str(ext)
+                if ext[-4:-1] == "mmp":
+                    self.assy.writemmp(dir + fil + ".mmp")
+                elif ext[-4:-1] == "pdb":
+                    self.assy.writepdb(dir + fil + ".pdb")
 
     def fileImage(self):
         if self.assy:
@@ -112,28 +127,40 @@ class MWsemantics(MainWindow):
 
     def editUndo(self):
         print "MWsemantics.editUndo(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     def editRedo(self):
         print "MWsemantics.editRedo(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     def editCut(self):
         print "MWsemantics.editCut(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     def editCopy(self):
         print "MWsemantics.editCopy(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     def editPaste(self):
         print "MWsemantics.editPaste(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     def editFind(self):
         print "MWsemantics.editFind(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     ###################################
     # functions from the "Display" menu
     ###################################
 
     # this will pop up a new window onto the same assembly
-    def dispNewView(self):
+    def windowNewWindow(self):
 	if self.assy:
             foo = MWsemantics()
 	    foo.assy = foo.glpane.assy = self.assy
@@ -146,11 +173,11 @@ class MWsemantics(MainWindow):
 	
 
     # GLPane.ortho is checked in GLPane.paintGL
-    def dispOrtho(self):
+    def viewOrtho(self):
         self.glpane.ortho = 1
         self.glpane.paintGL()
 
-    def dispPerspec(self):
+    def viewPerspec(self):
         self.glpane.ortho = 0
         self.glpane.paintGL()
 
@@ -195,7 +222,7 @@ class MWsemantics(MainWindow):
     # set the color of the selected part(s) (molecule)
     # or the background color if no part is selected.
     # atom colors cannot be changed singly
-    def dispColor(self):
+    def dispObjectColor(self):
         c = self.colorchoose()
         if self.assy and self.assy.selmols:
             for ob in self.assy.selmols:
@@ -225,6 +252,8 @@ class MWsemantics(MainWindow):
 
     def gridGraphite(self):
         print "MWsemantics.gridGraphite(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     ###################################
     # functions from the "Orientation" menu
@@ -295,6 +324,8 @@ class MWsemantics(MainWindow):
 
     def makeHandle(self):
         print "MWsemantics.makeHandle(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     def makeMotor(self):
         if not self.assy: return
@@ -308,16 +339,21 @@ class MWsemantics(MainWindow):
 
 
     def makeBearing(self):
-        print "MWsemantics.makeBearing(): Not implemented yet"
+        QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     def makeSpring(self):
-        print "MWsemantics.makeSpring(): Not implemented yet"
-
+        QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
     def makeDyno(self):
         print "MWsemantics.makeDyno(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     def makeHeatsink(self):
         print "MWsemantics.makeHeatsink(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     ###################################
     # functions from the "Modify" menu
@@ -353,27 +389,30 @@ class MWsemantics(MainWindow):
 
     def helpIndex(self):
         print "MWsemantics.helpIndex(): Not implemented yet"
-
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
     def helpAbout(self):
-        print "MWsemantics.helpAbout(): Not implemented yet"
+        QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
 
     ##############################################################
     # functions from the buttons down the left side of the display
     ##############################################################
 
     # set up cookiecutter mode
-    def cookieCut(self):
+    def toolsCookieCut(self):
         self.glpane.setMode('COOKIE')
 
     # "push down" one nanometer to cut out the next layer
-    def cookieLayer(self):
+    def toolsCCAddLayer(self):
         if self.glpane.shape:
             self.glpane.pov -= self.glpane.shape.pushdown()
             self.assy.updateDisplays()
 
     # fill the shape created in the cookiecutter with actual
     # carbon atoms in a diamond lattice (including bonds)
-    def cookieBake(self):
+    def toolsDone(self):
         self.glpane.mode.Done()
 
     # the elements combobox:
@@ -419,22 +458,26 @@ class MWsemantics(MainWindow):
         self.glpane.mode.Done()
 
     # create bonds where reasonable within selection
-    def movie(self):
+    def toolsMovie(self):
         dir, fil, ext = fileparse(self.assy.filename)
         self.glpane.startmovie(dir + fil + ".dpb")
 
     # create bonds where reasonable between selected and unselected
     def bondEdge(self):
         print "MWsemantics.bondEdge(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
-    # (stolen button) turn on or off the axis icon
-    def ubondAll(self):
+    # Turn on or off the axis icon
+    def dispTrihedron(self):
         self.glpane.drawAxisIcon = not self.glpane.drawAxisIcon
         self.glpane.paintGL()
 
     # break bonds between selected and unselected atoms
-    def ubondEdge(self):
-        print "MWsemantics.ubondEdge(): Not implemented yet"
+    def modifyDeleteBond(self):
+        print "MWsemantics.modifyDeleteBond(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     # Make a copy of the selected part (molecule)
     # cannot copy individual atoms
@@ -447,8 +490,10 @@ class MWsemantics(MainWindow):
     # having unselected the original and selected the copy.
     # the motion is to be the same relative motion done to a part
     # between copying and bondEdging it.
-    def copyBond(self):
-        print "MWsemantics.copyBond(): Not implemented yet"
+    def modifyCopyBond(self):
+        print "MWsemantics.modifyCopyBond(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
 
     # delete selected parts or atoms
     def killDo(self):
@@ -467,3 +512,70 @@ class MWsemantics(MainWindow):
         if e.key() == Qt.Key_Delete:
             self.killDo()
 
+
+
+    ##############################################################
+    # Some future slot functions for the UI                      #
+    ##############################################################
+
+    def dispBGColor(self):
+        """ Change backgound color of the graphics window """
+        QMessengeBox.warning(self, "ATOM User Notice:", 
+		"This function is not implemented yet, coming soon...")
+    def dispCsys(self):
+	""" Toggle on/off center coordinate axes """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def dispDatumLines(self):
+        """ Toggle on/off datum lines """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def dispDatumPlanes(self):
+        """ Toggle on/off datum planes """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def dispOpenBonds(self):
+        """ Toggle on/off open bonds """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def editPrefs(self):
+        """ Edit square grid line distances(dx, dy, dz) in nm/angtroms """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+ 
+    def elemChangePTable(self):
+        """ Future: element change via periodic table (only elements we support) """
+
+    def fileClear(self):
+        """ Closes part without Save (Clears the graphics window) """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def fileClose(self):
+	""" Closes part with Save (leaves the graphics window empty) """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def fileSetWorkDir(self):
+	""" Sets working directory (need dialogue window) """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def modifyMinimize(self):
+        """ Minimize """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def toolsSimulator(self):
+	""" Open simulator dialog window """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+
+    def viewFitToWindow(self):
+        """ Fit to Window """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")

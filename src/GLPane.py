@@ -75,7 +75,6 @@ allQuats = quats100 + quats110 + quats111
 class GLPane(QGLWidget):
     """Mouse input and graphics output in the main view window.
     """
-
     def __init__(self, assem, master=None, name=None, win=None):
         QGLWidget.__init__(self,master,name)
         global paneno
@@ -319,7 +318,6 @@ class GLPane(QGLWidget):
         p1 = A(gluUnProject(x, y, 0.01))
         return (p1, p2)
 
-
     def SaveMouse(self, event):
         """Extracts mouse position from event and saves it.
         (localizes the API-specific code for extracting the info)
@@ -358,21 +356,17 @@ class GLPane(QGLWidget):
         if not self.initialised: return
 
         start=time()
-        self.makeCurrent()
-
-        w=self.width
-        h=self.height
-        aspect = (w+0.0)/(h+0.0)
-        glViewport(0, 0, w, h)
+     
         c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+	glMatrixMode(GL_MODELVIEW)
+	glLoadIdentity()
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
 
+	aspect = (self.width + 0.0)/(self.height + 0.0)
         if self.drawAxisIcon: self.drawarrow(aspect)
         
         vdist = 6.0 * self.scale
@@ -386,8 +380,7 @@ class GLPane(QGLWidget):
                       vdist*self.near, vdist*self.far)
 
         glMatrixMode(GL_MODELVIEW)
-
-        glTranslatef(0.0, 0.0, - vdist)
+	glTranslatef(0.0, 0.0, - vdist)
 
         q = self.quat
         
@@ -425,9 +418,11 @@ class GLPane(QGLWidget):
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
         """
-        self.makeCurrent()
         self.width = width
         self.height = height
+        
+	glViewport(0, 0, self.width, self.height)
+        
         if not self.initialised:
             self.initialised = 1
         self.trackball.rescale(width, height)
