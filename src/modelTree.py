@@ -441,7 +441,7 @@ class modelTree(TreeWidget):
         selgroup = nodeset[0].find_selection_group()
         ## if selgroup != self.tree_node: return
         ##     # should never be called this way so far, tho it'd work if it was
-        # begin kluge block: [I don't yet know if this will work! #####@@@@@]
+        # begin kluge block: [I don't yet know if this will work! In fact, it works on Mac but not on Windows.]
         from HistoryWidget import greenmsg #e or use redmsg here? or orange, for a warning?
         from Utility import node_name
         msg = "briefly showing %r; most operations unsafe in Alpha; click in model tree to end" % node_name(selgroup)
@@ -449,7 +449,9 @@ class modelTree(TreeWidget):
         oldtree = selgroup.assy.tree
         selgroup.assy.tree = selgroup
         try:
-            self.win.glpane.paintGL() # direct repaint
+            self.win.glpane.paintGL()
+                # direct repaint, not gl_update, since the next gl_update's
+                # redraw will redraw the main part
         finally:
             selgroup.assy.tree = oldtree
         return # without updating!

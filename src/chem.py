@@ -765,9 +765,13 @@ class atom:
         for j in self.jigs[:]: #bruce 050214 copy list as a precaution
             try:
                 j.rematom(self)
+                # [bruce 050215 comment: this might kill the jig (if it has no
+                #  atoms left), and/or it might remove j from self.jigs, but it
+                #  will never recursively kill this atom, so it should be ok]
             except:
                 print_compact_traceback("fyi: atom.kill: ignoring error in rematom %r from jig %r: " % (self,j) )
         self.jigs = [] #bruce 041029 mitigate repeated kills
+            # [bruce 050215 comment: this should soon no longer be needed, but will be kept as a precaution]
         
         # remove bonds
         for b in self.bonds[:]: #bruce 050214 copy list as a precaution

@@ -1599,6 +1599,8 @@ class molecule(Node, InvalMixin):
         ## numol.shakedown()
         numol.setDisplay(self.display)
         numol.dad = dad
+        if dad and platform.atom_debug: #bruce 050215
+            print "atom_debug: mol.copy got an explicit dad (this is deprecated):", dad
         try:
             numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py
             # (renamed to start '_' for efficiency in __getattr__ when missing)

@@ -918,7 +918,7 @@ class assembly:
         #  About chunk.copy: it sets numol.assy but doesn't add it to assy,
         #  and it sets numol.dad but doesn't add it to dad's members -- so we do that immediately
         #  in addmember. So we end up with a members list of copied chunks from assy.tree.]
-        self.tree.apply2picked(lambda(x): new.addmember(x.copy(new)))
+        self.tree.apply2picked(lambda(x): new.addmember(x.copy(None))) #bruce 050215 changing mol.copy arg from new to None #####@@@@@ test
 
         # unlike for cut, no self.changed() should be needed
         
