@@ -223,10 +223,10 @@ class selectMode(basicMode):
             ('Tubes', self.w.dispTubes),
             ('VdW', self.w.dispVdW),
             None,
-            ('Reset Chunk Color', self.w.dispResetChunkColor),
-            ('Reset Chunk Display', self.w.dispResetChunkDisplay),
-            ('Show Invisible Atoms', self.w.dispShowInvisAtoms),
             ('Chunk Color...', self.w.dispObjectColor),
+            ('Reset Chunk Color', self.w.dispResetChunkColor),
+            ('Reset Atoms Display', self.w.dispResetAtomsDisplay),
+            ('Show Invisible Atoms', self.w.dispShowInvisAtoms),
             ]
 
     def move(self):
@@ -297,6 +297,7 @@ class selectAtomsMode(selectMode):
             
         def restore_gui(self):
             self.w.selectAtomsDashboard.hide()
+            self.w.SAFilter.setChecked(0)
             
         def keyPress(self,key):
             basicMode.keyPress(self, key)
