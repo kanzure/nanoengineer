@@ -194,6 +194,11 @@ class modifyMode(basicMode):
             ('Stretch', self.o.assy.Stretch),
             ('Kill', self.o.assy.kill),
             ('Hide', self.o.assy.Hide) ]
+
+        self.debug_Menu_spec = [
+            ('debug: invalidate selection', self.invalidate_selection),
+            ('debug: update selection', self.update_selection),
+         ]
         
         self.Menu_spec_control = [
             ('Invisible', self.w.dispInvis),
@@ -205,7 +210,23 @@ class modifyMode(basicMode):
             ('VdW', self.w.dispVdW),
             None,
             ('Color', self.w.dispObjectColor) ]
-                
+
+    def invalidate_selection(self): #bruce 041115 (debugging method)
+        "[debugging method] invalidate all aspects of selected atoms or mols"
+        for atm in self.o.assy.selatoms.values():
+            atm.invalidate_everything()
+        for mol in self.o.assy.selmols:
+            mol.invalidate_everything()
+
+    def update_selection(self): #bruce 041115 (debugging method)
+        """[debugging method] update all aspects of selected atoms or mols;
+        no effect expected unless you invalidate them first
+        """
+        for atm in self.o.assy.selatoms.values():
+            atm.update_everything()
+        for mol in self.o.assy.selmols:
+            mol.update_everything()
+        
     def skip(self):
         pass
 
