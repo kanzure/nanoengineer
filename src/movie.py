@@ -204,9 +204,9 @@ class Movie:
             self.assy.w.moviePlayRevAction.setVisible(0)
 
         if not self.showEachFrame:
-            fadv = fnum - self.currentFrame
+            fadv = abs(fnum - self.currentFrame)
             if fadv != 1:
-                if abs(fadv) > 1000:
+                if fadv > 1000:
                     self.waitCursor = True
                     QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
                     self.assy.w.history.message(playDirection[ inc ] + "ing to frame " + str(fnum) + ".  You make select Pause at any time.")
