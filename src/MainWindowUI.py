@@ -1,4 +1,31 @@
+########### MainWindowUI.py
+"""The main window of Atom, controls are here
+"""
+
+import qt
+from qt import QMainWindow, QPixmap, QWidget, QFrame, QPushButton
+from qt import QGroupBox, QComboBox, QAction, QMenuBar, QPopupMenu
+from qt import SIGNAL, SLOT, QListView, QListViewItem, QFileDialog
+from GLPane import *
+import os
+import help
+import icons
+
+helpwindow = None
+windowList = []
+
+from constants import *
+from chem import fullnamePeriodicTable
+
+def fileparse(name):
+    """breaks name into directory, main name, and extension in a tuple.
+    fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
+    """
+    m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
+    return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
+
 # -*- coding: utf-8 -*-
+
 
 # Form implementation generated from reading ui file 'atom.ui'
 #
@@ -4859,6 +4886,9 @@ class MainWindow(QMainWindow):
         self.editCutAction = QAction(self,"editCutAction")
         self.editCutAction.setIconSet(QIconSet(self.image11))
         self.editCopyAction = QAction(self,"editCopyAction")
+        self.editCopyAction.setText(self.trUtf8("Copy"))
+        self.editCopyAction.setMenuText(self.trUtf8("&Copy"))
+        self.editCopyAction.setAccel(self.trUtf8("Ctrl+C"))
         self.editCopyAction.setIconSet(QIconSet(self.image12))
         self.editPasteAction = QAction(self,"editPasteAction")
         self.editPasteAction.setIconSet(QIconSet(self.image13))

@@ -1,7 +1,7 @@
 import qt
 from qt import QMainWindow, QPixmap, QWidget, QFrame, QPushButton
 from qt import QGroupBox, QComboBox, QAction, QMenuBar, QPopupMenu
-from qt import SIGNAL, QFileDialog
+from qt import SIGNAL, SLOT, QListView, QListViewItem, QFileDialog
 from GLPane import *
 import os
 import help
@@ -14,6 +14,10 @@ from MainWindowUI import MainWindow
 helpwindow = None
 windowList = []
 
+#Added by huaicai
+from RotMotorProp import RotMotorProp
+from LinearMotorProp import LinearMotorProp
+#from gadgets import LinearMotor
 
 def fileparse(name):
     """breaks name into directory, main name, and extension in a tuple.
@@ -53,9 +57,11 @@ class MWsemantics(MainWindow):
         self.frame4Layout.addWidget(self.glpane)
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
+#<<<<<<< MWsemantics.py
 
         self.setFocusPolicy(QWidget.StrongFocus)
         
+#>>>>>>> 1.13
         self.Element = 'C'
         self.elTab = [('C', Qt.Key_C, 0),
                       ('H', Qt.Key_H, 1),
@@ -69,6 +75,8 @@ class MWsemantics(MainWindow):
                       ('S', Qt.Key_S, 9),
                       ('Cl', Qt.Key_L, 10)]
 
+        self.treeItems = {} #Dictionary stores the pair of (tree item, real model object)
+	self.selectedTreeItem = None         
 
     ###################################
     # functions from the "File" menu
@@ -124,8 +132,10 @@ class MWsemantics(MainWindow):
                 fileDialog.setSelection(fil)
 
             fileDialog.setMode(QFileDialog.AnyFile)
-	    if fileDialog.exec_loop() == QDialog.Accepted:
+	    fn = None
+            if fileDialog.exec_loop() == QDialog.Accepted:
             	fn = fileDialog.selectedFile()
+            
             if fn:
                 fn = str(fn)
                 dir, fil, ext = fileparse(fn)
@@ -607,3 +617,80 @@ class MWsemantics(MainWindow):
         """ Fit to Window """
 	QMessageBox.warning(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
+
+###############################################################################
+    def editLinearMotor(self):
+        linearMotor = self.treeItems[self.selectedTreeItem]
+        lMotorDialog = LinearMotorProp(linearMotor)
+        lMotorDialog.show()
+        lMotorDialog.exec_loop()    
+
+    def editRotMotor(self):
+        rotaryMotor = self.treeItems[self.selectedTreeItem]
+        rMotorDialog = RotMotorProp(rotaryMotor)
+        rMotorDialog.show()
+        rMotorDialog.exec_loop()    
+
+
+	
+    def processRightButton(self, listItem, pos, col):
+        """ Context menu items function handler for the Model Tree View """
+        if col == -1: return
+        if not listItem or not self.modelTreeView.isSelected(listItem): return 
+        self.selectedTreeItem = listItem
+        clickedItem = self.treeItems[listItem]
+
+        if clickedItem.__class__.__name__ == 'LinearMotor':
+           _popupMenu = QPopupMenu()
+           editAction = QAction(self, 'linearMototEditAction')
+	   editAction.setText(self.trUtf8("&Edit..."))
+           editAction.setMenuText(self.trUtf8("&Edit..."))
+           editAction.addTo(_popupMenu)
+
+           self.connect(editAction, SIGNAL("activated()"), self.editLinearMotor)
+           _popupMenu.exec_loop(pos)
+        
+	elif clickedItem.__class__.__name__ == 'motor':
+           _popupMenu = QPopupMenu()
+           editAction = QAction(self, 'rotMototEditAction')
+	   editAction.setText(self.trUtf8("&Edit..."))
+           editAction.setMenuText(self.trUtf8("&Edit..."))
+           editAction.addTo(_popupMenu)
+
+           self.connect(editAction, SIGNAL("activated()"), self.editRotMotor)
+           _popupMenu.exec_loop(pos)
+        
+
+
+    def buildTree(self):
+        """ Build the tree structure of the current model """
+        self.modelTreeView.clear()
+        self.modelTreeView.setSorting(-1)
+	self.modelTreeView.setRootIsDecorated(1)
+        self.connect(self.modelTreeView, 
+                SIGNAL("rightButtonPressed(QListViewItem*,const QPoint&,int)"), 
+                                                     self.processRightButton)
+
+        rootItem = QListViewItem(self.modelTreeView, self.assy.name)
+        rootItem.setPixmap(0,self.image1)
+        self.treeItems[rootItem] = None
+
+        item = QListViewItem(rootItem, "Tri-hedron")
+	item.setPixmap(0, self.image42)
+        self.treeItems[item] = None
+        item = QListViewItem(rootItem, "Datum plane")
+        item.setPixmap(0, self.image2) 
+        self.treeItems[item] = None
+        
+        for mol in self.assy.molecules:
+            mitem = QListViewItem(rootItem, mol.name)
+            mitem.setPixmap(0, self.image19)
+            self.treeItems[mitem] = mol
+            item = QListViewItem(mitem, "Total %d atoms" % len(mol.atoms))
+            self.treeItems[item] = None
+
+            gIndex = 1
+            for g in mol.gadgets:
+                item = QListViewItem(mitem, g.__class__.__name__ + str(gIndex))
+                self.treeItems[item] = g
+                gIndex += 1

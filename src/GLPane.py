@@ -370,7 +370,8 @@ class GLPane(QGLWidget):
         """
         if not self.initialised: return
 
-        start=time()
+        #start=time()
+        self.win.buildTree()
      
         c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)

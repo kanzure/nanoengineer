@@ -34,7 +34,7 @@ class motor:
         self.axis=norm(xs)
 
     # for a motor read from a file, the "shaft" record
-    def setshaft(self, shft):
+    def setShaft(self, shft):
         self.atoms=shft
         # this is a hack, but a motor shouldn't be
         # attached to more than one molecule anyway
@@ -120,14 +120,14 @@ class LinearMotor:
 
     # create a blank motor connected to anything
     def __init__(self, assy):
-        self.force = V(0.0, 0.0, 0.0)
+        self.force = 0.0
         self.stiffness = 0.0
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
         self.atoms = []
         self.picked = 0
         self.molecule = None
-
+    
     # for a linear motor read from a file, the "linear motor" record
     def setCenter(self, force, stiffness, center, axis):
         self.force = force
@@ -210,16 +210,15 @@ class LinearMotor:
     def __repr__(self, ndix = None):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        s = "linmotor %.2f, (%d, %d, %d) (%d, %d, %d) (%.2f, %.2f, %.2f)\n" %\
-           (self.stiffness,
+        s = "linmotor %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
+           (self.stiffness, self.force, 
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
-            int(axyz[0]), int(axyz[1]), int(axyz[2]),
-            self.force[0], self.force[1], self.force[2])
+            int(axyz[0]), int(axyz[1]), int(axyz[2]))
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
             nums = map((lambda a: a.key), self.atoms)
-        return s + "linshaft " + " ".join(map(str, nums))
+        return s + "shaft " + " ".join(map(str, nums))
 
 
 
