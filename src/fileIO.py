@@ -112,9 +112,19 @@ def writepdb(assy, filename):
     f.close()   
 
 
+def _addMolecule(mol, assy, group):
+        """Make sure to call this function before any other record operation except for record types: atom, bond, shaft and csys, dataum, walls, kelvin. This adds the previous molecule to its group """
+        
+        assy.addmol(mol)
+        mol.moveto(group)
+        mol = None
+        
+        return mol        
+
+
 def _readmmp(assy, filnam, isInsert = False):
     """The routine to actually reading a mmp file and save data
-    into data structure """
+    into data structure"""
     #bruce 041011: added 'U' to file mode, for universal newline support.
     l=open(filnam,"rU").readlines() 
     if not isInsert: assy.filename=filnam
@@ -122,9 +132,9 @@ def _readmmp(assy, filnam, isInsert = False):
     ndix={}
     assy.alist = []
     #assy.tree = Group("Root", assy, None)
-    groupstack = []
-    grouplist = []
-    opengroup = None
+    groupstack = [] #stack to store (group, name) tuples
+    grouplist = []     #List of top level groups will be returned by the function
+    opengroup = None #The only current group which can accept children
  
     for card in l:
         key=keypat.match(card)
@@ -132,10 +142,16 @@ def _readmmp(assy, filnam, isInsert = False):
         key = key.group(0)
 
         if key == "group": # Group of Molecules and/or Groups
+            ##Huaicai to fix bug 142---12/09/04
+            if mol:
+                    mol = _addMolecule(mol, assy, opengroup)
+                    
             name = getname(card, "Grp")
             opengroup = Group(name, assy, opengroup)#assy.tree)
             if not groupstack: grouplist += [opengroup]
-            groupstack = [(opengroup, name)] + groupstack
+            
+            #"opengroup" will be always at the top of "groupstack" 
+            groupstack = [(opengroup, name)] + groupstack 
 
         if key == "egroup": # Group of Molecules and/or Groups
             name = getname(card, "Grp")
@@ -144,18 +160,14 @@ def _readmmp(assy, filnam, isInsert = False):
                 print "mismatched group records:", name, curnam
                 break
             if mol:
-                assy.addmol(mol)
-                mol.moveto(curgrp)
-                mol = None
+                mol = _addMolecule(mol, assy, curgrp)
             groupstack = groupstack[1:]
             if groupstack: opengroup, junk = groupstack[0]
             else: opengroup = None
 
         elif key=="mol":
             if mol:
-                assy.addmol(mol)
-                mol.moveto(opengroup)
-                mol = None
+                mol = _addMolecule(mol, assy, opengroup)
             name = getname(card, "Mole")
             mol=molecule(assy,  name)
             disp = molpat.match(card)
@@ -197,9 +209,7 @@ def _readmmp(assy, filnam, isInsert = False):
         # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)                           
         elif key == "rmotor":
             if mol:
-                assy.addmol(mol)
-                mol.moveto(opengroup)
-                mol = None
+                mol = _addMolecule(mol, assy, opengroup)
             m=rmotpat.match(card)
             name = m.group(1)
             col=map(lambda (x): int(x)/255.0,
@@ -216,14 +226,12 @@ def _readmmp(assy, filnam, isInsert = False):
             list = map(int, re.findall("\d+",card[6:]))
             list = map((lambda n: ndix[n]), list)
             prevmotor.setShaft(list)
-
+              
         # Read the MMP record for a Linear Motor as:
         # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
         elif key == "lmotor":
             if mol:
-                assy.addmol(mol)
-                mol.moveto(opengroup)
-                mol = None
+                mol = _addMolecule(mol, assy, opengroup)
             m=lmotpat.match(card)
             name = m.group(1)
             col=map(lambda (x): int(x)/255.0,
@@ -241,9 +249,7 @@ def _readmmp(assy, filnam, isInsert = False):
     
         elif key == "ground":
             if mol:
-                assy.addmol(mol)
-                mol.moveto(opengroup)
-                mol = None
+                mol = _addMolecule(mol, assy, opengroup)
             
             m=grdpat.match(card)
             name = m.group(1)
@@ -265,9 +271,7 @@ def _readmmp(assy, filnam, isInsert = False):
                 
         elif key == "stat":
             if mol:
-                assy.addmol(mol)
-                mol.moveto(opengroup)
-                mol = None
+                mol = _addMolecule(mol, assy, opengroup)
             
             m=statpat.match(card)
             name = m.group(1)
@@ -286,12 +290,7 @@ def _readmmp(assy, filnam, isInsert = False):
             sr.color=col
             sr.temp=temp
             opengroup.addmember(sr)
-                                 
-        elif key == "shaft":
-            list = map(int, re.findall("\d+",card[6:]))
-            list = map((lambda n: ndix[n]), list)
-            prevmotor.setShaft(list)
-
+ 
         elif key=="csys": # Coordinate System
             if not isInsert: #Skip this record if inserting
                 m=re.match(csyspat,card)
@@ -304,10 +303,6 @@ def _readmmp(assy, filnam, isInsert = False):
 
         elif key=="datum": # Datum object
             if not isInsert: #Skip this record if inserting
-                if mol:
-                        assy.addmol(mol)
-                        mol.moveto(opengroup)
-                        mol = None
                 m=re.match(datumpat,card)
                 if not m:
                         print card
