@@ -691,7 +691,15 @@ class atom:
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
         self.molecule.bond(self, x) # invals mol as needed
         return x # new feature, bruce 041222
-    
+
+    def get_neighbor_bond(self, neighbor):
+        '''Return the bond to a neighboring atom, or None if none exists.
+        '''
+        for b in self.bonds:
+            if b.other(self) == neighbor:
+               return b
+        return None
+            
     def hopmol(self, numol): #bruce 041105-041109 extensively revised this
         """If this atom is not already in molecule numol, move it
         to molecule numol. (This only changes the owning molecule -- it doesn't
