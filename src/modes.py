@@ -724,8 +724,10 @@ class basicMode(anyMode):
         # Draw the Csys "coloraxes" and the POV "blue" axes
         # Mark 050131
         if self.o.cSysToggleButton: 
-            drawer.drawaxes(2.5, (0.0,0.0,0.0), coloraxes=True)
-            drawer.drawaxes(5, -self.o.pov)
+            drawer.drawaxes(5, (0.0,0.0,0.0), coloraxes=True)
+            
+            # Draw POV axes if not at origin.
+            if vlen(self.o.pov): drawer.drawaxes(5, -self.o.pov)
             
         # bruce 040929/041103 debug code -- for developers who enable this
         # feature, check for bugs in atom.picked and mol.picked for everything
