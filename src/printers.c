@@ -29,7 +29,7 @@ void bondump(FILE *f) {		/* gather bond statistics */
 	bt=bond[i].type;
 	btyp = bt-bstab;
 	totno[btyp]++;
-	r=vlen(vdif(positions[bond[i].an1], positions[bond[i].an2]));
+	r=vlen(vdif(Positions[bond[i].an1], Positions[bond[i].an2]));
 	means[btyp] += r;
 	perc = (r/bt->r0)*20.0 - 8.5;
 	k=(int)perc;
@@ -69,7 +69,7 @@ void speedump(FILE *f) {		/* gather bond statistics */
     }
 	
     for (i=0; i<Nexatom; i++) {
-	v=vlen(vdif(old_positions[i],positions[i]));
+	v=vlen(vdif(OldPositions[i],Positions[i]));
 	eng= atom[i].energ*v*v;
 	toteng += eng;
 	iv=(int)(eng*1e21);
@@ -109,13 +109,13 @@ void pa(FILE *f, int i) {
 	    fprintf(f, "[%d/%d]: %s%d, ", b, bond[b].order,
 		      element[atom[ba].elt].symbol, ba);
 	}
-	v=vlen(vdif(positions[i],old_positions[i]));
+	v=vlen(vdif(Positions[i],OldPositions[i]));
 	fprintf(f, "\n   V=%.2f, mV^2=%.6f, pos=", v,1e-4*v*v/atom[i].massacc);
-	pv(f, positions[i]);
+	pv(f, Positions[i]);
         fprintf(f, " oldpos=");
-        pv(f, old_positions[i]);
+        pv(f, OldPositions[i]);
         fprintf(f, " force=");
-	pvt(f, force[i]);
+	pvt(f, Force[i]);
 	fprintf(f, "   mass = %f, massacc=%e\n", element[atom[i].elt].mass,
 	       atom[i].massacc);
     }
@@ -159,7 +159,7 @@ void pb(FILE *f, int i) {
     if (i<0 || i>=Nexbon) fprintf(f, "bad bond number %d\n",i);
     else {
 	bt = bond[i].type;
-	len = vlen(vdif(positions[bond[i].an1],positions[bond[i].an2]));
+	len = vlen(vdif(Positions[bond[i].an1],Positions[bond[i].an2]));
 	fprintf(f, "bond %d[%d] [%s%d(%d)-%s%d(%d)]: length %.1f\n",
 		  i, bond[i].order,
 		  element[atom[bond[i].an1].elt].symbol, bond[i].an1, atom[bond[i].an1].elt,
@@ -195,8 +195,8 @@ void pq(FILE *f, int i) {
 		  (torq[i].dir2 ? torq[i].b2->an1 :  torq[i].b2->an2),
 		  (torq[i].dir2 ? torq[i].b2->an2 :  torq[i].b2->an1));
 		
-	r1=vdif(positions[torq[i].a1],positions[torq[i].ac]);
-	r2=vdif(positions[torq[i].a2],positions[torq[i].ac]);
+	r1=vdif(Positions[torq[i].a1],Positions[torq[i].ac]);
+	r2=vdif(Positions[torq[i].a2],Positions[torq[i].ac]);
 	fprintf(f, "r1= %.1f, r2= %.1f, theta=%.2f (%.0f)\n",
 		  vlen(r1), vlen(r2), vang(r1, r2),
 		  (180.0/3.1415)*vang(r1, r2));

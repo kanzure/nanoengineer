@@ -32,9 +32,9 @@ extern FILE *tracef;
 #define PICOSEC (1e-12)
 
 /** A space grid for locating non-bonded interactions */
-
 #define SPWIDTH 128
 #define SPMASK 127
+
 /** vector addition (incremental: add src to dest) */
 #define vadd(dest,src) dest.x+=src.x; dest.y+=src.y; dest.z+=src.z
 /** vector addition (non-incremental) */
@@ -303,11 +303,11 @@ extern double uft1[200];
 extern double uft2[200];
 extern double uffunc(double uf);
 //extern struct xyz f;
-extern struct xyz force[];
-extern struct xyz average_positions[];
-extern struct xyz *old_positions;
-extern struct xyz *new_positions;
-extern struct xyz *positions;
+extern struct xyz Force[];
+extern struct xyz AveragePositions[];
+extern struct xyz *OldPositions;
+extern struct xyz *NewPositions;
+extern struct xyz *Positions;
 extern struct xyz Center;
 extern struct xyz Bbox[2];
 extern struct xyz diam[5];
@@ -356,10 +356,6 @@ extern struct xyz Cog;
 extern struct xyz P;
 extern struct xyz Omega;
 extern void speedump(FILE *f);
-extern double t1[150];
-extern double t2[150];
-extern double start;
-extern int scale;
 extern void maktab(double *t1, double *t2, double func(double), double start, int length, int scale);
 extern double bender(double rsq);
 extern double hooke(double rsq);
@@ -396,7 +392,6 @@ extern struct MOT *makmot(double stall, double speed, struct xyz vec1, struct xy
 extern void makmot2(int i);
 extern void pcon(FILE *f, int i);
 extern void filred(char *filnam);
-extern int ShotNo;
 extern void calcloop(int iters);
 extern void minimize(int NumFrames);
 extern void keyboard(unsigned char key, int x, int y);

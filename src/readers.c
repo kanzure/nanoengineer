@@ -25,14 +25,14 @@ void makatom(int elem, struct xyz posn) {
     atom[Nexatom].massacc= Dt*Dt / mass;
 	
     /* set position and initialize thermal velocity */
-    positions[Nexatom]=posn;
-    old_positions[Nexatom]=posn;
-    average_positions[Nexatom]=posn;
+    Positions[Nexatom]=posn;
+    OldPositions[Nexatom]=posn;
+    AveragePositions[Nexatom]=posn;
     // assuming the structure is minimized, half of this will 
     // disappear into Pe on average 
     therm = sqrt(2.0*(Boltz*Temperature)/mass)*Dt/Dx;
     v=gxyz(therm);
-    vsub(old_positions[Nexatom],v);
+    vsub(OldPositions[Nexatom],v);
 	
     /* thermostat trigger stays high, since slower motions shouldn't
        reach the unstable simulation regions of phase space
@@ -98,7 +98,7 @@ void makbond(int a, int b, int ord) {
     atom[a2].bonds[atom[a2].nbonds++]=n;
 
 	
-    bl = vlen(vdif(positions[a], positions[b]));
+    bl = vlen(vdif(Positions[a], Positions[b]));
     sbl = bond[n].type->r0;
     /*
     if (bl> 1.11*sbl || bl<0.89*sbl)
@@ -158,8 +158,8 @@ void maktorq(int a, int b) {
 	torq[Nextorq].ac=bond[a].an2;
     }
 
-    theta = vang(vdif(positions[torq[Nextorq].a1],positions[torq[Nextorq].ac]),
-		 vdif(positions[torq[Nextorq].a2],positions[torq[Nextorq].ac]));
+    theta = vang(vdif(Positions[torq[Nextorq].a1],Positions[torq[Nextorq].ac]),
+		 vdif(Positions[torq[Nextorq].a2],Positions[torq[Nextorq].ac]));
     th0=torq[Nextorq].theta0;
     /*
     if (theta> 1.25*th0 || theta<0.75*th0)
@@ -248,13 +248,13 @@ void makmot2(int i) {
 	mass = element[atom[atlis[j]].elt].mass * 1e-27;
 		
 	/* find its projection onto the rotation vector */
-	r=vdif(positions[atlis[j]],mot->center);
+	r=vdif(Positions[atlis[j]],mot->center);
 	x=vdot(r,mot->axis);
 	vmul2c(q,mot->axis,x);
 	vadd2(mot->atocent[j],q,mot->center);
 		
 	/* and orthogonal distance */
-	r=vdif(positions[atlis[j]],mot->atocent[j]);
+	r=vdif(Positions[atlis[j]],mot->atocent[j]);
 	mot->ator[j] = r;
 	mot->radius[j]=vlen(r);
 	if (mot->radius[j] > rmax) vrmax=r;
@@ -600,12 +600,12 @@ void filred(char *filnam) {
 	
     /* find bounding box */
 	
-    vset(vec1, positions[0]);
-    vset(vec2, positions[0]);
+    vset(vec1, Positions[0]);
+    vset(vec2, Positions[0]);
 	
     for (i=1; i<Nexatom; i++) {
-	vmin(vec1,positions[i]);
-	vmax(vec2,positions[i]);
+	vmin(vec1,Positions[i]);
+	vmax(vec2,Positions[i]);
     }
     vadd2(Center, vec1, vec2);
     vmulc(Center, 0.5);
@@ -620,7 +620,7 @@ void filred(char *filnam) {
     
     vmul2c(vec1,P,1.0/totMass);
     for (i=1; i<Nexatom; i++) {
-	vadd(old_positions[i],vec1);
+	vadd(OldPositions[i],vec1);
     }
     
 	
