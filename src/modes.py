@@ -2,10 +2,8 @@
 """
 modes.py -- provides basicMode, the superclass for all modes, and modeMixin, for GLPane.
 
-BRUCE IS TEMPORARILY OWNING ALL MODE FILES for a few days starting 040922,
-in order to fix mode-related bugs by revising the interface between modes.py,
-all specific modes, and GLPane.py. During this period, please consult Bruce
-before any changes to these files.
+As of 041007 Bruce notes he relinquished ownership of this file some time ago;
+not sure if anyone owns it now.
 
 Originally written by Josh.
 
@@ -22,6 +20,8 @@ in the mode-specific overrides of those methods has been divided up as follows:
 Code for entering a specific mode (which used to be in the mode's setMode method) is now in
 the methods Enter and init_gui (in the mode-specific subclass). From the glpane, this is
 reached via basicMode._enterMode, called by methods from the glpane's modeMixin.
+
+(Note, init_gui and restore_gui were called show_toolbars and hide_toolbars before Mark ca. 041004.)
 
 Code for Cancelling a mode (which used to be in the mode's Flush method) is now divided
 between the methods haveNontrivialState, StateCancel, restore_gui, restore_patches, and clear.
@@ -256,17 +256,8 @@ class basicMode(anyMode):
                 # I don't think this can happen, but if it does, it's either a bug or we're some fake mode like nullMode. #k
                 print "fyi (for developers): self.modename == modename but not self.o.mode == self (probably ok)" ###
                 # now change modes in the normal way
-        if self.haveNontrivialState():
-            msg = "%s contains changes -- you must choose Done or Cancel\nbefore switching to mode %r." % (self.msg_modename, modename)
-            # "unsaved changes" might be misleading, since we're talking about "saved into the assembly" rather than "into the file"...
-            # so what would *you* call them? I decided to just call them "changes". This affected some other warnings too.
-            # BTW, this is not in fact a "warning" (as the dialog is labelled), but a "requirement"! Oh well. [bruce 040924]
-            self.o.warning(msg, ensure_visible = 1)
-            #e should use nicer modename for new mode, as well as old one...
-        else:
-            # Done or Cancel should be equivalent, but just in case above is a false negative, do Done
-            # (#e in future we might decide that some state is trivial for some new modes, not others; Done is better then, too)
-            self.Done( new_mode = modename)
+        # bruce 041007 removing code for warning about changes and requiring explicit Done or Cancel if self.haveNontrivialState()
+        self.Done( new_mode = modename)
 
     # methods for leaving this mode (from a dashboard tool or an internal request).
 
