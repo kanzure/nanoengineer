@@ -1050,7 +1050,15 @@ class depositMode(basicMode):
             #  singlet in the list for a given real atom -- e.g. maybe we should
             #  average the spots computed for all singlets of the same real atom.
             #  But this is good enough for now.)
-            real = s.singlet_neighbor()
+            ###@@@ bruce 050221: bug 372: sometimes s is not a singlet. how can this be??
+            # guess: mol.singlets is not always invalidated when it should be. But even that theory
+            # doesn't seem to fully explain the bug report... so let's find out a bit more, at least:
+            try:
+                real = s.singlet_neighbor() 
+            except:
+                print_compact_traceback("bug 372 caught red-handed: ")
+                print "bug 372-related data: mol = %r, mol.singlets = %r" % (mol, mol.singlets)
+                continue
             if real not in rl:
                 pl += [(s, self.findSpot(el, s))]
                 rl += [real]

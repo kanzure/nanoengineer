@@ -902,7 +902,8 @@ class atom:
     
     def singlet_neighbor(self): #bruce 041109 moved here from extrudeMode.py
         "return the atom self (a known singlet) is bonded to, checking assertions"
-        assert self.element == Singlet
+        assert self.element == Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
+            #bruce 050221 added data to the assert, hoping to track down bug 372 when it's next seen
         obond = self.bonds[0]
         atom = obond.other(self)
         assert atom.element != Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self,atom)
