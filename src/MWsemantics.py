@@ -6,6 +6,7 @@ from GLPane import *
 import os
 import help
 from runSim import runSim
+from modelTree import *
 
 from constants import *
 from chem import fullnamePeriodicTable
@@ -39,29 +40,22 @@ class MWsemantics(MainWindow):
 	# start with empty window
         self.assy = assembly(self, "Empty")
 
-        self.frame4 = QFrame(self.centralWidget(),"frame4")
-        self.frame4.setSizePolicy(QSizePolicy(3,3,0,0,False))
-        self.frame4.setFrameShape(QFrame.NoFrame)
-        self.frame4.setFrameShadow(QFrame.Plain)
-        self.frame4Layout = QHBoxLayout(self.frame4,0,0,"frame4Layout")
+        self.MFLayout = QHBoxLayout(self.mainFrame,0,0,"MFLayout")
 
-        Form1Layout = QVBoxLayout(self.centralWidget(),11,6,"Form1Layout")
-        Form1Layout.addWidget(self.frame4)
+        vertLayout = QVBoxLayout(self.centralWidget(),11,6,"Form1Layout")
+        vertLayout.addWidget(self.mainFrame)
 
-        self.modelTreeView.reparent(self.frame4, 0, QPoint(0,0), True)
-        self.frame4Layout.addWidget(self.modelTreeView)
-        self.modelTreeView.setSizePolicy(QSizePolicy(0,7,0,244,False))
-
+        self.modelTreeView = modelTree(self.mainFrame)
+        self.MFLayout.addWidget(self.modelTreeView)
         
-        self.glpane = GLPane(self.assy, self.frame4, "glpane", self)   
-        self.frame4Layout.addWidget(self.glpane)
+        self.glpane = GLPane(self.assy, self.mainFrame, "glpane", self)   
+        self.MFLayout.addWidget(self.glpane)
+
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
-#<<<<<<< MWsemantics.py
 
         self.setFocusPolicy(QWidget.StrongFocus)
         
-#>>>>>>> 1.13
         self.Element = 'C'
         self.elTab = [('C', Qt.Key_C, 0),
                       ('H', Qt.Key_H, 1),
@@ -74,8 +68,9 @@ class MWsemantics(MainWindow):
                       ('P', Qt.Key_P, 8),
                       ('S', Qt.Key_S, 9),
                       ('Cl', Qt.Key_L, 10)]
-
-        self.treeItems = {} #Dictionary stores the pair of (tree item, real model object)
+        
+        # Dictionary stores the pair of (tree item, real model object)
+        self.treeItems = {} 
 	self.selectedTreeItem = None         
 
     ###################################

@@ -49,7 +49,7 @@ class assembly:
         # list of selected molecules
         self.selmols=[]
         # what to select: 0=atoms, 2 = molecules
-        self.selwhat = 0
+        self.selwhat = 2
         # level of detail to draw
         self.drawLevel = 2
         # currently unimplemented

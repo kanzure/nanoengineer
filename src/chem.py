@@ -243,6 +243,8 @@ class atom:
         the molecule, but a molecule's color overrides the atom's
         element-dependent one
         """
+
+        
         color = col or self.element.color
         disp, rad = self.howdraw(dispdef)
         # note use of basepos since it's being drawn under
@@ -474,6 +476,7 @@ class bond:
         CPK bonds are drawn in the molecule's color or bondColor
         (which is light gray)
         """
+        
         color1 = col or self.atom1.element.color
         color2 = col or self.atom2.element.color
 

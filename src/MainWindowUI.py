@@ -1,35 +1,8 @@
-########### MainWindowUI.py
-"""The main window of Atom, controls are here
-"""
-
-import qt
-from qt import QMainWindow, QPixmap, QWidget, QFrame, QPushButton
-from qt import QGroupBox, QComboBox, QAction, QMenuBar, QPopupMenu
-from qt import SIGNAL, SLOT, QListView, QListViewItem, QFileDialog
-from GLPane import *
-import os
-import help
-import icons
-
-helpwindow = None
-windowList = []
-
-from constants import *
-from chem import fullnamePeriodicTable
-
-def fileparse(name):
-    """breaks name into directory, main name, and extension in a tuple.
-    fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
-    """
-    m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
-    return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
-
 # -*- coding: utf-8 -*-
-
 
 # Form implementation generated from reading ui file 'atom.ui'
 #
-# Created: Thu Aug 12 15:35:10 2004
+# Created: Sat Aug 14 09:39:56 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,435 +11,197 @@ def fileparse(name):
 from qt import *
 
 image0_data = [
-"22 22 165 2",
-"#7 c #040404",
-"#. c #050505",
-"aw c #070707",
-"#J c #0a0a0a",
-"#h c #0b0b0b",
-"#8 c #0c0c0c",
-"#F c #0d0d0d",
-".M c #0f0f0f",
-"ax c #121212",
+"22 22 166 2",
+"Qt c None",
+"#8 c #040404",
+"## c #050505",
+"ax c #070707",
+"#K c #0a0a0a",
+"#i c #0b0b0b",
+"#9 c #0c0c0c",
+"#G c #0d0d0d",
+".N c #0f0f0f",
+"ay c #121212",
 ".x c #141414",
-"#6 c #161616",
-".1 c #171717",
-"#b c #171817",
-".9 c #181818",
-"ak c #191919",
-"#i c #1a1a1a",
+"#7 c #161616",
+".2 c #171717",
+"#c c #171817",
+"#. c #181818",
+"al c #191919",
+"#j c #1a1a1a",
 ".m c #1a1a1b",
 ".z c #1b1b1b",
-"#u c #1c1c1c",
-"#0 c #1d1d1f",
-"ab c #1e1f1e",
-"#1 c #1f1f1f",
-".S c #1f201f",
-"#c c #202120",
-"aF c #212121",
+"#v c #1c1c1c",
+"#1 c #1d1d1f",
+"ac c #1e1f1e",
+"#2 c #1f1f1f",
+".T c #1f201f",
+"#d c #202120",
+"aG c #212121",
 ".D c #222222",
 ".u c #232323",
-".N c #242424",
-"#o c #252525",
+".O c #242424",
+"#p c #252525",
 ".o c #262626",
-"#C c #282828",
-"#M c #292929",
+"#D c #282828",
+"#N c #292929",
 ".v c #2a2a2a",
-"#3 c #2b2b2b",
-".6 c #2c2c2c",
+"#4 c #2b2b2b",
+".7 c #2c2c2c",
 ".p c #2d2d2d",
 ".G c #2e2e2e",
-"ad c #2f2f2f",
-"#Y c #303030",
-"#a c #313231",
-"ao c #333333",
-"ai c #333433",
-"## c #343434",
-"#A c #343534",
-"#V c #353535",
-"#B c #363736",
-".8 c #383838",
-"az c #383938",
-"aC c #3a3a3a",
+"ae c #2f2f2f",
+"#Z c #303030",
+"#b c #313231",
+"ap c #333333",
+"aj c #333433",
+"#a c #343434",
+"#B c #343534",
+"#W c #353535",
+"#C c #363736",
+".9 c #383838",
+"aA c #383938",
+"aD c #3a3a3a",
 ".J c #3c3c3c",
-"#d c #3d3d3f",
-"#4 c #3d3e3d",
-".7 c #3e3f3e",
-"ar c #404040",
-"af c #414141",
+"#e c #3d3d3f",
+"#5 c #3d3e3d",
+".8 c #3e3f3e",
+"as c #404040",
+"ag c #414141",
 ".n c #424242",
-".5 c #454645",
-"#P c #474847",
-"aI c #494949",
+".6 c #454645",
+"#Q c #474847",
+"aJ c #494949",
 ".w c #494a49",
 ".F c #4a4a4a",
-"#5 c #4b4b4b",
-"#v c #4d4d4d",
-"#W c #4f504f",
+"#6 c #4b4b4b",
+"#w c #4d4d4d",
+"#X c #4f504f",
 ".l c #505051",
-"#L c #505150",
-"at c #515151",
-"#q c #515251",
-"#s c #525352",
-".Y c #545454",
-"#N c #545554",
-"#z c #555555",
-".R c #565756",
-"#2 c #575757",
-"ac c #575857",
-"#9 c #595959",
-"aH c #595a59",
-"ag c #5a5a5a",
-"am c #5c5c5c",
+"#M c #505150",
+"au c #515151",
+"#r c #515251",
+"#t c #525352",
+".Z c #545454",
+"#O c #545554",
+"#A c #555555",
+".S c #565756",
+"#3 c #575757",
+"ad c #575857",
+"a. c #595959",
+"aI c #595a59",
+"ah c #5a5a5a",
+"an c #5c5c5c",
 ".E c #5e5e5e",
-"ah c #5f5f5f",
+"ai c #5f5f5f",
 ".h c #606060",
-"#e c #626362",
-"#j c #666666",
+"#f c #626362",
+"#k c #666666",
 ".b c #676767",
-"aj c #686868",
-"ae c #686968",
-"#p c #696969",
-"#k c #696a69",
-"as c #6a6a6a",
-"av c #6b6c6b",
-"#Z c #6c6d6c",
-"#T c #6f706f",
-"#I c #727372",
+"ak c #686868",
+"af c #686968",
+"#q c #696969",
+"#l c #696a69",
+"at c #6a6a6a",
+"aw c #6b6c6b",
+"#0 c #6c6d6c",
+"#U c #6f706f",
+"#J c #727372",
 ".C c #757575",
-"#K c #757675",
-"aD c #787878",
+"#L c #757675",
+"aE c #787878",
 ".a c #79797a",
-"#E c #7b7b7b",
-".2 c #7c7d7c",
-"a. c #818281",
-".0 c #828382",
-".T c #838383",
-"ap c #838483",
-"#U c #848484",
+"#F c #7b7b7b",
+".3 c #7c7d7c",
+"a# c #818281",
+".1 c #828382",
+".U c #838383",
+"aq c #838483",
+"#V c #848484",
 ".t c #858585",
-"#r c #858685",
-"aa c #878887",
+"#s c #858685",
+"ab c #878887",
 ".i c #888988",
-".4 c #8a8b8a",
+".5 c #8a8b8a",
 ".A c #8b8c8b",
-"aA c #8c8d8c",
-"#t c #8e8e8e",
-"aE c #8f908f",
+"aB c #8c8d8c",
+"#u c #8e8e8e",
+"aF c #8f908f",
 ".H c #929292",
-".Z c #939493",
+".0 c #939493",
 ".g c #949594",
-"al c #969696",
-".P c #979897",
+"am c #969696",
+".Q c #979897",
 ".q c #989998",
-"#G c #9b9c9b",
-"aB c #9e9f9e",
-"#Q c #9fa09f",
+"#H c #9b9c9b",
+"aC c #9e9f9e",
+"#R c #9fa09f",
 ".c c #a1a1a1",
-".U c #a1a2a1",
-"a# c #a9aaa9",
-"#D c #acacac",
-"#g c #acadac",
-"#X c #adaead",
-"an c #b2b3b2",
-".W c #b3b3b3",
-".O c #b7b8b7",
-"aG c #b9bab9",
+".V c #a1a2a1",
+"aa c #a9aaa9",
+"#E c #acacac",
+"#h c #acadac",
+"#Y c #adaead",
+"ao c #b2b3b2",
+".X c #b3b3b3",
+".P c #b7b8b7",
+"aH c #b9bab9",
 ".L c #bdbebd",
-"#l c #c0c1c0",
-".Q c #c4c5c4",
+"#m c #c0c1c0",
+".R c #c4c5c4",
 ".f c #c6c6c6",
-"#O c #c7c8c7",
-".3 c #c8c8cf",
+"#P c #c7c8c7",
+".4 c #c8c8cf",
 ".y c #c8c9c8",
-"#y c #cacbca",
-"#n c #cdcecd",
-"au c #cecece",
-"#m c #cecfce",
+"#z c #cacbca",
+"#o c #cdcecd",
+"av c #cecece",
+"#n c #cecfce",
 ".# c #cfcfcf",
-".V c #cfd0cf",
+".W c #cfd0cf",
 ".d c #d0d1d0",
 ".B c #d2d3d2",
-"aq c #d3d4d3",
-".X c #d4d5d4",
-"#S c #d6d7d6",
+"ar c #d3d4d3",
+".Y c #d4d5d4",
+"#T c #d6d7d6",
 ".I c #d9dad9",
 ".j c #dadbda",
-"#x c #dcdddc",
+"#y c #dcdddc",
 ".s c #dddedd",
-"ay c #dedede",
-"#H c #dedfde",
+"az c #dedede",
+"#I c #dedfde",
 ".K c #dfe0df",
-"#w c #e0e1d9",
-"#R c #e0e1e0",
-"#f c #e1e2e1",
+"#x c #e0e1d9",
+"#S c #e0e1e0",
+"#g c #e1e2e1",
 ".k c #e2e3e2",
 ".r c #e3e4e3",
 ".e c #e5e6e5",
-"Qt c #e6e7e6",
+".M c #e6e7e6",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQt.#.a.b.c.dQtQtQt.e.f.g.h.i.jQtQtQtQt",
 "QtQtQt.k.l.m.n.o.p.q.r.s.t.u.v.w.x.tQtQtQtQt",
 "QtQtQt.y.z.A.k.B.C.D.E.F.G.H.I.r.E.J.KQtQtQt",
-"QtQtQt.c.z.LQtQt.e.g.M.N.OQtQtQt.P.z.yQtQtQt",
-"QtQtQt.c.D.QQtQt.j.R.G.S.T.rQt.e.U.o.VQtQtQt",
-"QtQtQt.y.u.W.j.X.Y.u.Z.0.1.2.j.3.4.5.kQtQtQt",
-"QtQtQt.B.6.7.8.9#..D###a#b#.#c#d.G#e#fQtQtQt",
-"Qt.e#g.8#h#i#j.9#k#l#m#n.W.n#o#p#h.M#q.QQtQt",
-".e#r#i#s#t#u#v.F.XQt#wQt#x#y.v#z#A.Z#B#C#DQt",
-".y#u#E.s#f.J#F#G#HQt.n#cQt#n#I#J#KQt.d#L.J.K",
-".d#M#N#OQt#P#.#Q.IQt#c.n#R#S#T#.#U.e.W#V#W.k",
-"Qt#X#Y.N#Z#0#1#2#x#RQt.e.I.X#3.o#4.E.1#5#OQt",
-"QtQt#y#j#6#7.u#8#9a.a#.Uaa#B.Mab#7.oa..jQtQt",
-"QtQtQt.eacadae.G#Fafagahai#h.7ajakalQtQtQtQt",
-"QtQtQt.k.5amQt.j.h.Nan.Z.9aa.r.dao.tQtQtQtQt",
-"QtQtQt.j.6apQtQtaqar#3#uas.rQt.j.YahQtQtQtQt",
-"QtQtQt.eatajQt#fauavawax.4ayQt#HazaaQtQtQtQt",
-"QtQtQtQtaA.6aB.0aC.9aD#j#6#5aE.qaFaGQtQtQtQt",
-"QtQtQtQt.d.Fao.6aH.W.e.r#GaI#M.G#p#fQtQtQtQt",
+"QtQtQt.c.z.L.M.M.e.g.N.O.P.M.M.M.Q.z.yQtQtQt",
+"QtQtQt.c.D.R.M.M.j.S.G.T.U.r.M.e.V.o.WQtQtQt",
+"QtQtQt.y.u.X.j.Y.Z.u.0.1.2.3.j.4.5.6.kQtQtQt",
+"QtQtQt.B.7.8.9#.##.D#a#b#c###d#e.G#f#gQtQtQt",
+"Qt.e#h.9#i#j#k#.#l#m#n#o.X.n#p#q#i.N#r.RQtQt",
+".e#s#j#t#u#v#w.F.Y.M#x.M#y#z.v#A#B.0#C#D#EQt",
+".y#v#F.s#g.J#G#H#I.M.n#d.M#o#J#K#L.M.d#M.J.K",
+".d#N#O#P.M#Q###R.I.M#d.n#S#T#U###V.e.X#W#X.k",
+"Qt#Y#Z.O#0#1#2#3#y#S.M.e.I.Y#4.o#5.E.2#6#PQt",
+"QtQt#z#k#7#8.u#9a.a#aa.Vab#C.Nac#8.oa#.jQtQt",
+"QtQtQt.eadaeaf.G#Gagahaiaj#i.8akalamQtQtQtQt",
+"QtQtQt.k.6an.M.j.h.Oao.0#.ab.r.dap.tQtQtQtQt",
+"QtQtQt.j.7aq.M.Maras#4#vat.r.M.j.ZaiQtQtQtQt",
+"QtQtQt.eauak.M#gavawaxay.5az.M#IaAabQtQtQtQt",
+"QtQtQtQtaB.7aC.1aD#.aE#k#7#6aF.qaGaHQtQtQtQt",
+"QtQtQtQt.d.Fap.7aI.X.e.r#HaJ#N.G#q#gQtQtQtQt",
 "QtQtQtQtQt.K.j.j.eQtQtQtQt.k.j.j.kQtQtQtQtQt"
 ]
 image1_data = [
-"22 22 22 1",
-"a c #2d2d2d",
-"f c #404040",
-"h c #535353",
-"b c #959595",
-"c c #acacac",
-"s c #b0b0b0",
-"r c #b4b4b4",
-"o c #bababa",
-"t c #bebebe",
-"m c #c3c3c3",
-"q c #c7c7c7",
-"e c #c9c9c9",
-"p c #cacaca",
-"n c #cecece",
-"l c #d3d3d3",
-"k c #d8d8d8",
-"j c #d9d9d9",
-"i c #dddddd",
-"g c #dfdfdf",
-"# c #e2e2e2",
-"d c #f4f4f4",
-". c #ffffff",
-"......................",
-"......................",
-"......................",
-"......#aaaaaaaaaaaa...",
-".....#abcccccccccda...",
-"....#aeeeeeeeeee.fa...",
-"...#aeeeeeeeeeedffa...",
-"..#aeeeeeeeeee.fffa...",
-"..a...........ffffa...",
-"..a#######gggefhffa...",
-"..a########ggeffffa...",
-"..aiijjjjjjjjefhffa...",
-"..a##jjjjjjjgeffffa...",
-"..aiijjjjjjjjefhffa...",
-"..akkllllllllmffffa...",
-"..alnnnnnnnnnofhffa...",
-"..anpqqqqqqqqrfffac...",
-"..appmmmmmmmmsfhac....",
-"..atccccccccccfac.....",
-"..aaaaaaaaaaaaac......",
-"......................",
-"......................"
-]
-image2_data = [
-"22 22 5 1",
-"a c #643200",
-"c c #835b33",
-"b c #9c7c5c",
-"# c #b0967d",
-". c #ffffff",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-".......#aaaaaaaaaa....",
-".......ab.......cb....",
-"......#c.......ba.....",
-"......ab.......c#.....",
-".....#c.......ba......",
-".....ab.......c#......",
-"....#c.......ba.......",
-"....ab.......c#.......",
-"...#c.......ba........",
-"...aaaaaaaaaa#........",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................"
-]
-image3_data = [
-"22 22 64 1",
-"3 c #5e554c",
-"D c #5e5a59",
-"N c #626961",
-"t c #643200",
-"2 c #64574e",
-"j c #65574c",
-"9 c #675d5b",
-"A c #676664",
-"H c #685a4d",
-"F c #685a51",
-"7 c #695f5d",
-"h c #696059",
-"f c #696866",
-"E c #6a615c",
-"l c #6a635d",
-"Y c #6b4729",
-"W c #6b5a50",
-"r c #6c4a26",
-"k c #6c4d3b",
-"6 c #6c635c",
-"U c #6d7673",
-"a c #6e6e6e",
-"R c #6f4321",
-"g c #705c51",
-"i c #705e52",
-"u c #706047",
-"Z c #706259",
-"q c #724822",
-"x c #724823",
-"X c #725c4e",
-"b c #725e55",
-"0 c #736e6b",
-"c c #74787b",
-"v c #757374",
-"S c #774227",
-"y c #775b45",
-"O c #77827c",
-"G c #786254",
-"s c #7a5336",
-"Q c #7a5e49",
-"V c #7a7879",
-"T c #7b534b",
-"w c #7b563b",
-"o c #7c5d49",
-"e c #7c7c7c",
-"K c #7c817d",
-"n c #7e634e",
-"# c #7e8387",
-"p c #7f5e4b",
-"8 c #82817d",
-"J c #82837d",
-"d c #828689",
-"M c #84867b",
-"m c #877d74",
-"z c #887e74",
-"B c #898b8a",
-"P c #8b918f",
-"L c #945c4f",
-"C c #c4c2c3",
-"4 c #f4f3f1",
-"1 c #fff9f2",
-"5 c #fffefa",
-"I c #fffff4",
-". c #ffffff",
-"......................",
-"......................",
-"......................",
-"...#...a......b.......",
-"...cd.ef......g.......",
-"....a.ah......i.......",
-".....a.j.....k........",
-"....lm..n...op........",
-"........q...r.........",
-"........st.tu..a..v...",
-".........wxy...zaAB...",
-"..CDEFGtttttttHIJK....",
-".........tLt...MNOP...",
-"........QR.ST..a..U...",
-"........t...t.........",
-"...VaaaWX...YZ........",
-".....012.....3........",
-"....a456......7.......",
-"...aaa8.......9.......",
-"......................",
-"......................",
-"......................"
-]
-image4_data = [
-"22 22 48 1",
-"g c #000000",
-"G c #020000",
-"a c #040000",
-"o c #060000",
-"C c #0f0000",
-"j c #1d0000",
-"e c #380000",
-"Q c #43423d",
-"c c #474641",
-"K c #5d5b55",
-"q c #616059",
-"F c #710000",
-"H c #848379",
-"t c #870000",
-"n c #890000",
-"R c #8f0000",
-"y c #8f0202",
-"T c #9b998d",
-"B c #9c0000",
-"f c #9c9a8f",
-"i c #9d0000",
-"d c #a43030",
-"z c #a60202",
-"b c #a8a599",
-"# c #a8a69a",
-"I c #a90000",
-"S c #a9a79b",
-"N c #acaa9e",
-"E c #b00000",
-"k c #b0aea1",
-"p c #b7b5a8",
-"M c #b9b7a9",
-"J c #c50000",
-"L c #c9c6b8",
-"m c #ca0000",
-"D c #cc0000",
-"A c #d20000",
-"x c #d30000",
-"s c #d40000",
-"O c #d50606",
-"P c #d50808",
-"w c #da3434",
-"v c #dd4444",
-"l c #dd4545",
-"h c #de4646",
-"r c #de4747",
-"u c #e05858",
-". c #ffffff",
-"......................",
-"......................",
-"......................",
-".........#ab..........",
-".........cdef.........",
-".........ghijk........",
-".........glmnop.......",
-"...qggggggrsstep......",
-"...guvvvvrwssxyep.....",
-"...gvsssssssssszep....",
-"...gvssssssssssABCp...",
-"...gvsssssssssDEFGp...",
-"...gvssssssssDEFGH....",
-"...gAIIIIJssDEFGH.....",
-"...KggggggsDEFGH......",
-".....LMkNgOEFGH.......",
-".........gPFGH........",
-".........QRGH.........",
-".........SGT..........",
-"......................",
-"......................",
-"......................"
-]
-image5_data = [
 "17 22 74 2",
 ".# c #000000",
 ".Q c #1d1d1d",
@@ -565,7 +300,7 @@ image5_data = [
 "Qt.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#Qt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image6_data = [
+image2_data = [
 "23 22 106 2",
 ".# c #000000",
 ".z c #363911",
@@ -696,7 +431,7 @@ image6_data = [
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.a.#.#.#.#.aQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image7_data = [
+image3_data = [
 "22 22 27 1",
 "a c #000000",
 "k c #131813",
@@ -748,68 +483,120 @@ image7_data = [
 "..#aaaaaaaaaaaaaaaa#..",
 "......................"
 ]
-image8_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
-    "\x8c\x49\x44\x41\x54\x78\x9c\x8d\x95\xaf\x7b\xdb" \
-    "\x30\x10\x86\xdf\xec\x09\x38\x31\x9b\xc5\x30\xb0" \
-    "\x61\x35\x0c\x2c\xf4\x58\xcb\x5a\x18\xb8\x3f\x61" \
-    "\x81\xa3\x63\xa3\x85\x1d\xeb\xd8\x02\x0b\x1d\xd6" \
-    "\xb0\x1a\x0a\xda\xcc\x62\x77\x2c\x03\xb2\x1d\xe7" \
-    "\xd7\xb3\x8a\x28\x96\x2e\xef\x7d\xba\xef\x2c\x4f" \
-    "\xca\xb2\xe4\xd2\x68\xdb\x76\x2f\x22\xa4\x69\x7a" \
-    "\xb4\x6e\x66\x00\xa8\x2a\x00\x21\x04\x92\x24\xc1" \
-    "\x39\x37\x19\xc7\x4d\x2f\x52\x01\x11\x21\xcf\xf3" \
-    "\x01\x74\xba\x37\x12\x80\xf7\xfe\x2c\xe6\x2a\x18" \
-    "\xa0\xaa\xaa\x33\xd8\x69\x22\x55\xc5\x39\xf7\x79" \
-    "\xf0\x25\x80\x99\x9d\x25\xe8\xe7\x53\xf8\x97\x2b" \
-    "\xdc\xbd\x99\x0d\xc1\xce\x39\x9c\x73\x47\xf5\xee" \
-    "\xeb\x2f\x22\x67\xf5\xbd\xaa\x58\x55\x49\x92\x84" \
-    "\xb6\x6d\x11\x91\xc1\xa8\xf1\xb8\x74\xfc\xcf\x28" \
-    "\xc6\xcc\xce\x3a\x62\x0c\xed\x93\x5d\x32\xf7\xaa" \
-    "\xe2\x5e\xcd\x25\xa5\xe3\x75\x55\x3d\xea\x90\xff" \
-    "\x82\xeb\xba\x66\x3e\x9f\x93\x65\xd9\x55\x78\x6f" \
-    "\xe4\x76\xbb\x25\x84\xb0\x17\x49\xc8\xb2\x74\xa8" \
-    "\xf5\x11\x58\x55\xf7\xde\x7b\xaa\x5d\x85\x14\x82" \
-    "\x88\x0c\x80\xd3\xb9\x57\xda\xd6\x2d\x65\x59\xd2" \
-    "\x84\x86\x9b\x9b\x9b\x7d\x51\x14\xa4\x69\x3a\x99" \
-    "\xf4\x6f\x9e\xaa\xee\xab\xca\x13\xea\x06\x35\x80" \
-    "\xcb\x4a\x01\x9c\xa4\x08\x02\x0e\x7c\xed\x79\x7f" \
-    "\xdf\xd1\x34\x35\xaa\xc6\x62\x31\x67\xb5\x5a\x45" \
-    "\xc5\xbd\xd2\xe2\xee\x0e\x97\xa6\xa8\x1a\x98\x72" \
-    "\x66\x8b\x19\x20\x94\x6c\x79\xe3\x2f\x4b\x5b\xb2" \
-    "\xfc\xc8\xa9\xaa\x1d\xa8\xe1\x80\x8f\xf7\x0f\x7e" \
-    "\xe9\x33\xd3\x08\x6d\x78\xf8\xfa\x40\x32\x4b\xae" \
-    "\xaa\xec\x47\x45\xc5\x4f\x7e\xe0\xf1\xec\xd8\xf1" \
-    "\x22\x2f\x14\xfe\x9e\x97\xf6\x99\xba\x0e\x18\x46" \
-    "\xe3\x3d\xd3\xd0\x04\x9e\x9e\xee\xaf\xba\x7b\x3a" \
-    "\x52\x52\xee\x58\x52\x22\x14\x14\xdc\xde\xde\x92" \
-    "\x48\x46\x6b\x35\xcf\x2f\xbf\x09\x21\x90\xce\x52" \
-    "\xa6\x06\x78\x5f\xc7\x7e\x34\x03\x11\x62\x8e\x98" \
-    "\x48\x04\x1c\x2e\x56\xdc\x14\xc4\xf1\xcd\xbe\x73" \
-    "\x8f\x27\xb3\x8c\x1d\x15\x98\x91\x66\x59\xdc\xef" \
-    "\xdc\x99\xb6\x75\x8d\x17\x89\xf5\x34\x63\xf0\xcd" \
-    "\x41\x74\xb1\x3b\x89\x33\x50\x01\xe2\x9a\x00\xde" \
-    "\x1a\x8c\x78\x87\xf8\xaa\x1a\x3c\x71\x74\xed\xd6" \
-    "\x2f\x58\x0f\xc4\x86\xa6\x50\xa2\x29\xb1\x9d\x87" \
-    "\xc8\xa1\x73\xa4\xf7\x74\x34\x14\x65\x8a\x80\xb5" \
-    "\xa3\x3f\x68\x27\x76\x1c\x68\x80\x28\xd8\xe9\x8e" \
-    "\xc3\xac\xa5\x3b\x67\x7f\x36\xf2\x7c\xc9\x17\x6c" \
-    "\xa4\x72\x10\xab\xf1\xd1\xba\xf9\x08\xea\xfa\xb0" \
-    "\x0e\xda\x01\xbb\x72\xce\x66\x33\x56\xab\xa7\xa8" \
-    "\xd8\x7b\xdf\x5b\x05\x62\x10\x04\x08\xd1\x39\xb3" \
-    "\x88\x91\x5e\x95\x1d\x60\x1c\x6a\x8e\x19\x22\xb0" \
-    "\x5e\xaf\xc9\xb2\x6c\x32\x9d\xcf\xe7\xbc\x6d\xde" \
-    "\xf8\xb3\xd9\xa0\x6a\xc4\xfb\x47\x38\x6a\x3e\x19" \
-    "\x3d\xcb\x01\x39\x9c\xb3\xeb\xa6\xf5\x7a\x4d\x9e" \
-    "\xe7\x13\x80\xe1\x95\xae\xeb\x7a\xff\xfa\xba\xa1" \
-    "\xe9\xbe\x5f\x8a\x76\xa6\x1c\x9c\x39\x7c\x35\x40" \
-    "\xb5\x8d\xbf\x83\x91\x2f\x73\x1e\x1f\x1f\x59\x2c" \
-    "\x16\xc3\x25\xf4\x0f\x01\x0f\x7c\xb0\x1c\x52\x64" \
-    "\xd1\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
-    "\x82"
-image9_data = [
+image4_data = [
+"22 22 88 2",
+"Qt c None",
+".2 c #000000",
+".S c #08ff08",
+"#v c #100810",
+".U c #101010",
+"#c c #101018",
+".M c #181018",
+"#e c #181818",
+".A c #181821",
+".L c #211821",
+"#l c #212121",
+".z c #212129",
+"#m c #292129",
+"#u c #292929",
+"#n c #292931",
+".R c #29ff29",
+"#o c #312931",
+".T c #313131",
+"#p c #313139",
+".Z c #31ff31",
+"#q c #393139",
+"#t c #393939",
+".y c #393942",
+"#s c #423942",
+".o c #424242",
+"#h c #4a4a52",
+".n c #5a525a",
+"#r c #5a5a63",
+".I c #5ace5a",
+"#b c #6b636b",
+".p c #6b6b6b",
+".x c #6b6b73",
+".Y c #6bff63",
+".l c #736b73",
+".t c #7b737b",
+".s c #7b7384",
+".0 c #7bff7b",
+".r c #847b84",
+".u c #847b8c",
+"#g c #84848c",
+".v c #8c7b94",
+"#i c #8c848c",
+".w c #8c8494",
+"#j c #8c8c8c",
+".8 c #8c8c94",
+".m c #948c94",
+"#k c #948c9c",
+"#f c #949494",
+".q c #94949c",
+".J c #94c694",
+"#d c #9c949c",
+"#a c #9c94a5",
+".k c #9c9c9c",
+".N c #9c9ca5",
+".H c #9ccea5",
+".K c #a59ca5",
+"#. c #a59cad",
+".i c #a5a5a5",
+".3 c #a5a5ad",
+"## c #ad9cad",
+".V c #ada5ad",
+".d c #adadad",
+".j c #adadb5",
+".9 c #b5adb5",
+".# c #b5b5b5",
+".a c #bdbdbd",
+".7 c #bdd6bd",
+".c c #c6c6c6",
+".5 c #cec6ce",
+".b c #cecece",
+".4 c #ceced6",
+".F c #d6ced6",
+".G c #d6cede",
+".h c #d6d6d6",
+".E c #d6d6de",
+".Q c #d6ffd6",
+".B c #ded6de",
+".1 c #ded6e7",
+".g c #dedede",
+".D c #dedee7",
+".6 c #e7dee7",
+".f c #e7e7e7",
+".C c #e7e7ef",
+".X c #e7ffe7",
+".O c #efe7ef",
+".e c #efefef",
+".W c #f7f7f7",
+".P c #ffffff",
+"QtQtQtQtQtQt.#.a.b.b.b.b.c.c.a.a.d.aQtQtQtQt",
+"QtQtQtQtQtQt.a.e.f.f.f.f.f.e.e.e.g.aQtQtQtQt",
+"QtQtQtQtQtQt.a.c.c.c.b.b.c.c.c.c.a.cQtQtQtQt",
+"QtQtQtQtQtQt.#.a.a.a.a.#.a.a.#.#.d.aQtQtQtQt",
+"QtQtQtQtQt.c.d.c.a.c.c.c.a.a.a.c.#QtQtQtQtQt",
+"QtQtQtQtQt.a.a.#.a.a.a.a.a.a.c.c.#QtQtQtQtQt",
+"QtQtQtQtQt.a.#.c.a.a.a.a.a.c.a.c.dQtQtQtQtQt",
+"QtQtQtQtQt.c.a.a.a.a.a.a.a.a.a.a.#QtQtQtQtQt",
+"QtQtQtQtQt.d.b.f.g.g.g.g.g.g.h.g.i.i.jQtQtQt",
+"QtQtQt.a.k.l.#.h.b.h.b.h.b.h.g.g.m.n.o.p.#Qt",
+"QtQt.a.q.r.s.t.t.t.t.t.t.t.u.v.w.x.y.z.A.o.i",
+"Qt.a.k.B.C.D.B.E.E.E.E.F.G.H.I.J.K.o.L.L.M.y",
+".a.N.O.P.P.P.P.P.P.P.P.P.Q.R.S.R.b.v.T.A.U.L",
+".V.W.P.P.P.P.P.P.P.P.P.P.X.Y.Z.0.P.1.t.A.2.L",
+".3.E.4.5.4.h.E.E.g.6.D.B.D.E.7.F.4.5.8.M.2.A",
+".m.9.j.V.3#..3.K#.#..i#..K#.###a.q.8#b#c.2.L",
+".m.j.j#..3.K.K.K.N.K.N.N.N.N#a#d#d.w#b#c.2#e",
+"#f#.#..K.N.K.N.N.N#a.k#a#d#d#d#a.m#g#b.M.2#h",
+".m.3.K.K#a.k#a#d#a.k#a#d#a#d.q.m.8#i.x#c#e.d",
+"#f#g#i.w#j.w#i.8.w#i.8.8.m.8.m#k.8.w#b#e#fQt",
+".#.l.z.A#l.z#m#m#m#n#o#o#p#p#q#q#p#o#p#fQtQt",
+"QtQt.d#r#s#s#t#p.T.T.T#u#u.z#e#e#v.o.kQtQtQt"
+]
+image5_data = [
 "22 22 111 2",
 ".d c #000000",
 ".N c #4c0000",
@@ -945,7 +732,7 @@ image9_data = [
 ".a.d.d.d.d.d.d.d.d.d.d.d.d.zQtQtQtQtQtQtQtQt",
 ".#.a#R#r#S#S#S#S#S#S#S#r.q.#QtQtQtQtQtQtQtQt"
 ]
-image10_data = [
+image6_data = [
 "22 22 108 2",
 ".d c #000000",
 ".M c #006a00",
@@ -1078,7 +865,7 @@ image10_data = [
 "QtQtQtQtQtQtQtQt.E.d.d.d.d.d.d.d.d.d.d.d.d#P",
 "QtQtQtQtQtQtQtQt.#.a.b.q#f#q#q#q#q#q#q#q#P#r"
 ]
-image11_data = [
+image7_data = [
 "22 22 177 2",
 ".o c #000000",
 "au c #010101",
@@ -1280,7 +1067,7 @@ image11_data = [
 "Qt.vaOaPaQ#e.jQtQtQtQtQtQtQt.k.P.aaR.IaSaT#a",
 "QtQtQt.C.jQtQtQtQtQtQtQtQtQtQt.k.caNaU#uaUaN"
 ]
-image12_data = [
+image8_data = [
 "22 22 44 1",
 "g c #2d2d2d",
 "m c #404040",
@@ -1349,7 +1136,7 @@ image12_data = [
 ".bOEKKKKKKKKKbb.......",
 ".apdbbbbbbbbbd........"
 ]
-image13_data = [
+image9_data = [
 "22 22 159 2",
 ".b c #000000",
 ".K c #202120",
@@ -1533,63 +1320,138 @@ image13_data = [
 "QtQt.f.e.Cauavawawaxay#w.iazaAaB.i#0#0alalaC",
 "QtQtQtQtQtQtQtQtQt.f.8av#xaCaCaCaCaCaC#xav.8"
 ]
-image14_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
-    "\x59\x49\x44\x41\x54\x78\x9c\xb5\x95\x21\x93\x1b" \
-    "\x39\x10\x46\x9f\xb7\x02\x7a\x98\xc4\x2c\x28\x38" \
-    "\xcb\x6c\xb6\x86\x03\x1d\x68\x96\x85\xf9\x5d\x86" \
-    "\x81\x6b\x66\xc3\x85\x03\x3d\xcc\x03\x05\x35\x4c" \
-    "\x62\xdd\x6c\x02\x1c\x57\x6d\x2e\x97\xf3\xa6\x72" \
-    "\xfb\x21\xa9\x4b\xf5\xf4\x49\xad\x6e\x2d\xfa\xbe" \
-    "\xe7\x23\xf4\xf0\x21\x54\xe0\xd3\xdb\x49\x29\x65" \
-    "\x4e\x29\x91\x73\xa6\x9a\x01\xe0\x44\x88\x31\x12" \
-    "\x63\xa4\x69\x9a\xc5\x1f\x83\x73\xce\x73\x7f\x3e" \
-    "\xe3\x63\x60\xbd\xfb\x0c\x4e\xae\xf1\x94\x18\x5e" \
-    "\xcf\xa4\x94\xd8\x6c\x36\xb3\xf7\xfe\x5d\xf0\x45" \
-    "\xdf\xf7\xe4\x9c\xe7\x97\x97\x17\x36\x9f\x3b\x36" \
-    "\x5f\x76\x00\x98\x19\x6a\x8a\x61\x54\xab\xf4\xdf" \
-    "\x8e\x48\x36\xb6\xdb\xed\xbb\x9c\x3f\xa8\xea\xdc" \
-    "\x9f\x7b\xba\xaf\xcf\xb4\xdb\x0e\x33\xc3\x92\xa0" \
-    "\x69\x09\x63\xa0\xf6\x42\xc9\x85\x76\xdb\x41\xf0" \
-    "\x0c\xc3\xf0\xae\xab\x78\x48\x29\xe1\x63\x64\xd3" \
-    "\x75\x00\x48\x5e\x52\x52\x66\xb2\x81\x49\x46\xc4" \
-    "\x3c\xd2\x47\xac\x56\xe2\xa6\x65\x4c\x89\x52\xca" \
-    "\x7c\x1f\x3c\x4d\xb4\x9b\x35\x86\x61\x05\xd2\x98" \
-    "\x48\x7e\x44\x43\x21\x93\x30\x29\x34\x08\x96\x0d" \
-    "\x44\x90\xe0\xc8\x39\xdf\x77\x6c\xaa\x38\xef\x28" \
-    "\x56\xc8\xcd\x44\x59\x4f\x88\x13\xac\x18\x8e\x08" \
-    "\x78\x52\x1d\x51\xa7\x60\x20\xae\x61\x9a\xa6\xbb" \
-    "\xe0\x4f\x00\x55\x0d\x11\x40\x15\x03\x30\x43\x72" \
-    "\xa4\xb1\x40\x4e\x3d\xda\x26\xc0\x63\xa5\x02\x02" \
-    "\xd7\x55\xff\xed\x18\x0c\xcc\xae\x49\xb3\xdb\x18" \
-    "\x1a\x13\xf2\x78\xa6\xb4\x19\x82\x80\x29\x26\x60" \
-    "\xb5\x20\x22\xf7\xc1\xc1\x07\x52\x4a\x98\x5e\x81" \
-    "\x56\x0d\xc3\xc8\x96\xb0\x50\x31\xc0\xca\x35\xa6" \
-    "\x55\x29\xa5\x12\x63\xbc\x0f\x8e\x31\x92\xfb\x0b" \
-    "\x5a\x15\xb3\x7a\x05\x14\x43\xcc\x43\x12\x6a\xad" \
-    "\xfc\x38\x08\x35\x4f\x04\x04\xe7\xdc\x3b\x1c\x87" \
-    "\xb0\x08\xde\x33\xbc\xbe\xa2\x80\x2a\x80\x92\x38" \
-    "\x53\xdc\x88\x13\xa1\x94\x4a\x29\x15\x1b\x12\x6d" \
-    "\xdb\xe2\x83\x27\xe7\x3c\xab\xea\x6f\x9f\xdd\x03" \
-    "\xc0\x6a\xb5\xc2\x15\xa8\xc7\x33\x8d\x29\x8d\x35" \
-    "\xf8\x65\x83\x44\x87\x18\x04\x03\x5e\x2f\x3c\x3d" \
-    "\x3d\xf1\xf8\xf8\xb8\x48\x63\xe2\x74\x3a\xb1\xdf" \
-    "\xef\xc9\x39\xff\x2b\x7c\x71\x6b\x9b\xaa\x3a\x0f" \
-    "\xc3\xc0\x98\x12\xe2\x04\x9a\x6b\x82\xac\x54\xc4" \
-    "\xa0\xeb\x3a\x42\x08\xb7\x52\x9e\x8f\xc7\x23\x87" \
-    "\xc3\x01\xe7\x1c\xbb\xdd\x8e\xd5\x6a\xf5\x53\xa9" \
-    "\x2f\xfe\xd9\x8f\x4b\x29\x73\xce\x99\x5a\x2b\x22" \
-    "\x82\xf7\xfe\x96\xac\x5f\xfa\x43\x4a\x69\xfe\xe1" \
-    "\x9a\xae\xeb\x7e\xda\xfc\x17\xf0\x9f\x4a\x55\xe7" \
-    "\xd3\xe9\xc4\xe1\x70\x60\xb9\x5c\xf2\xfc\xfc\xcc" \
-    "\x7a\xbd\x5e\xfc\x35\xf8\xa6\xcb\xe5\x32\xef\xf7" \
-    "\x7b\xa6\x69\x62\xbb\xdd\xfe\xbd\xe3\xb7\x2a\xa5" \
-    "\xcc\x87\xc3\x01\x55\xfd\x7f\xc1\x6f\xf5\x61\x7f" \
-    "\xde\x77\x3b\x42\x7a\x02\x4c\x41\x1e\x20\x00\x00" \
-    "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image15_data = [
+image10_data = [
+"22 22 106 2",
+"Qt c None",
+"#N c #212121",
+"#J c #292929",
+"#K c #393939",
+"#M c #424242",
+".m c #5a5a5a",
+"#r c #5a736b",
+"#A c #5a9c84",
+"#B c #636363",
+".N c #636b6b",
+"#G c #63736b",
+"#v c #63ad8c",
+"#H c #6b6b6b",
+".c c #6b7373",
+"#D c #6b7b73",
+".l c #6b7b7b",
+".W c #6b847b",
+".t c #6b8c7b",
+"#x c #6b9484",
+"#w c #6bad94",
+".u c #737373",
+".v c #737b73",
+".g c #737b7b",
+".D c #738c84",
+".7 c #739484",
+"#d c #73948c",
+"#z c #73a59c",
+"#p c #73b594",
+"#o c #73bd9c",
+".b c #7b7b7b",
+".O c #7b8484",
+"#a c #7bad94",
+"#q c #7bad9c",
+"#i c #7bb59c",
+".5 c #7bbd9c",
+"#b c #7bbda5",
+"#h c #7bc69c",
+"#y c #7bc6a5",
+".8 c #848484",
+".4 c #8484b5",
+".h c #849c94",
+"#n c #84a5ad",
+".V c #84ada5",
+"#E c #84b59c",
+"#F c #84b5a5",
+"#j c #84bda5",
+"#t c #84c6a5",
+"#l c #84cead",
+".E c #8c8c8c",
+"#g c #8c8cbd",
+"## c #8c94b5",
+"#m c #8cadbd",
+"#c c #8cb5a5",
+".L c #8cc6ad",
+".T c #8ccead",
+"#f c #8cceb5",
+".a c #949494",
+".n c #94a59c",
+"#u c #94a5ce",
+".k c #94bdad",
+".M c #94c6ad",
+".6 c #94c6b5",
+".B c #94ceb5",
+".1 c #94d6b5",
+".C c #94d6bd",
+".9 c #94debd",
+".K c #9c94d6",
+".d c #9c9c9c",
+".w c #9cbdb5",
+"#. c #9cbdd6",
+"#s c #9ccebd",
+".2 c #9ccece",
+".0 c #9cdebd",
+".S c #9ce7bd",
+".Z c #9ce7c6",
+".U c #a594de",
+"#L c #a5a5a5",
+".A c #a5b5de",
+".3 c #a5b5ef",
+".I c #a5cece",
+"#k c #a5dec6",
+".s c #a5e7c6",
+".f c #adadad",
+".J c #adadef",
+".R c #adb5de",
+".i c #adcec6",
+".P c #add6c6",
+".j c #addece",
+"#e c #ade7ce",
+".# c #b5b5b5",
+".H c #b5bdde",
+".Q c #b5dede",
+".r c #b5efd6",
+".e c #bdbdbd",
+".z c #bdc6f7",
+".y c #bdd6ff",
+".X c #bde7d6",
+".q c #bdefde",
+".Y c #bdf7de",
+"#I c #c6c6c6",
+".x c #c6def7",
+".p c #c6f7e7",
+"#C c #ced6ce",
+".G c #cedeff",
+".o c #ceffef",
+".F c #d6fff7",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQt.#.a.b.c.c.b.d.eQtQtQtQtQtQtQtQtQtQtQt",
+"QtQt.f.g.h.i.j.j.k.l.b.#QtQtQtQtQtQtQtQtQtQt",
+"Qt.f.m.n.o.o.p.q.r.s.t.u.eQtQtQtQtQtQtQtQtQt",
+".e.v.w.q.p.x.y.z.A.B.C.D.EQtQtQtQtQtQtQtQtQt",
+".d.h.F.q.G.H.I.I.J.K.L.M.N.#QtQtQtQtQtQtQtQt",
+".O.P.o.Q.R.B.S.T.A.U.V.B.W.dQtQtQtQtQtQtQtQt",
+".g.X.Y.Z.Z.0.1.2.3.4.5.6.7.8QtQtQtQtQtQtQtQt",
+".g.j.r.0.9.1#..3###a#b#c#d.8QtQtQtQtQtQtQtQt",
+".v.P#e.1.1#f.A#g.5#h#i#j.W.EQtQtQtQtQtQtQtQt",
+".E#c#k#f.L#l#m#n#o#p#p#q#r.fQtQtQtQtQtQtQtQt",
+".f.g#s#t#t#b#u.4#v#w#w#x.u.eQtQtQtQtQtQtQtQt",
+"Qt.E.t#y#b.5#z#d#p#A#A#B.d#C.f.eQtQtQtQtQtQt",
+"Qt.e.b#D#E#F#j#i#a.7.m.dQt.f#B.m.fQtQtQtQtQt",
+"QtQt.e.E.N#D.W.W#G#H.fQtQt#I.b#J#K.E.eQtQtQt",
+"QtQtQtQt.#.d.E.a#L#IQtQtQtQtQt#L#M#J#H.fQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.e.u#N#K.aQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.d#K#N#H",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt.##B.m",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
+]
+image11_data = [
 "22 22 28 1",
 "e c #000000",
 "m c #204297",
@@ -1642,7 +1504,7 @@ image15_data = [
 "..gfrtttttttttttttttrr",
 "....xyzgggggggggggggzy"
 ]
-image16_data = [
+image12_data = [
 "22 22 4 1",
 "# c #2d2d2d",
 "a c #a1a1a1",
@@ -1671,7 +1533,7 @@ image16_data = [
 "......................",
 "......................"
 ]
-image17_data = [
+image13_data = [
 "22 22 11 1",
 "a c #2d2d2d",
 "c c #7f7f75",
@@ -1707,7 +1569,7 @@ image17_data = [
 "......................",
 "......................"
 ]
-image18_data = [
+image14_data = [
 "22 22 6 1",
 "a c #2d2d2d",
 "c c #82d2b5",
@@ -1738,7 +1600,7 @@ image18_data = [
 ".#aa#.......#aa#......",
 "......................"
 ]
-image19_data = [
+image15_data = [
 "22 22 318 2",
 "aX c #0f8380",
 "aK c #188f89",
@@ -2081,7 +1943,7 @@ image19_data = [
 "cQcR#..G.G.G.GcycScTcU#..G.G.GcycV.icW.#cXcP",
 "cYcZc0c1c2c3cTcTcTcTc4cTcTcTcTcTcTc5.#cXc6c7"
 ]
-image20_data = [
+image16_data = [
 "22 22 4 1",
 "# c #2d2d2d",
 "a c #a1a1a1",
@@ -2110,7 +1972,7 @@ image20_data = [
 "......................",
 "......................"
 ]
-image21_data = [
+image17_data = [
 "22 22 35 1",
 "c c #2d2d2d",
 "k c #404040",
@@ -2170,7 +2032,7 @@ image21_data = [
 "..CDDEnnnnnnnnnhmF....",
 "..FCCGhhhhhhhhhhFF...."
 ]
-image22_data = [
+image18_data = [
 "22 22 36 1",
 "b c #040700",
 "e c #2d2d2d",
@@ -2231,7 +2093,7 @@ image22_data = [
 ".wDDFCCCCCCCCCww......",
 ".aGGHwwwwwwwwwH......."
 ]
-image23_data = [
+image19_data = [
 "22 22 188 2",
 ".e c #000000",
 ".R c #000080",
@@ -2444,7 +2306,7 @@ image23_data = [
 "QtQt.g.f.r.t.t.t.t.t.t.t.t.t.t.t.t.t.t.t.r.r",
 "QtQtQtQta3a4a5.g.g.g.g.g.g.g.g.g.g.g.g.ga5a4"
 ]
-image24_data = [
+image20_data = [
 "22 22 21 1",
 "f c #000000",
 "a c #21449b",
@@ -2490,7 +2352,7 @@ image24_data = [
 "......................",
 "....pqrsssssssssssssrq"
 ]
-image25_data = [
+image21_data = [
 "22 22 23 1",
 "f c #000000",
 "a c #21449b",
@@ -2538,7 +2400,7 @@ image25_data = [
 "......................",
 "....rstuuuuuuuuuuuuuts"
 ]
-image26_data = [
+image22_data = [
 "22 22 21 1",
 "n c #000000",
 "a c #21449b",
@@ -2584,7 +2446,7 @@ image26_data = [
 "......................",
 "....pqrsssssssssssssrq"
 ]
-image27_data = [
+image23_data = [
 "22 22 23 1",
 "k c #203a37",
 "j c #253532",
@@ -2632,7 +2494,7 @@ image27_data = [
 "...........u..........",
 "......................"
 ]
-image28_data = [
+image24_data = [
 "22 22 15 1",
 "d c #27322a",
 "f c #29362d",
@@ -2672,7 +2534,7 @@ image28_data = [
 "..#aa#...#aa#.........",
 "......................"
 ]
-image29_data = [
+image25_data = [
 "22 22 14 1",
 "g c #000000",
 "i c #2d2d2d",
@@ -2711,7 +2573,7 @@ image29_data = [
 ".#aa#.#aa#.#aa#.#aa#..",
 "......................"
 ]
-image30_data = [
+image26_data = [
 "22 22 14 1",
 "b c #000000",
 "l c #0000ff",
@@ -2750,7 +2612,7 @@ image30_data = [
 "......................",
 "......................"
 ]
-image31_data = [
+image27_data = [
 "22 22 123 2",
 ".t c #14342f",
 ".q c #18372f",
@@ -2898,7 +2760,7 @@ image31_data = [
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image32_data = [
+image28_data = [
 "22 22 123 2",
 ".4 c #000000",
 ".f c #008200",
@@ -3046,7 +2908,7 @@ image32_data = [
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image33_data = [
+image29_data = [
 "22 22 101 2",
 ".3 c #000000",
 "#m c #191919",
@@ -3172,7 +3034,7 @@ image33_data = [
 "QtQtQt.B.O.TQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image34_data = [
+image30_data = [
 "22 22 59 1",
 "U c #191919",
 "M c #1a1a1a",
@@ -3256,7 +3118,7 @@ image34_data = [
 "...uDc................",
 "......................"
 ]
-image35_data = [
+image31_data = [
 "22 22 118 2",
 ".k c #000000",
 ".q c #000080",
@@ -3399,58 +3261,104 @@ image35_data = [
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image36_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
-    "\x1e\x49\x44\x41\x54\x78\x9c\xc5\xd3\x3b\x68\x53" \
-    "\x51\x1c\xc7\xf1\xef\xcd\x4b\x42\x7d\xc4\xc4\x8a" \
-    "\x09\x8a\x18\x90\xe6\x26\x77\x69\xe2\xa3\xc5\x4a" \
-    "\xba\x15\x1c\x4a\xc9\xa2\xe8\x60\x49\x44\x71\xaa" \
-    "\x54\x08\x62\xd7\xba\x74\x4a\x11\x6e\x8a\x76\x10" \
-    "\x27\x07\x13\x4c\x10\x17\xbb\x14\x51\x63\xa0\x15" \
-    "\x34\x45\xa7\xea\x20\x37\x2e\x86\xa4\xb1\xcd\xf3" \
-    "\xe6\x3a\x59\xa2\x55\x92\x5b\x2a\xfe\xd7\xf3\x3f" \
-    "\x9f\xf3\x3b\x7f\xce\x11\x94\xbc\xa2\xf1\x0f\xca" \
-    "\xb4\x9d\x4d\x8f\x9e\x3d\x25\x9b\xcb\x51\x58\x2b" \
-    "\x63\x68\xa9\xf4\xee\xdb\x4b\xc0\xd7\xc7\xd9\x81" \
-    "\x53\x38\x0f\x1c\x01\x40\xd0\x93\x78\xf5\xd3\x2a" \
-    "\x73\x0f\x1f\x50\x35\x98\xa8\x5b\x76\xb1\xdb\x6e" \
-    "\xc7\x20\x08\x14\xbf\x7e\xc1\x66\x32\x62\xa5\xc1" \
-    "\xe5\xf3\xe3\xb8\x8f\xb9\x31\x74\xc2\x8a\x1e\x91" \
-    "\x19\xa7\x0b\x80\x6b\x13\xd7\x91\xe3\x73\x0c\x9c" \
-    "\x19\xc4\x60\x32\x52\x2a\xaf\xb1\x51\xab\xf2\x66" \
-    "\x69\x99\xc0\xe9\x93\xc4\x62\x77\xb9\x31\x79\x15" \
-    "\xa0\x33\xdc\x5e\x99\x4c\x06\x0d\x15\x13\x2a\x66" \
-    "\x9a\x58\xb4\x06\x6f\xb3\x2f\xd9\xd3\x63\xa1\x56" \
-    "\xd9\xa0\x85\x46\xe6\x75\x56\x3f\x7c\x6e\x64\x04" \
-    "\xd1\x73\x9c\x4b\x17\x2f\x60\x46\x65\xf9\xd5\x0b" \
-    "\x8c\xcd\x1a\x7d\xee\xa3\x44\xc2\xe3\x0c\x0d\x0d" \
-    "\xe2\xf7\xfb\x81\x2e\x66\x5c\xf4\x88\xdc\x2b\x95" \
-    "\x88\xe6\x15\x4c\x66\x03\xd9\x77\x4b\x3c\x4e\xa7" \
-    "\xf8\x56\x28\xe0\x38\xd8\x4b\xb5\x5e\xc3\x28\x08" \
-    "\x34\xd6\xbf\x73\x6b\xf2\x26\x87\xf6\x1f\x06\x74" \
-    "\xbe\x8a\x66\xa3\x85\x5f\xec\xc7\x2f\xf6\x77\xec" \
-    "\xed\x38\x8a\x95\xf9\xf9\xca\xe7\xb1\x31\x3d\xe7" \
-    "\x77\x07\x0b\x82\x60\xd5\xad\x76\x03\x6f\xb7\xfe" \
-    "\x1f\x5c\xaf\xd7\x09\x85\x42\x3b\x0b\x27\x13\x49" \
-    "\x5c\x2e\x17\x81\x13\x01\x16\x9e\x2f\xec\x0c\x9c" \
-    "\x4c\x24\x91\x24\x89\x58\x2c\xc6\xd4\xed\x29\xdd" \
-    "\xf8\x16\x58\xd3\xb4\x4a\x32\x91\x54\x7e\xa2\x72" \
-    "\x5c\x46\x8e\xcb\xbf\xe0\xaa\xaa\x16\x75\xc1\x9a" \
-    "\xa6\xad\x97\x44\xaf\x55\x92\x24\x57\x2a\x95\x42" \
-    "\x8e\xcb\x9b\x6b\xed\x78\xd9\x27\xd9\x74\xc1\x25" \
-    "\xd1\xdb\x63\x0d\x06\x79\x32\x3c\x4c\x38\x12\xde" \
-    "\xf2\xd5\xa7\xef\x4c\x73\xdf\xeb\xc3\x1a\x0c\x52" \
-    "\xf4\x88\xdd\xc1\x45\x8f\x88\x35\x18\x64\x36\x9d" \
-    "\x26\x92\x7b\xdf\x72\x38\x1c\xc2\xef\xcd\x76\xbb" \
-    "\x9d\x2b\x2b\x39\x66\xd3\xe9\x8e\xb8\xa0\xe4\x15" \
-    "\xad\x1d\x8d\xe6\x95\x4e\xb7\x04\x60\xc6\xe9\x62" \
-    "\x62\x74\x94\xca\xe2\x22\xb6\x8f\x1f\xfe\x9c\x58" \
-    "\x2f\x0a\x10\xcd\x2b\x9b\xc9\xff\x9a\xb8\x6b\x4d" \
-    "\x47\xfd\x00\x86\x23\xd6\x4e\x74\x43\x09\x56\x00" \
-    "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image37_data = [
+image32_data = [
+"22 22 72 2",
+".x c #153834",
+".M c #1a271e",
+".P c #1f3a31",
+".G c #21463f",
+".H c #22433a",
+".Q c #244238",
+".r c #2b352d",
+".U c #2e3126",
+".T c #2f3b2f",
+".A c #34382a",
+".L c #3d443c",
+".b c #466361",
+".c c #48615e",
+".R c #496559",
+".v c #4b7573",
+".m c #4c6b66",
+".Y c #4d5e54",
+".j c #4e706f",
+".5 c #505050",
+".u c #507472",
+".F c #51746e",
+".w c #527c7a",
+".i c #546a68",
+".E c #55746e",
+".2 c #566457",
+".0 c #586e62",
+".a c #58716e",
+".O c #5a746b",
+".k c #5a8281",
+".1 c #5b6f63",
+".h c #5c6864",
+".n c #5c6f69",
+".l c #5c8382",
+".d c #5d706c",
+".X c #607066",
+".Z c #607469",
+".o c #656f64",
+".q c #700000",
+"#c c #717171",
+".I c #889d94",
+".t c #8ca5a1",
+".# c #8e9d9a",
+".y c #8fa69e",
+".e c #909b93",
+".D c #90a59e",
+".9 c #949494",
+".8 c #a2a2a2",
+".7 c #a6a6a6",
+".4 c #ababab",
+".6 c #acacac",
+".W c #b4beb5",
+"#. c #c0c0c0",
+".g c #c4c6c4",
+".f c #cdd3c9",
+".3 c #ced6ca",
+"#e c #d3d4d3",
+"#f c #d4d5d4",
+"## c #d5d6d5",
+".p c #d60f0f",
+"#d c #df4e4e",
+"#b c #e3e4e3",
+"#a c #e5e6e5",
+"Qt c #e6e7e6",
+".V c #eaece8",
+".S c #ebfff4",
+".N c #ebfff6",
+".C c #f1fff9",
+".s c #f2fffc",
+".B c #f3fdf5",
+".J c #f3fff6",
+".z c #f5fff7",
+".K c #fcfff4",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQt.#.a.b.c.d.e.fQtQt",
+"QtQtQtQtQtQtQtQtQtQtQt.g.h.i.j.k.l.m.n.o.gQt",
+"QtQtQtQtQtQtQtQt.p.qQt.r.s.t.u.v.w.x.y.z.AQt",
+"QtQtQtQtQtQtQtQt.p.qQt.B.C.D.E.F.G.H.I.J.KQt",
+"QtQtQtQtQtQtQtQt.p.qQt.L.M.N.O.P.Q.R.S.T.UQt",
+"QtQtQtQtQtQtQtQt.p.qQt.V.W.X.Y.Z.0.1.2.3QtQt",
+"QtQtQtQtQtQtQtQt.p.qQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.4.5QtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.6.5QtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.6.5QtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.6.5QtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.7.8QtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt.9#.##.8QtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQt.9#..5.5##.8QtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQt#a.9#..5QtQt.5##.8#bQtQtQtQtQtQtQtQt",
+"QtQtQt#a.p#.#cQtQtQtQt.5##.pQtQtQtQtQtQtQtQt",
+"QtQtQt.p#d.q#eQtQtQtQt#f.q#d.pQtQtQtQtQtQtQt",
+"QtQt.p#d.q#eQtQtQtQtQtQt#f.q#d.pQtQtQtQtQtQt",
+"Qt.p#d.qQtQtQtQtQtQtQtQtQtQt.q#d.pQtQtQtQtQt",
+"Qt#d.qQtQtQtQtQtQtQtQtQtQtQtQt.q#dQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
+]
+image33_data = [
 "22 22 11 1",
 "# c #2d2d2d",
 "c c #acacac",
@@ -3486,7 +3394,7 @@ image37_data = [
 "....aghhhhb..aghhhhb..",
 "......................"
 ]
-image38_data = [
+image34_data = [
 "22 22 10 1",
 "# c #2d2d2d",
 "b c #acacac",
@@ -3521,7 +3429,7 @@ image38_data = [
 ".....fhdddde..........",
 "......................"
 ]
-image39_data = [
+image35_data = [
 "22 22 8 1",
 "f c #000000",
 "d c #000012",
@@ -3554,7 +3462,7 @@ image39_data = [
 "......................",
 "......................"
 ]
-image40_data = [
+image36_data = [
 "22 22 8 1",
 "# c #2d2d2d",
 "e c #b4b5b4",
@@ -3587,36 +3495,39 @@ image40_data = [
 "...aceeeeeeeeeeeeeef..",
 "...dddffffffffffffff.."
 ]
-image41_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
-    "\x16\x49\x44\x41\x54\x78\x9c\xed\x54\xb1\x91\xc3" \
-    "\x20\x10\xdc\xfb\x71\x11\x86\x0a\x1c\xb8\xae\xa7" \
-    "\x0c\xd3\x06\x5f\x81\x02\x65\x5f\xc1\x27\x5f\x81" \
-    "\x02\x55\x70\xb8\x8b\x73\x80\xe1\x4f\x02\x4b\x04" \
-    "\xfe\xc0\x33\xde\x19\x86\xe5\xc4\x2c\x3b\xcb\x09" \
-    "\xe0\xd5\x40\x99\x70\x64\x79\x86\xa0\x35\x96\x00" \
-    "\xe0\x63\x55\x84\x35\x16\x5f\xc1\x16\xfe\xfb\xf3" \
-    "\xbd\xa8\xf7\xe2\xa0\x17\xe3\x10\x30\xcd\x0e\xe7" \
-    "\x53\x80\xf7\x69\x9e\x66\xb7\xa8\x5b\x63\xc1\x91" \
-    "\x77\x85\x17\x51\x58\x93\x1c\x79\x9f\xc6\x1a\xb9" \
-    "\xf6\xe9\x1e\x0b\x37\xa3\xc8\x38\x9f\x42\x55\x1b" \
-    "\x87\x50\xc4\x7b\x22\x69\x0a\x4f\xb3\xab\x9c\x4e" \
-    "\xb3\xeb\x72\xbc\x29\xdc\x72\xac\xa3\xe9\x71\x7c" \
-    "\x68\x15\xb5\x63\x11\x80\x08\xe0\xc8\xc8\x77\xd0" \
-    "\xe3\xb8\xe0\xde\xc7\x02\x40\xc6\x21\x14\xce\x91" \
-    "\xc5\x7b\x88\x48\xe2\x40\xe2\xfa\xfb\x8a\xd7\xc2" \
-    "\xde\x27\x51\x3d\x6b\x11\x7d\x80\x9e\x13\x36\x84" \
-    "\x1f\x39\xce\x3c\x0f\x7d\x98\xde\xa7\x85\x77\x7f" \
-    "\x69\x73\xb4\x20\x5a\xd6\x74\xde\x19\x22\x40\xbc" \
-    "\xf2\x76\x1f\x6b\xc4\x6b\x7d\x51\xe6\x58\x77\xc5" \
-    "\x7a\xdf\xae\x70\x8f\x48\x6b\xdf\xae\x30\x51\x0a" \
-    "\x55\xf7\xf1\x53\x1c\x73\x64\x10\x11\x2e\x97\xc4" \
-    "\x73\x96\x22\x7f\x6b\x8e\x5c\x1d\xf6\x6f\xef\xf1" \
-    "\x1b\x05\x37\xb3\x75\xeb\x48\x68\xcf\x61\x22\x00" \
-    "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image42_data = [
+image37_data = [
+"22 22 7 1",
+". c None",
+"a c #000000",
+"b c #808000",
+"c c #aca899",
+"# c #e6e7e6",
+"d c #ffff00",
+"e c #ffffff",
+"......................",
+"......................",
+"..##################..",
+"..#aabaacaab########..",
+"..#cbcbcbcbca#######..",
+"..#aabaaaaabb#######..",
+"..#aacaaaacbab######..",
+"..#aabaaabbaa#######..",
+"..#aacaaabaaab######..",
+"..#aabaada#aa#######..",
+"..#aacaa#bd#adaa#aa#..",
+"..#bcbcbdaabd#d#ded#..",
+"..#aacaa#aaaadaaaa##..",
+"..######daaaa#aaaad#..",
+"..#######aaaadaaaa##..",
+"..######daaaa#aaaad#..",
+"..######aebaadaaaa##..",
+"..#######ad#d#d#d#d#..",
+"..##################..",
+"......................",
+"......................",
+"......................"
+]
+image38_data = [
 "22 22 64 1",
 "p c #047800",
 "9 c #0770ff",
@@ -3705,7 +3616,7 @@ image42_data = [
 "......................",
 "......................"
 ]
-image43_data = [
+image39_data = [
 "22 22 60 1",
 "v c #153834",
 "K c #1a271e",
@@ -3790,7 +3701,7 @@ image43_data = [
 "......................",
 "......................"
 ]
-image44_data = [
+image40_data = [
 "22 22 115 2",
 ".v c #153834",
 ".M c #1a271e",
@@ -3930,7 +3841,7 @@ image44_data = [
 "QtQtQt.K.K.K#WQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
-image45_data = [
+image41_data = [
 "22 22 57 1",
 "v c #153834",
 "K c #1a271e",
@@ -4012,7 +3923,7 @@ image45_data = [
 "......................",
 "......................"
 ]
-image46_data = [
+image42_data = [
 "22 22 57 1",
 "p c #000000",
 "w c #153834",
@@ -4094,7 +4005,7 @@ image46_data = [
 "......................",
 "......................"
 ]
-image47_data = [
+image43_data = [
 "22 22 14 1",
 "e c #000000",
 "# c #2d2d2d",
@@ -4133,7 +4044,7 @@ image47_data = [
 "......................",
 "....ijklllllllllllllkj"
 ]
-image48_data = [
+image44_data = [
 "22 22 14 1",
 "e c #000000",
 "# c #2d2d2d",
@@ -4172,7 +4083,7 @@ image48_data = [
 "......................",
 "....ijklllllllllllllkj"
 ]
-image49_data = [
+image45_data = [
 "22 22 23 1",
 "# c #2d2d2d",
 "f c #404040",
@@ -4220,7 +4131,197 @@ image49_data = [
 "......................",
 "......................"
 ]
-image50_data = [
+image46_data = [
+"22 22 165 2",
+"#7 c #040404",
+"#. c #050505",
+"aw c #070707",
+"#J c #0a0a0a",
+"#h c #0b0b0b",
+"#8 c #0c0c0c",
+"#F c #0d0d0d",
+".M c #0f0f0f",
+"ax c #121212",
+".x c #141414",
+"#6 c #161616",
+".1 c #171717",
+"#b c #171817",
+".9 c #181818",
+"ak c #191919",
+"#i c #1a1a1a",
+".m c #1a1a1b",
+".z c #1b1b1b",
+"#u c #1c1c1c",
+"#0 c #1d1d1f",
+"ab c #1e1f1e",
+"#1 c #1f1f1f",
+".S c #1f201f",
+"#c c #202120",
+"aF c #212121",
+".D c #222222",
+".u c #232323",
+".N c #242424",
+"#o c #252525",
+".o c #262626",
+"#C c #282828",
+"#M c #292929",
+".v c #2a2a2a",
+"#3 c #2b2b2b",
+".6 c #2c2c2c",
+".p c #2d2d2d",
+".G c #2e2e2e",
+"ad c #2f2f2f",
+"#Y c #303030",
+"#a c #313231",
+"ao c #333333",
+"ai c #333433",
+"## c #343434",
+"#A c #343534",
+"#V c #353535",
+"#B c #363736",
+".8 c #383838",
+"az c #383938",
+"aC c #3a3a3a",
+".J c #3c3c3c",
+"#d c #3d3d3f",
+"#4 c #3d3e3d",
+".7 c #3e3f3e",
+"ar c #404040",
+"af c #414141",
+".n c #424242",
+".5 c #454645",
+"#P c #474847",
+"aI c #494949",
+".w c #494a49",
+".F c #4a4a4a",
+"#5 c #4b4b4b",
+"#v c #4d4d4d",
+"#W c #4f504f",
+".l c #505051",
+"#L c #505150",
+"at c #515151",
+"#q c #515251",
+"#s c #525352",
+".Y c #545454",
+"#N c #545554",
+"#z c #555555",
+".R c #565756",
+"#2 c #575757",
+"ac c #575857",
+"#9 c #595959",
+"aH c #595a59",
+"ag c #5a5a5a",
+"am c #5c5c5c",
+".E c #5e5e5e",
+"ah c #5f5f5f",
+".h c #606060",
+"#e c #626362",
+"#j c #666666",
+".b c #676767",
+"aj c #686868",
+"ae c #686968",
+"#p c #696969",
+"#k c #696a69",
+"as c #6a6a6a",
+"av c #6b6c6b",
+"#Z c #6c6d6c",
+"#T c #6f706f",
+"#I c #727372",
+".C c #757575",
+"#K c #757675",
+"aD c #787878",
+".a c #79797a",
+"#E c #7b7b7b",
+".2 c #7c7d7c",
+"a. c #818281",
+".0 c #828382",
+".T c #838383",
+"ap c #838483",
+"#U c #848484",
+".t c #858585",
+"#r c #858685",
+"aa c #878887",
+".i c #888988",
+".4 c #8a8b8a",
+".A c #8b8c8b",
+"aA c #8c8d8c",
+"#t c #8e8e8e",
+"aE c #8f908f",
+".H c #929292",
+".Z c #939493",
+".g c #949594",
+"al c #969696",
+".P c #979897",
+".q c #989998",
+"#G c #9b9c9b",
+"aB c #9e9f9e",
+"#Q c #9fa09f",
+".c c #a1a1a1",
+".U c #a1a2a1",
+"a# c #a9aaa9",
+"#D c #acacac",
+"#g c #acadac",
+"#X c #adaead",
+"an c #b2b3b2",
+".W c #b3b3b3",
+".O c #b7b8b7",
+"aG c #b9bab9",
+".L c #bdbebd",
+"#l c #c0c1c0",
+".Q c #c4c5c4",
+".f c #c6c6c6",
+"#O c #c7c8c7",
+".3 c #c8c8cf",
+".y c #c8c9c8",
+"#y c #cacbca",
+"#n c #cdcecd",
+"au c #cecece",
+"#m c #cecfce",
+".# c #cfcfcf",
+".V c #cfd0cf",
+".d c #d0d1d0",
+".B c #d2d3d2",
+"aq c #d3d4d3",
+".X c #d4d5d4",
+"#S c #d6d7d6",
+".I c #d9dad9",
+".j c #dadbda",
+"#x c #dcdddc",
+".s c #dddedd",
+"ay c #dedede",
+"#H c #dedfde",
+".K c #dfe0df",
+"#w c #e0e1d9",
+"#R c #e0e1e0",
+"#f c #e1e2e1",
+".k c #e2e3e2",
+".r c #e3e4e3",
+".e c #e5e6e5",
+"Qt c #e6e7e6",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQt.#.a.b.c.dQtQtQt.e.f.g.h.i.jQtQtQtQt",
+"QtQtQt.k.l.m.n.o.p.q.r.s.t.u.v.w.x.tQtQtQtQt",
+"QtQtQt.y.z.A.k.B.C.D.E.F.G.H.I.r.E.J.KQtQtQt",
+"QtQtQt.c.z.LQtQt.e.g.M.N.OQtQtQt.P.z.yQtQtQt",
+"QtQtQt.c.D.QQtQt.j.R.G.S.T.rQt.e.U.o.VQtQtQt",
+"QtQtQt.y.u.W.j.X.Y.u.Z.0.1.2.j.3.4.5.kQtQtQt",
+"QtQtQt.B.6.7.8.9#..D###a#b#.#c#d.G#e#fQtQtQt",
+"Qt.e#g.8#h#i#j.9#k#l#m#n.W.n#o#p#h.M#q.QQtQt",
+".e#r#i#s#t#u#v.F.XQt#wQt#x#y.v#z#A.Z#B#C#DQt",
+".y#u#E.s#f.J#F#G#HQt.n#cQt#n#I#J#KQt.d#L.J.K",
+".d#M#N#OQt#P#.#Q.IQt#c.n#R#S#T#.#U.e.W#V#W.k",
+"Qt#X#Y.N#Z#0#1#2#x#RQt.e.I.X#3.o#4.E.1#5#OQt",
+"QtQt#y#j#6#7.u#8#9a.a#.Uaa#B.Mab#7.oa..jQtQt",
+"QtQtQt.eacadae.G#Fafagahai#h.7ajakalQtQtQtQt",
+"QtQtQt.k.5amQt.j.h.Nan.Z.9aa.r.dao.tQtQtQtQt",
+"QtQtQt.j.6apQtQtaqar#3#uas.rQt.j.YahQtQtQtQt",
+"QtQtQt.eatajQt#fauavawax.4ayQt#HazaaQtQtQtQt",
+"QtQtQtQtaA.6aB.0aC.9aD#j#6#5aE.qaFaGQtQtQtQt",
+"QtQtQtQt.d.Fao.6aH.W.e.r#GaI#M.G#p#fQtQtQtQt",
+"QtQtQtQtQt.K.j.j.eQtQtQtQt.k.j.j.kQtQtQtQtQt"
+]
+image47_data = [
 "22 22 17 1",
 "k c #585858",
 "n c #5f5f5f",
@@ -4262,7 +4363,7 @@ image50_data = [
 "......................",
 "......................"
 ]
-image51_data = [
+image48_data = [
 "22 22 9 1",
 "a c #2d2d2d",
 "e c #595951",
@@ -4296,7 +4397,7 @@ image51_data = [
 "......................",
 "......................"
 ]
-image52_data = [
+image49_data = [
 "22 22 20 1",
 "i c #585858",
 "j c #5f5f5f",
@@ -4341,7 +4442,7 @@ image52_data = [
 "......................",
 "......................"
 ]
-image53_data = [
+image50_data = [
 "22 22 8 1",
 "a c #2d2d2d",
 "# c #505050",
@@ -4374,7 +4475,7 @@ image53_data = [
 "......................",
 "......................"
 ]
-image54_data = [
+image51_data = [
 "22 22 19 1",
 "b c #000000",
 "p c #000100",
@@ -4418,7 +4519,7 @@ image54_data = [
 ".....##########.......",
 "......................"
 ]
-image55_data = [
+image52_data = [
 "22 22 34 1",
 "e c #000000",
 "y c #000100",
@@ -4477,7 +4578,7 @@ image55_data = [
 "..gfruuuuuuuuuuuuuuurr",
 "....DEFgggggggggggggFE"
 ]
-image56_data = [
+image53_data = [
 "22 22 18 1",
 "b c #000000",
 "a c #676767",
@@ -4520,7 +4621,7 @@ image56_data = [
 "......................",
 "......................"
 ]
-image57_data = [
+image54_data = [
 "22 22 18 1",
 "b c #000000",
 "a c #676767",
@@ -4563,7 +4664,7 @@ image57_data = [
 "......................",
 "......................"
 ]
-image58_data = [
+image55_data = [
 "22 22 10 1",
 "a c #000000",
 "f c #000080",
@@ -4598,7 +4699,7 @@ image58_data = [
 "......................",
 "......................"
 ]
-image59_data = [
+image56_data = [
 "22 22 34 1",
 "h c #2d2d2d",
 "n c #404040",
@@ -4657,7 +4758,7 @@ image59_data = [
 "EwFlllllllwbffff......",
 "bExzzzzzzzbffffff....."
 ]
-image60_data = [
+image57_data = [
 "22 22 7 1",
 "a c #2d2d2d",
 "d c #82d2b5",
@@ -4689,7 +4790,7 @@ image60_data = [
 "bebeb#aa#....#aa#bebeb",
 "ebeb............eebebe"
 ]
-image61_data = [
+image58_data = [
 "22 22 10 1",
 "b c #000000",
 "a c #595a59",
@@ -4724,7 +4825,7 @@ image61_data = [
 "......................",
 "....efghhhhhhhhhhhhhgf"
 ]
-image62_data = [
+image59_data = [
 "22 22 29 1",
 "b c #2d2d2d",
 "g c #404040",
@@ -4784,14 +4885,6 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self,parent,name,fl)
         self.statusBar()
 
-        self.image8 = QPixmap()
-        self.image8.loadFromData(image8_data,"PNG")
-        self.image14 = QPixmap()
-        self.image14.loadFromData(image14_data,"PNG")
-        self.image36 = QPixmap()
-        self.image36.loadFromData(image36_data,"PNG")
-        self.image41 = QPixmap()
-        self.image41.loadFromData(image41_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image1 = QPixmap(image1_data)
         self.image2 = QPixmap(image2_data)
@@ -4800,11 +4893,13 @@ class MainWindow(QMainWindow):
         self.image5 = QPixmap(image5_data)
         self.image6 = QPixmap(image6_data)
         self.image7 = QPixmap(image7_data)
+        self.image8 = QPixmap(image8_data)
         self.image9 = QPixmap(image9_data)
         self.image10 = QPixmap(image10_data)
         self.image11 = QPixmap(image11_data)
         self.image12 = QPixmap(image12_data)
         self.image13 = QPixmap(image13_data)
+        self.image14 = QPixmap(image14_data)
         self.image15 = QPixmap(image15_data)
         self.image16 = QPixmap(image16_data)
         self.image17 = QPixmap(image17_data)
@@ -4826,10 +4921,12 @@ class MainWindow(QMainWindow):
         self.image33 = QPixmap(image33_data)
         self.image34 = QPixmap(image34_data)
         self.image35 = QPixmap(image35_data)
+        self.image36 = QPixmap(image36_data)
         self.image37 = QPixmap(image37_data)
         self.image38 = QPixmap(image38_data)
         self.image39 = QPixmap(image39_data)
         self.image40 = QPixmap(image40_data)
+        self.image41 = QPixmap(image41_data)
         self.image42 = QPixmap(image42_data)
         self.image43 = QPixmap(image43_data)
         self.image44 = QPixmap(image44_data)
@@ -4848,9 +4945,6 @@ class MainWindow(QMainWindow):
         self.image57 = QPixmap(image57_data)
         self.image58 = QPixmap(image58_data)
         self.image59 = QPixmap(image59_data)
-        self.image60 = QPixmap(image60_data)
-        self.image61 = QPixmap(image61_data)
-        self.image62 = QPixmap(image62_data)
 
         if not name:
             self.setName("MainWindow")
@@ -4861,110 +4955,106 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(QWidget(self,"qt_central_widget"))
 
-        self.modelTreeView = QListView(self.centralWidget(),"modelTreeView")
-        self.modelTreeView.addColumn(self.__tr("Model Tree"))
-        self.modelTreeView.header().setClickEnabled(0,self.modelTreeView.header().count() - 1)
-        self.modelTreeView.setGeometry(QRect(0,0,131,560))
-        self.modelTreeView.setSizePolicy(QSizePolicy(7,7,0,0,self.modelTreeView.sizePolicy().hasHeightForWidth()))
-        self.modelTreeView.setResizePolicy(QScrollView.Manual)
-        self.modelTreeView.setShowSortIndicator(0)
+        self.mainFrame = QFrame(self.centralWidget(),"mainFrame")
+        self.mainFrame.setGeometry(QRect(0,0,100,100))
+        self.mainFrame.setSizePolicy(QSizePolicy(2,2,0,0,self.mainFrame.sizePolicy().hasHeightForWidth()))
+        self.mainFrame.setFrameShape(QFrame.NoFrame)
+        self.mainFrame.setFrameShadow(QFrame.Plain)
+        self.mainFrame.setLineWidth(0)
 
         self.fileNewAction = QAction(self,"fileNewAction")
-        self.fileNewAction.setIconSet(QIconSet(self.image5))
+        self.fileNewAction.setIconSet(QIconSet(self.image1))
         self.fileOpenAction = QAction(self,"fileOpenAction")
-        self.fileOpenAction.setIconSet(QIconSet(self.image6))
+        self.fileOpenAction.setIconSet(QIconSet(self.image2))
         self.fileSaveAction = QAction(self,"fileSaveAction")
-        self.fileSaveAction.setIconSet(QIconSet(self.image7))
+        self.fileSaveAction.setIconSet(QIconSet(self.image3))
         self.fileSaveAsAction = QAction(self,"fileSaveAsAction")
         self.fileImageAction = QAction(self,"fileImageAction")
-        self.fileImageAction.setIconSet(QIconSet(self.image8))
+        self.fileImageAction.setIconSet(QIconSet(self.image4))
         self.fileExitAction = QAction(self,"fileExitAction")
         self.editUndoAction = QAction(self,"editUndoAction")
-        self.editUndoAction.setIconSet(QIconSet(self.image9))
+        self.editUndoAction.setIconSet(QIconSet(self.image5))
         self.editRedoAction = QAction(self,"editRedoAction")
-        self.editRedoAction.setIconSet(QIconSet(self.image10))
+        self.editRedoAction.setIconSet(QIconSet(self.image6))
         self.editCutAction = QAction(self,"editCutAction")
-        self.editCutAction.setIconSet(QIconSet(self.image11))
+        self.editCutAction.setIconSet(QIconSet(self.image7))
         self.editCopyAction = QAction(self,"editCopyAction")
-        self.editCopyAction.setText(self.trUtf8("Copy"))
-        self.editCopyAction.setMenuText(self.trUtf8("&Copy"))
-        self.editCopyAction.setAccel(self.trUtf8("Ctrl+C"))
-        self.editCopyAction.setIconSet(QIconSet(self.image12))
+        self.editCopyAction.setIconSet(QIconSet(self.image8))
         self.editPasteAction = QAction(self,"editPasteAction")
-        self.editPasteAction.setIconSet(QIconSet(self.image13))
+        self.editPasteAction.setIconSet(QIconSet(self.image9))
         self.editFindAction = QAction(self,"editFindAction")
-        self.editFindAction.setIconSet(QIconSet(self.image14))
+        self.editFindAction.setIconSet(QIconSet(self.image10))
         self.helpContentsAction = QAction(self,"helpContentsAction")
         self.helpIndexAction = QAction(self,"helpIndexAction")
         self.helpAboutAction = QAction(self,"helpAboutAction")
         self.setViewFitToWindowAction = QAction(self,"setViewFitToWindowAction")
-        self.setViewFitToWindowAction.setIconSet(QIconSet(self.image15))
+        self.setViewFitToWindowAction.setIconSet(QIconSet(self.image11))
         self.fileCloseAction = QAction(self,"fileCloseAction")
         self.displayActionGroup = QActionGroup(self,"displayActionGroup")
         self.displayActionGroup.setUsesDropDown(0)
         self.dispLinesAction = QAction(self.displayActionGroup,"dispLinesAction")
         self.dispLinesAction.setToggleAction(0)
-        self.dispLinesAction.setIconSet(QIconSet(self.image16))
+        self.dispLinesAction.setIconSet(QIconSet(self.image12))
         self.dispTubesAction = QAction(self.displayActionGroup,"dispTubesAction")
         self.dispTubesAction.setToggleAction(0)
-        self.dispTubesAction.setIconSet(QIconSet(self.image17))
+        self.dispTubesAction.setIconSet(QIconSet(self.image13))
         self.dispCPKAction = QAction(self.displayActionGroup,"dispCPKAction")
         self.dispCPKAction.setToggleAction(0)
-        self.dispCPKAction.setIconSet(QIconSet(self.image18))
+        self.dispCPKAction.setIconSet(QIconSet(self.image14))
         self.dispVdWAction = QAction(self.displayActionGroup,"dispVdWAction")
         self.dispVdWAction.setToggleAction(0)
         self.dispVdWAction.setOn(0)
-        self.dispVdWAction.setIconSet(QIconSet(self.image19))
+        self.dispVdWAction.setIconSet(QIconSet(self.image15))
         self.dispInvisAction = QAction(self.displayActionGroup,"dispInvisAction")
         self.dispInvisAction.setToggleAction(0)
-        self.dispInvisAction.setIconSet(QIconSet(self.image20))
+        self.dispInvisAction.setIconSet(QIconSet(self.image16))
         self.dispDefaultAction = QAction(self.displayActionGroup,"dispDefaultAction")
         self.dispDefaultAction.setToggleAction(0)
-        self.dispDefaultAction.setIconSet(QIconSet(self.image21))
+        self.dispDefaultAction.setIconSet(QIconSet(self.image17))
         self.viewDefviewAction = QAction(self,"viewDefviewAction")
-        self.viewDefviewAction.setIconSet(QIconSet(self.image22))
+        self.viewDefviewAction.setIconSet(QIconSet(self.image18))
         self.dispBGColorAction = QAction(self,"dispBGColorAction")
-        self.dispBGColorAction.setIconSet(QIconSet(self.image23))
+        self.dispBGColorAction.setIconSet(QIconSet(self.image19))
         self.selectAllAction = QAction(self,"selectAllAction")
-        self.selectAllAction.setIconSet(QIconSet(self.image24))
+        self.selectAllAction.setIconSet(QIconSet(self.image20))
         self.selectNoneAction = QAction(self,"selectNoneAction")
-        self.selectNoneAction.setIconSet(QIconSet(self.image25))
+        self.selectNoneAction.setIconSet(QIconSet(self.image21))
         self.selectInvertAction = QAction(self,"selectInvertAction")
-        self.selectInvertAction.setIconSet(QIconSet(self.image26))
+        self.selectInvertAction.setIconSet(QIconSet(self.image22))
         self.toolsRevolveAction = QAction(self,"toolsRevolveAction")
-        self.toolsRevolveAction.setIconSet(QIconSet(self.image27))
+        self.toolsRevolveAction.setIconSet(QIconSet(self.image23))
         self.toolsExtrudeAction = QAction(self,"toolsExtrudeAction")
-        self.toolsExtrudeAction.setIconSet(QIconSet(self.image28))
+        self.toolsExtrudeAction.setIconSet(QIconSet(self.image24))
         self.toolsCookieCutAction = QAction(self,"toolsCookieCutAction")
-        self.toolsCookieCutAction.setIconSet(QIconSet(self.image29))
+        self.toolsCookieCutAction.setIconSet(QIconSet(self.image25))
         self.toolsSimulatorAction = QAction(self,"toolsSimulatorAction")
-        self.toolsSimulatorAction.setIconSet(QIconSet(self.image30))
+        self.toolsSimulatorAction.setIconSet(QIconSet(self.image26))
         self.ccAddLayerAction = QAction(self,"ccAddLayerAction")
-        self.ccAddLayerAction.setIconSet(QIconSet(self.image31))
+        self.ccAddLayerAction.setIconSet(QIconSet(self.image27))
         self.toolsDoneAction = QAction(self,"toolsDoneAction")
-        self.toolsDoneAction.setIconSet(QIconSet(self.image32))
+        self.toolsDoneAction.setIconSet(QIconSet(self.image28))
         self.toolsCancelAction = QAction(self,"toolsCancelAction")
-        self.toolsCancelAction.setIconSet(QIconSet(self.image33))
+        self.toolsCancelAction.setIconSet(QIconSet(self.image29))
         self.editDeleteAction = QAction(self,"editDeleteAction")
-        self.editDeleteAction.setIconSet(QIconSet(self.image34))
+        self.editDeleteAction.setIconSet(QIconSet(self.image30))
         self.viewToolbarsAction = QAction(self,"viewToolbarsAction")
         self.dispObjectColorAction = QAction(self,"dispObjectColorAction")
-        self.dispObjectColorAction.setIconSet(QIconSet(self.image35))
+        self.dispObjectColorAction.setIconSet(QIconSet(self.image31))
         self.dispOpenBondsAction = QAction(self,"dispOpenBondsAction")
         self.dispOpenBondsAction.setToggleAction(1)
         self.dispOpenBondsAction.setOn(1)
-        self.dispOpenBondsAction.setIconSet(QIconSet(self.image36))
+        self.dispOpenBondsAction.setIconSet(QIconSet(self.image32))
         self.modifyHydrogenateAction = QAction(self,"modifyHydrogenateAction")
-        self.modifyHydrogenateAction.setIconSet(QIconSet(self.image37))
+        self.modifyHydrogenateAction.setIconSet(QIconSet(self.image33))
         self.modifyPassivateAction = QAction(self,"modifyPassivateAction")
-        self.modifyPassivateAction.setIconSet(QIconSet(self.image38))
+        self.modifyPassivateAction.setIconSet(QIconSet(self.image34))
         self.jigsMotorAction = QAction(self,"jigsMotorAction")
         self.modifyMinimizeAction = QAction(self,"modifyMinimizeAction")
-        self.modifyMinimizeAction.setIconSet(QIconSet(self.image39))
+        self.modifyMinimizeAction.setIconSet(QIconSet(self.image35))
         self.elemChangePTableAction = QAction(self,"elemChangePTableAction")
-        self.elemChangePTableAction.setIconSet(QIconSet(self.image40))
+        self.elemChangePTableAction.setIconSet(QIconSet(self.image36))
         self.toolsMovieAction = QAction(self,"toolsMovieAction")
-        self.toolsMovieAction.setIconSet(QIconSet(self.image41))
+        self.toolsMovieAction.setIconSet(QIconSet(self.image37))
         self.toggleFileTbarAction = QAction(self,"toggleFileTbarAction")
         self.toggleFileTbarAction.setToggleAction(1)
         self.toggleFileTbarAction.setOn(1)
@@ -4994,26 +5084,26 @@ class MainWindow(QMainWindow):
         self.dispTrihedronAction.setToggleAction(1)
         self.dispTrihedronAction.setOn(1)
         self.dispTrihedronAction.setEnabled(1)
-        self.dispTrihedronAction.setIconSet(QIconSet(self.image42))
+        self.dispTrihedronAction.setIconSet(QIconSet(self.image38))
         self.dispDatumPlanesAction = QAction(self,"dispDatumPlanesAction")
         self.dispDatumPlanesAction.setToggleAction(1)
         self.dispDatumPlanesAction.setOn(1)
-        self.dispDatumPlanesAction.setIconSet(QIconSet(self.image43))
+        self.dispDatumPlanesAction.setIconSet(QIconSet(self.image39))
         self.dispCsysAction = QAction(self,"dispCsysAction")
         self.dispCsysAction.setToggleAction(1)
         self.dispCsysAction.setOn(1)
-        self.dispCsysAction.setIconSet(QIconSet(self.image44))
+        self.dispCsysAction.setIconSet(QIconSet(self.image40))
         self.dispDatumLinesAction = QAction(self,"dispDatumLinesAction")
         self.dispDatumLinesAction.setToggleAction(1)
         self.dispDatumLinesAction.setOn(1)
-        self.dispDatumLinesAction.setIconSet(QIconSet(self.image45))
+        self.dispDatumLinesAction.setIconSet(QIconSet(self.image41))
         self.dispGridAction = QAction(self,"dispGridAction")
         self.dispGridAction.setToggleAction(1)
-        self.dispGridAction.setIconSet(QIconSet(self.image46))
+        self.dispGridAction.setIconSet(QIconSet(self.image42))
         self.selectConnectedAction = QAction(self,"selectConnectedAction")
-        self.selectConnectedAction.setIconSet(QIconSet(self.image47))
+        self.selectConnectedAction.setIconSet(QIconSet(self.image43))
         self.selectDoublyAction = QAction(self,"selectDoublyAction")
-        self.selectDoublyAction.setIconSet(QIconSet(self.image48))
+        self.selectDoublyAction.setIconSet(QIconSet(self.image44))
         self.editPreferencesAction = QAction(self,"editPreferencesAction")
         self.jigsBearingAction = QAction(self,"jigsBearingAction")
         self.jigsSpringAction = QAction(self,"jigsSpringAction")
@@ -5024,17 +5114,17 @@ class MainWindow(QMainWindow):
         self.jigsGroundAction = QAction(self,"jigsGroundAction")
         self.jigsHandleAction = QAction(self,"jigsHandleAction")
         self.modifySeparateAction = QAction(self,"modifySeparateAction")
-        self.modifySeparateAction.setIconSet(QIconSet(self.image49))
+        self.modifySeparateAction.setIconSet(QIconSet(self.image45))
         self.toolsSketchAtomAction = QAction(self,"toolsSketchAtomAction")
-        self.toolsSketchAtomAction.setIconSet(QIconSet(self.image0))
+        self.toolsSketchAtomAction.setIconSet(QIconSet(self.image46))
         self.ccGraphiteAction = QAction(self,"ccGraphiteAction")
-        self.ccGraphiteAction.setIconSet(QIconSet(self.image50))
+        self.ccGraphiteAction.setIconSet(QIconSet(self.image47))
         self.orient100Action = QAction(self,"orient100Action")
-        self.orient100Action.setIconSet(QIconSet(self.image51))
+        self.orient100Action.setIconSet(QIconSet(self.image48))
         self.orient110Action = QAction(self,"orient110Action")
-        self.orient110Action.setIconSet(QIconSet(self.image52))
+        self.orient110Action.setIconSet(QIconSet(self.image49))
         self.orient111Action = QAction(self,"orient111Action")
-        self.orient111Action.setIconSet(QIconSet(self.image53))
+        self.orient111Action.setIconSet(QIconSet(self.image50))
         self.setViewFrontAction = QAction(self,"setViewFrontAction")
         self.setViewBackAction = QAction(self,"setViewBackAction")
         self.setViewTopAction = QAction(self,"setViewTopAction")
@@ -5042,28 +5132,28 @@ class MainWindow(QMainWindow):
         self.setViewRightAction = QAction(self,"setViewRightAction")
         self.setViewLeftAction = QAction(self,"setViewLeftAction")
         self.setViewHomeAction = QAction(self,"setViewHomeAction")
-        self.setViewHomeAction.setIconSet(QIconSet(self.image54))
+        self.setViewHomeAction.setIconSet(QIconSet(self.image51))
         self.setViewRecenterAction = QAction(self,"setViewRecenterAction")
-        self.setViewRecenterAction.setIconSet(QIconSet(self.image55))
+        self.setViewRecenterAction.setIconSet(QIconSet(self.image52))
         self.jigsLinearMotorAction = QAction(self,"jigsLinearMotorAction")
         self.toggleModifyTbarAction = QAction(self,"toggleModifyTbarAction")
         self.toggleModifyTbarAction.setToggleAction(1)
         self.toggleModifyTbarAction.setOn(1)
         self.toolsStartOverAction = QAction(self,"toolsStartOverAction")
-        self.toolsStartOverAction.setIconSet(QIconSet(self.image56))
+        self.toolsStartOverAction.setIconSet(QIconSet(self.image53))
         self.toolsBackUpAction = QAction(self,"toolsBackUpAction")
-        self.toolsBackUpAction.setIconSet(QIconSet(self.image57))
+        self.toolsBackUpAction.setIconSet(QIconSet(self.image54))
         self.modifyDeleteBondAction = QAction(self,"modifyDeleteBondAction")
-        self.modifyDeleteBondAction.setIconSet(QIconSet(self.image58))
+        self.modifyDeleteBondAction.setIconSet(QIconSet(self.image55))
         self.fileClearAction = QAction(self,"fileClearAction")
         self.modifyCopyBondAction = QAction(self,"modifyCopyBondAction")
-        self.modifyCopyBondAction.setIconSet(QIconSet(self.image59))
+        self.modifyCopyBondAction.setIconSet(QIconSet(self.image56))
         self.modifyEdgeBondAction = QAction(self,"modifyEdgeBondAction")
-        self.modifyEdgeBondAction.setIconSet(QIconSet(self.image60))
+        self.modifyEdgeBondAction.setIconSet(QIconSet(self.image57))
         self.modifyAddBondAction = QAction(self,"modifyAddBondAction")
-        self.modifyAddBondAction.setIconSet(QIconSet(self.image61))
+        self.modifyAddBondAction.setIconSet(QIconSet(self.image58))
         self.modifyWeldMoleculeAction = QAction(self,"modifyWeldMoleculeAction")
-        self.modifyWeldMoleculeAction.setIconSet(QIconSet(self.image62))
+        self.modifyWeldMoleculeAction.setIconSet(QIconSet(self.image59))
 
 
         self.FileToolBar = QToolBar(QString(""),self,Qt.DockTop)
@@ -5082,7 +5172,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(277,0,99,29))
+        self.viewToolbar.setGeometry(QRect(284,0,101,29))
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewRecenterAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -5172,7 +5262,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1062,33))
+        self.MenuBar.setGeometry(QRect(0,0,1062,25))
 
         self.fileMenu = QPopupMenu(self)
         self.fileNewAction.addTo(self.fileMenu)
@@ -5301,7 +5391,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1062,690).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1062,696).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -5397,32 +5487,6 @@ class MainWindow(QMainWindow):
 
     def languageChange(self):
         self.setCaption(self.__tr("Atom"))
-        self.modelTreeView.header().setLabel(0,self.__tr("Model Tree"))
-        self.modelTreeView.clear()
-        item_2 = QListViewItem(self.modelTreeView,None)
-        item_2.setOpen(1)
-        item = QListViewItem(item_2,None)
-        item.setText(0,self.__tr("RIGHT"))
-        item.setPixmap(0,self.image2)
-        item_2.setOpen(1)
-        item = QListViewItem(item_2,item)
-        item.setText(0,self.__tr("TOP"))
-        item.setPixmap(0,self.image2)
-        item_2.setOpen(1)
-        item = QListViewItem(item_2,item)
-        item.setText(0,self.__tr("FRONT"))
-        item.setPixmap(0,self.image2)
-        item_2.setOpen(1)
-        item = QListViewItem(item_2,item)
-        item.setText(0,self.__tr("CSYS"))
-        item.setPixmap(0,self.image3)
-        item_2.setOpen(1)
-        item = QListViewItem(item_2,item)
-        item.setText(0,self.__tr("Insert Here"))
-        item.setPixmap(0,self.image4)
-        item_2.setText(0,self.__tr("PART001.MMP"))
-        item_2.setPixmap(0,self.image1)
-
         self.fileNewAction.setText(self.__tr("New"))
         self.fileNewAction.setMenuText(self.__tr("&New"))
         self.fileNewAction.setAccel(self.__tr("Ctrl+N"))

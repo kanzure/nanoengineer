@@ -182,6 +182,7 @@ class GLPane(QGLWidget):
         """set up lighting in the model
         """
         self.makeCurrent()
+        glEnable(GL_NORMALIZE)
         glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
@@ -371,7 +372,7 @@ class GLPane(QGLWidget):
         if not self.initialised: return
 
         #start=time()
-        self.win.buildTree()
+        #self.win.buildTree()
      
         c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
