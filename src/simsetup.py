@@ -1,9 +1,8 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'simsetup.ui'
 #
-# Created: Tue Aug 10 11:37:19 2004
+# Created: Mon Aug 23 07:21:19 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

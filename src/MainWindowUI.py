@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'atom.ui'
+# Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Sun Aug 22 08:35:51 2004
+# Created: Mon Aug 23 07:21:19 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
