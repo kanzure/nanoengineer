@@ -35,40 +35,30 @@ install, copy, or otherwise use such Updates.
 
 4. Upon Licensee's acceptance of the terms and conditions of this
 Agreement, Nanorex grants Licensee the right to use the Licensed
-Software in the manner provided below.
-
-5. Nanorex grants to Licensee as an individual a personal,
-nonexclusive, non-transferable, perpetual license to make and use
-copies of the Licensed Software. Licensee may install copies of the
-Licensed Software on an unlimited number of computers provided that 
-Licensee is the only individual using the Licensed Software. If 
-Licensee is an entity, Nanorex grants Licensee the right to designate
-one, and only one, individual within Licensee's organization who shall 
-have the sole right to use the Licensed Software in the manner provided 
-above.
-
+Software, as is, in the manner provided below.
 
 LIMITATIONS
 
-6. The following limitations apply to the Licensed Software:
+5. The following limitations apply to the Licensed Software:
 
  a. You may not resell, rent or lease Licensed Software.
  b. You may not reverse engineer, decompile, or disassemble 
     Licensed Software.
- c. You may not link other software with Licensed Software.
+ c. You may not modify Licensed Software in any manner which allows code 
+    other than the original code of the Licensed Software (or the code 
+    in authorized updates supplied by Nanorex) to link to the Qt or PyQt 
+    libraries embedded within the Licensed Software.
  d. You may not copy or distribute Licensed Software on 
     CD-ROM, VCD, DVD, Internet, Online, or any other media except 
     solely for your backup purposes.
 
 NOTE: nanoENGINEER-1 for Linux and MacOS is licensed under the terms 
-of the GPL and not under this Agreement.  The terms of the Free Software 
-Foundation's GNU General Public License version 2 (the "GPL") is 
-located at http://www.gnu.org/copyleft/gpl.html#SEC1 
+of the GNU GPL and not under this Agreement.
 
 
 LIMITATIONS OF LIABILITY
 
-8. IN NO EVENT SHALL THE INITIAL DEVELOPERS OR COPYRIGHT HOLDERS BE 
+7. IN NO EVENT SHALL THE INITIAL DEVELOPERS OR COPYRIGHT HOLDERS BE 
 LIABLE FOR ANY DAMAGES WHATSOEVER, INCLUDING - BUT NOT RESTRICTED 
 TO - LOST REVENUE OR PROFITS OR OTHER DIRECT, INDIRECT, SPECIAL, 
 INCIDENTAL OR CONSEQUENTIAL DAMAGES, EVEN IF THEY HAVE BEEN ADVISED 
@@ -78,7 +68,7 @@ LAW, IF ANY, PROVIDES OTHERWISE.
 
 WARRANTY DISCLAIMER
 
-7. THE LICENSED SOFTWARE IS LICENSED TO LICENSEE "AS IS". TO THE
+8. THE LICENSED SOFTWARE IS LICENSED TO LICENSEE "AS IS". TO THE
 MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, NANOREX DISCLAIMS ALL 
 WARRANTIES AND CONDITIONS,EITHER EXPRESS OR IMPLIED, INCLUDING, BUT 
 NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
@@ -90,5 +80,5 @@ STATE/JURISDICTION.
 
 CHOICE OF LAW
 
-8. This license is governed by the Laws of Michigan. Disputes shall be 
+9. This license is governed by the Laws of Michigan. Disputes shall be 
 settled by Oakland County Court.
