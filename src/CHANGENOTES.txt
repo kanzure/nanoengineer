@@ -1,0 +1,34 @@
+nanoENGINEER-1 Change Log
+
+
+INSTRUCTIONS
+------------
+
+Developers should update this file after every commit that fixes a bug
+or adds new funtionality to nanoENGINEER-1. Please include the following
+information:
+
+Name:
+Date:
+Files:
+Summary:
+
+
+CHANGE NOTES
+------------
+
+Name: Mark Sims
+Date: 3/13/2005
+Files: HistoryWidget
+Summary: Changed startup height to 4 lines of text, requested by Damian.
+
+Name: Mark Sims
+Date: 3/13/2005
+Files: ElementSelector
+Summary: Changed button font from Times to default.
+
+Name: Mark Sims
+Date: 3/13/2005
+Files: modifyMode
+Summary: Fixed bug 13.  Removed "Separate" from context menu.
+
