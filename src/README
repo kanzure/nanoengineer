@@ -1,11 +1,12 @@
-                     README for nanoENGINEER-1 (R)
+                     README for nanoENGINEER-1 (TM)
                      -----------------------------
  
 VERSION/INFO:
  
   This is nanoENGINEER-1 version 1.0 Alpha as of February 2rd 2005.
   See the COPYRIGHT section for distribution and copyright notices.
-  Send all bug reports and questions for nanoENGINEER-1 to support@nanorex.com.
+  Send all bug reports and questions for nanoENGINEER-1 to 
+  support@nanorex.com.
 
 
 MINIMUM SYSTEM REQUIREMENTS:
@@ -53,18 +54,20 @@ COPYRIGHT:
 
   Copyright (c) 2004-2005 Nanorex, Inc.
 
-  Nanorex, Inc. disclaims all warranties with regard to this software, including
-  all implied warranties of merchantability and fitness. In no event shall Nanorex
-  be liable for any special, indirect or consequential damages or any damages 
-  whatsoever resulting from loss of use, data or profits, whether in an action 
-  of contract, negligence or other tortious action, arising out of or in 
-  connection with the use or performance of this software.
+  Nanorex, Inc. disclaims all warranties with regard to this software, 
+  including all implied warranties of merchantability and fitness. 
+  In no event shall Nanorex be liable for any special, indirect or 
+  consequential damages or any damages whatsoever resulting from loss 
+  of use, data or profits, whether in an action of contract, negligence 
+  or other tortious action, arising out of or in connection with the 
+  use or performance of this software.
 
-  Please see the file LICENSE (distributed in the same directory as this file)
-  for the license covering nanoENGINEER-1, since this depends on version and how 
-  the entire program was distributed. If no file named LICENSE was distributed in 
-  this file's directory, then all rights for use or distribution of nanoENGINEER-1 
-  are reserved by Nanorex.
+  Please see the file LICENSE (distributed in the same directory as 
+  this file)for the license covering nanoENGINEER-1, since this depends 
+  on the platform and how the entire program was distributed. If no 
+  file named LICENSE was distributed in this file's directory, then 
+  all rights for use or distribution of nanoENGINEER-1 are reserved by 
+  Nanorex.
  
-  nanoENGINEER (R) is a registered trademark of Nanorex, Inc.
+
 
