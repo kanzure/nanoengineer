@@ -681,8 +681,7 @@ class MWsemantics(MainWindow):
     def zoomWindow(self):
         """Rubber band window zoom.
         """
-        self.history.message(redmsg("Zoom Window: Not implemented yet."))
-#        self.glpane.zoom = True
+        self.glpane.setMode('ZOOM')
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
