@@ -218,14 +218,25 @@ class MWsemantics(MainWindow):
             if not os.path.exists(fn): return
 
             if fn[-3:] == "mmp":
-                print " MWsemantics.py: fileInsert(): inserting MMP file: ", fn
-                insertmmp(self.assy, fn)
-            if fn[-3:] == "pdb":
-                print " MWsemantics.py: fileInsert(): inserting PDB file: ", fn
-                readpdb(self.assy, fn)
-
-            self.assy.modified = 1 # The file and the part are not the same
-
+                try:
+                    insertmmp(self.assy, fn)
+                except:
+                    print "MWsemantics.py: fileInsert(): error inserting file" + fn
+                    self.msgbarLabel.setText( "Problem inserting MMP file: " + fn )
+                else:
+                    self.assy.modified = 1 # The file and the part are not the same.
+                    self.msgbarLabel.setText( "MMP file inserted: " + fn )
+            
+            if fn[-3:] in ["pdb","PDB"]:
+                try:
+                    readpdb(self.assy, fn)
+                except:
+                    print "MWsemantics.py: fileInsert(): error inserting PDB file" + fn
+                    self.msgbarLabel.setText( "Problem inserting file: " + fn )
+                else:
+                    self.assy.modified = 1 # The file and the part are not the same.
+                    self.msgbarLabel.setText( "PDB file inserted: " + fn )
+            
             self.glpane.scale=self.assy.bbox.scale()
             self.glpane.paintGL()
             self.mt.update()
@@ -260,7 +271,7 @@ class MWsemantics(MainWindow):
 
             if fn[-3:] == "mmp":
                 readmmp(self.assy,fn)
-#            if fn[-3:] == "pdb":
+                
             if fn[-3:] in ["pdb","PDB"]:
                 readpdb(self.assy,fn)
 
