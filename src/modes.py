@@ -8,7 +8,6 @@ from OpenGL.GLE import *
 import math
 
 import os,sys
-from time import time
 from VQT import *
 import drawer
 from shape import *
@@ -108,6 +107,8 @@ class basicMode:
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
         move = self.o.quat.unrot(self.o.scale * deltaMouse/(h*0.5))
+        # bruce comment 040908, about josh code: 'move' is mouse motion in model coords. We want center of view, -self.pov,
+        # to move in opposite direction as mouse, so that after recentering view on that point, objects have moved with mouse.
         self.o.pov += move
         self.o.paintGL()
         self.o.SaveMouse(event)
@@ -211,26 +212,9 @@ class basicMode:
         if key == Qt.Key_Delete:
             self.w.killDo()
 
-    def makemenu(self, lis):
-
+    def makemenu(self, lis): #bruce 040909 moved most of this method into GLPane.
         win = self.o
-
-        menu = QPopupMenu(win)
-    
-        for m in lis:
-            if m:
-            
-                act = QAction(win,m[0]+'Action')
-                act.setText(win.trUtf8(m[0]))
-                act.setMenuText(win.trUtf8(m[0]))
-                
-                act.addTo(menu)
-                win.connect(act, SIGNAL("activated()"), m[1])
-            else:
-                menu.insertSeparator()
-        
-        return menu
-
+        return win.makemenu(lis)
 
     def pickdraw(self):
         """Draw the (possibly unfinished) freehand selection curve.
