@@ -87,16 +87,26 @@ class Jig(Node):
         return None
         
     # josh 10/26 to fix bug 85
-    def rematom(self, a):
-        self.atoms.remove(a)
+    # bruce 050215 added docstring and added removal of self from atm.jigs
+    def rematom(self, atm):
+        "remove atom atm from this jig, and remove this jig from atom atm [called from atom.kill]"
+        self.atoms.remove(atm)
+        #bruce 050215: also remove self from atm's list of jigs
+        try:
+            atm.jigs.remove(self) # assume no need to notify atm of this
+        except:
+            if platform.atom_debug:
+                print_compact_traceback("atom_debug: ignoring exception in rematom: ")
         # should check and delete the jig if no atoms left
         if not self.atoms:
             self.kill()
-            
+        return
+    
     def kill(self):
-        #e don't we need to remove self from all our atoms' a.jigs? [guess: yes] ####@@@@
-        # [bruce question 041105; looks like a bug but i will ask josh]
-        Node.kill(self)
+        # bruce 050215 modified this to remove self from our atoms' jiglists, via rematom
+        for atm in self.atoms:
+            self.rematom(atm) # the last one removed kills the jig recursively!
+        Node.kill(self) # might happen twice, that's ok
 
     # bruce 050125 centralized pick and unpick (they were identical on all Jig
     # subclasses -- with identical bugs!), added comments; didn't yet fix the bugs.
