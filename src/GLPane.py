@@ -798,11 +798,16 @@ class GLPane(QGLWidget, modeMixin):
             filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
             tmpFilePath = self.win.tmpFilePath 
             writemmp(self.assy, tmpFilePath + "minimize.mmp")
-            pipe = os.popen(filePath + "/../bin/simulator -m " + tmpFilePath + "minimize.mmp")
-            s = pipe.read()
-            r = pipe.close() # false (0) means success, true means failure
+            oldWorkingDir = os.getcwd()
+            os.chdir(tmpFilePath)
+            args = [filePath + '/../bin/simulator', '-m ',  "minimize.mmp"]
+            r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
+            #pipe = os.popen(filePath + "/../bin test/simulator -m " + "minimize.mmp")
+            #s = pipe.read()
+            #r = pipe.close() # false (0) means success, true means failure
             # bruce 041101 wonders whether .close() retval being exitcode is
             # documented as working on all systems we support...
+            os.chdir(oldWorkingDir)
         except:
             print_compact_traceback("exception in minimize; continuing: ")
             s = "internal error (traceback printed elsewhere)"

@@ -3,6 +3,7 @@
 from SimSetupDialog import *
 from fileIO import writemmp
 from commands import *
+from debug import *
 import os
 
 class runSim(SimSetupDialog):
@@ -28,22 +29,21 @@ class runSim(SimSetupDialog):
         if not self.assy.filename: self.assy.filename= tmpFilePath + "simulate.mmp"
         import os, sys
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        cmd = (filePath + "/../bin/simulator -f" + str(self.nframes)
-               + " -t" + str(self.temp)
-               + " -i" + str(self.stepsper)
-#               + " -s" + str(self.timestep)
-               + " " + self.assy.filename)
-        print cmd
+       
+        args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper), "simulate.mmp"]
+        
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        oldWorkingDir = os.getcwd()
+        os.chdir(tmpFilePath)
         try:
             self.assy.w.msgbarLabel.setText("Calculating...")
             if self.assy.modified: writemmp(self.assy, self.assy.filename)
-            pipe = os.popen(cmd)
-            r = pipe.close() # false (0) means success, true means failure
+            r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
         except:
-            print_compact_traceback("exception in minimize; continuing: ")
+            print_compact_traceback("exception in simulation; continuing: ")
             s = "internal error (traceback printed elsewhere)"
             r = -1 # simulate failure
+        os.chdir(oldWorkingDir)    
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
             self.assy.w.msgbarLabel.setText("Movie written to "+self.assy.filename[:-3]+'dpb')
