@@ -121,6 +121,24 @@ Summary: exclude singlets from saved PDB files; warn user when this happens
 
 ----------------------------
 
+Name: Mark Sims
+Date: 3/19/2005
+Files: MainWindow, depositMode, RotaryMotorDialog
+Summary:
+
+MainWindow: 
+ - removed Element Selector from Modify menu/toolbar
+ - Adding Phosphorus to Select Atoms filter combobox
+
+depositMode:
+ - Added Element Selector to Build Atoms dashboard
+
+RotaryMotorDialog:
+ - Changed torque units from "nN*nm" to "nN-nm"
+ - Changed speed units from "gHz" to "GHz"
+
+----------------------------
+
 Name: Bruce Smith
 Date: 3/22/2005
 Files: fileIO.py
@@ -128,3 +146,7 @@ Summary: fix bug 433 (now ok to read empty pdb files)
 
 ----------------------------
 
+Name: Mark Sims
+Date: 3/24/2005
+Files: LightingToolDialog
+Summary: Added "Restore Defaults" button.
