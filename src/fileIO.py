@@ -36,6 +36,9 @@ grdpat = re.compile("ground \((.+)\) \((\d+), (\d+), (\d+)\)")
 # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
 statpat = re.compile("stat \((.+)\) \((\d+), (\d+), (\d+)\) \((\d+)\)" )
 
+# thermo (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+thermopat = re.compile("thermo \((.+)\) \((\d+), (\d+), (\d+)\)" )
+
 def getname(str, default):
     x= nampat.search(str)
     if x: return x.group(1)
@@ -353,7 +356,29 @@ def _readmmp(assy, filnam, isInsert = False):
             sr.color=col
             sr.temp=temp
             opengroup.addmember(sr)
- 
+
+    # Read the MMP record for a Thermometer as:
+    # thermo (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+                
+        elif key == "thermo":
+            if mol:
+                mol = _addMolecule(mol, assy, opengroup)
+            
+            m=thermopat.match(card)
+            name = m.group(1)
+            col=map(lambda (x): int(x)/255.0,
+                    [m.group(2),m.group(3),m.group(4)])
+
+            # Read in the list of atoms
+            card =card[card.index(")")+1:] # skip past the color field
+            list = map(int, re.findall("\d+",card[card.index(")")+1:]))
+            list = map((lambda n: ndix[n]), list)
+            
+            sr = Thermo(assy, list) # create stat and set props
+            sr.name=name
+            sr.color=col
+            opengroup.addmember(sr)
+             
         elif key=="csys": # Coordinate System
             if not isInsert: #Skip this record if inserting
                 m=re.match(csyspat,card)
