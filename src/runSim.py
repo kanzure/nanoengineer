@@ -30,7 +30,7 @@ class runSim(SimSetupDialog):
         
         #If a new model, save first
         if not self.assy.alist:
-            QMessageBox.critical(self, "Error", "You must save the current model before simulation.")
+            QMessageBox.critical(self, "Error", "You must save the current model before running a simulation.")
             return
         
         #If the current file directory is not writable or file name has space in it, warn user
@@ -50,20 +50,37 @@ class runSim(SimSetupDialog):
         args = [filePath + '/../bin/simulator', '-f' + str(self.nframes), '-t' + str(self.temp), '-i' + str(self.stepsper),  str(self.fileform),  self.assy.filename]
         
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        self.assy.w.statusBar.message("<span style=\"color:#006600\">Simulator: Calculating...</span>")
         
         try:
-            self.assy.w.statusBar.message("Calculating...")
-            if self.assy.modified: writemmp(self.assy, self.assy.filename)
-            r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
+            if self.assy.modified: writemmp(self.assy, self.assy.filename, False)
+            
+            outfile = self.assy.filename[:-4] + self.mext
+            if os.path.exists(outfile): os.remove (outfile) # Delete before spawning.
+            kid = os.spawnv(os.P_NOWAIT, filePath + '/../bin/simulator', args)
+            natoms = len(self.assy.alist)
+            dpbsize = (self.nframes * natoms * 3) + 4
+            r = self.assy.w.progressbar.launch(dpbsize, outfile, "Simulate", "Calculating...")
             s = None
         except:
             print_compact_traceback("exception in simulation; continuing: ")
             s = "internal error (traceback printed elsewhere)"
-            r = -1 # simulate failure
+            r = -1 # simulator failure
+        
         QApplication.restoreOverrideCursor() # Restore the cursor
-        if not r:
-            self.assy.w.statusBar.message("Movie written to "+self.assy.filename[:-3]+'dpb')
-        else:
+        
+        if not r: # Simulator competed.
+            msg = "Movie written to [" + outfile + "]."\
+                        "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
+            QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
+                        self.assy.w.toolsMovieAction.iconSet().pixmap() )
+            self.assy.w.statusBar.message(msg)
+
+        elif r == 1: # User pressed abort on progress dialog...
+            self.assy.w.statusBar.message("<span style=\"color:#ff0000\">Simulate: Aborted.</span>")         
+            # We should kill the kid, but not sure how on Windows
+            
+        else: # Something failed...
             if not s: s = "exit code %r" % r
             self.assy.w.statusBar.message("Simulation Failed!") ##e include s?
             QMessageBox.warning(self.assy.w, "Simulation Failed:", s)
@@ -85,4 +102,3 @@ class runSim(SimSetupDialog):
         else: # XYZ file format
             self.fileform = '-x'
             self.mext = '.xyz'
-

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Dec 24 11:35:07 2004
+# Created: Tue Jan 4 14:21:32 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5565,31 +5565,31 @@ image75_data = [
 image76_data = [
 "22 22 7 1",
 ". c None",
-"a c #000000",
-"b c #808000",
-"c c #aca899",
-"# c #e6e7e6",
-"d c #ffff00",
+"# c #000000",
+"a c #808000",
+"b c #aca899",
+"d c #e6e7e6",
+"c c #ffff00",
 "e c #ffffff",
 "......................",
 "......................",
-"..##################..",
-"..#aabaacaab########..",
-"..#cbcbcbcbca#######..",
-"..#aabaaaaabb#######..",
-"..#aacaaaacbab######..",
-"..#aabaaabbaa#######..",
-"..#aacaaabaaab######..",
-"..#aabaada#aa#######..",
-"..#aacaa#bd#adaa#aa#..",
-"..#bcbcbdaabd#d#ded#..",
-"..#aacaa#aaaadaaaa##..",
-"..######daaaa#aaaad#..",
-"..#######aaaadaaaa##..",
-"..######daaaa#aaaad#..",
-"..######aebaadaaaa##..",
-"..#######ad#d#d#d#d#..",
-"..##################..",
+"......................",
+".##########a..........",
+".bababababab#.........",
+".####a#####aa.........",
+".####b####ba#a........",
+".####a###aa##.........",
+".####b###a###a........",
+".####a##c#d##.........",
+".####b##dacd#########.",
+".babababc##acdcdcec.c.",
+".#######d####c####.##.",
+"........c####d####c##.",
+".........####c####.##.",
+"........c####d####c##.",
+"........#ea##c####.##.",
+".........#c.c.c.c.c.c.",
+"..........###########.",
 "......................",
 "......................",
 "......................"
@@ -7319,7 +7319,7 @@ class MainWindow(QMainWindow):
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,657,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,656,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -7530,7 +7530,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1009).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1012).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)

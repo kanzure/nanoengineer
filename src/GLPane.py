@@ -634,6 +634,7 @@ class GLPane(QGLWidget, modeMixin):
         for mol in self.assy.molecules:
             if mol.display == diDEFAULT: mol.changeapp(1)
 
+
     def paintGL(self):
         """the main screen-drawing function.
         Sets up point of view projection, position, angle.
@@ -811,6 +812,8 @@ class GLPane(QGLWidget, modeMixin):
         pic.save(filename, "JPEG", quality=85)
 
     def minimize(self):
+        if not self.assy.alist: return # Nothing in the part to minimize.
+
         #bruce 041215 fixed some bugs and changed some error messages
         # in the case when the simulator executable is not found.
         # Bugs included uncaught exception (rather than error message)
@@ -821,11 +824,10 @@ class GLPane(QGLWidget, modeMixin):
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # hourglass
         s = ""; args = ['bugifseen']; r = program = 'bugifseen'
         try:
-            self.win.statusBar.message("Calculating...")
-            import os, sys
+            self.win.statusBar.message("<span style=\"color:#006600\">Minimize: Calculating...</span>")
             filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
             tmpFilePath = self.win.tmpFilePath 
-            writemmp(self.assy, os.path.join(tmpFilePath, "minimize.mmp"))
+            writemmp(self.assy, os.path.join(tmpFilePath, "minimize.mmp"), False)
             
             #Huaicai 12/07/04, if path name for "minimize.mmp" has space, 
             # spawnv() has problems on Windows, so changing working directory to it
@@ -839,10 +841,16 @@ class GLPane(QGLWidget, modeMixin):
             # could or should be passed to spawnv.
             # [quick bugfix by Mark & Bruce, 041223; comment by bruce]
             args = [program, '-m ',  "minimize.mmp"]
+            natoms = len(self.assy.alist)
             if os.path.exists(program) or os.path.exists(program + '.exe'):
                 try:
                     os.chdir(tmpFilePath)
-                    r = os.spawnv(os.P_WAIT, program, args)
+                    if os.path.exists("minimize.dpb"): os.remove ("minimize.dpb") # Delete before spawning.
+                    kid = os.spawnv(os.P_NOWAIT, program, args)
+                    natoms = len(self.assy.alist)
+                    nframes = max(25, int(sqrt(natoms)))
+                    dpbsize = (nframes * natoms * 3) + 4
+                    r = self.win.progressbar.launch(dpbsize, "minimize.dpb", "Minimize", "Calculating...")
                 finally:
                     os.chdir(oldWorkingDir)
             else:
@@ -860,10 +868,12 @@ class GLPane(QGLWidget, modeMixin):
             s = "internal error (traceback printed elsewhere)"
             r = -1 # simulate failure
         QApplication.restoreOverrideCursor() # Restore the cursor
-        if not r:
+        if not r: # Minimization worked.  Start movie.
             self.win.statusBar.message("Minimizing...")
             self.startmovie(os.path.join(tmpFilePath, "minimize.dpb"))
-        else:
+        elif r == 1: # User pressed abort on progress dialog...
+            self.win.statusBar.message("<span style=\"color:#ff0000\">Minimize: Aborted.</span>")
+        else: # Something failed...
             if not s:
                 s = "exit code %r" % r
             print "Minimization Failed:", s
@@ -874,7 +884,10 @@ class GLPane(QGLWidget, modeMixin):
         return
 
     def startmovie(self,filename):
-        self.win.statusBar.message("Playing " + filename)
+        if not os.path.exists(filename): 
+            self.win.statusBar.message("Cannot play movie file [" + filename + "]. It does not exist.")
+            return
+        self.win.statusBar.message("Playing movie file [" + filename + "]")
         self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
@@ -885,7 +898,8 @@ class GLPane(QGLWidget, modeMixin):
         if self.clock<0:
             self.killTimers()
             self.assy.movend()
-            self.win.statusBar.message("Done.")
+            self.win.statusBar.message("Done playing movie.")
+            self.xfile.close()
         else:
             self.assy.movatoms(self.xfile)
             self.paintGL()

@@ -123,8 +123,13 @@ class MWsemantics(MainWindow):
         vsplitter.setResizeMode(self.history.widget, QSplitter.KeepSize)
         vsplitter.setOpaqueResize(False)
         self.setCentralWidget(vsplitter) # this was required (what exactly does it do?)
-        
-        # do here to avoid a circular dependency
+
+        # Create a progress bar widget for use during time consuming operations,
+        # such as minimize, simulator and select doubly.  Mark 050101
+        from ProgressBar import ProgressBar
+        self.progressbar = ProgressBar()
+                    
+        # do here to avoid a cirDialogcular dependency
         self.assy.o = self.glpane
         self.assy.mt = self.mt
 
@@ -360,7 +365,6 @@ class MWsemantics(MainWindow):
             self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
             self.assy.csys.scale = self.glpane.scale
             self.mt.update()
-
 
     def fileSave(self):
         if self.assy:
@@ -1055,9 +1059,10 @@ class MWsemantics(MainWindow):
 
  # Play a movie from the simulator
     def toolsMovie(self):
-        #if not self.assy.filename: self.assy.filename="simulate.mmp"
+        if not self.assy.filename: 
+            self.statusBar.message("No part.  Cannot play movie file.")
+            return
         dir, fil, ext = fileparse(self.assy.filename)
-        #print "playing", dir+fil+'.dpb'
         self.glpane.startmovie(dir+fil+'.dpb') 
     
     ###################################

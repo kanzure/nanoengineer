@@ -1,0 +1,140 @@
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<class>progressBarDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>progressBarDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>298</width>
+            <height>129</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Minimize</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>msgLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>13</y>
+                <width>278</width>
+                <height>17</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Calculating.  Please wait...</string>
+        </property>
+        <property name="alignment">
+            <set>AlignCenter</set>
+        </property>
+    </widget>
+    <widget class="QProgressBar">
+        <property name="name">
+            <cstring>progress</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>36</y>
+                <width>278</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="totalSteps">
+            <number>0</number>
+        </property>
+    </widget>
+    <spacer>
+        <property name="name">
+            <cstring>spacer1</cstring>
+        </property>
+        <property name="orientation">
+            <enum>Horizontal</enum>
+        </property>
+        <property name="sizeType">
+            <enum>Expanding</enum>
+        </property>
+        <property name="sizeHint">
+            <size>
+                <width>91</width>
+                <height>20</height>
+            </size>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>14</x>
+                <y>73</y>
+                <width>91</width>
+                <height>20</height>
+            </rect>
+        </property>
+    </spacer>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>abortPB</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>111</x>
+                <y>69</y>
+                <width>82</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Abort</string>
+        </property>
+    </widget>
+    <spacer>
+        <property name="name">
+            <cstring>spacer2</cstring>
+        </property>
+        <property name="orientation">
+            <enum>Horizontal</enum>
+        </property>
+        <property name="sizeType">
+            <enum>Expanding</enum>
+        </property>
+        <property name="sizeHint">
+            <size>
+                <width>91</width>
+                <height>20</height>
+            </size>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>199</x>
+                <y>73</y>
+                <width>91</width>
+                <height>20</height>
+            </rect>
+        </property>
+    </spacer>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="6401">789c8d97c96e5db91186f77e0aa1b96b04ec33f3104116963558b264cd831d645155e4d13ccf0ef2eee1adbfaeda0682467cbcf9445eb258fc6be01fbf2f1c6f6f2efcfec78787477a3c930539a5fb85dfd3d3d5d5db3ffff58f7f7ff8ad6916caffb6ad179adffef6e1373958900557a526f4a2dccdb86eebd00c33f695f2d88421ebf8b7193755578f9df2aa725d18eb1d2b37855be52fc6adcdffaedc750de693eed7f45d1cfb19bb43e5a1251bdf520ef371ff55796ce358eb7ac61d637d3a354e367f4f59fa16cc1f955327e3a8bfff0c2ee37a5efaa19cfbdee65fbd73d0f5de94a78ea2dae70fc07db0df07e311bf97a319b75567f6fa7d701f315f3694eb2e8749797dce36ff59b9ebc21895778c73c4fa9be0b27fa5e397ca7dd747b5975ec07d3db2ce5f339efb578c19ebcb8af2d08f91741cfb87721eb587cf95c7be82bdd4ce19fb3b360e5159168dd9fcb16d9c49c769548ec5ff7a1f49efafa56e0ad023c6a9f85ffde5c838c2ffb4abcc7d07fb7949597a8a6a2f9d29e77e32ffa9beda69a8f07b517d77553fd7e796718a7a3ef749b92eeba93f9c33cea3c603a9febab6c843d9d773367dec1ae708fb3d7818c6a48cfdbb32aee727d567d7f769d4fd58f5d80d3dc11f7c6d9c701ea7f7d785a1b1fd5ee74c880fd85ffc6de76dc10313cea3faeca4f813fac6fca967e8cb2d828b01ca9466dc57431d554f4ecfdbd72540753d517df77d6086bd7afe7e1828e23ef57c7db12f40af8bc69df9fbc03812ec7d54e6215a7ce8fdf5328ce69f1d70e861af57bdf729b4a4fef5aab77e0a03e9ef597f3f54a1b6f51f8c53447ed37c31d42161be57fd156b0343df3f8c99e15fdd7f688709fae1657030fd90c6c3d0850ae34ecf3ff42131f4a6f7594e53e1be08eb4960827fcfc063cd7a3f099c861c903f22380ca3fa970663b1fb6d661c66e743fc07f0d8c03e7fa15c87cc3aee75bdd08c0cfbbce69750040466f54718c218d4bf72031e6b523dd29b716ffe537d853012431faa9750b221f4ce9aaf0295ebc47af7c689a1bf5e99c70af6b3c64b48e52f7a5f0efba77162e574028e0d7eefb7de19fad1fb09257b32f6d3fc3e56210eea5f770a9ecfe768dcc1ff2ecf59a0df27e57a149ccf697e1c9b311b6b7d19bb3888deafdb3716c487bb53ee6363f7a5f1350e655ced633dff18c70ef9da69fd1c39b6a4bff7585f22993d7abf63a246106f7abf630ed2ab5e58f3cf388d0cbdb85530d582fbd1fd635d6660ff6370ec48ebb99bc03408fca7fa9a599fa017ad5fb18d93c05ead27e5d73dec61cd97b12f2b229edec0d4d9fe1a2f31522bba9f5f36ee45f5e2b57e452212c497f62391cb0cbd1f1663323d793035a66f8ddf988afdc877aa973895f404ff63fd89fb84faa5f743150d0c7d9f18479ccf7f3426fc9e743faaa9c77eacf98b9a18acfeeafed48ea947be7902c736c0bf9a0fcaaf8784f8d0fba1215afe73eb60b2f8a4a5390bf2b3ea9346b27823bdff52bc46c67da8ff8bfb5a8bbf2fef8cf5319fb9327fdc1a27b347e3b71c7634bdee81b9b27ca1f747895bf88f8f8cc5ee0bfecce52fea0fba04732da88f1aff3495f5a18f2d6321d45bb577b69ba09eebf9b9664ad04bf7ced083c633b7c4c8ef746e9ca11787f96d5911f67e321ea137d6fac1a5bae1bee8094c9df543aa6f2eed94e9f9152c55c2b8ea93030d767fa3718ae8b708cc117a77cbc684f391c6378f5cc1dfa4fee7c816ff746cdc9b3e617fb97d8b3fd56b29c694a177ec275227c4a3fa974bbee8911f27e318e03fd51b679ad04fb91730b3d52336cec8bf1efeced225b5d7af184b46bf8df18926abdf6b73467f92043cfb74bedeafd4d20ae2478c19f79bf43c65749e2fb41e485147527b58ebbb0cdc219ff95b70b107f952fd27a11454d8abf95546c919f6683e9438fbd4bf9a8f8524c37f84f58b4391fff8c2d8c6bdf6f752d49f747fd2f34a92793db904977603fa53fd4bf126fa297f054e5542fe9a8c9bace725ad4fa966ebef681b5cd20bf4a7fd552a0f1cf3879e27f5d244f86b00a79c918f54bf69e40ef5425e8c4bc7a9f606702938789f683ca59838a39fd1fe2415f5593fefc0b34fedd3fc96a4fc02acfe49a99c00f10fce9209fd92c67b9a64b2fee2119c2a8b5f3d7fae5214e86f159c8709fd99fa37d7a59d457fb5022e1f7ebf64dc409ff46adcdab8f63fb94935fa5f66e38ed57f7c002ef331aefec91d33f6935bf0ecd3f58edf19ef6bedc7739f03fc9f347f170ad85fb43ee691a71eefa7677029e778efec81cb877cacf929c794ac7fd1fbcd24e38078bf01a716fdbe7b308ee8d7681f9c1bf367369609fd329825219ff167706a90fff8d5b8353de23e4ab4213ea5372e9f8e5fbd33f2a3f1d44cc80f387f92c1f2efa6f164efcf4570caa61ff827e51af98fee8d25abbf92372e9fce573de59c26e44f6ec0b9b7f383a7a99a50df7ae37a427e54bd4f9508ee831ae309fdb9db05e706fd9ebf0797f3a11f537d4c752907d01f1933e2cbb5e0dca21ff477e0a9c5fe82f59bd9a7e3d7c6369e345f142a9f8e3f1a7718f7c9b83c90753fad5765b4b3f38ab18db3e6c7a94ff63e24d83fe4d22129ab1ea790edfdc52fe0c9f2950cc6c1f677c623eedb61bca859904f301e679fce87bf4b4330413f389f160c1dff669c26e43bf8b3a80bfd0cef83679fced7fc5266974ff7d7f7d7946727d4f107e38cf544f3dd34a552c2954fc0d9dedf7c67dca39fe227e301ef4dfa6e3ca27e73369ef74337ef0cfb71fea23fd41fee8cdb847cb361dca11ed27cbed94f47c643823ded9c51ffdcb6f188fcc79bc6d1f2e1ba31213fd18131a35ed1e13be3fc93b1403f7cf2ced0fbb371c27d52f5cea807cbc619f7b3f3685cfe81ffffef7fcff7ce93672f7f35df279ffde44ffca93ff3e7fec25ffa2b7fed6ffcadbff3f7fee1d7f9fed13ff967ffe25ffd9bffe13ffa45ffc92ff965bfe257fd67bfe6d7fd975fe66ff84dffd56ff96dbfe377fd9edff707fed01ff963ffcd7ff795af7df3e77cdffacef77ef0c18f3e3aef9c23c74e5c72d94deec49dba33773edb01f3dd85bb7457eedaddb85b77e7eedd837b744feed9bdb857f7e67eb88f6ed17d724beff397dd8a5b759fdd9a5b775fdc86db745fdd96db763b6ed7edb97d77e00edd913b7e9fffcd7d7795ab5de35ad7b9de0d2eb8b13cc93ccdde11a5f12ca5bef48beff63fd0099dd2199dd3055dd2155dd30dddd21dddd3033dd2133dd30bbdfeec1f7aa31ff49116e9132dd132add02a7da6355aa72fb4419bf495b668fb97f93b7e9f76698ff6e9800ee9888ee91b7d2ff3abf20e6ba8a5f2fafc65fe40a1bc2f227b9e75caa539e6126d25819cf0299ff139757cf1f37cbee42bbee61bbee53bbee7077ee4a77205cffcc2affcc63ff8232ffe32ff132ff132aff02a7fe6355ee72fbc4187bcc95f798bb7798777798ff77f9a7fc0877cc4c7fc8dbf977748cd4d797f74a5a31fca3ba03cf5c5cfd2dd9ff365d67f968eb37491a550ca899cca999ccb855cca955ccb8ddcfa873ff560bfb8937b79904779926779915779931ff25116e5932c95d90f3fdb532cda9765599155f92c6bb22e5fcab7219bf255b6645b76c4f1fecff694f577654ff6e5400ee5488ee55bf9be4b55baf4a6f4e59df4bc3f8b999fe697d777e9b163f269d61b72e9074b052f29f8249da63319fe2a7eff22defff3f70fff05d3c01ac8</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>abortPB</sender>
+        <signal>clicked()</signal>
+        <receiver>progressBarDialog</receiver>
+        <slot>abort()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>abort()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
