@@ -20,7 +20,7 @@ and split it into three modules:
   all our tree widgets, if we define other ones), and
 - modelTree.py (customized for showing a "model tree" per se).
 """
-
+debug_painting=0 ######@@@@@@@ DO NOT COMMIT with 1
 ###@@@ some of these imports are only needed by subclasses
 from qt import *
 from constants import *
@@ -259,7 +259,7 @@ class TreeView(QListView):
 
     ###@@@ move this? for eventual use, into a subclass, but for debug use, keep a copy here...
     def drawbluething(self, painter, pos = (0,0), color = Qt.blue): # bruce 050110 taken from my local canvas_b2.py
-        return ########@@@@@@@@@@
+        if not debug_painting: return ########@@@@@@@@@@
         p = painter # caller should have called begin on the widget, assuming that works
         p.setPen(QPen(color, 3)) # 3 is pen thickness
         w,h = 100,9
@@ -287,9 +287,50 @@ class TreeView(QListView):
         painter = QPainter(self, True)#True=unclipped, works, it shows up over the mtree label...
             ####@@@@ if this is what fixes the redraw bugs, should i do it before the super call not after?
         self.dprint("viewportPaintEvent super done, and QPainter after it done")
-##        self.drawbluething(painter, (0,0), color = Qt.red)
-##        self.drawbluething(painter, (80,130), color = Qt.green)
+        if debug_painting:
+            self.drawbluething(painter, (0,0), color = Qt.red)
+            self.drawbluething(painter, (80,130), color = Qt.green)
+            try:
+                self.tree_item
+            except:
+                pass # too early
+            else:
+                self.paint_item( painter, self.tree_item)
         return res
+
+    def paint_item(self, painter, item): # 050126; might use this for dragging items
+        "paint the given QListViewItem (assumed to be one of ours, if this matters) on the given painter"
+        listview = self
+        colorgroup = listview.palette().inactive() # see QPalette and QColorGroup
+            # can try these colorgroups in the widget's palette:
+            # active (looks fully real);
+            # disabled (text gray, icon same as active) --
+            #   maybe use this for the hole a move leaves behind? no, empty is better;
+            #   maybe use it for what we drag, since it is not yet quite real? yes.
+            # inactive (looks same as disabled)
+        col = 0 # column to paint
+        fontmetrics = painter.fontMetrics() # Qt doc says this works iff painter is active... seems to work
+        width = item.width(fontmetrics, listview, col) # seems to work!
+        # print "width is", width # 69 for the Untitled partgroup (icon and text, with white background rect)
+        align = 0 # I can't find docs on what this should be! None fails ("arg 5") but 0 seems to work...
+        # btw when it failed it was called arg 5 to the method -- this did not count self, i guess...
+        # does that mean cg could have been None?
+        ## colorgroup = None #k ok? no; and this one is called arg 1; seems inconsistent...
+        item.paintCell( painter, colorgroup, col, width, align)
+        # now how to we paint it somewhere else, ie translate the painter coords?
+        painter.translate(20,40) ####@@@@ wrong since destructive - but works!
+        ## painter.scale(1.2,1.4) # worked! on both icon and text, but made them both ugly.
+        ## painter.scale(2,2) # worked; look decent tho "pixellated" (not useful for drag, I think)
+        ## painter.scale(0.5,0.5) # worked!!! might actually be useful when dragging many items....
+        ## painter.scale(0.75,0.75) # worked, looks semi-decent
+        ## painter.rotate(90) # worked, looks fine
+        ## painter.rotate(45) # worked, looks kind of bad
+        painter.shear(0,-0.3) # what are the args? 1,1 did not draw anything; 1.2, 1.2 makes it very long and thin in some diagonal...
+            # 0,-0.5 looks kind of italic, might be useful.
+        ####@@@@
+        item.paintCell( painter, colorgroup, col, width, align) # note: honors selected state, that might be useful too.
+        # also try rotate, shear.... might even be good for dragging!
+        return
     
     ## def viewportResizeEvent(self, event):pass
         
