@@ -12,6 +12,7 @@ from VQT import *
 from shape import *
 from qt import QPixmap
 import sys, os
+from PartProp import *
 from debug import print_compact_stack
 
 class Node:
@@ -97,6 +98,9 @@ class Node:
         f.write(self.__repr__(atnums))
 
     def draw(self, o, dispdef):
+        pass
+        
+    def getinfo(self):
         pass
 
     #in addition, each Node should have the following methods:
@@ -199,6 +203,10 @@ class Group(Node):
             ob.setProp(tw)
 
     def edit(self):
+        if self.name == self.assy.name: # the part properties menu item has been selected
+            cntl = PartProp(self.assy)    
+            cntl.exec_loop()
+            self.assy.mt.update()
         pass
 
     def dumptree(self, depth=0):
@@ -217,10 +225,8 @@ class Group(Node):
             x.writemmp(atnums, alist, f)
         f.write("egroup (" + self.name + ")\n")
         
-#    def writepov(self, atnums, alist, f, dispdef):
     def writepov(self, f, dispdef):
         for x in self.members:
-#            print "Utility: writepov() member = ", x.name
             x.povwrite(f, dispdef)
 
     def __str__(self):
