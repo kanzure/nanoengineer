@@ -35,8 +35,7 @@ class zoomMode(basicMode):
         #else: self.rbwcolor = white
         ## Set RBW color as the same as bg color, then it will draw as black
         self.rbwcolor = bg
-        self.o.redrawGL = False
-       
+        
         
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
@@ -91,6 +90,7 @@ class zoomMode(basicMode):
         self.point2 = None
         self.point3 = None
         
+        self.o.redrawGL = False
         glDisable(GL_DEPTH_TEST)
         glDisable(GL_LIGHTING)
         glColor3d(self.rbwcolor[0], self.rbwcolor[1], self.rbwcolor[2])
@@ -193,9 +193,8 @@ class zoomMode(basicMode):
             self.Done()
             
     def Draw(self):
-        pass
-        #basicMode.Draw(self)
-        ##self.o.assy.draw(self.o)
+        basicMode.Draw(self)
+        self.o.assy.draw(self.o)
         ##Make sure this is the last scene draw
         #if self.rbw: 
                 #self.RBWdraw() # Draw rubber band window.
