@@ -780,9 +780,11 @@ def writemovie(assy, mflag = False):
         
     # Check that the moviefile has a valid extension.
     ext = moviefile[-4:]
-    if moviefile[-4:] not in ['.dpb', '.xyz']:
-        # Tell user we're creating the movie file...
-        print "writeMovie: Cannot make movie. Movie name [" + moviefile + "] invalid."
+    if ext not in ['.dpb', '.xyz']:
+        # Don't recognize the moviefile extension.
+        msg = redmsg("Movie [" + moviefile + "] has unsupported extension.")
+        assy.w.history.message(msg)
+        print "writeMovie: " + msg
         return -1
 
     # We always save the current part to an MMP file.  In the future, we may want to check
@@ -792,8 +794,17 @@ def writemovie(assy, mflag = False):
     # filePath = the current directory NE-1 is running from.
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         
-    # "program" is the full path to the simulator executable.  
-    program = os.path.normpath(filePath + '/../bin/simulator')
+    # "program" is the full path to the simulator executable. 
+    if sys.platform == 'win32': 
+        program = os.path.normpath(filePath + '/../bin/simulator.exe')
+    else:
+        program = os.path.normpath(filePath + '/../bin/simulator')
+    
+    # Make sure the simulator exists
+    if not os.path.exists(program):
+        msg = redmsg("Simulator [" + program + "] does not exit.  Simluation aborted.")
+        assy.w.history.message(msg)
+        return -1
 
     # Change cursor to Wait (hourglass) cursor
     ##Huaicai 1/10/05, it's more appropriate to change the cursor
@@ -857,14 +868,32 @@ def writemovie(assy, mflag = False):
     # even though the simulator finished writing the file.
     # - Mark 050105 
     if formarg == "-x":
+        # Single shot minimize.
         if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
             filesize = natoms * 16 # single-frame xyz filesize (estimate)
+            pbarCaption = "Minimize"
+            pbarMsg = "Minimizing..."
+        # Write XYZ trajectory file.
         else:
             filesize = assy.m.totalFrames * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
+            pbarCaption = "Save File"
+            pbarMsg = "Saving XYZ trajectory file " + os.path.basename(moviefile) + "..."
     else: 
-        if mflag: filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
-        else:      filesize = (assy.m.totalFrames * natoms * 3) + 4
-         
+        # Multiframe minimize
+        if mflag:
+            filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
+            pbarCaption = "Minimize"
+        # Simulate
+        else:
+            filesize = (assy.m.totalFrames * natoms * 3) + 4
+            pbarCaption = "Simulator"
+            pbarMsg = "Creating movie file " + os.path.basename(moviefile) + "..."
+            msg = "Simulation started: Total Frames: " + str(assy.m.totalFrames)\
+                    + ", Steps per Frame: " + str(assy.m.stepsper)\
+                    + ", Temperature: " + str(assy.m.temp)
+            assy.w.history.message(msg)
+
+    # We can't overwrite an existing moviefile, so delete it if it exists.
     if os.path.exists(moviefile):
         print "assy.m.isOpen =",assy.m.isOpen
         if assy.m.isOpen: 
@@ -884,11 +913,11 @@ def writemovie(assy, mflag = False):
         # Spawn the simulator.
         kid = os.spawnv(os.P_NOWAIT, program, args)
             
-        # Launch the progress bar.
-        r = assy.w.progressbar.launch( filesize, 
+        # Launch the progress bar. Wait until simulator is finished
+        r = assy.w.progressbar.launch( filesize,
                         moviefile, 
-                        "Simulate", 
-                        "Writing movie file " + os.path.basename(moviefile) + "...", 
+                        pbarCaption, 
+                        pbarMsg, 
                         1)
 
     except: # We had an exception.
