@@ -322,7 +322,7 @@ class depositMode(basicMode):
                     self.pivot = pivatom.posn()
                     self.pivax = norm(neigh[0].posn()-neigh[1].posn())
                     self.baggage = []
-                if len(neigh)>2:
+                elif len(neigh)>2:
                     self.pivot = None
                     self.pivax = None
                     self.baggage = []
