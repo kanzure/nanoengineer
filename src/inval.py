@@ -188,6 +188,7 @@ class InvalMixin:
         map( self.validate_attr, attrs)
         
     def invalidate_attrs(self, attrs, **kws):
+        "invalidate each attribute named in the given list of attribute names"
         if not kws:
             # optim:
             map( self.invalidate_attr, attrs)
@@ -195,6 +196,11 @@ class InvalMixin:
             map( lambda attr: self.invalidate_attr(attr, **kws), attrs)
         
     def invalidate_attr(self, attr, skip = ()):
+        """Invalidate the attribute with the given name.
+        This requires also invalidating any attribute registered as depending on this one,
+        but in doing that we won't invalidate the ones named in the optional list 'skip',
+        or any which depend on attr only via the ones in 'skip'.
+        """
         #e will we need to support special case invalidation methods for certain
         # attrs, like molecule.havelist?
         if attr in skip:
