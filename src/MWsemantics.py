@@ -716,8 +716,9 @@ class MWsemantics(MainWindow):
         # allow user to select a new background color and set it.
         c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
         if c.isValid():
-            color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.glpane.mode.set_backgroundColor( color ) #bruce 050105
+            self.glpane.mode.backgroundColor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
+            # bruce 041118 comment: the above is not enough, since mode objects are remade
+            # at arbitrary times (presently whenever a new file is loaded).
             self.glpane.paintGL()
 
     def dispSetEltable1(self):
@@ -1039,34 +1040,42 @@ class MWsemantics(MainWindow):
     def setNitrogen(self):
         self.setElement(7)
 
-    # Play a movie from the simulator
-#    def toolsMovie(self):
-#        if not self.assy.filename: 
-#                self.assy.filename=os.path.join(self.tmpFilePath, "simulate.mmp")
-                
-#        dir, fil, ext = fileparse(self.assy.filename)
-        # Huaicai 12/07/04. Change the path to the temporary directory, that's where
-        # *.dpb file stays now 
-#        self.glpane.startmovie(os.path.join(self.tmpFilePath, 'simulate.dpb'))
+# Play a movie from the simulator
+    def toolsMoviePlayer(self):
+        
+        # If no simulation has been run yet, check to see if there is a "partner" moviefile.
+        # If so, go ahead and play it.
+        if not self.assy.moviename and self.assy.filename:
+            mfile = self.assy.filename[:-4] + ".dpb"
+            if os.path.exists(mfile): self.assy.moviename = mfile
 
- # Play a movie from the simulator
-    def toolsMovie(self):
-        if not self.assy.filename:
-            self.statusBar.message("<span style=\"color:#ff0000\">Movie Player: Cannot play movie - no part.</span>")
-            return
-        dir, fil, ext = fileparse(self.assy.filename)
-        dpbfile = dir+fil+'.dpb'
-        if os.path.exists(dpbfile):
-            self.glpane.startmovie(dpbfile)
-        else:
-            msg = "<span style=\"color:#ff0000\">Movie Player: "\
-                        "Movie file [" + dpbfile + "] does not exist.</span>"
+        # Make sure there is a moviefile to play.
+        if not self.assy.moviename or not os.path.exists(self.assy.moviename):
+
+            msg = "<span style=\"color:#ff0000\">Movie Player: No movie file.</span>"
             self.statusBar.message(msg)
 
             msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
             QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
                         self.toolsSimulator_Action.iconSet().pixmap() )
             self.statusBar.message(msg)
+            return
+
+        # We have a moviefile and its ready to play.  It's showtime!!!
+        self.hideDashboards()
+        self.moviePlayerDashboard.show()
+        self.glpane.startmovie(self.assy.moviename)
+
+    def moviePause(self):
+        self.glpane.pausemovie()
+        
+    def moviePlay(self):
+        self.glpane.playmovie()
+        
+    def movieDone(self):
+        self.moviePlayerDashboard.hide()
+        self.selectMolDashboard.show()
+        self.glpane.setMode('SELECTMOLS')
     
     ###################################
     # some unimplemented buttons:
@@ -1148,7 +1157,7 @@ class MWsemantics(MainWindow):
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
-        self.statusBar.message("<span style=\"color:#ff0000\">Display Radicals: Not implemented yet.</span>")
+        self.statusBar.message("<span style=\"color:#ff0000\">Display Open Bonds: Not implemented yet.</span>")
 
     def editPrefs(self):
         """ Edit square grid line distances(dx, dy, dz) in nm/angstroms """
@@ -1166,9 +1175,33 @@ class MWsemantics(MainWindow):
         if not self.assy.molecules: # Nothing in the part to minimize.
             self.statusBar.message("<span style=\"color:#ff0000\">Simulator: Nothing to simulate.</span>")
             return
-        if not self.assy.alist: # Nothing in the part to minimize.
-            self.statusBar.message("<span style=\"color:#ff0000\">Simulator: File must be saved before running a simulation.</span>")
-            return
+            
+        # We are checking for 3 situations here, all easily resolved by forcing the user to save the
+        # current file as an MMP file.
+        #
+        # Situation 1: The part is a PDB file.  This creates a problem for runSim.saveMovie.
+        #
+        # Situation 2: We have chunks, but no assy.alist.  This happens often.
+        #
+        # Situation 3: We have an assy.alist, but no filename.   This occurs 
+        # when the user opens a new part, creates something and minimizes it 
+        # without saving it.  If the user wants to simulate it, we still have no filename.
+        # This presents a problem for runSim.saveMovie.
+        # The easiest thing to do is force them to save the file as an MMP file, and thats what we do.
+        # In the future, it would be nice to let the user simulate anyway.  This requires work
+        # in runSim.py to check and deal with this situation.
+        # - Mark [05-01-05]
+#        if self.assy.filename[-4:] != '.mmp' or not self.assy.alist or not self.assy.filename: 
+#        if not self.assy.alist or not self.assy.filename: 
+#            self.statusBar.message("<span style=\"color:#ff0000\">Simulator: File must be saved as an MMP file  before running a simulation.</span>")
+#            return
+        # If we have a PDB file, force the user to save as an MMP file.
+#        if self.assy.filename[-4:] != '.mmp': 
+#            ext = self.assy.filename[-4:]
+#            self.assy.w.statusBar.message("ext = [" + ext + "]")
+#            self.assy.w.statusBar.message("<span style=\"color:#ff0000\">Simulator: File must be saved as an MMP file  before running a simulation.</span>")
+#            return
+            
         self.simCntl = runSim(self.assy)
         self.simCntl.show()
 

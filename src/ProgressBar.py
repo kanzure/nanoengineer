@@ -14,7 +14,7 @@ class ProgressBar( progressBarDialog ):
     def __init__(self):
         progressBarDialog.__init__(self)
         
-        self.duration = 0
+        self.duration = 0 # Seconds that the progress bar takes to complete
 
     # Start the progressbar
     def launch( self , nsteps, filename = '', caption = "Progress", message = "Calculating...", dflag = 0):
@@ -27,7 +27,7 @@ class ProgressBar( progressBarDialog ):
         """
         
         self.abort = False
-        filesize = -1
+        filesize = 0
         sinc = .1
         self.stime = time.time()
 
@@ -42,15 +42,11 @@ class ProgressBar( progressBarDialog ):
         self.progress.setProgress(0)
         self.show() # Show the Progress Box
 
-        # The file may not yet exist.  Let's wait for it...
-        while not os.path.exists(filename): time.sleep(sinc)
-
         # Main loop
         while filesize < nsteps:
-            filesize = os.path.getsize(filename)
+            if os.path.exists(filename): filesize = os.path.getsize(filename)
             self.progress.setProgress( filesize )
             qApp.processEvents() # Process queued events (i.e. clicking Abort button).
-            time.sleep(sinc)
             
             if dflag: # Display duration.
                 self.duration = time.time() - self.stime
@@ -61,9 +57,14 @@ class ProgressBar( progressBarDialog ):
                 self.hide()
                 return 1
 
+            time.sleep(sinc) # Take a rest
+            
         # End of Main loop
+        self.progress.setProgress(nsteps) # 100% done
         self.duration = time.time() - self.stime
+        time.sleep(0.1)  # Give the progress bar a moment show 100%
         self.hide()
+        self.progress.reset() # Reset the progress bar.
         return 0
         
     def abort(self):

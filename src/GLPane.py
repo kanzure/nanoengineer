@@ -879,6 +879,8 @@ class GLPane(QGLWidget, modeMixin):
             self.startmovie(os.path.join(tmpFilePath, "minimize.dpb"))
         elif r == 1: # User pressed abort on progress dialog...
             self.win.statusBar.message("<span style=\"color:#ff0000\">Minimize: Aborted.</span>")
+            # We should kill the kid, but not sure how on Windows
+            if sys.platform not in ['win32']: os.kill(kid, signal.SIGKILL) # Not tested - Mark 050105
         else: # Something failed...
             if not s:
                 s = "exit code %r" % r
@@ -889,7 +891,9 @@ class GLPane(QGLWidget, modeMixin):
             QMessageBox.warning(self, "Minimization Failed:", s)
         return
 
-    def startmovie(self,filename):
+    def startmovie(self, filename):
+        """Start movie
+        """
         if not os.path.exists(filename): 
             self.win.statusBar.message("Cannot play movie file [" + filename + "]. It does not exist.")
             return
@@ -897,16 +901,33 @@ class GLPane(QGLWidget, modeMixin):
         self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
+        self.framenum = 0
+        self.win.movieProgressBar.setTotalSteps(self.clock)
+        self.win.movieProgressBar.setProgress(0)
         self.startTimer(30)
 
+    def pausemovie(self):
+        """Pause movie
+        """
+        self.killTimers()
+        self.win.statusBar.message("Movie paused.")
+        
+    def playmovie(self):
+        """Continue playing movie
+        """
+        self.startTimer(30)
+        
     def timerEvent(self, e):
         self.clock -= 1
+        self.framenum += 1
         if self.clock<0:
             self.killTimers()
             self.assy.movend()
             self.win.statusBar.message("Done playing movie.")
             self.xfile.close()
         else:
+            self.win.frameNumber.display(self.framenum)
+            self.win.movieProgressBar.setProgress(self.framenum)
             self.assy.movatoms(self.xfile)
             self.paintGL()
 

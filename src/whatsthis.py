@@ -576,14 +576,14 @@ def createWhatsThis(self):
 
         ####Movie####
 
-        toolsMovieActionText = "<u><b>Movie Player</b></u><br>"\
-                       "<p><img source=\" toolsMovieAction\"><br> "\
+        toolsMoviePlayerActionText = "<u><b>Movie Player</b></u><br>"\
+                       "<p><img source=\" toolsMoviePlayerAction\"><br> "\
                        "Plays the most recent trajectory (movie) file created by the <b>Simulator</b>.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsMovieAction",
-                                                       self. toolsMovieAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( " toolsMoviePlayerAction",
+                                                       self. toolsMoviePlayerAction.iconSet().pixmap() )
        
-        self. toolsMovieAction.setWhatsThis( toolsMovieActionText )  
+        self. toolsMoviePlayerAction.setWhatsThis( toolsMoviePlayerActionText )  
         
         ####Simulator####
 

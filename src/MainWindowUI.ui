@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1018</height>
+            <height>1045</height>
         </rect>
     </property>
     <property name="caption">
@@ -22,6 +22,9 @@
         <pixmap>image0</pixmap>
     </property>
     <property name="usesBigPixmaps">
+        <bool>false</bool>
+    </property>
+    <property name="opaqueMoving">
         <bool>false</bool>
     </property>
 </widget>
@@ -123,7 +126,7 @@
         <action name="toolsExtrudeAction"/>
         <separator/>
         <action name="toolsSimulator_Action"/>
-        <action name="toolsMovieAction"/>
+        <action name="toolsMoviePlayerAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
         <action name="helpAssistantAction"/>
@@ -215,7 +218,7 @@
             </rect>
         </property>
         <property name="label">
-            <string>Molecular Display</string>
+            <string>Display Modes</string>
         </property>
         <action name="dispDefaultAction"/>
         <action name="dispInvisAction"/>
@@ -229,7 +232,7 @@
             <cstring>selectToolbar</cstring>
         </property>
         <property name="label">
-            <string>Select Toolbar</string>
+            <string>Select</string>
         </property>
         <action name="selectAllAction"/>
         <action name="selectNoneAction"/>
@@ -242,7 +245,7 @@
             <cstring>helpToolbar</cstring>
         </property>
         <property name="label">
-            <string>Help Toolbar</string>
+            <string>Help</string>
         </property>
         <action name="helpAssistantAction"/>
         <action name="helpWhatsThisAction"/>
@@ -255,7 +258,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>657</width>
+                <width>655</width>
                 <height>29</height>
             </rect>
         </property>
@@ -380,7 +383,7 @@
         </widget>
         <separator/>
         <action name="moviePlayAction"/>
-        <action name="movieStopAction"/>
+        <action name="moviePauseAction"/>
         <separator/>
         <widget class="QLabel">
             <property name="name">
@@ -393,6 +396,59 @@
         <widget class="QLCDNumber">
             <property name="name">
                 <cstring>frameNumber</cstring>
+            </property>
+            <property name="paletteForegroundColor">
+                <color>
+                    <red>170</red>
+                    <green>255</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="paletteBackgroundColor">
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="segmentStyle">
+                <enum>Flat</enum>
+            </property>
+        </widget>
+        <widget class="Spacer">
+            <property name="name">
+                <cstring>spacer2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>10</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </widget>
+        <widget class="QProgressBar">
+            <property name="name">
+                <cstring>movieProgressBar</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>300</width>
+                    <height>0</height>
+                </size>
             </property>
         </widget>
         <widget class="Spacer">
@@ -407,21 +463,13 @@
             </property>
             <property name="sizeHint">
                 <size>
-                    <width>6</width>
+                    <width>22</width>
                     <height>22</height>
                 </size>
             </property>
         </widget>
-        <widget class="QSlider">
-            <property name="name">
-                <cstring>movieSlider</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Horizontal</enum>
-            </property>
-        </widget>
+        <action name="movieDoneAction"/>
         <separator/>
-        <action name="toolsDoneAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -512,7 +560,7 @@
         <action name="toolsExtrudeAction"/>
         <separator/>
         <action name="toolsSimulator_Action"/>
-        <action name="toolsMovieAction"/>
+        <action name="toolsMoviePlayerAction"/>
     </toolbar>
     <toolbar dock="4">
         <property name="name">
@@ -2113,7 +2161,7 @@
         </action>
         <action>
             <property name="name">
-                <cstring>toolsMovieAction</cstring>
+                <cstring>toolsMoviePlayerAction</cstring>
             </property>
             <property name="toggleAction">
                 <bool>true</bool>
@@ -2615,6 +2663,9 @@
         <property name="name">
             <cstring>moviePauseAction</cstring>
         </property>
+        <property name="iconSet">
+            <iconset>image99</iconset>
+        </property>
         <property name="text">
             <string>Pause</string>
         </property>
@@ -2624,7 +2675,7 @@
             <cstring>moviePlayAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>image99</iconset>
+            <iconset>image100</iconset>
         </property>
         <property name="text">
             <string>Play</string>
@@ -2672,6 +2723,17 @@
         </property>
         <property name="text">
             <string>Set Atom Colors to Alternate</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>movieDoneAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image18</iconset>
+        </property>
+        <property name="text">
+            <string>Done</string>
         </property>
     </action>
 </actions>
@@ -2974,7 +3036,10 @@
         <data format="XPM.GZ" length="992">789ca5d1cb6a83401805e0bd4f31e84e4a624c8c86d24768e9b250ba181d271ae3255e124ae9bb77ceaf4609994dfa1f17f3cd6160069736fb787f65f6d2685adea6118b125e335b7479fefdf9f5f26398aecbf0796c653e19e68245ecad2c62ac855a5b0e0d7801371c0123d0a3014370eb2320274a04ac407f838016512260090641e00774b6204a15ba86047752857802b9c39d1d9ddd8fe474c984b842c094e88eac07ba3d0fc4b58a0b3657aec18c480f065ba237f238d0ebd911b7d800f381db9e67a28f0d3026066a83debbb83bff682c1e5e278ac4ace1b1dc27e9213be66a0a21a62694e53495403536276d933cd0d4daa6d13699b669b54da76dceda26d63597a29acdbc11b733fd1f7d735b3df8b77f9f8d3fa4be0340</data>
     </image>
     <image name="image99">
-        <data format="XPM.GZ" length="887">789ca591cd4e83401485f73cc584d911d302b6308df111342e4d8c8be1670a949f46ebc218dfdd39571de6125d34bd87c57ce7e386495847e2f1e14e44ebe0f5a44f6d29ca46bf88a87a1b86f7a7e7db8f204c53619f448924bc0ac29528c5fd34d638f7f62c631ae011b8d1085002b31c016a4283003b60be418006a894ca15bd5c0277c6863e540375ace31dedee091304d810a636842de135023c10d2b58003e1f617ab1fdc7ee34898a1004e84b92d326041a86c41975cfd39971829ff33ba583ab753561577ced4c670e7ccde18eeb8f19d338d31dc39d31a375d277d7398fbbe673b03ef3d33f2de3313ef3d53f07e36c7453f9b657fd99f3bcb7cde045fc79fbe97</data>
+        <data format="XPM.GZ" length="827">789cad91cb6ac3301045f7fe0a61ef4c886337b115423fa1a5cb40c9622c5b7ea685365d94d27f8fee300181024da07305a333072181b254ed5f9e549a459f273a0d46999e3e54da7c1d8fdfaf87c79f282e0ae556be5679bc88e2a532eaf9fdadc5be76fb644d0830019615026c805aeb4a331ae0d6baf0d916482b5a6d2dd032e608b0632c5c187bc607043830f2c5c0917173c189b174830d7066acdca00412a376037ed5f26afd6d1294d73d4344b5d73d639aa6f6ba675a316d60ac187b87e9c47481e9c5f4ff726610330466143306661233056616330786c4d0eda64679fd963fbdcbfceea2331695b5f6</data>
+    </image>
+    <image name="image100">
+        <data format="XPM.GZ" length="872">789c9591d14e83301486ef798a86de11b3c1dc6817e32368bc34315e9442076c40a2f3c218dfddfe47073d38a3f6ef45bfffe384265d26e2feee4624cbe8f9688e8d15b6364f22295fbaeef5e1f1fa2d8a572be177a644165f44f14258713bf415cead3fcb94167000ae0d0294c05c214043e810600d546b04e8805a6ba5e9630bdc3a1ffa510534a949b734bb23cc106043788900f784740fe0817073c2f20b379fd811e628803da1f2450e2c08b52fe8568bb3eb7723e54fc6147337ced8b2e46e349573dc8d66e71c77dc846e6e26f7dd9cdc39e35c5dcbc93461dfb6c1cc9ef78139f03e301def03d3f33e3005ef2733ccfac9ccfbbfbce9bfccfb55f401ead0c161</data>
     </image>
 </images>
 <connections>
@@ -3585,10 +3650,10 @@
         <slot>toolsMoveMolecule()</slot>
     </connection>
     <connection>
-        <sender>toolsMovieAction</sender>
+        <sender>toolsMoviePlayerAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>toolsMovie()</slot>
+        <slot>toolsMoviePlayer()</slot>
     </connection>
     <connection>
         <sender>toolsRevolveAction</sender>
@@ -3656,6 +3721,30 @@
         <receiver>MainWindow</receiver>
         <slot>dispSetEltable2()</slot>
     </connection>
+    <connection>
+        <sender>movieStopAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieStop()</slot>
+    </connection>
+    <connection>
+        <sender>moviePlayAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>moviePlay()</slot>
+    </connection>
+    <connection>
+        <sender>movieDoneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>movieDone()</slot>
+    </connection>
+    <connection>
+        <sender>moviePauseAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>moviePause()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3703,7 +3792,6 @@
     <slot>modifyHydrogenate()</slot>
     <slot>modifyPassivate()</slot>
     <slot>modifySeparate()</slot>
-    <slot>toolsMovie()</slot>
     <slot>orient100()</slot>
     <slot>orient110()</slot>
     <slot>orient111()</slot>
@@ -3777,6 +3865,11 @@
     <slot>setViewHomeToCurrent()</slot>
     <slot>dispSetEltable1()</slot>
     <slot>dispSetEltable2()</slot>
+    <slot>movieStop()</slot>
+    <slot>moviePlay()</slot>
+    <slot>movieDone()</slot>
+    <slot>toolsMoviePlayer()</slot>
+    <slot>moviePause()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
