@@ -1066,6 +1066,20 @@ class extrudeMode(basicMode):
         ###e ideally we'd color the word "bonds" funny, or so, to indicate that offset_for_bonds != offset or that ptype isn't rod...
         #e repaint, or let caller do that (perhaps aftermore changes)? latter - only repaint at end of highest event funcs.
         return
+
+    def draw_bond_lines(self, unit1, unit2): #bruce 050203 experiment ####@@@@ DO NOT COMMIT until optimized (tho it might not matter)
+        "draw white lines showing the bonds we presently propose to make between the given adjacent units"
+        # works now, but probably needs optim or memo of find_singlets before commit --
+        # just store a mark->singlet table in the molcopies -- once when each one is made should be enough i think.
+        hh = self.bonds_for_current_offset_and_tol
+        self.prep_to_make_inter_unit_bonds() # needed for find_singlet; could be done just once each time bonds change, i think
+        for (pos,radius,info) in hh:
+            i1,i2 = info
+            ## not so simple as this: p1 = unit1.singlets[i1].posn()
+            p1 = self.find_singlet(unit1,i1).posn() # this is slow! have to optimize before putting it in (or make it optional)
+            p2 = self.find_singlet(unit2,i2).posn()
+            drawline(white, p1, p2)
+        return
     
     # == this belongs higher up...
     
@@ -1504,6 +1518,11 @@ class extrudeMode(basicMode):
                 #e use per-repunit drawing styles...
                 dispdef = mol.get_dispdef( self.o) # not needed, since...
                 mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
+        try: #bruce 050203 experiment
+            for unit1,unit2 in zip(self.molcopies[:-1],self.molcopies[1:]):
+                self.draw_bond_lines(unit1,unit2)
+        except:
+            print_compact_traceback("i tried: ") #####@@@@@
         if self.show_bond_offsets:
             for hset in self.show_bond_offsets_handlesets:
                 try:
