@@ -1,12 +1,19 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 
-"""Classes for objects in the model.
+"""
+Classes for objects in the model,
+with a uniform API to permit them to be shown in the model tree.
+
+This file mainly defines superclass Node and its subclass Group;
+other files define other subclasses of Node, such as molecule and Jig.
+
 This file should have a more descriptive name, but that can wait.
 
-[Owned by mark, as of 041210.]
+[Temporarily owned by Bruce circa 050105; might be extensively revised.]
 
 $Id$
 """
+__author__ = "Josh"
 
 from VQT import *
 from shape import *
@@ -32,8 +39,6 @@ class Node:
         self.hidden = False
         self.icon = None
 
-
-        
     def buildNode(self, obj, parent, icon, dnd=True, rename=True):
         """ build a display node in the tree widget
         corresponding to obj (and return it)
@@ -174,9 +179,13 @@ class Node:
 
     def getstatistics(self, stats):
         pass
-        
+
+    # end of class Node
+
+    
     #in addition, each Node should have the following methods:
     # draw, cut, copy, paste
+
 
 class Group(Node):
     """The tree node class for the tree.
@@ -377,6 +386,9 @@ class Group(Node):
     def __str__(self):
         return "<group " + self.name +">"
 
+    pass # end of class Group
+
+
 class Csys(Node):
     """ Information for coordinate system"""
 
@@ -415,8 +427,8 @@ class Csys(Node):
     def __str__(self):
         return "<csys " + self.name + ">"
         
-    def edit(self):
-        pass
+    pass # end of class Csys
+
 
 class Datum(Node):
     """ A datum point, plane, or line"""
@@ -460,25 +472,29 @@ class Datum(Node):
         new.dad = dad
         return new
 
-    def edit(self):
-        pass
-        
-class InsertHere(Node):
-    """ Current insertion point node """
+    pass # end of class Datum
 
-    def __init__(self, assy, name, pos = 0, end = True):
-        Node.__init__(self, assy, None, name)
-        self.pos = pos
-        self.end = end
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        self.inserthereIcon = QPixmap(filePath + "/../images/inserthere.png")
 
-    def buildNode(self, obj, parent, icon, dnd=True, rename=False):
-        """ build an Insert Here node in the tree widget
-        to indicate the insertion point in the model tree
-        """
-        node = Node.buildNode(self, obj, parent, icon, dnd, rename)
-        return node
-               
-    def seticon(self):
-        self.icon = self.inserthereIcon
+### [InsertHere removed by Bruce since it is not used:]
+##class InsertHere(Node):
+##    """ Current insertion point node """
+##
+##    def __init__(self, assy, name, pos = 0, end = True):
+##        Node.__init__(self, assy, None, name)
+##        self.pos = pos
+##        self.end = end
+##        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+##        self.inserthereIcon = QPixmap(filePath + "/../images/inserthere.png")
+##
+##    def buildNode(self, obj, parent, icon, dnd=True, rename=False):
+##        """ build an Insert Here node in the tree widget
+##        to indicate the insertion point in the model tree
+##        """
+##        node = Node.buildNode(self, obj, parent, icon, dnd, rename)
+##        return node
+##               
+##    def seticon(self):
+##        self.icon = self.inserthereIcon
+
+# end
+
