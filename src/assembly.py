@@ -379,8 +379,11 @@ class assembly:
         if not self.selmols: self.selmols = []
         a = self.findpick(p1, v1)
         if a: 
-              a.molecule.pick()
-
+            a.molecule.pick()
+            # print molecule info on the msgbar. - Mark [2004-10-14]
+            self.w.msgbarLabel.setText( 
+                "Molecule Name: [" + str (a.molecule.name) + "]     Total Atoms = " + str(len(a.molecule.atoms)))
+                
     # deselect any selected atoms
     def unpickatoms(self):
         if self.selatoms:
