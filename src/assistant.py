@@ -12,9 +12,11 @@ class AssistantWindow(QWidget):
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         #self.assistant = QAssistantClient("C:/Qt/3.3.3/bin/.",None,None) # Need to ask Bruce...
         self.assistant = QAssistantClient(filePath + "/../bin", self)
+
         list = QStringList()
         list.append("-profile")
         list.append(filePath + "/../doc/html/ne1assistant.adp")
+
         self.assistant.setArguments( list )
         self.connect( self.assistant, SIGNAL("error(const QString&)"),self.showAssistantErrors)
             

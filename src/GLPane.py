@@ -789,8 +789,10 @@ class GLPane(QGLWidget, modeMixin):
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # hourglass
         try:
             self.win.msgbarLabel.setText("Calculating...")
+            import os, sys
+            filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
             writemmp(self.assy, "minimize.mmp")
-            pipe = os.popen("simulator -m minimize.mmp")
+            pipe = os.popen(filePath + "/../bin/simulator -m minimize.mmp")
             s = pipe.read()
             r = pipe.close() # false (0) means success, true means failure
             # bruce 041101 wonders whether .close() retval being exitcode is
