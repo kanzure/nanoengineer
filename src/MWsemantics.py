@@ -202,18 +202,23 @@ class MWsemantics(MainWindow):
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
-            if ret==0: self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            if ret==0: # Save clicked or Alt+S pressed or Enter pressed.
+                self.fileSave()
+                self.__clear() # Clear the part - we're loading a new file.
+                
             elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
 
         wd = globalParms['WorkingDirectory']
-        fn = QFileDialog.getOpenFileName(wd, 
-                "Molecular machine parts (*.mmp);;Molecules (*.pdb);; All of the above (*.pdb *.mmp)",
+        fn = QFileDialog.getOpenFileName(wd,
+                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All of the above (*.pdb *.mmp)",
                 self )
         
+        # I know we are clearing twice if the file was saved above.
+        # This is desidered behavior - Mark [2004-10-11]
+        self.__clear()  
+                
         fn = str(fn)
         if not os.path.exists(fn): return
-        
-        self.__clear() # Clear the part - we're loading a new file.
 
         if fn[-3:] == "mmp":
             readmmp(self.assy,fn)
@@ -248,16 +253,23 @@ class MWsemantics(MainWindow):
                 dir, fil, ext = fileparse(self.assy.filename)
             else: dir, fil = "./", self.assy.name
 
+        fn = None 
+        sfilter = QString("")   
         fn = QFileDialog.getSaveFileName(dir,
-                    "Molecular machine parts (*.mmp);;Molecules (*.pdb);;POV-Ray (*.pov)", 
-                    self,
-                    "SaveDialog",
-                    "Save As")
+                    "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov)",
+                    self, self.assy.filename,
+                    "Save As",
+                    sfilter)
+        
+#        print "\nMWSematics.py: sfilter =", sfilter # Debugging code - Mark
 
         if fn:
             fn = str(fn)
             dir, fil, ext = fileparse(fn)
-            ext = str(ext)
+            ext =str(sfilter[-5:-1]) # Get the file extension from the sfilter.
+
+#            print "MWSematics.py: filename =", dir + fil + ext # Debugging code - Mark
+#            print "MWSematics.py: ext =", ext # Debugging code - Mark
 
             if ext == ".pdb": # Write PDB file.
                 try:
@@ -278,12 +290,8 @@ class MWsemantics(MainWindow):
                     self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
             
             else: # Write MMP file.
-                if not ext: # This is a kludge until I figure out the SIGNAL for selectFilter.
-                    ext = ".mmp"
-                    self.assy.filename = fn + ext
-                else:
-                    self.assy.filename = fn
-                print "MWSematics.py: filename =", self.assy.filename #DEBUG
+                self.assy.filename = dir + fil + ext
+                print "MWSematics.py: filename =",  self.assy.filename #DEBUG
                 self.assy.name = fil
                 try:
                     writemmp(self.assy, dir + fil + ext)
@@ -309,7 +317,17 @@ class MWsemantics(MainWindow):
         self.glpane.image(fn)
 
     def fileExit(self):
-        pass
+        if self.assy.modified:
+            ret = QMessageBox.information( self, "Atom",
+                "The part contains unsaved changes\n"
+                "Do you want to save the changes before exiting?",
+                "&Save", "&Discard", "Cancel",
+                0,      # Enter == button 0
+                2 )     # Escape == button 2
+            
+            if ret==0: self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
+#        pass
 
     def fileClear(self):
         self.__clear()
