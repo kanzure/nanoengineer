@@ -576,7 +576,7 @@ class MWsemantics(MainWindow):
         self.assy.csys.quat = Q(self.glpane.quat)
         self.assy.csys.scale = self.glpane.scale
         self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
-  
+        self.assy.modified = 1 # Csys record changed in assy.  Mark [041215]
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
