@@ -276,8 +276,12 @@ class MWsemantics(MainWindow):
             
             if ret==0: # Save clicked or Alt+S pressed or Enter pressed.
                 self.fileSave()
+                ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action
                 #self.__clear() # Clear the part - we're loading a new file.
-            elif ret==1: pass#self.__clear() # Discard the part -we're loading a new file.
+                
+            ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
+            elif ret==1: pass#self.__clear() 
+            
             elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
 
         wd = globalParms['WorkingDirectory']
@@ -443,6 +447,7 @@ class MWsemantics(MainWindow):
         else:
             ce.ignore()
 
+    # Comment out by Huaicai 12/06/04. File Clear is not supported any more
     #def fileClear(self):
     #    self.__clear()
     #    self.modelTreeView.update()
@@ -606,8 +611,7 @@ class MWsemantics(MainWindow):
                 # hits a button, so it's more important to fix any bugs that
                 # might be in other code failing to call changeapp when needed.
             self.glpane.setDisplay(form)
-        self.update() # bruce 041206, needed for model tree display mode icons
-        ## was self.glpane.paintGL()
+        self.glpane.paintGL()
 
     def setdisplay(self, a0):
         #bruce 041129 suspects this is obsolete
