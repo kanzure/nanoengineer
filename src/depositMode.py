@@ -1131,19 +1131,20 @@ class depositMode(basicMode):
     # buttons
     ####################
 
-    # add hydrogen atoms to each dangling bond above the water
-    def modifyHydrogenate(self):
-        pnt = - self.o.pov
-        z = self.o.out
-        x = cross(self.o.up,z)
-        y = cross(z,x)
-        mat = transpose(V(x,y,z))
-
-        for mol in self.o.assy.molecules:
-            if not mol.hidden:
-                for a in mol.findAllSinglets(pnt, mat, 10000.0, -TubeRadius):
-                    a.Hydrogenate()
-        self.o.gl_update()
+    ## bruce 050302 removed this to fix bug 130, after discussion with Josh
+##    # add hydrogen atoms to each dangling bond above the water
+##    def modifyHydrogenate(self):
+##        pnt = - self.o.pov
+##        z = self.o.out
+##        x = cross(self.o.up,z)
+##        y = cross(z,x)
+##        mat = transpose(V(x,y,z))
+##
+##        for mol in self.o.assy.molecules:
+##            if not mol.hidden:
+##                for a in mol.findAllSinglets(pnt, mat, 10000.0, -TubeRadius):
+##                    a.Hydrogenate()
+##        self.o.gl_update()
 
 
     ## dashboard things

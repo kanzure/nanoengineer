@@ -1604,14 +1604,16 @@ class molecule(Node, InvalMixin):
     # Same, but return all that match
     # bruce 041207 comment: this is only used in depositMode.modifyHydrogenate,
     # and that's likely to be revised soon.
-    def findAllSinglets(self, point, matrix, radius, cutoff):
-        if not self.singlets: return []
-        v = dot(self.singlpos-point,matrix)
-        r = sqrt(v[:,0]**2 + v[:,1]**2)
-        lis = []
-        for i in range(len(self.singlets)):
-            if r[i]<=radius and v[i,2]>=cutoff: lis += [self.singlets[i]]
-        return lis
+    ## bruce 050302 removed this, since it's no longer needed after removing
+    ## its sole call, mentioned above (which I removed just now to fix bug 130).
+##    def findAllSinglets(self, point, matrix, radius, cutoff):
+##        if not self.singlets: return []
+##        v = dot(self.singlpos-point,matrix)
+##        r = sqrt(v[:,0]**2 + v[:,1]**2)
+##        lis = []
+##        for i in range(len(self.singlets)):
+##            if r[i]<=radius and v[i,2]>=cutoff: lis += [self.singlets[i]]
+##        return lis
 
     # return the singlets in the given sphere (point, radius),
     # sorted by increasing distance from point
