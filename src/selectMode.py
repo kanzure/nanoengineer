@@ -166,6 +166,7 @@ class selectMode(basicMode):
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.
         """
+        self.w.OldCursor = self.w.MoveSelectCursor
         self.move() # go into move mode # bruce 040923: we use to inline the same code as is in this method
         
 
