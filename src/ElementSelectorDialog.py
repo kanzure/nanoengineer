@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Thu Sep 23 19:11:15 2004
+# Created: Thu Dec 2 09:17:23 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -10,40 +10,46 @@
 
 from qt import *
 
-image0_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
-    "\xf4\x49\x44\x41\x54\x78\x9c\xed\x94\x31\x8e\xc2" \
-    "\x30\x10\x45\xbf\x57\x69\x8c\x52\x2d\x66\x2b\x5f" \
-    "\x6a\xb9\x44\xa4\xe4\x20\xe1\x02\xac\x94\x03\xb8" \
-    "\x85\x5b\xf8\x30\xa0\xa1\x9a\x81\xd2\x5b\x44\x31" \
-    "\x90\x88\x95\x62\x9c\x6e\x7f\x63\xcb\x92\x9f\x9e" \
-    "\xed\xf1\x28\xef\x3d\x96\xc8\xc7\x22\xd4\x25\xc1" \
-    "\x05\x00\x54\x55\x15\x86\x85\xae\xeb\xd4\x5c\xc8" \
-    "\xe3\x7e\xe7\x1c\x98\x59\x45\xe3\xfd\xcf\xfe\x2d" \
-    "\xc3\x61\x3f\x5d\x08\x9b\xaf\x4d\x28\x52\x20\x8f" \
-    "\x86\xe3\x88\x08\x88\x28\xfd\x8e\x07\xc3\x57\x27" \
-    "\x9d\x18\xff\x65\x33\x27\x13\xe3\xb1\xc9\xab\x71" \
-    "\x36\x38\x57\xfe\xc1\x31\xca\x7b\x9f\xad\x12\x00" \
-    "\xa0\xdd\xb5\x30\xc6\xf4\xe0\xb2\x2c\x03\x5d\x08" \
-    "\x22\x92\x05\x6e\x8c\xe9\xeb\x98\x99\x95\xb5\x36" \
-    "\x6c\xbf\xb7\xc9\xb0\xc3\xf1\x10\xe7\x44\x74\xff" \
-    "\x20\xe7\xd3\x59\x01\x08\x29\x3d\xa3\xa9\x1b\xdc" \
-    "\xae\x37\x30\x73\x6c\x60\x93\x9f\xd7\xd4\xcd\x6c" \
-    "\x30\xd0\x37\x9f\xf5\xe7\x3a\x0c\xf0\x09\x38\xd5" \
-    "\x58\x44\xa0\xb5\x8e\x6b\xd9\x8c\xc7\x79\x02\x3b" \
-    "\xe7\x90\xab\x3a\x9e\xc0\x7a\xa5\x61\x57\x16\x40" \
-    "\xff\xb2\xef\xe4\x17\x53\x25\x6b\x9e\x8d\xaf\x32" \
-    "\x99\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
-    "\x82"
+image0_data = [
+"22 22 8 1",
+". c None",
+"# c #2d2d2d",
+"e c #b4b5b4",
+"c c #bfc0bf",
+"b c #c2c3c2",
+"f c #c8c9c8",
+"a c #d2d2d2",
+"d c #dbdcdb",
+"......................",
+"......................",
+"......................",
+".###.............###a.",
+".#b#.............#b#cd",
+".#b#.........#####b#ef",
+".#b#.........#b#b#b#ef",
+".#b###########b#b#b#ef",
+".#b#b#b#b#b#b#b#b#b#ef",
+".#b#b#b#b#b#b#b#b#b#ef",
+".#b#b#b#b#b#b#b#b#b#ef",
+".#b#b#b#b#b#b#b#b#b#ef",
+".#b#b#b#b#b#b#b#b#b#ef",
+".###################ef",
+".aceeeeeeeeeeeeeeeeeef",
+"..d###############dddf",
+"...#bbbbbbbbbbbbb#a...",
+"...###############ca..",
+"...#bbbbbbbbbbbbb#ef..",
+"...###############ef..",
+"...aceeeeeeeeeeeeeef..",
+"...dddffffffffffffff.."
+]
 
 class ElementSelectorDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
-        self.image0 = QPixmap()
-        self.image0.loadFromData(image0_data,"PNG")
+        self.image0 = QPixmap(image0_data)
+
         if not name:
             self.setName("ElementSelectorDialog")
 
@@ -103,6 +109,12 @@ class ElementSelectorDialog(QDialog):
         self.setPalette(pal)
         self.setIcon(self.image0)
 
+
+        self.closePTableButton = QPushButton(self,"closePTableButton")
+        self.closePTableButton.setGeometry(QRect(160,340,100,29))
+
+        self.TransmuteButton = QPushButton(self,"TransmuteButton")
+        self.TransmuteButton.setGeometry(QRect(10,340,131,31))
 
         self.elementButtonGroup = QButtonGroup(self,"elementButtonGroup")
         self.elementButtonGroup.setGeometry(QRect(10,0,250,330))
@@ -329,50 +341,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton36.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton36,36)
 
-        self.pushButton51 = QPushButton(self.elementButtonGroup,"pushButton51")
-        self.pushButton51.setEnabled(1)
-        self.pushButton51.setGeometry(QRect(84,279,40,40))
-        self.pushButton51.setPaletteBackgroundColor(QColor(170,0,255))
-        pushButton51_font = QFont(self.pushButton51.font())
-        pushButton51_font.setPointSize(9)
-        pushButton51_font.setBold(1)
-        self.pushButton51.setFont(pushButton51_font)
-        self.pushButton51.setToggleButton(1)
-        self.elementButtonGroup.insert( self.pushButton51,51)
-
-        self.pushButton52 = QPushButton(self.elementButtonGroup,"pushButton52")
-        self.pushButton52.setEnabled(1)
-        self.pushButton52.setGeometry(QRect(123,279,40,40))
-        self.pushButton52.setPaletteBackgroundColor(QColor(238,183,53))
-        pushButton52_font = QFont(self.pushButton52.font())
-        pushButton52_font.setPointSize(9)
-        pushButton52_font.setBold(1)
-        self.pushButton52.setFont(pushButton52_font)
-        self.pushButton52.setToggleButton(1)
-        self.elementButtonGroup.insert( self.pushButton52,52)
-
-        self.pushButton53 = QPushButton(self.elementButtonGroup,"pushButton53")
-        self.pushButton53.setEnabled(1)
-        self.pushButton53.setGeometry(QRect(162,279,40,40))
-        self.pushButton53.setPaletteBackgroundColor(QColor(0,180,135))
-        pushButton53_font = QFont(self.pushButton53.font())
-        pushButton53_font.setPointSize(9)
-        pushButton53_font.setBold(1)
-        self.pushButton53.setFont(pushButton53_font)
-        self.pushButton53.setToggleButton(1)
-        self.elementButtonGroup.insert( self.pushButton53,53)
-
-        self.pushButton54 = QPushButton(self.elementButtonGroup,"pushButton54")
-        self.pushButton54.setEnabled(1)
-        self.pushButton54.setGeometry(QRect(201,279,40,40))
-        self.pushButton54.setPaletteBackgroundColor(QColor(210,210,255))
-        pushButton54_font = QFont(self.pushButton54.font())
-        pushButton54_font.setPointSize(9)
-        pushButton54_font.setBold(1)
-        self.pushButton54.setFont(pushButton54_font)
-        self.pushButton54.setToggleButton(1)
-        self.elementButtonGroup.insert( self.pushButton54,54)
-
         self.pushButton10 = QPushButton(self.elementButtonGroup,"pushButton10")
         self.pushButton10.setEnabled(1)
         self.pushButton10.setGeometry(QRect(201,162,40,40))
@@ -384,15 +352,53 @@ class ElementSelectorDialog(QDialog):
         self.pushButton10.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton10,10)
 
-        self.closePTableButton = QPushButton(self,"closePTableButton")
-        self.closePTableButton.setGeometry(QRect(160,340,100,29))
+        self.pushButton51 = QPushButton(self.elementButtonGroup,"pushButton51")
+        self.pushButton51.setEnabled(0)
+        self.pushButton51.setGeometry(QRect(84,279,40,40))
+        self.pushButton51.setPaletteBackgroundColor(QColor(170,0,255))
+        pushButton51_font = QFont(self.pushButton51.font())
+        pushButton51_font.setPointSize(9)
+        pushButton51_font.setBold(1)
+        self.pushButton51.setFont(pushButton51_font)
+        self.pushButton51.setToggleButton(1)
+        self.elementButtonGroup.insert( self.pushButton51,51)
 
-        self.TransmuteButton = QPushButton(self,"TransmuteButton")
-        self.TransmuteButton.setGeometry(QRect(10,340,131,31))
+        self.pushButton52 = QPushButton(self.elementButtonGroup,"pushButton52")
+        self.pushButton52.setEnabled(0)
+        self.pushButton52.setGeometry(QRect(123,279,40,40))
+        self.pushButton52.setPaletteBackgroundColor(QColor(238,183,53))
+        pushButton52_font = QFont(self.pushButton52.font())
+        pushButton52_font.setPointSize(9)
+        pushButton52_font.setBold(1)
+        self.pushButton52.setFont(pushButton52_font)
+        self.pushButton52.setToggleButton(1)
+        self.elementButtonGroup.insert( self.pushButton52,52)
+
+        self.pushButton53 = QPushButton(self.elementButtonGroup,"pushButton53")
+        self.pushButton53.setEnabled(0)
+        self.pushButton53.setGeometry(QRect(162,279,40,40))
+        self.pushButton53.setPaletteBackgroundColor(QColor(0,180,135))
+        pushButton53_font = QFont(self.pushButton53.font())
+        pushButton53_font.setPointSize(9)
+        pushButton53_font.setBold(1)
+        self.pushButton53.setFont(pushButton53_font)
+        self.pushButton53.setToggleButton(1)
+        self.elementButtonGroup.insert( self.pushButton53,53)
+
+        self.pushButton54 = QPushButton(self.elementButtonGroup,"pushButton54")
+        self.pushButton54.setEnabled(0)
+        self.pushButton54.setGeometry(QRect(201,279,40,40))
+        self.pushButton54.setPaletteBackgroundColor(QColor(210,210,255))
+        pushButton54_font = QFont(self.pushButton54.font())
+        pushButton54_font.setPointSize(9)
+        pushButton54_font.setBold(1)
+        self.pushButton54.setFont(pushButton54_font)
+        self.pushButton54.setToggleButton(1)
+        self.elementButtonGroup.insert( self.pushButton54,54)
 
         self.languageChange()
 
-        self.resize(QSize(266,385).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(266,388).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
@@ -402,6 +408,8 @@ class ElementSelectorDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Element Selector"))
+        self.closePTableButton.setText(self.__tr("Close"))
+        self.TransmuteButton.setText(self.__tr("Transmute"))
         self.elementButtonGroup.setTitle(QString.null)
         self.elementNumberLabel.setText(self.__tr("1"))
         self.amuLabel.setText(self.__tr("1.008"))
@@ -442,6 +450,8 @@ class ElementSelectorDialog(QDialog):
 "Br"))
         self.pushButton36.setText(self.__tr("36\n"
 "Kr"))
+        self.pushButton10.setText(self.__tr("10\n"
+"Ne"))
         self.pushButton51.setText(self.__tr("51\n"
 "Sb"))
         self.pushButton52.setText(self.__tr("52\n"
@@ -450,10 +460,6 @@ class ElementSelectorDialog(QDialog):
 "I"))
         self.pushButton54.setText(self.__tr("54\n"
 "Xe"))
-        self.pushButton10.setText(self.__tr("10\n"
-"Ne"))
-        self.closePTableButton.setText(self.__tr("Close"))
-        self.TransmuteButton.setText(self.__tr("Transmute"))
 
 
     def setElementInfo(self):
