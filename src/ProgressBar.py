@@ -1,3 +1,11 @@
+# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+'''
+ProgressBar.py
+
+$Id$
+'''
+__author__ = "Mark"
+
 import os, time
 from qt import *
 from ProgressBarDialog import *
