@@ -17,6 +17,12 @@ GLfloat color_red[] = {1.0, 0.0, 0.0, 1.0};
 /** Infinite light location. */
 GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};
 
+/** 20 is too big! Even 10 is too big. For the FMC, there is
+ *  a sweet spot around 8. Make the number too small and it
+ *  gets ugly. 6 is OK.
+ */
+#define N   6
+
 /**
  */
 void display(void) {
@@ -32,10 +38,9 @@ void display(void) {
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, element[atom[i].elt].color);
 		glMaterialfv(GL_FRONT, GL_SPECULAR, light_diffuse);
 		glMaterialf(GL_FRONT, GL_SHININESS, 25.0);
-
 		glTranslatef(avg[i].x, avg[i].y, avg[i].z);
 		r=(atom[i].disp==2 ? 100.0 : 10.0) * element[atom[i].elt].rvdw;
-		glutSolidSphere(r, 40,20);
+		glutSolidSphere(r, 2*N, N);
 		glPopMatrix();
 	}
 
