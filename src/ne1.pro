@@ -14,7 +14,9 @@
   <pyfile type="file" name="elementSelector.py" />
   <pyfile type="file" name="extrudeMode.py" />
   <pyfile type="file" name="fileIO.py" />
-  <pyfile type="file" name="gadgets.py" />
+  <pyfile type="file" name="gadgets.py" >
+   <breakpoint line="40" />
+  </pyfile>
   <pyfile type="file" name="GLPane.py" />
   <pyfile type="file" name="GroundProp.py" />
   <pyfile type="file" name="help.py" />
