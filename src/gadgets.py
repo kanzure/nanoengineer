@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 
 """Classes for motors and jigs
 $Id$
@@ -67,10 +67,16 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
         for name in self.icon_names: #e could use a key/value dict instead...
             self.mticon.append( imagename_to_pixmap( name))
         return
-        
+
+    # the following will no longer be needed after bruce's local mods are committed (soon): ###@@@
     def seticon(self):
         "a subclass should override this if it uses mticon[] indices differently"
         self.icon = self.mticon[self.hidden]
+
+    # the following is needed for bruce's local mods, not yet committed as of 050125: ###@@@
+    def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]
+        "a subclass should override this if it uses mticon[] indices differently"
+        return self.mticon[self.hidden]
         
     def setAtoms(self, atomlist):
         if self.atoms:
@@ -617,3 +623,5 @@ class Thermo(Jig):
         return s + " ".join(map(str,nums)) + "\n"
 
     pass # end of class Thermo
+
+# end
