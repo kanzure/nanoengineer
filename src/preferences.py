@@ -291,7 +291,7 @@ class _prefs_context:
     def update(self, dict1): #bruce 050117
         # note: unlike repeated setitem, this only opens and closes once.
         if _shelf:
-            for key, val in dict1:
+            for key, val in dict1.items():
                 #e (on one KeyError, should we store the rest?)
                 #e (better, should we check all keys before storing anything?)
                 self[key] = val #e could optimize, but at least this leaves it open
