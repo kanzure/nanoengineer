@@ -20,7 +20,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.addSeparator()
 
     w.depositAtomLabel = QLabel(w.depositAtomDashboard,"Build")
-    w.depositAtomLabel.setText(" -- Build -- ")
+    w.depositAtomLabel.setText(" Build ")
     w.depositAtomDashboard.addSeparator()
 
     w.pasteComboBox = QComboBox(0,w.depositAtomDashboard,
