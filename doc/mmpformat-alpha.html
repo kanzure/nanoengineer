@@ -25,6 +25,7 @@ pointing back to <em>atom1</em>.</p>
            <li>&quot;tub&quot; - tube</li>
            <li>&quot;lin&quot; - lines</li>
            <li>"inv"- invisible</li>
+           <li>&quot;def&quot; - default (this display mode is determined by the software) </li>
      </ul>
    </li>
    <li><strong><em><strong>name</strong></em> - </strong>name of the part (molecule) that appears in the model tree </li>
@@ -63,22 +64,27 @@ pointing back to <em>atom1</em>.</p>
              <li>&quot;tub&quot; - tube</li>
              <li>&quot;lin&quot; - lines</li>
              <li>"inv"- invisible</li>
+             <li>&quot;def&quot; - default (this display mode is determined by the software)</li>
            </ul>
    </li>
  </ul>
  <hr>
  <p><font size="+1"><strong>Unchanged Record:</strong></font></p>
- <p><font size="+1"><strong>ground </strong>  <em>atom1 atom2 ... atom25 {up to 25}</em></font> </p>
+ <p><font size="+1"><strong>ground </strong>  <em>(name) (r, g, b) atom1 atom2 ... atom25 {up to 25}</em></font> </p>
  <p> Creates a ground object in which atoms are anchored in space, where:</p>
  <ul>
+   <li><strong><em>name</em></strong> - name of the ground</li>
+   <li><strong><em>r, g, b</em></strong> - red, green, and blue color components, between 0-255 (int)</li>
    <li><strong><em>atoms</em></strong> - atoms of mol that are anchored in space </li>
  </ul>
  <hr>
  <p><font size="+1"><strong>New Record: </strong></font></p>
- <p><font size="+1"><strong>lmotor</strong> <em>  force, stiffness, (cx,
+ <p><font size="+1"><strong>lmotor</strong> <em>  (name) (r, g, b) force stiffness (cx,
                                        cy, cz) (ax, ay, az)</em> </font></p>
  <p>Creates a linear motor, where:  </p>
  <ul>
+   <li><strong><em>name</em></strong> - name of the linear motor </li>
+   <li><strong><em>r, g, b</em></strong> - red, green, and blue color components, between 0-255 (int)</li>
    <li><em><strong>force</strong></em> - force of motor in nN*nm (float) </li>
    <li> <em><strong>stiffness</strong></em> - stiffness of motor in N/m (float) </li>
    <li> <em><strong>cx, cy, cz</strong></em> - center of rotation (same format as atom positions) </li>
@@ -89,9 +95,11 @@ pointing back to <em>atom1</em>.</p>
  <p> Atoms to which the linear motor is connected (<strong>shaft</strong> must follow <strong>lmotor</strong> immediately)</p>
  <hr>
  <p><font size="+1"><strong>Changed Record (was <em>motor</em>): </strong></font></p>
- <p><font size="+1"><strong>rmotor</strong> <em>  torque, speed, (cx, cy, cz) (ax, ay, az)</em></font></p>
+ <p><font size="+1"><strong>rmotor</strong> <em>  (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)</em></font></p>
  <p>Creates a rotary motor, where: </p>
  <ul>
+   <li><strong><em>name</em></strong> - name of the linear motor </li>
+   <li><strong><em>r, g, b</em></strong> - red, green, and blue color components, between 0-255 (int)</li>
    <li><em><strong>torque</strong></em> - torque of motor in nN*nm (float) </li>
    <li> <em><strong>speed</strong></em> - speed of motor in gHz (float) </li>
    <li> <em><strong>cx, cy, cz</strong></em> - center of rotation (same format as atom positions) </li>
@@ -128,11 +136,21 @@ The temperature of the part, where:</p>
  </ul>
  <hr>
  <p><strong><font size="+1">New Record: </font></strong></p>
- <p><font size="+1"><strong>group</strong> <em> (name) (member1) (member2) ... (member25) {up to 25} </em></font> </p>
+ <p><font size="+1"><strong>group</strong> <em> (name)</em></font><font size="+1"><em> (member1) (&lt;member2&gt;) ...(member25) {up to 25} </em></font> </p>
  <ul>
    <li><em><strong>name</strong></em> - the group name that appears in the model tree</li>
-   <li><strong><em>member(s)</em></strong> - the names of molecules that belong to this group</li>
- </ul>
+   <li><strong><em>member(s)</em></strong> - the names of molecules or groups that belong to this group, each member should appear before this record.<br>
+   If a member is a group, mark it as &lt;member2&gt;, for example. </li>
+   </ul>
+ <hr>
+ <p><font size="+1"><strong>New Record:</strong></font></p>
+ <p><font size="+1"><strong>stat </strong> <em>(name) (r, g, b) atom1 atom2 ... atom25 {up to 25}</em></font> </p>
+ <p> Creates a thermostat jig that specifies the temperature of the listed atoms, where:</p>
+ <ul>
+   <li><strong><em>name</em></strong> - name of the ground</li>
+   <li><strong><em>r, g, b</em></strong> - red, green, and blue color components, between 0-255 (int)</li>
+   <li><strong><em>atoms</em></strong> - atoms of mol that are associated with this thermostat</li>
+</ul>
  <hr>
  <p><font size="+1"><strong>end </strong></font></p>
  <p>
