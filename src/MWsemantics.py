@@ -261,7 +261,7 @@ class MWsemantics(MainWindow):
             
             if fn[-3:] in ["pdb","PDB"]:
                 try:
-                    readpdb(self.assy, fn)
+                    insertpdb(self.assy, fn)
                 except:
                     print "MWsemantics.py: fileInsert(): error inserting PDB file" + fn
                     self.msgbarLabel.setText( "Problem inserting file: " + fn )

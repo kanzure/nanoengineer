@@ -42,15 +42,16 @@ def getname(str, default):
 
 
 # read a Protein DataBank-format file into a single molecule
-def readpdb(assy,filename):
-    #bruce 041011: added 'U' to file mode, for universal newline support.
-    l=open(filename,"rU").readlines()
-    assy.filename=filename
-    alist=[]
+def _readpdb(assy, filename, isInsert = False):
+
+    f=open(filename,"rU").readlines()
+    
+    dir, nodename = os.path.split (filename)
+    if not isInsert: assy.filename=filename
     ndix={}
-    mol=molecule(assy, filename)
+    mol=molecule(assy, nodename)
         
-    for card in l:
+    for card in f:
         key=card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
             sym = capitalize(card[12:14].replace(" ", "").replace("_", ""))
@@ -67,7 +68,27 @@ def readpdb(assy,filename):
                 try: a2=ndix[int(card[i:i+5])]
                 except ValueError: break
                 mol.bond(a1, a2)
+#    f.close()
+    return mol
+    
+# read a Protein DataBank-format file into a single molecule
+def readpdb(assy,filename):
+    """Reads a pdb file"""
+    mol  = _readpdb(assy, filename, isInsert = False)
     assy.addmol(mol)
+    
+# Insert a Protein DataBank-format file into a single molecule
+def insertpdb(assy,filename):
+    """Reads a pdb file and inserts it into the existing model """
+    mol  = _readpdb(assy, filename, isInsert = True)
+    assy.addmol(mol)
+    
+def insertmmp(assy, fileName):
+    """Reading a mmp file and insert the part into the existing model """    
+    groupList  = _readmmp(assy, fileName, isInsert = True)
+    
+    if len(groupList) != 3: print "wrong number of top-level groups"
+    assy.tree.addmember(groupList[1])
 
 # Write a single molecule into a Protein DataBank-format file 
 def writepdb(assy, filename):
