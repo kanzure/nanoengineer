@@ -33,7 +33,9 @@ def povpoint(p):
 
 class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
     "abstract superclass for all jigs"
-    # each subclass needs to define sym as a class constant
+    sym = "Jig"
+    # each subclass can define sym as a class constant,
+    # to customize the name-making code in __init__
     def __init__(self, assy, atomlist):
         "each subclass needs to call this"
         self.init_icons()
@@ -69,12 +71,6 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
             self.mticon.append( imagename_to_pixmap( name))
         return
 
-    # the following will no longer be needed after bruce's local mods are committed (soon): ###@@@
-    def seticon(self):
-        "a subclass should override this if it uses mticon[] indices differently"
-        self.icon = self.mticon[self.hidden]
-
-    # the following is needed for bruce's local mods, not yet committed as of 050125: ###@@@
     def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]
         "a subclass should override this if it uses mticon[] indices differently"
         return self.mticon[self.hidden]
@@ -120,6 +116,10 @@ class Jig(Node): #bruce 041105 encapsulate common code so I can extend it
         if self.picked:
             Node.unpick(self) # bruce 050126 -- required now
             self.color = self.normcolor
+
+    def move(self, offset):
+        #bruce 050208 made this default method. Is it ever called, in any subclasses??
+        pass
 
     #e there might be other common methods to pull into here
 
@@ -422,9 +422,6 @@ class Ground(Jig):
             grec = "ground(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
             file.write(grec)
 
-    def move(self, offset):
-        pass
-
     def getinfo(self):
         return "[Object: Ground] [Name: " + str(self.name) + "] [Total Grounds: " + str(len(self.atoms)) + "]"
 
@@ -505,9 +502,6 @@ class Stat(Jig):
             srec = "stat(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
             file.write(srec)
 
-    def move(self, offset):
-        pass
-
     def getinfo(self):
         return  "[Object: Thermostat] "\
                     "[Name: " + str(self.name) + "] "\
@@ -584,9 +578,6 @@ class Thermo(Jig):
             disp, rad = a.howdraw(dispdef)
             srec = "thermo(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
             file.write(srec)
-
-    def move(self, offset):
-        pass
 
     def getinfo(self):
         return  "[Object: Thermometer] "\
