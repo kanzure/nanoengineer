@@ -29,7 +29,7 @@ class assembly:
     def __init__(self, win, nm=None):
         # nothing is done with this now, but should have a
         # control for browsing/managing the list
-        global assyList
+        global assyList ## bruce 040929: I'm discussing with Josh whether to eliminate this.
         assyList += [self]
         # the MWsemantics displaying this assembly. 
         self.w = win
@@ -40,7 +40,8 @@ class assembly:
         # list of the atoms, only valid just after read or write
         self.alist = [] #None
         # filename if this was read from a file
-        self.filename= None
+        self.filename = "" # bruce 040928: I changed this to "" from None, so __str__ and some external code won't crash
+            # when it assumes this is a string. Other external code tests it for false; that should still be ok since "" is false.
         # the name if any
         self.name = nm or gensym("Assembly")
         # to be shrunk, see addmol
@@ -99,7 +100,7 @@ class assembly:
     # to draw, just draw everything inside
     def draw(self, win):
         global assyList
-        for part in assyList:
+        for part in assyList: ## bruce 040929: I think this should be changed to (the equivalent of) "for part in [self]".
             for mol in part.molecules:
                  mol.draw(win, self.drawLevel)
            
