@@ -6,17 +6,15 @@ molecule. If such interactions are expected within the same molecule, the "waals
 used.
 </p>
 <p>
-Each molecule is a <strong>mol</strong> record followed by <strong>atom</strong> and <strong>bond</strong> records. The
+Each molecule is a <strong>part</strong> record followed by <strong>atom</strong> and <strong>bond</strong> records. The
 bonds must be back-references, i.e. if <em>atom1</em> and <em>atom2</em> are bonded,
 <em>atom1</em> will have no bond record, while <em>atom2</em> will have a record
-pointing back to <em>atom1</em>.
-</p>
-<p>&nbsp; </p>
+pointing back to <em>atom1</em>.</p>
 <h2>Record types</h2>
  <p>Note parentheses and commas are required. Braces are metacomments.
 </p>
  <hr>
- <p><font size="+1"><strong>Changed Record (changed argument [<em>name</em>]):</strong></font></p>
+ <p><font size="+1"><strong>Changed Record (changed argument [<em>comment</em>] to[<em>name</em>]):</strong></font></p>
  <p><font size="+1"><strong>part</strong><em> mode (name</em></font>)</p>
  <p>Begins a new part (molecule). Applies to all atoms until the next <strong>part</strong> record, where:</p>
  <ul>
@@ -81,11 +79,8 @@ pointing back to <em>atom1</em>.
                                        cy, cz) (ax, ay, az)</em> </font></p>
  <p>Creates a linear motor, where:  </p>
  <ul>
-   <li><em><strong>name</strong></em> - the name of the linear motore that appears in the model tree</li>
-   <li><strong>mol</strong> - the name of the molecule (parent) that this rotary motor is connected</li>
-   <li><strong><em>r, g, b</em></strong> - color (int) </li>
-   <li> <em><strong>force</strong></em> - force of motor in nN*nm (float) </li>
-   <li> <em><strong>stiffness</strong></em> - stiffness of motor in <em><strong>???</strong></em> (float) </li>
+   <li><em><strong>force</strong></em> - force of motor in nN*nm (float) </li>
+   <li> <em><strong>stiffness</strong></em> - stiffness of motor in N/m (float) </li>
    <li> <em><strong>cx, cy, cz</strong></em> - center of rotation (same format as atom positions) </li>
    <li> <em><strong>ax, xy, az</strong></em> - axis of rotation (same format as atom positions) </li>
  </ul>
