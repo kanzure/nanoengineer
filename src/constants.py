@@ -44,3 +44,6 @@ def logicColor(logic):
     if logic==0: return orange
     if logic==1: return aqua
     if logic==2: return yellow
+
+assyList = []
+

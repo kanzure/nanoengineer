@@ -18,8 +18,6 @@ from constants import *
 
 CPKvdW = 0.25
 
-assyList = []
-
 Elno = 0
 
 Gno = 0
