@@ -66,7 +66,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def makemenu(self, lis):
         return makemenu_helper(self, lis)    
 
-    # event processing & selection
+    # mouse event handlers
     
     def contentsMouseDoubleClickEvent(self, event):
         "[called by Qt]"
@@ -101,48 +101,31 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #  for those positions. #e)
 
         part = None
-        ## clicked_on_text = clicked_on_icon = clicked_on_openclose = False
         if item:
-            # where in the item did we click?
-            # relevant Qt things:
+            # where in the item did we click? relevant Qt things:
             # QListViewItem::width - width of text in col k (without cropping)
-            # ... and some example code for a directory browser (available in PyQt too... examples3/dirview.py)
-##            ## here is the code from dirview.py:
-##            # if the user clicked into the root decoration of the item, don't try to start a drag!
-##            if self.rootIsDecorated(): isdecorated = 1
-##            else : isdecorated = 0
-##            #bruce 050120 observes that there's a misplaced ')' in the next line. compare to Qt version of this.
-##            if p.x() > self.header().sectionPos( self.header().mapToIndex( 0 )) + self.treeStepSize() * ( i.depth() + isdecorated + self.itemMargin() or
-##               p.x() < self.header().sectionPos( self.header().mapToIndex( 0 ) ) ) : ### to left of this column
-##               self.presspos.setX(event.pos().x())
-##               self.presspos.setY(event.pos().y())
-##               self.mousePressed = True
-            # our version of dirview example's code:
-            isdecorated = 1 # should conform to self.rootIsDecorated()
+            # ... see also PyQt example code, examples3/dirview.py, search for rootIsDecorated
+            rootIsDecorated = 1
+                # more generally: 0 or 1 depending on self.rootIsDecorated()
             header = self.header()
-            special_x = header.sectionPos( header.mapToIndex( 0 ))
+            col0_left_x = header.sectionPos( header.mapToIndex( 0 ))
                 # where is this x? by experiment it's always 0 for us. must be left edge of column 0.
                 # btw, Qt C++ eg uses mapToActual but there's no such attr when tried here.
-            extra = self.treeStepSize() * (item.depth() + isdecorated) + self.itemMargin()
-            ## special_x_2 = header.sectionPos( header.mapToActual( 0 )) # no such attr
-##            print "for that item: special x pos = %r, treestep = %r, depth %r, margin %r" % (
-##                                        special_x, self.treeStepSize(), item.depth(), self.itemMargin() )
-            greater_by = vpos.x() - (special_x + extra) # this tells whether we hit the left edge of the icon, for a very big icon.
-##            if greater_by > 0:
-##                print "to right of decoration by",greater_by # i think to right by 3 or 2 should count as on decoration...
-##            else:
-##                print "not to right",greater_by
-            if greater_by > 22: #e probably need to adjust this cutoff
+            indent = self.treeStepSize() * (item.depth() + rootIsDecorated) + self.itemMargin()
+            x_past_openclose = vpos.x() - (col0_left_x + indent)
+                # this tells whether we hit the left edge of the icon
+                # (by when it's positive), for a very big icon.
+            if x_past_openclose > 22: #e probably need to adjust this cutoff; depends on our icon sizes
                 part = 'text'
                 #e incorrect if we're to the right of the visible text;
                 # Qt docs show how to check text width to find out; should use that
                 # (also we're not checking for still being in column 0, just assuming that)
-            if greater_by > 2: #e might need to adjust this cutoff (btw it's a bit subjective)
+            elif x_past_openclose > 2: #e might need to adjust this cutoff (btw it's a bit subjective)
                 part = 'icon'
-            elif greater_by > -12: ###e surely need to adjust this
+            elif x_past_openclose > -12 and item.isExpandable(): #k method name, semantics
+                ###e surely need to adjust this; depends on desired size of "click area" around openclose
                 part = 'openclose'
-                print "change so openclose can only happen for an expandable item" ####@@@@
-            elif vpos.x() >= special_x:
+            elif vpos.x() >= col0_left_x:
                 part = 'left'
             else:
                 part = item = None # to the left of column 0 (not currently possible I think)
@@ -173,6 +156,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # (At least, without it, QListView emits its "clicked" signal.)
         pass 
 
+    # external update methods
+    
     def update_select_mode(self): #bruce 050124; this should become a mode-specific method and be used more generally.
         """This should be called at the end of event handlers which might have
         changed the current internal selection mode (atoms vs chunks),
@@ -197,6 +182,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
             pass # nothing selected -- don't worry about assy.selwhat
         return
 
+    def update_glpane(self):
+        self.win.glpane.update() ####k will this work already, just making it call paintGL? or must we inval something too??
+    
     # command bindings for clicks on various parts of tree items
     # are hardcoded in the 'clicked' method:
     
@@ -247,7 +235,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # handle open/close toggling. (ignores modifier keys, mouse buttons, dblclick)
         if part == 'openclose':
             # this can only happen for a non-leaf item!
-            self.toggle_open(item) # does all needed inval/update/repaint ####@@@@ is this finished?
+            self.toggle_open(item) # does all needed inval/update/repaint
             return
 
         # handle in-place editing of the item text, on double-click
@@ -257,7 +245,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #   just call item.setText first, within the subroutine.)
 
         # (for now, this is done for middle click too, and it ignores modifier keys)
-        if dblclick and part = 'text':
+        if dblclick and part == 'text':
             # presumably the first click selected this item... does this matter?? #k
             # BTW it would not be true if this was a Control-double-click!
             # If we wanted to be paranoid, we'd return unless the modkeys and button
@@ -271,7 +259,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # - hover behaviors (tooltip, cmenu) (saved for later. #e)
         #####@@@@ need code to save event info for drag-starting ###@@@ merge with selection_click, elsewhere
 
-        # selection-click, and/or start of a drag
+        # handle selection-click, and/or start of a drag
         # (we can't in general distinguish these until more events come)
 
         if dblclick:
@@ -284,16 +272,16 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # if buttons are not what we expect, return now (thus avoiding bad effects
         # from some possible bugs in the above code)
         allButtons = (leftButton|midButton|rightButton)
-        if (but & allButtons) is not in [leftButton, midButton]:
+        if (but & allButtons) not in [leftButton, midButton]:
             # (note, this is after fix_buttons, so on Mac this means click or option-click)
             return
 
         drag_should_copy = but & midButton # standard for Mac; don't know about others
         drag_type = (drag_should_copy and 'copy') or 'move'
 
-        # set modifier (NOT self.modifier!) for compatibility with old code's select() routine
+        # set modifier (not stored, just passed) as for the old code's select() routine
         if but & (shiftButton|cntlButton):
-            modifier = 'ShiftCntl' # (except this one is new)
+            modifier = 'ShiftCntl'
         elif but & shiftButton:
             modifier = 'Shift'
         elif but & cntlButton:
@@ -301,10 +289,13 @@ class TreeWidget(TreeView, DebugMenuMixin):
         else:
             modifier = None
 
-        self.selection_click( item,
+        self.selection_click( item, # might be None
                               modifier = modifier,
                               group_select_kids = (part == 'icon'), ##k ok? nim anyway ###@@@ must fix for cmenu
                               permit_drag_type = drag_type )
+            # note: the same selection_click method, called differently,
+            # also determines the selection for context menus.
+            # It does all needed invals/updates except for update_select_mode.
         
         return # from clicked
 
@@ -365,47 +356,92 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         #e correct item to be None if we were not really on the item acc'd to above?
         # no, let the caller do that, if it needs to be done.
-        self.selection_click( item, modifier = None, group_select_kids = False, permit_drag_type = None)
-
-        ####@@@@ revise the following
         
-        set = self.current_selection_set() # a list of items?? might be a more structured thing someday... and/or made of nodes...
-            # but i think it's items for now, since some ops really involve them as items more than as nodes...
-            # otoh not all of the selected nodes might have real items in the widget, but all should be in this...
-            # otth we can make item proxies for them even if those don't own real tree items at the moment...
-            # and probably we should...
-            # so it's a list of items for now.
-        menu = self.make_cmenu_for_set( set)
-        print "arg1 of qmpopup is menu = %r, other arg pos is %r" % (menu,pos)#####@@@@@@
-        menu.popup(pos) ##### transform pos #e care about which item to put where (e.g. popup(pos,1))?
-        # bruce comment 050110: following mt_update is probably not helping anything ###@@@ try removing it; try exec_loop?
-        # since the menu has just been put up -- nothing has yet been chosen from it
+        self.selection_click( item, modifier = None, group_select_kids = False, permit_drag_type = None)
+            # this does all needed invals/updates except update_select_mode
+
+        nodeset = self.topmost_selected_nodes() # seems better than selected_nodes for most existing cmenu commands...
+        menu = self.make_cmenu_for_set( nodeset)
+        print "arg1 of qmpopup is menu = %r, other arg pos is %r" % (menu,pos)####@@@@
+        menu.popup(pos)
+            #e should we care about which item to put where (e.g. popup(pos,1))?
+        # the menu commands will do their own update,
+        # and since we used .popup they have not yet run anyway,
+        # [#k is there any reason to use exec_loop instead?]
+        # so there's nothing more to update here.
+        
         self.dprint("mtree.menuReq just returned from menu.popup, probably with menu there - what events are responded to?")###@@@ find out!
-        self.mt_update()
-        ###e also glpane update? eg for hide, select all... ####@@@@
-        return
+
+        return # from menuReq
     
-    def make_cmenu_for_set(self, itemset):
+    def make_cmenu_for_set(self, nodeset):
         """Return a context menu (QPopupMenu object #k)
         to show for the given set of (presumably selected) items.
         [Might be overridden by subclasses, but usually it's more convenient
         for them to override make_cmenuspec_for_set instead.]
         """
-        spec = self.make_cmenuspec_for_set(itemset)  \
+        spec = self.make_cmenuspec_for_set(nodeset)  \
                or self.make_cmenuspec_for_set([])  \
                or [('(empty context menu)',noop,'disabled')]
         return self.makemenu( spec)
 
-    def make_cmenuspec_for_set(self, itemset):
+    def make_cmenuspec_for_set(self, nodeset):
         """#doc
         [subclasses should override this]
         # [see also the term Menu_spec]
         """
         return []
 
-    # selection logic
+
+    # sets of selected items or nodes [#e do we also want versions for subtrees?]
     
-    def selection_click(self, item, _guard_ = None, group_select_kids = True, modifier = None, permit_drag_type = None):
+    def selected_nodes(self):
+        "return a list of all currently selected nodes (perhaps including both groups and some of their members)"
+        # For now, it's ok if this is slow, since it's only used to help make a context menu.
+        # (Later we might need a fast version, for each subtree,
+        #  so the same info will have to be kept incrementally in the nodes. #e)
+        # (We can also imagine wanting these structured as a tree, e.g. for copying... #e)
+        res = []
+        def func(x):
+            if x.picked:
+                res.append(x)
+        for node in self.topnodes:
+            node.apply2all(func)
+        return res
+
+    def topmost_selected_nodes(self): #e might be needed by some context menus... how should the makers ask for it?
+        "return a list of all selected nodes as seen by apply2picked, i.e. without looking inside selected Groups"
+        res = []
+        def func(x):
+            res.append(x)
+        for node in self.topnodes:
+            node.apply2picked(func)
+        return res
+
+    
+    # selection logic
+
+    def pick( self, item, group_select_kids = True ):
+        "select the given item (actually the node or group it shows)"
+        if group_select_kids:
+            item.object.pick()
+        else:
+            item.object.pick_top()
+        return
+
+    def unpick( self, item, group_select_kids = True ):
+        "deselect the given item (actually the node or group it shows)"
+        if group_select_kids:
+            item.object.unpick()
+        else:
+            item.object.unpick_top()
+        return
+
+    def unpick_all(self):
+        for node in self.topnodes:
+            node.unpick()
+        
+    def selection_click(self, item, _guard_ = 67548, group_select_kids = True, modifier = None, permit_drag_type = None):
         """Perform the ordinary selection-modifying behavior for one click on this item (might be None).
         Assume the modifier keys for this click were as given in modifier, for purposes of selection or drag(??) semantics.
         We immediately modify the set of selected items -- changing the selection state of their Nodes (node.picked),
@@ -422,56 +458,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # at least finder doesn't (for sel or starting a drag)
         # and we need it to not do that for this use as well.
         """
-        assert not _guard_, "you passed too many positional arguments to this function!"
+        assert _guard_ == 67548, "you passed too many positional arguments to this function!"
         
-##        ### this is not used in place of select yet, just to test cmenus...
-##        # (which in any case will be passed to us, not found in some attribute on self! since some callers filter them.)
-##
-##        #e first filter item and pos so that positions too far to left or right don't count as being on item. NIM.
-##        # one case of this is clicks on the open/close togging icon. Not sure if they ever get here, though,
-##        # in fact, caller might do this filtering. We'll see.
-##        
-##        if item and item.object.picked: ###@@@ does this depend on modkeys?? ###@@@ do stuff to set up for drag, too
-##            return # no change! #doc why; see comments in menuReq
-##
-##        #e now perform sel logic... using item none or not, and modkeys... update .picked and item highlighting. ####@@@@
-##        ####@@@@ implem... steal some code from select, or split it into this...
-##        # stub: just toggle it for this one item. wait, above behavior defeats this... too tired, do this tomorrow.
-##        if item:
-##            node = item.object
-##            if node.picked:
-##                node.unpick() # won't happen yet...
-##            else:
-##                node.pick()
-
-        self.select_0( item, group_select_kids, modifier, permit_drag_type) # does no updating?? or is that too inefficient?
-
-        ###@@@ only sometimes do the following? have our own inval flags for these? 
-        self.update_selection_highlighting() ###@@@ remove this from select_0?
-        self.win.glpane.update() ####k will this work already, just making it call paintGL? or must we inval something too??
-        return
-    
-    def select_0(self, item, group_select_kids, modifier, permit_drag_type):
-        "item is a list view item or none"
-        ###@@@ maybe some (in this or a few callers) belongs in the subclass?
-        # bruce comment 041220: this is called when widget signals that
-        # user clicked on an item, or on blank part of model tree (confirmed by
-        # experiment). Event (with mod keys flags) would be useful...
-        # 
-        self.dprint("select called")
-
-        assert group_select_kids, "group_select_kids being F is nim, but we need it!" ####@@@@
+        ###@@@ maybe some of this (or its callers) belongs in the subclass?
         
-##        if item:
-##            if isinstance(item, PartGroup):
-##                self.dprint("select returns early since item is the PartGroup") #k (but why can't we select it?)
-##                return
-##            if item.object.name == self.assy.name:
-##                self.dprint("select would have returned early since item.object.name == self.assy.name; but it doesn't now")
-##                # don't return
-        
-##        self.win.assy.unpickatoms() # belongs in the subclass... in fact, no reason to ever do this [bruce 050124]
-
         # Note: the following behavior uses Shift and Control sort of like the
         # GLPane (and original modelTree) do, but in some ways imitates the Mac
         # and/or the QListView behavior; in general the Mac behavior is probably
@@ -494,23 +484,20 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # noop if no item.
             if item:
                 if item.object.picked:
-                    item.object.unpick_top()
+                    item.object.unpick_top() # group_select_kids = False
                 else:
                     item.object.pick_top()
-                print "update nim"
         elif modifier == 'Cntl':
             # unselect the clicked item (and all its members); noop if no item.
             if item:
-                item.object.unpick()
-                print "update nim"
+                self.unpick( item, group_select_kids = group_select_kids)
         elif modifier == 'Shift':
             # Mac would select a range... but I will just add to the selection,
             # for now (this item and all its members); noop for no item.
             if item:
                 # whether or not item.object.picked -- this matters
                 # for groups with not all picked contents!
-                item.object.pick()
-                print "update nim"
+                self.pick( item, group_select_kids = group_select_kids)
         else:
             # no modifier (among shift and control anyway)...
             if item:
@@ -520,22 +507,25 @@ class TreeWidget(TreeView, DebugMenuMixin):
                     pass
                 else:
                     # deselect all items except this one
-                    for node in self.topnodes:
-                        node.unpick()
-##                    ###e (within the "current space"??? maybe not, maybe the whole tree... not sure)
-##                    ####@@@@ also make that a barrier for descending into selstate of members? yes... not sure; not yet i guess
-##                    ## item.object.assy.unpickparts() ####@@@@ this will change somehow... really should use our own top nodes! topnodes
-                    item.object.pick()
-                    print "update nim"
+                    self.unpick_all()
+                        ###e should this only be done within the "current space",
+                        # imitating separate focus for PartGroup subtrees?
+                        # same Q for how far group_select_kids (ie Group.pick) descends?
+                        # Not sure.
+                    self.pick( item, group_select_kids = group_select_kids)
             else:
                 # no item
-                for node in self.topnodes:
-                    node.unpick()
-                print "update nim"
+                self.unpick_all()
         # that should do it!
         
-        self.update_selection_highlighting() ####@@@@ does this work? do it in caller (like we do?)
-        return
+        ##e only sometimes do the following? have our own inval flags for these?
+        ## do in subsets? do first on items changed above?
+        ## [latter might be needed soon, for speed of visual feedback]
+        self.update_selection_highlighting()
+        self.update_glpane()
+
+        return # from selection_click
+
 
     # key events ###@@@ move these?
     
@@ -554,35 +544,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # MWsemantics.killDo, regardless of focus.
             self.win.killDo()
             ## part of killDo: self.win.win_update()
-##        ###@@@ the rest is soon to be obs
-##        elif key == Qt.Key_Control:
-##            self.modifier = 'Cntl' ###@@@ soon to be obs
-##        elif key == Qt.Key_Shift:
-##            self.modifier = 'Shift' ###@@@ soon to be obs
         # bruce 041220: I tried passing other key events to the superclass,
         # QListView.keyPressEvent, but I didn't find any that had any effect
         # (e.g. arrow keys, letters) so I took that out.
         return
-        
-    def keyReleaseEvent(self, event):
-        pass
-##        self.modifier = None ###@@@ soon to be obs
-
-
-    # selection helpers - might be #OBS ###@@@
-    
-    def item_is_selected(self, item): ###@@@ might work in superclass but only useful here and might be redefined here
-        """Is the given item already selected?
-        (Special case: for item == None (legal), return False.)
-        """
-        if not item:
-            return False
-        return item.isSelected() #k guess ###@@@stub, not sure this is the right/best/ok place to store this state
-
-    def current_selection_set(self):
-        if not hasattr(self, 'selected_items'):
-            self.selected_items = [] # see also comments/samecode just above
-        return list(self.selected_items)
 
 
     # in-place editing of item text
@@ -647,7 +612,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     # drag and drop (ALL DETAILS ARE WRONG AND OBS ###@@@)
     
     ###@@@ bruce 050110 - this overrides a Qt method, is that intended?? the one we should override is dragObject
-    ####@@@@ let's try ths change
+    ###@@@ let's try this change
 ##    def startDrag(self): 
 #        print "MT.startDrag: self.last_selected_node = [",self.last_selected_node,"]"
 ##        if self.last_selected_node:
