@@ -162,6 +162,7 @@ def do_what_MainWindowUI_should_do(self):
         ## w.extrude_productTypeComboBox.insertItem("screw") ### remove this one, doesn't work yet
         #e add twist? (twisted rod)
         w.extrude_productTypeComboBox_ptypes = ["straight rod", "closed ring", "corkscrew"] # names used in the code, same order
+         # # # # if you comment out items from combobox, you also have to remove them from this list unless they are at the end!!!
 
         if begin(QVBox):
             if begin(QHBox):
@@ -486,6 +487,7 @@ class extrudeMode(basicMode):
         if new != old:
             print "product_type = %r" % (new,) ####@@@Debug
             self.product_type = new
+            ## i will remove those "not neededs" as soon as this is surely past the josh demo snapshot [041017 night]
             self.needs_repaint = 1 #k not needed since update_from_controls would do this too, i hope!
             self.update_from_controls()
             ## not yet effective, even if we did it: self.recompute_bonds()
@@ -585,19 +587,21 @@ class extrudeMode(basicMode):
             self.recompute_for_new_unit() # recomputes whatever depends on self.basemol
         except:
             print_compact_traceback("in Enter, exception in recompute_for_new_unit (entering anyway!!): ")
+
+        #e is this obs? or just nim?? [041017 night]
         self.recompute_for_new_bend() # ... and whatever depends on the bend from each repunit to the next (varies only in Revolve)
 
         self.connect_controls()
+        ## i think this is safer *after* the first update_from_controls, not before it...
+        # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
+        
         try:
             self.update_from_controls()
         except:
             print_compact_traceback("in Enter, exception in update_from_controls (entering anyway!!): ")
 
-        
         import __main__
         __main__.mode = self
-
-        
         print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
         ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
 
@@ -612,6 +616,10 @@ class extrudeMode(basicMode):
     circle_n = 0 # we also do this in clear()
     def circle_n_value_changed(self, val): # note: will not be used when first committed, but will be used later
         # see also "closed ring"
+        ###### 041017 night: i suspect this will go away and the signal will just go to "update_from_controls".
+        # at the moment, it is never called since the spinbox for it is never made or connected.
+        # even if that changes, this routine looks harmless if update_from_controls is written to grab value
+        # from spinbox directly, as long as update_from_controls overwrites self.circle_n again before anything can use it.
         val = "arg not used"
         global suppress_valuechanged
         if suppress_valuechanged:
@@ -630,7 +638,7 @@ class extrudeMode(basicMode):
             self.circle_n = val
             #e recompute... ###@@@ this is what needs doing... maybe also switch memoized data *right here*... this_bend thisbend
             self.update_from_controls() ###k guess -- this control is not even present as i write this line, tho it might be soon
-            self.w.update() # or just repaint
+            self.w.update() # or just repaint [this is redundant]
         return
 
     def spinbox_value_changed(self, val):
@@ -663,17 +671,23 @@ class extrudeMode(basicMode):
 
     should_update_model_tree = 0 # avoid doing this when we don't need to (like during a drag)
 
+    ## use_circle_n_from_ncopies_kluge = 1 # constant, until we add that back #e not in all places in code that it should be
     def want_center_and_quat(self, ii, ptype = None):
         offset = self.offset
-        cn = self.circle_n
+        cn = self.circle_n ### does far-below code have bugs when ii >= cn?? that might explain some things i saw...
+##        if self.use_circle_n_from_ncopies_kluge:
+##            if cn != self.ncopies:
+##                print "extrude fyi: possible bug: cn != self.ncopies, %r != %r" % (cn, self.ncopies) #######debug ###@@@
+##            cn = self.ncopies
         basemol = self.basemol
         if not ptype:
             ptype = self.product_type
+        #e the following should become the methods of product-type classes
         if ptype == "straight rod": # default for Extrude
             centerii = basemol.center + ii * offset
             # quatii = Q(1,0,0,0)
             quatii = basemol.quat
-        elif ptype == "corkscrew": # not yet accessible??
+        elif ptype == "corkscrew": # not yet accessible?? # this code is wrong, anyway
             # stub, to extrude to right and then down -- axis is out of screen -- varies with pov!!!
             # Q(V(x,y,z), theta) = axis vector and angle
             
@@ -700,10 +714,10 @@ class extrudeMode(basicMode):
             out = self.initial_out
             tangent = norm(offset)
             axis = cross(down,tangent) # example, I think: left = cross(down,out)  ##k
-            if ii == 2: # avoid too many prints per recompute
-                print "down",down
-                print "out",out
-                print "axis",axis ########@@@ debug
+##            if ii == 2: # avoid too many prints per recompute
+##                print "down",down
+##                print "out",out
+##                print "axis",axis ########@@@ debug
             if vlen(axis) < 0.001: #k guess
                 axis = cross(down,out)
                 self.status_msg("error: offset too close to straight down, picking down/out circle")
@@ -730,6 +744,12 @@ class extrudeMode(basicMode):
         else:
             self.status_msg("bug: unimplemented product type %r" % ptype)
             return self.want_center_and_quat(ii, "straight rod")
+        if ii == 0:
+            ###e we should warn if retvals are not same as basemol values; need a routine to "compare center and quat",
+            # like our near test for floats; Numeric can help for center, but we need it for quat too
+            check_posns_near( centerii, basemol.center )
+            check_quats_near( quatii, basemol.quat )
+            pass
         return centerii, quatii
 
     __old_ptype = None # hopefully not needed in clear(), but i'm not sure, so i added it
@@ -745,13 +765,23 @@ class extrudeMode(basicMode):
         and/or a changed flag for some of the inputs we use.
         """
 
-        self.circle_n = self.ncopies ######## kluge until we add it back
+##        if self.use_circle_n_from_ncopies_kluge:
+##            self.circle_n = self.ncopies #k probably not needed (redundant with other use of this kluge)
+##            ### wrong, since we did not yet read ncopies_wanted from the control, let alone update self.ncopies to match!
         
         self.asserts()
         
         # get control values
         want_n = self.w.extrudeSpinBox_n.value()
-        (want_x, want_y, want_z) = get_extrude_controls_xyz(self.w)
+
+        our_dashboard_has_extrudeSpinBox_circle_n = 0 # for now; later this is a class constant, until we split the dashboards
+        if self.w.extrudeSpinBox_circle_n and our_dashboard_has_extrudeSpinBox_circle_n:
+            want_cn = self.w.extrudeSpinBox_circle_n.value()
+            #k redundant with the slot function for this?? yes, that will go away, see its comments [041017 night].
+        else:
+            want_cn = 0
+
+        # limit N for safety
         ncopies_wanted = want_n
         ncopies_wanted = min(MAX_NCOPIES,ncopies_wanted) # upper limit (in theory, also enforced by the spinbox)
         ncopies_wanted = max(1,ncopies_wanted) # always at least one copy ###e fix spinbox's value too?? also think about it on exit...
@@ -759,25 +789,56 @@ class extrudeMode(basicMode):
             msg = "ncopies_wanted is limited to safer value %r, not your requested value %r" % (ncopies_wanted, want_n)
             self.status_msg(msg)
 
+        want_n = ncopies_wanted # redundant -- sorry for this unclear code
+
+        # figure out, and store, effective circle_n now (only matters in ring mode, but always done)
+        if not want_cn:
+            want_cn = want_n
+            # otherwise the cn control overrides the "use N" behavior
+        cn_changed = (self.circle_n != want_cn) #### if we again used the sep slot method for that spinbox, this might be wrong
+        self.circle_n = want_cn
+        
+        # note that self.ncopies is not yet adjusted to the want_n value,
+        # and (if want_n > self.ncopies) self.ncopies will only be adjusted gradually
+        # as we create new copies! So it should not be relied on as giving the final number of copies.
+        # But it's ok for that to be private to this code, since what other code needs to know is the
+        # number of so-far-made copies (always equals self.ncopies) and the params that affect their
+        # location (which never includes self.ncopies, only ptype, self.offset, self.circle_n and someday some more). [041017 night]
+
+          ######@@@ to complete the bugfix:
+        # + don't now have someone else store circle_n,
+        # + or fail to use it!
+        # + [mostly] check all uses of ncopies for not affecting unit pos/rot.
+        # and later, rewrite code to keep that stuff in self.want.x and self.have.x,
+        # and do all update from this routine (maybe even do that part now).
+        # + check product_type or ptype compares.
+
+        (want_x, want_y, want_z) = get_extrude_controls_xyz(self.w)
+
         offset_wanted = V(want_x, want_y, want_z) # (what are the offset units btw? i guess angstroms, but verify #k)
 
-        # kluge? figure out whether product type might have changed -- affects pos/rot of molcopies
+        # figure out whether product type might have changed -- affects pos/rot of molcopies
         ptype_changed = 0
         if self.__old_ptype != self.product_type:
             ptype_changed = 1
             self.__old_ptype = self.product_type
 
         # update the state:
-        # first move the copies in common, if offset changed
-        ncopies_common = min(ncopies_wanted,self.ncopies)
-        if offset_wanted != self.offset or ptype_changed:
-            # invalidate all memoized data which is specific to the offset
-            self.have_offset_specific_data = 0
+        # first move the copies in common (between old and new states),
+        # if anything changed which their location (pos/rot) might depend on.
+
+        ncopies_common = min( ncopies_wanted, self.ncopies) # this many units already exist and will still exist
+        #e rename to self.ncopies_have? no, just rename both of these to self.want.ncopies and self.have.ncopies.
+        
+        if offset_wanted != self.offset or cn_changed or ptype_changed: #e add more params if new ptypes use new params
+            # invalidate all memoized data which is specific to these params
+            self.have_offset_specific_data = 0 #misnamed
             self.offset = offset_wanted
+            junk = self.want_center_and_quat(0) # this just asserts that the formulas don't want to move basemol
             for ii in range(1, ncopies_common):
                 if 0: # this might accumulate position errors - don't do it:
                     motion = (offset_wanted - self.offset)*ii
-                    self.molcopies[ii].move(motion) #### does this change picked state????
+                    self.molcopies[ii].move(motion) #k does this change picked state????
                 else:
                     c, q = self.want_center_and_quat(ii)
                     mol_set_center_and_quat(self.molcopies[ii], c, q)
@@ -961,27 +1022,44 @@ class extrudeMode(basicMode):
                 #e minor bug: it sometimes stays invisible even when there is only one bond again...
                 # because we are not rerunning this when tol changes, but it depends on tol. Fix later. #######
             else:
-                teensy_ball_pos = self.offset
+                teensy_ball_pos = self.offset #k i think this is better than using self.offset_for_bonds
             hset2 = self.nice_offsets_handle
             hset2.handle_setpos( 1, teensy_ball_pos ) # positions the teensy purple ball
             hset = self.nice_offsets_handleset
-            hset.special_pos = self.offset # tells the white balls who contain this offset to be slightly purple
+            hset.special_pos = self.offset_for_bonds # tells the white balls who contain this offset to be slightly blue
         except:
             print "fyi: hset2/hset kluge failed"
         # don't call recompute_bonds, our callers do that if nec.
         return 
 
     bonds_for_current_offset_and_tol = (17,) # we do this in clear() too
+    offset_for_bonds = None
     def recompute_bonds(self):
         "call this whenever offset or tol changes"
+
+        ##k 041017 night: temporary workaround for the bonds being wrong for anything but a straight rod:
+        # in other products, use the last offset we used to compute them for a rod, not the current offset.
+        # even better might be to "or" the sets of bonds created for each offset tried... but we won't get
+        # that fancy for now.
+        if self.product_type == "straight rod":
+            self.offset_for_bonds = self.offset
+        else:
+            if not self.offset_for_bonds:
+                msg = "bond-offsets not yet computed, but computing them for %r is NIM, sorry" % self.product_type
+                self.status_msg(msg)
+                return
+            else:
+                msg = """note: using bond-offsets computed for "rod", at last offset of the rod, not current offset"""
+                self.status_msg(msg, suppress_print = 1)
+            #e we could optim by returning if only offset but not tol changed, but we don't bother yet
         
-        self.redo_look_of_bond_offset_spheres()
+        self.redo_look_of_bond_offset_spheres() # uses both self.offset and self.offset_for_bonds
         
         # recompute what singlets to show in diff color, what bonds to make...
         
         # basic idea: see which nice-offset-handles contain the offset, count them, and recolor singlets they come from.
         hset = self.nice_offsets_handleset #e revise this code if we cluster these, esp. if we change their radius
-        hh = hset.findHandles_containing(self.offset)
+        hh = hset.findHandles_containing(self.offset_for_bonds)
             # semi-kluge: this takes into account self.bond_tolerance, since it was patched into hset.radius_multiplier
         # kluge for comparing it with prior value; depends on order stability of handleset, etc
         hh = tuple(hh)
@@ -1010,6 +1088,7 @@ class extrudeMode(basicMode):
                 # but as we draw the atom, do we look up itskey? is that the same in the mol.copy??
         nbonds = len(hh)
         set_bond_tolerance_and_number_display(self.w, self.bond_tolerance, nbonds)
+        ###e ideally we'd color the word "bonds" funny, or so, to indicate that offset_for_bonds != offset or that ptype isn't rod...
         #e repaint, or let caller do that (perhaps aftermore changes)? latter - only repaint at end of highest event funcs.
         return
     
@@ -1034,6 +1113,7 @@ class extrudeMode(basicMode):
         return self.ncopies != 1 # more or less...
 
     def StateDone(self):
+        ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
         # restore normal appearance
         for mol in self.molcopies:
             try:
@@ -1216,10 +1296,11 @@ class extrudeMode(basicMode):
     _last_status_text = ""
     _last_status_now = ""
     _last_status_counter = 0
-    def status_msg(self, text, suppress_rapidfire_repeats = None):
+    def status_msg(self, text, suppress_rapidfire_repeats = None, suppress_print = 0):
         import time
         now = time.asctime()
-        suppress_print = 0
+        if suppress_print:
+            self._last_status_counter = 1 # kluge
         if suppress_rapidfire_repeats:
             # consider not printing it (or using \r rather than \n??), but always put it into the statusbar!
             if self._last_status_text.startswith(suppress_rapidfire_repeats) and self._last_status_now == now:
@@ -1251,6 +1332,19 @@ class extrudeMode(basicMode):
     
     def touchedThing(self, event):
         "return None or the thing touched by this event"
+        if self.product_type != "straight rod":
+            # This function won't work properly in this case.
+            # Be conservative until that bug is fixed. It's not even safe to permit
+            # a click on a handle (which this code is correct in finding),
+            # since it might be obscured on the screen
+            # by some atom the user is intending to click on.
+            #  The only safe thing to find in this case would be something purely draggable
+            # with no hard-to-reverse effects, e.g. the "draggable purple handle",
+            # or the base unit (useful only once we permit dragging the model using it).
+            #  I might come back and make those exceptions here,
+            # if I don't fix the overall bug soon enough. [bruce 041017]
+            self.status_msg("(click or drag not yet implemented for product type %r; sorry)" % self.product_type)
+            return None
         p1, p2 = self.o.mousepoints(event) # (no side effect. p1 is just beyond near clipping plane; p2 in center of view plane)
         ##print "touchedthing for p1 = %r, p2 = %r" % (p1,p2)
         res = [] # (dist, handle) pairs, arb. order, but only the frontmost one from each handleset
@@ -1383,9 +1477,11 @@ class extrudeMode(basicMode):
         self.dragdist = 0.0
         self.have_offset_specific_data = 0 #### also clear that data itself...
         self.bonds_for_current_offset_and_tol = (17,) # impossible value -- ok??
+        self.offset_for_bonds = None
         if self.is_revolve:
             self.product_type = "closed ring"
-            self.circle_n = 20 #k guess
+            self.circle_n = 30 ###e should take this from the array [3,30] in some init function
+            #e should vary default offset too
         else:
             self.product_type = "straight rod" #e someday have a combobox for this
             self.circle_n = 0
@@ -1753,7 +1849,6 @@ def makeBonded_without_moving_or_shakedown(s1, s2): # modified from chem.makeBon
             # assume no singlet appears twice in this list!
 # this is not yet justified, and if false will crash it when it makes bonds
 
-#### make ring default is T should be F
 
 class revolveMode(extrudeMode):
     "revolve, a slightly different version of Extrude, someday with a different dashboard"
@@ -1787,6 +1882,28 @@ def mol_set_center_and_quat(mol, center, quat):
 def floats_near(f1,f2):
     return abs( f1-f2 ) <= 0.0000001 # just for use in sanity-check assertions
 
-def check_floats_near(f1,f2):
-    if not floats_near(f1,f2):
-        print "not near:",f1,f2 # printing a lot...
+def check_floats_near(f1,f2,msg = ""):
+    if floats_near(f1,f2):
+        return True # means good (they were near)
+    if msg:
+        fmt = "not near (%s):" % msg
+    else:
+        fmt = "not near:"
+    # fmt is not a format but a prefix
+    print fmt,f1,f2 # printing a lot...
+    return False # means bad
+
+def check_posns_near(p1,p2,msg=""):
+    res = False
+    for i in [0,1,2]:
+        res = res and check_floats_near(p1[i],p2[i],msg+"[%d]"%i)
+    return res
+
+def check_quats_near(q1,q2,msg=""):
+    res = False
+    for i in [0,1,2,3]:
+        res = res and check_floats_near(q1[i],q2[i],msg+"[%d]"%i)
+    return res
+
+# see above, slightly, for a list of a few unfinished things or bugs in the code
+# end
