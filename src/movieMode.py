@@ -109,3 +109,60 @@ class movieMode(basicMode):
             self.o.assy.current_movie._playFrame(self.o.assy.current_movie.currentFrame +1)
         
         return
+
+# ==
+
+def simMoviePlayer(assy):
+    """Plays a DPB movie file created by the simulator,
+    either the current movie if any, or a previously saved
+    dpb file with the same name as the current part, if one can be found.
+    """
+    # moved here from MWsemantics method, and fixed bugs I recently put into it 
+    # (by rewriting it from original and from rewritten simPlot function)
+    # [bruce 050327]
+    history = assy.w.history
+    win = assy.w
+    if not assy.molecules: # No model, so no movie could be valid for current part.
+        # bruce 050327 comment: even so, a movie file might be valid for some other Part...
+        # not yet considered here.
+        history.message(redmsg("Movie Player: Need a model."))
+        return
+    ###@@@
+    ## history.message(greenmsg("Plot Tool:")) # do before other messages, tho success is not yet known
+
+    if assy.current_movie and assy.current_movie.filename:
+        win.glpane.setMode('MOVIE')
+        win.moviePlay()
+        return
+
+    # no valid current movie, look for saved one with same name as assy
+    ## history.message("Plot Tool: No simulation has been run yet.")
+    if assy.filename:
+        if assy.part != assy.tree.part:
+            history.message("Movie Player: Warning: Looking for saved movie for main part, not for displayed clipboard item.")
+        mfile = assy.filename[:-4] + ".dpb"
+        movie = find_saved_movie( assy, mfile)
+            # checks existence -- should also check validity for current part or main part, but doesn't yet ###e
+            # (neither did the pre-030527 code for this function, unless that's done in moviePlay, which it might be)
+        if movie:
+            # play this movie, and make it the current movie.
+            assy.current_movie = movie
+            #e should we switch to the part for which this movie was made? [might be done in moviePlay; if not:]
+            # No current way to tell how to do that, and this might be done even if it's not valid
+            # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
+            # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
+            history.message("Movie Player: playing previously saved movie for this part.")
+            win.glpane.setMode('MOVIE')
+            win.moviePlay()
+            return
+    # else if no assy.filename or no movie found from that:
+    # bruce 050327 comment -- do what the old code did, except for the moviePlay
+    # which seems wrong and tracebacks now.
+    assy.current_movie = Movie(assy)
+        # temporary kluge until bugs in movieMode for no assy.current_movie are fixed
+    win.glpane.setMode('MOVIE')
+    ## win.moviePlay()
+    return
+
+# end
+

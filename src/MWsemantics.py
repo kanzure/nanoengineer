@@ -1223,20 +1223,10 @@ class MWsemantics(MainWindow):
     def simMoviePlayer(self):
         """Plays a DPB movie file created by the simulator.
         """
-        if not self.assy.molecules: # No model.
-            self.history.message(redmsg("Movie Player: Need a model."))
-            return
-            
-        # If no simulation has been run yet, check to see if there is a "partner" moviefile.
-        # If so, go ahead and play it.  If not, go ahead and start the MP anyway.  The
-        # user may want to load some other DPB file.
-        if not self.assy.current_movie.filename and self.assy.filename:
-            mfile = self.assy.filename[:-4] + ".dpb"
-            if os.path.exists(mfile): self.assy.current_movie.filename = mfile
-
-        # It's showtime!!!
-        self.glpane.setMode('MOVIE')
-        self.moviePlay()
+        #bruce 050327 moved most of this method into a new subroutine, and fixed bugs in it.
+        from movieMode import simMoviePlayer
+        simMoviePlayer(self.assy)
+        return
 
  #### Movie Player Dashboard Slots ############
 
@@ -1293,6 +1283,10 @@ class MWsemantics(MainWindow):
     def fileOpenMovie(self):
         """Open a movie file to play.
         """
+        # bruce 050327 comment: this is not yet updated for "multiple movie objects"
+        # and bugfixing of bugs introduced by that is in progress (only done in a klugy
+        # way so far). ####@@@@
+        # Also it should be moved into movieMode.py.
         self.history.message(greenmsg("Open Movie File:"))
         if self.assy.current_movie.currentFrame != 0:
             self.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
@@ -1333,6 +1327,8 @@ class MWsemantics(MainWindow):
 
         if self.assy.current_movie.isOpen: self.assy.current_movie._close()
         self.assy.current_movie.filename = fn
+        self.assy.current_movie.set_alist_from_entire_part(self.assy.part)
+            # temporary bugfix kluge, might only partly work [bruce 050327]
         self.assy.current_movie._setup()
 
     def fileSaveMovie(self):
