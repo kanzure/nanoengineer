@@ -782,6 +782,7 @@ class GLPane(QGLWidget, modeMixin):
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         # Put up the hourglass cursor. [mark 040924 via bruce]
         try:
+            self.win.msgbarLabel.setText("Calculating...")
             writemmp(self.assy, "minimize.mmp")
             s = getoutput("simulator -m minimize.mmp")
             # s might or might not start with "Minimize" --
@@ -793,21 +794,21 @@ class GLPane(QGLWidget, modeMixin):
             assert not s.startswith("Minimize")
         QApplication.restoreOverrideCursor()
         # Restore the cursor [mark 040924 via bruce]
+
+        # heh heh let's try: "Minimize" means success
         if s.startswith("Minimize"):
-            self.win.msgbarLabel.setText("Minimization Failed")
-            QMessageBox.warning(self, "Minimization Failed:", s)
-        else:
-            self.win.msgbarLabel.setText("Minimization Complete")
-            # Final message for 2 seconds [mark 040924 via bruce]
-                # [Question for Mark: is it right to put this
-                #  before the movie? -- bruce]
+            self.win.msgbarLabel.setText("Minimizing...")
             self.startmovie("minimize.dpb")
+        else:
+            self.win.msgbarLabel.setText("Minimization Failed!")
+            QMessageBox.warning(self, "Minimization Failed:", s)
         return
 
     def startmovie(self,filename):
         self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
+        print self.clock, 'frames'
         self.startTimer(30)
 
     def timerEvent(self, e):
@@ -815,6 +816,7 @@ class GLPane(QGLWidget, modeMixin):
         if self.clock<0:
             self.killTimers()
             self.assy.movend()
+            self.win.msgbarLabel.setText("Done.")
         else:
             self.assy.movatoms(self.xfile)
             self.paintGL()

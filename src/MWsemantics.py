@@ -887,8 +887,10 @@ class MWsemantics(MainWindow):
 
     # Play a movie from the simulator
     def toolsMovie(self):
+        if not self.assy.filename: self.assy.filename="simulate.mmp"
         dir, fil, ext = fileparse(self.assy.filename)
-        self.glpane.startmovie(dir + fil + ".dpb")
+        print "playing", dir+fil+'.dpb'
+        self.glpane.startmovie(dir+fil+'.dpb')
 
     
     ###################################
@@ -897,9 +899,8 @@ class MWsemantics(MainWindow):
 
     # bring molecules together and bond unbonded sites
     def modifyWeldMolecule(self):
-        print "MWsemantics.modifyWeldMolecule(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:",
-	         "This function is not implemented yet, coming soon...")
+        self.assy.weld()
+        self.update()
 
     def toolsAlignToCommonAxis(self):
         print "MWsemantics.modifyAlignToCommonAxis(): Not implemented yet"

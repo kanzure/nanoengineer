@@ -400,7 +400,10 @@ class shape:
         elif c.logic == 2:
             for mol in assy.molecules:
                 for a in mol.atoms.itervalues():
-                    if c.isin(a.posn()): a.pick()
+                    if (c.isin(a.posn()) and
+                        a.molecule.display != diINVISIBLE and
+                        a.display != diINVISIBLE):
+                        a.pick()
                     else: a.unpick()
         else:
             for a in assy.selatoms.values():

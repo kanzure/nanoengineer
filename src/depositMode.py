@@ -318,11 +318,14 @@ class depositMode(basicMode):
             self.baggage = pivatom.singNeighbors()
             self.baggage.remove(a)
             if neigh:
-                if len(neigh)>1:
+                if len(neigh)==2:
+                    self.pivot = pivatom.posn()
+                    self.pivax = norm(neigh[0].posn()-neigh[1].posn())
+                    self.baggage = []
+                if len(neigh)>2:
                     self.pivot = None
                     self.pivax = None
                     self.baggage = []
-                    return
                 else: # atom on a single stalk
                     self.pivot = pivatom.posn()
                     self.pivax = norm(self.pivot-neigh[0].posn())
@@ -388,8 +391,9 @@ class depositMode(basicMode):
         self.baggage = []
         self.line = None
         self.bareMotion(event, True)
-        if self.o.selatom and self.o.selatom != self.dragatom:
-            makeBonded(self.dragatom, self.o.selatom)
+        if self.dragatom.element == Singlet:
+            if self.o.selatom and self.o.selatom != self.dragatom:
+                makeBonded(self.dragatom, self.o.selatom)
         self.o.paintGL()
         
 

@@ -572,6 +572,7 @@ class extrudeMode(basicMode):
         self.basemol = mol
         self.basemol.shakedown() ###### bruce 041019: this will fix ninad's bug, but only by working around my own bug. ###test
         ##### see my notesfile for that... mainly, when i use self.basemol.quat i should not use it.
+
         mark_singlets(self.basemol, self.colorfunc)
         offset = V(15.0,16.0,17.0) # initial value doesn't matter
         self.offset = offset

@@ -21,6 +21,7 @@ from constants import *
 from qt import *
 from Utility import *
 from MoleculeProp import *
+from debug import print_compact_stack
 
 CPKvdW = 0.25
 
@@ -235,6 +236,9 @@ class atom:
         # pointer to molecule containing this atom
         self.molecule=mol
         self.molecule.atoms[self.key] = self
+
+        # josh 10/26 to fix bug 85
+        self.jigs = []
 
         # note that the assembly is not explicitly stored
 
@@ -492,6 +496,8 @@ class atom:
             n = b.other(self)
             n.unbond(b)
             if n.element == Singlet: n.kill()
+        # josh 10/26 to fix bug 85
+        for j in self.jigs: j.rematom(self)
             # bruce comment 041018: it looks like killing singlets
             # might mess up other molecules, if singlets are in other
             # molecules and caller doesn't know about those in order
@@ -522,6 +528,16 @@ class atom:
         else:
             return 0
         pass
+
+    def snuggle(self):
+        """self is a singlet and the simulator has moved it out to the
+        radius of an H. move it back. the molecule is still in frozen
+        mode.
+        """
+        o = self.bonds[0].other(self)
+        op = o.posn()
+        np = norm(self.posn()-op)*o.element.rcovalent + op
+        self.molecule.curpos[self.index] = np
 
 class bondtype:
     """not implemented
@@ -1087,8 +1103,8 @@ class molecule(Node):
             for b in a.bonds:
                 if b.other(a).key in ndix:
                     numol.bond(na,ndix[b.other(a).key])
-                    
-        numol.hotspot = ndix[self.hotspot.key]
+        try: numol.hotspot = ndix[self.hotspot.key]
+        except AttributeError: pass
         numol.curpos = self.curpos+offset
         numol.shakedown()
         numol.setDisplay(self.display)

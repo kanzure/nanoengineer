@@ -60,6 +60,8 @@ class RotaryMotor(Node):
     # for a motor read from a file, the "shaft" record
     def setShaft(self, shft):
         self.atoms = shft
+        # josh 10/26 to fix bug 85
+        for a in shft: a.jigs += [self]
 
     # for a motor created by the UI, center is average point and
     # axis (kludge) is the average of the cross products of
@@ -67,6 +69,8 @@ class RotaryMotor(Node):
     # los is line of sight into the screen
     def findCenter(self, shft, los):
         self.atoms=shft
+        # josh 10/26 to fix bug 85
+        for a in shft: a.jigs += [self]
         # array of absolute atom positions
         # can't use xyz, might be from different molecules
         pos=A(map((lambda a: a.posn()), shft))
@@ -116,8 +120,16 @@ class RotaryMotor(Node):
             self.picked = False
             self.assy.w.msgbarLabel.setText(" ")
             self.color = self.normcolor
+
+    # josh 10/26 to fix bug 85
+    def rematom(self, a):
+        self.atoms.remove(a)
+        # should check and delete the jig if no atoms left
+        # jig needs a "kill()" method
+        
            
-    # Rotary Motor is drawn as a cylinder along the axis, with a spoke to each atom
+    # Rotary Motor is drawn as a cylinder along the axis,
+    #  with a spoke to each atom
     def draw(self, win, dispdef):
         drawcylinder(self.color,
                     self.center + (self.length / 2.0) * self.axis,

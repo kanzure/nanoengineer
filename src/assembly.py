@@ -210,6 +210,10 @@ class assembly:
     def movsetup(self):
         for m in self.molecules:
             m.freeze()
+        self.blist = {}
+        for a in self.alist:
+            for b in a.bonds:
+                self.blist[b.key]=b
         pass
 
     # move the atoms one frame as for movie or minization
@@ -218,17 +222,21 @@ class assembly:
     def movatoms(self, file):
         if not self.alist: return
         for a in self.alist:
-            #print unpack('bbb',file.read(3))
             a.molecule.basepos[a.index] += A(unpack('bbb',file.read(3)))*0.01
+        for b in self.blist.itervalues():
+            b.setup()
             
         for m in self.molecules:
             m.changeapp()
 
     # regularize the atoms' new positions after the motion
     def movend(self):
+        # terrible hack for singlets in simulator, which treats them as H
+        for a in self.alist:
+            if a.element==Singlet: a.snuggle()
         for m in self.molecules:
             m.unfreeze()
-        pass
+        self.o.paintGL()
 
 
     #########################
@@ -448,11 +456,13 @@ class assembly:
                 m = a.molecule
                 if m not in changedMols: changedMols += [m]
                 a.kill()
-                if len(m.atoms) == 0:
-                        self.killmol(m)
             self.selatoms={}
-            for m in changedMols: m.shakedown()
-            
+            for m in changedMols:
+                if len(m.atoms) == 0:
+                    self.killmol(m)
+                else:
+                    m.shakedown()
+
         if self.selwhat == 2:
             self.tree.apply2picked(lambda o: o.kill())
         self.setDrawLevel()
@@ -492,7 +502,13 @@ class assembly:
         for m in self.selmols:
             m.stretch(1.1)
         self.o.paintGL()
-    
+
+    #weld selected molecules together
+    def weld(self):
+        if len(self.selmols) < 2: return
+        mol = self.selmols[0]
+        for m in self.selmols[1:]:
+            mol.merge(m)
 
     #############
 
