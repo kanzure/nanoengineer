@@ -282,7 +282,7 @@ class molecule(Node, InvalMixin):
             #  even though basepos is curpos then,
             #  since the transform on pos would be the identity then;
             #  but it seems better to not do it twice, anyway)
-            basepos[ind] = self.quat.unrot(pos - self.basecenter)
+            basepos[ind] = self.abs_to_base( pos)
         # But some invals are needed either then, or if the mol is frozen:
         if basepos != None:
             self.changed_attr('basepos')
@@ -914,7 +914,7 @@ class molecule(Node, InvalMixin):
             return
 
         # imitate the recomputes done by _recompute_atpos
-        self.curpos = self.basecenter + self.quat.rot(self.basepos)
+        self.curpos = self.basecenter + self.quat.rot(self.basepos) # inlines base_to_abs
         self.atpos = self.curpos
         # no change in atlist; no change needed in our atoms' .index attributes
         # no change here in basepos or bbox (if caller changed them, it should
@@ -929,11 +929,20 @@ class molecule(Node, InvalMixin):
         return
 
     def base_to_abs(self, anything): # bruce 041115
-        ##e use internally too; write abs_to_base too
         """map anything (which is accepted by quat.rot() and numarray.__add__)
-        from molecule-relative coords to absolute coords
+        from molecule-relative coords to absolute coords;
+        guaranteed to never recompute basepos/atpos or modify the mol-relative
+        coordinate system it uses. Inverse of abs_to_base.
         """
         return self.basecenter + self.quat.rot( anything)
+
+    def abs_to_base(self, anything): # bruce 041201
+        """map anything (which is accepted by quat.unrot() and
+        numarray.__sub__ (#k??)) from absolute coords to mol-relative coords;
+        guaranteed to never recompute basepos/atpos or modify the mol-relative
+        coordinate system it uses. Inverse of base_to_abs.
+        """
+        return self.quat.unrot( anything - self.basecenter)
 
     def set_basecenter_and_quat(self, basecenter, quat):
         """Deprecated public method: change this molecule's basecenter and quat to the specified values.

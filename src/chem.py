@@ -339,24 +339,22 @@ class atom:
         else:
             return + self.molecule.curpos[self.index]
 
-    def baseposn(self): #bruce 041107 night
+    def baseposn(self): #bruce 041107; rewritten 041201 to help fix bug 204
         """Like posn, but return the mol-relative position.
         Semi-private method -- should always be legal, but assumes you have
         some business knowing about the mol-relative coordinate system, which is
         somewhat private since it's semi-arbitrary and is changed by some
-        recomputation methods -- including this one, if it recomputes basepos!
-        Private implementation note: Recompute mol.basepos if it's not already
-        there; this might change mol.basecenter and/or mol.quat.
+        recomputation methods. Before 041201 that could include this one,
+        if it recomputed basepos! But as of that date we'll never compute
+        basepos or atpos if they're invalid.
         """
-        # No .xyz check is needed, since recomputing basepos (when it's missing
-        # and has to be recomputed by mol.__getattr__) will set self.xyz to 'no'!
-        # And basepos will be invalid (and thus missing) whenever some new atom
-        # was added, ie whenever any atom still stores its own .xyz.
-        basepos = self.molecule.basepos
-        # that might have set or changed self.index; it's now definitely valid.
-        # bruce 041130 added unary '+' (see atom.posn comment for the reason).
-        return + basepos[self.index]
-    
+        #e Does this mean we no longer use baseposn for drawing? Does that
+        # matter (for speed)? We still use it for things like mol.rot().
+        # We could inline the old baseposn into mol.draw, for speed.
+        # BTW would checking for basepos here be worth the cost of the check? (guess: yes.) ###e
+        # For speed, I'll inline this here: return self.molecule.abs_to_base( self.posn())
+        return self.molecule.quat.unrot(self.posn() - self.molecule.basecenter)
+
     def setposn(self, pos):
         """set the atom's absolute position,
         adjusting or invalidating whatever is necessary as a result.
@@ -785,8 +783,11 @@ class atom:
         for b in self.bonds:
             n = b.other(self)
             n.unbond(b) # note: this can create a new singlet on n, if n is real,
-                        # which requires computing b.ubp which uses self.posn();
-                        # or it can kill n if it's a singlet
+                        # which requires computing b.ubp which uses self.posn()
+                        # or self.baseposn(); or it can kill n if it's a singlet.
+                        #e We should optim this for killing lots of atoms at once,
+                        # eg when killing a chunk, since these new singlets are
+                        # wasted then. [bruce 041201]
             # note: as of 041029 unbond also invalidates externs if necessary
             ## if n.element == Singlet: n.kill() -- done in unbond as of 041115
         self.bonds = [] #bruce 041029 mitigate repeated kills
@@ -1100,30 +1101,38 @@ class Bond:
         """Private method. Before bruce 041104 this was called self.setup()
         and was called more widely; now the method of that name just invalidates
         the same attrs we recompute, by deleting them.
-         Now, this is only called by __getattr__ when we need to recompute one
-        or more of those attributes, to set up the bond for drawing.
-        Sets a1pos, a2pos using mol-relative positions for internal bonds
-        (atoms in same molecule), or absolute positions for external bonds.
-        Sets c1, c2, and center to points along the bond useful for drawing it,
-        except for too-long bonds whose center is set to None.
+           This method is only called by __getattr__ when we need to recompute one
+        or more of certain attributes, to set up the bond for drawing, or to
+        compute the unbonding point with bond.ubp() (used to make replacement
+        singlets in atom.unbond and atom.kill methods, even if they'll be
+        discarded right away as all atoms in some big chunk are killed 1 by 1).
+           We store all attributes we compute in the same coordinate system,
+        which is mol-relative (basecenter/quat) for internal bonds, but absolute
+        for external bonds.
+           The specific attributes we recompute (and set, until next invalidated)
+        are: a1pos, a2pos (positions of the atoms); c1, c2, and center (points
+        along the bond useful for drawing it); toolong (flag) saying whether bond
+        is too long. (Before 041112 there was no toolong flag, but center was None
+        for long bonds.)
+           As of 041201 we'll no longer recompute atpos or basepos if they are
+        invalid, so that atom.kill (our caller via unbond and ubp), which
+        invalidates them, won't also recompute them.
         """
         # [docstring revised, and inval/update scheme added, by bruce 041104]
+        # [docstring improved, and code revised to not recompute basepos, 041201]
         if self.atom1.molecule != self.atom2.molecule:
-            # external bond; use absolute positions
+            # external bond; use absolute positions for all attributes.
             self.a1pos = self.atom1.posn()
             self.a2pos = self.atom2.posn()
         else:
-            # internal bond; use mol-relative positions.
-            # Note: this means any change to mol's coordinate system
+            # internal bond; use mol-relative positions for all attributes.
+            # Note 1: this means any change to mol's coordinate system
             # (basecenter and quat) requires calling setup_invalidate
             # in this bond! That's a pain (and inefficient), so I might
             # replace it by a __getattr__ mol-coordsys-version-number check...
             # ##e [bruce 041115]
-            basepos = self.atom1.molecule.basepos
-            # if basepos is recomputed by __getattr__, that might have altered
-            # the atom indices, and they might not have been valid before.
-            self.a1pos = basepos[self.atom1.index]
-            self.a2pos = basepos[self.atom2.index]
+            self.a1pos = self.atom1.baseposn()
+            self.a2pos = self.atom2.baseposn()
         vec = self.a2pos - self.a1pos
         len = 0.98 * vlen(vec)
         vec = norm(vec)
@@ -1140,10 +1149,10 @@ class Bond:
         missing attr due to a bug in the calling code. Now that this __getattr__
         method exists, no other calls of self.__setup_update() should be needed.
         """
-        if not attr in ['a1pos','a2pos','c1','c2','center','toolong']:
+        if attr[0] == '_' or (not attr in ['a1pos','a2pos','c1','c2','center','toolong']):
             # unfortunately (since it's slow) we can't avoid checking this first,
             # or we risk infinite recursion due to a missing attr needed by setup
-            raise AttributeError, "bond has no %r" % attr
+            raise AttributeError, attr # be fast since probably common for __xxx__
         self.__setup_update() # this should add the attribute (or raise an exception
           # if it's called too early while initing the bond or one of its molecules)
         return self.__dict__[attr] # raise exception if attr still missing
@@ -1175,7 +1184,7 @@ class Bond:
         #bruce 041115 bugfixed this for when mol.quat is not 1,
         # tho i never looked for or saw an effect from the bug in that case
         if atom == self.atom1:
-            point = self.c1
+            point = self.c1 # this might call self.__setup_update()
         else:
             assert atom == self.atom2
             point = self.c2
@@ -1183,6 +1192,9 @@ class Bond:
         if self.atom1.molecule != self.atom2.molecule:
             return point
         else:
+            # convert to absolute position for caller
+            # (note: this never recomputes basepos/atpos or modifies the mol-
+            #  relative coordinate system)
             return self.atom1.molecule.base_to_abs(point)
         pass
 
@@ -1310,7 +1322,7 @@ class Bond:
                     drawsphere(black, self.c2, TubeRadius, level)
 
     # write to a povray file:  draw a single bond [never reviewed by bruce]
-    # [note: this redundantly computes attrs like _setup_update computes for
+    # [note: this redundantly computes attrs like __setup_update computes for
     #  draw, and instead we should just use those attrs, but I did not make
     #  this change since there is a current bug report which someone might
     #  fix by altering povpoint and the V(1,1,-1) kluges in here,
