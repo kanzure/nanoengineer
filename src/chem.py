@@ -466,8 +466,7 @@ class atom:
 
     def hopmol(self, numol):
         """move this atom to molecule numol.  Caller is responsible for
-        shakedown (of both involved molecules), or to clear externs if
-        this molecule will be killed.
+        shakedown or kill (of both involved molecules).
         We invalidate the externs of both involved molecules
         so that their erroneous use will be detected.
         """
@@ -547,7 +546,14 @@ class atom:
         caller is responsible for shakedown or kill of all affected molecules.
         """
         if self.__killed:
-            print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
+            if not self.element == Singlet:
+                print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
+            else:
+                ###e killing a selected mol, using Delete key, kills a lot of
+                # singlets twice; I don't know why but it's not clear it's a
+                # bug, so I'll disable this debug-print in that case until I
+                # understand the cause. [bruce 041029]
+                pass
             return
         self.__killed = 1 # do this now, to reduce repeated exceptions (works??)
         try:
@@ -563,6 +569,7 @@ class atom:
         for b in self.bonds:
             n = b.other(self)
             n.unbond(b) # this can create a new singlet on n
+            # note: as of 041029 unbond also invalidates externs if necessary
             if n.element == Singlet: n.kill()
         self.bonds = [] #bruce 041029 mitigate repeated kills
         # josh 10/26 to fix bug 85
@@ -949,22 +956,33 @@ class molecule(Node):
                 self.axis = self.evec[ug[2]]
             else: self.axis = self.evec[ug[0]]
             
-        # may have changed appearance of the molecule
+        # bruce 041029 revised following code
+        self.externs = INVALID_EXTERNS
+        self.fix_externs() # note: includes changeapp()
+        return # from molecule.shakedown
 
-        drawn = {}
+    def externs_valid(self): #bruce 041029
+        return type(self.externs) == type([])
 
-        self.externs = []
-
-        for atm in self.atoms.itervalues():
-            for bon in atm.bonds:
-                if bon.key not in drawn:
-                    if bon.other(atm).molecule != self:
-                        self.externs += [bon]
-                    else:
-                        drawn[bon.key] = bon
-                    bon.setup()
-
-        self.havelist = 0
+    def fix_externs(self): #bruce 041029
+        "if self.externs is marked as invalid, make it correct (and setup all bonds)"
+        if type(self.externs) != type([]):
+            assert self.externs == INVALID_EXTERNS
+            # following code taken from self.draw(); similar to other methods
+            drawn = {}
+            self.externs = []
+            for atm in self.atoms.itervalues():
+                for bon in atm.bonds:
+                    if bon.key not in drawn:
+                        if bon.other(atm).molecule != self:
+                            self.externs += [bon]
+                        else:
+                            drawn[bon.key] = bon
+                        bon.setup()
+            # may have changed appearance of the molecule
+            self.havelist = 0 # changeapp()
+        assert self.externs_valid()
+        return # from molecule.fix_externs
 
     def freeze(self):
         """ set the molecule up for minimization or simulation"""
@@ -1011,7 +1029,7 @@ class molecule(Node):
         else: disp = o.display
 
         # cache molecule display as GL list
-        if self.havelist:
+        if self.havelist and self.externs_valid():
             glCallList(self.displist)
 
         else:
@@ -1022,7 +1040,7 @@ class molecule(Node):
             # of a matching glEndList) in which any subsequent glNewList is an
             # invalid operation. (Also done in shape.py; not needed in drawer.py.)
             try:
-                self.draw_displist(o, disp)
+                self.draw_displist(o, disp) # also recomputes self.externs
             except:
                 print_compact_traceback("exception in molecule.draw_displist ignored: ")
             glEndList()
@@ -1053,7 +1071,7 @@ class molecule(Node):
                 # end bruce hack, except for use of color rather than
                 # self.color in atm.draw (but not in bon.draw -- good??)
                 atm.draw(glpane, disp, color, drawLevel)
-                for bon in atm.bonds:
+                for bon in atm.bonds: # similar to self.fix_externs(), but draws
                     if bon.key not in drawn:
                         if bon.other(atm).molecule != self:
                             self.externs += [bon]
@@ -1094,6 +1112,7 @@ class molecule(Node):
         self.curpos = self.center + self.quat.rot(self.basepos)
         if self.singlets:
             self.singlpos = self.center + self.quat.rot(self.singlbase)
+        self.fix_externs()
         for bon in self.externs: bon.setup()
         
         #Added by Huaicai 10/27/04
@@ -1106,6 +1125,7 @@ class molecule(Node):
         self.curpos = self.center + self.quat.rot(self.basepos)
         if self.singlets:
             self.singlpos = self.center + self.quat.rot(self.singlbase)
+        self.fix_externs()
         for bon in self.externs: bon.setup()
         
         #Added by Huaicai 10/27/04
@@ -1122,6 +1142,7 @@ class molecule(Node):
         self.curpos = self.center + self.quat.rot(self.basepos)
         if self.singlets:
             self.singlpos = self.center + self.quat.rot(self.singlbase)
+        self.fix_externs()
         for bon in self.externs: bon.setup()
 
 
@@ -1130,6 +1151,7 @@ class molecule(Node):
         self.curpos = self.center + self.quat.rot(self.basepos)
         if self.singlets:
             self.singlpos = self.center + self.quat.rot(self.singlbase)
+        self.fix_externs()
         for bon in self.externs: bon.setup()
         self.changeapp()
 
@@ -1194,6 +1216,8 @@ class molecule(Node):
 
     def kill(self):
         #e bruce 041029 thinks we'll someday want to detect killing a mol or Node twice
+        self.fix_externs() # bruce 041029; calls setup on all bonds (ok??)
+        # (caller no longer needs to set externs to [] when there are no atoms)
         self.unpick()
         Node.kill(self)
         try:
@@ -1351,12 +1375,15 @@ class molecule(Node):
         """merge the given molecule into this one.
         assume they are in the same assy.
         """
+        # bruce 041029 wonders why it matters whether self and mol are in the
+        # same assembly... if anyone knows, can you add a comment?
         pairlis = []
         ndix = {}
         for a in mol.atoms.values():
             a.hopmol(self)
+        assert not mol.atoms # bruce 041029
         self.shakedown()
-        mol.externs = []
+        ## mol.externs = [] # bruce 041029 thinks no longer needed; seems ok
         mol.kill()
 
 def oneUnbonded(elem, assy, pos):
