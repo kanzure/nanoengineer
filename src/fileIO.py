@@ -129,18 +129,26 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
             try:
                 a1 = ndix[int(card[6:11])]
             except:
-                #bruce 050322 added this level of try/except and its message
-                assy.w.history.message( redmsg( "Warning: Pdb file: can't find atom at column %d in: %s" % (6,card) ))
+                #bruce 050322 added this level of try/except and its message;
+                # see code below for at least two kinds of errors this might catch,
+                # but we don't try to distinguish these here. BTW this also happens
+                # as a consequence of not finding the element symbol, above,
+                # since atoms with unknown elements are not created.
+                assy.w.history.message( redmsg( "Warning: Pdb file: can't find first atom in CONECT record: %s" % (card,) ))
             else:
                 for i in range(11, 70, 5):
                     try:
                         a2 = ndix[int(card[i:i+5])]
-                    except:
-                        #bruce 050322 added history warning to except clause,
-                        # and generalized exception from ValueError
-                        # (since what happened in a test was KeyError)
-                        assy.w.history.message( redmsg( "Warning: Pdb file: can't find atom at column %d in: %s" % (i,card) ))
+                    except ValueError:
+                        # bruce 050323 comment:
+                        # we assume this is from int('') or int(' ') etc;
+                        # this is the usual way of ending this loop.
                         break
+                    except KeyError:
+                        #bruce 050322-23 added history warning for this,
+                        # assuming it comes from ndix[] lookup.
+                        assy.w.history.message( redmsg( "Warning: Pdb file: can't find atom %s in: %s" % (card[i:i+5], card) ))
+                        continue
                     mol.bond(a1, a2)
     #bruce 050322 part of fix for bug 433: don't return an empty chunk
     if not mol.atoms:
