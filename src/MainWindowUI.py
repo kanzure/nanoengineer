@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Dec 13 12:23:56 2004
+# Created: Thu Dec 16 20:38:09 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7503,6 +7503,11 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.Modify,8)
 
         self.Tools = QPopupMenu(self)
+        self.toolsSelectMoleculesAction.addTo(self.Tools)
+        self.toolsSelectAtomsAction.addTo(self.Tools)
+        self.Tools.insertSeparator()
+        self.toolsMoveMoleculeAction.addTo(self.Tools)
+        self.Tools.insertSeparator()
         self.toolsDepositAtomAction.addTo(self.Tools)
         self.toolsCookieCutAction.addTo(self.Tools)
         self.toolsExtrudeAction.addTo(self.Tools)
@@ -7520,7 +7525,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1003).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1006).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7904,9 +7909,9 @@ class MainWindow(QMainWindow):
         self.toolsSelectMoleculesAction.setText(self.__tr("Select Chunks"))
         self.toolsSelectMoleculesAction.setToolTip(self.__tr("Select Chunks"))
         self.toolsSelectMoleculesAction.setMenuText(self.__tr("Select Chunks"))
-        self.toolsMoveMoleculeAction.setText(self.__tr("Move Chunk"))
-        self.toolsMoveMoleculeAction.setToolTip(self.__tr("Move Chunk"))
-        self.toolsMoveMoleculeAction.setMenuText(self.__tr("Move Chunk"))
+        self.toolsMoveMoleculeAction.setText(self.__tr("Move Chunks"))
+        self.toolsMoveMoleculeAction.setToolTip(self.__tr("Move Chunks"))
+        self.toolsMoveMoleculeAction.setMenuText(self.__tr("Move Chunks"))
         self.toolsSelectAction.setText(self.__tr("Select"))
         self.toolsSelectAction.setMenuText(self.__tr("&Select"))
         self.toolsSelectAction.setToolTip(self.__tr("Select"))

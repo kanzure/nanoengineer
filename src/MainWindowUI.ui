@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1003</height>
+            <height>1006</height>
         </rect>
     </property>
     <property name="caption">
@@ -110,6 +110,11 @@
         <action name="modifyAlignCommonAxisAction"/>
     </item>
     <item text="&amp;Tools" name="Tools">
+        <action name="toolsSelectMoleculesAction"/>
+        <action name="toolsSelectAtomsAction"/>
+        <separator/>
+        <action name="toolsMoveMoleculeAction"/>
+        <separator/>
         <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
@@ -2247,10 +2252,10 @@
                 <iconset>image82</iconset>
             </property>
             <property name="text">
-                <string>Move Chunk</string>
+                <string>Move Chunks</string>
             </property>
             <property name="toolTip">
-                <string>Move Chunk</string>
+                <string>Move Chunks</string>
             </property>
         </action>
         <action>
