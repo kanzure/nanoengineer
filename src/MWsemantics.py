@@ -189,7 +189,7 @@ class MWsemantics(MainWindow):
             if ret==0: # Save clicked or Alt+S pressed or Enter pressed.
                 self.fileSave()
                 self.__clear() # Clear the part - we're loading a new file.
-                
+            elif ret==1: self.__clear() # Discard the part - we're loading a new file.
             elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
 
         wd = globalParms['WorkingDirectory']
