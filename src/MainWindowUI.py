@@ -29,7 +29,7 @@ def fileparse(name):
 
 # Form implementation generated from reading ui file 'atom.ui'
 #
-# Created: Mon Aug 9 20:18:42 2004
+# Created: Thu Aug 12 15:35:10 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -4897,8 +4897,8 @@ class MainWindow(QMainWindow):
         self.helpContentsAction = QAction(self,"helpContentsAction")
         self.helpIndexAction = QAction(self,"helpIndexAction")
         self.helpAboutAction = QAction(self,"helpAboutAction")
-        self.viewFitToWindowAction = QAction(self,"viewFitToWindowAction")
-        self.viewFitToWindowAction.setIconSet(QIconSet(self.image15))
+        self.setViewFitToWindowAction = QAction(self,"setViewFitToWindowAction")
+        self.setViewFitToWindowAction.setIconSet(QIconSet(self.image15))
         self.fileCloseAction = QAction(self,"fileCloseAction")
         self.displayActionGroup = QActionGroup(self,"displayActionGroup")
         self.displayActionGroup.setUsesDropDown(0)
@@ -4965,30 +4965,30 @@ class MainWindow(QMainWindow):
         self.elemChangePTableAction.setIconSet(QIconSet(self.image40))
         self.toolsMovieAction = QAction(self,"toolsMovieAction")
         self.toolsMovieAction.setIconSet(QIconSet(self.image41))
-        self.viewTbarFileAction = QAction(self,"viewTbarFileAction")
-        self.viewTbarFileAction.setToggleAction(1)
-        self.viewTbarFileAction.setOn(1)
-        self.viewTbarEditAction = QAction(self,"viewTbarEditAction")
-        self.viewTbarEditAction.setToggleAction(1)
-        self.viewTbarEditAction.setOn(1)
-        self.viewTbarViewAction = QAction(self,"viewTbarViewAction")
-        self.viewTbarViewAction.setToggleAction(1)
-        self.viewTbarViewAction.setOn(1)
-        self.viewTbarDisplayAction = QAction(self,"viewTbarDisplayAction")
-        self.viewTbarDisplayAction.setToggleAction(1)
-        self.viewTbarDisplayAction.setOn(1)
-        self.viewTbarSelectAction = QAction(self,"viewTbarSelectAction")
-        self.viewTbarSelectAction.setToggleAction(1)
-        self.viewTbarSelectAction.setOn(1)
-        self.viewTbarJigsAction = QAction(self,"viewTbarJigsAction")
-        self.viewTbarJigsAction.setToggleAction(1)
-        self.viewTbarJigsAction.setOn(1)
-        self.viewTbarToolsAction = QAction(self,"viewTbarToolsAction")
-        self.viewTbarToolsAction.setToggleAction(1)
-        self.viewTbarToolsAction.setOn(1)
-        self.viewTbarHelpAction = QAction(self,"viewTbarHelpAction")
-        self.viewTbarHelpAction.setToggleAction(1)
-        self.viewTbarHelpAction.setOn(1)
+        self.toggleFileTbarAction = QAction(self,"toggleFileTbarAction")
+        self.toggleFileTbarAction.setToggleAction(1)
+        self.toggleFileTbarAction.setOn(1)
+        self.toggleEditTbarAction = QAction(self,"toggleEditTbarAction")
+        self.toggleEditTbarAction.setToggleAction(1)
+        self.toggleEditTbarAction.setOn(1)
+        self.toggleViewTbarAction = QAction(self,"toggleViewTbarAction")
+        self.toggleViewTbarAction.setToggleAction(1)
+        self.toggleViewTbarAction.setOn(1)
+        self.toggleDisplayTbarAction = QAction(self,"toggleDisplayTbarAction")
+        self.toggleDisplayTbarAction.setToggleAction(1)
+        self.toggleDisplayTbarAction.setOn(1)
+        self.toggleSelectTbarAction = QAction(self,"toggleSelectTbarAction")
+        self.toggleSelectTbarAction.setToggleAction(1)
+        self.toggleSelectTbarAction.setOn(1)
+        self.toggleJigsTbarAction = QAction(self,"toggleJigsTbarAction")
+        self.toggleJigsTbarAction.setToggleAction(1)
+        self.toggleJigsTbarAction.setOn(1)
+        self.toggleToolsTbarAction = QAction(self,"toggleToolsTbarAction")
+        self.toggleToolsTbarAction.setToggleAction(1)
+        self.toggleToolsTbarAction.setOn(1)
+        self.toggleHelpTbarAction = QAction(self,"toggleHelpTbarAction")
+        self.toggleHelpTbarAction.setToggleAction(1)
+        self.toggleHelpTbarAction.setOn(1)
         self.fileSetWorkDirAction = QAction(self,"fileSetWorkDirAction")
         self.dispTrihedronAction = QAction(self,"dispTrihedronAction")
         self.dispTrihedronAction.setToggleAction(1)
@@ -5019,8 +5019,8 @@ class MainWindow(QMainWindow):
         self.jigsSpringAction = QAction(self,"jigsSpringAction")
         self.jigsDynoAction = QAction(self,"jigsDynoAction")
         self.jigsHeatsinkAction = QAction(self,"jigsHeatsinkAction")
-        self.viewOrthoAction = QAction(self,"viewOrthoAction")
-        self.viewPerspecAction = QAction(self,"viewPerspecAction")
+        self.setViewOrthoAction = QAction(self,"setViewOrthoAction")
+        self.setViewPerspecAction = QAction(self,"setViewPerspecAction")
         self.jigsGroundAction = QAction(self,"jigsGroundAction")
         self.jigsHandleAction = QAction(self,"jigsHandleAction")
         self.modifySeparateAction = QAction(self,"modifySeparateAction")
@@ -5035,20 +5035,20 @@ class MainWindow(QMainWindow):
         self.orient110Action.setIconSet(QIconSet(self.image52))
         self.orient111Action = QAction(self,"orient111Action")
         self.orient111Action.setIconSet(QIconSet(self.image53))
-        self.viewDefviewFrontAction = QAction(self,"viewDefviewFrontAction")
-        self.viewDefviewBackAction = QAction(self,"viewDefviewBackAction")
-        self.viewDefviewTopAction = QAction(self,"viewDefviewTopAction")
-        self.viewDefviewBottomAction = QAction(self,"viewDefviewBottomAction")
-        self.viewDefviewRightAction = QAction(self,"viewDefviewRightAction")
-        self.viewDefviewLeftAction = QAction(self,"viewDefviewLeftAction")
-        self.viewHomeAction = QAction(self,"viewHomeAction")
-        self.viewHomeAction.setIconSet(QIconSet(self.image54))
-        self.viewRecenterAction = QAction(self,"viewRecenterAction")
-        self.viewRecenterAction.setIconSet(QIconSet(self.image55))
+        self.setViewFrontAction = QAction(self,"setViewFrontAction")
+        self.setViewBackAction = QAction(self,"setViewBackAction")
+        self.setViewTopAction = QAction(self,"setViewTopAction")
+        self.setViewBottomAction = QAction(self,"setViewBottomAction")
+        self.setViewRightAction = QAction(self,"setViewRightAction")
+        self.setViewLeftAction = QAction(self,"setViewLeftAction")
+        self.setViewHomeAction = QAction(self,"setViewHomeAction")
+        self.setViewHomeAction.setIconSet(QIconSet(self.image54))
+        self.setViewRecenterAction = QAction(self,"setViewRecenterAction")
+        self.setViewRecenterAction.setIconSet(QIconSet(self.image55))
         self.jigsLinearMotorAction = QAction(self,"jigsLinearMotorAction")
-        self.viewTbarModifyAction = QAction(self,"viewTbarModifyAction")
-        self.viewTbarModifyAction.setToggleAction(1)
-        self.viewTbarModifyAction.setOn(1)
+        self.toggleModifyTbarAction = QAction(self,"toggleModifyTbarAction")
+        self.toggleModifyTbarAction.setToggleAction(1)
+        self.toggleModifyTbarAction.setOn(1)
         self.toolsStartOverAction = QAction(self,"toolsStartOverAction")
         self.toolsStartOverAction.setIconSet(QIconSet(self.image56))
         self.toolsBackUpAction = QAction(self,"toolsBackUpAction")
@@ -5083,9 +5083,9 @@ class MainWindow(QMainWindow):
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.viewToolbar.setGeometry(QRect(277,0,99,29))
-        self.viewHomeAction.addTo(self.viewToolbar)
-        self.viewRecenterAction.addTo(self.viewToolbar)
-        self.viewFitToWindowAction.addTo(self.viewToolbar)
+        self.setViewHomeAction.addTo(self.viewToolbar)
+        self.setViewRecenterAction.addTo(self.viewToolbar)
+        self.setViewFitToWindowAction.addTo(self.viewToolbar)
         self.displayToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.dispDefaultAction.addTo(self.displayToolbar)
@@ -5207,33 +5207,33 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.editMenu,3)
 
         self.unnamed = QPopupMenu(self)
-        self.viewHomeAction.addTo(self.unnamed)
-        self.viewRecenterAction.addTo(self.unnamed)
-        self.viewFitToWindowAction.addTo(self.unnamed)
+        self.setViewHomeAction.addTo(self.unnamed)
+        self.setViewRecenterAction.addTo(self.unnamed)
+        self.setViewFitToWindowAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.PopupMenuEditor_31 = QPopupMenu(self)
         self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewDefviewAction.iconSet(),self.__tr("&Default Views"),self.PopupMenuEditor_31))
-        self.viewDefviewFrontAction.addTo(self.PopupMenuEditor_31)
-        self.viewDefviewBackAction.addTo(self.PopupMenuEditor_31)
-        self.viewDefviewTopAction.addTo(self.PopupMenuEditor_31)
-        self.viewDefviewBottomAction.addTo(self.PopupMenuEditor_31)
-        self.viewDefviewRightAction.addTo(self.PopupMenuEditor_31)
-        self.viewDefviewLeftAction.addTo(self.PopupMenuEditor_31)
+        self.setViewFrontAction.addTo(self.PopupMenuEditor_31)
+        self.setViewBackAction.addTo(self.PopupMenuEditor_31)
+        self.setViewTopAction.addTo(self.PopupMenuEditor_31)
+        self.setViewBottomAction.addTo(self.PopupMenuEditor_31)
+        self.setViewRightAction.addTo(self.PopupMenuEditor_31)
+        self.setViewLeftAction.addTo(self.PopupMenuEditor_31)
         self.unnamed.insertSeparator()
-        self.viewOrthoAction.addTo(self.unnamed)
-        self.viewPerspecAction.addTo(self.unnamed)
+        self.setViewOrthoAction.addTo(self.unnamed)
+        self.setViewPerspecAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.PopupMenuEditor_42 = QPopupMenu(self)
         self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewToolbarsAction.iconSet(),self.__tr("&Toolbars"),self.PopupMenuEditor_42))
-        self.viewTbarFileAction.addTo(self.PopupMenuEditor_42)
-        self.viewTbarEditAction.addTo(self.PopupMenuEditor_42)
-        self.viewTbarViewAction.addTo(self.PopupMenuEditor_42)
-        self.viewTbarDisplayAction.addTo(self.PopupMenuEditor_42)
-        self.viewTbarSelectAction.addTo(self.PopupMenuEditor_42)
-        self.viewTbarJigsAction.addTo(self.PopupMenuEditor_42)
-        self.viewTbarModifyAction.addTo(self.PopupMenuEditor_42)
-        self.viewTbarToolsAction.addTo(self.PopupMenuEditor_42)
-        self.viewTbarHelpAction.addTo(self.PopupMenuEditor_42)
+        self.toggleFileTbarAction.addTo(self.PopupMenuEditor_42)
+        self.toggleEditTbarAction.addTo(self.PopupMenuEditor_42)
+        self.toggleViewTbarAction.addTo(self.PopupMenuEditor_42)
+        self.toggleDisplayTbarAction.addTo(self.PopupMenuEditor_42)
+        self.toggleSelectTbarAction.addTo(self.PopupMenuEditor_42)
+        self.toggleJigsTbarAction.addTo(self.PopupMenuEditor_42)
+        self.toggleModifyTbarAction.addTo(self.PopupMenuEditor_42)
+        self.toggleToolsTbarAction.addTo(self.PopupMenuEditor_42)
+        self.toggleHelpTbarAction.addTo(self.PopupMenuEditor_42)
         self.MenuBar.insertItem(QString(""),self.unnamed,4)
 
         self.unnamed = QPopupMenu(self)
@@ -5351,6 +5351,7 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyAddBondAction,SIGNAL("activated()"),self.modifyAddBond)
         self.connect(self.modifyCopyBondAction,SIGNAL("activated()"),self.modifyCopyBond)
         self.connect(self.modifyDeleteBondAction,SIGNAL("activated()"),self.modifyDeleteBond)
+        self.connect(self.modifyEdgeBondAction,SIGNAL("activated()"),self.modifyEdgeBond)
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
         self.connect(self.modifyMinimizeAction,SIGNAL("activated()"),self.modifyMinimize)
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
@@ -5364,6 +5365,25 @@ class MainWindow(QMainWindow):
         self.connect(self.selectDoublyAction,SIGNAL("activated()"),self.selectDoubly)
         self.connect(self.selectInvertAction,SIGNAL("activated()"),self.selectInvert)
         self.connect(self.selectNoneAction,SIGNAL("activated()"),self.selectNone)
+        self.connect(self.setViewBackAction,SIGNAL("activated()"),self.setViewBack)
+        self.connect(self.setViewBottomAction,SIGNAL("activated()"),self.setViewBottom)
+        self.connect(self.setViewFrontAction,SIGNAL("activated()"),self.setViewFront)
+        self.connect(self.setViewHomeAction,SIGNAL("activated()"),self.setViewHome)
+        self.connect(self.setViewLeftAction,SIGNAL("activated()"),self.setViewLeft)
+        self.connect(self.setViewOrthoAction,SIGNAL("activated()"),self.setViewOrtho)
+        self.connect(self.setViewPerspecAction,SIGNAL("activated()"),self.setViewPerspec)
+        self.connect(self.setViewRecenterAction,SIGNAL("activated()"),self.setViewRecenter)
+        self.connect(self.setViewRightAction,SIGNAL("activated()"),self.setViewRight)
+        self.connect(self.setViewTopAction,SIGNAL("activated()"),self.setViewTop)
+        self.connect(self.toggleDisplayTbarAction,SIGNAL("activated()"),self.toggleDisplayTbar)
+        self.connect(self.toggleEditTbarAction,SIGNAL("activated()"),self.toggleEditTbar)
+        self.connect(self.toggleFileTbarAction,SIGNAL("activated()"),self.toggleFileTbar)
+        self.connect(self.toggleHelpTbarAction,SIGNAL("activated()"),self.toggleHelpTbar)
+        self.connect(self.toggleJigsTbarAction,SIGNAL("activated()"),self.toggleJigsTbar)
+        self.connect(self.toggleModifyTbarAction,SIGNAL("activated()"),self.toggleModifyTbar)
+        self.connect(self.toggleSelectTbarAction,SIGNAL("activated()"),self.toggleSelectTbar)
+        self.connect(self.toggleToolsTbarAction,SIGNAL("activated()"),self.toggleToolsTbar)
+        self.connect(self.toggleViewTbarAction,SIGNAL("activated()"),self.toggleViewTbar)
         self.connect(self.toolsBackUpAction,SIGNAL("activated()"),self.toolsBackUp)
         self.connect(self.toolsCancelAction,SIGNAL("activated()"),self.toolsCancel)
         self.connect(self.toolsCookieCutAction,SIGNAL("activated()"),self.toolsCookieCut)
@@ -5372,27 +5392,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSimulatorAction,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsSketchAtomAction,SIGNAL("activated()"),self.addAtomStart)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.viewDefviewBackAction,SIGNAL("activated()"),self.orientView)
-        self.connect(self.viewDefviewBottomAction,SIGNAL("activated()"),self.orientView)
-        self.connect(self.viewDefviewFrontAction,SIGNAL("activated()"),self.orientView)
-        self.connect(self.viewDefviewLeftAction,SIGNAL("activated()"),self.orientView)
-        self.connect(self.viewDefviewRightAction,SIGNAL("activated()"),self.orientView)
-        self.connect(self.viewDefviewTopAction,SIGNAL("activated()"),self.orientView)
-        self.connect(self.viewFitToWindowAction,SIGNAL("activated()"),self.viewFitToWindow)
-        self.connect(self.viewHomeAction,SIGNAL("activated()"),self.orientView)
-        self.connect(self.viewOrthoAction,SIGNAL("activated()"),self.viewOrtho)
-        self.connect(self.viewPerspecAction,SIGNAL("activated()"),self.viewPerspec)
-        self.connect(self.viewRecenterAction,SIGNAL("activated()"),self.orientView)
-        self.connect(self.viewTbarDisplayAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.viewTbarEditAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.viewTbarFileAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.viewTbarHelpAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.viewTbarJigsAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.viewTbarModifyAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.viewTbarSelectAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.viewTbarToolsAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.viewTbarViewAction,SIGNAL("activated()"),self.toggleToolbar)
-        self.connect(self.modifyEdgeBondAction,SIGNAL("activated()"),self.modifyEdgeBond)
+        self.connect(self.setViewFitToWindowAction,SIGNAL("activated()"),self.setViewFitToWindow)
 
 
     def languageChange(self):
@@ -5467,10 +5467,10 @@ class MainWindow(QMainWindow):
         self.helpAboutAction.setText(self.__tr("About"))
         self.helpAboutAction.setMenuText(self.__tr("&About"))
         self.helpAboutAction.setAccel(QString.null)
-        self.viewFitToWindowAction.setText(self.__tr("Fit to Window"))
-        self.viewFitToWindowAction.setMenuText(self.__tr("&Fit to Window"))
-        self.viewFitToWindowAction.setToolTip(self.__tr("Fit to Window (Ctrl+F)"))
-        self.viewFitToWindowAction.setAccel(self.__tr("Ctrl+F"))
+        self.setViewFitToWindowAction.setText(self.__tr("Fit to Window"))
+        self.setViewFitToWindowAction.setMenuText(self.__tr("&Fit to Window"))
+        self.setViewFitToWindowAction.setToolTip(self.__tr("Fit to Window (Ctrl+F)"))
+        self.setViewFitToWindowAction.setAccel(self.__tr("Ctrl+F"))
         self.fileCloseAction.setText(self.__tr("Close"))
         self.fileCloseAction.setMenuText(self.__tr("&Close"))
         self.displayActionGroup.setText(self.__tr("ActionGroup"))
@@ -5551,22 +5551,22 @@ class MainWindow(QMainWindow):
         self.elemChangePTableAction.setText(self.__tr("Atom Type"))
         self.toolsMovieAction.setText(self.__tr("Movie"))
         self.toolsMovieAction.setMenuText(self.__tr("&Movie..."))
-        self.viewTbarFileAction.setText(self.__tr("File"))
-        self.viewTbarFileAction.setMenuText(self.__tr("File"))
-        self.viewTbarEditAction.setText(self.__tr("Edit"))
-        self.viewTbarEditAction.setMenuText(self.__tr("Edit"))
-        self.viewTbarViewAction.setText(self.__tr("View"))
-        self.viewTbarViewAction.setMenuText(self.__tr("View"))
-        self.viewTbarDisplayAction.setText(self.__tr("Display"))
-        self.viewTbarDisplayAction.setMenuText(self.__tr("Display"))
-        self.viewTbarSelectAction.setText(self.__tr("Select"))
-        self.viewTbarSelectAction.setMenuText(self.__tr("Select"))
-        self.viewTbarJigsAction.setText(self.__tr("Jigs"))
-        self.viewTbarJigsAction.setMenuText(self.__tr("Jigs"))
-        self.viewTbarToolsAction.setText(self.__tr("Tools"))
-        self.viewTbarToolsAction.setMenuText(self.__tr("Tools"))
-        self.viewTbarHelpAction.setText(self.__tr("Help"))
-        self.viewTbarHelpAction.setMenuText(self.__tr("Help"))
+        self.toggleFileTbarAction.setText(self.__tr("File"))
+        self.toggleFileTbarAction.setMenuText(self.__tr("File"))
+        self.toggleEditTbarAction.setText(self.__tr("Edit"))
+        self.toggleEditTbarAction.setMenuText(self.__tr("Edit"))
+        self.toggleViewTbarAction.setText(self.__tr("View"))
+        self.toggleViewTbarAction.setMenuText(self.__tr("View"))
+        self.toggleDisplayTbarAction.setText(self.__tr("Display"))
+        self.toggleDisplayTbarAction.setMenuText(self.__tr("Display"))
+        self.toggleSelectTbarAction.setText(self.__tr("Select"))
+        self.toggleSelectTbarAction.setMenuText(self.__tr("Select"))
+        self.toggleJigsTbarAction.setText(self.__tr("Jigs"))
+        self.toggleJigsTbarAction.setMenuText(self.__tr("Jigs"))
+        self.toggleToolsTbarAction.setText(self.__tr("Tools"))
+        self.toggleToolsTbarAction.setMenuText(self.__tr("Tools"))
+        self.toggleHelpTbarAction.setText(self.__tr("Help"))
+        self.toggleHelpTbarAction.setMenuText(self.__tr("Help"))
         self.fileSetWorkDirAction.setText(self.__tr("Set Working Directory..."))
         self.fileSetWorkDirAction.setMenuText(self.__tr("Set &Working Directory..."))
         self.dispTrihedronAction.setText(self.__tr("Trihedron"))
@@ -5594,10 +5594,10 @@ class MainWindow(QMainWindow):
         self.jigsDynoAction.setMenuText(self.__tr("&Dyno"))
         self.jigsHeatsinkAction.setText(self.__tr("Heatsin&k"))
         self.jigsHeatsinkAction.setMenuText(self.__tr("Heatsin&k"))
-        self.viewOrthoAction.setText(self.__tr("Ortho"))
-        self.viewOrthoAction.setMenuText(self.__tr("Or&tho"))
-        self.viewPerspecAction.setText(self.__tr("Perspective"))
-        self.viewPerspecAction.setMenuText(self.__tr("&Perspective"))
+        self.setViewOrthoAction.setText(self.__tr("Ortho"))
+        self.setViewOrthoAction.setMenuText(self.__tr("Or&tho"))
+        self.setViewPerspecAction.setText(self.__tr("Perspective"))
+        self.setViewPerspecAction.setMenuText(self.__tr("&Perspective"))
         self.jigsGroundAction.setText(self.__tr("Ground"))
         self.jigsGroundAction.setMenuText(self.__tr("&Ground"))
         self.jigsHandleAction.setText(self.__tr("Handle"))
@@ -5610,30 +5610,30 @@ class MainWindow(QMainWindow):
         self.orient100Action.setText(self.__tr("Surface 100"))
         self.orient110Action.setText(self.__tr("Surface 110"))
         self.orient111Action.setText(self.__tr("Surface 111"))
-        self.viewDefviewFrontAction.setText(self.__tr("Front"))
-        self.viewDefviewFrontAction.setMenuText(self.__tr("&Front"))
-        self.viewDefviewBackAction.setText(self.__tr("Back"))
-        self.viewDefviewBackAction.setMenuText(self.__tr("&Back"))
-        self.viewDefviewTopAction.setText(self.__tr("Top"))
-        self.viewDefviewTopAction.setMenuText(self.__tr("&Top"))
-        self.viewDefviewBottomAction.setText(self.__tr("Bottom"))
-        self.viewDefviewBottomAction.setMenuText(self.__tr("Botto&m"))
-        self.viewDefviewRightAction.setText(self.__tr("Right"))
-        self.viewDefviewRightAction.setMenuText(self.__tr("&Right"))
-        self.viewDefviewLeftAction.setText(self.__tr("Left"))
-        self.viewDefviewLeftAction.setMenuText(self.__tr("&Left"))
-        self.viewHomeAction.setText(self.__tr("Home"))
-        self.viewHomeAction.setMenuText(self.__tr("&Home"))
-        self.viewHomeAction.setToolTip(self.__tr("Home"))
-        self.viewHomeAction.setAccel(self.__tr("Home"))
-        self.viewRecenterAction.setText(self.__tr("Recenter"))
-        self.viewRecenterAction.setMenuText(self.__tr("&Recenter"))
-        self.viewRecenterAction.setToolTip(self.__tr("Recenter (Ctrl+R)"))
-        self.viewRecenterAction.setAccel(self.__tr("Ctrl+R"))
+        self.setViewFrontAction.setText(self.__tr("Front"))
+        self.setViewFrontAction.setMenuText(self.__tr("&Front"))
+        self.setViewBackAction.setText(self.__tr("Back"))
+        self.setViewBackAction.setMenuText(self.__tr("&Back"))
+        self.setViewTopAction.setText(self.__tr("Top"))
+        self.setViewTopAction.setMenuText(self.__tr("&Top"))
+        self.setViewBottomAction.setText(self.__tr("Bottom"))
+        self.setViewBottomAction.setMenuText(self.__tr("Botto&m"))
+        self.setViewRightAction.setText(self.__tr("Right"))
+        self.setViewRightAction.setMenuText(self.__tr("&Right"))
+        self.setViewLeftAction.setText(self.__tr("Left"))
+        self.setViewLeftAction.setMenuText(self.__tr("&Left"))
+        self.setViewHomeAction.setText(self.__tr("Home"))
+        self.setViewHomeAction.setMenuText(self.__tr("&Home"))
+        self.setViewHomeAction.setToolTip(self.__tr("Home"))
+        self.setViewHomeAction.setAccel(self.__tr("Home"))
+        self.setViewRecenterAction.setText(self.__tr("Recenter"))
+        self.setViewRecenterAction.setMenuText(self.__tr("&Recenter"))
+        self.setViewRecenterAction.setToolTip(self.__tr("Recenter (Ctrl+R)"))
+        self.setViewRecenterAction.setAccel(self.__tr("Ctrl+R"))
         self.jigsLinearMotorAction.setText(self.__tr("&Linear Motor"))
         self.jigsLinearMotorAction.setMenuText(self.__tr("&Linear Motor"))
-        self.viewTbarModifyAction.setText(self.__tr("Modify"))
-        self.viewTbarModifyAction.setMenuText(self.__tr("Modify"))
+        self.toggleModifyTbarAction.setText(self.__tr("Modify"))
+        self.toggleModifyTbarAction.setMenuText(self.__tr("Modify"))
         self.toolsStartOverAction.setText(self.__tr("Start Over"))
         self.toolsBackUpAction.setText(self.__tr("Back Up"))
         self.modifyDeleteBondAction.setText(self.__tr("Delete Bond"))
@@ -5775,11 +5775,11 @@ class MainWindow(QMainWindow):
     def dispLines(self):
         print "MainWindow.dispLines(): Not implemented yet"
 
-    def viewOrtho(self):
-        print "MainWindow.viewOrtho(): Not implemented yet"
+    def setViewOrtho(self):
+        print "MainWindow.setViewOrtho(): Not implemented yet"
 
-    def viewPerspec(self):
-        print "MainWindow.viewPerspec(): Not implemented yet"
+    def setViewPerspec(self):
+        print "MainWindow.setViewPerspec(): Not implemented yet"
 
     def dispTubes(self):
         print "MainWindow.dispTubes(): Not implemented yet"
@@ -5898,17 +5898,14 @@ class MainWindow(QMainWindow):
     def orientView(self,a0):
         print "MainWindow.orientView(string): Not implemented yet"
 
-    def viewFitToWindow(self):
-        print "MainWindow.viewFitToWindow(): Not implemented yet"
+    def setViewFitToWindow(self):
+        print "MainWindow.setViewFitToWindow(): Not implemented yet"
 
     def modifyCopyBond(self):
         print "MainWindow.modifyCopyBond(): Not implemented yet"
 
-    def addAtomStart(self):
-        print "MainWindow.addAtomStart(): Not implemented yet"
-
-    def toggleToolbar(self):
-        print "MainWindow.toggleToolbar(): Not implemented yet"
+    def toggleToolsTbar(self):
+        print "MainWindow.toggleToolsTbar(): Not implemented yet"
 
     def toolsBackUp(self):
         print "MainWindow.toolsBackUp(): Not implemented yet"
@@ -5919,9 +5916,6 @@ class MainWindow(QMainWindow):
     def dispGrid(self):
         print "MainWindow.dispGrid(): Not implemented yet"
 
-    def orientView(self):
-        print "MainWindow.orientView(): Not implemented yet"
-
     def modifyWeldMolecule(self):
         print "MainWindow.modifyWeldMolecule(): Not implemented yet"
 
@@ -5930,6 +5924,57 @@ class MainWindow(QMainWindow):
 
     def modifyEdgeBond(self):
         print "MainWindow.modifyEdgeBond(): Not implemented yet"
+
+    def toggleDisplayTbar(self):
+        print "MainWindow.toggleDisplayTbar(): Not implemented yet"
+
+    def toggleEditTbar(self):
+        print "MainWindow.toggleEditTbar(): Not implemented yet"
+
+    def toggleFileTbar(self):
+        print "MainWindow.toggleFileTbar(): Not implemented yet"
+
+    def toggleHelpTbar(self):
+        print "MainWindow.toggleHelpTbar(): Not implemented yet"
+
+    def toggleJigsTbar(self):
+        print "MainWindow.toggleJigsTbar(): Not implemented yet"
+
+    def toggleSelectTbar(self):
+        print "MainWindow.toggleSelectTbar(): Not implemented yet"
+
+    def toggleModifyTbar(self):
+        print "MainWindow.toggleModifyTbar(): Not implemented yet"
+
+    def toggleViewTbar(self):
+        print "MainWindow.toggleViewTbar(): Not implemented yet"
+
+    def addAtomStart(self):
+        print "MainWindow.addAtomStart(): Not implemented yet"
+
+    def setViewBack(self):
+        print "MainWindow.setViewBack(): Not implemented yet"
+
+    def setViewBottom(self):
+        print "MainWindow.setViewBottom(): Not implemented yet"
+
+    def setViewFront(self):
+        print "MainWindow.setViewFront(): Not implemented yet"
+
+    def setViewRight(self):
+        print "MainWindow.setViewRight(): Not implemented yet"
+
+    def setViewHome(self):
+        print "MainWindow.setViewHome(): Not implemented yet"
+
+    def setViewLeft(self):
+        print "MainWindow.setViewLeft(): Not implemented yet"
+
+    def setViewRecenter(self):
+        print "MainWindow.setViewRecenter(): Not implemented yet"
+
+    def setViewTop(self):
+        print "MainWindow.setViewTop(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

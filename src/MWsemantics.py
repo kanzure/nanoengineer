@@ -215,16 +215,44 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
     ###################################
-    # functions from the "Display" menu
+    # functions from the "View" menu
     ###################################
 
     # GLPane.ortho is checked in GLPane.paintGL
-    def viewOrtho(self):
+    def setViewOrtho(self):
         self.glpane.ortho = 1
         self.glpane.paintGL()
 
-    def viewPerspec(self):
+    def setViewPerspec(self):
         self.glpane.ortho = 0
+        self.glpane.paintGL()
+
+    def setViewBack(self):
+        self.glpane.quat = Q(V(0,1,0),pi)
+        self.glpane.paintGL()
+
+    def setViewBottom(self):
+        self.glpane.quat = Q(V(1,0,0),-pi/2)
+        self.glpane.paintGL()
+
+    def setViewFront(self):
+        self.glpane.quat = Q(1,0,0,0)
+        self.glpane.paintGL()
+
+    def setViewHome(self):
+        self.glpane.quat = Q(1,0,0,0)
+        self.glpane.paintGL()
+
+    def setViewLeft(self):
+        self.glpane.quat = Q(V(0,1,0),-pi/2)
+        self.glpane.paintGL()
+
+    def setViewRight(self):
+        self.glpane.quat = Q(V(0,1,0),pi/2)
+        self.glpane.paintGL()
+
+    def setViewTop(self):
+        self.glpane.quat = Q(V(1,0,0),pi/2)
         self.glpane.paintGL()
 
     # set display formats in whatever is selected,
@@ -311,6 +339,9 @@ class MWsemantics(MainWindow):
     # lots of things ???
     def orientView(self, a0=None):
         print "MainWindow.orientView(string):", a0
+        self.glpane.quat = Q(1,0,0,0)
+        self.glpane.pov = V(0,0,0)
+        self.glpane.paintGL()
 
 
     # functions from the "Select" menu
@@ -430,8 +461,65 @@ class MWsemantics(MainWindow):
     # functions from the buttons down the right side of the display
     ###############################################################
 
-    def toggleToolbar(self):
-        print 'toggleToolbar'
+    def toggleFileTbar(self):
+        if self.FileToolBar.isVisible():
+            self.FileToolBar.hide()
+        else:
+            self.FileToolBar.show()
+
+    def toggleEditTbar(self):
+        if self.editToolbar.isVisible():
+            self.editToolbar.hide()
+        else:
+            self.editToolbar.show()
+
+    def toggleViewTbar(self):
+        if self.viewToolbar.isVisible():
+            self.viewToolbar.hide()
+        else:
+            self.viewToolbar.show()
+
+    def toggleDisplayTbar(self):
+        if self.displayToolbar.isVisible():
+            self.displayToolbar.hide()
+        else:
+            self.displayToolbar.show()
+
+    def toggleModifyTbar(self):
+        if self.modifyToolbar.isVisible():
+            self.modifyToolbar.hide()
+        else:
+            self.modifyToolbar.show()
+
+    def toggleTbar(self):
+        if self.toggleDisplayToolbar.isVisible():
+            self.toggleDisplayToolbar.hide()
+        else:
+            self.toggleDisplayToolbar.show()
+
+    def toggleTbar(self):
+        if self.cookieCutterToolbar.isVisible():
+            self.cookieCutterToolbar.hide()
+        else:
+            self.cookieCutterToolbar.show()
+
+    def toggleTbar(self):
+        if self.sketchAtomToolbar.isVisible():
+            self.sketchAtomToolbar.hide()
+        else:
+            self.sketchAtomToolbar.show()
+
+    def toggleFeaturesTbar(self):
+        if self.featuresToolbar.isVisible():
+            self.featuresToolbar.hide()
+        else:
+            self.featuresToolbar.show()
+
+    def toggleSelectTbar(self):
+        if self.selectToolbar.isVisible():
+            self.selectToolbar.hide()
+        else:
+            self.selectToolbar.show()
 
     # set up cookiecutter mode
     def toolsCookieCut(self):
@@ -613,7 +701,12 @@ class MWsemantics(MainWindow):
         self.simCntl = runSim(self.assy)
         self.simCntl.show()
 
-    def viewFitToWindow(self):
+    def setViewFitToWindow(self):
+        """ Fit to Window """
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+        
+    def setViewRecenter(self):
         """ Fit to Window """
 	QMessageBox.warning(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")

@@ -106,7 +106,7 @@ Mendeleev=[ \
       [[2, 114, None]]),
  elem("B",  "Boron",      17.949,  2.0,  [0.3, 0.3, 1.0],
       [[3, 90, flat]]),
- elem("C",  "Carbon",     19.925,  1.84, [0.04, 0.2, 0.0],
+ elem("C",  "Carbon",     19.925,  1.84, [0.3, 0.5, 0.0],
       [[4, 77, tetra4], [3, 71, flat], [2, 66, straight], [1, 59, None]]),
  elem("N",  "Nitrogen",   23.257,  1.55, [0.84, 0.37, 1.0],
       [[3, 70, tetra3], [2, 62, tetra2], [1, 54.5, None] ]),
@@ -122,7 +122,7 @@ Mendeleev=[ \
       [[2, 160, None]]),
  elem("Al", "Aluminum",   44.7997, 2.5,  [0.5, 0.5, 0.9],
       [[3, 143, flat]]),
- elem("Si", "Silicon",    46.6245, 2.25, [0.2, 0.2, 0.2],
+ elem("Si", "Silicon",    46.6245, 2.25, [0.3, 0.3, 0.3],
       [[4, 117, tetra4]]),
  elem("P",  "Phosphorus", 51.429,  2.11, [0.73, 0.32, 0.87],
       [[3, 110, tetra3]]),
@@ -488,8 +488,7 @@ class bond:
                 drawline(color2, self.a2pos, self.c2)
                 drawline(red, self.c1, self.c2)
         if disp == diCPK:
-            drawcylinder(col or bondColor, self.a1pos, self.a2pos,
-                         0.1, self.picked)
+            drawcylinder(col or bondColor, self.a1pos, self.a2pos, 0.1)
         if disp == diTUBES:
             v1 = self.atom1.display != diINVISIBLE
             v2 = self.atom2.display != diINVISIBLE
@@ -602,12 +601,12 @@ class molecule:
         self.singlpos = array(singlpos)
         self.singlbase = self.singlpos
 
-##         # find extrema in many directions
-##         xtab = dot(atpos, ddhhXmat)
-##         mins = minimum.reduce(xtab) - 1.0
-##         maxs = maximum.reduce(xtab) + 1.0
-        
-##         self.ddhh = cat(maxs,mins)
+        # find extrema in many directions
+        xtab = dot(self.basepos, polyXmat)
+        mins = minimum.reduce(xtab) - 1.8
+        maxs = maximum.reduce(xtab) + 1.8
+
+        self.polyhedron = makePolyList(cat(maxs,mins))
 
         # and compute inertia tensor
         tensor = zeros((3,3),Float)
@@ -619,18 +618,7 @@ class molecule:
             m[2,2] += rsq
             tensor += m
         self.eval, self.evec = eigenvectors(tensor)
-
-        # find a tight bounding box, not necessarily square to space,
-        # for drawing the pick box
-        bv = transpose(self.evec)
-        pts = dot(self.basepos, bv)
-        
-        bbhi = maximum.reduce(pts) + 1.0
-        bblo = minimum.reduce(pts) - 1.0
-        c = (bbhi+bblo)/2.0
-
-        self.bbLines = dot(cubeLines*(bbhi-c) + c, self.evec)
-      
+    
         # Pick a principal axis: if square or circular, the axle;
         # otherwise the long axis (this is a heuristic)
         if len(atpos)<=1:
@@ -691,8 +679,7 @@ class molecule:
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
 
         if self.picked:
-            drawlinelist(PickedColor, self.bbLines)
-            #drawddhh(red,self.ddhh)
+            drawlinelist(PickedColor,self.polyhedron)
 
         if self.display != diDEFAULT: disp = self.display
         else: disp = o.display

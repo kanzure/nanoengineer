@@ -154,34 +154,34 @@
         <action name="editPreferencesAction"/>
     </item>
     <item text="&amp;View" name="unnamed">
-        <action name="viewHomeAction"/>
-        <action name="viewRecenterAction"/>
-        <action name="viewFitToWindowAction"/>
+        <action name="setViewHomeAction"/>
+        <action name="setViewRecenterAction"/>
+        <action name="setViewFitToWindowAction"/>
         <separator/>
         <action name="viewDefviewAction"/>
         <item text="&amp;Default Views" name="PopupMenuEditor_31" accel="">
-            <action name="viewDefviewFrontAction"/>
-            <action name="viewDefviewBackAction"/>
-            <action name="viewDefviewTopAction"/>
-            <action name="viewDefviewBottomAction"/>
-            <action name="viewDefviewRightAction"/>
-            <action name="viewDefviewLeftAction"/>
+            <action name="setViewFrontAction"/>
+            <action name="setViewBackAction"/>
+            <action name="setViewTopAction"/>
+            <action name="setViewBottomAction"/>
+            <action name="setViewRightAction"/>
+            <action name="setViewLeftAction"/>
         </item>
         <separator/>
-        <action name="viewOrthoAction"/>
-        <action name="viewPerspecAction"/>
+        <action name="setViewOrthoAction"/>
+        <action name="setViewPerspecAction"/>
         <separator/>
         <action name="viewToolbarsAction"/>
         <item text="&amp;Toolbars" name="PopupMenuEditor_42" accel="">
-            <action name="viewTbarFileAction"/>
-            <action name="viewTbarEditAction"/>
-            <action name="viewTbarViewAction"/>
-            <action name="viewTbarDisplayAction"/>
-            <action name="viewTbarSelectAction"/>
-            <action name="viewTbarJigsAction"/>
-            <action name="viewTbarModifyAction"/>
-            <action name="viewTbarToolsAction"/>
-            <action name="viewTbarHelpAction"/>
+            <action name="toggleFileTbarAction"/>
+            <action name="toggleEditTbarAction"/>
+            <action name="toggleViewTbarAction"/>
+            <action name="toggleDisplayTbarAction"/>
+            <action name="toggleSelectTbarAction"/>
+            <action name="toggleJigsTbarAction"/>
+            <action name="toggleModifyTbarAction"/>
+            <action name="toggleToolsTbarAction"/>
+            <action name="toggleHelpTbarAction"/>
         </item>
     </item>
     <item text="&amp;Display" name="unnamed">
@@ -289,9 +289,9 @@
         <property name="label">
             <string>View Toolbar</string>
         </property>
-        <action name="viewHomeAction"/>
-        <action name="viewRecenterAction"/>
-        <action name="viewFitToWindowAction"/>
+        <action name="setViewHomeAction"/>
+        <action name="setViewRecenterAction"/>
+        <action name="setViewFitToWindowAction"/>
     </toolbar>
     <toolbar dock="2">
         <property name="name">
@@ -741,7 +741,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewFitToWindowAction</cstring>
+            <cstring>setViewFitToWindowAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image15</iconset>
@@ -1259,7 +1259,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarFileAction</cstring>
+            <cstring>toggleFileTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1276,7 +1276,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarEditAction</cstring>
+            <cstring>toggleEditTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1293,7 +1293,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarViewAction</cstring>
+            <cstring>toggleViewTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1310,7 +1310,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarDisplayAction</cstring>
+            <cstring>toggleDisplayTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1327,7 +1327,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarSelectAction</cstring>
+            <cstring>toggleSelectTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1344,7 +1344,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarJigsAction</cstring>
+            <cstring>toggleJigsTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1361,7 +1361,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarToolsAction</cstring>
+            <cstring>toggleToolsTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1378,7 +1378,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarHelpAction</cstring>
+            <cstring>toggleHelpTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1592,7 +1592,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewOrthoAction</cstring>
+            <cstring>setViewOrthoAction</cstring>
         </property>
         <property name="text">
             <string>Ortho</string>
@@ -1603,7 +1603,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewPerspecAction</cstring>
+            <cstring>setViewPerspecAction</cstring>
         </property>
         <property name="text">
             <string>Perspective</string>
@@ -1708,7 +1708,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewDefviewFrontAction</cstring>
+            <cstring>setViewFrontAction</cstring>
         </property>
         <property name="text">
             <string>Front</string>
@@ -1719,7 +1719,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewDefviewBackAction</cstring>
+            <cstring>setViewBackAction</cstring>
         </property>
         <property name="text">
             <string>Back</string>
@@ -1730,7 +1730,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewDefviewTopAction</cstring>
+            <cstring>setViewTopAction</cstring>
         </property>
         <property name="text">
             <string>Top</string>
@@ -1741,7 +1741,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewDefviewBottomAction</cstring>
+            <cstring>setViewBottomAction</cstring>
         </property>
         <property name="text">
             <string>Bottom</string>
@@ -1752,7 +1752,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewDefviewRightAction</cstring>
+            <cstring>setViewRightAction</cstring>
         </property>
         <property name="text">
             <string>Right</string>
@@ -1763,7 +1763,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewDefviewLeftAction</cstring>
+            <cstring>setViewLeftAction</cstring>
         </property>
         <property name="text">
             <string>Left</string>
@@ -1774,7 +1774,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewHomeAction</cstring>
+            <cstring>setViewHomeAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image54</iconset>
@@ -1794,7 +1794,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewRecenterAction</cstring>
+            <cstring>setViewRecenterAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image55</iconset>
@@ -1825,7 +1825,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>viewTbarModifyAction</cstring>
+            <cstring>toggleModifyTbarAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -2419,6 +2419,12 @@
         <slot>modifyDeleteBond()</slot>
     </connection>
     <connection>
+        <sender>modifyEdgeBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyEdgeBond()</slot>
+    </connection>
+    <connection>
         <sender>modifyHydrogenateAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -2497,6 +2503,120 @@
         <slot>selectNone()</slot>
     </connection>
     <connection>
+        <sender>setViewBackAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewBack()</slot>
+    </connection>
+    <connection>
+        <sender>setViewBottomAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewBottom()</slot>
+    </connection>
+    <connection>
+        <sender>setViewFrontAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewFront()</slot>
+    </connection>
+    <connection>
+        <sender>setViewHomeAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewHome()</slot>
+    </connection>
+    <connection>
+        <sender>setViewLeftAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewLeft()</slot>
+    </connection>
+    <connection>
+        <sender>setViewOrthoAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewOrtho()</slot>
+    </connection>
+    <connection>
+        <sender>setViewPerspecAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewPerspec()</slot>
+    </connection>
+    <connection>
+        <sender>setViewRecenterAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewRecenter()</slot>
+    </connection>
+    <connection>
+        <sender>setViewRightAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewRight()</slot>
+    </connection>
+    <connection>
+        <sender>setViewTopAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewTop()</slot>
+    </connection>
+    <connection>
+        <sender>toggleDisplayTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleDisplayTbar()</slot>
+    </connection>
+    <connection>
+        <sender>toggleEditTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleEditTbar()</slot>
+    </connection>
+    <connection>
+        <sender>toggleFileTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleFileTbar()</slot>
+    </connection>
+    <connection>
+        <sender>toggleHelpTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleHelpTbar()</slot>
+    </connection>
+    <connection>
+        <sender>toggleJigsTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleJigsTbar()</slot>
+    </connection>
+    <connection>
+        <sender>toggleModifyTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleModifyTbar()</slot>
+    </connection>
+    <connection>
+        <sender>toggleSelectTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleSelectTbar()</slot>
+    </connection>
+    <connection>
+        <sender>toggleToolsTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolsTbar()</slot>
+    </connection>
+    <connection>
+        <sender>toggleViewTbarAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleViewTbar()</slot>
+    </connection>
+    <connection>
         <sender>toolsBackUpAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -2545,130 +2665,10 @@
         <slot>toolsStartOver()</slot>
     </connection>
     <connection>
-        <sender>viewDefviewBackAction</sender>
+        <sender>setViewFitToWindowAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>orientView()</slot>
-    </connection>
-    <connection>
-        <sender>viewDefviewBottomAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>orientView()</slot>
-    </connection>
-    <connection>
-        <sender>viewDefviewFrontAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>orientView()</slot>
-    </connection>
-    <connection>
-        <sender>viewDefviewLeftAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>orientView()</slot>
-    </connection>
-    <connection>
-        <sender>viewDefviewRightAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>orientView()</slot>
-    </connection>
-    <connection>
-        <sender>viewDefviewTopAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>orientView()</slot>
-    </connection>
-    <connection>
-        <sender>viewFitToWindowAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>viewFitToWindow()</slot>
-    </connection>
-    <connection>
-        <sender>viewHomeAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>orientView()</slot>
-    </connection>
-    <connection>
-        <sender>viewOrthoAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>viewOrtho()</slot>
-    </connection>
-    <connection>
-        <sender>viewPerspecAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>viewPerspec()</slot>
-    </connection>
-    <connection>
-        <sender>viewRecenterAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>orientView()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarDisplayAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarEditAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarFileAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarHelpAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarJigsAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarModifyAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarSelectAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarToolsAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>viewTbarViewAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>toggleToolbar()</slot>
-    </connection>
-    <connection>
-        <sender>modifyEdgeBondAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>modifyEdgeBond()</slot>
+        <slot>setViewFitToWindow()</slot>
     </connection>
 </connections>
 <includes>
@@ -2702,8 +2702,8 @@
     <slot>dispDefault()</slot>
     <slot>dispInvis()</slot>
     <slot>dispLines()</slot>
-    <slot>viewOrtho()</slot>
-    <slot>viewPerspec()</slot>
+    <slot>setViewOrtho()</slot>
+    <slot>setViewPerspec()</slot>
     <slot>dispTubes()</slot>
     <slot>dispVdW()</slot>
     <slot>elemChange(string)</slot>
@@ -2743,17 +2743,32 @@
     <slot>fileSetWorkDir()</slot>
     <slot>modifyMinimize()</slot>
     <slot>orientView( string )</slot>
-    <slot>viewFitToWindow()</slot>
+    <slot>setViewFitToWindow()</slot>
     <slot>modifyCopyBond()</slot>
-    <slot>addAtomStart()</slot>
-    <slot>toggleToolbar()</slot>
+    <slot>toggleToolsTbar()</slot>
     <slot>toolsBackUp()</slot>
     <slot>toolsStartOver()</slot>
     <slot>dispGrid()</slot>
-    <slot>orientView()</slot>
     <slot>modifyWeldMolecule()</slot>
     <slot>modifyAddBond()</slot>
     <slot>modifyEdgeBond()</slot>
+    <slot>toggleDisplayTbar()</slot>
+    <slot>toggleEditTbar()</slot>
+    <slot>toggleFileTbar()</slot>
+    <slot>toggleHelpTbar()</slot>
+    <slot>toggleJigsTbar()</slot>
+    <slot>toggleSelectTbar()</slot>
+    <slot>toggleModifyTbar()</slot>
+    <slot>toggleViewTbar()</slot>
+    <slot>addAtomStart()</slot>
+    <slot>setViewBack()</slot>
+    <slot>setViewBottom()</slot>
+    <slot>setViewFront()</slot>
+    <slot>setViewRight()</slot>
+    <slot>setViewHome()</slot>
+    <slot>setViewLeft()</slot>
+    <slot>setViewRecenter()</slot>
+    <slot>setViewTop()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

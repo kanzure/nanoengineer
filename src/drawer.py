@@ -194,9 +194,8 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
     glPopMatrix()
     glPolygonMode(GL_FRONT, GL_FILL)
 
-def drawcylinder(color, pos1, pos2, radius, picked=0, capped=0):
+def drawcylinder(color, pos1, pos2, radius, capped=0):
     global CylList, CapList
-    if picked: glEnable(GL_LIGHT2)
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
     glPushMatrix()
     vec = pos2-pos1
@@ -207,7 +206,6 @@ def drawcylinder(color, pos1, pos2, radius, picked=0, capped=0):
     glCallList(CylList)
     if capped: glCallList(CapList)
     glPopMatrix()
-    if picked: glDisable(GL_LIGHT2)
 
 def drawline(color,pos1,pos2):
     glDisable(GL_LIGHTING)
@@ -374,28 +372,60 @@ cubeLines = A([[-1,-1,-1], [-1,-1, 1],
                [-1, 1,-1], [ 1, 1,-1],
                [-1, 1, 1], [ 1, 1, 1]])
 
-ddhhXmat = A([[1, 0, 0, 1,  1, 1,  1, 0,  0, 1,  1,  1,  1],
-              [0, 1, 0, 1, -1, 0,  0, 1,  1, 1,  1, -1, -1],
-              [0, 0, 1, 0,  0, 1, -1, 1, -1, 1, -1,  1, -1]])
+# mat mult by rowvector list and max/min reduce to find extrema
+D = sqrt(2.0)/2.0
+T = sqrt(3.0)/3.0
+#              0  1  2  3   4  5   6  7   8  9  10  11  12
+#             13 14 15 16  17 18  19 20  21 22  23  24  25
+polyXmat = A([[1, 0, 0, D,  D, D,  D, 0,  0, T,  T,  T,  T],
+              [0, 1, 0, D, -D, 0,  0, D,  D, T,  T, -T, -T],
+              [0, 0, 1, 0,  0, D, -D, D, -D, T, -T,  T, -T]])
+
+polyMat = cat(transpose(polyXmat),transpose(polyXmat))
+
+polyTab = [( 9, (0,7,3), [3,0,5,2,7,1,3]),
+           (10, (0,1,4), [3,1,8,15,6,0,3]),
+           (11, (8,11,7), [4,14,21,2,5,0,4]),
+           (12, (8,4,9), [4,0,6,15,20,14,4]),
+           (22, (5,10,9), [18,13,16,14,20,15,18]),
+           (23, (10,6,11), [16,13,19,2,21,14,16]),
+           (24, (1,2,5), [8,1,17,13,18,15,8]),
+           (25, (3,6,2), [7,2,19,13,17,1,7])]
+
+def planepoint(v,i,j,k):
+    mat = V(polyMat[i],polyMat[j],polyMat[k])
+    vec = V(v[i],v[j],v[k])
+    return solve_linear_equations(mat, vec)
 
 
+def makePolyList(v):
+    xlines = [[],[],[],[],[],[],[],[],[],[],[],[]]
+    segs = []
+    for corner, edges, planes in polyTab:
+        linx = []
+        for i in range(3):
+            l,s,r = planes[2*i:2*i+3]
+            e = remainder(i+1,3)
+            p1 = planepoint(v,corner,l,r)
+            if abs(dot(p1,polyMat[s])) <= abs(v[s]):
+                p2 = planepoint(v,l,s,r)
+                linx += [p1]
+                xlines[edges[i]] += [p2]
+                xlines[edges[e]] += [p2]
+                segs += [p1,p2]
+            else:
+                p1 = planepoint(v,corner,l,s)
+                p2 = planepoint(v,corner,r,s)
+                linx += [p1,p2]
+                xlines[edges[i]] += [p1]
+                xlines[edges[e]] += [p2]
+        e=edges[0]
+        xlines[e] = xlines[e][:-2] + [xlines[e][-1],xlines[e][-2]]
+        for p1,p2 in zip(linx, linx[1:]+[linx[0]]):
+            segs += [p1,p2]
 
-def makeddhhlist(mins, maxs):
-    ax = maxs[0], mins[0], maxs[1], mins[1], maxs[2], mins[2]
-    u = maxs[3]-maxs[0], 
+    for lis in xlines:
+        segs += [lis[0],lis[3],lis[1],lis[2]]
 
-def drawddhh(color, v):
-    glPolygonMode(GL_FRONT, GL_LINE)
-    glPolygonMode(GL_BACK, GL_LINE)
-    glDisable(GL_LIGHTING)
-    glDisable(GL_CULL_FACE)
-    glColor3fv(color)
-    glBegin(GL_QUADS)
-    for s in ddhhsq:
-        glVertex3fv(take(v,s))
-    for s in ddhhtr:
-        glVertex3fv(take(v,s))
-    glEnable(GL_CULL_FACE)
-    glEnable(GL_LIGHTING)
-    glPolygonMode(GL_FRONT, GL_FILL)
+    return segs
 

@@ -9,6 +9,7 @@ onto a sphere, tracking the cursor on the sphere.
 import math, types
 from math import *
 from Numeric import *
+from LinearAlgebra import *
 
 intType = type(2)
 floType = type(2.0)
