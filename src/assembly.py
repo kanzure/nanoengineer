@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 
 """
 assembly.py -- provides class assembly, a set of molecules
@@ -108,11 +108,10 @@ class assembly:
         """Report whether this assembly (or something it contains)
         has been changed since it was last saved or loaded from a file.
         See self.changed() docstring and comments for more info.
-        Don't use or set self._modified directly! We might rename it
-        to enforce that.
-           We might also make this method query the current mode
-        to see if it has changes which belong in this assembly before
-        it should be saved.
+        Don't use or set self._modified directly!
+           #e We might also make this method query the current mode
+        to see if it has changes which ought to be put into this assembly
+        before it's saved.
         """
         return self._modified
     
@@ -122,6 +121,11 @@ class assembly:
         produce meaningfully different file contents than if that had been
         done before the change, or (more generally) that the change matters
         for any other kind of observer, like the model tree or the glpane.
+        [Note: as of 050107, it's unlikely that this is called everywhere
+         it needs to be. It's called in exactly the same places where the
+         prior code set self.modified = 1. In the future, this will be called
+         from lower-level methods than it is now, making complete coverage
+         easier. #e]
         """
         # bruce 050107 added this; as of now, all method names (in all
         # classes) of the form changed or changed_xxx are hereby reserved
@@ -137,7 +141,7 @@ class assembly:
             #  event), so we'll review them for speed at that time. For now,
             #  only saving this assembly to file (or loading or clearing it)
             # is permitted to reset this flag to 0.]
-            self.w.history.message("(assembly has been modified)") #e revise terminology?
+            self.w.history.message("(fyi: part now has unsaved changes)") #e revise terminology?
             pass
         return
 

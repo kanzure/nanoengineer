@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 
 '''
 chunk.py -- provides class molecule, for a chunk of atoms
@@ -1063,7 +1063,8 @@ class molecule(Node, InvalMixin):
         but specifically the set of atoms or atomic radii
         (for purposes of selection), have changed.
            Note that changeapp does not itself call self.assy.changed(),
-        since it's not clear that would always be correct to do.
+        since that is not always correct to do (e.g., selecting an atom
+        should call changeapp(), but not assy.changed(), on its molecule).
         """ 
         self.havelist = 0
         if atoms: #bruce 041207 added this arg and its effect
