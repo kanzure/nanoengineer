@@ -496,9 +496,41 @@ class atom:
         # bruce 041217 revised XYZ format to %.2f, added bad-valence info
         # (for the same atoms as self.bad(), but in case conditions are added to
         #  that, using independent code).
+        
+        if self == self.molecule.assy.ppa2: return
+            
         xyz = self.posn()
         ainfo = ("Atom #%s [%s] [X = %.2f] [Y = %.2f] [Z = %.2f]" % \
-            ( self.key, self.element.name, xyz[0], xyz[1], xyz[2] ))
+            ( self, self.element.name, xyz[0], xyz[1], xyz[2] ))
+        
+        # ppa is the last atom picked.  
+        # It is reset to None when entering SELATOMS mode.
+        # Add the distance info between self and ppa.
+        if self.molecule.assy.ppa2:
+            try:
+                ainfo = ainfo + ". Distance to Atom #"\
+                                    + str (self.molecule.assy.ppa2)\
+                                    + " is "\
+                                    + str(vlen(self.posn()-self.molecule.assy.ppa2.posn()))\
+                                    + " Angstroms."
+            except: pass
+            
+            if self.molecule.assy.ppa3:
+                try:
+                    ainfo = ainfo + "The angle between #"\
+                                    + str (self)\
+                                    + ", #"\
+                                    + str (self.molecule.assy.ppa2)\
+                                    + " and #"\
+                                    + str (self.molecule.assy.ppa3)\
+                                    + " is  X degrees."
+#                                    + str(vang(self, self.molecule.assy.ppa2, self.molecule.assy.ppa2))
+                except: pass
+            
+            self.molecule.assy.ppa3 = self.molecule.assy.ppa2
+        
+        self.molecule.assy.ppa2 = self
+            
         if len(self.bonds) != self.element.numbonds:
             # I hope this can't be called for singlets! [bruce 041217]
             ainfo += platform.fix_plurals(" (has %d bond(s), should have %d)" % \
