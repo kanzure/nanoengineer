@@ -112,7 +112,7 @@ class modelTree(QListView):
         if listItem: self.selectedItem = listItem.object
         else: self.selectedItem = None
         self.menu.popup(pos, 1)
-        self.update
+        self.update()
 
     def rename(self, listItem, col, text):
         if col != 0: return

@@ -11,6 +11,8 @@ from modes import *
 from VQT import *
 from chem import *
 import drawer
+from constants import elemKeyTab
+
 
 class depositMode(basicMode):
     """ This class is used to manually add atoms to create any structure.
@@ -20,15 +22,12 @@ class depositMode(basicMode):
     # class constants
     backgroundColor = 74/256.0, 187/256.0, 227/256.0
     gridColor = 74/256.0, 187/256.0, 227/256.0
-    modename = 'DEPOSIT' #e we can rename this to SKETCH later, when we modify MWSemantics
-    msg_modename = "Deposit Atoms mode" # bruce 040923 renamed this after checking with Josh
-    default_mode_status_text = "Mode: Deposit Atoms"
+    modename = 'DEPOSIT' 
+    msg_modename = "Deposit mode" 
+    default_mode_status_text = "Mode: Deposit"
 
-    # no __init__ method needed... once we confirm that the following code is obsolete [bruce 040923]
-    
     def __init__(self, glpane):
         basicMode.__init__(self, glpane)
-	self.newMolecule = None ##e bruce 040922: I think this is not used anywhere... but I left it in for now
 
     # methods related to entering this mode
     
@@ -41,39 +40,46 @@ class depositMode(basicMode):
         self.o.setDisplay(diTUBES)
         self.o.assy.selwhat = 0
         self.new = None
-        self.o.singlet = None
+        self.o.selatom = None
         self.modified = 0 # bruce 040923 new code
     
-    # init_gui handles all the GUI display when entering this mode [mark 041004]    
+    # init_gui does all the GUI display when entering this mode [mark 041004]
     def init_gui(self):
         self.o.setCursor(self.w.DepositAtomCursor) 
         self.w.depositAtomDashboard.show()
 
-    # methods related to exiting this mode [bruce 040922 made these from old Done method, and added new code; there was no Flush method]
+    # methods related to exiting this mode [bruce 040922 made these from
+    # old Done method, and added new code; there was no Flush method]
 
     def haveNontrivialState(self):
         return self.modified # bruce 040923 new code
 
     def StateDone(self):
-        return None # we never have undone state, but we have to implement this method, since our haveNontrivialState can return True
+        return None
+    # we never have undone state, but we have to implement this method,
+    # since our haveNontrivialState can return True
 
     def StateCancel(self):
-        # to do this correctly, we'd need to remove the atoms we added to the assembly;
-        # we don't attempt that yet [bruce 040923, verified with Josh]
+        # to do this correctly, we'd need to remove the atoms we added
+        # to the assembly; we don't attempt that yet [bruce 040923,
+        # verified with Josh]
         change_desc = "your changes are"
-            #e could use the count of changes in self.modified, to say "%d changes are", or "change is"...
-        msg = "%s Cancel not implemented -- %s still there.\nYou can only leave this mode via Done." % \
+            #e could use the count of changes in self.modified,
+            #to say "%d changes are", or "change is"...
+        msg = "%s Cancel not implemented -- %s still there.\n\
+        You can only leave this mode via Done." % \
               ( self.msg_modename, change_desc )
         self.warning( msg, bother_user_with_dialog = 1)
         return True # refuse the Cancel
     
-    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+    # restore_gui handles all the GUI display when leavinging this mode
+    # [mark 041004]
     def restore_gui(self):
         self.w.depositAtomDashboard.hide()
 
     def restore_patches(self):
         self.o.display = self.saveDisp
-        self.o.singlet = None
+        self.o.selatom = None
 
     def clear(self):
         self.new = None
@@ -81,23 +87,9 @@ class depositMode(basicMode):
     # event methods
     
     def keyPress(self,key):
-        ### bruce 040924: I changed self.w.elTab to elemKeyTab, since self.w.elTab doesn't exist (no other ref to elTab in the code,
-        # tho there was a month ago); but my guess at the fix is incomplete, e.g. 'H' is in elemKeyTab but not in whatever
-        # table the setElement call uses, so I added the try/except and the warning. But it turns out that if you see the warning,
-        # the failed setElement call has probably messed up your session permanently, so this partial fix is worse than just refusing...
-        # so never mind, I'll just refuse (but only if the key is found in the table -- otherwise we even catch modifier keys being pressed!).
-        from constants import elemKeyTab
-        for sym, code, num in elemKeyTab: # was self.w.elTab, but that no longer exists
+        for sym, code, num in elemKeyTab:
             if key == code:
-                if "what you want" is "for Atom to stop being able to add any atoms": # (I presume this is always False :-)
-                    try:
-                        self.w.setElement(sym)
-                    except:
-                        self.warning("internal error in Sketch mode keypress %r -- nothing done\n" \
-                                     "(except that you might have to quit Atom before you can make new atoms again...)" % \
-                                     ((sym, code, num),) ) # bruce 040924
-                else:
-                    self.warning("Sketch mode keypress for setElement doesn't work now -- nothing done") # bruce 040924
+                self.w.setElement(num)
         return
 
     def getCoords(self, event):
@@ -119,9 +111,9 @@ class depositMode(basicMode):
 
     def bareMotion(self, event):
         doPaint = 0
-        if self.o.singlet:
-            self.o.singlet.molecule.changeapp()
-            self.o.singlet = None
+        if self.o.selatom:
+            self.o.selatom.molecule.changeapp()
+            self.o.selatom = None
             doPaint = 1
         p1, p2 = self.o.mousepoints(event)
         z = norm(p1-p2)
@@ -130,27 +122,38 @@ class depositMode(basicMode):
         mat = transpose(V(x,y,z))
         for mol in self.o.assy.molecules:
             if mol.display != diINVISIBLE:
-                a = mol.findSinglets(p2, mat, TubeRadius, -TubeRadius)
+                a = mol.findatoms(p2, mat, TubeRadius, -TubeRadius)
                 if a:
                     mol.changeapp()
-                    self.o.singlet = a
+                    self.o.selatom = a
                     doPaint = 1
                     break
         if doPaint: self.o.paintGL()        
 	
     def leftDown(self, event):
-        """Move the selected object(s) in the plane of the screen following
-        the mouse.
+        """If there's nothing nearby, deposit a new atom.
+        If cursor is on a singlet, deposit an atom bonded to it.
+        If it is a real atom, drag it around.
         """
-        # bruce 040923: we don't bother counting this motion in self.modified.
-        # It won't be undone by Cancel, and that fact won't be warned about. Someday we'll fix that.
         self.o.SaveMouse(event)
         self.picking = True
         p1, p2 = self.o.mousepoints(event)
         self.dragdist = 0.0
+        a = self.o.selatom
+        el =  PeriodicTable[self.w.Element]
+        if a: # if something was "lit up"
+            self.modified = 1             
+            if a.element == Singlet:
+                self.attach(el, self.o.selatom)
+            # else we've grabbed an atom
+        else:
+            atomPos = self.getCoords(event)
+            self.selatom = oneUnbonded(el, self.o.assy, atomPos)
+        self.w.update()
+                        
 
     def leftDrag(self, event):
-        """ Press left mouse button down to add an atom
+        """ 
 	"""
        
         w=self.o.width+0.0
@@ -164,43 +167,23 @@ class depositMode(basicMode):
         self.o.paintGL()
 
     def leftUp(self, event):
-        self.EndPick(event, 1)
-        
-    def EndPick(self, event, selSense):
-        """bond atom if it's close to something
-        """
-        if not self.picking: return
-        self.picking = False
-        el =  PeriodicTable[self.w.Element]
-
         atomPos = self.getCoords(event)
         p1, p2 = self.o.mousepoints(event)
 
-        if self.dragdist<70000: # let it drag
-            # didn't move much, call it a click
-            if selSense == 0:
-                self.o.assy.pick(p1,norm(p2-p1))
-                self.o.assy.kill()
-            if selSense == 1:
-                if self.o.singlet:
-                    self.modified += 1 # bruce 040923; partly a guess -- Josh, did I get these in the right places?
-                        # If I missed one, the mode will fail to warn that it made changes which Cancel won't undo.
-                    self.attach(el, self.o.singlet)
-                elif not self.new:
-                    self.modified += 1 # bruce 040923; a guess (that this modifies something which in theory Cancel ought to undo)
-                    oneUnbonded(el, self.o.assy, atomPos)
-                self.new = None
-            if selSense == 2: print '????'
+        self.w.update()
 
-        else:
-            if not self.new:
-                self.modified += 1 # bruce 040923; a guess
-                oneUnbonded(el, self.o.assy, atomPos)
-            self.new = None
-            
-        self.o.paintGL()                  
+    ## delete with cntl-left mouse
+    def leftCntlDown(self, event):
+        a = self.o.selatom
+        if a:
+            if a.element == Singlet: return
+            m = a.molecule
+            a.kill()
+            if m.atoms: m.shakedown()
+            else: m.kill()
+        self.w.update()
 
-    def leftDouble(self, event):
+    def middleDouble(self, event):
         """ End deposit mode
 	"""
 	self.Done()
@@ -252,10 +235,19 @@ class depositMode(basicMode):
         if el.base:
             # There is at least one other bond
             # this rotates the atom to match the bond formed above
-            r = singlet.posn() - pos           
+            r = singlet.posn() - pos
             rq = Q(r,el.base)
+            # if the other atom has any other bonds, align 60 deg off them
+            if len(a1.bonds)>1:
+                # don't pick ourself
+                if a==a1.bonds[0].other(a1):
+                    a2pos = a1.bonds[1].other(a1).posn()
+                else: a2pos = a1.bonds[0].other(a1).posn()
+                s1pos = pos+(rq + el.quats[0] - rq).rot(r)
+                spin = twistor(r,s1pos-pos, a2pos-a1.posn()) + Q(r, pi/3.0)
+            else: spin = Q(1,0,0,0)
             for q in el.quats:
-                q = rq + q - rq
+                q = rq + q - rq - spin
                 x = atom('X', pos+q.rot(r), mol)
                 mol.bond(a,x)
         
@@ -367,9 +359,7 @@ class depositMode(basicMode):
         
     def makeMenus(self):
         
-        self.Menu1 = self.makemenu([('Cancel', self.Cancel),
-                                    ('Start Over', self.StartOver),
-                                    ('Backup', self.Backup),
+        self.Menu1 = self.makemenu([('dump', self.dump),
                                     None,
                                     ('Move', self.move),
                                     ('Double bond', self.skip),
@@ -387,12 +377,18 @@ class depositMode(basicMode):
                                     ('Separate', self.o.assy.modifySeparate)])
 
     def move(self):
-        # go into move mode [how to do that was modified by bruce 040923]
         self.Done(new_mode = 'MODIFY')
-##        self.Done()
-##        self.o.setMode('MODIFY')
                                     
     def skip(self):
         pass
+
+    def dump(self):
+        if self.selatom:
+            m = self.selatom.molecule
+            print "mol", m.name, len(m.atoms), len(m.atlist), len(m.curpos)
+            for a in m.atlist:
+                print a
+                for b in a.bonds:
+                    print b
 
     pass # end of class depositMode

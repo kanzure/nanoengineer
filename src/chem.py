@@ -49,7 +49,8 @@ def povpoint(p):
 
 
 class elem:
-    """one of these for each element type -- warning, order of creation matters, since it sets eltnum member!"""
+    """one of these for each element type --
+    warning, order of creation matters, since it sets eltnum member!"""
     def __init__(self, sym, n, m, rv, col, bn):
         """called from a table in the source
         
@@ -276,11 +277,13 @@ class atom:
             drawsphere(color, pos, rad, level)
         rad *= 1.1
         if disp == diTUBES:
-            if len(self.bonds)<4:
-                if self == win.singlet:
+            if self == win.selatom:
+                if self.element == Singlet:
                     drawsphere(LEDon, pos, rad, level)
                 else:
-                    drawsphere(color, pos, rad, level)
+                    drawsphere(orange, pos, rad*1.7, level)
+                    
+            else: drawsphere(color, pos, rad, level)
             rad *= 1.8
         if self.picked:
             drawwiresphere(PickedColor, pos, rad)
@@ -298,12 +301,14 @@ class atom:
         element-dependent one
         return that and radius to use in a tuple
         """
-        if self.display == diDEFAULT: disp=dispdef
-        else: disp=self.display
+        if self.element == Singlet:
+            disp,rad = self.bonds[0].other(self).howdraw(dispdef)
+        else:
+            if self.display == diDEFAULT: disp=dispdef
+            else: disp=self.display
         rad = self.element.rvdw
         if disp != diVDW: rad=rad*CPKvdW
         if disp == diTUBES: rad = TubeRadius
-        
         return (disp, rad)
 
     def writemmp(self, atnums, alist, f):
@@ -506,6 +511,7 @@ class bond:
     def rebond(self, old, new):
         if self.atom1 == old: self.atom1 = new
         if self.atom2 == old: self.atom2 = new
+        new.bonds += [self]
         self.__init__(self.atom1, self.atom2)
         
 
@@ -595,6 +601,9 @@ class bond:
                            povpoint(a2pos) + "," +
                            povpoint(color2) + ")\n")
 
+    def __str__(self):
+        return str(self.atom1) + " <--> " + str(self.atom2)
+
 
 # I use "molecule" and "part" interchangeably throughout the program.
 # this is the class intended to represent rigid collections of
@@ -650,11 +659,13 @@ class molecule(Node):
             self.basepos = self.curpos = []
             return
         atpos = []
+        atlist = []
         singlets = []
         singlpos = []
         for a,i in zip(self.atoms.values(),range(len(self.atoms))):
             pos = a.posn()
             atpos += [pos]
+            atlist += [a]
             a.index = i
             a.xyz = 'no'
             if a.element == Singlet:
@@ -670,6 +681,7 @@ class molecule(Node):
         # make the positions relative to the center
         self.basepos = atpos-self.center
         self.curpos = atpos
+        self.atlist = array(atlist, PyObject)
         self.singlets = array(singlets, PyObject)
         self.singlpos = array(singlpos)
         self.singlbase = self.singlpos
@@ -870,6 +882,7 @@ class molecule(Node):
             self.havelist = 0
 
     def kill(self):
+        self.unpick()
         Node.kill(self)
         try:
             self.assy.molecules.remove(self)
@@ -878,6 +891,18 @@ class molecule(Node):
 
     def icon(self, treewidget):
         return treewidget.moleculeIcon
+
+    # point is some point on the line of sight
+    # matrix is a rotation matrix with z along the line of sight,
+    # positive z out of the plane
+    # return positive points only, sorted by distance
+    def findatoms(self, point, matrix, radius, cutoff):
+        v = dot(self.curpos-point,matrix)
+        r = sqrt(v[:,0]**2 + v[:,1]**2)
+        i = argmax(v[:,2] - 100000.0*(r>radius))
+        if r[i]>radius: return None
+        if v[i,2]<cutoff: return None
+        return self.atlist[i]
 
 
     # point is some point on the line of sight
@@ -958,6 +983,7 @@ class molecule(Node):
     def edit(self):
         cntl = MoleculeProp(self)    
         cntl.exec_loop()
+        self.assy.mt.update()
 
 
     def __str__(self):
@@ -975,7 +1001,7 @@ def oneUnbonded(elem, assy, pos):
             mol.bond(a,x)
     assy.addmol(mol)
 
-    return mol
+    return a
     
                      
 # this code knows where to place missing bonds in carbon

@@ -175,6 +175,7 @@ class GLPane(QGLWidget, modeMixin):
         # multiple windows on the same assembly
         self.display = diVDW
         self.singlet = None
+        self.selatom = None # josh 10/11 supports deposit
 
         self.makeCurrent()
 
