@@ -91,7 +91,7 @@
                                         <cstring>ambLight1LCD</cstring>
                                     </property>
                                     <property name="smallDecimalPoint">
-                                        <bool>true</bool>
+                                        <bool>false</bool>
                                     </property>
                                     <property name="segmentStyle">
                                         <enum>Flat</enum>
@@ -148,7 +148,7 @@
                                         <cstring>diffuseLight1LCD</cstring>
                                     </property>
                                     <property name="smallDecimalPoint">
-                                        <bool>true</bool>
+                                        <bool>false</bool>
                                     </property>
                                     <property name="segmentStyle">
                                         <enum>Flat</enum>
@@ -263,7 +263,7 @@
                                         <cstring>diffuseLight2LCD</cstring>
                                     </property>
                                     <property name="smallDecimalPoint">
-                                        <bool>true</bool>
+                                        <bool>false</bool>
                                     </property>
                                     <property name="segmentStyle">
                                         <enum>Flat</enum>
@@ -280,7 +280,7 @@
                                         <cstring>ambLight2LCD</cstring>
                                     </property>
                                     <property name="smallDecimalPoint">
-                                        <bool>true</bool>
+                                        <bool>false</bool>
                                     </property>
                                     <property name="segmentStyle">
                                         <enum>Flat</enum>
@@ -326,7 +326,7 @@
                                 <cstring>textLabel2_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Light Source #2</string>
+                                <string>Light Source #2:</string>
                             </property>
                         </widget>
                         <widget class="QLabel">
@@ -412,7 +412,7 @@
                                         <cstring>diffuseLight3LCD</cstring>
                                     </property>
                                     <property name="smallDecimalPoint">
-                                        <bool>true</bool>
+                                        <bool>false</bool>
                                     </property>
                                     <property name="segmentStyle">
                                         <enum>Flat</enum>
@@ -429,7 +429,7 @@
                                         <cstring>ambLight3LCD</cstring>
                                     </property>
                                     <property name="smallDecimalPoint">
-                                        <bool>true</bool>
+                                        <bool>false</bool>
                                     </property>
                                     <property name="segmentStyle">
                                         <enum>Flat</enum>
@@ -475,7 +475,7 @@
                                 <cstring>textLabel2_3</cstring>
                             </property>
                             <property name="text">
-                                <string>Light Source #3</string>
+                                <string>Light Source #3:</string>
                             </property>
                         </widget>
                         <widget class="QLabel">

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\LightingToolDialog.ui'
 #
-# Created: Fri Mar 11 16:55:13 2005
+# Created: Mon Mar 14 12:14:51 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,7 +45,7 @@ class LightingToolDialog(QDialog):
         layout33 = QGridLayout(None,1,1,0,6,"layout33")
 
         self.ambLight1LCD = QLCDNumber(self.frame1_2,"ambLight1LCD")
-        self.ambLight1LCD.setSmallDecimalPoint(1)
+        self.ambLight1LCD.setSmallDecimalPoint(0)
         self.ambLight1LCD.setSegmentStyle(QLCDNumber.Flat)
         self.ambLight1LCD.setProperty("value",QVariant(1))
         self.ambLight1LCD.setProperty("intValue",QVariant(1))
@@ -71,7 +71,7 @@ class LightingToolDialog(QDialog):
         layout33.addWidget(self.diffuseLight1SL,1,0)
 
         self.diffuseLight1LCD = QLCDNumber(self.frame1_2,"diffuseLight1LCD")
-        self.diffuseLight1LCD.setSmallDecimalPoint(1)
+        self.diffuseLight1LCD.setSmallDecimalPoint(0)
         self.diffuseLight1LCD.setSegmentStyle(QLCDNumber.Flat)
         self.diffuseLight1LCD.setProperty("value",QVariant(1))
         self.diffuseLight1LCD.setProperty("intValue",QVariant(1))
@@ -118,7 +118,7 @@ class LightingToolDialog(QDialog):
         layout36.addWidget(self.ambLight2SL,0,0)
 
         self.diffuseLight2LCD = QLCDNumber(self.frame5,"diffuseLight2LCD")
-        self.diffuseLight2LCD.setSmallDecimalPoint(1)
+        self.diffuseLight2LCD.setSmallDecimalPoint(0)
         self.diffuseLight2LCD.setSegmentStyle(QLCDNumber.Flat)
         self.diffuseLight2LCD.setProperty("value",QVariant(1))
         self.diffuseLight2LCD.setProperty("intValue",QVariant(1))
@@ -126,7 +126,7 @@ class LightingToolDialog(QDialog):
         layout36.addWidget(self.diffuseLight2LCD,1,1)
 
         self.ambLight2LCD = QLCDNumber(self.frame5,"ambLight2LCD")
-        self.ambLight2LCD.setSmallDecimalPoint(1)
+        self.ambLight2LCD.setSmallDecimalPoint(0)
         self.ambLight2LCD.setSegmentStyle(QLCDNumber.Flat)
         self.ambLight2LCD.setProperty("value",QVariant(1))
 
@@ -181,7 +181,7 @@ class LightingToolDialog(QDialog):
         layout39.addWidget(self.diffuseLight3SL,1,0)
 
         self.diffuseLight3LCD = QLCDNumber(self.frame6,"diffuseLight3LCD")
-        self.diffuseLight3LCD.setSmallDecimalPoint(1)
+        self.diffuseLight3LCD.setSmallDecimalPoint(0)
         self.diffuseLight3LCD.setSegmentStyle(QLCDNumber.Flat)
         self.diffuseLight3LCD.setProperty("value",QVariant(1))
         self.diffuseLight3LCD.setProperty("intValue",QVariant(1))
@@ -189,7 +189,7 @@ class LightingToolDialog(QDialog):
         layout39.addWidget(self.diffuseLight3LCD,1,1)
 
         self.ambLight3LCD = QLCDNumber(self.frame6,"ambLight3LCD")
-        self.ambLight3LCD.setSmallDecimalPoint(1)
+        self.ambLight3LCD.setSmallDecimalPoint(0)
         self.ambLight3LCD.setSegmentStyle(QLCDNumber.Flat)
         self.ambLight3LCD.setProperty("value",QVariant(1))
 
@@ -249,11 +249,11 @@ class LightingToolDialog(QDialog):
         self.textLabel1_4.setText(self.__tr("Ambient Brightness:"))
         self.textLabel1_3_2.setText(self.__tr("Diffuse Brightness:"))
         self.light2CB.setText(self.__tr("On"))
-        self.textLabel2_2.setText(self.__tr("Light Source #2"))
+        self.textLabel2_2.setText(self.__tr("Light Source #2:"))
         self.textLabel1_2.setText(self.__tr("Ambient Brightness:"))
         self.textLabel1_3_3.setText(self.__tr("Diffuse Brightness:"))
         self.light3CB.setText(self.__tr("On"))
-        self.textLabel2_3.setText(self.__tr("Light Source #3"))
+        self.textLabel2_3.setText(self.__tr("Light Source #3:"))
         self.textLabel1_2_2.setText(self.__tr("Ambient Brightness:"))
         self.textLabel1_3_3_2.setText(self.__tr("Diffuse Brightness:"))
 
