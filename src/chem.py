@@ -387,6 +387,12 @@ class atom:
         if dist<0: return None
         return dist
 
+    def getinfo(self):
+        # Return information about the selected atom for the msgbar [mark 2004-10-14]
+        xyzstr = self.posn()
+        ainfo = "Atom #" + str (self.key ) + " [" + self.element.name + "] [X = " + str(xyzstr[0]) + "] [Y = " + str(xyzstr[1]) + "] [Z = " + str(xyzstr[2]) + "]"
+        return ainfo
+
     def pick(self):
         """make the atom selected
         """
@@ -395,11 +401,8 @@ class atom:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
             self.molecule.changeapp()
-            # Print information about the selected atom in the msgbar [mark 041005]
-            xyzstr = self.posn()
-            self.molecule.assy.w.msgbarLabel.setText( 
-                "Atom #" + str (self.key ) + ", " + self.element.name + 
-                ", X = " + str(xyzstr[0]) + ", Y = " + str(xyzstr[1]) + ", Z = " + str(xyzstr[2]))
+            # Print information about the selected atom in the msgbar [mark 2004-10-14]
+            self.molecule.assy.w.msgbarLabel.setText(self.getinfo())
                 
     def unpick(self):
         """make the atom unselected
@@ -941,6 +944,21 @@ class molecule(Node):
 
     def seticon(self, treewidget):
         self.icon = treewidget.moleculeIcon
+        
+    def getinfo(self):
+        # Return information about the selected moledule for the msgbar [mark 2004-10-14]
+        minfo =  "Molecule Name: [" + str (self.name) + "]     Total Atoms: " + str(len(self.atoms)) + " "
+        ele2Num = {}
+        # Calculating the number of element types in this molecule.
+        for a in self.atoms.itervalues():
+            if not ele2Num.has_key(a.element.symbol): ele2Num[a.element.symbol] = 1 # New element found
+            else: ele2Num[a.element.symbol] += 1 # Increment element
+        # String construction for each element to be displayed.
+        for item in ele2Num.iteritems():
+            eleStr = "[" + item[0] + ": " + str(item[1]) + "] "
+            minfo += eleStr            
+        return minfo
+
 
     def pick(self):
         """select the molecule.
@@ -950,9 +968,9 @@ class molecule(Node):
             self.assy.selmols.append(self)
             # may have changed appearance of the molecule
             self.havelist = 0
+
             # print molecule info on the msgbar. - Mark [2004-10-14]
-            self.assy.w.msgbarLabel.setText(
-                "Molecule Name: [" + str (self.name) + "]     Total Atoms = " + str(len(self.atoms)))            
+            self.assy.w.msgbarLabel.setText(self.getinfo())
 
     def unpick(self):
         """unselect the molecule.
