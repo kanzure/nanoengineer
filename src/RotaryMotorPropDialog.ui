@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>357</width>
-            <height>332</height>
+            <height>335</height>
         </rect>
     </property>
     <property name="caption">
@@ -38,45 +38,6 @@
         </property>
         <property name="alignment">
             <set>AlignVCenter|AlignRight</set>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>colorPixmapLabel</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>260</x>
-                <y>70</y>
-                <width>40</width>
-                <height>22</height>
-            </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>175</red>
-                <green>175</green>
-                <blue>175</blue>
-            </color>
-        </property>
-        <property name="scaledContents">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>colorSelectorPushButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>310</x>
-                <y>70</y>
-                <width>30</width>
-                <height>22</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>...</string>
         </property>
     </widget>
     <widget class="QLabel">
@@ -612,10 +573,49 @@
             <bool>false</bool>
         </property>
     </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>colorPixmapLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>260</x>
+                <y>70</y>
+                <width>40</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>175</red>
+                <green>175</green>
+                <blue>175</blue>
+            </color>
+        </property>
+        <property name="scaledContents">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>colorSelectorPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>310</x>
+                <y>70</y>
+                <width>30</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>...</string>
+        </property>
+    </widget>
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="2157">789c95d45b53da501486e17b7e4546ee9cce120204984e2f3c1f51f1ac9d5e848488514401f134fdefdddf2b5aa171aabc223cba42f6245be766bd93dd86373b971b0cc3e145e4459db0efcdc677ddeee3cf5f3f9e7333beefb9af20f0fc996fb999e6d08bbcedde755bb0d8215fe6815b385038c035856f71a87082238537e44a4de12bdc52b8836385eb7295879c37b95e50388fdb8af9b61cfa0adfe396c21772abaef09a5ca82abc8343850fe56241e16d5c52780b070a9771ac7013270adfc97e51e13dcc03a7b8ac70015714dec4558547b8a630d7c3af2b7c8eb92038c291c20f3856b88b1385d7e592aff03cae28bc8a13857bdcef8ac2bbb8aaf0c2d47e399eda2f373856f88cfd5054b88439011ee240e1651c2a7c8d238557a6f657510eaa0a57d86f2585f771a2704d66f92fe73fc56d851b3851b83ab95fcdc745850f7049e1455c5138c4b1c24753fbfd84fd1d28fc84eb0a5f4eedff47f67fa0701fb7155e92a392c203390ed4cb3f87cf973d6f79f5a5f9f07ff3d6b2c862f7dab684f973ebd885736ca9b532e623bb74cf2bebdab5f5dcfb9edd38dfbae9bea519f3b1fb6ddf4d0d26ea695ae7fd77fdeeb3357d6943bbb3d1bb23ee33d7dfb6077bb4279bb7055b1ccf2ef13dcd9c4f6cd99d7bc556df3e39b435f71cd8ba6d4ccebb9547b6c96ab6acf1369ddab6ed70c4ae7b9fbe9b4fdd4f43a69a6efd2ff329f36bb6c7b1e1c4fcdfcf8f6cff6d3d0776c8eb911d4f7e3eebefb8eb3d70eb8fec643c7fea56aed7917532afe726bf3db38215cdb79295ade2dcb051f6feb1607cb7aaee4cbabb35f7fec9bdab675ecfd7fb1bbebbbb8d8fef2fd3916d705d7a1c3972d53fdc3fe3fdd91ce68deb9be6f3e3f366eecf89fd9fbe5eef4ffebda4ee5c5f98ffb82fcffffe9efb034278358d</data>
+        <data format="XPM.GZ" length="1517">789c75d35b53da401c86f17b3e4546ee9c4e248404994e2f3c6bf17cd64e2f960d1117319845143bfdeee579ed3860cb3e5ce4c77f429205569683ebe3836079a5e24766746f03db3365b09c3d0f06931f3fbffdaa2cd5ebc1f495d68268e94b65290c6c70583c7639de9e1e576b4d8207a2217806a31ac17d3126f85d4c09466246f048cc093ec37a44f058d4824e6c10bc1613827b6293e0585c2558155b04ef4443d08a96e08b98111c8839c11d18d709be8909c12d312798c186162cc48460474c091e8a4d826be22ac127d110cc454b70286604af601211ac89ba301c8929c15d7195e0a668083e881d828fa225d813338237306d12acc3664c3011b5e08998136c403dae6ef252ec126c8b39c118b66a046fc588e0a918135c17138246cc089e8b5d825da89f86bedf0b312538115b04fb6287e02beca404efc516c152ec12dc803626e8619692fe80ff5d73936ab5ba6862fe9d746c1676f3aab9ebdd8799ebcc4c6cdf3e0c1e8b7e31b44fae743393cc96857f5f45e9b2d9eb3c14be3f7a1e6bd49fbd4ef7e575f2b6b63e7d7fc37b373bc937cbde1627986de377763f26d6ee15fe7b9b81db3f30fed0b9bf13678cf747fde9c4b9fded636f8c9b3dc79ef069a767de9f3f7d9c1386bda1efd98be9e472c7fb716ff6aef7bcbfbabeb9ad4575df1ecfeddbdaf441e361316cf84991849ff6c0680bda9ff6c09676d7b9a22cc6e3647edfd8eb3076c69d879ff6fa7d39e3167c73ce2e9a2cfe1dcc4f7e7fadfc0107c95abd</data>
     </image>
 </images>
 <connections>
@@ -631,6 +631,12 @@
         <receiver>RotaryMotorPropDialog</receiver>
         <slot>accept()</slot>
     </connection>
+    <connection>
+        <sender>colorSelectorPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>RotaryMotorPropDialog</receiver>
+        <slot>changeRotaryMotorColor()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>torqueLineEdit</tabstop>
@@ -643,6 +649,7 @@
 </tabstops>
 <slots>
     <slot>applyButtonPressed()</slot>
+    <slot>changeRotaryMotorColor()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -26,6 +26,7 @@ class motor:
         self.atoms=[]
         self.picked=0
         self.molecule = None
+        self.color = QColor(128,128,128) # set default color of rotary motor to gray
 
     # for a motor read from a file, the "motor" record
     def setcenter(self, torq, spd, cntr, xs):
@@ -80,7 +81,15 @@ class motor:
     # drawn as a gray cylinder along the axis,
     # with a spoke to each atom    
     def draw(self, win, dispdef):
-        col=(0.5, 0.5, 0.5)
+
+        # mark - added color support
+        red = float (qRed(self.color.rgb())) / 255.0
+        green = float (qGreen(self.color.rgb())) / 255.0
+        blue = float (qBlue(self.color.rgb())) / 255.0
+        col = (red, green, blue)
+
+#        col=(0.5, 0.5, 0.5)
+
         drawcylinder(col,self.center+5*self.axis,self.center-5*self.axis,
                      2.0, 1)
         for a in self.atoms:

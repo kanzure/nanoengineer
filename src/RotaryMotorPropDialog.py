@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Wed Sep 22 10:07:05 2004
+# Created: Mon Sep 27 12:36:54 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -11,95 +11,89 @@
 from qt import *
 
 image0_data = [
-"22 22 66 2",
-"Qt c None",
-".d c #444444",
-".b c #464646",
-".6 c #484848",
-".q c #4a4a4a",
-".f c #4c4c4c",
-".J c #585858",
-".l c #5b5b5b",
-".h c #5d5d5d",
-".9 c #777777",
-"#. c #909090",
-"## c #9e9e9e",
-".e c #a2a2a2",
-".w c #ababab",
-".i c #b9b9b9",
-".H c #070707",
-".O c #0a0a0a",
-".U c #101010",
-".N c #131313",
-".L c #161616",
-".4 c #1d1d1d",
-".Q c #1f1f1f",
-".u c #212121",
-".R c #222222",
-".j c #242424",
-".0 c #252525",
-".K c #272727",
-".v c #282828",
-".# c #292929",
-".g c #2a2a2a",
-".c c #2c2c2c",
-".x c #2d2d2d",
-".m c #2f2f2f",
-".I c #323232",
-".A c #353535",
-".G c #3f3f3f",
-".o c #454545",
-".P c #474747",
-".B c #484848",
-".W c #4a4a4a",
-".p c #4d4d4d",
-".Z c #515151",
-".3 c #545454",
-".t c #565656",
-".E c #5a5a5a",
-".n c #5c5c5c",
-".F c #5d5d5d",
-".1 c #676767",
-".5 c #737373",
-".S c #7f7f7f",
-".8 c #848484",
-".Y c #8e8e8e",
-".M c #8f8f8f",
-".7 c #909090",
-".2 c #919191",
-".T c #939393",
-".C c #959595",
-".a c #9d9d9d",
-".V c #9e9e9e",
-".X c #a6a6a6",
-".z c #a9a9a9",
-".k c #ababab",
-".y c #b6b6b6",
-".r c #bebebe",
-".D c #c3c3c3",
-".s c #d6d6d6",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQt.#.#.#QtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQt.#.a.#QtQtQtQtQtQtQtQtQtQt",
-"QtQtQt.b.c.dQt.e.f.#.a.g.h.iQt.d.j.bQtQtQtQt",
-"QtQtQt.c.k.c.l.m.n.o.k.o.p.c.q.j.r.jQtQtQtQt",
-"QtQtQt.d.c.r.o.s.s.s.s.s.s.s.o.r.j.dQtQtQtQt",
-"QtQtQtQt.l.o.s.k.t.u.v.s.s.s.s.o.wQtQtQtQtQt",
-"QtQtQt.e.x.y.z.A.B.C.s.s.s.D.s.s.jQtQtQtQtQt",
-"QtQtQt.f.E.r.F.G.s.s.s.s.a.H.a.s.I.JQtQtQtQt",
-"Qt.c.c.K.o.s.L.M.s.s.s.a.j.N.O.a.s.P.j.jQtQt",
-"Qt.j.a.a.s.s.Q.k.s.s.s.j.j.N.H.R.s.a.a.jQtQt",
-"Qt.c.c.K.o.s.c.S.s.s.s.s.T.U.s.s.V.W.j.jQtQt",
-"QtQtQt.h.p.s.F.c.X.s.s.s.Y.I.s.s.v.hQtQtQtQt",
-"QtQtQtQt.K.s.s.Z.0.1.2.3.4.5.s.M.vQtQtQtQtQt",
-"QtQtQtQt.6.o.s.s.7.p.o.p.8.s.z.o.9QtQtQtQtQt",
-"QtQtQt.d.c.r.o.a.s.s.s.s.s.M.o.r.j.dQtQtQtQt",
-"QtQtQt.c.r.c.J.j.j.o.r.o.v.v.9.j.r.jQtQtQtQt",
-"QtQtQt.b.c.dQtQt#..j.a.j##QtQt.d.j.bQtQtQtQt",
-"QtQtQtQtQtQtQtQtQt.j.a.jQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQt.j.c.jQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
+"22 22 60 1",
+". c None",
+"F c #070707",
+"M c #0a0a0a",
+"S c #101010",
+"L c #131313",
+"J c #161616",
+"1 c #1d1d1d",
+"O c #1f1f1f",
+"u c #212121",
+"P c #222222",
+"j c #242424",
+"X c #252525",
+"I c #272727",
+"v c #282828",
+"# c #292929",
+"g c #2a2a2a",
+"c c #2c2c2c",
+"w c #2d2d2d",
+"m c #2f2f2f",
+"G c #323232",
+"z c #353535",
+"E c #3f3f3f",
+"d c #444444",
+"o c #454545",
+"b c #464646",
+"N c #474747",
+"A c #484848",
+"q c #4a4a4a",
+"f c #4c4c4c",
+"p c #4d4d4d",
+"W c #515151",
+"0 c #545454",
+"t c #565656",
+"H c #585858",
+"D c #5a5a5a",
+"l c #5b5b5b",
+"n c #5c5c5c",
+"h c #5d5d5d",
+"Y c #676767",
+"2 c #737373",
+"5 c #777777",
+"Q c #7f7f7f",
+"4 c #848484",
+"V c #8e8e8e",
+"K c #8f8f8f",
+"3 c #909090",
+"Z c #919191",
+"R c #939393",
+"B c #959595",
+"a c #9d9d9d",
+"T c #9e9e9e",
+"e c #a2a2a2",
+"U c #a6a6a6",
+"y c #a9a9a9",
+"k c #ababab",
+"x c #b6b6b6",
+"i c #b9b9b9",
+"r c #bebebe",
+"C c #c3c3c3",
+"s c #d6d6d6",
+"......................",
+".........###..........",
+".........#a#..........",
+"...bcd.ef#aghi.djb....",
+"...ckclmnokopcqjrj....",
+"...dcrosssssssorjd....",
+"....losktuvssssok.....",
+"...ewxyzABsssCssj.....",
+"...fDrhEssssaFasGH....",
+".ccIosJKsssajLMasNjj..",
+".jaassOksssjjLFPsaaj..",
+".ccIoscQssssRSssTqjj..",
+"...hpshcUsssVGssvh....",
+"....IssWXYZ012sKv.....",
+"....Aoss3pop4syo5.....",
+"...dcroasssssKorjd....",
+"...crcHjjorovv5jrj....",
+"...bcd..3jajT..djb....",
+".........jaj..........",
+".........jcj..........",
+"......................",
+"......................"
 ]
 
 class RotaryMotorPropDialog(QDialog):
@@ -118,14 +112,6 @@ class RotaryMotorPropDialog(QDialog):
         self.colorTextLabel = QLabel(self,"colorTextLabel")
         self.colorTextLabel.setGeometry(QRect(204,70,50,20))
         self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setGeometry(QRect(260,70,40,22))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(175,175,175))
-        self.colorPixmapLabel.setScaledContents(1)
-
-        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
-        self.colorSelectorPushButton.setGeometry(QRect(310,70,30,22))
 
         self.atomsTextLabel = QLabel(self,"atomsTextLabel")
         self.atomsTextLabel.setGeometry(QRect(211,41,42,21))
@@ -229,13 +215,22 @@ class RotaryMotorPropDialog(QDialog):
         self.applyPushButton.setAutoDefault(1)
         self.applyPushButton.setDefault(0)
 
+        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
+        self.colorPixmapLabel.setGeometry(QRect(260,70,40,22))
+        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(175,175,175))
+        self.colorPixmapLabel.setScaledContents(1)
+
+        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
+        self.colorSelectorPushButton.setGeometry(QRect(310,70,30,22))
+
         self.languageChange()
 
-        self.resize(QSize(357,332).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(357,335).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
         self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.colorSelectorPushButton,SIGNAL("clicked()"),self.changeRotaryMotorColor)
 
         self.setTabOrder(self.torqueLineEdit,self.speedLineEdit)
         self.setTabOrder(self.speedLineEdit,self.atomsComboBox)
@@ -248,7 +243,6 @@ class RotaryMotorPropDialog(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("Rotary Motor Properties"))
         self.colorTextLabel.setText(self.__tr("Color:"))
-        self.colorSelectorPushButton.setText(self.__tr("..."))
         self.atomsTextLabel.setText(self.__tr("Atoms:"))
         self.nameTextLabel.setText(self.__tr("Name:"))
         self.nameLineEdit.setText(QString.null)
@@ -272,10 +266,14 @@ class RotaryMotorPropDialog(QDialog):
         self.cancelPushButton.setAccel(self.__tr("Alt+C"))
         self.applyPushButton.setText(self.__tr("&Apply"))
         self.applyPushButton.setAccel(self.__tr("Alt+A"))
+        self.colorSelectorPushButton.setText(self.__tr("..."))
 
 
     def applyButtonPressed(self):
         print "RotaryMotorPropDialog.applyButtonPressed(): Not implemented yet"
+
+    def changeRotaryMotorColor(self):
+        print "RotaryMotorPropDialog.changeRotaryMotorColor(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("RotaryMotorPropDialog",s,c)

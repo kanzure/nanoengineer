@@ -111,7 +111,7 @@ class modelTree(QListView):
             elif id == 3: # Properties
                 jig = self.treeItems[self.selectedTreeItem]
                 if isinstance(jig, motor):
-                        rMotorDialog = RotaryMotorProp(jig)
+                        rMotorDialog = RotaryMotorProp(jig, self.win.glpane)
                         rMotorDialog.show()
                         rMotorDialog.exec_loop()
                 elif isinstance(jig, LinearMotor):

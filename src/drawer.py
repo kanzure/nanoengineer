@@ -429,4 +429,3 @@ def makePolyList(v):
         segs += [lis[0],lis[3],lis[1],lis[2]]
 
     return segs
-
