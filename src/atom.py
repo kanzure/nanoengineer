@@ -50,7 +50,6 @@ if __name__=='__main__':
     app.connect(app,SIGNAL("lastWindowClosed ()"),app.quit)
 
     foo = MWsemantics()
-    app.connect(foo.fileExitAction, SIGNAL("activated()"), app.quit)
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
