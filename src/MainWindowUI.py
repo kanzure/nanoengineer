@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Oct 13 22:25:35 2004
+# Created: Thu Oct 14 12:32:05 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7561,10 +7561,8 @@ class MainWindow(QMainWindow):
         self.fileMenu = QPopupMenu(self)
         self.fileNewAction.addTo(self.fileMenu)
         self.fileOpenAction.addTo(self.fileMenu)
-        self.fileInsertAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.fileCloseAction.addTo(self.fileMenu)
-        self.fileClearAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.fileSetWorkDirAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
@@ -7594,14 +7592,12 @@ class MainWindow(QMainWindow):
         self.setViewOrthoAction.addTo(self.unnamed)
         self.setViewPerspecAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
-        self.popupMenu_32 = QPopupMenu(self)
-        self.unnamed.setAccel(QString.null,self.unnamed.insertItem(self.viewDefviewAction.iconSet(),self.__tr("Orientations"),self.popupMenu_32))
-        self.setViewFrontAction.addTo(self.popupMenu_32)
-        self.setViewBackAction.addTo(self.popupMenu_32)
-        self.setViewTopAction.addTo(self.popupMenu_32)
-        self.setViewBottomAction.addTo(self.popupMenu_32)
-        self.setViewRightAction.addTo(self.popupMenu_32)
-        self.setViewLeftAction.addTo(self.popupMenu_32)
+        self.setViewFrontAction.addTo(self.unnamed)
+        self.setViewBackAction.addTo(self.unnamed)
+        self.setViewRightAction.addTo(self.unnamed)
+        self.setViewLeftAction.addTo(self.unnamed)
+        self.setViewTopAction.addTo(self.unnamed)
+        self.setViewBottomAction.addTo(self.unnamed)
         self.MenuBar.insertItem(QString(""),self.unnamed,5)
 
         self.unnamed = QPopupMenu(self)
@@ -7662,7 +7658,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,938).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,947).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7771,6 +7767,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsSimulator_Action,SIGNAL("activated()"),self.toolsSimulator)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
+        self.connect(self.fileInsertAction,SIGNAL("activated()"),self.fileInsert)
 
 
     def languageChange(self):
@@ -8147,7 +8144,6 @@ class MainWindow(QMainWindow):
             self.MenuBar.findItem(3).setText(self.__tr("&File"))
         if self.MenuBar.findItem(4):
             self.MenuBar.findItem(4).setText(self.__tr("&Edit"))
-        self.unnamed.changeItem(self.unnamed.idAt(6),self.__tr("Orientations"))
         if self.MenuBar.findItem(5):
             self.MenuBar.findItem(5).setText(self.__tr("&View"))
         if self.MenuBar.findItem(6):
@@ -8488,6 +8484,9 @@ class MainWindow(QMainWindow):
 
     def dispResetMolColor(self):
         print "MainWindow.dispResetMolColor(): Not implemented yet"
+
+    def fileInsert(self):
+        print "MainWindow.fileInsert(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

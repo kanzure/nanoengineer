@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>938</height>
+            <height>947</height>
         </rect>
     </property>
     <property name="caption">
@@ -43,10 +43,8 @@
     <item text="&amp;File" name="fileMenu">
         <action name="fileNewAction"/>
         <action name="fileOpenAction"/>
-        <action name="fileInsertAction"/>
         <separator/>
         <action name="fileCloseAction"/>
-        <action name="fileClearAction"/>
         <separator/>
         <action name="fileSetWorkDirAction"/>
         <separator/>
@@ -74,15 +72,12 @@
         <action name="setViewOrthoAction"/>
         <action name="setViewPerspecAction"/>
         <separator/>
-        <action name="viewDefviewAction"/>
-        <item text="Orientations" name="popupMenu_32" accel="">
-            <action name="setViewFrontAction"/>
-            <action name="setViewBackAction"/>
-            <action name="setViewTopAction"/>
-            <action name="setViewBottomAction"/>
-            <action name="setViewRightAction"/>
-            <action name="setViewLeftAction"/>
-        </item>
+        <action name="setViewFrontAction"/>
+        <action name="setViewBackAction"/>
+        <action name="setViewRightAction"/>
+        <action name="setViewLeftAction"/>
+        <action name="setViewTopAction"/>
+        <action name="setViewBottomAction"/>
     </item>
     <item text="&amp;Display" name="unnamed">
         <separator/>
@@ -3595,6 +3590,12 @@
         <receiver>MainWindow</receiver>
         <slot>toolsStartOver()</slot>
     </connection>
+    <connection>
+        <sender>fileInsertAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileInsert()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3706,6 +3707,7 @@
     <slot>toolsSelect()</slot>
     <slot>makeStat()</slot>
     <slot>dispResetMolColor()</slot>
+    <slot>fileInsert()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
