@@ -496,4 +496,4 @@ class Movie:
         """Returns the GNUplot filename for the current movie.
         """
         fullpath, ext = os.path.splitext(self.filename)
-        return fullpath + "-trace.plt"
+        return fullpath + "-plot.txt"
