@@ -104,6 +104,8 @@ class depositMode(basicMode):
         self.pastable = None
     
     # init_gui does all the GUI display when entering this mode [mark 041004]
+    # bruce comment 041123: Note that Josh also calls this at other times
+    # to update the UI and the value of self.pastable.
     def init_gui(self):
 #        print "depositMode.py: init_gui(): Cursor set to DepositAtomCursor"
         self.o.setCursor(self.w.DepositAtomCursor)
@@ -229,7 +231,17 @@ class depositMode(basicMode):
                     doPaint = 1
                     break
         if doPaint: self.o.paintGL()
-	
+
+    def posn_str(self, atm): #bruce 041123
+        """return the position of an atom (or, any vector -- kluge, sorry)
+        as a string for use in our status messages
+        """
+        try:
+            x,y,z = atm.posn()
+        except AttributeError:
+            x,y,z = atm # kluge to accept either arg type
+        return "(%.2f, %.2f, %.2f)" % (x,y,z)
+    
     def leftDown(self, event):
         """If there's nothing nearby, deposit a new atom.
         If cursor is on a singlet, deposit an atom bonded to it.
@@ -241,10 +253,32 @@ class depositMode(basicMode):
         self.o.assy.modified = 1
         if a: # if something was "lit up"
             if a.element == Singlet:
-                if self.w.pasteP and self.pastable: self.pasteBond(a)
-                elif not self.w.pasteP: self.attach(el, a)
+                a0 = a.singlet_neighbor() # do this before a is killed!
+                if self.w.pasteP:
+                    # user wants to paste something
+                    if self.pastable:
+                        thing, desc = self.pasteBond(a)
+                        if thing:
+                            status = "replaced open bond on %r with %s (%s)" % (a0, thing.name, desc)
+                        else:
+                            status = desc
+                            # bruce 041123 added status message, to fix bug 163,
+                            # and added the rest of them to describe what we do
+                            # (or why we do nothing)
+                    else:
+                        # do nothing
+                        status = "nothing selected to paste" #k correct??
+                else:
+                    # user wants to create an atom of element el
+                    a1, desc = self.attach(el, a)
+                    if a1 != None:
+                        status = "replaced open bond on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
+                    else:
+                        status = desc
+                    del a1, desc
                 self.o.selatom = None
                 self.dragmol = None
+                self.w.msgbarLabel.setText(status)
                 self.w.update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
@@ -266,12 +300,20 @@ class depositMode(basicMode):
             # no externs or more than 2 -- fall thru
         else:
             atomPos = self.getCoords(event)
-            if self.w.pasteP and self.pastable:
-                self.pasteFree(atomPos)
-                self.dragmol = None
-            elif not self.w.pasteP: 
+            if self.w.pasteP:
+                if self.pastable:
+                    thing, desc = self.pasteFree(atomPos)
+                    self.dragmol = None
+                    status = "pasted %s (%s) at %s" % (thing.name, desc, self.posn_str(atomPos))
+                else:
+                    # do nothing
+                    status = "nothing selected to paste" #k correct??
+            else:
                 self.o.selatom = oneUnbonded(el, self.o.assy, atomPos)
                 self.dragmol = self.o.selatom.molecule
+                status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
+            self.w.msgbarLabel.setText(status)
+            # fall thru
         # move the molecule rigidly
         self.pivot = None
         self.pivax = None
@@ -462,26 +504,36 @@ class depositMode(basicMode):
     ###################################################################
     #   Cutting and pasting                                           #
     ###################################################################
-        
-    # paste the pastable object where the cursor is
+    
     def pasteBond(self, sing):
+        """If self.pastable has an unambiguous hotspot,
+        paste a copy of it onto the given singlet;
+        return (the copy, description) or (None, whynot)
+        """
+        # bruce 041123 added return values (and guessed docstring).
         m = self.pastable
-        if len(m.singlets)==0: return
-        if len(m.singlets)>1 and not m.hotspot: return
+        if len(m.singlets)==0:
+            return None, "no open bonds in %r (only pasteable in empty space)" % m.name
+        if len(m.singlets)>1 and not m.hotspot:
+            return None, "%r has %d open bonds, but none has been set as its hotspot" % (m.name, len(m.singlets))
         numol = self.pastable.copy(None)
-        # bruce 041116 added by (implicitly, by default) cauterize = 1
-        # to mol.copy(); change this to cauterize = 0 here if unwanted,
+        # bruce 041116 added (implicitly, by default) cauterize = 1
+        # to mol.copy() above; change this to cauterize = 0 here if unwanted,
         # and for other uses of mol.copy in this file.
+        # For this use, there's an issue that new singlets make it harder to
+        # find a default hotspot! Hmm... I think copy should set one then.
+        # So now it does [041123].
         hs = numol.hotspot or numol.singlets[0]
-        self.o.assy.addmol(numol)
-        bond_at_singlets(hs,sing)
-        
+        bond_at_singlets(hs,sing) # this will move hs.molecule (numol) to match
+        self.o.assy.addmol(numol) # do this last, in case it computes bbox
+        return numol, "copy of %r" % m.name
         
     # paste the pastable object where the cursor is
     def pasteFree(self, pos):
         numol = self.pastable.copy(None, pos)
         
         self.o.assy.addmol(numol)
+        return numol, "copy of %r" % self.pastable.name
         
 
 
@@ -490,11 +542,15 @@ class depositMode(basicMode):
     ###################################################################
 
     # singlet is supposedly the lit-up singlet we're pointing to.
+    # make a new atom of el.
     # bond the new atom to it, and any other ones around you'd
     # expect it to form bonds with
     # [bruce comment 041115: only bonds to singlets in same molecule; why?]
+    # bruce 041123 new features:
+    # return the new atom and a description of it, or None and the reason we made nothing.
     def attach(self, el, singlet):
-        if not el.numbonds: return
+        if not el.numbonds:
+            return (None, "%s makes no bonds; can't attach one to an open bond" % el.name)
         spot = self.findSpot(el, singlet)
         pl = []
         mol = singlet.molecule
@@ -505,17 +561,26 @@ class depositMode(basicMode):
 
         n = min(el.numbonds, len(pl))
         if n == 1:
-            self.bond1(el, singlet, spot)
+            a = self.bond1(el, singlet, spot)
         elif n == 2:
-            self.bond2(el,pl)
+            a = self.bond2(el,pl)
         elif n == 3:
-            self.bond3(el,pl)
+            a = self.bond3(el,pl)
         elif n == 4:
-            self.bond4(el,pl)
+            a = self.bond4(el,pl)
         else:
             print "too many bonds!", el.numbonds, len(pl)
+            a = None
+        if a != None:
+            desc = "%r (in %r)" % (a, a.molecule.name)
+            #e what if caller renames a.molecule??
+            if n > 1:
+                desc += " (%d bonds made)" % n
+        else:
+            desc = "bug: too many (%d) bonds to make!" % n
         mol.shakedown()
-        self.o.paintGL()
+        self.o.paintGL() ##e probably should be moved to caller
+        return a, desc
 
     # given an element and a singlet, find the place an atom of the
     # element would like to be if bonded at the singlet
@@ -550,6 +615,7 @@ class depositMode(basicMode):
                 q = rq + q - rq - spin
                 x = atom('X', pos+q.rot(r), mol)
                 mol.bond(a,x)
+        return a #bruce 041123
         
     def bond2(self, el, lis):
         s1, p1 = lis[0]
@@ -577,6 +643,7 @@ class depositMode(basicMode):
             q = rq + q - rq + tw
             x = atom('X', pos+q.rot(r), mol)
             mol.bond(a,x)
+        return a #bruce 041123
 
     def bond3(self, el, lis):
         s1, p1 = lis[0]
@@ -595,6 +662,7 @@ class depositMode(basicMode):
         opos = pos + el.rcovalent*norm(pos-opos)
         x = atom('X', opos, mol)
         mol.bond(a,x)
+        return a #bruce 041123
 
     def bond4(self, el, lis):
         s1, p1 = lis[0]
@@ -611,6 +679,7 @@ class depositMode(basicMode):
         s2.bonds[0].rebond(s2, a)
         s3.bonds[0].rebond(s3, a)
         s4.bonds[0].rebond(s4, a)
+        return a #bruce 041123
 
     ####################
     # buttons
