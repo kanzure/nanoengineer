@@ -7,12 +7,13 @@ however small, unless this is necessary to make Atom work properly for other dev
 $Id$
 
 Stub file for Extrude mode. For now, this works, but it's almost identical to cookieMode,
-except for some textLabel2-related bugs and for a different background color.
+except for some textLabel2-related bugs [fixed in rev 1.5??] and for a different background color.
 -- bruce 040920
 """
 
 # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
-# (remove this, and the call to this, when MainWindowUI does the same stuff)
+# (FYI: I will remove this, and the call to this, after MainWindowUI does the same stuff.
+#  But first I will be editing this function a lot to get the dashboard contents that I need.)
 def do_what_MainWindowUI_should_do(self):
         "self should be the main MWSemantics object -- at the moment this is a function, not a method"
 
@@ -31,12 +32,7 @@ def do_what_MainWindowUI_should_do(self):
         self.extrudeToolbar.setGeometry(QRect(0,0,515,29)) ### will probably be wrong once we modify the contents
         self.extrudeToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
-        # I'm not sure what's up with textLabel2... it's used in multiple files
-        # in ways that look like they'd interfere and/or are partly redundant.
-        # So for now, be safe, use a different name.
-        # Current behavior -- the label does not show up in the toolbar. (a bug)
-        ##self.textLabel2 = QLabel(self.extrudeToolbar,"textLabel2")
-        self.textLabel3 = QLabel(self.extrudeToolbar,"textLabel3")
+        self.textLabel_extrude_toolbar = QLabel(self.extrudeToolbar,"textLabel_extrude_toolbar") # text set below
 
         # these are the wrong actions to add... should cause no harm for now, tho
         self.extrudeToolbar.addSeparator()
@@ -64,6 +60,7 @@ def do_what_MainWindowUI_should_do(self):
 
         # note: python name-mangling would turn __tr, within class MainWindow, into _MainWindow__tr (I think... seems to be right)
         self.extrudeToolbar.setLabel(self._MainWindow__tr("Extrude Mode"))
+        self.textLabel_extrude_toolbar.setText(self._MainWindow__tr("Extrude Mode (stub)")) ###
 
         # fyi: caller hides the toolbar, we don't need to
         
@@ -239,6 +236,7 @@ class extrudeMode(basicMode):
             self.o.paintGL()
 
     def Draw(self):
+        basicMode.Draw(self) 
         ## self.griddraw()
         if self.sellist: self.pickdraw()
         if self.o.shape: self.o.shape.draw(self.o)
