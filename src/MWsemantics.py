@@ -716,9 +716,8 @@ class MWsemantics(MainWindow):
         # allow user to select a new background color and set it.
         c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
         if c.isValid():
-            self.glpane.mode.backgroundColor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
-            # bruce 041118 comment: the above is not enough, since mode objects are remade
-            # at arbitrary times (presently whenever a new file is loaded).
+            color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            self.glpane.mode.set_backgroundColor( color ) #bruce 050105
             self.glpane.paintGL()
 
     def dispSetEltable1(self):

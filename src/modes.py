@@ -181,6 +181,8 @@ class basicMode(anyMode):
         # other inits
         self.o = glpane
         self.w = glpane.win
+        self.init_prefs()
+        
         # store ourselves in our glpane's mode table, modetab
         self.o.modetab[self.modename] = self
         
@@ -197,6 +199,42 @@ class basicMode(anyMode):
 
         self.setup_menus()
 
+    def init_prefs(self): # bruce 050105 new feature
+        "set some of our constants from user preferences, if they exist"
+        self.bgcolor_prefs_key = key = "mode %s backgroundColor" % self.modename
+        try:
+            import preferences
+        except ImportError:
+            pass
+        else:
+            self.prefs = prefs = preferences.prefs_context()
+            ## this might not work yet (since prefs.get will use its __getattr__):
+            ## bgcolor = prefs.get( key, self.backgroundColor )
+            # note: if we want concurrent sessions to share bgcolor pref,
+            # then besides this we also need to clear the prefs cache for
+            # this key... I'm not doing that yet.
+            try:
+                bgcolor = prefs[key]
+            except KeyError:
+                bgcolor = self.backgroundColor
+            self.backgroundColor = bgcolor
+        return
+
+    def set_backgroundColor(self, color): # bruce 050105 new feature
+        self.backgroundColor = color
+        # bruce 041118 comment: the above is not enough, since mode objects are remade
+        # at arbitrary times (presently whenever a new file is loaded).
+        # bruce 050105 experimental fix for that:
+        try:
+            import preferences
+        except ImportError:
+            pass
+        else:
+            prefs = self.prefs
+            key = self.bgcolor_prefs_key
+            prefs[key] = color # this also stores it in a prefs db file
+        return
+    
     def setup_menus(self): # rewritten by bruce 041103
         mod_attrs = ['Menu_spec_shift', 'Menu_spec_control']
         all_attrs = ['Menu_spec'] + mod_attrs + ['debug_Menu_spec']
