@@ -334,7 +334,7 @@ def _readmmp(assy, filnam, isInsert = False):
             opengroup.addmember(gr)
 
     # Read the MMP record for a Thermostat as:
-    # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
+    # stat (name) (r, g, b) (temp) first_atom last_atom box_atom
                 
         elif key == "stat":
             if mol:
@@ -350,8 +350,22 @@ def _readmmp(assy, filnam, isInsert = False):
             card =card[card.index(")")+1:] # skip past the color field
             card =card[card.index(")")+1:] # skip past the temp field
             list = map(int, re.findall("\d+",card[card.index(")")+1:]))
-            list = map((lambda n: ndix[n]), list)
             
+            # We want "list" to contain only the 3rd item, so let's remove 
+            # first_atom (1st item) and last_atom (2nd item) in list.
+            # They will get regenerated in the Thermo constructor.  
+            # Mark 050129
+            if len(list) > 2: del list[0:2]
+            
+            # Now remove everything else from the list except for the boxed_atom.
+            # This would happen if we loaded an old part with more than 3 atoms listed.
+            if len(list) > 1:
+                del list[1:]
+                msg = "Warning: a thermostat record was found in the part which contained extra atoms.  They will be ignored."
+                assy.w.history.message( redmsg(msg))
+                
+            list = map((lambda n: ndix[n]), list)
+
             sr = Stat(assy, list) # create stat and set props
             sr.name=name
             sr.color=col
@@ -359,7 +373,7 @@ def _readmmp(assy, filnam, isInsert = False):
             opengroup.addmember(sr)
 
     # Read the MMP record for a Thermometer as:
-    # thermo (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+    # thermo (name) (r, g, b) first_atom last_atom box_atom
                 
         elif key == "thermo":
             if mol:
@@ -373,8 +387,22 @@ def _readmmp(assy, filnam, isInsert = False):
             # Read in the list of atoms
             card =card[card.index(")")+1:] # skip past the color field
             list = map(int, re.findall("\d+",card[card.index(")")+1:]))
-            list = map((lambda n: ndix[n]), list)
             
+            # We want "list" to contain only the 3rd item, so let's remove 
+            # first_atom (1st item) and last_atom (2nd item) in list.
+            # They will get regenerated in the Thermo constructor.  
+            # Mark 050129
+            if len(list) > 2: del list[0:2]
+            
+            # Now remove everything else from the list except for the boxed_atom.
+            # This would happen if we loaded an old part with more than 3 atoms listed.
+            if len(list) > 1:
+                del list[1:]
+                msg = "Warning: a thermometer record was found in the part which contained extra atoms.  They will be ignored."
+                assy.w.history.message( redmsg(msg))
+                
+            list = map((lambda n: ndix[n]), list)
+
             sr = Thermo(assy, list) # create stat and set props
             sr.name=name
             sr.color=col
