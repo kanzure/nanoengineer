@@ -89,8 +89,7 @@ class MoleculeProp(MoleculePropDialog):
         self.mol.glpane.gl_update()
         
     def makeAtomsVisible(self):
-        for a in self.mol.atoms.itervalues():
-            if a.display == diINVISIBLE: a.setDisplay(diDEFAULT)
+        self.mol.reset_invisible_atoms()
         self.mol.glpane.gl_update()
         
     def nameChanged(self):
