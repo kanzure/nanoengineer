@@ -349,7 +349,7 @@ class Group(Node):
         elif self.name == "Clipboard": return
         else: cntl = GroupProp(self) # Normal group prop
         cntl.exec_loop()
-        self.assy.mt.update()
+        self.assy.mt.mt_update()
 
     def dumptree(self, depth=0):
         print depth*"...", self.name

@@ -213,7 +213,7 @@ class GLPane(QGLWidget, modeMixin):
         #e also update tool-icon visual state in the toolbar?
         # bruce 041222 changed this to a full update, and changed MWsemantics to
         # make that safe during our __init__.
-        self.win.update()
+        self.win.win_update()
 
     # def setMode(self, modename) -- moved to modeMixin [bruce 040922]
     

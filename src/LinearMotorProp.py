@@ -101,7 +101,7 @@ class LinearMotorProp(LinearMotorPropDialog):
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
         if text: self.motor.name = str(text)
         self.nameLineEdit.setText(self.motor.name)
-        self.motor.assy.w.update() # Update model tree
+        self.motor.assy.w.win_update() # Update model tree
         self.motor.assy.modified = 1
                         
         self.applyPushButton.setEnabled(False)

@@ -70,7 +70,7 @@ class StatProp(StatPropDialog):
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
         if text: self.stat.name = str(text)
         self.nameLineEdit.setText(self.stat.name)
-        self.stat.assy.w.update() # Update model tree
+        self.stat.assy.w.win_update() # Update model tree
         self.stat.assy.modified = 1
         
         self.stat.color = self.stat.normcolor = self.newcolor        

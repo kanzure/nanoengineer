@@ -95,7 +95,7 @@ class MoleculeProp(MoleculePropDialog):
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
         if text: self.mol.name = str(text)
         self.nameLineEdit.setText(self.mol.name)
-        self.mol.assy.w.update() # Update model tree
+        self.mol.assy.w.win_update() # Update model tree
         self.mol.assy.modified = 1
         self.applyPushButton.setEnabled(False) 
 

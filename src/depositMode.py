@@ -374,7 +374,7 @@ class depositMode(basicMode):
                 self.dragmol = None
                 status = self.ensure_visible(chunk, status) #bruce 041207
                 self.w.statusBar.message(status)
-                self.w.update()
+                self.w.win_update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
             elif a.realNeighbors(): # probably part of larger molecule
@@ -438,7 +438,7 @@ class depositMode(basicMode):
         # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
         self.pivot = None
         self.pivax = None
-        self.w.update()
+        self.w.win_update()
     
     def dragto(self, point, event, perp = None):
         """Return the point to which we should drag the given point,
@@ -548,7 +548,7 @@ class depositMode(basicMode):
         global _count
         _count = _count + 1
         self.dragatom_start = _count
-        self.w.update()
+        self.w.win_update()
         return
                         
 
@@ -658,7 +658,7 @@ class depositMode(basicMode):
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
             self.o.assy.modified = 1
-        self.w.update()
+        self.w.win_update()
 
 # removed by bruce 041217:
 ##    def middleDouble(self, event):
@@ -888,7 +888,7 @@ class depositMode(basicMode):
                 self.pastable.pick()
         finally:
             self.dont_update_gui = 0
-            self.o.assy.mt.update() # update model tree
+            self.o.assy.mt.mt_update() # update model tree
         return
         
     def setAtom(self):
@@ -1003,7 +1003,7 @@ class depositMode(basicMode):
             new.pick()
             self.w.pasteP = True
             self.UpdateDashboard() # (probably also called by new.pick())
-            self.w.update()
+            self.w.win_update()
         return
 
     def select(self):
@@ -1013,7 +1013,7 @@ class depositMode(basicMode):
             self.o.assy.pickParts()
             self.o.assy.unpickparts()
             self.o.selatom.molecule.pick()
-            self.w.update()
+            self.w.win_update()
                                     
     def skip(self):
         pass

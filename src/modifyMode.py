@@ -93,7 +93,7 @@ class modifyMode(basicMode):
             if selSense == 1: self.o.assy.pick_at_event(event)
             if selSense == 2: self.o.assy.onlypick_at_event(event)
             
-            self.w.update()
+            self.w.win_update()
      
     def leftCntlDown(self, event):
         """Setup a trackball action on each selected part.

@@ -81,7 +81,7 @@ class modelTree(QListView):
             ["Properties", self.modprop],
             ])
         
-        self.update()
+        self.mt_update()
         
         # Mark and Huaicai - commented this out -
         # causing a bug for context menu display on windows
@@ -152,7 +152,7 @@ class modelTree(QListView):
         if isinstance(self.win.glpane.mode, selectMode): 
             self.win.toolsSelectMolecules()
                 #e should optim:
-                # this calls repaintGL redundantly with win.update() [bruce 041220]
+                # this calls repaintGL redundantly with win.win_update() [bruce 041220]
         else:        
             self.win.assy.selwhat = 2
         
@@ -170,7 +170,7 @@ class modelTree(QListView):
                 self.selectedItem = item.object
                 ###@@@ why only the one item? [bruce question 041220]
             
-        self.win.update()
+        self.win.win_update()
 
     def keyPressEvent(self, e):
         key = e.key()
@@ -186,7 +186,7 @@ class modelTree(QListView):
             # The Del key (or the Delete menu item) always directly runs
             # MWsemantics.killDo, regardless of focus.
             self.win.killDo()
-            ## part of killDo: self.win.update()
+            ## part of killDo: self.win.win_update()
         elif key == Qt.Key_Control:
             self.modifier = 'Cntl'
         elif key == Qt.Key_Shift:
@@ -232,7 +232,7 @@ class modelTree(QListView):
             self.singlemenu.popup(pos, 1)
         elif treepicked > 1:
             self.multimenu.popup(pos, 1)
-        self.update()
+        self.mt_update()
 
     def changename(self, listItem, col, text):
         if col != 0: return
@@ -246,7 +246,7 @@ class modelTree(QListView):
         if text: 
             listItem.object.name = str(text)
             self.assy.modified = 1
-        else: self.update() # Force MT update.
+        else: self.mt_update() # Force MT update.
 
     def beginrename(self, item, pos, col):
         if not item: return
@@ -288,16 +288,17 @@ class modelTree(QListView):
             self.selectedItem.moveto(droptarget.object, above)
 #            if sdaddy != tdaddy: 
 #                if sdaddy == "Clipboard" or droptarget.object.name == "Clipboard": 
-#                    self.win.update() # Selected item moved to/from clipboard. Update both MT and GLpane.
+#                    self.win.win_update() # Selected item moved to/from clipboard. Update both MT and GLpane.
 #                    return
-#            self.update() # Update MT only
-            self.win.update()
+#            self.mt_update() # Update MT only
+            self.win.win_update()
 
     def dragMoveEvent(self, event):
         event.accept()
 
-    def update(self):
+    def mt_update(self): # bruce 050107 renamed this from 'update'
         """ Build the model tree of the current model
+        [no longer named update, since that conflicts with QWidget.update]
         """
         self.assy = self.win.assy
         
@@ -343,11 +344,11 @@ class modelTree(QListView):
         if node.picked: return
         new = Group(gensym("Group"), self.assy, node)
         self.tree.object.apply2picked(lambda(x): x.moveto(new))
-        self.update()
+        self.mt_update()
     
     def ungroup(self):
         self.tree.object.apply2picked(lambda(x): x.ungroup())
-        self.update()
+        self.mt_update()
 
     def hide(self):
         self.assy.Hide()
@@ -357,24 +358,24 @@ class modelTree(QListView):
     
     def copy(self):
         self.assy.copy()
-        self.update()
+        self.mt_update()
     
     def cut(self):
         self.assy.cut()
-        self.update()
+        self.mt_update()
     
     def kill(self):
         # note: this is essentially the same as MWsemantics.killDo. [bruce 041220 comment]
         self.assy.kill()
-        self.win.update() # Changed from self.update for deleting from MT menu. Mark [04-12-03]
+        self.win.win_update() # Changed from self.mt_update for deleting from MT menu. Mark [04-12-03]
     
     def modprop(self):
         if self.selectedItem: 
             self.selectedItem.edit()
-            self.update()
+            self.mt_update()
 
     def expand(self):
         self.tree.object.apply2tree(lambda(x): x.setopen())
-        self.update()
+        self.mt_update()
 
     # end of class modelTree

@@ -176,7 +176,7 @@ class HistoryWidget:
             self.file.write(something)
             self.file.write('\n') # file gets \n after each line, not before
             if platform.atom_debug:
-                # (we also flush in self.update(), whether or not debugging)
+                # (we also flush in self.h_update(), whether or not debugging)
                 self.file.flush()
         self.widget.append(something) # apparently prepends a newline if needed
         self.widget.scrollToBottom()
@@ -324,8 +324,12 @@ class HistoryWidget:
 
     # inval/update methods
     
-    def update(self):
-        """(should be called at the end of most user events)"""
+    def h_update(self): # bruce 050107 renamed this from 'update'
+        """(should be called at the end of most user events)
+        [no longer named update, since that conflicts with QWidget.update --
+         technically this doesn't matter since we are not a QWidget subclass,
+         but even so it's good to avoid this confusion.]
+        """
         if self.file:
             self.file.flush()
             #k is this too slow, e.g. for bareMotion or keystrokes?
@@ -338,10 +342,10 @@ class HistoryWidget:
         # but maybe something will be needed later. [bruce 041228]
         return
     
-    def update_experimental_dont_call_me(self):
+    def h_update_experimental_dont_call_me(self):
         self.widget.update()
             # http://doc.trolltech.com/3.3/qwidget.html#update
-        ###@@@ try calling this from win.update to see if that fixes the repaint bugs after leaving extrude!
+        ###@@@ try calling this from win.win_update to see if that fixes the repaint bugs after leaving extrude!
             ### it was not enough. guess: it is not updated because it does not have the focus...
             # so try an explicit repaint call.
         self.widget.repaint()

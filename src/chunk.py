@@ -1586,7 +1586,7 @@ class molecule(Node, InvalMixin):
     def edit(self):
         cntl = MoleculeProp(self)    
         cntl.exec_loop()
-        self.assy.mt.update()
+        self.assy.mt.mt_update()
         ###e bruce 041109 comment: don't we want to repaint the glpane, too?
 
     def __str__(self):

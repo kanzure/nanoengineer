@@ -218,7 +218,7 @@ class assembly:
             self.unpickparts()
             self.selwhat = 2
             mol.pick()
-            self.mt.update()
+            self.mt.mt_update()
 
     # set up to run a movie or minimization
     def movsetup(self):
@@ -284,13 +284,13 @@ class assembly:
             for m in self.molecules:
                 for a in m.atoms.itervalues():
                     a.pick()
-        self.w.update()
+        self.w.win_update()
 
 
     def selectNone(self):
         self.unpickatoms()
         self.unpickparts()
-        self.w.update()
+        self.w.win_update()
 
 
     def selectInvert(self):
@@ -313,14 +313,14 @@ class assembly:
                 for a in m.atoms.itervalues():
                     if a.picked: a.unpick()
                     else: a.pick()
-        self.w.update()
+        self.w.win_update()
 
     def selectConnected(self):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """
         self.marksingle()
-        self.w.update()
+        self.w.win_update()
 
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
@@ -329,16 +329,16 @@ class assembly:
         one bond and have no other bonds.
         """
         self.markdouble()
-        self.w.update()
+        self.w.win_update()
 
     def selectAtoms(self):
         self.unpickparts()
         self.selwhat = 0
-        self.w.update()
+        self.w.win_update()
             
     def selectParts(self):
         self.pickParts()
-        self.w.update()
+        self.w.win_update()
 
     def pickParts(self):
         self.selwhat = 2
@@ -507,7 +507,7 @@ class assembly:
             ob.pick()
 
         self.modified = 1
-        self.w.update()
+        self.w.win_update()
 
 
     # copy any selected parts (molecules)
@@ -537,7 +537,7 @@ class assembly:
                 if isinstance(ob, molecule): ob.move(-ob.center)
             ob.pick()
 
-        self.w.update()
+        self.w.win_update()
 
     def paste(self, node):
         pass # to be implemented
@@ -599,13 +599,13 @@ class assembly:
         "Hide all selected chunks"
         if self.selwhat == 2:
             self.tree.apply2picked(lambda x: x.hide())
-            self.w.update()
+            self.w.win_update()
 
     def Unhide(self):
         "Unhide all selected chunks"
         if self.selwhat == 2:
             self.tree.apply2picked(lambda x: x.unhide())
-            self.w.update()
+            self.w.win_update()
 
     #bond atoms (cheap hack)
     def Bond(self):
@@ -821,7 +821,7 @@ class assembly:
         from platform import fix_plurals
         msg = fix_plurals("Separate created %d new chunk(s)" % len(numolist))
         self.w.statusBar.message(msg)
-        self.w.update() #e do this in callers instead?
+        self.w.win_update() #e do this in callers instead?
 
     def copySelatomFrags(self):
         #bruce 041116, combining modifySeparate and mol.copy; for extrude

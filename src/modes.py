@@ -1075,7 +1075,7 @@ class basicMode(anyMode):
             didwhat = "Dehydrogenate: nothing selected"
         if fixmols:
             self.o.assy.modified = 1 #e shouldn't we do this in lower-level methods?
-            self.w.update()
+            self.w.win_update()
         self.w.statusBar.message(didwhat)
         return
 

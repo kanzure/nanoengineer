@@ -172,7 +172,7 @@ class MWsemantics(MainWindow):
         # bruce 050104 moved find_or_make_Nanorex_prefs_directory to an earlier time
         
         self.initialised = 1
-        self.update() # bruce 041222
+        self.win_update() # bruce 041222
         
         return # from MWsemantics.__init__
 
@@ -258,12 +258,18 @@ class MWsemantics(MainWindow):
     # at the moment it just does update whether needed or not
     ##################################################
 
-    def update(self):
+    def win_update(self): # bruce 050107 renamed this from 'update'
+        """ Update most state which directly affects the GUI display,
+        in some cases repainting it directly.
+        (Someday this should update all of it, but only what's needed,
+        and perhaps also call QWidget.update. #e)
+        [no longer named update, since that conflicts with QWidget.update]
+        """
         if not self.initialised:
             return #bruce 041222
         self.glpane.paintGL() ###e should inval instead
-        self.mt.update()
-        self.history.update() #bruce 050104
+        self.mt.mt_update()
+        self.history.h_update() #bruce 050104
         
 
     ###################################
@@ -309,7 +315,7 @@ class MWsemantics(MainWindow):
             
             self.glpane.scale=self.assy.bbox.scale()
             self.glpane.paintGL()
-            self.mt.update()
+            self.mt.mt_update()
 
     def fileOpen(self):
         if self.assy.modified:
@@ -365,7 +371,7 @@ class MWsemantics(MainWindow):
             self.setViewFitToWindow()
             self.currentPov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
             self.assy.csys.scale = self.glpane.scale
-            self.mt.update()
+            self.mt.mt_update()
 
     def fileSave(self):
         #Huaicai 1/6/05: by returning a boolean value to say if it is really 
@@ -444,7 +450,7 @@ class MWsemantics(MainWindow):
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
                     self.statusBar.message( "PDB file saved: " + self.assy.filename )
-                    self.mt.update()
+                    self.mt.mt_update()
             
             elif ext == ".pov": # Write POV-Ray file
                 try:
@@ -485,7 +491,7 @@ class MWsemantics(MainWindow):
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
                     self.statusBar.message( "MMP file saved: " + self.assy.filename )
-                    self.mt.update()
+                    self.mt.mt_update()
             
             else: # This should never happen.
                 self.statusBar.message( "MWSemantics.py: fileSaveAs() - File Not Saved.")
@@ -530,7 +536,7 @@ class MWsemantics(MainWindow):
         
         if isFileSaved: 
                 self.__clear()
-                self.update()
+                self.win_update()
 
 
     def fileSetWorkDir(self):
@@ -579,11 +585,11 @@ class MWsemantics(MainWindow):
 
     def editCut(self):
         self.assy.cut()
-        self.update()
+        self.win_update()
 
     def editCopy(self):
         self.assy.copy()
-        self.update()
+        self.win_update()
 
     def editPaste(self):
         if self.assy.shelf.members:
@@ -596,7 +602,7 @@ class MWsemantics(MainWindow):
         """
         self.assy.kill()
         self.glpane.paintGL()
-        self.mt.update()
+        self.mt.mt_update()
 
     def editFind(self):
         self.statusBar.message("<span style=\"color:#ff0000\">Find: Not implemented yet.</span>")
@@ -709,7 +715,7 @@ class MWsemantics(MainWindow):
                 # hits a button, so it's more important to fix any bugs that
                 # might be in other code failing to call changeapp when needed.
             self.glpane.setDisplay(form)
-        self.update() # bruce 041206, needed for model tree display mode icons
+        self.win_update() # bruce 041206, needed for model tree display mode icons
         ## was self.glpane.paintGL()
 
 
@@ -822,19 +828,19 @@ class MWsemantics(MainWindow):
 
     def makeGround(self):
         self.assy.makeground()
-        self.update()
+        self.win_update()
         
     def makeStat(self):
         self.assy.makestat()
-        self.update()
+        self.win_update()
 
     def makeMotor(self):
         self.assy.makeRotaryMotor(self.glpane.lineOfSight)
-        self.update()
+        self.win_update()
 
     def makeLinearMotor(self):
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
-        self.update()
+        self.win_update()
 
     ###################################
     # Modify Toolbar Slots
@@ -869,12 +875,12 @@ class MWsemantics(MainWindow):
     def modifyWeld(self):
         """ Create a single chunk from two of more selected chunks """
         self.assy.weld()
-        self.update()
+        self.win_update()
 
     def modifyAlignCommonAxis(self):
         """ Align selected chunks by rotating them """
         self.assy.align()
-        self.update()
+        self.win_update()
         
     ###################################
     # Help Toolbar Slots

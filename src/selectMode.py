@@ -100,7 +100,7 @@ class selectMode(basicMode):
             if selSense == 0: self.o.assy.unpick_at_event(event)
             if selSense == 1: self.o.assy.pick_at_event(event)
             if selSense == 2: self.o.assy.onlypick_at_event(event)
-            self.w.update()
+            self.w.win_update()
             return
 
         self.sellist += [p1]
@@ -123,7 +123,7 @@ class selectMode(basicMode):
             # (for debug, it's sometimes useful to not reset sellist here,
             #  so you can see it at the same time as the selection it caused.)
 
-        self.w.update()
+        self.w.win_update()
 
     def leftDouble(self, event):
         """Select the part containing the atom the cursor is on.

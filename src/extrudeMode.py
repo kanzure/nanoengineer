@@ -595,7 +595,7 @@ class extrudeMode(basicMode):
             self.circle_n = val
             #e recompute... ###@@@ this is what needs doing... maybe also switch memoized data *right here*... this_bend thisbend
             self.update_from_controls() ###k guess -- this control is not even present as i write this line, tho it might be soon
-            self.w.update() # or just repaint [this is redundant]
+            self.w.win_update() # or just repaint [this is redundant]
         return
 
     def spinbox_value_changed(self, val):
@@ -849,7 +849,7 @@ class extrudeMode(basicMode):
         if self.should_update_model_tree:
             self.should_update_model_tree = 0 # reset first, so crashing calls are not redone
             self.needs_repaint = 0
-            self.w.update() # update glpane and model tree
+            self.w.win_update() # update glpane and model tree
         elif self.needs_repaint: ###### merge with self.repaint_if_needed() #######@@@
             self.needs_repaint = 0
             self.o.paintGL() # just update glpane
