@@ -73,6 +73,10 @@ void display_mainloop() {
 	int x;
 	printf("making movie\n");
 	for (x=0; x<1000; x++) {
+		printf(" %d", x);
+		fflush(stdout);
+		if ((x & 15) == 15)
+			printf("\n");
 		calcloop(15);
 		snapshot(x);
 	}
