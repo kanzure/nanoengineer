@@ -368,15 +368,13 @@ class molecule(Node, InvalMixin):
         self.atpos
         # we must access self.atpos, since we depend on it in our inval rules
         # (if that's too slow, then anyone invalling atpos must inval this too #e)
-        singlets = self.singlets
-        if len(singlets):
-            # this might have been None (a bug) for no singlets #bruce 041206
+        if len(self.singlets):
+            # (This was apparently None for no singlets -- always a bug,
+            #  and caused bug 237 in Extrude entry. [bruce 041206])
             return A( map( lambda atm: atm.posn(), self.singlets ) )
         else:
             return []
-        #bruce 041119 added "or []" to fix a bug - try recompute everything for no-sing mol...
-        # but bruce 041123 removed "or []" again, for fear of singlpos = A([[0.0,0.0,0.0]])
-        # being false (which it would be, though it's an unlikely value of singlpos).
+        pass
     
     # These 4 attrs are stored in one tuple, so they can be invalidated
     # quickly as a group.
@@ -1026,7 +1024,6 @@ class molecule(Node, InvalMixin):
         self.havelist = 0
         self.seticon()
         self.assy.modified = 1
-        self.assy.mt.update() ###e this is too expensive; needs revision. ###@@@ [bruce 041202 comment]
         
     def changeapp(self):
         """call when you've changed appearance of the molecule

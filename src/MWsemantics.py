@@ -606,7 +606,8 @@ class MWsemantics(MainWindow):
                 # hits a button, so it's more important to fix any bugs that
                 # might be in other code failing to call changeapp when needed.
             self.glpane.setDisplay(form)
-        self.glpane.paintGL()
+        self.update() # bruce 041206, needed for model tree display mode icons
+        ## was self.glpane.paintGL()
 
     def setdisplay(self, a0):
         #bruce 041129 suspects this is obsolete
