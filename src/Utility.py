@@ -85,6 +85,16 @@ class Node:
     name = "" # for use before __init__ runs (used in __str__ of subclasses)
     
     def __init__(self, assembly, parent, name=None): ###@@@ fix inconsistent arg order
+        """Make a new node (Node or any subclass), in the given assembly
+        (I think assembly must always be supplied, but I'm not sure),
+        with the given dad (parent) (a Group node or None),
+        adding it to that dad as a new member if necessary,
+        with the optionally given name (or "" if none is supplied).
+        All args are supplied positionally, even the named arg 'name'.
+        Warning: arg order is inconsistent with some Node subclasses' __init__ methods.
+        """
+        #bruce 050205 added docstring
+        
         self.assy = assembly
         self.name = name or "" # assumed to be a string by some code
         self.picked = False # whether it's selected
@@ -97,21 +107,30 @@ class Node:
             # (this will never become True except for Groups)
             # (when more than one tree widget can show the same node, .open will need replacement
             #  with treewidget-specific state #e)
+        
+        #bruce 050205 new fields to help fix clipboard/DND bugs -- not yet used, but will be used soon
+        # (and which anticipate some planned Beta features):
+        self.space = None # not a node (what it is is explained separately or not yet);
+            # more like an assy or "subassy";
+            # addmember might change this to dad.assy
+        self.selgroup = -1 # cached find_selection_group() retval, a Node or None, -1 means invalid #e or use getattr? or maintain?
+        #end bruce 050205 new fields
+        
         self.dad = parent # another Node (which must be a Group), or None
         if self.dad:
-            self.dad.addmember(self)
+            self.dad.addchild(self) #bruce 050206 changed addmember to addchild, enforcing dad correctness
         return
 
     def redmsg(self, msg): #bruce 050203
         from HistoryWidget import redmsg
         self.assy.w.history.message( redmsg( msg ))
 
-    def select_enabled(self): #bruce 050131 for Alpha ###@@@ use it
-        """Whether model tree should permit selection of this node (and all its members).
-        [To be overridden by Nodes it would be unsafe for the user to *ever* select.
-         Warning: internal code should not select them either, but this might not be enforced.]
-        """
-        return True # for most nodes
+##    def select_enabled(self): #obs, better to just override self.pick() [bruce 050206]
+##        """Whether model tree should permit selection of this node (and all its members).
+##        [To be overridden by Nodes it would be unsafe for the user to *ever* select.
+##         Warning: internal code should not select them either, but this might not be enforced.]
+##        """
+##        return True # for most nodes
 
     def is_top_of_selection_group(self): #bruce 050131 for Alpha [#e rename is_selection_group?]
         """Whether this node is the top of a "selection group".
@@ -402,19 +421,19 @@ class Node:
         else:
             self.dad.addchild( node, after = self) # Insert node after self
         return
-        # old code:
-        m = self.dad.members
-        if before: i = m.index(self) # Insert node before self
-        else: i = m.index(self) + 1 # Insert node after self
-        m.insert(i, node)
-        node.dad = self.dad
-        node.maintain_invariants_after_new_dad()
-        node.dad.changed_members()
-        return
-        # bruce comment 010510: this method does not remove it from other Groups it might be in
-        # (i.e. from prior node.dad if that's not None).
-        # If those are never again used, that won't matter. If they are, bugs might ensue,
-        # because they might assume the members' dads point to themselves -- I'm not sure.
+##        # old code:
+##        m = self.dad.members
+##        if before: i = m.index(self) # Insert node before self
+##        else: i = m.index(self) + 1 # Insert node after self
+##        m.insert(i, node)
+##        node.dad = self.dad
+##        node.changed_dad()
+##        node.dad.changed_members()
+##        return
+##        # bruce comment 010510: this method does not remove it from other Groups it might be in
+##        # (i.e. from prior node.dad if that's not None).
+##        # If those are never again used, that won't matter. If they are, bugs might ensue,
+##        # because they might assume the members' dads point to themselves -- I'm not sure.
     
     def addmember(self, node, before_or_top = False):
         """
@@ -517,10 +536,28 @@ class Node:
         # this implem is only correct for leaf nodes:
         self.unpick() # before 050131 was Node.unpick(self), which was wrong for chunk and jig.
 
-    def maintain_invariants_after_new_dad(self): #bruce 050131 for Alpha
+    _old_dad = None ###k not yet used? #####@@@@@ review got to here, except: to chgdad added only cmts plus docstring plus new name
+
+    def in_clipboard(self): #bruce 050205 temporary ###@@@ [should use a more general concept of assy.space]
+        """For a leaf node: Are we definitely inside some clipboard item?
+        For a Group node: Would new members added to us be, or be inside, a clipboard item?
+        (I.e., in both cases, are we the Clipboard or in its tree?)
+        [This only works as long as self.assy.shelf is the Clipboard and works like it does now, 050205.
+         It's only useful as long as the rest of the code has special cases for clipboard vs main part --
+         hopefully not for much longer.]
+        """
+        try:
+            return self.assy.shelf.is_ascendant(self)
+        except:
+            return False # assume not, if e.g. we have no assy, it has no shelf, etc
+    
+    def changed_dad(self): #bruce 050205 renamed this from maintain_invariants_after_new_dad
+        "[private] Must be called after self.dad might have changed, before again exposing modified node to the public."
         node = self
-        assert node.dad
-        node.assy = node.dad.assy # this will change after Alpha
+        assert node.dad #k not sure if good to need this, but seems to fit existing calls... that might change [050205 comment]
+            #e if no dad: assy, space, selgroup is None.... or maybe keep prior ones around until new real dad, not sure
+        node.assy = node.dad.assy # this might change soon, or might not... but if it's valid at all, it needs to be propogated down!
+            # we leave it like this for now only in case it's ever being used to init the assy field from None.
         if node.picked:
             # bruce 050131 for Alpha:
             # worry about whether node is in a different selection group than before;
@@ -530,7 +567,37 @@ class Node:
             node.pick() #bruce 050126 - maintain the new invariant! (two methods need this)
             # warning: this might make some callers need to update glpane who didn't need to before.
             # possible bugs from this are not yet analyzed.
+            # Note 050206: the clipboard can't be selected, and if it could be, our invariants would be inconsistent
+            # if it had more than one item! (Since all items would be selected but only one selgroup should be.)
+            # So, this line never picks a clipboard item as a whole.
         return
+
+    def changed_dad_comments(): "never called, just some semi-obs comments I need here for awhile"
+        # new features 050205 for Alpha (to help fix DND/clipboard bugs):
+        # Figure out whether our molecules need to be added to / removed from assy.molecules,
+        # or more generally (someday), whether we exited and/or entered a "space"
+        # which wants to keep track of what's inside it (etc).
+
+        # Did we leave assy.tree? Let's assume we were in it if _old_dad was None ... what maintains assy.molecules now?
+        # assy.__init__ sets to []
+        # assy.addmol "add a chunk to assy" - adds to .mols and does other things
+        ##### *including tree.addmember* so what if already added elsewhere? ####@@@@ review for possible bugs in calls of that
+        # - it's called in a few special places that make mols when operating on selected stuff!
+        # - in fileIO: assy.addmol(mol); mol.moveto(group) -- this might solve the issues about addmol vs groups.
+        # - ...
+        # (when they don't have a group to put them in)
+        # bugs if sel in clipboard.... #fix later.. just make those ops deselect clipboard... for beta work in proper space...
+        #  tho if we only do .mols that is better than nothing ie a true partial bugfix.
+        # sanitize_for_clipboard_0
+        # chunk's mol.kill [so i reviewed it now, revised its debug code]
+        # ... this is all, so DND into group in tree must now ... only work if you were already in tree, since no addmol.
+        # ... and addmol is not good for adding things to assy... but some of it is needed (more than just .molecules), in theory...
+
+        # ... I ended up not yet supporting this in changed_dad, but just having some or all DND moves call assy.update_mols!
+        # Maybe I'll make assy methods cut/copy/delete do this too, not sure.
+
+        # end of bruce new features 050205 for Alpha
+        # [they are all comments! well, those are useful too... and less likely to cause new bugs (soon anyway) than actual code!]
     
     def hide(self):
         self.hidden = True
@@ -597,16 +664,22 @@ class Node:
         #  docstrings, that addmember interface mixes two things that ought to be
         #  separated.)
         
-        if node == self: return # not needed -- optimization of is_ascendant special case
-            
-        # Mark comments 041210
-        # For DND, self is the selected item and obj is the item we dropped on. 
-        # If self is a group, we need to check if obj is a child of self. If so, return since we can't do that.
-        if self.is_ascendant(node): return
-        if self.dad:
-            #bruce 050203 needed to add this condition due to grouping by Clipboard.drop_on
-            self.dad.delmember(self)
-        node.addmember(self, before)
+        #bruce 050205 change: just go directly to addmember, after my addchild upgrades today.
+        # note, this 'before' is a positional arg for the before_or_top flag,
+        # not the named arg 'before' of addchild! Btw we *do* need to call addmember
+        # (with its dual personality dependending on node being leaf or not)
+        # for now, while DND uses drop_on groups to mean drop_under them.
+        
+##        if node == self: return # not needed -- optimization of is_ascendant special case
+##            
+##        # Mark comments 041210
+##        # For DND, self is the selected item and obj is the item we dropped on. 
+##        # If self is a group, we need to check if obj is a child of self. If so, return since we can't do that.
+##        if self.is_ascendant(node): return
+##        if self.dad:
+##            #bruce 050203 needed to add this condition due to grouping by Clipboard.drop_on
+##            self.dad.delmember(self)
+        node.addmember(self, before_or_top = before) # this needs to be addmember, not addchild or addsibling
 
     def nodespicked(self):
         """Return the number of nodes currently selected in this subtree.
@@ -770,7 +843,8 @@ class Group(Node):
 
     # methods before this are by bruce 050108 and should be reviewed when my rewrite is done ###@@@
 
-    def kluge_change_class(self, subclass): #bruce 050109 ###@@@ temporary
+    def kluge_change_class(self, subclass):
+        #bruce 050109 ###@@@ temporary [until fileIO & assy make this kind of assy.root, shelf, tree on their own]
         """Return a new Group with this one's members but of the specified subclass
         (and otherwise just like this Group, which must be in class Group itself,
         not a subclass). This won't be needed once class assembly is fixed to make
@@ -778,10 +852,11 @@ class Group(Node):
         """
         assert self.__class__ == Group
         new = subclass(self.name, self.assy, self.dad) # no members yet
-        assert isinstance(new, Group)
+        assert isinstance(new, Group) # (but usually it's also some subclass of Group, unlike self)
         if self.dad:
             # don't use addmember, it tells the assy it changed
-            # (and doesn't add new in right place either)
+            # (and doesn't add new in right place either) --
+            # just directly patch dad's members list to replace self with new
             ind = self.dad.members.index(self)
             self.dad.members[ind] = new
                 # don't tell dad its members changed, until new is finished (below)
@@ -794,7 +869,16 @@ class Group(Node):
         self.node_icon = "<bug if this is called>"
         for mem in new.members:
             mem.dad = new
+            # bruce 050205:
+            # should we now call mem.changed_dad()? reasons yes: new's new class might differ in rules for selgroup or space
+            # (e.g. be the top of a selgroup) and change_dad might be noticing and responding to that change,
+            # so this might turn out to be required if something has cached that info in mem already.
+            # reasons no: ... some vague uneasiness. Oh, it might falsely tell assy it changed, but I think our caller
+            # handles that. So yes wins, unless bugs show up!
+            # BUT: don't do this until we're all done (so new is entirely valid).
+            ## mem.changed_dad()
         for attr in ['open','hidden','picked']:
+            # not name, assy, dad (done in init or above), selgroup, space (done in changed_dad)
             try:
                 val = getattr(self, attr)
             except AttributeError:
@@ -803,6 +887,8 @@ class Group(Node):
                 # (and should not care here, as long as I get them all)
             else:
                 setattr(new, attr, val)
+        for mem in new.members:
+            mem.changed_dad() # reason is explained above [bruce 050205]
         new.dad.changed_members() # since new class is different from self.class, this might be needed ###@@@ is it ok?
         return new
 
@@ -812,70 +898,139 @@ class Group(Node):
 ##        self.open = True
 
     # bruce 050113 deprecated addmember and confined it to Node; see its docstring.
-        
-    def addchild(self, node, _guard_ = 050201, top = False, after = None, before = None): # [renamed from addmember - bruce 050113]
-        """Add the given node to the end (aka. bottom) of this Group's members list,
+
+    def addchild(self, newchild, _guard_ = 050201, top = False, after = None, before = None): # [renamed from addmember - bruce 050113]
+        """Add the given node, newchild, to the end (aka. bottom) of this Group's members list,
         or to the specified place (top aka. beginning, or after some child or index,
         or before some child or index) if one of the named arguments is given.
-        (Behavior with more than one named argument is undefined.)
-           Other details (some of which need revision):
-        The existence of this method (as an attribute) might be used as a check
+        Ok even if newchild is already a member of self, in same or different
+        location than requested (it will be moved), or a member of some other Group
+        (it will be removed). (Behavior with more than one named argument is undefined.)
+           Note: the existence of this method (as an attribute) might be used as a check
         for whether a Node can be treated like a Group [as of 050201].
-        [node should not already be in another Group, since it's not removed from one]
-        [special case: legal and no effect if node is None or 0 (or anything false);
-         this turns out to be needed by assy.copy/Group.copy or Jig.copy! [050131 comment]]
+           Special case: legal and no effect if newchild is None or 0 (or anything false);
+        this turns out to be needed by assy.copy/Group.copy or Jig.copy! [050131 comment]
         [Warning (from when this was called addmember):
          semantics (place of insertion, and optional arg name/meaning)
          are not consistent with Node.addmember; see my comments in its docstring.
          -- bruce 050110]
         """
-        #bruce 050110 updated docstring based on current code
+        #bruce 050110/050206 updated docstring based on current code
+        # Note: Lots of changes implemented at home 050201-050202 but not committed until
+        # 050206 (after Alpha out); most dates 050201-050202 below are date of change at home.
         #bruce 050201 added _guard_, after, before
         assert _guard_ == 050201
-        if not node:
-            #bruce 050201 comment: sometimes node was the number 0,
+        if not newchild:
+            #bruce 050201 comment: sometimes newchild was the number 0,
             # since Group.copy returned that as a failure code!!!
             # Or it can be None (Jig.copy, or Group.copy after I changed it).
             return
+
+        #bruce 050205:
+        # adding several safety checks (and related new feature of auto-delmember)
+        # for help with MT DND; they're a good idea anyway.
+        # See also today's changes to changed_dad().
+        if newchild.dad and not (newchild in newchild.dad.members):
+            # This is really a bug or a very deprecated behavior, but we tolerate it for now.
+            # Details: some node-creating methods like molecule.copy and/or Group.copy
+            # have the unpleasant habit of setting dad in the newly made node
+            # without telling the dad! This almost certainly means the other
+            # dad-related aspects of the node are wrong... probably best to just pretend
+            # those methods never did that. Soon after Alpha we should fix them all and then
+            # make this a detected error and no longer tolerate it.
+            if platform.atom_debug:
+                print "atom_debug: addchild setting newchild.dad to None since newchild not in dad's members:",self,newchild
+            newchild.dad = None
+        if newchild.is_ascendant(self):
+            #bruce 050205 adding this for safety (should prevent DND-move cycles as a last resort, tho might lose moved nodes)
+            if platform.atom_debug:
+                # this msg covers newchild==self too since that's a length-1 cycle
+                print "atom_debug: addchild refusing to form a cycle, doing nothing; this indicates a bug in the caller:",self,newchild
+            return
+        if newchild.dad:
+            # first cleanly remove newchild from its prior home.
+            # (Callers not liking this can set newchild.dad = None before calling us.
+            #  But doing so (or not liking this) is deprecated.)
+            if newchild.dad == self:
+                # this might be wanted (as a way of moving a node within self.members)
+                # (and a caller might request it by accident when moving a node from a general position,
+                #  so we want to cooperate), but the general-case code won't work
+                # if the before or after options were used, whether as nodes (if the node used as a marker is newchild itself)
+                # or as indices (since removal of newchild will change indices of subsequent nodes).
+                # So instead, if those options were used, we fix them to work.
+                # We print a debug msg just as fyi; that can be removed once this is stable and tested.
+                if platform.atom_debug and 0:
+                    # i'll remove this msg soon after i first see it.
+                    print "atom_debug: fyi: addchild asked to move newchild within self.members, might need special cases",self,newchild
+                    print "...options: top = %r, after = %r, before = %r" % (top , after , before)
+                if type(before) == type(1):
+                     # indices will change, use real nodes instead
+                     # (ok even if real node is 'newchild'! we detect that below)
+                    before = self.members[before]
+                if type(after) == type(1):
+                    after = self.members[after]
+                if before == newchild or after == newchild:
+                    # this is a noop, and it's basically a valid request, so just do it now (i.e. return immediately);
+                    # note that general-case code would fail since these desired-position-markers
+                    # would be gone once we remove newchild from self.members.
+                    return
+                # otherwise (after our fixes above) the general-case code should be ok.
+                # Fall thru to removing newchild from prior home (in this case, self),
+                # before re-adding it in a new place.
+            # remove newchild from its prior home (which may or may not be self):
+            newchild.dad.delmember(newchild)
+        # Only now will we actually insert newchild into self.
+        # [end of this part of bruce 050205 changes]
+        
         ## self.assy.changed() # now done by changed_members below
-            ###@@@ needed in addsibling too! (unless self.changed gets defined.)
-            # (and what about informing the model tree, if it's displaying us?
-            #  probably we need some subscription-to-changes or modtime system...)
+            #e (and what about informing the model tree, if it's displaying us?
+            #   probably we need some subscription-to-changes or modtime system...)
         if top:
-            self.members.insert(0, node) # Insert node at the very top
+            self.members.insert(0, newchild) # Insert newchild at the very top
         elif after != None: # 0 has different meaning than None!
             if type(after) != type(0):
                 after = self.members.index(after) # raises ValueError if not found, that's fine
             if after == -1:
-                self.members += [node] # Add node to the bottom (.insert at -1+1 doesn't do what we want for this case)
+                self.members += [newchild] # Add newchild to the bottom (.insert at -1+1 doesn't do what we want for this case)
             else:
-                self.members.insert(after+1, node) # Insert node after the given position #k does this work for negative indices?
+                self.members.insert(after+1, newchild) # Insert newchild after the given position #k does this work for negative indices?
         elif before != None:
             if type(before) != type(0):
                 before = self.members.index(before) # raises ValueError if not found, that's fine
-            self.members.insert(before, node) # Insert node before the given position #k does this work for negative indices?
+            self.members.insert(before, newchild) # Insert newchild before the given position #k does this work for negative indices?
         else:
-            self.members += [node] # Add node to the bottom i.e. end (default case)
-        node.dad = self
-        node.maintain_invariants_after_new_dad()
-        node.dad.changed_members() # must be done *after* they change
+            self.members.append(newchild) # Add newchild to the bottom, i.e. end (default case)
+        newchild.dad = self
+        newchild.changed_dad()
+        newchild.dad.changed_members() # must be done *after* they change and *after* changed_dad has made them acceptable for new dad
+        # note: if we moved newchild from one place to another in self,
+        # changed_members is called twice, once after deletion and once after re-insertion.
+        # probably ok, but I should #doc this in the related subscriber funcs
+        # so callers are aware of it. [bruce 050205]
         return
 
     def delmember(self, obj):
+        if obj.dad != self: # bruce 050205 new feature -- check for this (but do nothing about it)
+            if platform.atom_debug:
+                print_compact_stack( "atom_debug: fyi: delmember finds obj.dad != self: ") #k does this ever happen?
         obj.unpick() #bruce 041029 fix bug 145
+            #k [bruce 050202 comment, added 050205]: review this unpick again sometime, esp re DND drag_move
+            # (it might be more relevant for addchild than for here; more likely it should be made not needed by callers)
             # [bruce 050203 review: still needed, to keep killed obj out of selmols,
-            #  unless we revise things enough to let us invalidate selmols here, or the like.]
+            #  unless we revise things enough to let us invalidate selmols here, or the like;
+            #  and [050206] we should, since this side effect is sometimes bad
+            #  (though I forget which recent case of it bugged me a lot).]
         ## self.assy.changed() # now done by changed_members below
         try:
             self.members.remove(obj)
         except:
-            # relying on this being permitted is deprecated;
-            # therefore we don't bother to avoid our other side effects
-            # (i.e. changed_members & unpick) in this case [bruce 050121]
+            # relying on this being permitted is deprecated [bruce 050121]
             if platform.atom_debug:
-                print "atom_debug: fyi: delmember finds obj not in members list" #k does this ever happen?
-            pass
+                print_compact_stack( "atom_debug: fyi: delmember finds obj not in members list: ") #k does this ever happen?
+            return
+        obj.dad = None # bruce 050205 new feature
         self.changed_members() # must be done *after* they change
+        return
 
     def pick(self):
         """select the Group -- and all its members! [see also pick_top]
@@ -1279,7 +1434,7 @@ class PartGroup(Group):
 class ClipboardShelfGroup(Group):
     """A specialized Group for holding the Clipboard (aka Shelf). [This will be revised... ###@@@]
     """
-    def select_enabled(self): return False #bruce 050131 for Alpha -- not yet used, maybe not needed
+##    def select_enabled(self): return False #bruce 050131 for Alpha -- not yet used, maybe not needed
     def pick(self): #bruce 050131 for Alpha
         # I might just do this and not bother honoring select_enabled; don't know yet.
         self.redmsg( "Clipboard can't be selected or dragged. (Individual clipboard items can be.)" )
@@ -1340,7 +1495,7 @@ class RootGroup(Group):
     (1) the assembly itself might as well be this Node,
     (2)  the toplevel members of an assembly will differ from what they are now.
     """
-    def select_enabled(self): return False #bruce 050131 for Alpha -- should never matter
+##    def select_enabled(self): return False #bruce 050131 for Alpha -- should never matter
     def pick(self): #bruce 050131 for Alpha
         self.redmsg( "Internal error: tried to select assy.root (ignored)" )
     #e does this need to differ from a Group? maybe in some dnd/rename attrs...
