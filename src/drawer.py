@@ -34,7 +34,7 @@ icosix = ((9, 2, 6), (1, 11, 5), (11, 1, 8), (0, 11, 4), (3, 1, 7),
 #          /\              /\
 #         /  \            /  \
 #        /    \          /----\
-#       /      \  =>    / \  / \
+#       /      \  =>  / \  / \
 #      /        \      /   \/   \
 #      ----------      ----------
 #
@@ -189,17 +189,15 @@ def setup():
     glNewList(solidCubeList, GL_COMPILE)
     glBegin(GL_QUADS)
     for i in xrange(len(cubeIndices)):
-        for j in xrange(4):    
+        for j in xrange(4) :    
                 nTuple = tuple(cubeNormals[cubeIndices[i][j]])
                 vTuple = tuple(cubeVertices[cubeIndices[i][j]])
                 glNormal3fv(nTuple)
                 glVertex3fv(vTuple)
     glEnd()
     glEndList()                
-    
 
 def drawsphere(color, pos, radius, detailLevel):
-
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
@@ -210,7 +208,6 @@ def drawsphere(color, pos, radius, detailLevel):
 
 
 def drawwiresphere(color, pos, radius, detailLevel=1):
-
     glColor3fv(color)
     glDisable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_LINE)
@@ -227,9 +224,17 @@ def drawcylinder(color, pos1, pos2, radius, capped=0):
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
     glPushMatrix()
     vec = pos2-pos1
-    vecn = norm(vec)
+    axis = norm(vec)
     glTranslatef(pos1[0], pos1[1], pos1[2])
-    glRotate(-acos(vecn[2])*180.0/pi,vecn[1],-vecn[0], 0.0)
+    
+    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+    ## display problem on some platforms
+    angle = -acos(axis[2])*180.0/pi
+    if (axis[2]*axis[2] >= 1.0):
+        glRotate(angle, 0.0, 1.0, 0.0)
+    else:
+        glRotate(angle, axis[1], -axis[0], 0.0)
+  
     glScale(radius,radius,vlen(vec))
     glCallList(CylList)
     if capped: glCallList(CapList)
@@ -381,13 +386,18 @@ def drawbrick(color, center, axis, l, h, w):
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
     glPushMatrix()
     glTranslatef(center[0], center[1], center[2])
-    glRotate(-acos(axis[2])*180.0/pi, axis[1], -axis[0], 0.0)
+    
+    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+    ## display problem on some platforms
+    angle = -acos(axis[2])*180.0/pi
+    if (axis[2]*axis[2] >= 1.0):
+        glRotate(angle, 0.0, 1.0, 0.0)
+    else:
+        glRotate(angle, axis[1], -axis[0], 0.0)
+  
     glScale(h, w, l)
-    ###Huaicai 1/15/05: to fix the linear motor display problem. 
-    glFrontFace(GL_CW)
     #glut.glutSolidCube(1.0)
     glCallList(solidCubeList)
-    glFrontFace(GL_CCW)
     glPopMatrix()
     
     
