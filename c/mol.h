@@ -9,6 +9,55 @@ typedef double GLfloat;
 #endif
 
 
+//#define DEBUG 1
+//#if DEBUG
+//extern int DebugLevel;
+//#define DBGWRAPPER(level,stmt) \
+//  if (DebugLevel >= level) { \
+//    fprintf(stderr, "%s:%d ", __FILE__, __LINE__); \
+//    stmt; \
+//  }
+//#define DBGPRINTF(level,format) \
+//  DBGWRAPPER(level, fprintf(stderr, format))
+//#define DBGPRINTF1(level,format,a) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a))
+//#define DBGPRINTF2(level,format,a,b) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a,b))
+//#define DBGPRINTF3(level,format,a,b,c) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c))
+//#define DBGPRINTF4(level,format,a,b,c,d) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d))
+//#define DBGPRINTF5(level,format,a,b,c,d,e) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e))
+//#define DBGPRINTF6(level,format,a,b,c,d,e,f) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e,f))
+//#define DBGPRINTF7(level,format,a,b,c,d,e,f,g) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e,f,g))
+//#define DBGPRINTF8(level,format,a,b,c,d,e,f,g,h) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e,f,g,h))
+//#define DBGPRINTF9(level,format,a,b,c,d,e,f,g,h,i) \
+//  DBGWRAPPER(level, fprintf(stderr, format,a,b,c,d,e,f,g,h,i))
+//#else
+//#define DBGPRINTF(level,format)
+//#define DBGPRINTF1(level,format,a)
+//#define DBGPRINTF2(level,format,a,b)
+//#define DBGPRINTF3(level,format,a,b,c)
+//#define DBGPRINTF4(level,format,a,b,c,d)
+//#define DBGPRINTF5(level,format,a,b,c,d,e)
+//#define DBGPRINTF6(level,format,a,b,c,d,e,f)
+//#define DBGPRINTF7(level,format,a,b,c,d,e,f,g)
+//#define DBGPRINTF8(level,format,a,b,c,d,e,f,g,h)
+//#define DBGPRINTF9(level,format,a,b,c,d,e,f,g,h,i)
+//#endif
+
+
+#if 0
+#define DBGPRINTF(x...) fprintf(stderr, ## x)
+#else
+#define DBGPRINTF(x...) ((void) 0)
+#endif
+
+
 #define SCRWID 640
 #define SCRHIT 480
 
