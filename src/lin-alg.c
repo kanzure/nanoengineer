@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "mol.h"
+#include "simulator.h"
 
 struct xyz vcon(double x) {
 	struct xyz u;
@@ -52,10 +52,3 @@ struct xyz vx(struct xyz v, struct xyz w) {
 	u.z = v.x * w.y - v.y * w.x;
 	return u;
 }
-
-/*
- * Local Variables:
- * c-basic-offset: 8
- * tab-width: 8
- * End:
- */
