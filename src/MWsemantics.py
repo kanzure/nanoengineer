@@ -1061,9 +1061,9 @@ class MWsemantics(MainWindow):
     def colorchoose(self, r, g, b): # r, g, b is the default color displayed in the QColorDialog window.
         color = QColorDialog.getColor(QColor(r, g, b), self, "choose")
         if color.isValid():
-            return color.red()/256.0, color.green()/256.0, color.blue()/256.0
+            return color.red()/255.0, color.green()/255.0, color.blue()/255.0
         else:
-            return r/256.0, g/256.0, b/256.0
+            return r/255.0, g/255.0, b/255.0
 
 
     def keyPressEvent(self, e):

@@ -424,7 +424,7 @@ class extrudeMode(basicMode):
 
     # class constants
     is_revolve = 0
-    backgroundColor = 200/256.0, 100/256.0, 100/256.0 # different than in cookieMode
+    backgroundColor = 199/255.0, 100/255.0, 100/255.0 # different than in cookieMode
     modename = 'EXTRUDE'
     default_mode_status_text = "Mode: Extrude"
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
@@ -1909,7 +1909,7 @@ class revolveMode(extrudeMode):
     "revolve, a slightly different version of Extrude, someday with a different dashboard"
 
     # class constants
-    backgroundColor = 150/256.0, 200/256.0, 100/256.0 # different than in extrudeMode
+    backgroundColor = 150/255.0, 200/255.0, 100/255.0 # different than in extrudeMode
     modename = 'REVOLVE'
     msg_modename = "revolve mode" #e need to fix up anything else?
     default_mode_status_text = "Mode: Revolve"

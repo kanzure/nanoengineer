@@ -10,8 +10,8 @@ from modes import *
 class cookieMode(basicMode):
 
     # class constants
-    backgroundColor = 103/256.0, 124/256.0, 53/256.0
-    gridColor = 223/256.0, 149/256.0, 0/256.0
+    backgroundColor = 103/255.0, 124/255.0, 53/255.0
+    gridColor = 222/255.0, 148/255.0, 0/255.0
     modename = 'COOKIE'
     default_mode_status_text = "Mode: Cookie Cutter"
     

@@ -46,7 +46,7 @@ from fileIO import *
 paneno = 0
 #  ... what a Pane ...
 
-normalBackground = 217/256.0, 214/256.0, 160/256.0
+normalBackground = 216/255.0, 213/255.0, 159/255.0
 
 normalGridLines = (0.0, 0.0, 0.6)
 

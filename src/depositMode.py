@@ -77,8 +77,8 @@ class depositMode(basicMode):
     """
     
     # class constants
-    backgroundColor = 74/256.0, 187/256.0, 227/256.0
-    gridColor = 74/256.0, 187/256.0, 227/256.0
+    backgroundColor = 74/255.0, 186/255.0, 226/255.0
+    gridColor = 74/255.0, 186/255.0, 226/255.0
     modename = 'DEPOSIT' 
     msg_modename = "Build mode" 
     default_mode_status_text = "Mode: Build"

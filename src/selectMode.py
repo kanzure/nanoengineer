@@ -12,7 +12,7 @@ class selectMode(basicMode):
     "the default mode of GLPane"
     
     # class constants
-    backgroundColor = 190/256.0, 229/256.0, 239/256.0
+    backgroundColor = 189/255.0, 228/255.0, 238/255.0
     gridColor = (0.0, 0.0, 0.6)
 
     # default initial values

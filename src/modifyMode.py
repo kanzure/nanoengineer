@@ -11,8 +11,8 @@ class modifyMode(basicMode):
     "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
 
     # class constants
-    backgroundColor = 255/256.0, 174/256.0, 247/256.0
-    gridColor = 52/256.0, 129/256.0, 26/256.0
+    backgroundColor = 254/255.0, 173/255.0, 246/255.0
+    gridColor = 52/255.0, 128/255.0, 26/255.0
     modename = 'MODIFY'
     default_mode_status_text = "Mode: Move Chunks"
     
