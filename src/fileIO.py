@@ -83,13 +83,6 @@ def insertpdb(assy,filename):
     """Reads a pdb file and inserts it into the existing model """
     mol  = _readpdb(assy, filename, isInsert = True)
     assy.addmol(mol)
-    
-def insertmmp(assy, fileName):
-    """Reading a mmp file and insert the part into the existing model """    
-    groupList  = _readmmp(assy, fileName, isInsert = True)
-    
-    if len(groupList) != 3: print "wrong number of top-level groups"
-    assy.tree.addmember(groupList[1])
 
 # Write a single molecule into a Protein DataBank-format file 
 def writepdb(assy, filename):
