@@ -988,7 +988,22 @@ class extrudeMode(basicMode):
         # make handles from mergeables
         for (i1,i2),(ideal,err) in mergeables.items():
             pos = ideal
-            radius == err
+            radius = err
+            # [bruce 041101:] We used to have the following highly amusing bug:
+            # radius == err instead of radius = err.
+            # The err here was (e.g.) 0.77, but the radius in VdW display mode was 1.1
+            # (left over from disp, radius = atom.howdraw(dispdef), far above),
+            # whereas in CPK it was 0.275. So what everyone is used to, for extrude's bond tolerance,
+            # if they usually enter it in VdW as I do (for unknown reasons),
+            # is to see 1.1 whereas the code wanted to show them 0.77.
+            # So to repair that I will multiply it by a constant, 1.1/0.77.
+            # Josh also suggested always making it 1.5 times bigger by default,
+            # so I should do that too. But I am cautious about that, so use 1.25 instead.
+            # In fact, what if he was entering it from CPK? Ok, I'll first just fix the bug
+            # and then see if he still wants it bigger.
+            # Either of these changes could be done instead when I init the slider...
+            # but nevermind that for now.
+            radius *= (1.1/0.77) * 1.0 # see above comment for why
             info = (i1,i2)
             hset.addHandle(pos, radius, info)
             if i2 != i1:
