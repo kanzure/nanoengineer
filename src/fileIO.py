@@ -644,10 +644,15 @@ def writemovie(assy, moviefile, mflag = False):
     if r == 1: # User pressed Abort button in progress dialog.
         msg = "<span style=\"color:#ff0000\">Simulator: Aborted.</span>"
         assy.w.statusBar.message(msg)         
-        # We should kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
-        # Go to http://starship.python.net/crew/mhammond/ for more information.
-        # - Mark 050106
-        if sys.platform not in ['win32']: os.kill(kid, signal.SIGKILL) # Confirmed on Linux
+        # Kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
+        # - Mark 050107
+        if sys.platform == 'win32':
+            import win32api
+            win32api.TerminateProcess(kid, -1)
+            win32api.CloseHandle(kid)
+        else:
+            os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
+            
             
     else: # Something failed...
         msg = "<span style=\"color:#ff0000\">Simulation failed: exit code %r </span>" % r
