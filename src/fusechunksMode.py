@@ -13,6 +13,8 @@ from extrudeMode import mergeable_singlets_Q_and_offset, lambda_tol_nbonds
 from chunk import bond_at_singlets
 from HistoryWidget import redmsg
 
+offset = V(0,0,0)
+
 class fusechunksMode(modifyMode):
     "Allows user to move one chunk and fuse it to other chunks in the part"
 
@@ -235,8 +237,17 @@ class fusechunksMode(modifyMode):
                             if a2.element == Singlet:
                                 s2 = a2
 
-                                # The secret sauce...
+                                # The code Bruce provided doesn't work:
+                                # ok = mergeable_singlets_Q_and_offset(s1, s2, offset, self.tol)
+                                # if ok:
+                                # ok is always non-zero.  Ask Bruce if he knows why...
+                                
+                                # I substituted the line below in place of mergeable_singlets_Q_and_offset,
+                                # which compares the distance between s1 and s2.  If the distance
+                                # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
+                                # a proper use of tol, but it work for now.   Mark 050327
                                 if vlen (s1.posn() - s2.posn()) <= self.tol:
+                                    
                                     self.bondable_pairs.append( (s1,s2) ) # Add this pair to the list
             
                                     # Now increment ways_of_bonding for each of the two singlets.
