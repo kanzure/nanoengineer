@@ -29,16 +29,12 @@ void display(void) {
  */
 void snapshot(int n) {
 	int i,j;
-
-	fprintf(outf, "%d\n", Nexatom);
-	fprintf(outf, "Frame %d\n", n);
+	fwrite(&Nexatom, sizeof(int), 1, outf);
 	for (i=0; i<Nexatom; i++) {
 		if (atom[i].disp == 0)
 			continue;
-		fprintf(outf, "%s ", element[atom[i].elt].symbol);
-		fprintf(outf, "%g ", avg[i].x);
-		fprintf(outf, "%g ", avg[i].y);
-		fprintf(outf, "%g\n", avg[i].z);
+		fwrite(&atom[i].elt, sizeof(int), 1, outf);
+		fwrite(&avg[i], sizeof(struct xyz), 1, outf);
 	}
 }
 
@@ -61,7 +57,7 @@ void display_fini(void) {
 void display_mainloop() {
 	int x;
 	printf("making movie\n");
-	for (x=0; x<1000; x++) {
+	for (x=0; x<100; x++) {
 		printf(" %d", x);
 		fflush(stdout);
 		if ((x & 15) == 15)

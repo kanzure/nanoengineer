@@ -120,60 +120,45 @@ void xyz_frame_read(void) {
 	struct xyz vec1, vec2;
 
 	Nexatom = 0;   // overwrite any old atoms
-	fgets(buf, 127, inf);
-	j = sscanf(buf, "%d", &n);   // get the number of atoms
-	if (j == 0) {
-		// end of file!
-		done = 1;
+	j = fread(&n, sizeof(int), 1, inf);   // get the number of atoms
+	if (j < 1) {
+		done = 1;    // end of file!
 		return;
 	}
-	fgets(buf, 127, inf);  // ignore next line of input
+
+	Center.x = Center.y = Center.z = 0.0;
 	for (i = 0; i < n; i++) {
-		char element_name[4];
-		float x, y, z;
-		element_name[0] = '\0';
-		fgets(buf, 127, inf);
-		j = sscanf(buf, "%s %lf %lf %lf", element_name, &vec1.x, &vec1.y, &vec1.z);
-		if (j < 4) {
-			done = 1;
+		int elt;
+		struct xyz posn;
+		j = fread(&elt, sizeof(int), 1, inf);
+		if (j < 1) {
+			done = 1;   // end of file!
 			return;
 		}
-		// look up the index for this element
-		ord = 0;   // if unknown, call it a lone pair
-		for (j = 0; j < NUM_ELEMENTS_KNOWN; j++) {
-			if (strcmp(element_name, element[j].symbol) == 0) {
-				ord = j;
-				break;
-			}
+		j = fread(&posn, sizeof(struct xyz), 1, inf);
+		if (j < 1) {
+			done = 1;   // end of file!
+			return;
 		}
-		makatom(ord,vec1);
+		Center.x += posn.x;
+		Center.y += posn.y;
+		Center.z += posn.z;
+		makatom(elt, posn);
 	}
 
-	/* center the damn thing, and find the bounding box */
-	Center.x = Center.y = Center.z = 0.0;
-	for (i = 0; i < Nexatom; i++) {
-		Center.x += avg[i].x;
-		Center.y += avg[i].y;
-		Center.z += avg[i].z;
-	}
 	Center.x /= Nexatom;
 	Center.y /= Nexatom;
 	Center.z /= Nexatom;
+
+	double xmin, xmax, ymin, ymax, zmin, zmax;
+	xmin = xmax = 0.0;
+	ymin = ymax = 0.0;
+	zmin = zmax = 0.0;
+
 	for (i = 0; i < Nexatom; i++) {
 		avg[i].x -= Center.x;
 		avg[i].y -= Center.y;
 		avg[i].z -= Center.z;
-	}
-	Center.x = Center.y = Center.z = 0.0;
-
-	/* find bounding box */
-
-	double xmin, xmax, ymin, ymax, zmin, zmax;
-	xmin = xmax = avg[0].x;
-	ymin = ymax = avg[0].y;
-	zmin = zmax = avg[0].z;
-
-	for (i=1; i<Nexatom; i++) {
 		if (avg[i].x < xmin) xmin = avg[i].x;
 		if (avg[i].x > xmax) xmax = avg[i].x;
 		if (avg[i].y < ymin) ymin = avg[i].y;
@@ -181,6 +166,11 @@ void xyz_frame_read(void) {
 		if (avg[i].z < zmin) zmin = avg[i].z;
 		if (avg[i].z > zmax) zmax = avg[i].z;
 	}
+
+	/* now everybody is centered around zero */
+	Center.x = Center.y = Center.z = 0.0;
+
+	/* set up bounding box */
 	Bbox[0].x = xmin - 100.0;
 	Bbox[0].y = ymin - 100.0;
 	Bbox[0].z = zmin - 100.0;

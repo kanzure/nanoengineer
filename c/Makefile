@@ -4,6 +4,11 @@ CC=gcc
 CFLAGS=-O3 -g
 LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 
+ifeq ($(PROFILING),1)
+CFLAGS+=-pg
+LDFLAGS+=-pg
+endif
+
 # If we were going to use GTK, it would look something like this
 #CFLAGS+=-I/usr/include/gtk-2.0 \
 #	-I/usr/include/glib-2.0 \
