@@ -614,7 +614,8 @@ class depositMode(basicMode):
         return
 
     def leftShiftUp(self, event):
-        self.w.history.message("") # flush any transient message it's saving up
+        self.w.history.flush_saved_transients()
+            # flush any transient message it saved up
         if not self.dragatom: return
         self.baggage = []
         self.line = None

@@ -288,7 +288,14 @@ class HistoryWidget:
             self.saved_norepeat_id = norepeat_id # whether supplied or None
             self.widget_msg( msg, options)
         return
-
+    
+    def flush_saved_transients(self):
+        """make sure a saved-up transient message, if there is one,
+        is put into the history now
+        """
+        self.message(None)
+        # [passing None is a private implem -- outsiders should not do this!]
+    
     def transient_msg(self, msg_text, repaint = 0):
         """Show the message transiently (for now, as a Temporary message in Qt's main status bar).
         This only works for plain text messages, not html.
