@@ -638,10 +638,11 @@ class assembly:
                 a.molecule.changeapp(1)
             self.selatoms = {}
 
-    # deselect any selected molecules
+    # deselect any selected molecules or groups
     def unpickparts(self):
         self.root.unpick()
         self.data.unpick()
+        # bruce 050124: the following is wrong, since shelf is in root:
         # bruce 041214 comment:
         # note that selected items in the clipboard remain selected (I think)
 
