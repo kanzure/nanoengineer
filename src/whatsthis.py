@@ -73,7 +73,7 @@ def createWhatsThis(self):
         
         editCopyText =  "<u><b>Copy</b></u>     (Ctrl + C)</b></p><br> "\
                        "<p><img source=\"editCopy\"><br> "\
-                      "Places a copy of the selected object(s) on the clipboard while leaving the original object(s) unaffected.</p>"
+                      "Places a copy of the selected chunk(s) on the clipboard while leaving the original chunk(s) unaffected.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editCopy",
                                                        self.editCopyAction.iconSet().pixmap() )
