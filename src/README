@@ -37,7 +37,7 @@ MINIMUM SYSTEM REQUIREMENTS:
 
 INSTALLATION:
 
-    Simply run the package installer for your system type.
+  Simply run the package installer for your system type.
 
 
 UNSUPPORTED/BUGS:
