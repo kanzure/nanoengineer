@@ -1436,17 +1436,9 @@ class extrudeMode(basicMode):
         # msg_modename, show_bond_offsets_handlesets
         # this part gets moved to a new func in debug...
         print "extrudeMode print_overrides..."
-        for attr in dir(class1):
-            ca = getattr(class1, attr)
-            ia = getattr(instance1, attr)
-            if ca != ia:
-                try:
-                    if ia.im_func == ca.im_func:
-                        # im_func seems to work for both unbound and bound methods
-                        continue
-                except AttributeError:
-                    pass
-                print "  attr %r is overridden" % attr
+        import debug
+        res = debug.overridden_attrs(class1, instance1) # a list of 0 or more attrnames
+        print "  %r" % res
         return
     
     def Draw(self):
