@@ -200,7 +200,6 @@ class modifyMode(basicMode):
     def makeMenus(self): # menus modified by bruce 041103, 041217
         
         self.Menu_spec = [
-            ('Separate', self.o.assy.modifySeparate),
             ('Stretch', self.o.assy.Stretch),
             ('Delete     Del', self.o.assy.kill),
             ('Hide', self.o.assy.Hide),
