@@ -790,6 +790,7 @@ def writemovie(assy, mflag = False):
     # We always save the current part to an MMP file.  In the future, we may want to check
     # if assy.filename is an MMP file and use it if not assy.has_changed().
     mmpfile = os.path.join(assy.w.tmpFilePath, "sim-%d.mmp" % pid)
+    traceFile = "-q"+ os.path.join(assy.w.tmpFilePath, "sim-%d.trace.txt" % pid)    
 
     # filePath = the current directory NE-1 is running from.
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -822,7 +823,7 @@ def writemovie(assy, mflag = False):
     
     # "args" = arguments for the simulator.
     if mflag: 
-        args = [program, '-m', str(formarg), outfile, infile]
+        args = [program, '-m', str(formarg), traceFile, outfile, infile]
     else: 
         # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
         # The timestep argument "-s + (assy.timestep)" is not supported for Alpha.
@@ -831,6 +832,7 @@ def writemovie(assy, mflag = False):
                     '-t' + str(assy.m.temp), 
                     '-i' + str(assy.m.stepsper), 
                     str(formarg),
+		    traceFile, 
                     outfile, 
                     infile]
 
