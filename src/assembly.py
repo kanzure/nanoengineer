@@ -415,13 +415,16 @@ class assembly:
     def copy(self):
         if self.selwhat==0: return
         new = Group(gensym("Copy"),self,None)
+        # x is each item in the tree that is picked.
         self.tree.apply2picked(lambda(x): new.addmember(x.copy(new)))
+        
         if new.members:
-            if len(new.members)==1:
-                new = new.members[0]
-            self.shelf.addmember(new)
+            if len(new.members)==1: # If only one member...
+                new = new.members[0] # ... make it a single new member.
+            self.shelf.addmember(new) # add new member(s) to the clipboard
             new.pick()
         
+        # if the new member is a molecule, move the center a little.
         if isinstance(new, molecule): new.move(-new.center)
         self.w.update()
 
@@ -468,6 +471,8 @@ class assembly:
 
         if self.selwhat == 2:
             self.tree.apply2picked(lambda o: o.kill())
+        
+        self.shelf.apply2picked(lambda o: o.kill()) # Kill anything picked in the clipboard
             
         self.setDrawLevel()
 
