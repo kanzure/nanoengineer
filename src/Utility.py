@@ -96,9 +96,11 @@ class Node:
 
     def haspicked(self): #bruce 050126
         """Whether node's subtree has any picked members.
-        Faster than counting them or hindmost, when it has one --
-        but saying "no" still takes a full scan! [#e should we memoize hindmost data??]
-        [overridden in Group; should not be overridden elsewhere]
+        Faster than counting them with nodespicked or "maxing" them with hindmost,
+        at least when anything is picked; just as slow when nothing is (still requires
+        a full scan). [#e should we memoize hindmost data??]
+        [overridden in Group, but this docstring applies to both methods together;
+         should not be overridden elsewhere.]
         """
         return self.picked
 
@@ -212,6 +214,11 @@ class Node:
         else: i = m.index(self) + 1 # Insert node after self
         m.insert(i, node)
         node.dad = self.dad
+        ##k do we also need node.assy = self.assy?? [050126]
+        if node.dad.picked:
+            node.pick() #bruce 050126 - maintain the new invariant! (two methods need this)
+            # warning: this might make some callers need to update glpane who didn't need to before.
+            # possible bugs from this are not yet analyzed.
         self.dad.changed_members()
         return
         # bruce comment 010510: this method does not remove it from other Groups it might be in
@@ -398,12 +405,12 @@ class Node:
         # Also added feature of refusing and returning error message, used in 2 implems so far.
         return "Nodes of class %s don't provide a property-editing dialog." % self.__class__.__name__
 
-    def edit_props_enabled(self): #bruce 050121 added this feature ###@@@ should use it when making cmenu to disable the menu item
+    def edit_props_enabled(self): #bruce 050121 added this feature
         """Subclasses should override this and make it return False
         if their edit method would refuse to put up an editing dialog.
         """
         # i don't know if they all do that yet...
-        ##e should we check here to see if they override Node.edit??
+        #e should we check here to see if they override Node.edit?? nah.
         return True # wrong for an abstract Node, but there is no such thing!
     
     def dumptree(self, depth=0):
@@ -586,6 +593,9 @@ class Group(Node):
         else: self.members += [node] # Add node to the bottom
         node.dad = self
         node.assy = self.assy
+        if node.dad.picked:
+            node.pick() #bruce 050126 - maintain the new invariant! (two methods need this)
+            # (see comment next to the other one, about possible bugs from not updating glpane)
         self.changed_members() # must be done *after* they change
 
     def delmember(self, obj):
@@ -741,7 +751,8 @@ class Group(Node):
         scans the entire tree... calling this on every node in the tree
         might be slow (every node scanned as many times as it is deep in the tree).
         """
-        npick = 0
+        npick = Node.nodespicked(self)
+            # bruce 050126 bugfix: was 0 (as if this was called leavespicked)
         for ob in self.members: 
             npick += ob.nodespicked()
         return npick
