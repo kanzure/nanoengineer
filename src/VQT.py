@@ -28,7 +28,10 @@ def vlen(v1): return sqrt(dot(v1, v1))
 
 def norm(v1):
     lng = vlen(v1)
-    if lng: return v1 / vlen(v1)
+    if lng:
+        return v1 / lng
+        # bruce 041012 optimized this by using lng instead of
+        # recomputing vlen(v1) -- code was v1 / vlen(v1)
     else: return v1+0
 
 
