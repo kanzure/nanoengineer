@@ -2,8 +2,6 @@
 """
 depositMode.py
 
-Currently owned by Josh for extensive additions.
-
 
 $Id$
 

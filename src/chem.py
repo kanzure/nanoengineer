@@ -1,5 +1,4 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-# 10/3 currently being owned by Josh
 
 """Classes for elements, atoms, bonds, molecules
 $Id$

@@ -1,5 +1,4 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-# 10/3 currently being owned by Josh
 
 """Classes for objects in the model.
 This file should have a more descriptive name, but that can wait.
