@@ -72,7 +72,12 @@ class cookieMode(basicMode):
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
         self.w.cookieCutterDashboard.hide()
-
+        self.w.disconnect(self.w.ccLayerThicknessSpinBox,SIGNAL("valueChanged(int)"),
+                       self.setthick)
+        
+        self.w.disconnect(self.w.ccLayerThicknessLineEdit,SIGNAL("textChanged( const QString &)"),
+                       self.setthicktext)
+        
     def restore_patches(self):
         self.o.ortho = self.savedOrtho
         self.o.shape = None
