@@ -336,7 +336,7 @@ class depositMode(basicMode):
         self.modified = 1
         self.o.assy.modified = 1
         if a: # if something was "lit up"
-            self.w.msgbarLabel.setText("%r" % a) #bruce 041208 to zap leftover msgs
+            self.w.statusBar.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element == Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
                 if self.w.pasteP:
@@ -509,7 +509,7 @@ class depositMode(basicMode):
         a = self.o.selatom
         if not a: return
         # now, if something was "lit up"
-        self.w.msgbarLabel.setText("%r" % a) #bruce 041208 to zap leftover msgs
+        self.w.statusBar.message("%r" % a) #bruce 041208 to zap leftover msgs
         self.modified = 1
         self.o.assy.modified = 1
         if a.element == Singlet:
@@ -641,7 +641,7 @@ class depositMode(basicMode):
         if a:
             # this may change hybridization someday
             if a.element == Singlet: return
-            self.w.msgbarLabel.setText("deleting %r" % a) #bruce 041208
+            self.w.statusBar.message("deleting %r" % a) #bruce 041208
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
             self.o.assy.modified = 1

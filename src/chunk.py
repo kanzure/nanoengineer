@@ -1124,7 +1124,7 @@ class molecule(Node, InvalMixin):
             # (see comment in self.pick).
             ## self.havelist = 0
             
-            # self.assy.w.msgbarLabel.setText(" ")
+            # self.assy.w.statusBar.message(" ")
 
     def kill(self):
         """(Public method)
