@@ -915,31 +915,24 @@ class basicMode(anyMode):
                     atm.Hydrogenate()
         self.o.paintGL()
 
-    # remove hydrogen atoms from each selected atom/chunk
-    # (coded by Mark ~10/18/04; bugfixed/optimized/msgd by Bruce same day.
-    #  Bruce warns: I did not fully analyze and fix all potential bugs
-    #  caused by removing a hydrogen which is in a different chunk than
-    #  its neighbor atom, even though I fixed some such bugs, and other bugs.
-    #  Also, I'm skeptical this belongs in basicMode; probably it will need
+    # Remove hydrogen atoms from each selected atom/chunk
+    # (coded by Mark ~10/18/04; bugfixed/optimized/msgd by Bruce same day,
+    #  and cleaned up (and perhaps further bugfixed) after shakedown changes
+    #  on 041118.)
+    #  Bruce warns: I'm skeptical this belongs in basicMode; probably it will need
     #  rewriting as soon as some specific mode wants to do it differently.)
     def modifyDehydrogenate(self):
         self.status_msg("Dehydrogenating...")
         from platform import fix_plurals
-        fixmols = {}
+        fixmols = {} # helps count modified mols for statusbar
         if self.o.assy.selmols:
             counta = countm = 0
             for m in self.o.assy.selmols:
                 changed = m.Dehydrogenate()
-                # note: this might have removed all atoms from m! Fixed below.
                 if changed:
                     counta += changed
                     countm += 1
                     fixmols[id(m)] = m
-                    ###e In theory, we might have removed an H whose neighbor
-                    # is in a different chunk/molecule, which therefore might need a
-                    # shakedown... I have not tried to fix that, and I'm not
-                    # sure it's a bug (since Dehydrogenate did changeapp on it,
-                    # and maybe that's enough -- this needs review).
             if counta:
                 didwhat = "Dehydrogenate: removed %d atom(s) from %d chunk(s)" \
                           % (counta, countm)
@@ -960,7 +953,7 @@ class basicMode(anyMode):
                     changed = atm.Dehydrogenate()
                     if changed:
                         count += 1
-                        fixmols[id(ma)] = ma # shakedown at most once per mol
+                        fixmols[id(ma)] = ma
                         fixmols[id(matm)] = matm
             if fixmols:
                 didwhat = \
@@ -979,12 +972,7 @@ class basicMode(anyMode):
         else:
             didwhat = "Dehydrogenate: nothing selected"
         if fixmols:
-            self.o.assy.modified = 1
-            for mol in fixmols.values():
-                if mol.atoms:
-                    mol.shakedown()
-                else:
-                    mol.kill()
+            self.o.assy.modified = 1 #e shouldn't we do this in lower-level methods?
             self.w.update()
         self.status_msg(didwhat)
         return
