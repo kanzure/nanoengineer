@@ -311,16 +311,19 @@ class modelTree(QListView):
         # The model tree (MT) is drawn bottom to top. - Mark [04-12-08]
         
         # Create the clipboard
+        # #brucecmt, badnesses: icon is stuffed into the node, from here!
+        #  and, we're knowing this node is special by its position in assy. ###@@@ fix
+        # the line 2 seems to be making something in the toolbar look enabled or disabled. (for whether paste is possible)
         if self.assy.shelf.members: 
-            self.assy.shelf.icon = self.clipboardFullIcon
+            self.assy.shelf.icon = self.clipboardFullIcon 
             self.win.editPasteAction.setIconSet(QIconSet( self.clipboardFullIcon))
         else: 
             self.assy.shelf.icon = self.clipboardEmptyIcon
             self.win.editPasteAction.setIconSet(QIconSet( self.clipboardGrayIcon))
         
         # Add clipboard members
-        self.shelf = self.assy.shelf.upMT(self)
-        self.assy.shelf.setProp(self) # Update selected items in clipboard
+        self.shelf = self.assy.shelf.upMT(self) # upMT on that node "shelf" returns a treeitem, which is what we also call "shelf".
+        self.assy.shelf.setProp(self) # Update selected items in clipboard [brucecmt: their open and sel-highlighted state, that is]
         
         # Add part group members
         self.assy.tree.name = self.assy.name
@@ -335,6 +338,30 @@ class modelTree(QListView):
 
         ###e bruce comment 041227: this would be a good place to set the scroll
         # position to what it ought to be (to fix bug 177). ###@@@
+
+    # bruce 050108 moved this back into mtree; the isinstance-like nature of it is temporary
+    def _buildNode(self_mtree, node, parent, icon, dnd=True, rename=True): ###@@@ dnd, rename will vary
+        """build and return a new tree item in this tree widget
+        (as part of building the entire tree from scratch)
+        corresponding to node; the args are:
+        self_mtree, this tree widget, not sure if this was avail to the orig buildnode, maybe one of the other args?
+        node, the node
+        parent, another tree item? or the tree widget itself?? ###k guess
+        icon - the icon to use for this node ###@@@ should ask the node for this right here
+        dnd - whether to enable drag and drop (not sure which part of it this is about)
+        rename - whether to enable in-place editing of the name
+        some of these args must be replaced by computations we do here; the good args to get
+        are only the node, and the higher-up tree item or node. and this tree widget. ###@@@ do it all
+        .. .must add to nodes: options to specify dnd, rename, icon(openness).
+        NOTE: it does not add in the kids! that must be done by upMT. and only if the item should be open.
+        """
+        item = QListViewItem(parent, node.name)
+        item.object = node ###@@@ change this to store it elsewhere? or is this ok? it would be ok if item was our own class.
+        item.setPixmap(0, icon)
+        item.setDragEnabled(dnd)
+        item.setDropEnabled(dnd)
+        item.setRenameEnabled(0,rename)
+        return item
  
 ## Context menu handler functions
 
@@ -374,8 +401,47 @@ class modelTree(QListView):
             self.selectedItem.edit()
             self.mt_update()
 
-    def expand(self):
-        self.tree.object.apply2tree(lambda(x): x.setopen())
-        self.mt_update()
+## zapped by bruce 050108 since unused and uses deprecated node.setopen:
+##    def expand(self):
+##        self.tree.object.apply2tree(lambda(x): x.setopen())
+##        self.mt_update()
 
-    # end of class modelTree
+# everything after this: new methods by bruce 050108, many temporary,
+# as I tease apart mtree and Utility to have a clean boundary ###@@@
+
+    def open_clipboard(self): #bruce 050108, probably temporary
+        self._open_listitem(self.shelf)
+
+    def _open_listitem(self, item, openflag = True):
+        "set the given tree item to be open (or closed if openflag = False)"
+        # old way -- still the only one we have for now: do it on the Node itself ###@@@
+        node = self._item_to_node(item)
+        node.open = openflag
+
+    def _item_to_node(self, item):
+        return item.object ###@@@ temporary? maybe ok, we'll see
+
+    def _node_to_item(self, node): # very temporary! should not be stored in the node, so one node can be shown in several widgets.
+        return node.tritem # all this seems to be for is setSelected, setOpen, and bookkeeping, and being created
+
+    def _item_setProp(self, item):
+        #bruce 050108, definitely temporary, should be a method in our own treeitem class (owning a Qt listitem); ###@@@
+        # but at least this pulls the widget-specific knowledge
+        # out of the deprecated Node.SetProp methods into the model tree where it belongs
+        assert 0,"nim"
+    def xxx___Node_setProp(node, tw):
+        tw.setSelected(node.tritem, node.picked)
+    def xxx___Group_setProp(node, tw):
+        """set the properties in the model tree widget to match
+        those in the tree datastructure
+        """
+        tw.setOpen(node.tritem, node.open)
+        tw.setSelected(node.tritem, node.picked)
+        for ob in self.members:
+            ob.setProp(tw)
+
+    
+
+    
+    pass # end of class modelTree
+

@@ -27,7 +27,49 @@ class Node:
     """
     This is the basic object, inherited by groups, molecules, and jigs.
     """
+
+    # leaf nodes have an immutable 0-length sequence of members [bruce 050108]
+    # (this simplifies some definitions here) ###@@@ at least temporarily... remove if no longer needed.
+    members = ()
     
+    def openable(self):
+        """whether tree widgets should permit the user to open/close their view
+        of this node (typically by displaying some sort of toggle icon for that state)
+        (note, if this is True then this does not specify whether the node view is initially open... #doc what does)
+        [some subclasses should override this]
+        """
+        # if we decide this depends on the tree widget or on something about it,
+        # we'll have to pass in some args... don't do that unless/until we need to.
+        return False ###@@@ might be better to measure the members list??
+
+    def renameable(self):
+        """whether tree widgets should permit the user to rename this node
+        [some subclasses should override this]
+        [#doc how the rename is supported by the node!]
+        """
+        return True
+
+    def enable_drag(self): # the dnd option to buildNode, drag aspect
+        """#doc this
+        [some subclasses should override this]
+        """
+        return True
+    
+    def enable_drop(self): # the dnd option to buildNode, drop aspect
+        """#doc this
+        [some subclasses should override this]
+        """
+        return True
+
+    def node_icon(self, openness = False):
+        """#doc this
+        [some subclasses should override this]
+        """
+        return self.icon ###@@@ not sure if this is correct even for leaf nodes, might need seticon
+        pass ###stub
+    
+    # methods before this are by bruce 050108 and should be reviewed when my rewrite is done ###@@@
+        
     name = "" # for use before __init__ runs (used in __str__ of subclasses)
     
     def __init__(self, assembly, parent, name=None):
@@ -49,8 +91,6 @@ class Node:
         node.setDragEnabled(dnd)
         node.setDropEnabled(dnd)
         node.setRenameEnabled(0,rename)
-        
-        # in addition, each Node should have a bounding box
         return node
         
     # for a leaf node, add it to the dad node just after us
@@ -190,8 +230,30 @@ class Node:
 class Group(Node):
     """The tree node class for the tree.
     Its members can be Groups, jigs, or molecules.
-
     """
+
+    def openable(self): # overrides Node.openable()
+        "whether tree widgets should permit the user to open/close their view of this node"
+        # if we decide this depends on the tree widget or on something about it,
+        # we'll have to pass in some args... don't do that unless/until we need to.
+        return True
+
+    def renameable(self):
+        "whether tree widgets should permit the user to rename this node"
+        rename = True # true for most Groups
+        ###@@@ these kluges (taken from the deprecated self.buildNode) should be replaced by new subclasses of Group
+        if self.name == "Clipboard": rename = False # Do not allow the clipboard to be renamed
+        if self.name == self.assy.name: rename = False # Do not allow the part node to be renamed
+        return rename
+
+    def enable_drag(self): # the dnd option to buildNode, drag aspect
+        return True
+    
+    def enable_drop(self): # the dnd option to buildNode, drop aspect
+        return True
+
+    # methods before this are by bruce 050108 and should be reviewed when my rewrite is done ###@@@
+    
     def __init__(self, name, assembly,  parent, list = []):
         Node.__init__(self, assembly, parent, name)
         self.members = []
@@ -201,7 +263,7 @@ class Group(Node):
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         self.partIcon = QPixmap(filePath + "/../images/part.png")
         self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
-        # in addition, each Node should have a bounding box
+        #e in addition, each Node should have a bounding box
 
     def buildNode(self, obj, parent, icon, dnd=True, rename=True):
         """ build a Group node in the tree widget
@@ -211,9 +273,11 @@ class Group(Node):
         if self.name == self.assy.name: rename = False # Do not allow the part node to be renamed
         node = Node.buildNode(self, obj, parent, icon, dnd, rename)
         return node
-        
-    def setopen(self):
-        self.open = True
+
+# bruce 050108 removed all uses of setopen, since it should be defined
+# on tree items, not nodes        
+##    def setopen(self):
+##        self.open = True
         
     def addmember(self, node, top=False):
         """add leaf node to bottom (default) or top of self
@@ -325,6 +389,11 @@ class Group(Node):
         else:
             self.icon = self.groupCloseIcon
         
+    def xxx_node_upMT(self, parent, dnd=True): ###@@@ copied here so i can see them side by side
+        if not self.icon: self.seticon()
+        self.tritem = self.buildNode(self, parent, self.icon, dnd)
+        return self.tritem
+    
     def upMT(self, parent, dnd=True):
         if not self.icon: self.seticon()
         self.tritem = self.buildNode(self, parent, self.icon, dnd)

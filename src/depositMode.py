@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 depositMode.py
 
@@ -982,13 +982,17 @@ class depositMode(basicMode):
         # revised 041124 to fix bug 169, by mark and then by bruce
         """if called on a singlet, make that singlet the hotspot for
         the molecule.  (if there's only one, it's automatically the
-        hotspot)
+        hotspot) [... and copy mol onto the clipboard...]
         """
         if self.o.selatom and self.o.selatom.element == Singlet:
             self.o.selatom.molecule.hotspot = self.o.selatom
             new = self.o.selatom.molecule.copy(None) # None means no assembly
             new.move(-new.center) # perhaps no longer needed [bruce 041206]
-            self.o.assy.shelf.setopen() #bruce 041124 change: open clipboard
+            #bruce 041124 change: open clipboard
+            ## old way:
+            ## self.o.assy.shelf.setopen()
+            # new way [bruce 050108]:
+            self.w.mt.open_clipboard()
             # bruce 041124 change: add new after the other members, not before,
             # so the order will (at least sometimes) match what's in the spinbox.
             # (addmember adds it at the beginning by default, I think, though it
