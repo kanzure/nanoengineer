@@ -37,7 +37,8 @@ class modelTree(QListView):
        	self.groupOpenIcon = QPixmap(filePath + "/../images/group-expanded.png")
         self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
         
-        self.dropItem = 0
+        #self.dropItem = 0
+        self.descendants = None
         self.oldCurrent = None
         self.presspos = None
         self.mousePressed = 0
@@ -68,7 +69,7 @@ class modelTree(QListView):
         self.setPopupMenus() 
         
 
-###---------- Context menu processing functions------------------------###
+##########------ Context menu processing functions-----#############
     def processCsysMenu(self, id):
           if id == 0: #Rename
               self.selectedTreeItem.startRename(0)
@@ -195,7 +196,7 @@ class modelTree(QListView):
         self.connect(self.insertHerePopupMenu, SIGNAL("activated(int)"), self.processInsertHereMenu)
 
 
-###---------- Slot functions------------------------###
+############------ Slot functions-------------################
     def treeItemExpanded(self, listItem):
             itemObj = self.treeItems[listItem]
             if isinstance(itemObj, Group):
@@ -260,30 +261,38 @@ class modelTree(QListView):
 
 ###---------- Drag & Drop related functions------------------------###             
 
-    def contentsDragEnterEvent(self, e):
-    #     e.accept(True)
-        self.oldCurrent = self.currentItem()
+   # def contentsDragEnterEvent(self, e):
+   #     self.oldCurrent = self.currentItem()
         
-        i = self.itemAt(self.contentsToViewport(e.pos()))
-        if i:
-            self.dropItem = i
+   #     i = self.itemAt(self.contentsToViewport(e.pos()))
+   #     if i:
+   #         self.dropItem = i
         
 
     def contentsDragMoveEvent(self, e):
         vp = self.contentsToViewport(e.pos())
         i = self.itemAt( vp )
-
+        droppable = True
+        
         if  i and i.dropEnabled():
-            self.setSelected( i, True )
-            e.accept()
-            e.acceptAction()
+            for child in self.descendants:
+                   if child == i:
+                        droppable = False
+                        break
+                    
+            if droppable:
+                self.setSelected( i, True )
+                e.accept()
+                e.acceptAction()
+            else:
+                e.ignore()    
         else:
            e.ignore()
 
 
     def contentsDragLeaveEvent(self, e):
         #autoopen_timer->stop();
-        self.dropItem = 0          
+        #self.dropItem = 0          
         
         self.setCurrentItem( self.oldCurrent )
         self.setSelected( self.oldCurrent, True )
@@ -329,7 +338,9 @@ class modelTree(QListView):
     def contentsMouseMoveEvent(self, e ):
        if self.mousePressed:
         # and (e.pos() - self.presspos).manhattanLength() > QApplication. startDragDistance() :
-            self.mousePressed = False    
+            self.mousePressed = False 
+            #self.setOpen(self.oldCurrent, False)
+            self.descendants = self.getDescendants(self.oldCurrent)
             dragObj = QDragObject(self.viewport())
             dragObj.drag()
             
@@ -338,8 +349,9 @@ class modelTree(QListView):
     def contentsMouseReleaseEvent(self, e ):
         self.mousePressed = False
         QListView.contentsMouseReleaseEvent(self, e )
+    
         
-###---------- Utility functions------------------------###
+#############--- Utility functions--------#################
     def pasteItem(self, afterItem):
             mol = self.treeItems[self.itemToPaste]
             parentItem = afterItem.parent()
@@ -562,3 +574,18 @@ class modelTree(QListView):
                       assy.orderedItemsList += [obj]
                       
                 it = it.nextSibling()
+                
+    def getDescendants(self, item):
+        """ Get all the childern, grandchildren of the item """
+        list = []
+        
+        child = item.firstChild()
+        nextSibling = item.nextSibling()
+        while child :
+                if child == nextSibling:
+                        break
+                list += [child]
+                child = child.itemBelow()
+         
+        return list
+                           

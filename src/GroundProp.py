@@ -12,6 +12,7 @@ class GroundProp(GroundPropDialog):
         self.colorPixmapLabel.setPaletteBackgroundColor(ground.color)
         
         self.nameLineEdit.setText(ground.name)
+        self.applyPushButton.setEnabled(False)
 
         strList = map(lambda i: ground.atoms[i].element.symbol + str(i),
                                                 range(0, len(ground.atoms)))
@@ -32,15 +33,25 @@ class GroundProp(GroundPropDialog):
     # OK Button
     #################
     def accept(self):
-        
         self.ground.name = self.nameLineEdit.text()
-        
         QDialog.accept(self)
 
     #################
     # Cancel Button
     #################
-
     def reject(self):
-	
         QDialog.reject(self)
+        
+    
+    ########################
+    # Properties change slot function
+    ########################
+    def propertiesChanged(self):
+         self.applyPushButton.setEnabled(True)
+          
+    ########################
+    # Properties change slot function
+    ########################
+    def applyButtonPressed(self):
+         self.ground.name = self.nameLineEdit.text()   
+         self.applyPushButton.setEnabled(False)
