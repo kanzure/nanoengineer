@@ -37,7 +37,46 @@ MINIMUM SYSTEM REQUIREMENTS:
 
 INSTALLATION:
 
-  Simply run the package installer for your system type.
+  1. Simply run the package installer for your system type.
+
+  2. To use nanoENGINEER-1's new Plot Tool, a copy of GNUplot 
+     must be installed on your computer.  Only version 4.0 has
+     been tested with nanoENGINEER-1, so it is recommended that
+     this version be installed.
+
+  Windows Installation:
+
+     GNUplot 4.0 is included with the Win32 package installer.
+     No extra software is required.
+
+  MacOSX Installation (optional): 
+
+     Mac users must install the X11 Server from the MacOSX CDROM,
+     and a copy of "aquaterm",which can be obtained from:
+
+     http://sourceforge.net/project/showfiles.php?group_id=39915
+
+     Next, install GNUplot 4.0, which is available for download from:
+
+     http://sourceforge.net/project/showfiles.php?group_id=2055&package_id=1996&release_id=231440
+
+  Linux Installation (optional): 
+
+     Simply download and install GNUplot 4.0 from:
+     
+     http://sourceforge.net/project/showfiles.php?group_id=2055&package_id=1996&release_id=231440
+
+  Note for Mac and Linux users: It is OK if you choose not to install
+     GNUplot.  Without it, Plot Tool will not work, but everything else
+     in nE-1 will work fine.  We hope to eliminate (or minimize) these extra 
+     installation steps for GNUplot in the near future.
+
+
+NEW STUFF:
+
+  See RELEASENOTES.txt for the latest info, including new
+  features.   You may access a copy of this file at:
+  http://www.nanorex.com/ReleaseNotes.htm
 
 
 UNSUPPORTED/BUGS:
