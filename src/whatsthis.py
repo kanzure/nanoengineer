@@ -10,7 +10,7 @@ def createWhatsThis(self):
         
         fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)</b></p><br> "\
                         "<p><img source=\"fileopen\"><br> "\
-                       "Opens a <tt><em>new file</em></tt>."\
+                       "Opens a new file."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "fileopen",
@@ -22,7 +22,7 @@ def createWhatsThis(self):
         
         fileSaveText = "<u><b>Save File</b></u>     (Ctrl + S)</b></p><br> "\
                        "<p><img source=\"filesave\"><br> "\
-                       "Saves the <tt><em>current file</em></tt>."\
+                       "Saves the current file."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "filesave",
@@ -84,7 +84,7 @@ def createWhatsThis(self):
         
         editPasteText = "<u><b>Paste</b></u>     (Ctrl + V)</b></p><br> "\
                        "<p><img source=\"editPaste\"><br> "\
-                       "When you choose this command, you are placed in <b>Build</b> mode and a copy of the top object on the clipboard is inserted where you click.</p>"
+                       "When you choose this command, you are placed in <b>Build Atom</b> mode and a copy of the top object on the clipboard is inserted where you click.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editPaste",
                                                        self.editPasteAction.iconSet().pixmap() )
@@ -111,7 +111,7 @@ def createWhatsThis(self):
         
         setViewHomeActionText = "<u><b>Home</b></u>     (Home)<br>"\
                        "<p><img source=\"setViewHome\"><br> "\
-                       "When you create a new model, it appears in a default view orientation (FRONT view). When you open an existing model, it appears in the orientation it was last saved.  You can change the default orientation by selecting <b>Reorient</b> from the <b>View</b> menu.</p>"
+                       "When you create a new model, it appears in a default view orientation (FRONT view). When you open an existing model, it appears in the orientation it was last saved.  You can change the default orientation by selecting <b>Set home view to current view</b> from the <b>View</b> menu.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewHome",
                                                        self. setViewHomeAction.iconSet().pixmap() )
@@ -341,7 +341,7 @@ def createWhatsThis(self):
 
         selectAllActionText = "<u><b>Select All</b></u>     (Ctrl + A)</b></p><br>"\
                        "<p><img source=\"selectAllAction\"><br> "\
-                       "Selects all the atoms while in <tt><em>Select Atoms</em></tt> mode, and selects all the <tt><em>Chunks</em></tt> while in <em>Select Chunks</em> mode."\
+                       "Selects all the atoms while in <b>Select Atoms</b> mode, and selects all the chunks while in <b>Select Chunks</b> mode."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectAllAction",
@@ -449,7 +449,7 @@ def createWhatsThis(self):
 
         modifySetElementActionText = "<u><b>Change Element</b></u>    (Ctrl + E)</b></p><br>"\
                        "<p><img source=\"modifySetElementAction\"><br> "\
-                       "Allows you to change the element type of selected atoms.  You can also use <b>Change Element</b> while in <tt><em>Build Mode</em></tt> to change atom types."\
+                       "Allows you to change the element type of selected atoms.  You can also use <b>Change Element</b> while in <b>Build Atom</b> mode to change atom types."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifySetElementAction",
@@ -512,7 +512,7 @@ def createWhatsThis(self):
 
         toolsSelectMoleculesActionText = "<u><b>Select Chunks</b></u><br>"\
                        "<p><img source=\" toolsSelectMoleculesAction\"><br> "\
-                       "Puts the program in <b>Select Chunks</b> mode, allowing you to select chunks with the mouse.</p>"
+                       "Activates <b>Select Chunks</b> mode, allowing you to select chunks with the mouse.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsSelectMoleculesAction",
                                                        self. toolsSelectMoleculesAction.iconSet().pixmap() )
@@ -523,7 +523,7 @@ def createWhatsThis(self):
 
         toolsSelectAtomsActionText = "<u><b>Select Atoms</b></u><br>"\
                        "<p><img source=\" toolsSelectAtomsAction\"><br> "\
-                       "Puts the program in <b>Select Atoms</b> mode, allowing you to select atoms with the mouse.</p>"
+                       "Activates <b>Select Atoms</b> mode, allowing you to select atoms with the mouse.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsSelectAtomsAction",
                                                        self. toolsSelectAtomsAction.iconSet().pixmap() )
@@ -534,7 +534,7 @@ def createWhatsThis(self):
 
         toolsMoveMoleculeActionText = "<u><b>Move Chunks</b></u><br>"\
                        "<p><img source=\" toolsMoveMoleculeAction\"><br> "\
-                       "Puts the program in <b>Move Chunks</b> mode, allowing you to select, move and rotate individual chunks with the mouse.</p>"
+                       "Activates <b>Move Chunks</b> mode, allowing you to select, move and rotate individual chunks with the mouse.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsMoveMoleculeAction",
                                                        self. toolsMoveMoleculeAction.iconSet().pixmap() )
@@ -545,7 +545,7 @@ def createWhatsThis(self):
 
         toolsDepositAtomActionText = "<u><b>Build Tool</b></u><br>"\
                        "<p><img source=\" toolsDepositAtomAction\"><br> "\
-                       "Puts the program in <b>Build</b> mode, allowing you to build molecules with the mouse.</p>"
+                       "Activates <b>Build Atom</b> mode, allowing you to build chunks with the mouse.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsDepositAtomAction",
                                                        self. toolsDepositAtomAction.iconSet().pixmap() )
@@ -556,7 +556,7 @@ def createWhatsThis(self):
                                         
         toolsCookieCutActionText = "<u><b>Cookie Cutter Tool</b></u><br>"\
                        "<p><><img source=\" toolsCookieCutAction\"><br> "\
-                       "Puts the program in <b>Cookie Cutter</b> mode, allowing you to cut out 3-D shapes from a slab of diamond lattice.</p>"
+                       "Activates <b>Cookie Cutter</b> mode, allowing you to cut out 3-D shapes from a slab of diamond lattice.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsCookieCutAction",
                                                        self. toolsCookieCutAction.iconSet().pixmap() )
@@ -567,7 +567,7 @@ def createWhatsThis(self):
 
         toolsExtrudeActionText = "<u><b>Extrude Tool</b></u><br>"\
                        "<p><img source=\" toolsExtrudeAction\"><br> "\
-                       "Puts the program in <b>Extrude</b> mode, allowing you to create a rod or ring using a chunk as a repeating unit.</p>"
+                       "Activates <b>Extrude</b> mode, allowing you to create a rod or ring using a chunk as a repeating unit.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsExtrudeAction",
                                                        self. toolsExtrudeAction.iconSet().pixmap() )
