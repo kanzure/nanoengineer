@@ -280,8 +280,8 @@ struct A *Space[SPWIDTH][SPWIDTH][SPWIDTH];	/*  space buckets */
 
 void orion() {			/* atoms in space :-) */
 	int n, i,j,k;
-	struct A **pail;
-
+	struct A *emptybucket = NULL;
+	struct A **pail = &emptybucket;
 
 	for (n=0; n<Nexatom; n++) *atom[n].bucket = NULL;
 
