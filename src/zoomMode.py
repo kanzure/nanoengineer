@@ -18,7 +18,7 @@ class zoomMode(basicMode):
     default_mode_status_text = "Mode: Zoom"
     
     # flag indicating when to draw the rubber band window.
-    rbw = False
+    #rbw = False
     rbwcolor = navy
 
     # no __init__ method needed
@@ -31,10 +31,15 @@ class zoomMode(basicMode):
         bg = self.backgroundColor = self.o.prevModeColor
         
         # Set RBW color based on brightness of bg color
-        brightness = bg[0] + bg[1] + bg[2]
-        if brightness >= 1.5: self.rbwcolor = navy
-        else: self.rbwcolor = white
-
+        #brightness = bg[0] + bg[1] + bg[2]
+        #if brightness >= 1.5: self.rbwcolor = navy
+        #else: self.rbwcolor = white
+        ## Set RBW color as the same as bg color, then it will draw as black
+        self.rbwcolor = bg
+        
+        self.o.redrawGL = False
+        
+        
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
         self.OldCursor = QCursor(self.o.cursor())
@@ -65,7 +70,10 @@ class zoomMode(basicMode):
                 new_mode = m
             except:
                 pass
+        
+        self.o.redrawGL = True
         return basicMode.Done(self, new_mode)
+        
             
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
@@ -77,14 +85,21 @@ class zoomMode(basicMode):
         """Compute the rubber band window starting point, which
              lies on the near clipping plane, projecting into the same 
              point that current cursor points at on the screen plane"""
-        self.rbw = True
+        #self.rbw = True
         self.pWxy = (event.pos().x(), self.o.height - event.pos().y())
         p1 = A(gluUnProject(self.pWxy[0], self.pWxy[1], 0.005)) 
         
-        self.pStart =  p1
+        self.pStart = p1
         self.pPrev = p1
-        self.point2 = None
-        self.point3 = None
+        self.point2 = p1
+        self.point3 = p1
+        
+        glDisable(GL_DEPTH_TEST)
+        glDisable(GL_LIGHTING)
+        glColor3d(self.rbwcolor[0], self.rbwcolor[1], self.rbwcolor[2])
+        
+        glEnable(GL_COLOR_LOGIC_OP)
+        glLogicOp(GL_XOR)
         
         
     def computePoints(self):
@@ -92,31 +107,20 @@ class zoomMode(basicMode):
           up = self.o.up  
           self.point2 = self.pStart + up*dot(up, self.pPrev - self.pStart)
           self.point3 = self.pStart + rt*dot(rt, self.pPrev - self.pStart)
+    
             
     def leftDrag(self, event):
         """Compute the changing rubber band window ending point """
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         
-        ##if self.point2 and self.point3:  ## redraw the previous rectangle to erase
-        ##     drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
-        ##     col = glReadPixelsf(cWxy[0], cWxy[1], 1, 1, GL_RGB)
-        ##     print "after erase color: ", col[0][0]
-        ##     self.o.swapBuffers()
-        
+        drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        self.o.swapBuffers()
            
-        p1 = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
-        self.pPrev = p1
-        ## draw the new rubber band
-        ##self.computePoints()
-        ##col = glReadPixelsf(cWxy[0], cWxy[1], 1, 1, GL_RGB)
-        ##print "before color: ", col[0][0]
-        ##drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
-        ##col = glReadPixelsf(cWxy[0], cWxy[1], 1, 1, GL_RGB)
-        ##print "color: ", col[0][0]
-        #self.o.swapBuffers()
-        
-        #The original way to redraw everything
-        self.o.gl_update()
+        self.pPrev = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
+        ##draw the new rubber band
+        self.computePoints()
+        drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        self.o.swapBuffers()
         
         
     def leftUp(self, event):
@@ -124,6 +128,10 @@ class zoomMode(basicMode):
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         zoomX = (abs(cWxy[0] - self.pWxy[0]) + 0.0) / (self.o.width + 0.0)
         zoomY = (abs(cWxy[1] - self.pWxy[1]) + 0.0) / (self.o.height + 0.0)
+
+        ##Erase the last rubber-band window        
+        drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        self.o.swapBuffers()
         
         zoomFactor = max(zoomX, zoomY)
         ##Huaicai: when rubber band window is too small,
@@ -168,11 +176,12 @@ class zoomMode(basicMode):
         ##it's not too bad of model being clipped, since the near/far clip
         ##plane change as scale too.
         self.o.scale *= zoomFactor
-        
-        self.rbw = False
-        self.o.gl_update()
+       
+        glDisable(GL_COLOR_LOGIC_OP)
+        glEnable(GL_LIGHTING)
+        glEnable(GL_DEPTH_TEST)
+        #self.rbw = False
         self.Done()
-
 
     def keyPress(self,key):
         # ESC - Exit/cancel zoom mode.
@@ -180,21 +189,21 @@ class zoomMode(basicMode):
             self.Done()
             
     def Draw(self):
-        basicMode.Draw(self)   
-        self.o.assy.draw(self.o)
+        pass
+        #basicMode.Draw(self)
+        ##self.o.assy.draw(self.o)
         ##Make sure this is the last scene draw
-        if self.rbw: 
-                self.RBWdraw() # Draw rubber band window.
-        
-        
+        #if self.rbw: 
+                #self.RBWdraw() # Draw rubber band window.
+     
+       
     def RBWdraw(self):
-        """Draw the rubber-band window. Disable depth test, make sure rubber band window is always on top
+        """Draw the rubber-band window. 
         """
-        glDisable(GL_DEPTH_TEST)
         drawer.drawrectangle(self.pStart, self.pPrev,
                                  self.o.up, self.o.right, self.rbwcolor)
-        glEnable(GL_DEPTH_TEST) 
-        
+       
+     
         
     def makeMenus(self):
         self.Menu_spec = [

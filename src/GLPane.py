@@ -167,6 +167,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # start in perspective mode
         self.ortho = 0
 
+        ##Huaicai 2/8/05: If this is true, redraw everything. It's better to split
+        ##the paintGL() to several functions, so we may choose to draw 
+        ##every thing, or only some thing that has been changed.
+        self.redrawGL = True  
+        
         # not selecting anything currently
         self.shape = None
 
@@ -587,13 +592,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         return
     
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
-        """[PRIVATE METHOD -- call gl_update instead!]
+       """[PRIVATE METHOD -- call gl_update instead!]
         The main screen-drawing function, called internally by Qt when our
         superclass needs to repaint. THIS SHOULD NO LONGER BE CALLED DIRECTLY
         BY EXTERNAL CODE -- CALL gl_update INSTEAD.
            Sets up point of view projection, position, angle.
         Calls draw member fns for everything in the screen.
-        """
+       """
         # bruce comment 041220: besides our own calls of this function
         # [later: which no longer exist after 050127], it can
         # be called directly from the app.exec_loop() in atom.py; I'm not sure
@@ -605,85 +610,76 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # Guess: it's a special method name known to the superclass widget.
         # (Presumably the Qt docs spell this out... find out sometime! #k)
 
-        if not self.initialised: return
+       if not self.initialised: return
+       
+       if not self.redrawGL: return
+       
+       ###e bruce 040923: I'd like to reset the OpenGL state
+       # completely, here, incl the stack depths, to mitigate some
+       # bugs. How??  Note that there might be some OpenGL init code
+       # earlier which I'll have to not mess up. Incl displaylists in
+       # drawer.setup.  What I ended up doing is just to measure the
+       # stack depth and pop it 0 or more times to make the depth 1
+       # -- see below.
+       c=self.mode.backgroundColor
+       glClearColor(c[0], c[1], c[2], 0.0)
+       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+       glMatrixMode(GL_MODELVIEW)
+
+       # restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923,
+       # to partly mitigate the effect of certain drawing bugs] btw I
+       # don't know for sure whether this causes a significant speed
+       # hit for some OpenGL implementations (esp. X windows)...
+       # test sometime. #e
         
-        ##print_compact_stack("paintGL called by: ")
-
-        ##start=time.time()
-
-        ###e bruce 040923: I'd like to reset the OpenGL state
-        # completely, here, incl the stack depths, to mitigate some
-        # bugs. How??  Note that there might be some OpenGL init code
-        # earlier which I'll have to not mess up. Incl displaylists in
-        # drawer.setup.  What I ended up doing is just to measure the
-        # stack depth and pop it 0 or more times to make the depth 1
-        # -- see below.
-     
-        c=self.mode.backgroundColor
-        glClearColor(c[0], c[1], c[2], 0.0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-	glMatrixMode(GL_MODELVIEW)
-
-	# restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923,
-	# to partly mitigate the effect of certain drawing bugs] btw I
-	# don't know for sure whether this causes a significant speed
-	# hit for some OpenGL implementations (esp. X windows)...
-	# test sometime. #e
-        
-	depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
-        # this is normally 1
-        # (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
-	if depth > 1:
+       depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
+       # this is normally 1
+       # (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
+       if depth > 1:
             print "apparent bug: glGetInteger(GL_MODELVIEW_STACK_DEPTH) = %r in GLPane.paintGL" % depth
             print "workaround: pop it back to depth 1"
             while depth > 1:
-                depth -= 1
-                glPopMatrix()
+                    depth -= 1
+                    glPopMatrix()
             newdepth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
             if newdepth != 1:
-                print "hmm, after depth-1 pops we should have reached depth 1, but instead reached depth %r" % newdepth
-            pass	
-	
-	glLoadIdentity()
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
+                    print "hmm, after depth-1 pops we should have reached depth 1, but instead reached depth %r" % newdepth
+            pass    
+    
+       glLoadIdentity()
+       glMatrixMode(GL_PROJECTION)
+       glLoadIdentity()
 
-	aspect = (self.width + 0.0)/(self.height + 0.0)
-        if self.drawAxisIcon: self.drawarrow(aspect)
+       aspect = (self.width + 0.0)/(self.height + 0.0)
+       if self.drawAxisIcon: self.drawarrow(aspect)
         
-        vdist = 6.0 * self.scale
+       vdist = 6.0 * self.scale
                 
-        if self.ortho:
-            glOrtho(-self.scale*aspect*self.zoomFactor, self.scale*aspect*self.zoomFactor, -self.scale*self.zoomFactor, self.scale*self.zoomFactor,
-                    vdist*self.near, vdist*self.far)
-        else:
-            glFrustum(-self.scale*aspect*self.near*self.zoomFactor, self.scale*aspect*self.near*self.zoomFactor,
-                      -self.scale*self.near*self.zoomFactor, self.scale*self.near*self.zoomFactor,
-                      vdist*self.near, vdist*self.far)
+       if self.ortho:
+            glOrtho(-self.scale*aspect*self.zoomFactor, self.scale*aspect*self.zoomFactor, -self.scale*self.zoomFactor, self.scale*self.zoomFactor, vdist*self.near, vdist*self.far)
+       else:
+            glFrustum(-self.scale*aspect*self.near*self.zoomFactor, self.scale*aspect*self.near*self.zoomFactor, -self.scale*self.near*self.zoomFactor, self.scale*self.near*self.zoomFactor, vdist*self.near, vdist*self.far)
 
-        glMatrixMode(GL_MODELVIEW)
-        #if aspect < 1.0:
-        #     vdist /= aspect
+       glMatrixMode(GL_MODELVIEW)
         
-        glTranslatef(0.0, 0.0, - vdist)
-	# bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
-	# (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
-	# We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
-	# clipping planes, etc, like we do now for right, up, etc. ###e
+       glTranslatef(0.0, 0.0, - vdist)
+       # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
+       # (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
+       # We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
+       # clipping planes, etc, like we do now for right, up, etc. ###e
 
-        q = self.quat
+       q = self.quat
         
-        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+       glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+       glTranslatef(self.pov[0], self.pov[1], self.pov[2])
 
-        glTranslatef(self.pov[0], self.pov[1], self.pov[2])
+       # draw according to mode
+       self.mode.Draw()
+       glFlush()  #Tidy up
+       ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
+       return # from paintGL       
 
-        # draw according to mode
-        self.mode.Draw()
-        glFlush()                           # Tidy up
-        self.swapBuffers()
-
-        return # from paintGL
 
     def drawarrow(self, aspect):
         glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500)
@@ -704,9 +700,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                     [.3,.3,.3,1,0,0])
         glEnable(GL_CULL_FACE)
         glDisable(GL_COLOR_MATERIAL)
-        
+           
         ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get segmentation fault on Manrake Linux 10.0 with libqt3-3.2.3-17mdk or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
-        
+           
         if True:###sys.platform in ['darwin', 'win32']:
                 glDisable(GL_LIGHTING)
                 glDisable(GL_DEPTH_TEST)
@@ -719,24 +715,24 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 glPopMatrix()
                 glEnable(GL_DEPTH_TEST)
                 glEnable(GL_LIGHTING)
-        
+           
         glLoadIdentity()
         return
-
+           
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
         """
         self.width = width
         self.height = height
-        
+           
 	glViewport(0, 0, self.width, self.height)
-        
+           
         if not self.initialised:
             self.initialised = 1
         self.trackball.rescale(width, height)
         self.gl_update()
         return
-
+           
     def xdump(self):
         """for debugging"""
         print " pov: ", self.pov
