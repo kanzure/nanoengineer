@@ -20,7 +20,11 @@ and split it into three modules:
   all our tree widgets, if we define other ones), and
 - modelTree.py (customized for showing a "model tree" per se).
 """
-debug_painting=0 ######@@@@@@@ DO NOT COMMIT with 1
+
+debug_painting = 0 ###@@@ DO NOT COMMIT with 1
+
+debug_prints = 0 # whether atom_debug enables dprint; ok to commit with 0 or 1
+
 ###@@@ some of these imports are only needed by subclasses
 from qt import *
 from constants import *
@@ -34,8 +38,6 @@ from platform import fix_buttons_helper
 from widgets import makemenu_helper
 from debug import DebugMenuMixin
 
-### from somewhere import noop
-##def noop(*args,**kws): pass
 
 class TreeView(QListView):
     needs_update_state = 0
@@ -100,11 +102,6 @@ class TreeView(QListView):
         # fully ok required intercepting all mouse events before QListView sees
         # them, so it would never second-guess us about selection (or anything
         # else). [bruce 050112]
-        #older bruce devel-scratch comments:
-        ####@@@@ find out whether it's being updated but not drawn, or what or what.... since our code knows...
-        ####@@@@ note that select (click handler) is not updating, so what *is* it doing, in all?
-        ## self.setSelectionMode(QListView.Extended)
-        ###@@@ note that Qt defines semantics for this different from ours....
 
         self.setShowToolTips(True)
             # bruce 050109 added this; but it doesn't seem to work
@@ -140,36 +137,37 @@ class TreeView(QListView):
         self.triggerUpdate() # this is a QListView method... does it also call update? not sure, so call that too:
         self.update()
 
-    # debugging functions
+    # debugging functions [might as well keep the commented-out ones around for awhile]
     
-    def bruce_print_node(self, node, indent=""): ###@@@ debugging
-        print indent + "a node %r:" % node, node.name, node.__class__.__name__,"dad =",node.dad
-        if not self.nodeItem(node): ## node.tritem
-            print indent + "... has no tree item"
-        else:
-            print indent + "its tree item:"
-            self.bruce_print_item(self.nodeItem(node), "  "+indent)
-        return
-    
-    def bruce_print_item(self, item, indent=""): ###@@@ debugging
-        print indent + "an item %r for:" % item, item.object.name, item.object.__class__.__name__
-        if item == self.shelf: print indent + " (mt.shelf)"
-        if item == self.tree: print indent + " (mt.tree)"
-        if item.object.name == self.assy.name:
-            print indent + " (old code would think this is a part item: item.object.name == self.assy.name)"
-        dad = item.object.dad
-        if dad:
-            dadlen = len(dad.members)
-            ind = dad.members.index(item.object)
-            print indent + " its dad node (member index %d out of index range 0 to %d-1):" % (ind, dadlen)
-            self.bruce_print_node(dad, "| "+indent)
-        else:
-            print indent + " (dad is %r)" % (dad,)
-        return
+##    def bruce_print_node(self, node, indent=""): ###@@@ debugging
+##        print indent + "a node %r:" % node, node.name, node.__class__.__name__,"dad =",node.dad
+##        if not self.nodeItem(node): ## node.tritem
+##            print indent + "... has no tree item"
+##        else:
+##            print indent + "its tree item:"
+##            self.bruce_print_item(self.nodeItem(node), "  "+indent)
+##        return
+##    
+##    def bruce_print_item(self, item, indent=""): ###@@@ debugging
+##        print indent + "an item %r for:" % item, item.object.name, item.object.__class__.__name__
+##        if item == self.shelf: print indent + " (mt.shelf)"
+##        if item == self.tree: print indent + " (mt.tree)"
+##        if item.object.name == self.assy.name:
+##            print indent + " (old code would think this is a part item: item.object.name == self.assy.name)"
+##        dad = item.object.dad
+##        if dad:
+##            dadlen = len(dad.members)
+##            ind = dad.members.index(item.object)
+##            print indent + " its dad node (member index %d out of index range 0 to %d-1):" % (ind, dadlen)
+##            self.bruce_print_node(dad, "| "+indent)
+##        else:
+##            print indent + " (dad is %r)" % (dad,)
+##        return
 
     _last_dprinttime_stamp = None
     def dprinttime(self):
         "call this to print a timestamp before every debug line for which the same time was never before printed"
+        if not debug_prints: return
         if not platform.atom_debug: return
         import time
         stamp = time.asctime() #e improve
@@ -180,6 +178,7 @@ class TreeView(QListView):
         return
 
     def dprint(self, msg):
+        if not debug_prints: return
         if platform.atom_debug:
             self.dprinttime()
             print msg
@@ -190,9 +189,8 @@ class TreeView(QListView):
     # (###@@@ #e though we might want to override them here to mask QListView from seeing them -- but maybe no need)
     
     def update(self):
-        if platform.atom_debug:
+        if platform.atom_debug and debug_prints:
             self.dprinttime()
-            ##print "fyi: modelTree.update() called (by Qt, or by a bug in our own code, which should call mt.mt_update; or by our new code)"
             print_compact_stack("stack in update(): ")
             ## this happens twice early, not from exec_loop:
             # stack in update(): [atom.py:75] [MWsemantics.py:119] [modelTree.py:115] [modelTree.py:125] [modelTree.py:349]
