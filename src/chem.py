@@ -601,6 +601,14 @@ class molecule:
         self.singlets = array(singlets, PyObject)
         self.singlpos = array(singlpos)
         self.singlbase = self.singlpos
+
+##         # find extrema in many directions
+##         xtab = dot(atpos, ddhhXmat)
+##         mins = minimum.reduce(xtab) - 1.0
+##         maxs = maximum.reduce(xtab) + 1.0
+        
+##         self.ddhh = cat(maxs,mins)
+
         # and compute inertia tensor
         tensor = zeros((3,3),Float)
         for p in self.basepos:
@@ -622,7 +630,7 @@ class molecule:
         c = (bbhi+bblo)/2.0
 
         self.bbLines = dot(cubeLines*(bbhi-c) + c, self.evec)
-        
+      
         # Pick a principal axis: if square or circular, the axle;
         # otherwise the long axis (this is a heuristic)
         if len(atpos)<=1:
@@ -651,7 +659,18 @@ class molecule:
                     bon.setup()
 
         self.havelist = 0
-        
+
+    def freeze(self):
+        """ set the molecule up for minimization or simulation"""
+        self.center = V(0,0,0)
+        self.quat = Q(1,0,0,0)  
+        self.basepos = self.curpos # reference == same object
+        self.singlbase = self.singlpos # ditto
+
+    def unfreeze(self):
+        """ to be done at the end of minimization or simulation"""
+        self.shakedown()
+
 
     def draw(self, o, level):
         """draw all the atoms, using the atom's, molecule's,
@@ -672,12 +691,11 @@ class molecule:
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
 
         if self.picked:
-            #drawbrick(self.pickcent, self.pickscale, self.pickquat, PickedColor)
             drawlinelist(PickedColor, self.bbLines)
-            
+            drawddhh(red,self.ddhh)
+
         if self.display != diDEFAULT: disp = self.display
         else: disp = o.display
-        #print dispNames[o.display], dispNames[self.display], dispNames[disp]
 
         # cache molecule display as GL list
         if self.havelist:

@@ -6,6 +6,7 @@ from OpenGL.GLUT import *
 from OpenGL.GLE import *
 import math
 from LinearAlgebra import *
+from commands import *
 
 import os,sys
 from time import time
@@ -81,7 +82,7 @@ class GLPane(QGLWidget):
         self.name = str(paneno)
         paneno += 1
         self.initialised = 0
-        self.assy = assem
+
         self.mode = 0
         
 
@@ -134,6 +135,12 @@ class GLPane(QGLWidget):
         drawer.setup()
 
         self.win = win
+
+        self.setAssy(assem)
+
+    def setAssy(self, assem):
+        assem.o = self
+        self.assy = assem
 
         # set up the interaction mode
         self.modetab={}
@@ -504,14 +511,26 @@ class GLPane(QGLWidget):
         pic.putdata(buf)
         pic.save(filename, "JPEG", quality=85)
 
+    def minimize(self):
+        self.assy.writemmp("minimize.mmp")
+        s = getoutput("simulator -m minimize.mmp")
+        if s[:8] != "Minimize":
+            QMessageBox.warning(self, "Minimization Failed:", s)
+        else:
+            self.startmovie("minimize.dpb")
+
+
     def startmovie(self,filename):
+        self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
         self.startTimer(30)
 
     def timerEvent(self, e):
         self.clock -= 1
-        if self.clock<0: self.killTimers()
+        if self.clock<0:
+            self.killTimers()
+            self.assy.movend()
         else:
             self.assy.movatoms(self.xfile)
             self.paintGL()

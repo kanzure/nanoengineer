@@ -301,6 +301,13 @@ class assembly:
         f.write("end molecular machine part " + self.name + "\n")
         f.close()
 
+
+    # set up to run a movie or minimization
+    def movsetup(self):
+        for m in self.molecules:
+            m.freeze()
+        pass
+
     # move the atoms one frame as for movie or minization
     # .dpb file is in units of 16 pm
     # units here are angstroms
@@ -312,6 +319,12 @@ class assembly:
             
         for m in self.molecules:
             m.changeapp()
+
+    # regularize the atoms' new positions after the motion
+    def movend(self):
+        for m in self.molecules:
+            m.unfreeze()
+        pass
 
 
     #########################

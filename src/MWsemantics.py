@@ -82,7 +82,7 @@ class MWsemantics(MainWindow):
         foo.show()
 
     def fileOpen(self):
-        self.clear()
+        self.__clear()
         
         wd = globalParms['WorkingDirectory']
         fn = QFileDialog.getOpenFileName(wd, "Molecular machine parts (*.mmp);;Molecules (*.pdb);;Molecular parts assemblies (*.mpa);; All of the above (*.pdb *.mmp *.mpa)",
@@ -166,8 +166,8 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
     def __clear(self):
-        self.glpane.assy = self.assy = assembly(self)
-        self.assy.o = self.glpane
+        self.assy = assembly(self, "Empty")
+        self.glpane.setAssy(self.assy)
 
 
     ###################################
@@ -596,9 +596,8 @@ class MWsemantics(MainWindow):
         (only elements we support) """
 
     def modifyMinimize(self):
-        """ Minimize """
-	QMessageBox.warning(self, "ATOM User Notice:", 
-	         "This function is not implemented yet, coming soon...")
+        """ Minimize the current assembly """
+	self.glpane.minimize()
 
     def toolsSimulator(self):
         self.simCntl = runSim(self.assy)
