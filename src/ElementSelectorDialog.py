@@ -492,7 +492,7 @@ class ElementSelectorDialog(QDialog):
         #ElementSelectorDialogLayout.addLayout(layout22)
         ElementSelectorDialogLayout.addWidget(self.elementGroupBox)
 
-        layout21 = QVBoxLayout(None,0,13,"layout21")
+        #layout21 = QVBoxLayout(None,0,13,"layout21")
 
         layout19 = QGridLayout(None,1,1,0,27,"layout19")
 
@@ -514,20 +514,20 @@ class ElementSelectorDialog(QDialog):
         self.TransmuteButton.setAutoDefault(0)
 
         layout19.addWidget(self.TransmuteButton,0,0)
-        layout21.addLayout(layout19)
+        #layout21.addLayout(layout19)
 
-        layout20 = QHBoxLayout(None,1,27,"layout20")
+        #layout20 = QHBoxLayout(None,1,27,"layout20")
 
         self.okButton = QPushButton(self,"okButton")
         self.okButton.setAutoDefault(0)
         self.okButton.setDefault(0)
-        layout20.addWidget(self.okButton)
+        layout19.addWidget(self.okButton, 2, 0)
 
         self.cancelButton = QPushButton(self,"cancelButton")
         self.cancelButton.setAutoDefault(0)
-        layout20.addWidget(self.cancelButton)
-        layout21.addLayout(layout20)
-        ElementSelectorDialogLayout.addLayout(layout21)
+        layout19.addWidget(self.cancelButton, 2, 1)
+        #layout21.addLayout(layout20)
+        ElementSelectorDialogLayout.addLayout(layout19)#21)
 
         self.languageChange()
 
@@ -596,9 +596,11 @@ class ElementSelectorDialog(QDialog):
         self.saveColorsPB.setText(self.__tr("Save Colors ..."))
         QToolTip.add(self.saveColorsPB,self.__tr("Save the current color setting for elements in a text file."))
         self.TransmuteButton.setText(self.__tr("Transmute"))
+        QToolTip.add(self.TransmuteButton, self.__tr("Replaces all selected chunks/atoms as current selected element type "))
         self.okButton.setText(self.__tr("Ok"))
+        QToolTip.add( self.okButton, self.__tr("Accept all the elements color changes and exit the dialog."))
         self.cancelButton.setText(self.__tr("Cancel"))
-
+        QToolTip.add( self.cancelButton, self.__tr("Cancel all the elements color changes and exit the dialog."))
 
     def setElementInfo(self):
         print "ElementSelectorDialog.setElementInfo(): Not implemented yet"

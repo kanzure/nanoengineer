@@ -149,7 +149,10 @@ class depositMode(basicMode):
     
     dont_update_gui = True
     def Enter(self):
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        #Huaicai 2/28: Move the following statement to surface(), which will
+        # be called by Draw() and then by paintGL(), so it will make sure 
+        # self.makeCurrent() is called before any OpenGL call.
+        #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         basicMode.Enter(self)
         self.o.assy.unpickatoms()
         self.o.assy.unpickparts()
@@ -1231,6 +1234,7 @@ class depositMode(basicMode):
 	glDisable(GL_LIGHTING)
 	glColor4fv(self.gridColor + (0.6,))
         glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
 	# the grid is in eyespace
 	glPushMatrix()

@@ -401,7 +401,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         """Dispatches mouse press events depending on shift and
         control key state.
         """
-        ## Huaicai 2/25/05. This is to fix part of bug 400: make this rendering context
+        ## Huaicai 2/25/05. This is to fix item 2 of bug 400: make this rendering context
         ## as current, otherwise, the first event will get wrong coordinates
         self.makeCurrent()
         

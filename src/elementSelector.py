@@ -44,12 +44,11 @@ class elementSelector(ElementSelectorDialog):
         for button in buttons: self.buttonGroup.insert(button[0], button[1])
         self.connect(self.buttonGroup, SIGNAL("clicked(int)"), self.setElementInfo)
          
-        self.elemGLPane = ElementView(self.elementFrame, "element glPane", None)#self.w.glpane)
+        self.elemGLPane = ElementView(self.elementFrame, "element glPane", self.w.glpane)
         # Put the GL widget inside the frame
         flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
         flayout.addWidget(self.elemGLPane,1)
         
-        #self.resize(150, 200)
         
     def closeEvent(self, e):
         """When user closes dialog by clicking the 'X' button on the dialog title bar, this method
@@ -123,17 +122,19 @@ class elementSelector(ElementSelectorDialog):
         self.w.glpane.mode.modifyTransmute(self.w.Element, force = force)
         # bruce 041216: renamed elemSet to modifyTransmute, added force option
 
+
     def read_element_rgb_table(self):
         """Open file browser to select a file to read from, read the data, update elements color in the selector dialog and also the display models """
         # Determine what directory to open.
         import os
         if self.w.assy.filename: odir = os.path.dirname(self.w.assy.filename)
         else: odir = globalParms['WorkingDirectory']
-        self.fileName = QFileDialog.getOpenFileName(odir,
+        self.fileName = str(QFileDialog.getOpenFileName(odir,
                 "Elements color file (*.txt);;All Files (*.*);;",
-                self )
+                self ))
         if self.fileName:
-            colorTable = readElementColors(str(self.fileName))
+            colorTable = readElementColors(self.fileName)
+            self.w.history.message("Element colors file loaded: [" + self.fileName + "]")
             if colorTable:
                 for row in colorTable:
                     self.elemTable.change(row[0], color = [row[1]/255.0, row[2]/255.0, row[3]/255.0])
@@ -142,6 +143,7 @@ class elementSelector(ElementSelectorDialog):
                 self.setDisplay(elemNum)
         #After loading a file, reset the flag        
         self.isElementModified = False        
+        
         
     def write_element_rgb_table(self):
         """Save the current set of element preferences into an external file---currently only r,g,b color of each element will be saved."""
@@ -173,11 +175,11 @@ class elementSelector(ElementSelectorDialog):
                     
             # write the current set of element colors into a file    
             saveElementColors(fn, self.elemTable)
+            self.w.history.message("Element colors saved in file: [" + fn + "]")
             #After saving a file, reset the flag        
             self.isFileSaved = True        
-                
-                        
-                        
+ 
+                      
     def changeSliderBlue(self,a0):
         self.disconnect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
         self.blueSlider.setValue(a0)

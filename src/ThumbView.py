@@ -12,15 +12,17 @@ import drawer
 
 
 class ThumbView(QGLWidget):
-    """A simple version of OpenGL widget, which can be used to show a simple thumb view of models when loading models or color changing. The display list sharing between 2 QGLWidgets seems to cause the water surface opaque problems(not completely sure), so don't use sharing temporarily, we'll investigate further.---Huaicai
+    """A simple version of OpenGL widget, which can be used to show a simple thumb view of models when loading models or color changing. 
+    General rules for multiple QGLWidget uses: make sure the rendering context is current. 
+    Remember makeCurrent() will be called implicitly before any ininializeGL, resizeGL, paintGL virtual functions call.
     """ 
     def __init__(self, parent, name, shareWidget):
         """  """
         if shareWidget:
             QGLWidget.__init__(self, parent, name, shareWidget)
-            #if not self.isSharing():
-            #    print "Request of display list sharing is failed."
-            #    return
+            if not self.isSharing():
+                print "Request of display list sharing is failed."
+                return
         else:  QGLWidget.__init__(self, parent, name)  
         
         # point of view, and half-height of window in Angstroms
@@ -63,8 +65,8 @@ class ThumbView(QGLWidget):
         glLoadIdentity()
         
         self.backgroundColor = (0.7, 0.66, 0.73)#(216/255.0, 213/255.0, 159/255.0)
-        #if not self.isSharing():
-        drawer.setup()  
+        if not self.isSharing():
+                drawer.setup()  
         
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
