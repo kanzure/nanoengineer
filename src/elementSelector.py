@@ -114,10 +114,11 @@ class elementSelector(ElementSelectorDialog):
     def read_element_rgb_table(self):
         """Open file browser to select a file to read from, read the data, update elements color in the selector dialog and also the display models """
         # Determine what directory to open.
-        if self.w.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
+        import os
+        if self.w.assy.filename: odir = os.path.dirname(self.w.assy.filename)
         else: odir = globalParms['WorkingDirectory']
         self.fileName = QFileDialog.getOpenFileName(odir,
-                "All Files (*.*);;Elements color file (*.txt);;",
+                "Elements color file (*.txt);;All Files (*.*);;",
                 self )
         if self.fileName:
             colorTable = readElementColors(str(self.fileName))
@@ -221,7 +222,7 @@ class elementSelector(ElementSelectorDialog):
         
     def ok(self):
         if self.isElementModified and not self.isFileSaved:
-            ret = QMessageBox.question(self, "Warnings", "Do you want to save the modifications?", QMessageBox.Yes, QMessageBox.No)
+            ret = QMessageBox.question(self, "Warnings", "Do you want to save the element colors into a file?", QMessageBox.Yes, QMessageBox.No)
             if ret == QMessageBox.Yes:
                 self.write_element_rgb_table()
         
@@ -230,21 +231,21 @@ class elementSelector(ElementSelectorDialog):
             elements.elemtables[3].deepCopy(self.elemTable)
             elements.set_element_table(3, self.w.assy)    
         
-        self.fileName = None
-        self.isElementModified = False
-        self.isFileSaved = False    
+        #self.fileName = None
+        #self.isElementModified = False
+        #self.isFileSaved = False    
         self.accept()
         
         
     def cancel(self):
         # If elements modified or external file loaded, restore
         # current pref to originial since our dialog is reused 
-        if self.isElementModified or self.fileName:  
-            self.elemTable.deepCopy(elements.elemtables[3])
+        #if self.isElementModified or self.fileName:  
+        #    self.elemTable.deepCopy(elements.elemtables[3])
         
-        self.fileName = None
-        self.isElementModified = False
-        self.isFileSaved = False    
+        #self.fileName = None
+        #self.isElementModified = False
+        #self.isFileSaved = False    
         self.reject()
     
 
@@ -257,7 +258,7 @@ class ElementView(ThumbView):
         self.pos = [0.0, 0.0, 0.0]
         self.rad = -1.0 ##Initial value when no element selected
         self.level = 2
-        self.glPane = shareWidget
+        
         
     def drawModel(self):
         """The method for element drawing """

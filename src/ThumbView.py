@@ -1,3 +1,10 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+'''
+ThumbView.py
+
+$Id$
+'''
+
 from qtgl import *
 from OpenGL.GL import *
 from VQT import *
@@ -31,7 +38,6 @@ class ThumbView(QGLWidget):
     def initializeGL(self):
         """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading affect.
         """
-        self.makeCurrent()
         glEnable(GL_NORMALIZE)
         glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
@@ -75,7 +81,6 @@ class ThumbView(QGLWidget):
         """
         if not self.initialised: return
         
-        self.makeCurrent()
         c=self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -105,7 +110,7 @@ class ThumbView(QGLWidget):
    
         
     def drawModel(self):
-        """This is abstract method of drawing models, subclass should overright it with concrete model drawing statements """        
+        """This is abstract method of drawing models, subclass should overwrite it with concrete model drawing statements """        
         pass
         
    

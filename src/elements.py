@@ -388,5 +388,11 @@ def set_element_table(num, assy): # called from some menu items in select modes
     for mol in assy.molecules: ### does this include clipboard mols?? does it need to (maybe they're fixed on copy back)? ###@@@
         mol.changeapp(1)
     return
-
+    
+def setCurrentElemTable(num):
+    """Huaicai: Copy the current element table into elemtables[3]  """   
+    if num == 3: return
+    elif num in [1, 2]:
+        elemtables[3].deepCopy(elemtables[num])
+        
 # end

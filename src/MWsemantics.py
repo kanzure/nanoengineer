@@ -879,12 +879,14 @@ class MWsemantics(MainWindow):
         "set global atom radius/color table to choice 1 (the default)"
         import elements
         elements.set_element_table(1, self.assy)
+        elements.setCurrentElemTable(1)
         self.glpane.gl_update()
 
     def dispSetEltable2(self):
         "set global atom radius/color table to choice 2"
         import elements
         elements.set_element_table(2, self.assy)
+        elements.setCurrentElemTable(2)
         self.glpane.gl_update()
 
 
@@ -1440,10 +1442,13 @@ class MWsemantics(MainWindow):
     def modifySetElement(self):
 #        print "modifySetElement: Current Element = ", self.Element    
         global elementwindow
-        if not elementwindow:
-            elementwindow = elementSelector(self)
+        #Huaicai 2/24/05: Create a new element selector window each time, so 
+        #it will be easier to always start from the same states.
+        #if not elementwindow: 
+        elementwindow = elementSelector(self)
         elementwindow.setDisplay(self.Element)
         elementwindow.show()
+        
 
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]

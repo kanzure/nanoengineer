@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Thu Feb 24 18:25:03 2005
+# Created: Thu Feb 24 23:47:55 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -271,6 +271,7 @@ class ElementSelectorDialog(QDialog):
         self.pushButton6.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton6.setToggleButton(1)
         self.pushButton6.setOn(1)
+        self.pushButton6.setAutoDefault(0)
         layout7.addWidget(self.pushButton6)
 
         self.pushButton7 = QPushButton(LayoutWidget_2,"pushButton7")
@@ -310,67 +311,13 @@ class ElementSelectorDialog(QDialog):
         self.pushButton10.setAutoDefault(0)
         layout7.addWidget(self.pushButton10)
 
-        LayoutWidget_3 = QWidget(self.elementGroupBox,"layout8")
-        LayoutWidget_3.setGeometry(QRect(20,136,524,60))
-        layout8 = QHBoxLayout(LayoutWidget_3,11,6,"layout8")
-
-        self.pushButton13 = QPushButton(LayoutWidget_3,"pushButton13")
-        pushButton13_font = QFont(self.pushButton13.font())
-        pushButton13_font.setPointSize(9)
-        pushButton13_font.setBold(1)
-        self.pushButton13.setFont(pushButton13_font)
-        self.pushButton13.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton13.setToggleButton(1)
-        layout8.addWidget(self.pushButton13)
-
-        self.pushButton14 = QPushButton(LayoutWidget_3,"pushButton14")
-        pushButton14_font = QFont(self.pushButton14.font())
-        pushButton14_font.setBold(1)
-        self.pushButton14.setFont(pushButton14_font)
-        self.pushButton14.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton14.setToggleButton(1)
-        layout8.addWidget(self.pushButton14)
-
-        self.pushButton15 = QPushButton(LayoutWidget_3,"pushButton15")
-        pushButton15_font = QFont(self.pushButton15.font())
-        pushButton15_font.setBold(1)
-        self.pushButton15.setFont(pushButton15_font)
-        self.pushButton15.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton15.setToggleButton(1)
-        layout8.addWidget(self.pushButton15)
-
-        self.pushButton16 = QPushButton(LayoutWidget_3,"pushButton16")
-        pushButton16_font = QFont(self.pushButton16.font())
-        pushButton16_font.setBold(1)
-        self.pushButton16.setFont(pushButton16_font)
-        self.pushButton16.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton16.setToggleButton(1)
-        layout8.addWidget(self.pushButton16)
-
-        self.pushButton17 = QPushButton(LayoutWidget_3,"pushButton17")
-        self.pushButton17.setBackgroundOrigin(QPushButton.WindowOrigin)
-        pushButton17_font = QFont(self.pushButton17.font())
-        pushButton17_font.setBold(1)
-        self.pushButton17.setFont(pushButton17_font)
-        self.pushButton17.setFocusPolicy(QPushButton.NoFocus)
-        self.pushButton17.setToggleButton(1)
-        layout8.addWidget(self.pushButton17)
-
-        self.pushButton18 = QPushButton(LayoutWidget_3,"pushButton18")
-        self.pushButton18.setEnabled(1)
-        pushButton18_font = QFont(self.pushButton18.font())
-        pushButton18_font.setBold(1)
-        self.pushButton18.setFont(pushButton18_font)
-        self.pushButton18.setToggleButton(1)
-        layout8.addWidget(self.pushButton18)
-
-        LayoutWidget_4 = QWidget(self.elementGroupBox,"layout9")
-        LayoutWidget_4.setGeometry(QRect(50,206,483,56))
-        layout9 = QHBoxLayout(LayoutWidget_4,11,6,"layout9")
+        LayoutWidget_3 = QWidget(self.elementGroupBox,"layout9")
+        LayoutWidget_3.setGeometry(QRect(50,206,483,56))
+        layout9 = QHBoxLayout(LayoutWidget_3,11,6,"layout9")
         spacer6 = QSpacerItem(41,21,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout9.addItem(spacer6)
 
-        self.pushButton32 = QPushButton(LayoutWidget_4,"pushButton32")
+        self.pushButton32 = QPushButton(LayoutWidget_3,"pushButton32")
         self.pushButton32.setEnabled(1)
         pushButton32_font = QFont(self.pushButton32.font())
         pushButton32_font.setBold(1)
@@ -378,85 +325,154 @@ class ElementSelectorDialog(QDialog):
         self.pushButton32.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton32.setToggleButton(1)
         self.pushButton32.setOn(0)
+        self.pushButton32.setAutoDefault(0)
         layout9.addWidget(self.pushButton32)
 
-        self.pushButton33 = QPushButton(LayoutWidget_4,"pushButton33")
+        self.pushButton33 = QPushButton(LayoutWidget_3,"pushButton33")
         self.pushButton33.setEnabled(1)
         pushButton33_font = QFont(self.pushButton33.font())
         pushButton33_font.setBold(1)
         self.pushButton33.setFont(pushButton33_font)
         self.pushButton33.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton33.setToggleButton(1)
+        self.pushButton33.setAutoDefault(0)
         layout9.addWidget(self.pushButton33)
 
-        self.pushButton34 = QPushButton(LayoutWidget_4,"pushButton34")
+        self.pushButton34 = QPushButton(LayoutWidget_3,"pushButton34")
         self.pushButton34.setEnabled(1)
         pushButton34_font = QFont(self.pushButton34.font())
         pushButton34_font.setBold(1)
         self.pushButton34.setFont(pushButton34_font)
         self.pushButton34.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton34.setToggleButton(1)
+        self.pushButton34.setAutoDefault(0)
         layout9.addWidget(self.pushButton34)
 
-        self.pushButton35 = QPushButton(LayoutWidget_4,"pushButton35")
+        self.pushButton35 = QPushButton(LayoutWidget_3,"pushButton35")
         self.pushButton35.setEnabled(1)
         pushButton35_font = QFont(self.pushButton35.font())
         pushButton35_font.setBold(1)
         self.pushButton35.setFont(pushButton35_font)
         self.pushButton35.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton35.setToggleButton(1)
+        self.pushButton35.setAutoDefault(0)
         layout9.addWidget(self.pushButton35)
 
-        self.pushButton36 = QPushButton(LayoutWidget_4,"pushButton36")
+        self.pushButton36 = QPushButton(LayoutWidget_3,"pushButton36")
         self.pushButton36.setEnabled(1)
         pushButton36_font = QFont(self.pushButton36.font())
         pushButton36_font.setBold(1)
         self.pushButton36.setFont(pushButton36_font)
         self.pushButton36.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton36.setToggleButton(1)
+        self.pushButton36.setAutoDefault(0)
         layout9.addWidget(self.pushButton36)
 
-        LayoutWidget_5 = QWidget(self.elementGroupBox,"layout10")
-        LayoutWidget_5.setGeometry(QRect(90,280,445,56))
-        layout10_4 = QHBoxLayout(LayoutWidget_5,11,6,"layout10_4")
+        LayoutWidget_4 = QWidget(self.elementGroupBox,"layout10")
+        LayoutWidget_4.setGeometry(QRect(90,280,445,56))
+        layout10_4 = QHBoxLayout(LayoutWidget_4,11,6,"layout10_4")
         spacer7 = QSpacerItem(91,21,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout10_4.addItem(spacer7)
 
-        self.pushButton51 = QPushButton(LayoutWidget_5,"pushButton51")
+        self.pushButton51 = QPushButton(LayoutWidget_4,"pushButton51")
         self.pushButton51.setEnabled(0)
         pushButton51_font = QFont(self.pushButton51.font())
         pushButton51_font.setBold(1)
         self.pushButton51.setFont(pushButton51_font)
         self.pushButton51.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton51.setToggleButton(1)
+        self.pushButton51.setAutoDefault(0)
         layout10_4.addWidget(self.pushButton51)
 
-        self.pushButton52 = QPushButton(LayoutWidget_5,"pushButton52")
+        self.pushButton52 = QPushButton(LayoutWidget_4,"pushButton52")
         self.pushButton52.setEnabled(0)
         pushButton52_font = QFont(self.pushButton52.font())
         pushButton52_font.setBold(1)
         self.pushButton52.setFont(pushButton52_font)
         self.pushButton52.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton52.setToggleButton(1)
+        self.pushButton52.setAutoDefault(0)
         layout10_4.addWidget(self.pushButton52)
 
-        self.pushButton53 = QPushButton(LayoutWidget_5,"pushButton53")
+        self.pushButton53 = QPushButton(LayoutWidget_4,"pushButton53")
         self.pushButton53.setEnabled(0)
         pushButton53_font = QFont(self.pushButton53.font())
         pushButton53_font.setBold(1)
         self.pushButton53.setFont(pushButton53_font)
         self.pushButton53.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton53.setToggleButton(1)
+        self.pushButton53.setAutoDefault(0)
         layout10_4.addWidget(self.pushButton53)
 
-        self.pushButton54 = QPushButton(LayoutWidget_5,"pushButton54")
+        self.pushButton54 = QPushButton(LayoutWidget_4,"pushButton54")
         self.pushButton54.setEnabled(0)
         pushButton54_font = QFont(self.pushButton54.font())
         pushButton54_font.setBold(1)
         self.pushButton54.setFont(pushButton54_font)
         self.pushButton54.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton54.setToggleButton(1)
+        self.pushButton54.setAutoDefault(0)
         layout10_4.addWidget(self.pushButton54)
+
+        LayoutWidget_5 = QWidget(self.elementGroupBox,"layout8")
+        LayoutWidget_5.setGeometry(QRect(20,130,524,60))
+        layout8 = QHBoxLayout(LayoutWidget_5,11,6,"layout8")
+
+        self.pushButton13 = QPushButton(LayoutWidget_5,"pushButton13")
+        pushButton13_font = QFont(self.pushButton13.font())
+        pushButton13_font.setPointSize(9)
+        pushButton13_font.setBold(1)
+        self.pushButton13.setFont(pushButton13_font)
+        self.pushButton13.setFocusPolicy(QPushButton.NoFocus)
+        self.pushButton13.setToggleButton(1)
+        self.pushButton13.setAutoDefault(0)
+        layout8.addWidget(self.pushButton13)
+
+        self.pushButton14 = QPushButton(LayoutWidget_5,"pushButton14")
+        pushButton14_font = QFont(self.pushButton14.font())
+        pushButton14_font.setBold(1)
+        self.pushButton14.setFont(pushButton14_font)
+        self.pushButton14.setFocusPolicy(QPushButton.NoFocus)
+        self.pushButton14.setToggleButton(1)
+        self.pushButton14.setAutoDefault(0)
+        layout8.addWidget(self.pushButton14)
+
+        self.pushButton15 = QPushButton(LayoutWidget_5,"pushButton15")
+        pushButton15_font = QFont(self.pushButton15.font())
+        pushButton15_font.setBold(1)
+        self.pushButton15.setFont(pushButton15_font)
+        self.pushButton15.setFocusPolicy(QPushButton.NoFocus)
+        self.pushButton15.setToggleButton(1)
+        self.pushButton15.setAutoDefault(0)
+        layout8.addWidget(self.pushButton15)
+
+        self.pushButton16 = QPushButton(LayoutWidget_5,"pushButton16")
+        pushButton16_font = QFont(self.pushButton16.font())
+        pushButton16_font.setBold(1)
+        self.pushButton16.setFont(pushButton16_font)
+        self.pushButton16.setFocusPolicy(QPushButton.NoFocus)
+        self.pushButton16.setToggleButton(1)
+        self.pushButton16.setAutoDefault(0)
+        layout8.addWidget(self.pushButton16)
+
+        self.pushButton17 = QPushButton(LayoutWidget_5,"pushButton17")
+        self.pushButton17.setBackgroundOrigin(QPushButton.WindowOrigin)
+        pushButton17_font = QFont(self.pushButton17.font())
+        pushButton17_font.setBold(1)
+        self.pushButton17.setFont(pushButton17_font)
+        self.pushButton17.setFocusPolicy(QPushButton.NoFocus)
+        self.pushButton17.setToggleButton(1)
+        self.pushButton17.setAutoDefault(0)
+        layout8.addWidget(self.pushButton17)
+
+        self.pushButton18 = QPushButton(LayoutWidget_5,"pushButton18")
+        self.pushButton18.setEnabled(1)
+        pushButton18_font = QFont(self.pushButton18.font())
+        pushButton18_font.setBold(1)
+        self.pushButton18.setFont(pushButton18_font)
+        self.pushButton18.setToggleButton(1)
+        self.pushButton18.setAutoDefault(0)
+        layout8.addWidget(self.pushButton18)
         ElementSelectorDialogLayout.addWidget(self.elementGroupBox)
 
         layout21 = QVBoxLayout(None,0,13,"layout21")
@@ -498,7 +514,7 @@ class ElementSelectorDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(519,690).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(680,693).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okButton,SIGNAL("clicked()"),self.ok)
@@ -560,18 +576,6 @@ class ElementSelectorDialog(QDialog):
 "F"))
         self.pushButton10.setText(self.__tr("10\n"
 "Ne"))
-        self.pushButton13.setText(self.__tr("13\n"
-"Al"))
-        self.pushButton14.setText(self.__tr("14\n"
-"Si"))
-        self.pushButton15.setText(self.__tr("15\n"
-"P"))
-        self.pushButton16.setText(self.__tr("16\n"
-"S"))
-        self.pushButton17.setText(self.__tr("17\n"
-"Cl"))
-        self.pushButton18.setText(self.__tr("18\n"
-"Ar"))
         self.pushButton32.setText(self.__tr("32\n"
 "Ge"))
         self.pushButton33.setText(self.__tr("33\n"
@@ -590,6 +594,18 @@ class ElementSelectorDialog(QDialog):
 "I"))
         self.pushButton54.setText(self.__tr("54\n"
 "Xe"))
+        self.pushButton13.setText(self.__tr("13\n"
+"Al"))
+        self.pushButton14.setText(self.__tr("14\n"
+"Si"))
+        self.pushButton15.setText(self.__tr("15\n"
+"P"))
+        self.pushButton16.setText(self.__tr("16\n"
+"S"))
+        self.pushButton17.setText(self.__tr("17\n"
+"Cl"))
+        self.pushButton18.setText(self.__tr("18\n"
+"Ar"))
         self.loadColorsPB.setText(self.__tr("Load Colors ..."))
         QToolTip.add(self.loadColorsPB,self.__tr("Load element colors from an external text file."))
         self.transmuteCheckBox.setText(self.__tr("Keep Bonds"))
