@@ -1,0 +1,2759 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>MainWindow</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>MainWindow</cstring>
+    </property>
+    <property name="enabled">
+        <bool>true</bool>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>1062</width>
+            <height>690</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Atom</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <property name="usesBigPixmaps">
+        <bool>false</bool>
+    </property>
+    <widget class="QListView">
+        <column>
+            <property name="text">
+                <string>Model Tree</string>
+            </property>
+            <property name="clickable">
+                <bool>false</bool>
+            </property>
+            <property name="resizable">
+                <bool>true</bool>
+            </property>
+        </column>
+    <item>
+        <property name="text">
+            <string>PART001.MMP</string>
+        </property>
+        <property name="pixmap">
+            <pixmap>image1</pixmap>
+        </property>
+        <item>
+            <property name="text">
+                <string>RIGHT</string>
+            </property>
+            <property name="pixmap">
+                <pixmap>image2</pixmap>
+            </property>
+        </item>
+        <item>
+            <property name="text">
+                <string>TOP</string>
+            </property>
+            <property name="pixmap">
+                <pixmap>image2</pixmap>
+            </property>
+        </item>
+        <item>
+            <property name="text">
+                <string>FRONT</string>
+            </property>
+            <property name="pixmap">
+                <pixmap>image2</pixmap>
+            </property>
+        </item>
+        <item>
+            <property name="text">
+                <string>CSYS</string>
+            </property>
+            <property name="pixmap">
+                <pixmap>image3</pixmap>
+            </property>
+        </item>
+        <item>
+            <property name="text">
+                <string>Insert Here</string>
+            </property>
+            <property name="pixmap">
+                <pixmap>image4</pixmap>
+            </property>
+        </item>
+    </item>
+        <property name="name">
+            <cstring>modelTreeView</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>131</width>
+                <height>560</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>7</hsizetype>
+                <vsizetype>7</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="resizePolicy">
+            <enum>Manual</enum>
+        </property>
+        <property name="showSortIndicator">
+            <bool>false</bool>
+        </property>
+    </widget>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>MenuBar</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>1062</width>
+            <height>33</height>
+        </rect>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <action name="fileNewAction"/>
+        <action name="fileOpenAction"/>
+        <separator/>
+        <action name="fileCloseAction"/>
+        <action name="fileClearAction"/>
+        <separator/>
+        <action name="fileSetWorkDirAction"/>
+        <separator/>
+        <action name="fileSaveAction"/>
+        <action name="fileSaveAsAction"/>
+        <separator/>
+        <action name="fileImageAction"/>
+        <separator/>
+        <action name="fileExitAction"/>
+        <separator/>
+    </item>
+    <item text="&amp;Edit" name="editMenu">
+        <action name="editUndoAction"/>
+        <action name="editRedoAction"/>
+        <separator/>
+        <action name="editCutAction"/>
+        <action name="editCopyAction"/>
+        <action name="editPasteAction"/>
+        <action name="editDeleteAction"/>
+        <separator/>
+        <action name="editFindAction"/>
+        <separator/>
+        <action name="editPreferencesAction"/>
+    </item>
+    <item text="&amp;View" name="unnamed">
+        <action name="viewHomeAction"/>
+        <action name="viewRecenterAction"/>
+        <action name="viewFitToWindowAction"/>
+        <separator/>
+        <action name="viewDefviewAction"/>
+        <item text="&amp;Default Views" name="PopupMenuEditor_31" accel="">
+            <action name="viewDefviewFrontAction"/>
+            <action name="viewDefviewBackAction"/>
+            <action name="viewDefviewTopAction"/>
+            <action name="viewDefviewBottomAction"/>
+            <action name="viewDefviewRightAction"/>
+            <action name="viewDefviewLeftAction"/>
+        </item>
+        <separator/>
+        <action name="viewOrthoAction"/>
+        <action name="viewPerspecAction"/>
+        <separator/>
+        <action name="viewToolbarsAction"/>
+        <item text="&amp;Toolbars" name="PopupMenuEditor_42" accel="">
+            <action name="viewTbarFileAction"/>
+            <action name="viewTbarEditAction"/>
+            <action name="viewTbarViewAction"/>
+            <action name="viewTbarDisplayAction"/>
+            <action name="viewTbarSelectAction"/>
+            <action name="viewTbarJigsAction"/>
+            <action name="viewTbarModifyAction"/>
+            <action name="viewTbarToolsAction"/>
+            <action name="viewTbarHelpAction"/>
+        </item>
+    </item>
+    <item text="&amp;Display" name="unnamed">
+        <action name="dispDefaultAction"/>
+        <action name="dispInvisAction"/>
+        <action name="dispLinesAction"/>
+        <action name="dispTubesAction"/>
+        <action name="dispCPKAction"/>
+        <action name="dispVdWAction"/>
+        <separator/>
+        <action name="dispObjectColorAction"/>
+        <separator/>
+        <action name="dispBGColorAction"/>
+    </item>
+    <item text="&amp;Select" name="Select">
+        <action name="selectAllAction"/>
+        <action name="selectNoneAction"/>
+        <action name="selectInvertAction"/>
+        <action name="selectConnectedAction"/>
+        <action name="selectDoublyAction"/>
+    </item>
+    <item text="&amp;Jigs" name="Jigs">
+        <action name="jigsGroundAction"/>
+        <action name="jigsHandleAction"/>
+        <separator/>
+        <action name="jigsMotorAction"/>
+        <action name="jigsBearingAction"/>
+        <action name="jigsSpringAction"/>
+        <action name="jigsHeatsinkAction"/>
+        <action name="jigsDynoAction"/>
+        <action name="jigsLinearMotorAction"/>
+    </item>
+    <item text="&amp;Modify" name="Modify">
+        <action name="modifyMinimizeAction"/>
+        <action name="modifyPassivateAction"/>
+        <action name="modifyHydrogenateAction"/>
+        <action name="modifySeparateAction"/>
+        <action name="modifyDeleteBondAction"/>
+        <action name="modifyCopyBondAction"/>
+        <action name="modifyEdgeBondAction"/>
+        <action name="modifyAddBondAction"/>
+        <action name="modifyWeldMoleculeAction"/>
+    </item>
+    <item text="&amp;Tools" name="Tools">
+        <action name="toolsSketchAtomAction"/>
+        <action name="toolsCookieCutAction"/>
+        <action name="toolsExtrudeAction"/>
+        <action name="toolsRevolveAction"/>
+        <separator/>
+        <action name="toolsSimulatorAction"/>
+        <action name="toolsMovieAction"/>
+    </item>
+    <item text="&amp;Help" name="helpMenu">
+        <action name="helpContentsAction"/>
+        <action name="helpIndexAction"/>
+        <separator/>
+        <action name="helpAboutAction"/>
+    </item>
+</menubar>
+<toolbars>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>FileToolBar</cstring>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
+        </property>
+        <property name="label">
+            <string>File Toolbar</string>
+        </property>
+        <action name="fileNewAction"/>
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+    </toolbar>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>editToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Edit Toolbar</string>
+        </property>
+        <action name="editUndoAction"/>
+        <action name="editRedoAction"/>
+        <action name="editCutAction"/>
+        <action name="editCopyAction"/>
+        <action name="editPasteAction"/>
+        <action name="editDeleteAction"/>
+    </toolbar>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>viewToolbar</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>277</x>
+                <y>0</y>
+                <width>99</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="label">
+            <string>View Toolbar</string>
+        </property>
+        <action name="viewHomeAction"/>
+        <action name="viewRecenterAction"/>
+        <action name="viewFitToWindowAction"/>
+    </toolbar>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>displayToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Display Toolbar</string>
+        </property>
+        <action name="dispDefaultAction"/>
+        <action name="dispInvisAction"/>
+        <action name="dispLinesAction"/>
+        <action name="dispTubesAction"/>
+        <action name="dispCPKAction"/>
+        <action name="dispVdWAction"/>
+    </toolbar>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>modifyToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Build Toolbar</string>
+        </property>
+        <action name="modifyMinimizeAction"/>
+        <action name="modifyHydrogenateAction"/>
+        <action name="modifyPassivateAction"/>
+        <action name="modifySeparateAction"/>
+        <action name="modifyDeleteBondAction"/>
+        <action name="modifyCopyBondAction"/>
+        <action name="modifyEdgeBondAction"/>
+        <action name="modifyAddBondAction"/>
+        <action name="modifyWeldMoleculeAction"/>
+    </toolbar>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>toggleDisplayToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Toolbar</string>
+        </property>
+        <action name="dispTrihedronAction"/>
+        <action name="dispOpenBondsAction"/>
+        <action name="dispDatumPlanesAction"/>
+        <action name="dispDatumLinesAction"/>
+        <action name="dispCsysAction"/>
+        <action name="dispGridAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>cookieCutterToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Toolbar_2</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel2</cstring>
+            </property>
+            <property name="text">
+                <string>Cookie Cut</string>
+            </property>
+        </widget>
+        <separator/>
+        <action name="ccGraphiteAction"/>
+        <separator/>
+        <action name="orient100Action"/>
+        <action name="orient110Action"/>
+        <action name="orient111Action"/>
+        <separator/>
+        <action name="ccAddLayerAction"/>
+        <separator/>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>ccLayerThicknessLineEdit</cstring>
+            </property>
+        </widget>
+        <widget class="QSpinBox">
+            <property name="name">
+                <cstring>ccLayerThicknessSpinBox</cstring>
+            </property>
+            <property name="value">
+                <number>1</number>
+            </property>
+        </widget>
+        <separator/>
+        <action name="toolsBackUpAction"/>
+        <action name="toolsStartOverAction"/>
+        <action name="toolsDoneAction"/>
+        <action name="toolsCancelAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
+            <cstring>sketchAtomToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Toolbar_2</string>
+        </property>
+        <separator/>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>sketchAtomLabel</cstring>
+            </property>
+            <property name="text">
+                <string>Sketch Atom</string>
+            </property>
+        </widget>
+        <separator/>
+        <widget class="QComboBox">
+            <item>
+                <property name="text">
+                    <string>Hydrogen</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Boron</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Carbon</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Nitrogen</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Oxygen</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Fluorine</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Aluminum</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Silicon</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Phosphorus</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Sulfur</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Chlorine</string>
+                </property>
+            </item>
+            <property name="name">
+                <cstring>elemChangeComboBox</cstring>
+            </property>
+            <property name="sizeLimit">
+                <number>14</number>
+            </property>
+        </widget>
+        <widget class="QComboBox">
+            <property name="name">
+                <cstring>comboBox2</cstring>
+            </property>
+        </widget>
+        <separator/>
+        <action name="toolsBackUpAction"/>
+        <action name="toolsStartOverAction"/>
+        <action name="toolsDoneAction"/>
+        <action name="toolsCancelAction"/>
+    </toolbar>
+    <toolbar dock="4">
+        <property name="name">
+            <cstring>featuresToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Tools Toolbar</string>
+        </property>
+        <action name="toolsSketchAtomAction"/>
+        <action name="toolsCookieCutAction"/>
+        <action name="toolsExtrudeAction"/>
+        <action name="toolsRevolveAction"/>
+        <separator/>
+        <action name="toolsSimulatorAction"/>
+        <action name="toolsMovieAction"/>
+    </toolbar>
+    <toolbar dock="4">
+        <property name="name">
+            <cstring>selectToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Toolbar</string>
+        </property>
+        <action name="selectAllAction"/>
+        <action name="selectNoneAction"/>
+        <action name="selectInvertAction"/>
+        <action name="selectConnectedAction"/>
+        <action name="selectDoublyAction"/>
+    </toolbar>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileNewAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image5</iconset>
+        </property>
+        <property name="text">
+            <string>New</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;New</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+N</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileOpenAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image6</iconset>
+        </property>
+        <property name="text">
+            <string>Open</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Open...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+O</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image7</iconset>
+        </property>
+        <property name="text">
+            <string>Save</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Save</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+S</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Save As</string>
+        </property>
+        <property name="menuText">
+            <string>Save &amp;As...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileImageAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image8</iconset>
+        </property>
+        <property name="text">
+            <string>&amp;Image...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Image...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+I</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>E&amp;xit</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editUndoAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image9</iconset>
+        </property>
+        <property name="text">
+            <string>Undo</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Undo</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Z</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editRedoAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image10</iconset>
+        </property>
+        <property name="text">
+            <string>Redo</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Redo</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Y</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editCutAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image11</iconset>
+        </property>
+        <property name="text">
+            <string>Cut</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Cut</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+X</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editCopyAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image12</iconset>
+        </property>
+        <property name="text">
+            <string>Copy</string>
+        </property>
+        <property name="menuText">
+            <string>C&amp;opy</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+C</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editPasteAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image13</iconset>
+        </property>
+        <property name="text">
+            <string>Paste</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Paste</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+V</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editFindAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image14</iconset>
+        </property>
+        <property name="text">
+            <string>Find</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Find...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Contents...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpIndexAction</cstring>
+        </property>
+        <property name="text">
+            <string>Index</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Index...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;About</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewFitToWindowAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image15</iconset>
+        </property>
+        <property name="text">
+            <string>Fit to Window</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Fit to Window</string>
+        </property>
+        <property name="toolTip">
+            <string>Fit to Window (Ctrl+F)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+F</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileCloseAction</cstring>
+        </property>
+        <property name="text">
+            <string>Close</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Close</string>
+        </property>
+    </action>
+    <actiongroup>
+        <property name="name">
+            <cstring>displayActionGroup</cstring>
+        </property>
+        <property name="text">
+            <string>ActionGroup</string>
+        </property>
+        <property name="menuText">
+            <string>ActionGroup</string>
+        </property>
+        <property name="usesDropDown">
+            <bool>false</bool>
+        </property>
+        <action>
+            <property name="name">
+                <cstring>dispLinesAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>false</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image16</iconset>
+            </property>
+            <property name="text">
+                <string>Lines</string>
+            </property>
+            <property name="menuText">
+                <string>&amp;Lines</string>
+            </property>
+            <property name="toolTip">
+                <string>Display Lines</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>dispTubesAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>false</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image17</iconset>
+            </property>
+            <property name="text">
+                <string>Tubes</string>
+            </property>
+            <property name="menuText">
+                <string>&amp;Tubes</string>
+            </property>
+            <property name="toolTip">
+                <string>Display Tubes</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>dispCPKAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>false</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image18</iconset>
+            </property>
+            <property name="text">
+                <string>CPK</string>
+            </property>
+            <property name="menuText">
+                <string>&amp;CPK</string>
+            </property>
+            <property name="toolTip">
+                <string>Display CPK</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>dispVdWAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>false</bool>
+            </property>
+            <property name="on">
+                <bool>false</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image19</iconset>
+            </property>
+            <property name="text">
+                <string>VDW</string>
+            </property>
+            <property name="menuText">
+                <string>&amp;VDW</string>
+            </property>
+            <property name="toolTip">
+                <string>Display VDW</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>dispInvisAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>false</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image20</iconset>
+            </property>
+            <property name="text">
+                <string>Invisibile</string>
+            </property>
+            <property name="menuText">
+                <string>&amp;Invisibile</string>
+            </property>
+            <property name="toolTip">
+                <string>Display Invisible</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>dispDefaultAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>false</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image21</iconset>
+            </property>
+            <property name="text">
+                <string>Default</string>
+            </property>
+            <property name="menuText">
+                <string>&amp;Default</string>
+            </property>
+            <property name="toolTip">
+                <string>Display Default</string>
+            </property>
+        </action>
+    </actiongroup>
+    <action>
+        <property name="name">
+            <cstring>viewDefviewAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image22</iconset>
+        </property>
+        <property name="text">
+            <string>&amp;Default Views</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Default Views</string>
+        </property>
+        <property name="toolTip">
+            <string>Default Views</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispBGColorAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image23</iconset>
+        </property>
+        <property name="text">
+            <string>Background Color...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Background Color...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>selectAllAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image24</iconset>
+        </property>
+        <property name="text">
+            <string>All</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;All</string>
+        </property>
+        <property name="toolTip">
+            <string>Select All (Ctrl+A)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+A</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>selectNoneAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image25</iconset>
+        </property>
+        <property name="text">
+            <string>None</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;None</string>
+        </property>
+        <property name="toolTip">
+            <string>Select None (Ctrl+D)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+D</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>selectInvertAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image26</iconset>
+        </property>
+        <property name="text">
+            <string>Invert</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Invert</string>
+        </property>
+        <property name="toolTip">
+            <string>Select Invert (Ctrl+Shift+I)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Shift+I</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsRevolveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image27</iconset>
+        </property>
+        <property name="text">
+            <string>Revolve</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Revolve</string>
+        </property>
+        <property name="toolTip">
+            <string>Revolve</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsExtrudeAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image28</iconset>
+        </property>
+        <property name="text">
+            <string>Extrude</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Extrude</string>
+        </property>
+        <property name="toolTip">
+            <string>Extrude</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsCookieCutAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image29</iconset>
+        </property>
+        <property name="text">
+            <string>Cookie Cutter</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Cookie Cutter</string>
+        </property>
+        <property name="toolTip">
+            <string>Cookie Cutter</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsSimulatorAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image30</iconset>
+        </property>
+        <property name="text">
+            <string>Simulator</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Simulator...</string>
+        </property>
+        <property name="toolTip">
+            <string>Simulator</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>ccAddLayerAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image31</iconset>
+        </property>
+        <property name="text">
+            <string>Add Layer</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsDoneAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image32</iconset>
+        </property>
+        <property name="text">
+            <string>Done</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsCancelAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image33</iconset>
+        </property>
+        <property name="text">
+            <string>Cancel</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editDeleteAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image34</iconset>
+        </property>
+        <property name="text">
+            <string>Delete</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Delete</string>
+        </property>
+        <property name="toolTip">
+            <string>Delete (Del)</string>
+        </property>
+        <property name="accel">
+            <string>Del</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewToolbarsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Toolbars</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Toolbars</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispObjectColorAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image35</iconset>
+        </property>
+        <property name="text">
+            <string>Object Color...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Object Color...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispOpenBondsAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>image36</iconset>
+        </property>
+        <property name="text">
+            <string>Display Open Bonds</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyHydrogenateAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image37</iconset>
+        </property>
+        <property name="text">
+            <string>Hydrogenate</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Hydrogenate</string>
+        </property>
+        <property name="toolTip">
+            <string>Hydrogenate (Ctrl+H)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+H</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyPassivateAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image38</iconset>
+        </property>
+        <property name="text">
+            <string>Passivate</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Passivate</string>
+        </property>
+        <property name="toolTip">
+            <string>Passivate (Ctrl+P)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+P</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsMotorAction</cstring>
+        </property>
+        <property name="text">
+            <string>Motor</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Motor</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyMinimizeAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image39</iconset>
+        </property>
+        <property name="text">
+            <string>Minimize</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Minimize</string>
+        </property>
+        <property name="toolTip">
+            <string>Minimize (Ctrl+M)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+M</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>elemChangePTableAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image40</iconset>
+        </property>
+        <property name="text">
+            <string>Atom Type</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsMovieAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image41</iconset>
+        </property>
+        <property name="text">
+            <string>Movie</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Movie...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarFileAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>File</string>
+        </property>
+        <property name="menuText">
+            <string>File</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarEditAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>Edit</string>
+        </property>
+        <property name="menuText">
+            <string>Edit</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarViewAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>View</string>
+        </property>
+        <property name="menuText">
+            <string>View</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarDisplayAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>Display</string>
+        </property>
+        <property name="menuText">
+            <string>Display</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarSelectAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>Select</string>
+        </property>
+        <property name="menuText">
+            <string>Select</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarJigsAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>Jigs</string>
+        </property>
+        <property name="menuText">
+            <string>Jigs</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarToolsAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>Tools</string>
+        </property>
+        <property name="menuText">
+            <string>Tools</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarHelpAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>Help</string>
+        </property>
+        <property name="menuText">
+            <string>Help</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSetWorkDirAction</cstring>
+        </property>
+        <property name="text">
+            <string>Set Working Directory...</string>
+        </property>
+        <property name="menuText">
+            <string>Set &amp;Working Directory...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispTrihedronAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>image42</iconset>
+        </property>
+        <property name="text">
+            <string>Trihedron</string>
+        </property>
+        <property name="menuText">
+            <string>Trihedron</string>
+        </property>
+        <property name="toolTip">
+            <string>Display Trihedron</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispDatumPlanesAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>image43</iconset>
+        </property>
+        <property name="text">
+            <string>Display Datum Planes</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispCsysAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>image44</iconset>
+        </property>
+        <property name="text">
+            <string>Display Coordinate System</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispDatumLinesAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>image45</iconset>
+        </property>
+        <property name="text">
+            <string>Display Datum Lines</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispGridAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>image46</iconset>
+        </property>
+        <property name="text">
+            <string>Display Grid</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>selectConnectedAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image47</iconset>
+        </property>
+        <property name="text">
+            <string>Connected</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Connected</string>
+        </property>
+        <property name="toolTip">
+            <string>Select Connected</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Shift+C</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>selectDoublyAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image48</iconset>
+        </property>
+        <property name="text">
+            <string>Doubly</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Doubly</string>
+        </property>
+        <property name="toolTip">
+            <string>Select Doubly</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Shift+D</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editPreferencesAction</cstring>
+        </property>
+        <property name="text">
+            <string>Preferences...</string>
+        </property>
+        <property name="menuText">
+            <string>P&amp;references...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsBearingAction</cstring>
+        </property>
+        <property name="text">
+            <string>Bearing</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Bearing</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsSpringAction</cstring>
+        </property>
+        <property name="text">
+            <string>Spring</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Spring</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsDynoAction</cstring>
+        </property>
+        <property name="text">
+            <string>Dyno</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Dyno</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsHeatsinkAction</cstring>
+        </property>
+        <property name="text">
+            <string>Heatsin&amp;k</string>
+        </property>
+        <property name="menuText">
+            <string>Heatsin&amp;k</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewOrthoAction</cstring>
+        </property>
+        <property name="text">
+            <string>Ortho</string>
+        </property>
+        <property name="menuText">
+            <string>Or&amp;tho</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewPerspecAction</cstring>
+        </property>
+        <property name="text">
+            <string>Perspective</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Perspective</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsGroundAction</cstring>
+        </property>
+        <property name="text">
+            <string>Ground</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Ground</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsHandleAction</cstring>
+        </property>
+        <property name="text">
+            <string>Handle</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Handle</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifySeparateAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image49</iconset>
+        </property>
+        <property name="text">
+            <string>Separate</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Separate</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsSketchAtomAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image0</iconset>
+        </property>
+        <property name="text">
+            <string>Sketch Atom</string>
+        </property>
+        <property name="menuText">
+            <string>Sketch &amp;Atom</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>ccGraphiteAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image50</iconset>
+        </property>
+        <property name="text">
+            <string>Graphite</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>orient100Action</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image51</iconset>
+        </property>
+        <property name="text">
+            <string>Surface 100</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>orient110Action</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image52</iconset>
+        </property>
+        <property name="text">
+            <string>Surface 110</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>orient111Action</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image53</iconset>
+        </property>
+        <property name="text">
+            <string>Surface 111</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewDefviewFrontAction</cstring>
+        </property>
+        <property name="text">
+            <string>Front</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Front</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewDefviewBackAction</cstring>
+        </property>
+        <property name="text">
+            <string>Back</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Back</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewDefviewTopAction</cstring>
+        </property>
+        <property name="text">
+            <string>Top</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Top</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewDefviewBottomAction</cstring>
+        </property>
+        <property name="text">
+            <string>Bottom</string>
+        </property>
+        <property name="menuText">
+            <string>Botto&amp;m</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewDefviewRightAction</cstring>
+        </property>
+        <property name="text">
+            <string>Right</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Right</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewDefviewLeftAction</cstring>
+        </property>
+        <property name="text">
+            <string>Left</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Left</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewHomeAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image54</iconset>
+        </property>
+        <property name="text">
+            <string>Home</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Home</string>
+        </property>
+        <property name="toolTip">
+            <string>Home</string>
+        </property>
+        <property name="accel">
+            <string>Home</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewRecenterAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image55</iconset>
+        </property>
+        <property name="text">
+            <string>Recenter</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Recenter</string>
+        </property>
+        <property name="toolTip">
+            <string>Recenter (Ctrl+R)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+R</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsLinearMotorAction</cstring>
+        </property>
+        <property name="text">
+            <string>&amp;Linear Motor</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Linear Motor</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewTbarModifyAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>Modify</string>
+        </property>
+        <property name="menuText">
+            <string>Modify</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsStartOverAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image56</iconset>
+        </property>
+        <property name="text">
+            <string>Start Over</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>toolsBackUpAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image57</iconset>
+        </property>
+        <property name="text">
+            <string>Back Up</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyDeleteBondAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image58</iconset>
+        </property>
+        <property name="text">
+            <string>Delete Bond</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Delete Bond</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileClearAction</cstring>
+        </property>
+        <property name="text">
+            <string>Clear</string>
+        </property>
+        <property name="menuText">
+            <string>C&amp;lear</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyCopyBondAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image59</iconset>
+        </property>
+        <property name="text">
+            <string>Copy Bond</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Copy Bond</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyEdgeBondAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image60</iconset>
+        </property>
+        <property name="text">
+            <string>Edge Bond</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Edge Bond</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyAddBondAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image61</iconset>
+        </property>
+        <property name="text">
+            <string>Add Bond</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Add Bond</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyWeldMoleculeAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image62</iconset>
+        </property>
+        <property name="text">
+            <string>Weld Molecule</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Weld Molecule</string>
+        </property>
+    </action>
+</actions>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="3745">789ca596c96e1c470c86ef7a0ac1bc1901ddd37b23c841bb645bb2245b6b9003bbaa5bd28cf65d0af2ee217f960323d62140e6b781f94476158b45b2e7c3fbf9c3edcdf9f71fe6eeeee5fe2ccc8753b99d7f1f1f2e2e5e7effe3b73fe7dee5f9bcfe9bd4d57cfeee97b977d4cc8779ca4a1398c195c9589ec08d09f68f6031814fc1bd09dc828309bc0a8e2663de048f26acff6c3cc94db03b97263c5f836b13ec13706382bd4fdc3a73076e4d587f06ee4cf03f038b09fe17ff30e2e757706f82ff033898c01938aa3c7edf7f988c9301768f6f3461bdafce79e64cc138cff4b8199e477e70fc09fc97c1f880b17f5e98c05be0d284f5aec0950976e7da04fb12b8358191ffbc33c1ff112c26d80b706f821df9cf83097c0d8e26f01a7830e13c113c9ab0de91719199c0029ee871705e41bc053ee0b3c4a53311b8348117125789f7c19509bc08ae8ba6f07a413d16ad09ebbf26ee12233f8598e08ffa2e8209ebe13c4554f979cac443e1e747ff288d859fffd618ede4f73b8251d0f0bf04e302c115b82aebd2e3df0637655ba29e6503dc99e0ff945812a37e945478ded7eb4d60dc6f194de003f05865a5d7e7b931da1df1d1e7c493cae3bf074f4cb0df24ce13df81734dbf9f07f75d9526d8b712578991ff0a1ff8ef82ebaaa9bc5e737063c2fe2171eb4ce8efaa33c1be9e58129f80c504467f57c184fd56c0830976ccaf6a34c10eae3313f61bc0795dd43e2fa7607ce08ffeaf1b13d6737b6b020f893b6742ff28a9c0b3c4e22cc8a7920a8cfbabfb3ad47e9fc7e050c7daebf31b786cb2daeb13f5d2e44dd1f87da0be914eafaf4f896b67c1bc695a13fcd19f4da7f27a42be9ade043beea7094d6cb0bfe07da1c3366fbdbe311f958ad6f7477c683fefefebc4a533ed814b13fc516f6d6582fd3671ed2c884f836d5b9ff798174a5debf1a33f5b69fbd6fb19f34229b4885f9c431b5bcf9fef379860c779dbb1cb5aaf07d417c6a59f07f9ef0a6d479fc7a837a5aa43fc827ec2f57a7da09f359d6de7f1a27f94baceeb01f3b3ebbbd0797c985fddd08d9dbf4f76c0a3649dc7837ec0ebcbf3bd97387716cc4be944c4eb0bf72bc1043e491c131f82a30c82f920984f3afc8bdecf8b79a1a4027f01377ddb7bbd23febeeba5f77984f9d1c77ee87dde201ffa636012d04f8cf38452dbd1ef1bf331d426f863fdd0843678bef03e526a839fff2571173c7fce12fae0f58af8430c43f0f3e0fda9a482fd22f1e8ccc897d298d6df778e5962cc7ffdf132891e3fee475f7e45447e04f7a95446cf0ff2a954459f7778ffc73a36d1eb01fd19bb28d1f38579a1d4478f1fbf7f628831fabcc23c501aa29f07e75552c17f3df1e8cce8ef380e59f47980f7c5900d13df8f76bff3e0f30df957ca07af27cc23a562f0fb47ff2995839f0ff34c87673da01f77d03f4acd503bff77fd1f7f2616ee39704c3cf0c8277cca673cfdd99f677cce177cc9577ccd377ccb777ccf0ffcc84ffccc6faccf2ffcca0bfad4222ff132aff02aaff13a6fe8932bfc913ffde41fd4ff738ae38437798bbf24cbb65a5edef05fe61d7c9bf2aeaefd95bff12d9eded318f7df88e7810fd4f7908ff4db31673ce15cb9e0922b9efde4bfc83537dc7247cccb4424d41353a0c86b34d0f8a33f0f74c22d9dd2194dd57f46e7744197badb255dd1359df226dd78ac7eff74ab9e77744f0ff4a87939dcb9a727fdff4c2ffc48afb4c0c7b4484bb49cfc5fd46f85ef68e48fb44a6bb4ae3b5e52d0272e69833e92e692237db6ac7abfd1266d91668fb635e21dded06f419fd8a5aff44dffb2a7393aa07d3ae099c74f8774c45b744c194d28d7387691c70d3ea482afa8d41b9b50652b7ecf0fbdd0946a6af8815aea8485784f841679537afdeb95b0d7d00ff91c303107cddeaa8c7222a772a69969642a33397fb3de2ab9c0ed9ef2965cea8de944d6ea8972f566bd4db9966bfb2637724b053dc81dea61ca4772fa86ff20f7a231d2280ff2284ff2cca56895d1babc8abcd52fb2a03b2c72264b1ac932ce5fc90adfc8aaacbdd95f915735d65ad6b51206bea535d9a04d3dfff5f7eaf977fff2278d76cac33f3c03cf7ee8dfbf7e9dfb1b625e762f</data>
+    </image>
+    <image name="image1">
+        <data format="XPM.GZ" length="950">789ca5d1cd6ac2401885e17dae62c8eca4a84d941a4a2fa1d065a174314e3249cc8f31a68b527aefe5fd8c76b46e8ae764f370f848d0d944bdbe3cabc92cd80f6628adb285e9d524fd689acfb7f7a7af208c227578eec3bb2034ca2a1da5143ab8985358c0654ce11a264b0a2d3496c23d5ccf29ec850b0ab74243e120cc286ca08d29dc091f28cc8409859d505e0c5b6146610dd398c24ab8a270234c282c8512980b1d851a66118529740b0aa74289f06a6e5bb4f1e22fdaaced31a9bf68939d3275dee20fa9f396f30b7f31de37b9f3451f92e779e68a6b8b6639bf29cbcd98bf37e3f08f9baaaac7341737757bccf6e2a6ed76637a4eecefd275cd98bd2b64382ec3e977b6878bd3e2c7def06f7f3f063f91b8f001</data>
+    </image>
+    <image name="image2">
+        <data format="XPM.GZ" length="694">789ccd8fb10ac2301445f77cc5a3d982d89898d6227e82e0288843f28ad8a18bd641c47fd757da8426fd805e32e4703881e402cea723889c3d3bdb350878b70f10f5ab6ddf97ebe1c332a5e07f0c6cb215cb2c20f062ab95948448b8d3c6694de8082b2cd120212774b22aca9a704d78ebd7e3ec1665b8f58b8c75c305ddd4701c84b3d16b21e1531327c1c4893749e24d928c264d46133ec92333b30598ef9efd00eae586f9</data>
+    </image>
+    <image name="image3">
+        <data format="XPM.GZ" length="1580">789ca5d2c96edb301006e0bb9f42486e41a1c8dc85a287ecfbbe39297aa02831abb32a8b53f4dd4bfec304b0e2532b5b963f8e399c213d3b930d76b7b299d9de536bdb4b97b90bfb98cdd4cfc3e1e8e7af1fbf7b538c65e1ad44d69ffad69be299cba66523a570918b89569691db918aa952e1c72d28382b8a4846945a349157a00c44aa12d4b29655e41c51292522574123ada823973f28b190064be925a217445550553ed12815b9045ad59758f72691d3dc53b0129a61ee09312c84161e41272c43aaebc49aa366450ca990f908acb5d23cd2824d7c45ee833eec0e5a388fd48574d4d165622359e433511542479e25326af00164c230fcf8ed93587740948eb6bd4a0c671859803c5485161c28b4d1e00b2835d7388503500bc650c688282b81543b44c334da5f014d2812739f402b39c7d6ed2536022d1c13c3bae02158492e50c66ba2a27dbe039dac696e438cafc80da2e96b1ce82dd8284eed4f130d3768e11ef4a10c643691867dcc5d4fe4c43a5119acbb050aa368af86a0d635edd53b6874439c074b53191bb90b5665dff8c8cdc85284330217229d70cce10445a4179e7bfc37faa0f7a5c771cbc4c623f35aa2f75837ff2432e713afff884c87dbd248351e7175de781a39ef64b3b9bda091cbee3a36bfc2f3ba5bc1cd30cf6fc3f3ee7e526d0fe17e9c58f5539bb7cfa8f1a5dbcfebdb287cbedbb9f9cfc8c2e2d2f24a4bd7eadafac6973d6837dbf0b9b5bdb3db89ecede7078758e7a81369d33d56dbb1b5f66410be9c9e7da9bae8333c793762855434a2c72321994923e5843d18bffe29f2e77bef2f7a0e45e5</data>
+    </image>
+    <image name="image4">
+        <data format="XPM.GZ" length="1340">789ca5d24b6fe2301486e13dbf22821d1a4d4362c7b6aa59d01bbdd1d2cb62a4d12cecdca0949612a0a5d5fcf7c9f9120752a59b9923368fdee03889f7bacecfd1d0e9eeb5b2a55e4e42271ceb85d38d56b3d9e6d7ef1f1fadb6e739f98f49a7d7fed66aa74ee8745c0c71007a961a6496cf6060790826960fc45e6419137d697943643ef3fc88188282050cdbb820f2881bce892fc4a017b85c114f88a267973a254a267d81ba0485ad4fa0b2bc05ab4d6e4a7aae47bc272aa394c4ae0ec0d05e9c14545a26c409583d6044d4cc777df01d0cecca06949a2b6cb25332509a7806569bbc2ba88532c42b30d45ac5c463a2a9bed1b4a08e355edd1c14866b491c82ca088dfb9e13436eff7b09aa3030b878066a5b8fc0eaf1fbc4a83a0c6fa06f9981d5d9b806797e3a02e2a8a47471a35750fbf90120aec188e5437c2cc919befe188cf3b381a516250513c4153176b9e458f93b31c1808df3dfa5a3cd17258ce2a4b9a4e3c9c3b4b93cce9e9ee7f5f292621659b68ce7b592aed6f92c5eb3ec6d53265bd65935ef456a28fd83c37963393a3e1934160aa7bbabf5cff239df09b65c14bbde09db27bd1c4eafd2eb6df8f40e46db502f37b7db502f7783fb2fbe426dfea9fcd96ffd055dd82262</data>
+    </image>
+    <image name="image5">
+        <data format="XPM.GZ" length="2068">789c95d3c772da601885e13d57a1b1769ecc672424242693857befdd992c548d0baeb86672efd179c1c44a48d3bb7a86335812bfa7269da3ad756772aa71df4ffa67999375933b67327fe8f55e3e7ff9f4b531e1458eef3b51e0f8131f1a13e63a99e336b9f0b6ece50a17b2ef29bc8543853771aaf086dc2a149e95834ce16b9c2b7c860b8557e5d0537819470acfcb6d5fe1271c2b7c8b0b85cfe52850f804b795ec76e5b8a5f0a9dcf115e6f93b81c2298e14e6fd7512c5f7073853f818e70a1fe142e10e2e155e91135fe143dc52b88d438567705be1071c29bc846385af3017e6f9934ce11ce70a1fc869a0f03a8e14cf5fca99aff87c0ef383f339df97b5154e302f08673855d870aef8be7d5c2afc28e74d855b98038b63cc01c33e0e158e70ac708853856f303780a73117f670a9f09e5c3415ee634fe126e61f02f730071eefe25061ce1fc797f7b5dd1f3a1ad87670a430efaf88155ec31c30bc8853851770aef02be6c22f72d954f8197b0adf635fe13b1c287c8943852f70a430e7a58c15e6ffa94c14e67cf0736783e7ff5bffb332f7e77eb34a86a596596e457d375aa5c34a3bb5ae9dd9f9fbdd6855da055d5acfaeecda6eecf6c76eb4bab43bbab7be3d54abc7aaa7b7dd68f56c2ff46ad33663b33647f383dd68f56a0bb458fdad255bb69561abda8d568bb64659b55ab70ddbb42ddaaead766c977ab667fb7660877664c75527b555b3baeb415ef56dbeb5aaad0a6aabbdeaaedfbaa90a87b56babd0a2b1add45691c563ebd456ba93711dd756ad5f8ec520f7fdaa4232b6b4b6cadc7c6c456d55baa763ebd6eeeb0ffdf3b9fff6b1f11dbcf8eb91</data>
+    </image>
+    <image name="image6">
+        <data format="XPM.GZ" length="2845">789c95d4d94e1d391006e07b9ee288ba43a34aaf765ba3b960df09642519cd45bb1720ecfb12cdbb8feb2fd31c0e4c44f8a5840f77b5b7b6dfcd8c76b7374733efa62eafeaab8366d4ecd717a399f6faf8f8feef7ffefa39359de5a32c1ba5891965d37f4c4d338d9a1125f8811fc4b9c95d9a8a69555c98d21705bc242e13097c2f365e026fa86d5f1878016eaaa4b0f02cdc5569f45574167d1c9d1715bc05f75551d4f0bad8265519bd0267952d1a8cbf82f3ca151ddae7615b7525e6c3dbb0734989f95303b712b4dfa85d596aff3fe0de55a5437b21ae92c1a7d1aec478782dba2eb11e8cf5a9d2c167d13eba847309fac3fa578504de846d9d1bddafcfb093a05dfb7375a1edb40cd77519bd186d0cdecf6db435fafe4bd84be06b75ed4c099fc0cde039b89517c237d1dee8fee97a74756374fdb4bf7ef06d746774fdb09f2e91a01debe3d2d0aefbdba97d127d3758c77b0e673e35d87f3a827309dcab7da6edece0c2e7f1f98bc1f85ef83d5c4ad0bea7f6a5e9d18eefd71909da591da6afe7e71b6c1f4dfbd1369aa22babdfe377b8f2ceea7e1dc0ced76ac6feb95a02d7d15e4dd1e179dd5f5d0f2f8113b56f62fb4e746b75fffd60cc9753b8f19dc5fcf803dcfa3e1adf87eb24f092ba492cf69fb3e834fae360ec3fe3fb747d9359ddff5c5c274d6e757e164e25f08aba2962fb219c49e05b75535a9defa7686375bf717fd57963a3ef06eb79c7f9ae8d04c67e63b9757c589fb0bc21582ff4ef3309da717ff8a26d2b7ddf2e8c1fd8889b42027f815b09fc15ee2530eecfd648609c7f5c4fba9eb80f5b2f81711edb5e02e3beeb12098cfbb7cb25e21ddcb79de96ca7efc7f71f1402e33ee82a09accfd71218e7abeb2530eeeb3e91c0b82ffa5402e37bee4b098cf3d01b098cf3d97b098cf38ee56874bcbf93f10aa6903a04ffbfb1c2e3e986dba7aac9da898a8e7bde7b5e35d9e344c53e1f84ecf38fb1aa673d3e56c437111ff21172cc27e177add20c55b182f894cff0b773be88b9e42bbec6dfdaa7aab18a1bbee53bbee787f0fb2ccfc5ccf3022f8e55d1b3512df132aff02aafe18975de88d9e42d7e1f47484f330fdee61dfec01f43d5a7304679e2337f89f9cabb2f2aa4976ffc9d134e39e33c8cb14055c906b19315e8a562171e22aac9c731a28a9ad0c3e22b15a1176aa9a39ef6689f0e1ec748616fe8908e5e56482f744c27744a67744e17636324dea3cb572bb08f7445d77443b774f738c6f0cf3d3dbc56315635cb2dcd0d639cc75cfea762ac6a81161fc718b4f4ab8a6755cb18e3cacb1dfc45d52aad8531aebfa562ac6a8336c318b7de52f154f5fc6bff9d4cfffbe7d47f0ad3a8ac</data>
+    </image>
+    <image name="image7">
+        <data format="XPM.GZ" length="1025">789ca5d3cb6a83401406e0bd4f31c45d288d8eb791d247287459285d1c6746733389e666287df7e63f26c15c5c94fe27201f7f0e06c78c86e2e3fd4d0c47ce7a439b89167a4cb5189a6d591e3ebf5ebf9d8194029f44f883276740420bd7e38033d00f7ce507e09c69a5f42d38012585b154e00e0cbcc893dcee9914cb80db0a0c3d0c9833c3240c25d830130c3866e62a0a35b8062399988877b74c958651086660ecab28e676cae4801ba6a23ce62f172d33af65c9240cb800131f032e9939065c81cac3809a196b4ff1c3a99906031ec054624097496996f28d2c4819067c066d6c13cbbfd9803987db87e1c6a5bbb86d439936dd589dd3a9d1c575538c2fcdc498699be3f5b6e9d9297a77faefd3ee98bfeef435f62adde6269d66d67d68f36e43e5e292255d358b15a7aaaa55fdcfe6f887bc6ab63b3a9fe99e9635a7699afa40bbf399de1fb77b7a0f1ebf213f2fce2f9d671a39</data>
+    </image>
+    <image name="image8">
+        <data format="PNG" length="709">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000028c49444154789c8d95af7bdb301086dfec0938319bc530b061350c2cf458cb5a18b83f6181a363a3851debd8020b1dd6b01a0adacc62772c03b21de7d7b38a28962eef7dbaef2c4fcab2e4d268db762f22a4697ab46e6600a82a0021049224c1393719c74d2f52011121cff30174ba371280f7fe2ce62a18a0aaaa33d8692255c539f779f02580999d25e8e753f8972bdcbd990dc1ce399c7347f5eeeb2f2267f5bdaa5855499284b66d1191c1a8f1b874fccf28c6ccce3a620ced935d32f7aae25ecd25a5e375553dea90ff82ebba663e9f9365d955786fe476bb2584b01749c8b274a8f5115855f7de7baa5d851482880c80d3b957dad62d6559d284869b9b9b7d5114a4693a99f46f9eaaeeabca13ea063580cb4a019ca408020e7ced797fdfd13435aac6623167b55a45c5bdd2e2ee0e97a6a81a9872668b1920946c79e32f4b5bb2fcc8a9aa1da8e1808ff70f7ee933d3086d78f8fa40324baeaaec4745c54f7ee0f1ecd8f1222f14fe9e97f699ba0e1846e33dd3d0049e9eeeafba7b3a5252ee5852221414dcdede9248466b35cf2fbf092190ce52a606785fc77e340311628e9848041c2e56dc14c4f1cdbe738f27b38c1d1598916659dcefdc99b6758d1789f53463f0cd4174b13b89335001e29a00de1a8c7887f8aa1a3c7174edd62f580fc486a650a229b19d87c8a173a4f7743414658a80b5a33f6827761c688028d8e98ec3aca53b677f36f27cc9176ca47210abf1d1baf908eafab00eda01bb72ce663356aba7a8d87bdf5b0562100408d139b388915e951d601c6a8e1922b05eafc9b26c329dcfe7bc6ddef8b3d9a06ac4fb47386a3e193dcb01399cb3eba6f57a4d9ee71380e195aeeb7afffabaa1e9be5f8a76a61c9c397c3540b58dbf83912f731e1f1f592c16c325f40f010f7cb01c5264d10000000049454e44ae426082</data>
+    </image>
+    <image name="image9">
+        <data format="XPM.GZ" length="2881">789cc595c96edb481086ef7e0ac17533828a488a1489600ede775bb2b33819e4c0de2c2fb22559f2a2c1bc7bc8bfa96a7b2c20b98d5a04f4b1ffea5abaabf571ad75d13b6ead7d5c799896d32bddd28372d25a33b3e1f0e5ef9f7ffdb3b21ac7adea1b45512b5efdb0b2caa6a55bd4c6077c5273470b7fae398d853be0aef00e582d98b05e2af674537316897e0f9ccafc189cc9fc0558d6a727708827071be16db013fd7acddde0ef182cfef8191ce2df054bfc7c0e0efe4635e71d591ffef234cff214f377e0608f78f360ff056ceb01be07bbb6691bf0b0e622d4ff169c88bf1e38f83f05877c52cff5003f82433d079e231d69d8637f8b505fd4a728443f0397327f040efb79080ef5ffe639b291cfef12ec62152be80f6a2e437e53b0ec0f21de329c2f9c9732895ce4c0cef3623dde02877accc1122ffff05c7fc09be0b03f16ac1395f8f55e3c97a6447d18f99656f40f6027f15c7b8e6d8c7c09e745b555a4bcfe2bb80e17fd457d70a23a2a014fc01d95aa0ef4a8a70afb7905ee4a7cdab3ca55177c06ce45bfe179111fed830b55aa02ecf5a61ee09d86ad67f6f149ffb08fcf253af1f55035eb76757cfc3cf65347528f041cf60ffda733b11f7bd65d9dc13ff64f87f86370387f3dcfb27e092eb5d2d84f423d74e82fe4abadf88b6a36b1d403f11be9279e7b361de3f703fb6942bf9c7a96f5bae0dc1426871ef11825eb63bf4ce887b667b127cfc61a5f7fdc2736f443068eaae314619ec1a1ffd18f369cf78167f18ff56dbaf0d7477fd9cc76adaf37ee1b1bfa1dfd64a5de74e9396a479e719fd9d04fdfc14ace3bee2b1bfaa3f02cf3f0ef427f5bcf721fe07e73d2cf84fe73213ff49bcb641efdebe4bc10ee6f57c83cfe4f5cf8ff413f382df3b8df9ddc47fde99f8fff53cfc425ab6a944cbfd343abd934432f6c96eb2bb582ceb2e34b1ee0b7aa2d96e91bf5155ff30ddff290eff89e47d59bf1327da39ef0034f79c68fb078e2e7eadd0b93ef079e2f326ad4ebbcc19bbcd5586cf30eeff25eedc1f73f322251eff3011ff2516371cc2788ffa9f6e0efab269f397e9d728ffb7cd6589cf3e7eadd17fecadff8828de8bf57cf8fea6973c431278dc5883bd5bb94c79c7197f357fa82980d1195a4483716776416ea2ad6acca5bf464c9d1250de88aae1b8b5bba096ad462f44a7f4b43baa37b1a790b9ed1f8adba3fa5c92bfd034d613183c5233dfd575dad3f7ea57fa617b198d3fa7b35aa3d17fd066d8ac556c5dbb4f3561dce27f4bbb427168eaacc683f9ce225fa3d3aa0433aa2633aa153ead5b5a3fe7b0b390fcbc77ca9beea0d3aa3099dbf19932adff7ebfffb69e517a256b2e9</data>
+    </image>
+    <image name="image10">
+        <data format="XPM.GZ" length="2833">789cbd95496f1b471085effa1584ea260465ce909ae120f0410bb52f942ddbb2831ca697d14a2d14a92dc87f4f4df52bd9714424a7b025811ffb55cfebd7d5d4bba5cec968bfb3f46ee17e5a4fcf7dc79fd593ce52988dc7cfbffdfefe8f85c53cefc84fd61d74f2c55f161639747c87bafa52de4f5cd4e0e7c4e500fc027689e930f120079f8297a19f802bf067b0075f81037805dc80c7892bf3b701cec0d7603c9fefc13df8b905c30f617f5501fd26d8f63705c32fc14f65798cc0f04f0760f33f0347ccdbfab69f87c4b5ede7086cfe1fc1f0cf5fc196e72ad8fcae81cddf1618e7c3dfc096f73ad8fc0ec0e66f3bb1337f5db0f9db01f7c115d8f2fc002ec1bb60cbf30c6cfe3e822d4f06233f3e4eeccd4f06b6f3ff04b6f3c6f97bcb2b07c31f9d83911f45b0e5d7035b7f13d8fc5d802dbf3ed8ce1bf7c5234faa1307bb1f0e6c7e2ec1c88b3c187e08f723e07984fb10b17f42bf465b1ffd176d3df45bb4f5d03fd1f6837e8be61ffd14cd3fee7b63f9a27f1af38ffbd8d8f9a23f1acb0fe7df585e37ca41ee47502e12c72231ed810760bddf99ec274beb0dc15562d67eca7c55675ef936715d829f9463d5cfa2f21eb8046bfe59531559a3ebdf248e01bc0d8e89b969397795cf9df269e2ba0bd6fec86355e7697dedaf9eccf7d2bcf65fcf574d4ffd51481c1d780b1c12b37ebf56925795f2d2ef9b3a6b87f2b2b2beb4feae65d775994b79a95fd777cbaeaf7aed2f57ba812b95bf28fb7628a7fad00eadd7ef3b175de3d27eb47fbddc3f9fd6d77c7de14b5fe8bcf6bbaf6539f5c3272d876ec8423a2f3dbfd00bfdd0d37afdff1006a10a039dd7fb16428821edb76c3966318fbadf23edf758c4321689fffbf83ff54c5cb3935133fd9b5eb59e03869f5793f4a276aa8bdcf0299fe97bf75605f4b5cc9ff3055ff2158ff99a6ff8563eb9fb6745ca5f9d5cf044d5f73ce5193ff0e35b15e9bc65e6899ff98557a07ee4555ee3f51f2b64d52153ea3ff97ca29e377813ea2ddee61ddeb50a7848fd13788ff7f9800fe5dd888fa0fec01ff9983f69c5107938e83ff31719273213f82b7fe3aeaa33ceb9c77df96c597e8bb612fa6b51d75cca53db8a0157c4ad9a886a72244e285094bfe9fe073a95e70db12ba9a0333ea673ba10f5255dd198aee9862461c2fad4704d93d71cda8a7b5dbb554f69460ff428497cd73f89aafca18fda8a6771f2aaa6175a79d50f7f3e1554787132a3555a13f5ba2407fd5b7d256b48263434356dd0e67c7dea3fdaa26da87768573a648e3e9d25ed493efbb2cb111dc8da0f7438573f7cbd073f0d1acd59bfbd6777d4d0dddfc688268b7ffebaf0174b12a4c0</data>
+    </image>
+    <image name="image11">
+        <data format="XPM.GZ" length="3937">789c85974973145b0e46f7fc0a07da111d7a35e6101dbd30066c636c3c0276472f54995978c4c62e4fbce8ffded2511a13af9be8fcf0e2947487d49574933f5e2d7dd9de5c7af5c78b9b852d4e9aa5e6d8ae975eb5b717178ffffcd73ffe7cf172345af27fc3b25c1abdfcdb8b977ab9d42cc98027d86ee16128585a7814c2fe088f43708e9f84986f014f43d83bb808c16fe03284ff115c87586f176e42f035dc86f0df80bb10f62b781ec2cefed87ebecf29cc83ff0e3c0ac1cbf038c4f807781ac27e0f972198f71d5621fc597f6821d6bb836721ec5b701b62fc07b80b61ff06cf43d89b60c2cdfee56bcfc39edfc13cac3787c721ecac3f9a8498ff075c84e0115c86f0bf812d046fc24d089ec26d88f5c887511782733ff310fe27c18493782bf38da721fcd35e86f0673fe32a84fd2d5c87b02b6c21f813dc84f0bfeeb94d966db81d77e3cc971aee42d80f7b9e276bf23cc47caf8349e78cf7041e86f03f800930feec6fc283fd3d3c0d617fe8b9e899784cea10febccfc442d8c987c92c04cfe026c47e8ee13684fd0cee42ccf71d9e4f07933c8f7130e5c8fb28f9ce7164be7f8479f0e7fda755083bf53aad43d8c9b7a94d6753f6abf48b691782598f72cff5c89f6218826f7a1e25cb1e3c0ec1ecbfe0c17f009721de97fa2d2c843ff95dcc8aa6c87abb809ba22d325ec4bf9887b0534fb49fdc1ff1f4649c94d9cfa83fa769c9790ae7e15494199f2f300f4cbe965588f9a8efb20e315ff22c843fe759362198f8966d88f1c3e06ae0ed25f38f7e578d42d8897f3509c1f4273faca2cafd719ebe99aaca78918f150f7cd573dd33f5e264559e2ff5e2e4c2ce7954b3aaa9321f0d6e4230e759b521c6e7febb10f615781e82d96f3dac47759eff2a3cf672c8f3ff0c172198fba4ae42f069cf75cf05ccc3fc173d5bcfe7b0d5b33af3b5826721ece44fddd46d9de7c17de5d4d5f93ec4af9e8760ee2b1b8418cffe69fff93ef407da55e693f43c4956fa95951edebcffe887843bcf83f3b33a849d7a34b39965bee77c336b2cf74f7ed83c84ff7ef06c10824b781c627c320d86f17b3d4f93751d2e3c5d33fe6b701382e937b336c4f8fd9ebb64819b61087eec79946cdcef4ee326f399f5696f596f173d4f938dfd38b9b0737e4d11623cfba39c329ee44f5337d664fca857a75993e74ffd39354df60bfabb53dbe4fb91df4e5d93ef97f37721eceb3dcf9395fc727261df4a6e07c94a3ef9c7cbb0cd7ca1fff03990f1a0ff70bd663cace771b291ff4e2eece43bed3fcf6ba5e769cfc4d7c9c57e6e7b2e7a66bf4e659bf1237f693fd92fc85f2fe6bacd7ec6fdeee4824f7bb664c9f54908c62ff7dc242bfdd1c9857dabe73659e9e72d0f4c3f6ae7dda0cdf8f13de31f7bc32ef399feec34eaf23ee17bc469dc65fca80fa74997f9cefde134ed323ee4af53d1118f1de2eb547645f2ce42c5ff4c67da04fd5ee9afad763ad7af7aac277afafffcf54ccff542bfe9a55ee977bd7e5ec32d37baf0df430bbdd5bb7c5fbdd707ffe5517ff888657dad2b3fbddfe85bd73b5dd535b7ae673eea7bf7de70cf0fbaa95bfad1476cf7de3beebdab7bbaaf07fa493f677de8a1fb1fe9c0f732d491af31d6894e7bef424badb4161591ac9f53994923adaf30904ee6ba90af72fc17ef1339953339cff3900bf926fe4e72a537f25daee5e6bfbc17ee7dabcd53fce5dc47dcf9887bdfffe1efbcf5ecc9dfa3d1c94344e9f773ebd9d37965f4e4517ec8b2bc961579236f7bef77b22a6b4fdecffeeebd2eef65433ef82abbee3d086f1dc9a6decbd693f72ffe2bf251b6dd7b4776654ff6e5c0e7fe249fe58b1cca519cc6b3bf0cf48b0c3dbef73edfc8cf65216399c8540a29a5f28b4b4df4ee793fba62fe835cc60da0636bad9356966deea752d9573bf69be2e788bc4fedc44eedccceedc2bee9915deaa65dd977bbb61b3bd6c216cf23f27bcb6eed4e87766f0fd2daa3ffd7e08736b62c47f6da566cf1eb88fc7e72af37f656228b2eed9d9c460d78be6ddb2a23d66c5dd77244de5f3ab2f08c1c3f746ff999fd39e2bd94b6e17f1f6c33fb85acfaacf7bae11f9d17bf56648ef0885131762d9ffb7abcb38fb66d3bd2fdb51a63849aedeabaedd97ee6736f59f9df95eb231adbb203b9b503db7af9efbfbff80f5e5a962b</data>
+    </image>
+    <image name="image12">
+        <data format="XPM.GZ" length="1280">789c65d14f4fe2601804f03b9fa2811bd960690b42367b10458b15e1b889d9c3fbaf056a152908c5ec775f66de762971c6cbcf49e069b96a3bbfe753a77dd5c8b762bb548e5a888dd3d6bb2c2b5efefcfa6a343dcf39fd0581d36dfe68341347392d4fa36006062e0a2ec0610f0527a0704557705d920a059f48236261c0948ca52b62f00e942e0a3e92be0ca40fde92010ace4bf62c6f488182cfa441c1908c952bf94505a87c141c91d728189103355403704b0e51f0ada4b09c927c42302e292dc7a4544a49f0481a149c817caf1e78207d145c910314dc93431494a4d44af39315a9b4d67ccf0f2403ea92c6322763145c5b1ad7d280a66b3cc35fff9ef4505090be090c8f6c913dd337fcf53b64df5c9b3ef849f281c11dc9801b3246c10f30eea2e02b19a0e03bc9f08b9096e87424a2b411f8c7ffe5a43839479e170c8b659955927269d92559accabc6649fac6c72d97f72a59b5d8619d7c6c903cdf7e5b769fc87e5f5fea571d0ec579b9b8ea78bc392f17578d46b7b5a57e5551dc6119dbe53eb7c1779f3e1283b4cbc3de060b9286b25c56071b5cb598a4691a966f34391c6d70d5e4318a22592dc7910dae7ac24fa1ab655ad8e0aa50da776297e7ea414f574517cb396978b1ccc2795ae5746f6d91b37154a51aec22d65a56d19d6af9fbb3f10f8db35f4c</data>
+    </image>
+    <image name="image13">
+        <data format="XPM.GZ" length="3649">789c8d96496f1c371085effa1503d7cd08cabd2f087290646bb1b55a962c39c8a19aecd6be8fd620ff3dc5579cb6253b40e65930bea94776912c56cfbbb793fdadf5c9db7773b753991ebb893b929bc95b7f777efef4e75f7ffc3df726cb26fa2f2ddb49f6e6b7b937dc4ddc84127cc09f0267499666602ac14510e2efc16510e2189ff9a0c07212384f82c03d38cf9ad47800179918f3536497b6e00be3bccced790e5c0581914f5eeb78cb7fc538087c0b6eb221453e2cc641783ef2cd3b8de7600f7679624cd7818b2408e33f83d33c4fb15e413e459e57a9e5736e1c049e07b7799be2797c1db9cfccbf05965c62fc10dc058137c17ddec7fd780c5c2641e08fe0aea8e3fa1602d72e08f961bd4dd2a48df9afc04510d65781a5ce72f8f919dc8d7c661c84f98ec13e08f11b705f3796af80dba44d5b3b5fecbf920afe23701604be8c9c47c6fe2be916213fd44f5b06219e80abbaca319f4c8d83e0afc1755d5b9cd3916d7e320e82ff4be4c6983370533771fcb791319e2c2e751be7cbc15d2dd1ffc1b8c94be303b0d3b88ddf8bdc456e46b6fab3fd71ad6fb1ff84f36ffd2c4e796417c7af1b078157c1bdc66dbe6be320c4bf8287599cb622fbc8cf91fbc8fb812519b91dd9ea07f527e92ccefb235b7c1a7988e3e747b6f8857193c4fb5d80b331de1bcfe2b41d398df71feb917c1cdf464e23ef8d6cf5c1e062e4217216e797912d8e7a9172361fdd8d6ccfdf889c5b3f21dc3fa9c6f18791f3e85f8d5cc638ea5f6a65abbf07e320b0adb7698ae83f8a3c1b9f46f6a5edffbd71107819dc06c18ffb2bd254f63cda8d3c94b6be8d91edbed97af1417c297267ccc65de30a8baf18b74969f9a19f8b6b539b8f4e8d83c0e80fe2356e7ef44fe9db2c32fa810c33e6ddc87989fc05e7d3254188e33e74695b96d62fa7c641f0a3bebb2c088c7aec726db7b67fc80fed17fb210b914b63463f525281b19f5d15847cd19fba3a0871f4576d9eda1210473fe92408f35f45ee22dbf35d1018f5d3f54118ff107988bc13d8e541f0a39e5ce14a67f9e37e29a9c06791abc8d86fa5da59feb87f787d587da09fb93608bc1c598c05f709c769f9e3bc9d73ded9fbc3f2f3ae77d69fd00f955488a35ffb547f2ee07c08ef579f07816f2217c682f79f52e96d7d8be0d257dece630d5cf9dadb7acc5febebcad683f5e3f565e7617e3450cc87fdf5e23b6febc17d5272dede6fb80f4ade5bfde2f791c707cfc7fbc4f77ef0763ef87da4a442dcf21dfa2432fa7f9ff4696ff58b7ea794f5b61ff02ba91047bfea8bbeecedbee2f78752d563fddba877a5bab7f5a3be8622088cf50cf898ffffeba59f89853bc8b1e79e87fff247e7211ff1319ff0299ff1b9f2055fbe1c657ebee26bbee15b754ff98eef550ffcc84ffcccf3bcc08bdf4744ff7bfec04b3adfb23e616554c7abfc913ff11af7affc1daff3066fc6dc67dae26dfeacffeff0979ffcbbbcc75f799f0ff81b279cea5fc639175c6aace29a1bcbe9077f4b4ca4a35a12ea7e29f7dd4f9e7a1ae8908ee858232774fa4a67d471436ef49fd305efa9ff12eeb357baa26bfdfe869bd17f4b537dc29d8ee8e8fe275dc3ff408fa3ff899e695e735fd0ef17e9fd0b7d88fe255a1efd2bb44a1fb1868e3ed1da0bcdfcebf430fa376893b6689eb6f5fb33fafc423bd1ff85abd1bf4b7bf495f6f5099d3a0e5ee89bf975bb93d19f5246795883fa0fa8f8517cfada4f25555453a319b5da885933f84142affd78f739f1d28bae570e7f3a2d75cb91eecf2c9f5e8ee5c4aaecd7b52047aa53398bfe416b7c8d77e45c2ee45275c553b9662f3772cb977422535a0aee991f237a5e943bb99707d5a33cd1031fcbb3cccb021f53424970cbe2afefbb8e6ee49e1e65f1bb94eeb57efef97dee5f42825277</data>
+    </image>
+    <image name="image14">
+        <data format="PNG" length="658">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000025949444154789cb59521931b3910469fb7027a98c42c2838cb6cb686031d689685f95d86816b66c385033dcc0305354c62dd6c021c576d2e97f3a672fb21a94bf5f449ad6e2dfabee723f4f02154e0d3db4929654e299173a69a01e04488311263a4699ac51f8373ce737f3ee36360bdfb0c4eaef194185ecfa494d86c36b3f7fe5df045dff7e49ce7979717369f3b365f760098196a8a6154abf4df8e4836b6dbedbb9c3fa8eadc9f7bbaafcfb4db0e33c392a0690963a0f642c98576db41f00cc3f0aeab784829e16364d37500485e525266b2814946c43cd247ac56e2a6654c8952ca7c1f3c4db49b35866105d298487e4443219330293408960d4490e0c839df776caa38ef2856c8cd44594f8813ac188e0878521d51a76020ae619aa6bbe04f00550d11401503304372a4b1404e3dda26c063a50202d755ffed180cccae49b3db181a13f278a6b4198280292660b52022f7c1c107524a985e81560dc3c896b05031c0ca35a65529a51263bc0f8e3192fb0b5a15b37a051443cc43126aadfc3808354f0404e7dc3b1c87b008de33bcbea2802a80923853dc8813a1944a29151b126ddbe28327e73cabea6f9fdd03c06ab5c215a8c7338d298d35f8658344871804035e2f3c3d3df1f8f8b84863e2743ab1dfefc939ff2b7c716b9baa3a0fc3c09812e2049a6b82ac54c4a0eb3a4208b7529e8fc72387c301e71cbbdd8ed56af553a92ffed98f4b2973ce995a2b2282f7fe96ac5ffa434a69fee19aaeeb7edafc17f09f4a55e7d3e9c4e17060b95cf2fcfccc7abd5efc35f8a6cbe532eff77ba66962bbddfebde3b72aa5cc87c30155fd7fc16ff5617fde773b427a024c411e200000000049454e44ae426082</data>
+    </image>
+    <image name="image15">
+        <data format="XPM.GZ" length="1040">789c8dd2db6e82401405d077be82e89b691406e492a69fd0a48f4d9a3e30336714ef038862d37faffb68ad784bf73192958d330c71d073dfdf5edddec029abacca95abc659e1f6f47a3e6f3e3e5fbe9c8e102e3e89eb779e9c0eb9caed7a1c700e0a2f14690c8e8f0cd20cec32fd304c25b8624a2193085c80411cc4590a4ec150844211a8c1a1c08013303291d11a54609c60c00d984418306752421482124c7d0c5882998f012d33c580199303ce4099c854f24615a8423554bc72c18c55a2f8f88669b4a70c58833ac4802366a6a5e695774ca5b556e09ac9011ba6214ff3525b900405c46fa3cf8c28263eef12341c6e6f869b6e26552b9acc889b719e4f5a99d2ecb0da7cba38658959912db8a1eb94d5a1b1eb9a63ebe3f5b2b1646f3776bf8abd6e4c6d7883fdb5dd58c2bd872f7bdeec17fa6bc05373f1ccfffacdfd7d1e3cdb83f3dc7907dab6b3393577df75dfcc6c799163333245d54e51fcfe43b6cd6e749e5dd3f97e767e00795c3a17</data>
+    </image>
+    <image name="image16">
+        <data format="XPM.GZ" length="679">789cbd91b10ac2301086f73cc5d1db825c69943a888f20380ae27049033a74d13a88f8ee7a25395ba88b827719fe8f2f21e4525ad86d37604b73e9b83b0508473e836dae6d7bdb1fd677533807afb580aa9899022100ba465a9005b99216f482c1857970822418ebb88c758f93f5a3c1610d8d502a1e196435becfd9a02754d1e76490291b116f33badcd3d010e9999cff6ffce474303d236d67c9d9a8d09c0cabd09c67c03a684c9b3e4c87befcedc7ca3c01360b7c33</data>
+    </image>
+    <image name="image17">
+        <data format="XPM.GZ" length="785">789ca591c16ac4201086ef790a89b750dcc4b231b0f4110a3d164a0fa333d9e4b097ddeda194be7bf31bdb24604f1945e6e31b95d143a55e5f9e5575286e77ba8f418581aeaae28fcbe5f3edfde9ab28ad55d36c1ad5940f45492a286d19031880ae9fc611c8c0aeee6ad70207a06ffdd1d7c031614b04ecff50803aa2f38e3cd047ec7c375b01061b1e83059e81ecd8851e6880d28a9378afc9c63ea3691d2bb3152be3290063f0da6862f9353df16220cec90ca968369b2b58cc3f46ccc698b42ce96e93e91459fe75a60c2da5d384492f869398d2592cfd24118b4663b29dc61d59a377fcf6f7a9f801fc72bc38</data>
+    </image>
+    <image name="image18">
+        <data format="XPM.GZ" length="709">789c8d92c18ac2301086ef7d8ad0b9158998c5ea223ec2824761d9c36452d18317570f22befb66da64322d0b9a143a3fdf74fef46fe78dd9efbe4c33af7eaf783d91a1235e4c136ee7f3fdfb67fba86ae74cbc5ab3a867558d860cb8c09b25b15c47e5972c3dcb4f7f5886966560890bde2c812539fa20c7d2b2ecda6ed5f5cdf6dff50e0144b0aa2c04bdc7bc625908a027b4b9890a010c322d0e2bd32096282e7ddd93d8146c227dbf90a9b9266c8e626ef53428d3ac22362bb98d48ce00471960ca20119501266f39202932bcf8f04cd0d34082ce753eb5ca2c0cb5642031fbd4241968f342a69ff3d57ff0dc547f248aa07a</data>
+    </image>
+    <image name="image19">
+        <data format="XPM.GZ" length="6193">789c4d98c972dc480e86ef7e0a85f3d631915ddc92644cccc1b27659abb54fcc010049ed962595d68e79f741e10739edb243fe2a4124125b82faf38fa5b3fd9da53ffefcf23ca7f9b52cc9153d2dfdd1bddcdf7ffcfb3ffffaebcbd73c5fd2bf45d62ce55ffff1e52b9d2dc952980d4dd1cc8cb7179c35cdd0b4c633e3aeaaabca3877a6aa59303f2e38cf2aae4c3eac80d3ac1a4cbe75cec07c699ca73cd97edc83dbb62d8daf9ca9857e322e467dbc09a6860ae32de3329529b3fd1ae3aa6aab64ebecdc556cf6415faaca0ae77d32aeab021ceec1a94ef63c9d1b3795e07cf403ace7e94cff079867d42f585e8d39e57efe7de73a99ff423016f59fe90fb7e0d427b34f06e35ef58badb373992c5eb1766e5cdf33580ab1f3079c67a8cbdafc43c7e0b6873fc3059888f0bcc5b798697ccdffb17276ffc5049ee2f70cae6709e7dd30cef479ecd73937c8178ec6795bb488cfaa730de62730b1db63fe2d8a511f07f0f83c9b7f8a72d27701a64416bf7867bc88bfe98bc3c4388fe55f91c675ba05b7558bfd32e7040ef5c4c8cf03e7beadedf902cc39637fe8abf5fc264f0cd6e791ef02a696e06fcbffa219ed0947e0d11eb2fc2a5a659cd7eaaba0baae216ff959703dd4160f86ff997a42fdbc1b77758f7522e7a1b6fc8debc6fd98afb2e34cc82f7a04ab3cf2f13b58eb0feb0fe061184c7f84bd434ac8575a5e70391b7aacb3f9b3cc866e307d743931ecfbe5ac7f4c5f699ca7c2edbb07ab3eacdf18175adf569fb205ae73e4275d83a7fdae9c5d7f80fe72105f7f75ee07d4b7c5a3ac1227f3270de0815dfeb7b30c64fbb37337583d47ab97328df6f321b8cebc7e5ec0cc8c786660d567fb5370767d8cf3d73c30ec3b070f34583ef2a9330fb0f7dbc4b0af9bd8ec8fd61fca2689f7bb3d703713b32f38ab7e7b3eb4cea37df04fabcfdbfe710d2cbd98bdf4061e5ad817102fe28a2d3fe4093c3458a75d673f4ff869cc5d218817fcc7aa0ffdecd859bfb1e75f2686ffa14fad4b564fb20ee68c601ffc2d5dd9215f37c16a8fe997e8dc0e884f35b1d927c8a74ee389fa40fe755ddd411ef1e854deec8b88473fe5c30cdc751dd64f8c07aa71bf05d4c3c08de7c7aa3333cebb03567b518f37ceee9f68f1ae66759150efcb60ed3f88f73bb84bf0afdc80f5795b17c8674d6a60cf2bb89d35a62f3c82bbac437fdb776e3bf8e70e3ca4c1fc1b7ae71af60a398ff1867caecf235e90cf876ab07e191ae784e7f9c2b91ed0bfad3f5505652deae33758f319e76f9d33e437cf9deb0efa13b8af7ae467704e3de60397d7fd61dff3c4f0ffbd730dfff19a7303fbe5cdd9f3872c3f2a4d20e41f6f3b379e3fe2dc77e8379fe0a1843fb99c18f7d39ef3b8ffaef398bf78be527f229e1b13c39f3bce69c03c61f95fa59a70dfc8269872cc1374021eed935b705f74c88f0fb0da87fbac9f18f69c3957d88f579d93c7dbeaa5d2e80ef0ffa6b3e78340be19fb83bc3b571dec5f07eb7ee0dd89113fbb4fab566a813f91ffadee67eb71e65c627f3e71aee07f417e51cdf00f217f759c41bd12f285541fceb7ee3ce60ff295455b96d9077ddc71877e7b0dd6fc83ff5c7e98f5b83f905f329e57b69d13f249b0bff45d0f7de80732e4384fbc702ea02fbc3b7b7e88cd635537d50bf2a71b32f7e79ab3eb63979fcefbea5cf6e877c8b75eed477ed8fca0d72521df09f93c0c999fcfe295666d837e238f606905f9b30d1ee5f9c539f7fdcc7f29eb8b1ef6bc8147ff8565e731bf2cff53de0d1deedb5f60d58f79e3c03947fca3ddbf4907a01ef7e9e1c49887ec7e4ca508ec8d0d58d72d1efc3031ea7b0b3cf9c7ee9754c98c6d9d937323c8cf7df0282f566f495f0f30ef09ce9f34bf913fb03fe9f9b07f0ed67e07ff583de8c303f445cb9fd4a8bf71de53e74e306f58be271d071bd4abcd73899b12f36580bfb9ef7bdc6fd69f92e8f58c79c1ee776d1fdce3beb2fc4ebdd633f67f05f76d0ff95567eee14feb1fb59e1efad9e6813aeb67881f59bed579cbe8577105acfae03fac17dcb29d3fbe817b823dc1f2a9d6e91befc3d1599fc7fd88fd74fec7bc1ddfc1e37d2ed62fea46e771e8b7f785ba6d5383fcb0fba2662e09f1b3fca945df27d1cf2d3f9b4cef6bd86bf9d0e4d481c9e6e9a69084fe11ad3e1b0d80eb33ff36c2353858be34dd380f87dcd9e7f360f9d1f4e3ba58ff6d67fa3ce629bb8fda9c0be8e3063cced362fada42e713ab27817c31ceebdc3a8ff2e68fb664823e8ae0491eeb69b2f76462ec7fe6ecf33a61bf9aaa16f36e066626e8b3f9ad6da675cbd79629b578ffb67a6d8505f910b07f37ee17ad9e28d77a447cecbea346fb37eac1fc45ad32eec79f60cd67e4279846ff90d943acf1437ed9fd464357a3df8add3f9ce9eb09e26fe7d1b7cd81117fcb17ae74bec1baf52b4e3a3f619eb5fb86490a46be5a7cb9ef1acce771c779e8b06ef5ad2f07827c12d327b389ad7e251366d857390b7eff406b603d2f7ebf61ef4b92eb3af2c1ee1b293b427d8bf57b497adfa1bfd8fb93d45debf5ffe0cc982fa3dd2fd2768cfb3e5abe09eb7960cfb9732b16dff83431faabf54f91e9fc767f48a76cf264f39cbedcb87cb4f9b45bccc7d067fdb9cb9551ef765f774557e2bcf1d1b9427f9407e71af262f5aa6f1bbe7e30771ef58589d13fac9ef5764fd02f6713439fd5b3def6b5cbdbf9166f1f583f981fcc638814394aec621f8778a93faff4bb6bfd79136fe39dfebc8fbfe203ce131f75ed49a59fe33cbec4d7f816dfe347fc8cdfe272fc1e57e26a5c8beb71236ec21f713bfe883b7137eee9da7e3c8887f1673c8ac7f1249ec6b3781e2fe24c9fe822fa5fae9a8b58c62aa658ab9e463f6d8821040aac3f2574a1b71d507f43b80c57e1da3f37e136dc85fbf02b3ce8e777780c4fe139ccff26ff125ec35b780f1fe1337c0bcbe17b5809ab612dac2b6f84cdb0a57b6cff4dfe47d809bb612fec878370a8eb3fc3917ef3198ec3897e4ec359380f17ffb73fcc74752364210f4528431552a8f59b26b4a44ea6107ad2e28eeb2490a72e5c69ef1fe892aee89a6ef4aabca53bba0f19fda207fa1de6f4484f2a7d4dcfe69f85fc9c5e54f695dec219bdd387ca7fd2375aa6cb7048df69855655ff33ada1be6943fdb3419b6acb2e6dd136fd50f93bdaa15ddad49df7689f0e16f6d321fa111dd1b13e714527744a67744e1734b327eec20e65945341e5c23ffefb9da46fa20db51c59bb88762d2d25eec38af61fed127cc9577ccd370b79be45bcf88eeff957e8e2053ff06f7ee4277ee639bff06b58e3377ee70ffe34f96fb8dff83baff06a68788dd7798337798bb7f907eff02eef855dded748adf1011ff24f933fe2633ee1d370c2677cce173ce34cbbe15a38e642e375c8a56a3ed07fd5e87f4eaab9d6f7e796ae258af652ba13d2fea515ae534c1fd7b5b75ec62c6e5bfd5cc9b546bf546f2feb6bfe8ddc862395bfa340cb72af7199cbd522b6f24bac5ee477b892c7d0cb136dcab3cce5455e17be94378dd566389377f980b47ce23e95655dfd2e2bb22a6bb22e1bb2295bf0bf6ccb0fd9915d95df3b98cb3efab51c86a83eb08f7cc84f3992e3f11be593782da75a36672e7f2e17daad33edb8854ae2534eff5b7c2a93d689f0eb7ffff9e57fb38fb661</data>
+    </image>
+    <image name="image20">
+        <data format="XPM.GZ" length="679">789ca590c10ac2300c86ef7d8ab0dc8674acca3c888f207814c443d20df4b08bce8388efee224d57c47a5952c67ebefc69f9ab120efb1d9495b90d345c3cf8335da16cef7dff389eb64f533807e359415d2c4c81e0015d2b2d9244522d2d92457ae797de89b422bba65b77cd47feac990431392919b516614a902261a4741b47078f3d79640ad5c17622e9ddc8b95763f8a8c7c66d364b7460de36cea5c3fa5a947478f2f05708911046a0ff493a4ac250f0a49767d3d1fa435e1bf306bbd47d9e</data>
+    </image>
+    <image name="image21">
+        <data format="XPM.GZ" length="1145">789c7dd14d8f9a501805e0bdbf82c8ce341d07c4d1345d383aceaa49974d9a59705f2e8278150111a7e97fafe7f0e1c7b47d8f469f1cde2bc18781f5e3fb376bf0d0cb0bbf88c592c8cfac417030e6f4f3edebaf5edf71acf3cbf5acc7fea75eff7c81653b010226e068888029e8b908a8c1a987807bd07f44c0901404dc92a11afa21f80caa2102be9323047c69e8d53c913e026e488d800b3294a1e2c947505c042cc827048cc8894c6502c6e4140167246f1a540d55cd57528988022b5223e01ce493734043ba0858921304ccc929022e491548c0930f2407ccc8100177a0761030205d3dd2fc219ff4f458f34ff94c8ef5931e83361922e00a0c4708b82639dcbd19dbb6f9f9b169e7ff8dcf6f787add344d50173a6c6725d1e534257137eb4436a66dae8b5592c8b66d6e37ae1b595f26b96d76bb9d48bacfb22c4ed20f4d5ea08aef760e875cf27395e77fddc932f9d70edef73b6569c4982235e678b763ca4aaa38dd57d5e96ea72a0bdc755114ef5c89ba66363b36f39ca42cda66d33de7b0dee89aeba98ba6992f162fdb7622b3bc34cbf9fc35ea665937bfbff4fe00a6f2396a</data>
+    </image>
+    <image name="image22">
+        <data format="XPM.GZ" length="1160">789c7dd14b6fda401405e03dbfc2821daac8d49897aa2e0224b0a9d465a5288b99ebebd80113c01083abfef7ceb963a301253907197d1cf901dc75833fbf7f05ddbb5671d0878c024af53ee8c6c73c3f3f3dfffcdb6a8761605ffd61f0bdfdadd53601051d15a991522083618c822b305228f8024e062898829a50702a4c8cd20978068d42c1776184820f35078e07a146c17b21a360254c4819b9f21ea43e0a1e8523149c09c734a131f8269ca0e049280f0d26358de3a3d01091010b21a3e01c94df260477c23e0a66c2310a6e8413142c8526a658aebc154ac0654d76cc85090a2e1c5939ae410e51500bfb1cb13c464738e021cb7fd4130e79c44330162628f80a26110a925022e7221dddbbce65b183f978e97db4743e5df465217b2439fa5733c6beecaf737b1f66fbb9b16f36fe92f04b9adaaba5699a5d2d0967363d1c5e57570bd325ab9b65bd5ee79bdce6edcb858cb76cb71b17bb90f1972cdbb9ec6530f8026ed9ed0a97c3ed3945717479afef5336cbe9b47739dba52abd73eed3262b9ecefcc5cbb4f29779553d4c9b54a5b794f3f9e3ac493db8452f16cbb2c9b2f97ffefd68fd070d352869</data>
+    </image>
+    <image name="image23">
+        <data format="XPM.GZ" length="4113">789ca596596fdeba1186eff32b8ccc5d50f04822c505452fbcc5bbe32db6e3a2172392b29d7889f7e5a0ffbdfce6a55cd46883531c8dbf8bc71c52c3e1cc4bfdf669ee78676beed36f1feeeef9fe3ccec533be9dfb941e2e2f5ffefe8fbffdfee163d7cd95bfd6fbb9eee35f3e7c54792ece51238ff0dec45e98be4f3c8e32fe05ac35fce914eceb7c1ec131c29f23781cebfaebc2bee91b23bc3be3b669732ffe740ed61d637e06270b563bc2bdce6d10ff33b04b5d2bfe093cb6606585739b8217d6e0deb483f0f68cbbc6746d2f7c397170c26795756061126e8d09329f64bf9df31af37900e7b1aef728ec3bd761bfcb137b8c2f804daee33f85876ef056b807ebe0c04fc2b978203e233cf683c67e8f67ac759beafef6c15afb2cfc75e280fc6d83adc579d10638048bf72d091b9d6d143e10b6baaff9b91276dab1aca716857d6f35f2fd4d38745d8bf777c2dce74ed6a32de1ec3822def9199bb667ad657c131c9c437e7e0877a68bb21e7560e773123e017387f8e945d8d8364bbcf4080e0ef5a61e849db11afbc7fa6c42947c522b1cbd1be0ef849319eafe0f2bc79acf67b0b303eae54878d4b9e663156c72f56fc0dcd4fd7d9e71698e1cd02f01dc37d5ff091c7a8bfdae57e67a5e2bc26df90fdee785bbbead9c2a171396f3ee9dee5aac27e7d50f257fe24f929f3e066fc59fa5dffbd11bc679adcdd86adbd6f894704967e50be1de96840a4b7fd9f2d471d1131b8c1d247e7e00c79200595ff269d9648d7c8a1ed9d18e09f1beced8b5fd30e0bca4bf5dd7f380fc493db872e0b59ea45e5def0cdecff7e03844e45fead1591d1bd4bbe897f33393f9a23f2e378cfe259eb17fd34fda9d18fa59d477c66d4e0ef14a7d7bada31756afe0beef302efae14de3a08fb400d6d623de3b706ea10f24fdef5d6900b0e8850fede8e5bc680fdc198ff544bf3cbfe991d4b71ffa92321997fef5d18c5ef6cf37c229370efd2bfaecb3cf19eb89befab1ec07f527f1877666325ff433189d50affc080e6384fe497f8730dd277c3e31ea99d7c16ff789d46718a2cd60a987522ed141ffa4df437ad353c917b733137fd147f63127a9275e03270b7d50b25f0e331396f3657984a55f39f60df495a51f87929d41e6f3099853427c12cfd0fae93edb00f398717f487d0dc618f41f3f831d633d25fd33f8210ca83fb90f87b25bd42733381930493d0f63c938ea45f431362126c47b04ce7d44bd4a3e6217468dfb4bf6177588888fe57e88e5b6abf9b907c71efdc2729fc43e1be81daf82c7364abc2cf5155d609c97ba05471f91af43f0d8613d92f3883e30ce8f372b0f23d6177d8c65b5aacfd7c2d1948e92f12d7008b55e56c0e318312ef76bcc912dea59eeef38a62642ffe5fcd3ec02413ce29ffa4ee37b826ec1d668e443f430711a6a3d49ffa59852c2fbe43e49d9b99a2fe9d734e606f541723fe7464783fc5f818361f483e863f9d84903cef3001c13a3bf257fb9b3ba9eb706679da1d7d2ffb9a8354b3cbb727eb9547b865ec8fd9e87490fc84d8c71be04db5262c2afe010711ff23238952b53e64bbfe518a67c497de4dcb555df56c0bdadf5aec0d655bdb8a8ec13e25f049704231fd7e0682cf2257a3b364511f03ec9cfd8b6e50b4af8081c8a608abfe8f7d805aee7b10f8ed37d24f535c622dfd84fa81c46bc6f015ce6c35ff63ffbbaadfaef27aedf53096c6d1d5f058750f56e7ee25a9f048eb18e2f4d8cf8d43578f6e03cffb8c15f916235a8f80b4b2aab519d56ff33755eecfb2fec47f1bf50351e7559f8eabfd8f5dbef67f1bf51b7d53fff21bb53f76ffe0fea513da967f552ec55cdab05b5a896d472b1cf6a45adaab577fe8fe5b7ae36d466b12db5adbea81db5abf68aedab03f5551dbef33f52c7ea9b3a514db156754a2ba37a658b39e55520f59ffe44c43450a4542cd348a77446e7f4bdd80fbaa04bbafa93fed7f4936ee896ee8addd3033dd2133dd34bb1579aa7055a7ce7bf44cbf4995668b5d81aadd3066dd2166d17fb423bb44b7beffcf7e980bed2211d153ba66f74420db5d415d364a827fbcedf91a7c08acb36cab558948513671e8b9df2199ff3f73fe7cf3ff8822ff98aaf8bfde41bbee53bbee787628ffcc4cffcf2ceff95e779811779a9d8327fe6155ee5355e2fb6c19bbcc5dbeffcbff00eeff21eef173be0af7cc8477cccdf8a9d7053be14ba77f5f07fd5679931966eb829fff9b5fddbffb4ccb855f7bfb4dba95f60acd9705f66fe0fe3bee8f13ffffae15f0d46c2a1</data>
+    </image>
+    <image name="image24">
+        <data format="XPM.GZ" length="935">789cbdd1cb4e83401805e03d4f316176c4b465402e313e82894b13e362ae405b3a05eac218df5dcf6f2128265d34f1fccce2cbc930435847ece9f18145eb6038c953a399ae65cf22f3dab66fcf2ff7ef412804c313b338bc0942c734e31b0a284111a769a9c03d5109556420271a0cb805933cc9650936602a52a12d68c15b81016b30739933b4d7807981012bb0b085b529a8c132c6801e9431063c104b0ca88814b00555a14a456f1e40238d32d4f6446d8cd160477476631c7804adb089a53baf8899cd2d7dfe0e74146affcc858673be58df8d54b8d52cd68d7baaaafe9166dcc39bed941d66cfdb73e37e871fce776b17371bf72c8ae91cbf68fca5e6dfce5934579db3fc3fd3f778bff2be9d2d7fe96f7fe5d8f5c33c7d177edc059fea92d056</data>
+    </image>
+    <image name="image25">
+        <data format="XPM.GZ" length="965">789c8dd15d6f82301406e07b7e4543efcc32a5747c64d94f58b2cb25cb2ee897a2a254f06259f6dfe77b0628b244df23c4a7c7d256e633f6fef6ca66f3a0698bb6d44caf8a039b9963557d7d7cbe7c07a1100c9f9845e143103aa6195f50c002149194b902b744255496809c6850e01a8cd3382d72b004a590425bd0824f0205aec0c425ced05c03a6190a5c8299cdac95a006f308057ab08850e08e98a34045a48015a832952b7af21e34b23fe091581865e8c72d511b633458138d3c056c88ce2e8c030fa01536b674a2476262534b7fce067414eafe9b1b1dcef9e4faeb140a9bbc8875fd9ce572354ad9cfe1e57ac806b5e555d771d7e1bb6e6fd56467fd1c7cdfd73454ef711fd6f134540f778c9c3b34d835864eb7ce69b86b8cd7393fea7a9dd19c3bd699ecedcef38c32ac337d3fc379bc7ff4bebab8fcadb77dcaa1698f97699bf0e739f8056555e28c</data>
+    </image>
+    <image name="image26">
+        <data format="XPM.GZ" length="935">789cadd1cb4e83401406e03d4f31811d31d332452e313e82894b13e362ae2d6d87b65017c6f8eefa1f29b41d936e3c87597cf9c39c4398a5ece5f989a5b3a83fca63a3995ec98ea5e6ddfb8fd7b7c7cf281682e1c95816df4571cb344be654a0044596e7b502b7442554558009d1a0c135b82817a5acc106cc452eb4052d782fd0e00a2c5ce10cbd6bc0b242834bb0b295b539a8c13a43831e94191adc116b34a88854a00355a56a4537f7a09146194a3ba236c668f04074766e1cb807adb00b4b3b7362614b4b9fbf011d15a57fd68d244992e0fc265261abb3b2891bde592e5717d58cb735ebb136e82df743e24e63dba1f86ed82d48dad39c313845e31c1f24fe2a99e6f8cb39b8e51fe704090f92eb39d306c19c60ebe9bff096eee4d3f778cfbd7767c7dffadb3fb53f74fd797587f8eb21fa06df7fe665</data>
+    </image>
+    <image name="image27">
+        <data format="XPM.GZ" length="965">789cbdd1cb4ec3301005d07dbfc28a7715721b1bc7ae109f80c41209b170fce82be9335d20c4bf933b69500a45ea8a3819f5f4ca99493219b397e727369e8c8e8d6b969ef9853bb07138d5f5fbebdbe3c7289392e1542ccfee46d99a79c6e5543965c015512bad24b8241a69f2123c11ad74b90703b194414e414e0c5860498c4a4b0d2ebe19c139a8a63d23d1a92813d8803a16a128c00a2c4a2cf0081a690b433c10b5bd37d4770fda768a92fa3a62619571e09638b3c9d25e4f74361aeabb036765d281fad6a0cbb1c0047ae995a797b321ea98077a75028c453491f68aabc7cd09ff8fc439510a1f7e25edff424421d27c719938ba96a2dd9256c3c49d2f41d1ba4f5255d55de122715e53a1a4da6caa2d4a9bf0dd8e6f51cec9beea0a927d57fabba5ae08dc2851e9263850ef233d69fffb8609c460027131413398a0b93201ff39c10d5fe1f4673238b2cf87d1174afbd52b</data>
+    </image>
+    <image name="image28">
+        <data format="XPM.GZ" length="845">789c8d90cd4ec3301084ef790a2bbe452825366d53211e01892312e2b059db717f7229e58010ef4e669bb64e1b21ec48e32fb36b8f3d2bd4ebcbb32a66d9c7810e6b561c69af0af7d9755f6fef4fdf596e8ceabf6aaeaafc2ecb9d62a5cdd21a43c020b8b20be3805bc1c6d6568a49d061027747b4642d7003b49565bb00fa01bd9d035b60ddb736820c5c3561eea4b801528509d440366cd9004ba05ff8a597e2b560ed6bc7c04e90fd835b022330dc87101ae99d1cff7534517392b143cce47c808c1d4ddc928e22a9b32ea9dfa63722e43a412ca3589b3481a6c1a4dedaa64ebfc151d1b39bbe4f4c52a7f718c20f0e9618f883932ea965799632492dcbb38cde8d4ecf73897febe8a1efd6396d38993a7186b822dd95d31eefd3d255cf1fa92746fef398fd024becb9ad</data>
+    </image>
+    <image name="image29">
+        <data format="XPM.GZ" length="830">789c8d92cb4ec4201846f77d0a32ec1ac3b438bd4c8c8f60e2d2c4b8e05e3a9d8d8e0b637c77f9c019a1312a7ff395534a39816e6bf2707f47ea6df5721227af889ac433a9f5ebf1f8f6f874fb5e6d3827e16a77a4dd5c551b4714a14d6c400fe41a05d4c0cef4baef8102d84b1470020e7cec8788063886a9b203da887b1470f9423bc6972550b428e021a2e4bb26cea540c5d5b5e24015b133ad1e800c687a3398683503ad6d4d139dd98fed8f112a845c471a114a095dc665c45866f31097af5987161ea6bba06703cd5c587362e8b1d0d72c9bc3a8f7324598931938e6e7d9a7708581d37e3ef814ae30b0f8104d610b03b4859d7bb981cd0c6c69a0b1788c6565c0b0788ad2c06506ffde8372df3203ec701699014e258fef33a5ebf8ed3ff8b8a93e019316d132</data>
+    </image>
+    <image name="image30">
+        <data format="XPM.GZ" length="830">789cadd1b16ac3301006e0dd4f21accd94c696d344a2f4110a1d0ba58374ba931c274b9b0ea5f4ddab9393e2880432e4c7367cfed159b6178d787d7916cda2fadcdbfd0002a2fd108dffdaedbedfde9f7eaa5a29918e6e29bafaaeaa9d0021db1ce6f648222632bb9ea85d332d53a306ad9803d33c90d24ba667da8ec8001332c16a63981b26b63df596799fb9c235ae983113d078cda44c4fa8f2a891993671d8649868cc34594ee4e4c96773a346ce1beb4e63ff1b07a771b346ce53361e91c8852863d10ce83d81db84728d479fd6390863281ac4fc0029c7f15cc353cb663bcf95cda537bdfc75e294742f5d653aaf6d0e93e254dcea9f1e9bdfc7ea0f79efc943</data>
+    </image>
+    <image name="image31">
+        <data format="XPM.GZ" length="3073">789ccd94c76e24470c86ef7a8a8178130cee4c5747183e284bab9c83e14357579772ce5af8ddcdfec999d55a12a0e3a206037ce05fccd5df267afbeb2bbd896f6377f7f5fd49d36b8eebdbde4478b8b878f9fb9fbf7e8c8d27494f7e83c4f592f13fc6c6f9bed7f46890ba3489e01b70e90ae300ae5ce9fae0065cbbca0dc0f360ef0ae7c193c6c1e97d0207972415f8111c25a003df769cf45d6df1a271eb52f01d7820fe34de8572da7725b8351eb81c7c044e44aff74fc0ce95e6ff0c9cba415280bd729ab81a5c8333f1aff6129c27def4fbe02269128d7f0eaea53eade701dcc8fd0c3c070edde9984e8c63a2f15694a59faa3f35b6fa6913dcca417da4fd8a92bfd677ac9ce6ae813dedd8f5c5aefdbe366e921676f4cf25326fd4435b60e732cd87d06f198e33fde588b57f95716af92f813399bfeed3abb2cc03f510f6c3e52e377fe8876c5396205f3e0057aeb1fa67c15dfd3acf978eb32c2b538dff04aef298a39ffcdcb1b88fb9ee1ff22d325fd5baaf571d573e6641fda1de3af3b9d7f853c685d7796e800b61ad6f015cfacaf43be04a58e36f8e58f3db36f6c6bb60ef4bf3b76e5c9bbf557023f7755e6be0e083faa76970ac9b1a76c2fbf1f2c03ceaa367e3d463ff08fb27d6d4eca8cf673ef1783ff46a2c0a30fae9bbfa741ff03d102acd8efe77d97af497f0be7d578feaaf8c6baffb89fd95eca3d5b3dc712305365afff78e4316ea807e13fa15ca5005ec0f39702d47f7a1308e41fbbda7dcf65bad0fdf2bb44bef33b891a3f70f95db7ed0fd9819b1f617ef37b4c29a3ff64fa245cbef5859ecbabfd88f8e82be9705e5a1ff0df4afcddba2d57d1b8043cca3e69383db5844b5e3bdc641aca2ee4306769280ee0fe61fb3189569119ccb7dadb731f651bf4f43fb508f7e893ab37889b1d919fd8ee5488f7d946cb2a8f3bf36ae2dde92b18f5aff9171abcc7de318b5bf98bfdcae4d1f8c63d47d6a47acfdc57e88f746eb21cc4fa8367d62dc98bf33e3a0fda5683cac07df57b17aed2f0d8c83f9f3c6d1ecf8be4b358de55f1bb766df318e51df238d58f3c17e75de2cfff511ab7e6dc41aff60c41a6fd778d89ffe8883eed7d7cfefaf67e29a3d371cb8e5c8477ccc277cca677cfe919e2ff892af3e38977cfd5ecf379faa6fdfe7c3779faa3fc89f1f3e553ff2133ff3cb5b3dbf7eaa9ee4299ee6199efd453ff7c999e7055ee4efbcc4cbffcb6799577895d7789d377853ce166ff30eef8aef3dde57f51bffcb7cc087dce70127ec3895ff4cfc2e72ce05971aeb177d454c4435796a2850cb7d8a728ee8984ee894cee89c2ebe923f5dd2155dd30dddbecf9feee89e1ee8919ee8995ee89526698aa669866669ee7dfe344f0bb448df25a79a966899566895d6689d366873a8fea9a72ddaa61dda15ed1eedd3011d529f069490a3f4a7fa0bfd9f7babfe0ddfd7bf7f8efd07420f0b0a</data>
+    </image>
+    <image name="image32">
+        <data format="XPM.GZ" length="3073">789c9595496fe3480c85eff91546780b066ca924d9120673c8dacebe38fb600e5aacc44e1c6771d6c6fcf7211f25b5dd3106e97abe7cc5572589c5a2bf2db5ce0f765b4bdf169e26e96490b7f2ebf4b1b5543c8f46ef7ffff3d78f8545e75af2f35dd0728b7f2c2c72d8ca5be461804be3d855dc374eebf8d8b8a8e377c6fdd2981e94fd448578024e55e091b2f355f03338761dd741fc029cab107f530e5ce007e62f2a168137c018587f006eab101f8033119e4f7b0d67e01c9cabb0de81fb2af009b854817794435f05f6c14e85fdd6c181c8f8189caae05f06672ac45fc1fdb0080bc4572a168163e5c80bcbd09e7f6cacc27a9c4fe45488df8231c0c85794a9c0a972db5381afc04e05be017754d8ff3b3816190f1b8ee18fc0a90af17d705f85b8f94b15e2d8bfe38becfdefc14e67c0d7158bb03e000722e35370a833f0d72c42dcf68b54889f83f5738ccf1a467db0c531c0dbe0b8667a04a72a30eab393898c71fe9d5c67b01ef5d6295588bf2bc75eec197356736cf9bf04fb2a700fec6a268b8771105b3d6d552c33600f1ce90cb8577154f15ac3f6fdbb603d3eab8fd5862d1fe68f63490118f51c272a30ee5b9c8a8c3f1ab6fa46bdc4799cc5968f2eb810d9fdda6f18f54ee82771bf66de04973283faa1938a4b63c6f9255ecdf4d2b0e577cb586710c77d423bb27c1f366cf9c5f7274e648cf34f4291e517f73d895460f49724d18480bb15271553c3961fd44f528aecfdd17f52e9a789bdef53cda9dd07bc9f34cb9a372bf68d79d2b0d5cb33d835dca9d8558cfca481c8ea276bd8beef08acedc9fae76bc3563fe8ef695433bf551c55bcdbb0e5c7dea75d33bf57dcaee2e87f729964065c562c821fff1f524c1513fa595aaac0c857e6abc0a8bfcca9b0be0d4e5588a39f671888a3dfe79e0a8cf3ca5315fce88f79a602e3ff31c7801ff7adf05488a37f16910a8cff3794b7d503ceab485460f4b30203fb21ff45a902a3fff57d95f221d64b33edf4dbc65fd757fc4c9c72f6553fe75c709f4bbee2eb9f7e1ef0906fe6e89647e2bee3b1acb89ff20ff9811ff98927fccc2ffcca6ffc2e331fbc5cb9f5092b53fe1b71aff21aaff3067fe72e6ff2166ff3ce947b877767fc7b8d7b7f8efb800ff968c63f11778f8ff9844ff98ccf67dc177cc9de747ee0efb12fb1921d0733ee90236ecfe653fc1d8e25361657c9c94f3731874494feeaa78c7271de41e3c65d505ffc255d7ddaff95ae6930b5c2dc43ba11ff2d8d3eed7f4763baa78799bd87dca547f13fd1e493ff995e78935ef10dea7e936776e5cddfc5ff31c7bf4c2bb44a6bb4ae39a20d9253a32e6dd2d67c3f3f887b9b76689757688fe4cce8800ee9887af3fc744c27744a7a4edb7446e7a20b1ed02579e4cfdd3ffc3f91a3e0d7fa279dfd982b47e1bcfb45014de62af8bdfbf8bbf777c6ffef9f0bff01dab9dabf</data>
+    </image>
+    <image name="image33">
+        <data format="XPM.GZ" length="2721">789cad944953e3481085effc0a07792326b2a5922cc931d10776e86eb65edd4ccc412a49c6800dd8663113f3dfa7f2a52424bb0f1313a3c781cff93255aaccaa775bbde1f9496febddc67c912ec6b667afd2596f2b7f9c4c967ffcf9feaf8d4d637aeecff7fc9ed9fc6d6393839eed9187479826c2fe4084b801a722c40f858d2f02333831b189e1ff01b622c44be1c088c07b603ce01c9c3969fdfd8633d4db055b11f81bb81081537029027f100e7d11b8001b11f8199c89c067e0420426e1be27c27a46602342fc0a8c073c066722b0158e3c11f8166c44e02fe0a8de6f46fd2816e17df7e0448478084e45e06db06dfa75002e44889f0ac76ffd7c00fb4eca588f6b96fb05fecb8a9dc0e7e0300e62f48777c07d11f28fc0b25cfdfeef603ce01b70e2064cbfef58b98e13f63f4e4588631ee2ccb39ece8bfa33278d637e621b7881d6c3bc249e087eec77321021fe044e4560cc5362932cd1fe60bf925c847cac37296a661f5c36fd3954760edddf0be18127bf808f94e517f0108c0304be039bfa3cd1b5b293c695a3c009fc024eea7925cce3000f18df97facdfa302fa991030a8e2a3615a3ff69e0a4f5b286b5bf337028427c01eed7ccf38afb157f6d58e701f39136f34cafca759c171547951fe707edd7797904270d7f060f9aef3b01bfcdbbaeb71481b15f992f02e3bec88c08f97d702a421cefcbb2a6de145cd6f71b0f84ad5fdf4f8cfdb2a9087edc37361381711e6db33efe299c7b2230f6230f9af82770d87002ee4b02ea8d954560dc5f79e4959e7eef9db25cc0c88f2b0e7c5daf074efcc2d7f99c2a1bcfe8f7ce9545e0257820825f390ffba1f6ef23b80c6da8f7efa4e2eabebc407fdde5131791f2bfd77ff73371fa2b07676c395ff573c1a553caa3155df198aff9866fdb7e57bbe4094ff9ce65dcf303cf78ce0b7ee4277ee6175ef22b6ff34ecbbfcb7bce3dad32f6f9800ff9888ff983737fe44f7cc2a77cd6594f37e39c2f5aeecffcc5fdffb5e31f7532bef1f78efb070ff9e78affb2c9f0d867d372071c727f657f461c351931273ca8ddc41c1051baeaa78c2c5f52ee32122aa8a8dc258d9cff8ac66bf567744d37744b139ad21d32c47d4f0fce3fa3f95afd055dd77b428ff4840c9f0b7a76fe175aaef95f1bf736edf09ef835c3f977d7fdae976fee53da6b67b8ef5df7b7ddfb74e0eab6dfb1b29f74d8711f391d77333af3366ebb5d7f6a21c34da2bca1d55fcef9a6a9bddb966438153c5c59ffd8cdb8d41ed2b22be72deae9e99caf1d3ed319fc5fcfefdfbf6ffc038bf78c4d</data>
+    </image>
+    <image name="image34">
+        <data format="XPM.GZ" length="1505">789c95d2496fda400005e03bbfc2821baa9c99b101a3aa8704b2388140e22c24550ff660032190b00548d5ff5ebf87c7a451a5aa7e5c3e1e8c673b285bbd6edb2a1f1416cb7039d2961e8673abdc5f4d26dbef3fbefd2c1495b2d24fa56ec9e29742f1d6d25649d611b04d860878052a4fd5540d3c273502de808e424049f201afc9280d87523923f08dd4087846c608189209026e41572260422a047c2523046c92310296c08a40c0111921601fac0a047c2615029e9055913ee092d4860db0260c57640501c7a4278564bb2623a105d73b20b5231cb631e80904dc90da8b3c4eb24526e6453ec813e36ebc90ca9ce0135975d28033d2337bf50086d20c15910ae70d9e9215041464befc63b26e7844e6bb3104a310017b6464da3b3231f7aa0b6a69ae8a2643047c24f3911db02f1070413aa63d245dc30e59c1afc180ac8a44f022ddef2895e46e5c667424a771417a3296bc39d31d95501cd925eb083827fb6ec5e55ebd9389ab5d9eef246376096d30aec6b5988762fff5f967530aa3fc2bdd8f75de2483415e0d474fe3679d35a5c164fa9255c3d7d97cb15c65cddb7a3a4dab0d8aedecfdf0a8d1cc9a28af581c9f6c4fcd7b36bbeaccdf15e7fe7e6eac2e5aed7d91af07d565a78be2caff73a59beb752708d2e2c6ffbc07feeddd7d10e4c587ffa42fef3d04412bf9f41f148f621dec2b3337160df9a1cad6b32b949fecabdd1e98c236956946a6b0594d5a899335f1d814acd6fbd1ecd1d814b6ed2689efece7b66aeaffb807bfbe167e03e2265377</data>
+    </image>
+    <image name="image35">
+        <data format="XPM.GZ" length="2993">789cbdd5c96ee4361006e0bb9fa2e1ba1901a75b0b2522c8c1fb32dedabb27c881a424db63b7d7f63ac8bba7f457d103df821819ff73f9a0929a2a16355fe60627bb5b83b92f330f533fbd888378eeef0773cde364f2fae75f7ffc9899cdb201ff1b8dea4136fbdbccacb91cc4010df107df25d7e2cde4ae836fc479aef51be25aefa77b718c524fb7e2aed37adf3babb32a2be0b3e4ba84e793bdd4df8a0b978fe056ddeafdafe232f9abb80ab9fcfe9db82dc5e6a177ce7fcec195d85a7dbf52ec9cb5f035fcf3f71e7b17f9fbfad7c5b515d38db82df53afa511445ee7298e0aab0ba9e4e5c768587dfc4d6170d7c05bb3cd3e71dc3defa16eba333713d149b4331afbfc2f556ec2bb1b980bba2d5f7b76257d5320f4def9297a7eb7b81b93dea45d8974eef9fc2f1fd7dcee1a60c4ed61b7adb61d1eaf52d786487be858fc4ae9679a34eec739dbf0538e70ae9cf77b8b469ff0ab18bfa7edb30ffe9f525b8b1517dd0bbcab83ee2f71ab1b762f304e7e550d7bb03dbaad4fb6bd8e78dcc27619eaac6b60efda34571cc753f567ad73fcf974bd6f73b81f3d2ebf3d0bfda72ff64ff4fe12acfea1a5e867d9a3f32c9727e08fb5b375953cbbc7debedb8ffb5bc2ffae70a9e1879de0476e93cd33459e69fb6c5efe7795edc7ad95fc2fe38df5827fb19e1269d177a4caea43f27e2f7feacf6f665de683de6dff386693fb17f3cce21ca7c3ef70e79e9b41efd0db66e43804fc5be6ae43afa155c5d45799f1db1aff4fce03c055e7fc07c11fa155ad7e9fd98d7d0b56594fee27cc58ceb657d63b870519f77246e7d907ee17b145d5beaf377619e46ede7a6b8eba2cc1fae7333d279da838bb2d1ef19be1f0d9fb752d617c4fcfd40ffe9495cdb207e11bbd2639e684fdd0559efbed8577a1ef13e4d93e66b8c79686dabfd324338bccf9f4fd6f55d266b7d262e6aad9f88cb2ce07b4ecfe22a4639dffb62979ebfaa8edacf28f623bdbeaeae82eccfab38e615e69b0e92f5fc8e7af7ff1be9bc5f25ebf77f4d6cad9ed75cec9cd6af25cb7ed1b53846bdbe912cbf379efefbfcd77a43c673828948635a4e67ce907373c1f9fea1de9b4bce959920d7e686736bee907bf3c0b9f854fdd43c729ecc33f2625e396f661e59308b9ca50ff5cb6685b36ad69075b3c1f96a36912db3cdd9f9a5f5bb66ccd933fbc88139e41c9963e4c49c72be7da81f9a11273339529892634d85d4c61947e633f544e4398122d250cbe9e80c39a70bce87fda54bbae24ce81ab9a15bce1ddd230f34e53cfed2fa277ae6bcd02bf246f39c055a44966899b3f2a17e95d638ebb4817ca54dce166d233bb4cb197faa7e8fef58a57d3a400ee988734c27c8298d391ff6f77f3bbf7fff3ef30f3d87c452</data>
+    </image>
+    <image name="image36">
+        <data format="PNG" length="599">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000021e49444154789cc5d33b6853511cc7f1efcd4b427dc4c48a098a1890e6267769e2a3c54aba151c4ac9a2e860494471aa540862d7ba744a116e8a76102707134c1017bb145163a0153445a7ea20372e86a4b1cdf3e63a59a255925b2afed7f33f9ff33b7fce1194bca2f10fcab49d4d8f9e3d259bcb51582b6368a9f4eedb4bc0d7c7d98153380f1c0140d09378f5d32a730f1f503598a85b76b1db6ec7200814bf7ec1663262a5c1e5f3e3b88fb93174c28a1e9119a70b806b13d791e3730c9c19c46032522aafb151abf2666999c0e993c46277b9317915a033dc5e994c060d15132a669a58b4066fb32fd9d363a156d9a08546e675563f7c6e6404d1739c4b172f604665f9d50b8ccd1a7deea344c2e30c0d0de2f7fb812e665cf488dc2b9588e6154c6603d9774b3c4ea7f85628e038d84bb55ec3280834d6bf736bf22687f61f0674be8a66a3855fecc72ff677eced388a95f9f9cae7b1313de777070b8260d5ad76036fb7fe1f5cafd70985423b0b2713495c2e17811301169e2fec0c9c4c24912489582cc6d4ed29ddf81658d3b44a3291547ea2725c468ecbbfe0aaaa1675c19aa6ad9744af559224572a95428ecb9b6bed78d927d974c125d1db630d0679323c4c3812def2d5a7ef4c73dfebc31a0c52f488ddc1458f88351864369d26927bdf72381cc2efcd76bb9d2b2b3966d3e98eb8a0e415ad1d8de6954eb70460c6e962627494cae222b68f1ffe9c582f0a10cd2b9bc9ff9ab86b4d47fd008623d64e744309560000000049454e44ae426082</data>
+    </image>
+    <image name="image37">
+        <data format="XPM.GZ" length="785">789c9d92b16ac3301445777f85b036539ad8a4694ce9271432064206bd27c9f290a54d8712f2efd57d8e1c11ec96f6dac33d3e487ad85e546ab77d53d5a2f8389953cf8a83795795fd3c1ebff687d77351368d8a775dabba7c284aad58e9c6e20232d0302ea013f4b4341ed80369454fb4025a41cf4b121b80bce19637402fd8c69d5a602748cc4c400394631b200992652bf611e8d6eed9ad0527f3abd11243d742998963703c2f957c4d6431a98ce7e861c9509cff87c92690074326cc983f98f9ddb443a60dc5cc98b9a96fa6bb7f6f948aa3bb771d52c98dc4a5ef83edaec6d8be8f23875b1927305d88a1acfcf01f5c5e8a6f3dbcb6ce</data>
+    </image>
+    <image name="image38">
+        <data format="XPM.GZ" length="770">789c8591bd4ec3301485f73c85956c114ad3a89422c4232031222186fbe784a10b940121de1d9f4b9a42e2c271067ffe64fbc859d5e1e1fe2ed4abe2f54087670932d04ba8f56dbf7f7f7cbafd28caae0be95bb7615d5e14651524549d62001948820124c7c82d45600fe40d5ff206288e515a76ab40d9c9b5ec8083238b080323d0efe980e6c82aeab601dad6ae6ceb98cdffa63a856686a78ceab4272d798e6aba072ba9bf1026ba30364ec81626e56fa3733335989ba9354466cf287e1b42d4ac591af33439937bebb3e6fbddb2c6fbead9fff3f3b8a389d2f7a89c6910074dc9ec59a6fcbc29be00452baaa5</data>
+    </image>
+    <image name="image39">
+        <data format="XPM.GZ" length="739">789cad90bd0ac2301446f73ec5a5d98ab44d945a101f417014c421cd0f3a74d13a88f8ee7a2f6d484c44076fba9c7c34f7f05505ecb61b28aaec32c8e1a4401de5190a7dedfbdbfeb0be67b910f0fa5ae0f92ccb2d2860350da29e900b443322e7734435a2e00b4489d8d6781019a2aaf1209688a6314bd32076889686d2e450c2a464fe253125b2eb949f104f897e4bf4f89a31e16bc85f0cdcd6c8c06d8d0cdcd6c8c06d2d4bfbd1c0da4407d41645c90ee89f6407f63f1df825841df81a6107be46d881aff1b341943c56d9134fa39baf</data>
+    </image>
+    <image name="image40">
+        <data format="XPM.GZ" length="739">789cbd91b10ec2201086779e8294ad31ad62d51ae32398389a1807ee0ea24317ad8331bebb1c36b6a5ba38f81fcbc797830be4a9dc6d3732cdc5a536f509251ecd59a674adaadbfeb0be8b446be9572927c948244aa2549ab8182d231430838211033a1c83630446d43845cde80296b8c492d130869382a5804048c09831dab95dd879c08ff9d928a57a9b9e4d632032a0900646714059373410aa356d6213d7bfcd308d31680779998ca20e226a8cbfa91bff9eef5f887ad0b4a6df63ddb79e8e89a76b0d0fd38b378f9578022960a6f7</data>
+    </image>
+    <image name="image41">
+        <data format="PNG" length="335">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000011649444154789ced54b191c32010dcfb7111860a1cb8aea70cd3065f8102655fc1275f81025570b88b7380e14f024b04fec033de1986e5c42c3bcb09e0d5409970647986a0359600e063558435165fc116fefbf3bda8f7e2a017e31030cd0ee75380f7699e66b7a85b63c1917785175158931c799fc61ab9f6e91e0b37a3c8389f42551b8750c47b22690a4fb3ab9c4eb3eb72bc29dc72aca3e9717c6815b563118008e0c8c877d0e3b8e0dec70240c62114ce91c57b8848e240e2fafb8ad7c2de27513d6b117d809e1336841f39ce3c0f7d98dea785777f6973b4205ad674de192240bcf2761f6bc46b7d51e65877c57adfae708f486bdfae30510a55f7f1531c736410112e97c47396227f6b8e5c1df66feff11b0537b375eb4868cf61220000000049454e44ae426082</data>
+    </image>
+    <image name="image42">
+        <data format="XPM.GZ" length="1580">789c8dd2c76edb401006e0bb9e82b06f466093db17410eee4deedd410e5b5de52ad720ef1ece4fc9b22521c882077df8b9b3334bcd4c15c7db1bc5d44cebb1ebba17a108e7eea1988a4f9dcedbcf5f3f7eb726182bea4789a29af8d69ab82b4231590a6dca926841adcb9c892fc44a72c3057113744c5789b80366ee384a2d13592514c7de159009ce1d711714827143bc073d972c120fc1c42ba6880760e69ea1d43b910b6e184a6d8051081e889e2894e20a6d04d0a84aa2c93dd02a292df109f45a6a4eec80417985734fc12893c4bc9760d2a5421b5da22cb5d08cb804565a281cf40c321d349abc0085720af32e82b2ff3207951252132bd0a8a450d935d455f3f236e8eabd9e78d5d030837919e8555698e81c0cca288c70d3635618ffbaa1a9af9218c1580f889b3c21aab2266ea3ec51347b35c8b928d1c62d28ebca38a84dd4d93b8d0fba4a34c6468bf4110c4e3af43c09a63ac55dbd82d9298b7913d196d65b4cb4d0d0c9269d253a167353ca8031b92c89c7442f7cf2e01931d41f38a08d0cc6c8032612608a2aa00d498cb9aa4a549e26269574c26d1c812e85840fba0ffa9c332a6f7d102fcf13735513073d80ac26ee790ee439363daff5d8dbab40e9eb457c6b58a7f8abac83a17feef4d835924c3a1f62ca23c9d9f9c5e5d575e7e6f6ac97dcd1a2e4fee1b1fbf4fcf2faf63e4866b1676e7e6171697965756d7d90b4916c6c6e6defeceeed1f1cf693d976131d1d9f9c9615e3a2df417d462f1ad7f5a7480ecd3388a41c9ab48e54b328fa32695bcb8ff52531d6343f86f77c04c3e70c82cfbdd92fc1e779ac1909fa891d09fe27b1766c326efd23f9f3bdf5170ab04e1a</data>
+    </image>
+    <image name="image43">
+        <data format="XPM.GZ" length="1520">789c9dd2c96edb301006e0bb9f42486e4191485c86128a1eb2afcebe173d9014193b89b3d9598bbe7b35bf6c0791dd4b051ffce1e790339416e692f3fd7632b7d0ea0feca0eb13dfb14fc95cf9dcebbdfffcf5e3776b4688a4fa519a6433df5a332f894f66332d73a998dba015260bcc5d304a2bb178952932453232d740a1a4b4cc3d50292173e603e8a41625f3080c3213c43c04a374025bbd33a592b9c0565b60a994f44cc7544492d0860773ca349adc070bd2ba600e4067b491cc1ee8c911ce3d034b1d34e6bd068349096df4993a35ca08e60a98194538e81914c61b34d9051559c2bccba01e2d4e4122a50df302cc291076b6354d562f6e83b6aa75cc9b9ab9c831ef25e8281226ea809e72c208774346c2f8b735f3ea2a9925585603e2264f999456c46d9c0fa9ea5a092a29d294790fea6a671ca499b9d44ea28d75302fca02e913e8adb6e879160c558abb7a05a3a502f306669116aec0564b35adae53057ae3357a164c971664f0219d80ca05a799574c5fbd608f36225896d263a20c0c2579b431cf0c144cc0f8c7a00d3ee00d1e802ec688ad76c6c4e24566cc2a62e747505444931fa08c6544571b430e6bdf405d111fc326e84707cd4f7d269259eb7c19e24472d5e95edfdcf6eeeeaf9ac9c3e3537ff0fcf2faf6de4c3e1697965756d7d637369bc9d6f64e7b776fffe0f0a8991c9f9c9e9d5f5ca6d994defeddf5b444c8f1d348a41afed1ea6b22f43050b2b1db6789f89a344b3e9366c938992819271325a364b264947c0e291ac994e7bf923fdf5b7f01d6ec397d</data>
+    </image>
+    <image name="image44">
+        <data format="XPM.GZ" length="2945">789c8d95c76e24371086ef7a8a81ea2618b5d3cdd8307c50ce6194770d1f3a51a3b80aa3b8f0bb9bfd17a5951cda420bd3f30d8bc5bf12f5656670bcb33998f93275372927a7f5a01e97b78399e6fef2f2f9f73f7efb31359de783f8976566904fff3235cd0f837a4099515e69f026b8cc5dd68277c041952a032f769c67daaa005e02e75aa9123c026b9d2b0fbe0657cae40df800dcaa2cb7e07d7050552efe9e3b565af95cfc6d801bad550dae3ad6d62a2b7a6ab0b79911bdbbe0c21a538027e0ca19a7c097e0da5656cecfc18d698dc47f066eddd08a9ebb8ecdd06927f95a00674e5b39ef1e9cbbda89de53b0b6a595f8e7c1e6cdde82add5c68135d8dbd68aff52d865c97e1b5cc6fd15f85cd8e75ee237e0ca062bf18dc1b5f556e2b94a1cace4e342d8c704831b7013e3457e09f98bd9305af8367199f299756c87d15ef2a7126bf14f73e0dc16521f821eab553e1c8247c23121125f01ee1224f5fd2e1cf5423f093b6b13a35fad37a5463fd1e4958d9c77082e4c30d26f5ed80e93feaf89bde827d437562b33122f2556b29f300fb68ae597f8d685e379124f00d7ba947e264edc28d48b0e84a33ff1bf0a6e9c4dfd28fedaeec13ae6c98698308907fd14b33dd4e817da4a9c4b3cd48273ed73d4932ede18fe6943d8d4926f423f3915cf937e42be62777b277ad1ffddb438c9f732d8e93c97f32f854da50d785ed8c70900631e9c8ffa64ff09b8344a497e1613b75af4af09c7f38557c095515af49c27b6299f9877579b46f6f3b170f760fd59d8674eea87fbc2b556a57e93f3dad8ff120ffadf85a847fc1f75dc4d57daff945809f3ebbaf5a277161c2fa0943fccaf77ae49f9c3fc79ef5a615e162e9a42d6713ffac2571ef707e17ef1559179b97f307fbe2e4d29f38efef46ddc2ff7cd233894b690f8d00fc5b0a80ae9af39e138be52ff17b08efd20fe871d57ba6a2ba9e74dc7b5aef35af69f248e2d0d46bfd74da36ac9bf03b78dada16784798ccd1c538ef56fe0b2ad5bb90ff7c0550841fc6dbdb1d8239f218b2cfea127e491e57e80fea04213a0975712a7fd04ff41c75f245fa85f30715dee5bcc5fa85fcf27fc7feb4e0b323ffb89db20f5784c9cec4793cf3ffdf64c5c72c53537dc72e8b7e7131ef3299ff1395ff0255ff1773ee9b5bfe61bbee53b9ef03d3ff0233ff173affd0bcff21ccff3022ff2122ff30aafbeb7e7b5f45e4fef0ddee42ddee61d1ef12eeff13e1f7cb03fe4a3f879cc5f137fe321679cb362cd862dbbbfc7db79e675f69fcf2776143f99b8cf9e884abcabc435359fa917b5e91d3e575f3aa171fc1cd3e9cf7cd1595f3fd0395dd065fa7ec5ebf49dae3fdad30dddd21d4de83efa7dff3cd0233dd1739f1e6879e934e1fb2ccdd13c2df4e85fa4a5f8b94c2beff4aff6d88f3fbeff3d3fb4166b1b1f5aa78df4cb266df5e793b6698746ef78b7cf3efadea37d3af8a0edf0bfec939aa37f6afebffaf6dafff9ebd45f095ae664</data>
+    </image>
+    <image name="image45">
+        <data format="XPM.GZ" length="1475">789ccdd1c96edb301006e0bb9f42b06f4191485c86128a1eb2af4e9c7d297a2029d2761267f192c409faeed5fc727a70d2638b0a12a00f43ce422e2d24179d76b2b0d4188dedb8ef13dfb3c364a19c0c06d3ef3fbebd359a4224d5ab4d9235bf349a4f894f5a9996b954cc5dd00a9305e63e18a59558bcce14992219991ba050525ae601a8949039f30174528b92790c069909621e81513a815453a654321748b503964a49cf744c4524096d7830a74ca3c90e5890d605730c3aa38d640e404f8e50f71c2c75d098f71a0c2625b43162ead42823986b606614a1d00414c61b34d9071559c2bcaba07e5f9c82444a1be62598532064b6354d562f6e83b6daeb983735739163de2bd051244cd4033de58411ee668c84f16f6be6d551324bb0ac06c4499e3129ad88d3b89851d57b05a8a44853e63da8abcc28b4c9ccf3a22cc021e8adb668b205862a8ac37906a3a5020306669116aec0082b35adaea3a74ca75c709ad965faeace3c0a45b02ca5479319184af228b4c80c144cc04427a00d3ee0520e41176344aabddfc4e26566cc2a22f323282ae2ac5e4119cb88aeb6669ced7d017545dcef36e8df0b2d7efa7c88b4acf365881f22dd5efffae6767077df9d8f3c3c0e47e3c9d3f3cb743ef2babcb2bab6beb1b9b53d1fd9d9dd6bef1f740e8f8ee72327a767e717975769f6496f7feefaaf4644fd2cce3efcff2fbdfd83c8cfaf8d5f1dfa2f7b</data>
+    </image>
+    <image name="image46">
+        <data format="XPM.GZ" length="1475">789ccdd1494fdb401407f07b3e85456ea8027b9637b6aa1ed8f77d0b543dcc0a0102218425a07ef7fafd1d501590aa1e2ad58e22fdf4fcb699d9e9acb3bb954dcfb6ee8776d8f599bfb0836c3a3cf47aa3ef3fbebdb6a684c8ea9f365931f5a535d5cf7cd6cef1309f988596a554cc4dd00a5344e60e98a495c85d668a42914ccc155028292d7317544ac89279073aa945601e82511682980760924ea0d40b532a590a94da008352d2331d531149c2181e2ca9d018720fac48eb8af9003aa38d64f6404f8ed0b703061d35f6bd04a3c909630c993a37ca08e61258184568f4080ae30d86ec828a2c61df4550bf7d5c80444a1be61958522454b60d4dd17cbc0dda3ad731af1a96a2c4be39e8281136ba003d9584156ec64c84f5af1b96f551320318ea057192274cca6be2344ec7544dee2da8eb52a8bcca2ccb2a54e03de8adb698aa0dc63a8ad3780693a50a1b45669557aec2cc0b0dad6ea2c74ca75c749a79cef4f52579344a6008d2632a01c6401e8d669891a28958e108b4d147dcc23ee8524a28b5f54e7c3ccf4c454d541e80a2260e670e9429244cb536e6387704ea9ab8d075d0bf359af9f4f910695be7434c1f22e717ddcbabebdecdedf97ba48f40ff6e703f7c787c7a1ebd4ce6cccd2f2c2e2dafacaead8f23fdb77763736b7b67776fffe07032e7e8f8a4737a96176266b2cf6fff7fdee7ef73fa1fde7fd3e7ff9eed93c8cfafad5f4d07393a</data>
+    </image>
+    <image name="image47">
+        <data format="XPM.GZ" length="830">789cb591cb4ec3301045f7f90a2bde45286d022989503f018925126231f6d8cea3dd40bb40887f2777d24068b2c886195b9ae32bcff56393a8e7a747956ca2f7139d1aab6c4d6f2ae1f3f1f8f1f2baff8ce23c57fdc8ee5416df44b15356e9ad045003734602195854051515b00696bd680a600056c617bc0312903224d0085648a0059ad254a6041e804c6c98809da065660b6c05bddbb207364097bb5b970353c19dbb77e2eb815e42d4c5f807456b3d9b17858c4d892653db51b96ea5cdc5c7ce5cc63d33e1d7274dd9f1b02845bf322aec4310692846a5efea42084e02c5d48743a8873d52acf2b93edbe83353d6dd67b9dbc25bffdc87e8ef5b13adf8d3a6ed0ed3e8daf8eb21fa06790db4a9</data>
+    </image>
+    <image name="image48">
+        <data format="XPM.GZ" length="830">789cb5914d4ec3301085f7398515ef229436819444a84740628984588c3d63e7a7dd40bb4088bb93e7266d69b2c88699589acf4f33cf7656897a7d7956c92afa3cd0a1b1cad6f4a1123eeef75f6fefdbef28ce73d57fd983cae2bb281665955e87006a60ce4820038baaa0a202d6c0b2174d01f4c0cab8823740025286049a8015126881a6349529813b20131b266017d032b305b6019dacd9011ba0e4722f39300db8914709be0ee842047536fe41d15a4fd6a090b129d1d5d276546e476933f8d889cbd833112e3e69cac2a7cd50f43ba3c2ce7b963e427156faa9e2bd17b40cc5c587bdaf4f3d2896f9dc9e6df49928cbee333f6de6adcff721fafbd6440bfe69d376bbebe8daf8e729fa0565deb585</data>
+    </image>
+    <image name="image49">
+        <data format="XPM.GZ" length="965">789ca5d1cb6e824014c6f13d4f317176a6a916bcd4347d84265d3669ba608619b9080ae2a269faeee57fbc142f3bcf27637ef938187534541fef6f6a380ab66ddc6656d9346ed430d995e5f7e7d7eb4f300843c52b524f838760a095553a4c08f47032263083d388c0182ea6041a185b025b68c6046e85130237c298c09dd01158411b11d808e70426c20581b5503e18ae858ec0122611812be13381857041602e9481a9d013b8842e24f051387373378316fa09814e282337df9c3b1bdd9bb346c7c6186d187bd61cbe1c6fcef71b29bac774a7f5fd461fef67a3df68c7ec4f7fde2cbbe98e344d139f5d35fb2ab9d8c9f3a228747715d73b87e2d68e14d73bab5559ea92a92e76ca75379a6373b1b3ae9b4637cc9615f3dfd4755555babbaad667521c9b9d39fdd0fb8d53d31f73c7bffdfb12fc011116e93e</data>
+    </image>
+    <image name="image50">
+        <data format="XPM.GZ" length="875">789cddd1cd6a83401405e0bd4f31e84e8a214663a4f4110a5d16421677ee1d1d634ca04d17a5e4dde3b9b1f92321fbcc91831f1766061dc5e6f3e3ddc4a3e07b4bdb860d7bfa32b1fc74ddef7cf1f61784696afa675c9871f81284ad6113e533045c2b2b045c81d314019d3243c08dd222a0281901bdd2212081852e90c1598680155852694b023b6585800d48428e04ac413b41c0a55210300239e39c75670b4a26b92813b0bf52e1a6ca9bebe124228be6530f137195939a7ce3e9d0ff135af66ff5450f9356375e691fdf1f4c7487e112dac7dd12f2e7c777a71bf4ebeaf8b3499b5cf7e564adbd79ea6f70f76fdf9aec5e833d402ec7bf</data>
+    </image>
+    <image name="image51">
+        <data format="XPM.GZ" length="754">789cad91bb0ac2301440f77e4568b722d5069b50c44f101c0571b8b949d5a18b8f41c47fb73736498d75d2dc50381ce849d369ce36eb15cba7c9f9029723323cc089e5fadab6b7ed6e794f52ce59b76b56a6932405862ce39a86d010567537d622a198095e49426db114e50b338f35614328e7520824dc5bac64f5424588800a81b02034c248232c8eaedf4d065f0c2805a3065451043530a8e8e95530aea12132aee15bceb84668f5c6354c68f5266ae860de1bf44adf1936ac086753a0fb46a3e22fed1bfbcf3b1834e27b0b8dd8740abdf8c33f7d338f45f2048a209abb</data>
+    </image>
+    <image name="image52">
+        <data format="XPM.GZ" length="920">789c8d91dd4e83401085ef798a0ddc114315a12d313e82899726c68bd9d9a5d0f253b05e18e3bbcb19104afd69f790937c3961ceb02c7cf5f4f8a0fc85f37aa043ce8a336a956fdecaf2fdf9e5fec371c350e1b95637ee95e3e68a9517af21e05630858035701942c0523082803b410d010b41868046d0424006aee40053c10402b682060212701d41c00a9850a21302ee055308688164c892bc9b01f52d04dc081a08e80139e29865722348ac59266ba0894c6c240d80ddfe2bbb14fcf55c9278a4479f256cace180529bd23ce14d6719f53e4b72a1adf8eeb2c4e3a97e58a24f8ab22a8b4c96e8fd3be9eb673e247d491d4c85f5d944260c4b888fd3ba0b38aedf4f1b8c7730d6fff8d2e3c2f3c9dfd3ba252ad9a0327cfae79ab6197d9e9c9e7f92cf3be70bc616cddc</data>
+    </image>
+    <image name="image53">
+        <data format="XPM.GZ" length="739">789cb591b16ac3301086773f85f06da69c1ddb7503218f10c8180819a493443b64699d2184be7b7d275916ada150a8e4e1fffc9d4eb25c57ea743ca8aa2e3e463dbe91a257fdae2a7bbb5eefe7cbfe51946daba667ab36e553516a450a5acb9311189f1b9e8c86913aeaa963f4829a0c694612f4b621cf6819a73e9d6d199d60677b2b6b91d10deec50d82abe37f0ce865406e0c201879915234406843694ac118ce52baa460a6424402cc9318131b992c052385880eb2144d3833f08869363e7c1c6429189fbafb6ffb20cc85590a464aa5d392e63bc01f0ba3a1b4794abfdef59ffedc8af9dc155f4ecc9510</data>
+    </image>
+    <image name="image54">
+        <data format="XPM.GZ" length="905">789c8d92cd6a83401485f73ec590d94949d426d152fa08852e0ba50bef1d27fec4c4b4e9a294be7be78c719c88d09c23c2c7e7bd30ea2a14af2fcf225c059fe7fc5cb1e032ff10a1fa6adbefb7f7a79f609124c25cf183881777c182040b19d900bb0bc63d3616e3c1e6c03819b004260a052ae03a42811570738f0219984528b005e6a9e906b8b798996e81478719b0b6c828b000d29652b20f9f2c162850033942813b8b6bdef01a282dda5dc025b0d8166961571d803a43ad9dcdad46e639cd1a7314c5343144e600104e39a3893493a73ca3f94a8ddb207c7531c545f4ca9bd939a1353195a321f050529e5956e369ebaabc36ccbc6c9ac6183599d9b7c61c9a9999a333d319647e66344a75be39d526c6987bd549df9488314dd7f5c2bd3729eb2172f2e5a4cbffffc1ef63f007e2a1d794</data>
+    </image>
+    <image name="image55">
+        <data format="XPM.GZ" length="1130">789c75d24b6fda401405e03dbfc2821daa123c1efc5094451eb08bd465a5aa0b7b1e408024f6988053f5bfd7e77840c1827b01f3f9681e1ef9761cfcfaf9128c6f07aeceeb950ad432af82b1de6db7cdef3ff77f07432182f613c9201cfe180c4da082d18405369e61474786c7f4d1d3a75f9ea2e316141329b2045c7a46590e8ec850caac003fc84214690cbe815112257906ae4129a45006d4e054a0c15730b6b1d51a3c80c9140d3e78c61d1599a2c127308dd1e08a34a931122cc02c448335988768b024333498932c7003166991155c68072aa9a68a335764a252c5c3b1a4d51365c13da8251a5c90b92e34679e934a6badc04f9205ce486b269a533d834698c8f0ac6ec8d82486cffb0e5a16d38bc5649417eaacb4b10b26cbd5eaf5acd666d3cdb65dbf9dea1dfd61ca8a8939963bfdab775d527eee59aebbeccb5e72704d73b894b4031a3fec2cb1eddd3dbfb697709a2ffc3cf492e3e21cf82d71ae5dfd118bb51b77eeca1877699d869bbfb637d7df1b6f5f7c9e2b67a0cbae8cbf3e9d92ab677d633765dd2b9f2c6cb53bafaa3abe21cfb3f9e27bcd67c37f7783ffe1274d2a</data>
+    </image>
+    <image name="image56">
+        <data format="XPM.GZ" length="890">789c95d1cb4ac3401886e17dae626876415213db6444bc04c1a5202ee69473d2a07521e2bd3bdf972249cc42e72f3fbc7d480fcc3e124f8f0f22da076f6775ae8d30957a15917deffb8fe797fbcf6097a6c2bf122992dd55b0d3c288f09a07a990598e4156485686ec91f2e0e70639308f7e0ec88229652ef9ac635a0cd22255e6e78834cc1c83ac990506d92075824176cc14833c31799025d2f0204324bf56225be62d063932799031d2652e77fc83f1e6f9b384e1cf5e8ad226560a7b25ca6a132a8bbd14651dc5adc5bfb52dca164541299642d8920936e4021b52ea6a929a52cf3eed42ba69214d3bfb0513e98ed2cd85d453fa958006cab01610a5fa259ef469541a7b7d0ba529b1b0d737378ef072fccf6dcfe5eb2ef8064911d52f</data>
+    </image>
+    <image name="image57">
+        <data format="XPM.GZ" length="890">789c95cfcd4e83401486e13d57316176c44c055b98c6f4124c5c9a1817f30bb4a525b52e8cf1de9def50571c4c3c5f374fded09655215e9e9f44b1cadeafe6da3be13a731185ff1886cfd7b7dd57965795489f528b32bfcb722b9c90f774a001eb06033b90548303a8d7690fe089b8495b8391a875a3e9d940f418e84153a76d40476c30b027460cdc83b6c4c023b1c2c033910e6c4147074a907e568307e2160347221da8c0508726d00b2af6fe53a45c28c63abe186f9de48af1812f29f0c5f81823572870650a4cb905a6b4b69b4a3ffbb65bb2fbc3ec1f4cc91ee785d2c016a4135f90164a4af63cb245b5ae557c51e3b8547eef8ff2fd98fd000f1fc2c8</data>
+    </image>
+    <image name="image58">
+        <data format="XPM.GZ" length="770">789cb58fbd0ec2201080f73e05295b636a6d82b6313e8289a38971380e0e1c5cfc198cf1dded51516beb643cb81c1f1f17609c89f56a29b271723cc16987023d1c4466cefbfd65b35d5c93b42c4533278598a4a3240581421621182962155032aa5a81aa195d44a8180d63559a522b4664ac35293365b48cbae0c1e823a265cc19edd4ce6c38ac192944b083f1b3918fec1b78e4bb9120df4ca0d6488d289fa6a5d60022c22b98620fa2697a2ce4602375eee9948fffc06bd93504f4cde444ae6fbca3c634a56728f4843a64dc90713c3d91efdff3dc1c785bfe3f739b2777f5319ea1</data>
+    </image>
+    <image name="image59">
+        <data format="XPM.GZ" length="1130">789c5dd14b8fa2401405e0bdbf82e8ce4c681bf195ce2cfa61ef269965279359502f4bc127d82893f9efcd3905459a73dd7c1ee162f1300e3e7eff0ac60f83bc488aad0ca44d2ec1585df7fbfb9fbf3fff0d865114d49f691c3c0e7f0c863690c1285218f000c6130cb80557330cb80313890133d2884962c04f504c30e0958c31e07bc399e31ba93160491a3911bc550eca29062cc80506acc8a55cc92578225718f095e453829b86c2f1460a29a5005f488d01d7200f23022fe41403a6e412039ec9150614a45052f1ce92944a299ed533c980aaa1763c9206036a503fea48f31dddc9080326e454c79a4f3522677aaef98e4272ae177a0eee411363404332fc31324ac2502052e9045ff826094d186eac8ff04d58371bbbddb9a436e393b48ddda62efb836b12df982687a67145b7e3786a1bfcaadb91daf3e9db35ed8e7ac525ef1ad3eda8bf2caebee9adc83fdba6bf62b7ab0b36fd1575b2f2c6a6bfa24ec9d3b1f723e2575475044fd43e9f11bfa2aadab760d30be25708e19b9702f12b429c89bbdb6b8e742bbae6cdfd9dfa92926718b6efd49f4056f69a75f99eb994e27b23d6b7ca45b8bfec9aff4f832fc31e4625</data>
+    </image>
+    <image name="image60">
+        <data format="XPM.GZ" length="724">789cbd90c10ac2300c86ef7b8ab2de863856d9a6888f207814c4439276e861179d0711dfddfd9d532bce939816ca97bf7f93264dd47ab554491a1d1b6af6a264470795d8535d9f37dbc5258a8d51ed2e55168fa29894286d2c16d002a72d710e14e08cabdc164006528605d440313211031c035de14ae72f3b60e5c3ab1fe3bba28938cc3291f66d8b50a820d329f65db19de2065f63c72e30519b60ef81c477234e9fe83d8ca23eda93034fdf068a871e148582cf059eb08387e7a733187eedaf33d0cf19e8c0f3da80eb3cd7797403b1e6b7dd</data>
+    </image>
+    <image name="image61">
+        <data format="XPM.GZ" length="770">789cddd0bf8ac2401006f03e4fb164ba2031ae6c34c83dc2c1950762317f76130b9b3b2d0ef1dd2f33515410c5c6c28f697e7ccceeb2e3c27d7f7dba629cfd6e71bb66c71dfeb842769bcddf72f5b1cf72ef5d3f93ca4df25196936307954589cad0040c8d5294732f9e8292950da520b5b2530a0a092a5b238b082b9331c54a92322aa38fd3e895a5b18eb36847813259acbd997768a0cf758384259c1a300e0d02339e1be3d0103313109536603cee308bee0c2b607c74cf9db7bdfa779e6b626abbcbb4293f2cb27ff7389ce3</data>
+    </image>
+    <image name="image62">
+        <data format="XPM.GZ" length="1055">789ccdd1cb4ac3401805e07d9e626876456c4c6f09e2a20f20b814c445e6cf4c7a4baf496fe2bbeb3999a9410a6e3da7f0fb714ab169afab5e5f9e55b717ecabac9a899269b653ddbc2ecbf3dbfbd347d089638557aa1e3a7741472b51619ca360010e221414301da2600e6682823569759459700fea0805b7e400054f8ec386156950f0405a89343f6a054a1f0537e41805276422a924e09c4c517047f2bf043347ddf0426a11d1e09a34287804f93062b024fb2868c9040597648a826752e792f393172403ce488b8253d0c428784f8eccd88c4003da010a8624c337dfccff5d42b764ba89681fb7645af89c8cbbb9f58b167e6be3ae35c575099bf85bfc2cd3193237eeb696c51299fbdb5a6c89acfc6d2deb0db235eeb696dd0ad9fbdb5aaae66bf85be8da2fbf531fdc723c9c6ac4dffaba9c8f9709e2eff75fe19fcffae6eff3f9187c01098709aa</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>ccAddLayerAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsCCAddLayer()</slot>
+    </connection>
+    <connection>
+        <sender>ccGraphiteAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>gridGraphite()</slot>
+    </connection>
+    <connection>
+        <sender>dispBGColorAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispBGColor()</slot>
+    </connection>
+    <connection>
+        <sender>dispCPKAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispCPK()</slot>
+    </connection>
+    <connection>
+        <sender>dispCsysAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispCsys()</slot>
+    </connection>
+    <connection>
+        <sender>dispDatumLinesAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispDatumLines()</slot>
+    </connection>
+    <connection>
+        <sender>dispDatumPlanesAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispDatumPlanes()</slot>
+    </connection>
+    <connection>
+        <sender>dispDefaultAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispDefault()</slot>
+    </connection>
+    <connection>
+        <sender>dispGridAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispGrid()</slot>
+    </connection>
+    <connection>
+        <sender>dispInvisAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispInvis()</slot>
+    </connection>
+    <connection>
+        <sender>dispLinesAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispLines()</slot>
+    </connection>
+    <connection>
+        <sender>dispObjectColorAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispObjectColor()</slot>
+    </connection>
+    <connection>
+        <sender>dispOpenBondsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispOpenBonds()</slot>
+    </connection>
+    <connection>
+        <sender>dispTrihedronAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispTrihedron()</slot>
+    </connection>
+    <connection>
+        <sender>dispTubesAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispTubes()</slot>
+    </connection>
+    <connection>
+        <sender>dispVdWAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispVdW()</slot>
+    </connection>
+    <connection>
+        <sender>editCopyAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>copyDo()</slot>
+    </connection>
+    <connection>
+        <sender>editCutAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>editCut()</slot>
+    </connection>
+    <connection>
+        <sender>editDeleteAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>killDo()</slot>
+    </connection>
+    <connection>
+        <sender>editFindAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>editFind()</slot>
+    </connection>
+    <connection>
+        <sender>editPasteAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>editPaste()</slot>
+    </connection>
+    <connection>
+        <sender>editPreferencesAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>editPrefs()</slot>
+    </connection>
+    <connection>
+        <sender>editRedoAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>editRedo()</slot>
+    </connection>
+    <connection>
+        <sender>editUndoAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>editUndo()</slot>
+    </connection>
+    <connection>
+        <sender>fileClearAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileClear()</slot>
+    </connection>
+    <connection>
+        <sender>fileCloseAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileClose()</slot>
+    </connection>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileExit()</slot>
+    </connection>
+    <connection>
+        <sender>fileImageAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileImage()</slot>
+    </connection>
+    <connection>
+        <sender>fileNewAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileNew()</slot>
+    </connection>
+    <connection>
+        <sender>fileOpenAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileOpen()</slot>
+    </connection>
+    <connection>
+        <sender>fileSaveAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileSave()</slot>
+    </connection>
+    <connection>
+        <sender>fileSaveAsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileSaveAs()</slot>
+    </connection>
+    <connection>
+        <sender>fileSetWorkDirAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileSetWorkDir()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>helpIndexAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>helpIndex()</slot>
+    </connection>
+    <connection>
+        <sender>jigsBearingAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeBearing()</slot>
+    </connection>
+    <connection>
+        <sender>jigsDynoAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeDyno()</slot>
+    </connection>
+    <connection>
+        <sender>jigsGroundAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeGround()</slot>
+    </connection>
+    <connection>
+        <sender>jigsHandleAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeHandle()</slot>
+    </connection>
+    <connection>
+        <sender>jigsHeatsinkAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeHeatsink()</slot>
+    </connection>
+    <connection>
+        <sender>jigsLinearMotorAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeLinearMotor()</slot>
+    </connection>
+    <connection>
+        <sender>jigsMotorAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeMotor()</slot>
+    </connection>
+    <connection>
+        <sender>jigsSpringAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeSpring()</slot>
+    </connection>
+    <connection>
+        <sender>modifyAddBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyAddBond()</slot>
+    </connection>
+    <connection>
+        <sender>modifyCopyBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyCopyBond()</slot>
+    </connection>
+    <connection>
+        <sender>modifyDeleteBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyDeleteBond()</slot>
+    </connection>
+    <connection>
+        <sender>modifyHydrogenateAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyHydrogenate()</slot>
+    </connection>
+    <connection>
+        <sender>modifyMinimizeAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyMinimize()</slot>
+    </connection>
+    <connection>
+        <sender>modifyPassivateAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyPassivate()</slot>
+    </connection>
+    <connection>
+        <sender>modifySeparateAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifySeparate()</slot>
+    </connection>
+    <connection>
+        <sender>modifyWeldMoleculeAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyWeldMolecule()</slot>
+    </connection>
+    <connection>
+        <sender>orient100Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orient100()</slot>
+    </connection>
+    <connection>
+        <sender>orient110Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orient110()</slot>
+    </connection>
+    <connection>
+        <sender>orient111Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orient111()</slot>
+    </connection>
+    <connection>
+        <sender>selectAllAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>selectAll()</slot>
+    </connection>
+    <connection>
+        <sender>selectConnectedAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>selectConnected()</slot>
+    </connection>
+    <connection>
+        <sender>selectDoublyAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>selectDoubly()</slot>
+    </connection>
+    <connection>
+        <sender>selectInvertAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>selectInvert()</slot>
+    </connection>
+    <connection>
+        <sender>selectNoneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>selectNone()</slot>
+    </connection>
+    <connection>
+        <sender>toolsBackUpAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsBackUp()</slot>
+    </connection>
+    <connection>
+        <sender>toolsCancelAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsCancel()</slot>
+    </connection>
+    <connection>
+        <sender>toolsCookieCutAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsCookieCut()</slot>
+    </connection>
+    <connection>
+        <sender>toolsDoneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsDone()</slot>
+    </connection>
+    <connection>
+        <sender>toolsMovieAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsMovie()</slot>
+    </connection>
+    <connection>
+        <sender>toolsSimulatorAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsSimulator()</slot>
+    </connection>
+    <connection>
+        <sender>toolsSketchAtomAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>addAtomStart()</slot>
+    </connection>
+    <connection>
+        <sender>toolsStartOverAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toolsStartOver()</slot>
+    </connection>
+    <connection>
+        <sender>viewDefviewBackAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orientView()</slot>
+    </connection>
+    <connection>
+        <sender>viewDefviewBottomAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orientView()</slot>
+    </connection>
+    <connection>
+        <sender>viewDefviewFrontAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orientView()</slot>
+    </connection>
+    <connection>
+        <sender>viewDefviewLeftAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orientView()</slot>
+    </connection>
+    <connection>
+        <sender>viewDefviewRightAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orientView()</slot>
+    </connection>
+    <connection>
+        <sender>viewDefviewTopAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orientView()</slot>
+    </connection>
+    <connection>
+        <sender>viewFitToWindowAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>viewFitToWindow()</slot>
+    </connection>
+    <connection>
+        <sender>viewHomeAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orientView()</slot>
+    </connection>
+    <connection>
+        <sender>viewOrthoAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>viewOrtho()</slot>
+    </connection>
+    <connection>
+        <sender>viewPerspecAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>viewPerspec()</slot>
+    </connection>
+    <connection>
+        <sender>viewRecenterAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>orientView()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarDisplayAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarEditAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarFileAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarHelpAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarJigsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarModifyAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarSelectAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarToolsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>viewTbarViewAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>toggleToolbar()</slot>
+    </connection>
+    <connection>
+        <sender>modifyEdgeBondAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyEdgeBond()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">atom.ui.h</include>
+</includes>
+<slots>
+    <slot>fileNew()</slot>
+    <slot>fileOpen()</slot>
+    <slot>fileSave()</slot>
+    <slot>fileSaveAs()</slot>
+    <slot>fileImage()</slot>
+    <slot>fileExit()</slot>
+    <slot>editUndo()</slot>
+    <slot>editRedo()</slot>
+    <slot>editCut()</slot>
+    <slot>editCopy()</slot>
+    <slot>editPaste()</slot>
+    <slot>editFind()</slot>
+    <slot>helpIndex()</slot>
+    <slot>helpContents()</slot>
+    <slot>helpAbout()</slot>
+    <slot>toolsSimulator()</slot>
+    <slot>toolsCancel()</slot>
+    <slot>toolsDone()</slot>
+    <slot>toolsAtomStart()</slot>
+    <slot>toolsCCAddLayer()</slot>
+    <slot>toolsCookieCut()</slot>
+    <slot>copyDo()</slot>
+    <slot>dispCPK()</slot>
+    <slot>dispObjectColor()</slot>
+    <slot>dispDefault()</slot>
+    <slot>dispInvis()</slot>
+    <slot>dispLines()</slot>
+    <slot>viewOrtho()</slot>
+    <slot>viewPerspec()</slot>
+    <slot>dispTubes()</slot>
+    <slot>dispVdW()</slot>
+    <slot>elemChange(string)</slot>
+    <slot>gridGraphite()</slot>
+    <slot>killDo()</slot>
+    <slot>makeBearing()</slot>
+    <slot>makeDyno()</slot>
+    <slot>makeGround()</slot>
+    <slot>makeHandle()</slot>
+    <slot>makeHeatsink()</slot>
+    <slot>makeLinearMotor()</slot>
+    <slot>makeMotor()</slot>
+    <slot>makeSpring()</slot>
+    <slot>modifyHydrogenate()</slot>
+    <slot>modifyPassivate()</slot>
+    <slot>modifySeparate()</slot>
+    <slot>toolsMovie()</slot>
+    <slot>orient100()</slot>
+    <slot>orient110()</slot>
+    <slot>orient111()</slot>
+    <slot>selectAll()</slot>
+    <slot>selectConnected()</slot>
+    <slot>selectDoubly()</slot>
+    <slot>selectInvert()</slot>
+    <slot>selectNone()</slot>
+    <slot>setdisplay(form)</slot>
+    <slot>dispTrihedron()</slot>
+    <slot>modifyDeleteBond()</slot>
+    <slot>dispBGColor()</slot>
+    <slot>dispCsys()</slot>
+    <slot>dispDatumLines()</slot>
+    <slot>dispDatumPlanes()</slot>
+    <slot>dispOpenBonds()</slot>
+    <slot>editPrefs()</slot>
+    <slot>fileClose()</slot>
+    <slot>fileClear()</slot>
+    <slot>fileSetWorkDir()</slot>
+    <slot>modifyMinimize()</slot>
+    <slot>orientView( string )</slot>
+    <slot>viewFitToWindow()</slot>
+    <slot>modifyCopyBond()</slot>
+    <slot>addAtomStart()</slot>
+    <slot>toggleToolbar()</slot>
+    <slot>toolsBackUp()</slot>
+    <slot>toolsStartOver()</slot>
+    <slot>dispGrid()</slot>
+    <slot>orientView()</slot>
+    <slot>modifyWeldMolecule()</slot>
+    <slot>modifyAddBond()</slot>
+    <slot>modifyEdgeBond()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

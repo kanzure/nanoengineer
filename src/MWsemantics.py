@@ -35,6 +35,20 @@ class MWsemantics(MainWindow):
 	# start with empty window
         self.assy = assembly(self)
 
+        self.frame4 = QFrame(self.centralWidget(),"frame4")
+        self.frame4.setSizePolicy(QSizePolicy(3,3,0,0,False))
+        self.frame4.setFrameShape(QFrame.NoFrame)
+        self.frame4.setFrameShadow(QFrame.Plain)
+        self.frame4Layout = QHBoxLayout(self.frame4,0,0,"frame4Layout")
+
+        Form1Layout = QVBoxLayout(self.centralWidget(),11,6,"Form1Layout")
+        Form1Layout.addWidget(self.frame4)
+
+        self.modelTreeView.reparent(self.frame4, 0, QPoint(0,0), True)
+        self.frame4Layout.addWidget(self.modelTreeView)
+        self.modelTreeView.setSizePolicy(QSizePolicy(0,7,0,244,False))
+
+        
         self.glpane = GLPane(self.assy, self.frame4, "glpane", self)   
         self.frame4Layout.addWidget(self.glpane)
         # do here to avoid a circular dependency
@@ -127,6 +141,9 @@ class MWsemantics(MainWindow):
         fn = str(fn)
         self.glpane.image(fn)
 
+    def fileExit(self):
+        pass
+
     ###################################
     # functions from the "Edit" menu
     ###################################
@@ -205,47 +222,40 @@ class MWsemantics(MainWindow):
             if self.glpane.display == form: return
             self.glpane.setDisplay(form)
         self.glpane.paintGL()
-        
+
+    def setdisplay(self, a0):
+        print 'setdisplay', a0
+
 
     # set the color of the selected part(s) (molecule)
     # or the background color if no part is selected.
     # atom colors cannot be changed singly
     def dispObjectColor(self):
         c = self.colorchoose()
-        if self.assy and self.assy.selmols:
-            for ob in self.assy.selmols:
-                ob.setcolor(c)
-        else: self.glpane.backgroundColor = c
+        for ob in self.assy.selmols:
+            ob.setcolor(c)
         self.glpane.paintGL()
+
+
+    def dispBGColor(self):
+        c = self.colorchoose()
+        self.glpane.backgroundColor = c
+        self.glpane.paintGL()
+
+    def dispGrid(self):
+        print "MWsemantics.dispGrid(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
         
-
-    ###################################
-    # functions from the "Grid" menu
-    ###################################
-
-    # this works by setting the griddraw method of the GLPane
-    # to the appropriate function
-
-    def gridNone(self):
-        self.glpane.griddraw=nogrid
-        self.glpane.paintGL()
-
-    def gridSquare(self):
-        self.glpane.griddraw=rectgrid
-        self.glpane.paintGL()
-
-    def gridDiamond(self):
-        self.glpane.griddraw=diamondgrid
-        self.glpane.paintGL()
 
     def gridGraphite(self):
         print "MWsemantics.gridGraphite(): Not implemented yet"
 	QMessageBox.warning(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
 
-    ###################################
+    #######################################
     # functions from the "Orientation" menu
-    ###################################
+    #######################################
 
     # points of view corresponding to the three crystal
     # surfaces of diamond
@@ -261,6 +271,11 @@ class MWsemantics(MainWindow):
     # equidistant from three axes
     def orient111(self):
         self.glpane.snapquat111()
+
+    # lots of things ???
+    def orientView(self, a0=None):
+        print "MainWindow.orientView(string):", a0
+
 
     # functions from the "Select" menu
 
@@ -357,12 +372,6 @@ class MWsemantics(MainWindow):
     def modifySeparate(self):
         self.assy.modifySeparate()
 
-    # Modify motor property
-    def modifyMotorProperty(self):
-        motorDialog = MotorPropDialog(self)
-	motorDialog.exec_loop()
-
-
     ###################################
     # Functions from the "Help" menu
     ###################################
@@ -381,9 +390,12 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
 
-    ##############################################################
-    # functions from the buttons down the left side of the display
-    ##############################################################
+    ###############################################################
+    # functions from the buttons down the right side of the display
+    ###############################################################
+
+    def toggleToolbar(self):
+        print 'toggleToolbar'
 
     # set up cookiecutter mode
     def toolsCookieCut(self):
@@ -397,26 +409,39 @@ class MWsemantics(MainWindow):
 
     # fill the shape created in the cookiecutter with actual
     # carbon atoms in a diamond lattice (including bonds)
+    # this works for all modes, not just add atom
     def toolsDone(self):
         self.glpane.mode.Done()
+
+    def toolsStartOver(self):
+        self.glpane.mode.Restart()
+
+    def toolsBackUp(self):
+        self.glpane.mode.Backup()
+
+    def toolsCancel(self):
+        self.glpane.mode.Flush()
 
     # turn on and off an "add atom with a mouse click" mode
     def addAtomStart(self):
         self.glpane.setMode('DEPOSIT')
-    
-    def addAtomDone(self):
-        self.glpane.mode.Done()
+
+    def toolsAtomStart(self):
+        self.glpane.setMode('DEPOSIT')
 
     # the elements combobox:
     # change selected atoms to the element selected
-    def elemChange(self, string):
-        if self.assy.selatoms:
-            for a in self.assy.selatoms.itervalues():
-                a.mvElement(fullnamePeriodicTable[str(string)])
-            self.glpane.paintGL()
-        else:
-            el = fullnamePeriodicTable[str(string)].symbol
-            self.setElement(el)
+##     def elemChange(self, string):
+##         if self.assy.selatoms:
+##             for a in self.assy.selatoms.itervalues():
+##                 a.mvElement(fullnamePeriodicTable[str(string)])
+##             self.glpane.paintGL()
+##         else:
+##             el = fullnamePeriodicTable[str(string)].symbol
+##             self.setElement(el)
+
+    def elemChange(self,a0):
+        print "elemchange",a0
 
     def setCarbon(self):
         self.setElement("C")
@@ -437,7 +462,7 @@ class MWsemantics(MainWindow):
         # element specified as chemical symbol
         self.Element = elt
         for sym, key, num in self.elTab:
-            if elt == sym: self.comboBox1.setCurrentItem(num)
+            if elt == sym: self.elemChangeComboBox.setCurrentItem(num)
 
 
     # Play a movie from the simulator
@@ -449,9 +474,24 @@ class MWsemantics(MainWindow):
     ###################################
     # some unimplemented buttons:
     ###################################
+
+    # bring molecules together and bond unbonded sites
+    def modifyWeldMolecule(self):
+        print "MWsemantics.modifyWeldMolecule(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+ 
+
+    
     # create bonds where reasonable between selected and unselected
-    def bondEdge(self):
-        print "MWsemantics.bondEdge(): Not implemented yet"
+    def modifyEdgeBond(self):
+        print "MWsemantics.modifyEdgeBond(): Not implemented yet"
+	QMessageBox.warning(self, "ATOM User Notice:", 
+	         "This function is not implemented yet, coming soon...")
+        
+    # create bonds where reasonable between selected and unselected
+    def modifyAddBond(self):
+        print "MWsemantics.modifyAddBond(): Not implemented yet"
 	QMessageBox.warning(self, "ATOM User Notice:", 
 	         "This function is not implemented yet, coming soon...")
 
@@ -500,10 +540,6 @@ class MWsemantics(MainWindow):
     # Some future slot functions for the UI                      #
     ##############################################################
 
-    def dispBGColor(self):
-        """ Change backgound color of the graphics window """
-        QMessengeBox.warning(self, "ATOM User Notice:", 
-		"This function is not implemented yet, coming soon...")
     def dispCsys(self):
 	""" Toggle on/off center coordinate axes """
 	QMessageBox.warning(self, "ATOM User Notice:", 

@@ -31,6 +31,8 @@ class assembly:
         assyList += [self]
         # the MWsemantics displaying this assembly. 
         self.w = win
+        # self.o = win.glpane
+        #  ... done in MWsemantics to avoid a circularity
         # list of chem.molecule's
         self.molecules=[]
         # list of the atoms, only valid just after read or write
@@ -306,7 +308,8 @@ class assembly:
         if not self.alist: return
         for a in self.alist:
             #print unpack('bbb',file.read(3))
-            a.molecule.curpos[a.index] += A(unpack('bbb',file.read(3)))*0.01
+            a.molecule.basepos[a.index] += A(unpack('bbb',file.read(3)))*0.01
+            
         for m in self.molecules:
             m.changeapp()
 

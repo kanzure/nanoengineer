@@ -441,7 +441,7 @@ class bond:
         """
         if self.atom1 == at: return self.atom2
         return self.atom1
-
+    
     def ubp(self, atom):
         """ unbond point """
         if self.atom1.molecule != self.atom2.molecule:
@@ -731,19 +731,22 @@ class molecule:
     def move(self, offs):
         self.center += offs
         self.curpos = self.center + self.quat.rot(self.basepos)
-        self.singlpos = self.center + self.quat.rot(self.singlbase)
+        if self.singlets:
+            self.singlpos = self.center + self.quat.rot(self.singlbase)
         for bon in self.externs: bon.setup()
 
     def rot(self, q):
         self.quat += q
         self.curpos = self.center + self.quat.rot(self.basepos)
-        self.singlpos = self.center + self.quat.rot(self.singlbase)
+        if self.singlets:
+            self.singlpos = self.center + self.quat.rot(self.singlbase)
         for bon in self.externs: bon.setup()
 
     def stretch(self, factor):
         self.basepos *= 1.1
         self.curpos = self.center + self.quat.rot(self.basepos)
-        self.singlpos = self.center + self.quat.rot(self.singlbase)
+        if self.singlets:
+            self.singlpos = self.center + self.quat.rot(self.singlbase)
         for bon in self.externs: bon.setup()
         self.changeapp()
 
