@@ -110,6 +110,15 @@ finish {
     
 #end
 
+#macro tube3(pos1, pos2, col)
+
+  cylinder {pos1, pos2, 0.3
+    pigment { rgb col }
+    finish {Atomic}
+    }
+
+#end
+
 #macro bond(pos1, pos2) 
   cylinder {pos1, pos2, 0.1
     pigment { Gray75 }

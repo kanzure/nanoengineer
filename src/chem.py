@@ -61,11 +61,15 @@ def genKey():
 
 atKey=genKey()
 
-
+###Huaicai: This function has been repeated in multiple files, not 
+### good, needs to improve. I'll add one more function for transferring
+### vector to a string, which is mainly used for color vector
 def povpoint(p):
     # note z reversal -- povray is left-handed
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
 
+def stringVec(v):
+    return "<" + str(v[0]) + "," + str(v[1]) + "," + str(v[2]) + ">"    
 
 # == Atom
 
@@ -414,18 +418,17 @@ class atom:
     # write to a povray file:  draw a single atom
     def writepov(self, file, dispdef, col):
         color = col or self.element.color
-        color = color * V(1,1,-1) # kluge for povpoint(color)
         disp, rad = self.howdraw(dispdef)
         if disp in [diVDW, diCPK]:
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(rad) + "," +
-                       povpoint(color) + ")\n")
+                       stringVec(color) + ")\n")
         if disp == diTUBES:
             ###e this should be merged with other case, and should probably
             # just use rad from howdraw [bruce 041206 comment]
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(TubeRadius) + "," +
-                       povpoint(color) + ")\n")
+                       stringVec(color) + ")\n")
 
     # write to a MDL file.  By Chris Phoenix and Mark for John Burch [04-12-03]
     def writemdl(self, alist, f, dispdef, col):
@@ -1482,7 +1485,6 @@ class Bond:
                 if not (v1 and v2):
                     drawsphere(black, self.center, TubeRadius, level)
             else:
-                #print "In Draw(), the 4 points are: ", self.a1pos, self.c1, self.c2, self.a2pos    
                 drawcylinder(red, self.c1, self.c2, TubeRadius)
                 if v1:
                     drawcylinder(color1, self.a1pos, self.c1, TubeRadius)
@@ -1505,22 +1507,8 @@ class Bond:
         ##Huaicai 1/6/05: Remove some redundant code and fix bug ##227   
         disp=max(self.atom1.display, self.atom2.display)
         if disp == diDEFAULT: disp= dispdef
-        #color1 = self.atom1.element.color * V(1,1,-1)
-        #color2 = self.atom2.element.color * V(1,1,-1)
         color1 = col or self.atom1.element.color
         color2 = col or self.atom2.element.color
-        
-        ##a1pos = self.atom1.posn()
-        ##a2pos = self.atom2.posn()
-        ##vec = a2pos - a1pos
-        ##len = 0.98 * vlen(vec)
-        ##c1 = a1pos + vec*self.atom1.element.rcovalent
-        ##c2 = a2pos - vec*self.atom2.element.rcovalent
-        # This conditional should change to account for compressed bonds.  Mark [041215]
-        ##if len > self.atom1.element.rcovalent + self.atom2.element.rcovalent:
-          ##  center = None
-        ##else:
-          ##  center = (c1 + c2) /2.0
         
         if disp<0: disp= dispdef
         if disp == diLINES:
@@ -1530,21 +1518,27 @@ class Bond:
             file.write("bond(" + povpoint(self.a1pos) +
                        "," + povpoint(self.a2pos) + ")\n")
         if disp == diTUBES:
-            # The conditional below has a problem when we have a compressed bond. 
-            # Center will will be non-zero value and a red tube will be drawn.
-            # We end up with red tubes rendered on top of the normal tube (bond).
-            # Fix for beta.  Mark [041215]
-            #print "In writepov(), the 4 points are: ", self.a1pos, self.c1, self.c2, self.a2pos
-            if not self.toolong:
-                file.write("tube2(" + povpoint(self.a1pos) +
+        ##Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
+        ##             cylinder written to a pov file    
+            DELTA = 1.0E-5
+            isSingleCylinder = False
+            if  self.atom1.element.rcovalent < DELTA:
+                    col = color2
+                    isSingleCylinder = True
+            if  self.atom1.element.rcovalent < DELTA:
+                    col = color1
+                    isSingleCylinder = True
+            if isSingleCylinder:        
+                file.write("tube3(" + povpoint(self.a1pos) + ", " + povpoint(self.a2pos) + ", " + stringVec(col) + ")")
+            else:      
+                if not self.toolong:
+                        file.write("tube2(" + povpoint(self.a1pos) +
                            "," + povpoint(color1) +
                            "," + povpoint(self.center) + "," +
                            povpoint(self.a2pos) + "," +
                            povpoint(color2) + ")\n")
-            else:
-                # Switched points c1 and c2.  This still has problems with compressed bonds.
-                # Maybe even with stretched bonds, but a couple tests looked OK.  Mark [041215]
-                file.write("tube1(" + povpoint(self.a1pos) +
+                else:
+                        file.write("tube1(" + povpoint(self.a1pos) +
                            "," + povpoint(color1) +
                            "," + povpoint(self.c1) + "," +
                            povpoint(self.c2) + "," + 

@@ -440,7 +440,6 @@ def writepov(assy, filename):
     pov_out = (assy.o.out[0], assy.o.out[1], -assy.o.out[2])
     pov_far =  (farPos[0], farPos[1], -farPos[2])
     pov_near =  (nearPos[0], nearPos[1], -nearPos[2])
-    #nearDir = -assy.o.out
     pov_in = (-assy.o.out[0], -assy.o.out[1], assy.o.out[2])
     
     f.write("clipped_by { plane { " + povpoint(-assy.o.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
