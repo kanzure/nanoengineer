@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Nov 2 11:33:17 2004
+# Created: Thu Nov 4 10:32:50 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7660,7 +7660,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1091,866).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1091,872).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7854,8 +7854,8 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.setAccel(self.__tr("Del"))
         self.viewToolbarsAction.setText(self.__tr("Toolbars"))
         self.viewToolbarsAction.setMenuText(self.__tr("&Toolbars"))
-        self.dispObjectColorAction.setText(self.__tr("Molecule Color..."))
-        self.dispObjectColorAction.setMenuText(self.__tr("&Molecule Color..."))
+        self.dispObjectColorAction.setText(self.__tr("Object Color..."))
+        self.dispObjectColorAction.setMenuText(self.__tr("&Object Color..."))
         self.dispOpenBondsAction.setText(self.__tr("Display Open Bonds"))
         self.dispOpenBondsAction.setMenuText(self.__tr("Display Open Bonds"))
         self.modifyHydrogenateAction.setText(self.__tr("Hydrogenate"))
@@ -8097,8 +8097,8 @@ class MainWindow(QMainWindow):
         self.nullAction.setMenuText(QString.null)
         self.jigsStatAction.setText(self.__tr("Thermostat"))
         self.jigsStatAction.setMenuText(self.__tr("&Thermostat"))
-        self.dispResetMolColorAction.setText(self.__tr("Reset Molecule Color"))
-        self.dispResetMolColorAction.setMenuText(self.__tr("&Reset Molecule Color"))
+        self.dispResetMolColorAction.setText(self.__tr("Reset Object Color"))
+        self.dispResetMolColorAction.setMenuText(self.__tr("&Reset Object Color"))
         self.helpWhatsThisAction.setText(self.__tr("What's This"))
         self.helpWhatsThisAction.setMenuText(self.__tr("What's This"))
         self.fileToolbar.setLabel(self.__tr("File"))

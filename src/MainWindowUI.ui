@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1091</width>
-            <height>866</height>
+            <height>872</height>
         </rect>
     </property>
     <property name="caption">
@@ -935,10 +935,10 @@
             <iconset>image20</iconset>
         </property>
         <property name="text">
-            <string>Molecule Color...</string>
+            <string>Object Color...</string>
         </property>
         <property name="menuText">
-            <string>&amp;Molecule Color...</string>
+            <string>&amp;Object Color...</string>
         </property>
     </action>
     <action>
@@ -2509,10 +2509,10 @@
             <cstring>dispResetMolColorAction</cstring>
         </property>
         <property name="text">
-            <string>Reset Molecule Color</string>
+            <string>Reset Object Color</string>
         </property>
         <property name="menuText">
-            <string>&amp;Reset Molecule Color</string>
+            <string>&amp;Reset Object Color</string>
         </property>
     </action>
     <action>
