@@ -122,16 +122,30 @@ class MWsemantics(MainWindow):
         # and paste the atom rather than the clipboard by default
         self.pasteP = False
 
-        #Create the temporary file directory if not exist
+        #Create the temporary file directory if not exist [by huaicai ~041201]
+        # bruce 041202 comments about future changes to this code:
+        # - we'll probably rename this, sometime before Alpha goes out,
+        #   since its purpose will become more user-visible and general.
+        # - it might be good to create a README file in the directory
+        #   when we create it. And maybe to tell the user we created it,
+        #   in a dialog.
+        # - If creating it fails, we might want to create it in /tmp
+        #   (or wherever some python function says is a good temp dir)
+        #   rather than leaving an ususable path in tmpFilePath. This
+        #   could affect someone giving a demo on a strange machine!
+        # - If it exists already, we might want to test that it's a
+        #   directory and is writable. If we someday routinely create
+        #   a new file in it for each session, that will be a good-
+        #   enough test.
         self.tmpFilePath = os.path.expanduser("~/atom_tmp/")
         if not os.path.exists(self.tmpFilePath):
            try :
               os.mkdir(self.tmpFilePath)
            except :
-              print_compact_traceback("exception in creating temporary directory: ", self.tmpFilePath)
-              return
+              #bruce 041202 fixed minor bug in next line; removed return statement
+              print_compact_traceback("exception in creating temporary directory: %r" % self.tmpFilePath)
         
-        
+        return # from MWsemantics.__init__
 
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]
