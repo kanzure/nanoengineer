@@ -6,8 +6,7 @@ however small, unless this is necessary to make Atom work properly for other dev
 
 $Id$
 
-Extrude mode. Supposedly ok for Josh's demo.
-Being extended to also have algorithms suitable for Revolve...
+Extrude mode. Not yet finished (especially ring mode), as of 041230.
 
 -- bruce 040924/041011/041015
 """
@@ -15,13 +14,14 @@ Being extended to also have algorithms suitable for Revolve...
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
 from modes import *
-from qt import QSpinBox, QDoubleValidator
+
 
 from handles import *
 from debug import print_compact_traceback
 import math #k needed?
 from chunk import bond_at_singlets #k needed?
 import platform
+from widgets import FloatSpinBox, TogglePrefCheckBox
 
 show_revolve_ui_features = 1 # for now
 
@@ -34,72 +34,6 @@ class BendData:
     """
     pass # not yet used or fully designed; see a notesfile    
 
-class FloatSpinBox(QSpinBox):
-    "spinbox for a coordinate in angstroms -- permits negatives, floats"
-    range_angstroms = 1000.0 # value can go to +- this many angstroms
-    precision_angstroms = 100 # with this many detectable units per angstrom
-    min_length = 0.1 # prevent problems with 0 or negative lengths provided by user
-    max_length = 2 * range_angstroms # longer than possible from max xyz inputs
-    def __init__(self, *args, **kws):
-        #k why was i not allowed to put 'for_a_length = 0' into this arglist??
-        for_a_length = kws.pop('for_a_length',0)
-        assert not kws, "keyword arguments are not supported by QSpinBox"
-        QSpinBox.__init__(self, *args) #k #e note, if the args can affect the range, we'll mess that up below
-        ## self.setValidator(0) # no keystrokes are prevented from being entered
-            ## TypeError: argument 1 of QSpinBox.setValidator() has an invalid type -- hmm, manual didn't think so -- try None? #e
-        self.setValidator( QDoubleValidator( - self.range_angstroms, self.range_angstroms, 2, self ))
-            # QDoubleValidator has a bug: it turns 10.2 into 10.19! But mostly it works. Someday we'll need our own. [bruce 041009]
-        if not for_a_length:
-            self.setRange( - int(self.range_angstroms * self.precision_angstroms),
-                             int(self.range_angstroms * self.precision_angstroms) )
-        else:
-            self.setRange( int(self.min_length * self.precision_angstroms),
-                           int(self.max_length * self.precision_angstroms) )
-        self.setSteps( self.precision_angstroms, self.precision_angstroms * 10 ) # set linestep and pagestep
-    def mapTextToValue(self):
-        text = self.cleanText()
-        text = str(text) # since it's a qt string
-        ##print "fyi: float spinbox got text %r" % text
-        try:
-            fval = float(text)
-            ival = int(fval * self.precision_angstroms) # 2-digit precision
-            return ival, True
-        except:
-            return 0, False
-    def mapValueToText(self, ival):
-        fval = float(ival)/self.precision_angstroms
-        return str(fval) #k should not need to make it a QString
-    def floatValue(self):
-        return float( self.value() ) / self.precision_angstroms
-    def setFloatValue(self, fval):
-        self.setValue( int( fval * self.precision_angstroms ) )
-    pass
-
-class TogglePrefCheckBox(QCheckBox):
-    def __init__(self, *args, **kws):
-        self.sense = kws.pop('sense', True) # whether checking the box makes our value (seen by callers) True or False
-        self.default = kws.pop('default', True) # whether our default value (*not* default checked-state) is True or False
-        self.tooltip = kws.pop('tooltip', "") # tooltip to show ###e NIM
-        # public attributes:
-        self.attr = kws.pop('attr', None) # name of mode attribute (if any) which this should set
-        self.repaintQ = kws.pop('repaintQ', False) # whether mode might need to repaint if this changes
-        assert not kws, "keyword arguments are not supported by QCheckBox"
-        QCheckBox.__init__(self, *args)
-        #e set tooltip - how? see .py file made from .ui to find out (qt assistant didn't say).
-    def value(self):
-        if self.isChecked():
-            return self.sense
-        else:
-            return not self.sense
-    def setValue(self, bool1):
-        if self.sense:
-            self.setChecked( bool1)
-        else:
-            self.setChecked( not bool1)
-    def initValue(self):
-        self.setValue(self.default)
-    pass
-        
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
 
 # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
@@ -132,22 +66,13 @@ def do_what_MainWindowUI_should_do(self):
     self.extrudeDashboard.addSeparator()
 
     # make it convenient to revise nested vbox, hbox structures for the UI
-    where = [self.extrudeDashboard]
-    def parent_now():
-        "put things inside this instead of self.extrudeDashboard"
-        return where[-1]
-    def begin(thing): # start a QVBox or QHBox
-        box = thing(parent_now())
-        where.append(box)
-        return 1 # so you can say "if begin(): ..." if you want to use python indentation
-    def end():
-        where.pop()
+    from widgets import widget_filler
+    wf = widget_filler( self.extrudeDashboard, label_prefix = "extrude_label_", textfilter = self._MainWindow__tr )
+    parent_now = wf.parent
+    begin = wf.begin
+    end = wf.end
+    insertlabel = wf.label
     
-    def insertlabel(text):
-        label = QLabel(parent_now(), "extrude_label_"+text.strip()) # [parent, name
-        label.setText(self._MainWindow__tr(text)) # initial text
-        return label # caller doesn't usually need this, except to vary the text
-
     self.extrudeSpinBox_circle_n = None # if not set later
     
     if show_revolve_ui_features:
@@ -1321,6 +1246,7 @@ class extrudeMode(basicMode):
     _last_status_now = ""
     _last_status_counter = 0
     def status_msg(self, text, suppress_rapidfire_repeats = None, suppress_print = 0):
+        ###@@@ this needs merging into the new set_status_text method. [bruce 041223]
         import time
         now = time.asctime()
         if suppress_print:
