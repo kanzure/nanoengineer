@@ -603,8 +603,10 @@ class extrudeMode(basicMode):
 
         import __main__
         __main__.mode = self
-        print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
-        ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
+        import platform
+        if platform.atom_debug:
+            print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
+            ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
 
     singlet_color = {}
     def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol.colorfunc
