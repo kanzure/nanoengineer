@@ -1037,10 +1037,16 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         p = QPainter(pixmap)
 
-        colorgroup = listview.palette().active()
-        hicolor = QColor (colorgroup.highlight ())
+        # Determine the pixmap's background and text color
+        if sys.platform == 'darwin': # Mac
+            hicolor = Qt.white
+            textcolor = Qt.black
+        else: # Window and Linux
+            colorgroup = listview.palette().active()
+            hicolor = QColor (colorgroup.highlight())
+            textcolor = QColor (colorgroup.highlightedText())
+        
         pixmap.fill(hicolor) # Pixmap backgroup color
-        textcolor = QColor (colorgroup.highlightedText ())
         p.setPen(textcolor) # Pixmap text draw color
 
         try:
@@ -1091,22 +1097,29 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.paint_node( p, drag_type, nodes[-1])
         #e also put in the same text we'd put into the statusbar
         text = self.get_whatting_n_items_text(drag_type, nodes)
-        w,h = 160,24 # bounding rect (hope ok if overflows pixmap, tho i think this one doesn't)
+        item = self.nodeItem(nodes[0]) # Grab a node to find out it's height
+        h = item.height()
+        w = self.get_drag_pixmap_width(nodes)
         flags = 0 # guess
-        p.drawText(26,4,w,h,flags,text) # in this drawText version, we're supplying bounding rect, not baseline.
+        p.drawText(4,4,w,h,flags,text) # in this drawText version, we're supplying bounding rect, not baseline.
             #e want smaller font, italic, colored...
         return
 
     def get_drag_pixmap_width(self, nodes):
-        painterTemp = QPainter(self, True)
-        fontmetrics = painterTemp.fontMetrics()
-        w = 115
-        for node in nodes:
-            item = self.nodeItem(node)
-            cw = item.width(fontmetrics, self, 0)
-            if  cw > w: w = cw
-        painterTemp.end()
-        return min(164, w + 4)
+        pt = QPainter(self, True)
+        try:
+            fontmetrics = pt.fontMetrics()
+            w = pt.fontMetrics().width("Moving 99 items")
+            maxw = w * 1.5
+            for node in nodes:
+                item = self.nodeItem(node)
+                cw = item.width(fontmetrics, self, 0)
+                if  cw > w: w = cw
+            pt.end()
+        except:
+            w = 160
+            print "Exception in get_drag_pixmap_width: w = ", w
+        return min(maxw, w + 4)
 
     def get_whatting_n_items_text(self, drag_type, nodes):
         "return something like 'moving 1 item' or 'copying 5 items'"
