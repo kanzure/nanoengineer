@@ -911,7 +911,11 @@ class basicMode(anyMode):
             self.w.update()
         self.status_msg(didwhat)
         return
-        
+
+    def surfset(self, num):
+        "stub for setting diamond surface orientation in cookie mode"
+        pass
+    
     pass # end of class basicMode
 
 # ===

@@ -33,16 +33,26 @@ class cookieMode(basicMode):
 
         self.cookieQuat = None
 
+        self.thickness = -1
+        self.whichsurf=0
+
         self.Rubber = None
         self.o.snap2trackball()
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
-        self.o.setCursor(self.w.CookieCursor)
+        self.o.setCursor(self.w.CookieAddCursor)
         self.w.toolsCookieCutAction.setOn(1) # toggle on the Cookie Cutter icon
+        self.w.ccLayerThicknessSpinBox.setValue(2)
+        self.setthick(2)
         self.w.cookieCutterDashboard.show()
-
-    # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
+        self.w.connect(self.w.ccLayerThicknessSpinBox,SIGNAL("valueChanged(int)"),
+                       self.setthick)
+        
+        self.w.connect(self.w.ccLayerThicknessLineEdit,SIGNAL("textChanged( const QString &)"),
+                       self.setthicktext)
+# methods related to exiting this mode [bruce 040922 made these
+# from old Done and Flush methods]
 
     def haveNontrivialState(self):
         return self.o.shape != None # note that this is stored in the glpane, but not in its assembly.
@@ -85,29 +95,29 @@ class cookieMode(basicMode):
     def keyPress(self,key):
         basicMode.keyPress(self, key)
         if key == Qt.Key_Shift:
-            self.o.setCursor(self.w.CookieAddCursor)
+            self.o.setCursor(self.w.CookieCursor)
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.CookieSubtractCursor)
                                 
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
         if key == Qt.Key_Shift or key == Qt.Key_Control:
-            self.o.setCursor(self.w.CookieCursor)
+            self.o.setCursor(self.w.CookieAddCursor)
     
     def rightShiftDown(self, event):
-            basicMode.rightShiftDown(self, event)
-            self.o.setCursor(self.w.CookieCursor)
+        basicMode.rightShiftDown(self, event)
+        self.o.setCursor(self.w.CookieAddCursor)
             
     def rightCntlDown(self, event):          
-            basicMode.rightCntlDown(self, event)
-            self.o.setCursor(self.w.CookieCursor)
+        basicMode.rightCntlDown(self, event)
+        self.o.setCursor(self.w.CookieAddCursor)
     
     def leftDown(self, event):
 #        self.shape.curves
-        self.StartDraw(event, 2) # new selection (replace)
+        self.StartDraw(event, 1) # add to selection
     
     def leftShiftDown(self, event):
-        self.StartDraw(event, 1) # add to selection
+        self.StartDraw(event, 2) # new selection (replace)
 
     def leftCntlDown(self, event):
         self.StartDraw(event, 0) # subtract from selection
@@ -182,10 +192,14 @@ class cookieMode(basicMode):
                 self.Rubber = True
         
                 return
-            else: # Check if Rubber selection area is too small, like just a double click, don't do anything. Huaicai 10/16/04
-                totalLen = reduce(lambda x, y: x+y, map(lambda m: vlen(m[0]-m[1]),  
-                                                                                        zip(self.sellist[:-1], self.sellist[1:])))
-                if totalLen/self.o.scale < 0.03: #No really sth selected, do nothing
+            else:
+                # Check if Rubber selection area is too small, like
+                # just a double click, don't do anything. Huaicai
+                # 10/16/04
+                totalLen = reduce(lambda x, y: x+y, map(lambda m: vlen(m[0]-m[1]),
+                                                        zip(self.sellist[:-1],
+                                                            self.sellist[1:])))
+                if totalLen/self.o.scale < 0.03: #No really selected, do nothing
                        self.Rubber = False
                        self.sellist = []
                        return
@@ -196,20 +210,19 @@ class cookieMode(basicMode):
         self.o.backlist += [p2]
         self.o.backlist += [self.o.backlist[0]]
         if not self.o.shape:
-            self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight,
-                               Slab(-self.o.pov, self.o.out, 7))
+            self.o.shape=shape(self.o.right, self.o.up, self.o.lineOfSight)
 
-        # This is a kludge, to get a new (replace) selection working - Mark and Huaicai [04-10-4]
-        if self.selSense == 2:
-            self.o.shape.curves = []
-            self.selSense = 1
-                
+        # took out kill-all-previous-curves code -- Josh
         eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
         
         if self.selLassRect:
-            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, self.selSense)
+            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov,
+                                  self.selSense,
+                                  slab=Slab(-self.o.pov, self.o.out,
+                                            self.thickness))
         else:
-            self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense)
+            self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense,
+                                  slab = Slab(-self.o.pov, self.o.out, self.thickness))
         self.sellist = []
 
         self.o.paintGL()
@@ -220,8 +233,9 @@ class cookieMode(basicMode):
         if self.cookieQuat:
             self.o.quat = Q(self.cookieQuat)
             self.o.paintGL()
-        else: self.o.snap2trackball()
-
+        else:
+            self.surfset(self.o.snap2trackball())
+            
     def bareMotion(self, e):
         if self.Rubber:
             p1, p2 = self.o.mousepoints(e)
@@ -263,40 +277,31 @@ class cookieMode(basicMode):
                                     ('Backup', self.Backup),
                                     None,
                                     ('Layer', self.Layer),
-                                    ('Thickness', self.Thickness),
                                     None,
-                                    ('Move', self.move),
                                     ('Copy', self.copy)])
         
-        self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
-                                    ('Copy', self.o.assy.copy),
-                                    ('Separate', self.o.assy.modifySeparate),
-                                    ('Bond', self.o.assy.Bond),
-                                    ('Unbond', self.o.assy.Unbond),
-                                    ('Stretch', self.o.assy.Stretch)])
+        self.Menu2 = self.Menu1
         
-        self.Menu3 = self.makemenu([('Default', self.w.dispDefault),
-                                    ('Lines', self.w.dispLines),
-                                    ('CPK', self.w.dispCPK),
-                                    ('Tubes', self.w.dispTubes),
-                                    ('VdW', self.w.dispVdW),
-                                    None,
-                                    ('Invisible', self.w.dispInvis),
-                                    None,
-                                    ('Color', self.w.dispObjectColor)])
+        self.Menu3 = self.Menu1
 
     def copy(self):
-        print 'NYI'
-
-    def move(self):
         print 'NYI'
 
     def Layer(self):
         if self.o.shape:
             self.o.pov -= self.o.shape.pushdown()
+
+    def surfset(self, num):
+        self.whichsurf = num
+        self.setthick(self.w.ccLayerThicknessSpinBox.value())
+
+    def setthick(self, num):
+        self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)
+        self.w.ccLayerThicknessLineEdit.setText(`self.thickness`)
+
+    def setthicktext(self, text):
+        try: 
+            self.thickness = float(str(text))
+        except: pass
         
-
-    def Thickness(self):
-        print 'NYI'
-
     pass # end of class cookieMode

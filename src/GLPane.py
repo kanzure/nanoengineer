@@ -64,7 +64,7 @@ pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),pi), Q(V(0,1,0),-pi2),
 quats100 = []
 for q in pquats:
     for q1 in xquats:
-        quats100 += [q+q1]
+        quats100 += [(q+q1, 0)]
 
 rq = Q(V(0,1,0),pi2)
 pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
@@ -77,7 +77,7 @@ pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
 quats110 = []
 for q in pquats:
     for q1 in xquats:
-        quats110 += [q+q1]
+        quats110 += [(q+q1, 1)]
 
 cq = Q(V(1,0,0),0.615479708)
 xquats = [Q(1,0,0,0), Q(V(0,0,1),pi3), Q(V(0,0,1),2*pi3), Q(V(0,0,1),pi),
@@ -88,7 +88,7 @@ pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
 quats111 = []
 for q in pquats:
     for q1 in xquats:
-        quats111 += [q+cq+q1, q-cq+q1]
+        quats111 += [(q+cq+q1, 2), (q-cq+q1, 2)]
 
 allQuats = quats100 + quats110 + quats111
 
@@ -601,18 +601,21 @@ class GLPane(QGLWidget, modeMixin):
         self.snapquat(quats111)
 
     def snap2trackball(self):
-        self.snapquat(allQuats)
+        return self.snapquat(allQuats)
 
     def snapquat(self, qlist):
         q1 = self.quat
         a=1.1
-        for q2 in qlist:
+        what = 0
+        for q2,n in qlist:
             a2 = vlen((q2-q1).axis)
             if a2 < a:
                 a = a2
                 q = q2
+                what = n
         self.quat = Q(q)
         self.paintGL()
+        return what
 
     def setDisplay(self, disp):
         for mol in self.assy.molecules:

@@ -527,13 +527,29 @@ class assembly:
         for m in self.selmols[1:]:
             mol.merge(m)
 
+
+    def align(self):
+        if len(self.selmols) < 2: return
+        ax = V(0,0,0)
+        for m in self.selmols:
+            ax += m.getaxis()
+        ax = norm(ax)
+        for m in self.selmols:
+            m.rot(Q(m.getaxis(),ax))
+        self.o.paintGL()
+                  
+
     #############
 
     def __str__(self):
         return "<Assembly of " + self.filename + ">"
 
     def computeBoundingBox(self):
-        """"Compute the bounding box for the assembly. This should be called whenever the geomety model has been changed, like new parts added, parts/atoms deleted, parts moved/rotated(not view move/rotation), etc. """ 
+        """Compute the bounding box for the assembly. This should be
+        called whenever the geomety model has been changed, like new
+        parts added, parts/atoms deleted, parts moved/rotated(not view
+        move/rotation), etc."""
+        
         self.bbox = BBox()
         for mol in self.molecules:
               self.bbox.merge(mol.bbox)

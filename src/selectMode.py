@@ -100,7 +100,7 @@ class selectMode(basicMode):
             if selSense == 0: self.o.assy.unpick(p1,norm(p2-p1))
             if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
             if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
-            self.w.update() # josh 10/5
+            self.w.update()
             return
 
         self.sellist += [p1]
@@ -112,17 +112,16 @@ class selectMode(basicMode):
         
         if self.selLassRect:
             self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,
-                             (not self.o.ortho) and eyeball)
+                             eye=(not self.o.ortho) and eyeball)
         else:
             self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
-                             (not self.o.ortho) and eyeball)
+                             eye=(not self.o.ortho) and eyeball)
         
         self.o.shape.select(self.o.assy)
         self.o.shape = None
 
         self.sellist = []
 
-        #self.o.paintGL()  #Comment this out by Huaicai 10/13, usinggg w.update instead
         self.w.update()
 
     def leftDouble(self, event):

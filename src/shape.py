@@ -90,6 +90,9 @@ class Slab:
         d = dot(point-self.point, self.normal)
         return d>=0 and d<= self.thickness
 
+    def __str__(self):
+        return '<slab of '+`self.thickness`+' at '+`self.point`+'>'
+
 
 def fill(mat,p,dir):
     """ Fill a curve drawn in matrix mat in 1's on 0's with 1's.
@@ -121,7 +124,7 @@ class curve:
     """Represents a single closed curve in 3-space, projected to a
     specified plane.
     """
-    def __init__(self, shp, ptlist, point, logic, eyeball=None):
+    def __init__(self, shp, ptlist, point, logic, **xx):
         """ptlist is a list of 3d points describing a selection.
         point is the center of view, and normal gives the direction
         of the line of light. Form a structure for telling whether
@@ -170,7 +173,7 @@ class curve:
         # only used for debugging
         self.z = self.normal
         # how thick in what direction
-        self.slab = shp.slab
+        self.slab = xx.get('slab',None)
         # boolean raster of filled-in shape
         self.matrix = mat1
         # where matrix[0,0] is in x,y space
@@ -180,6 +183,7 @@ class curve:
         self.bboxlo = bboxlo
         # 3d bounding box
         if self.slab: self.bbox = BBox(V(bboxlo, bboxhi), V(x,y), self.slab)
+        else: self.bbox = BBox()
         # 2-d points of the curve
         self.points=ptlist
         # origin to which x and y are relative
@@ -187,7 +191,7 @@ class curve:
         # cookie front and back, measured along normal
         self.logic = logic
         # for projecting if not in ortho mode
-        self.eyeball = eyeball
+        self.eyeball = xx.get('eye',None)
 
     def xdraw(self):
         """draw the actual grid of the matrix in 3-space.
@@ -216,7 +220,7 @@ class curve:
         
             
         # for debugging
-        self.bbox.draw()
+        #self.bbox.draw()
         #if self.eyeball:
         #    for p in self.points:
         #        drawline(red,self.eyeball,p)
@@ -241,7 +245,7 @@ class curve:
         return not self.matrix[ij]
 
 class rectangle:
-    def __init__(self, shp, pt1, pt2, origin, logic, eye=None):
+    def __init__(self, shp, pt1, pt2, origin, logic, **xx):
         self.point1 = pt1
         self.point2 = pt2
         self.logic = logic
@@ -251,7 +255,7 @@ class rectangle:
         self.normal = shp.normal
         self.org = origin+0.0
 
-        self.slab = shp.slab
+        self.slab = xx.get('slab',None)
 
         pt2d1 = V(dot(pt1,self.right), dot(pt1, self.up))
         pt2d2 = V(dot(pt2,self.right), dot(pt2, self.up))
@@ -262,9 +266,10 @@ class rectangle:
         # 3d bounding box
         if self.slab: self.bbox = BBox(V(self.bboxlo, self.bboxhi),
                                        V(self.right, self.up), self.slab)
+        else: self.bbox = BBox()
 
         # for projecting if not in ortho mode
-        self.eyeball = eye
+        self.eyeball = xx.get('eye',None)
 
     def isin(self, pt):
 
@@ -291,11 +296,10 @@ class shape:
     """Represents a sequence of curves, each of which may be
     additive or subtractive.
     """
-    def __init__(self, right, up, normal, slab=None):
+    def __init__(self, right, up, normal):
         """A shape is a set of curves defining the whole cutout.
         """
         self.curves = []
-        self.center= V(0,0,0)
         self.right = right
         self.up = up
         self.normal = normal
@@ -305,36 +309,38 @@ class shape:
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0
-        self.slab = slab
         self.bbox = BBox()
 
     def pushdown(self):
-        if not self.slab: return V(0,0,0)
-        th = self.slab.thickness
-        n = self.slab.normal
+        if not self.curves: return V(0,0,0)
+        p = self.curves[-1].org
+        th = self.curves[-1].slab.thickness
+        n = self.curves[-1].slab.normal
+        for c in self.curves[:-1]:
+            if Veq(p,c.org):
+                if c.slab.thickness > th:
+                    th = c.slab.thickness
         mov = th * n
-        self.center += mov/2.0
-        self.slab = Slab(self.slab.point+mov, n, th)
         return mov
 
-    def pickline(self, ptlist, point, logic, eye=None):
+    def pickline(self, ptlist, point, logic, **xx):
         """Add a new curve to the shape.
         Args define the curve (see curve) and the logic operator
         for the curve telling whether it adds or removes material.
         """
         self.havelist = 0
-        c = curve(self, ptlist, point, logic, eye)
-        if self.slab: self.bbox.merge(c.bbox)
+        c = curve(self, ptlist, point, logic, **xx)
+        self.bbox.merge(c.bbox)
         self.curves += [c]
 
-    def pickrect(self, pt1, pt2, org, logic, eye=None):
+    def pickrect(self, pt1, pt2, org, logic, eye=None, slab=None):
         """Add a new retangle to the shape.
         Args define the rectangle and the logic operator
         for the curve telling whether it adds or removes material.
         """
         self.havelist = 0
-        c = rectangle(self, pt1, pt2, org, logic, eye)
-        if self.slab: self.bbox.merge(c.bbox)
+        c = rectangle(self, pt1, pt2, org, logic, eye=eye, slab=slab)
+        self.bbox.merge(c.bbox)
         self.curves += [c]
             
     def isin(self, pt):
@@ -357,7 +363,7 @@ class shape:
 
         Find  binding box for the curve and check the position each
         carbon atom in a diamond lattice would occupy for being 'in'
-        the shape.  Spheres representing the atoms thus selected are
+        the shape. A tube representation of the atoms thus selected is
         saved as a GL call list for fast drawing.
         
         """
@@ -370,7 +376,7 @@ class shape:
         glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
         try:
             bblo, bbhi = self.bbox.data[1], self.bbox.data[0]
-            self.bbox.draw()
+            # self.bbox.draw()
 
             griderator = genDiam(bblo, bbhi)
             pp=griderator.next()
@@ -468,4 +474,4 @@ class shape:
         self.havelist = 0
 
     def __str__(self):
-        return "<Shape at " + `self.center` + ">"
+        return "<Shape of " + `len(self.curves)` + ">"

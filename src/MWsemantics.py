@@ -560,14 +560,17 @@ class MWsemantics(MainWindow):
 
     # along one axis
     def orient100(self):
+        self.glpane.mode.surfset(0)
         self.glpane.snapquat100()
 
     # halfway between two axes
     def orient110(self):
+        self.glpane.mode.surfset(1)
         self.glpane.snapquat110()
 
     # equidistant from three axes
     def orient111(self):
+        self.glpane.mode.surfset(2)
         self.glpane.snapquat111()
 
     # lots of things ???
@@ -906,9 +909,8 @@ class MWsemantics(MainWindow):
         self.update()
 
     def toolsAlignToCommonAxis(self):
-        print "MWsemantics.modifyAlignToCommonAxis(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:", 
-             "This function is not implemented yet, coming soon...")        
+        self.assy.align()
+        self.update()
     
     # create bonds where reasonable between selected and unselected
     def modifyEdgeBond(self):

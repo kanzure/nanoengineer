@@ -361,4 +361,8 @@ def cat(a,b):
         return concatenate((reshape(a,(1,)+r1), b))
     else: return concatenate((a,reshape(b,(1,)+r2)))
 
+def Veq(v1, v2):
+    "tells if v1 is all equal to v2"
+    return logical_and.reduce(v1==v2)
+
 __author__ = "Josh"
