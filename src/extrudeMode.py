@@ -472,7 +472,7 @@ class extrudeMode(basicMode):
         pass
         
     def Enter(self):
-        self.status_msg("entering %s..." % self.msg_modename)
+        self.status_msg("preparing to enter %s..." % self.msg_modename)
           # this msg won't last long enough to be seen, if all goes well
         self.clear() ##e see comment there
         self.initial_down = self.o.down
@@ -903,8 +903,14 @@ class extrudeMode(basicMode):
         sings1 = sings2 = self.basemol_singlets
         transient_id = (self, self.__class__.recompute_for_new_unit, "scanning all pairs")
         for i1 in range(len(sings1)):
-            self.w.history.message("scanning open bond pairs... %d/%d done" % (i1, len(sings1)) ,
-                             transient_id = transient_id, repaint = 1
+            qApp.processEvents() # [bruce 050114, copied from movie.py]
+                # Process queued events [enough to get statusbar msgs to show up]
+            if i1 % 10 == 0 or i1 < 10:
+                #bruce 050118 try only every 10th one, is it faster?
+                #e should processEvents be in here too??
+                ###e would be more sensible: compare real time passed...
+                self.w.history.message("scanning open bond pairs... %d/%d done" % (i1, len(sings1)) ,
+                             transient_id = transient_id
                             ) # this is our slowness warning
             ##e should correct that message for effect of i2 < i1 optim, by reporting better numbers...
             for i2 in range(len(sings2)):
