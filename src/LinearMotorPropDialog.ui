@@ -8,17 +8,9 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>599</width>
-            <height>544</height>
+            <width>338</width>
+            <height>327</height>
         </rect>
-    </property>
-    <property name="sizePolicy">
-        <sizepolicy>
-            <hsizetype>5</hsizetype>
-            <vsizetype>5</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-        </sizepolicy>
     </property>
     <property name="caption">
         <string>Linear Motor Properties</string>
@@ -33,669 +25,270 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <property name="spacing">
-            <number>7</number>
-        </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout52</cstring>
+                <cstring>layout37</cstring>
             </property>
-            <hbox>
+            <grid>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLayoutWidget">
+                <widget class="QLabel" row="0" column="0">
                     <property name="name">
-                        <cstring>layout50</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>nameTextLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Name:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit">
-                            <property name="name">
-                                <cstring>nameLineEdit</cstring>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                            <property name="readOnly">
-                                <bool>false</bool>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout51</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>colorTextLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Color:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>colorPixmapLabel</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>5</vsizetype>
-                                    <horstretch>1</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>30</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
-                            <property name="paletteBackgroundColor">
-                                <color>
-                                    <red>175</red>
-                                    <green>175</green>
-                                    <blue>175</blue>
-                                </color>
-                            </property>
-                            <property name="scaledContents">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>colorSelectorPushButton</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>true</bool>
-                            </property>
-                            <property name="text">
-                                <string>...</string>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout55</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout53</cstring>
-                    </property>
-                    <grid>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLineEdit" row="0" column="1" rowspan="1" colspan="2">
-                            <property name="name">
-                                <cstring>forceLineEdit</cstring>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="1" column="0">
-                            <property name="name">
-                                <cstring>stiffnessTextLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Stiffness:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>lineEdit9_2</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="2">
-                            <property name="name">
-                                <cstring>stiffnessLineEdit</cstring>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="1" column="3">
-                            <property name="name">
-                                <cstring>textLabel3_4_2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>N/m</string>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox" row="2" column="1">
-                            <property name="name">
-                                <cstring>atomsComboBox</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="0" column="3">
-                            <property name="name">
-                                <cstring>textLabel3_4</cstring>
-                            </property>
-                            <property name="text">
-                                <string>pN</string>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="2" column="0">
-                            <property name="name">
-                                <cstring>atomsTextLabel</cstring>
-                            </property>
-                            <property name="mouseTracking">
-                                <bool>false</bool>
-                            </property>
-                            <property name="text">
-                                <string>Atoms:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>comboBox2</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="0" column="0">
-                            <property name="name">
-                                <cstring>forceTextLabel</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="text">
-                                <string>Force:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>lineEdit9</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="2" column="2">
-                            <property name="name">
-                                <cstring>textLabel3_4_2_2</cstring>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                        </widget>
-                    </grid>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout54</cstring>
-                    </property>
-                    <grid>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLineEdit" row="0" column="1">
-                            <property name="name">
-                                <cstring>lengthLineEdit</cstring>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="0" column="0">
-                            <property name="name">
-                                <cstring>textLabel1</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Motor Length:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="2" column="2">
-                            <property name="name">
-                                <cstring>textLabel3_3</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Angstroms</string>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="1" column="2">
-                            <property name="name">
-                                <cstring>textLabel3_2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Angstroms</string>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit" row="1" column="1">
-                            <property name="name">
-                                <cstring>widthLineEdit</cstring>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="2" column="0">
-                            <property name="name">
-                                <cstring>textLabel1_2_2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Spoke Radius:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="1" column="0">
-                            <property name="name">
-                                <cstring>textLabel1_2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Motor Width:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="0" column="2">
-                            <property name="name">
-                                <cstring>textLabel3</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Angstroms</string>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit" row="2" column="1">
-                            <property name="name">
-                                <cstring>sradiusLineEdit</cstring>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                        </widget>
-                    </grid>
-                </widget>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout52</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="spacing">
-                    <number>14</number>
-                </property>
-                <widget class="QGroupBox">
-                    <property name="name">
-                        <cstring>groupBox3_3</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>115</height>
-                        </size>
-                    </property>
-                    <property name="title">
-                        <string>Center Coordinates</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter</set>
-                    </property>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>cxLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>83</x>
-                                <y>41</y>
-                                <width>130</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignLeft</set>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>cyLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>80</x>
-                                <y>90</y>
-                                <width>130</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignLeft</set>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>czLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>80</x>
-                                <y>140</y>
-                                <width>130</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignLeft</set>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_5</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>51</x>
-                                <y>41</y>
-                                <width>16</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>X:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_3_3</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>51</x>
-                                <y>141</y>
-                                <width>16</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Z:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3_3</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_2_3</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>51</x>
-                                <y>91</y>
-                                <width>16</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Y:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3_2</cstring>
-                        </property>
-                    </widget>
-                </widget>
-                <widget class="QGroupBox">
-                    <property name="name">
-                        <cstring>groupBox3_2_2</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>115</height>
-                        </size>
-                    </property>
-                    <property name="title">
-                        <string>Axis Vector</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter</set>
-                    </property>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>axLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>83</x>
-                                <y>41</y>
-                                <width>140</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignLeft</set>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>ayLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>83</x>
-                                <y>91</y>
-                                <width>140</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignLeft</set>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>azLineEdit</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>80</x>
-                                <y>140</y>
-                                <width>140</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignLeft</set>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_2_2_2</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>51</x>
-                                <y>91</y>
-                                <width>16</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Y:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3_2</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_3_2_2</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>51</x>
-                                <y>141</y>
-                                <width>16</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Z:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3_3</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabel1_4_4_2</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>51</x>
-                                <y>41</y>
-                                <width>16</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>X:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>lineEdit9_3</cstring>
-                        </property>
-                    </widget>
-                </widget>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout48</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>5</number>
-                </property>
-                <property name="spacing">
-                    <number>36</number>
-                </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>moveCenterPushButton</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
+                        <cstring>nameTextLabel</cstring>
                     </property>
                     <property name="text">
-                        <string>Move Center</string>
+                        <string>Name:</string>
                     </property>
-                    <property name="accel">
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="2" column="1">
+                    <property name="name">
+                        <cstring>stiffnessLineEdit</cstring>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignLeft</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="0" column="1">
+                    <property name="name">
+                        <cstring>nameLineEdit</cstring>
+                    </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
+                    <property name="text">
                         <string></string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignLeft</set>
+                    </property>
+                    <property name="readOnly">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="2">
+                    <property name="name">
+                        <cstring>textLabel2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>N/m</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="2">
+                    <property name="name">
+                        <cstring>textLabel1_4</cstring>
+                    </property>
+                    <property name="text">
+                        <string>pN</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>textLabel1</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Force:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>lineEdit9</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="0">
+                    <property name="name">
+                        <cstring>textLabel1_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Stiffness</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>lineEdit9_2</cstring>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="1" column="1">
+                    <property name="name">
+                        <cstring>forceLineEdit</cstring>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignLeft</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="2">
+                    <property name="name">
+                        <cstring>textLabel4</cstring>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout38</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLineEdit" row="2" column="1">
+                    <property name="name">
+                        <cstring>sradiusLineEdit</cstring>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignLeft</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="2">
+                    <property name="name">
+                        <cstring>textLabel3_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Angstroms</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="1" column="1">
+                    <property name="name">
+                        <cstring>widthLineEdit</cstring>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignLeft</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="0">
+                    <property name="name">
+                        <cstring>textLabel1_2_2_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Spoke Radius:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="0" column="1">
+                    <property name="name">
+                        <cstring>lengthLineEdit</cstring>
+                    </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignLeft</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>textLabel1_2_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Motor Width:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="2">
+                    <property name="name">
+                        <cstring>textLabel3_3</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Angstroms</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="2">
+                    <property name="name">
+                        <cstring>textLabel3</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Angstroms</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>textLabel1_3</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Motor Length:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout39</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>colorTextLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Color:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>colorPixmapLabel</cstring>
+                    </property>
+                    <property name="paletteBackgroundColor">
+                        <color>
+                            <red>175</red>
+                            <green>175</green>
+                            <blue>175</blue>
+                        </color>
+                    </property>
+                    <property name="scaledContents">
+                        <bool>true</bool>
                     </property>
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>alignAxiPushButtons</cstring>
+                        <cstring>colorSelectorPushButton</cstring>
                     </property>
                     <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                     </property>
                     <property name="text">
-                        <string>Align Axis</string>
-                    </property>
-                    <property name="accel">
-                        <string></string>
+                        <string>...</string>
                     </property>
                 </widget>
             </hbox>
         </widget>
-        <spacer>
-            <property name="name">
-                <cstring>spacer10</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>40</height>
-                </size>
-            </property>
-        </spacer>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout49</cstring>
+                <cstring>layout11</cstring>
             </property>
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>4</number>
-                </property>
-                <property name="spacing">
-                    <number>31</number>
                 </property>
                 <widget class="QPushButton">
                     <property name="name">
@@ -754,21 +347,21 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="782">789cad90bd0ac2301485f73e45e8dd8ad81f1c0ae223288e8238dca64dda4105ad8388ef6e4e5aabd8d422784e03f9f84872691888cd7a2982d03bd75c5752c8924f22c82ffbfd75bb5bdc3c3f4984f9e258c4fec4f3a7428ad5f150604f664f910db002728a0225308b5060693145811a282314a82c320a64603e4381854585027360a15060065436764267fe6688070dd487a12619f58cb4719d197be7359bb9b9b75a939bfdfb2a8c6a0c23aa8bd6fa69ca26b24b45dd3bbd8cfe37a601c33464cc7f6a2f779c6946fae19d2fb339cd7dee3d00fe5b9e89</data>
+        <data format="XPM.GZ" length="797">789cad90510b82301485dff72b867b93c8253e08d14f287a0ca287eb74d3c082b28788fe7b3bd32c5293a07336b81f87ed5e6ee0f3cd7ac9fd809d2baa0ac5554e27eea797b2bc6e778b1bf3c290db33b3c79b306fca155f1d0f196ab2b588240c1440e904dc0329868105309130307718c340035412066a87040333601ac1c0d4a186810a9869189800b5931bb8577f4b040d26883e12512b119d849cfade8cf579cd667feedc2651b67ebfa98dea2483742b63cc33c96b15adf6a2edd3d1e8de480c24248612bba7e6f39e37f5c27ee8f365b6dee43e670f335fa194</data>
     </image>
 </images>
 <connections>
-    <connection>
-        <sender>okPushButton</sender>
-        <signal>clicked()</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>accept()</slot>
-    </connection>
     <connection>
         <sender>cancelPushButton</sender>
         <signal>clicked()</signal>
         <receiver>LinearMotorPropDialog</receiver>
         <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>okPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>LinearMotorPropDialog</receiver>
+        <slot>accept()</slot>
     </connection>
     <connection>
         <sender>applyPushButton</sender>
@@ -789,46 +382,10 @@
         <slot>propertyChanged()</slot>
     </connection>
     <connection>
-        <sender>axLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>propertyChanged()</slot>
-    </connection>
-    <connection>
-        <sender>ayLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>propertyChanged()</slot>
-    </connection>
-    <connection>
-        <sender>azLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>propertyChanged()</slot>
-    </connection>
-    <connection>
-        <sender>cxLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>propertyChanged()</slot>
-    </connection>
-    <connection>
-        <sender>cyLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>propertyChanged()</slot>
-    </connection>
-    <connection>
-        <sender>czLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>propertyChanged()</slot>
-    </connection>
-    <connection>
         <sender>colorSelectorPushButton</sender>
         <signal>clicked()</signal>
         <receiver>LinearMotorPropDialog</receiver>
-        <slot>changeLinearMotorColor()</slot>
+        <slot>changeColor()</slot>
     </connection>
     <connection>
         <sender>nameLineEdit</sender>
@@ -840,12 +397,13 @@
 <tabstops>
     <tabstop>forceLineEdit</tabstop>
     <tabstop>stiffnessLineEdit</tabstop>
-    <tabstop>atomsComboBox</tabstop>
+    <tabstop>okPushButton</tabstop>
+    <tabstop>cancelPushButton</tabstop>
 </tabstops>
 <slots>
     <slot>applyButtonPressed()</slot>
     <slot>propertyChanged()</slot>
-    <slot>changeLinearMotorColor()</slot>
+    <slot>changeColor()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
