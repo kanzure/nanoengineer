@@ -766,6 +766,8 @@ class MWsemantics(MainWindow):
         global helpwindow
         if not helpwindow: helpwindow = help.Help()
         helpwindow.show()
+        #assistant  = QAssistantClient('', self)
+        #assistant.showPage('/home/huaicai/atom/cad/doc/html/index.html')
 
     def helpAssistant(self):
         # bruce 041118 moved this into assistant.py so I could merge

@@ -22,7 +22,6 @@ class BBox:
     def __init__(self, point1=None, point2=None, slab = None):
         if slab:
             # convert from a 2d box and axes
-
             x=dot(A(point1),A(point2))
             dx = subtract.reduce(x)
             oc=x[1]+V(point2[0]*dot(dx,point2[0]),point2[1]*dot(dx,point2[1]))

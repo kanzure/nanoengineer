@@ -5,14 +5,16 @@ from os import *
 class AssistantWindow(QWidget):
     def __init__(self,home_,_path,parent=None,name=None,fl=0):
         QWidget.__init__(self,parent,name,fl)
-
+  
         if name == None:
             self.setName("AssistantWindow")
         
-        self.assistant = QAssistantClient("C:/Qt/3.3.3/bin/.",None,None) # Need to ask Bruce...
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        #self.assistant = QAssistantClient("C:/Qt/3.3.3/bin/.",None,None) # Need to ask Bruce...
+        self.assistant = QAssistantClient(filePath + "/../bin", self)
         list = QStringList()
         list.append("-profile")
-        list.append("../doc/html/ne1assistant.adp")
+        list.append(filePath + "/../doc/html/ne1assistant.adp")
         self.assistant.setArguments( list )
         self.connect( self.assistant, SIGNAL("error(const QString&)"),self.showAssistantErrors)
             
