@@ -701,30 +701,38 @@ class MWsemantics(MainWindow):
         by holding down the left button and dragging the mouse to zoom 
         into a specific area of the model.
         """
-        self.glpane.prevMode= self.glpane.mode.modename
-        self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+        # we never want these modes (ZOOM, PAN, ROTATE) to be set to "prevMode". 
+        if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
+            self.glpane.prevMode = self.glpane.mode.modename
+            self.glpane.prevModeColor = self.glpane.mode.backgroundColor
 
         self.glpane.setMode('ZOOM')
+        
+        # This should be placed in zoomMode.Enter or init_gui, but it always appears 
+        # before the green "Entering Mode: Zoom" msg.  So I put it here.  Mark 050130
+        self.history.message("You may hit the Esc key to exit Zoom Tool.")
 
     def panTool(self):
         """Pan Tool allows X-Y panning using the left mouse button.
         """
-#        self.history.message("Pan Tool not implemented yet.")
-        self.glpane.prevMode= self.glpane.mode.modename
-        self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+        # we never want these modes (ZOOM, PAN, ROTATE) to be set to "prevMode". 
+        if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
+            self.glpane.prevMode = self.glpane.mode.modename
+            self.glpane.prevModeColor = self.glpane.mode.backgroundColor
 
         self.glpane.setMode('PAN')
-        self.history.message("Hit the Esc key to exit Pan Tool.")
+        self.history.message("You may hit the Esc key to exit Pan Tool.")
 
     def rotateTool(self):
         """Rotate Tool allows free rotation using the left mouse button.
         """
-#        self.history.message("Rotate Tool not implemented yet.")
-        self.glpane.prevMode= self.glpane.mode.modename
-        self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+        # we never want these modes (ZOOM, PAN, ROTATE) to be set to "prevMode". 
+        if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
+            self.glpane.prevMode = self.glpane.mode.modename
+            self.glpane.prevModeColor = self.glpane.mode.backgroundColor
 
         self.glpane.setMode('ROTATE')
-        self.history.message("Hit the Esc key to exit Rotate Tool.")
+        self.history.message("You may hit the Esc key to exit Rotate Tool.")
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
