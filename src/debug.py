@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 
 '''
 debug.py -- debugging functions
@@ -191,5 +191,25 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
         print "run py code: cancelled"
     return
 
-    
+# ===
+
+def overridden_attrs( class1, instance1 ): #bruce 050108
+    "return a list of the attrs of class1 which are overridden by instance1"
+    # probably works for class1, subclass1 too [untested]
+    res = []
+    for attr in dir(class1):
+        ca = getattr(class1, attr)
+        ia = getattr(instance1, attr)
+        if ca != ia:
+            try:
+                # is ca an unbound instance method, and ia its bound version for instance1?
+                if ia.im_func == ca.im_func:
+                    # (approximate test; could also verify the types and the bound object in ia #e)
+                    # (note: im_func seems to work for both unbound and bound methods; #k py docs)
+                    continue
+            except AttributeError:
+                pass
+            res.append(attr)
+    return res
+
 # end

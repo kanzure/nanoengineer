@@ -1424,10 +1424,29 @@ class extrudeMode(basicMode):
         self.__old_ptype = None
         self.singlet_color = {}
         #e lots more ivars too
-##        # experiment: need to not do this for instance methods; will the im_func attr (same_method, modes.py) help?? #####
-##        for attr in dir(self.__class__):
-##            if getattr(self.__class__,attr) != getattr(self,attr):
-##                print "extrudeMode clear: do we need to add attr %r?" % attr
+        return
+
+    def print_overrides(self):
+        "[debugging method] print the class attributes overridden in this instance"
+        #e generalize and split that into debug module and use for win, mtree, glpane, history
+        # experiment: need to not do this for instance methods; will the im_func attr (same_method, modes.py) help?? #####
+        instance1 = self
+        class1 = self.__class__ # in general this might be a specific superclass instead
+        # for extrude, the only ones this prints that are not in clear() are:
+        # msg_modename, show_bond_offsets_handlesets
+        # this part gets moved to a new func in debug...
+        print "extrudeMode print_overrides..."
+        for attr in dir(class1):
+            ca = getattr(class1, attr)
+            ia = getattr(instance1, attr)
+            if ca != ia:
+                try:
+                    if ia.im_func == ca.im_func:
+                        # im_func seems to work for both unbound and bound methods
+                        continue
+                except AttributeError:
+                    pass
+                print "  attr %r is overridden" % attr
         return
     
     def Draw(self):
@@ -1456,7 +1475,8 @@ class extrudeMode(basicMode):
          ]
         
         self.debug_Menu_spec = [
-            ('debug: reload module', self.extrude_reload)
+            ('debug: reload module', self.extrude_reload),
+            ('debug: print overrides', self.print_overrides),
          ]
         
         self.Menu_spec_control = [
