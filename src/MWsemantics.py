@@ -258,7 +258,9 @@ class MWsemantics(MainWindow):
 
     def fileSetWorkDir(self):
 	""" Sets working directory (need dialogue window) """
-	modifyAlignToCommonAxismodifyAlignToCommonAxisQMessageBox.warning(self, "ATOM User Notice:",
+	## bruce 040928 removed the following typo by Mark -- does it need to be replaced by some intended change??
+	## modifyAlignToCommonAxismodifyAlignToCommonAxis
+	QMessageBox.warning(self, "ATOM User Notice:",
 	         "This function is not implemented yet, coming soon...")
 
     def __clear(self):
@@ -628,15 +630,18 @@ class MWsemantics(MainWindow):
     ###############################################################
 
     def toolsSelectAtoms(self):
-        self.modebarLabel.setText( "Mode: Select Atoms" )
+        ##self.modebarLabel.setText( "Mode: Select Atoms" ) # bruce 040927 let mode and/or assy control this
         self.assy.selectAtoms()
+        self.update_mode_status() # bruce 040927 (restored 040928 after cvs merge error)
 
     def toolsSelectMolecules(self):
-        self.modebarLabel.setText( "Mode: Select Molecules" )
+        ##self.modebarLabel.setText( "Mode: Select Molecules" )
         self.assy.selectParts()
+        self.update_mode_status() # bruce 040927 (restored 040928 after cvs merge error)
 
     def toolsMoveMolecule(self):
-        self.assy.o.setMode('MODIFY')
+        ## bruce 040928 suspects that the next line was part of the cvs merge error as well, so is changing it:
+        self.glpane.setMode('MODIFY') ## was: self.assy.o.setMode('MODIFY')
             
     # get into cookiecutter mode
     def toolsCookieCut(self):
