@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from OpenGL.GL import *
 import math
 from VQT import *

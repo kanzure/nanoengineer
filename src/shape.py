@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 """Handle the freehand curves for selection and cookie-cutting"""
 
 from Numeric import array, zeros, logical_or

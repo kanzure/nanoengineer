@@ -1,4 +1,5 @@
 #! /usr/bin/python
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
 """Atom
 

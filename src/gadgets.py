@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from VQT import *
 from drawer import drawsphere, drawcylinder, drawline, drawaxes
 from drawer import segstart, drawsegment, segend, drawwirecube

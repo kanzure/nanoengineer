@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 """Classes for elements, atoms, bonds, molecules
 
 """

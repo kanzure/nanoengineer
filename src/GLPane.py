@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
 from qtgl import *
 from OpenGL.GL import *
@@ -372,7 +373,6 @@ class GLPane(QGLWidget):
         if not self.initialised: return
 
         #start=time()
-        #self.win.buildTree()
      
         c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)

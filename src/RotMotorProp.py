@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
 from RotMotorPropDialog import *
 from VQT import V

@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 import qt
 from qt import QMainWindow, QPixmap, QWidget, QFrame, QPushButton
 from qt import QGroupBox, QComboBox, QAction, QMenuBar, QPopupMenu

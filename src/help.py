@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 """Help system: at the moment it just pops up a crib-note window"""
 
 __author__ = "Josh"

@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from Numeric import *
 from modes import *
 from VQT import *

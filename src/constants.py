@@ -1,3 +1,4 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 """Various constants used in more than one module"""
 
 leftButton = 1
