@@ -652,3 +652,26 @@ def makePolyList(v):
 
     assert type(segs) == type([]) #bruce 041119
     return segs
+    
+###Huaicai: test function    
+def drawDiamondCubic(color):
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    glBegin(GL_LINES)
+    for jj in range(5):
+         for kk in range(5):
+              glVertex3f(sp0, sp1*jj, sp1*kk)
+              glVertex3f(sp4, sp1*jj, sp1*kk)
+    
+    for jj in range(5):
+         for ii in range(5):
+              glVertex3f(sp1*ii, sp1*jj, sp0)
+              glVertex3f(sp1*ii, sp1*jj, sp4)
+    
+    for kk in range(5):
+         for ii in range(5):
+              glVertex3f(sp1*ii, sp0, sp1*kk)
+              glVertex3f(sp1*ii, sp4, sp1*kk)
+              
+    glEnd()
+    glEnable(GL_LIGHTING)    

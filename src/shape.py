@@ -360,187 +360,29 @@ class shape:
         """A shape is a set of curves defining the whole cutout.
         """
         self.curves = []
-        
+        self.bbox = BBox()
+
         # These arguments are required to be orthonormal:
         self.right = right
         self.up = up
         self.normal = normal
-        
-        self.bboxhi=None
-        self.bboxlo=None
-        self.picked=[]
-        # for caching the display as a GL call list
-        self.displist = glGenLists(1)
-        self.havelist = 0
-        self.bbox = BBox()
-
-    def pushdown(self):
-        if not self.curves: return V(0,0,0)
-        p = self.curves[-1].org
-        th = self.curves[-1].slab.thickness
-        n = self.curves[-1].slab.normal
-        for c in self.curves[:-1]:
-            if Veq(p,c.org):
-                if c.slab.thickness > th:
-                    th = c.slab.thickness
-        mov = th * n
-        return mov
-
+   
     def pickline(self, ptlist, origin, logic, **xx):
-        """Add a new curve to the shape.
-        Args define the curve (see curve) and the logic operator
-        for the curve telling whether it adds or removes material.
-        """
-        self.havelist = 0
-        c = curve(self, ptlist, origin, logic, **xx)
-        self.bbox.merge(c.bbox)
-        self.curves += [c]
-
-    def pickrect(self, pt1, pt2, org, logic, eye=None, slab=None):
-        """Add a new rectangle to the shape.
-        Args define the rectangle and the logic operator
-        for the curve telling whether it adds or removes material.
-        """
-        self.havelist = 0
-        c = rectangle(self, pt1, pt2, org, logic, eye=eye, slab=slab)
-        self.bbox.merge(c.bbox)
-        self.curves += [c]
+            """Add a new curve to the shape.
+            Args define the curve (see curve) and the logic operator
+            for the curve telling whether it adds or removes material.
+            """
+            c = curve(self, ptlist, origin, logic, **xx)
+            self.curves += [c]
+            self.bbox.merge(c.bbox)
+            return c
             
-    def isin(self, pt):
-        """returns 1 if pt is properly enclosed by the curves.
-        curve.logic = 1 ==> include if inside
-        curve.logic = 0 ==> remove if inside
-        curve.logic = 2 ==> remove if outside
-        """
-        # bruce 041214 comment: this might be a good place to exclude points
-        # which are too close to the screen to be drawn. Not sure if this
-        # place would be sufficient (other methods call c.isin too).
-        # Not done yet. ###e
-        val = 0
-        for c in self.curves:
-            if c.logic == 1: val = val or c.isin(pt)
-            elif c.logic == 2: val = val and c.isin(pt)
-            elif c.logic == 0: val = val and not c.isin(pt)
-        return val
-
-    def draw(self,win):
-        """Draw the shape. win, not used, is for consistency among
-        drawing functions (and may be used if drawing logic gets
-        more sophisticated.
-
-        Find  binding box for the curve and check the position each
-        carbon atom in a diamond lattice would occupy for being 'in'
-        the shape. A tube representation of the atoms thus selected is
-        saved as a GL call list for fast drawing.
-        
-        """
-        ## global color # bruce 041214 thinks this is unused
-        if not self.curves: return
-        for c in self.curves: c.draw()
-        if self.havelist:
-            glCallList(self.displist)
-            return
-        glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
-        try:
-            bblo, bbhi = self.bbox.data[1], self.bbox.data[0]
-            # self.bbox.draw()
-
-            griderator = genDiam(bblo, bbhi)
-            pp=griderator.next()
-            while (pp):
-                if self.isin(pp[0]):
-                    if self.isin(pp[1]):
-                        drawcylinder(gray,pp[0], pp[1], 0.2)
-                    else: drawcylinder(gray,pp[0], (pp[1]+pp[0])/2, 0.2)
-                elif self.isin(pp[1]):
-                    drawcylinder(gray, (pp[1]+pp[0])/2, pp[1], 0.2)
-                pp=griderator.next()
-        except:
-            # bruce 041028 -- protect against exceptions while making display
-            # list, or OpenGL will be left in an unusable state (due to the lack
-            # of a matching glEndList) in which any subsequent glNewList is an
-            # invalid operation. (Also done in chem.py; see more comments there.)
-            print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
-        glEndList()
-        self.havelist = 1 # always set this flag, even if exception happened.
-
-    def select(self, assy):
-        """Loop thru all the atoms that are visible and select any
-        that are 'in' the shape, ignoring the thickness parameter.
-        """
-        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
-        # also added .hidden check to the last of 3 cases. Left everything else
-        # as I found it. This code ought to be cleaned up to make it clear that
-        # it uses the same way of finding the selection-set of atoms, for all
-        # three logic cases in each of select and partselect. If anyone adds
-        # back any differences, this needs to be explained and justified in a
-        # comment; lacking that, any such differences should be considered bugs.
-        # (BTW I don't know whether it's valid to care about logic of only the
-        # first curve in the shape, as this code does.)
-        if assy.selwhat:
-            self.partselect(assy)
-            return
-        c=self.curves[0]
-        if c.logic == 1:
-            for mol in assy.molecules:
-                if mol.hidden: continue
-                disp = mol.get_dispdef()
-                for a in mol.atoms.itervalues():
-                    if c.isin(a.posn()) and a.visible(disp):
-                        a.pick()
-        elif c.logic == 2:
-            for mol in assy.molecules:
-                if mol.hidden: continue
-                disp = mol.get_dispdef()
-                for a in mol.atoms.itervalues():
-                    if c.isin(a.posn()) and a.visible(disp):
-                        a.pick()
-                    else:
-                        a.unpick()
-        else:
-            for a in assy.selatoms.values():
-                if a.molecule.hidden: continue #bruce 041214
-                if c.isin(a.posn()) and a.visible():
-                    a.unpick()
-
-    def partselect(self, assy):
-        """Loop thru all the atoms that are visible and select any
-        that are 'in' the shape, ignoring the thickness parameter.
-        pick the parts that contain them
-        """
-        #---This function has been modified by Huaicai on 10/05/04 to fix bugs of shift & Ctrl drag
-        #---selection of molecules
-        #---Some very tricky bugs related to unpick, which will remove items from the looplist, so the 
-        #---next element in the looplist will not go into the loop
-
-        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
-        # also added .hidden check to the last of 3 cases. Same in self.select().
-        c=self.curves[0]
-        if c.logic == 2:
-            # drag selection: unselect any selected molecule not in the area, 
-            # modified by Huaicai to fix the selection bug 10/05/04
-            for m in assy.selmols[:]:
-                m.unpick()
-                            
-        if c.logic == 1 or c.logic == 2 : # shift drag selection
-            for mol in assy.molecules:
-                if mol.hidden: continue
-                disp = mol.get_dispdef()
-                for a in mol.atoms.itervalues():
-                    if c.isin(a.posn()) and a.visible(disp):
-                              a.molecule.pick()
-                              break
-    
-        if c.logic == 0:  # Ctrl drag slection --everything selected inside dragging area unselected
-            for m in assy.selmols[:]:
-                if m.hidden: continue #bruce 041214
-                disp = m.get_dispdef()
-                for a in m.atoms.itervalues():
-                        if c.isin(a.posn()) and a.visible(disp):
-                                m.unpick()
-                                break   
-                                
-  
+    def pickrect(self, pt1, pt2, org, logic, **xx):
+            c = rectangle(self, pt1, pt2, org, logic, **xx)
+            self.curves += [c]
+            self.bbox.merge(c.bbox)
+            return c
+            
     def undo(self):
         """This would work for shapes, if anyone called it.
         """
@@ -557,3 +399,386 @@ class shape:
         return "<Shape of " + `len(self.curves)` + ">"
 
     pass # end of class shape
+    
+class SelectionShape(shape):
+        """This is used to construct shape for atoms/chunks selection. A curve or rectangle will be created, which is used as an area selection of all the atoms/chunks """
+        def pickline(self, ptlist, origin, logic, eyeBall):
+            shape.pickline(self, ptlist, origin, logic, eye=eyeBall)
+   
+        def pickrect(self, pt1, pt2, org, logic, eyeBall):
+            shape.pickrect(self, pt1, pt2, org, logic, eye=eyeBall)
+            
+        def select(self, assy):
+            """Loop thru all the atoms that are visible and select any
+                that are 'in' the shape, ignoring the thickness parameter.
+            """
+        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
+        # also added .hidden check to the last of 3 cases. Left everything else
+        # as I found it. This code ought to be cleaned up to make it clear that
+        # it uses the same way of finding the selection-set of atoms, for all
+        # three logic cases in each of select and partselect. If anyone adds
+        # back any differences, this needs to be explained and justified in a
+        # comment; lacking that, any such differences should be considered bugs.
+        # (BTW I don't know whether it's valid to care about logic of only the
+        # first curve in the shape, as this code does.)
+        
+            if assy.selwhat:
+                self._chunksSelect(assy)
+            else:
+                self._atomsSelect(assy)   
+        
+        
+        def _atomsSelect(self, assy):
+            """Select all atoms inside the curve, ignoring thickness"""    
+            c=self.curves[0]
+            if c.logic == 1:
+                for mol in assy.molecules:
+                    if mol.hidden: continue
+                    disp = mol.get_dispdef()
+                    for a in mol.atoms.itervalues():
+                        if c.isin(a.posn()) and a.visible(disp):
+                            a.pick()
+            elif c.logic == 2:
+                for mol in assy.molecules:
+                    if mol.hidden: continue
+                    disp = mol.get_dispdef()
+                    for a in mol.atoms.itervalues():
+                        if c.isin(a.posn()) and a.visible(disp):
+                            a.pick()
+                        else:
+                            a.unpick()
+            else:
+                for a in assy.selatoms.values():
+                    if a.molecule.hidden: continue #bruce 041214
+                    if c.isin(a.posn()) and a.visible():
+                        a.unpick()
+
+        def _chunksSelect(self, assy):
+            """Loop thru all the atoms that are visible and select any
+            that are 'in' the shape, ignoring the thickness parameter.
+            pick the parts that contain them
+            """
+        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
+        # also added .hidden check to the last of 3 cases. Same in self.select().
+            c=self.curves[0]
+            if c.logic == 2:
+                # drag selection: unselect any selected molecule not in the area, 
+                # modified by Huaicai to fix the selection bug 10/05/04
+                for m in assy.selmols[:]:
+                    m.unpick()
+                            
+            if c.logic == 1 or c.logic == 2 : # shift drag selection
+                for mol in assy.molecules:
+                    if mol.hidden: continue
+                    disp = mol.get_dispdef()
+                    for a in mol.atoms.itervalues():
+                        if c.isin(a.posn()) and a.visible(disp):
+                                a.molecule.pick()
+                                break
+    
+            if c.logic == 0:  # Ctrl drag slection --everything selected inside dragging area unselected
+                for m in assy.selmols[:]:
+                    if m.hidden: continue #bruce 041214
+                    disp = m.get_dispdef()
+                    for a in m.atoms.itervalues():
+                            if c.isin(a.posn()) and a.visible(disp):
+                                    m.unpick()
+                                    break   
+
+class CookieShape(shape):
+    """ This class is used to create cookies. It supports multiple parallel layers, each curve sits
+         on a particular layer."""
+    def __init__(self, right, up, normal):
+            shape.__init__(self, right, up, normal)
+            ##Each element is a dictionary object storing "carbon" info for a layer
+            self.carbonPostDict = {} 
+            self.bondLayers = {} ##Each element is a dictionary for the bonds info for a layer
+            self.displist = glGenLists(1)
+            self.havelist = 0
+            self.tubeMode = True
+            self.layerThickness = {}
+            self.layeredCurves = {}
+
+    def pushdown(self, lastLayer):
+            """Put down one layer from last layer """
+            th, n = self.layerThickness[lastLayer]
+            print "th, n", th, n
+            return th*n
+
+    def _saveMaxThickness(self, layer, thickness, normal):
+            if layer not in self.layerThickness:
+                self.layerThickness[layer] = (thickness, normal)
+            elif thickness > self.layerThickness[layer][0]:
+                self.layerThickness[layer] = (thickness, normal)
+    
+    def isin(self, pt, curves=None):
+        """returns 1 if pt is properly enclosed by the curves.
+        curve.logic = 1 ==> include if inside
+        curve.logic = 0 ==> remove if inside
+        curve.logic = 2 ==> remove if outside
+        """
+        # bruce 041214 comment: this might be a good place to exclude points
+        # which are too close to the screen to be drawn. Not sure if this
+        # place would be sufficient (other methods call c.isin too).
+        # Not done yet. ###e
+        val = 0
+        if not curves: curves = self.curves
+        for c in curves:
+            if c.logic == 1: val = val or c.isin(pt)
+            elif c.logic == 2: val = val and c.isin(pt)
+            elif c.logic == 0: val = val and not c.isin(pt)
+        return val
+
+    def pickline(self, ptlist, origin, logic, layer, slabC):
+        """Add a new curve to the shape.
+        Args define the curve (see curve) and the logic operator
+        for the curve telling whether it adds or removes material.
+        """
+        c = shape.pickline(self, ptlist, origin, logic, slab=slabC)
+        self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
+        #self._cutCookie(layer, c)
+        self._addCurve(layer, c)
+        
+    def pickrect(self, pt1, pt2, org, logic, layer, slabC):
+        """Add a new rectangle to the shape.
+        Args define the rectangle and the logic operator
+        for the curve telling whether it adds or removes material.
+        """
+        c = shape.pickrect(self, pt1, pt2, org, logic, slab=slabC)
+        self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
+        #self._cutCookie(layer, c)
+        self._addCurve(layer, c)
+            
+    def _hashAtomPos(self, pos):
+        return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
+    
+    def _addCurve(self, layer, c):
+        """Add curve into its own layer, update the bbox"""
+        self.havelist = 0
+        
+        if not layer in self.layeredCurves:
+            bbox = BBox()
+            self.layeredCurves[layer] = [bbox, c]
+        else: self.layeredCurves[layer] += [c]
+        self.layeredCurves[layer][0].merge(c.bbox)
+    
+    def _cellDraw(self, color, p0, p1):
+        hasSinglet = False
+        if type(p1) == type((1,)): 
+                v1 = p1[0]
+                hasSinglet = True
+        else: v1 = p1
+        if self.tubeMode:
+             drawcylinder(color, p0, v1, 0.2)
+        else:
+            drawsphere(color, p0, 0.5, 1)
+            if hasSinglet:
+                drawsphere(color, v1, 0.2, 1)
+            else:    
+                drawsphere(color, v1, 0.5, 1)
+            drawline(white, p0, v1)
+                     
+    
+    def _anotherDraw(self, layerColor):
+        """The original way of selecting cookies, but do it layer by layer, so we can control how to display each layer. """
+        if self.havelist:
+            glCallList(self.displist)
+            return
+        glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+        for layer in self.layeredCurves.keys():
+            bbox = self.layeredCurves[layer][0]
+            curves = self.layeredCurves[layer][1:]
+            color = layerColor[layer]
+            for c in curves: c.draw()
+            try:
+                bblo, bbhi = bbox.data[1], bbox.data[0]
+                griderator = genDiam(bblo, bbhi)
+                pp=griderator.next()
+                while (pp):
+                   p1 = p2 = None 
+                   if self.isin(pp[0], curves):
+                      if self.isin(pp[1], curves):
+                          p1 = pp[0]; p2 = pp[1]
+                      else: 
+                          p1 = pp[0]; p2 = ((pp[1]+pp[0])/2,)
+                   elif self.isin(pp[1], curves):
+                          p1 = pp[1]; p2 = ((pp[1]+pp[0])/2, )
+                   if p1 and p2: self._cellDraw(color, p1, p2) 
+                   pp=griderator.next()
+            except:
+            # bruce 041028 -- protect against exceptions while making display
+            # list, or OpenGL will be left in an unusable state (due to the lack
+            # of a matching glEndList) in which any subsequent glNewList is an
+            # invalid operation. (Also done in chem.py; see more comments there.)
+                print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
+        glEndList()
+        self.havelist = 1 #
+    
+    
+    def _cutCookie(self, layer, c):
+        """For each user defined curve, cut the cookie for it, store carbon postion into a global dictionary, store the bond information into each layer. """
+        self.havelist = 0
+        
+        bblo, bbhi = c.bbox.data[1], c.bbox.data[0]
+        griderator = genDiam(bblo, bbhi)
+        if c.logic == 0: ##Remove if inside
+            if not self.bondLayers[layer]: return
+            else:
+                bonds = self.bondLayers[layer]
+                carbons = self.carbonPostDict[layer]
+                pp=griderator.next()
+                while (pp):
+                       for p in pp:
+                            if not c.isin(p): continue
+                            pph = self._hashAtomPos(p)
+                            if bonds.has_key(pph):
+                                del bonds[pph]
+                            if carbons.has_key(pph):
+                                del carbons[pph]
+                       pp=griderator.next()
+        elif c.logic == 2: ##Remove if outside
+            for la in self.bondLayers.keys():
+                if la != layer:        
+                        del self.bondLayers[la]
+                        del self.carbonPostDict[la]
+            if not self.bondLayers.has_key(layer): return
+            bonds = self.bondLayers[layer]
+            carbons = self.carbonPostDict[layer]
+            pp=griderator.next()
+            while (pp):
+                for p in pp:
+                    if c.isin(p): continue
+                    pph = self._hashAtomPos(p)
+                    if carbons.has_key(pph):
+                       del carbons[pph]
+                       del bonds[pph]
+                pp=griderator.next()
+        elif c.logic == 1: ##Include if inside
+            if self.bondLayers.has_key(layer):
+                bonds = self.bondLayers[layer]
+                carbons = self.carbonPostDict[layer]
+            else:
+                bonds = {}
+                carbons = {}
+            pp=griderator.next()
+            while (pp):
+                pph=[None, None]
+                for p, ii in zip(pp, (0,1)):
+                   if c.isin(p):
+                      pph[ii] = self._hashAtomPos(p)
+                      if not pph[ii] in carbons:
+                         carbons[pph[ii]] = p
+                if pph[0] and pph[1]: 
+                    self._saveBonds(bonds, pph[0], pph[1])
+                elif pph[0]:
+                    p1h = self._hashAtomPos(pp[1])
+                    self._saveBonds(bonds, pph[0], (p1h,pp[1]))
+                elif pph[1]:
+                    p0h = self._hashAtomPos(pp[0])
+                    self._saveBonds(bonds, pph[1], (p0h,pp[0]))
+                pp=griderator.next()
+            self.bondLayers[layer] = bonds    
+            self.carbonPostDict[layer] = carbons
+            
+        self.havelist = 1
+        
+            
+    def _saveBonds(self, dict, key, value):
+            """ """
+            if not key in dict:
+                   dict[key] = [value]
+            else:
+                values = dict[key]
+                #print "key, value, all values:", key, value,values       
+                if not value in values :
+                   if type(value) ==type((1,1)):
+                       for v in values: 
+                            if v==value: 
+                                 v=value[0]; break
+                   #print "key, value: ", key, value
+                else: values += [value]
+   
+   
+    def changeDisplayMode(self, isTubeMode):
+        self.tubeMode = isTubeMode
+        self.havelist = 0
+        
+   
+    def draw(self, win, layerColor):
+        """Draw the shape. win, not used, is for consistency among
+        drawing functions (and may be used if drawing logic gets
+        more sophisticated.
+
+        Find  binding box for the curve and check the position each
+        carbon atom in a diamond lattice would occupy for being 'in'
+        the shape. A tube representation of the atoms thus selected is
+        saved as a GL call list for fast drawing.
+        
+        This method is only for cookie-cutter mode. --Huaicai
+        """
+        if 1: 
+            self._anotherDraw(layerColor)
+            return
+            
+        if self.havelist:
+            glCallList(self.displist)
+            return
+        glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+        try:
+            for layer, bonds in self.bondLayers.items():
+                color = layerColor[layer]
+                carbons = self.carbonPostDict[layer]
+                if not self.tubeMode:
+                    for cP in carbons.values():
+                        drawsphere(color, cP, 0.5, 1)
+                for cK, bList in bonds.items():
+                   hasSinglet = False
+                   p0 = carbons[cK]
+                   for b in bList:
+                       if type(b) == type(1):
+                           p1 = carbons[b]
+                       else: 
+                            p1 = (p0 + b[1])/2.0
+                            if not self.tubeMode: drawsphere(color, p1, 0.2, 1)
+                       if self.tubeMode:
+                            drawcylinder(color, p0, p1, 0.2)
+                       else:
+                            drawline(white, p0, p1)    
+        except:
+            # bruce 041028 -- protect against exceptions while making display
+            # list, or OpenGL will be left in an unusable state (due to the lack
+            # of a matching glEndList) in which any subsequent glNewList is an
+            # invalid operation. (Also done in chem.py; see more comments there.)
+            print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
+        glEndList()
+        self.havelist = 1 # always set this flag, even if exception happened.
+    
+    def buildChunk(self, assy):
+        """Build molecules for the cookie """
+        from chunk import molecule
+        from chem import gensym, atom
+        
+        allCarbons = {}
+        mol = molecule(assy, gensym("Cookie."))
+        for layer, bonds in self.bondLayers.items():
+            carbons = self.carbonPostDict[layer]
+            for cK, cP in carbons.items():
+                if not cK in allCarbons:
+                    atomCell = atom("C", cP, mol) 
+                    allCarbons[cK] = atomCell
+            for cK, cB in bonds.items():
+                a1 = allCarbons[cK]
+                for bb in cB:
+                    if type(bb) == type(1):
+                        a2 = allCarbons[bb]
+                    else:
+                        a2 = atom("X", bb, mol)
+                    mol.bond(a1, a2)
+        if len(mol.atoms) > 0:
+        #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
+            assy.addmol(mol)
+            assy.unpickatoms()
+            assy.unpickparts()
+            assy.selwhat = 2
+            mol.pick()
+            assy.mt.mt_update()                

@@ -37,7 +37,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>33</height>
+            <height>37</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -281,12 +281,15 @@
         <property name="name">
             <cstring>cookieCutterDashboard</cstring>
         </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
         <property name="geometry">
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>681</width>
-                <height>29</height>
+                <width>1115</width>
+                <height>31</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -298,6 +301,9 @@
         <widget class="QLabel">
             <property name="name">
                 <cstring>textLabel2</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
             </property>
             <property name="text">
                 <string> Cookie Cutter</string>
@@ -315,19 +321,23 @@
                     <string>1</string>
                 </property>
             </item>
-            <item>
-                <property name="text">
-                    <string>2</string>
-                </property>
-            </item>
             <property name="name">
-                <cstring>CurrentLayerCB</cstring>
+                <cstring>ccCurrentLayerCB</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Current Layer</string>
             </property>
         </widget>
         <separator/>
         <widget class="QLabel">
             <property name="name">
                 <cstring>textLabel1_3</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
             </property>
             <property name="text">
                 <string>Thickness (Angstroms):</string>
@@ -336,6 +346,12 @@
         <widget class="QLineEdit">
             <property name="name">
                 <cstring>ccLayerThicknessLineEdit</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
+            </property>
+            <property name="readOnly">
+                <bool>true</bool>
             </property>
             <property name="toolTip" stdset="0">
                 <string>Thickness of layer in Angstroms</string>
@@ -347,6 +363,9 @@
         <widget class="QSpinBox">
             <property name="name">
                 <cstring>ccLayerThicknessSpinBox</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
             </property>
             <property name="maxValue">
                 <number>25</number>
@@ -362,6 +381,99 @@
             </property>
             <property name="whatsThis" stdset="0">
                 <string>Number of lattice cells</string>
+            </property>
+        </widget>
+        <separator/>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>ccFullModelCheckBox</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
+            </property>
+            <property name="text">
+                <string>Whole Model</string>
+            </property>
+        </widget>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>ccGridLineCheckBox</cstring>
+            </property>
+            <property name="text">
+                <string>Grid Line</string>
+            </property>
+            <property name="checked">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>ccGridColorLabel</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>40</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property name="paletteBackgroundColor">
+                <color>
+                    <red>222</red>
+                    <green>148</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
+            </property>
+            <property name="text">
+                <string></string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Grid line color.</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>ccGridColorButton</cstring>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>30</width>
+                    <height>32767</height>
+                </size>
+            </property>
+            <property name="text">
+                <string>...</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Customize grid line color.</string>
+            </property>
+        </widget>
+        <separator/>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>ccTubeRadioButton</cstring>
+            </property>
+            <property name="text">
+                <string>Tube</string>
+            </property>
+            <property name="checked">
+                <bool>true</bool>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Show cookie as connected tubes.</string>
+            </property>
+        </widget>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>ccSphereRadioButton</cstring>
+            </property>
+            <property name="text">
+                <string>Sphere</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Show atom as sphere with bond as white line.</string>
             </property>
         </widget>
         <separator/>
@@ -528,9 +640,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>29</y>
-                <width>1033</width>
-                <height>29</height>
+                <y>60</y>
+                <width>1089</width>
+                <height>32</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -708,10 +820,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>243</x>
-                <y>58</y>
-                <width>104</width>
-                <height>29</height>
+                <x>270</x>
+                <y>92</y>
+                <width>111</width>
+                <height>31</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -744,10 +856,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>347</x>
-                <y>58</y>
-                <width>120</width>
-                <height>29</height>
+                <x>381</x>
+                <y>92</y>
+                <width>132</width>
+                <height>31</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -871,10 +983,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>1001</x>
-                <y>58</y>
+                <x>0</x>
+                <y>123</y>
                 <width>19</width>
-                <height>29</height>
+                <height>16</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -1374,6 +1486,9 @@
     <action>
         <property name="name">
             <cstring>ccAddLayerAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
         </property>
         <property name="iconSet">
             <iconset>image16</iconset>
@@ -4431,7 +4546,7 @@
         <sender>toolsDepositAtomAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>addAtomStart()</slot>
+        <slot>toolsBuildAtoms()</slot>
     </connection>
     <connection>
         <sender>toolsDoneAction</sender>
@@ -4566,6 +4681,36 @@
         <slot>setDisabled(bool)</slot>
     </connection>
     <connection>
+        <sender>ccFullModelCheckBox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>cookieFullModel(bool)</slot>
+    </connection>
+    <connection>
+        <sender>ccCurrentLayerCB</sender>
+        <signal>activated(int)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>changeCCLayer(int)</slot>
+    </connection>
+    <connection>
+        <sender>ccGridColorButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>changeCCGridColor()</slot>
+    </connection>
+    <connection>
+        <sender>ccTubeRadioButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>changeCCTubeButton()</slot>
+    </connection>
+    <connection>
+        <sender>ccSphereRadioButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>changeCCSphereButton()</slot>
+    </connection>
+    <connection>
         <sender>toolsFuseChunksAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -4591,7 +4736,6 @@
     <slot>toolsSimulator()</slot>
     <slot>toolsCancel()</slot>
     <slot>toolsDone()</slot>
-    <slot>toolsAtomStart()</slot>
     <slot>toolsCCAddLayer()</slot>
     <slot>toolsCookieCut()</slot>
     <slot>copyDo()</slot>
@@ -4653,7 +4797,7 @@
     <slot>toggleSelectTbar()</slot>
     <slot>toggleModifyTbar()</slot>
     <slot>toggleViewTbar()</slot>
-    <slot>addAtomStart()</slot>
+    <slot>changeCCSphereButton()</slot>
     <slot>setViewBack()</slot>
     <slot>setViewBottom()</slot>
     <slot>setViewFront()</slot>
@@ -4716,6 +4860,11 @@
     <slot>dispLighting()</slot>
     <slot>dispResetAtomsDisplay()</slot>
     <slot>dispShowInvisAtoms()</slot>
+    <slot>cookieFullModel(bool)</slot>
+    <slot>changeCCLayer(int)</slot>
+    <slot>changeCCGridColor()</slot>
+    <slot>changeCCTubeButton()</slot>
+    <slot>toolsBuildAtoms()</slot>
     <slot>toolsFuseChunks()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
