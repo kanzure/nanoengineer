@@ -568,6 +568,9 @@ class atom:
         """make the atom selected
         """
         if self.element == Singlet: return
+        # If select atoms filter is on, only pick element type in the filter combobox
+        if self.molecule.assy.w.SAFilter.isChecked() and \
+            self.element.name != self.molecule.assy.w.SAFilterList.currentText(): return
         if not self.picked:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
