@@ -93,20 +93,22 @@
         <action name="dispCPKAction"/>
         <action name="dispVdWAction"/>
         <separator/>
+        <action name="dispResetChunkColorAction"/>
+        <action name="dispResetChunkDisplyAction"/>
+        <action name="dispShowInvisAtomsAction"/>
         <action name="dispObjectColorAction"/>
-        <action name="dispResetMolColorAction"/>
         <separator/>
         <action name="dispBGColorAction"/>
         <separator/>
         <action name="dispElementColorSettingsAction"/>
         <action name="dispLightingAction"/>
     </item>
-    <item text="&amp;Jigs" name="Jigs">
-        <action name="jigsMotorAction"/>
-        <action name="jigsLinearMotorAction"/>
-        <action name="jigsGroundAction"/>
-        <action name="jigsStatAction"/>
-        <action name="jigsThermoAction"/>
+    <item text="Select" name="Select">
+        <action name="selectAllAction"/>
+        <action name="selectNoneAction"/>
+        <action name="selectInvertAction"/>
+        <action name="selectConnectedAction"/>
+        <action name="selectDoublyAction"/>
     </item>
     <item text="&amp;Modify" name="Modify">
         <action name="modifyMinimizeAction"/>
@@ -129,6 +131,13 @@
         <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
+    </item>
+    <item text="&amp;Jigs" name="Jigs">
+        <action name="jigsMotorAction"/>
+        <action name="jigsLinearMotorAction"/>
+        <action name="jigsGroundAction"/>
+        <action name="jigsStatAction"/>
+        <action name="jigsThermoAction"/>
     </item>
     <item text="Simulator" name="Simulator">
         <action name="simSetupAction"/>
@@ -2652,7 +2661,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>dispResetMolColorAction</cstring>
+            <cstring>dispResetChunkColorAction</cstring>
         </property>
         <property name="text">
             <string>Reset Chunk Color</string>
@@ -3084,6 +3093,33 @@
             <string>Lighting...</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>selecttestAction</cstring>
+        </property>
+        <property name="text">
+            <string>test</string>
+        </property>
+        <property name="menuText">
+            <string>test</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispResetChunkDisplyAction</cstring>
+        </property>
+        <property name="text">
+            <string>Reset Chunk Display</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispShowInvisAtomsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Show Invisible Atoms</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -3503,10 +3539,10 @@
         <slot>dispOpenBonds()</slot>
     </connection>
     <connection>
-        <sender>dispResetMolColorAction</sender>
+        <sender>dispResetChunkColorAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>dispResetMolColor()</slot>
+        <slot>dispResetChunkColor()</slot>
     </connection>
     <connection>
         <sender>dispTrihedronAction</sender>
@@ -4174,6 +4210,18 @@
         <receiver>MainWindow</receiver>
         <slot>dispLighting()</slot>
     </connection>
+    <connection>
+        <sender>dispResetChunkDisplyAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispResetChunkDisplay()</slot>
+    </connection>
+    <connection>
+        <sender>dispShowInvisAtomsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispShowInvisAtoms()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4283,7 +4331,7 @@
     <slot>toolsSelectJigs()</slot>
     <slot>toolsSelect()</slot>
     <slot>makeStat()</slot>
-    <slot>dispResetMolColor()</slot>
+    <slot>dispResetChunkColor()</slot>
     <slot>fileInsert()</slot>
     <slot>modifyDehydrogenate()</slot>
     <slot>helpWhatsThis()</slot>
@@ -4317,6 +4365,8 @@
     <slot>simMoviePlayer()</slot>
     <slot>simSetup()</slot>
     <slot>dispLighting()</slot>
+    <slot>dispResetChunkDisplay()</slot>
+    <slot>dispShowInvisAtoms()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

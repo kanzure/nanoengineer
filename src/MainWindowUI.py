@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Mar 11 12:33:56 2005
+# Created: Thu Mar 17 09:43:02 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5534,7 +5534,7 @@ class MainWindow(QMainWindow):
         self.nullAction.setVisible(1)
         self.jigsStatAction = QAction(self,"jigsStatAction")
         self.jigsStatAction.setIconSet(QIconSet(self.image91))
-        self.dispResetMolColorAction = QAction(self,"dispResetMolColorAction")
+        self.dispResetChunkColorAction = QAction(self,"dispResetChunkColorAction")
         self.helpWhatsThisAction = QAction(self,"helpWhatsThisAction")
         self.helpWhatsThisAction.setIconSet(QIconSet(self.image92))
         self.movieResetAction = QAction(self,"movieResetAction")
@@ -5597,6 +5597,9 @@ class MainWindow(QMainWindow):
         self.simPlotToolAction.setEnabled(1)
         self.simPlotToolAction.setIconSet(QIconSet(self.image111))
         self.dispLightingAction = QAction(self,"dispLightingAction")
+        self.selecttestAction = QAction(self,"selecttestAction")
+        self.dispResetChunkDisplyAction = QAction(self,"dispResetChunkDisplyAction")
+        self.dispShowInvisAtomsAction = QAction(self,"dispShowInvisAtomsAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -5856,8 +5859,10 @@ class MainWindow(QMainWindow):
         self.dispCPKAction.addTo(self.unnamed)
         self.dispVdWAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
+        self.dispResetChunkColorAction.addTo(self.unnamed)
+        self.dispResetChunkDisplyAction.addTo(self.unnamed)
+        self.dispShowInvisAtomsAction.addTo(self.unnamed)
         self.dispObjectColorAction.addTo(self.unnamed)
-        self.dispResetMolColorAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.dispBGColorAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
@@ -5865,13 +5870,13 @@ class MainWindow(QMainWindow):
         self.dispLightingAction.addTo(self.unnamed)
         self.MenuBar.insertItem(QString(""),self.unnamed,6)
 
-        self.Jigs = QPopupMenu(self)
-        self.jigsMotorAction.addTo(self.Jigs)
-        self.jigsLinearMotorAction.addTo(self.Jigs)
-        self.jigsGroundAction.addTo(self.Jigs)
-        self.jigsStatAction.addTo(self.Jigs)
-        self.jigsThermoAction.addTo(self.Jigs)
-        self.MenuBar.insertItem(QString(""),self.Jigs,7)
+        self.Select = QPopupMenu(self)
+        self.selectAllAction.addTo(self.Select)
+        self.selectNoneAction.addTo(self.Select)
+        self.selectInvertAction.addTo(self.Select)
+        self.selectConnectedAction.addTo(self.Select)
+        self.selectDoublyAction.addTo(self.Select)
+        self.MenuBar.insertItem(QString(""),self.Select,7)
 
         self.Modify = QPopupMenu(self)
         self.modifyMinimizeAction.addTo(self.Modify)
@@ -5897,17 +5902,25 @@ class MainWindow(QMainWindow):
         self.toolsExtrudeAction.addTo(self.Tools)
         self.MenuBar.insertItem(QString(""),self.Tools,9)
 
+        self.Jigs = QPopupMenu(self)
+        self.jigsMotorAction.addTo(self.Jigs)
+        self.jigsLinearMotorAction.addTo(self.Jigs)
+        self.jigsGroundAction.addTo(self.Jigs)
+        self.jigsStatAction.addTo(self.Jigs)
+        self.jigsThermoAction.addTo(self.Jigs)
+        self.MenuBar.insertItem(QString(""),self.Jigs,10)
+
         self.Simulator = QPopupMenu(self)
         self.simSetupAction.addTo(self.Simulator)
         self.simMoviePlayerAction.addTo(self.Simulator)
         self.simPlotToolAction.addTo(self.Simulator)
-        self.MenuBar.insertItem(QString(""),self.Simulator,10)
+        self.MenuBar.insertItem(QString(""),self.Simulator,11)
 
         self.helpMenu = QPopupMenu(self)
         self.helpAssistantAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
         self.helpAboutAction.addTo(self.helpMenu)
-        self.MenuBar.insertItem(QString(""),self.helpMenu,11)
+        self.MenuBar.insertItem(QString(""),self.helpMenu,12)
 
 
         self.languageChange()
@@ -5928,7 +5941,7 @@ class MainWindow(QMainWindow):
         self.connect(self.dispLinesAction,SIGNAL("activated()"),self.dispLines)
         self.connect(self.dispObjectColorAction,SIGNAL("activated()"),self.dispObjectColor)
         self.connect(self.dispOpenBondsAction,SIGNAL("activated()"),self.dispOpenBonds)
-        self.connect(self.dispResetMolColorAction,SIGNAL("activated()"),self.dispResetMolColor)
+        self.connect(self.dispResetChunkColorAction,SIGNAL("activated()"),self.dispResetChunkColor)
         self.connect(self.dispTrihedronAction,SIGNAL("activated()"),self.dispTrihedron)
         self.connect(self.dispTubesAction,SIGNAL("activated()"),self.dispTubes)
         self.connect(self.dispVdWAction,SIGNAL("activated()"),self.dispVdW)
@@ -6040,6 +6053,8 @@ class MainWindow(QMainWindow):
         self.connect(self.simMoviePlayerAction,SIGNAL("activated()"),self.simMoviePlayer)
         self.connect(self.simPlotToolAction,SIGNAL("activated()"),self.simPlot)
         self.connect(self.dispLightingAction,SIGNAL("activated()"),self.dispLighting)
+        self.connect(self.dispResetChunkDisplyAction,SIGNAL("activated()"),self.dispResetChunkDisplay)
+        self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
 
 
     def languageChange(self):
@@ -6339,8 +6354,8 @@ class MainWindow(QMainWindow):
         self.nullAction.setMenuText(QString.null)
         self.jigsStatAction.setText(self.__tr("Thermostat"))
         self.jigsStatAction.setMenuText(self.__tr("Thermo&stat"))
-        self.dispResetMolColorAction.setText(self.__tr("Reset Chunk Color"))
-        self.dispResetMolColorAction.setMenuText(self.__tr("&Reset Chunk Color"))
+        self.dispResetChunkColorAction.setText(self.__tr("Reset Chunk Color"))
+        self.dispResetChunkColorAction.setMenuText(self.__tr("&Reset Chunk Color"))
         self.helpWhatsThisAction.setText(self.__tr("What's This"))
         self.helpWhatsThisAction.setMenuText(self.__tr("What's This"))
         self.movieResetAction.setText(self.__tr("Reset Movie"))
@@ -6400,6 +6415,10 @@ class MainWindow(QMainWindow):
         self.simPlotToolAction.setText(self.__tr("Plot Tool"))
         self.dispLightingAction.setText(self.__tr("Lighting"))
         self.dispLightingAction.setMenuText(self.__tr("Lighting..."))
+        self.selecttestAction.setText(self.__tr("test"))
+        self.selecttestAction.setMenuText(self.__tr("test"))
+        self.dispResetChunkDisplyAction.setText(self.__tr("Reset Chunk Display"))
+        self.dispShowInvisAtomsAction.setText(self.__tr("Show Invisible Atoms"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -6444,15 +6463,17 @@ class MainWindow(QMainWindow):
         if self.MenuBar.findItem(6):
             self.MenuBar.findItem(6).setText(self.__tr("&Display"))
         if self.MenuBar.findItem(7):
-            self.MenuBar.findItem(7).setText(self.__tr("&Jigs"))
+            self.MenuBar.findItem(7).setText(self.__tr("Select"))
         if self.MenuBar.findItem(8):
             self.MenuBar.findItem(8).setText(self.__tr("&Modify"))
         if self.MenuBar.findItem(9):
             self.MenuBar.findItem(9).setText(self.__tr("&Tools"))
         if self.MenuBar.findItem(10):
-            self.MenuBar.findItem(10).setText(self.__tr("Simulator"))
+            self.MenuBar.findItem(10).setText(self.__tr("&Jigs"))
         if self.MenuBar.findItem(11):
-            self.MenuBar.findItem(11).setText(self.__tr("&Help"))
+            self.MenuBar.findItem(11).setText(self.__tr("Simulator"))
+        if self.MenuBar.findItem(12):
+            self.MenuBar.findItem(12).setText(self.__tr("&Help"))
 
 
     def fileNew(self):
@@ -6776,8 +6797,8 @@ class MainWindow(QMainWindow):
     def makeStat(self):
         print "MainWindow.makeStat(): Not implemented yet"
 
-    def dispResetMolColor(self):
-        print "MainWindow.dispResetMolColor(): Not implemented yet"
+    def dispResetChunkColor(self):
+        print "MainWindow.dispResetChunkColor(): Not implemented yet"
 
     def fileInsert(self):
         print "MainWindow.fileInsert(): Not implemented yet"
@@ -6877,6 +6898,12 @@ class MainWindow(QMainWindow):
 
     def dispLighting(self):
         print "MainWindow.dispLighting(): Not implemented yet"
+
+    def dispResetChunkDisplay(self):
+        print "MainWindow.dispResetChunkDisplay(): Not implemented yet"
+
+    def dispShowInvisAtoms(self):
+        print "MainWindow.dispShowInvisAtoms(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
