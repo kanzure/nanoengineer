@@ -1,4 +1,9 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+assembly.py -- provides class assembly, a set of molecules (plus selection state) to be shown in one glpane.
+
+$Id$
+"""
 from Numeric import *
 from VQT import *
 from string import *
@@ -74,6 +79,41 @@ class assembly:
         # bruce 040927: this seems to be wrong sometimes, e.g. when no atoms or molecules exist in the assembly... not sure.
         return {0: "Atoms", 2: "Molecules"}[self.selwhat]
 
+    def checkpicked(self, always_print = 0):
+        "check whether every atom and molecule has its .picked attribute set correctly. Fix errors, too. [bruce 040929]"
+        if always_print: print "fyi: checkpicked()..."
+        self.checkpicked_atoms(always_print = 0)
+        self.checkpicked_mols(always_print = 0)
+        # maybe do in order depending on selwhat, right one first?? probably doesn't matter.
+        #e we ought to call this really often and see when it prints something,
+        # so we know what causes the selection bugs i keep hitting.
+        # for now see menu1 in select mode (if i committed my debug hacks in there)
+        
+    def checkpicked_mols(self, always_print = 1):
+        "checkpicked, just for molecules [bruce 040929]"
+        if always_print: print "fyi: checkpicked_mols()..."
+        for mol in self.molecules:
+            wantpicked = (mol in self.selmols)
+            if mol.picked != wantpicked:
+                print "mol %r.picked was %r, should be %r (fixing)" % (mol, mol.picked, wantpicked)
+                mol.picked = wantpicked
+        return
+
+    def checkpicked_atoms(self, always_print = 1):
+        "checkpicked, just for atoms [bruce 040929]"
+        if always_print: print "fyi: checkpicked_atoms()..."
+        lastmol = None
+        for mol in self.molecules:
+            for atom in mol.atoms.values(): ##k
+                wantpicked = (atom.key in self.selatoms) ##k
+                if atom.picked != wantpicked:
+                    if mol != lastmol:
+                        lastmol = mol
+                        print "in mol %r:" % mol
+                    print "atom %r.picked was %r, should be %r (fixing)" % (atom, atom.picked, wantpicked)
+                    atom.picked = wantpicked
+        return
+    
     # convert absolute atom positions to relative, find
     # bounding boxes, do some housekeeping
 
@@ -535,7 +575,20 @@ class assembly:
 
     # separate selected atoms into a new molecule
     # do not break bonds
-    def modifySeparate(self):
+    #bruce 040929 adding optional arg new_old_callback for use in extrudeMode.py
+    def modifySeparate(self, new_old_callback = None):
+        """[bruce comment 040929:]
+           For each molecule (named N) containing any selected atoms,
+           move the selected atoms out of N (but without breaking any bonds)
+           into a new molecule which we name N-frag.
+           If N is now empty, remove it.
+           [new feature 040929:]
+           If new_old_callback is provided, then each time we create a new (nonempty) fragment N-frag,
+           call it with the 2 args N-frag and N (that is, with the new and old molecules).
+           Warning: we pass the old mol N to that callback,
+           even if it has no atoms and we deleted it from self.
+           (###k is that ok? if not, we'll change this func to use None in place of N.)
+        """
         for mol in self.molecules:
             numol = molecule(self, mol.name + gensym("-frag"))
             for a in mol.atoms.values():
@@ -553,6 +606,8 @@ class assembly:
                 else:
                     self.killmol(mol)
                     self.w.modelTreeView.deleteObject(mol)
+                if new_old_callback:
+                    new_old_callback(numol, mol) # new feature 040929
         self.o.paintGL()
 
     # change surface atom types to eliminate dangling bonds
