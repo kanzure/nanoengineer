@@ -452,7 +452,7 @@ static int innerIters = 10;
 void calcloop(int iters) {
 	
     double fac, pe,ke;
-    int i,j, k, loop, a1, a2, ac, n;
+    int i,j, k, loop, a1, a2, ac, n, orionp;
     double rsq, br, ff, m, theta, z, totorq, motorq, omega;
     struct xyz f, v1, v2, rx, foo,bar, totforce, q1, q2;
     struct vdWbuf *nvb;
@@ -465,6 +465,9 @@ void calcloop(int iters) {
     double therm;
     double modrag = 0.001;
 
+    orionp = iters;
+    iters = max(iters,1);
+
     deltaTframe = 1.0/(iters*innerIters);
 	
     for (j=0; j<Nexatom; j++) {
@@ -473,17 +476,18 @@ void calcloop(int iters) {
 	
     for (loop=0; loop<iters; loop++) {
 		
-	/* find the non-bonded interactions */
-	orion();
+	if (orionp) {
+	    /* find the non-bonded interactions */
+	    orion();
 		
-	Nexvanbuf=Dynobuf;
-	Nexvanbuf->fill = Dynoix;
-	Count = 0;
+	    Nexvanbuf=Dynobuf;
+	    Nexvanbuf->fill = Dynoix;
+	    Count = 0;
 		
-	for (j=0; j<Nexatom; j++) {
-	    findnobo(j);
-	}
-		
+	    for (j=0; j<Nexatom; j++) {
+		findnobo(j);
+	    }
+	}	
 	for (i=innerIters; i; i--) {   // do whole force calc n steps 
 			
 	    Iteration++;
@@ -1014,6 +1018,7 @@ void minimize(int NumFrames) {
     // 2 fixed steps to initialize
     for (i=0; i<2; i++, NumFrames--) {
 	hif = 0.0;
+	fdf1 = fdf;
 	fdf = 0.0;
 	calcloop(1);
 	for (j=0; j<Nexatom; j++) {
@@ -1028,9 +1033,9 @@ void minimize(int NumFrames) {
 	}
 	tmp = old; old=cur; cur=tmp;
 	rms = sqrt(fdf/Nexatom);
-	minshot(0,rms, hif); 
-	fdf1 = fdf;
     }	
+    minshot(0,rms, hif); //offset NumFrames to allow for final minshot below
+
     // adaptive stepsize steepest descents until RMS gradient is under 500
     for (; NumFrames && rms>50.0; NumFrames--) {
 	hif = 0.0;
@@ -1106,7 +1111,7 @@ void minimize(int NumFrames) {
 	    }
 	    fdf = 0.0;
 	    fdo=0.0;
-	    calcloop(1);
+	    calcloop(0);
 	    for (j=0; j<Nexatom; j++) {
 		f= force[j];
 		ff = vdot(f,f);
@@ -1132,7 +1137,7 @@ void minimize(int NumFrames) {
 	if (movcon<0) movcon = omc+movcon;
 	hif = 0.0;
 	fdf = 0.0;
-	calcloop(1);
+	calcloop(0);
 	for (j=0; j<Nexatom; j++) {
 	    f= force[j];
 	    ff = vdot(f,f);
