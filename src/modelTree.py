@@ -1,4 +1,10 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# 10/3 currently being owned by Josh
+"""
+The model tree display widget
+$Id$
+"""
+
 from qt import *
 from RotaryMotorProp import RotaryMotorProp
 from LinearMotorProp import LinearMotorProp

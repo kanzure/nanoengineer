@@ -1,4 +1,10 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# 10/3 currently being owned by Josh
+
+"""Classes for objects in the model
+$Id$
+"""
+
 from VQT import Q
 from chem import molecule
 

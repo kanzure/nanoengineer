@@ -1,4 +1,6 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# 10/3 currently being owned by Josh
+
 """
 assembly.py -- provides class assembly, a set of molecules (plus selection state) to be shown in one glpane.
 
