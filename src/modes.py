@@ -1,4 +1,14 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+modes.py -- provides basicMode, the superclass for all specific modes.
+
+BRUCE IS TEMPORARILY OWNING ALL MODE FILES for a few days starting 040922,
+in order to fix mode-related bugs by revising the interface between modes.py,
+all specific modes, and GLPane.py. During this period, please consult Bruce
+before any changes to these files.
+
+$Id$
+"""
 from qt import *
 from qtgl import *
 from OpenGL.GL import *
@@ -33,10 +43,10 @@ class basicMode:
 	self.picking = False
 
     def Restart(self):
-        print self.modename,  "Restart not implemented yet"
+        print self.modename,  "Restart (Start Over) not implemented yet"
 
     def Flush(self):
-        print self.modename, "Flush not implemented yet"
+        print self.modename, "Flush (Cancel) not implemented yet"
 
     def Backup(self):
         print self.modename, "Backup not implemented yet"
