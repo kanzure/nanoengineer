@@ -24,6 +24,9 @@ def do_what_MainWindowUI_should_do(w):
 
     w.pasteComboBox = QComboBox(0,w.depositAtomDashboard,
                                      "pasteComboBox")
+    # bruce 041124: that combobox needs to be wider, or to grow to fit items
+    # (before this change it had width 100 and minimumWidth 0):
+    w.pasteComboBox.setMinimumWidth(160) # barely holds "(clipboard is empty)"
 
     w.depositAtomDashboard.addSeparator()
 
@@ -84,7 +87,7 @@ class depositMode(basicMode):
 
     # methods related to entering this mode
     
-    def Enter(self): # bruce 040922 split setMode into Enter and init_gui (fyi)
+    def Enter(self):
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         basicMode.Enter(self)
         self.o.assy.unpickatoms()
@@ -92,16 +95,21 @@ class depositMode(basicMode):
         self.saveDisp = self.o.display
         self.o.setDisplay(diTUBES)
         self.o.assy.selwhat = 0
-        self.new = None
+        self.new = None # bruce 041124 suspects this is never used
+        self.modified = 0 # bruce 040923 new code
+        self.pastable = None
         self.o.selatom = None
+        self.reset_drag_vars()
+
+    def reset_drag_vars(self):
+        #bruce 041124 split this out of Enter,
+        # plan to add new calls to it to fix some bugs
         self.dragatom = None
         self.dragmol = None
         self.pivot = None
         self.pivax = None
         self.baggage = []
         self.line = None
-        self.modified = 0 # bruce 040923 new code
-        self.pastable = None
     
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
@@ -116,8 +124,9 @@ class depositMode(basicMode):
     # gets called sometime before the user-event processing is done.
     
     def init_gui(self):
-        "called once each time the mode is entered; should be called only by code in modes.py"
-#        print "depositMode.py: init_gui(): Cursor set to DepositAtomCursor"
+        """called once each time the mode is entered;
+        should be called only by code in modes.py
+        """
         self.o.setCursor(self.w.DepositAtomCursor)
         # load default cursor for MODIFY mode
         self.w.toolsDepositAtomAction.setOn(1) # turn on the Deposit Atoms icon
@@ -136,24 +145,34 @@ class depositMode(basicMode):
         
         self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
 
+    dont_update_gui = 0
+    
     def update_gui(self):
-        "can be called many times during the mode; should be called only by code in modes.py"
+        """can be called many times during the mode;
+        should be called only by code in modes.py
+        """
+
+        # avoid unwanted recursion [bruce 041124]
+        if self.dont_update_gui:
+            return
+
         # update the contents and current item of self.w.pasteComboBox
         # to match the clipboard
         self.w.pasteComboBox.clear()
         cx = 0
         if self.o.assy.shelf.members: # We have something on the clipboard
-            self.pastable = self.o.assy.shelf.members[0] # (in case none picked)
-            for ob,i in zip(self.o.assy.shelf.members,
-                        range(len(self.o.assy.shelf.members))):
+            members = list(self.o.assy.shelf.members)
+            members.reverse() # bruce 041124 -- model tree seems to have them backwards
+            self.pastable = members[0] # (in case none picked)
+            for ob,i in zip(members, range(len(members))):
                 self.w.pasteComboBox.insertItem(ob.name)
                 if ob.picked:
                     cx = i
                     self.pastable = ob # ob is the clipboard object that will be pasted.
         else: # Nothing on the clipboard
             self.pastable = None
-            #e should we insert a text label saying it's empty? [bruce 041124]
-            self.w.pasteComboBox.insertItem("(clipboard is empty)") ###k ok??
+            # insert a text label saying it's empty [bruce 041124]
+            self.w.pasteComboBox.insertItem("(clipboard is empty)")
             
         # Set pasteComboBox to the picked item (cx)
         # (or to the last picked one, if several are picked)
@@ -274,6 +293,7 @@ class depositMode(basicMode):
         If cursor is on a singlet, deposit an atom bonded to it.
         If it is a real atom, drag it around.
         """
+        ## self.reset_drag_vars() # bruce 041124 bugfix-experiment [soon... ###@@@]
         a = self.o.selatom
         el =  PeriodicTable[self.w.Element]
         self.modified = 1
@@ -477,6 +497,7 @@ class depositMode(basicMode):
         if a.element == Singlet:
             self.line = [a.posn(), px]
         self.o.paintGL()
+        return
 
     def leftShiftUp(self, event):
         if not self.dragatom: return
@@ -730,12 +751,40 @@ class depositMode(basicMode):
     ## dashboard things
         
     def setPaste(self):
+        "called from radiobutton presses and spinbox changes"
         self.w.pasteP = True
         self.w.depositAtomDashboard.pasteRB.setOn(True)
         cx = self.w.pasteComboBox.currentItem()
-        if self.o.assy.shelf.members: self.pastable = self.o.assy.shelf.members[cx]
+        if self.o.assy.shelf.members:
+            try:
+                self.pastable = self.o.assy.shelf.members[-1-cx]
+                # bruce 041124 - changed [cx] to [-1-cx] (should just fix model tree)
+                # bruce 041124: the following status bar message (by me)
+                # is a good idea, but first we need to figure out how to
+                # remove it from the statusbar when it's no longer
+                # accurate!
+                #
+                ## self.w.msgbarLabel.setText("Ready to paste %r" % self.pastable.name)
+            except: # IndexError (or its name is messed up)
+                # should never happen, but be robust [bruce 041124]
+                self.pastable = None
+        else:
+            self.pastable = None # bruce 041124
+        # bruce 041124 adding more -- I think it's needed to fully fix bug 169:
+        # update clipboard selection status to match the spinbox,
+        # but prevent it from recursing into our spinbox updater
+        self.dont_update_gui = 1
+        try:
+            self.o.assy.shelf.unpick()
+            if self.pastable:
+                self.pastable.pick()
+        finally:
+            self.dont_update_gui = 0
+            self.o.assy.mt.update() # update model tree
+        return
         
     def setAtom(self):
+        "called from radiobutton presses and spinbox changes"
         self.w.pasteP = False
         self.pastable = None
         self.w.depositAtomDashboard.atomRB.setOn(True)
@@ -805,22 +854,33 @@ class depositMode(basicMode):
             ('Separate', self.o.assy.modifySeparate) ]
         
     def setHotSpot(self):
+        # revised 041124 to fix bug 169, by mark and then by bruce
         """if called on a singlet, make that singlet the hotspot for
         the molecule.  (if there's only one, it's automatically the
         hotspot)
         """
         if self.o.selatom and self.o.selatom.element == Singlet:
             self.o.selatom.molecule.hotspot = self.o.selatom
-            new = self.o.selatom.molecule.copy(None)
+            new = self.o.selatom.molecule.copy(None) # None means no assembly
             new.move(-new.center)
-            self.o.assy.shelf.addmember(new)
+            self.o.assy.shelf.setopen() #bruce 041124 change: open clipboard
+            # bruce 041124 change: add new after the other members, not before,
+            # so the order will (at least sometimes) match what's in the spinbox.
+            # (addmember adds it at the beginning by default, I think, though it
+            # appends it to the list, because the list order is reversed from
+            # what's displayed in the model tree, evidently. If that's a bug and
+            # is fixed, then this code will be wrong and will need revision.)
+            if self.o.assy.shelf.members:
+                self.o.assy.shelf.members[0].addmember(new)
+                # [0] is last item, since members are shown in reverse, evidently
+            else:
+                self.o.assy.shelf.addmember(new) # old code; adds at beginning
             self.o.assy.shelf.unpick()
             new.pick()
             self.w.pasteP = True
+            self.UpdateDashboard() # (probably also called by new.pick())
             self.w.update()
-            # mark 041124 added the following & bruce 041124 revised it:
-            self.UpdateDashboard()
-
+        return
 
     def select(self):
         if self.o.selatom:
