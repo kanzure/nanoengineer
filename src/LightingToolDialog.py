@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\LightingToolDialog.ui'
 #
-# Created: Mon Mar 14 12:14:51 2005
+# Created: Thu Mar 24 11:42:58 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,16 +20,6 @@ class LightingToolDialog(QDialog):
 
 
         LightingToolDialogLayout = QGridLayout(self,1,1,11,6,"LightingToolDialogLayout")
-
-        layout22 = QHBoxLayout(None,0,6,"layout22")
-
-        self.okPB = QPushButton(self,"okPB")
-        layout22.addWidget(self.okPB)
-
-        self.cancelPB = QPushButton(self,"cancelPB")
-        layout22.addWidget(self.cancelPB)
-
-        LightingToolDialogLayout.addLayout(layout22,3,0)
 
         self.frame1_2 = QFrame(self,"frame1_2")
         self.frame1_2.setFrameShape(QFrame.Box)
@@ -222,6 +212,19 @@ class LightingToolDialog(QDialog):
 
         LightingToolDialogLayout.addWidget(self.frame6,2,0)
 
+        layout11 = QHBoxLayout(None,0,6,"layout11")
+
+        self.okPB = QPushButton(self,"okPB")
+        layout11.addWidget(self.okPB)
+
+        self.restoreDefaultsPB = QPushButton(self,"restoreDefaultsPB")
+        layout11.addWidget(self.restoreDefaultsPB)
+
+        self.cancelPB = QPushButton(self,"cancelPB")
+        layout11.addWidget(self.cancelPB)
+
+        LightingToolDialogLayout.addLayout(layout11,3,0)
+
         self.languageChange()
 
         self.resize(QSize(411,470).expandedTo(self.minimumSizeHint()))
@@ -238,12 +241,11 @@ class LightingToolDialog(QDialog):
         self.connect(self.light1CB,SIGNAL("clicked()"),self.setLights)
         self.connect(self.light2CB,SIGNAL("clicked()"),self.setLights)
         self.connect(self.light3CB,SIGNAL("clicked()"),self.setLights)
+        self.connect(self.restoreDefaultsPB,SIGNAL("clicked()"),self.restore)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Lighting"))
-        self.okPB.setText(self.__tr("Save"))
-        self.cancelPB.setText(self.__tr("Cancel"))
         self.light1CB.setText(self.__tr("On"))
         self.textLabel2_4.setText(self.__tr("Light Source #1:"))
         self.textLabel1_4.setText(self.__tr("Ambient Brightness:"))
@@ -256,6 +258,9 @@ class LightingToolDialog(QDialog):
         self.textLabel2_3.setText(self.__tr("Light Source #3:"))
         self.textLabel1_2_2.setText(self.__tr("Ambient Brightness:"))
         self.textLabel1_3_3_2.setText(self.__tr("Diffuse Brightness:"))
+        self.okPB.setText(self.__tr("Save"))
+        self.restoreDefaultsPB.setText(self.__tr("Restore Defaults"))
+        self.cancelPB.setText(self.__tr("Cancel"))
 
 
     def valueChangedAmbient1(self):
@@ -278,6 +283,9 @@ class LightingToolDialog(QDialog):
 
     def setLights(self):
         print "LightingToolDialog.setLights(): Not implemented yet"
+
+    def restore(self):
+        print "LightingToolDialog.restore(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("LightingToolDialog",s,c)

@@ -19,32 +19,6 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget" row="3" column="0">
-            <property name="name">
-                <cstring>layout22</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>okPB</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Save</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>cancelPB</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Cancel</string>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
         <widget class="QFrame" row="0" column="0">
             <property name="name">
                 <cstring>frame1_2</cstring>
@@ -498,6 +472,40 @@
                 </widget>
             </grid>
         </widget>
+        <widget class="QLayoutWidget" row="3" column="0">
+            <property name="name">
+                <cstring>layout11</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Save</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>restoreDefaultsPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Restore Defaults</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancelPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
     </grid>
 </widget>
 <connections>
@@ -567,6 +575,12 @@
         <receiver>LightingToolDialog</receiver>
         <slot>setLights()</slot>
     </connection>
+    <connection>
+        <sender>restoreDefaultsPB</sender>
+        <signal>clicked()</signal>
+        <receiver>LightingToolDialog</receiver>
+        <slot>restore()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>valueChangedAmbient1()</slot>
@@ -576,6 +590,7 @@
     <slot>valueChangedDiffuse2()</slot>
     <slot>valueChangedDiffuse3()</slot>
     <slot>setLights()</slot>
+    <slot>restore()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
