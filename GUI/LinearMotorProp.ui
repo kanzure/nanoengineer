@@ -1,0 +1,446 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>LinearMotorPropDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>LinearMotorPropDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>395</width>
+            <height>297</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>2</hsizetype>
+            <vsizetype>2</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="caption">
+        <string>Motor Properties</string>
+    </property>
+    <property name="modal">
+        <bool>true</bool>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>50</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <bold>1</bold>
+            </font>
+        </property>
+        <property name="text">
+            <string>Force:</string>
+        </property>
+        <property name="alignment">
+            <set>AlignCenter</set>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>140</x>
+                <y>10</y>
+                <width>61</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <bold>1</bold>
+            </font>
+        </property>
+        <property name="text">
+            <string>Stiffness:</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>force</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>60</x>
+                <y>10</y>
+                <width>60</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>0.0</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>cancelButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>220</x>
+                <y>250</y>
+                <width>71</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <bold>1</bold>
+            </font>
+        </property>
+        <property name="text">
+            <string>Cancel</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>stiffness</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>200</x>
+                <y>10</y>
+                <width>50</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>0.0</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel5</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>261</x>
+                <y>10</y>
+                <width>50</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <bold>1</bold>
+            </font>
+        </property>
+        <property name="text">
+            <string>Atoms:</string>
+        </property>
+        <property name="alignment">
+            <set>AlignCenter</set>
+        </property>
+    </widget>
+    <widget class="QComboBox">
+        <property name="name">
+            <cstring>atomsList</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>310</x>
+                <y>10</y>
+                <width>70</width>
+                <height>30</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>60</y>
+                <width>350</width>
+                <height>71</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <pointsize>11</pointsize>
+                <bold>1</bold>
+            </font>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <property name="title">
+            <string>Motor Center Coordinates</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>130</x>
+                    <y>20</y>
+                    <width>16</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>y:</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>cZ</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>260</x>
+                    <y>20</y>
+                    <width>61</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>0.0</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3_2_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>240</x>
+                    <y>20</y>
+                    <width>16</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>z:</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>cX</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>40</x>
+                    <y>20</y>
+                    <width>61</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>0.0</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>20</y>
+                    <width>16</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>x:</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>cY</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>150</x>
+                    <y>20</y>
+                    <width>61</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>0.0</string>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox1_2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>140</y>
+                <width>350</width>
+                <height>71</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <pointsize>11</pointsize>
+                <bold>1</bold>
+            </font>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <property name="title">
+            <string>Motor Axis Vector</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3_3</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>20</y>
+                    <width>16</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>x:</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3_2_2_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>240</x>
+                    <y>20</y>
+                    <width>16</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>z:</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>aZ</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>260</x>
+                    <y>20</y>
+                    <width>61</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>0.0</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3_2_3</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>130</x>
+                    <y>20</y>
+                    <width>16</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>y:</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>aX</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>40</x>
+                    <y>20</y>
+                    <width>61</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>0.0</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>aY</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>150</x>
+                    <y>20</y>
+                    <width>61</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>0.0</string>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>okButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>70</x>
+                <y>250</y>
+                <width>71</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <bold>1</bold>
+            </font>
+        </property>
+        <property name="text">
+            <string>OK</string>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>okButton</sender>
+        <signal>clicked()</signal>
+        <receiver>LinearMotorPropDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>cancelButton</sender>
+        <signal>clicked()</signal>
+        <receiver>LinearMotorPropDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+</connections>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
