@@ -231,7 +231,7 @@ class Group(Node):
         if self.name == self.assy.name: msg = "Part Name: [" + self.name +"]"
         elif self.name == "Clipboard": msg = "Clipboard"
         else: msg = "Group Name: [" + self.name +"]"
-        self.assy.w.msgbarLabel.setText( msg )
+        self.assy.w.statusBar.message( msg )
 
     def unpick(self):
         """unselect the object

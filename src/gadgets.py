@@ -174,7 +174,7 @@ class RotaryMotor(Jig):
         """select the rotary motor
         """
         self.picked = True
-        self.assy.w.msgbarLabel.setText(self.getinfo())
+        self.assy.w.statusBar.message(self.getinfo())
         self.normcolor = self.color
         self.color = self.pickcolor
 
@@ -183,7 +183,7 @@ class RotaryMotor(Jig):
         """
         if self.picked:
             self.picked = False
-            self.assy.w.msgbarLabel.setText(" ")
+            self.assy.w.statusBar.message(" ")
             self.color = self.normcolor
                
     # Rotary Motor is drawn as a cylinder along the axis,
@@ -314,7 +314,7 @@ class LinearMotor(Jig):
         """select the linear motor
         """
         self.picked = True
-        self.assy.w.msgbarLabel.setText(self.getinfo())
+        self.assy.w.statusBar.message(self.getinfo())
         self.normcolor = self.color
         self.color = self.pickcolor
 
@@ -323,7 +323,7 @@ class LinearMotor(Jig):
         """
         if self.picked:
             self.picked = False
-            self.assy.w.msgbarLabel.setText(" ")
+            self.assy.w.statusBar.message(" ")
             self.color = self.normcolor
                     
     # drawn as a gray box along the axis,
@@ -427,7 +427,7 @@ class Ground(Jig):
         """select the ground
         """
         self.picked = True
-        self.assy.w.msgbarLabel.setText(self.getinfo())
+        self.assy.w.statusBar.message(self.getinfo())
         self.normcolor = self.color
         self.color = self.pickcolor
         
@@ -436,7 +436,7 @@ class Ground(Jig):
         """
         if self.picked:
             self.picked = False
-            self.assy.w.msgbarLabel.setText(" ")
+            self.assy.w.statusBar.message(" ")
             self.color = self.normcolor
                                    
     # Returns the MMP record for the current Ground as:
@@ -505,7 +505,7 @@ class Stat(Jig):
         """select the thermostat
         """
         self.picked = True
-        self.assy.w.msgbarLabel.setText(self.getinfo())
+        self.assy.w.statusBar.message(self.getinfo())
         self.normcolor = self.color
         self.color = self.pickcolor
         
@@ -514,7 +514,7 @@ class Stat(Jig):
         """
         if self.picked:
             self.picked = False
-            self.assy.w.msgbarLabel.setText(" ")
+            self.assy.w.statusBar.message(" ")
             self.color = self.normcolor
                
     # Returns the MMP record for the current Stat as:
@@ -532,4 +532,3 @@ class Stat(Jig):
         return s + " ".join(map(str,nums)) + "\n"
 
     pass # end of class Stat
-

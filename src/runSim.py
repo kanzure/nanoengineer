@@ -46,7 +46,7 @@ class runSim(SimSetupDialog):
         os.chdir(tmpFilePath)
 
         try:
-            self.assy.w.msgbarLabel.setText("Calculating...")
+            self.assy.w.statusBar.message("Calculating...")
             #if self.assy.modified: writemmp(self.assy, self.assy.filename)
             r = os.spawnv(os.P_WAIT, filePath + '/../bin/simulator', args)
         except:
@@ -56,10 +56,10 @@ class runSim(SimSetupDialog):
         os.chdir(oldWorkingDir)    
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
-            self.assy.w.msgbarLabel.setText("Movie written to "+ os.path.join(tmpFilePath, "simulate" + self.mext))
+            self.assy.w.statusBar.message("Movie written to "+ os.path.join(tmpFilePath, "simulate" + self.mext))
         else:
             if not s: s = "exit code %r" % r
-            self.assy.w.msgbarLabel.setText("Simulation Failed!") ##e include s?
+            self.assy.w.statusBar.message("Simulation Failed!") ##e include s?
             QMessageBox.warning(self.assy.w, "Simulation Failed:", s)
         return
 

@@ -801,10 +801,12 @@ class GLPane(QGLWidget, modeMixin):
         # Bugs included uncaught exception (rather than error message)
         # which could also fail to restore the current working directory.
         from debug import print_compact_traceback
+        ## bruce 041101 removed this since it's immediately overwritten below:
+        ## self.win.statusBar.message( "Minimizing...")
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # hourglass
         s = ""; args = ['bugifseen']; r = program = 'bugifseen'
         try:
-            self.win.msgbarLabel.setText("Calculating...")
+            self.win.statusBar.message("Calculating...")
             import os, sys
             filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
             tmpFilePath = self.win.tmpFilePath 
@@ -831,7 +833,7 @@ class GLPane(QGLWidget, modeMixin):
             r = -1 # simulate failure
         QApplication.restoreOverrideCursor() # Restore the cursor
         if not r:
-            self.win.msgbarLabel.setText("Minimizing...")
+            self.win.statusBar.message("Minimizing...")
             self.startmovie(os.path.join(tmpFilePath, "minimize.dpb"))
         else:
             if not s:
@@ -839,12 +841,12 @@ class GLPane(QGLWidget, modeMixin):
             print "Minimization Failed:", s
             print "note: spawnv args were %r" % (args,)
             print " in the temporary working directory %r" % (tmpFilePath,)
-            self.win.msgbarLabel.setText("Minimization Failed! (%s)" % (s,))
+            self.win.statusBar.message("Minimization Failed!") ##e include s?
             QMessageBox.warning(self, "Minimization Failed:", s)
         return
 
     def startmovie(self,filename):
-        self.win.msgbarLabel.setText("Playing " + filename)
+        self.win.statusBar.message("Playing " + filename)
         self.assy.movsetup()
         self.xfile=open(filename,'rb')
         self.clock = unpack('i',self.xfile.read(4))[0]
@@ -855,7 +857,7 @@ class GLPane(QGLWidget, modeMixin):
         if self.clock<0:
             self.killTimers()
             self.assy.movend()
-            self.win.msgbarLabel.setText("Done.")
+            self.win.statusBar.message("Done.")
         else:
             self.assy.movatoms(self.xfile)
             self.paintGL()

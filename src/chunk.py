@@ -1112,7 +1112,7 @@ class molecule(Node, InvalMixin):
             ## self.havelist = 0
             
             # print molecule info on the msgbar. - Mark [2004-10-14]
-            self.assy.w.msgbarLabel.setText(self.getinfo())
+            self.assy.w.statusBar.message(self.getinfo())
 
     def unpick(self):
         """unselect the molecule.

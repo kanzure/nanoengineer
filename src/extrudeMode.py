@@ -1327,7 +1327,7 @@ class extrudeMode(basicMode):
 ##                sys.stdout.write(".")
 ##                sys.stdout.flush()
         assert type(text) in [type(""), type(u"")] # only after we print it...
-        self.w.msgbarLabel.setText(text)
+        self.w.statusBar.message(text)
 
     show_bond_offsets_handlesets = [] # (default value) the handlesets to be visible iff self.show_bond_offsets
     

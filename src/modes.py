@@ -420,7 +420,7 @@ class basicMode(anyMode):
         # print first, since if there's a bug, printed output is most important,
         # and otherwise we'll see both messages anyway.
         print "status (%s):" % self.msg_modename, text
-        self.w.msgbarLabel.setText(text)
+        self.w.statusBar.message(text)
 
     # methods for changing to some other mode
     

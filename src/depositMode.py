@@ -293,7 +293,7 @@ class depositMode(basicMode):
             atm = None
         self.o.selatom = atm
         if self.o.selatom != oldselatom:
-            ## self.w.msgbarLabel.setText("%r" % (atm,)) # might obscure other messages?? not sure.
+       ## self.w.statusBar.message("%r" % (atm,)) # might obscure other messages?? not sure.
             self.o.paintGL() # draws selatom too, since its chunk is not hidden
 
     def posn_str(self, atm): #bruce 041123
@@ -367,7 +367,7 @@ class depositMode(basicMode):
                 self.o.selatom = None
                 self.dragmol = None
                 status = self.ensure_visible(chunk, status) #bruce 041207
-                self.w.msgbarLabel.setText(status)
+                self.w.statusBar.message(status)
                 self.w.update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
@@ -427,7 +427,7 @@ class depositMode(basicMode):
             # now fix bug 229 part B (as called in comment #2),
             # by making this new chunk visible if it otherwise would not be
             status = self.ensure_visible(chunk, status) #bruce 041207
-            self.w.msgbarLabel.setText(status)
+            self.w.statusBar.message(status)
             # fall thru
         # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
         self.pivot = None
@@ -597,7 +597,7 @@ class depositMode(basicMode):
                 msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
             else:
                 msg = "dragged atom %r to %s" % (a, self.posn_str(a))
-            self.w.msgbarLabel.setText(msg)
+            self.w.statusBar.message(msg)
         self.o.paintGL()
         return
 
@@ -631,7 +631,7 @@ class depositMode(basicMode):
         flag, status = bond_at_singlets(dragatom, selatom, \
                          print_error_details = print_error_details)
         # we ignore flag, which says whether it's ok, warning, or error
-        self.w.msgbarLabel.setText("%s: %s" % (self.msg_modename, status))
+        self.w.statusBar.message("%s: %s" % (self.msg_modename, status))
         return
 
     ## delete with cntl-left mouse
@@ -858,7 +858,7 @@ class depositMode(basicMode):
                 # remove it from the statusbar when it's no longer
                 # accurate!
                 #
-                ## self.w.msgbarLabel.setText("Ready to paste %r" % self.pastable.name)
+                ## self.w.statusBar.message("Ready to paste %r" % self.pastable.name)
             except: # IndexError (or its name is messed up)
                 # should never happen, but be robust [bruce 041124]
                 self.pastable = None

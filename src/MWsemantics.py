@@ -102,7 +102,7 @@ class MWsemantics(MainWindow):
         self.glpane = GLPane(self.assy, splitter, "glpane", self)
 
         # Some final splitter setup
-        splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)       
+        splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)
         splitter.setOpaqueResize(False)
         self.setCentralWidget(splitter)
         
@@ -155,6 +155,10 @@ class MWsemantics(MainWindow):
    
         return # from MWsemantics.__init__
 
+
+    #def resizeEvent(self, event):
+     #   print "why I am changing size? ", event
+     #   QMainWindow.resizeEvent(self, event)            
 
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]
@@ -254,20 +258,20 @@ class MWsemantics(MainWindow):
                     insertmmp(self.assy, fn)
                 except:
                     print "MWsemantics.py: fileInsert(): error inserting file" + fn
-                    self.msgbarLabel.setText( "Problem inserting MMP file: " + fn )
+                    self.statusBar.message( "Problem inserting MMP file: " + fn )
                 else:
                     self.assy.modified = 1 # The file and the part are not the same.
-                    self.msgbarLabel.setText( "MMP file inserted: " + fn )
+                    self.statusBar.message( "MMP file inserted: " + fn )
             
             if fn[-3:] in ["pdb","PDB"]:
                 try:
                     insertpdb(self.assy, fn)
                 except:
                     print "MWsemantics.py: fileInsert(): error inserting PDB file" + fn
-                    self.msgbarLabel.setText( "Problem inserting file: " + fn )
+                    self.statusBar.message( "Problem inserting file: " + fn )
                 else:
                     self.assy.modified = 1 # The file and the part are not the same.
-                    self.msgbarLabel.setText( "PDB file inserted: " + fn )
+                    self.statusBar.message( "PDB file inserted: " + fn )
             
             self.glpane.scale=self.assy.bbox.scale()
             self.glpane.paintGL()
@@ -342,7 +346,7 @@ class MWsemantics(MainWindow):
                 ext = ".mmp"
                 sdir = globalParms['WorkingDirectory']
         else:
-            self.msgbarLabel.setText( "Save Ignored: Part is currently empty." )
+            self.statusBar.message( "Save Ignored: Part is currently empty." )
             return
 
         if ext == ".pdb": sfilter = QString("Protein Data Bank (*.pdb)")
@@ -372,7 +376,7 @@ class MWsemantics(MainWindow):
                         1 )     # Escape == button 1
 
                     if ret==1: # The user cancelled
-                        self.msgbarLabel.setText( "Cancelled.  Part not saved." )
+                        self.statusBar.message( "Cancelled.  Part not saved." )
                         return # Cancel clicked or Alt+C pressed or Escape pressed
             
             self.saveFile(safile)
@@ -387,13 +391,13 @@ class MWsemantics(MainWindow):
                     writepdb(self.assy, safile)
                 except:
                     print "MWsemantics.py: saveFile(): error writing file" + safile
-                    self.msgbarLabel.setText( "Problem saving file: " + safile )
+                    self.statusBar.message( "Problem saving file: " + safile )
                 else:
                     self.assy.filename = safile
                     self.assy.name = fil
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                    self.msgbarLabel.setText( "PDB file saved: " + self.assy.filename )
+                    self.statusBar.message( "PDB file saved: " + self.assy.filename )
                     self.mt.update()
             
             elif ext == ".pov": # Write POV-Ray file
@@ -401,44 +405,44 @@ class MWsemantics(MainWindow):
                     writepov(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file " + safile
-                    self.msgbarLabel.setText( "Problem saving file: " + safile )
+                    self.statusBar.message( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "POV-Ray file saved: " + safile )
+                    self.statusBar.message( "POV-Ray file saved: " + safile )
             
             elif ext == ".mdl": # Write MDL file
                 try:
                     writemdl(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file " + safile
-                    self.msgbarLabel.setText( "Problem saving file: " + safile )
+                    self.statusBar.message( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "MDL file saved: " + safile )
+                    self.statusBar.message( "MDL file saved: " + safile )
             
             elif ext == ".jpg": # Write JPEG file
                 try:
                     self.glpane.image(safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file" + safile
-                    self.msgbarLabel.setText( "Problem saving file: " + safile )
+                    self.statusBar.message( "Problem saving file: " + safile )
                 else:
-                    self.msgbarLabel.setText( "JPEG file saved: " + safile )
+                    self.statusBar.message( "JPEG file saved: " + safile )
 
             elif ext == ".mmp" : # Write MMP file
                 try:
                     writemmp(self.assy, safile)
                 except:
                     print "MWsemantics.py: fileSaveAs(): error writing file" + safile
-                    self.msgbarLabel.setText( "Problem saving file: " + safile )
+                    self.statusBar.message( "Problem saving file: " + safile )
                 else:
                     self.assy.filename = safile
                     self.assy.name = fil
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                    self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
+                    self.statusBar.message( "MMP file saved: " + self.assy.filename )
                     self.mt.update()
             
             else: # This should never happen.
-                self.msgbarLabel.setText( "MWSemantics.py: fileSaveAs() - File Not Saved.")
+                self.statusBar.message( "MWSemantics.py: fileSaveAs() - File Not Saved.")
 
     def closeEvent(self,ce): # via File > Exit or clicking X titlebar button
         
@@ -496,7 +500,7 @@ class MWsemantics(MainWindow):
             wd = str(wd)
             wd = os.path.normpath(wd)
             globalParms['WorkingDirectory'] = wd
-            self.msgbarLabel.setText( "Working Directory set to " + wd )
+            self.statusBar.message( "Working Directory set to " + wd )
             
             # Write ~/.atomrc file with new Working Directory
             rc = os.path.expanduser("~/.atomrc")
@@ -512,7 +516,7 @@ class MWsemantics(MainWindow):
         # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Untitled")
         self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
-        self.msgbarLabel.setText( " " )
+        self.statusBar.message( " " )
         self.glpane.setAssy(self.assy)
         self.assy.mt = self.mt
 
@@ -1258,24 +1262,26 @@ class MWsemantics(MainWindow):
                 
             
     def createStatusBars(self):
+        self.statusBar = self.statusBar()
+            
         # Mark - Set up primary (left) message bar in status bar area.
-        self.msgbarLabel = QLabel(self, "msgbarLabel")
-        self.msgbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.msgbarLabel.setText( " " )
-        
-        self.statusBar().addWidget(self.msgbarLabel,1,1)
+        #self.msgbarLabel = QLabel(self.statusBar, "msgbarLabel")
+        #self.msgbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        #self.msgbarLabel.setText( " " )
+        #self.statusBar.addWidget(self.msgbarLabel, 1, 0)
 
         # Mark - Set up mode bar (right) in status bar area.        
-        self.dispbarLabel = QLabel(self, "dispbarLabel")
+        self.dispbarLabel = QLabel(self.statusBar, "dispbarLabel")
         self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        
-        self.statusBar().addWidget(self.dispbarLabel,0,1)
+        self.statusBar.addWidget(self.dispbarLabel, 0)
         
         # Mark - Set up mode bar (right) in status bar area.        
-        self.modebarLabel = QLabel(self, "modebarLabel")
+        self.modebarLabel = QLabel(self.statusBar, "modebarLabel")
         self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.statusBar.addWidget(self.modebarLabel, 0)
+
+              
         
-        self.statusBar().addWidget(self.modebarLabel,0,1)
         
     def hideDashboards(self):
         self.cookieCutterDashboard.hide()

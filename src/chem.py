@@ -682,7 +682,7 @@ class atom:
             self.molecule.changeapp(1)
             # Print information about the selected atom in the msgbar
             # [mark 2004-10-14] [bruce 041104: needs revision, but ok for now]
-            self.molecule.assy.w.msgbarLabel.setText(self.getinfo())
+            self.molecule.assy.w.statusBar.message(self.getinfo())
                 
     def unpick(self):
         """make the atom unselected
