@@ -284,7 +284,7 @@ class cookieMode(basicMode):
             ('Backup', self.Backup),
             ('Done', self.Done), # bruce 041217
             None,
-            ('Layer', self.Layer),
+            ('Add New Layer', self.Layer),
             # bruce 041103 removed Copy, per Ninad email;
             # Josh says he might implement it for Alpha;
             # if/when he does, he can uncomment the following two lines.

@@ -179,9 +179,9 @@ class selectMode(basicMode):
             return item
         
         self.Menu_spec = [
-            ('All', self.o.assy.selectAll),
-            ('None', self.o.assy.selectNone),
-            ('Invert', self.o.assy.selectInvert),
+            ('Select All                     Ctrl+A', self.o.assy.selectAll),
+            ('Select None                Ctrl+D', self.o.assy.selectNone),
+            ('Invert Selection   Ctrl+Shift+I', self.o.assy.selectInvert),
             None,
             ('Connected', self.o.assy.selectConnected),
             ('Doubly', self.o.assy.selectDoubly),
@@ -196,10 +196,11 @@ class selectMode(basicMode):
             (fixit('Select Atoms'), self.w.toolsSelectAtoms),
             (fixit('Select Chunks'), self.w.toolsSelectMolecules),
             ('Move Chunks', self.w.toolsMoveMolecule), 
+            ('Build Atoms', self.w.toolsAtomStart),
             ]
         
         self.Menu_spec_shift = [
-            ('Delete', self.o.assy.kill),
+            ('Delete        Del', self.o.assy.kill),
             ('Move', self.move), # redundant but intentionally left in for now
             None,
             ('Hide', self.o.assy.Hide),

@@ -190,7 +190,7 @@ class modifyMode(basicMode):
         self.Menu_spec = [
             ('Separate', self.o.assy.modifySeparate),
             ('Stretch', self.o.assy.Stretch),
-            ('Delete', self.o.assy.kill),
+            ('Delete     Del', self.o.assy.kill),
             ('Hide', self.o.assy.Hide),
             None,
             # bruce 041217 added the following (rather than just Done)
@@ -200,6 +200,7 @@ class modifyMode(basicMode):
                 # The parens are an experiment. A checkmark would be better.
                 # We should merge this with fixit() in selectMode.py by making
                 # that an accessible utility in basicMode. #e
+            ('Build Atoms', self.w.toolsAtomStart),
          ]
 
         self.debug_Menu_spec = [

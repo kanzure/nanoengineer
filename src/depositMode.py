@@ -964,7 +964,7 @@ class depositMode(basicMode):
         self.Menu_spec_control = [
             ('Passivate', self.o.assy.modifyPassivate),
             ('Hydrogenate', self.o.assy.modifyHydrogenate),
-            ('Separate', self.o.assy.modifySeparate) ]
+            ('Dehydrogenate', self.o.assy.modifyDehydrogenate) ]
         
     def setHotSpot(self):
         # revised 041124 to fix bug 169, by mark and then by bruce
