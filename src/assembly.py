@@ -594,12 +594,17 @@ class assembly:
         if not self.selatoms:
             self.w.history.message(redmsg("Select Doubly: No atom(s) selected."))
             return
+            
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.w.history.message(greenmsg("Select Doubly:"))
         
+        self.w.history.message("Working.  Please wait...")
         alreadySelected = len(self.selatoms.values())
         self.markdouble()
         totalSelected = len(self.selatoms.values())
         self.w.history.message("%d doubly connected atom(s) selected." % totalSelected)
+        
+        QApplication.restoreOverrideCursor() # Restore the cursor
         
         if totalSelected > alreadySelected: ## otherwise, means nothing new selected. Am I right? ---Huaicai, not analyze the markdouble() algorithm yet 
                 #self.w.win_update()
