@@ -431,21 +431,14 @@ class assembly:
         for mol in self.selmols:
             self.modified = 1
             mol.move(move)
-            
-            #Update its bounding box
-            mol.bbox.data += move
-        
-        #Recalculate center and bounding box for the assembly    
-        self.bbox = BBox()
-        for mol in self.molecules:
-              self.bbox.merge(mol.bbox)
-        self.center = self.bbox.center()    
-
+ 
+ 
     # rotate any selected parts in space ("rot" is a quaternion)
     def rotsel(self, rot):
         for mol in self.selmols:
             self.modified = 1
             mol.rot(rot)
+             
 
     # delete whatever is selected
     def kill(self):
@@ -465,6 +458,7 @@ class assembly:
 
         if self.selwhat == 2:
             self.tree.apply2picked(lambda o: o.kill())
+            
         self.setDrawLevel()
 
 
@@ -514,7 +508,14 @@ class assembly:
 
     def __str__(self):
         return "<Assembly of " + self.filename + ">"
-    
+
+    def computeBoundingBox(self):
+        """"Compute the bounding box for the assembly. This should be called whenever the geomety model has been changed, like new parts added, parts/atoms deleted, parts moved/rotated(not view move/rotation), etc. """ 
+        self.bbox = BBox()
+        for mol in self.molecules:
+              self.bbox.merge(mol.bbox)
+        self.center = self.bbox.center()    
+        
     # makes a motor connected to the selected atoms
     # note I don't check for a limit of 25 atoms, but any more
     # will choke the file parser in the simulator
@@ -636,9 +637,12 @@ class assembly:
            (###k is that ok? if not, we'll change this func to use None in place of N.)
         """
         if self.selwhat: return
+        
         if not self.selatoms: #always wind up in part pick mode
-            self.pickParts()
+            #self.pickParts()
+            self.w.toolsSelectMolecules()
             return
+            
         numolist=[]
         for mol in self.molecules:
             numol = molecule(self, mol.name + gensym("-frag"))
@@ -656,9 +660,12 @@ class assembly:
                     self.killmol(mol)
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
+                    
         self.unpickatoms()
-        self.pickParts()
+        #self.pickParts()
+        self.w.toolsSelectMolecules()
         for m in numolist: m.pick()
+        
         self.w.update()
 
     # change surface atom types to eliminate dangling bonds

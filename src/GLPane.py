@@ -467,6 +467,8 @@ class GLPane(QGLWidget, modeMixin):
         but = event.stateAfter()
         but = self.fix_buttons(but, 'press')
         
+        #print "Button pressed: ", but
+        
         if but & leftButton:
             if but & shiftButton:
                 self.mode.leftShiftDown(event)
@@ -516,7 +518,7 @@ class GLPane(QGLWidget, modeMixin):
 
         if but & rightButton:
             if but & shiftButton:
-                self.mode.rightShiftUp(event)
+                 self.mode.rightShiftUp(event)
             elif but & cntlButton:
                 self.mode.rightCntlUp(event)
             else:
@@ -669,6 +671,7 @@ class GLPane(QGLWidget, modeMixin):
         if self.drawAxisIcon: self.drawarrow(aspect)
         
         vdist = 6.0 * self.scale
+                
         if self.ortho:
             glOrtho(-self.scale*aspect, self.scale*aspect,
                     -self.scale, self.scale,
@@ -679,6 +682,8 @@ class GLPane(QGLWidget, modeMixin):
                       vdist*self.near, vdist*self.far)
 
         glMatrixMode(GL_MODELVIEW)
+        if aspect < 1.0:
+             vdist /= aspect
 	glTranslatef(0.0, 0.0, - vdist)
 
         q = self.quat

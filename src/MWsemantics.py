@@ -1007,6 +1007,9 @@ class MWsemantics(MainWindow):
 
     def setViewFitToWindow(self):
         """ Fit to Window """
+        #Recalculate center and bounding box for the assembly    
+        self.assy.computeBoundingBox()     
+
         self.glpane.scale=self.assy.bbox.scale()
         #print "scale: ", self.glpane.scale
         #print "pov, center: ", self.glpane.pov, self.assy.center
@@ -1168,7 +1171,9 @@ class MWsemantics(MainWindow):
         self.datumDispDashboard.hide()  # (mark note: this is the datum display toolbar)
         self.selectMolDashboard.hide()
         self.selectAtomsDashboard.hide()
+
         self.moveMolDashboard.hide()
+
         
     def createWhatsThis(self):
         
@@ -1219,4 +1224,4 @@ class MWsemantics(MainWindow):
         QMimeSourceFactory.defaultFactory().setPixmap( "editUndo",
                                                        self.editUndoAction.iconSet().pixmap() )
 
-        self.editUndoAction.setWhatsThis( editUndoText )
+        self.editUndoAction.setWhatsThis( editUndoText )>>>>>>> 1.71.2.2

@@ -94,6 +94,14 @@ class cookieMode(basicMode):
         if key == Qt.Key_Shift or key == Qt.Key_Control:
             self.o.setCursor(self.w.CookieCursor)
     
+    def rightShiftDown(self, event):
+            basicMode.rightShiftDown(self, event)
+            self.o.setCursor(self.w.CookieCursor)
+            
+    def rightCntlDown(self, event):          
+            basicMode.rightCntlDown(self, event)
+            self.o.setCursor(self.w.CookieCursor)
+    
     def leftDown(self, event):
 #        self.shape.curves
         self.StartDraw(event, 2) # new selection (replace)

@@ -10,6 +10,7 @@ from constants import *
 from chem import *
 from gadgets import *
 from Utility import *
+from selectMode import selectMode
 import sys, os
 
 CHANGE_FROM_TREE = True
@@ -120,7 +121,11 @@ class modelTree(QListView):
     def select(self, item):
         if not item: return
         self.win.assy.unpickatoms()
-        self.win.assy.selwhat = 2
+        
+        if isinstance(self.win.glpane.mode, selectMode): 
+                self.win.toolsSelectMolecules()
+        else:        
+                self.win.assy.selwhat = 2
         
         if not self.modifier: self.win.assy.unpickparts()
         

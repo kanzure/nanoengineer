@@ -945,6 +945,11 @@ class molecule(Node):
         if self.singlets:
             self.singlpos = self.center + self.quat.rot(self.singlbase)
         for bon in self.externs: bon.setup()
+        
+        #Added by Huaicai 10/27/04
+        #Update its bounding box
+        self.bbox.data += offs
+
 
     def rot(self, q):
         self.quat += q
@@ -952,6 +957,11 @@ class molecule(Node):
         if self.singlets:
             self.singlpos = self.center + self.quat.rot(self.singlbase)
         for bon in self.externs: bon.setup()
+        
+        #Added by Huaicai 10/27/04
+        #Update its bounding box
+        self.bbox = BBox(self.curpos)
+        
 
     def pivot(self, point, q):
         """pivot the molecule around point by quaternion q
@@ -1041,7 +1051,11 @@ class molecule(Node):
         except ValueError: pass
         for b in self.externs:
             b.bust(self)
-
+        
+        #10/28/04, delete all atoms, so gadgets attached can be deleted when no atoms
+        #  attaching the gadget . Huaicai
+        for a in self.atoms.values(): a.kill()
+        
     # point is some point on the line of sight
     # matrix is a rotation matrix with z along the line of sight,
     # positive z out of the plane

@@ -164,8 +164,8 @@ class selectMode(basicMode):
                                     ('Connected', self.o.assy.selectConnected),
                                     ('Doubly', self.o.assy.selectDoubly),
                                     None,
-                                    ('Atoms', self.o.assy.selectAtoms),
-                                    ('Parts', self.o.assy.selectParts)])
+                                    ('Atoms', self.w.toolsSelectAtoms),#self.o.assy.selectAtoms),
+                                    ('Parts', self.w.toolsSelectMolecules)])#self.o.assy.selectParts)])
         
         self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
                                     ('Copy', self.o.assy.copy),
@@ -228,6 +228,14 @@ class selectMolsMode(selectMode):
             if key == Qt.Key_Shift or key == Qt.Key_Control:
 #                print "selectMode.py: keyRelease(): Cursor set to SelectMolsCursor"
                 self.o.setCursor(self.w.SelectMolsCursor)
+                
+        def rightShiftDown(self, event):
+            basicMode.rightShiftDown(self, event)
+            self.o.setCursor(self.w.SelectMolsCursor)
+           
+        def rightCntlDown(self, event):          
+            basicMode.rightCntlDown(self, event)
+            self.o.setCursor(self.w.SelectMolsCursor)
 
 class selectAtomsMode(selectMode):
         modename = 'SELECTATOMS'
@@ -257,3 +265,12 @@ class selectAtomsMode(selectMode):
             basicMode.keyRelease(self, key)
             if key == Qt.Key_Shift or key == Qt.Key_Control:
                 self.o.setCursor(self.w.SelectAtomsCursor)
+       
+       
+        def rightShiftDown(self, event):
+            basicMode.rightShiftDown(self, event)
+            self.o.setCursor(self.w.SelectAtomsCursor)
+           
+        def rightCntlDown(self, event):          
+            basicMode.rightCntlDown(self, event)
+            self.o.setCursor(self.w.SelectAtomsCursor)         

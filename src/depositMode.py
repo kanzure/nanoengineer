@@ -4,7 +4,9 @@ depositMode.py
 
 Currently owned by Josh for extensive additions.
 
+
 $Id$
+
 """
 from Numeric import *
 from modes import *
@@ -185,6 +187,10 @@ class depositMode(basicMode):
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
         if key == Qt.Key_Control:
+            self.o.setCursor(self.w.DepositAtomCursor)
+
+    def rightCntlDown(self, event):          
+            basicMode.rightCntlDown(self, event)
             self.o.setCursor(self.w.DepositAtomCursor)
 
     def getCoords(self, event):

@@ -627,7 +627,6 @@ class basicMode(anyMode):
     # middle mouse button actions -- these support a trackball, and
     # are the same for all modes (with a few exceptions)
     def middleDown(self, event):
-        
 #        print "modes.py: middleDown(): Current Cursor = ", self.o.cursor()
 #        print "modes.py: middleDown(): Current Cursor saved in Oldcursor"
         self.w.OldCursor = QCursor(self.o.cursor())
@@ -646,7 +645,7 @@ class basicMode(anyMode):
         self.picking = 0
 
     def middleUp(self, event):
-#        print "modes.py: middleUp(): Oldcursor restored"
+#        print "modes.py: middleUp(): Oldcursor restored", self.w.OldCursor
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleShiftDown(self, event):
@@ -743,11 +742,11 @@ class basicMode(anyMode):
         pass
     
     def rightUp(self, event):
-#        print "modes.py: rightUp()"
+        #print "modes.py: rightUp()"
         pass
     
     def rightShiftDown(self, event):
-        self.Menu2.popup(event.globalPos(),3)
+        self.Menu2.exec_loop(event.globalPos(),3)
 #        print "modes.py: rightShiftDown()"
 
                 
@@ -759,8 +758,8 @@ class basicMode(anyMode):
         pass
     
     def rightCntlDown(self, event):
-        self.Menu3.popup(event.globalPos(),3)
-    
+        self.Menu3.exec_loop(event.globalPos(),3)
+        
     def rightCntlDrag(self, event):
         pass
     

@@ -124,8 +124,10 @@ class RotaryMotor(Node):
     # josh 10/26 to fix bug 85
     def rematom(self, a):
         self.atoms.remove(a)
+        
         # should check and delete the jig if no atoms left
-        # jig needs a "kill()" method
+        if not self.atoms:
+                self.kill()
         
            
     # Rotary Motor is drawn as a cylinder along the axis,
@@ -203,22 +205,26 @@ class LinearMotor(Node):
         self.center = center
         self.axis = norm(axis)
 
+    def rematom(self, a):
+        self.atoms.remove(a)
+        
+        # should check and delete the jig if no atoms left
+        if not self.atoms:
+                self.kill()
+
     # for a linear motor read from a file, the "shaft" record
     def setShaft(self, shaft):
         self.atoms = shaft
-        # this is a hack, but a motor shouldn't be
-        # attached to more than one molecule anyway
-#        self.molecule = shaft[0].molecule
-#        self.center -= self.molecule.center
-#        self.molecule.gadgets += [self]
-
+        for a in shaft: a.jigs += [self]
+ 
     # for a motor created by the UI, center is average point and
     # axis (kludge) is the average of the cross products of
     # vectors from the center to successive points
     # los is line of sight into the screen
     def findCenter(self, shft, los):
         self.atoms=shft
-        # array of absolute atom positions
+        for a in shft: a.jigs += [self]
+          # array of absolute atom positions
         # can't use xyz, might be from different molecules
         pos=A(map((lambda a: a.posn()), shft))
         self.center=sum(pos)/len(pos)
@@ -336,6 +342,16 @@ class Ground(Node):
         self.pickcolor = (1.0, 0.0, 0.0) # ground is red when picked
         self.cntl = GroundProp(self, assy.o)
         
+        for a in list: a.jigs += [self]
+
+     
+    def rematom(self, a):
+        self.atoms.remove(a)
+        
+        # should check and delete the jig if no atoms left
+        if not self.atoms:
+                self.kill()   
+
 
     def edit(self):
         self.cntl.setup()
@@ -415,6 +431,16 @@ class Stat(Node):
         self.temp = 300
         self.cntl = StatProp(self, assy.o)
         
+        for a in list: a.jigs += [self]   
+    
+    
+    def rematom(self, a):
+        self.atoms.remove(a)
+        
+        # should check and delete the jig if no atoms left
+        if not self.atoms:
+                self.kill()    
+
 
     def edit(self):
         self.cntl.setup()

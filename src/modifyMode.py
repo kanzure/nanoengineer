@@ -49,6 +49,14 @@ class modifyMode(basicMode):
         if key == Qt.Key_Shift or key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSelectCursor)
 
+    def rightShiftDown(self, event):
+            basicMode.rightShiftDown(self, event)
+            self.o.setCursor(self.w.MoveSelectCursor)
+           
+    def rightCntlDown(self, event):          
+            basicMode.rightCntlDown(self, event)
+            self.o.setCursor(self.w.MoveSelectCursor)
+           
     def leftDown(self, event):
         """Move the selected object(s) in the plane of the screen following
         the mouse.
@@ -125,7 +133,6 @@ class modifyMode(basicMode):
         """ Set up for sliding or rotating the selected part
         unlike select zoom/rotate, can have combined motion
         """
-      
         self.o.SaveMouse(event)
         ma = V(0,0,0)
         for mol in self.o.assy.selmols:
@@ -152,7 +159,7 @@ class modifyMode(basicMode):
             ma = mol.getaxis()
             mol.move(dx*ma)
             mol.rot(Q(ma,-dy))
-
+        
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
         self.o.paintGL()
@@ -160,6 +167,7 @@ class modifyMode(basicMode):
     
     def leftShiftUp(self, event):
         self.EndPick(event, 1)
+
 
     def leftDouble(self, event):
         self.Done() # bruce 040923: how to do this need not change
