@@ -375,14 +375,14 @@ class MWsemantics(MainWindow):
             else: # This should never happen.
                 self.msgbarLabel.setText( "MWSemantics.py: fileSaveAs() - File Not Saved.")
 
-    def closeEvent(self,ce):
+    def closeEvent(self,ce): # via File > Exit or clicking X titlebar button
         
         if not self.assy.modified:
             ce.accept()
             return
             
         rc = QMessageBox.warning( self, self.name(),
-                "The part has been changed since the last save.\n"
+                "The part contains unsaved changes.\n"
                 "Do you want to save the changes before exiting?",
                 "&Save", "&Discard", "Cancel",
                 0,      # Enter == button 0
@@ -396,19 +396,6 @@ class MWsemantics(MainWindow):
         else:
             ce.ignore()
 
-    def fileExit(self):
-        if self.assy.modified:
-            ret = QMessageBox.warning( self, self.name(),
-                "The part contains unsaved changes.\n"
-                "Do you want to save the changes before exiting?",
-                "&Save", "&Discard", "Cancel",
-                0,      # Enter == button 0
-                2 )     # Escape == button 2
-            
-            if ret==0: self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
-            elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
-        self.destroy()
-        
     def fileClear(self):
         self.__clear()
         self.modelTreeView.update()
