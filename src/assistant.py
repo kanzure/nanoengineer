@@ -241,7 +241,7 @@ class AssistantWindow(QMainWindow):
         file.insertItem('&Print',self.slotPrint,Qt.CTRL+Qt.Key_P)
         file.insertSeparator()
         file.insertItem('&Close',self,SLOT('close()'),Qt.CTRL+Qt.Key_Q)
-        file.insertItem('E&xit',qApp,SLOT('closeAllWindows()'),Qt.CTRL+Qt.Key_X)
+#        file.insertItem('E&xit',qApp,SLOT('closeAllWindows()'),Qt.CTRL+Qt.Key_X)
 
         backIcon = QIconSet(QPixmap(back))
         forwardIcon = QIconSet(QPixmap(forward))
