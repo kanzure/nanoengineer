@@ -843,7 +843,13 @@ class molecule(Node):
             self.externs = []
 
             for atm in self.atoms.itervalues():
-                atm.draw(o, disp, self.color, self.assy.drawLevel)
+                # bruce 041014 hack for extrude -- use colorfunc if present
+                try:
+                    color = self.colorfunc(atm)
+                except: # no such attr, or it's None, or it has a bug
+                    color = self.color
+                # end bruce hack, except for use of color rather than self.color in atm.draw
+                atm.draw(o, disp, color, self.assy.drawLevel)
                 for bon in atm.bonds:
                     if bon.key not in drawn:
                         if bon.other(atm).molecule != self:
