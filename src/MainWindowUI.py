@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Mon Sep 20 11:25:49 2004
+# Created: Mon Sep 20 18:29:26 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5556,13 +5556,6 @@ class MainWindow(QMainWindow):
         self.setIcon(self.image0)
         self.setUsesBigPixmaps(0)
 
-        self.setCentralWidget(QWidget(self,"qt_central_widget"))
-
-        self.mainFrame = QFrame(self.centralWidget(),"mainFrame")
-        self.mainFrame.setGeometry(QRect(10,10,660,500))
-        self.mainFrame.setSizePolicy(QSizePolicy(2,2,0,0,self.mainFrame.sizePolicy().hasHeightForWidth()))
-        self.mainFrame.setFrameShape(QFrame.NoFrame)
-        self.mainFrame.setFrameShadow(QFrame.Plain)
 
         self.fileNewAction = QAction(self,"fileNewAction")
         self.fileNewAction.setIconSet(QIconSet(self.image1))
@@ -5801,7 +5794,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(275,0,210,29))
+        self.viewToolbar.setGeometry(QRect(277,0,211,29))
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
         self.setViewPerspecAction.addTo(self.viewToolbar)
@@ -5811,14 +5804,14 @@ class MainWindow(QMainWindow):
         self.setViewRightAction.addTo(self.viewToolbar)
         self.gridsToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.gridsToolbar.setGeometry(QRect(485,0,98,29))
+        self.gridsToolbar.setGeometry(QRect(488,0,99,29))
         self.gridsToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.orient100Action.addTo(self.gridsToolbar)
         self.orient110Action.addTo(self.gridsToolbar)
         self.orient111Action.addTo(self.gridsToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(583,0,182,29))
+        self.molecularDispToolbar.setGeometry(QRect(587,0,183,29))
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -5836,7 +5829,7 @@ class MainWindow(QMainWindow):
         self.selectDoublyAction.addTo(self.selectToolbar)
         self.cookieCutterToolbar = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterToolbar.setGeometry(QRect(0,0,515,29))
+        self.cookieCutterToolbar.setGeometry(QRect(0,0,563,29))
         self.cookieCutterToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterToolbar,"textLabel2")
@@ -5876,7 +5869,7 @@ class MainWindow(QMainWindow):
         self.toolsCancelAction.addTo(self.sketchAtomToolbar)
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.modifyToolbar.setGeometry(QRect(0,0,30,311))
+        self.modifyToolbar.setGeometry(QRect(0,0,30,312))
         self.modifyMinimizeAction.addTo(self.modifyToolbar)
         self.modifyHydrogenateAction.addTo(self.modifyToolbar)
         self.modifyDehydrogenateAction.addTo(self.modifyToolbar)
@@ -5890,7 +5883,7 @@ class MainWindow(QMainWindow):
         self.modifyWeldMoleculeAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,311,30,182))
+        self.toolsToolbar.setGeometry(QRect(0,312,30,183))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSketchAtomAction.addTo(self.toolsToolbar)
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
@@ -5901,7 +5894,7 @@ class MainWindow(QMainWindow):
         self.toolsMovieAction.addTo(self.toolsToolbar)
         self.datumDispToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.datumDispToolbar.setGeometry(QRect(0,493,30,176))
+        self.datumDispToolbar.setGeometry(QRect(0,495,30,177))
         self.datumDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispToolbar)
         self.dispOpenBondsAction.addTo(self.datumDispToolbar)
@@ -5913,7 +5906,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1062,33))
+        self.MenuBar.setGeometry(QRect(0,0,1062,25))
 
         self.fileMenu = QPopupMenu(self)
         self.fileNewAction.addTo(self.fileMenu)
