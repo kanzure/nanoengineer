@@ -42,8 +42,8 @@ def compact_traceback():
             printlines.append("[%s:%r]" % ( os.path.basename(filename), lineno ))
             traceback = traceback.tb_next
         del traceback
-        ctb = '\n'.join(printlines)
-        return "%s: %s\n%s" % (type, value, ctb)
+        ctb = ' '.join(printlines)
+        return "%s: %s\n  %s" % (type, value, ctb)
     except:
         del traceback
         return "<bug in compact_traceback(); exception from that not shown>"
@@ -64,7 +64,7 @@ def compact_stack( skip_innermost_n = 1 ):
         printlines.append("[%s:%r]" % ( os.path.basename(filename), lineno ))
         frame = frame.f_back
     printlines.reverse() # make it outermost first, like compact_traceback
-    return '\n'.join(printlines)
+    return ' '.join(printlines)
 
 # test code for those -- but more non-test code follows, below this!
 
