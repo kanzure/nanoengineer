@@ -12,79 +12,27 @@ Specific mmp format versions used so far:
 
 [developers: maintain this list!]
 
-<none> -- before 050130 (shortly before Alpha-1 released)
+<no mmpformat record> -- before 050130 (shortly before Alpha-1 released)
 
   (though the format had several versions before then,
    not all upward-compatible)
 
-050130 -- introduced just before Alpha-1 release, at or shortly after
-two Csys records were stored, one for Home View and one for Last View
+'050130' -- the mmpformat record, using this format-version "050130",
+were introduced just before Alpha-1 release, at or shortly after
+the format was changed so that two (rather than one) Csys records
+were stored, one for Home View and one for Last View
 
-'050130 required; 050217 optional' -- introduced on 050217,
+'050130 required; 050217 optional' -- introduced by bruce on 050217,
 when the info record was added.
 
-General notes (could be moved outside of this file; partly redundant):
+===
 
-- When to change the format-version string:
+General notes about when to change the mmp format version:
+see a separate file, fileIO-doc.txt.
 
-Each extension to the kinds of info records that can be written
-(or any other upward-compatible file format extension)
-should upgrade the 'optional' date in the format string;
-only changes which should (ideally) cause earlier code to reject
-the file, or warn that reading it might not work properly,
-should upgrade the 'required' date.
+[bruce 050227 moved those notes out of this docstring and into that
+new file, which is initially in the same directory as this file.]
 
-(Note that current reader code doesn't yet try to notice whether it's
-too old to read the file; but it does show the user what format the
-file had, in the Edit Properties dialog for the Part.)
-
-It will be good if all format-version strings ever used
-sort in the proper order when sorted as python strings.
-At some point the reader code might assume this.
-  
-- Strictly speaking, the format-version should not be stored in
-the assy since it's a property of the file as written, not of the assy
-contents. But the assy records the value found in the last-read file
-or used in the last-written file (whichever happened later),
-and some other code finds it there for display to the user.
-
-- The format string MUST be updated whenever the mmp file format
-used by our writing-code (writemmp or anything it calls) changes
-in a way which will not work properly when read by older reading code.
-This permits reading code to predict whether it can read the file...
-or it would, if older reading code contained any check of the format,
-but so far it doesn't, so this doesn't yet help older code read newer files.
-This also permits newer reading code to handle both newer and older files,
-and that should work fine provided we do the right thing when we upgrade
-the format (which has never happened since this mmpformat record was introduced).
-
-- The format string CAN be updated when the mmp file format changes
-in an upward-compatible way, which will work better when read by newer code
-but will still work correctly (or just as well as older mmp files do)
-when read by older code. This is the case when new mmp records are added
-(which older reading code will ignore, both in cad and in simulator),
-for which older code ignoring them is not a problem. Whether it's good
-or not to change the format is not yet clear, since the reading code
-doesn't yet try to use that info at all.
-
-- Any change to the written mmp format should be documented in a comment
-near the top of this file, whether or not it's upward-compatible and
-whether or not it resulted in a change to the mmpformat value.
-But this has never been done until 050217 (though the format has
-changed several times).
-
-- Experimental change [bruce 050217:
-We now include in the format both the required date
-of the reading code, for correctly reading the file,
-and the optional date, i.e. the date if you want to read all the optional
-info (e.g. new upward-compatible record types) that might be in the file.
-
-Ideally we'd base the latter on the actual file contents; but probably we
-never will, since it would require two passes (inefficient for big files),
-and is partly redundant (since reader can notice when it doesn't recognize
-something, though it can't guess the date of definition of that thing).
-Probably better would be to write a dated "definition record" before the first
-use of each record type (and say whether it's optional, etc). ##e
 """
 
 MMP_FORMAT_VERSION_TO_WRITE = '050130 required; 050217 optional'
