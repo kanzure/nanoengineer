@@ -507,6 +507,23 @@
     </toolbar>
     <toolbar dock="3">
         <property name="name">
+            <cstring>zoomDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Zoom Window</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>zoomTextLabel</cstring>
+            </property>
+            <property name="text">
+                <string>Zoom Window</string>
+            </property>
+        </widget>
+        <action name="nullAction"/>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
             <cstring>depositAtomDashboard</cstring>
         </property>
         <property name="label">

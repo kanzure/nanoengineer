@@ -684,10 +684,7 @@ class MWsemantics(MainWindow):
         """
         self.glpane.prevMode= self.glpane.mode.modename
         self.glpane.prevModeColor = self.glpane.mode.backgroundColor
-        
-        print "zoomWindow(): prevMode = ", self.glpane.prevMode
-        print "zoomWindow(): prevModeColor = ", self.glpane.prevModeColor
-        
+
         self.glpane.setMode('ZOOM')
 
     # GLPane.ortho is checked in GLPane.paintGL
@@ -1627,11 +1624,12 @@ class MWsemantics(MainWindow):
         self.selectAtomsDashboard.hide()
         self.moveMolDashboard.hide()
         self.moviePlayerDashboard.hide()
+        self.zoomDashboard.hide()
         
         ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
         objList = self.queryList("QToolBar")
         for obj in objList:
-                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard]:
+                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard]:
                          self.setAppropriate(obj, False)
 
     # Import code for What's This support        

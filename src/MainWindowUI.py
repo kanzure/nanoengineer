@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jan 20 22:07:46 2005
+# Created: Sat Jan 22 16:20:20 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7860,6 +7860,11 @@ class MainWindow(QMainWindow):
 
         self.textLabel1_2 = QLabel(self.selectMolDashboard,"textLabel1_2")
         self.nullAction.addTo(self.selectMolDashboard)
+        self.zoomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
+
+        self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
+        self.nullAction.addTo(self.zoomDashboard)
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
@@ -8527,6 +8532,8 @@ class MainWindow(QMainWindow):
         self.frameNumberSB.setPrefix(QString.null)
         self.selectMolDashboard.setLabel(self.__tr("Select Molecule"))
         self.textLabel1_2.setText(self.__tr("Select Chunks"))
+        self.zoomDashboard.setLabel(self.__tr("Zoom Window"))
+        self.zoomTextLabel.setText(self.__tr("Zoom Window"))
         self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
         self.modifyToolbar.setLabel(self.__tr("Modify"))
         self.toolsToolbar.setLabel(self.__tr("Tools"))
