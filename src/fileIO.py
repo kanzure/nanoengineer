@@ -134,12 +134,14 @@ def readmmp(assy,filnam):
 
         if key == "group": # Group of Molecules and/or Groups
             name = getname(card, "Grp")
+            if name == "Shelf": name = "Clipboard" # kludge to get rid of Shelf name
             opengroup = Group(name, assy, assy.tree)
             if not groupstack: grouplist += [opengroup]
             groupstack = [(opengroup, name)] + groupstack
 
         if key == "egroup": # Group of Molecules and/or Groups
             name = getname(card, "Grp")
+            if name == "Shelf": name = "Clipboard" # kludge to get rid of Shelf name
             curgrp, curnam = groupstack[0]
             if name != curnam:
                 print "mismatched group records:", name, curnam
