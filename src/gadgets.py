@@ -343,7 +343,6 @@ class Ground(Node):
             file.write("ground(" + povpoint(a.posn()) + "," +
                 str(rad) + ",<" + 
                 str(self.c[0]) + "," + str(self.c[1]) + "," + str(self.c[2]) + ">)\n")
-#                str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
 
     def move(self, offset):
         pass
@@ -352,7 +351,7 @@ class Ground(Node):
         self.icon = treewidget.groundIcon
         
     def getinfo(self):
-        return "[Object: Ground] [Name: " + str(self.name) + "]"
+        return "[Object: Ground] [Name: " + str(self.name) + "] [Total Grounds: " + str(len(self.atoms)) + "]"
 
     def pick(self):
         """select the ground
@@ -430,7 +429,7 @@ class Stat(Node):
         self.icon = treewidget.statIcon
 
     def getinfo(self):
-        return "[Object: Thermostat] [Name: " + str(self.name) + "] [Temp = " + str(self.temp) + "K]"
+        return "[Object: Thermostat] [Name: " + str(self.name) + "] [Temp = " + str(self.temp) + "K]" + "] [Total Stats: " + str(len(self.atoms)) + "]"
         
     def pick(self):
         """select the thermostat
