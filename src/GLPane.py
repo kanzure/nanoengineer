@@ -38,6 +38,9 @@ import operator
 import struct
 from povheader import povheader
 
+from fileIO import *
+
+
 paneno = 0
 #  ... what a Pane ...
 
@@ -619,7 +622,7 @@ class GLPane(QGLWidget):
         pic.save(filename, "JPEG", quality=85)
 
     def minimize(self):
-        self.assy.writemmp("minimize.mmp")
+        writemmp(self.assy, "minimize.mmp")
         s = getoutput("simulator -m minimize.mmp")
         if s[:8] != "Minimize":
             QMessageBox.warning(self, "Minimization Failed:", s)
