@@ -15,12 +15,6 @@
             <height>826</height>
         </rect>
     </property>
-    <property name="baseSize">
-        <size>
-            <width>0</width>
-            <height>0</height>
-        </size>
-    </property>
     <property name="caption">
         <string>Atom</string>
     </property>
@@ -67,11 +61,7 @@
             <x>0</x>
             <y>0</y>
             <width>1062</width>
-<<<<<<< MainWindowUI.ui
-            <height>24</height>
-=======
             <height>33</height>
->>>>>>> 1.2
         </rect>
     </property>
     <item text="&amp;File" name="fileMenu">
@@ -233,17 +223,9 @@
         </property>
         <property name="geometry">
             <rect>
-<<<<<<< MainWindowUI.ui
-                <x>279</x>
-=======
                 <x>277</x>
->>>>>>> 1.2
                 <y>0</y>
-<<<<<<< MainWindowUI.ui
-                <width>184</width>
-=======
                 <width>211</width>
->>>>>>> 1.2
                 <height>29</height>
             </rect>
         </property>
@@ -2135,9 +2117,6 @@
         <property name="menuText">
             <string>Inser&amp;t...</string>
         </property>
-        <property name="toolTip">
-            <string>Insert...</string>
-        </property>
     </action>
     <action>
         <property name="name">
@@ -2886,14 +2865,6 @@
         <receiver>MainWindow</receiver>
         <slot>toolsStartOver()</slot>
     </connection>
-<<<<<<< MainWindowUI.ui
-    <connection>
-        <sender>fileInsertAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>fileInsert()</slot>
-    </connection>
-=======
     <connection>
         <sender>modifySetElementAction</sender>
         <signal>activated()</signal>
@@ -2906,7 +2877,6 @@
         <receiver>MainWindow</receiver>
         <slot>elemChange()</slot>
     </connection>
->>>>>>> 1.2
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3002,11 +2972,7 @@
     <slot>setViewRecenter()</slot>
     <slot>setViewTop()</slot>
     <slot>toggleDatumDispTbar()</slot>
-<<<<<<< MainWindowUI.ui
-    <slot>fileInsert()</slot>
-=======
     <slot>modifySetElement()</slot>
->>>>>>> 1.2
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
