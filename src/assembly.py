@@ -469,13 +469,14 @@ class assembly:
     #bond atoms (cheap hack)
     def Bond(self):
         if not self.selatoms: return
-        self.modified = 1
         aa=self.selatoms.values()
         if len(aa)==2:
+            self.modified = 1
             aa[0].molecule.bond(aa[0], aa[1])
-        aa[0].molecule.changeapp()
-        aa[1].molecule.changeapp()
-        self.o.paintGL()
+            #bruce 041028 bugfix: bring following lines inside the 'if'
+            aa[0].molecule.changeapp()
+            aa[1].molecule.changeapp()
+            self.o.paintGL()
 
     #unbond atoms (cheap hack)
     def Unbond(self):
@@ -483,8 +484,10 @@ class assembly:
         self.modified = 1
         aa=self.selatoms.values()
         if len(aa)==2:
-            for b1 in aa[0].bonds:
-                for b2 in aa[1].bonds:
+            #bruce 041028 bugfix: add [:] to copy following lists,
+            # since bust will modify them during the iteration
+            for b1 in aa[0].bonds[:]:
+                for b2 in aa[1].bonds[:]:
                     if b1 == b2: b1.bust()
         self.o.paintGL()
 
