@@ -956,34 +956,28 @@ class molecule(Node, InvalMixin):
             # even if we later change the kind of value it produces.
         pairs.sort()
         res = [atm for key, atm in pairs]
-        # debug code, can be removed when it's worked for awhile
-        for i in range(len(res)):
-            if i:
-                # verify I used "list extension syntax" properly, above
-                assert res[i-1].key < res[i].key
         return res
     
-    def writemmp(self, atnums, alist, f):
-        disp = dispNames[self.display]
-        f.write("mol (" + self.name + ") " + disp + "\n")
+    def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
+        "[overrides Node.writemmp]"
+        disp = mapping.dispname(self.display)
+        mapping.write("mol (" + self.name + ") " + disp + "\n")
         #bruce 050228: write atoms in the same order they were created in,
         # so as to preserve atom order when an mmp file is read and written
         # with no atoms created or destroyed and no chunks reordered, thus
         # making previously-saved movies more likely to retain their validity.
         for atm in self.atoms_in_mmp_file_order():
-            atm.writemmp(atnums, alist, f)
-##        for a in self.atoms.values():
-##            a.writemmp(atnums, alist, f)
+            atm.writemmp(mapping)
         #bruce 050217 new feature [see also a comment added to fileIO.py]:
         # also write the hotspot, if there is one.
         hs = self.hotspot # uses getattr to validate it
         if hs:
             # hs is a valid hotspot in this chunk, and was therefore one of the
-            # atoms just written above, and therefore should have an atnum for
-            # the current mmp file:
-            hs_num = hs.atnum(atnums, alist)
+            # atoms just written above, and therefore should have an encoding
+            # already assigned for the current mmp file:
+            hs_num = mapping.encode_atom(hs)
             assert hs_num != None
-            f.write("info chunk hotspot = %s\n" % hs_num)
+            mapping.write("info chunk hotspot = %s\n" % hs_num)
         return
 
     # write to a povray file:  draw the atoms and bonds inside a molecule

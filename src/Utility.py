@@ -852,16 +852,17 @@ class Node:
     def dumptree(self, depth=0):
         print depth*"...", self.name
 
-    def writemmp(self, atnums, alist, f):
-        """Write this Node to an mmp file, open for writing as 'f'.
-        ###e Need to document: atnums, atlist.
-        [subclasses must override this to be written into an mmp file; debug warning if they don't.]
+    def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
+        """Write this Node to an mmp file, as controlled by mapping,
+        which should be an instance of fileIO.writemmp_mapping.
+        [subclasses must override this to be written into an mmp file;
+         we print a debug warning if they don't.]
         """
         # bruce 050322 revising this; this implem used to be the normal way
         # to write Jigs; now it's basically an error to call this implem,
         # but it's harmless -- it puts a comment in the mmp file and prints a debug warning.
         line = "# not yet implemented: mmp record for %r" % self.__class__.__name__
-        f.write(line + '\n')
+        mapping.write(line + '\n')
         if platform.atom_debug:
             print "atom_debug:", line
         return
@@ -1472,11 +1473,11 @@ class Group(Node):
         for ob in self.members:
             ob.getstatistics(stats)
   
-    def writemmp(self, atnums, alist, f):
-        f.write("group (" + self.name + ")\n")
+    def writemmp(self, mapping): #bruce 050322 revised interface
+        mapping.write("group (" + self.name + ")\n")
         for x in self.members:
-            x.writemmp(atnums, alist, f)
-        f.write("egroup (" + self.name + ")\n")
+            x.writemmp(mapping)
+        mapping.write("egroup (" + self.name + ")\n")
         
     def writepov(self, f, dispdef):
         if self.hidden: return
@@ -1534,9 +1535,10 @@ class Csys(DataNode):
         "[overrides Node method]"
         return False
 
-    def writemmp(self, atnums, alist, f):
-        v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale,       self.pov[0], self.pov[1], self.pov[2], self.zoomFactor)
-        f.write("csys (" + self.name +
+    def writemmp(self, mapping):
+        v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale,
+             self.pov[0], self.pov[1], self.pov[2], self.zoomFactor)
+        mapping.write("csys (" + self.name +
                 ") (%f, %f, %f, %f) (%f) (%f, %f, %f) (%f)\n" % v)
 
     def copy(self, dad=None):
@@ -1565,8 +1567,8 @@ class Datum(DataNode):
         "[overrides Node method]"
         return False
         
-    def writemmp(self, atnums, alist, f):
-        f.write("datum (" + self.name + ") " +
+    def writemmp(self, mapping):
+        mapping.write("datum (" + self.name + ") " +
                 "(%d, %d, %d) " % self.rgb +
                 self.type + " " +
                 "(%f, %f, %f) " % tuple(self.center) +

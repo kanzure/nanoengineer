@@ -147,24 +147,30 @@ class Jig(Node):
         "does this jig hold this atom fixed in space? [should be overridden by subclasses as needed]"
         return False # for most jigs
 
-    def writemmp(self, atnums, alist, f):
+    def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         "[overrides Node.writemmp; could be overridden by Jig subclasses, but isn't (as of 050322)]"
          #bruce 050322 made this from old Node.writemmp, but replaced nonstandard use of __repr__
-        line = self.mmp_record(atnums) # includes '\n' at end
+        line = self.mmp_record(mapping.atnums) # includes '\n' at end
         if line:
-            f.write(line)
+            mapping.write(line)
         else:
-            Node.writemmp(self, atnums, alist, f)
+            Node.writemmp(self, mapping)
 
-    def mmp_record(self, atnums):
+    def mmp_record(self, atnums = None):
+        ###e should revise interface to use mapping, factor some common code from implems into mapping methods
         """[subclasses must override this to return their mmp record,
         which must consist of 1 or more lines each ending in '\n',
-        including the last line]
+        including the last line; or return None to force caller to use some default value]
         """
-        pass
+        return None
 
     def __repr__(self): #bruce 050322 compatibility method, probably not needed, but affects debugging
-        return self.mmp_record()
+        line = self.mmp_record()
+        if line:
+            return line
+        else:
+            return "<%s at %#x>" % (self.__class__.__name__, id(self)) # untested
+        pass
 
     #e there might be other common methods to pull into here
 

@@ -216,7 +216,7 @@ def writepdb(assy, filename):
             atomIndex += 1
             if len(aList) > 1:
                 connectList.append(aList)
-                #bruce 050318 comment: shouldn't we leave it out if len(alist) == 1?
+                #bruce 050318 comment: shouldn't we leave it out if len(aList) == 1?
                 # I think so, so I'm doing that (unlike the previous code).
 
             f.write("\n")
@@ -311,7 +311,7 @@ def _readmmp(assy, filename, isInsert = False):
         assy.filename = filename
     mol = None # the current molecule being built, if any [bruce comment 050228]
     ndix = {}
-    assy.alist = []
+    assy.alist = [] # bruce 050322 comment: this should be removed soon ####@@@@
     AddAtoms = True
     #assy.tree = Group("Root", assy, None)
     groupstack = [] #stack to store (group, name) tuples
@@ -788,7 +788,108 @@ def workaround_for_bug_296(assy):
         print_compact_traceback("bug in bug-296 bugfix in fileIO.writemmp: ")
     return
 
+class writemmp_mapping: #bruce 050322, to help with minimize selection and other things
+    """Provides an object for accumulating data while writing an mmp file.
+    Specifically, the object stores options which affect what's written,
+    accumulates an encoding of atoms as numbers,
+    has helper methods for using that encoding,
+    writing some parts of the file;
+    in future this will be able to write forward refs for jigs and save
+    the unwritten jigs they refer to until they're written at the end.
+    """
+    fp = None
+    def __init__(self, assy, **options):
+        "#doc; assy is used for some side effects (hopefully that can be cleaned up)."
+        self.assy = assy
+        self.atnums = atnums = {}
+        atnums['NUM'] = 0 # kluge from old code, kept for now
+            #e soon, change atnums to store strings, and keep 'NUM' as separate instvar
+        self.alist = [] # might be removed later; used only as an initial compatibility kluge (grabbed by client code)
+        self.options = options
+        self.sim = options.get('sim', False) # simpler file just for the simulator?
+        self.min = options.get('min', False) # even more simple, just for minimize?
+        if self.min:
+            self.sim = True
+        pass
+    def set_fp(self, fp):
+        "set file pointer to write to (don't forget to call write_header after this!)"
+        self.fp = fp
+    def write(self, lines):
+        "write one or more \n-terminates lines to our file pointer"
+        #e future versions might also hash these lines, to help make a movie id
+        self.fp.write(lines)
+    def close(self, error = False):
+        if error:
+            try:
+                self.write("\n# error writing file\n")
+            except:
+                print_compact_traceback("exception writing to mmp file, ignored: ")
+        self.fp.close()
+    def write_header(self):
+        assy = self.assy
+        # The MMP File Format is initialized here, just before we write the file.
+        # Mark 050130
+        # [see also the general notes and history of the mmpformat,
+        # in a comment or docstring near the top of this file -- bruce 050217]
+        assy.mmpformat = MMP_FORMAT_VERSION_TO_WRITE
+            #bruce 050322 comment: this side effect is questionable when self.sim or self.min is True
+        self.fp.write("mmpformat %s\n" % assy.mmpformat)
+        
+        if self.min:
+            self.fp.write("# mmp file for minimizer, might affect details of format\n")
+        elif self.sim:
+            self.fp.write("# mmp file for simulator, might affect details of format\n")
+        
+        if not self.min:
+            self.fp.write("kelvin %d\n" % assy.temperature)
+        # To be added for Beta.  Mark 05-01-16
+        ## f.write("movie_id %d\n" % assy.movieID)
+        return
+    def encode_next_atom(self, atom):
+        """Assign the next sequential number (for use only in this writing of this mmp file)
+        to the given atom; return the number AS A STRING and also store it herein for later use.
+        Error if this atom was already assigned a number.
+        """
+        # code moved here from old atom.writemmp in chem.py
+        atnums = self.atnums
+        alist = self.alist
+        assert atom.key not in atnums # new assertion, bruce 030522
+        atnums['NUM'] += 1 # old kluge, to be removed
+        num = atnums['NUM']
+        alist.append(atom) #k needed??
+        atnums[atom.key] = num
+        assert str(num) == self.encode_atom(atom)
+        return str(num)
+    def encode_atom(self, atom):
+        """Return an encoded reference to this atom (a short string, actually
+        a printed int as of 050322, guaranteed true i.e. not "")
+        for use only in the mmp file contents we're presently creating,
+        or None if no encoding has yet been assigned to this atom for this
+        file-writing event.
+           This has no side effects -- to allocate new encodings, use
+        encode_next_atom instead.
+           Note: encoding is valid only for one file-writing-event,
+        *not* for the same filename if it's written to again later
+        (in principle, not even if the file contents are unchanged, though in
+        practice, for other reasons, we try to make the encoding deterministic).
+        """
+        if atom.key in self.atnums:
+            return str(self.atnums[atom.key])
+        else:
+            return None
+        pass
+    def dispname(self, display):
+        "(replaces disp = dispNames[self.display] in older code)"
+        if self.sim:
+            disp = "-" # assume sim ignores this field
+        else:
+            disp = dispNames[display]
+        return disp
+    pass # end of class writemmp_mapping
+
 # write all molecules, motors, grounds into an MMP file
+# bruce 050322 revised to use mapping;
+# soon should remove its set of assy.alist, but didn't yet.
 def writemmp(assy, filename, addshelf = True):
     
     workaround_for_bug_296( assy)
@@ -797,33 +898,29 @@ def writemmp(assy, filename, addshelf = True):
     ## file saving
     assy.o.saveLastView(assy)  
     
-    f = open(filename,"w")
-    atnums = {}
-    atnums['NUM'] = 0
-    assy.alist = []
-    
-    # The MMP File Format is initialized here, just before we write the file.
-    # Mark 050130
-    # [see also the general notes and history of the mmpformat,
-    # in a comment or docstring near the top of this file -- bruce 050217]
-    assy.mmpformat = MMP_FORMAT_VERSION_TO_WRITE
+    fp = open(filename, "w")
 
-    f.write("mmpformat %s\n" % assy.mmpformat)
-    
-    f.write("kelvin %d\n" % assy.temperature)
-    
-    # To be added for Beta.  Mark 05-01-16
-#    f.write("movie_id %d\n" % assy.movieID)
-    
-    assy.data.writemmp(atnums, assy.alist, f)
-    assy.tree.writemmp(atnums, assy.alist, f)
+    mapping = writemmp_mapping(assy) ###e should pass sim or min options when used that way...
+    assy.alist = mapping.alist # initial compatibility kluge (preserve same bugs as before) ####@@@@
+    mapping.set_fp(fp)
 
-    f.write("end1\n")
-    
-    if addshelf: assy.shelf.writemmp(atnums, assy.alist, f)
-                     
-    f.write("end molecular machine part " + assy.name + "\n")
-    f.close()
+    try:
+        mapping.write_header()
+        assy.data.writemmp(mapping)
+        assy.tree.writemmp(mapping)
+        
+        mapping.write("end1\n")
+        
+        if addshelf:
+            assy.shelf.writemmp(mapping)
+        
+        mapping.write("end molecular machine part " + assy.name + "\n")
+    except:
+        mapping.close(error = True)
+        raise
+    else:
+        mapping.close()
+    return
 
 def povpoint(p):
     # note z reversal -- povray is left-handed

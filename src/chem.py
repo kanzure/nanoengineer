@@ -405,38 +405,29 @@ class atom:
                 disp = dispdef
         return not (disp == diINVISIBLE)
 
-    def writemmp(self, atnums, alist, f):
-        atnums['NUM'] += 1
-        num = atnums['NUM']
-        alist += [self]
-        atnums[self.key] = num
-        disp = dispNames[self.display]
-        xyz=self.posn()*1000
-        n=(num, self.element.eltnum,
+    def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
+        "[compatible with Node.writemmp, though we're not a subclass of Node]"
+        num_str = mapping.encode_next_atom(self) # (note: pre-050322 code used an int here)
+##        atnums['NUM'] += 1
+##        num = atnums['NUM']
+##        alist += [self]
+##        atnums[self.key] = num
+        disp = mapping.dispname(self.display)
+        #####e also we want special code for singlets when mapping.sim is true
+        xyz = self.posn()*1000
+        n = (num_str, self.element.eltnum,
            int(xyz[0]), int(xyz[1]), int(xyz[2]), disp)
-        f.write("atom %d (%d) (%d, %d, %d) %s\n" % n)
-        bl=[]
+        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % n)
+        bl = [] # (note: in pre-050322 code bl held ints, not strings)
         for b in self.bonds:
             oa = b.other(self)
-            if oa.key in atnums: bl += [atnums[oa.key]]
+            #bruce 050322 revised this:
+            oa_code = mapping.encode_atom(oa) # None, or true and prints as "atom number string"
+            if oa_code:
+                bl.append(oa_code)
+##            if oa.key in atnums: bl += [atnums[oa.key]]
         if len(bl) > 0:
-            f.write("bond1 " + " ".join(map(str,bl)) + "\n")
-
-    def atnum(self, atnums, alist): #bruce 050217
-        """Return the number used to refer to this atom in the mmp file
-        being written using atnums and alist,
-        or None if no number has yet been given to this atom while writing that file.
-        No side effects.
-        In present code, the number won't have been assigned until the atom is written
-        (which happens when its chunk is written).
-           The return value is presently None or a small positive integer,
-        but for compatibility with possible future changes,
-        callers are advised to assume only that it's None or something
-        whose str() is suitable for printing into an mmp record.
-        """
-        # Note: this does what lots of existing code does, e.g. writemmp for
-        # atoms and jigs, but it is not yet generally used by that code.
-        return atnums.get(self.key, None) # this is presently a number, not a string
+            mapping.write("bond1 " + " ".join(bl) + "\n")
     
     # write to a povray file:  draw a single atom
     def writepov(self, file, dispdef, col):
