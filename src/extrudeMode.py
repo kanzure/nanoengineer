@@ -1440,6 +1440,33 @@ class extrudeMode(basicMode):
         res = debug.overridden_attrs(class1, instance1) # a list of 0 or more attrnames
         print "  %r" % res
         return
+
+    def print_overrides_win(self): #bruce 050109
+        # this debug method belongs in MWsemantics.py but that doesn't really matter,
+        # and the menu item for it could be anywhere, so for now i'll just put it here.
+        print "overrides in main window... (this will include tons of slot methods, sorry)"
+        # could exclude them by reporting overrides of Qt superclass of that which are not overridden in that ###doit 
+        import debug
+        from MainWindowUI import MainWindow
+        print "  %r" % debug.overridden_attrs(MainWindow, self.w)
+
+    def print_overrides_mt(self): #bruce 050109
+        # this debug method probably belongs in modelTree.py or maybe MWsemantics.py,
+        # but that doesn't really matter,
+        # and the menu item for it could be anywhere, so for now i'll just put it here.
+        print "overrides in model tree widget... [prints a lot, don't yet know why]"
+        import debug
+        from qt import QListView
+        print "  %r" % debug.overridden_attrs(QListView, self.w.mt)
+
+    def print_overrides_glpane(self): #bruce 050109
+        # this debug method probably belongs in GLPane.py or maybe MWsemantics.py,
+        # but that doesn't really matter,
+        # and the menu item for it could be anywhere, so for now i'll just put it here.
+        print "overrides in glpane widget... [prints a lot, don't yet know why]"
+        import debug
+        from qtgl import QGLWidget
+        print "  %r" % debug.overridden_attrs(QGLWidget, self.o)
     
     def Draw(self):
         basicMode.Draw(self) # draw axes, if displayed
@@ -1468,7 +1495,11 @@ class extrudeMode(basicMode):
         
         self.debug_Menu_spec = [
             ('debug: reload module', self.extrude_reload),
+            ###e make these a submenu:
             ('debug: print overrides', self.print_overrides),
+            ('debug: print overrides win', self.print_overrides_win),
+            ('debug: print overrides mt', self.print_overrides_mt),
+            ('debug: print overrides glpane', self.print_overrides_glpane),
          ]
         
         self.Menu_spec_control = [
