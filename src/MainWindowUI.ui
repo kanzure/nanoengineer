@@ -288,7 +288,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1088</width>
+                <width>1085</width>
                 <height>29</height>
             </rect>
         </property>
@@ -641,7 +641,7 @@
             <rect>
                 <x>0</x>
                 <y>58</y>
-                <width>1036</width>
+                <width>1033</width>
                 <height>29</height>
             </rect>
         </property>
@@ -1027,12 +1027,27 @@
     </toolbar>
     <toolbar dock="4">
         <property name="name">
+            <cstring>cookieSelectDashboard</cstring>
+        </property>
+        <property name="label">
+            <string>Toolbar</string>
+        </property>
+        <action name="DefaultSelAction"/>
+        <action name="LassoSelAction"/>
+        <action name="RectCornerSelAction"/>
+        <action name="RectCtrSelAction"/>
+        <action name="TriangleSelAction"/>
+        <action name="CircleSelAction"/>
+        <action name="HexagonSelAction"/>
+    </toolbar>
+    <toolbar dock="4">
+        <property name="name">
             <cstring>modifyToolbar</cstring>
         </property>
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>0</y>
+                <y>203</y>
                 <width>30</width>
                 <height>257</height>
             </rect>
@@ -1067,7 +1082,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>257</y>
+                <y>460</y>
                 <width>30</width>
                 <height>215</height>
             </rect>
@@ -1099,7 +1114,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>472</y>
+                <y>675</y>
                 <width>30</width>
                 <height>68</height>
             </rect>
@@ -1127,7 +1142,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>540</y>
+                <y>743</y>
                 <width>30</width>
                 <height>95</height>
             </rect>
@@ -3588,6 +3603,139 @@
             <string>Show Invisible Atoms</string>
         </property>
     </action>
+    <actiongroup>
+        <property name="name">
+            <cstring>CookieSelectionGroup</cstring>
+        </property>
+        <property name="text">
+            <string>ActionGroup</string>
+        </property>
+        <property name="usesDropDown">
+            <bool>false</bool>
+        </property>
+        <action>
+            <property name="name">
+                <cstring>CircleSelAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image113</iconset>
+            </property>
+            <property name="text">
+                <string>Circle Center</string>
+            </property>
+            <property name="toolTip">
+                <string>Circle Center</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>RectCtrSelAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image114</iconset>
+            </property>
+            <property name="text">
+                <string>Rectangle Center</string>
+            </property>
+            <property name="toolTip">
+                <string>Rectangle Center</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>HexagonSelAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image115</iconset>
+            </property>
+            <property name="text">
+                <string>Hexagon Center</string>
+            </property>
+            <property name="toolTip">
+                <string>Hexagon Center</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>TriangleSelAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image116</iconset>
+            </property>
+            <property name="text">
+                <string>Triangle Center</string>
+            </property>
+            <property name="toolTip">
+                <string>Triangle Center</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>RectCornerSelAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image117</iconset>
+            </property>
+            <property name="text">
+                <string>Rectangle Corners</string>
+            </property>
+            <property name="toolTip">
+                <string>Rectangle Corners</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>LassoSelAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image118</iconset>
+            </property>
+            <property name="text">
+                <string>Lasso Selection</string>
+            </property>
+            <property name="toolTip">
+                <string>Lasso Selection</string>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>DefaultSelAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="on">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>image119</iconset>
+            </property>
+            <property name="text">
+                <string>Default Selection</string>
+            </property>
+            <property name="toolTip">
+                <string>Default Selection</string>
+            </property>
+        </action>
+    </actiongroup>
 </actions>
 <images>
     <image name="image0">
@@ -3928,6 +4076,27 @@
     </image>
     <image name="image112">
         <data format="PNG" length="325">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000010c49444154789cd5954d0e82301085df184f003d4259c285f4202eea4aa31b8f811762ab37d07885e7420bfda118101736994c288f6f266f4a2a24f18bb50080aaaa66a72fe606fe1f5815601a2c62be2de0833be02e5928515415e031df538035008024cab2244910f0b30df7b9d318bb77c876549a2b57370c7673cf9ed25ce59af13b72d4f0b6102148b179f3d8d6f7abf82a6b55dbf1ab2b93ccef8e724d9e32c3a0535fef59e17c9cf2fb9419df4bc7e750ef7bec8ac30192c835636062a831382cf08e7650a12ea14f83834e07a13db11c3a06aa407be0ef17c890365cd171b3ffba8512a8c74223b085d97cbbe03c050aa0b3c28501384f81f582a776f6113ce7f5d4348dc8af2ed327e23fb6eae5c8f6100000000049454e44ae426082</data>
+    </image>
+    <image name="image113">
+        <data format="PNG" length="518">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001cd49444154789cb5d5bb6b544114c7f1cf64e32a4802697c10d25846b3a5a00842083616418c0956168290ced27fc3229d681bd022881814b4b3b14860316b671341d462c52a3e8fc59d0d97ddbdbb59c503039799df7ce7cc79cc4d11e17fd8f830414ae9288e61029fd18e88bda1fbaa3c4e294d6319d73095a77fe003ee633322be1e189c529ac04ddc400d0ff0125f70321f76099fb0868d88f8d5438e88fd91afbb8617b88213e5f5ac4998c12d6c6315b51e5d1fe8739cea16f61b98af829745b7f1eaa0d0d2be05ece0620f18d3d8c2ca28d05268ee621df5cefc580ef5327ee7308c6451d01fe23cce75e6c7729d2ee35144b4ab008d46635027bdce375eda072b8a7f4a51527f6511f11dcf309b523a42d17913087c1ce669e7bbd96ca63ed2ddcc3a843d8aa2dfc1fca024cdcdcdc59024dec1638c7792d7c67b2ca694fa7932d4524a93b88c6644fcecc40756f00633a3965bdebf887738dd5d6e9b8ade5f32a2a594eab88e0db4f6174aa75e45d3905877795a53b4f33666ab5aba2c5a905fbe01d07a49dfe34c95073b8a36bda0d4a65933990f5eaf824644dff7b89681ab8a36dd5214ff2ecee4ec1fc713dc8b88963e36e80f52c7d912e81b0ee32d9ea215559b0781ffd5fe007f22f9b46a42c8630000000049454e44ae426082</data>
+    </image>
+    <image name="image114">
+        <data format="PNG" length="269">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000d449444154789cdd954d0ac2301085df93fe81e019eaaaabe6381eb2c7e9ae2b3d43c1dde073d3425a526c8a557420900ce4cbfc8792b0871c76a10248fc03c912c06903a797740b82499645515ccd0c24571325214912903cfb70dfe29399c1cc2e00ba086b2b000d669ece4301009da4762d9564d0c3dd92f7c760e75c54277da64142e25b3aeedbb67d5de89230cc0b97a6a900b851e7afbaae15d22fddfb7ef256b9bf051c2bbf079e94db90e52a666c02a842bf900feef33c4796654dac75246166fd44e7bf46f2886de17948ba2f82df294f2b7471aa6db5532e0000000049454e44ae426082</data>
+    </image>
+    <image name="image115">
+        <data format="PNG" length="468">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000019b49444154789cb5d32f88545114c7f1cf599d0d1316cc53648c32b351b02c5ad662513018b608930c6bb3d9b469b1ac601241d026e21f649a082a860183886059ab60dc518e61dec09b376ffeece01eb8e5de73bee7cffd9dc84c47616b4742c5f1bacb8868a2bd44e2037ccbccbf532f99397110b88dfd46a391d89f737ee072959199b51577711ed786c3e1cf05159f452f22fa99f96b66c558c723dc41d45552f1dfc00bec4ebd551cb7f10ead45d052cc16dea35d0bc609bc466f5968a9cbc7b8876375e05dbcc5c661c045ec2606d89a001b49ebe3ac1fce4c9d4e27e780a3f897a76866a6b588085cc7773c5fa0825acb11fd3e4ee1e238d349bcc28dcc7c590dea76bb533b3f180ca22e4144dcc2195c6224997e019e39c779a3287de213dc45ac65e66fec612722daab8ca2b073e8e06196b235f16c9c6d05558cbbbe398eaf0afd0b365700f7f04169b1aa33da3312fbfa21a02d7cc6d5dacd2b9c4e17556f2f098da2fdbeca622ded38033cb390281cca5a6c192dca1b7c5da0840b48ec64e6c104a70a2ee0578aa045f6070f32f3d314a30efc3fec1f111675773c4c13400000000049454e44ae426082</data>
+    </image>
+    <image name="image116">
+        <data format="PNG" length="452">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000018b49444154789cb5d5bd6b14611006f0df9870e20707128bc0158260a3dca554ab94162ad8a929b41151d0228dfe092208da58580b416c0411c1466cfca82c0e22d8f847a410a3c258ec1b58f676e52e5c069665e77ddf67679e7966dec84c7b61fbf604755ae0a8ecd0dc817109af23e2e4dc8023e2086e6109372222e6028cebf85bc04fe3cc34c032b3f3c1001fb15abed7b181deffce656677c425e53bf881cfc5fd12c77071d71163055fb0d2f0afe11dfa33471c113ddcc3278c1bcb6fcafbcacc1163b5a47fbc63fd9c8afb4167c62d87fa788bf5ba7f381c666d4f4f55c4078869a9b880a3aa427565f91bcf701ead4d13f521141103bcc293ccdc80d1683431a5c6e37144c4021ee120ee969fb573acd2e97b2d15af5351db7f0a9b8ace5ba92873e01a1e66e656170d0dfb86e7b81f11fd8988b180c778618aae6ae9ceafb83ca10a95bc36717616d01af84d7cc0f28e6fb134c36d7cc7cf88184d49439392255c2d995bc4611cc0329eee0274c7b6712222f667e67664a6723bcce39afa9399bf68e8789ef60f31d0979a3a0a41940000000049454e44ae426082</data>
+    </image>
+    <image name="image117">
+        <data format="PNG" length="316">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000010349444154789ced953d52c3301085dfd3801d5a9a34a170431559a7e1429c815be41ef4de0bb80835149eccc4c38c96c6f2c8499005980a5e63f9673e3fef7a9fa8aaf80d99f8a4aeebc5de7295bae99cdb78ef6f67186b920f241f9ba679998063a7612d2254d53dc92c87defb270053b0883040c31a00baaebb29cbf23a052c8a620be0f9f47ab2146ddb1e011c53cf586b0f97be6ad2bcd8ed4f353a76ce6d869adec54df8ae46c7a1fb197fc1d7c04beb1ffc97c124f7f1312839d239129137006713bb48292ee5f8996363ccbdb5360932c6bcce8dfd080e3552d5dd5c060fdb193fcb710060bce75555b59acb5f00e8fbfe7d88d4117a9a8c9352e4e46fae3e00da1e680e248c24a30000000049454e44ae426082</data>
+    </image>
+    <image name="image118">
+        <data format="PNG" length="169">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000007049444154789ced52410ac0200c0b7bb9bebcbb4cc8e2b6b62aec622014a5a6b12db0f10bcc608da57cc7b428e0938bb8a25752dc0902cec9690a4fef0e3ed49a954c54d656f0103957faebfeb2db06e01edbbd0c38669c29ae9453b0d1a1be82dbb14c14185f3f40d66d25b6f0468f1309ef9686c8a8509a0000000049454e44ae426082</data>
+    </image>
+    <image name="image119">
+        <data format="PNG" length="182">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000007d49444154789cbdd3c10ac0200c03d076ecff7fb93be841acd6a4c50504f1f00c45457e8e5581e716be85cdac84478d4b780857f0239cc5213883c3308b533083d3308aa760047f595055dd1d22e20ea1c60b4ca7e5728417289410eea8b66dbba0fc2a063495a8f18c52ad7770ba6905b0de381c57fa83dc8ac961c61f9b2f3517b6463ff70000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
