@@ -873,11 +873,13 @@ class assembly:
             self.m._play()
             self.m._close()
         
-    # makes a motor connected to the selected atoms
-    # note I don't check for a limit of 25 atoms, but any more
-    # will choke the file parser in the simulator
     def makeRotaryMotor(self, sightline):
+        """Creates a Rotary Motor connected to the selected atoms.
+        There is a limit of 25 atoms.  Any more will choke the file parser
+        in the simulator.
+        """
         if not self.selatoms: return
+        if len(self.selatoms) > 25: return
         m=RotaryMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
@@ -887,11 +889,13 @@ class assembly:
         mol.dad.addmember(m)
         self.unpickatoms()
       
-    # makes a Linear Motor connected to the selected atoms
-    # note I don't check for a limit of 25 atoms, but any more
-    # will choke the file parser in the simulator
     def makeLinearMotor(self, sightline):
+        """Creates a Linear Motor connected to the selected atoms.
+        There is a limit of 25 atoms.  Any more will choke the file parser
+        in the simulator.
+        """
         if not self.selatoms: return
+        if len(self.selatoms) > 25: return
         m = LinearMotor(self)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
@@ -901,32 +905,35 @@ class assembly:
         mol.dad.addmember(m)
         self.unpickatoms()
 
-    # makes all the selected atoms grounded
-    # same note as above
     def makeground(self):
+        """Grounds (anchors) all the selected atoms so that 
+        they will not move during a simulation run.
+        There is a limit of 25 atoms.  Any more will choke the file parser
+        in the simulator.
+        """
         if not self.selatoms: return
+        if len(self.selatoms) > 25: return
         m=Ground(self, self.selatoms.values())
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
         self.unpickatoms()
-        
-    # sets the temp of all the selected atoms
-    # same note as above
+
     def makestat(self):
-        if not self.selatoms: return
-        m=Stat(self, self.selatoms.values())
-        mol = self.selatoms.values()[0].molecule
-        mol.dad.addmember(m)
-        self.unpickatoms()
-        
-    # attaches a thermometer to all the selected atoms.
-    def makethermo(self):
-        """Attaches a thermometer to all the selected atoms.
+        """Attaches a Langevin thermostat to the single atom selected.
         """
         if not self.selatoms: return
+        if len(self.selatoms) != 1: return
+        m=Stat(self, self.selatoms.values())
+        m.mol.dad.addmember(m)
+        self.unpickatoms()
+        
+    def makethermo(self):
+        """Attaches a thermometer to the single atom selected.
+        """
+        if not self.selatoms: return
+        if len(self.selatoms) != 1: return
         m=Thermo(self, self.selatoms.values())
-        mol = self.selatoms.values()[0].molecule
-        mol.dad.addmember(m)
+        m.mol.dad.addmember(m)
         self.unpickatoms()
         
     # select all atoms connected by a sequence of bonds to
