@@ -817,10 +817,11 @@ def writemovie(assy, mflag = False):
     # Put double quotes around filenames so spawnv can handle them properly on Win32 systems.
     # This may create a bug on Linux and MacOS, so lets leave the quotes off.
     # Mark 050107
-    if sys.platform == 'win32':
-        outfile = '"-o%s"' % moviefile
-        infile = '"%s"' % mmpfile
-    else:
+    #if sys.platform == 'win32':
+    #    outfile = '"-o%s"' % moviefile
+    #    infile = '"%s"' % mmpfile
+    #else:
+    if 1:    
         outfile = "-o"+moviefile
         infile = mmpfile
 
@@ -908,20 +909,33 @@ def writemovie(assy, mflag = False):
     # These are useful when debugging the simulator.     
     print  "program = ",program
     print  "Spawnv args are %r" % (args,) # this %r remains (see above)
-        
+    
+    arguments = QStringList()
+    for arg in args:
+        arguments.append(arg)
+    
+    simProcess = None    
     try:
         # Spawn the simulator.
-        kid = os.spawnv(os.P_NOWAIT, program, args)
-            
+        #kid = os.spawnv(os.P_NOWAIT, program, args)
+        simProcess = QProcess()
+        simProcess.setArguments(arguments)
+        simProcess.start()
+        #simProcess.closeStdin()    
+        
         # Launch the progress bar. Wait until simulator is finished
         r = assy.w.progressbar.launch( filesize,
                         moviefile, 
                         pbarCaption, 
                         pbarMsg, 
                         1)
-
+       
+        
     except: # We had an exception.
         print_compact_traceback("exception in simulation; continuing: ")
+        if simProcess:
+            simProcess.tryTerminate()
+            simProcess = None
         r = -1 # simulator failure
         
     QApplication.restoreOverrideCursor() # Restore the cursor
@@ -934,6 +948,15 @@ def writemovie(assy, mflag = False):
         assy.w.history.message(msg)         
         # Kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
         # - Mark 050107
+        
+        ##Tries to terminate the process the nice way first, so the process
+        ## can do whatever clean up it requires. If the process
+        ## is still running after 2 seconds (a kludge). it terminates the 
+        ## process the hard way.
+        simProcess.tryTerminate()
+        QTimer.singleShot( 2000, simProcess, SLOT('kill()') )
+        return r
+        
         if sys.platform == 'win32':
             try:    
                 import win32api
