@@ -52,9 +52,11 @@ class ProgressBar( progressBarDialog ):
             qApp.processEvents() # Process queued events (i.e. clicking Abort button).
             
             if dflag: # Display duration.
+                elapsedtime = self.duration
                 self.duration = time.time() - self.stime
-                msg = "Duration: %d Seconds" % self.duration
-                self.msgLabel2.setText(msg)
+                if elapsedtime == self.duration: continue
+                elapmsg = "Elasped Time: " + self.hhmmss_str(self.duration)
+                self.msgLabel2.setText(elapmsg) 
             
             if self.abort: # User hit abort button
                 self.hide()
@@ -73,3 +75,14 @@ class ProgressBar( progressBarDialog ):
     def abort(self):
         """Slot for abort button"""
         self.abort = True
+        
+    def hhmmss_str(self, secs):
+        """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
+        if secs < 3600: hours = 0
+        else: hours = int(secs/3600.0)
+        minutes = int(secs/60.0 - hours*60.0)
+        seconds = int(secs - minutes*60.0)
+        if hours:
+            return '%02d:%02d:%02d' % (hours, minutes, seconds)
+        else:
+            return '%02d:%02d' % (minutes, seconds)
