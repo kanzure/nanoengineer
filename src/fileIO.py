@@ -1,5 +1,4 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-# 10/9 currently being owned by Mark
 """
 File IO functions for reading and writing PDB and MMP files
 
@@ -114,7 +113,8 @@ def writepdb(assy, filename):
 
 # read a Molecular Machine Part-format file into maybe multiple molecules
 def readmmp(assy,filnam):
-    l=open(filnam,"r").readlines()
+    #bruce 041011: added 'U' to file mode, for universal newline support.
+    l=open(filnam,"rU").readlines() 
     assy.filename=filnam
     mol = None
     ndix={}
