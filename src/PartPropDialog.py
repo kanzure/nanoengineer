@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\PartPropDialog.ui'
 #
-# Created: Fri Nov 5 09:22:03 2004
+# Created: Sun Nov 7 10:35:50 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -213,20 +213,6 @@ class PartPropDialog(QDialog):
         self.setIcon(self.image0)
 
 
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setGeometry(QRect(62,430,82,29))
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
-
-        self.applyPushButton = QPushButton(self,"applyPushButton")
-        self.applyPushButton.setEnabled(0)
-        self.applyPushButton.setGeometry(QRect(238,430,82,29))
-
-        self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setGeometry(QRect(150,430,82,29))
-        self.cancelPushButton.setAutoDefault(1)
-        self.cancelPushButton.setDefault(0)
-
         self.nameLineEdit_2 = QLineEdit(self,"nameLineEdit_2")
         self.nameLineEdit_2.setGeometry(QRect(80,53,270,23))
         self.nameLineEdit_2.setFrameShape(QLineEdit.LineEditPanel)
@@ -247,43 +233,43 @@ class PartPropDialog(QDialog):
         self.authorLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.authorLineEdit.setFrameShadow(QLineEdit.Sunken)
 
-        self.cdateLabel = QLabel(self.tab,"cdateLabel")
-        self.cdateLabel.setGeometry(QRect(81,98,270,20))
-        self.cdateLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-
         self.mdateLabel = QLabel(self.tab,"mdateLabel")
         self.mdateLabel.setGeometry(QRect(80,121,270,20))
         self.mdateLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
 
-        self.textLabel2_4 = QLabel(self.tab,"textLabel2_4")
-        self.textLabel2_4.setGeometry(QRect(9,143,70,20))
-        self.textLabel2_4.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-
-        self.statsLabel = QLabel(self.tab,"statsLabel")
-        self.statsLabel.setGeometry(QRect(10,191,60,20))
-        self.statsLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-
         self.adateLabel = QLabel(self.tab,"adateLabel")
         self.adateLabel.setGeometry(QRect(81,143,270,20))
         self.adateLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-
-        self.textLabel2 = QLabel(self.tab,"textLabel2")
-        self.textLabel2.setGeometry(QRect(9,98,70,20))
-        self.textLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-
-        self.textLabel1_2 = QLabel(self.tab,"textLabel1_2")
-        self.textLabel1_2.setGeometry(QRect(11,61,60,21))
-        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-
-        self.textLabel2_3 = QLabel(self.tab,"textLabel2_3")
-        self.textLabel2_3.setGeometry(QRect(8,121,70,20))
-        self.textLabel2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
 
         self.nameLineEdit = QLineEdit(self.tab,"nameLineEdit")
         self.nameLineEdit.setGeometry(QRect(80,23,270,23))
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.nameLineEdit.setReadOnly(1)
+
+        self.cdateLabel = QLabel(self.tab,"cdateLabel")
+        self.cdateLabel.setGeometry(QRect(81,98,270,20))
+        self.cdateLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+
+        self.createdLabel = QLabel(self.tab,"createdLabel")
+        self.createdLabel.setGeometry(QRect(9,98,70,20))
+        self.createdLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+
+        self.modifiedLabel = QLabel(self.tab,"modifiedLabel")
+        self.modifiedLabel.setGeometry(QRect(8,121,70,20))
+        self.modifiedLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+
+        self.accessedLabel = QLabel(self.tab,"accessedLabel")
+        self.accessedLabel.setGeometry(QRect(9,143,70,20))
+        self.accessedLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+
+        self.statsLabel = QLabel(self.tab,"statsLabel")
+        self.statsLabel.setGeometry(QRect(10,191,60,20))
+        self.statsLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+
+        self.authorLabel = QLabel(self.tab,"authorLabel")
+        self.authorLabel.setGeometry(QRect(11,61,60,21))
+        self.authorLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
 
         self.nameLabel = QLabel(self.tab,"nameLabel")
         self.nameLabel.setGeometry(QRect(11,23,60,21))
@@ -297,14 +283,6 @@ class PartPropDialog(QDialog):
 
         self.tab_2 = QWidget(self.tabWidget3,"tab_2")
 
-        self.nameLabel_3 = QLabel(self.tab_2,"nameLabel_3")
-        self.nameLabel_3.setGeometry(QRect(11,22,60,21))
-        self.nameLabel_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-
-        self.textLabel1_2_2 = QLabel(self.tab_2,"textLabel1_2_2")
-        self.textLabel1_2_2.setGeometry(QRect(11,60,60,21))
-        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-
         self.nameCsysLineEdit = QLineEdit(self.tab_2,"nameCsysLineEdit")
         self.nameCsysLineEdit.setGeometry(QRect(80,22,270,23))
         self.nameCsysLineEdit.setFrameShape(QLineEdit.LineEditPanel)
@@ -315,62 +293,59 @@ class PartPropDialog(QDialog):
         self.tempLineEdit.setGeometry(QRect(80,60,270,23))
         self.tempLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.tempLineEdit.setFrameShadow(QLineEdit.Sunken)
+
+        self.nameLabel2 = QLabel(self.tab_2,"nameLabel2")
+        self.nameLabel2.setGeometry(QRect(11,22,60,21))
+        self.nameLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+
+        self.tempLabel = QLabel(self.tab_2,"tempLabel")
+        self.tempLabel.setGeometry(QRect(11,60,60,21))
+        self.tempLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
         self.tabWidget3.insertTab(self.tab_2,QString(""))
+
+        self.cancelPushButton = QPushButton(self,"cancelPushButton")
+        self.cancelPushButton.setGeometry(QRect(190,430,82,29))
+        self.cancelPushButton.setAutoDefault(1)
+        self.cancelPushButton.setDefault(0)
+
+        self.okPushButton = QPushButton(self,"okPushButton")
+        self.okPushButton.setGeometry(QRect(102,430,82,29))
+        self.okPushButton.setAutoDefault(1)
+        self.okPushButton.setDefault(1)
 
         self.languageChange()
 
-        self.resize(QSize(378,477).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(378,480).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Part Properties"))
-        self.okPushButton.setText(self.__tr("&OK"))
-        self.okPushButton.setAccel(self.__tr("Alt+O"))
-        self.applyPushButton.setText(self.__tr("Apply"))
-        self.applyPushButton.setAccel(QString.null)
-        self.cancelPushButton.setText(self.__tr("&Cancel"))
-        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
         self.nameLineEdit_2.setText(QString.null)
         self.nameLabel_2.setText(self.__tr("Name:"))
         self.authorLineEdit.setText(QString.null)
-        self.cdateLabel.setText(self.__tr("Created Date"))
         self.mdateLabel.setText(self.__tr("Modified Date"))
-        self.textLabel2_4.setText(self.__tr("Accessed:"))
-        self.statsLabel.setText(self.__tr("Statistics:"))
         self.adateLabel.setText(self.__tr("Accessed Date"))
-        self.textLabel2.setText(self.__tr("Created:"))
-        self.textLabel1_2.setText(self.__tr("Author:"))
-        self.textLabel2_3.setText(self.__tr("Modified:"))
         self.nameLineEdit.setText(QString.null)
+        self.cdateLabel.setText(self.__tr("Created Date"))
+        self.createdLabel.setText(self.__tr("Created:"))
+        self.modifiedLabel.setText(self.__tr("Modified:"))
+        self.accessedLabel.setText(self.__tr("Accessed:"))
+        self.statsLabel.setText(self.__tr("Statistics:"))
+        self.authorLabel.setText(self.__tr("Author:"))
         self.nameLabel.setText(self.__tr("Name:"))
         self.statsView.header().setLabel(0,self.__tr("Statistic Name"))
         self.statsView.header().setLabel(1,self.__tr("Value"))
-        self.statsView.clear()
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,self.__tr("Chunks:"))
-
-        item = QListViewItem(self.statsView,item)
-        item.setText(0,self.__tr("Atoms:"))
-
-        item = QListViewItem(self.statsView,item)
-        item.setText(0,self.__tr("Rotary Motors:"))
-
-        item = QListViewItem(self.statsView,item)
-        item.setText(0,self.__tr("Linear Motors:"))
-
-        item = QListViewItem(self.statsView,item)
-        item.setText(0,self.__tr("Grounds:"))
-
-        item = QListViewItem(self.statsView,item)
-        item.setText(0,self.__tr("Thermostats:"))
-
         self.tabWidget3.changeTab(self.tab,self.__tr("General"))
-        self.nameLabel_3.setText(self.__tr("Name:"))
-        self.textLabel1_2_2.setText(self.__tr("Temp:"))
         self.nameCsysLineEdit.setText(QString.null)
         self.tempLineEdit.setText(QString.null)
+        self.nameLabel2.setText(self.__tr("Name:"))
+        self.tempLabel.setText(self.__tr("Temp:"))
         self.tabWidget3.changeTab(self.tab_2,self.__tr("CSys"))
+        self.cancelPushButton.setText(self.__tr("&Cancel"))
+        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
+        self.okPushButton.setText(self.__tr("&OK"))
+        self.okPushButton.setAccel(self.__tr("Alt+O"))
 
 
     def applyButtonClicked(self):
