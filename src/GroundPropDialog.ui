@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>GroundPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>339</width>
-            <height>152</height>
+            <height>161</height>
         </rect>
     </property>
     <property name="caption">
@@ -138,10 +138,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>20</x>
-                <y>10</y>
-                <width>50</width>
-                <height>21</height>
+                <x>11</x>
+                <y>11</y>
+                <width>42</width>
+                <height>26</height>
             </rect>
         </property>
         <property name="text">
@@ -149,6 +149,50 @@
         </property>
         <property name="alignment">
             <set>AlignVCenter|AlignRight</set>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>nameLineEdit</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>58</x>
+                <y>11</y>
+                <width>211</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>LineEditPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Sunken</enum>
+        </property>
+        <property name="text">
+            <string></string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>colorSelectorPushButton</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>272</x>
+                <y>51</y>
+                <width>30</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>...</string>
         </property>
     </widget>
     <widget class="QLabel">
@@ -159,8 +203,8 @@
             <rect>
                 <x>11</x>
                 <y>51</y>
-                <width>52</width>
-                <height>21</height>
+                <width>42</width>
+                <height>23</height>
             </rect>
         </property>
         <property name="mouseTracking">
@@ -179,61 +223,17 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>70</x>
-                <y>50</y>
-                <width>90</width>
-                <height>20</height>
-            </rect>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>colorSelectorPushButton</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>272</x>
+                <x>59</x>
                 <y>51</y>
-                <width>30</width>
-                <height>27</height>
+                <width>85</width>
+                <height>23</height>
             </rect>
-        </property>
-        <property name="text">
-            <string>...</string>
-        </property>
-    </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>nameLineEdit</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>78</x>
-                <y>11</y>
-                <width>211</width>
-                <height>21</height>
-            </rect>
-        </property>
-        <property name="frameShape">
-            <enum>LineEditPanel</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Sunken</enum>
-        </property>
-        <property name="text">
-            <string></string>
         </property>
     </widget>
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="532">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001db49444154789ced95b16fda4014c6bfab3af01f80072b151b3242c06624900825959a256d2406d6746ca693d2a959d21135e96c668bc11edda9599c8091d2009140320b4390e0cff83a546e82083953a95b3fe92d77f7fdf4fcfcee9d20897fa117db1cbef979133f0b92ca08fa01ebf53a755de7d18723767b5daa3cb1323efd7c8a542a858b6f17988653743a1da547091e0c070cc31007ef0e609a26766bbbe8077d25f8a5ea40b150147b6ff678fef51c77b53bb88e8b46a3a104c7aa71b7d7e5c9a71302e0d99733de0e6e953556660c0025b32496cb25012093c9a058280a9567ab76db46ffc1eb602104a3c866b35b0d904aa5c2c7fe157024ab6d613c1e2bfffa63f9be2facb6856432f9b018f51d005a6d8b9aa6d1719db53e755c870036eee572395a6d8bbf917c001b86419290523e09df04765c879aa6514a49922897cb5cb920d1e7b75a2d0180c71f8f717d754d5dd7b1f36a07f3fb3900607e3f87f7dde3349c62b158c0b66d349bcdc807dff705b061564470dbb601008661fcd9f33c0ff080c96402002bd0153d77df1dd7a1949200d6424af964bd63cd8ac3f7872291481002b8fc7189d168847c3e8fdaeb1aaad52af6dfee6fec1e11e7cd1b8e869ccd66087a01cc9289743a8d42bef06c4bc602ff8d7e019453a4e9343a15a30000000049454e44ae426082</data>
+        <data format="XPM.GZ" length="1142">789cb5d1cd6eda401405e03d4f61c10e5504b03d03aaba000cac5a755929ea62e6ce989f80c930769c49d5772fe792129238cbcc61e14f4763dd6b6ebad1af9fdfa3ee4dcb97aadc50446b758cbaa6daefc3edef6f7f5aede1303afde2341ab4bfb4dabd88a21f87c2e2d99d9e3b7d3ee0033890085833c708484c83800538d408f8c8b408b800e33e02ee992902ae99848025d3206006267c40cd4c1130075383800614b148440c6e984658c1ed1328fb0818983102ce9f999c79cf14524a01ee9856e692373a80a301021e99f12819f1dd09d320e094992360058ef598c6fcad3ca84819c5ebaf984659c57767a04e74aa797d0b524a82787dc5943422fe8f3a4c459a14b8651ab2c4af5a322de5c42bdc8156586979c15ee379d3743e689426631b1b9dafd69ba6664babbbddbef18e59ef8a436363efdd71db3c9b77fe83a93fbb71ce15574d79f2a5a95edda91e2e4d55fbabc63f56ff9ba217b83a37be0ebdf26582503f4dfcd44d6793702a5ecd16ea3acb5c96d5e7e27a6a1f1c4ef0eff799cd176e319f356dbaf4c12f9bbfc1f569fffddafa07c620fef1</data>
     </image>
 </images>
 <connections>
@@ -249,12 +249,19 @@
         <receiver>GroundPropDialog</receiver>
         <slot>accept()</slot>
     </connection>
+    <connection>
+        <sender>colorSelectorPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>GroundPropDialog</receiver>
+        <slot>changeGroundColor()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>cancelPushButton</tabstop>
 </tabstops>
 <slots>
     <slot>applyButtonPressed()</slot>
+    <slot>changeGroundColor()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
