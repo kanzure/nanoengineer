@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>950</height>
+            <height>953</height>
         </rect>
     </property>
     <property name="caption">
@@ -43,6 +43,7 @@
     <item text="&amp;File" name="fileMenu">
         <action name="fileNewAction"/>
         <action name="fileOpenAction"/>
+        <action name="fileInsertAction"/>
         <separator/>
         <action name="fileCloseAction"/>
         <separator/>

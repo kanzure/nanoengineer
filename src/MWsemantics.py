@@ -183,10 +183,28 @@ class MWsemantics(MainWindow):
         foo.show()
 
     def fileInsert(self):
-        print "MWsemantics.fileInsert(): Not implemented yet"
-        QMessageBox.warning(self, "ATOM User Notice:", 
-             "This function is not implemented yet, coming soon...")
+        wd = globalParms['WorkingDirectory']
+        fn = QFileDialog.getOpenFileName(wd,
+                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All of the above (*.pdb *.mmp)",
+                self )
+        
+        if fn:
 
+            fn = str(fn)
+            if not os.path.exists(fn): return
+
+            if fn[-3:] == "mmp":
+                print " MWsemantics.py: fileInsert(): inserting MMP file: ", fn
+#                insertmmp(self.assy,fn)
+            if fn[-3:] == "pdb":
+                print " MWsemantics.py: fileInsert(): inserting PDB file: ", fn
+#                insertpdb(self.assy,fn)
+
+            self.assy.modified = 1 # The file and the part are not the same
+
+            self.glpane.scale=self.assy.bbox.scale()
+            self.glpane.paintGL()
+            self.mt.update()
 
     def fileOpen(self):
         if self.assy.modified:
