@@ -385,13 +385,13 @@ class shape:
                 if mol.display == diINVISIBLE: continue
                 for a in mol.atoms.itervalues():
                     if a.display == diINVISIBLE: continue
-                    if c.isin(a.posn()): a.pick()
+                    if c.isin(a.posn()): a.molecule.pick()
         elif c.logic == 2:
             for a in assy.selatoms.values():
-                if not c.isin(a.posn()): a.unpick()
+                if not c.isin(a.posn()): a.molecule.unpick()
         else:
             for a in assy.selatoms.values():
-                if c.isin(a.posn()): a.unpick()
+                if c.isin(a.posn()): a.molecule.unpick()
 
     def undo(self):
         """This would work for shapes, if anyone called it.

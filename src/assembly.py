@@ -133,6 +133,8 @@ class assembly:
                 mol.bond(pp1, x)
             pp=griderator.next()
         self.addmol(mol)
+	self.unpickatoms()
+	self.selwhat = 2
         mol.pick()
 
     # read a Protein DataBank-format file into a single molecule
@@ -414,6 +416,7 @@ class assembly:
 
     # make an atom selected: deselects all parts
     def pickatom(self, p1, v1):
+	self.selwhat = 0
         self.unpickparts()
         if not self.selatoms: self.selatoms = {}
         a = self.findpick(p1, v1)
@@ -421,6 +424,7 @@ class assembly:
 
     # make a part selected: deselects all atoms
     def pickpart(self, p1, v1):
+	self.selwhat = 2
         self.unpickatoms()
         if not self.selmols: self.selmols = []
         a = self.findpick(p1, v1)

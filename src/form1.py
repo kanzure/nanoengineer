@@ -10,6 +10,9 @@ import os
 import help
 import icons
 
+#Added by huaicai
+from MotorPropDialog import *
+
 helpwindow = None
 windowList = []
 
@@ -344,6 +347,11 @@ class Form1(QMainWindow):
         self.modifySeparateAction.setText(self.trUtf8("Separate"))
         self.modifySeparateAction.setMenuText(self.trUtf8("Separate"))
 
+        self.modifyMotorAction = QAction(self,"modifyMotorAction")
+        self.modifyMotorAction.setText(self.trUtf8("Motor Property"))
+        self.modifyMotorAction.setMenuText(self.trUtf8("Motor Property"))
+
+
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
@@ -426,6 +434,7 @@ class Form1(QMainWindow):
         self.modifyPassivateAction.addTo(self.modifyMenu)
         self.modifyHydrogenateAction.addTo(self.modifyMenu)
         self.modifySeparateAction.addTo(self.modifyMenu)
+	self.modifyMotorAction.addTo(self.modifyMenu)
         self.MenuBar.insertItem(self.trUtf8("Modify"),self.modifyMenu)
 
         self.helpMenu = QPopupMenu(self)
@@ -507,6 +516,8 @@ class Form1(QMainWindow):
                      self.modifyHydrogenate)
         self.connect(self.modifySeparateAction,SIGNAL("activated()"),
                      self.modifySeparate)
+        self.connect(self.modifyMotorAction,SIGNAL("activated()"),
+                     self.modifyMotorProperty)
         self.connect(self.helpContentsAction,SIGNAL("activated()"),
                      self.helpContents)
         self.connect(self.helpIndexAction,SIGNAL("activated()"),self.helpIndex)
@@ -619,7 +630,7 @@ class Form1(QMainWindow):
             foo = Form1()
 	    foo.assy = foo.glpane.assy = self.assy
             foo.assy.windows += [foo]
-	    foo.glpane.scale=1.5*max(foo.assy.bboxhi[0], foo.assy.bboxhi[1])
+	    foo.glpane.scale=self.glpane.scale
 	    for mol in foo.glpane.assy.molecules:
 	        mol.changeapp()
 	    foo.show()
@@ -817,6 +828,12 @@ class Form1(QMainWindow):
         if not self.assy: return
         self.assy.separate()
         self.assy.updateDisplays()
+
+    # Modify motor property
+    def modifyMotorProperty(self):
+        motorDialog = MotorPropDialog(self)
+	motorDialog.exec_loop()
+
 
     # Functions from the "Help" menu
 

@@ -4,7 +4,7 @@
 __author__ = "Josh"
 
 from VQT import *
-from LinearAlgebra import *
+#from LinearAlgebra import *
 import string
 import re
 from OpenGL.GL import *
@@ -500,14 +500,15 @@ class molecule:
             m[1,1] += rsq
             m[2,2] += rsq
             tensor += m
-        self.eval, self.evec = eigenvectors(tensor)
+       # self.eval, self.evec = eigenvectors(tensor)
 
         # Pick a principal axis: if square or circular, the axle;
         # otherwise the long axis (this is a heuristic)
-        ug = argsort(self.eval)
-        if self.eval[ug[0]]/self.eval[ug[1]] >0.95:
-            self.axis = self.evec[ug[2]]
-        else: self.axis = self.evec[ug[0]]
+      #  ug = argsort(self.eval)
+      #  if self.eval[ug[0]]/self.eval[ug[1]] >0.95:
+      #      self.axis = self.evec[ug[2]]
+      #  else: self.axis = self.evec[ug[0]]
+        self.axis = V(1, 0, 0)
             
         # may have changed appearance of the molecule
         self.havelist = 0

@@ -322,6 +322,7 @@ class selectMode(basicMode):
             self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
                              (not self.o.ortho) and eyeball)
         self.o.shape.select(self.o.assy)
+	self.o.shape = None
 
         self.sellist = []
 
@@ -384,6 +385,7 @@ class cookieMode(basicMode):
         self.backgroundColor = 103/256.0, 124/256.0, 53/256.0
         self.gridColor = 223/256.0, 149/256.0, 0/256.0
         self.savedOrtho = 0
+	self.makeMenus()
 
 
     def setMode(self):
@@ -544,6 +546,34 @@ class cookieMode(basicMode):
         glDisable(GL_CLIP_PLANE1)
         drawer.drawaxes(5,-self.o.pov)
 
+   
+    def makeMenus(self):
+        self.Menu1 = self.makemenu([('All', self.o.assy.selectAll),
+                                    ('None', self.o.assy.selectNone),
+                                    ('Invert', self.o.assy.selectInvert),
+                                    None,
+                                    ('Connected', self.o.assy.selectConnected),
+                                    ('Doubly', self.o.assy.selectDoubly),
+                                    None,
+                                    ('Atoms', self.o.assy.selectAtoms),
+                                    ('Parts', self.o.assy.selectParts)])
+        
+        self.Menu2 = self.makemenu([('Kill', self.o.assy.kill),
+                                    ('Copy', self.o.assy.copy),
+                                    ('Bond', self.o.assy.Bond),
+                                    ('Unbond', self.o.assy.Unbond),
+                                    ('Stretch', self.o.assy.Stretch)])
+        
+        self.Menu3 = self.makemenu([('Default', self.o.dispDefault),
+                                    ('Lines', self.o.dispLines),
+                                    ('CPK', self.o.dispCPK),
+                                    ('Tubes', self.o.dispTubes),
+                                    ('VdW', self.o.dispVdW),
+                                    None,
+                                    ('Invisible', self.o.dispInvis),
+                                    None,
+                                    ('Color', self.o.dispColor)])
+
 
 ###########################################################################
     
@@ -553,6 +583,7 @@ class modifyMode(basicMode):
         self.backgroundColor = 255/256.0, 174/256.0, 247/256.0
         self.gridColor = 52/256.0, 129/256.0, 26/256.0
         self.makeMenus()
+	self.picking = False
 
     def Done(self):
         self.o.setMode('SELECT')

@@ -453,7 +453,7 @@ class GLPane(QGLWidget):
         foo = Form1()
         foo.assy = foo.glpane.assy = self.assy
         foo.assy.windows += [foo]
-        foo.glpane.scale=1.5*max(foo.assy.bboxhi[0], foo.assy.bboxhi[1])
+        foo.glpane.scale=self.glpane.scale
         for mol in foo.glpane.assy.molecules:
             mol.changeapp()
         foo.show()
