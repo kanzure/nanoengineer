@@ -31,8 +31,8 @@ class Node:
         self.picked = False
         self.hidden = False
         self.icon = None
-        
-        # in addition, each Node should have a bounding box
+
+
         
     def buildNode(self, obj, parent, icon, dnd=True, rename=True):
         """ build a display node in the tree widget
@@ -44,8 +44,10 @@ class Node:
         node.setDragEnabled(dnd)
         node.setDropEnabled(dnd)
         node.setRenameEnabled(0,rename)
+        
+        # in addition, each Node should have a bounding box
         return node
-
+        
     # for a leaf node, add it to the dad node just after us
     def addmember(self, node, before=False):
         """add leaf node after (default) or before self
@@ -114,7 +116,7 @@ class Node:
         """Is node in the subtree of nodes headed by self?
         """
         pass
-        
+
     def moveto(self, node, before=False):
         """Move self to a new location in the model tree, before or after node
         """
@@ -135,6 +137,10 @@ class Node:
         self.dad.delmember(self)
         node.addmember(self, before)
 
+    def nodespicked(self):
+        if self.picked: return True
+        else: return False
+        
     def seticon(self):
         pass
 
@@ -290,6 +296,12 @@ class Group(Node):
             if node == self: return True
             node = node.dad
         return False
+        
+    def nodespicked(self):
+        npick = 0
+        for x in self.members: 
+            npick = npick + x.nodespicked()
+        return npick
         
     def seticon(self):
         if self.name == self.assy.name:

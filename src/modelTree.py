@@ -46,8 +46,20 @@ class modelTree(QListView):
         self.selectedItem = None
         self.modifier = None
 
-        # Model Tree Menu
-        self.menu = self.makemenu([
+        # Single Item Selected Menu
+        self.singlemenu = self.makemenu([
+            ["Hide", self.hide],
+            ["Unhide", self.unhide],
+            None,
+            ["Copy", self.copy],
+            ["Cut", self.cut],
+            ["Delete", self.kill],
+            None,
+            ["Properties", self.modprop],
+            ])
+
+        # Multiselected Menu
+        self.multimenu = self.makemenu([
             ["Group", self.group],
             ["Ungroup", self.ungroup],
             None,
@@ -56,6 +68,18 @@ class modelTree(QListView):
             None,
             ["Copy", self.copy],
             ["Cut", self.cut],
+            ["Delete", self.kill],
+            None,
+            ["Properties", self.modprop],
+            ])
+            
+        # Part Node Menu
+        self.partmenu = self.makemenu([
+            ["Properties", self.modprop],
+            ])
+            
+        # Clipboard Menu
+        self.clipboardmenu = self.makemenu([
             ["Delete", self.kill],
             None,
             ["Properties", self.modprop],
@@ -116,6 +140,7 @@ class modelTree(QListView):
 
 
     def select(self, item):
+#        print "MT.select: item = ",item
         self.win.assy.unpickatoms()
         
         if isinstance(self.win.glpane.mode, selectMode): 
@@ -143,12 +168,27 @@ class modelTree(QListView):
         
     def keyReleaseEvent(self, key):
         self.modifier = None
-
+                        
     def menuReq(self, listItem, pos, col):
         """ Context menu items function handler for the Model Tree View """
-        if listItem: self.selectedItem = listItem.object
-        else: self.selectedItem = None
-        self.menu.popup(pos, 1)
+        if listItem:
+            self.selectedItem = listItem.object
+            sdaddy = self.selectedItem.whosurdaddy()
+            if sdaddy in ["ROOT","Data"]: 
+                if self.selectedItem.name == self.assy.name: self.partmenu.popup(pos, 1)
+                return
+        else:
+            self.selectedItem = None
+        
+        # Figure out which menu to display
+        treepicked = self.assy.tree.nodespicked()
+        clippicked = self.assy.shelf.nodespicked()
+#        print "MT.menuReq: selectedItem = ",self.selectedItem
+#        print "treepicked =",treepicked,", clippicked =",clippicked
+        if treepicked == 0 and clippicked == 0: return
+        if clippicked: self.clipboardmenu.popup(pos, 1)
+        elif treepicked == 1: self.singlemenu.popup(pos, 1)
+        elif treepicked > 1: self.multimenu.popup(pos, 1)
         self.update()
 
     def changename(self, listItem, col, text):
@@ -173,6 +213,7 @@ class modelTree(QListView):
         item.startRename(0)
 
     def startDrag(self):
+#        print "MT.startDrag: self.selectedItem = [",self.selectedItem,"]"
         if self.selectedItem:
             foo = QDragObject(self)
             foo.drag()
@@ -201,11 +242,12 @@ class modelTree(QListView):
             if sdaddy == "ROOT": return # selected item is the part or clipboard. Do nothing.#    
             if isinstance(droptarget.object, Group): above = True # If drop target is a Group
             self.selectedItem.moveto(droptarget.object, above)
-            if sdaddy != tdaddy: 
-                if sdaddy == "Clipboard" or droptarget.object.name == "Clipboard": 
-                    self.win.update() # Selected item moved to/from clipboard. Update both MT and GLpane.
-                    return
-            self.update() # Update MT only
+#            if sdaddy != tdaddy: 
+#                if sdaddy == "Clipboard" or droptarget.object.name == "Clipboard": 
+#                    self.win.update() # Selected item moved to/from clipboard. Update both MT and GLpane.
+#                    return
+#            self.update() # Update MT only
+            self.win.update()
 
     def dragMoveEvent(self, event):
         event.accept()
