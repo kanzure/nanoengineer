@@ -1220,7 +1220,14 @@ class modeMixin:
             # also, not clear if we should use get_mode_status_text instead.
         import MWsemantics
         greenmsg = MWsemantics.greenmsg
-        self.win.history.message( greenmsg( msg), norepeat_id = msg )
+        try: # bruce 050112
+            # (could be made cleaner by defining too_early in HistoryWidget,
+            #  or giving message() a too_early_ok option)
+            too_early = self.win.history.too_early # true when early in init
+        except AttributeError: # not defined after init!
+            too_early = 0
+        if not too_early:
+            self.win.history.message( greenmsg( msg), norepeat_id = msg )
         
         self.update_after_new_mode()
         

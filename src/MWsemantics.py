@@ -44,6 +44,10 @@ def fileparse(name):
     return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
 
 class pre_init_fake_history_widget:
+    too_early = 1
+        # defined so insiders can detect that it's too early (using hasattr)
+        # and not call us at all (as they could have using hasattr on win.history
+        #  before this "safety net" for early messages was added)
     def message(self, msg, **options):
         """This exists to handle messages sent to win.history during
         win.__init__, before the history widget has been created!"""
