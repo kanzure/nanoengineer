@@ -2010,6 +2010,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         print "module names:", modulenames
         print "reloading all these %d modules, outermost first" % len(modules)
         modules.reverse()
+        modules = self.filter_reload_modules(modules) # let subclasses modify this list [050219/050327]
         for mod in modules:
             print "reloading",mod
             reload(mod)
@@ -2049,6 +2050,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
         win.history.message( "reloaded model tree, init time %s" % win.mt._init_time)
         return
 
+    def filter_reload_modules(self, modules):
+        "[subclasses can override this to change which modules we'll reload]"
+        return modules
+    
     pass # end of class TreeWidget
 
 # end
