@@ -39,6 +39,10 @@ class cookieMode(basicMode):
         self.w.cookieCutterToolbar.hide()
         self.o.ortho = self.savedOrtho
         self.o.setMode('SELECT')
+         
+	basicMode.Done(self)
+
+        
 
     def Backup(self):
         if self.o.shape:

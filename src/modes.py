@@ -42,6 +42,7 @@ class basicMode:
         print self.modename, "Backup not implemented yet"
 
     def Done(self):
+        self.w.modelTreeView.updateModelTree()
         self.o.setMode(self.prevmode.modename)
     
     def Draw(self):

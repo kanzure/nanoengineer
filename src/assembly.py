@@ -576,6 +576,8 @@ class assembly:
         m.findcenter(self.selatoms.values(), sightline)
         self.unpickatoms()
 
+	self.w.modelTreeView.updateModelTree()
+
     # makes a Linear Motor connected to the selected atoms
     # note I don't check for a limit of 25 atoms, but any more
     # will choke the file parser in the simulator
@@ -585,12 +587,16 @@ class assembly:
         m.findCenter(self.selatoms.values(), sightline)
         self.unpickatoms()
 
+	self.w.modelTreeView.updateModelTree()
+
     # makes all the selected atoms grounded
     # same note as above
     def makeground(self):
         if not self.selatoms: return
         m=ground(self, self.selatoms.values())
         self.unpickatoms()
+
+	self.w.modelTreeView.updateModelTree()
 
     # select all atoms connected by a sequence of bonds to
     # an already selected one
