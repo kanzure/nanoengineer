@@ -799,22 +799,29 @@ class extrudeMode(basicMode):
             #e but we'll probably want to figure out a decent name for it, make a special group to put these in, etc
             ii = self.ncopies
             self.ncopies = ii + 1
-            newmols = assy_copy(self.o.assy, [self.basemol]) # fyi: offset is redundant with mol.set_basecenter_and_quat (below) 
-            new = newmols[0]
+            # pre-050216 code:
+            ## newmols = assy_copy(self.o.assy, [self.basemol]) # fyi: offset is redundant with mol.set_basecenter_and_quat (below) 
+            ## new = newmols[0]
+            # new code 050216:
+            new = self.basemol.copy(None) # None is the dad, and as of 050214 or so, passing any other dad is deprecated for now
+            self.o.assy.addmol(new) #e addmol is inefficient when adding many mols at once, needs change to inval system
+            # end 050216 changes
             if self.keeppicked:
                 pass ## done later: self.basemol.pick()
             else:
                 ## self.basemol.unpick()
-                new.unpick() # undo side effect of assy_copy
+                new.unpick() # undo side effect of assy_copy #k maybe no longer needed [long before 050216]
             self.molcopies.append(new)
             c, q = self.want_center_and_quat(ii)
             self.molcopies[ii].set_basecenter_and_quat( c, q)
             self.asserts()
         if self.keeppicked:
             self.basemol.pick() #041009 undo an unwanted side effect of assy_copy (probably won't matter, eventually)
+                 #k maybe no longer needed [long before 050216]
         else:
             self.basemol.unpick() # do this even if no copies made (matters e.g. when entering the mode)
-
+                 #k maybe no longer needed [long before 050216]
+        
         ###@@@ now this looks like a general update function... hmm
 
         self.needs_repaint = 1 # assume this is always true, due to what calls us
@@ -1610,23 +1617,23 @@ class extrudeMode(basicMode):
 
 # ==
 
-# should be a method in assembly (tho it also uses my local customizations to mol.copy and atom.copy)
-def assy_copy(assy, mols, offset = V(10.0, 10.0, 10.0)):
-    """in assy, copy the mols in the list of mols; return list of new mols.
-    The code is modified from pre-041007 assembly.copy [is that code used? correct? it doesn't do anything with nulist].
-    But then extended to handle post-041007 by bruce, 041007-08
-    Note, as a side effect (of molecule.copy), the new mols are picked and the old mols are unpicked. ####k [not anymore 041014]
-    """
-    self = assy
-    nulist = [] # moved out of loop; is that a bug in assy.copy too?? ###k
-    for mol in mols[:]: # copy the list in case it happens to be self.selmols (needed??)
-        self.changed() # only if loop runs
-        numol = mol.copy( mol.dad, offset)
-        nulist += [numol]
-        self.addmol(numol) ###k ###@@@ why was this not already done in mol.copy?? [bruce 041116 question]
-            # answer: because mol.copy makes mols meant for the clipboard, too! addmol for them is very wrong. [bruce 050202]
-        # what does it, when mol is actually copied by UI? 
-    return nulist
+### should be a method in assembly (tho it also uses my local customizations to mol.copy and atom.copy)
+##def assy_copy(assy, mols, offset = V(10.0, 10.0, 10.0)):
+##    """in assy, copy the mols in the list of mols; return list of new mols.
+##    The code is modified from pre-041007 assembly.copy [is that code used? correct? it doesn't do anything with nulist].
+##    But then extended to handle post-041007 by bruce, 041007-08
+##    Note, as a side effect (of molecule.copy), the new mols are picked and the old mols are unpicked. ####k [not anymore 041014]
+##    """
+##    self = assy
+##    nulist = [] # moved out of loop; is that a bug in assy.copy too?? ###k
+##    for mol in mols[:]: # copy the list in case it happens to be self.selmols (needed??)
+##        self.changed() # only if loop runs
+##        numol = mol.copy( mol.dad, offset)
+##        nulist += [numol]
+##        self.addmol(numol) ###k ###@@@ why was this not already done in mol.copy?? [bruce 041116 question]
+##            # answer: because mol.copy makes mols meant for the clipboard, too! addmol for them is very wrong. [bruce 050202]
+##        # what does it, when mol is actually copied by UI? 
+##    return nulist
 
 # should be a method in assembly (maybe there is one like this already??)
 def assy_merge_mols(assy, mollist):
