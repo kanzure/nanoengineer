@@ -34,6 +34,8 @@ Unsupported Features:
 
 11. Linear motors are not supported by the simulator. (393) 
 
+12. Unicode characters are not supported for naming the items. Also, to avoid some bugs do not use a closing parenthesis symbol ‘)’ while naming the items in nE-1. (474)
+
 
 Known Bugs (All Platforms)
 
@@ -111,6 +113,11 @@ Known Bugs (All Platforms)
 
 33. Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
 
+34. Povray file of a model neglects the user defined lighting and displays the Povray image in nE-1’s default lighting. (447)
+
+35. Clipboard: Executing  set hotspot  on the objects already in the chunk makes another hotspot copy in clipboard and also changes the hotspot of the original copy (478)
+
+36. Lighting: The time when ‘lighting dialog box’ pops up, the lighting settings of the model get modified automatically. (507)
 
 Windows Only Bugs
 
