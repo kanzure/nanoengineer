@@ -227,7 +227,9 @@ def writepdb(assy, filename):
 
 # Huaicai to implement readxyz - Mark 050120
 def readxyz(assy):
-        """Read a single-frame XYZ file created by the simulator, typically  for minimizing a part. Check file format, return a list of atom new positions in the same order as assy.alist
+        """Read a single-frame XYZ file created by the simulator, typically for
+        minimizing a part. Check file format, return a list of atom new positions
+        in the same order as assy.alist
         """
         xyzFile = assy.m.filename
         lines = open(xyzFile, "rU").readlines()
@@ -265,8 +267,9 @@ def readxyz(assy):
                          
                 atomIndex += 1
         
-        if (len(newAtomsPos) != len(atomList)):
-                print "The number of atoms from %s is not matching with the current model." % xyzFile
+        if (len(newAtomsPos) != len(atomList)): #bruce 050225 added some parameters to this error message
+            print "readxyz: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
+                  (xyzFile, len(newAtomsPos), len(atomList))
                 
         return newAtomsPos        
         
