@@ -344,7 +344,10 @@ class assembly:
         elif a:
             a.pick()
             # Print information about the selected atom in the msgbar [mark 041005]
-            self.w.msgbarLabel.setText( "Atom #" + str (a.key ) + ", " + a.element.name)
+            xyzstr = a.posn()
+            self.w.msgbarLabel.setText( 
+                "Atom #" + str (a.key ) + ", " + a.element.name + 
+                ", X = " + str(xyzstr[0]) + ", Y = " + str(xyzstr[1]) + ", Z = " + str(xyzstr[2]))
 
     # make something unselected
     def unpick(self, p1, v1):
