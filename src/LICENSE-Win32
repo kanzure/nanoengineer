@@ -24,7 +24,7 @@ sold.
 3. By installing, copying, or otherwise using the Licensed Software,
 Licensee agrees to be bound by the terms of this Agreement. If
 Licensee does not agree to the terms of this Agreement, Licensee may
-not install, copy, or otherwise use the Licensed Software;
+not install, copy, or otherwise use the Licensed Software.
 In addition, by installing, copying, or otherwise
 using any updates or other components of the Licensed Software that
 Licensee receives separately as part of the Licensed Software
@@ -53,12 +53,13 @@ LIMITATIONS
     solely for your backup purposes.
 
 NOTE: nanoENGINEER-1 for Linux and MacOS is licensed under the terms 
-of the GNU GPL and not under this Agreement.
+of the GNU GPL and not under this Agreement. The GNU GPL has no relevance
+to the Windows Edition of nanoENGINEER-1.
 
 
 LIMITATIONS OF LIABILITY
 
-7. IN NO EVENT SHALL THE INITIAL DEVELOPERS OR COPYRIGHT HOLDERS BE 
+7. IN NO EVENT SHALL NANOREX OR THE EMPLOYEES OF NANOREX BE 
 LIABLE FOR ANY DAMAGES WHATSOEVER, INCLUDING - BUT NOT RESTRICTED 
 TO - LOST REVENUE OR PROFITS OR OTHER DIRECT, INDIRECT, SPECIAL, 
 INCIDENTAL OR CONSEQUENTIAL DAMAGES, EVEN IF THEY HAVE BEEN ADVISED 
