@@ -812,6 +812,8 @@ class GLPane(QGLWidget, modeMixin):
         pic.save(filename, "JPEG", quality=85)
 
     def minimize(self):
+        # There may be chunks (assy.molecules) in the part, but no assy.alist created yet.  
+        # Make sure some chunks are in the part.
         if not self.assy.molecules: # Nothing in the part to minimize.
             self.win.statusBar.message("<span style=\"color:#ff0000\">Minimize: Nothing to minimize.</span>")
             return
@@ -850,9 +852,11 @@ class GLPane(QGLWidget, modeMixin):
                     if os.path.exists("minimize.dpb"): os.remove ("minimize.dpb") # Delete before spawning.
                     kid = os.spawnv(os.P_NOWAIT, program, args)
                     natoms = len(self.assy.alist)
-                    nframes = max(25, int(sqrt(natoms)))
+                    # This formula is used in simulator.c to determine the number of frames for minimization.
+                    # Josh came up with this formula.  Not sure exactly why.  Mark 050105
+                    nframes = max(25, int(sqrt(natoms))) 
                     dpbsize = (nframes * natoms * 3) + 4
-                    r = self.win.progressbar.launch(dpbsize, "minimize.dpb", "Minimize", "Calculating...")
+                    r = self.win.progressbar.launch(dpbsize, "minimize.dpb", "Minimize", "Calculating...", 1)
                 finally:
                     os.chdir(oldWorkingDir)
             else:
