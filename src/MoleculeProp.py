@@ -1,5 +1,6 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
+from constants import *
 from MoleculePropDialog import *
 
 nocolor = QColor(230,231,230) # needed by colortile and colorchooser
@@ -79,6 +80,11 @@ class MoleculeProp(MoleculePropDialog):
         self.colorPixmapLabel.setFrameShape(QFrame.Box)
         self.mol.color = None
         self.mol.setcolor(self.mol.color)
+        self.mol.glpane.paintGL()
+        
+    def makeAtomsVisible(self):
+        for a in self.mol.atoms.itervalues():
+            a.setDisplay(diDEFAULT)
         self.mol.glpane.paintGL()
         
     def nameChanged(self):
