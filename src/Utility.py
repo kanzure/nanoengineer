@@ -121,8 +121,8 @@ class Node:
     def writemmp(self, atnums, alist, f):
         f.write(self.__repr__(atnums))
         
-    def writemdl(self, atnum, alist, f):
-        pass
+#    def writemdl(self, atnum, alist, f, dispdef):
+#        pass
 
     def draw(self, o, dispdef):
         pass
@@ -284,8 +284,9 @@ class Group(Node):
         if self.hidden: return
         for x in self.members: x.writepov(f, dispdef)
 
-    def writemdl(self, alist, f):
-        for x in self.members: x.writemdl(alist, f)
+    def writemdl(self, alist, f, dispdef):
+        if self.hidden: return
+        for x in self.members: x.writemdl(alist, f, dispdef)
             
     def __str__(self):
         return "<group " + self.name +">"

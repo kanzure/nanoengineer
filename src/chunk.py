@@ -831,8 +831,13 @@ class molecule(Node, InvalMixin):
                     drawn[bon.key] = bon
                     bon.writepov(file, disp, self.color)
 
-    def writemdl(self, alist, f):
-        for a in self.atoms.values(): a.writemdl(alist, f, self.color)
+    def writemdl(self, alist, f, disp):
+        if self.display != diDEFAULT: disp = self.display
+        if self.hidden or disp == diINVISIBLE: return
+        col = self.color
+#        print "chunk: disp =", disp,", color =", self.color
+        for a in self.atoms.values(): 
+            a.writemdl(alist, f, disp, self.color)
             
     def move(self, offset):
         """Public method: translate self (a molecule) by offset;

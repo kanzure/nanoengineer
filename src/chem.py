@@ -121,14 +121,13 @@ onebond = A([[1,0,0]]) # for use with valence-1 elements
 # [bruce 041119-23; Josh has reviewed "onebond", and approves it in principle]
 #e [note that this one-bond-direction is in model space; it might be better to
 #   change the code that deposits "onebond" atoms to always use screen-right]
-
-
 #      sym   name          mass    rVdW  color
 #      [[Nbonds, radius, angle] ...]
 Mendeleev=[ \
  elem("X", "Singlet",      0.001,  1.1,  [0.8, 0.0, 0.0],
       [[1, 0, None]]),
- elem("H",  "Hydrogen",    1.6737, 1.2,  [0.0, 0.6, 0.6],
+# elem("H",  "Hydrogen",    1.6737, 1.135,  [1.0, 1.0, 1.0],  # John Burch values - Mark [04-12-05]
+ elem("H",  "Hydrogen",    1.6737, 1.2,  [0.0, 0.6, 0.6], # Original values
       [[1, 30, onebond]]),
  elem("He", "Helium",      6.646,  1.4,  [0.42, 0.45, 0.55],
       None),
@@ -136,13 +135,17 @@ Mendeleev=[ \
       [[1, 152, None]]),
  elem("Be", "Beryllium",  14.964,  3.0,  [0.98, 0.67, 1.0],
       [[2, 114, None]]),
- elem("B",  "Boron",      17.949,  2.0,  [0.25, 0.25, 0.7],
+# elem("B",  "Boron",      17.949,  1.64,  [0.5, 0.5, 0.0], # John Burch values
+ elem("B",  "Boron",      17.949,  2.0,  [0.25, 0.25, 0.7], # Original values
       [[3, 90, flat]]),
- elem("C",  "Carbon",     19.925,  1.84, [0.25, 0.4, 0.0],
+# elem("C",  "Carbon",     19.925,  1.462, [0.46, 0.46, 0.46], # John Burch values
+ elem("C",  "Carbon",     19.925,  1.84, [0.25, 0.4, 0.0], # Original values
       [[4, 77, tetra4], [3, 71, flat], [2, 66, straight], [1, 59, None]]),
- elem("N",  "Nitrogen",   23.257,  1.55, [0.84, 0.37, 1.0],
+# elem("N",  "Nitrogen",   23.257,  1.4, [0.25, 0.25, 0.7], # John Burch values
+ elem("N",  "Nitrogen",   23.257,  1.55, [0.84, 0.37, 1.0], # Original values
       [[3, 70, tetra3], [2, 62, tetra2], [1, 54.5, None] ]),
- elem("O",  "Oxygen",     26.565,  1.74, [0.6, 0.2, 0.2],
+# elem("O",  "Oxygen",     26.565,  1.32, [0.6, 0.2, 0.2], # John Burch values
+ elem("O",  "Oxygen",     26.565,  1.74, [0.6, 0.2, 0.2], # Original values
       [[2, 66, oxy2], [1, 55, None]]),
  elem("F",  "Fluorine",   31.545,  1.65, [0.0, 0.8, 0.34],
       [[1, 64, onebond]]),
@@ -154,7 +157,8 @@ Mendeleev=[ \
       [[2, 160, None]]),
  elem("Al", "Aluminum",   44.7997, 2.5,  [0.4, 0.4, 0.75],
       [[3, 143, flat]]),
- elem("Si", "Silicon",    46.6245, 2.25, [0.3, 0.3, 0.3],
+# elem("Si", "Silicon",    46.6245, 1.825, [0.42, 0.36, 0.5], # John Burch values
+ elem("Si", "Silicon",    46.6245, 2.25, [0.3, 0.3, 0.3], # Original values
       [[4, 117, tetra4]]),
  elem("P",  "Phosphorus", 51.429,  2.11, [0.4, 0.1, 0.5],
       [[3, 110, tetra3]]),
@@ -191,7 +195,8 @@ Mendeleev=[ \
       [[2, 133, None]]),
  elem("Ga", "Gallium",   115.764,  2.7,  [0.6, 0.6, 0.8],
       [[3, 135, None]]),
- elem("Ge", "Germanium", 120.53,   2.5,  [0.4, 0.45, 0.1],
+# elem("Ge", "Germanium", 120.53,   1.980,  [0.4, 0.45, 0.1], # John Burch values
+ elem("Ge", "Germanium", 120.53,   2.5,  [0.4, 0.45, 0.1], # Original values
       [[4, 122, tetra4]]),
  elem("As", "Arsenic",   124.401,  2.2,  [0.6, 0.26, 0.7],
       [[5, 119, tetra3]]),
@@ -527,11 +532,11 @@ class atom:
                        povpoint(color) + ")\n")
 
     # write to a MDL file.  By Chris Phoenix and Mark for John Burch [04-12-03]
-    def writemdl(self, alist, f, col):
+    def writemdl(self, alist, f, dispdef, col):
         color = col or self.element.color
-        disp, radius = self.howdraw(diVDW) # only need VdW radius
-        xyz=map(float, A(self.posn()))  # xyz = 3-tuple of float
-        rgb=map(int,A(color)*255) # rgb = 3-tuple of int
+        disp, radius = self.howdraw(dispdef)
+        xyz=map(float, A(self.posn()))
+        rgb=map(int,A(color)*255)
         atnum = len(alist) # current atom number
 #        print "chem.writemdl(): atnum =", atnum,", xyz = ",xyz,", radius = ",radius,", rgb = ",rgb
         
@@ -539,13 +544,13 @@ class atom:
         
         # Write spline info for this atom
         atomOffset = 80*atnum
-        (x,y,z) = xyz;
+        (x,y,z) = xyz
         for spline in range(5):
             f.write("CPs=8\n")
             for point in range(8):
                 index = point+spline*8
                 (px,py,pz)=marks[index]
-                px = px*radius + x; py = py*radius + y; pz = pz*radius + z;
+                px = px*radius + x; py = py*radius + y; pz = pz*radius + z
                 if point == 7:
                     flag = "3825467397"
                 else:

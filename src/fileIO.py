@@ -416,8 +416,14 @@ def writemdl(assy, filename):
     assy.alist = []
     natoms = 0
 
-    # Determine the number of atoms in the part.         
-    for mol in assy.molecules: natoms += len(mol.atoms)
+    # Determine the number of visible atoms in the part.
+    # Invisible (not hidden) atoms are drawn
+    # This is a bug to be fixed in the future.  Will require work in chunk & chem.writemdl, too.  
+    # writepov may have this problem, too.
+    # Mark [04-12-05]     
+    for mol in assy.molecules: 
+        if not mol.hidden or mol.disp != diINVISIBLE: natoms += len(mol.atoms)
+    print "fileIO: natoms =", natoms
 
     f = open(filename, 'w');
     
@@ -426,22 +432,57 @@ def writemdl(assy, filename):
     
     # Write atoms with spline coordinates
     f.write("Splines=%d\n"%(13*natoms))
-    assy.tree.writemdl(assy.alist, f)
+    assy.tree.writemdl(assy.alist, f, assy.o.display)
     
     # Write the GROUP information
+    # Currently, each atom is 
     f.write("[ENDMESH]\n[GROUPS]\n")
-    for atom in range(natoms):
-        (xyz, size, rgb) = assy.alist[atom]
-#        print "fileIO.writemdl(): xyz = ",xyz,", size = ",size,", rgb = ",rgb
-        f.write("[GROUP]\nName=Atom%d\nCount=80\n"%atom)
-        for j in range(80):
-            f.write("%d\n"%(98-j+atom*80))
-        pos=(float(xyz[0]), float(xyz[1]), float(xyz[2]))
-        f.write("Pivot=%f %f %f\n" % pos)
-        color=(int(rgb[0]), int(rgb[1]), int(rgb[2]))
-        f.write("DiffuseColor=%d %d %d\n"%color)
-        f.write("[ENDGROUP]\n")
+    
+    atomindex = 0 
+    
+    for mol in assy.molecules:
+        col = mol.color # Color of molecule
+        for a in mol.atoms.values():
+            
+            # Begin GROUP record for this atom.
+            f.write("[GROUP]\nName=Atom%d\nCount=80\n"%atomindex)
+            
+            # Write atom mesh IDs
+            for j in range(80):
+                f.write("%d\n"%(98-j+atomindex*80))
+
+            # Write Pivot record for this atom.
+#            print "a.pos = ", a.posn()
+            xyz=a.posn()
+            n=(float(xyz[0]), float(xyz[1]), float(xyz[2]))
+            f.write("Pivot= %f %f %f\n" % n)
+            
+            # Add DiffuseColor record for this atom.
+            color = col or a.element.color
+            rgb=map(int,A(color)*255) # rgb = 3-tuple of int
+            color=(int(rgb[0]), int(rgb[1]), int(rgb[2]))
+            f.write("DiffuseColor=%d %d %d\n"%color)
+            
+            # End the group for this atom.
+            f.write("[ENDGROUP]\n")
+            
+            atomindex += 1
+        
+    # ENDGROUPS
     f.write("[ENDGROUPS]\n")
+
+#    for atom in range(natoms):
+#        (xyz, size, rgb) = assy.alist[atom]
+#        print "fileIO.writemdl(): xyz = ",xyz,", size = ",size,", rgb = ",rgb
+#        f.write("[GROUP]\nName=Atom%d\nCount=80\n"%atom)
+#        for j in range(80):
+#            f.write("%d\n"%(98-j+atom*80))
+#        pos=(float(xyz[0]), float(xyz[1]), float(xyz[2]))
+#        f.write("Pivot=%f %f %f\n" % pos)
+#        color=(int(rgb[0]), int(rgb[1]), int(rgb[2]))
+#        f.write("DiffuseColor=%d %d %d\n"%color)
+#        f.write("[ENDGROUP]\n")
+#    f.write("[ENDGROUPS]\n")
     
     # Write the footer and close
     fpos = f.tell()
