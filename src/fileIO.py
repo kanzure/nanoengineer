@@ -490,12 +490,14 @@ def writemdl(assy, filename):
                        (111,93,133):((187,176,200), 16, 44)}
 
     # Determine the number of visible atoms in the part.
-    # Invisible (not hidden) atoms are drawn
+    # Invisible atoms are drawn.  Hidden atoms are not drawn.
     # This is a bug to be fixed in the future.  Will require work in chunk/chem.writemdl, too.  
     # writepov may have this problem, too.
     # Mark [04-12-05]     
+    # To test this, we need to get a copy of Animation Master.
+    # Mark [05-01-14]
     for mol in assy.molecules: 
-        if not mol.hidden or mol.disp != diINVISIBLE: natoms += len(mol.atoms)
+        if (not mol.hidden) and (mol.disp != diINVISIBLE): natoms += len(mol.atoms)
 #    print "fileIO: natoms =", natoms
 
     f = open(filename, 'w');
