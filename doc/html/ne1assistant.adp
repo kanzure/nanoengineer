@@ -44,7 +44,7 @@
     </section>
 </DCF>
 
-<DCF ref="index.htm" icon="handbook.png" title="How to use nanoENGINEER-1">
+<DCF ref="index.htm" icon="handbook.png" title="nanoENGINEER-1 Reference Documentation">
     <section ref="./howtouse.htm" title="Getting Started">
     <keyword ref="./howtouse.htm">getting started</keyword>
     </section>
