@@ -271,6 +271,12 @@ class Movie:
 
                 # adding 1 frame (of XYZ positions from the movie file) to the current atom positions
                 self.assy.movatoms(self.fileobj, ADD)
+                
+                # Skip n frames.
+                for n in range(self.assy.w.skipSB.value()):
+                    if self.currentFrame != fnum:
+                        self.currentFrame += inc
+                        self.assy.movatoms(self.fileobj, ADD)
              
             # Backward one frame   
             else: 
@@ -287,6 +293,15 @@ class Movie:
                 # subtracting 1 frame (of XYZ positions from the movie file) from the current atom positions
                 self.assy.movatoms(self.fileobj, SUBTRACT)
                 self.fileobj.seek( filepos ) # reset the file position in case we play forward next time.
+                
+                # Skip n frames.
+                for n in range(self.assy.w.skipSB.value()):
+                    if self.currentFrame != fnum:
+                        self.currentFrame += inc
+                        filepos = (self.currentFrame * self.natoms * 3) + 4
+                        self.fileobj.seek( filepos )
+                        self.assy.movatoms(self.fileobj, SUBTRACT)
+                        self.fileobj.seek( filepos ) # reset the file position in case we play forward next time.
             
             # update the GLPane and dashboard widgets each frame
             if self.showEachFrame:
@@ -411,7 +426,6 @@ class Movie:
         self._pause(0)
         self.moveToEnd = True
         self._playFrame(self.totalFrames)
-        
 
     def _controls(self, On = True):
         """Enable or disable movie controls.
