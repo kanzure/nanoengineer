@@ -34,6 +34,7 @@ from extrudeMode import extrudeMode, revolveMode
 from selectMode import *
 from depositMode import depositMode
 from movieMode import movieMode
+from zoomMode import zoomMode
 from modes import modeMixin
 
 import Image
@@ -116,7 +117,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
     # constants needed by modeMixin:
     default_mode_class = selectMolsMode
-    other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode, extrudeMode, revolveMode, movieMode]
+    other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode, extrudeMode, revolveMode, movieMode, zoomMode]
     
     def __init__(self, assem, master=None, name=None, win=None):
         
