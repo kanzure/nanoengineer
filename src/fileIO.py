@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 File IO functions for reading and writing PDB and MMP files
 
@@ -367,9 +367,35 @@ def insertmmp(assy, fileName):
     
     if len(groupList) != 3: print "wrong number of top-level groups"
     assy.tree.addmember(groupList[1])
-    
+
+def workaround_for_bug_296(assy):
+    """If needed, move jigs in assy.tree to later positions
+    (and emit appropriate messages about this),
+    since current mmp file format requires jigs to come after
+    all chunks whose atoms they connect to.
+    """
+    # bruce 050111 temp fix for bug 296 (maybe enough for Alpha)
+    def errfunc(msg):
+        "local function for error message output"
+        assy.w.history.message( redmsg( msg))
+    try:
+        from node_indices import move_jigs_if_needed
+        count = move_jigs_if_needed(assy.tree, errfunc) # (this does the work)
+        if count:
+            from platform import fix_plurals
+            movedwhat = fix_plurals( "%d jig(s)" % count)
+            warning = "Warning: moved %s within model tree, " \
+              "to work around limitation in Alpha mmp file format" % movedwhat
+            assy.w.history.message( redmsg( warning))
+    except:
+        print_compact_traceback("bug in bug-296 bugfix in fileIO.writemmp: ")
+    return
+
 # write all molecules, motors, grounds into an MMP file
 def writemmp(assy, filename, addshelf = True):
+
+    workaround_for_bug_296( assy)
+    
     f = open(filename,"w")
     atnums = {}
     atnums['NUM'] = 0

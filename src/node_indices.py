@@ -12,9 +12,10 @@ on the node tree.
 Some of this should become Node and Group methods,
 but some of it probably makes sense in its own module like this one.
 """
-__author__ = "bruce"
+__author__ = "bruce" ###@@@ all prints are debug only ###@@@ needs nicer new place ###@@@ has bug in what it moves, maybe
 
 from Utility import *
+from gadgets import Jig
 
 ### quick try at fixing bug 296 for josh emergency use!
 # doing it all in this file, though ideally it would involve new code
@@ -65,7 +66,9 @@ def node_new_index(node, root, after_these):
     """If the given node is not already after all the nodes in after_these (a list of nodes),
     return the new position it should have (expressed in terms of current indices --
     the extended index might be different after the original node is moved,
-    leaving a hole where the node used to be!).
+    leaving a hole where the node used to be!). Note that this could be, but is not,
+    the next possible index... the best choice is subjective, and this design decision
+    of where to move it to is encoded in this function.
        If it does not need to move, return None.
        If it can't be properly moved (because it must come after things which
     are not even in the tree rooted at root), raise ValueError, with detail
@@ -83,15 +86,48 @@ def node_new_index(node, root, after_these):
         afterposns = map( lambda node1: node_position(node1, root), after_these)
     except ValueError:
         raise ValueError, node ###stub; need a better detail
+    print "in node_new_index(%r,%r,%r), afterposns is %r" % (node, root, after_these, afterposns)
     last_after = max(afterposns) # last chunk of the ones node must come after
-    if node > last_after:
-        return None
-    return just_after(last_after) #e we might instead want to put it at a higher level in the tree...
+    print "last_after = max of those is %r" % (last_after,)
+    if ourpos > last_after: ###@@@ bug, should be ourpos not node
+        res = None
+    else:
+        ## res = just_after(last_after)
+        # instead let's put it at a higher level in the tree...
+        # as low as we can so that to get to its chunks, you go back
+        # and then down (not up first) (where down = more indices,
+        # up = fewer indices, back = last index smaller);
+        # and as far back as we can.
+        first_after = min(afterposns)
+        grouppos = common_prefix( first_after, last_after )
+        # put it in that group, just after the element containing
+        # the last of these two posns
+        ind = last_after[len(grouppos)] + 1
+        res = grouppos + [ind]
+        assert is_list_of_ints(res)
+    print "res is %r" % (res,)
+    return res
 
-def just_after(extended_index):
+def common_prefix( seq1, seq2 ):
+    """given two python sequences, return the initial common prefix of them
+    (as a list and/or the sequence type of either of these sequences --
+     which of these sequence types to use is not defined by this fuction's
+     specification, but it will be one of those three types)
+    (it's also undefined whether the retval might be the same mutable object
+     as one of the inputs!)
+    """
+    maxlen = min(len(seq1),len(seq2))
+    for i in xrange(maxlen):
+        if seq1[i] != seq2[i]:
+            return seq1[0:i] # might be 0-length; type same as seq1
+    # one is a prefix of the other (or they are the same)
+    return seq1[0:maxlen] # might be all or part of seq1
+    
+def just_after(extended_index): # not presently used
     """return the index of the position (which may not presently exist)
     just after the given one, but at the same level
     """
+    assert is_list_of_ints(extended_index)
     assert extended_index, "just_after([]) is not defined"
     return extended_index[0:-1] + [extended_index[-1] + 1]
 
@@ -117,6 +153,8 @@ def move_one_node(node, root, newpos):
     newpos is the old position, may not be the new one
     since removing the node will change indices in the tree
     """
+    print "moving one node",node, root, newpos###@@@
+    assert is_list_of_ints(newpos)
     # First find a node to move it just before,
     # or a group to make it the last child of
     # (one of these is always possible
@@ -132,7 +170,17 @@ def move_one_node(node, root, newpos):
     try:
         marker = node_at(root, newpos)
         where = 'before'
-    except ValueError: # nothing now at that pos
+        if marker == node:
+            # we are moving it to where it already is -- the one
+            # (known) correct case in which the following code
+            # can't work... fortunately it's also easy!
+            # It's also never supposed to happen in the initial
+            # use of this code (though it's legal for this func in general),
+            # so (for now) print an unobtrusive warning.
+            # (Later make that atom_debug only. #e)
+            print "(fyi: moving node %r to where it already is in model tree)" % (node,)
+            return
+    except IndexError: # nothing now at that pos (or pos itself doesn't exist)
         marker = node_at(root, newpos[0:-1]) # use group as marker
         where = 'end' # works for a full or empty group
     # now remove node from where it is now
@@ -151,25 +199,42 @@ def move_one_node(node, root, newpos):
         Node.addmember(marker, node, before=True)
     return
 
+def is_list_of_ints(thing):
+    return type(thing) == type([]) and ((not thing) or \
+                (type(min(thing)) == type(1) == type(max(thing))))
+
 def node_at(root, pos):
-    "return the node at extended index pos, relative to root"
+    """return the node at extended index pos, relative to root,
+    or raise IndexError if nothing is there but the group
+    containing that position exists,
+    or if the index goes too deep
+    """
+    assert is_list_of_ints(pos)
     if pos == []:
         return root
     ind1, rest = pos[0], pos[1:]
-    child = root.members[ind1]
+    try:
+        child = root.members[ind1]
+    except AttributeError: # no .members
+        raise IndexError, "tried to index into a leaf node"
+    except IndexError: # ind1 out of range
+        raise IndexError, "nothing at that position in group"
     return node_at(child, rest)
 
 def fix_one_or_complain(node, root, msgfunc):
     try:
         return fix_one_node(node, root)
     except ValueError, msg:
+        # redundant check to avoid disaster from bugs in this new code:
+        assert isinstance(node, Jig), "bug in new code for move_jigs_if_needed -- it wants to delete non-Jig %r!" % node
         if type(msg) != type(""):
             msg = "error moving %r, deleting it instead" % msg #e improve this, or include error msg string in the exception
         msgfunc(msg)
+        node.kill() # delete it
         return 0
     pass
 
-def fix_all(root, msgfunc):
+def move_jigs_if_needed(root, msgfunc):
     """move all necessary jigs under root later in the tree under root;
     emit error messages for ones needing to go out of tree
     (by calling msgfunc on error msg strings),
