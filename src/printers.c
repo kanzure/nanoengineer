@@ -311,15 +311,17 @@ void printheader(FILE *f, char *ifile, char *ofile, char *tfile,
     tm = time(NULL);
     ptr = localtime(&tm);
     
-    fprintf(f, "# nanoENGINEER-1 Simulator Trace File\n");
+    fprintf(f, "# nanoENGINEER-1.com Simulator Trace File, Version 050310\n");
     fprintf(f, "#\n");
     fprintf(f, "# Date and Time: %s", asctime(ptr));
     fprintf(f, "# Input File:%s\n", ifile);
     fprintf(f, "# Output File: %s\n", ofile);
     fprintf(f, "# Trace File: %s\n", tfile);
     fprintf(f, "# Number of Atoms: %d\n", na);
+    /*
     fprintf(f, "# MMP Key: %d\n", MMPKey);
     fprintf(f, "# DPB Key: %d\n", DPBKey);
+    */
     fprintf(f, "# Number of Frames: %d\n", nf);
     fprintf(f, "# Steps per Frame: %d\n", spf);
     fprintf(f, "# Temperature: %.1f\n", temp);
