@@ -1,236 +1,162 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
-	<TITLE>Molecule Machine Part (MMP) Format</TITLE>
-	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.0  (Linux)">
-	<META NAME="CREATED" CONTENT="20041006;8283500">
-	<META NAME="CHANGED" CONTENT="20041007;8114900">
-</HEAD>
-<BODY LANG="en-US" DIR="LTR">
-<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html><!-- InstanceBegin template="/Templates/assistant-template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Assistant-MMP File Format</title>
+<!-- InstanceEndEditable -->
+<!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+</head>
+
+<body>
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
   <tr bgcolor="#E5E5E5">
-    <td valign=center><a href="index.htm"> <font color="#004faf">Home</font></a> </td>
-    <td align="right" valign="center"><img src="ne1logo.png" width="251" height="45"></td>
+    <td valign=center> <font color="#004faf"><a href="index.htm"target="_top">Home</a></font></td>
+    <td align="right" valign="center"><img src="images/ne1logo.jpg" width="251" height="45"></td>
   </tr>
 </table>
-<H1>Molecular Machine Part (MMP)  File Format (Alpha)</H1>
-<P>An mmp file consists of a <EM>molecular machine part</EM> (MMP)
-with a sequence of molecules. The simulator will check for van der
-Waals interactions between atoms of different molecules, but not
-within a given molecule. If such interactions are expected within the
-same molecule, the &quot;waals&quot; record can be used. 
-</P>
-<P>The file is a nested tree structure where each node begins with a
-<B>group </B>record and ends with an <B>egroup</B> record.</P>
-<P>Each molecule is a <STRONG>mol</STRONG> record followed by <STRONG>atom</STRONG>
-and <STRONG>bond</STRONG> records. The bonds must be back-references,
-i.e. if <EM>atom1</EM> and <EM>atom2</EM> are bonded, <EM>atom1</EM>
-will have no bond record, while <EM>atom2</EM> will have a record
-pointing back to <EM>atom1</EM>.</P>
+<!-- InstanceBeginEditable name="EditRegion3" -->
+<p>&nbsp;</p>
+<H1>Molecular Machine Part (MMP) File Format (Alpha)</H1>
+<P>An mmp file consists of a <EM>molecular machine part</EM> (MMP) with a sequence of chunks. The simulator will check for van der Waals interactions between atoms of different chunks, but not within a given chunk. If such interactions are expected within the same chunk, the &quot;waals&quot; record can be used. </P>
+<P>The file is a nested tree structure where each node begins with a <B>group </B>record and ends with an <B>egroup</B> record.</P>
+<P>Each chunk is a <STRONG>mol</STRONG> record followed by <STRONG>atom</STRONG> and <STRONG>bond</STRONG> records. The bonds must be back-references, i.e. if <EM>atom1</EM> and <EM>atom2</EM> are bonded, <EM>atom1</EM> will have no bond record, while <EM>atom2</EM> will have a record pointing back to <EM>atom1</EM>.</P>
 <P>MMP files begin with a <strong>csys</strong> record, followed by standard <strong>datum</strong> plane objects (RIGHT, FRONT and TOP), followed by the rest of the part. The final (optional) section of the MMP file can include cut/paste objects that are defined after the <strong>end1</strong> record. The intent of this section of the file is to support cut/paste when the user cuts a selection, then immediately saves the file. The final record in the MMP file is the <strong>end</strong> record. </P>
 <H2>Record types</H2>
-<P>Note parentheses and commas are required. Braces are metacomments.
-</P>
+<P>Note parentheses and commas are required. Braces are metacomments. </P>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="mol"></a>mol</STRONG><EM> (name</EM></FONT>) <EM><FONT SIZE=4>mode
-</FONT></EM>
-</P>
-<P>Begins a new molecule. Applies to all atoms until the next <STRONG>mol</STRONG>
-record, where:</P>
+<P><EM><FONT SIZE=4><STRONG>mol</STRONG> (name</FONT></EM>) <EM><FONT SIZE=4>mode </FONT></EM> </P>
+<P>Begins a new chunk. Applies to all atoms until the next <STRONG>mol</STRONG> record, where:</P>
 <ul>
-  <li><STRONG style="margin-bottom: 0in"><STRONG><EM>name</EM></STRONG>
-    - </STRONG>name of the molecule that appears in the model tree 
-  </li>
-  <li><STRONG style="margin-bottom: 0in"><EM>mode</EM></STRONG> -
-	    the default display mode for this molecule equals one of: </li>
+  <li><STRONG style="margin-bottom: 0in"><STRONG><EM>name</EM></STRONG> - </STRONG>name of the chunk that appears in the model tree </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>mode</EM></STRONG> - the default display mode for this chunk equals one of: </li>
   <ul>
     <li>vdw&quot; - van der Waals </li>
     <li>&quot;cpk&quot; - ball and stick </li>
     <li>&quot;tub&quot; - tube </li>
     <li>&quot;lin&quot; - lines </li>
     <li>&quot;inv&quot;- invisible </li>
-    <li>&quot;def&quot; - default (this display mode is determined
-        by the software) </li>
+    <li>&quot;def&quot; - default (this display mode is determined by the software) </li>
   </ul>
 </ul>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="atom"></a>atom </STRONG><EM>n (e) (x, y, z) mode</EM></FONT></P>
-<P>Creates a new atom, where: 
-</P>
+<P><FONT SIZE=4><STRONG>atom </STRONG><EM>n (e) (x, y, z) mode</EM></FONT></P>
+<P>Creates a new atom, where: </P>
 <ul>
-  <li><EM style="margin-bottom: 0in"><B>mode</B> &ndash; <SPAN STYLE="font-style: normal">the
-	      display mode for the atom, same list as above</SPAN></EM></li>
-  <li><STRONG style="margin-bottom: 0in"><EM>n</EM></STRONG> - atom
-	  number, a unique atom ID 
-  </li>
-  <li><STRONG style="margin-bottom: 0in"><EM>e</EM></STRONG> -
-	    element number, e.g. carbon = 6 </li>
+  <li><EM style="margin-bottom: 0in"><B>mode</B> &ndash; <SPAN STYLE="font-style: normal">the display mode for the atom, same list as above</SPAN></EM></li>
+  <li><STRONG style="margin-bottom: 0in"><EM>n</EM></STRONG> - atom number, a unique atom ID </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>e</EM></STRONG> - element number, e.g. carbon = 6 </li>
   <li><EM><STRONG>x, y, z</STRONG></EM> - the position in 1e-13m </li>
 </ul>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="bond1"></a>bond1 </STRONG><EM>atom1 atom2 ... atom25 {up
-to 25}</EM></FONT> 
-</P>
-<P>Bonds the last-definted atom to the indicated atoms. 
-</P>
-<P>Note: The intent in calling this bond record <STRONG>bond1</STRONG>
-is that we intend to support <STRONG>bond2</STRONG>, <STRONG>bond3</STRONG>,
-and <STRONG>bond4</STRONG> for <EM>double</EM>, <EM>triple</EM>, and
-<EM>aromatic</EM> bonds.</P>
+<P><FONT SIZE=4><STRONG>bond1 </STRONG><EM>atom1 atom2 ... atom25 {up to 25}</EM></FONT> </P>
+<P>Bonds the last-definted atom to the indicated atoms. </P>
+<P>Note: The intent in calling this bond record <STRONG>bond1</STRONG> is that we intend to support <STRONG>bond2</STRONG>, <STRONG>bond3</STRONG>, and <STRONG>bond4</STRONG> for <EM>double</EM>, <EM>triple</EM>, and <EM>aromatic</EM> bonds.</P>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="waals"></a>waals </STRONG><EM>atom1 atom2 ... atom25 {up
-to 25}</EM></FONT></P>
-<P><FONT SIZE=4>I</FONT>ndicates van der Waals interaction to be
-simulated between indicated and last-defined atoms within the same molecule. (NB vdW
-interactions are automatically simulated between atoms of different
-molecules). </P>
+<P><FONT SIZE=4><STRONG>waals </STRONG><EM>atom1 atom2 ... atom25 {up to 25}</EM></FONT></P>
+<P><FONT SIZE=4>I</FONT>ndicates van der Waals interaction to be simulated between indicated and last-defined atoms within the same chunk. (NB vdW interactions are automatically simulated between atoms of different chunks). </P>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="ground"></a>ground </STRONG><EM>(name) (r, g, b) atom1 atom2 ...
-atom25 {up to 25}</EM></FONT> 
-</P>
-<P>Creates a ground object in which atoms are anchored in space,
-where:</P>
+<P><FONT SIZE=4><STRONG>ground </STRONG><EM>(name) (r, g, b) atom1 atom2 ... atom25 {up to 25}</EM></FONT> </P>
+<P>Creates a ground object in which atoms are anchored in space, where:</P>
 <ul>
-  <li><STRONG style="margin-bottom: 0in"><EM>name</EM></STRONG> -
-	  name of the ground 
-  </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>name</EM></STRONG> - name of the ground </li>
   <li><EM style="margin-bottom: 0in"><STRONG>r, g, b</STRONG></EM> - red, green, and blue color components, between 0-255 (int) </li>
-  <li><EM><STRONG>atoms</STRONG></EM> - atoms of mol that are
-	    anchored in space </li>
+  <li><EM><STRONG>atoms</STRONG></EM> - atoms of mol that are anchored in space </li>
 </ul>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="lmotor"></a>lmotor</STRONG> <EM>(name) (r, g, b) force
-stiffness (cx, cy, cz) (ax, ay, az)</EM> </FONT>
-</P>
-<P>Creates a linear motor, where: 
-</P>
+<P><FONT SIZE=4><STRONG>lmotor</STRONG> <EM>(name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)</EM> </FONT> </P>
+<P>Creates a linear motor, where: </P>
 <ul>
-  <li><STRONG style="margin-bottom: 0in"><EM>name</EM></STRONG> -
-	  name of the linear motor 
-  </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>name</EM></STRONG> - name of the linear motor </li>
   <li><EM style="margin-bottom: 0in"><STRONG>r, g, b</STRONG></EM> - red, green, and blue color components, between 0-255 (int) </li>
-  <li><STRONG style="margin-bottom: 0in"><EM>force</EM></STRONG> -
-	    force of motor in nN*nm (float) </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>force</EM></STRONG> - force of motor in nN*nm (float) </li>
   <li><EM style="margin-bottom: 0in"><STRONG>stiffness</STRONG></EM> - stiffness of motor in N/m (float) </li>
   <li><EM style="margin-bottom: 0in"><STRONG>cx, cy, cz</STRONG></EM> - center of rotation (same format as atom positions) </li>
-  <li><STRONG><EM>ax, xy, az</EM></STRONG> - axis of rotation (same
-	    format as atom positions) </li>
+  <li><STRONG><EM>ax, xy, az</EM></STRONG> - axis of rotation (same format as atom positions) </li>
 </ul>
-<P><FONT SIZE=4><STRONG>shaft </STRONG><EM>atom1 atom2 ... atom25 {up
-to 25}</EM></FONT> 
-</P>
-<P>Atoms to which the linear motor is connected (<STRONG>shaft</STRONG>
-must follow <STRONG>lmotor</STRONG> immediately)</P>
+<P><FONT SIZE=4><STRONG>shaft </STRONG><EM>atom1 atom2 ... atom25 {up to 25}</EM></FONT> </P>
+<P>Atoms to which the linear motor is connected (<STRONG>shaft</STRONG> must follow <STRONG>lmotor</STRONG> immediately)</P>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="rmotor"></a>rmotor</STRONG> <EM>(name) (r, g, b) torque
-speed (cx, cy, cz) (ax, ay, az)</EM></FONT></P>
-<P>Creates a rotary motor, where: 
-</P>
+<P><FONT SIZE=4><STRONG>rmotor</STRONG> <EM>(name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)</EM></FONT></P>
+<P>Creates a rotary motor, where: </P>
 <ul>
-  <li><STRONG style="margin-bottom: 0in"><EM>name</EM></STRONG> -
-	  name of the linear motor 
-  </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>name</EM></STRONG> - name of the linear motor </li>
   <li><EM style="margin-bottom: 0in"><STRONG>r, g, b</STRONG></EM> - red, green, and blue color components, between 0-255 (int) </li>
-  <li><EM style="margin-bottom: 0in"><STRONG>torque</STRONG></EM> -
-	    torque of motor in nN*nm (float) </li>
-  <li><STRONG style="margin-bottom: 0in"><EM>speed</EM></STRONG> -
-	    speed of motor in gHz (float) </li>
+  <li><EM style="margin-bottom: 0in"><STRONG>torque</STRONG></EM> - torque of motor in nN*nm (float) </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>speed</EM></STRONG> - speed of motor in gHz (float) </li>
   <li><EM style="margin-bottom: 0in"><STRONG>cx, cy, cz</STRONG></EM> - center of rotation (same format as atom positions) </li>
-  <li><STRONG><EM>ax, xy, az</EM></STRONG> - axis of rotation (same
-	    format as atom positions) </li>
+  <li><STRONG><EM>ax, xy, az</EM></STRONG> - axis of rotation (same format as atom positions) </li>
 </ul>
-<P><FONT SIZE=4><STRONG>shaft </STRONG><EM>atom1 atom2 ... atom25 {up
-to 25}</EM></FONT> 
-</P>
-<P>Atoms to which the rotary motor is connected (<STRONG>shaft</STRONG>
-must follow <STRONG>rmotor</STRONG> immediately)</P>
+<P><FONT SIZE=4><STRONG>shaft </STRONG><EM>atom1 atom2 ... atom25 {up to 25}</EM></FONT> </P>
+<P>Atoms to which the rotary motor is connected (<STRONG>shaft</STRONG> must follow <STRONG>rmotor</STRONG> immediately)</P>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="kelvin"></a>kelvin </STRONG><EM>n</EM></FONT></P>
+<P><FONT SIZE=4><STRONG>kelvin </STRONG><EM>n</EM></FONT></P>
 <P>The temperature of the part, where:</P>
 <UL>
-	<LI><P><EM><STRONG>n</STRONG></EM> - the temperature in kelvins
-	(int) 
-	</P>
+  <LI>
+    <P><EM><STRONG>n</STRONG></EM> - the temperature in kelvins (int) </P>
 </UL>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="csys"></a>csys</STRONG> <EM>(name) (w, x, y, z) (zoom)</EM></FONT></P>
-<P>The coordsystem record, which contains default property settings
-for the part, where:</P>
+<P><FONT SIZE=4><STRONG>csys</STRONG> <EM>(name) (w, x, y, z) (zoom)</EM></FONT></P>
+<P>The coordsystem record, which contains default property settings for the part, where:</P>
 <ul>
-  <li><EM style="margin-bottom: 0in"><STRONG>name</STRONG></EM> -
-	  the name of the csys object that appears in the model tree 
-  </li>
-  <li><STRONG style="margin-bottom: 0in"><EM>w, x, y, z </EM></STRONG>-
-	    quaternion for the default orientation for home view (float). (No
-	    rotation = 1.0, 0.0, 0.0, 0.0) </li>
-  <li><EM><STRONG>zoom</STRONG></EM> - default zoom for home view
-	    (float). </li>
+  <li><EM style="margin-bottom: 0in"><STRONG>name</STRONG></EM> - the name of the csys object that appears in the model tree </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>w, x, y, z </EM></STRONG>- quaternion for the default orientation for home view (float). (No rotation = 1.0, 0.0, 0.0, 0.0) </li>
+  <li><EM><STRONG>zoom</STRONG></EM> - default zoom for home view (float). </li>
 </ul>
 <P>There can only be one csys record per part (file).</P>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="datum"></a>datum</STRONG> <EM>(name) (r, g, b) type (x1, y1, z1)
-(x2, y2, z2) (x3, y3, z3)</EM></FONT></P>
+<P><FONT SIZE=4><STRONG>datum</STRONG> <EM>(name) (r, g, b) type (x1, y1, z1) (x2, y2, z2) (x3, y3, z3)</EM></FONT></P>
 <P><EM>Creates a datum (point, line or plane) object, where:</EM></P>
 <ul>
-  <li><EM style="margin-bottom: 0in"><STRONG>name</STRONG></EM> -
-	  the name of the datum object that appears in the model tree </li>
+  <li><EM style="margin-bottom: 0in"><STRONG>name</STRONG></EM> - the name of the datum object that appears in the model tree </li>
   <li><EM style="margin-bottom: 0in"><STRONG>r, g, b</STRONG></EM> - red, green, and blue color components, between 0-255 (int) </li>
-  <li><EM style="margin-bottom: 0in"><STRONG>type - </STRONG></EM>one
-	  of &quot;point&quot;, &quot;line&quot; or &quot;plane&quot; 
-  </li>
+  <li><EM style="margin-bottom: 0in"><STRONG>type - </STRONG></EM>one of &quot;point&quot;, &quot;line&quot; or &quot;plane&quot; </li>
   <li><STRONG style="margin-bottom: 0in"><EM>x1, y1, z1 &ndash;</EM></STRONG> center point for object </li>
   <li><EM style="margin-bottom: 0in"><STRONG>x2, y2, z2 &ndash;</STRONG></EM> direction vector for line and normal for plane </li>
-  <li><STRONG><EM>x3, y3, z3</EM></STRONG> &ndash; orientation
-	      vector for lines and planes </li>
+  <li><STRONG><EM>x3, y3, z3</EM></STRONG> &ndash; orientation vector for lines and planes </li>
 </ul>
 <P><EM>All three points are given for each datum type.</EM></P>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="group"></a>group</STRONG> <EM>(name)</EM></FONT></P>
-<P><B><FONT SIZE=4><a name="egroup"></a>egroup</FONT></B> <I><FONT SIZE=4>(name)</FONT></I></P>
-<P>Creates/begins (<strong>group</strong>) and ends (<strong>egroup</strong>) a group object, where: 
-</P>
+<P><FONT SIZE=4><STRONG>group</STRONG> <EM>(name)</EM></FONT></P>
+<P><B><FONT SIZE=4>egroup</FONT></B> <I><FONT SIZE=4>(name)</FONT></I></P>
+<P>Creates/begins (<strong>group</strong>) and ends (<strong>egroup</strong>) a group object, where: </P>
 <UL>
-	<LI>
-	  <P STYLE="margin-bottom: 0in"><EM><STRONG>name</STRONG></EM> -
-	the group name (which appears in the model tree)</P>
+  <LI>
+    <P STYLE="margin-bottom: 0in"><EM><STRONG>name</STRONG></EM> - the group name (which appears in the model tree)</P>
 </UL>
-<P STYLE="margin-bottom: 0in">These records enclose a list of other
-objects or groups. The names should match for checking purposes but
-do not have to be unique.</P>
+<P STYLE="margin-bottom: 0in">These records enclose a list of other objects or groups. The names should match for checking purposes but do not have to be unique.</P>
 <HR>
-<P><FONT SIZE=4><STRONG><a name="stat"></a>stat </STRONG><EM>(name) (r, g, b) temp atom1 atom2 ...
-atom25 {up to 25}</EM></FONT> 
-</P>
-<P>Creates a thermostat jig that specifies the temperature of the
-listed atoms, where:</P>
+<P><FONT SIZE=4><STRONG>stat </STRONG><EM>(name) (r, g, b) temp atom1 atom2 ... atom25 {up to 25}</EM></FONT> </P>
+<P>Creates a thermostat jig that specifies the temperature of the listed atoms, where:</P>
 <ul>
-  <li><STRONG style="margin-bottom: 0in"><EM>name</EM></STRONG> -
-	  name of the thermostat 
-  </li>
-  <li><EM style="margin-bottom: 0in">t<B>emp</B> &ndash;
-    temperature the thermostat maintains, integer, in kelvins</EM> 
-  </li>
-  <li><EM><STRONG>atoms</STRONG></EM> - atoms of mol that are
-	  associated with this thermostat 
-  </li>
+  <li><STRONG style="margin-bottom: 0in"><EM>name</EM></STRONG> - name of the thermostat </li>
+  <li><EM style="margin-bottom: 0in">t<B>emp</B> &ndash; temperature the thermostat maintains, integer, in kelvins</EM> </li>
+  <li><EM><STRONG>atoms</STRONG></EM> - atoms of mol that are associated with this thermostat </li>
 </ul>
 <HR>
-<P><STRONG><FONT SIZE=4><a name="end1"></a>end1</FONT></STRONG></P>
-<P>Logical end of file for simulator; objects that follow are for
-cut/paste</P>
+<P><STRONG><FONT SIZE=4>end1</FONT></STRONG></P>
+<P>Logical end of file for simulator; objects that follow are for cut/paste</P>
 <HR>
-<P><STRONG><FONT SIZE=4><a name="end"></a>end </FONT></STRONG>
-</P>
-<P>Logical end of file 
-</P>
-<HR>
-<table width=100% cellspacing=0 border=0>
+<P><STRONG><FONT SIZE=4>end </FONT></STRONG> </P>
+<P>Logical end of file</P>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<!-- InstanceEndEditable -->
+<p>&nbsp;</p>
+<table width=100% border=0 cellspacing=0>
   <tr>
-    <td width="31%">Copyright &copy; 2004 <a href="http://www.nanorex.com/">Nanorex, Inc.</a>
-    <td width="32%" align=center>Trademarks
-    <td width="37%" align=right><div align=right>nanoENGINEER-1 Version 1.0 (Alpha)</div>
+    <td width="35%">Copyright &copy; 2004 <a href="http://www.nanorex.com"target="_top">Nanorex, Inc.</a>
+    <td width="27%" align=center>Trademarks
+    <td width="38%" align=right><div align=right>nanoENGINEER-1 Version 1.0 (Alpha)</div>
 </table>
 <p>&nbsp;</p>
-</BODY>
-</HTML>
+</body>
+<!-- InstanceEnd --></html>

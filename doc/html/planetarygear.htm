@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html><!-- InstanceBegin template="/Templates/assistant-template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Assistant</title>
+<!-- InstanceEndEditable -->
+<!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+</head>
+
+<body>
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr bgcolor="#E5E5E5">
+    <td valign=center> <font color="#004faf"><a href="index.htm"target="_top">Home</a></font></td>
+    <td align="right" valign="center"><img src="images/ne1logo.jpg" width="251" height="45"></td>
+  </tr>
+</table>
+<!-- InstanceBeginEditable name="EditRegion3" -->
+<p>&nbsp;</p>
+<CENTER>
+  <H1>Technical information on the Mark III(k) molecular planetary gear</H1>
+  <P><IMG height=440 src="images/MarkIII(k).jpg" width=435></P>
+</CENTER>
+<P>This page provides more technical information about the planetary gear than the <A href="http://www.zyvex.com/nanotech/gearAndCasing.html">non-technical introductory page</A>. 
+<H2>Molecular Dynamics</H2>
+Several people have expressed interest in performing molecular dynamics calculations on the planetary gear. As several important properties of the planetary gear are currently not well understood (including the maximum speed of operation that is feasible, the maximum torque that can be applied, etc) the "best" modeling conditions are not currently known.
+<P>At the most basic level, the maximum 0 kelvin static torque is not known, and is likely to vary at least somewhat with the particular potential energy function used. To determine the maximum static torque, it is necessary to: 
+<OL>
+  <LI>Prevent rotation of the planet carrier. 
+  <LI>Prevent rotation of the casing. 
+  <LI>Apply a known torque to the sun gear. 
+  <LI>Optimize the geometry by minimizing the energy. 
+  <LI>Determine whether the planetary gear failed (by visual inspection). 
+  <LI>Increase or decrease the torque as appropriate, and go to step 3. </LI>
+</OL>
+There are several ways of doing items 1 and 2, the simplest being to select some subset of the atoms in the planet carrier and casing and freezing their locations. The chosen atoms should preferably be as remote from the active part of the planetary gear as feasible. Several other methods could be used.
+<P>Item 3 can be done in one of two ways: actually apply a torque to the sun gear and minimize, presumably by applying the desired force to a subset of the atoms of the sun gear (again, as far removed from the active region of the planetary gear as feasible); or alternatively by selecting a subset of the atoms in the sun gear, rotating them by some small amount, freezing their locations, and minimizing. After minimization, the forces on the frozen atoms would permit computation of the applied torque. 
+<P>Note that the maximum 0 kelvin static torque that can be tolerated by the planetary gear will differ from the static torque that could be tolerated at some higher temperature (such as 300 kelvins), as thermal noise implies that there will be some finite probability that the planetary gear will fail (slip a gear, break off a planet, or whatever) when the applied torque is significantly lower than the maximum 0 kelvin static torque. Presumably, if the applied static torque is sufficiently reduced, the probability of failure at higher temperatures can be made very small -- unless, of course, the barrier against failure is of the same order of magnitude as <I>kT</I>. This is hopefully unlikely with the current structure at "reasonable" operating temperatures. 
+<P>Once knowing the maximum 0 kelvin static torque that can be applied, the planetary gear could be accelerated from rest to higher and higher rotational speeds by: 
+<OL>
+  <LI>Preventing rotation of the casing. 
+  <LI>Applying a torque that is a modest fraction of the maximum 0 kelvin static torque (perhaps 5%). 
+  <LI>Watching the planetary gear accelerate to higher and higher rotational speeds, until 
+  <LI>At some sufficiently high speed, the planetary gear fails (note that the use of a Morse potential for bonds would likely result in a particularly spectacular failure mode....) </LI>
+</OL>
+Another method of determining whether or not the planetary gear will function at a given frequency would be to start all components of the structure moving with approximately the correct velocities, and then observe the resulting behavior. This, of course, requires that we be able to generate some approximation to the correct initial velocities for each atom. This might be done in the following manner:
+<OL>
+  <LI>Starting with the minimized structure, rotate each planet clockwise by 0.1 "teeth". 
+  <LI>Rotate the casing clockwise by 0.1 "teeth". 
+  <LI>Rotate the sun gear counterclockwise by 0.1 "teeth". 
+  <LI>Minimize the new structure. 
+  <LI>Align the casing of the new structure with the casing of the old structure. 
+  <LI>For each atom, compute the difference between its old position and its new position. 
+  <LI>Treat the resulting vectors as an approximation to the direction of motion of each atom during normal movement of the planetary gear. 
+  <LI>Scale the velocity vectors to correspond with the desired frequency of operation (and perhaps add "thermal noise" to the velocity vectors, corresponding to the desired temperature of operation, e.g., 300 kelvins). 
+  <LI>Prevent rotation of the casing. 
+  <LI>Apply the proper fixed rotational speed to a subset of atoms selected from the sun gear. 
+  <LI>Use molecular dynamics to watch the behavior of the resulting system. Again, use of the Morse potential for bonds should result in a spectacular display when the planetary gear is operated at a sufficiently high frequency. </LI>
+</OL>
+The rotation by "teeth" is a convenient measure, but for each component the actual angular rotation to apply will be different.
+<UL>
+  <LI>For the planets, which have 6 teeth, 0.1 "teeth" is a rotation of (1/6) x 0.1 x 360 = 6 degrees. 
+  <LI>For the sungear, which has 16 teeth, 0.1 "teeth" is (1/16) x 0.1 x 360 = 2.25 degrees. 
+  <LI>For the casing, which has 29 teeth, 0.1 "teeth" is (1/29) x 0.1 x 360 ~ 1.24 degrees. </LI>
+</UL>
+Molecular dynamics both of normal operation and of failure modes should be interesting, and the resulting videos are likely to show quite graphically what types of failure occur first. The failure modes will presumably suggest design changes which would permit higher speed (or higher torque) operation; or otherwise suggest design improvements.
+<P><A href="http://www.wag.caltech.edu/gallery/gallery_nanotec.html">A simulation of the original planetary gear in which the sungear was given an instantaneous initial rotational speed of 500 gigahertz</A> was done at Caltech. Under these conditions, the original design did not work satisfactorily, exhibiting frequent slippages. It is quite plausible that the current design would fail under such conditions as well. </P>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<!-- InstanceEndEditable -->
+<p>&nbsp;</p>
+<table width=100% border=0 cellspacing=0>
+  <tr>
+    <td width="35%">Copyright &copy; 2004 <a href="http://www.nanorex.com"target="_top">Nanorex, Inc.</a>
+    <td width="27%" align=center>Trademarks
+    <td width="38%" align=right><div align=right>nanoENGINEER-1 Version 1.0 (Alpha)</div>
+</table>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>
