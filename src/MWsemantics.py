@@ -70,6 +70,20 @@ class MWsemantics(MainWindow):
         self.extrudeToolbar.hide() # (... and this is the extrude mode dashboard)
         self.sketchAtomToolbar.hide()
 
+        # Mark - Set up primary (left) message bar in status bar area.
+        self.msgbarLabel = QLabel(self, "msgbarLabel")
+        self.msgbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.msgbarLabel.setText( " " )
+        
+        self.statusBar().addWidget(self.msgbarLabel,1,1)
+
+        # Mark - Set up mode bar (right) in status bar area.        
+        self.modebarLabel = QLabel(self, "modebarLabel")
+        self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.modebarLabel.setText( "Mode: Select Molecules" )
+        
+        self.statusBar().addWidget(self.modebarLabel,0,1)
+
         # start with Carbon
         self.Element = 6
         self.setElement(6)
@@ -382,9 +396,11 @@ class MWsemantics(MainWindow):
     ###############################################################
 
     def selectAtoms(self):
+        self.modebarLabel.setText( "Mode: Select Atoms" )
         self.assy.selectAtoms()
 
     def selectParts(self):
+        self.modebarLabel.setText( "Mode: Select Molecules" )
         self.assy.selectParts()
     
     def selectAll(self):
@@ -577,10 +593,12 @@ class MWsemantics(MainWindow):
 
     # get into cookiecutter mode
     def toolsCookieCut(self):
+        self.modebarLabel.setText( "Mode: Cookie Cutter" )
         self.glpane.setMode('COOKIE')
 
     # get into Extrude mode
     def toolsExtrude(self):
+        self.modebarLabel.setText( "Mode: Extrude" )
         self.glpane.setMode('EXTRUDE')
 
     # "push down" one nanometer to cut out the next layer
@@ -606,9 +624,11 @@ class MWsemantics(MainWindow):
 
     # turn on and off an "add atom with a mouse click" mode
     def addAtomStart(self):
+        self.modebarLabel.setText( "Mode: Sketch Atoms" )
         self.glpane.setMode('DEPOSIT')
 
     def toolsAtomStart(self):
+        self.modebarLabel.setText( "Mode: Sektch Atoms" )
         self.glpane.setMode('DEPOSIT')
 
     # pop up set element box
