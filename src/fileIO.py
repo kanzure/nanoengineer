@@ -762,7 +762,8 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
         return None
     elif len(grouplist) == 1:
         state.guess_sim_input('one_part')
-        tree = Group("tree", assy, None, grouplist[0])
+            # note: 'one_part' gives same warning as 'missing_group_or_chunk' as of 050406
+        tree = Group("tree", assy, None, grouplist) #bruce 050406 removed [0] to fix bug in last night's new code
         grouplist = [ data, tree, shelf ]
     elif len(grouplist) == 2:
         state.guess_sim_input('no_shelf')
