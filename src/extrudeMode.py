@@ -20,7 +20,8 @@ from qt import QSpinBox, QDoubleValidator
 from handles import *
 from debug import print_compact_traceback
 import math #k needed?
-
+from chunk import bond_at_singlets #k needed?
+import platform
 
 show_revolve_ui_features = 1 # for now
 
@@ -446,7 +447,7 @@ class extrudeMode(basicMode):
 ##            return 1
 ##        return 0
 
-    def connect_controls(self):
+    def connect_controls(self): ###@@@ josh has some disconnect code in cookieMode, now; should be imitated here
         "connect the dashboard controls to their slots in this method"
         #k i call this from Enter; depositMode calls the equivalent from init_gui -- which is better?
         
@@ -568,7 +569,8 @@ class extrudeMode(basicMode):
             self.status_msg("%s refused: %r" % (self.msg_modename, whynot,)) #e improve
             return 1 # refused!
         self.basemol = mol
-        self.basemol.shakedown() ###### bruce 041019: this will fix ninad's bug, but only by working around my own bug. ###test
+        ## following was shakedown, replaced with update on 041112
+        self.basemol.full_inval_and_update() ###### bruce 041019: this will fix ninad's bug, but only by working around my own bug. ###test
         ##### see my notesfile for that... mainly, when i use self.basemol.quat i should not use it.
 
         mark_singlets(self.basemol, self.colorfunc)
@@ -603,13 +605,12 @@ class extrudeMode(basicMode):
 
         import __main__
         __main__.mode = self
-        import platform
         if platform.atom_debug:
             print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
             ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
 
     singlet_color = {}
-    def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol.colorfunc
+    def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol._colorfunc
         return self.singlet_color.get(atom.info) # ok if this is None
 
     def asserts(self):
@@ -844,7 +845,7 @@ class extrudeMode(basicMode):
                     self.molcopies[ii].move(motion) #k does this change picked state????
                 else:
                     c, q = self.want_center_and_quat(ii)
-                    mol_set_center_and_quat(self.molcopies[ii], c, q)
+                    mol_set_basecenter_and_quat(self.molcopies[ii], c, q)
         # now delete or make copies as needed (but don't adjust view until the end)
         while self.ncopies > ncopies_wanted:
             # delete a copy we no longer want
@@ -853,7 +854,7 @@ class extrudeMode(basicMode):
             self.ncopies = ii
             old = self.molcopies.pop(ii)
             old.unpick() # work around a bug in assy.killmol [041009] ##### that's fixed now -- verify, and remove this
-            self.assy.killmol(old)
+            old.kill() # might be faster than self.assy.killmol(old)
             self.asserts()
         while self.ncopies < ncopies_wanted:
             # make a new copy we now want
@@ -862,7 +863,7 @@ class extrudeMode(basicMode):
             #e but we'll probably want to figure out a decent name for it, make a special group to put these in, etc
             ii = self.ncopies
             self.ncopies = ii + 1
-            newmols = assy_copy(self.assy, [self.basemol]) # fyi: offset is redundant with mol_set_center_and_quat (below) 
+            newmols = assy_copy(self.assy, [self.basemol]) # fyi: offset is redundant with mol_set_basecenter_and_quat (below) 
             new = newmols[0]
             if self.keeppicked:
                 pass ## done later: self.basemol.pick()
@@ -871,7 +872,7 @@ class extrudeMode(basicMode):
                 new.unpick() # undo side effect of assy_copy
             self.molcopies.append(new)
             c, q = self.want_center_and_quat(ii)
-            mol_set_center_and_quat(self.molcopies[ii], c, q)
+            mol_set_basecenter_and_quat(self.molcopies[ii], c, q)
 ##            print "basemol quat %r, unit ii=%d quat %r, after setting it, wanted %r" % \
 ##                  (self.basemol.quat, ii, self.molcopies[ii].quat, q) ###################debug ninad's bug 041019
             self.asserts()
@@ -934,7 +935,7 @@ class extrudeMode(basicMode):
         
         self.show_bond_offsets_handlesets = [] # for now, assume no other function wants to keep things in this list
         hset = self.basemol_atoms_handleset = repunitHandleSet(target = self)
-        for atom in self.basemol.atoms.itervalues():
+        for atom in self.basemol.atoms.values():
             # make a handle for it... to use in every copy we show
             pos = atom.posn() ###e make this relative?
             dispdef = molecule_dispdef(self.basemol, self.o)
@@ -1137,7 +1138,7 @@ class extrudeMode(basicMode):
         # restore normal appearance
         for mol in self.molcopies:
             try:
-                del mol.colorfunc
+                del mol._colorfunc
                 mol.changeapp()
             except:
                 pass
@@ -1195,16 +1196,13 @@ class extrudeMode(basicMode):
             self.status_msg(self.final_msg_accum + join_msg)
             product = self.basemol #e should use home mol, but that's nim
             for unit in self.molcopies[1:]: # all except basemol
-                self.merge_units_and_kill(product, unit) # does mol2.kill()
-##            # note: the other mols still exist, they just have no atoms.
-##            # let's zap them from self.o.assy.
-##            for unit in self.molcopies[1:]:
-##                unit.kill()
+                product.merge(unit) # also does unit.kill()
             self.product = product #e needed?
             if self.ncopies > 1:
                 join_msg = "joined into one part"
             else:
                 join_msg = "(one unit, nothing to join)"
+            #e should we change ncopies and molcopies before another redraw could occur?
             self.final_msg_accum += join_msg
             self.status_msg(self.final_msg_accum)
         else:
@@ -1235,14 +1233,12 @@ class extrudeMode(basicMode):
             s1 = self.find_singlet(unit1,i1)
             s2 = self.find_singlet(unit2,i2)
             if s1 and s2:
-                self.merge_singlets(s1,s2)
+                # replace two singlets (perhaps in different mols) by a bond between their atoms
+                bond_at_singlets(s1, s2, move = 0)
             else:
                 #e will be printed lots of times, oh well
                 print "extrude warning: one or both of singlets %d,%d slated to bond in more than one way, not all bonds made" % (i1,i2)
-        unit1.shakedown()
-        unit2.shakedown() ###e this ends up doing a shakedown twice per unit; whereas if we're merging units, 0 times would be better.
-        unit1.changeapp()
-        unit2.changeapp()
+        return
 
     def find_singlet(self, unit, i1):
         """Find the singlet #i1 in unit, and return it,
@@ -1263,21 +1259,6 @@ class extrudeMode(basicMode):
         # can happen until we remove dup i1,i2 from bonds
         return None
         
-    def merge_singlets(self, s1, s2):
-        "replace two singlets (perhaps in different mols) by a bond between their atoms"
-        makeBonded_without_moving_or_shakedown(s1, s2)
-    
-    def merge_units_and_kill(self, mol1, mol2):
-        "merge mol2 into mol1, where these might be units, or the base, or (nim) the base's home molecule"
-        mol1.merge(mol2) # this does mol2.kill() as a side effect (bad in general, imho, but ok here)
-          # (note: if mol2 bonded to singlets in some other mol
-          #  (should never happen), they'd also get merged into mol1.)
-        # This also does mol1.shakedown().
-        # That makes it quadratic time when we're merging many units in a row!
-        ####################e I should optimize that.
-        mol1.changeapp() # (already done a lot inside .merge (incl in its shakedown), but do it here anyway)
-        return
-    
     def StateCancel(self):
         self.w.extrudeSpinBox_n.setValue(1)
         self.update_from_controls()
@@ -1629,21 +1610,55 @@ def assy_copy(assy, mols, offset = V(10.0, 10.0, 10.0)):
     Note, as a side effect (of molecule.copy), the new mols are picked and the old mols are unpicked. ####k [not anymore 041014]
     """
     self = assy
-    if mols:
-        self.modified = 1
-        nulist=[]
-        for mol in mols[:]: # copy the list in case it happens to be self.selmols (needed??)
-            ##numol=mol.copy(mol.dad,offset)
-            numol = mol_copy( mol, mol.dad, offset)
-            nulist += [numol]
-            self.addmol(numol)
+    nulist = [] # moved out of loop; is that a bug in assy.copy too?? ###k
+    for mol in mols[:]: # copy the list in case it happens to be self.selmols (needed??)
+        self.modified = 1 # only if loop runs
+        ##numol=mol.copy(mol.dad,offset)
+        numol = mol_copy( mol, mol.dad, offset)
+        nulist += [numol]
+        self.addmol(numol) ###k ###@@@ why was this not already done in mol.copy?? [bruce 041116 question]
+        # what does it, when mol is actually copied by UI? 
     return nulist
+
+def mol_copy(self, dad=None, offset=V(0,0,0)): ###@@@ replace callers
+    return self.copy(dad, offset)
 
 # should be a method in assembly (maybe there is one like this already??)
 def assy_merge_mols(assy, mollist):
     "merge multiple mols in assy into one mol in assy, and return it"
-    assert len(mollist) == 1, "can't yet handle general merge"
-    return mollist[0]
+    mollist = list(mollist) # be safe in case it's identical to assy.selmols,
+    # which we might modify as we run
+    assert len(mollist) >= 1
+    ## mollist.sort() #k ok for mols? should be sorted by name, or by
+    ## # position in model tree groups, I think...
+    ## for now, don't sort, use selection order instead.
+    res = mollist[0]
+    for mol in mollist[1:]: # ok if no mols in this loop
+        if platform.atom_debug:
+            print "fyi (atom_debug): extrude merging a mol"
+        res.merge(mol) ###k ###@@@ 041116 new feature, untested
+        # note: this will unpick mol (modifying assy.selmols) and kill it
+    return res
+
+def assy_fix_selmol_bugs(assy): ###@@@ 041116 new feature, untested ###@@@ use it
+    "work around bugs in other code that prevent extrude from entering"
+    for mol in list(assy.selmols):
+        if (mol not in assy.molecules) or (not mol.dad) or (not mol.assy):
+            try:
+                it = " (%r) " % mol
+            except:
+                it = " (exception in its repr) "
+            print "fyi: pruning bad mol %s left by prior bugs" % it
+            try:
+                mol.unpick()
+            except:
+                pass
+            try:
+                mol.kill()
+            except:
+                pass
+    #e worry about selatoms too?
+    return
 
 # this can remain a local function
 def assy_extrude_unit(assy):
@@ -1654,17 +1669,20 @@ def assy_extrude_unit(assy):
        #e Fix that later.
        Best solution: make a nondet version that just returns the flag, for use in refuseEnter. Should be easy enough.
     """
+    assy_fix_selmol_bugs(assy)
     if assy.selmols:
         assert type(assy.selmols) == type([]) # assumed by this code; always true at the moment
-        ###e should merge the selected mols into one? or a group? or use them all each time? for now, require exactly one.
-        if len(assy.selmols) > 1:
-            print 'assy.selmols is',`assy.selmols` #debug
-            return False, "more than one molecule selected (and stub code can't yet merge them)"
-        else:
-            return True, assy.selmols[0] #e later use assy_merge_mols
+        return True, assy_merge_mols( assy, assy.selmols) # merge the selected mols into one
+            #e in future, better to make them a group? or use them in parallel?
+##        if len(assy.selmols) > 1:
+##            print 'assy.selmols is',`assy.selmols` #debug
+##            return False, "more than one molecule selected (and we can't yet merge them)"
+##        else:
+##            return True, assy.selmols[0] #e later use assy_merge_mols
     elif assy.selatoms:
         res = []
         def new_old(new, old):
+            # new = fragment of selected atoms, old = rest of their mol
             assert new.atoms
             res.append(new) #e someday we might use old too, eg for undo or for heuristics to help deal with neighbor-atoms...
         try:
@@ -1673,17 +1691,19 @@ def assy_extrude_unit(assy):
             pass # (tho the above should work even if the attr becomes obsolete!)
         assy.modifySeparate(new_old_callback = new_old) # make the selected atoms into their own mols
         assert res, "what happened to all those selected atoms???" # (or did assy.selwhat check in modifySeparate mess us up?)
-        if len(res) > 1:
-            return False, "more than one mol contains selected atoms, and stub code can't yet merge them"
-        else:
-            return True, res[0] #e later use assy_merge_mols
+        return True, assy_merge_mols( assy, res) # merge the newly made mol-fragments into one
+##        if len(res) > 1:
+##            return False, "more than one mol contains selected atoms, and stub code can't yet merge them"
+##        else:
+##            return True, res[0] #e later use assy_merge_mols
         #e or for multiple mols, should we do several extrudes in parallel? hmm, might be useful...
     elif len(assy.molecules) == 1:
         # nothing selected, but exactly one molecule in all -- just use it
         return True, assy.molecules[0]
     else:
         print 'assy.molecules is',`assy.molecules` #debug
-        return False, "nothing selected, and not exactly one mol in all; stub code gives up" #e someday might merge multiple mols...
+        return False, "don't know what to extrude: nothing selected, and not exactly one chunk in all"
+        #e someday might merge multiple mols...
     pass
 
 # ==
@@ -1708,6 +1728,9 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None):
     where error_offset2 gives the radius of a sphere of reasonable offset2
     values, centered around ideal_offset2.
     """
+    ###e if anyone ever passes offset2, we should take a tolerance arg to
+    ###e multiply the error offset, i suppose [bruce 041109]
+    #e someday we might move this to a more general file
     #e once this works, we might need to optimize it,
     # since it redoes a lot of the same work
     # when called repeatedly for the same extrudable unit.
@@ -1744,13 +1767,6 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None):
 
 # ==
 
-def singlet_atom(singlet):
-    "return the atom a singlet is bonded to"
-    obond = singlet.bonds[0]
-    atom = obond.other(singlet)
-    assert atom.element != Singlet, "bug: a singlet is bonded to another singlet!!"
-    return atom
-
 # detect reloading
 try:
     _already_loaded
@@ -1764,106 +1780,122 @@ def mol_singlets(mol):
     "return a sequence of the singlets of molecule mol"
     #e see also mol.singlpos, an array of the singlet positions,
     # which could speed up our "explore" method for a specific offset2
-    try:
-        return mol.singlets
-    except AttributeError:
-        if not mol.atoms:
-            print "fyi, mol_singlets(mol) returns [] since mol %r has no atoms" % (mol,)
-            return []
-        else:
-            mol.shakedown() # this sets singlets = array(singlets, PyObject),
-             # but only if mol has any atoms
-            return mol.singlets
-    pass
 
-# should be a method on molecule:
+    #e someday just replace this with:
+    # return mol.singlets ###@@@
+    return mol.get_singlets()
+##
+##def get_singlets(self): ###@@@ move to chem
+##    "return a sequence of the singlets of molecule self"
+##    try:
+##        return self.singlets
+##    except AttributeError:
+##        if not self.atoms:
+##            print "fyi, mol_singlets(mol) returns [] since mol %r has no atoms" % (self,)
+##            return []
+##        else:
+##            self.shakedown() # this sets singlets = array(singlets, PyObject),
+##             # but only if self has any atoms
+##            return self.singlets
+##    pass
+
 def molecule_dispdef(mol, glpane):
-    # copied out of molecule.draw
-    self = mol
-    o = glpane
-    if self.display != diDEFAULT: disp = self.display
-    else: disp = o.display
-    return disp
+    return mol.get_dispdef(glpane)
 
-# custom-modified versions of atom and molecule copy methods
-
-def atom_copy(self, numol):
-    """create a copy of the atom
-    (to go in numol, a copy of its molecule)
-    """
-    nuat = atom(self.element.symbol, 'no', numol)
-    nuat.index = self.index
-    try:
-        nuat.info = self.info # bruce
-    except AttributeError:
-        pass
-    return nuat
-
-def mol_copy(self, dad=None, offset=V(0,0,0)):
-    """Copy the molecule to a new molecule.
-    offset tells where it will go relative to the original.
-    """
-    pairlis = []
-    ndix = {}
-    numol = molecule(self.assy, gensym(self.name)) ###### should let caller pass a nicer name or name-suffix
-    for a in self.atoms.itervalues():
-        ## na = a.copy(numol)
-        na = atom_copy(a, numol) # bruce; also copies a.info
-        pairlis += [(a, na)]
-        ndix[a.key] = na
-    for (a, na) in pairlis:
-        for b in a.bonds:
-            if b.other(a).key in ndix:
-                numol.bond(na,ndix[b.other(a).key])
-    ## not needed: verify has no effect: [done]
-    ## numol.basepos = self.basepos + offset ####### bruce 041019 added this, will this fix ninad's bug? no! (shakedown ignores it)
-    ### what about quat? center? etc? shakedown recomputes center and sets it, but sets quat to 1. uses its own atom posns.
-    numol.curpos = self.curpos+offset
-    numol.shakedown()
-    numol.setDisplay(self.display)
-    numol.dad = dad ##### should let caller put these in a new group
-    try:
-        numol.colorfunc = self.colorfunc # bruce
-    except AttributeError:
-        pass
-    return numol
+### should be a method on molecule:
+##def molecule_dispdef(mol, glpane):
+##    # copied out of molecule.draw
+##    self = mol
+##    o = glpane
+##    if self.display != diDEFAULT: disp = self.display
+##    else: disp = o.display
+##    return disp
+    
+### custom-modified versions of atom and molecule copy methods
+##
+##def atom_copy(self, numol): ###@@@ move to chem... ok, chem's atom copy now does this
+##    """create a copy of the atom
+##    (to go in numol, a copy of its molecule)
+##    """
+##    nuat = atom(self.element.symbol, 'no', numol)
+##    nuat.index = self.index
+##    try:
+##        nuat.info = self.info # bruce
+##    except AttributeError:
+##        pass
+##    return nuat
+##
+##def mol_copy(self, dad=None, offset=V(0,0,0)): ###@@@ move to chem... has a couple changes... now that one is ok too.
+##    """Copy the molecule to a new molecule.
+##    offset tells where it will go relative to the original.
+##    """
+##    pairlis = []
+##    ndix = {}
+##    numol = molecule(self.assy, gensym(self.name)) ###### should let caller pass a nicer name or name-suffix
+##    for a in self.atoms.itervalues():
+##        ## na = a.copy(numol)
+##        na = atom_copy(a, numol) # bruce; also copies a.info
+##        pairlis += [(a, na)]
+##        ndix[a.key] = na
+##    for (a, na) in pairlis:
+##        for b in a.bonds:
+##            if b.other(a).key in ndix:
+##                numol.bond(na,ndix[b.other(a).key])
+##    ## not needed: verify has no effect: [done]
+##    ## numol.basepos = self.basepos + offset ####### bruce 041019 added this, will this fix ninad's bug? no! (shakedown ignores it)
+##    ### what about quat? center? etc? shakedown recomputes center and sets it, but sets quat to 1. uses its own atom posns.
+##    numol.curpos = self.curpos+offset
+##    numol.shakedown()
+##    numol.setDisplay(self.display)
+##    numol.dad = dad ##### should let caller put these in a new group
+##    try:
+##        numol._colorfunc = self._colorfunc # bruce
+##    except AttributeError:
+##        pass
+##    return numol
 
 def mark_singlets(basemol, colorfunc):
     for a in basemol.atoms.itervalues():
         a.info = a.key
-    basemol.colorfunc = colorfunc # maps atoms to colors (due to a hack i will add)
+    basemol._colorfunc = colorfunc # maps atoms to colors (due to a hack i will add)
     return
 
-def makeBonded_without_moving_or_shakedown(s1, s2): # modified from chem.makeBonded
-    """s1 and s2 are singlets; make a bond between their real atoms in
-    their stead. If they are in different molecules, DON'T move s1's to
-    match the bond. [customized for extrude by bruce 041015 from recent
-     josh code in chem.py; also added some asserts; also REMOVED SHAKEDOWN]
-    """
-    assert s1.element == Singlet
-    assert s2.element == Singlet
-    assert s1 != s2
-    a1 = singlet_atom(s1)
-    a2 = singlet_atom(s2)
     
-    m1 = s1.molecule
-    m2 = s2.molecule
-    if m1 != m2:
-        pass # don't move m1
-    s1.kill()
-    s2.kill()
-    m1.bond(a1,a2) # even though m2 might not equal m1... does choice of mol matter?
-    ## let's try waiting until we're done, for the shakedowns
-    ##m1.shakedown()
-    ##m2.shakedown()
-    # but we'll at least do this:
-    m1.changeapp()
-    m2.changeapp()
+##def makeBonded_without_moving_or_shakedown(s1, s2): # modified from chem.makeBonded
+##    ###e check whether rewritten chem.makeBonded (with invals not shakedowns) can be directly used ###@@@ 041109
+##    """s1 and s2 are singlets; make a bond between their real atoms in
+##    their stead. If they are in different molecules, DON'T move s1's to
+##    match the bond. [customized for extrude by bruce 041015 from recent
+##     josh code in chem.py; also added some asserts; also REMOVED SHAKEDOWN]
+##    """
+##    assert s1.element == Singlet
+##    assert s2.element == Singlet
+##    assert s1 != s2
+##    a1 = singlet_atom(s1)
+##    a2 = singlet_atom(s2)
+##    
+##    m1 = s1.molecule ###@@@ should be a1.mol...
+##    m2 = s2.molecule
+##    if m1 != m2:
+##        pass # don't move m1
+##
+##    ###e does it matter that following code forgets which singlets were involved,
+##    # before bonding? or should it use something like bond.rebond or a new related method?
+##    s1.kill()
+##    s2.kill()
+##    m1.bond(a1,a2) # even though m2 might not equal m1... does choice of mol matter? [041109: no.]
+##    
+##    ## let's try waiting until we're done, for the shakedowns
+##    ##m1.shakedown()
+##    ##m2.shakedown()
+##    # but we'll at least do this:###@@@ won't be needed #k 041109
+##    m1.changeapp()
+##    m2.changeapp()
 
 
 
 #end of extrude
- # + remember to unpatch colorfunc from the mols when i'm done
+ # + remember to unpatch _colorfunc from the mols when i'm done
 # and info from the atoms? not needed but might as well [nah]
 
 # not done:
@@ -1888,20 +1920,23 @@ class revolveMode(extrudeMode):
 
 # more customized should-be mol methods
 
-def mol_set_center_and_quat(mol, center, quat):
+def mol_set_basecenter_and_quat(mol, center, quat):
     "change mol's center and quat to the specified values"
-    ##print 'mol_set_center_and_quat', mol, center, quat
-    # modified from mol.move and mol.rot as of 041015 night
-    # make sure mol owns its new center and quat,
-    # since it might destructively modify them later!
-    self = mol
-    self.center = V(0,0,0) + center
-    self.quat = Q(1,0,0,0) + quat
-    self.curpos = self.center + self.quat.rot(self.basepos)
-    if self.singlets:
-        self.singlpos = self.center + self.quat.rot(self.singlbase)
-    self.fix_externs()
-    for bon in self.externs: bon.setup()
+    # moved into class molecule by bruce 041104
+    mol.set_basecenter_and_quat(center, quat)
+    
+##    ##print 'mol_set_basecenter_and_quat', mol, center, quat
+##    # modified from mol.move and mol.rot as of 041015 night
+##    # make sure mol owns its new center and quat,
+##    # since it might destructively modify them later!
+##    self = mol
+##    self.center = V(0,0,0) + center
+##    self.quat = Q(1,0,0,0) + quat
+##    self.curpos = self.center + self.quat.rot(self.basepos)
+##    if self.singlets:
+##        self.singlpos = self.center + self.quat.rot(self.singlbase)
+##    for bon in self.externs:
+##        bon.setup_invalidate() # changed from setup 041104; not tested 
 
 def floats_near(f1,f2):
     return abs( f1-f2 ) <= 0.0000001 # just for use in sanity-check assertions
