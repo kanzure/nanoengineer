@@ -1,3 +1,4 @@
+csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
 part vdw (/home/josh/molecules/fineMotion970116.pdb)
 atom 1 (6) (-1505, 8491, 1009)
 atom 2 (6) (-2147, 11652, -1140)

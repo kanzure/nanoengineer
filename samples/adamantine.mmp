@@ -1,3 +1,4 @@
+csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
 part vdw (/home/josh/molecules/adamant.pdb)
 atom 1 (6) (0, 0, 0)
 atom 2 (6) (1543, 0, 0)

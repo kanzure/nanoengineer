@@ -1,3 +1,4 @@
+csys (Csys) (1.0, 0.0, 0.0, 0.0) (1.0)
 part cpk (Part1)
 show def
 atom 1 (6) (44, 2112, 18)
