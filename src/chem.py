@@ -577,6 +577,9 @@ class bond:
 # atoms bonded together, but it's quite possible to make a molecule
 # object with unbonded atoms, and with bonds to atoms in other
 # molecules
+
+# Huaicai: It's completely possible to create a molecule without any atoms, so don't assume it always 
+# has atoms.   09/30/04
 class molecule(QObject):
     def __init__(self, assembly, nam=None):
         QObject.__init__(self)

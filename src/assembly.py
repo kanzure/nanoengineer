@@ -140,12 +140,14 @@ class assembly:
                 x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
                 mol.bond(pp1, x)
             pp=griderator.next()
-        self.addmol(mol)
-        self.unpickatoms()
-        self.selwhat = 2
-        mol.pick()
+            
+        if len(mol.atoms) > 0:  #Added by huaicai to fixed some bugs for the 0 atoms molecule 09/30/04
+                self.addmol(mol)
+                self.unpickatoms()
+                self.selwhat = 2
+                mol.pick()
 
-        self.w.modelTreeView.addObject(mol)        
+                self.w.modelTreeView.addObject(mol)        
 
 
     # set up to run a movie or minimization
