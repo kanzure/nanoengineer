@@ -149,7 +149,14 @@ class PlotTool(PlotToolDialog):
 
     def runGNUplot(self, plotfile):
         """Sends plotfile to GNUplot.
-        """        
+        """
+        
+        # Make sure plotfile exists
+        if not os.path.exists(plotfile):
+            msg = "Plot Tool: Plotfile [" + program + "] is missing.  Plot aborted."
+            self.assy.w.history.message(redmsg(msg))
+            return
+            
         # filePath = the current directory NE-1 is running from.
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         
@@ -161,7 +168,7 @@ class PlotTool(PlotToolDialog):
         
         # Make sure GNUplot executable exists
         if not os.path.exists(program):
-            msg = "Plot Tool: GNUplot [" + program + "] is missing.  Plot aborted."
+            msg = "Plot Tool: GNUplot executable [" + program + "] is missing.  Plot aborted."
             self.assy.w.history.message(redmsg(msg))
             return
         
