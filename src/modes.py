@@ -445,6 +445,10 @@ class basicMode(anyMode):
            unless they have a good reason not to.
         """
         if self.o.cSysToggleButton: drawer.drawaxes(5, -self.o.pov)
+        # bruce 040929 debug code -- always check for bugs in atom.picked and
+        # mol.picked for everything in the assembly; print and fix violations
+        # (we might have to remove this later, for speed, but for now it's ok)
+        self.o.assy.checkpicked(always_print = 0)
 
     # left mouse button actions -- overridden in modes that respond to them
     def leftDown(self, event):
