@@ -256,7 +256,8 @@ class MWsemantics(MainWindow):
 
             if fn[-3:] == "mmp":
                 readmmp(self.assy,fn)
-            if fn[-3:] == "pdb":
+#            if fn[-3:] == "pdb":
+            if fn[-3:] in ["pdb","PDB"]:
                 readpdb(self.assy,fn)
 
             dir, fil, ext = fileparse(fn)
