@@ -1,4 +1,10 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+GroupProp.py
+
+$Id$
+"""
+
 from qt import *
 from GroupPropDialog import *
 from VQT import V

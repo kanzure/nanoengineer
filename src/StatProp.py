@@ -1,4 +1,10 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+"""
+StatProp.py
+
+$Id$
+"""
+
 from qt import *
 from StatPropDialog import *
 from VQT import V

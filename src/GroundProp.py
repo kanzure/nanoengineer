@@ -1,4 +1,10 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+"""
+GroundProp.py
+
+$Id$
+"""
+
 from qt import *
 from GroundPropDialog import *
 from VQT import V

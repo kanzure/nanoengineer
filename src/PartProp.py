@@ -1,4 +1,10 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+PartProp.py
+
+$Id$
+"""
+
 from qt import *
 from PartPropDialog import *
 
