@@ -1130,6 +1130,12 @@ class MWsemantics(MainWindow):
             QBitmap(filePath + "/../images/DepositAtomCursor-bm.bmp"),
             0, 32)
                         
+        # Create "KillCursor" cursor
+        self.KillCursor = QCursor(
+            QBitmap(filePath + "/../images/KillCursor.bmp"),
+            QBitmap(filePath + "/../images/KillCursor-bm.bmp"),
+            0, 0)
+            
         # Create "ZoomCursor" cursor
         self.ZoomCursor = QCursor(
             QBitmap(filePath + "/../images/ZoomCursor.bmp"),

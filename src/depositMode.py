@@ -164,6 +164,7 @@ class depositMode(basicMode):
     def restore_gui(self):
         self.w.depositAtomDashboard.hide() # Stow away dashboard
 
+
     def restore_patches(self):
         self.o.display = self.saveDisp
         self.o.selatom = None
@@ -174,10 +175,17 @@ class depositMode(basicMode):
     # event methods
     
     def keyPress(self,key):
+        if key == Qt.Key_Control:
+            self.o.setCursor(self.w.KillCursor)
         for sym, code, num in elemKeyTab:
             if key == code:
                 self.w.setElement(num)
         return
+
+    def keyRelease(self,key):
+        basicMode.keyRelease(self, key)
+        if key == Qt.Key_Control:
+            self.o.setCursor(self.w.DepositAtomCursor)
 
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
