@@ -93,6 +93,8 @@ class assembly:
         self._modified = 0 # note: this was set to 1 at start of __init__
         # the Movie object.
         self.m=Movie(self)
+        # movie ID, for future use.
+        self.movieID=0
         
         ### Some information needed for the simulation or coming from mmp file
         self.temperature = 300
@@ -143,16 +145,19 @@ class assembly:
             #  only saving this assembly to file (or loading or clearing it)
             #  is permitted to reset this flag to 0.]
             
-            # The part changed.  The movie, if it exists, is not longer valid.
-            # Not true.  If the user has changed a display mode on a check or atom
-            # this gets called.
-            if self.m.isOpen: 
-                print "assembly.changed(): closeing moviefile =",self.m.filename
-                self.m.fileobj.close()
-                self.m.isOpen = False
-            self.m.IsValid = False # Need to ask Bruce how to do this properly.
-            
             self.w.history.message("(fyi: part now has unsaved changes)") #e revise terminology?
+            
+            # Regenerate the movie ID.
+            # This will probably not make Alpha.  It is intended to be used in the future
+            # as a way to validate movie files.  assy.movieID is handed off to the simulator
+            # as an argument (-b) where it writes the number in the movie (.dpb) file header.
+            # (see writemovie() in fileIO.py.)
+            # The number is then compared to assy.movieID when the movie file is opened
+            # at a later time. This check will be done in movie._checkMovieFile().
+            # Mark - 050116
+            import random
+            self.movieID = random.randint(0,4000000000) # 4B is good enough
+            
             pass
         # If you think you need to add a side-effect *here* (which runs every
         # time this method is called, not just the first time after each save),
@@ -799,8 +804,7 @@ class assembly:
     def makeMinMovie(self):
         r = self.writemovie(1)
         # Minimization worked.  Start the movie.
-        if not r: 
-            self.w.history.message("Minimizing...")
+        if not r:
             self.m.currentFrame = 0
             self.m._setup()
             self.m._play()
