@@ -379,7 +379,7 @@ class basicMode(anyMode):
         pass
 
     def UpdateDashboard(self): # bruce 041124
-        """Public method, meant to be called only on the current mode object:
+        """Public method for the current mode object:
            Make sure this mode's dashboard is updated before the processing of
         the current user event is finished.
            External code that might change things which some modes
@@ -393,25 +393,8 @@ class basicMode(anyMode):
         # we might split this into separate invalidation and update code;
         # this will then be the invalidation routine, in spite of the name.
         # We *don't* also call update_mode_status_text -- that's separate.
-        if self.now_using_this_mode_object(): #bruce 050122 added this condition
-            self.update_gui()
+        self.update_gui()
         return
-
-    def now_using_this_mode_object(self): #bruce 050122 moved this here from extrudeMode.py
-        """Return true if the glpane is presently using this mode object
-        (not just a mode object with the same name!)
-           Useful in "slot methods" that receive Qt signals from a dashboard
-        to reject signals that are meant for a newer mode object of the same class,
-        in case the old mode didn't disconnect those signals from its own methods
-        (as it ideally should do).
-           Warning: this returns false while a mode is still being entered (i.e.
-        during the calls of Enter and init_gui, and the first call of update_gui).
-        But it's not a good idea to rely on that behavior -- if you do, you should
-        redefine this function to guarantee it, and add suitable comments near the
-        places which *could* set self.o.mode to the mode object being entered,
-        earlier than they do now.
-        """
-        return self.o.mode == self
         
     def update_mode_status_text(self):        
         """##### new method, bruce 040927; here is my guess at its doc
@@ -991,18 +974,14 @@ class basicMode(anyMode):
         """Draw the (possibly unfinished) freehand selection curve.
         """
         color = logicColor(self.selSense)
-
-        if self.o.mode.modename == 'ZOOM': # Zoom Window.  Draw only the RBW.
+        
+        pl = zip(self.sellist[:-1],self.sellist[1:])
+        for pp in pl: # Draw the selection curve
+            drawer.drawline(color,pp[0],pp[1])
+        if self.selLassRect:  # Draw the rubber band window
             drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
                                  self.o.up, self.o.right, color)
-        else:
-            pl = zip(self.sellist[:-1],self.sellist[1:])
-            for pp in pl: # Draw the selection curve
-                drawer.drawline(color,pp[0],pp[1])
-            if self.selLassRect:  # Draw the rubber band window
-                drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
-                                 self.o.up, self.o.right, color)
-        
+
         if 0 and platform.atom_debug: # (keep awhile, might be useful)
             # debug code bruce 041214: also draw back of selection curve
             pl = zip(self.o.backlist[:-1],self.o.backlist[1:])
@@ -1017,28 +996,62 @@ class basicMode(anyMode):
     def modifyHydrogenate(self):
         """Huaicai 1/19/05: Optimizate and add information for
             the number of atoms hydrogenated """
-        numAtomHyed = 0    
-        
+        from platform import fix_plurals
+        fixmols = {} # helps count modified mols for statusbar
+        didWhat = "Selection had no open bonds."
         if self.o.assy.selmols:
+            counta = countm = 0
             for m in self.o.assy.selmols:
-                numAtomHyed += m.Hydrogenate()
+                changed = m.Hydrogenate()
+                if changed:
+                    counta += changed
+                    countm += 1
+                    fixmols[id(m)] = m
+            if counta:
+                didwhat = "Added %d atom(s) to %d chunk(s)" \
+                          % (counta, countm)
+                if len(self.o.assy.selmols) > countm:
+                    didwhat += \
+                        " (%d selection had no open bonds)" \
+                        % (len(self.o.assy.selmols) - countm)
+                didwhat = fix_plurals(didwhat)
+            else:
+                didwhat = "Selected chunks contain no open bonds"    
+
         elif self.o.assy.selatoms:
+            count = 0
             for a in self.o.assy.selatoms.values():
+                ma = a.molecule
                 for atm in a.neighbors():
-                    numAtomHyed += atm.Hydrogenate()
-        
-        didWhat = "Hydrogenate: nothing has been hydrogenated."            
-        if (numAtomHyed > 0): ### Some atoms have really been Hyed
-                ##Not sure if fix_plurals() can deal with my English :), so
-                if numAtomHyed > 1:
-                        didWhat = "Hydrogenate: %d atoms have been hydrogenated" % numAtomHyed 
-                else:
-                        didWhat = "Hydrogenate: %d atom has been hydrogenated" % numAtomHyed
-                                
-                self.o.assy.changed()
-                self.o.paintGL()
-                
-        self.w.history.message(didWhat)        
+                    matm = atm.molecule
+                    changed = atm.Hydrogenate()
+                    if changed:
+                        count += 1
+                        fixmols[id(ma)] = ma
+                        fixmols[id(matm)] = matm
+            if fixmols:
+                didwhat = \
+                    "Added %d atom(s) to %d chunk(s)" \
+                    % (count, len(fixmols))
+                didwhat = fix_plurals(didwhat)
+                # Technically, we *should* say ", affected" instead of "from"
+                # since the count includes mols of neighbors of
+                # atoms we removed, not always only mols of atoms we removed.
+                # Since that's rare, we word this assuming it didn't happen.
+                # [#e needs low-pri fix to be accurate in that rare case;
+                #  might as well deliver that as a warning, since that case is
+                #  also "dangerous" in some sense.]
+            else:
+                didwhat = "No open bonds on selected atoms"
+        else:
+            didwhat = "Nothing selected"
+
+        if fixmols:
+            self.o.assy.changed()
+            self.w.win_update()
+        self.w.history.message(didwhat)
+        return
+
         
 
     # Remove hydrogen atoms from each selected atom/chunk
@@ -1061,15 +1074,15 @@ class basicMode(anyMode):
                     countm += 1
                     fixmols[id(m)] = m
             if counta:
-                didwhat = "Dehydrogenate: removed %d atom(s) from %d chunk(s)" \
+                didwhat = "Removed %d atom(s) from %d chunk(s)" \
                           % (counta, countm)
                 if len(self.o.assy.selmols) > countm:
                     didwhat += \
-                        " (%d selected chunk(s) had no hydrogens)" \
+                        " (%d selection had no hydrogens)" \
                         % (len(self.o.assy.selmols) - countm)
                 didwhat = fix_plurals(didwhat)
             else:
-                didwhat = "Dehydrogenate: selected chunks contain no hydrogens"
+                didwhat = "Selected chunks contain no hydrogens"
         elif self.o.assy.selatoms:
             count = 0
             for a in self.o.assy.selatoms.values():
@@ -1084,7 +1097,7 @@ class basicMode(anyMode):
                         fixmols[id(matm)] = matm
             if fixmols:
                 didwhat = \
-                    "Dehydrogenate: removed %d atom(s) from %d chunk(s)" \
+                    "Removed %d atom(s) from %d chunk(s)" \
                     % (count, len(fixmols))
                 didwhat = fix_plurals(didwhat)
                 # Technically, we *should* say ", affected" instead of "from"
@@ -1095,9 +1108,9 @@ class basicMode(anyMode):
                 #  might as well deliver that as a warning, since that case is
                 #  also "dangerous" in some sense.]
             else:
-                didwhat = "Dehydrogenate: no hydrogens bonded to selected atoms"
+                didwhat = "No hydrogens bonded to selected atoms"
         else:
-            didwhat = "Dehydrogenate: nothing selected"
+            didwhat = "Nothing selected"
         if fixmols:
             self.o.assy.changed() #e shouldn't we do this in lower-level methods?
             self.w.win_update()
