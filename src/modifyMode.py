@@ -90,7 +90,7 @@ class modifyMode(basicMode):
             if selSense == 1: self.o.assy.pick(p1,norm(p2-p1))
             if selSense == 2: self.o.assy.onlypick(p1,norm(p2-p1))
             
-            self.o.paintGL()
+            self.w.update()
      
     def leftCntlDown(self, event):
         """Setup a trackball action on each selected part.
