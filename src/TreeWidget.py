@@ -24,7 +24,10 @@ allButtons = (leftButton|midButton|rightButton) #e should be defined in same fil
 from platform import tupleFromQPoint, fix_plurals
 
 debug_dragstuff = 0 # DO NOT COMMIT with 1. - at least not for the alpha-release version (see below)
-# btw where i am 050129 830pm: making contentsDrag/Drop methods do something real... fixing some exceptions...
+    # to enable this at runtime, type the following into the "run py code" menu item's dialog:
+    # import TreeWidget@@@TreeWidget.debug_dragstuff = 1
+
+# catch and fix error of my having committed this code with debug_dragstuff set:
 import os
 if not (os.path.isdir("/Users/bruce") and os.path.isdir("/Huge")):
     # oops, I committed with that set to 1! sorry.
@@ -63,9 +66,14 @@ class drag_handler:
         using this QDropEvent... is it a drag-and-drop you (client's current drag_handler) initiated?
         [should be overridden in subclasses]
         """
+        # this superclass method is only appropriate for handlers
+        # of ordinary drags unrelated to drag-and-drop.
         if debug_dragstuff:
             print "that's weird, client should not get a drop at the same time as it's handling an ordinary drag! hmm..."
         return False # for example, false for selection-drags (though also it should never happen then)
+    def describe_your_drag_and_drop(self):
+        "#doc ... subclasses use this to say moving x items, for drags they started, queried by dragMove for statusbar"
+        return "<unknown drag>" # should never be seen
     pass
 
 class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/3 of its present size!! [050129]
@@ -96,6 +104,8 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
             # good? at least for checking distance threshhold to start a drag, it is.
         self.started_drag = False
         self.start_drag_dist = QApplication.startDragDistance() # this was 4 for me
+        self.describe_drag = "<no drag started>" # should never be seen
+        
     def mouseMoveEvent(self, event):
         "this must be called by our client, but only when mousebuttons remain down"
         if self.started_drag:
@@ -150,6 +160,8 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
     doing_our_own_drag = False
     def one_of_yours_Q( self, event, text): #e rename, re-spec, etc (see super comment)
         if not self.doing_our_own_drag:
+            # note, this doesn't run during a drag of something from another widget (to drop on this one)
+            # since this drag_handler won't be active then.
             return drag_handler(self, event, text) # super method, prints warning and rets False
         # ok, someone dropped this text on us, while we were doing our own drag.
         # Guess it must be our drag that got dropped!
@@ -176,6 +188,10 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         # and should now be undone by it. but that's hard since it was this object which decided to
         # do that, and when! So for that, we do need a callback telling it we're starting that drag of those nodes. #####@@@@@
         return (True, self.drag_type, self.nodes)
+    
+    def describe_your_drag_and_drop(self):
+        # kluge 050131:
+        return self.describe_drag
         
     def start_a_drag(self, event):
         """Start (and wait for completion of) a drag-and-drop of our nodes,
@@ -333,6 +349,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return self.contentsMousePressEvent(event, dblclick = 1)
 
     renaming_this_item = None
+
     def contentsMousePressEvent(self, event, dblclick = 0):
         "[called by Qt, or by our own contentsMouseDoubleClickEvent]"
         
@@ -346,12 +363,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         # before anything else (except above -- in case this scrolls for some reason),
         # let this click finish an in-place renaming, if there was one.
-        if self.renaming_this_item:
-            self.renaming_this_item.okRename(0) # 0 is column # this ends up calling slot_itemRenamed
-                # could this scroll the view? I doubt it, but if so,
-                # it's good that we figured out cpos,vpos,item before that.
-            self.done_renaming()
-                # redundant with slot function, but i'm not sure that always runs or gets that far
+        # [050131, added protection against item being deleted during renaming]
+        self.click_elsewhere_finishes_renaming()
 
         # now figure out what part of the item (if any) we clicked on,
         # setting 'part' to a constant string describing which part, or None.
@@ -962,7 +975,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
         ing_dict = { "move":"moving", "copy":"copying" }
         whatting = ing_dict[ drag_type] # moving or copying?
         sbar_text = fix_plurals( "%s %d item(s)" % (whatting, len(nodes)) ) # not quite the same as the text for the QDragObject
-        self.statusbar_msg( sbar_text + " [not yet implemented]")
+        desc = sbar_text + " [not yet implemented]"
+        # now everything we do with desc is wrong, needs revision, but might work for now [050131]:
+        # stuff it into drag_handler (kluge, bad boundary) for use when we ask it this during update_drop_point_highlighting: 
+        self.drag_handler.describe_drag = desc
+        # early warning to the statusbar: probably ok, tho will normally be overwritten soon (with itself)
+        self.statusbar_msg( desc + " <this suffix should not be seen>" ) ###e remove suffix when flickers
         if debug_dragstuff and "what you want" == "something that looks really silly and annoying":
             # also use whatting in a transient node prefix, see below
             for node in nodes:
@@ -1005,7 +1023,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
     last_scrollpos = (0,0)
 
     # This is the last *reported* dragMoveEvent position, as a pair (x,y) in contents coords,
-    # or None when there's been a dragLeave since then.
+    # or None when there's been a dragLeave since then, or (equivalently) if scrolling occurred
+    # (presumably autoscrolling during a drag) and we're disabling drops during scrolling.
     last_dragMove_cpos = None
 
     # And this is the value of scrollpos at the same time we set self.last_dragMove_cpos.
@@ -1018,16 +1037,16 @@ class TreeWidget(TreeView, DebugMenuMixin):
     
     def contentsDragEnterEvent(self, event):
         # warning: for unknown reasons, this is sometimes called twice when i'd expect it to be called once.
-        if debug_dragstuff:
-            print_compact_stack("contentsDragEnterEvent stack (fyi): ")
+##        if debug_dragstuff:
+##            print_compact_stack("contentsDragEnterEvent stack (fyi): ")
         ok = QTextDrag.canDecode(event) # this code is duplicated elsewhere
         event.accept(ok)
         self.last_dragMove_ok = ok
         # the Qt docs warn that actually looking at the text might be slow (requires talking to the external app
         # if it came from one), so using the text to find out whether the source is external would not be a good idea.
         # For a dragMoveEvent, it subclasses DropEvent and thus might have a "source" we can look at... don't know.
-        if debug_dragstuff:
-            print "enter: ok = %r" % ok
+##        if debug_dragstuff:
+##            print "enter: ok = %r" % ok
         #e maybe do same highlighting as dragmove... but not for now,
         # since we have that dup-enter bug that the canvas had
         return
@@ -1040,7 +1059,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     # we need to be told when autoscrolling occurs, since Qt neglects to send us new dragMove events
     # when the global cursor position doesn't change, even though the position within the contents
     # does change due to Qt's own autoscrolling!
-    do_update_drop_point_highlighting_in_next_viewportPaintEvent = False
+##    do_update_drop_point_highlighting_in_next_viewportPaintEvent = False
     def slot_contentsMoving(self, x, y):
         """[Called by the Qt signal whose doc says:
         "This signal is emitted just before the contents are moved
@@ -1048,51 +1067,29 @@ class TreeWidget(TreeView, DebugMenuMixin):
         it's actually the position of the topleft visible part of the
         contents (in contents coords), as determined by the scrollbars.
         """
-##        if debug_dragstuff:
-##            print 'got signal "contentsMoving(int, int)" with args %r, %r' % (x,y)
-        ## self.last_scrollpos = (x,y) # hmm, the doc says they haven't been moved *yet*...
-        # and come to think of it, the visible stuff must look ok, only exposed stuff need be drawn... draw nothing now!
-        # will this fix my 1-pixel (or more) drawing errors?? [050130 9:27pm -- not 050129; do some today cmts mistakenly say that?]
-##        if self.last_dragMove_cpos and self.last_dragMove_ok:
-##            self.update_drop_point_highlighting(  ) ### need future_scrollpos = (x,y) ???
-        self.update_drop_point_highlighting( undo_only = True) #050130 945pm try undo_only on hunch that undoing later is clipped --
-            # yes! now no blue remains that should not... but not all new blue gets drawn that should!
-            # and i can confirm that the only blue that does is what's in the autoscroll newly exposed rect.
-            # (which might be bigger than otherwise due to my printing some debug text "drew in green" each time around.)
-            # evidence: as the autoscroll accelerates the edge-pos of what's drawn crawls thru my blue symbol at its mouse-fixed posn.
-            # solution: read up on Qt painter clipping and find out how to defeat it.
-            # (since deffering the update til even later (after the next viewportPaintEvent, not inside it)
-            # might never get it done if these autoscroll repaints use up all the time until the autoscroll is completed.)
-            # ... or i could do the drawing in self, not self.viewport()... and then i need to do more clipping, not less.
-            # ... or I could forget drawing, and do it all by changing what the items look like and repainting them....
-            #  indicating a gap by doing it to two items in a row. hmm.... that might be tolerable for now.
-            # ok, if clipping doesn't work soon, I'll do that (for alpha). [050130 955pm]
-            # ... * * * * [now ~10:20p, after a break]
-            # actually i thought of a simpler and better way to any of that -- just disable drop-highlighting and dropping
-            # during autoscroll! (ie from time of scroll to time of next real mouse motion.)
-            # this eliminates the technical problems, and it's also probably best for the user (to disallow drop then)
-            # since they could not possibly drop in the right place during the accelerating, poorly-speed-designed autoscroll!
-            # (which they might not have even wanted anyway if they were aiming for something near the bottom of the visible part.)
-            # it might be better to reenable it after a short time of no scrolling (and a timer would make this possible),
-            # but it's ok to wait for more mouse motion provided we explain the situation (what happened and what we're waiting for)
-            # in a statusbar message (ideally somewhere more visible, but that will do for now).
-            # we could do this by posting an event (trusting autoscroll to use up all the event loop)
-            # and reenable after "zero time delay", but I can't assume autoscroll uses it all up, so that won't work.
-            # so until I add a timer, just do what it says above, which means, no highlight-drawing in viewportPaintEvent at all!
-            # only undo/do in dragMove, and undo only (plus statusbar) in the warning about upcoming scroll.
-            # ... so, i'll implement that tomorrow. for now i'll just debug-gate the blue/white drawing code.
         self.last_scrollpos = (x,y)
-        ###... this is not yet right, since, as soon as the scroll *does* happen (ie by the time of that paintevent)
-        # it is also necessary to undo the old drawing... whereever it was, not just in that rect.
-        # and then to redo it in the new pos, priorly visible or in that exposed rect.
-        # basically we wish this signal came after the new pos was valid... well, not reallty...
-        # before it for influencing viewportPaint, after it for drawing over whatever is visible at that time.
-        # so can we defer the updating? probably....
-        self.do_update_drop_point_highlighting_in_next_viewportPaintEvent = True
-        # if this works, then we probably didn't even need the signal,
-        # we could just measure scrollpos in that event
-        # which we might as well do anyway as a check.
-        #####@@@@@ 050130 940pm
+        
+        # Now, in case we're in a drag (after a dragMove), reset the drag position
+        # to None, just as a dragLeave would do, so as to disable a drop
+        # (and drop-point highlighting) during autoscrolling. (Note that any
+        # scrolling during a drag must be autoscrolling -- user is not touching
+        # scrollbar, and tree structure should not be changing.)
+        #   For commentary about why this is a feature not a bug,
+        # even though it was motivated by the difficulty of doing the drop-point
+        # highlighting properly during autoscroll (and for the details of that
+        # difficulty and ideas for solving it), see removed comments in this method
+        # dated 050130 (in rev 1.21 in cvs).
+        
+        # The following code is similar in dragLeave and Drop and slot_contentsMoving,
+        # not sure if identical:
+        self.last_dragMove_ok = False # not needed right now, but might matter
+            # after the next dragEnter but before the next dragMove
+        self.last_dragMove_cpos = None
+        # The following statusbar_msg suffix is the only way users are told
+        # why the drop-point highlighting disappeared, or what to do about it.
+        # It must be short but clear!
+        self.drop_disabled_because = "drop disabled by autoscroll, until mouse moves" #k still too long??
+        self.update_drop_point_highlighting()
         return
     
     def contentsDragMoveEvent(self, event):
@@ -1115,12 +1112,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return
         
     def contentsDragLeaveEvent(self, event):
-        if debug_dragstuff:
-            print "contentsDragLeaveEvent, event == %r" % event
-        # the following code is similar in dragLeave and Drop, not sure if identical
+##        if debug_dragstuff:
+##            print "contentsDragLeaveEvent, event == %r" % event
+        # the following code is similar in dragLeave and Drop and slot_contentsMoving,
+        # not sure if identical
         self.last_dragMove_ok = False # not needed right now, but might matter
             # after the next dragEnter but before the next dragMove
         self.last_dragMove_cpos = None
+        self.drop_disabled_because = "(drop outside model tree is not supported)" # maybe no need for text like this? ##e
         self.update_drop_point_highlighting()
         return
     
@@ -1130,9 +1129,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #e remove highlighting from dragmove
 
     true_dragMove_cpos = None
+    drop_disabled_because = ""
     def update_drop_point_highlighting(self, undo_only = False):
         #k undo_only might not be needed once a clipping issue is solved -- see call that uses/used it, comments near it
-        """Maintain highlighting of possible drop points, which should exist whenever
+        """###OBS - some of this is wrong since we no longer use viewportPaintEvent as much -- 050131.
+           Maintain highlighting of possible drop points, which should exist whenever
         self.last_dragMove_cpos and self.last_dragMove_ok, based on a drag position
         determined by several last_xxx variables as explained in a comment near them.
         Do new highlighting and undo old highlighting, by direct drawing and/or
@@ -1158,6 +1159,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
            If in the future we highlight all inactive drop points as well as the one active
         one, that too (the inactive ones) would be done separately for the same reasons.
         """
+        assert not undo_only
         undo_true_dragMove_cpos = self.true_dragMove_cpos # undo whatever was done for this pos
             # that only works if we're sure the items have not moved,
             # otherwise we'd need to record not just this position
@@ -1170,13 +1172,25 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # but instead:
             correction = pair_minus( self.last_scrollpos, self.last_dragMove_scrollpos )
             self.true_dragMove_cpos = pair_plus( self.last_dragMove_cpos, correction )
+            substatus = "" # use "" since flicker on/off is better than flicker between two texts!
 ##            if debug_dragstuff:
 ##                print "correction = %d - %d = %d; true = lastmovecpos %d + correction = %d" % (
 ##                    self.last_scrollpos[1], self.last_dragMove_scrollpos[1], correction[1],
 ##                    self.last_dragMove_cpos[1], self.true_dragMove_cpos[1] )
         else:
             self.true_dragMove_cpos = None
-        if not debug_dragstuff: return
+            substatus = " -- " + self.drop_disabled_because
+                # substatus is independent of whether drag is initiated in this widget
+        # now figure out where the drag came from and what it means, to mention in statsubar
+        if self.drag_handler:
+            # if this exists, then it should be the source... or this message will report that bug
+            desc = self.drag_handler.describe_your_drag_and_drop()
+        else:
+            desc = "drag from outside tree widget" #e subclass should supply widget description
+        self.statusbar_msg( desc + substatus )
+        
+        if not debug_dragstuff: return  #e remove soon, when next stuff is not a stub
+        
         ###stub for debugging: draw white to undo and blue to do, of a symbol just showing where this point is.
         # always undo first, in case there's an overlap! (might never happen once we're doing real highlighting, not sure)
         # for real highlighting some of it will be redrawing of items in different ways, instead of new drawing.
@@ -1218,16 +1232,16 @@ class TreeWidget(TreeView, DebugMenuMixin):
         fudge_up = 1 # 1 for h = 9, 2 for h = 10
         p.drawLine(x+h, y+h/2 - fudge_up, x+w, y+h/2 - fudge_up)
 
-    def blotbluething(self, painter, pos = (0,0), color = Qt.white): #k doesn't work
-        "[for debugging] blot out what drawbluething drew, with 1 pixel margin as well"
-        p = painter # caller should have called begin on the widget, assuming that works
-        p.setPen(QPen(color, 6)) # 6 is pen thickness, at least half of 11, our height in the end, below
-        w,h = 100,9 # bbox rect size of what we draw (i think)
-        w += 1 # correct bug in above
-        w += 2; h += 2 # margin
-        x,y = pos # topleft of what we draw
-        x -= 1; y -= 1 # margin
-        p.drawRect(x,y,h,h)
+##    def blotbluething(self, painter, pos = (0,0), color = Qt.white): ###k this doesn't work, why?
+##        "[for debugging] blot out what drawbluething drew, with 1 pixel margin as well"
+##        p = painter # caller should have called begin on the widget, assuming that works
+##        p.setPen(QPen(color, 6)) # 6 is pen thickness, at least half of 11, our height in the end, below
+##        w,h = 100,9 # bbox rect size of what we draw (i think)
+##        w += 1 # correct bug in above
+##        w += 2; h += 2 # margin
+##        x,y = pos # topleft of what we draw
+##        x -= 1; y -= 1 # margin
+##        p.drawRect(x,y,h,h)
 
     def viewportPaintEvent(self, event):
         "[overrides TreeView.viewportPaintEvent]"
@@ -1242,9 +1256,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 # should use highlightcolor; for debug use diff color than when drawn in the other place that can draw this
             if debug_dragstuff:
                 print "drew in green"
-        if self.do_update_drop_point_highlighting_in_next_viewportPaintEvent: #####@@@@@ 050130 [a fairly self-documenting flag]
-            self.do_update_drop_point_highlighting_in_next_viewportPaintEvent = False
-            self.update_drop_point_highlighting()
+##        if self.do_update_drop_point_highlighting_in_next_viewportPaintEvent: ###@@@ 050130
+##            self.do_update_drop_point_highlighting_in_next_viewportPaintEvent = False
+##            self.update_drop_point_highlighting()
         return res
     
         #e change highlighting/indicating of possible drop points (gaps or items) (e.g. darken icons of items)
@@ -1272,17 +1286,35 @@ class TreeWidget(TreeView, DebugMenuMixin):
         x,y=wpos.x(),wpos.y() # this works, scrolled or not, at least with unclipped = True
         listview.drawbluething( painter, (x,y)) # guess: this wants viewport coords (ie those of widget). yes.
         listview.update() #k needed?
-
+        
     def contentsDropEvent(self, event):
         if debug_dragstuff:
             print "contentsDropEvent, event == %r" % event
+
+        # should we disable the drag_handler, or rely on mouseRelease to do that? ###e ####@@@@
+        
+        # We might be inside autoscroll, with drop-point highlighting disabled...
+        # detectable by self.last_dragMove_cpos == None. In that case we should
+        # refuse the drop. Ideally we'd report what the drop would have been into...
+        # not for now since computing that is nim even for an accepted drop! ###e revisit
+        
+        disabled = (self.last_dragMove_cpos == None) # used more than once below
 
         # the following code is similar in dragLeave and Drop, not sure if identical
         self.last_dragMove_ok = False # not needed right now, but might matter
             # after the next dragEnter but before the next dragMove
         self.last_dragMove_cpos = None
+        if disabled:
+            self.drop_disabled_because = "drop ignored since in autoscroll" # will be zapped by redmsg anyway
+        else:
+            self.drop_disabled_because = "<bug if you see this>" # only shows up when disabled... clean this up!
         self.update_drop_point_highlighting()
 
+        if disabled:
+            self.redmsg( "drop refused due to autoscrolling (and no subsequent mouse motion) -- too dangerous.")
+            event.ignore()
+            return
+        
         oktext = QTextDrag.canDecode(event)
             #e in future even this part (choice of dropped data type to look for)
             # should be delegated to the current drag_handler if it recognizes it
@@ -1325,7 +1357,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                     # it's our job to now do the operation.
                     if debug_dragstuff:
                         print "NOT IMPLEMENTED: do the op on these dragged nodes:",nodes
-                        self.win.history.message("NIM: do the op %r on %d nodes, first/last names %r, %r" % (
+                        self.redmsg("NIM: do the op %r on %d nodes, first/last names %r, %r" % (
                             drag_type, len(nodes), nodes[0].name, nodes[-1].name ))
 ##                    do the op
 ##                    } #####@@@@@@
@@ -1351,12 +1383,20 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # drop was not able to provide us with text -- can't possibly be one of ours
             if self.drag_handler and self.drag_handler.doing_our_own_drag:
                 errmsg = "likely bug warning: dropped object should have been ours but provided no text; ignored"
-                self.win.history.message(errmsg) #e redmsg
+                self.redmsg(errmsg) #e redmsg
             event.accept(False)
-            self.win.history.message("fyi (nim feature): refused dropped object which could not provide text")
+            self.redmsg("fyi (nim feature): refused dropped object which could not provide text")
+        self.statusbar_msg(" ") # probably a good idea -- not sure!
         return # from overly-long method contentsDropEvent
+
+    def redmsg(self, errmsg): #e someday this might come from the subclass #e refile this method near statusbar_msg
+        "put an error message into the History"
+        from HistoryWidget import redmsg
+        self.win.history.message( redmsg(errmsg))
+        self.statusbar_msg(" ") # probably a good idea -- not sure!
+        return
     
-        
+    
     # key event handlers
     
     def keyPressEvent(self, event): ####@@@@ Delete might need revision, and belongs in the subclass
@@ -1382,6 +1422,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
 
     # in-place editing of item text
+
+    renaming_this_item = None
     
     def maybe_beginrename(self, item, pos, col):
         """Calls the Qt method necessary to start in-place editing of the given item's name.
@@ -1470,11 +1512,32 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.win.win_update()
         return 
 
+    def click_elsewhere_finishes_renaming(self):
+        "[private] let this click finish an in-place renaming, if there was one."
+        # [050131, added protection against item being deleted during renaming -- I hope this fixes bug 363]
+        if self.renaming_this_item:
+            try:
+                self.renaming_this_item.okRename(0) # 0 is column # this ends up calling slot_itemRenamed
+                    # could this scroll the view? I doubt it, but if so,
+                    # it's good that we figured out cpos,vpos,item before that.
+            except:
+                # various errors are possible, including (I guess)
+                # "RuntimeError: underlying C/C++ object has been deleted"
+                # if user deletes that object from the glpane or a toolbutton during the rename [050131 comment]
+                pass
+            self.done_renaming()
+                # redundant with slot function, but i'm not sure that always runs or gets that far
+        self.renaming_this_item = None # redundant with done_renaming()... last minute alpha precaution
+        return
+
     def done_renaming(self):
         "call this when renaming is done (and if possible when it's cancelled, tho I don't yet know how)"
         try:
             oldname = self.renaming_this_item.object.name
         except:
+            # various errors are possible, including (I guess)
+            # "RuntimeError: underlying C/C++ object has been deleted"
+            # if user deletes that object from the glpane or a toolbutton during the rename [050131 comment]
             oldname = ""
         self.renaming_this_item = None
         self.statusbar_msg("")
