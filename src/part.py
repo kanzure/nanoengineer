@@ -984,6 +984,7 @@ class Part(InvalMixin):
     
     def cut(self):
         eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
+        center_these = []
         try:
             self.w.history.message(greenmsg("Cut:"))
             if self.selatoms:
@@ -1045,8 +1046,15 @@ class Part(InvalMixin):
                     # based on the theory that chunks remaining in assy.molecules is the problem:
                     ## self.sanitize_for_clipboard(ob) ## zapped 050307 since obs
                     self.shelf.addchild(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
-                    # if the new member is a molecule, move it to the center of its space
-                    if isinstance(ob, molecule): ob.move(-ob.center)
+                    # If the new member is a molecule, move it to the center of its space --
+                    # but not yet, since it messes up break_interpart_bonds which we'll do later!
+                    # This caused bug 452 item 18.
+                    # Doing the centering later is a temporary fix, should not be necessary,
+                    # since the better fix is for breaking a bond to not care if its endpoint coords make sense.
+                    # (That is, to reposition the singlets from scratch, not based on the existing bond.)
+                    # [bruce 050321]
+                    if isinstance(ob, molecule):
+                        center_these.append(ob) ## was: ob.move(-ob.center)
                 ## ob.pick() # bruce 050131 removed this
                 nshelf_after = len(self.shelf.members) #bruce 050201
                 self.w.history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
@@ -1059,6 +1067,11 @@ class Part(InvalMixin):
             end_event_handler(eh) # this should fix Part membership of moved nodes, break inter-Part bonds #####@@@@@ doit
             # ... but it doesn't, so instead, do this: ######@@@@@@ and review this situation and clean it up:
             self.assy.update_parts()
+            for ob in center_these: #bruce 050321
+                if ob.is_top_of_selection_group(): # should be always True, but check to be safe
+                    ob.move(-ob.center)
+                elif platform.atom_debug:
+                    print "atom_debug: bug? mol we should center no longer is_top_of_selection_group", ob
             self.w.win_update() ###stub of how this relates to ending the handler
         return
 
