@@ -16,6 +16,9 @@ Bruce 050324 pulled in lots of existing code for running the simulator
 its name. That existing code was mostly by Mark and Huaicai, and was
 partly cleaned up by Bruce, who also put some of it into subclasses
 of the experimental CommandRun class.
+
+Bruce 050331 is splitting writemovie into several methods in more than
+one subclass (eventually) of a new SimRunner class.
 '''
 
 from debug import print_compact_traceback
@@ -26,6 +29,459 @@ from SimSetup import SimSetup
 from qt import QApplication, QCursor, Qt, QStringList, QProcess
 from movie import Movie
 # more imports lower down
+
+class SimRunner:
+    "class for running the simulator [subclasses can run it in special ways, maybe]"
+    #bruce 050330 making this from writemovie and maybe some of Movie/SimSetup; experimental,
+    # esp. since i don't yet know how much to factor the input-file writing, process spawning,
+    # file-growth watching, file reading, file using. Surely in future we'll split out file using
+    # into separate code, and maybe file-growth watching if we run procs remotely
+    # (or we might instead be watching results come in over a tcp stream, frames mixed with trace records).
+    # So for now, let's make the minimal class for running the sim, up to having finished files to look at
+    # but not looking at them, then the old writemovie might call this class to do most of its work
+    # but also call other classes to use the results.
+    
+    def __init__(self, part, mflag):
+        "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
+        self.assy = assy = part.assy # needed?
+        self.tmpFilePath = assy.w.tmpFilePath
+        self.history = assy.w.history
+        self.win = assy.w  # might be used only for self.win.progressbar.launch
+        self.part = part # needed?
+        self.mflag = mflag # see docstring
+        self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted) ###@@@DOIT
+        return
+    
+    def run_using_old_movie_obj_to_hold_sim_params(self, movie, options, part_or_simaspect):
+        self._movie = movie # general kluge for old-code compat (lots of our methods still use this and modify it)
+        self.errcode = self.set_options_errQ( options) # options include everything that affects the run except the set of atoms and the part
+        if self.errcode: # used to be a local var 'r'
+            return
+##        self.run_in_foreground = True # all we have for now [050401]
+        self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
+        self.set_waitcursor(True)
+        try: #bruce 050325 added this try/except wrapper, to always restore cursor
+            self.write_sim_input_file( part_or_simaspect )
+                #e also save that arg? or do that in this subr if nec? or not?
+                # maybe the next use of it (to interpret the result file) is in other code, not this class.
+            self.spawn_process() ##also includes monitor_progress, for now; result error code (or abort button flag) in self.errcode
+##            if self.run_in_foreground:
+##                self.monitor_progress() # and wait for it to be done or for abort to be requested and done
+        except:
+            print_compact_traceback("bug in simulator-calling code: ")
+            self.errcode = -11111
+        self.set_waitcursor(False)
+        if not self.errcode:
+            return # success
+        history = self.history
+        if self.errcode == 1: # User pressed Abort button in progress dialog.
+            msg = redmsg("Simulator: Aborted.")
+            history.message(msg)         
+            
+            ##Tries to terminate the process the nice way first, so the process
+            ## can do whatever clean up it requires. If the process
+            ## is still running after 2 seconds (a kludge). it terminates the 
+            ## process the hard way.
+            #self.simProcess.tryTerminate()
+            #QTimer.singleShot( 2000, self.simProcess, SLOT('kill()') )
+            
+            # The above does not work, so we'll hammer the process with SIGKILL.
+            # This works.  Mark 050210
+            assert self.simProcess
+            self.simProcess.kill()
+            
+        else: # Something failed...
+            msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
+            history.message(msg)
+        return # caller should look at self.errcode
+        # semi-obs comment? [by bruce few days before 050404, partly expresses an intention]
+        # results themselves are a separate object (or more than one?) stored in attrs... (I guess ###k)
+        # ... at this point the caller probably extracts the results object and uses it separately
+        # or might even construct it anew from the filename and params
+        # depending on how useful the real obj was while we were monitoring the progress
+        # (since if so we already have it... in future we'll even start playing movies as their data comes in...)
+        # so not much to do here! let caller care about res, not us.
+    
+    def set_options_errQ(self, options): #e maybe split further into several setup methods?
+        """Caller should specify the options for this simulator run
+        (including the output file name);
+        these might affect the input file we write for it
+        and/or the arguments given to the simulator executable.
+        Temporary old-code compatibility: use self._movie
+        for simsetup params and other needed params, and store new ones into it.
+        """
+        part = self.part
+        movie = self._movie
+
+        # set up alist (list of atoms for sim input and output files, in order)
+        movie.alist_fits_entire_part = False # might be changed below
+        if not movie.alist:
+            # we don't yet know what atoms to minimize. Use the ones in part.
+            # in future this might be different or always be done by caller...
+            # Make sure some chunks are in the part.
+            if not part.molecules: # Nothing in the part to minimize.
+                msg = redmsg("Can't create movie.  No chunks in part.")
+                    #####@@@@@ is this redundant with callers? yes for simSetup,
+                    # don't know about minimize, or the weird fileSave call in MWsem.
+                self.history.message(msg)
+                return -1
+            movie.set_alist_from_entire_part(part) ###@@@ needs improvement, see comments in it
+            for atm in movie.alist:
+                assert atm.molecule.part == part ###@@@ remove when works
+            movie.alist_fits_entire_part = True # permits optims... but note it won't be valid
+                # anymore if the part changes! it's temporary... not sure it deserves to be an attr
+                # rather than local var or retval.
+        else:
+            # movie already knows what to minimize...
+            # assert they're all in this Part.
+            assert 0 # [might happen with mimimize selection, but doesn't yet happen - bruce 050325]
+                # if this assert fails it might mean we reused this movie obj w/o meaning to...
+                # should check that some other way even after this case can happen legit...
+            for atm in movie.alist:
+                assert atm.molecule.part == part
+
+        # set up filenames
+        # We use the PID (process id) to create unique filenames for this instance of the program,
+        # so that if the user runs more than one program at the same time, they don't use
+        # the same temporary file names.
+        # [We don't yet make this include a Part-specific suffix [bruce 050325]]
+        # [This will need revision when we can run more than one sim process
+        #  at once, with all or all but one in the "background" [bruce 050401]]
+        pid = os.getpid()
+        self.tmp_file_prefix = os.path.join(self.tmpFilePath, "sim-%d" % pid)
+            # we'll append various suffix.extensions to this, to make temp file names
+            # for sim input and output files as needed
+        r = self.old_set_sim_output_filenames_errQ( movie, self.mflag)
+        if r: return r
+        # don't call sim_input_filename here, that's done later for some reason
+
+        # prepare to spawn the process later (and detect some errors now)
+        # filePath = the current directory NE-1 is running from.
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        # "program" is the full path to the simulator executable. 
+        if sys.platform == 'win32': 
+            program = os.path.normpath(filePath + '/../bin/simulator.exe')
+        else:
+            program = os.path.normpath(filePath + '/../bin/simulator')
+        # Make sure the simulator exists
+        if not os.path.exists(program):
+            msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
+            self.history.message(msg)
+            return -1
+        self.program = program
+        
+        return None # no error
+    
+    def old_set_sim_output_filenames_errQ(self, movie, mflag):
+        """Old code, not yet much cleaned up. Uses and/or sets movie.filename,
+        with movie serving to hold desired sim parameters
+        (more like a SimSetup object than a Movie object in purpose).
+        Stores shell command option for using tracefile (see code, needs cleanup).
+        Returns error code (nonzero means error return needed from entire SimRunner.run,
+         and means it already emitted an error message).
+        """
+        # figure out filename for trajectory or final-snapshot output from simulator
+        # (for sim-movie or minimize op), and store it in movie.moviefile
+        # (in some cases it's the name that was found there).
+        
+        if mflag == 1: # single-frame XYZ file
+            if movie.filename and platform.atom_debug:
+                print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
+            movie.filename = self.tmp_file_prefix + ".xyz"  ## "sim-%d.xyz" % pid
+            
+        if mflag == 2: #multi-frame DPB file
+            if movie.filename and platform.atom_debug:
+                print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
+            movie.filename = self.tmp_file_prefix + ".dpb"  ## "sim-%d.dpb" % pid
+        
+        if movie.filename: 
+            moviefile = movie.filename
+        else:
+            msg = redmsg("Can't create movie.  Empty filename.")
+            self.history.message(msg)
+            return -1
+            
+        # Check that the moviefile has a valid extension.
+        ext = moviefile[-4:]
+        if ext not in ['.dpb', '.xyz']:
+            # Don't recognize the moviefile extension.
+            msg = redmsg("Movie [" + moviefile + "] has unsupported extension.")
+            self.history.message(msg)
+            print "writeMovie: " + msg
+            return -1
+        movie.filetype = ext #bruce 050404 added this
+
+        # Figure out tracefile name, come up with sim-command argument for it,
+        # store that in self.traceFile [###e clean that up! split filename and cmd-option, rename this attr to self.traceFileOption...]
+        
+        # The trace file saves the simulation parameters and the output data for jigs.
+        # Mark 2005-03-08
+        if mflag: 
+            # We currently don't need to write a tracefile when minimizing the part (mflag != 0).
+            # [bruce comment 050324: but soon we will, to know better when the xyz file is finished or given up on. ###@@@]
+            self.traceFile = ""
+        else:
+            # The trace filename will be the same as the movie filename, but with "-trace.txt" tacked on.
+            self.traceFile = "-q" + movie.get_trace_filename() # presumably uses movie.filename we just stored
+                # (I guess this needn't know self.tmp_file_prefix except perhaps via movie.filename [bruce 050401])
+                
+        # This was the old tracefile - obsolete as of 2005-03-08 - Mark
+        ## traceFile = "-q"+ os.path.join(self.tmpFilePath, "sim-%d-trace.txt" % pid)
+
+        return None # no error
+
+    def sim_input_filename(self):
+        """Figure out the simulator input filename
+        (previously set options might specify it or imply how to make it up;
+         if not, make up a suitable temp name)
+        and return it; don't record it (caller does that),
+        and no need to be deterministic (only called once if that matters).
+        """         
+        # We always save the current part to an MMP file before starting
+        # the simulator.  In the future, we may want to check if assy.filename
+        # is an MMP file and use it if not assy.has_changed().
+        # [bruce 050324 comment: our wanting this is unlikely, and becomes more so as time goes by,
+        #  and in any case would only work for the main Part (assy.tree.part).]
+        return self.tmp_file_prefix + ".mmp" ## "sim-%d.mmp" % pid
+    
+    def write_sim_input_file(self, part_or_simaspect):
+        """Write the appropriate data from part_or_simaspect
+        to an input file for the simulator (presently always in mmp format)
+        using the filename self.sim_input_file
+        (overwriting any existing file of the same name).
+        """
+        part = part_or_simaspect # only Parts are supported for now
+        mmpfile = self.sim_input_file # the filename to write to
+        movie = self._movie # old-code compat kluge
+        
+        # Tell user we're creating the movie file...
+    #    msg = "Creating movie file [" + moviefile + "]"
+    #    history.message(msg)
+
+        if movie.alist_fits_entire_part:
+            part.writemmpfile( mmpfile)
+        else:
+            assert 0 # can't yet happen (until minimize selection) and won't yet work 
+            # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
+            # But beware, this might only be ok right away for minimize, not simulate (since for sim it has to write all jigs as well).
+            write_mmpfile_for_sim( movie.alist, mmpfile) ###e new func below? won't yet work for clips with jigs, i think...
+
+##        # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR writemovie()!
+##        # writemmp must come before computing "natoms".  This ensures that writemovie
+##        # will work when creating a movie for a file without an assy.alist.  Examples of this
+##        # situation include:
+##        # 1)  The part is a PDB file.
+##        # 2) We have chunks, but no assy.alist.  This happens when the user opens a 
+##        #      new part, creates something and simulates before saving as an MMP file.
+##        # 
+##        # I do not know if it was intentional, but assy.alist is not created until an mmp file 
+##        # is created.  We are simply taking advantage of this "feature" here.
+##        # - Mark 050106
+##
+##    ##    writemmp(assy, mmpfile, False) ###@@@ this should be the Part in this function, not assy -- will be changed.
+
+        movie.natoms = natoms = len(movie.alist)
+        ###@@@ why does that trash a movie param? who needs that param? it's now redundant with movie.alist
+        return
+    
+    def set_waitcursor(self, on_or_off):
+        """For on_or_off True, set the main window waitcursor.
+        For on_or_off False, revert to the prior cursor.
+        [It might be necessary to always call it in matched pairs, I don't know [bruce 050401]. #k]
+        """
+        if on_or_off:
+            # == Change cursor to Wait (hourglass) cursor
+            
+            ##Huaicai 1/10/05, it's more appropriate to change the cursor
+            ## for the main window, not for the progressbar window
+            QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+            #oldCursor = QCursor(win.cursor())
+            #win.setCursor(QCursor(Qt.WaitCursor) )
+        else:
+            QApplication.restoreOverrideCursor() # Restore the cursor
+            #win.setCursor(oldCursor)
+        return
+    
+    def spawn_process(self): # also includes monitor_progress, for now
+        """Actually spawn the process, making its args based on the given options
+        (and/or on other options we've specified earlier to this class?)
+        and with other args telling it to use the previously written input files.
+        ###retval? or record some info?
+        ### do we wait? no, we want to watch the files grow -- caller does that separately.
+        """
+        # figure out process arguments
+        # [bruce 050401 doing this later than before, used to come before writing sim-input file]
+        
+        movie = self._movie # old-code compat kluge
+        moviefile = movie.filename
+        outfile = "-o%s" % moviefile
+        infile = self.sim_input_file
+        program = self.program
+        traceFile = self.traceFile #e rename, revise
+
+        ext = movie.filetype #bruce 050404 added movie.filetype
+        mflag = self.mflag
+        
+        # "formarg" = File format argument
+        if ext == ".dpb": formarg = ''
+        elif ext == ".xyz": formarg = "-x"
+        else: assert 0
+        
+        # "args" = arguments for the simulator.
+        if mflag: 
+            args = [program, '-m', str(formarg), traceFile, outfile, infile]
+        else: 
+            # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
+            # The timestep argument "-s + (movie.timestep)" is not supported for Alpha.
+            args = [program, 
+                        '-f' + str(movie.totalFramesRequested),
+                        '-t' + str(movie.temp), 
+                        '-i' + str(movie.stepsper), 
+                        '-r',
+                        str(formarg),
+                        traceFile,
+                        outfile,
+                        infile]
+        self._args = args # needed??
+        self._formarg = formarg # old-code kluge
+
+        # delete old moviefile we're about to write on, and warn anything that might have it open
+        # (only implemented for the same movie obj, THIS IS A BUG and might be partly new... ####@@@@)
+
+        # We can't overwrite an existing moviefile, so delete it if it exists.
+        if os.path.exists(moviefile):
+            # [bruce 050401 comment:]
+            # and make sure the movie obj is not still trying to use the file, first!
+            # this is an old-code kluge... but necessary. In future we probably need
+            # to inform *all* our current sims and movies that we're doing this
+            # (deleting or renaming some file they might care about). ###@@@
+            # BTW this stuff should be a method of movie, it uses private attrs...
+            # and it might not be correct/safe in all cases either... [not reviewed]
+            print "movie.isOpen =",movie.isOpen
+            if movie.isOpen: 
+                print "closing moviefile"
+                movie.fileobj.close()
+                movie.isOpen = False
+                print "writemovie(): movie.isOpen =", movie.isOpen
+            
+            print "deleting moviefile: [",moviefile,"]"
+            os.remove (moviefile) # Delete before spawning simulator.
+
+        # These are useful when debugging the simulator.     
+        print  "program = ",program
+        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+
+        arguments = QStringList()
+        for arg in args:
+            arguments.append(arg)
+        
+        #bruce 050404 let simProcess be instvar so external code can abort it
+        self.simProcess = None
+        try:
+            ## Start the simulator in a different process 
+            self.simProcess = QProcess()
+            simProcess = self.simProcess
+            simProcess.setArguments(arguments)
+            simProcess.start()
+            
+            # Launch the progress bar. Wait until simulator is finished
+                        ####@@@@ move this part into separate method??
+            filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
+                # also emits a history message...
+            self.errcode = self.win.progressbar.launch( filesize,
+                            moviefile, 
+                            pbarCaption, 
+                            pbarMsg, 
+                            1)
+        except: # We had an exception.
+            print_compact_traceback("exception in simulation; continuing: ")
+            if simProcess:
+                #simProcess.tryTerminate()
+                simProcess.kill()
+                simProcess = None
+            self.errcode = -1 # simulator failure
+
+        # now sim is done (or abort was pressed and it has not yet been killed)
+        # and self.errcode is error code or (for a specific hardcoded value)
+        # says abort was pressed.
+        # what all cases have in common is that user wants us to stop now
+        # (so we might or might not already be stopped, but we will be soon)
+        # and self.errcode says what's going on.
+        return
+
+    def old_guess_filesize_and_progbartext(self, movie): # also emits history msg
+        "..."
+        #bruce 050401 now calling this after spawn not before? not sure... note it emits a history msg.
+        # BTW this is totally unclean, all this info should be supplied by the subclass
+        # or caller that knows what's going on, not guessed by this routine
+        # and the filesize tracking is bogus for xyz files, etc etc, should be
+        # tracking status msgs in trace file. ###@@@
+        formarg = self._formarg # old-code kluge
+        mflag = self.mflag
+        natoms = len(movie.alist)
+        moviefile = movie.filename
+        # We cannot determine the exact final size of an XYZ trajectory file.
+        # This formula is an estimate.  "filesize" must never be larger than the
+        # actual final size of the XYZ file, or the progress bar will never hit 100%,
+        # even though the simulator finished writing the file.
+        # - Mark 050105 
+        if formarg == "-x":
+            # Single shot minimize.
+            if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
+                filesize = natoms * 16 # single-frame xyz filesize (estimate)
+                pbarCaption = "Minimize"
+                pbarMsg = "Minimizing..."
+            # Write XYZ trajectory file.
+            else:
+                filesize = movie.totalFramesRequested * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
+                pbarCaption = "Save File"
+                pbarMsg = "Saving XYZ trajectory file " + os.path.basename(moviefile) + "..."
+        else: 
+            # Multiframe minimize
+            if mflag:
+                filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
+                pbarCaption = "Minimize"
+                pbarMsg = None #bruce 050401 added this
+            # Simulate
+            else:
+                filesize = (movie.totalFramesRequested * natoms * 3) + 4
+                pbarCaption = "Simulator"
+                pbarMsg = "Creating movie file " + os.path.basename(moviefile) + "..."
+                msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
+                        + ", Steps per Frame: " + str(movie.stepsper)\
+                        + ", Temperature: " + str(movie.temp)
+                self.history.message(msg)
+        return filesize, pbarCaption, pbarMsg
+
+    # seperate monitor routines not yet split out from spawn_process, not yet called ###@@@doit
+    def monitor_progress(self): #e or monitor_some_progress, to be called in a loop with a sleep or show-frame, also by movie player?
+        """Put up a progress bar (if suitable);
+        watch the growing trace and trajectory files,
+        displaying warnings and errors in history widget,
+        progress-guess in progress bar,
+        and perhaps in a realtime-playing movie in future;
+        handle abort button (in progress bar or maybe elsewhere, maybe a command key)
+        (btw abort or sim-process-crash does not imply failure, since there might be
+         usable partial results, even for minimize with single-frame output);
+        process other user events (or some of them) (maybe);
+        and eventually return when the process is done,
+        whether by abort, crash, or success to end;
+        return True if there are any usable results,
+        and have a results object available in some public attribute.
+        """
+        while not self.monitor_some_progress_doneQ(): # should store self.res I guess??
+            time.sleep(0.1)
+        return self.res
+    def monitor_some_progress_doneQ(self):
+        "..."
+        pass
+    pass # end of class SimRunner
+    
+# ==
+
+# writemovie used to be here, but is now split into methods of class SimRunner above [bruce 050401]
+
+# ... here's a compat stub... i guess ###doit
 
 #obs comment:
 # Run the simulator and tell it to create a dpb or xyz trajectory file.
@@ -55,272 +511,16 @@ def writemovie(part, movie, mflag = 0):
         0 = default, runs a full simulation using parameters stored in the movie object.
         1 = run the simulator with -m and -x flags, creating a single-frame XYZ file.
         2 = run the simulator with -m flags, creating a multi-frame DPB moviefile.
+    Return value: false on success, true (actually an error code but no caller uses that)
+    on failure (error message already emitted).
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
-    assy = part.assy
-    tmpFilePath = assy.w.tmpFilePath
-    history = assy.w.history
-    win = assy.w
-    movie.alist_fits_entire_part = False # conservative case
-    ###@@@ need to use part in writemmp below
 
-    if not movie.alist:
-        # we don't yet know what atoms to minimize. Use the ones in part.
-        # in future this might be different or always be done by caller...
-        # Make sure some chunks are in the part.
-        if not part.molecules: # Nothing in the part to minimize.
-            msg = redmsg("Can't create movie.  No chunks in part.")
-                #####@@@@@ is this redundant with callers? yes for simSetup,
-                # don't know about minimize, or the weird fileSave call in MWsem.
-            history.message(msg)
-            return -1
-        movie.set_alist_from_entire_part(part) ###@@@ needs improvement, see comments in it
-        for atm in movie.alist:
-            assert atm.molecule.part == part ###@@@ remove when works
-        movie.alist_fits_entire_part = True # permits optims... but note it won't be valid
-            # anymore if the part changes! it's temporary... not sure it deserves to be an attr
-            # rather than local var or retval.
-    else:
-        # movie already knows what to minimize...
-        # assert they're all in this Part.
-        assert 0 # [might happen with mimimize selection, but doesn't yet happen - bruce 050325]
-            # if this assert fails it might mean we reused this movie obj w/o meaning to...
-            # should check that some other way even after this case can happen legit...
-        for atm in movie.alist:
-            assert atm.molecule.part == part
-    
-    # "pid" = process id.  
-    # We use the PID to create unique filenames for this instance of the program,
-    # so that if we run more than one program at the same time, we don't use
-    # the same temporary file names.
-    # [We don't yet make this include a Part-specific suffix -- bruce 050325 comment]
-    pid = os.getpid()
-    
-    if mflag == 1: # single-frame XYZ file
-        if movie.filename and platform.atom_debug:
-            print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
-        movie.filename = os.path.join(tmpFilePath, "sim-%d.xyz" % pid)
-        
-    if mflag == 2: #multi-frame DPB file
-        if movie.filename and platform.atom_debug:
-            print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
-        movie.filename = os.path.join(tmpFilePath, "sim-%d.dpb" % pid)
-    
-    if movie.filename: 
-        moviefile = movie.filename
-    else:
-        msg = redmsg("Can't create movie.  Empty filename.")
-        history.message(msg)
-        return -1
-        
-    # Check that the moviefile has a valid extension.
-    ext = moviefile[-4:]
-    if ext not in ['.dpb', '.xyz']:
-        # Don't recognize the moviefile extension.
-        msg = redmsg("Movie [" + moviefile + "] has unsupported extension.")
-        history.message(msg)
-        print "writeMovie: " + msg
-        return -1
-
-    # We always save the current part to an MMP file before starting
-    # the simulator.  In the future, we may want to check if assy.filename
-    # is an MMP file and use it if not assy.has_changed().
-    # [bruce 050324 comment: our wanting this is unlikely, and becomes more so as time goes by,
-    #  and in any case would only work for the main Part (assy.tree.part).]
-    mmpfile = os.path.join(tmpFilePath, "sim-%d.mmp" % pid)
-    
-    # The trace file saves the simulation parameters and the output data for jigs.
-    # Mark 2005-03-08
-    if mflag: 
-        # We currently don't need to write a tracefile when minimizing the part (mflag != 0).
-        # [bruce comment 050324: but soon we will, to know better when the xyz file is finished or given up on. ###@@@]
-        traceFile = ""
-    else:
-        # The trace filename will be the same as the movie filename, but with "-trace.txt" tacked on.
-        traceFile = "-q" + movie.get_trace_filename()
-
-    # This was the old tracefile - obsolete as of 2005-03-08 - Mark
-#    traceFile = "-q"+ os.path.join(tmpFilePath, "sim-%d-trace.txt" % pid) 
-
-    # filePath = the current directory NE-1 is running from.
-    filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-         
-    # "program" is the full path to the simulator executable. 
-    if sys.platform == 'win32': 
-        program = os.path.normpath(filePath + '/../bin/simulator.exe')
-    else:
-        program = os.path.normpath(filePath + '/../bin/simulator')
-    
-    # Make sure the simulator exists
-    if not os.path.exists(program):
-        msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
-        history.message(msg)
-        return -1
-
-    # Change cursor to Wait (hourglass) cursor
-    ##Huaicai 1/10/05, it's more appropriate to change the cursor
-    ## for the main window, not for the progressbar window
-    QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-    #oldCursor = QCursor(win.cursor())
-    #win.setCursor(QCursor(Qt.WaitCursor) )
-
-    try: #bruce 050325 added this, to always restore cursor
-
-        outfile = "-o"+moviefile
-        infile = mmpfile
-
-        # "formarg" = File format argument
-        if ext == ".dpb": formarg = ''
-        else: formarg = "-x"
-        
-        # "args" = arguments for the simulator.
-        if mflag: 
-            args = [program, '-m', str(formarg), traceFile, outfile, infile]
-        else: 
-            # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
-            # The timestep argument "-s + (movie.timestep)" is not supported for Alpha.
-            args = [program, 
-                        '-f' + str(movie.totalFramesRequested),
-                        '-t' + str(movie.temp), 
-                        '-i' + str(movie.stepsper), 
-                        '-r',
-                        str(formarg),
-                        traceFile,
-                        outfile,
-                        infile]
-
-        # Tell user we're creating the movie file...
-    #    msg = "Creating movie file [" + moviefile + "]"
-    #    history.message(msg)
-
-        if movie.alist_fits_entire_part:
-            part.writemmpfile( mmpfile)
-        else:
-            assert 0 # can't yet happen (until minimize selection) and won't yet work 
-            # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
-            # But beware, this might only be ok right away for minimize, not simulate (since for sim it has to write all jigs as well).
-            write_mmpfile_for_sim( movie.alist, mmpfile) ###e new func below? won't yet work for clips with jigs, i think...
-
-##        # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR writemovie()!
-##        # writemmp must come before computing "natoms".  This ensures that writemovie
-##        # will work when creating a movie for a file without an assy.alist.  Examples of this
-##        # situation include:
-##        # 1)  The part is a PDB file.
-##        # 2) We have chunks, but no assy.alist.  This happens when the user opens a 
-##        #      new part, creates something and simulates before saving as an MMP file.
-##        # 
-##        # I do not know if it was intentional, but assy.alist is not created until an mmp file 
-##        # is created.  We are simply taking advantage of this "feature" here.
-##        # - Mark 050106
-##
-##    ##    writemmp(assy, mmpfile, False) ###@@@ this should be the Part in this function, not assy -- will be changed.
-
-        movie.natoms = natoms = len(movie.alist)
-        ###@@@ why does that trash a movie param? who needs that param? it's now redundant with movie.alist
-                        
-        # We cannot determine the exact final size of an XYZ trajectory file.
-        # This formula is an estimate.  "filesize" must never be larger than the
-        # actual final size of the XYZ file, or the progress bar will never hit 100%,
-        # even though the simulator finished writing the file.
-        # - Mark 050105 
-        if formarg == "-x":
-            # Single shot minimize.
-            if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
-                filesize = natoms * 16 # single-frame xyz filesize (estimate)
-                pbarCaption = "Minimize"
-                pbarMsg = "Minimizing..."
-            # Write XYZ trajectory file.
-            else:
-                filesize = movie.totalFramesRequested * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
-                pbarCaption = "Save File"
-                pbarMsg = "Saving XYZ trajectory file " + os.path.basename(moviefile) + "..."
-        else: 
-            # Multiframe minimize
-            if mflag:
-                filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
-                pbarCaption = "Minimize"
-            # Simulate
-            else:
-                filesize = (movie.totalFramesRequested * natoms * 3) + 4
-                pbarCaption = "Simulator"
-                pbarMsg = "Creating movie file " + os.path.basename(moviefile) + "..."
-                msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
-                        + ", Steps per Frame: " + str(movie.stepsper)\
-                        + ", Temperature: " + str(movie.temp)
-                history.message(msg)
-
-        # We can't overwrite an existing moviefile, so delete it if it exists.
-        if os.path.exists(moviefile):
-            print "movie.isOpen =",movie.isOpen
-            if movie.isOpen: 
-                print "closing moviefile"
-                movie.fileobj.close()
-                movie.isOpen = False
-                print "writemovie(): movie.isOpen =", movie.isOpen
-            
-            print "deleting moviefile: [",moviefile,"]"
-            os.remove (movie.filename) # Delete before spawning simulator.
-
-        # These are useful when debugging the simulator.     
-        print  "program = ",program
-        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
-        
-        arguments = QStringList()
-        for arg in args:
-            arguments.append(arg)
-        
-        simProcess = None    
-        try:
-            ## Start the simulator in a different process 
-            simProcess = QProcess()
-            simProcess.setArguments(arguments)
-            simProcess.start()
-            
-            # Launch the progress bar. Wait until simulator is finished
-            r = win.progressbar.launch( filesize,
-                            moviefile, 
-                            pbarCaption, 
-                            pbarMsg, 
-                            1)
-            
-        except: # We had an exception.
-            print_compact_traceback("exception in simulation; continuing: ")
-            if simProcess:
-                #simProcess.tryTerminate()
-                simProcess.kill()
-                simProcess = None
-            
-            r = -1 # simulator failure
-
-    except: #bruce 050325
-        print_compact_traceback("bug in simulator-calling code: ")
-        r = -11111
-        
-    QApplication.restoreOverrideCursor() # Restore the cursor
-    #win.setCursor(oldCursor)
-        
-    if not r: return r # Main return
-        
-    if r == 1: # User pressed Abort button in progress dialog.
-        msg = redmsg("Simulator: Aborted.")
-        history.message(msg)         
-        
-        ##Tries to terminate the process the nice way first, so the process
-        ## can do whatever clean up it requires. If the process
-        ## is still running after 2 seconds (a kludge). it terminates the 
-        ## process the hard way.
-        #simProcess.tryTerminate()
-        #QTimer.singleShot( 2000, simProcess, SLOT('kill()') )
-        
-        # The above does not work, so we'll hammer the process with SIGKILL.
-        # This works.  Mark 050210
-        simProcess.kill()
-        
-    else: # Something failed...
-        msg = redmsg("Simulation failed: exit code %r " % r)
-        history.message(msg)
-
-    return r # from writemovie
+    simrun = SimRunner( part, mflag) #e in future mflag should choose subclass (or caller should)
+    options = "not used i think"
+    simrun.run_using_old_movie_obj_to_hold_sim_params(movie, options, part)
+        # messes needing cleanup: part passed twice, once might be simaspect; options useless now
+    return simrun.errcode
 
 # ==
 
@@ -448,7 +648,7 @@ class simSetup_CommandRun(CommandRun):
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
         else:
             assert not movie
-            self.history.message("Cancelled.")
+            self.history.message("Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
         return
 
     def makeSimMovie(self, previous_movie): #####@@@@@@ some of this should be a Movie method since it uses attrs of Movie...
@@ -474,6 +674,7 @@ class simSetup_CommandRun(CommandRun):
         if not r: 
             # Movie file created. Initialize. ###@@@ bruce 050325 comment: following mods private attrs, needs cleanup.
             movie.IsValid = True # Movie is valid.###@@@ bruce 050325 Q: what exactly does this (or should this) mean?
+                ###@@@ bruce 050404: need to make sure this is a new obj-- if not always and this is not init False, will cause bugs
             movie.currentFrame = 0
             self.movie = movie # bruce 050324 added this
             # it's up to caller to store self.movie in self.assy.current_movie if it wants to.
@@ -503,7 +704,7 @@ class Minimize_CommandRun(CommandRun):
         self.win.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
             self.history.message(greenmsg("Minimize..."))
-            self.makeMinMovie(mtype = 1) # 1 = single-frame XYZ file.
+            self.makeMinMovie(mtype = 1) # 1 = single-frame XYZ file. [this also sticks results back into the part]
             #self.makeMinMovie(mtype = 2) # 2 = multi-frame DPB file.
         finally:
             self.win.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
@@ -533,6 +734,15 @@ class Minimize_CommandRun(CommandRun):
             # note that Movie class is misnamed since it's really a SimRunnerAndResultsUser... which might use .xyz or .dpb results
             # (maybe rename it SimRun? ###e also, it needs subclasses for the different kinds of sim runs and their results...
             #  or maybe it needs a subobject which has such subclasses -- not yet sure. [bruce 050329])
+
+        ## if minsel: pass
+            # minimize selection [bruce 050330] (ought to be a distinct command subclass...)
+            # this will use the spawning code in writemovie but has its own way of writing the mmp file.
+            # to make this clean, we need to turn writemovie into more than one method of a class
+            # with more than one subclass, so we can override one of them (writing mmp file)
+            # and another one (finding atom list). But to get it working I might just kluge it
+            # by passing it some specialized options... ###@@@ not sure
+            
         
         r = writemovie(self.part, movie, mtype) # write input for sim, and run sim
         if r:
