@@ -83,7 +83,8 @@ class motor:
         drawcylinder(col,self.center+5*self.axis,self.center-5*self.axis,
                      2.0, self.picked, 1)
         for a in self.atoms:
-            drawcylinder(col, self.center, a.xyz ,0.5, self.picked)
+            drawcylinder(col, self.center,
+                         a.molecule.atpos[a.index], 0.5, self.picked)
             
     # write on a povray file
     def povwrite(self, file, dispdef):
@@ -192,7 +193,8 @@ class LinearMotor:
         glPopMatrix()
 
         for a in self.atoms:
-            drawcylinder(col, self.center, a.xyz ,0.15, self.picked)
+            drawcylinder(col, self.center,
+                         a.molecule.atpos[a.index], 0.15, self.picked)
             
     # write on a povray file
     def povwrite(self, file, dispdef):
@@ -235,7 +237,7 @@ class ground:
         col=(0, 0, 0)
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
-            drawwirecube(col, a.xyz, rad)
+            drawwirecube(col, a.molecule.atpos[a.index], rad)
             
     # write on a povray file
     def povwrite(self, file, dispdef):

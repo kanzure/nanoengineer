@@ -1,8 +1,8 @@
 #! /usr/bin/python
 
-"""The MERI Atom!  Molecular CAD and simulation system.
+"""Atom
 
-Proud progenitor of Nanorex's Diamond Age.
+142C41+
 
 """
 
@@ -13,7 +13,7 @@ from qt import QApplication, SIGNAL
 
 from constants import *
 
-from form1 import Form1
+from MWsemantics import MWsemantics
 
 ##############################################################################
 
@@ -33,7 +33,7 @@ if __name__=='__main__':
     app=QApplication(sys.argv)
     app.connect(app,SIGNAL("lastWindowClosed ()"),app.quit)
 
-    foo = Form1()
+    foo = MWsemantics()
     app.connect(foo.fileExitAction, SIGNAL("activated()"), app.quit)
     
     foo.show()

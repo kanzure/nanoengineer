@@ -11,8 +11,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-from drawer import drawsphere, drawcylinder, drawline, drawaxes
-from drawer import segstart, drawsegment, segend, drawwirecube, drawwirebox
+from drawer import *
 from shape import *
 
 from constants import *
@@ -202,7 +201,9 @@ class atom:
         """return the absolute position of the atom in space,
         by calculating rotation and translation offset from molecule
         """
-        p=dot(self.molecule.quat.matrix3, self.xyz)
+        if self.xyz != 'no': p=self.xyz
+        else: p=self.molecule.atpos[self.index]
+        p=dot(self.molecule.quat.matrix3, p)
         return p + self.molecule.center
 
     def __repr__(self):
@@ -226,7 +227,7 @@ class atom:
         """
         color = col or self.element.color
         disp, rad = self.howdraw(dispdef)
-        pos = self.xyz
+        pos = self.molecule.atpos[self.index]
         if disp in [diVDW, diCPK]:
             drawsphere(color, pos, rad, level, self.picked)
         if disp == diTUBES:
@@ -294,7 +295,8 @@ class atom:
         """create a copy of the atom
         (to go in numol, a copy of its molecule)
         """
-        nuat = atom(self.element.symbol, self.xyz, numol)
+        nuat = atom(self.element.symbol, 'no', numol)
+        nuat.index = self.index
         return nuat
 
     def unbond(self, b):
@@ -332,6 +334,7 @@ class atom:
         (e.g. 'Oxygen')
         """
         self.element = elt
+        for b in self.bonds: b.setup()            
         self.molecule.changeapp()
 
     def kill(self):
@@ -351,7 +354,7 @@ class atom:
         if not self.element == Singlet: return
         o = self.bonds[0].other(self)
         self.mvElement(Hydrogen)
-        self.xyz += Hydrogen.rcovalent * norm(self.xyz - o.xyz)
+        self.molecule.atpos[self.index] += Hydrogen.rcovalent * norm(self.molecule.atpos[self.index] - o.molecule.atpos[o.index])
 
 class bondtype:
     """not implemented
@@ -379,10 +382,28 @@ class bond:
         self.picked = 0
         self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key)
 
+    def setup(self):
+        self.a1pos = self.atom1.molecule.atpos[self.atom1.index]
+        self.a2pos = self.atom2.molecule.atpos[self.atom2.index]
+        if self.atom1.molecule != self.atom2.molecule:
+            self.a1pos = self.atom1.posn()
+            self.a2pos = self.atom2.posn()
+
+        vec = self.a2pos - self.a1pos
+        len = 0.98 * vlen(vec)
+        vec = norm(vec)
+        self.c1 = self.a1pos + vec*self.atom1.element.rcovalent
+        self.c2 = self.a2pos - vec*self.atom2.element.rcovalent
+        if len > self.atom1.element.rcovalent + self.atom2.element.rcovalent:
+            self.center = None
+        else:
+            self.center = (self.c1 + self.c2) /2.0
+        
+
     def __eq__(self, ob):
         return ob.key == self.key
 
-    def draw(self, win, dispdef, col, ext = 0):
+    def draw(self, win, dispdef, col):
         """bonds are drawn in CPK or line display mode.
         display mode is inherited from the atoms or molecule.
         lines change color from atom to atom.
@@ -392,23 +413,21 @@ class bond:
         color1 = col or self.atom1.element.color
         color2 = col or self.atom2.element.color
 
-        a1pos = self.atom1.xyz
-        a2pos = self.atom2.xyz
-        if ext:
-            a1pos = self.atom1.posn()
-            a2pos = self.atom2.posn()
-
         disp=max(self.atom1.display, self.atom2.display)
         if disp == diDEFAULT: disp= dispdef
         if disp == diLINES:
-            drawline(color1, a1pos, color2, a2pos)
+            drawline(color1, self.a1pos, color2, self.a2pos)
         if disp == diCPK:
-            drawcylinder(col or bondColor, a1pos, a2pos, 0.1, self.picked)
+            drawcylinder(col or bondColor, self.a1pos, self.a2pos,
+                         0.1, self.picked)
         if disp == diTUBES:
-            center = (a1pos + a2pos) / 2.0
-            drawcylinder(color1, a1pos, center, TubeRadius)
-            drawcylinder(color2, a2pos, center, TubeRadius)
-            
+            if self.center:
+                drawcylinder(color1, self.a1pos, self.center, TubeRadius)
+                drawcylinder(color2, self.a2pos, self.center, TubeRadius)
+            else:
+                drawcylinder(color1, self.a1pos, self.c1, TubeRadius)
+                drawcylinder(red, self.c1, self.c2, TubeRadius)
+                drawcylinder(color2, self.a2pos, self.c2, TubeRadius)
 
     def povwrite(self, file, dispdef, col):
         disp=max(self.atom1.display, self.atom2.display)
@@ -447,8 +466,6 @@ class molecule:
         self.gadgets = []
         # center and bounding box of the molecule
         self.center=V(0,0,0)
-        self.bboxhi=V(0,0,0)
-        self.bboxlo=V(0,0,0)
         # this overrides global display (GLPane.display)
         # but is overriden by atom value if not default
         self.display = diDEFAULT
@@ -477,31 +494,47 @@ class molecule:
         """Find center and bounding box for atoms, and set each one's
         xyz to be relative to the center and find principal axes
         """
-        self.bboxhi=V(-1000,-1000,-1000)
-        self.bboxlo=V(1000,1000,1000)
-        totpos = V(0,0,0)
-        for a in self.atoms.itervalues():
-            a.xyz = a.posn()
-            totpos += a.xyz
-            self.bboxhi = maximum(self.bboxhi, a.xyz)
-            self.bboxlo = minimum(self.bboxlo, a.xyz)
-        self.bboxhi += 1.5
-        self.bboxlo -= 1.5
-        self.center = totpos/len(self.atoms)
-        self.bboxhi -= self.center
-        self.bboxlo -= self.center
+        atpos = []
+        for a,i in zip(self.atoms.values(),range(len(self.atoms))):
+            atpos += [a.posn()]
+            a.index = i
+            a.xyz = 'no'
+        atpos = A(atpos)
+        self.bbox = BBox(atpos)
+        self.center = add.reduce(atpos)/len(self.atoms)
+        self.quat = Q(1,0,0,0)  # since all atoms are in place 
+
         # make the positions relative to the center
+        self.atpos = atpos-self.center
         # and compute inertia tensor
         tensor = zeros((3,3),Float)
-        for a in self.atoms.itervalues():
-            a.xyz -= self.center
-            rsq = dot(a.xyz, a.xyz)
-            m= - multiply.outer(a.xyz, a.xyz)
+        for p in self.atpos:
+            rsq = dot(p, p)
+            m= - multiply.outer(p, p)
             m[0,0] += rsq
             m[1,1] += rsq
             m[2,2] += rsq
             tensor += m
         self.eval, self.evec = eigenvectors(tensor)
+
+        # find a tight bounding box, not necessarily square to space,
+        # for drawing the pick box
+        bv = transpose(self.evec)
+        pts = dot(self.atpos, bv)
+        
+        bbhi = maximum.reduce(pts) + 1.0
+        bblo = minimum.reduce(pts) - 1.0
+        c = (bbhi+bblo)/2.0
+
+        self.bbLines = dot(cubeLines*(bbhi-c) + c, self.evec)
+        
+##         self.pickcent = c[0]*self.evec[0]+c[1]*self.evec[1]+c[2]*self.evec[2]
+##         self.pickscale = (bbhi-bblo)/2.0
+##         # watch out for left-handed spaces
+
+##         v= self.evec[0], self.evec[1], cross(self.evec[0], self.evec[1])
+
+##         self.pickquat = Q(v[0], v[1], v[2])
 
         # Pick a principal axis: if square or circular, the axle;
         # otherwise the long axis (this is a heuristic)
@@ -511,6 +544,20 @@ class molecule:
         else: self.axis = self.evec[ug[0]]
             
         # may have changed appearance of the molecule
+
+        drawn = {}
+
+        self.externs = []
+
+        for atm in self.atoms.itervalues():
+            for bon in atm.bonds:
+                if bon.key not in drawn:
+                    if bon.other(atm).molecule != self:
+                        self.externs += [bon]
+                    else:
+                        drawn[bon.key] = bon
+                        bon.setup()
+
         self.havelist = 0
         
 
@@ -522,7 +569,6 @@ class molecule:
         If the molecule itself is selected, draw its
         bounding box as a wireframe
         """
-
         # put it in its place
         glPushMatrix()
 
@@ -531,7 +577,10 @@ class molecule:
         q = self.quat
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
 
-
+        if self.picked:
+            #drawbrick(self.pickcent, self.pickscale, self.pickquat, PickedColor)
+            drawlinelist(PickedColor, self.bbLines)
+            
         if self.display != diDEFAULT: disp = self.display
         else: disp = win.display
         
@@ -556,8 +605,6 @@ class molecule:
                             drawn[bon.key] = bon
                             bon.draw(win, disp, self.color)
 
-            if self.picked:
-                drawwirebox(PickedColor, V(0,0,0), self.bboxhi)
 
             for g in self.gadgets:
                 g.draw(win, disp)
@@ -567,7 +614,7 @@ class molecule:
         glPopMatrix()
 
         for bon in self.externs:
-            bon.draw(win, disp, self.color, 1)
+            bon.draw(win, disp, self.color)
 
     # write a povray file: just draw everything inside
     def povwrite(self,file, win):
@@ -588,9 +635,11 @@ class molecule:
 
     def move(self, offs):
         self.center += offs
+        for bon in self.externs: bon.setup()
 
     def rot(self, q):
         self.quat += q
+        for bon in self.externs: bon.setup()
 
     def getaxis(self):
         return self.quat.rot(self.axis)
@@ -639,10 +688,11 @@ class molecule:
             ndix[a.key] = na
         for (a, na) in pairlis:
             for b in a.bonds:
-                numol.bond(na,ndix[b.other(a).key])
+                if b.other(a).key in ndix:
+                    numol.bond(na,ndix[b.other(a).key])
         numol.center=self.center + offset
-        numol.bboxhi=self.bboxhi
-        numol.bboxlo=self.bboxlo
+        numol.atpos =self.atpos+0.0
+        numol.shakedown()
         numol.display = self.display
         self.unpick()
         numol.pick()

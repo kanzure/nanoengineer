@@ -7,7 +7,7 @@ onto a sphere, tracking the cursor on the sphere.
 """
 
 import math, types
-from math import acos, sin, cos, sqrt, pi
+from math import *
 from Numeric import *
 
 intType = type(2)
@@ -29,6 +29,7 @@ def norm(v1):
     if lng: return v1 / vlen(v1)
     else: return v1+0
 
+
 # p1 and p2 are points, v1 is a direction vector from p1.
 # return (dist, wid) where dist is the distance from p1 to p2
 #  measured in the direction of v1, and wid is the orthogonal
@@ -43,12 +44,37 @@ class Q:
     """Q(W, x, y, z) is the quaternion with axis vector x,y,z
     and sin(theta/2) = W
     (e.g. Q(1,0,0,0) is no rotation)
+    Q(x, y, z) where x, y, and z are three orthonormal vectors
+    is the quaternion that rotates the standard axes into that
+    reference frame. (the frame has to be right handed, or there's
+    no quaternion that can do it!)
     Q(V(x,y,z), theta) is what you probably want.
     Q(vector, vector) gives the quat that rotates between them
     """
     def __init__(self, x, y=None, z=None, w=None):
         # 4 numbers
         if w != None: self.vec=V(x,y,z,w)
+        elif z: # three axis vectors
+            # Just use first two
+            a100 = V(1,0,0)
+            c1 = cross(a100,x)
+            if vlen(c1)<0.000001:
+                self.vec = Q(y,z).vec
+                return
+            ax1 = norm((a100+x)/2.0)
+            x2 = cross(ax1,c1)
+            a010 = V(0,1,0)
+            c2 = cross(a010,y)
+            if vlen(c2)<0.000001:
+                self.vec = Q(x,z).vec
+                return
+            ay1 = norm((a010+y)/2.0)
+            y2 = cross(ay1,c2)
+            axis = cross(x2, y2)
+            nw = sqrt(1.0 + x[0] + y[1] + z[2])/2.0
+            axis = norm(axis)*sqrt(1.0-nw**2)
+            self.vec = V(nw, axis[0], axis[1], axis[2])
+            
         elif type(y) in numTypes:
             # axis vector and angle
             v = (x / vlen(x)) * sin(y*0.5)

@@ -43,13 +43,29 @@ class BBox:
         self.data = V(maximum.reduce(vl), minimum.reduce(vl))
 
     def merge(self, bbox):
-        self.add(bbox.data)
+        if self.data and bbox.data: self.add(bbox.data)
+        else: self.data = bbox.data
 
     def draw(self):
         if self.data:
             drawwirebox(black,add.reduce(self.data)/2,
                         subtract.reduce(self.data)/2)
 
+    def center(self):
+        if self.data: return add.reduce(self.data)/2.0
+        else: return V(0,0,0)
+
+    def isin(self, pt):
+        return (minimum(pt,self.data[1]) == self.data[1] and
+                maximum(pt,self.data[0]) == self.data[0])
+
+    def scale(self):
+        if not self.data: return 10.0
+        return 1.2*maximum.reduce(subtract.reduce(self.data))
+
+    def copy(self, offset=None):
+        if offset: return BBox(self.data[0]+offset, self.data[1]+offset)
+        return BBox(self.data[0], self.data[1])
 
 class Slab:
     """ defines a slab in space which can tell you if a point is in the slab

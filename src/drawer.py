@@ -323,3 +323,44 @@ def drawrectangle(pt1, pt2, rt, up, color):
     glEnd()
     glEnable(GL_LIGHTING)
     
+def drawbrick(pos, len, q, color):
+    glPolygonMode(GL_FRONT, GL_LINE)
+    glPolygonMode(GL_BACK, GL_LINE)
+    glDisable(GL_LIGHTING)
+    glDisable(GL_CULL_FACE)
+    glColor3fv(color)
+    glPushMatrix()
+    glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+    glTranslatef(pos[0], pos[1], pos[2])
+    glScale(len[0], len[1], len[2])
+    glCallList(CubeList)
+    glPopMatrix()
+    glEnable(GL_CULL_FACE)
+    glEnable(GL_LIGHTING)
+    glPolygonMode(GL_FRONT, GL_FILL)
+    
+def drawlinelist(color,lines):
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    glBegin(GL_LINES)
+    for v in lines:
+        glVertex3fv(v)
+    glEnd()
+    glEnable(GL_LIGHTING)
+
+cubeLines = A([[-1,-1,-1], [-1,-1, 1],
+               [-1, 1,-1], [-1, 1, 1],
+               [ 1,-1,-1], [ 1,-1, 1],
+               [ 1, 1,-1], [ 1, 1, 1],
+               
+               [-1,-1,-1], [-1, 1,-1],
+               [-1,-1, 1], [-1, 1, 1],
+               [ 1,-1,-1], [ 1, 1,-1],
+               [ 1,-1, 1], [ 1, 1, 1],
+               
+               [-1,-1,-1], [ 1,-1,-1],
+               [-1,-1, 1], [ 1,-1, 1],
+               [-1, 1,-1], [ 1, 1,-1],
+               [-1, 1, 1], [ 1, 1, 1]])
+
+               

@@ -29,8 +29,7 @@ class assembly:
         # control for browsing/managing the list
         global assyList
         assyList += [self]
-        # the Form1's displaying this assembly. 
-        # breaks currently if there is more than 1!
+        # the MWsemantics's displaying this assembly. 
         self.windows = [win]
         # list of chem.molecule's
         self.molecules=[]
@@ -41,8 +40,7 @@ class assembly:
         # the name if any
         self.name = nm or gensym("Assembly")
         # to be shrunk, see addmol
-        self.bboxhi=V(-1000,-1000,-1000)
-        self.bboxlo=V(1000,1000,1000)
+        self.bbox = BBox()
         self.center=V(0,0,0)
         # dictionary of selected atoms (indexed by atom.key)
         self.selatoms={}
@@ -61,9 +59,8 @@ class assembly:
 
     def addmol(self,mol):
         mol.shakedown()
-        self.bboxhi = maximum(self.bboxhi, mol.bboxhi+mol.center)
-        self.bboxlo = minimum(self.bboxlo, mol.bboxlo+mol.center)
-        self.center = (self.bboxhi+self.bboxlo)/2
+        self.bbox.merge(mol.bbox)
+        self.center = self.bbox.center()
         self.molecules += [mol]
 
         self.setDrawLevel()
@@ -81,7 +78,6 @@ class assembly:
 
 
     # to draw, just draw everything inside
-    ## get the number of atoms to decide what detail level of subdivison we'll use
     def draw(self, win):
 
         for mol in self.molecules:
@@ -275,7 +271,7 @@ class assembly:
         if not self.alist: return
         for a in self.alist:
             #print unpack('bbb',file.read(3))
-            a.xyz += A(unpack('bbb',file.read(3)))*0.01
+            a.molecule.atpos[a.index] += A(unpack('bbb',file.read(3)))*0.01
         for m in self.molecules:
             m.changeapp()
 
@@ -445,15 +441,12 @@ class assembly:
     # copy any selected parts (molecules)
     def copy(self):
         if self.selmols:
-            offset = self.bboxhi-self.bboxlo
+            offset = V(10.0, 10.0, 10.0)
             nulist=[]
             for mol in self.selmols[:]:
                 numol=mol.copy(offset)
                 nulist += [numol]
                 self.molecules += [numol]
-                self.bboxhi = maximum(self.bboxhi, numol.bboxhi+numol.center)
-                self.bboxlo = minimum(self.bboxlo, numol.bboxlo+numol.center)
-            self.center = (self.bboxhi+self.bboxlo)/2
 
     # move any selected parts in space ("move" is an offset vector)
     def movesel(self, move):
@@ -508,8 +501,8 @@ class assembly:
     def Stretch(self):
         if not self.selmols: return
         for m in self.selmols:
-            for a in m.atoms.itervalues():
-                a.xyz *= 1.1
+            m.atpos *= 1.1
+            m.shakedown()
             m.changeapp()
         self.updateDisplays()
     

@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
         self.frame4.setSizePolicy(QSizePolicy(3,3,0,0,False))
         self.frame4.setFrameShape(QFrame.NoFrame)
         self.frame4.setFrameShadow(QFrame.Plain)
-        frame4Layout = QHBoxLayout(self.frame4,0,0,"frame4Layout")
+        self.frame4Layout = QHBoxLayout(self.frame4,0,0,"frame4Layout")
 
         self.groupBox1 = QGroupBox(self.frame4,"groupBox1")
         self.groupBox1.setSizePolicy(QSizePolicy(0,7,0,244,False))
@@ -444,7 +444,7 @@ class MainWindow(QMainWindow):
         self.helpAboutAction.addTo(self.helpMenu)
         self.MenuBar.insertItem(self.trUtf8("&Help"),self.helpMenu)
         
-        frame4Layout.addWidget(self.groupBox1)
+        self.frame4Layout.addWidget(self.groupBox1)
 
         #self.glpane = GLPane(self.assy, self.frame4, "glpane", self)
 
@@ -765,6 +765,7 @@ class MainWindow(QMainWindow):
 
     # create bonds where reasonable within selection
     def movie(self):
+        pass
 
     # create bonds where reasonable between selected and unselected
     def bondEdge(self):
@@ -772,6 +773,7 @@ class MainWindow(QMainWindow):
 
     # (stolen button) turn on or off the axis icon
     def ubondAll(self):
+        pass
 
     # break bonds between selected and unselected atoms
     def ubondEdge(self):

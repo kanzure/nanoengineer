@@ -5,6 +5,7 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from OpenGL.GLE import *
 import math
+from LinearAlgebra import *
 
 import os,sys
 from time import time
@@ -14,7 +15,9 @@ from shape import *
 from assembly import *
 import re
 from constants import *
-from modes import *
+from modifyMode import *
+from cookieMode import *
+from selectMode import *
 
 import Image
 import operator
@@ -72,7 +75,7 @@ class GLPane(QGLWidget):
     """Mouse input and graphics output in the main view window.
     """
 
-    def __init__(self, assem, master=None, name=None, form1=None):
+    def __init__(self, assem, master=None, name=None, win=None):
         QGLWidget.__init__(self,master,name)
         global paneno
         self.name = str(paneno)
@@ -129,8 +132,7 @@ class GLPane(QGLWidget):
 
         drawer.setup()
 
-        self.scm = form1.selectMenu
-        self.form1 = form1
+        self.win = win
 
         # set up the interaction mode
         self.modetab={}
@@ -316,20 +318,6 @@ class GLPane(QGLWidget):
         return (p1, p2)
 
 
-    def StartSelRot(self, event):
-        """Setup a trackball action on each selected part.
-        """
-        self.SaveMouse(event)
-        self.trackball.start(self.MousePos[0],self.MousePos[1])
-
-    def SelRotate(self, event):
-        """Do an incremental trackball action on each selected part.
-        """
-        self.SaveMouse(event)
-        q = self.trackball.update(self.MousePos[0],self.MousePos[1], self.quat)
-        self.assy.rotsel(q)
-        self.assy.updateDisplays()
-
     def SaveMouse(self, event):
         """Extracts mouse position from event and saves it.
         (localizes the API-specific code for extracting the info)
@@ -400,6 +388,7 @@ class GLPane(QGLWidget):
         glTranslatef(0.0, 0.0, - vdist)
 
         q = self.quat
+        
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
 
         glTranslatef(self.pov[0], self.pov[1], self.pov[2])
@@ -442,85 +431,6 @@ class GLPane(QGLWidget):
         self.trackball.rescale(width, height)
         self.paintGL()
 
-    #################
-        # UI fns
-    #################
-
-    # functions from the "Display" menu
-
-    # this will pop up a new window onto the same assembly
-    def dispNewView(self):
-        foo = Form1()
-        foo.assy = foo.glpane.assy = self.assy
-        foo.assy.windows += [foo]
-        foo.glpane.scale=self.glpane.scale
-        for mol in foo.glpane.assy.molecules:
-            mol.changeapp()
-        foo.show()
-        self.assy.updateDisplays()
-	
-
-    # GLPane.ortho is checked in GLPane.paintGL
-    def dispOrtho(self):
-        self.ortho = 1
-        self.paintGL()
-
-    def dispPerspec(self):
-        self.ortho = 0
-        self.paintGL()
-
-    # set display formats in whatever is selected,
-    # or the GLPane global default if nothing is
-    def dispDefault(self):
-        self.setdisplay(diDEFAULT)
-
-    def dispInvis(self):
-        self.setdisplay(diINVISIBLE)
-
-    def dispVdW(self):
-        self.setdisplay(diVDW)
-
-    def dispCPK(self):
-        self.setdisplay(diCPK)
-
-    def dispTubes(self):
-        self.setdisplay(diTUBES)
-
-    def dispLines(self):
-        self.setdisplay(diLINES)
-
-    def setdisplay(self, form):
-        if self.assy.selatoms:
-            for ob in self.assy.selatoms.itervalues():
-                ob.display = form
-                ob.molecule.changeapp()
-            self.assy.updateDisplays()
-        elif self.assy and self.assy.selmols:
-            for ob in self.assy.selmols:
-                ob.display = form
-                ob.changeapp()
-            self.assy.updateDisplays()
-        else:
-            if self.display == form: return
-            self.display = form
-            for ob in self.assy.molecules:
-                if ob.display == diDEFAULT:
-                    ob.changeapp()
-            self.paintGL()
-        
-
-    # set the color of the selected part(s) (molecule)
-    # or the background color if no part is selected.
-    # atom colors cannot be changed singly
-    def dispColor(self):
-        c = self.colorchoose()
-        if self.assy and self.assy.selmols:
-            for ob in self.assy.selmols:
-                ob.setcolor(c)
-            self.assy.updateDisplays()
-        else: self.mode.backgroundColor = c
-        self.paintGL()
-        
 
 
     def xdump(self):
