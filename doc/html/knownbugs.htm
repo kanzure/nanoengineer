@@ -25,87 +25,77 @@ class=style5>&reg;</SPAN></H1>
 <DIV id=contentBody>
   <H3>All Platforms</H3>
   <P>The following list of bugs applies to all platforms.</P>
-  <OL>
-    <LI>
-      <P>Delete operation cannot be undone. In fact, Undo/Redo are not implemented yet. SAVE YOUR WORK OFTEN!</P>
-    <LI>
-      <P>If you select the part icon (top icon in the model tree) and hit the delete key (or click Delete), the entire part will be deleted without asking the user for confirmation. (147) </P>
-    <LI>
-      <P>Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results.</P>
-    <LI>
-      <P>Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list.</P>
-    <LI>
-      <P>Dragging and dropping items onto a group folder places them at the bottom of the group, not the top. </P>
-    <LI>
-      <P>The front clipping plane will sometimes clip objects that should not be clipped.</P>
-    <LI>
-      <P>Align to common axis averages the axis vectors of the participating chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks.(187)</P>
-    <LI>
-      <P>Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message (215)</P>
-    <LI>
-      <P>After drawing a 'cookie' in the cookie cutter, if the orientation view is changed and then any new cookie drawn will be placed at a wrong location. Thus, the user should not change the views while in the cookie cutter. (236)</P>
-    <LI>
-      <P>User can not save exclusive features of nanoENGINEER-1 into the PDB file format. nanoENGINEER-1 doesn't give any warning message for users trying to save such features in a .pdb file. (252)</P>
-    <LI>
-      <P>There is a display bug associated with a cut operation on a chunk. It stretches the interchunk bond and keeps bonded portion of cut chunk visible. </P>
-    <LI>
-      <P>Extrude Mode's 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: </P>
-      <OL type=a>
-        <LI>
-          <P>Get everything adjusted first in the 'rod mode'. For example, adjust the number of copies (N), check boxes on the dashboard about the final product and the way you want bonding between chunks to form. </P>
-        <LI>
-          <P>Then you may switch to "Rod Mode" by selecting <STRONG>ring</STRONG> from the <STRONG>rod</STRONG> pulldown menu on the dashboard. While viewing the ring, you may increase the number of copies. </P>
-        <LI>
-          <P>If you need to do any further adjustments, switch back to "Rod Mode", make changes and switch back to the "Ring Mode". </P>
-        <LI>
-          <P>Select the 'Done' button on the dashboard when finished. (155) </P>
-        </LI>
-      </OL>
-    <LI>
-      <P>When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)</P>
-    <LI>The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at <A 
-href="http://www.nanorex.com/mmpformat.htm">www.nanorex.com/mmpformat.htm</A> </LI>
-  </OL>
-  <P>The following list of unsupported features applies to all platforms.</P>
-  <OL>
-    <LI>
-      <P>Undo/Redo.</P>
-    <LI>
-      <P>When moving a chunk, any rotary and/or linear motors attached to it will not move with the chunk. (166) </P>
-    <LI>
-      <P>Cannot change color of individual atoms.(189)</P>
-    <LI>
-      <P>Can not move, translate or rotate a chunk in a precise manner (e.g. by editing the cartesian or cylindrical coordinates) (9)</P>
-    <LI>
-      <P>Reference axis is implemented but the reference planes for modeling purpose is not implemented yet. (47) </P>
-    <LI>
-      <P>Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. </P>
-    <LI>
-      <P>The 'Clipboard' has limitations and some bugs. </P>
-    <LI>
-      <P>Do not drag and drop anything between the model tree and the clipboard. </P>
-    <LI>The symmetry information for a selected chunk cannot be obtained. This is planned for future release of the software.(261) </LI>
-  </OL>
-  <H3>Windows Only </H3>
+  <ol>
+    <li> Delete operation cannot be undone. In fact, Undo/Redo are not implemented yet. SAVE YOUR WORK OFTEN!</li>
+    <li> If you select the part icon (top icon in the model tree) and hit the delete key (or click Delete), the entire part will be deleted without asking the user for confirmation. (147) </li>
+    <li> During Minimize, the progress bar will stay at 0% until the last moment, then jumps to 100% before hiding.</li>
+    <li> Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results.</li>
+    <li> Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list.</li>
+    <li> Dragging and dropping items onto a group folder places them at the bottom of the group, not the top. </li>
+    <li>Dragging and dropping items between the clipboard and model tree can sometimes have unexpected results. Use cut, copy and paste instead. </li>
+    <li> The front clipping plane will sometimes clip objects that should not be clipped.</li>
+    <li> Align to common axis averages the axis vectors of the selected chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks. (187)</li>
+    <li> Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215)</li>
+    <li> After drawing a 'cookie' in the cookie cutter, if the orientation view is changed and then any new cookie drawn will be placed at a wrong location. Thus, the user should not change the views while in the cookie cutter. (236)</li>
+    <li> User can not save exclusive features of nanoENGINEER-1 into the PDB file format. nanoENGINEER-1 doesn't give any warning message for users trying to save such features in a .pdb file. (252)</li>
+    <li> There is a display bug associated with a cut operation on a chunk. It stretches the interchunk bond and keeps bonded portion of cut chunk visible. If this happens, select the visible chunk and use &quot;Delete Bonds&quot; to remove the bonds between the two chunks. </li>
+    <li> Extrude Mode's 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps:
+        <ol type="a">
+          <li> Get everything adjusted first in the 'rod mode'. For example, adjust the number of copies (N), check boxes on the dashboard about the final product and the way you want bonding between chunks to form. </li>
+          <li> Then you may switch to &quot;Rod Mode&quot; by selecting <strong>ring</strong> from the <strong>rod</strong> pulldown menu on the dashboard. While viewing the ring, you may increase the number of copies. </li>
+          <li> If you need to do any further adjustments, switch back to &quot;Rod Mode&quot;, make changes and switch back to the &quot;Ring Mode&quot;. </li>
+          <li> Select the 'Done' button on the dashboard when finished. (155) </li>
+        </ol>
+    </li>
+    <li> When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)</li>
+    <li> The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at <a href="http://www.nanorex.com/mmpformat.htm">www.nanorex.com/mmpformat.htm</a></li>
+    <li>Rotary and Linear motors do not move with the chunks they are attached to. (168) </li>
+    <li>Cannot select a motor, ground, thermostat or thermometer in the GLpane. These may only be selected via the model tree. (6) </li>
+    <li>&quot;Select Doubly&quot; can take a long time without indication to the user that it is still working.</li>
+    <li>&quot;Hint Cursors&quot; can sometimes get stuck on. Pressing Shift or Cntl/Cmd will usually unstick the cursor. (113, 158)</li>
+    <li>Build Mode: The skull and crossbones cursor will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)</li>
+    <li>Cookie Mode: Changing views (Front, Top, Right, etc.) and then making a selection does not select properly. (236, 277) </li>
+    <li>Cookie Mode: Cannot change the thickness of the current layer once selection has started.</li>
+    <li>Cookie Mode: When adding a new layer, there is no visual cue indicating a new layer has started. (281) </li>
+    <li>Cookie Mode: Large selections can cause response latency.</li>
+    <li>Larger atoms can obscure open bonds when displayed in VdW mode. (258) </li>
+    <li>Movie Player: If you immediately select the Movie Player after Minimize, you will get the error message &quot;Movie file [/homedir/Nanorex/sim-PID#.xyz] not valid for the current part&quot;. </li>
+    <li>Simulator: The parameters in the simulator always reset to 900 frames, 10 steps per frame and 300K rather than the last parameters entered from the previous simulation run.</li>
+    <li>The Zoom Tool is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.</li>
+  </ol>
+  <p>&nbsp;</p>
+  <p><strong>The following list of unsupported features applies to all platforms.</strong></p>
+  <ol>
+    <li> Undo/Redo not implemented. </li>
+    <li> Cannot change color of individual atoms.(189)</li>
+    <li> Can not move, translate or rotate a chunk by editing its coordinates or providing an x, y, z offset. (9)</li>
+    <li> Datum objects (points, lines, and planes) are not implemented yet. (47) </li>
+    <li> Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. </li>
+    <li> The 'Clipboard' has limitations and some bugs. </li>
+    <li> Do not drag and drop anything between the model tree and the clipboard. </li>
+    <li>The symmetry information for a selected chunk cannot be obtained. (261)</li>
+    <li>sp and sp2 bonds are not supported.</li>
+    <li>aromatic bonds are not supported.</li>
+    <li>Bonds are not selectable.</li>
+  </ol>
+  <h3>&nbsp;</h3>
+  <h3>Windows Only </h3>
   <P>The following list applies to Win32 systems only.</P>
-  <OL>
-    <LI>
-      <P>In the Cookie Cutter, Shift+Left only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) </P>
-    <LI>
-      <P>During drag-and-drop, node icons are not shown in the cursor's drag object. </P>
-    </LI>
-  </OL>
-  <H3>Macintosh Only </H3>
+  <ol>
+    <li> In the Cookie Cutter, Shift+Left only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) </li>
+    <li> During drag-and-drop, node icons are not shown in the cursor's drag object. </li>
+  </ol>
+  <h3>&nbsp;</h3>
+  <h3>Macintosh Only </h3>
   <P>The following list applies to Macintosh only.</P>
-  <OL>
-    <LI>
-      <P>Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. </P>
-    </LI>
-  </OL>
-  <H3>Linux Only</H3>
-  <OL>
-    <LI>In the Cookie Cutter, Shift+Left deletes items outside the selection, but doesn't draw inside the lasso/ rectangle (190) </LI>
-  </OL>
+  <ol>
+    <li> Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. </li>
+  </ol>
+  <h3>&nbsp;</h3>
+  <h3>Linux Only</h3>
+  <ol>
+    <li> In the Cookie Cutter, Shift+Left deletes items outside the selection, but doesn't draw inside the lasso/ rectangle (190) </li>
+  </ol>
 </DIV>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
