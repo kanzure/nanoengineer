@@ -576,7 +576,7 @@ def writemovie(assy, moviefile, mflag = False):
         infile = '"%s"' % mmpfile
     else:
         outfile = "-o"+moviefile
-        infile = infile
+        infile = mmpfile
         
     print "infile = ",infile," outfile =",outfile
 
