@@ -70,13 +70,14 @@ class MWsemantics(MainWindow):
         
         windowList += [self]
         if name == None:
-            self.setName("Atom")
+            self.setName("nanoENGINEER-1") # Mark 11-05-2004
+#            self.setName("Atom") 
 
 	    # start with empty window 
         self.assy = assembly(self, "Empty")
         
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
-        self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.name + "]"))
+        self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
 
         # Create the splitter between glpane and the model tree
         splitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
@@ -221,7 +222,7 @@ class MWsemantics(MainWindow):
 
     def fileOpen(self):
         if self.assy.modified:
-            ret = QMessageBox.information( self, "Atom",
+            ret = QMessageBox.information( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before opening a new part?",
                 "&Save", "&Discard", "Cancel",
@@ -257,7 +258,7 @@ class MWsemantics(MainWindow):
             self.assy.filename = fn
             self.assy.modified = 0 # The file and the part are now the same
 
-            self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
+            self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
 
             #self.glpane.scale=self.assy.bbox.scale()
             #self.glpane.paintGL()
@@ -271,7 +272,7 @@ class MWsemantics(MainWindow):
                 fn = str(self.assy.filename)
                 dir, fil, ext = fileparse(fn)
                 writemmp(self.assy, dir + fil + ".mmp")
-                self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
+                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
                 self.assy.modified = 0 # The file and the part are now the same.
                 self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
             else: self.fileSaveAs()
@@ -337,7 +338,7 @@ class MWsemantics(MainWindow):
                     self.msgbarLabel.setText( "Problem saving file: " + dir + fil + ext )
                 else:
                     self.assy.modified = 0 # The file and the part are now the same.
-                    self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
+                    self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
                     self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
                     self.assy.modified = 0 # The file and the part are now the same.
                     self.assy.name = fil
@@ -348,7 +349,7 @@ class MWsemantics(MainWindow):
 
     def fileExit(self):
         if self.assy.modified:
-            ret = QMessageBox.information( self, "Atom",
+            ret = QMessageBox.information( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before exiting?",
                 "&Save", "&Discard", "Cancel",
@@ -366,7 +367,7 @@ class MWsemantics(MainWindow):
 
     def fileClose(self):
         if self.assy.modified:
-            ret = QMessageBox.information( self, "Atom",
+            ret = QMessageBox.information( self, self.name(),
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before closing this part?",
                 "&Save", "&Discard", "Cancel",
@@ -408,7 +409,7 @@ class MWsemantics(MainWindow):
     def __clear(self):
         # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Empty")
-        self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.name + "]"))
+        self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
         self.msgbarLabel.setText( " " )
         self.glpane.setAssy(self.assy)
         self.assy.mt = self.mt
@@ -858,19 +859,12 @@ class MWsemantics(MainWindow):
 
     def toolsCancel(self):
         self.glpane.mode.Flush()
-
-    # turn on and off an "add atom with a mouse click" mode
     
-    # [bruce 040927 wonders why there is code for two separate buttons
-    # for this...]
     def addAtomStart(self):
-        ##self.modebarLabel.setText( "Mode: Sketch Atoms" )
-        # bruce 040927 let mode control this
         self.pasteP = False
         self.glpane.setMode('DEPOSIT')
 
     def toolsAtomStart(self):
-        ##self.modebarLabel.setText( "Mode: Sketch Atoms" )
         self.pasteP = False
         self.glpane.setMode('DEPOSIT')
 
@@ -1042,7 +1036,7 @@ class MWsemantics(MainWindow):
         
     def setViewRecenter(self):
         """ Fit to Window """
-        QMessageBox.warning(self, "ATOM User Notice:",
+        QMessageBox.warning(self, self.name() + " User Notice:",
 	         "This function is not implemented yet, coming soon...")
 	         
 #######  Load Cursors #########################################
@@ -1215,4 +1209,3 @@ class MWsemantics(MainWindow):
     from whatsthis import createWhatsThis
 
     # end of class MWsemantics
-
