@@ -63,7 +63,7 @@ class StatProp(StatPropDialog):
     def reject(self):
 	    QDialog.reject(self)
 	    self.stat.color = self.stat.normcolor = self.stat.originalColor
-	    self.glpane.paintGL()
+	    self.glpane.gl_update()
 
     #################
     # Apply Button
@@ -80,7 +80,7 @@ class StatProp(StatPropDialog):
         self.stat.assy.changed()
         
         self.stat.color = self.stat.normcolor = self.newcolor        
-        self.glpane.paintGL()
+        self.glpane.gl_update()
         
         self.applyPushButton.setEnabled(False)
 	

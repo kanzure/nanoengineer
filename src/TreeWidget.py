@@ -176,6 +176,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         """
         #e should optim: this can call repaintGL redundantly
         # with win.win_update() [bruce 041220; is this still true? 050124]
+        # [later: is that a typo meaning paintGL? which is now called gl_update,
+        #  and soon will be ok to call redundantly? 050127]
         mode = self.win.glpane.mode
         if not isinstance(mode, selectMode):
             return
@@ -189,7 +191,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return
 
     def update_glpane(self):
-        self.win.glpane.update() ####k will this work already, just making it call paintGL? or must we inval something too??
+        self.win.glpane.update()
+        ####k will this work already, just making it call paintGL in the next event loop?
+        # or must we inval something too??
+        # [new comment, 050127:] it seems to work... needs a bit more testing,
+        # then can be moved into GLPane as the new implem of gl_update.
     
     # command bindings for clicks on various parts of tree items
     # are hardcoded in the 'clicked' method:

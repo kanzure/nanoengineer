@@ -62,7 +62,7 @@ class ThermoProp(ThermoPropDialog):
     def reject(self):
 	    QDialog.reject(self)
 	    self.thermo.color = self.thermo.normcolor = self.thermo.originalColor
-	    self.glpane.paintGL()
+	    self.glpane.gl_update()
 
     #################
     # Apply Button
@@ -77,7 +77,7 @@ class ThermoProp(ThermoPropDialog):
         self.thermo.assy.changed()
         
         self.thermo.color = self.thermo.normcolor = self.newcolor        
-        self.glpane.paintGL()
+        self.glpane.gl_update()
         
         self.applyPushButton.setEnabled(False)
 	

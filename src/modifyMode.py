@@ -85,7 +85,7 @@ class modifyMode(basicMode):
                 point = ptonline(self.movingPoint, p1, norm(p2-p1))
         
         self.o.assy.movesel(point - self.movingPoint)
-        self.o.paintGL()
+        self.o.gl_update()
         self.movingPoint = point
         self.o.SaveMouse(event)
 
@@ -130,7 +130,7 @@ class modifyMode(basicMode):
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1],
                                     self.o.quat)
         self.o.assy.rotsel(q)
-        self.o.paintGL()
+        self.o.gl_update()
 
     def leftCntlUp(self, event):
         self.EndPick(event, 0)
@@ -169,7 +169,7 @@ class modifyMode(basicMode):
         
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
-        self.o.paintGL()
+        self.o.gl_update()
 
     
     def leftShiftUp(self, event):

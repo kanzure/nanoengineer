@@ -292,7 +292,7 @@ class Movie:
             if self.showEachFrame:
                 self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
                 self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
-                self.assy.o.paintGL()
+                self.assy.o.gl_update()
             else:
                 self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
                 self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
@@ -322,7 +322,7 @@ class Movie:
             QApplication.restoreOverrideCursor() # Restore the cursor
             self.waitCursor = False
         self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
-        self.assy.o.paintGL()
+        self.assy.o.gl_update()
 
         if DEBUG0: print "movie._playFrame(): Calling _pause"
         self._pause(0) # Force pause. Takes care of variable and dashboard maintenance.
@@ -379,7 +379,7 @@ class Movie:
             self.waitCursor = False
 
         self.assy.w.frameNumberSB.setValue(self.currentFrame) # Update spinbox
-        self.assy.o.paintGL()
+        self.assy.o.gl_update()
 
                 
     def _reset(self):
@@ -401,7 +401,7 @@ class Movie:
         self.assy.w.frameNumberSL.setValue(self.currentFrame) # SL = Slider
         self.assy.w.frameNumberSB.setValue(self.currentFrame) # Spinbox
         self._pause(0)
-        self.assy.o.paintGL()
+        self.assy.o.gl_update()
         
     def _moveToEnd(self):
         """

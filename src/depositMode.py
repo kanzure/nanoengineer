@@ -502,7 +502,7 @@ class depositMode(basicMode):
             self.w.history.transient_msg( msg) # uses status bar #e rename that method
         if self.o.selatom != oldselatom:
             # update display
-            self.o.paintGL() # draws selatom too, since its chunk is not hidden
+            self.o.gl_update() # draws selatom too, since its chunk is not hidden
         return
 
     def describe_leftDown_action(self, selatom): # bruce 050124
@@ -740,7 +740,7 @@ class depositMode(basicMode):
         # like in leftShiftDrag but starting with the atom-creation message
         # (but the entire mol gets dragged, so the msg should reflect that)
         # ###@@@
-        self.o.paintGL()
+        self.o.gl_update()
 
     def leftUp(self, event):
         self.dragmol = None
@@ -753,7 +753,7 @@ class depositMode(basicMode):
         # In future we can consider first simulating a update_selatom at the
         # current location (to set selatom again, if appropriate), but it's
         # not clear this would be good, so *this* is what I won't do for now.
-        self.o.paintGL()
+        self.o.gl_update()
 	
     def leftShiftDown(self, event):
         """If there's nothing nearby, do nothing. If cursor is on a
@@ -865,7 +865,7 @@ class depositMode(basicMode):
                 msg = "dragged atom %r to %s" % (a, self.posn_str(a))
             this_drag_id = (self.dragatom_start, self.__class__.leftShiftDrag)
             self.w.history.message(msg, transient_id = this_drag_id)
-        self.o.paintGL()
+        self.o.gl_update()
         return
 
     def leftShiftUp(self, event):
@@ -883,7 +883,7 @@ class depositMode(basicMode):
                     self.dragged_singlet_over_singlet(dragatom, selatom)
         self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
         self.o.selatom = None #bruce 041208 for safety in case it's killed
-        self.o.paintGL()
+        self.o.gl_update()
 
     def dragged_singlet_over_singlet(self, dragatom, selatom):
         #bruce 041119 split this out and added checks to fix bugs #203
@@ -1064,7 +1064,7 @@ class depositMode(basicMode):
         #e what if caller renames atm.molecule??
         if n > 1: #e really: if n > (number of singlets clicked on at once)
             desc += " (%d bonds made)" % n
-        self.o.paintGL() ##e probably should be moved to caller
+        self.o.gl_update() ##e probably should be moved to caller
         return atm, desc
 
     # given an element and a singlet, find the place an atom of the
@@ -1122,7 +1122,7 @@ class depositMode(basicMode):
             if not mol.hidden:
                 for a in mol.findAllSinglets(pnt, mat, 10000.0, -TubeRadius):
                     a.Hydrogenate()
-        self.o.paintGL()
+        self.o.gl_update()
 
 
     ## dashboard things

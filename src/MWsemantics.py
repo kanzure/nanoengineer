@@ -253,7 +253,7 @@ class MWsemantics(MainWindow):
         """
         if not self.initialised:
             return #bruce 041222
-        self.glpane.paintGL() ###e should inval instead
+        self.glpane.gl_update() ###e should inval instead -- soon, this method will!
         self.mt.mt_update()
         self.history.h_update() #bruce 050104
         
@@ -307,7 +307,7 @@ class MWsemantics(MainWindow):
                     self.history.message( "PDB file inserted: " + fn )
             
             self.glpane.scale=self.assy.bbox.scale()
-            self.glpane.paintGL()
+            self.glpane.gl_update()
             self.mt.mt_update()
 
 
@@ -646,7 +646,7 @@ class MWsemantics(MainWindow):
         """
         self.history.message(greenmsg("Delete:"))
         self.assy.kill()
-        self.glpane.paintGL()
+        self.glpane.gl_update()
         self.mt.mt_update()
 
     def editFind(self):
@@ -664,7 +664,7 @@ class MWsemantics(MainWindow):
         self.glpane.pov = V(self.assy.homeCsys.pov[0], self.assy.homeCsys.pov[1], self.assy.homeCsys.pov[2])
         self.glpane.zoomFactor = self.assy.homeCsys.zoomFactor
         
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
 
     def setViewFitToWindow(self):
@@ -677,7 +677,7 @@ class MWsemantics(MainWindow):
         self.glpane.scale=self.assy.bbox.scale()
         self.glpane.pov = V(-self.assy.center[0], -self.assy.center[1], -self.assy.center[2]) 
         self.glpane.setZoomFactor(1.0)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
             
     def setViewHomeToCurrent(self):
@@ -701,41 +701,41 @@ class MWsemantics(MainWindow):
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
         self.glpane.ortho = 1
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def setViewPerspec(self):
         self.glpane.ortho = 0
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def setViewBack(self):
         self.history.message(greenmsg("Current View: BACK"))
         self.glpane.quat = Q(V(0,1,0),pi)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def setViewBottom(self):
         self.history.message(greenmsg("Current View: BOTTOM"))
         self.glpane.quat = Q(V(1,0,0),-pi/2)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def setViewFront(self):
         self.history.message(greenmsg("Current View: FRONT"))
         self.glpane.quat = Q(1,0,0,0)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def setViewLeft(self):
         self.history.message(greenmsg("Current View: LEFT"))
         self.glpane.quat = Q(V(0,1,0),pi/2)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def setViewRight(self):
         self.history.message(greenmsg("Current View: RIGHT"))
         self.glpane.quat = Q(V(0,1,0),-pi/2)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def setViewTop(self):
         self.history.message(greenmsg("Current View: TOP"))
         self.glpane.quat = Q(V(1,0,0),pi/2)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     ###################################
     # Display Toolbar Slots
@@ -777,7 +777,7 @@ class MWsemantics(MainWindow):
                 # might be in other code failing to call changeapp when needed.
             self.glpane.setDisplay(form)
         self.win_update() # bruce 041206, needed for model tree display mode icons
-        ## was self.glpane.paintGL()
+        ## was self.glpane.paintGL() [but now would be self.glpane.gl_update]
 
 
     def setdisplay(self, a0):
@@ -794,14 +794,14 @@ class MWsemantics(MainWindow):
             molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
             for ob in self.assy.selmols:
                 ob.setcolor(molcolor)
-            self.glpane.paintGL()
+            self.glpane.gl_update()
 
     # Reset the color of the selected molecule back to element colors
     def dispResetMolColor(self):
 #        molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
         for ob in self.assy.selmols:
             ob.setcolor(None)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
             
     def dispBGColor(self):
         "let user change the current mode's background color"
@@ -817,19 +817,19 @@ class MWsemantics(MainWindow):
         if c.isValid():
             color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
             self.glpane.mode.set_backgroundColor( color ) #bruce 050105
-            self.glpane.paintGL()
+            self.glpane.gl_update()
 
     def dispSetEltable1(self):
         "set global atom radius/color table to choice 1 (the default)"
         import elements
         elements.set_element_table(1, self.assy)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def dispSetEltable2(self):
         "set global atom radius/color table to choice 2"
         import elements
         elements.set_element_table(2, self.assy)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
 
     ###############################################################
@@ -1308,7 +1308,7 @@ class MWsemantics(MainWindow):
     def toolsCCAddLayer(self):
         if self.glpane.shape:
             self.glpane.pov -= self.glpane.shape.pushdown()
-            self.glpane.paintGL()
+            self.glpane.gl_update()
 
     # points of view corresponding to the three crystal
     # surfaces of diamond
@@ -1333,7 +1333,7 @@ class MWsemantics(MainWindow):
         print "MainWindow.orientView(string):", a0
         self.glpane.quat = Q(1,0,0,0)
         self.glpane.pov = V(0,0,0)
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     #######################################
     # Element Selector Slots
@@ -1396,12 +1396,12 @@ class MWsemantics(MainWindow):
     # Turn on or off the trihedron compass.
     def dispTrihedron(self):
         self.glpane.drawAxisIcon = not self.glpane.drawAxisIcon
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     def dispCsys(self):
         """ Toggle on/off center coordinate axes """
         self.glpane.cSysToggleButton = not self.glpane.cSysToggleButton
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
     # break bonds between selected and unselected atoms
     def toolsDeleteBond(self):

@@ -848,7 +848,7 @@ class extrudeMode(basicMode):
             self.w.win_update() # update glpane and model tree
         elif self.needs_repaint: ###### merge with self.repaint_if_needed() #######@@@
             self.needs_repaint = 0
-            self.o.paintGL() # just update glpane
+            self.o.gl_update() # just update glpane
         return
 
     # ==
@@ -1362,7 +1362,7 @@ class extrudeMode(basicMode):
     def repaint_if_needed(self): # see also the end of update_offset_bonds_display -- we're inlined ######fix
         if self.needs_repaint:
             self.needs_repaint = 0
-            self.o.paintGL()
+            self.o.gl_update()
         return
     
     def drag_repunit(self, copy_id, motion):

@@ -51,7 +51,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
             self.motor.color = self.motor.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
-            self.glpane.paintGL()
+            self.glpane.gl_update()
 
     #################
     # OK Button

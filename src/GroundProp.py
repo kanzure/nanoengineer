@@ -61,7 +61,7 @@ class GroundProp(GroundPropDialog):
     def reject(self):
 	    QDialog.reject(self)
 	    self.ground.color = self.ground.normcolor = self.ground.originalColor
-	    self.glpane.paintGL()
+	    self.glpane.gl_update()
 
     #################
     # Apply Button
@@ -76,7 +76,7 @@ class GroundProp(GroundPropDialog):
         self.ground.assy.changed()
 
         self.ground.color = self.ground.normcolor = self.newcolor        
-        self.glpane.paintGL()
+        self.glpane.gl_update()
 
         self.applyPushButton.setEnabled(False)
 	

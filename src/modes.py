@@ -773,7 +773,7 @@ class basicMode(anyMode):
         self.o.SaveMouse(event)
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1])
         self.o.quat += q 
-        self.o.paintGL()
+        self.o.gl_update()
         self.picking = 0
 
     def middleUp(self, event):
@@ -812,7 +812,7 @@ class basicMode(anyMode):
         
         move = self.o.quat.unrot(deltaMouse*tY)
         self.o.pov += move
-        self.o.paintGL()
+        self.o.gl_update()
         self.o.SaveMouse(event)
         self.picking = 0
     
@@ -864,7 +864,7 @@ class basicMode(anyMode):
             self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
  
         self.picking = 0
-        self.o.paintGL()
+        self.o.gl_update()
 
     def middleCntlUp(self, event):
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
@@ -951,7 +951,7 @@ class basicMode(anyMode):
         self.o.scale *= 1.0 + dScale * event.delta()
         ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
         ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
-        self.o.paintGL()
+        self.o.gl_update()
 
     # [remaining methods not yet analyzed by bruce 040922]
 

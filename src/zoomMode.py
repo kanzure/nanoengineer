@@ -70,7 +70,7 @@ class zoomMode(basicMode):
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         p1 = A(gluUnProject(cWxy[0], cWxy[1], 0.0)) 
         self.pickLinePrev = p1
-        self.o.paintGL()
+        self.o.gl_update()
 
 
     def leftUp(self, event):
@@ -113,7 +113,7 @@ class zoomMode(basicMode):
         ###Change viewing distance to do zoom
         ##self.o.scale *= zoomFactor
         
-        self.o.paintGL()
+        self.o.gl_update()
         self.rbw = False
         self.o.mode.Done(self.o.prevMode)
 

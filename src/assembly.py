@@ -377,7 +377,7 @@ class assembly:
             if a.element==Singlet: a.snuggle()
         for m in self.molecules:
             m.unfreeze()
-        self.o.paintGL()
+        self.o.gl_update()
 
 
     def moveAtoms(self, newPositions):
@@ -390,7 +390,7 @@ class assembly:
                 return
         for a, newPos in zip(self.alist, newPositions):
                 a.setposn(A(newPos))
-        self.o.paintGL()                
+        self.o.gl_update()                
 
 
     #########################
@@ -463,7 +463,7 @@ class assembly:
         
         if totalSelected > alreadySelected: ## Otherwise, that just means no new atoms selected, so no update necessary    
                 #self.w.win_update()
-                self.o.paintGL()
+                self.o.gl_update()
                 
 
     def selectDoubly(self):
@@ -485,7 +485,7 @@ class assembly:
         
         if totalSelected > alreadySelected: ## otherwise, means nothing new selected. Am I right? ---Huaicai, not analyze the markdouble() algorithm yet 
                 #self.w.win_update()
-                self.o.paintGL()
+                self.o.gl_update()
         
 
     def selectAtoms(self):
@@ -782,7 +782,7 @@ class assembly:
             #bruce 041028 bugfix: bring following lines inside the 'if'
             aa[0].molecule.changeapp(0)
             aa[1].molecule.changeapp(0)
-            self.o.paintGL()
+            self.o.gl_update()
 
     #unbond atoms (cheap hack)
     def Unbond(self):
@@ -795,7 +795,7 @@ class assembly:
             for b1 in aa[0].bonds[:]:
                 for b2 in aa[1].bonds[:]:
                     if b1 == b2: b1.bust()
-        self.o.paintGL()
+        self.o.gl_update()
 
     #stretch a molecule
     def Stretch(self):
@@ -803,7 +803,7 @@ class assembly:
         if not self.selmols: return
         for m in self.selmols:
             m.stretch(1.1)
-        self.o.paintGL()
+        self.o.gl_update()
 
     #weld selected molecules together
     def weld(self):
@@ -821,7 +821,7 @@ class assembly:
         ax = norm(ax)
         for m in self.selmols:
             m.rot(Q(m.getaxis(),ax))
-        self.o.paintGL()
+        self.o.gl_update()
                   
 
     #############
@@ -1099,7 +1099,7 @@ class assembly:
                 # (maybe it could just iterate over selatoms... #e)
                 
         self.changed() # could be much smarter
-        self.o.paintGL()
+        self.o.gl_update()
 
     # add hydrogen atoms to each dangling bond
     def modifyHydrogenate(self):

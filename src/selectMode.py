@@ -76,7 +76,7 @@ class selectMode(basicMode):
         self.selLassRect = self.pickLineLength < 2*netdist
 
         self.pickLinePrev = p1
-        self.o.paintGL()
+        self.o.gl_update()
 
     def leftUp(self, event):
         self.EndPick(event, 2)
@@ -153,13 +153,13 @@ class selectMode(basicMode):
                 # them is not (presently) relevant.
             #e status message?
             # (Presently a.Transmute makes one per "error or refusal".)
-            self.o.paintGL()
+            self.o.gl_update()
         elif self.o.assy.selmols:
             for mol in self.o.assy.selmols[:]:
                 for atm in mol.atoms.values():
                     atm.Transmute(PeriodicTable[elem], force = force)
                         # this might run on some killed singlets; should be ok
-            self.o.paintGL()
+            self.o.gl_update()
         return
        
 

@@ -91,13 +91,13 @@ class cookieMode(basicMode):
     def Backup(self):
         if self.o.shape:
             self.o.shape.undo()
-        self.o.paintGL()
+        self.o.gl_update()
 
     # StartOver (formerly Restart) is no longer needed here, since the basicMode generic method works now. [bruce 040924]
 ##    def StartOver(self):
 ##        if self.o.shape:
 ##            self.o.shape.clear()
-##        self.o.paintGL()
+##        self.o.gl_update()
         
     # mouse and key events
     
@@ -173,7 +173,7 @@ class cookieMode(basicMode):
         self.selLassRect = self.pickLineLength < 2*netdist
 
         self.pickLinePrev = p1
-        self.o.paintGL()
+        self.o.gl_update()
     
     def leftUp(self, event):
         self.EndDraw(event)
@@ -237,14 +237,14 @@ class cookieMode(basicMode):
                                   slab = Slab(-self.o.pov, self.o.out, self.thickness))
         self.sellist = []
 
-        self.o.paintGL()
+        self.o.gl_update()
 
     def middleUp(self,event):
         basicMode.middleUp(self, event)    
         
         if self.cookieQuat:
             self.o.quat = Q(self.cookieQuat)
-            self.o.paintGL()
+            self.o.gl_update()
         else:
             self.surfset(self.o.snap2trackball())
             
@@ -253,7 +253,7 @@ class cookieMode(basicMode):
             p1, p2 = self.o.mousepoints(event, 0.01)
             try: self.sellist[-1]=p1
             except: print self.sellist
-            self.o.paintGL()
+            self.o.gl_update()
 
     def Draw(self):
         basicMode.Draw(self)    

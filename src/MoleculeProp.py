@@ -78,7 +78,7 @@ class MoleculeProp(MoleculePropDialog):
             self.colorPixmapLabel.setFrameShape(QFrame.NoFrame)
             self.mol.color = color.red()/255.0, color.green()/255.0, color.blue()/255.0
             self.mol.setcolor(self.mol.color)
-            self.mol.glpane.paintGL()
+            self.mol.glpane.gl_update()
 
     def setMol2ElementColors(self):
         if not self.mol.color: return
@@ -86,12 +86,12 @@ class MoleculeProp(MoleculePropDialog):
         self.colorPixmapLabel.setFrameShape(QFrame.Box)
         self.mol.color = None
         self.mol.setcolor(self.mol.color)
-        self.mol.glpane.paintGL()
+        self.mol.glpane.gl_update()
         
     def makeAtomsVisible(self):
         for a in self.mol.atoms.itervalues():
             a.setDisplay(diDEFAULT)
-        self.mol.glpane.paintGL()
+        self.mol.glpane.gl_update()
         
     def nameChanged(self):
         self.applyPushButton.setEnabled(True)
@@ -113,4 +113,4 @@ class MoleculeProp(MoleculePropDialog):
         QDialog.reject(self)
         self.mol.color = self.mol.originalColor
         self.mol.setcolor(self.mol.color)
-        self.mol.glpane.paintGL()
+        self.mol.glpane.gl_update()
