@@ -19,6 +19,8 @@ double uffunc(double uf) {
 }
 
 /** positions and forces on the atoms */
+// units for positions are 1e-12 meters == picometers
+// units for force are piconewtons
 struct xyz force[NATOMS];
 struct xyz average_positions[NATOMS];
 struct xyz position_arrays[3*NATOMS];
@@ -1047,12 +1049,13 @@ static void min_debug(char *label, double rms, int frameNumber)
 void minimize(int numFrames) {
     int i, j, k;
     int frameNumber;
+    int steepestDescentFrames;
     double forceSquared, max_forceSquared;
     double sum_old_force_squared;
     double sum_forceSquared, last_sum_forceSquared;
     double sum_force_dot_old_force;
     double gamma; // = last_sum_forceSquared / sum_forceSquared
-    double x, y, z;
+    double xxx, yyy, zzz;
     struct xyz f; // force
     struct xyz *tmp;
     double rms_force;
@@ -1062,6 +1065,7 @@ void minimize(int numFrames) {
     struct xyz *old_force;
 
     frameNumber = 1;
+    steepestDescentFrames = DumpAsText ? numFrames : numFrames / 2;
    
     old_force = minimize_force;
 
@@ -1097,7 +1101,7 @@ void minimize(int numFrames) {
     frameNumber++;
 
     // adaptive stepsize steepest descents until RMS gradient is under 50
-    for (; frameNumber < (numFrames/2) && rms_force>50.0;) {
+    for (; frameNumber < steepestDescentFrames && rms_force>50.0;) {
 	max_forceSquared = 0.0;
 	last_sum_forceSquared = sum_forceSquared;
 	sum_forceSquared = 0.0;
@@ -1118,13 +1122,15 @@ void minimize(int numFrames) {
 	minshot(0,rms_force, max_forceSquared);
         frameNumber++;
         
-	x = sqrt(last_sum_forceSquared);
-	y = sum_force_dot_old_force/x;
-	z = sqrt(sum_forceSquared-y*y);
-	old_movcon=movcon;
-	if (y<x-x/(movfac)) movcon *= x/(x-y);
-	else movcon *= movfac;
-
+	xxx = sqrt(last_sum_forceSquared); // == previous rms_force * sqrt(Nexatom)
+	yyy = sum_force_dot_old_force/xxx;
+	if (yyy < (xxx - xxx/(movfac))) {
+            movcon *= xxx/(xxx-yyy);
+        } else {
+            movcon *= movfac;
+        }
+        DPRINT(D_MINIMIZE, "xxx: %f yyy: %f movcon: %f\n", xxx, yyy, movcon);
+        
 	for (j=0; j<Nexatom; j++) {
 	    f= force[j];
 	    old_force[j] = f;
@@ -1169,10 +1175,11 @@ void minimize(int numFrames) {
 	    sum_force_dot_old_force += vdot(force[j],old_force[j]);
 	}
 	tmp = old_positions; old_positions=positions; positions=tmp;
-	x = sqrt(sum_old_force_squared);
-	y = sum_force_dot_old_force/x;
-	z = y;
-	for (k=0; k<10 && y*y>1.0 && frameNumber<numFrames; k++) {
+	xxx = sqrt(sum_old_force_squared);
+	yyy = sum_force_dot_old_force/xxx;
+	zzz = yyy;
+        DPRINT(D_MINIMIZE, "xxx: %f yyy: %f\n", xxx, yyy);
+	for (k=0; k<10 && yyy*yyy>1.0 && (DumpAsText || frameNumber<numFrames); k++) {
 	    for (j=0; j<Nexatom; j++) {
 		f=old_force[j];
 		vmulc(f, movcon);
@@ -1192,17 +1199,19 @@ void minimize(int numFrames) {
             if (DEBUG(D_MINIMIZE)) {
                 min_debug("4", rms_force, frameNumber);
             }
+            /*
             minshot(0,rms_force, max_forceSquared); 
             frameNumber++;
-            
-	    y = sum_force_dot_old_force/x;
-	    if (y<z-z/(movfac)) movcon *= z/(z-y);
+            */
+	    yyy = sum_force_dot_old_force/xxx;
+	    if (yyy<zzz-zzz/(movfac)) movcon *= zzz/(zzz-yyy);
 	    else movcon *= movfac;
-
+            DPRINT(D_MINIMIZE, "xxx: %f yyy: %f zzz: %f movcon: %f\n", xxx, yyy, zzz, movcon);
 	}
 	old_movcon=movcon;
-	if (y<x-x/(movfac+1.0)) movcon *= x/(x-y)-1.0;
+	if (yyy<xxx-xxx/(movfac+1.0)) movcon *= xxx/(xxx-yyy)-1.0;
 	else movcon *= movfac;
+        DPRINT(D_MINIMIZE, "xxx: %f yyy: %f movcon: %f\n", xxx, yyy, movcon);
 	for (j=0; j<Nexatom; j++) {
 	    f= old_force[j];
 	    vmulc(f, movcon);
