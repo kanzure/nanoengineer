@@ -713,7 +713,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 glDisable(GL_LIGHTING)
                 glDisable(GL_DEPTH_TEST)
                 glPushMatrix()
-                font = font = QFont( QString("Times"), 10)#QFont(QString("Helvetica"), 12, QFont.Normal)
+                font = QFont( QString("Times"), 10)#QFont(QString("Helvetica"), 12, QFont.Normal)
                 self.qglColor(QColor(75, 75, 75))
                 self.renderText(5.3, 0.0, 0.0, QString("x"), font)
                 self.renderText(0.0, 4.8, 0.0, QString("y"), font)
