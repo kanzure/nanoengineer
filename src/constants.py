@@ -1,7 +1,15 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-"""Various constants used in more than one module
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+"""
+constants.py
+
+Various constants used in more than one module, and a few global variables.
+
+Names defined here should be suitable for being imported (thus "used up")
+in all modules.
+
 $Id$
 """
+
 from qt import Qt
 
 leftButton = 1
@@ -37,6 +45,10 @@ debugButtons = cntlButton | shiftButton | altButton
 # on the mac, this really means command-shift-alt
 
 
+# do-nothing function
+def noop(*args,**kws): pass
+
+# display modes:
 ## These are arranged in order of increasing thickness of the bond representation
 ## Josh 11/2
 diDEFAULT = 0
