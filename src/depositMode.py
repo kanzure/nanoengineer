@@ -76,7 +76,7 @@ def find_hotspot_for_pasting(obj):
 def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.clear()
 
-    w.depositAtomDashboard.addSeparator()
+#    w.depositAtomDashboard.addSeparator()
 
     w.depositAtomLabel = QLabel(w.depositAtomDashboard,"Build")
     w.depositAtomLabel.setText(" Build ")
@@ -92,6 +92,8 @@ def do_what_MainWindowUI_should_do(w):
 
     w.elemChangeComboBox = QComboBox(0,w.depositAtomDashboard,
                                      "elemChangeComboBox")
+    
+    w.modifySetElementAction.addTo(w.depositAtomDashboard)
 
     w.depositAtomDashboard.addSeparator()
 
