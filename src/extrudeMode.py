@@ -1084,9 +1084,14 @@ class extrudeMode(basicMode):
         for (pos,radius,info) in hh:
             i1,i2 = info
             ## not so simple as this: p1 = unit1.singlets[i1].posn()
-            p1 = self.find_singlet(unit1,i1).posn() # this is slow! need to optimize this (or make it optional)
-            p2 = self.find_singlet(unit2,i2).posn()
+            s1 = self.find_singlet(unit1,i1) # this is slow! need to optimize this (or make it optional)
+            s2 = self.find_singlet(unit2,i2)
+            p1 = s1.posn()
+            p2 = s2.posn()
             drawline(white, p1, p2)
+            ## #bruce 050324 experiment, worked:
+            ## s1.overdraw_with_special_color(purple)
+            ## s2.overdraw_with_special_color(yellow)
         return
     
     # == this belongs higher up...
