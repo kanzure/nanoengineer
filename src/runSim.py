@@ -1,6 +1,6 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
-from simsetup import *
+from SimulatorUI import *
 
 class runSim(simSetup):
     def __init__(self, assy):

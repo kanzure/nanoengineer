@@ -1,11 +1,11 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
-from RotaryMotorPropDialog import *
+from RotaryMotorPropUI import *
 from VQT import V
 
-class RotMotorProp(RotMotorPropDialog):
+class RotMotorProp(RotMotorPropUI):
     def __init__(self, rotMotor):
-        RotMotorPropDialog.__init__(self)
+        RotMotorPropUI__init__(self)
         self.motor = rotMotor
 
         self.torqueLineEdit.setText(str(rotMotor.torque))

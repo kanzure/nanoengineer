@@ -1,11 +1,11 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
-from LinearMotorPropDialog import *
+from LinearMotorPropUI import *
 
 
-class LinearMotorProp(LinearMotorPropDialog):
+class LinearMotorProp(LinearMotorPropUI):
     def __init__(self, linearMotor):
-        LinearMotorPropDialog.__init__(self)
+        LinearMotorPropUI.__init__(self)
         self.motor = linearMotor
 
         self.stiffness.setText(str(linearMotor.stiffness))
@@ -42,4 +42,3 @@ class LinearMotorProp(LinearMotorPropDialog):
         QDialog.reject(self)
 
          
-

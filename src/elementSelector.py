@@ -1,6 +1,6 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 
-from elementSelectorForm import *
+from ElementSelectorUI import *
 from elementpixmaps import *
 
 #########################################################################
