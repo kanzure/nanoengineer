@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>1086</width>
-            <height>959</height>
+            <width>1160</width>
+            <height>962</height>
         </rect>
     </property>
     <property name="caption">
@@ -33,7 +33,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>1086</width>
+            <width>1160</width>
             <height>33</height>
         </rect>
     </property>
@@ -257,6 +257,14 @@
         <action name="selectInvertAction"/>
         <action name="selectConnectedAction"/>
         <action name="selectDoublyAction"/>
+    </toolbar>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>helpToolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Help Toolbar</string>
+        </property>
     </toolbar>
     <toolbar dock="3">
         <property name="name">

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Oct 17 01:33:32 2004
+# Created: Wed Oct 27 19:45:08 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7443,6 +7443,8 @@ class MainWindow(QMainWindow):
         self.selectInvertAction.addTo(self.selectToolbar)
         self.selectConnectedAction.addTo(self.selectToolbar)
         self.selectDoublyAction.addTo(self.selectToolbar)
+        self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
+
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.cookieCutterDashboard.setGeometry(QRect(0,0,551,29))
@@ -7558,7 +7560,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1086,33))
+        self.MenuBar.setGeometry(QRect(0,0,1160,33))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
@@ -7660,7 +7662,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,959).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1160,962).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -8106,6 +8108,7 @@ class MainWindow(QMainWindow):
         self.gridsToolbar.setLabel(self.__tr("Grids"))
         self.molecularDispToolbar.setLabel(self.__tr("Molecular Display"))
         self.selectToolbar.setLabel(self.__tr("Select Toolbar"))
+        self.helpToolbar.setLabel(self.__tr("Help Toolbar"))
         self.cookieCutterDashboard.setLabel(self.__tr("Cookie Cutter"))
         self.textLabel2.setText(self.__tr(" Cookie Cutter"))
         self.selectAtomsDashboard.setLabel(self.__tr("Select Atoms"))
