@@ -32,3 +32,7 @@ Date: 3/13/2005
 Files: modifyMode
 Summary: Fixed bug 13.  Removed "Separate" from context menu.
 
+Name: Mark Sims
+Date: 3/14/2005
+Files: LightingTool
+Summary: Fixed bug 432.
