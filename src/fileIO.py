@@ -20,6 +20,7 @@ keypat=re.compile("\S+")
 molpat = re.compile("mol \(.*\) (\S\S\S)")
 atom1pat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\S\S\S)")
+rmotpat = re.compile("rmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
 
 def getname(str, default):
@@ -178,15 +179,22 @@ def readmmp(assy,filnam):
                 print card
                            
         elif key == "rmotor":
-            if mol: assy.addmol(mol)
-            mol = None
-            m=re.match("rmotor (-?\d+\.\d+), (-?\d+\.\d+), \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)", card)
-            torq=float(m.group(1))
-            sped=float(m.group(2))
-            cxyz=A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
-            axyz=A(map(float, [m.group(6),m.group(7),m.group(8)]))/1000.0
+            if mol:
+                assy.addmol(mol)
+                mol.moveto(opengroup)
+                mol = None
+            m=rmotpat.match(card)
+            name = m.group(1)
+            col=map(lambda (x): int(x)/255.0,
+                    [m.group(2),m.group(3),m.group(4)])
+            torq=float(m.group(5))
+            sped=float(m.group(6))
+            cxyz=A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
+            axyz=A(map(float, [m.group(10),m.group(11),m.group(12)]))/1000.0
             prevmotor=motor(assy)
             prevmotor.setcenter(torq, sped, cxyz, axyz)
+            prevmotor.col=col
+            opengroup.addmember(prevmotor)         
             
         elif key == "shaft":
             list = map(int, re.findall("\d+",card[6:]))
@@ -194,8 +202,10 @@ def readmmp(assy,filnam):
             prevmotor.setShaft(list)
 
         elif key == "lmotor":  # Linear Motor
-            if mol: assy.addmol(mol)
-            mol = None
+            if mol:
+                assy.addmol(mol)
+                mol.moveto(opengroup)
+                mol = None
             m = re.match("lmotor (-?\d+\.\d+), (-?\d+\.\d+), \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)", card)
             stiffness = float(m.group(1))
             force = float(m.group(2))
@@ -203,25 +213,36 @@ def readmmp(assy,filnam):
             axyz = A(map(float, [m.group(6), m.group(7), m.group(8)]))/1000.0
             prevmotor = LinearMotor(assy)
             prevmotor.setCenter(force, stiffness, cxyz, axyz)
+            opengroup.addmember(prevmotor)         
 
         elif key == "ground":
-            if mol: assy.addmol(mol)
-            mol = None
-            list = map(int, re.findall("\d+",card[7:]))
+            if mol:
+                assy.addmol(mol)
+                mol.moveto(opengroup)
+                mol = None
+            name = getname(card, "Gnd")
+            # fix for color
+            card =card[card.index(")")+1:]
+            list = map(int, re.findall("\d+",card[card.index(")")+1:]))
             list = map((lambda n: ndix[n]), list)
-            ground(assy, list)
+            gr = ground(assy, list)
+            gr.name=name
+            opengroup.addmember(gr)
          
         elif key=="csys": # Coordinate System
             m=re.match(csyspat,card)
             name=m.group(1)
-            wxyz = A(map(float, [m.group(2), m.group(3), m.group(4), m.group(5)]))
+            wxyz = A(map(float, [m.group(2), m.group(3),
+                                 m.group(4), m.group(5)]))
             scale=float(m.group(6))
             assy.csys = Csys(assy, name, scale, wxyz)
             opengroup.addmember(assy.csys)
 
         elif key=="datum": # Datum object
-            if mol: assy.addmol(mol)
-            mol = None
+            if mol:
+                assy.addmol(mol)
+                mol.moveto(opengroup)
+                mol = None
             m=re.match(datumpat,card)
             if not m:
                 print card
@@ -237,13 +258,9 @@ def readmmp(assy,filnam):
             new.rgb = col
             
         elif key=="waals": # van der Waals Interactions
-            list = map(int, re.findall("\d+", card[6:]))
-            list = map((lambda n: ndix[n]), list)
-            assy.waals = Waals(list)
+            pass # code was wrong -- to be implemented later
             
         elif key=="kelvin":  # Temperature in Kelvin
-            if mol: assy.addmol(mol)
-            mol = None
             m = re.match("kelvin (\d+)",card)
             n = int(m.group(1))
             assy.temperature = n  

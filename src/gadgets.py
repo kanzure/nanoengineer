@@ -264,6 +264,7 @@ class LinearMotor(Node):
 # a ground just has a list of atoms
 class ground(Node):
     def __init__(self, assy, list):
+        Node.__init__(self, assy, None, gensym("Ground"))
         self.atoms =list
         # should really split ground if attached to more than one mol
         self.molecule = list[0].molecule
