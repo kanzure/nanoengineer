@@ -13,7 +13,6 @@ def fileparse(name):
     m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
     return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
     
-    
 class runSim(SimSetupDialog):
     def __init__(self, assy):
         SimSetupDialog.__init__(self)
@@ -128,17 +127,14 @@ class runSim(SimSetupDialog):
         # denied" error.
         # - Mark 050106
         
-
-        
         # When creating an XYZ file, the simulator writes directly to the XYZ file
         if self.fileform == "-x": 
         
             # Make sure there is no space in the XYZ filename (Win32 only).
             if sys.platform == 'win32':
-                import re
                 m = re.search(' +',  moviefile)
                 if  m:
-                    QMessageBox.critical(self, "Problem", "XYZ file names cannot have a space.  Try again.")
+                    QMessageBox.warning(self, "Problem", "XYZ file names cannot have a space.  Try again.\n")
                     return -1
 
             dpbfile = moviefile
@@ -161,7 +157,9 @@ class runSim(SimSetupDialog):
         if sys.platform == 'win32':
             m = re.search(' +',  program)
             if  m:
-                QMessageBox.critical(self, "Error", "There is a space in the simulator pathname: [" + program +"]")
+                QMessageBox.critical(self, "Error", 
+                    "There is a space in the simulator pathname: [" + program +"]\n"\
+                    "To fix, rename the NE-1 directory to a name with no spaces.")
                 return -1
 
         # Change cursor to Wait (hourglass) cursor
@@ -221,9 +219,10 @@ class runSim(SimSetupDialog):
 #        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
         
         try:
-            # Remember, no spaces in "program" or "args".  
-            # We've checked everything but "program", so there could still be a problem.
+            # Remember, no spaces in "program" or "args" (Win32 only).
             kid = os.spawnv(os.P_NOWAIT, program, args)
+            
+            # Launch the progress bar.
             r = self.assy.w.progressbar.launch(filesize, dpbfile, "Simulate", "Writing movie file " + basename + "...", 1)
             s = None
             
@@ -232,7 +231,7 @@ class runSim(SimSetupDialog):
                 if os.path.exists(moviefile): os.remove (moviefile)
                 os.rename (dpbfile, moviefile)
         
-        except:
+        except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
             s = "internal error (traceback printed elsewhere)"
             r = -1 # simulator failure
@@ -245,8 +244,10 @@ class runSim(SimSetupDialog):
         
         if r == 1: # User pressed Abort button in progress dialog.
             self.assy.w.statusBar.message("<span style=\"color:#ff0000\">Simulator: Aborted.</span>")         
-            # We should kill the kid, but not sure how on Windows
-            if sys.platform not in ['win32']: os.kill(kid, signal.SIGKILL) # Not tested - Mark 050105
+            # We should kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
+            # Go to http://starship.python.net/crew/mhammond/ for more information.
+            # - Mark 050106
+            if sys.platform not in ['win32']: os.kill(kid, signal.SIGKILL) # Confirmed by Ninad on Linux
             
         else: # Something failed...
             msg = "<span style=\"color:#ff0000\">Simulation failed: exit code %r </span>" % r
