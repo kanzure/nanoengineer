@@ -51,10 +51,10 @@ class assembly:
         
         # the coordinate system (Actually default view)
         self.csys = Csys(self, "CSys", 10.0, 0.0, 1.0, 0.0, 0.0)
-        grpl1=[self.csys,
-               Datum(self, "XY", "plane", V(0,0,0), V(0,0,1)),
-               Datum(self, "XZ", "plane", V(0,0,0), V(0,1,0)),
-               Datum(self, "YZ", "plane", V(0,0,0), V(1,0,0))]
+        self.xy = Datum(self, "XY", "plane", V(0,0,0), V(0,0,1))
+        self.yz = Datum(self, "YZ", "plane", V(0,0,0), V(1,0,0))
+        self.zx = Datum(self, "ZX", "plane", V(0,0,0), V(0,1,0))
+        grpl1=[self.csys, self.xy, self.yz, self.zx]
         self.data=Group("Data", self, None, grpl1)
         self.data.open=False
 
