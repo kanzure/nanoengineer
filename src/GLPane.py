@@ -10,7 +10,7 @@ from LinearAlgebra import *
 from commands import *
 
 import os,sys
-from time import time
+import time
 from VQT import *
 import drawer
 from shape import *
@@ -74,6 +74,8 @@ for q in pquats:
 
 allQuats = quats100 + quats110 + quats111
 
+debug_events = 0 # set this to 1 to print info about most mouse events
+
 class GLPane(QGLWidget):
     """Mouse input and graphics output in the main view window.
     """
@@ -85,7 +87,8 @@ class GLPane(QGLWidget):
         self.initialised = 0
 
         self.mode = 0
-        
+
+        self.debug_menu = self.makemenu( self.debug_menu_items() )
 
         # The background color
         self.backgroundColor = normalBackground
@@ -173,7 +176,7 @@ class GLPane(QGLWidget):
             return self.quat.unrot(V(0,1,0))
         elif name == 'down':
             return self.quat.unrot(V(0,-1,0))
-        elif name in 'out':
+        elif name == 'out':
             return self.quat.unrot(V(0,0,1))
         else:
             raise AttributeError, 'GLPane has no "%s"' % name
@@ -206,8 +209,31 @@ class GLPane(QGLWidget):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
+    def fix_buttons(self, but):
+        """###bruce's temporary fix for mac [040826/040916]:
+        make Alt/Option mod key simulate middle mouse button.
+        [On other platforms, this should either do nothing,
+         or make some other mod key simulate middle button
+         (which seems ok or even good, once we document it).
+         But as of 040916 it has not yet been tested on other platforms.
+         Therefore, for now, I added a sys.platform test to limit it to the Mac.]
+        Note that even without this fix (and also with it), control key simulates right button,
+        and command key simulates control key, on the Mac.
+        ###BUG (noted on 040908): we need to be testing for altButton in the press event, for use during drag and release events! ###
+        (lack of this is probably what caused an EndDrag without a preceding BeginDrag, or something like that which I once saw.)
+        #e PLAN, 040916, nim: fix that by storing state on self. Probably need more args (and sleep :-) to do this properly...
+        """
+        # let Mac's Alt/Option mod key simulate middle mouse button
+        if sys.platform in ['darwin']: ### please try adding your platform here, and tell me whether it breaks anything -- bruce
+            if (but & altButton) and (but & leftButton):
+                but = but - altButton - leftButton + midButton
+        # bugfix: make mod keys during drag and button-release the same as on the initial button-press. ###e NIM
+        return but
+
     def mouseDoubleClickEvent(self, event):
+        self.debug_event(event, 'mouseDoubleClickEvent')
         but = event.stateAfter()
+        but = self.fix_buttons(but)
         if but & leftButton:
             self.mode.leftDouble(event)
         if but & midButton:
@@ -219,7 +245,10 @@ class GLPane(QGLWidget):
         """Dispatches mouse press events depending on shift and
         control key state.
         """
+        if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
+            return
         but = event.stateAfter()
+        but = self.fix_buttons(but)
         
         if but & leftButton:
             if but & shiftButton:
@@ -248,7 +277,9 @@ class GLPane(QGLWidget):
     def mouseReleaseEvent(self, event):
         """Only used to detect the end of a freehand selection curve.
         """
+        self.debug_event(event, 'mouseReleaseEvent')
         but = event.state()
+        but = self.fix_buttons(but)
         
         if but & leftButton:
             if but & shiftButton:
@@ -279,7 +310,9 @@ class GLPane(QGLWidget):
         """Dispatches mouse motion events depending on shift and
         control key state.
         """
+        ##self.debug_event(event, 'mouseMoveEvent')
         but = event.state()
+        but = self.fix_buttons(but)
 
         if but & leftButton:
             if but & shiftButton:
@@ -309,6 +342,7 @@ class GLPane(QGLWidget):
             self.mode.bareMotion(event)
 
     def wheelEvent(self, event):
+        self.debug_event(event, 'wheelEvent')
         self.mode.Wheel(event)
         
     def mousepoints(self,event):
@@ -372,7 +406,7 @@ class GLPane(QGLWidget):
         """
         if not self.initialised: return
 
-        #start=time()
+        ##start=time.time()
      
         c=self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
@@ -540,6 +574,110 @@ class GLPane(QGLWidget):
     def __str__(self):
         return "<GLPane " + self.name + ">"
 
+    def makemenu(self, lis): #bruce 040909-16 moved this method from basicMode to GLPane, leaving a delegator for it in basicMode.
+        "make and return a reusable popup menu from lis, which gives pairs of command names and callables"
+        win = self
+        menu = QPopupMenu(win)
+        for m in lis:
+            if m:
+                act = QAction(win,m[0]+'Action')
+                act.setText(win.trUtf8(m[0]))
+                act.setMenuText(win.trUtf8(m[0]))
+                act.addTo(menu)
+                win.connect(act, SIGNAL("activated()"), m[1])
+            else:
+                menu.insertSeparator()
+        return menu
+
+    def debug_menu_items(self):
+        return [
+            ('print self', self._debug_printself),
+            # None, # separator
+            ('run py code', self._debug_runpycode),
+         ]
+
+    def debug_event(self, event, funcname, permit_debug_menu_popup = 0):
+        """Debugging method -- no effect on normal users.
+           Does two things -- if a global flag is set, prints info about the event;
+           if a certain modifier key combination is pressed, and if caller passed permit_debug_menu_popup = 1,
+           puts up an undocumented debugging menu, and returns 1 to caller.
+           As of 040916, the debug menu is put up by Shift-Option-Command-click on the Mac,
+           and for other OS's I predict it either never happens or happens only for some similar set of 3 modifier keys.
+           -- bruce 040916
+        """
+        if not debug_events:
+            return 0
+        # in constants.py: debugButtons = cntlButton | shiftButton | altButton # on the mac, this really means command-shift-alt
+        if permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
+            print "\n* * * fyi: got debug click, will try to put up a debug menu...\n"
+            self.do_debug_menu(event)
+            return 1 # caller should detect this and not run its usual event code...
+        try:
+            after = event.stateAfter()
+        except:
+            after = "<no stateAfter>" # needed for Wheel events, at least
+        print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, event.state(), after, time.asctime())
+        # It seems, from doc and experiments, that event.state() is from just before the event (e.g. a button press or release, or move),
+        # and event.stateAfter() is from just after it, so they differ in one bit which is the button whose state changed (if any).
+        # But the doc is vague, and the experiments incomplete, so there is no guarantee that they don't sometimes differ in other ways.
+        # -- bruce ca. 040916
+        return 0
+
+    def do_debug_menu(self, event):
+        menu = self.debug_menu
+        self.current_event = event
+        # this code written from Qt/PyQt docs... note that some Atom modules use menu.exec_loop() but others use menu.popup();
+        # I don't know for sure whether this matters here, or which is best. -- bruce ca. 040916
+        menu.exec_loop(event.globalPos(), 1)
+        self.current_event = None
+        return 1
+
+    def _debug_printself(self):
+        print self
+
+    def _debug_runpycode(self):
+        title = "debug: run py code"
+        label = "one line of python to exec in GLPane.py's globals()\n(or use @@@ to fake \\n for more lines)\n(or use execfile)"
+        text, ok = QInputDialog.getText(title, label)
+        if ok:
+            # fyi: type(text) == <class '__main__.qt.QString'>
+            command = str(text) #k not yet well tested
+            command = command.replace("@@@",'\n')
+            debug_run_command(command, source = "debug menu")
+        else:
+            print "run py code: cancelled"
+        return
+
+    pass # end of class GLPane
+
+def debug_run_command(command, source = "user debug input"): #bruce 040913-16 #e move this to somewhere more general?
+    """Execute a python command, supplied by the user via some sort of debugging interface (named by source),
+       in GLPane.py's globals. Return 1 for ok (incl empty command), 0 for any error.
+       Caller should not print diagnostics -- this function should be extended to do that, though it doesn't yet.
+    """
+    #e someday we might record time, history, etc
+    command = "" + command # i.e. assert it's a string
+    #k what's a better way to do the following?
+    while command and command[0] == '\n':
+        command = command[1:]
+    while command and command[-1] == '\n':
+        command = command[:-1]
+    if not command:
+        print "empty command (from %s), nothing executed" % (source,)
+        return
+    if '\n' not in command:
+        print "will execute (from %s): %s" % (source, command)
+    else:
+        nlines = command.count('\n')+1
+        print "will execute (from %s; %d lines):\n%s" % (source, nlines, command)
+    command = command + '\n' #k probably not needed
+    try:
+        exec command in globals()
+    except:
+        print "exception from that, discarded (sorry)" #e should print compact traceback
+    else:
+        print "did it!"
+    return
 
 def povpoint(p):
     # note z reversal -- povray is left-handed
