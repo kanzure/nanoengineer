@@ -94,10 +94,9 @@ class RotaryMotor(Node):
     def axen(self):
         return self.axis
    
-    def icon(self, treewidget):
-        return treewidget.rmotorIcon
-
-
+    def seticon(self, treewidget):
+        self.icon = treewidget.rmotorIcon
+   
     # Rotary Motor is drawn as a cylinder along the axis, with a spoke to each atom
     def draw(self, win, dispdef):
         drawcylinder(self.color,
@@ -211,8 +210,9 @@ class LinearMotor(Node):
     def axen(self):
         return self.axis
    
-    def icon(self, treewidget):
-        return treewidget.lmotorIcon
+    def seticon(self, treewidget):
+        self.icon = treewidget.lmotorIcon
+   
 
     # drawn as a gray box along the axis,
     # with a thin cylinder to each atom 
@@ -300,8 +300,9 @@ class Ground(Node):
         pass
 
         
-    def icon(self, treewidget):
-        return treewidget.groundIcon
+    def seticon(self, treewidget):
+        self.icon = treewidget.groundIcon
+        
    
     # Returns the MMP record for the current Ground as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}    
@@ -355,9 +356,11 @@ class Stat(Node):
 
     def move(self, offset):
         pass
-        
-    def icon(self, treewidget):
-        return treewidget.statIcon
+
+
+    def seticon(self, treewidget):
+        self.icon = treewidget.statIcon
+
    
     # Returns the MMP record for the current Stat as:
     # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}

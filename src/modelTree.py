@@ -12,6 +12,8 @@ from gadgets import *
 from Utility import *
 import sys, os
 
+CHANGE_FROM_TREE = True
+CHANGE_FROM_GL = True
 
 class modelTree(QListView):
     def __init__(self, parent, win):
@@ -40,6 +42,7 @@ class modelTree(QListView):
         self.groupCloseIcon = QPixmap(filePath + "/../images/group-collapsed.png")
         self.clipboardFullIcon = QPixmap(filePath + "/../images/clipboard-full.png")
         self.clipboardEmptyIcon = QPixmap(filePath + "/../images/clipboard-empty.png")
+        self.statIcon = QPixmap(filePath + "/../images/stat.png")
         
         self.setFocusPolicy(QWidget.StrongFocus)
 
@@ -65,11 +68,12 @@ class modelTree(QListView):
         
         # Mark and Huaicai - commented this out - causing a bug for context menu display
         # Fixed with the signal to "rightButtonPressed"
-        #self.connect(self, SIGNAL("contextMenuRequested(QListViewItem*, const QPoint&,int)"),
-        #             self.menuReq)
-        self.connect(self, SIGNAL("rightButtonPressed(QListViewItem*,const QPoint&,int)"),
+        if sys.platform != 'win32':
+                self.connect(self, SIGNAL("contextMenuRequested(QListViewItem*, const QPoint&,int)"),
                      self.menuReq)
-        #self.connect(self, SIGNAL("clicked(QListViewItem *)"), self.setTreeFocus)
+        else:             
+                self.connect(self, SIGNAL("rightButtonPressed(QListViewItem*,const QPoint&,int)"),
+                     self.menuReq)
         self.connect(self, SIGNAL("selectionChanged()"), self.select)
         self.connect(self, SIGNAL("expanded(QListViewItem *)"), self.treeItemExpanded)
         self.connect(self, SIGNAL("collapsed(QListViewItem *)"), self.treeItemCollapsed)
@@ -120,35 +124,43 @@ class modelTree(QListView):
 
     def whatCurrentItem(self, item):
             print "Current item changes to: ", item.object
+            pass
             
     
     def select(self):
-        items = self.selectedItems()    
+        global CHANGE_FROM_TREE
+        if CHANGE_FROM_TREE:    
+                #CHANGE_FROM_TREE = False
+                items = self.selectedItems()    
         
-        self.disconnect(self, SIGNAL("selectionChanged()"), self.select)    
+                self.disconnect(self, SIGNAL("selectionChanged()"), self.select)    
 
-        self.win.assy.unpickatoms()
-        self.win.assy.unpickparts()
-        self.win.assy.selwhat = 2
+                self.win.assy.unpickatoms()
+                self.win.assy.unpickparts()
+                self.win.assy.selwhat = 2
         
-        for item in items:
-                item.object.pick()
+                for item in items:
+                        item.object.pick()
                 
-        #self.selectedItem = item.object
-        self.win.glpane.paintGL()
-        self._update()
-        
+                self.win.glpane.paintGL()
+                self._update()
+                #CHANGE_FROM_TREE = True
       
-        self.connect(self, SIGNAL("selectionChanged()"), self.select)
+                self.connect(self, SIGNAL("selectionChanged()"), self.select)
 
 
     def menuReq(self, listItem, pos, col):
         """ Context menu items function handler for the Model Tree View """
-        if listItem: self.selectedItem = listItem.object
-        else: self.selectedItem = None
-        self.menu.popup(pos, 1)
-        self.update()
-
+        if listItem: 
+             try:
+                self.selectedItem = listItem.object
+                self.menu.popup(pos, 1)
+             except: 
+                       print "What's the listItm? no object attribute?", listItem   
+                       return
+        else: 
+                self.selectedItem = None
+        
 
     def rename(self, listItem, col, text):
         if col != 0: return
@@ -183,43 +195,8 @@ class modelTree(QListView):
         #mitem.setDropEnabled(dnd)
         mitem.setRenameEnabled(0, True)
         return mitem
-
-    def update(self):
-        """ Build the tree structure of the current model, public interface """
-        self.disconnect(self, SIGNAL("selectionChanged()"), self.select)
-        self._update()
-        self.connect(self, SIGNAL("selectionChanged()"), self.select)
-
-## menu functions
-
-    def group(self):
-        node = self.root.object.hindmost()
-        if node.picked: return
-        new = Group(gensym("Node"), self.win.assy, node)
-        self.model.object.apply2picked(lambda(x): x.moveto(new))
-        self.update()
     
-    def ungroup(self):
-        self.model.object.apply2picked(lambda(x): x.ungroup())
-        self.update()
     
-    def copy(self):
-        self.win.assy.copy()
-    
-    def cut(self):
-        self.win.assy.cut()
-    
-    def kill(self):
-        self.win.assy.kill()
-        self.update()
-    
-    def modprop(self):
-        if self.selectedItem: self.selectedItem.edit()            
-
-    def expand(self):
-        self.root.object.apply2tree(lambda(x): x.setopen())
-        self.update()
-
     def selectedItems(self):
         """ Find all selected tree items """
         items = []
@@ -231,6 +208,7 @@ class modelTree(QListView):
                 child = child.itemBelow()
         
         return items
+        
         
     def _update(self):
         """ Build the tree structure of the current model, internal function """
@@ -248,11 +226,58 @@ class modelTree(QListView):
         rootGroup.icon = self.partIcon
         
         for m in self.win.assy.tree.members[::-1]:
-                 rootGroup.addmember(m)
-        
+                oldDad = m.dad
+                rootGroup.addmember(m)
+                m.dad = oldDad
+                 
         for m in self.win.assy.data.members[::-1]:
-                    rootGroup.addmember(m)
-        
+                rootGroup.addmember(m)
+                 
         self.root = rootGroup.upMT(self, self)
         rootGroup.setProp(self)           
-      
+
+ 
+    def update(self):
+        """ Build the tree structure of the current model, public interface """
+        #self.disconnect(self, SIGNAL("selectionChanged()"), self.select)
+        global CHANGE_FROM_GL
+        if CHANGE_FROM_GL:
+                CHANGE_FROM_GL = False
+                self._update()
+                CHANGE_FROM_GL = True
+        #self.connect(self, SIGNAL("selectionChanged()"), self.select)
+
+
+## Context menu handler functions
+
+    def group(self):
+        node = self.root.object.hindmost()
+        if node.picked: return
+        new = Group(gensym("Node"), self.win.assy, node)
+        self.root.object.apply2picked(lambda(x): x.moveto(new))
+        self._update()
+    
+    def ungroup(self):
+        self.root.object.apply2picked(lambda(x): x.ungroup())
+        self._update()
+    
+    def copy(self):
+        self.win.assy.copy()
+    
+    def cut(self):
+        self.win.assy.cut()
+    
+    def kill(self):
+        self.win.assy.kill()
+        self._update()
+    
+    def modprop(self):
+        if self.selectedItem: 
+                self.selectedItem.edit()
+                self._update()
+            
+
+    def expand(self):
+        self.root.object.apply2tree(lambda(x): x.setopen())
+        self._update()
+
