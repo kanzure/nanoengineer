@@ -167,7 +167,8 @@ class depositMode(basicMode):
         cx = 0
         if self.o.assy.shelf.members: # We have something on the clipboard
             members = list(self.o.assy.shelf.members)
-            members.reverse() # bruce 041124 -- model tree seems to have them backwards
+            ## not needed or correct since some time ago -- bruce 050110:
+            ##   members.reverse() # bruce 041124 -- model tree seems to have them backwards
             self.pastable = members[0] # (in case none picked)
             for ob,i in zip(members, range(len(members))):
                 self.w.pasteComboBox.insertItem(ob.name)
@@ -866,7 +867,9 @@ class depositMode(basicMode):
         cx = self.w.pasteComboBox.currentItem()
         if self.o.assy.shelf.members:
             try:
-                self.pastable = self.o.assy.shelf.members[-1-cx]
+                ## bruce 050110 guessing this should be [cx] again:
+                ## self.pastable = self.o.assy.shelf.members[-1-cx]
+                self.pastable = self.o.assy.shelf.members[cx]
                 # bruce 041124 - changed [cx] to [-1-cx] (should just fix model tree)
                 # bruce 041124: the following status bar message (by me)
                 # is a good idea, but first we need to figure out how to
@@ -993,17 +996,30 @@ class depositMode(basicMode):
             ## self.o.assy.shelf.setopen()
             # new way [bruce 050108]:
             self.w.mt.open_clipboard()
+            
+            # now add new to the clipboard:
+            
             # bruce 041124 change: add new after the other members, not before,
             # so the order will (at least sometimes) match what's in the spinbox.
             # (addmember adds it at the beginning by default, I think, though it
             # appends it to the list, because the list order is reversed from
             # what's displayed in the model tree, evidently. If that's a bug and
             # is fixed, then this code will be wrong and will need revision.)
-            if self.o.assy.shelf.members:
-                self.o.assy.shelf.members[0].addmember(new)
-                # [0] is last item, since members are shown in reverse, evidently
+            # bruce 050110: indeed, that apparently got fixed some time ago,
+            # so members are now in the correct order and this code became wrong
+            # again... so I'm fixing it again. Sometime I'll clean all this
+            # up so you can't see all this historic info except in cvs.
+            if 1:
+                # this is the 050110 fix:
+                self.o.assy.shelf.addmember(new) # old code; now adds at end, as it should
             else:
-                self.o.assy.shelf.addmember(new) # old code; adds at beginning
+                # this was the 041124 fix:
+                if self.o.assy.shelf.members:
+                    self.o.assy.shelf.members[0].addmember(new)
+                    # [0] is last item, since members are shown in reverse, evidently
+                else:
+                    self.o.assy.shelf.addmember(new) # old code; adds at beginning
+            
             self.o.assy.shelf.unpick()
             new.pick()
             self.w.pasteP = True
