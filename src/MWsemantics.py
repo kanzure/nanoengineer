@@ -325,23 +325,11 @@ class MWsemantics(MainWindow):
                     self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
                     self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
                     self.assy.modified = 0 # The file and the part are now the same.
+                    self.assy.name = fil
+                    self.mt.update()
             
             else: # This should never happen.
                 self.msgbarLabel.setText( "MWSemantics.py: fileSaveAs() - File Not Saved.")
-
-#    def fileImage(self):
-#        if self.assy:
-#            if self.assy.filename:
-#                fn = str(self.assy.filename)
-#                dir, fil, ext = fileparse(fn)
-#            else: dir, fil, ext = "./", "Picture", "jpg"
-#        fn = QFileDialog.getSaveFileName(dir + fil + ".jpg",
-#                                         "JPEG images (*.jpg *.jpeg",
-#                                         self )
-#        if fn:
-#            fn = str(fn)
-#            self.glpane.image(fn)
-#
 
     def fileExit(self):
         if self.assy.modified:

@@ -197,6 +197,8 @@ class modelTree(QListView):
         self.shelf = self.assy.shelf.upMT(self, self)
         self.assy.shelf.setProp(self)
         
+        self.assy.tree.name = self.assy.name
+        
         self.tree = self.assy.tree.upMT(self, self)
         for m in self.assy.data.members[::-1]:
             m.upMT(self, self.tree)
