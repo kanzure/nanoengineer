@@ -49,7 +49,7 @@ class MWsemantics(MainWindow):
     initialised = 0 #bruce 041222
     
     def __init__(self, parent = None, name = None):
-	
+    
         global windowList
 
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
@@ -89,7 +89,7 @@ class MWsemantics(MainWindow):
             self.setName("nanoENGINEER-1") # Mark 11-05-2004
 #            self.setName("Atom") 
 
-	    # start with empty window 
+        # start with empty window 
         self.assy = assembly(self, "Untitled")
         
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
@@ -324,11 +324,14 @@ class MWsemantics(MainWindow):
             
             elif ret==2: return # Cancel clicked or Alt+C pressed or Escape pressed
 
-        wd = globalParms['WorkingDirectory']
-        fn = QFileDialog.getOpenFileName(wd,
-                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All of the above (*.pdb *.mmp)",
+        # Determine what directory to open.
+        if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
+        else: odir = globalParms['WorkingDirectory']
+
+        fn = QFileDialog.getOpenFileName(odir,
+                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
                 self )
-        
+
         if fn:
             # I know we are clearing twice if the file was saved above.
             # This is desidered behavior - Mark [2004-10-11]
@@ -516,8 +519,8 @@ class MWsemantics(MainWindow):
 
     def fileSetWorkDir(self):
         """ Sets working directory (need dialogue window) """
-        # Windows Users: .atomrc must be placed in C:\Documents and Settings\[username]\.atomrc
-        # .atomrc contains one line - the "Working Directory"
+        # Windows Users: .ne1rc must be placed in C:\Documents and Settings\[username]\.ne1rc
+        # .ne1rc contains one line - the "Working Directory"
         # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
         # Mark [2004-10-13]
         wd = globalParms['WorkingDirectory']
@@ -530,8 +533,8 @@ class MWsemantics(MainWindow):
             globalParms['WorkingDirectory'] = wd
             self.statusBar.message( "Working Directory set to " + wd )
             
-            # Write ~/.atomrc file with new Working Directory
-            rc = os.path.expanduser("~/.atomrc")
+            # Write ~/.ne1rc file with new Working Directory
+            rc = os.path.expanduser("~/.ne1rc")
             try:
                 f=open(rc,'w')
             except:
@@ -539,7 +542,7 @@ class MWsemantics(MainWindow):
             else:
                 f.write(wd)
                 f.close()
-        	    
+                
     def __clear(self):
         # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Untitled")
@@ -556,12 +559,12 @@ class MWsemantics(MainWindow):
     def editUndo(self):
         print "MWsemantics.editUndo(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     def editRedo(self):
         print "MWsemantics.editRedo(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     def editCut(self):
         self.assy.cut()
@@ -579,7 +582,7 @@ class MWsemantics(MainWindow):
     def editFind(self):
         print "MWsemantics.editFind(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     ###################################
     # functions from the "View" menu
@@ -690,6 +693,7 @@ class MWsemantics(MainWindow):
     # set the color of the selected molecule
     # atom colors cannot be changed singly
     def dispObjectColor(self):
+        if not self.assy.selmols: return
         c = QColorDialog.getColor(QColor(100,100,100), self, "choose")
         if c.isValid():
             molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
@@ -719,16 +723,28 @@ class MWsemantics(MainWindow):
             # at arbitrary times (presently whenever a new file is loaded).
             self.glpane.paintGL()
 
+    def dispSetEltable1(self):
+        "set global atom radius/color table to choice 1 (the default)"
+        import elements
+        elements.set_element_table(1, self.assy)
+        self.glpane.paintGL()
+
+    def dispSetEltable2(self):
+        "set global atom radius/color table to choice 2"
+        import elements
+        elements.set_element_table(2, self.assy)
+        self.glpane.paintGL()
+        
     def dispGrid(self):
         print "MWsemantics.dispGrid(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
         
 
     def gridGraphite(self):
         print "MWsemantics.gridGraphite(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     #######################################
     # functions from the "Orientation" menu
@@ -822,7 +838,7 @@ class MWsemantics(MainWindow):
     def makeHandle(self):
         print "MWsemantics.makeHandle(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     def makeMotor(self):
         self.assy.makeRotaryMotor(self.glpane.lineOfSight)
@@ -834,20 +850,20 @@ class MWsemantics(MainWindow):
 
     def makeBearing(self):
         QMessageBox.information(self, self.name() + " User Notice:", 
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     def makeSpring(self):
         QMessageBox.information(self, self.name() + " User Notice:", 
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
     def makeDyno(self):
         print "MWsemantics.makeDyno(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     def makeHeatsink(self):
         print "MWsemantics.makeHeatsink(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     ###################################
     # functions from the "Modify" menu
@@ -906,14 +922,14 @@ class MWsemantics(MainWindow):
 #        assistant.showAssistant()
 #        import assistant
         self.assistant.openNE1Assistant()
-	         
+             
     def helpAbout(self):
         cntl = AboutDialog() # About NE-1 Dialog
         cntl.exec_loop()
         
 #        QMessageBox.information(self, self.name() + " User Notice:", 
-#	         "This function is not implemented yet, coming soon...")
-	         
+#            "This function is not implemented yet, coming soon...")
+             
     def helpWhatsThis(self):
         QWhatsThis.enterWhatsThisMode ()
 
@@ -1047,13 +1063,13 @@ class MWsemantics(MainWindow):
     def modifyEdgeBond(self):
         print "MWsemantics.modifyEdgeBond(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
         
     # create bonds where reasonable between selected and unselected
     def toolsAddBond(self):
         print "MWsemantics.modifyAddBond(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     # Turn on or off the axis icon
     def dispTrihedron(self):
@@ -1069,7 +1085,7 @@ class MWsemantics(MainWindow):
     def toolsDeleteBond(self):
         print "MWsemantics.modifyDeleteBond(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     # 2BDone: make a copy of the selected part, move it, and bondEdge it,
     # having unselected the original and selected the copy.
@@ -1078,7 +1094,7 @@ class MWsemantics(MainWindow):
     def modifyCopyBond(self):
         print "MWsemantics.modifyCopyBond(): Not implemented yet"
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     # delete selected parts or atoms
     def killDo(self):
@@ -1111,22 +1127,22 @@ class MWsemantics(MainWindow):
     def dispDatumLines(self):
         """ Toggle on/off datum lines """
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     def dispDatumPlanes(self):
         """ Toggle on/off datum planes """
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
 
     def editPrefs(self):
         """ Edit square grid line distances(dx, dy, dz) in nm/angtroms """
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
+             "This function is not implemented yet, coming soon...")
  
     def elemChangePTable(self):
         """ Future: element change via periodic table
@@ -1144,8 +1160,8 @@ class MWsemantics(MainWindow):
     def setViewRecenter(self):
         """ Fit to Window """
         QMessageBox.information(self, self.name() + " User Notice:",
-	         "This function is not implemented yet, coming soon...")
-	         
+             "This function is not implemented yet, coming soon...")
+             
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
         

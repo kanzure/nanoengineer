@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1006</height>
+            <height>1009</height>
         </rect>
     </property>
     <property name="caption">
@@ -91,6 +91,9 @@
         <action name="dispResetMolColorAction"/>
         <separator/>
         <action name="dispBGColorAction"/>
+        <separator/>
+        <action name="dispSetEltable1Action"/>
+        <action name="dispSetEltable2Action"/>
     </item>
     <item text="&amp;Jigs" name="Jigs">
         <action name="jigsMotorAction"/>
@@ -2677,6 +2680,22 @@
             <string>&amp;Align to Common Axis</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>dispSetEltable1Action</cstring>
+        </property>
+        <property name="text">
+            <string>Set Atom Colors to Default</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispSetEltable2Action</cstring>
+        </property>
+        <property name="text">
+            <string>Set Atom Colors to Alternate</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -3647,6 +3666,18 @@
         <receiver>MainWindow</receiver>
         <slot>setViewHomeToCurrent()</slot>
     </connection>
+    <connection>
+        <sender>dispSetEltable1Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispSetEltable1()</slot>
+    </connection>
+    <connection>
+        <sender>dispSetEltable2Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispSetEltable2()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3766,6 +3797,8 @@
     <slot>validateThickness()</slot>
     <slot>updateThinkness()</slot>
     <slot>setViewHomeToCurrent()</slot>
+    <slot>dispSetEltable1()</slot>
+    <slot>dispSetEltable2()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

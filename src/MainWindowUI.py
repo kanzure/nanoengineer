@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Dec 16 20:38:09 2004
+# Created: Fri Dec 24 11:35:07 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7256,6 +7256,8 @@ class MainWindow(QMainWindow):
         self.setViewHomeToCurrentAction = QAction(self,"setViewHomeToCurrentAction")
         self.modifyAlignCommonAxisAction = QAction(self,"modifyAlignCommonAxisAction")
         self.modifyAlignCommonAxisAction.setIconSet(QIconSet(self.image75))
+        self.dispSetEltable1Action = QAction(self,"dispSetEltable1Action")
+        self.dispSetEltable2Action = QAction(self,"dispSetEltable2Action")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7481,6 +7483,9 @@ class MainWindow(QMainWindow):
         self.dispResetMolColorAction.addTo(self.unnamed)
         self.unnamed.insertSeparator()
         self.dispBGColorAction.addTo(self.unnamed)
+        self.unnamed.insertSeparator()
+        self.dispSetEltable1Action.addTo(self.unnamed)
+        self.dispSetEltable2Action.addTo(self.unnamed)
         self.MenuBar.insertItem(QString(""),self.unnamed,6)
 
         self.Jigs = QPopupMenu(self)
@@ -7525,7 +7530,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1115,1006).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1115,1009).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7639,6 +7644,8 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.ccLayerThicknessLineEdit,SIGNAL("textChanged(const QString&)"),self.validateThickness)
         self.connect(self.setViewHomeToCurrentAction,SIGNAL("activated()"),self.setViewHomeToCurrent)
+        self.connect(self.dispSetEltable1Action,SIGNAL("activated()"),self.dispSetEltable1)
+        self.connect(self.dispSetEltable2Action,SIGNAL("activated()"),self.dispSetEltable2)
 
 
     def languageChange(self):
@@ -7986,6 +7993,10 @@ class MainWindow(QMainWindow):
         self.setViewHomeToCurrentAction.setMenuText(self.__tr("Set Home View to &Current View"))
         self.modifyAlignCommonAxisAction.setText(self.__tr("Align to Common Axis"))
         self.modifyAlignCommonAxisAction.setMenuText(self.__tr("&Align to Common Axis"))
+        self.dispSetEltable1Action.setText(self.__tr("Set Atom Colors to Default"))
+        self.dispSetEltable1Action.setMenuText(self.__tr("Set Atom Colors to Default"))
+        self.dispSetEltable2Action.setText(self.__tr("Set Atom Colors to Alternate"))
+        self.dispSetEltable2Action.setMenuText(self.__tr("Set Atom Colors to Alternate"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8381,6 +8392,12 @@ class MainWindow(QMainWindow):
 
     def setViewHomeToCurrent(self):
         print "MainWindow.setViewHomeToCurrent(): Not implemented yet"
+
+    def dispSetEltable1(self):
+        print "MainWindow.dispSetEltable1(): Not implemented yet"
+
+    def dispSetEltable2(self):
+        print "MainWindow.dispSetEltable2(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
