@@ -99,6 +99,10 @@ class assembly:
         # ppa = previous picked atoms.
         self.ppa2 = self.ppa3 = None
         
+        # the current version of the MMP file format
+        # this is set in fileIO.writemmp. Mark 050130
+        self.mmpformat = ''
+        
         ### Some information needed for the simulation or coming from mmp file
         self.temperature = 300
         self.waals = None
