@@ -140,7 +140,7 @@ class modelTree(QListView):
 
 
     def select(self, item):
-        print "MT.select: item = ",item
+#        print "MT.select: item = ",item
         if item:
             if item.object.name == self.assy.name: return
         
