@@ -55,7 +55,8 @@ if __name__=='__main__':
         pass
     else:
         meth()
-    
+
+    # show the main window
     foo.show()
 
     try:
@@ -65,4 +66,27 @@ if __name__=='__main__':
     else:
         meth()
 
-    app.exec_loop()
+    # now run the main Qt event loop -- perhaps with profiling, if user requested this via .atom-debug-rc.
+    try:
+        atom_debug_profile_filename # user can set this to a filename in .atom-debug-rc, to enable profiling into that file
+        if atom_debug_profile_filename:
+            print "user's .atom_debug_rc requests profiling into file %r" % (atom_debug_profile_filename,)
+            if not type(atom_debug_profile_filename) in [type("x"), type(u"x")]:
+                print "error: atom_debug_profile_filename must be a string; running without profiling"
+                assert 0 # caught and ignored, turns off profiling
+            try:
+                import profile
+            except:
+                print "error during 'import profile'; running without profiling"
+                raise # caught and ignored, turns off profiling
+    except:
+        atom_debug_profile_filename = None
+
+    if atom_debug_profile_filename:
+        profile.run('app.exec_loop()', atom_debug_profile_filename )
+        print "\nprofile data was presumably saved into %r" % (atom_debug_profile_filename,)
+    else:
+        app.exec_loop() # if you change this code, also change the string literal just above
+
+    # end
+
