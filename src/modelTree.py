@@ -1,6 +1,8 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 The model tree display widget.
+
+[temporarily owned by Bruce, circa 050107, until further notice]
 
 $Id$
 """
