@@ -1,5 +1,5 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-# 10/4 currently being owned by Josh
+# 10/9 currently being owned by Mark
 """
 File IO functions for reading and writing PDB and MMP files
 
@@ -20,8 +20,18 @@ keypat=re.compile("\S+")
 molpat = re.compile("mol \(.*\) (\S\S\S)")
 atom1pat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\S\S\S)")
+
+# rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
 rmotpat = re.compile("rmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
+# lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
+lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
+
+# ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+grdpat = re.compile("ground \((.+)\) \((\d+), (\d+), (\d+)\)")
+
+# stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
+statpat = re.compile("stat \((.+)\) \((\d+), (\d+), (\d+)\) \((\d+)\)" )
 
 def getname(str, default):
     x= nampat.search(str)
@@ -177,7 +187,9 @@ def readmmp(assy,filnam):
             except KeyError:
                 print "error in MMP file: atom ", prevcard
                 print card
-                           
+                
+        # Read the MMP record for a Rotary Motor as:
+        # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)                           
         elif key == "rmotor":
             if mol:
                 assy.addmol(mol)
@@ -191,44 +203,90 @@ def readmmp(assy,filnam):
             sped=float(m.group(6))
             cxyz=A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
             axyz=A(map(float, [m.group(10),m.group(11),m.group(12)]))/1000.0
-            prevmotor=motor(assy)
-            prevmotor.setcenter(torq, sped, cxyz, axyz)
-            prevmotor.col=col
-            opengroup.addmember(prevmotor)         
-            
+            prevmotor=RotaryMotor(assy)
+            prevmotor.setProps(name, col, torq, sped, cxyz, axyz)
+            opengroup.addmember(prevmotor)
+
         elif key == "shaft":
             list = map(int, re.findall("\d+",card[6:]))
             list = map((lambda n: ndix[n]), list)
             prevmotor.setShaft(list)
 
-        elif key == "lmotor":  # Linear Motor
+        # Read the MMP record for a Linear Motor as:
+        # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
+        elif key == "lmotor":
             if mol:
                 assy.addmol(mol)
                 mol.moveto(opengroup)
                 mol = None
-            m = re.match("lmotor (-?\d+\.\d+), (-?\d+\.\d+), \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)", card)
-            stiffness = float(m.group(1))
-            force = float(m.group(2))
-            cxyz = A(map(float, [m.group(3), m.group(4), m.group(5)]))/1000.0  
-            axyz = A(map(float, [m.group(6), m.group(7), m.group(8)]))/1000.0
-            prevmotor = LinearMotor(assy)
-            prevmotor.setCenter(force, stiffness, cxyz, axyz)
-            opengroup.addmember(prevmotor)         
+            m=lmotpat.match(card)
+            name = m.group(1)
+            col=map(lambda (x): int(x)/255.0,
+                    [m.group(2),m.group(3),m.group(4)])
+            force=float(m.group(5))
+            stiffness=float(m.group(6))
+            cxyz=A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
+            axyz=A(map(float, [m.group(10),m.group(11),m.group(12)]))/1000.0
+            prevmotor=LinearMotor(assy)
+            prevmotor.setProps(name, col, force, stiffness, cxyz, axyz)
+            opengroup.addmember(prevmotor)
 
+    # Read the MMP record for a Ground as:
+    # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+    
         elif key == "ground":
             if mol:
                 assy.addmol(mol)
                 mol.moveto(opengroup)
                 mol = None
-            name = getname(card, "Gnd")
-            # fix for color
-            card =card[card.index(")")+1:]
+            
+            m=grdpat.match(card)
+            name = m.group(1)
+            col=map(lambda (x): int(x)/255.0,
+                    [m.group(2),m.group(3),m.group(4)])
+
+            # Read in the list of atoms
+            card =card[card.index(")")+1:] # skip past the color field
             list = map(int, re.findall("\d+",card[card.index(")")+1:]))
             list = map((lambda n: ndix[n]), list)
-            gr = ground(assy, list)
+            
+            gr = Ground(assy, list) # create ground and set props
             gr.name=name
+            gr.color=col
             opengroup.addmember(gr)
-         
+
+    # Read the MMP record for a Thermostat as:
+    # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
+                
+        elif key == "stat":
+            if mol:
+                assy.addmol(mol)
+                mol.moveto(opengroup)
+                mol = None
+            
+            m=statpat.match(card)
+            name = m.group(1)
+            col=map(lambda (x): int(x)/255.0,
+                    [m.group(2),m.group(3),m.group(4)])
+            temp=m.group(5)
+
+            # Read in the list of atoms
+            card =card[card.index(")")+1:] # skip past the color field
+            card =card[card.index(")")+1:] # skip past the temp field
+            list = map(int, re.findall("\d+",card[card.index(")")+1:]))
+            list = map((lambda n: ndix[n]), list)
+            
+            sr = Stat(assy, list) # create stat and set props
+            sr.name=name
+            sr.color=col
+            sr.temp=temp
+            opengroup.addmember(sr)
+                                 
+        elif key == "shaft":
+            list = map(int, re.findall("\d+",card[6:]))
+            list = map((lambda n: ndix[n]), list)
+            prevmotor.setShaft(list)
+
         elif key=="csys": # Coordinate System
             m=re.match(csyspat,card)
             name=m.group(1)
@@ -263,7 +321,10 @@ def readmmp(assy,filnam):
         elif key=="kelvin":  # Temperature in Kelvin
             m = re.match("kelvin (\d+)",card)
             n = int(m.group(1))
-            assy.temperature = n  
+            assy.temperature = n
+        
+#        else:
+#            print "fileIO.py: readMMP() found unrecognized record \"", key, "\""
 
     if len(grouplist) != 3: print "wrong number of top-level groups"
     else: assy.data, assy.tree, assy.shelf = grouplist

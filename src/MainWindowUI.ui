@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1086</width>
-            <height>914</height>
+            <height>917</height>
         </rect>
     </property>
     <property name="caption">
@@ -116,15 +116,10 @@
         <action name="dispBGColorAction"/>
     </item>
     <item text="&amp;Jigs" name="Jigs">
-        <action name="jigsGroundAction"/>
-        <action name="jigsHandleAction"/>
-        <separator/>
         <action name="jigsMotorAction"/>
         <action name="jigsLinearMotorAction"/>
-        <action name="jigsBearingAction"/>
-        <action name="jigsSpringAction"/>
-        <action name="jigsHeatsinkAction"/>
-        <action name="jigsDynoAction"/>
+        <action name="jigsGroundAction"/>
+        <action name="jigsStatAction"/>
     </item>
     <item text="&amp;Modify" name="Modify">
         <action name="modifyMinimizeAction"/>
@@ -600,7 +595,7 @@
                 <x>0</x>
                 <y>294</y>
                 <width>30</width>
-                <height>441</height>
+                <height>413</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -615,7 +610,6 @@
         </property>
         <action name="toolsSelectMoleculesAction"/>
         <action name="toolsSelectAtomsAction"/>
-        <action name="toolsSelectJigsAction"/>
         <action name="toolsMoveMoleculeAction"/>
         <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
@@ -2659,6 +2653,20 @@
             <bool>true</bool>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>jigsStatAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image95</iconset>
+        </property>
+        <property name="text">
+            <string>Thermostat</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Thermostat</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -2945,6 +2953,9 @@
     </image>
     <image name="image94">
         <data format="XPM.GZ" length="634">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022430543251d2e253d856405e554b354f3543330172b189519952120536bcd05002a5c716c</data>
+    </image>
+    <image name="image95">
+        <data format="XPM.GZ" length="2352">789c8d93c76edb401445f7fe0ac1b333826755160459b8f7de1d6441b1582e7295dc82fc7be61ec99d0a32470274f82e476f86c3c989cae1e65a656272ecae97f44ed34ada496e2b1359bfdb7dfaf9ebc7efb1f17abde23f6154a98f7f1b1bb7bc92565cb5556f266dfc505e0b04be8e8742ee523c16d487de488a02bfc7db025fc633816fc9eb55812fe10cfc086f08fc0a6f0a7c1e0f05dec52381d7f058e0a77822e8ff1c4f05758767025fc17341bec00b417d4edea809fc1aa7613cc45b028ff050e007f22603dfc7038137f050e04f7824e8e7028f05f5073c1178134f05be8667027fc60bc17c3cff5655e0ec478b41be8e07023fc343815fe291c0eff058e02d3c11cc7f82a7827a07cf04f504cf05f51b799008ea6dbc107826677b07e785fd091978158f04be81c702dfc513812fe285c077e42c6fb01f01cec06ff158e0f4172551541d3c2ff62bca05f51e5e089cfd88ab823cfb112782fa239e099cf31be7025fc50b816fcb939ac0639c1780f9791f92b6a03e23e7751de437f1a6206f7820a81fe3b1c0793fd2aa063e8dd7043e8b4702dfc3db025f90670d814fe11c08bc8f0742bec5fee5411ee6837e382f4556b41b837e380f45f1d2cf56ef2be6cc955d2fcffb74e229b9e325ff713ef2ed4f57dc5bde5bea29a9bf5ae6711ff27979c7aff9e22d3f7a7de5fdfc3f23f6e7c43a766a6776eeb9b0ae7547e7edd2aeecda6eecd6ee94b49ef547e7edde1eecd127ded3b38bf2bc3dd93389299bb6199b1de6e746e6e7a92fd8a22dd9b2add8ea70fed27efc1ad7987bd1d66dc336fd7ab76c9b3bbad629c9cfdb8eaf4dfbf5eefaffe8db9eeddb01bfceeda1247fe87beefbef911d0f3baf5acddfa56b57a5f32b3febfb3e2375ec7fd57d7fca374af24d6b31ebaaef7bdf020b2d1afed3b55d96e46373cea86f3b8d64987e7ce9e6cb7eceb9f6a767251e5e66fffa7c5deab28f6997dbfdbfce9b85ae7027aee34edd99adb97377f1be5a763efd3a9a7e1f0ffd09ed7c39cf7fbe8ffd050de95942</data>
     </image>
 </images>
 <connections>
@@ -3572,6 +3583,12 @@
         <receiver>MainWindow</receiver>
         <slot>toolsSelectJigs()</slot>
     </connection>
+    <connection>
+        <sender>jigsStatAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeStat()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -3681,6 +3698,7 @@
     <slot>modifyStretchMolecule()</slot>
     <slot>toolsSelectJigs()</slot>
     <slot>toolsSelect()</slot>
+    <slot>makeStat()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

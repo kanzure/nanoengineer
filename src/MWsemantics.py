@@ -518,6 +518,10 @@ class MWsemantics(MainWindow):
     def makeGround(self):
         self.assy.makeground()
         self.update()
+        
+    def makeStat(self):
+        self.assy.makestat()
+        self.update()
 
     def makeHandle(self):
         print "MWsemantics.makeHandle(): Not implemented yet"
@@ -525,7 +529,7 @@ class MWsemantics(MainWindow):
 	         "This function is not implemented yet, coming soon...")
 
     def makeMotor(self):
-        self.assy.makemotor(self.glpane.lineOfSight)
+        self.assy.makeRotaryMotor(self.glpane.lineOfSight)
         self.update()
 
     def makeLinearMotor(self):

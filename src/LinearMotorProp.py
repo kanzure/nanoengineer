@@ -1,7 +1,7 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 from qt import *
 from LinearMotorPropDialog import *
-
+from VQT import V
 
 class LinearMotorProp(LinearMotorPropDialog):
     def __init__(self, linearMotor, glpane):
@@ -9,61 +9,73 @@ class LinearMotorProp(LinearMotorPropDialog):
         LinearMotorPropDialog.__init__(self)
         self.motor = linearMotor
         self.glpane = glpane
+        self.setup()
 
+    def setup(self):
+        linearMotor = self.motor
+        
         self.nameLineEdit.setText(linearMotor.name)
+
+        self.colorPixmapLabel.setPaletteBackgroundColor(
+            QColor(int(linearMotor.color[0]*255), 
+                         int(linearMotor.color[1]*255), 
+                         int(linearMotor.color[2]*255)))
+                         
         self.stiffnessLineEdit.setText(str(linearMotor.stiffness))
         self.forceLineEdit.setText(str(linearMotor.force))
         self.axLineEdit.setText(str(linearMotor.axis[0]))
-        self.ayLineEdit.setText(str(linearMotor.axis[1])) 
+        self.ayLineEdit.setText(str(linearMotor.axis[1]))
         self.azLineEdit.setText(str(linearMotor.axis[2]))
 
-        self.cxLineEdit.setText(str(linearMotor.center[0]))	
-        self.cyLineEdit.setText(str(linearMotor.center[1]))
-        self.czLineEdit.setText(str(linearMotor.center[2]))
-
-        self.colorPixmapLabel.setPaletteBackgroundColor(linearMotor.color)
-
-        self.nameLineEdit.setText(linearMotor.name)
-        self.stiffnessLineEdit.setText(str(linearMotor.stiffness))
-        self.forceLineEdit.setText(str(linearMotor.force))
-        self.axLineEdit.setText(str(linearMotor.axis[0]))
-        self.ayLineEdit.setText(str(linearMotor.axis[1])) 
-        self.azLineEdit.setText(str(linearMotor.axis[2]))
-
-        self.cxLineEdit.setText(str(linearMotor.center[0]))	
+        self.cxLineEdit.setText(str(linearMotor.center[0]))
         self.cyLineEdit.setText(str(linearMotor.center[1]))
         self.czLineEdit.setText(str(linearMotor.center[2]))
         
-        
-        strList = map(lambda i: linearMotor.atoms[i].element.symbol + str(i), 
-                                                 range(0, len(linearMotor.atoms)))
+        strList = map(lambda i: linearMotor.atoms[i].element.symbol + str(i),
+                                                range(0, len(linearMotor.atoms)))
         self.atomsComboBox.insertStrList(strList, 0)
+
+        self.applyPushButton.setEnabled(False)
         
-        self.applyPushButton.setEnabled(False) 
-       
+
     #########################
-    # Change motor color
+    # Change linear motor color
     #########################
     def changeLinearMotorColor(self):
-        color = QColorDialog.getColor(QColor(self.motor.color), self, "ColorDialog")
+
+        color = QColorDialog.getColor(
+            QColor(int(self.motor.color[0]*255), 
+                         int(self.motor.color[1]*255), 
+                         int(self.motor.color[2]*255)),
+                         self, "ColorDialog")
+                        
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.motor.color = color
-            self.motor.molecule.havelist = 0
+            self.motor.color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
             self.glpane.paintGL()
 
-    def accept(self):           # OK Button
-        self.applyButtonPressed()  
+
+    #################
+    # OK Button
+    #################
+    def accept(self):
+        self.applyButtonPressed()
         QDialog.accept(self)
 
-    def reject(self):   # Cancel Button
-        QDialog.reject(self)
+    #################
+    # Cancel Button
+    #################
+    def reject(self):
+	    QDialog.reject(self)
 
-    def applyButtonPressed(self):   # Apply Button
-
+    #################
+    # Apply Button
+    #################	
+    def applyButtonPressed(self):
+        
         self.motor.name = self.nameLineEdit.text()
-        self.motor.stiffness = float(str(self.stiffnessLineEdit.text()))
         self.motor.force = float(str(self.forceLineEdit.text()))
+        self.motor.stiffness = float(str(self.stiffnessLineEdit.text()))
         self.motor.axis[0] = float(str(self.axLineEdit.text()))
         self.motor.axis[1] = float(str(self.ayLineEdit.text()))
         self.motor.axis[2] = float(str(self.azLineEdit.text()))
@@ -71,8 +83,8 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.motor.center[0] = float(str(self.cxLineEdit.text()))
         self.motor.center[1] = float(str(self.cyLineEdit.text()))
         self.motor.center[2] = float(str(self.czLineEdit.text()))
-
+        
         self.applyPushButton.setEnabled(False)
-
-    def propertyChanged(self):    
-        self.applyPushButton.setEnabled(True)
+	
+    def propertyChanged(self):
+        self.applyPushButton.setEnabled(True)	

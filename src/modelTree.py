@@ -173,13 +173,13 @@ class modelTree(QListView):
         self.update()
     
     def copy(self):
-        self.assy.copy()
+        self.win.assy.copy()
     
     def cut(self):
-        self.assy.cut()
+        self.win.assy.cut()
     
     def kill(self):
-        self.assy.kill()
+        self.win.assy.kill()
     
     def modprop(self):
         if self.selectedItem: self.selectedItem.edit()            

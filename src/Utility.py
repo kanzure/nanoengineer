@@ -23,7 +23,7 @@ class Node:
         self.dad = parent
         if self.dad: self.dad.addmember(self)
         self.picked = False
-        # in addition, each Node shoule have a bounding box
+        # in addition, each Node should have a bounding box
 
     # for a leaf node, add it to the dad node just after us
     def addmember(self, obj):

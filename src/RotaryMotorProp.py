@@ -15,10 +15,11 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         rotMotor = self.motor
         
         self.nameLineEdit.setText(rotMotor.name)
+        self.colorPixmapLabel.setPaletteBackgroundColor(
+            QColor(int(rotMotor.color[0]*255), 
+                         int(rotMotor.color[1]*255), 
+                         int(rotMotor.color[2]*255)))
 
-        c = map(int,A(self.motor.col)*255)
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(c[0], c[1], c[2]))
-        
         self.torqueLineEdit.setText(str(rotMotor.torque))
         self.speedLineEdit.setText(str(rotMotor.speed))
         self.axLineEdit.setText(str(rotMotor.axis[0]))
@@ -41,17 +42,16 @@ class RotaryMotorProp(RotaryMotorPropDialog):
     #########################
     def changeRotaryMotorColor(self):
 
-        c = map(int,A(self.motor.col)*255)
-        color = QColorDialog.getColor(QColor(c[0], c[1], c[2]), self,
-                                      "ColorDialog")
+        color = QColorDialog.getColor(
+            QColor(int(self.motor.color[0]*255), 
+                         int(self.motor.color[1]*255), 
+                         int(self.motor.color[2]*255)),
+                         self, "ColorDialog")
+
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            red = float (qRed(color.rgb())) / 255.0
-            green = float (qGreen(color.rgb())) / 255.0
-            blue = float (qBlue(color.rgb())) / 255.0
-            self.motor.col = (red, green, blue)
+            self.motor.color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
             self.glpane.paintGL()
-
 
     #################
     # OK Button

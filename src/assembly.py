@@ -499,10 +499,10 @@ class assembly:
     # makes a motor connected to the selected atoms
     # note I don't check for a limit of 25 atoms, but any more
     # will choke the file parser in the simulator
-    def makemotor(self, sightline):
+    def makeRotaryMotor(self, sightline):
         if not self.selatoms: return
         self.modified = 1
-        m=motor(self)
+        m=RotaryMotor(self)
         m.findcenter(self.selatoms.values(), sightline)
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
@@ -525,7 +525,17 @@ class assembly:
     def makeground(self):
         if not self.selatoms: return
         self.modified = 1
-        m=ground(self, self.selatoms.values())
+        m=Ground(self, self.selatoms.values())
+        mol = self.selatoms.values()[0].molecule
+        mol.dad.addmember(m)
+        self.unpickatoms()
+        
+    # sets the temp of all the selected atoms
+    # same note as above
+    def makestat(self):
+        if not self.selatoms: return
+        self.modified = 1
+        m=Stat(self, self.selatoms.values())
         mol = self.selatoms.values()[0].molecule
         mol.dad.addmember(m)
         self.unpickatoms()

@@ -1,5 +1,5 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-# 10/4 currently being owned by Josh
+# 10/9 currently being owned by Mark
 
 """Classes for motors and jigs
 $Id$
@@ -14,6 +14,7 @@ from Utility import *
 from RotaryMotorProp import *
 from LinearMotorProp import *
 from GroundProp import *
+from StatProp import *
 
 Gno = 0
 def gensym(string):
@@ -27,34 +28,37 @@ def povpoint(p):
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
 
 
-# A motor has an axis of rotation, represented as a point and
-# a direction vector, a stall torque, a no-load speed, and
-# a set of atoms connected to it
-# 2BDone -- selecting & manipulation
-class motor(Node):
-    # create a blank motor connected to anything
+class RotaryMotor(Node):
+    '''A Rotary Motor has an axis, represented as a point and
+       a direction vector, a stall torque, a no-load speed, and
+       a set of atoms connected to it
+       To Be Done -- selecting & manipulation'''
+
+# create a blank Rotary Motor not connected to anything    
     def __init__(self, assy):
-        Node.__init__(self, assy, None, gensym("Motor"))
-        self.torque=0.0
-        self.speed=0.0
-        self.center=V(0,0,0)
-        self.axis=V(0,0,0)
-        self.atoms=[]
+        Node.__init__(self, assy, None, gensym("Rotary Motor"))
+        self.torque = 0.0
+        self.speed = 0.0
+        self.center = V(0,0,0)
+        self.axis = V(0,0,0)
+        self.atoms = []
         self.molecule = None
         # set default color of rotary motor to gray
-        self.col = (0.5, 0.5, 0.5)
+        self.color = (0.5, 0.5, 0.5)
         self.cntl = RotaryMotorProp(self, assy.o)
 
     # for a motor read from a file, the "motor" record
-    def setcenter(self, torq, spd, cntr, xs):
-        self.torque=torq
-        self.speed=spd
-        self.center=cntr
-        self.axis=norm(xs)
+    def setProps(self, name, color, torque, speed, center, axis):
+        self.name = name
+        self.color = color
+        self.torque = torque
+        self.speed = speed
+        self.center = center
+        self.axis = norm(axis)
 
     # for a motor read from a file, the "shaft" record
     def setShaft(self, shft):
-        self.atoms=shft
+        self.atoms = shft
 
     # for a motor created by the UI, center is average point and
     # axis (kludge) is the average of the cross products of
@@ -98,28 +102,29 @@ class motor(Node):
     # with a spoke to each atom    
     def draw(self, win, dispdef):
 
-        drawcylinder(self.col,self.center+5*self.axis,self.center-5*self.axis,
+        drawcylinder(self.color,self.center+5*self.axis,self.center-5*self.axis,
                      2.0, 1)
         for a in self.atoms:
-            drawcylinder(self.col, self.center, a.posn(), 0.5)
+            drawcylinder(self.color, self.center, a.posn(), 0.5)
             
     # write on a povray file
     def povwrite(self, file, dispdef):
         c = self.posn()
         a = self.axen()
-        file.write("motor(" + povpoint(c+5*a) +
+        file.write("rmotor(" + povpoint(c+5*a) +
                     "," + povpoint(c-5*a) + ")\n")
         for a in self.atoms:
             file.write("spoke(" + povpoint(c) +
                        "," + povpoint(a.posn()) + ")\n")
 
-    # the representation is also the mmp-file record
+    # Returns the MMP record for the current Rotary Motor as:
+    # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
     def __repr__(self, ndix=None):
         cxyz=self.posn() * 1000
         axyz=self.axen() * 1000
-        col=map(int,A(self.col)*255)
+        color=map(int,A(self.color)*255)
         s="rmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d)\n" %\
-           (self.name, col[0], col[1], col[2], self.torque, self.speed,
+           (self.name, color[0], color[1], color[2], self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]))
         if ndix:
@@ -128,17 +133,17 @@ class motor(Node):
             nums = map((lambda a: a.key), self.atoms)
         return s + "shaft " + " ".join(map(str,nums)) + "\n"
 
-# note: the other gadgets must be updated to handle colors like rmotor
 
 class LinearMotor(Node):
-    '''A Linear motor has an axis, represented as a point and
+    '''A Linear Motor has an axis, represented as a point and
        a direction vector, a force, a stiffness, and
        a set of atoms connected to it
        To Be Done -- selecting & manipulation'''
 
-    # create a blank motor connected to anything
+# create a blank Linear Motor not connected to anything
     def __init__(self, assy):
-        Node.__init__(self, assy, None, gensym("LinMotor"))
+        Node.__init__(self, assy, None, gensym("Linear Motor"))
+        
         self.force = 0.0
         self.stiffness = 0.0
         self.center = V(0,0,0)
@@ -147,12 +152,13 @@ class LinearMotor(Node):
         self.picked = 0
         self.molecule = None
         # set default color of linear motor to gray
-        self.color = QColor(128,128,128) 
-        self.name = QString("Linear Motor") # default name of linear motor
+        self.color = (0.5, 0.5, 0.5)
         self.cntl = LinearMotorProp(self, assy.o)
 
     # for a linear motor read from a file, the "linear motor" record
-    def setCenter(self, force, stiffness, center, axis):
+    def setProps(self, name, color, force, stiffness, center, axis):
+        self.name = name
+        self.color = color
         self.force = force
         self.stiffness = stiffness
         self.center = center
@@ -193,6 +199,7 @@ class LinearMotor(Node):
         self.edit()
 
     def edit(self):
+        self.cntl.setup()
         self.cntl.show()
         
     # Translate motor by offset
@@ -214,16 +221,7 @@ class LinearMotor(Node):
     # with a thin cylinder to each atom    
     def draw(self, win, dispdef):
         glPushMatrix()
-#        col= (0.5, 0.5, 0.5)
-
-        # mark - added color support
-        red = float (qRed(self.color.rgb())) / 255.0
-        green = float (qGreen(self.color.rgb())) / 255.0
-        blue = float (qBlue(self.color.rgb())) / 255.0
-        col = (red, green, blue)
-        
-#        glColor3fv(col)
-        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, col)
+        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, self.color)
         glTranslatef(self.center[0], self.center[1], self.center[2])
         glRotate(-acos(self.axis[2])*180.0/pi, self.axis[1], -self.axis[0], 0.0)
         glScale(2.0, 2.0, 10.0)
@@ -231,25 +229,27 @@ class LinearMotor(Node):
         glPopMatrix()
 
         for a in self.atoms:
-            drawcylinder(col, self.center,
+            drawcylinder(self.color, self.center,
                          a.molecule.basepos[a.index], 0.15)
             
     # write on a povray file
     def povwrite(self, file, dispdef):
         c = self.posn()
         a = self.axen()
-        file.write("linmotor(" + povpoint(c+5*a) +
+        file.write("lmotor(" + povpoint(c+5*a) +
                     "," + povpoint(c-5*a) + ")\n")
         for a in self.atoms:
             file.write("spoke(" + povpoint(c) +
                        "," + povpoint(a.posn()) + ")\n")
 
-    # the representation is also the mmp-file record
+    # Returns the MMP record for the current Linear Motor as:
+    # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
     def __repr__(self, ndix = None):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        s = "lmotor (%s) %.2f, %.2f, (%d, %d, %d) (%d, %d, %d)\n" %\
-           (self.name, self.stiffness, self.force, 
+        color=map(int,A(self.color)*255)
+        s = "lmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d)\n" %\
+           (self.name, color[0], color[1], color[2], self.stiffness, self.force, 
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]))
         if ndix:
@@ -258,34 +258,32 @@ class LinearMotor(Node):
             nums = map((lambda a: a.key), self.atoms)
         return s + "shaft " + " ".join(map(str, nums)) + "\n"
 
-# a ground just has a list of atoms
-class ground(Node):
+# a Ground is just has a list of atoms anchored in space
+class Ground(Node):
+    '''a Ground just has a list of atoms that are anchored in space'''
+
+# create a blank Ground with an empty list of atoms
     def __init__(self, assy, list):
         Node.__init__(self, assy, None, gensym("Ground"))
         self.atoms =list
         # should really split ground if attached to more than one mol
         self.molecule = list[0].molecule
         self.molecule.gadgets += [self]
-        self.color = QColor(0,0,0) # set default color of ground to black
-        self.name = QString("Ground") # default name of linear motor
+        self.picked = 0
+        self.color = (0.0, 0.0, 0.0) # set default color of ground to black
         self.cntl = GroundProp(self, assy.o)
         
 
     def edit(self):
+        self.cntl.setup()
         self.cntl.show()
 
     # it's drawn as a wire cube around each atom (default color = black)
     def draw(self, win, dispdef):
 
-        # mark - added color support
-        red = float (qRed(self.color.rgb())) / 255.0
-        green = float (qGreen(self.color.rgb())) / 255.0
-        blue = float (qBlue(self.color.rgb())) / 255.0
-        col = (red, green, blue)
-        
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
-            drawwirecube(col, a.molecule.basepos[a.index], rad)
+            drawwirecube(self.color, a.molecule.basepos[a.index], rad)
             
     # write on a povray file
     def povwrite(self, file, dispdef):
@@ -301,10 +299,68 @@ class ground(Node):
     def icon(self, treewidget):
         return treewidget.groundIcon
    
-    # the representation is also the mmp-file record
+    # Returns the MMP record for the current Ground as:
+    # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}    
     def __repr__(self, ndix=None):
+        
+        color=map(int,A(self.color)*255)
+        s = "ground (%s) (%d, %d, %d) " %\
+           (self.name, color[0], color[1], color[2])
         if ndix:
             nums = map((lambda a: ndix[a.key]), self.atoms)
         else:
             nums = map((lambda a: a.key), self.atoms)
-        return "ground (" + self.name + ") ".join(map(str,nums)) + "\n"
+
+        return s + " ".join(map(str,nums)) + "\n"
+        
+class Stat(Node):
+    '''a Stat just has a list of atoms that are set to a specific temperature'''
+
+# create a blank Stat with an empty list of atoms, set to 300K
+    def __init__(self, assy, list):
+        Node.__init__(self, assy, None, gensym("Stat"))
+        self.atoms =list
+        # should really split stat if attached to more than one mol
+        self.molecule = list[0].molecule
+        self.molecule.gadgets += [self]
+        self.picked = 0
+        self.color = (0.0, 0.0, 1.0) # set default color of new stat to blue
+        self.temp = 300
+        self.cntl = StatProp(self, assy.o)
+        
+
+    def edit(self):
+        self.cntl.setup()
+        self.cntl.show()
+
+    # it's drawn as a wire cube around each atom (default color = blue)
+    def draw(self, win, dispdef):
+        for a in self.atoms:
+            disp, rad = a.howdraw(dispdef)
+            drawwirecube(self.color, a.molecule.basepos[a.index], rad)
+            
+    # write on a povray file
+    def povwrite(self, file, dispdef):
+        for a in self.atoms:
+            disp, rad = a.howdraw(dispdef)
+            file.write("stat(" + povpoint(a.posn()) + "," +
+                       str(rad) + ")\n")
+
+    def move(self, offset):
+        pass
+
+        
+    def icon(self, treewidget):
+        return treewidget.groundIcon
+   
+    # Returns the MMP record for the current Stat as:
+    # stat (name) (r, g, b) (temp) atom1 atom2 ... atom25 {up to 25}
+    def __repr__(self, ndix=None):
+        color=map(int,A(self.color)*255)
+        s = "stat (%s) (%d, %d, %d) (%d) " %\
+           (self.name, color[0], color[1], color[2], int(self.temp))
+        if ndix:
+            nums = map((lambda a: ndix[a.key]), self.atoms)
+        else:
+            nums = map((lambda a: a.key), self.atoms)
+        return s + " ".join(map(str,nums)) + "\n"

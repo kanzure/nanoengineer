@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Oct 4 22:51:54 2004
+# Created: Sat Oct 9 08:54:43 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6947,6 +6947,109 @@ image94_data = [
 "......................",
 "......................"
 ]
+image95_data = [
+"22 22 78 2",
+".e c #0524ab",
+".X c #161616",
+".N c #171717",
+"#c c #191919",
+".c c #193aff",
+".v c #1b1b1b",
+".J c #1d1d1d",
+".Q c #202020",
+".I c #222222",
+".Y c #232323",
+".o c #242424",
+".F c #272727",
+".m c #282828",
+".1 c #292929",
+".i c #2a2a2a",
+"#k c #2c2c2c",
+".# c #2d2d2d",
+".K c #2e2e2e",
+"#f c #2f2f2f",
+".E c #313131",
+".p c #323232",
+".7 c #353535",
+".8 c #373737",
+".W c #444444",
+".V c #464646",
+".3 c #474747",
+".y c #484848",
+"#l c #494949",
+".w c #4a4a4a",
+".4 c #4c4c4c",
+".M c #4d4d4d",
+".z c #4f4f4f",
+"#e c #505050",
+"## c #555555",
+".2 c #565656",
+".j c #575757",
+".n c #585858",
+".s c #595959",
+".5 c #5a5a5a",
+"#g c #5c5c5c",
+".h c #5d5d5d",
+"#a c #5e5e5e",
+".q c #6a6a6a",
+"#b c #6f6f6f",
+"#d c #737373",
+".l c #777777",
+".0 c #787878",
+".O c #797979",
+".T c #7a7a7a",
+".H c #7f7f7f",
+".S c #858585",
+".6 c #888888",
+".r c #898989",
+".b c #8a8808",
+"#j c #8e8e8e",
+".t c #8f8f8f",
+".g c #909090",
+"#h c #9a9a9a",
+".x c #9d9d9d",
+".k c #9e9e9e",
+".L c #9f9f9f",
+".R c #a1a1a1",
+".9 c #a2a2a2",
+"#i c #ababab",
+".C c #b1b1b1",
+".P c #b4b4b4",
+"#. c #b6b6b6",
+".Z c #b9b9b9",
+".f c #c00000",
+".B c #c1c1c1",
+".D c #c8c8c8",
+".U c #cbcbcb",
+".G c #d3d3d3",
+".A c #d5d5d5",
+".u c #d6d6d6",
+"Qt c #e6e7e6",
+".a c #fdfb39",
+".d c #ff0000",
+"QtQtQtQtQtQtQtQtQtQt.#.#QtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQt.#.a.a.#QtQtQtQtQtQtQtQtQt",
+"QtQt.#.#QtQtQtQtQt.#.a.b.#QtQtQtQtQt.#.#QtQt",
+"Qt.#.c.c.#QtQtQtQtQt.#.#QtQtQtQtQt.#.d.d.#Qt",
+"Qt.#.c.e.#QtQtQtQtQtQtQtQtQtQtQtQt.#.d.f.#Qt",
+"QtQt.#.#QtQtQtQtQtQtQtQtQtQtQtQtQtQt.#.#QtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQt.g.h.i.j.k.k.l.m.mQtQtQtQt",
+"QtQtQtQtQtQtQt.n.o.p.q.r.s.m.m.t.u.mQtQtQtQt",
+"QtQtQtQtQtQt.v.w.x.u.u.u.u.u.u.u.t.lQtQtQtQt",
+"QtQtQtQtQt.y.z.u.u.A.B.C.D.u.u.u.E.lQtQtQtQt",
+"QtQtQtQtQt.F.u.u.G.H.I.J.K.L.u.u.t.mQtQtQtQt",
+"QtQtQtQt.h.M.u.A.H.N.O.P.j.Q.R.u.u.m.hQtQtQt",
+"QtQtQtQt.F.S.u.B.o.T.G.u.U.V.W.G.u.k.wQtQtQt",
+"QtQtQtQt.X.C.u.C.Y.Z.u.u.u.0.1.U.u.C.oQtQtQt",
+"QtQtQtQt.F.C.u.D.K.j.U.u.Z.K.2.A.u.C.3QtQtQt",
+"QtQtQtQt.4.5.u.u.L.Q.V.6.7.8.Z.u.u.p.nQtQtQt",
+"QtQtQtQt.9.##..u.u.R#####a.Z.u.u.x.oQtQtQtQt",
+"QtQtQtQtQt.E#b.u.u.u.u.u.u.u.u.u.w.nQtQtQtQt",
+"QtQtQtQtQtQt#c#d.u.u.u.u.u.u.u#e.vQtQtQtQtQt",
+"QtQtQtQtQtQtQt.7#f#g#h#i#j.M#k#lQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.9.4.1.X.i.hQtQtQtQtQtQtQtQt"
+]
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -7048,6 +7151,7 @@ class MainWindow(QMainWindow):
         self.image92 = QPixmap(image92_data)
         self.image93 = QPixmap(image93_data)
         self.image94 = QPixmap(image94_data)
+        self.image95 = QPixmap(image95_data)
 
         if not name:
             self.setName("MainWindow")
@@ -7349,6 +7453,8 @@ class MainWindow(QMainWindow):
         self.nullAction = QAction(self,"nullAction")
         self.nullAction.setIconSet(QIconSet(self.image94))
         self.nullAction.setVisible(1)
+        self.jigsStatAction = QAction(self,"jigsStatAction")
+        self.jigsStatAction.setIconSet(QIconSet(self.image95))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7479,11 +7585,10 @@ class MainWindow(QMainWindow):
         self.modifyWeldMoleculeAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,294,30,441))
+        self.toolsToolbar.setGeometry(QRect(0,294,30,413))
         self.toolsToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
-        self.toolsSelectJigsAction.addTo(self.toolsToolbar)
         self.toolsMoveMoleculeAction.addTo(self.toolsToolbar)
         self.toolsDepositAtomAction.addTo(self.toolsToolbar)
         self.toolsCookieCutAction.addTo(self.toolsToolbar)
@@ -7593,15 +7698,10 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.unnamed,6)
 
         self.Jigs = QPopupMenu(self)
-        self.jigsGroundAction.addTo(self.Jigs)
-        self.jigsHandleAction.addTo(self.Jigs)
-        self.Jigs.insertSeparator()
         self.jigsMotorAction.addTo(self.Jigs)
         self.jigsLinearMotorAction.addTo(self.Jigs)
-        self.jigsBearingAction.addTo(self.Jigs)
-        self.jigsSpringAction.addTo(self.Jigs)
-        self.jigsHeatsinkAction.addTo(self.Jigs)
-        self.jigsDynoAction.addTo(self.Jigs)
+        self.jigsGroundAction.addTo(self.Jigs)
+        self.jigsStatAction.addTo(self.Jigs)
         self.MenuBar.insertItem(QString(""),self.Jigs,7)
 
         self.Modify = QPopupMenu(self)
@@ -7640,7 +7740,7 @@ class MainWindow(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(1086,914).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1086,917).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
@@ -7747,6 +7847,7 @@ class MainWindow(QMainWindow):
         self.connect(self.selectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
         self.connect(self.toolsSelectAction,SIGNAL("activated()"),self.toolsSelect)
         self.connect(self.toolsSelectJigsAction,SIGNAL("activated()"),self.toolsSelectJigs)
+        self.connect(self.jigsStatAction,SIGNAL("activated()"),self.makeStat)
 
 
     def languageChange(self):
@@ -8072,6 +8173,8 @@ class MainWindow(QMainWindow):
         self.selectActionGroup.setMenuText(self.__tr("Select Group"))
         self.nullAction.setText(QString.null)
         self.nullAction.setMenuText(QString.null)
+        self.jigsStatAction.setText(self.__tr("Thermostat"))
+        self.jigsStatAction.setMenuText(self.__tr("&Thermostat"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8455,6 +8558,9 @@ class MainWindow(QMainWindow):
 
     def toolsSelect(self):
         print "MainWindow.toolsSelect(): Not implemented yet"
+
+    def makeStat(self):
+        print "MainWindow.makeStat(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

@@ -193,8 +193,8 @@ class modifyMode(basicMode):
 
         self.Menu2 = self.makemenu([('Ground', self.o.assy.makeground),
                                     ('Handle', self.skip),
-                                    ('motor', self.o.assy.makemotor),
-                                    ('Linearmotor', self.o.assy.makeLinearMotor),
+                                    ('Rotary Motor', self.o.assy.makeRotaryMotor),
+                                    ('Linear Motor', self.o.assy.makeLinearMotor),
                                     ('Spring', self.skip),
                                     ('Bearing', self.skip),
                                     ('Dynamometer', self.skip),

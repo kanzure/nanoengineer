@@ -5,53 +5,67 @@ from VQT import V
 
 class GroundProp(GroundPropDialog):
     def __init__(self, ground, glpane):
+
         GroundPropDialog.__init__(self)
         self.ground = ground
         self.glpane = glpane
+        self.setup()
 
-        self.colorPixmapLabel.setPaletteBackgroundColor(ground.color)
+    def setup(self):
+        ground = self.ground
         
         self.nameLineEdit.setText(ground.name)
-        self.applyPushButton.setEnabled(False)
+
+        self.colorPixmapLabel.setPaletteBackgroundColor(
+            QColor(int(ground.color[0]*255), 
+                         int(ground.color[1]*255), 
+                         int(ground.color[2]*255)))
 
         strList = map(lambda i: ground.atoms[i].element.symbol + str(i),
                                                 range(0, len(ground.atoms)))
         self.atomsComboBox.insertStrList(strList, 0)
 
+        self.applyPushButton.setEnabled(False)
+        
+
     #########################
-    # Change ground color
+    # Change linear ground color
     #########################
     def changeGroundColor(self):
-        color = QColorDialog.getColor(QColor(self.ground.color), self, "ColorDialog")
+
+        color = QColorDialog.getColor(
+            QColor(int(self.ground.color[0]*255), 
+                         int(self.ground.color[1]*255), 
+                         int(self.ground.color[2]*255)),
+                         self, "ColorDialog")
+                        
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.ground.color = color
-            self.ground.molecule.havelist = 0
+            self.ground.color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
             self.glpane.paintGL()
+
 
     #################
     # OK Button
     #################
     def accept(self):
-        self.ground.name = self.nameLineEdit.text()
+        self.applyButtonPressed()
         QDialog.accept(self)
 
     #################
     # Cancel Button
     #################
     def reject(self):
-        QDialog.reject(self)
-        
-    
-    ########################
-    # Properties change slot function
-    ########################
-    def propertiesChanged(self):
-         self.applyPushButton.setEnabled(True)
-          
-    ########################
-    # Properties change slot function
-    ########################
+	    QDialog.reject(self)
+
+    #################
+    # Apply Button
+    #################	
     def applyButtonPressed(self):
-         self.ground.name = self.nameLineEdit.text()   
-         self.applyPushButton.setEnabled(False)
+        
+        self.ground.name = self.nameLineEdit.text()
+
+        self.applyPushButton.setEnabled(False)
+	
+    def propertyChanged(self):
+        self.applyPushButton.setEnabled(True)	

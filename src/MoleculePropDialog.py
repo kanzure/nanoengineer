@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MoleculePropDialog.ui'
 #
-# Created: Tue Sep 28 10:07:24 2004
+# Created: Sat Oct 9 08:13:38 2004
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
