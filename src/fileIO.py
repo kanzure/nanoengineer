@@ -350,7 +350,6 @@ def _readmmp(assy, filnam, isInsert = False):
                 assy.temperature = n
                 
         elif key=="end1":  # End of main tree
-            print "End of tree found"
             AddAtoms = False
     
     return grouplist        
