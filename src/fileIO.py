@@ -78,7 +78,7 @@ def writepdb(assy, filename):
 
     atomIndex = 1
 
-    for mol in assy.selmols:
+    for mol in assy.molecules:
         for a in mol.atoms.itervalues():
             aList = []
             f.write("ATOM  ")

@@ -173,8 +173,9 @@ class MWsemantics(MainWindow):
 
     def fileInsert(self):
         wd = globalParms['WorkingDirectory']
-        fn = QFileDialog.getOpenFileName(wd, "Molecular machine parts (*.mmp);;Molecules (*.pdb);;Molecular parts assemblies (*.mpa);; All of the above (*.pdb *.mmp *.mpa)",
-                                         self )
+        fn = QFileDialog.getOpenFileName(wd, 
+            "Molecular machine parts (*.mmp);;Molecules (*.pdb);; All of the above (*.pdb *.mmp)",
+            self )
         fn = str(fn)
         if not os.path.exists(fn): return
         assy = assembly(self, "Empty")
@@ -196,7 +197,7 @@ class MWsemantics(MainWindow):
     def fileOpen(self):
         if self.assy.modified:
             ret = QMessageBox.information( self, "Atom",
-                "The part contains unsaved changes\n"
+                "The part contains unsaved changes.\n"
                 "Do you want to save the changes before opening a new part?",
                 "&Save", "&Discard", "Cancel",
                 0,      # Enter == button 0
@@ -228,6 +229,7 @@ class MWsemantics(MainWindow):
         dir, fil, ext = fileparse(fn)
         self.assy.name = fil
         self.assy.filename = fn
+        self.assy.modified = 0 # The file and the part are now the same
 
         self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
 
@@ -253,7 +255,6 @@ class MWsemantics(MainWindow):
                 dir, fil, ext = fileparse(self.assy.filename)
             else: dir, fil = "./", self.assy.name
 
-        fn = None 
         sfilter = QString("")   
         fn = QFileDialog.getSaveFileName(dir,
                     "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;POV-Ray (*.pov)",
@@ -261,8 +262,6 @@ class MWsemantics(MainWindow):
                     "Save As",
                     sfilter)
         
-#        print "\nMWSematics.py: sfilter =", sfilter # Debugging code - Mark
-
         if fn:
             fn = str(fn)
             dir, fil, ext = fileparse(fn)
@@ -280,7 +279,7 @@ class MWsemantics(MainWindow):
                 else:
                     self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
             
-            if ext == ".pov": # Write POV-Ray file
+            elif ext == ".pov": # Write POV-Ray file
                 try:
                     writepov(self.assy, dir + fil + ext)
                 except:
@@ -289,9 +288,8 @@ class MWsemantics(MainWindow):
                 else:
                     self.msgbarLabel.setText( "File saved: " + dir + fil + ext )
             
-            else: # Write MMP file.
+            elif ext == ".mmp" : # Write MMP file.
                 self.assy.filename = dir + fil + ext
-                print "MWSematics.py: filename =",  self.assy.filename #DEBUG
                 self.assy.name = fil
                 try:
                     writemmp(self.assy, dir + fil + ext)
@@ -303,6 +301,9 @@ class MWsemantics(MainWindow):
                     self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.filename + "]"))
                     self.msgbarLabel.setText( "MMP file saved: " + self.assy.filename )
                     self.assy.modified = 0 # The file and the part are now the same.
+            
+            else: # This should never happen.
+                self.msgbarLabel.setText( "MWSemantics.py: fileSaveAs() - File Not Saved.")
 
     def fileImage(self):
         if self.assy:
@@ -319,7 +320,7 @@ class MWsemantics(MainWindow):
     def fileExit(self):
         if self.assy.modified:
             ret = QMessageBox.information( self, "Atom",
-                "The part contains unsaved changes\n"
+                "The part contains unsaved changes.\n"
                 "Do you want to save the changes before exiting?",
                 "&Save", "&Discard", "Cancel",
                 0,      # Enter == button 0
@@ -337,7 +338,7 @@ class MWsemantics(MainWindow):
     def fileClose(self):
         if self.assy.modified:
             ret = QMessageBox.information( self, "Atom",
-                "The part contains unsaved changes\n"
+                "The part contains unsaved changes.\n"
                 "Do you want to save the changes before closing this part?",
                 "&Save", "&Discard", "Cancel",
                 0,      # Enter == button 0
@@ -361,6 +362,7 @@ class MWsemantics(MainWindow):
         # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Empty")
         self.setCaption(self.trUtf8("Atom - " + "[" + self.assy.name + "]"))
+        self.msgbarLabel.setText( " " )
         self.glpane.setAssy(self.assy)
         self.assy.mt = self.mt
 
