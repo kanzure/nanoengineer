@@ -381,7 +381,7 @@ class GLPane(QGLWidget):
         self.swapBuffers()
 
     def drawarrow(self, aspect):
-        glOrtho(-50*aspect, 5*aspect, -50, 5,  -5, 5)
+        glOrtho(-50*aspect, 5*aspect, -50, 5,  -5, 500)
         q = self.quat
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
         glEnable(GL_COLOR_MATERIAL)
