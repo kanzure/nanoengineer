@@ -534,9 +534,9 @@ def writemdl(assy, filename):
 def writemovie(assy, moviefile, mflag = False):
     """Creates a moviefile.  
     moviefile - name of either a DPB file or an XYZ trajectory file.
-                    A DPB file is a binary trajectory file. 
-                    An XYZ file is a text file.
-    mflag - if True, create a minimize moviefile
+                    DPB = Differential Position Bytes (binary file)
+                    XYZ = XYZ trajectory file (text file)
+    mflag - if True, creates a minimize dpb moviefile
     """
     # Make sure some chunks are in the part.
     if not assy.molecules: # Nothing in the part to minimize.
@@ -569,8 +569,15 @@ def writemovie(assy, moviefile, mflag = False):
     else: formarg = "-x"
         
     # Put double quotes around filenames so spawnv can handle them properly on Win32 systems.
-    outfile = '"-o%s"' % moviefile
-    infile = '"%s"' % mmpfile
+    # This may create a bug on Linux and MacOS, so lets leave the quotes off.
+    # Mark 050107
+    if sys.platform == 'win32':
+        outfile = '"-o%s"' % moviefile
+        infile = '"%s"' % mmpfile
+    else:
+        outfile = "-o"+moviefile
+        infile = infile
+        
     print "infile = ",infile," outfile =",outfile
 
     if mflag: # "args" = arguments for the simulator to minimize.
@@ -651,6 +658,7 @@ def writemovie(assy, moviefile, mflag = False):
             win32api.TerminateProcess(kid, -1)
             win32api.CloseHandle(kid)
         else:
+            import signal
             os.kill(kid, signal.SIGKILL) # works on Linux and MacOS
             
             
