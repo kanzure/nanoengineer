@@ -1250,9 +1250,11 @@ class assembly:
         """
         
         if not self.selatoms and not self.selmols: # optimization, and different status msg
-            msg = redmsg("Nothing selected")
+            msg = redmsg("Delete Bonds: Nothing selected")
             self.w.history.message(msg)
             return
+        
+        self.w.history.message(greenmsg("Delete Bonds:"))
         
         cutbonds = 0
         
@@ -1263,13 +1265,13 @@ class assembly:
                 if neighbor.element != Singlet:
                     if not neighbor.picked:
                         b.bust()
-                        a.pick()
+                        a.pick() # Probably not needed, but just in case...
                         cutbonds += 1
 
         # Delete bonds between selected chunks and chunks that are not selected.
         for mol in self.selmols[:]:
             # "externs" contains a list of bonds between this chunk and a different chunk
-            for b in mol.externs:
+            for b in mol.externs[:]:
                 # atom1 and atom2 are the connect atoms in the bond
                 if int(b.atom1.molecule.picked) + int(b.atom2.molecule.picked) == 1: 
                     b.bust()
@@ -1283,7 +1285,10 @@ class assembly:
         else:
             self.w.win_update() #e do this in callers instead?
         
-                
+    #m modifySeparate needs to be changed to modifySplit.  Need to coordinate
+    # this with Bruce since this is called directly from some mode modules.
+    # Mark 050209
+    #
     # separate selected atoms into a new molecule
     # (one new mol for each existing one containing any selected atoms)
     # do not break bonds
@@ -1307,7 +1312,7 @@ class assembly:
         # new mol? If not, then if N becomes empty, should we rename N-frag to N?
         
         if not self.selatoms: # optimization, and different status msg
-            msg = "Separate: no atoms selected"
+            msg = "Split: no atoms selected"
             self.w.history.message(msg)
             return
         numolist=[]
@@ -1322,7 +1327,7 @@ class assembly:
                 numolist+=[numol]
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
-        msg = fix_plurals("Separate created %d new chunk(s)" % len(numolist))
+        msg = fix_plurals("Split created %d new chunk(s)" % len(numolist))
         self.w.history.message(msg)
         self.w.win_update() #e do this in callers instead?
 
