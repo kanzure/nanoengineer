@@ -229,7 +229,7 @@ double hooke(double rsq) {
 	double r;
 	
 	r=sqrt(rsq);
-	return Ks*(R0/r-1.0);
+	return 2.0*Ks*(R0/r-1.0);
 }
 
 /* use the Morse potential inside R0, Lippincott outside */
@@ -366,6 +366,16 @@ struct xyz sxyz(double *v) {
     return g;
 }
 
+int isbonded(int a1, int a2) {
+    int j, b, ba;
+	for (j=0; j<atom[a1].nbonds; j++) {
+	    b=atom[a1].bonds[j];
+	    ba=(a1==bond[b].an1 ? bond[b].an2 : bond[b].an1);
+	    if (ba==a2) return 1;
+	}
+	return 0;
+}
+    
 
 int Count = 0;
 
@@ -384,7 +394,9 @@ void findnobo(int a1) {
 	    for (k=iz-7; k<iz; k++)
 		for (p=Space[i&SPMASK][j&SPMASK][k&SPMASK]; p; p=p->next) {
 		    a2 = p-atom;
-		    if (a2>a1 && atom[a1].part != atom[a2].part) {
+		    if (a2>a1 
+			&& (ToMinimize || atom[a1].part != atom[a2].part)
+			&& !isbonded(a1,a2)) {
 			r=vlen(vdif(cur[a1],cur[a2]));
 			if (r<800.0) {
 			    makvdw(a1, a2);
@@ -516,7 +528,8 @@ void calcloop(int iters) {
 					
 		    // printf("stretch: high --");
 		    //pb(j);
-		    if (ToMinimize) fac = t1[0]+rsq*t2[0]; //linear
+		    if (ToMinimize)  //flat
+			fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*t2[TABLEN-1];
 		    else fac=0.0;
 		}
 		else fac=t1[k]+rsq*t2[k];
@@ -529,8 +542,7 @@ void calcloop(int iters) {
 				
 	    }
 			
-	    /* now the forces for each bend, accumulating ones for each pair
-	       in the bond record */
+	    /* now the forces for each bend */
 			
 	    for (j=0; j<Nextorq; j++) {
 		
