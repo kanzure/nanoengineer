@@ -239,14 +239,14 @@ class DebugMenuMixin:
         except:
             self._debug_classname = "<some class>"
         # make the menu
-        try:
-            self.makemenu # subclass needs to provide this!
-        except:
-            print "warning: bug: %s forgot to define a makemenu() method; debug_menu unavailable" % self._debug_classname
-        else:
-            self.debug_menu = self.makemenu( self.debug_menu_items() )
+        self.debug_menu = self.makemenu( self.debug_menu_items() )
         return
 
+    def makemenu(self, lis): # bruce 050304 added this, so subclasses no longer have to
+        "[can be overridden by a subclass, but probably never needs to be]"
+        from widgets import makemenu_helper
+        return makemenu_helper(self, lis)
+    
     def _debug_history(self):
         # figure out where to send history messages
         # (can't be done at init time since value of win.history can change)
@@ -277,6 +277,7 @@ class DebugMenuMixin:
             #e use a "checkmark item" when we're remaking this menu dynamically:
             ('enable ATOM_DEBUG', self._debug_enable_atom_debug ),
             ('disable ATOM_DEBUG', self._debug_disable_atom_debug ),
+            ('choose font', self._debug_choose_font),
             ('print self', self._debug_printself),
         ] )
         return res
@@ -295,6 +296,17 @@ class DebugMenuMixin:
         histfunc = self._debug_history().message
         load_window_pos_size( win, keyprefix, histmessage = histfunc)
 
+    def _debug_choose_font(self): #bruce 050304 experiment; works; could use toString/fromString to store it in prefs...
+        oldfont = self.font()
+        from qt import QFontDialog
+        newfont, ok = QFontDialog.getFont(oldfont)
+            ##e can we change QFontDialog to let us provide initial sample text,
+            # and permit typing \n into it? If not, can we fool it by providing
+            # it with a fake "paste" event?
+        if ok:
+            self.setFont(newfont)
+        return
+    
     def _debug_enable_atom_debug(self):
         import platform
         platform.atom_debug = 1

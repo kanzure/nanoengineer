@@ -25,6 +25,7 @@ __author__ = "bruce"
 from qt import *
 import sys, os, time
 import platform # for atom_debug, and more
+from debug import DebugMenuMixin
 
 
 # [formatters by Mark; moved into this file by bruce 050107;
@@ -79,7 +80,10 @@ class message:
         assert 0, "nim" # same fields as widget text, but in xml, and not affected by display prefs
     pass
 
-class History_QTextEdit(QTextEdit):
+class History_QTextEdit(QTextEdit, DebugMenuMixin):
+    def __init__(self, parent):#050304
+        QTextEdit.__init__(self, parent)
+        DebugMenuMixin._init1(self) # provides self.debug_event()
     def focusInEvent(self, event):
         ## print "fyi: hte focus in" # debug
         return QTextEdit.focusInEvent(self, event)
@@ -104,6 +108,10 @@ class History_QTextEdit(QTextEdit):
         #e now if it was a paintevent, try painting something else over it... or try implementing the method for catching those...
         #e watch out for being outside the scrollview.
         return res
+    def contentsMousePressEvent(self, event):#050304
+        if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
+            return
+        return QTextEdit.contentsMousePressEvent(self, event)
     def repaint(self, *args):
         print "repaint, %r" % args # this is not being called, even though we're getting PaintEvents above.
         return QTextEdit.repaint(*args)
