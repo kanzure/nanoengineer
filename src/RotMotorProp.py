@@ -3,9 +3,9 @@ from qt import *
 from RotaryMotorPropDialog import *
 from VQT import V
 
-class RotMotorProp(rotaryMotorPropDialog):
+class RotMotorProp(RotMotorPropDialog):
     def __init__(self, rotMotor):
-        rotaryMotorPropDialog.__init__(self)
+        RotMotorPropDialog.__init__(self)
         self.motor = rotMotor
 
         self.torqueLineEdit.setText(str(rotMotor.torque))
@@ -28,15 +28,15 @@ class RotMotorProp(rotaryMotorPropDialog):
     #################
 
     def accept(self):
-        self.motor.torque = float(str(self.torque.text()))
-        self.motor.speed = float(str(self.speed.text()))
-    	self.motor.axis[0] = float(str(self.aX.text()))
-	self.motor.axis[1] = float(str(self.aY.text()))
-	self.motor.axis[2] = float(str(self.aZ.text()))
+        self.motor.torque = float(str(self.torqueLineEdit.text()))
+        self.motor.speed = float(str(self.speedLineEdit.text()))
+    	self.motor.axis[0] = float(str(self.axLineEdit.text()))
+	self.motor.axis[1] = float(str(self.ayLineEdit.text()))
+	self.motor.axis[2] = float(str(self.azLineEdit.text()))
 
-        self.motor.center[0] = float(str(self.cX.text()))
-	self.motor.center[1] = float(str(self.cY.text()))
-	self.motor.center[2] = float(str(self.cZ.text()))
+        self.motor.center[0] = float(str(self.cxLineEdit.text()))
+	self.motor.center[1] = float(str(self.cyLineEdit.text()))
+	self.motor.center[2] = float(str(self.czLineEdit.text()))
 
         QDialog.accept(self)
 

@@ -114,7 +114,7 @@ class modelTree(QListView):
                 rMotorDialog = RotMotorProp(rotaryMotor)
                 rMotorDialog.show()
                 rMotorDialog.exec_loop()
-#                  pass
+
                   
     def processInsertHereMenu(self, id):
             if id == 0: #Paste
@@ -260,7 +260,7 @@ class modelTree(QListView):
                       item.setPixmap(0, self.lmotorIcon)
                          
                    item.setDragEnabled(False)
-                   item.setDropEnabled(True)
+                   item.setDropEnabled(False)
                    item.setRenameEnabled(0, True)
                    self.treeItems[item] = g
                    self.objectToTreeItems[g] = item
@@ -275,19 +275,19 @@ class modelTree(QListView):
         item = QListViewItem(rootItem, "TOP")
         item.setPixmap(0, self.datumPlaneIcon) 
         item.setDragEnabled(False)
-        item.setDropEnabled(True)
+        item.setDropEnabled(False)
         self.treeItems[item] = None
         
         item = QListViewItem(rootItem, "FRONT")
         item.setPixmap(0, self.datumPlaneIcon) 
         item.setDragEnabled(False)
-        item.setDropEnabled(True)
+        item.setDropEnabled(False)
         self.treeItems[item] = None
         
         item = TreeListViewItem(rootItem, "Csys")
         item.setPixmap(0, self.csysIcon)
         item.setDragEnabled(False)
-        item.setDropEnabled(True)
+        item.setDropEnabled(False)
         item.setRenameEnabled(0, True)
         self.treeItems[item] = None
         self.objectToTreeItems[self.csysIcon] = item
@@ -295,35 +295,31 @@ class modelTree(QListView):
 
              
 
-    #def contentsDragEnterEvent(self, e):
+    def contentsDragEnterEvent(self, e):
     #     e.accept(True)
+        self.oldCurrent = self.currentItem()
+        
+        i = self.itemAt(self.contentsToViewport(e.pos()))
+        if i:
+            self.dropItem = i
         
 
-    #def contentsDragMoveEvent(self, e):
-    #    vp = self.contentsToViewport(e.pos())
-    #    i = self.itemAt( vp )
-    #    if  i:
-    #       self.setSelected( i, True )
-    #        e.accept()
-    #        e.acceptAction()
-    #    else:
-    #       e.ignore()
+    def contentsDragMoveEvent(self, e):
+        vp = self.contentsToViewport(e.pos())
+        i = self.itemAt( vp )
+
+        if  i and i.dropEnabled():
+            self.setSelected( i, True )
+            e.accept()
+            e.acceptAction()
+        else:
+           e.ignore()
 
 
     def contentsDragLeaveEvent(self, e):
         #autoopen_timer->stop();
-        self.dropItem = 0          #if ( not QDragObject.canDecode(e) ):
-           #    e.ignore()
-           #    return
-
-        #self.oldCurrent = self.currentItem();
-
-        #i = self.itemAt(self.contentsToViewport(e.pos()))
-        #if i: 
-        #   self.dropItem = i
-        #    print "In DragEnterEvent: ", i
-        #   #autoopen_timer->start( autoopenTime );
-
+        self.dropItem = 0          
+        
         self.setCurrentItem( self.oldCurrent )
         self.setSelected( self.oldCurrent, True )
 
@@ -331,32 +327,27 @@ class modelTree(QListView):
 
     def contentsDropEvent(self, e ):
           item = self.itemAt(self.contentsToViewport(e.pos()))
-          if not item or not item.parent():
+          if not item or not item.parent() or not item.dropEnabled():
              return
 
-          if (item == item.parent().firstChild()):
-                self.oldCurrent.moveItem(item)
-                item.moveItem(self.oldCurrent)
-          else:
-                item = item.itemAbove() 
-                self.oldCurrent.moveItem(item)
+          self.oldCurrent.moveItem(item)
 
 
-    #def contentsMousePressEvent(self, e ):
-    #    QListView.contentsMousePressEvent(self, e)
-    #    p = QPoint(self.contentsToViewport(e.pos()))
-    #    item = self.itemAt( p )
-    #    if item:
-    #      if self.rootIsDecorated(): i = 1
-    #       else: i = 0
+    def contentsMousePressEvent(self, e ):
+        QListView.contentsMousePressEvent(self, e)
+        p = QPoint(self.contentsToViewport(e.pos()))
+        item = self.itemAt( p )
+        if item and self.objectToTreeItems[self.insertHereIcon] == item:
+            if self.rootIsDecorated(): i = 1
+            else: i = 0
 
         # if the user clicked into the root decoration of the item, don't try to start a drag!
-     #      if ( p.x() > self.header().sectionPos(self.header().mapToIndex(0)) +
-     #              self.treeStepSize() * ( item.depth() + i) + self.itemMargin() or
-     #              p.x() < self.header().sectionPos(self.header().mapToIndex(0))):
-     #         self.presspos = e.pos()
-     #         self.mousePressed = True
-     #         self.oldCurrent = item
+            if ( p.x() > self.header().sectionPos(self.header().mapToIndex(0)) +
+                   self.treeStepSize() * ( item.depth() + i) + self.itemMargin() or
+                   p.x() < self.header().sectionPos(self.header().mapToIndex(0))):
+              self.presspos = e.pos()
+              self.mousePressed = True
+              self.oldCurrent = item
 
 
 
@@ -370,5 +361,5 @@ class modelTree(QListView):
                 ud.drag()
                 
 
-    #def contentsMouseReleaseEvent(self, e ):
-    #   self.mousePressed = False
+    def contentsMouseReleaseEvent(self, e ):
+        self.mousePressed = False
