@@ -135,7 +135,7 @@ class selectMode(basicMode):
         self.w.setElement(elem) # bruce comment 040922 -- this line is an inlined version of the superclass method.
         # change selected atoms to the element selected
         if self.o.assy.selatoms:
-            for a in self.o.assy.selatoms.itervalues():
+            for a in self.o.assy.selatoms.values():
                 a.mvElement(PeriodicTable[elem])
             self.o.paintGL()
        
