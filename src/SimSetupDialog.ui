@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>337</width>
-            <height>216</height>
+            <height>219</height>
         </rect>
     </property>
     <property name="caption">
@@ -56,7 +56,9 @@
 
 
 
+
 (hundredths of
+
 
 
 
@@ -67,7 +69,7 @@ femtosecond)</string>
                     </widget>
                     <widget class="QSpinBox">
                         <property name="name">
-                            <cstring>TimeStepWidget</cstring>
+                            <cstring>timestepSB</cstring>
                         </property>
                         <property name="maxValue">
                             <number>999</number>
@@ -99,7 +101,7 @@ femtosecond)</string>
                     </widget>
                     <widget class="QSpinBox">
                         <property name="name">
-                            <cstring>StepsPerFrameWidget</cstring>
+                            <cstring>stepsperSB</cstring>
                         </property>
                         <property name="minValue">
                             <number>1</number>
@@ -128,7 +130,7 @@ femtosecond)</string>
                     </widget>
                     <widget class="QSpinBox">
                         <property name="name">
-                            <cstring>NumFramesWidget</cstring>
+                            <cstring>nframesSB</cstring>
                         </property>
                         <property name="maxValue">
                             <number>90000</number>
@@ -164,12 +166,13 @@ femtosecond)</string>
 
 
 
+
 (Kelvins)</string>
                         </property>
                     </widget>
                     <widget class="QSpinBox">
                         <property name="name">
-                            <cstring>TemperatureWidget</cstring>
+                            <cstring>tempSB</cstring>
                         </property>
                         <property name="maxValue">
                             <number>999</number>
@@ -244,7 +247,7 @@ femtosecond)</string>
 </images>
 <connections>
     <connection>
-        <sender>NumFramesWidget</sender>
+        <sender>nframesSB</sender>
         <signal>valueChanged(int)</signal>
         <receiver>SimSetupDialog</receiver>
         <slot>NumFramesValueChanged(int)</slot>
@@ -262,19 +265,19 @@ femtosecond)</string>
         <slot>createMoviePressed()</slot>
     </connection>
     <connection>
-        <sender>StepsPerFrameWidget</sender>
+        <sender>stepsperSB</sender>
         <signal>valueChanged(int)</signal>
         <receiver>SimSetupDialog</receiver>
         <slot>StepsChanged(int)</slot>
     </connection>
     <connection>
-        <sender>TemperatureWidget</sender>
+        <sender>tempSB</sender>
         <signal>valueChanged(int)</signal>
         <receiver>SimSetupDialog</receiver>
         <slot>TemperatureChanged(int)</slot>
     </connection>
     <connection>
-        <sender>TimeStepWidget</sender>
+        <sender>timestepSB</sender>
         <signal>valueChanged(int)</signal>
         <receiver>SimSetupDialog</receiver>
         <slot>TimeStepChanged(int)</slot>

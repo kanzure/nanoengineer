@@ -630,7 +630,7 @@ class GLPane(QGLWidget, modeMixin):
         #e someday: if self.display == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.display = disp
-        self.assy.w.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
+        self.win.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
         for mol in self.assy.molecules:
             if mol.display == diDEFAULT: mol.changeapp(1)
 
@@ -812,83 +812,17 @@ class GLPane(QGLWidget, modeMixin):
         pic.save(filename, "JPEG", quality=85)
 
     def minimize(self):
-        # There may be chunks (assy.molecules) in the part, but no assy.alist created yet.  
         # Make sure some chunks are in the part.
         if not self.assy.molecules: # Nothing in the part to minimize.
             self.win.statusBar.message("<span style=\"color:#ff0000\">Minimize: Nothing to minimize.</span>")
             return
 
-        #bruce 041215 fixed some bugs and changed some error messages
-        # in the case when the simulator executable is not found.
-        # Bugs included uncaught exception (rather than error message)
-        # which could also fail to restore the current working directory.
-        from debug import print_compact_traceback
-        ## bruce 041101 removed this since it's immediately overwritten below:
-        ## self.win.statusBar.message( "Minimizing...")
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # hourglass
-        s = ""; args = ['bugifseen']; r = program = 'bugifseen'
-        try:
-            self.win.statusBar.message("<span style=\"color:#006600\">Minimize: Calculating...</span>")
-            filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-            tmpFilePath = self.win.tmpFilePath 
-            writemmp(self.assy, os.path.join(tmpFilePath, "minimize.mmp"), False)
-            
-            #Huaicai 12/07/04, if path name for "minimize.mmp" has space, 
-            # spawnv() has problems on Windows, so changing working directory to it
-            oldWorkingDir = os.getcwd()
-            program = os.path.normpath(filePath + '/../bin/simulator')
-            # Note: the actual executable file on Windows is simulator.exe.
-            # For now, just change the existence test below (for all OSes).
-            # Later we might decide to do this more cleanly
-            # (so error detection is not confused if something exists at the
-            #  wrong path for some OS). I don't know whether the .exe name
-            # could or should be passed to spawnv.
-            # [quick bugfix by Mark & Bruce, 041223; comment by bruce]
-            args = [program, '-m ',  "minimize.mmp"]
-            natoms = len(self.assy.alist)
-            if os.path.exists(program) or os.path.exists(program + '.exe'):
-                try:
-                    os.chdir(tmpFilePath)
-                    if os.path.exists("minimize.dpb"): os.remove ("minimize.dpb") # Delete before spawning.
-                    kid = os.spawnv(os.P_NOWAIT, program, args)
-                    natoms = len(self.assy.alist)
-                    # This formula is used in simulator.c to determine the number of frames for minimization.
-                    # Josh came up with this formula.  Not sure exactly why.  Mark 050105
-                    nframes = max(25, int(sqrt(natoms))) 
-                    dpbsize = (nframes * natoms * 3) + 4
-                    r = self.win.progressbar.launch(dpbsize, "minimize.dpb", "Minimize", "Calculating...", 1)
-                finally:
-                    os.chdir(oldWorkingDir)
-            else:
-                r = 'program not found'
-                s = "simulator not found at \"%s\"; installation error?" % program
-                # avoid %r for pathnames -- on Windows it shows \dir\file as \\dir\\file
-                # (note that as of 041223 this message is misleading for Windows
-                # since it leaves out the .exe.) [bruce 041223]
-        except:
-            print_compact_traceback("exception in minimize; continuing: ")
-            print "note: spawnv args were %r" % (args,) # This %r remains,
-                # since Mark says %s here also prints \\, and we prefer the %r
-                # anyway for its precision. (This is really a debugging message
-                # which we'll remove once the code is stable enough.) [bruce 041223]
-            s = "internal error (traceback printed elsewhere)"
-            r = -1 # simulate failure
-        QApplication.restoreOverrideCursor() # Restore the cursor
+        minmovie = os.path.join(self.win.tmpFilePath, "minimize.dpb")
+        r = writemovie(self.assy, minmovie, 1)
         if not r: # Minimization worked.  Start movie.
             self.win.statusBar.message("Minimizing...")
-            self.startmovie(os.path.join(tmpFilePath, "minimize.dpb"))
-        elif r == 1: # User pressed abort on progress dialog...
-            self.win.statusBar.message("<span style=\"color:#ff0000\">Minimize: Aborted.</span>")
-            # We should kill the kid, but not sure how on Windows
-            if sys.platform not in ['win32']: os.kill(kid, signal.SIGKILL) # Not tested - Mark 050105
-        else: # Something failed...
-            if not s:
-                s = "exit code %r" % r
-            print "Minimization Failed:", s
-            print "note: spawnv args were %r" % (args,) # this %r remains (see above)
-            print " in the temporary working directory \"%s\"" % (tmpFilePath,)
-            self.win.statusBar.message("Minimization Failed!") ##e include s?
-            QMessageBox.warning(self, "Minimization Failed:", s)
+            self.startmovie(minmovie)
+
         return
 
     def startmovie(self, filename):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Wed Jan 5 03:51:49 2005
+# Created: Fri Jan 7 02:03:09 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -72,11 +72,11 @@ class SimSetupDialog(QDialog):
         self.textLabel1 = QLabel(LayoutWidget,"textLabel1")
         layout58.addWidget(self.textLabel1)
 
-        self.TimeStepWidget = QSpinBox(LayoutWidget,"TimeStepWidget")
-        self.TimeStepWidget.setMaxValue(999)
-        self.TimeStepWidget.setMinValue(1)
-        self.TimeStepWidget.setValue(10)
-        layout58.addWidget(self.TimeStepWidget)
+        self.timestepSB = QSpinBox(LayoutWidget,"timestepSB")
+        self.timestepSB.setMaxValue(999)
+        self.timestepSB.setMinValue(1)
+        self.timestepSB.setValue(10)
+        layout58.addWidget(self.timestepSB)
 
         layout10.addLayout(layout58,0,0)
 
@@ -85,10 +85,10 @@ class SimSetupDialog(QDialog):
         self.textLabel2 = QLabel(LayoutWidget,"textLabel2")
         layout61.addWidget(self.textLabel2)
 
-        self.StepsPerFrameWidget = QSpinBox(LayoutWidget,"StepsPerFrameWidget")
-        self.StepsPerFrameWidget.setMinValue(1)
-        self.StepsPerFrameWidget.setValue(10)
-        layout61.addWidget(self.StepsPerFrameWidget)
+        self.stepsperSB = QSpinBox(LayoutWidget,"stepsperSB")
+        self.stepsperSB.setMinValue(1)
+        self.stepsperSB.setValue(10)
+        layout61.addWidget(self.stepsperSB)
 
         layout10.addLayout(layout61,1,0)
 
@@ -97,12 +97,12 @@ class SimSetupDialog(QDialog):
         self.textLabel5 = QLabel(LayoutWidget,"textLabel5")
         layout60.addWidget(self.textLabel5)
 
-        self.NumFramesWidget = QSpinBox(LayoutWidget,"NumFramesWidget")
-        self.NumFramesWidget.setMaxValue(90000)
-        self.NumFramesWidget.setMinValue(30)
-        self.NumFramesWidget.setLineStep(15)
-        self.NumFramesWidget.setValue(900)
-        layout60.addWidget(self.NumFramesWidget)
+        self.nframesSB = QSpinBox(LayoutWidget,"nframesSB")
+        self.nframesSB.setMaxValue(90000)
+        self.nframesSB.setMinValue(30)
+        self.nframesSB.setLineStep(15)
+        self.nframesSB.setValue(900)
+        layout60.addWidget(self.nframesSB)
 
         layout10.addLayout(layout60,1,1)
 
@@ -111,10 +111,10 @@ class SimSetupDialog(QDialog):
         self.textLabel3 = QLabel(LayoutWidget,"textLabel3")
         layout9.addWidget(self.textLabel3)
 
-        self.TemperatureWidget = QSpinBox(LayoutWidget,"TemperatureWidget")
-        self.TemperatureWidget.setMaxValue(999)
-        self.TemperatureWidget.setValue(300)
-        layout9.addWidget(self.TemperatureWidget)
+        self.tempSB = QSpinBox(LayoutWidget,"tempSB")
+        self.tempSB.setMaxValue(999)
+        self.tempSB.setValue(300)
+        layout9.addWidget(self.tempSB)
 
         layout10.addLayout(layout9,0,1)
 
@@ -131,15 +131,15 @@ class SimSetupDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(337,216).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(337,219).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.NumFramesWidget,SIGNAL("valueChanged(int)"),self.NumFramesValueChanged)
+        self.connect(self.nframesSB,SIGNAL("valueChanged(int)"),self.NumFramesValueChanged)
         self.connect(self.SaveButton,SIGNAL("clicked()"),self.saveFilePressed)
         self.connect(self.MovieButton,SIGNAL("clicked()"),self.createMoviePressed)
-        self.connect(self.StepsPerFrameWidget,SIGNAL("valueChanged(int)"),self.StepsChanged)
-        self.connect(self.TemperatureWidget,SIGNAL("valueChanged(int)"),self.TemperatureChanged)
-        self.connect(self.TimeStepWidget,SIGNAL("valueChanged(int)"),self.TimeStepChanged)
+        self.connect(self.stepsperSB,SIGNAL("valueChanged(int)"),self.StepsChanged)
+        self.connect(self.tempSB,SIGNAL("valueChanged(int)"),self.TemperatureChanged)
+        self.connect(self.timestepSB,SIGNAL("valueChanged(int)"),self.TimeStepChanged)
         self.connect(self.CancelButton,SIGNAL("clicked()"),self,SLOT("close()"))
 
 

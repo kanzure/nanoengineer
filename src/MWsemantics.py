@@ -62,7 +62,7 @@ class MWsemantics(MainWindow):
         global windowList
 
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
-
+        
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into atom.py at some point)
         self.tmpFilePath = platform.find_or_make_Nanorex_prefs_directory()
@@ -142,7 +142,7 @@ class MWsemantics(MainWindow):
         # such as minimize, simulator and select doubly.  Mark 050101
         from ProgressBar import ProgressBar
         self.progressbar = ProgressBar()
-                    
+
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
         self.assy.mt = self.mt
@@ -168,7 +168,7 @@ class MWsemantics(MainWindow):
         # stores the center view point of the current home view. This needs to change when
         # we update the mmp file format
         self.currentPov = V(0.0, 0.0, 0.0)
-
+        
         # bruce 050104 moved find_or_make_Nanorex_prefs_directory to an earlier time
         
         self.initialised = 1
@@ -267,7 +267,7 @@ class MWsemantics(MainWindow):
         
 
     ###################################
-    # functions from the "File" menu
+    # File Toolbar Slots
     ###################################
 
     def fileNew(self):
@@ -515,12 +515,6 @@ class MWsemantics(MainWindow):
         else:
             ce.ignore()
 
-    # Comment out by Huaicai 12/06/04. File Clear is not supported any more
-    #def fileClear(self):
-    #    self.__clear()
-    #    self.modelTreeView.update()
-    #    self.update()
-
     def fileClose(self):
         isFileSaved = True
         if self.assy.modified:
@@ -569,13 +563,12 @@ class MWsemantics(MainWindow):
         # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Untitled")
         self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
-        self.statusBar.message( " " )
         self.glpane.setAssy(self.assy)
         self.assy.mt = self.mt
 
 
     ###################################
-    # functions from the "Edit" menu
+    # Edit Toolbar Slots
     ###################################
 
     def editUndo(self):
@@ -596,12 +589,20 @@ class MWsemantics(MainWindow):
         if self.assy.shelf.members:
             self.pasteP = True
             self.glpane.setMode('DEPOSIT')
+            
+    # editDelete
+    def killDo(self):
+        """ Deletes selected atoms, chunks, jigs and groups.
+        """
+        self.assy.kill()
+        self.glpane.paintGL()
+        self.mt.update()
 
     def editFind(self):
         self.statusBar.message("<span style=\"color:#ff0000\">Find: Not implemented yet.</span>")
 
     ###################################
-    # functions from the "View" menu
+    # View Toolbar Slots
     ###################################
 
     def setViewHome(self):
@@ -669,6 +670,10 @@ class MWsemantics(MainWindow):
         self.glpane.quat = Q(V(1,0,0),pi/2)
         self.glpane.paintGL()
 
+    ###################################
+    # Display Toolbar Slots
+    ###################################
+    
     # set display formats in whatever is selected,
     # or the GLPane global default if nothing is
     def dispDefault(self):
@@ -758,48 +763,10 @@ class MWsemantics(MainWindow):
         import elements
         elements.set_element_table(2, self.assy)
         self.glpane.paintGL()
-        
-    def dispGrid(self):
-        print "MWsemantics.dispGrid(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
-        
-    def gridGraphite(self):
-        print "MWsemantics.gridGraphite(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
 
-    #######################################
-    # functions from the "Orientation" menu
-    #######################################
-
-    # points of view corresponding to the three crystal
-    # surfaces of diamond
-
-    # along one axis
-    def orient100(self):
-        self.glpane.mode.surfset(0)
-        self.glpane.snapquat100()
-
-    # halfway between two axes
-    def orient110(self):
-        self.glpane.mode.surfset(1)
-        self.glpane.snapquat110()
-
-    # equidistant from three axes
-    def orient111(self):
-        self.glpane.mode.surfset(2)
-        self.glpane.snapquat111()
-
-    # lots of things ???
-    def orientView(self, a0=None):
-        print "MainWindow.orientView(string):", a0
-        self.glpane.quat = Q(1,0,0,0)
-        self.glpane.pov = V(0,0,0)
-        self.glpane.paintGL()
 
     ###############################################################
-    # functions from the "Select" menu
+    # Select Toolbar Slots
     ###############################################################
 
     def selectAll(self):
@@ -850,12 +817,9 @@ class MWsemantics(MainWindow):
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     ###################################
-    # Functions from the "Make" menu
+    # Jig Toolbar Slots
     ###################################
 
-    # these functions (do or will) create small structures that
-    # describe records to send to the simulator
-    # they don't do much in Atom itself
     def makeGround(self):
         self.assy.makeground()
         self.update()
@@ -863,11 +827,6 @@ class MWsemantics(MainWindow):
     def makeStat(self):
         self.assy.makestat()
         self.update()
-
-    def makeHandle(self):
-        print "MWsemantics.makeHandle(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
 
     def makeMotor(self):
         self.assy.makeRotaryMotor(self.glpane.lineOfSight)
@@ -877,30 +836,12 @@ class MWsemantics(MainWindow):
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
         self.update()
 
-    def makeBearing(self):
-        QMessageBox.information(self, self.name() + " User Notice:", 
-             "This function is not implemented yet, coming soon...")
-
-    def makeSpring(self):
-        QMessageBox.information(self, self.name() + " User Notice:", 
-             "This function is not implemented yet, coming soon...")
-    
-    def makeDyno(self):
-        print "MWsemantics.makeDyno(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
-
-    def makeHeatsink(self):
-        print "MWsemantics.makeHeatsink(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
-
     ###################################
-    # functions from the "Modify" menu
+    # Modify Toolbar Slots
     ###################################
     
     def modifyMinimize(self):
-        """ Minimize the selection """
+        """ Minimize the current assembly """
         self.glpane.minimize()
 
     def modifyHydrogenate(self):
@@ -936,7 +877,7 @@ class MWsemantics(MainWindow):
         self.update()
         
     ###################################
-    # Functions from the "Help" menu
+    # Help Toolbar Slots
     ###################################
 
     def helpContents(self):
@@ -949,8 +890,6 @@ class MWsemantics(MainWindow):
     def helpAssistant(self):
         # bruce 041118 moved this into assistant.py so I could merge
         # common code about where to find the docfiles
-#        assistant.showAssistant()
-#        import assistant
         self.assistant.openNE1Assistant()
              
     def helpAbout(self):
@@ -960,24 +899,34 @@ class MWsemantics(MainWindow):
     def helpWhatsThis(self):
         QWhatsThis.enterWhatsThisMode ()
 
-    ######################################################
-    # functions for toggling (hiding/unhiding) toolbars  #
-    ###Removed by Huaicai 12/08/04, they are not used.
-    ######################################################
-    
-    
-    ###############################################################
-    # functions from the buttons down the right side of the display
-    ###############################################################
+
+    ###################################
+    # Tools Toolbar Slots
+    ###################################
+
+    # get into Select Atoms mode
     def toolsSelectAtoms(self):
         self.glpane.setMode('SELECTATOMS')
 
+    # get into Select Chunks mode
     def toolsSelectMolecules(self):
         self.glpane.setMode('SELECTMOLS')
-        
+
+    # get into Move Chunks mode        
     def toolsMoveMolecule(self):
         self.glpane.setMode('MODIFY')
-            
+
+    # get into Build atoms mode 
+    def addAtomStart(self):
+        self.pasteP = False
+        self.glpane.setMode('DEPOSIT')
+
+    # get into Build atoms mode (duplicate of above).  
+    # Should remove one and rename the other to toolsBuildAtoms.  Mark
+    def toolsAtomStart(self):
+        self.pasteP = False
+        self.glpane.setMode('DEPOSIT')
+        
     # get into cookiecutter mode
     def toolsCookieCut(self):
         self.glpane.setMode('COOKIE')
@@ -985,11 +934,69 @@ class MWsemantics(MainWindow):
     # get into Extrude mode
     def toolsExtrude(self):
         self.glpane.setMode('EXTRUDE')
+    
+    # Open the Simulator dialog to run a simulation.
+    def toolsSimulator(self):
+        """Creates a movie of a molecular dynamics simulation.
+        """
+        if not self.assy.molecules: # Nothing in the part to minimize.
+            self.statusBar.message("<span style=\"color:#ff0000\">Simulator: Nothing to simulate.</span>")
+            return
+        self.simCntl = runSim(self.assy)
+        self.simCntl.show()
+        
+    # Play a movie created by the simulator.
+    def toolsMoviePlayer(self):
+        """Plays a DPB movie file created by the simulator.
+        """
+        # If no simulation has been run yet, check to see if there is a "partner" moviefile.
+        # If so, go ahead and play it.
+        if not self.assy.moviename and self.assy.filename:
+            mfile = self.assy.filename[:-4] + ".dpb"
+            if os.path.exists(mfile): self.assy.moviename = mfile
 
+        # Make sure there is a moviefile to play.
+        if not self.assy.moviename or not os.path.exists(self.assy.moviename):
+
+            msg = "<span style=\"color:#ff0000\">Movie Player: No movie file.</span>"
+            self.statusBar.message(msg)
+
+            msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
+            QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
+                        self.toolsSimulator_Action.iconSet().pixmap() )
+            self.statusBar.message(msg)
+            return
+
+        # We have a moviefile ready to go.  It's showtime!!!
+        self.hideDashboards()
+        self.moviePauseAction.setVisible(1)
+        self.moviePlayAction.setVisible(0)
+        self.moviePlayerDashboard.show()
+        self.glpane.startmovie(self.assy.moviename)
+
+    # Movie Player Dashboard Slots ############
+    
+    def moviePause(self):
+        self.glpane.pausemovie()
+        
+    def moviePlay(self):
+        self.glpane.playmovie()
+        
+    def movieDone(self):
+        self.moviePlayerDashboard.hide()
+        self.glpane.pausemovie()
+        self.selectMolDashboard.show()
+        self.glpane.setMode('SELECTMOLS')
+
+
+    ###################################
+    # Slots for future tools
+    ###################################
+    
     # get into Revolve mode [bruce 041015]
     def toolsRevolve(self):
         self.glpane.setMode('REVOLVE')
-
+        
     # Mirror Tool
     def toolsMirror(self):
         self.statusBar.message("<span style=\"color:#ff0000\">Mirror Tool: Not implemented yet.</span>")
@@ -998,11 +1005,9 @@ class MWsemantics(MainWindow):
     def toolsMirrorCircularBoundary(self):
         self.statusBar.message("<span style=\"color:#ff0000\">Mirror Circular Boundary Tool: Not implemented yet.</span>")
 
-    # "push down" one nanometer to cut out the next layer
-    def toolsCCAddLayer(self):
-        if self.glpane.shape:
-            self.glpane.pov -= self.glpane.shape.pushdown()
-            self.glpane.paintGL()
+    ###################################
+    # Slots for Dashboard widgets
+    ###################################
 
     # fill the shape created in the cookiecutter with actual
     # carbon atoms in a diamond lattice (including bonds)
@@ -1018,15 +1023,46 @@ class MWsemantics(MainWindow):
 
     def toolsCancel(self):
         self.glpane.mode.Flush()
+
+    #######################################
+    # Cookie Cutter Dashboard Slots
+    #######################################
     
-    def addAtomStart(self):
-        self.pasteP = False
-        self.glpane.setMode('DEPOSIT')
+    # "push down" one nanometer to cut out the next layer
+    def toolsCCAddLayer(self):
+        if self.glpane.shape:
+            self.glpane.pov -= self.glpane.shape.pushdown()
+            self.glpane.paintGL()
 
-    def toolsAtomStart(self):
-        self.pasteP = False
-        self.glpane.setMode('DEPOSIT')
+    # points of view corresponding to the three crystal
+    # surfaces of diamond
 
+    # along one axis
+    def orient100(self):
+        self.glpane.mode.surfset(0)
+        self.glpane.snapquat100()
+
+    # halfway between two axes
+    def orient110(self):
+        self.glpane.mode.surfset(1)
+        self.glpane.snapquat110()
+
+    # equidistant from three axes
+    def orient111(self):
+        self.glpane.mode.surfset(2)
+        self.glpane.snapquat111()
+
+    # lots of things ???
+    def orientView(self, a0=None):
+        print "MainWindow.orientView(string):", a0
+        self.glpane.quat = Q(1,0,0,0)
+        self.glpane.pov = V(0,0,0)
+        self.glpane.paintGL()
+
+    #######################################
+    # Element Selector Slots
+    #######################################
+    
     # pop up set element box
     def modifySetElement(self):
 #        print "modifySetElement: Current Element = ", self.Element    
@@ -1043,7 +1079,6 @@ class MWsemantics(MainWindow):
            elementwindow.setDisplay(self.Element)     
            elementwindow.show()
           
-         
     # this routine sets the displays to reflect elt
     # [bruce 041215: most of this should be made a method in elementSelector.py #e]
     def setElement(self, elt):
@@ -1066,47 +1101,9 @@ class MWsemantics(MainWindow):
     def setNitrogen(self):
         self.setElement(7)
 
-# Play a movie from the simulator
-    def toolsMoviePlayer(self):
-        
-        # If no simulation has been run yet, check to see if there is a "partner" moviefile.
-        # If so, go ahead and play it.
-        if not self.assy.moviename and self.assy.filename:
-            mfile = self.assy.filename[:-4] + ".dpb"
-            if os.path.exists(mfile): self.assy.moviename = mfile
-
-        # Make sure there is a moviefile to play.
-        if not self.assy.moviename or not os.path.exists(self.assy.moviename):
-
-            msg = "<span style=\"color:#ff0000\">Movie Player: No movie file.</span>"
-            self.statusBar.message(msg)
-
-            msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
-            QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
-                        self.toolsSimulator_Action.iconSet().pixmap() )
-            self.statusBar.message(msg)
-            return
-
-        # We have a moviefile and its ready to play.  It's showtime!!!
-        self.hideDashboards()
-        self.moviePlayerDashboard.show()
-        self.glpane.startmovie(self.assy.moviename)
-
-    def moviePause(self):
-        self.glpane.pausemovie()
-        
-    def moviePlay(self):
-        self.glpane.playmovie()
-        
-    def movieDone(self):
-        self.moviePlayerDashboard.hide()
-        self.selectMolDashboard.show()
-        self.glpane.setMode('SELECTMOLS')
-    
     ###################################
     # some unimplemented buttons:
     ###################################
-
     
     # create bonds where reasonable between selected and unselected
     def modifyEdgeBond(self):
@@ -1120,7 +1117,7 @@ class MWsemantics(MainWindow):
         QMessageBox.information(self, self.name() + " User Notice:",
              "This function is not implemented yet, coming soon...")
 
-    # Turn on or off the axis icon
+    # Turn on or off the trihedron compass.
     def dispTrihedron(self):
         self.glpane.drawAxisIcon = not self.glpane.drawAxisIcon
         self.glpane.paintGL()
@@ -1145,11 +1142,6 @@ class MWsemantics(MainWindow):
         QMessageBox.information(self, self.name() + " User Notice:",
              "This function is not implemented yet, coming soon...")
 
-    # delete selected parts or atoms
-    def killDo(self):
-        self.assy.kill()
-        self.glpane.paintGL()
-        self.mt.update()
 
     # utility functions
 
@@ -1192,55 +1184,9 @@ class MWsemantics(MainWindow):
     def elemChangePTable(self):
         """ Future: element change via periodic table
         (only elements we support) """
-
-    def modifyMinimize(self):
-        """ Minimize the current assembly """
-        self.glpane.minimize()
-
-    def toolsSimulator(self):
-        if not self.assy.molecules: # Nothing in the part to minimize.
-            self.statusBar.message("<span style=\"color:#ff0000\">Simulator: Nothing to simulate.</span>")
-            return
-            
-        # We are checking for 3 situations here, all easily resolved by forcing the user to save the
-        # current file as an MMP file.
-        #
-        # Situation 1: The part is a PDB file.  This creates a problem for runSim.saveMovie.
-        #
-        # Situation 2: We have chunks, but no assy.alist.  This happens often.
-        #
-        # Situation 3: We have an assy.alist, but no filename.   This occurs 
-        # when the user opens a new part, creates something and minimizes it 
-        # without saving it.  If the user wants to simulate it, we still have no filename.
-        # This presents a problem for runSim.saveMovie.
-        # The easiest thing to do is force them to save the file as an MMP file, and thats what we do.
-        # In the future, it would be nice to let the user simulate anyway.  This requires work
-        # in runSim.py to check and deal with this situation.
-        # - Mark [05-01-05]
-#        if self.assy.filename[-4:] != '.mmp' or not self.assy.alist or not self.assy.filename: 
-#        if not self.assy.alist or not self.assy.filename: 
-#            self.statusBar.message("<span style=\"color:#ff0000\">Simulator: File must be saved as an MMP file  before running a simulation.</span>")
-#            return
-        # If we have a PDB file, force the user to save as an MMP file.
-#        if self.assy.filename[-4:] != '.mmp': 
-#            ext = self.assy.filename[-4:]
-#            self.assy.w.statusBar.message("ext = [" + ext + "]")
-#            self.assy.w.statusBar.message("<span style=\"color:#ff0000\">Simulator: File must be saved as an MMP file  before running a simulation.</span>")
-#            return
-            
-        self.simCntl = runSim(self.assy)
-        self.simCntl.show()
-
-        
-    def setViewRecenter(self):
-        """ Fit to Window """
-        self.statusBar.message("<span style=\"color:#ff0000\">Recenter View: Not implemented yet.</span>")
              
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
-        
-#    def updateThickness(self)
-#        self.ccLayerThicknessSpinBox.setValue(ceil(float(str(self.ccLayerThicknessLineEdit.text()))))
 
 #######  Load Cursors #########################################
     def loadCursors(self):

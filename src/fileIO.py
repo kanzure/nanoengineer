@@ -528,3 +528,129 @@ def writemdl(assy, filename):
     f.write(mdlfooter)
     f.write("FileInfoPos=%d\n"%fpos)
     f.close()
+    
+
+# Write a dpb or xyz trajectory file.
+def writemovie(assy, moviefile, mflag = False):
+    """Creates a moviefile.  
+    moviefile - name of either a DPB file or an XYZ trajectory file.
+                    A DPB file is a binary trajectory file. 
+                    An XYZ file is a text file.
+    mflag - if True, create a minimize moviefile
+    """
+    # Make sure some chunks are in the part.
+    if not assy.molecules: # Nothing in the part to minimize.
+        msg = "<span style=\"color:#ff0000\">Can't create movie.  No chunks in part.</span>"
+        assy.w.statusBar.message(msg)
+        return -1
+            
+    # Check that the moviefile has a valid extension.
+    ext = moviefile[-4:]
+    if moviefile[-4:] not in ['.dpb', '.xyz']:
+        # Tell user we're creating the movie file...
+        print "writeMovie: Cannot make movie. Movie name [" + moviefile + "] invalid."
+        return -1
+
+    # We always save the current part to an MMP file.  In the future, we may want to check
+    # if assy.filename is an MMP file and use it if assy.modified = 0.
+    mmpfile = os.path.join(assy.w.tmpFilePath, "simulate.mmp")
+        
+    # filePath = the current directory NE-1 is running from.
+    filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        
+    # "program" is the full path to the simulator executable.  
+    program = os.path.normpath(filePath + '/../bin/simulator')
+
+    # Change cursor to Wait (hourglass) cursor
+    QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+
+    # "formarg" = File format argument
+    if ext == ".dpb": formarg = ''
+    else: formarg = "-x"
+        
+    # Put double quotes around filenames so spawnv can handle them properly on Win32 systems.
+    outfile = '"-o%s"' % moviefile
+    infile = '"%s"' % mmpfile
+    print "infile = ",infile," outfile =",outfile
+
+    if mflag: # "args" = arguments for the simulator to minimize.
+        args = [program, '-m', outfile, infile]
+    else: 
+        # "args" = arguments for the simulator.  
+        # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
+        # The timestep argument "-s + (assy.timestep)" is not supported for Alpha.
+        args = [program, 
+                    '-f' + str(assy.nframes), 
+                    '-t' + str(assy.temp), 
+                    '-i' + str(assy.stepsper), 
+                    str(formarg),
+                    outfile, 
+                    infile]
+
+    # Tell user we're creating the movie file...
+    msg = "<span style=\"color:#006600\">Creating movie file [" + moviefile + "]</span>"
+    assy.w.statusBar.message(msg)
+
+    # READ THIS IF YOU PLAN TO CHANGE ANY CODE FOR saveMovie!
+    # writemmp must come before computing "natoms".  This ensures that saveMovie
+    # will work when creating a movie for a file without an assy.alist.  Examples of this
+    # situation include:
+    # 1)  The part is a PDB file.
+    # 2) We have chunks, but no assy.alist.  This happens when the user opens a 
+    #      new part, creates something and simulates before saving as an MMP file.
+    # 
+    # I do not know if it was intentional, but assy.alist is not created until an mmp file 
+    # is created.  We are simply taking advantage of this "feature" here.
+    # - Mark 050106
+    writemmp(assy, mmpfile, False)
+    natoms = len(assy.alist)
+    print "writeMovie: natoms = ",natoms, "assy.filename =",assy.filename
+            
+    # We cannot to determine the exact final size of an XYZ trajectory file.
+    # This formula is an estimate.  "filesize" must never be larger than the
+    # actual final size of the XYZ file, or the progress bar will never hit 100%,
+    # even though the simulator finished writing the file.
+    # - Mark 050105 
+    if formarg == "-x" and not mflag:
+        filesize = assy.nframes * ((natoms * 32) + 25) # xyz filesize (estimate)
+    else: 
+        if mflag: filesize = (max(25, int(sqrt(natoms))) * natoms * 3) + 4
+        else:      filesize = (assy.nframes * natoms * 3) + 4
+         
+    if os.path.exists(moviefile): os.remove (moviefile) # Delete before spawning simulator.
+        
+#    print  "program = ",program
+#    print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+        
+    try:
+        # Spawn the simulator.
+        kid = os.spawnv(os.P_NOWAIT, program, args)
+            
+        # Launch the progress bar.
+        r = assy.w.progressbar.launch( filesize, 
+                        moviefile, 
+                        "Simulate", 
+                        "Writing movie file " + os.path.basename(moviefile) + "...", 
+                        1)
+
+    except: # We had an exception.
+        print_compact_traceback("exception in simulation; continuing: ")
+        r = -1 # simulator failure
+        
+    QApplication.restoreOverrideCursor() # Restore the cursor
+        
+    if not r: return r # Main return
+        
+    if r == 1: # User pressed Abort button in progress dialog.
+        msg = "<span style=\"color:#ff0000\">Simulator: Aborted.</span>"
+        assy.w.statusBar.message(msg)         
+        # We should kill the kid.  For windows, we need to use Mark Hammond's Win32 extentions: 
+        # Go to http://starship.python.net/crew/mhammond/ for more information.
+        # - Mark 050106
+        if sys.platform not in ['win32']: os.kill(kid, signal.SIGKILL) # Confirmed on Linux
+            
+    else: # Something failed...
+        msg = "<span style=\"color:#ff0000\">Simulation failed: exit code %r </span>" % r
+        assy.w.statusBar.message(msg)
+
+    return r
