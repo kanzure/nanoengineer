@@ -318,7 +318,7 @@ class atom:
             pass
         # (optional debugging code to show which code creates bad atoms:)
         ## if platform.atom_debug:
-        ##     self._source = compact_stack("\n")        
+        ##     self._source = compact_stack()        
         return # from atom.__init__
 
     def posn(self):
