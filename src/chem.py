@@ -290,6 +290,10 @@ class atom:
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(rad) + "," +
                        povpoint(color) + ")\n")
+        if disp == diTUBES:
+            file.write("atom(" + povpoint(self.posn()) +
+                       "," + str(TubeRadius) + "," +
+                       povpoint(color) + ")\n")
 
 
     def checkpick(self, p1, v1, r=None, iPic=None):
@@ -511,6 +515,9 @@ class bond:
 
     def povwrite(self, file, dispdef, col):
         disp=max(self.atom1.display, self.atom2.display)
+        if disp == diDEFAULT: disp= dispdef
+        color1 = self.atom1.element.color * V(1,1,-1)
+        color2 = self.atom2.element.color * V(1,1,-1)
         
         if disp<0: disp= dispdef
         if disp == diLINES:
@@ -519,6 +526,20 @@ class bond:
         if disp == diCPK:
             file.write("bond(" + povpoint(self.atom1.posn()) +
                        "," + povpoint(self.atom2.posn()) + ")\n")
+        if disp == diTUBES:
+            if self.center:
+                file.write("tube2(" + povpoint(self.atom1.posn()) +
+                           "," + povpoint(color1) +
+                           "," + povpoint(self.center) + "," +
+                           povpoint(self.atom2.posn()) + "," +
+                           povpoint(color2) + ")\n")
+            else:
+                file.write("tube1(" + povpoint(self.atom1.posn()) +
+                           "," + povpoint(color1) +
+                           "," + povpoint(self.c1) + "," +
+                           povpoint(self.c2) + "," + 
+                           povpoint(self.atom2.posn()) + "," +
+                           povpoint(color2) + ")\n")
 
 
 # I use "molecule" and "part" interchangeably throughout the program.

@@ -472,7 +472,7 @@ class GLPane(QGLWidget):
         f.write(povheader)
 
         f.write("background { color rgb " +
-                povpoint(self.backgroundColor*V(1,1,-1)) +
+                povpoint(self.mode.backgroundColor*V(1,1,-1)) +
                 "}\n")
 
         light1 = self.out + self.left + self.up

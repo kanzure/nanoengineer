@@ -204,7 +204,6 @@ class basicMode:
 
     def keyPress(self,key):
         if key == Qt.Key_Delete:
-            print 'got delete'
             self.w.killDo()
 
     def makemenu(self, lis):

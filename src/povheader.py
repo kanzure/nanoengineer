@@ -43,6 +43,39 @@ finish {
     }
 #end
 
+#macro tube1(pos1, col1, cc1, cc2, pos2, col2)
+
+  cylinder {pos1, cc1, 0.3
+    pigment { rgb col1 }
+    finish {Atomic}
+    }
+
+  cylinder {cc1, cc2, 0.3
+    pigment { Red }
+    finish {Atomic}
+    }
+
+  cylinder {cc2, pos2, 0.3
+    pigment { rgb col2 }
+    finish {Atomic}
+    }
+    
+#end
+
+#macro tube2(pos1, col1, cc1, pos2, col2)
+
+  cylinder {pos1, cc1, 0.3
+    pigment { rgb col1 }
+    finish {Atomic}
+    }
+
+  cylinder {cc1, pos2, 0.3
+    pigment { rgb col2 }
+    finish {Atomic}
+    }
+    
+#end
+
 #macro bond(pos1, pos2) 
   cylinder {pos1, pos2, 0.1
     pigment { Gray75 }
