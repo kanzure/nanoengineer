@@ -853,8 +853,21 @@ class Node:
         print depth*"...", self.name
 
     def writemmp(self, atnums, alist, f):
-        # bruce comment 050108/050210: this is used for Jigs. It uses __repr__ nonstandardly! ###@@@
-        f.write(self.__repr__(atnums))
+        """Write this Node to an mmp file, open for writing as 'f'.
+        ###e Need to document: atnums, atlist.
+        [subclasses must override this to be written into an mmp file; debug warning if they don't.]
+        """
+        # bruce 050322 revising this; this implem used to be the normal way
+        # to write Jigs; now it's basically an error to call this implem,
+        # but it's harmless -- it puts a comment in the mmp file and prints a debug warning.
+        line = "# not yet implemented: mmp record for %r" % self.__class__.__name__
+        f.write(line + '\n')
+        if platform.atom_debug:
+            print "atom_debug:", line
+        return
+        ## old code, now cleaned up and turned into Jig.writemmp:
+##        # bruce comment 050108/050210: this is used for Jigs. It uses __repr__ nonstandardly!
+##        f.write(self.__repr__(atnums))
         
 #    def writemdl(self, atnum, alist, f, dispdef):
 #        pass

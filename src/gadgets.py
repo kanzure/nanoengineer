@@ -146,7 +146,26 @@ class Jig(Node):
     def fixes_atom(self, atm): #bruce 050321
         "does this jig hold this atom fixed in space? [should be overridden by subclasses as needed]"
         return False # for most jigs
-    
+
+    def writemmp(self, atnums, alist, f):
+        "[overrides Node.writemmp; could be overridden by Jig subclasses, but isn't (as of 050322)]"
+         #bruce 050322 made this from old Node.writemmp, but replaced nonstandard use of __repr__
+        line = self.mmp_record(atnums) # includes '\n' at end
+        if line:
+            f.write(line)
+        else:
+            Node.writemmp(self, atnums, alist, f)
+
+    def mmp_record(self, atnums):
+        """[subclasses must override this to return their mmp record,
+        which must consist of 1 or more lines each ending in '\n',
+        including the last line]
+        """
+        pass
+
+    def __repr__(self): #bruce 050322 compatibility method, probably not needed, but affects debugging
+        return self.mmp_record()
+
     #e there might be other common methods to pull into here
 
     pass # end of class Jig
@@ -261,7 +280,8 @@ class RotaryMotor(Jig):
 
     # Returns the MMP record for the current Rotary Motor as:
     # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
-    def __repr__(self, ndix=None):
+    def mmp_record(self, ndix = None):
+        #bruce 050322 renamed this from __repr__, which was nonstandardly used; see comments in Jig
         cxyz=self.posn() * 1000
         axyz=self.axen() * 1000
         if self.picked: c = self.normcolor
@@ -391,7 +411,7 @@ class LinearMotor(Jig):
 
     # Returns the MMP record for the current Linear Motor as:
     # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
-    def __repr__(self, ndix = None):
+    def mmp_record(self, ndix = None):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
         if self.picked: c = self.normcolor
@@ -456,7 +476,7 @@ class Ground(Jig):
         
     # Returns the MMP record for the current Ground as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}    
-    def __repr__(self, ndix=None):
+    def mmp_record(self, ndix = None):
         
         if self.picked: c = self.normcolor
         else: c = self.color
@@ -545,7 +565,7 @@ class Stat(Jig):
 
     # Returns the MMP record for the current Stat as:
     # stat (name) (r, g, b) (temp) first_atom last_atom box_atom
-    def __repr__(self, ndix=None):
+    def mmp_record(self, ndix = None):
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
@@ -621,7 +641,7 @@ class Thermo(Jig):
 
     # Returns the MMP record for the current Thermo as:
     # thermo (name) (r, g, b) first_atom last_atom box_atom
-    def __repr__(self, ndix=None):
+    def mmp_record(self, ndix = None):
         if self.picked: c = self.normcolor
         else: c = self.color
         color=map(int,A(c)*255)
