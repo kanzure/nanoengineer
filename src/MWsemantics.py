@@ -374,14 +374,16 @@ class MWsemantics(MainWindow):
     def fileSetWorkDir(self):
         """ Sets working directory (need dialogue window) """
         # Windows Users: .atomrc must be placed in C:\Documents and Settings\[username]\.atomrc
-        # .atomrc contains one line, the Working Directory
+        # .atomrc contains one line - the "Working Directory"
         # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
         # Mark [2004-10-13]
         wd = globalParms['WorkingDirectory']
-        wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", "Choose Working Directory", 1 )
+        wdstr = "Current Working Directory - [" + wd  + "]"
+        wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", wdstr, 1 )
         
         if wd:
-            wd = str(wd) + "/" # the additional slash needed by Windows
+            wd = str(wd)
+            wd = os.path.normpath(wd)
             globalParms['WorkingDirectory'] = wd
             self.msgbarLabel.setText( "Working Directory set to " + wd )
             
