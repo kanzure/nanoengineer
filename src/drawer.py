@@ -1,4 +1,12 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+drawer.py
+
+OpenGL drawing utilities.
+
+$Id$
+"""
+
 from OpenGL.GL import *
 import OpenGL.GLUT as glut
 import math

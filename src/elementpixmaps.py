@@ -1,3 +1,10 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+elementpixmaps.py
+
+$Id$
+"""
+
 image5_data = [
 "100 100 1574 2",
 "bh c #000002",

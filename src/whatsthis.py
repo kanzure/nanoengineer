@@ -1,3 +1,10 @@
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+"""
+whatsthis.py
+
+$Id$
+"""
+
 from qt import *
 
 def createWhatsThis(self):

@@ -1,4 +1,9 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+"""
+povheader.py
+
+$Id$
+"""
 __author__ = "Josh"
 
 povheader = """

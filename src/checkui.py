@@ -1,6 +1,12 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
 #! /usr/bin/python
 
+"""
+checkui.py
+
+$Id$
+"""
+
 import sys
 from commands import *
 import re

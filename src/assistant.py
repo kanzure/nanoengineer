@@ -1,3 +1,10 @@
+# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+assistant.py
+
+$Id$
+"""
+
 import sys, string
 from qt import *
 from os import *

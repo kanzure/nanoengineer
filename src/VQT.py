@@ -1,10 +1,15 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-"""Vectors, Quaternions, and Trackballs
+"""
+VQT.py 
+
+Vectors, Quaternions, and Trackballs
 
 Vectors are a simplified interface to the Numeric arrays.
 A relatively full implementation of Quaternions.
 Trackball produces incremental quaternions using a mapping of the screen
 onto a sphere, tracking the cursor on the sphere.
+
+$Id$
 """
 
 import math, types

@@ -1,4 +1,9 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+"""
+mdldata.py
+
+$Id$
+"""
 
 filler = "0 0 1.10899\n";
         
