@@ -186,6 +186,8 @@ class atom:
         (public method; ok for atoms in frozen molecules too)
         """
         # fyi: called from depositMode, but not (yet?) from movie-playing. [041110]
+        # [bruce 050406: now this is called from movie playing, at least for now.
+        #  It's also been called (for awhile) from reading xyz files from Minimize.]
         # bruce 041130 added unary '+' (see atom.posn comment for the reason).
         pos = + pos
         if self.xyz != 'no':
@@ -209,8 +211,9 @@ class atom:
         #e (should this be a separate method -- does anything else need it?)
         for b in self.bonds:
             b.setup_invalidate()
-        if platform.atom_debug and self.jigs:
-            print "bug: atom.setposn needs to invalidate jigs, but that's nim"
+        ##bruce 050406 removing this, since too verbose for movie-playing:
+##        if platform.atom_debug and self.jigs:
+##            print "bug: atom.setposn needs to invalidate jigs, but that's nim"
         return
 
     def adjSinglets(self, atom, nupos):
@@ -220,6 +223,15 @@ class atom:
         apo = self.posn()
         # find the delta quat for the average real bond and apply
         # it to the singlets
+        #bruce 050406 comment: this first averages the bond vectors,
+        # old and new, then rotates old to match new. This is not
+        # correct, especially if old or new (average) is near V(0,0,0).
+        # The real problem is harder -- find a quat which best moves
+        # atom as desired without moving the other neighbors.
+        # Fixing this might fix some reported bugs with dragging atoms
+        # within their chunks in Build mode. Better yet might be to
+        # use old singlet posns purely as hints, recomputing new ones
+        # from scratch (hints are useful to disambiguate this). ###@@@
         n = self.realNeighbors()
         old = V(0,0,0)
         new = V(0,0,0)
@@ -432,7 +444,7 @@ class atom:
             # (for writing only, not stored in our attrs)
             # [bruce 050404 to help fix bug 254]
             eltnum = Hydrogen.eltnum
-            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), elem = Hydrogen )
+            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen )
             disp = "singlet" # kluge, meant as a comment in the file
         xyz = posn * 1000
             # note, xyz has floats, rounded below (watch out for this
@@ -880,33 +892,29 @@ class atom:
     def Hydrogenate(self):
         """[Public method; does all needed invalidations:]
         If this atom is a singlet, change it to a hydrogen,
-        and assuming it was already at the right distance from its neighbor
-        when it was a singlet (not checked), move it farther away so this
-        is again true now that it's a hydrogen. 
-        Huaicai 1/19/05: If hydrogenate succeeds return number 1, otherwise, 0
+        and move it so its distance from its neighbor is correct
+        (regardless of prior distance, but preserving prior direction).
+        [#e sometimes it might be better to fix the direction too, like in depositMode...]
+           If hydrogenate succeeds return number 1, otherwise, 0.
         """
+        # Huaicai 1/19/05 added return value.
         if not self.element == Singlet: return 0
-        o = self.bonds[0].other(self)
+        other = self.bonds[0].other(self)
         self.mvElement(Hydrogen)
-        # bruce 041112 rewrote following code
-        #bruce 050404 comment: should fix this to not depend on old pos
-        # being correct (or on singvec being nonzero),
-        # and merge with same code in atom.writemmp;
-        # to do this, just use ideal_posn_re_neighbor method once it's debugged ####@@@@
-        singpos = self.posn()
-        otherpos = o.posn()
-        singvec = norm( singpos - otherpos)
-        newsingpos = singpos + Hydrogen.rcovalent * singvec
-        self.setposn(newsingpos)
+        #bruce 050406 rewrote the following, so it no longer depends
+        # on old pos being correct for self being a Singlet.
+        newpos = self.ideal_posn_re_neighbor( other)
+        self.setposn(newpos)
         return 1
         
-    def ideal_posn_re_neighbor(self, neighbor, elem = None): #bruce 050404 to help with bug 254 and maybe Hydrogenate ####@@@@ use there
+    def ideal_posn_re_neighbor(self, neighbor, pretend_I_am = None): # see also snuggle
+        #bruce 050404 to help with bug 254 and maybe Hydrogenate
         """Given one of our neighbor atoms (real or singlet)
         [neighborness not verified! only posn is used, not the bond --
          this might change when we have bond-types #e]
         and assuming it should remain fixed and our bond to it should
         remain in the same direction, and pretending (with no side effects)
-        that our element is elem if this is given,
+        that our element is pretend_I_am if this is given,
         what position should we ideally have
         so that our bond to neighbor has the correct length?
         """
@@ -915,12 +923,15 @@ class atom:
         length = vlen( me - it )
         if not length:
             #e atom_debug warning?
-            #e choose a better direction? only caller knows what to do, i guess...
-            return me # not great...
-        it_to_me_direction = norm( me - it )
-        it_to_me_direction = norm( it_to_me_direction )
-            # for original len close to 0, this might help make new len 1 [bruce 050404]
-        my_elem = elem or self.element
+            # choose a better direction? only caller knows what to do, i guess...
+            # but [050406] I think an arbitrary one is safer than none!
+            ## return me # not great...
+            it_to_me_direction = V(1,0,0)
+        else:
+            it_to_me_direction = norm( me - it )
+            it_to_me_direction = norm( it_to_me_direction )
+                # for original len close to 0, this might help make new len 1 [bruce 050404]
+        my_elem = pretend_I_am or self.element
         its_elem = neighbor.element
         # assume bond-type is single bond for now
         newlen = my_elem.rcovalent + its_elem.rcovalent #k Singlet.rcovalent better be 0, check this
@@ -939,6 +950,12 @@ class atom:
             self.kill()
             # note that the new singlet produced by killing self might be in a
             # different mol (since it needs to be in our neighbor atom's mol)
+            #bruce 050406 comment: if we reused the same atom (as in Hydrogenate)
+            # we'd be better for movies... just reusing its .key is not enough
+            # if we've internally stored alists. But, we'd like to fix the direction
+            # just like this does for its new singlet... so I'm not changing this for now.
+            # Best solution would be a new method for H or X to fix their direction
+            # as well as their distance. ###@@@
             return 1
         else:
             return 0
@@ -946,9 +963,12 @@ class atom:
 
     def snuggle(self):
         """self is a singlet and the simulator has moved it out to the
-        radius of an H. move it back. the molecule is still in frozen
-        mode. Do all needed invals.
+        radius of an H. move it back. the molecule may or may not be still
+        in frozen mode. Do all needed invals.
         """
+        #bruce 050406 revised docstring to say mol needn't be frozen.
+        # note that this could be rewritten to call ideal_posn_re_neighbor,
+        # but we'll still use it since it's better tested and faster.
         o = self.bonds[0].other(self)
         op = o.posn()
         np = norm(self.posn()-op)*o.element.rcovalent + op
