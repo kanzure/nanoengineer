@@ -122,7 +122,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
     # constants needed by modeMixin:
     default_mode_class = selectMolsMode
-    other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode, extrudeMode, revolveMode, fusechunksMode, movieMode, zoomMode, panMode, rotateMode]
+    other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode,
+                          extrudeMode, revolveMode, fusechunksMode, movieMode,
+                          zoomMode, panMode, rotateMode]
     
     def __init__(self, assem, master=None, name=None, win=None):
         
@@ -207,14 +209,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         
     def setInitialView(self, assy):
         """Huaicai 1/27/05: part of the code of this method comes
-            from original setAssy() method. This method can be called after setAssy() has been called, for example, when open a mmp file. Set the initial view  """   
+        from original setAssy() method. This method can be called
+        after setAssy() has been called, for example, when opening
+        an mmp file. Sets the initial view.
+        """   
         self.quat = Q(assy.lastCsys.quat)
         self.scale = assy.lastCsys.scale
         self.pov = V(assy.lastCsys.pov[0], assy.lastCsys.pov[1], assy.lastCsys.pov[2])
         self.zoomFactor = assy.lastCsys.zoomFactor
     
     def saveLastView(self, assy):
-        """ Huaicai 1/27/05: before mmp file saving, this method should be called to save the last view user has, which will be used as the initial view when it is opened again. """    
+        """Huaicai 1/27/05: before mmp file saving, this method
+        should be called to save the last view user has, which will
+        be used as the initial view when it is opened again.
+        """    
         assy.lastCsys.quat = Q(self.quat)
         assy.lastCsys.scale = self.scale
         assy.lastCsys.pov = V(self.pov[0], self.pov[1], self.pov[2])
@@ -281,7 +289,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         
         """[experimental method by bruce 040922]
 
-            ###@@@ need to merge this with self.win.history.message or make a sibling method! [bruce 041223]
+            ###@@@ need to merge this with self.win.history.message
+            or make a sibling method! [bruce 041223]
         
            Show a warning to the user, without interrupting them
            (i.e. not in a dialog) unless bother_user_with_dialog is
@@ -685,7 +694,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 self.mode.rightDrag(event)
 
         else:
-            #Huaicai: To fix bugs related to multiple rendering contexts existed in our application. See comments in mousePressEvent() for more detail.
+            #Huaicai: To fix bugs related to multiple rendering contexts existed in our application.
+            # See comments in mousePressEvent() for more detail.
             self.makeCurrent()
             
             self.mode.bareMotion(event)
@@ -858,9 +868,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         vdist = 6.0 * self.scale
                 
         if self.ortho:
-            glOrtho(-self.scale*aspect*self.zoomFactor, self.scale*aspect*self.zoomFactor, -self.scale*self.zoomFactor, self.scale*self.zoomFactor, vdist*self.near, vdist*self.far)
+            glOrtho(-self.scale*aspect*self.zoomFactor, self.scale*aspect*self.zoomFactor,
+                    -self.scale*self.zoomFactor, self.scale*self.zoomFactor,
+                    vdist*self.near, vdist*self.far)
         else:
-            glFrustum(-self.scale*aspect*self.near*self.zoomFactor, self.scale*aspect*self.near*self.zoomFactor, -self.scale*self.near*self.zoomFactor, self.scale*self.near*self.zoomFactor, vdist*self.near, vdist*self.far)
+            glFrustum(-self.scale*aspect*self.near*self.zoomFactor, self.scale*aspect*self.near*self.zoomFactor,
+                      -self.scale*self.near*self.zoomFactor, self.scale*self.near*self.zoomFactor,
+                      vdist*self.near, vdist*self.far)
 
         glMatrixMode(GL_MODELVIEW)
         
@@ -902,7 +916,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glEnable(GL_CULL_FACE)
         glDisable(GL_COLOR_MATERIAL)
            
-        ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get segmentation fault on Manrake Linux 10.0 with libqt3-3.2.3-17mdk or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
+        ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get
+        # segmentation fault on Manrake Linux 10.0 with libqt3-3.2.3-17mdk
+        # or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
            
         if True:###sys.platform in ['darwin', 'win32']:
                 glDisable(GL_LIGHTING)
