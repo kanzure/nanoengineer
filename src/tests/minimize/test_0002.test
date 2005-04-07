@@ -1,1 +1,1 @@
-PROGRAM simulator -f300 -m -x test_0002.mmp
+PROGRAM simulator -f300 -m -X -x test_0002.mmp

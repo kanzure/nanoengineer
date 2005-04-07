@@ -27,14 +27,22 @@ double uffunc(double uf) {
 struct xyz Force[NATOMS];
 struct xyz OldForce[NATOMS]; /* used in minimize */
 struct xyz AveragePositions[NATOMS];
-struct xyz position_arrays[3*NATOMS];
-struct xyz *OldPositions, *NewPositions, *Positions; // these point into position_arrays
+struct xyz position_arrays[4*NATOMS];
+struct xyz *OldPositions, *NewPositions, *Positions, *BestPositions; // these point into position_arrays
 
 /* steepest descent terminates when rms_force is below this value (in picoNewtons) */
 #define RMS_CUTOVER (50.0)
 /* additionally, sqrt(max_forceSquared) must be less than this: */
 #define MAX_CUTOVER (RMS_CUTOVER * 3.0)
 #define MAX_CUTOVER_SQUARED (MAX_CUTOVER * MAX_CUTOVER)
+
+/* conjugate gradient terminates when rms_force is below this value (in picoNewtons) */
+#define RMS_FINAL (1.0)
+
+/* we save the rms value from the initialization iterations in minimize() here: */
+static float initial_rms;
+/* and terminate minimization if rms ever gets above this: */
+#define MAX_RMS (1000.0 * initial_rms)
 
 struct xyz Center, Bbox[2];
 
@@ -96,16 +104,16 @@ int Dynoix;			/* start of dynamically found vdw's */
 
 struct A *Space[SPWIDTH][SPWIDTH][SPWIDTH];	/*  space buckets */
 
-void orion() {			/* atoms in space :-) */
+void orion(struct xyz *position) {            /* atoms in space :-) */
     int n, i,j,k;
     struct A **pail;
 
     for (n=0; n<Nexatom; n++) *atom[n].bucket = NULL;
 	
     for (n=0; n<Nexatom; n++) {
-	i= ((int)Positions[n].x / 250) & SPMASK;
-	j= ((int)Positions[n].y / 250) & SPMASK;
-	k= ((int)Positions[n].z / 250) & SPMASK;
+	i= ((int)position[n].x / 250) & SPMASK;
+	j= ((int)position[n].y / 250) & SPMASK;
+	k= ((int)position[n].z / 250) & SPMASK;
 
 	pail = &Space[i][j][k];
 	atom[n].next = *pail;
@@ -174,6 +182,7 @@ int ToMinimize=0;
 int IterPerFrame=10;
 int NumFrames=100;
 int DumpAsText=0;
+int DumpIntermediateText=0;
 int PrintFrameNums=1;
 
 char OutFileName[1024];
@@ -459,16 +468,16 @@ int isbonded(int a1, int a2) {
 
 int Count = 0;
 
-void findnobo(int a1) {
+void findnobo(struct xyz *position, int a1) {
     int a2, ix, iy, iz, i, j, k;
     struct A *p;
     double r;
 
     // fprintf(stderr, "find nobo for %d\n",a1);
 	
-    ix= (int)Positions[a1].x / 250 + 4;
-    iy= (int)Positions[a1].y / 250 + 4;
-    iz= (int)Positions[a1].z / 250 + 4;
+    ix= (int)position[a1].x / 250 + 4;
+    iy= (int)position[a1].y / 250 + 4;
+    iz= (int)position[a1].z / 250 + 4;
 
     for (i=ix-7; i<ix; i++)
 	for (j=iy-7; j<iy; j++)
@@ -478,7 +487,7 @@ void findnobo(int a1) {
 		    if (a2>a1 
 			// && (ToMinimize || atom[a1].part != atom[a2].part)
 			&& !isbonded(a1,a2)) {
-			r=vlen(vdif(Positions[a1],Positions[a2]));
+			r=vlen(vdif(position[a1],position[a2]));
 			if (r<800.0) {
 			    // fprintf(stderr, "  found nobo for %d<-->%d\n",a1, a2);
 			    makvdw(a1, a2);
@@ -557,14 +566,14 @@ void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
 
     if (doOrion) {
         /* find the non-bonded interactions */
-        orion();
+        orion(position);
 		
         Nexvanbuf=Dynobuf;
         Nexvanbuf->fill = Dynoix;
         Count = 0;
 		
         for (j=0; j<Nexatom; j++) {
-            findnobo(j);
+            findnobo(position, j);
         }
     }		
 			
@@ -624,13 +633,13 @@ void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
 			
     for (j=0; j<Nextorq; j++) {
 
-        // v1, v2 are the vectors FROM the central atom TO the neighbors
+        // v1, v2 are the unit vectors FROM the central atom TO the neighbors
         if (torq[j].dir1) {vsetn(v1,torq[j].b1->ru);}
         else {vset(v1,torq[j].b1->ru);}
         if (torq[j].dir2) {vsetn(v2,torq[j].b2->ru);}
         else {vset(v2,torq[j].b2->ru);}
 
-        z = vdot(v1,v2);
+        z = vdot(v1,v2); // = cos(theta)
         m = torq[j].kb1 * (torq[j].kb2 - z);
         vmul2c(q1, v1, z);
         vmul2c(q2, v2, z);
@@ -724,7 +733,7 @@ void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
     }
 }
 
-void jigMotorPreforce(int j, struct xyz *positions, double deltaTframe)
+void jigMotorPreforce(int j, struct xyz *position, double deltaTframe)
 {
     struct MOT *mot;
     int n;
@@ -743,7 +752,7 @@ void jigMotorPreforce(int j, struct xyz *positions, double deltaTframe)
         n=Constraint[j].natoms;
         vsetc(rx, 0.0);
         for (k=0; k<n; k++) {
-            vadd(rx,positions[Constraint[j].atoms[k]]);
+            vadd(rx,position[Constraint[j].atoms[k]]);
         }
         vmulc(rx,1.0/(double)n);
         mot->center = rx;
@@ -751,7 +760,7 @@ void jigMotorPreforce(int j, struct xyz *positions, double deltaTframe)
         ff = Tq*mot->stall/n;
         for (k=0; k<n; k++) {
             a1 = Constraint[j].atoms[k];
-            rx = vdif(positions[a1],mot->center);
+            rx = vdif(position[a1],mot->center);
             f  = vprodc(vx(mot->axis,uvec(rx)),ff/vlen(rx));
 			    
             //fprintf(stderr, "applying torque %f to %d: other force %f\n",
@@ -762,7 +771,7 @@ void jigMotorPreforce(int j, struct xyz *positions, double deltaTframe)
         // data for printing speed trace
         Constraint[j].temp = mot->stall; // torque
 
-        rx=uvec(vdif(positions[Constraint[j].atoms[0]],mot->center));
+        rx=uvec(vdif(position[Constraint[j].atoms[0]],mot->center));
 			
         theta = atan2(vdot(rx,mot->rotz),vdot(rx,mot->roty));
         /* update the motor's position */
@@ -780,7 +789,7 @@ void jigMotorPreforce(int j, struct xyz *positions, double deltaTframe)
     }
 }
 
-jigGround(int j, double deltaTframe, struct xyz *positions, struct xyz *new_positions)
+jigGround(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     struct xyz foo, bar;
     struct xyz q1;
@@ -790,12 +799,12 @@ jigGround(int j, double deltaTframe, struct xyz *positions, struct xyz *new_posi
     vsetc(foo,0.0);
     vsetc(q1,0.0);
     for (k=0; k<Constraint[j].natoms; k++) { // find center
-        vadd(foo,positions[Constraint[j].atoms[k]]);
+        vadd(foo,position[Constraint[j].atoms[k]]);
     }
     vmulc(foo,1.0/Constraint[j].natoms);
 
     for (k=0; k<Constraint[j].natoms; k++) {
-        vsub2(rx,positions[Constraint[j].atoms[k]], foo);
+        vsub2(rx,position[Constraint[j].atoms[k]], foo);
         v2x(bar,rx,Force[Constraint[j].atoms[k]]); // bar = rx cross Force[]
         vadd(q1,bar);
     }
@@ -804,11 +813,11 @@ jigGround(int j, double deltaTframe, struct xyz *positions, struct xyz *new_posi
     Constraint[j].data++;
 
     for (k=0; k<Constraint[j].natoms; k++) {
-        new_positions[Constraint[j].atoms[k]] = positions[Constraint[j].atoms[k]];
+        new_position[Constraint[j].atoms[k]] = position[Constraint[j].atoms[k]];
     }
 }
 
-void jigMotor(int j, double deltaTframe, struct xyz *positions, struct xyz *new_positions)
+void jigMotor(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     struct MOT *mot;
     double sum_torque;
@@ -831,7 +840,7 @@ void jigMotor(int j, double deltaTframe, struct xyz *positions, struct xyz *new_
         /* input torque due to forces on each atom */
         for (k=0; k<Constraint[j].natoms; k++) {
             a1 = Constraint[j].atoms[k];
-            rx = vdif(positions[a1],mot->atocent[j]);
+            rx = vdif(position[a1],mot->atocent[j]);
             f = vx(rx,Force[a1]);
             ff = vdot(f, mot->axis);
             sum_torque += ff;
@@ -864,8 +873,8 @@ void jigMotor(int j, double deltaTframe, struct xyz *positions, struct xyz *new_
             z = theta + mot->atang[k];
             vmul2c(v1, mot->roty, mot->radius[k] * cos(z));
             vmul2c(v2, mot->rotz, mot->radius[k] * sin(z));
-            vadd2(new_positions[a1], v1, v2);
-            vadd(new_positions[a1], mot->atocent[k]);
+            vadd2(new_position[a1], v1, v2);
+            vadd(new_position[a1], mot->atocent[k]);
         }
 					
         /* update the motor's position */
@@ -883,7 +892,7 @@ void jigMotor(int j, double deltaTframe, struct xyz *positions, struct xyz *new_
     }
 }
 
-void jigThermometer(int j, double deltaTframe, struct xyz *positions, struct xyz *new_positions)
+void jigThermometer(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     double z;
     double ff;
@@ -896,7 +905,7 @@ void jigThermometer(int j, double deltaTframe, struct xyz *positions, struct xyz
     for (a1 = Constraint[j].atoms[0];
          a1 <= Constraint[j].atoms[1];
          a1++) {
-        f = vdif(positions[a1],new_positions[a1]);
+        f = vdif(position[a1],new_position[a1]);
         ff += vdot(f, f)*element[atom[a1].elt].mass;
     }
     ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
@@ -904,7 +913,7 @@ void jigThermometer(int j, double deltaTframe, struct xyz *positions, struct xyz
 }
 
 // Langevin thermostat
-void jigThermostat(int j, double deltaTframe, struct xyz *positions, struct xyz *new_positions)
+void jigThermostat(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     double z;
     double ke;
@@ -923,12 +932,12 @@ void jigThermostat(int j, double deltaTframe, struct xyz *positions, struct xyz 
          a1++) {
         therm = sqrt((Boltz*Constraint[j].temp)/
                      (element[atom[a1].elt].mass * 1e-27))*Dt/Dx;
-        v1 = vdif(new_positions[a1],positions[a1]);
+        v1 = vdif(new_position[a1],position[a1]);
         ff = vdot(v1, v1)*element[atom[a1].elt].mass;
         vmulc(v1,1.0-Gamma);
         v2= gxyz(G1*therm);
         vadd(v1, v2);
-        vadd2(new_positions[a1],positions[a1],v1);
+        vadd2(new_position[a1],position[a1],v1);
 
         // add up the energy
         ke += vdot(v1, v1)*element[atom[a1].elt].mass - ff;
@@ -938,31 +947,31 @@ void jigThermostat(int j, double deltaTframe, struct xyz *positions, struct xyz 
     Constraint[j].data += ke;
 }
 
-void jigAngle(int j, struct xyz *new_positions)
+void jigAngle(int j, struct xyz *new_position)
 {
     double z;
     struct xyz v1;
     struct xyz v2;
 
     // better have 3 atoms exactly
-    vsub2(v1,new_positions[Constraint[j].atoms[0]],
-          new_positions[Constraint[j].atoms[1]]);
-    vsub2(v2,new_positions[Constraint[j].atoms[2]],
-          new_positions[Constraint[j].atoms[1]]);
+    vsub2(v1,new_position[Constraint[j].atoms[0]],
+          new_position[Constraint[j].atoms[1]]);
+    vsub2(v2,new_position[Constraint[j].atoms[2]],
+          new_position[Constraint[j].atoms[1]]);
     z=acos(vdot(v1,v2)/(vlen(v1)*vlen(v2)));
 
     Constraint[j].data = z;
 }
 
 
-void jigRadius(int j, struct xyz *new_positions)
+void jigRadius(int j, struct xyz *new_position)
 {
     double z;
     struct xyz v1;
 
     // better have 2 atoms exactly
-    vsub2(v1,new_positions[Constraint[j].atoms[0]],
-          new_positions[Constraint[j].atoms[1]]);
+    vsub2(v1,new_position[Constraint[j].atoms[0]],
+          new_position[Constraint[j].atoms[1]]);
 
     Constraint[j].data = vlen(v1);
 }
@@ -1138,31 +1147,37 @@ static int interruptionWarning = 0;
 
 /**
  */
-void minshot(int final, double rms, double hifsq, int frameNumber, char *callLocation) {
+void minshot(int final,
+             struct xyz *pos,
+             double rms,
+             double hifsq,
+             int frameNumber,
+             char *callLocation)
+{
     int i,j;
     char c0, c1, c2;
     double xyz=1.0e-2; // .xyz files are in angstroms
-
+    /*
     if (DEBUG(D_MINIMIZE)) {
         min_debug(callLocation, rms, frameNumber);
     }
-
+    */
     if (DumpAsText) {
 
-	if (final) {
+        if (final || DumpIntermediateText) {
 	    fprintf(outf, "%d\nRMS=%f\n", Nexatom, rms);
 
 	    for (i=0; i<Nexatom; i++) {
 		fprintf(outf, "%s %f %f %f\n", element[atom[i].elt].symbol,
-			Positions[i].x*xyz, Positions[i].y*xyz, Positions[i].z*xyz);
+			pos[i].x*xyz, pos[i].y*xyz, pos[i].z*xyz);
 	    }
-	}
+        }
     }
     else {
         for (i=0, j=0; i<3*Nexatom; i+=3, j++) {
-            ixyz[i+0] = (int)Positions[j].x;
-            ixyz[i+1] = (int)Positions[j].y;
-            ixyz[i+2] = (int)Positions[j].z;
+            ixyz[i+0] = (int)pos[j].x;
+            ixyz[i+1] = (int)pos[j].y;
+            ixyz[i+2] = (int)pos[j].z;
             c0=(char)(ixyz[i+0] - previxyz[i+0]);
             fwrite(&c0, sizeof(char), 1, outf);
             c1=(char)(ixyz[i+1] - previxyz[i+1]);
@@ -1181,6 +1196,7 @@ void minshot(int final, double rms, double hifsq, int frameNumber, char *callLoc
     }
 
     fprintf(tracef,"%d %.2f %.2f\n", frameNumber, rms, sqrt(hifsq));
+    DPRINT(D_MINIMIZE, "%d %.2f %.2f\n", frameNumber, rms, sqrt(hifsq));
     if (final) {
         printf("final RMS gradient=%f after %d iterations\n", rms, frameNumber);
         if (!DumpAsText && frameNumber != NumFrames) {
@@ -1196,7 +1212,7 @@ void minshot(int final, double rms, double hifsq, int frameNumber, char *callLoc
 
 static int groundExists = 1;
 
-void groundAtoms(struct xyz *oldPositions, struct xyz *newPositions) 
+void groundAtoms(struct xyz *oldPosition, struct xyz *newPosition) 
 {
     int j, k;
     int foundAGround = 0;
@@ -1206,13 +1222,77 @@ void groundAtoms(struct xyz *oldPositions, struct xyz *newPositions)
 	    if (Constraint[j].type == CODEground) { /* welded to space */
                 foundAGround = 1;
 		for (k=0; k<Constraint[j].natoms; k++) {
-		    newPositions[Constraint[j].atoms[k]] = oldPositions[Constraint[j].atoms[k]];
+		    newPosition[Constraint[j].atoms[k]] = oldPosition[Constraint[j].atoms[k]];
 		}
 	    }
         }
         groundExists = foundAGround ;
     }
 }
+
+// one entry for each of the four *Positions pointers
+// indicates which of the four segments of position_arrays each points to
+static int positionPointerSegment[4];
+static float best_rms = 1e16;
+
+#define PTR_OLD 0
+#define PTR_CUR 1
+#define PTR_NEW 2
+#define PTR_BST 3
+
+
+void
+setupPositionsArrays()
+{
+    OldPositions  = position_arrays           ;
+    positionPointerSegment[PTR_OLD] = 0;
+    Positions     = position_arrays +   NATOMS;
+    positionPointerSegment[PTR_CUR] = 1;
+    NewPositions  = position_arrays + 2*NATOMS;
+    positionPointerSegment[PTR_NEW] = 2;
+    BestPositions = OldPositions;
+    positionPointerSegment[PTR_BST] = 0;
+}
+
+/* copy data from NewPositions to Positions,
+   if rms < best_rms
+     a copy of the data in the segment pointed to by best_ptr
+     is placed in BestPositions 
+
+   (actually swaps array pointers around instead of copying)
+*/
+void
+updatePositionsArrays(float rms, int best_ptr)
+{
+    int i;
+    int segmentUsed[4];
+
+    if (rms < best_rms) {
+        best_rms = rms;
+        positionPointerSegment[PTR_BST] = positionPointerSegment[best_ptr];
+        BestPositions = position_arrays + positionPointerSegment[PTR_BST] * NATOMS;
+    }
+    for (i=0; i<4; i++) {
+        segmentUsed[i] = 0;
+    }
+
+    Positions = NewPositions;
+    positionPointerSegment[PTR_CUR] = positionPointerSegment[PTR_NEW];
+    
+    segmentUsed[positionPointerSegment[PTR_CUR]] = 1;
+    segmentUsed[positionPointerSegment[PTR_BST]] = 1;
+
+    for (i=0; i<4; i++) {
+        if (segmentUsed[i] == 0) {
+            positionPointerSegment[PTR_NEW] = i;
+            NewPositions = position_arrays + positionPointerSegment[PTR_NEW] * NATOMS;
+            return;
+        }
+    }
+    fprintf(stderr, "updatePositionsArrays: couldn't find an unused segment\n");
+    exit(1);
+}
+
 
 /* these are shared between minimizeSteepestDescent() and minimizeConjugateGradients() */
 double sum_forceSquared;
@@ -1230,7 +1310,6 @@ minimizeSteepestDescent(int steepestDescentFrames,
                         int *frameNumber)
 {
     int i, j;
-    struct xyz *tmp;
     struct xyz f; // force
     double last_sum_forceSquared;
     double rms_force;
@@ -1256,9 +1335,10 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
         groundAtoms(Positions, NewPositions);
-	tmp = NewPositions; NewPositions=Positions; Positions=tmp;
+        updatePositionsArrays(rms_force, PTR_CUR);
     }
-    minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "1");
+    initial_rms = rms_force;
+    minshot(0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "1");
 
     // adaptive stepsize steepest descents until RMS gradient is under RMS_CUTOVER
     while (*frameNumber < steepestDescentFrames && !interrupted) {
@@ -1276,20 +1356,24 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
 
-	minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "2");
+	minshot(0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "2");
 
-        if (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED) {
+        if ((rms_force > MAX_RMS) ||
+            (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED)) {
             break;
         }
         
 	xxx = sqrt(last_sum_forceSquared); // == previous rms_force * sqrt(Nexatom)
 	yyy = sum_force_dot_old_force/xxx;
+        DPRINT(D_MINIMIZE, "                         %f <? %f - %f (%f)\n", yyy, xxx, xxx/movfac, xxx-xxx/movfac);
 	if (yyy < (xxx - xxx/(movfac))) {
             movcon *= xxx/(xxx-yyy);
+            DPRINT(D_MINIMIZE, "                         movcon *= %f / %f (%f)\n", xxx, xxx-yyy, xxx/(xxx-yyy));
         } else {
             movcon *= movfac;
+            DPRINT(D_MINIMIZE, "                         movcon *= movfac\n", xxx, yyy, movcon);
         }
-        DPRINT(D_MINIMIZE, "xxx: %f yyy: %f movcon: %f\n", xxx, yyy, movcon);
+        DPRINT(D_MINIMIZE, "                         %f\n", movcon);
         
 	for (j=0; j<Nexatom; j++) {
 	    f= Force[j];
@@ -1298,13 +1382,13 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	    vadd2(NewPositions[j], Positions[j], f);
 	}
         groundAtoms(Positions, NewPositions);
-	tmp = NewPositions; NewPositions=Positions; Positions=tmp;
+        updatePositionsArrays(rms_force, PTR_CUR);
     }
     if (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED) {
         fprintf(tracef, "# Switching to Conjugate-Gradient\n");
         return 1;
     } else {
-	minshot(1, rms_force, max_forceSquared, (*frameNumber)++, "SDfinal");
+	minshot(1, BestPositions, best_rms, max_forceSquared, (*frameNumber)++, "SDfinal");
         return 0;
     }
 }
@@ -1319,7 +1403,6 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
     double gamma; // = sum_forceSquared / last_sum_forceSquared
     double xxx, yyy, zzz;
     struct xyz f; // force
-    struct xyz *tmp;
     double rms_force;
     double old_movcon = movcon;
     double movfac = 3.0;
@@ -1337,9 +1420,9 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
     rms_force = sqrt(sum_forceSquared/Nexatom);
 
     // conjugate gradients for a while
-    for (; (DumpAsText ? rms_force>1.0 : *frameNumber<numFrames) && !interrupted;) {
+    while (rms_force>RMS_FINAL && rms_force < MAX_RMS && *frameNumber<numFrames && !interrupted) {
 	//for (i=0; i<20 ;  i++) {
-	minshot(0, rms_force, max_forceSquared, (*frameNumber)++, "3");
+	minshot(0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "3");
 	gamma = sum_forceSquared/last_sum_forceSquared;
 	// compute the conjugate direction 
 	last_sum_forceSquared=sum_forceSquared;
@@ -1352,7 +1435,6 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	    sum_old_force_squared += vdot(f,f);
 	    sum_force_dot_old_force += vdot(Force[j],OldForce[j]);
 	}
-	tmp = OldPositions; OldPositions=Positions; Positions=tmp;
 	xxx = sqrt(sum_old_force_squared);
 	yyy = sum_force_dot_old_force/xxx;
 	zzz = yyy;
@@ -1361,12 +1443,12 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	    for (j=0; j<Nexatom; j++) {
 		f=OldForce[j];
 		vmulc(f, movcon);
-		vadd2(Positions[j],OldPositions[j], f);
+		vadd2(NewPositions[j],Positions[j], f);
 	    }
-            groundAtoms(OldPositions, Positions);
+            groundAtoms(Positions, NewPositions);
 	    sum_forceSquared = 0.0;
 	    sum_force_dot_old_force=0.0;
-	    calculateForces(0, Positions, Force);
+	    calculateForces(0, NewPositions, Force);
 	    for (j=0; j<Nexatom; j++) {
 		f= Force[j];
 		forceSquared = vdot(f,f);
@@ -1376,7 +1458,7 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	    }
 	    rms_force = sqrt(sum_forceSquared/Nexatom);
             /*
-            minshot(0,rms_force, max_forceSquared, (*frameNumber)++, "4"); 
+            minshot(0, NewPositions, rms_force, max_forceSquared, (*frameNumber)++, "4"); 
             */
 	    yyy = sum_force_dot_old_force/xxx;
 	    if (yyy<zzz-zzz/(movfac)) movcon *= zzz/(zzz-yyy);
@@ -1390,13 +1472,13 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	for (j=0; j<Nexatom; j++) {
 	    f= OldForce[j];
 	    vmulc(f, movcon);
-	    vadd(Positions[j], f);
+	    vadd(NewPositions[j], f);
 	}
-        groundAtoms(OldPositions, Positions);
+        groundAtoms(Positions, NewPositions);
 	if (movcon<0) movcon = old_movcon+movcon;
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
-	calculateForces(0, Positions, Force);
+	calculateForces(0, NewPositions, Force);
 	for (j=0; j<Nexatom; j++) {
 	    f= Force[j];
 	    forceSquared = vdot(f,f);
@@ -1404,22 +1486,28 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	    sum_forceSquared += forceSquared;
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
+        updatePositionsArrays(rms_force, PTR_NEW);
     }
-    minshot(1, rms_force, max_forceSquared, (*frameNumber)++, "final");
+    minshot(1, BestPositions, best_rms, max_forceSquared, (*frameNumber)++, "final");
+    if (rms_force > RMS_FINAL && !interruptionWarning) {
+        WARNING("partial minimization in CG");
+    }
 }
 
 void minimize(int numFrames)
 {
     int frameNumber;
     int steepestDescentFrames;
+    int conjugateGradientFrames;
     
     frameNumber = 1;
     steepestDescentFrames = DumpAsText ? numFrames : numFrames / 2;
+    conjugateGradientFrames = DumpAsText ? numFrames*6 : numFrames;
     
     fprintf(tracef,"\n# rms force, high force\n");
 
     if (minimizeSteepestDescent(steepestDescentFrames, &frameNumber)) {
-        minimizeConjugateGradients(numFrames, &frameNumber);
+        minimizeConjugateGradients(conjugateGradientFrames, &frameNumber);
     } else {
         if (!interruptionWarning) {
             WARNING("partial minimization");
@@ -1459,6 +1547,7 @@ static void usage()
    -s -- timestep\n\
    -t -- temperature\n\
    -x -- write positions as (text) .xyz file(s)\n\
+   -X -- write intermediate minimize positions to .xyz (need -x)\n\
    -r -- repress frame numbers\n\
    -o -- output file name (otherwise same as input)\n\
    -q -- trace file name (otherwise trace)\n\
@@ -1485,10 +1574,8 @@ main(int argc,char **argv)
     }
 
     maktab(uft1, uft2, uffunc, UFSTART, UFTLEN, UFSCALE);
-	
-    Positions    =position_arrays;
-    OldPositions=position_arrays+NATOMS;
-    NewPositions=position_arrays+2*NATOMS;
+
+    setupPositionsArrays();
 	
     vsetc(Cog,0.0);
     vsetc(P,0.0);
@@ -1533,6 +1620,9 @@ main(int argc,char **argv)
 		break;
 	    case 'x':
 		DumpAsText=1;
+		break;
+	    case 'X':
+		DumpIntermediateText=1;
 		break;
 	    case 'r':
 		PrintFrameNums=0;

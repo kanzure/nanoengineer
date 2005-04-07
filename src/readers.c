@@ -592,7 +592,7 @@ void filred(char *filnam) {
     for (i=0; i<Nexatom; i++) {
 	for (m=0; m<atom[i].nbonds-1; m++) {
 	    for (n=m+1; n<atom[i].nbonds; n++) {
-		checkatom(stderr, i);
+                checkatom(stderr, i); // move outside of m loop?
 		maktorq(atom[i].bonds[m], atom[i].bonds[n]);
 	    }
 	}

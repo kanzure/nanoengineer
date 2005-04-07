@@ -33,14 +33,24 @@
 # Check this file to make sure the output looks reasonable, then
 # rerun regression.sh before checking in the test_000X.* files.
 
-RET=0
+TESTDIRS="tests/minimize tests/dynamics"
 
-for dir in tests/minimize tests/dynamics ; do
+RET=0
+GEN=0
+if [ "x$1" = "x--generate" ]; then
+    GEN=1
+fi
+
+for dir in $TESTDIRS; do
     for i in $dir/*.test; do
 	echo Running $i
 	base=`basename $i .test`
 	out=$dir/$base.out
 	./runtest.sh $i > $out.new
+	if [ ! -f $out -a $GEN -ne 0 ]; then
+	    echo Generated new $out
+	    cp $out.new $out
+	fi
 	if cmp -s $out $out.new ; then
 	    rm $out.new
 	else
