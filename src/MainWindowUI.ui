@@ -37,7 +37,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>33</height>
+            <height>37</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -161,13 +161,6 @@
         <property name="name">
             <cstring>fileToolbar</cstring>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="label">
             <string>File</string>
         </property>
@@ -185,13 +178,6 @@
                 <width>126</width>
                 <height>29</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
         </property>
         <property name="label">
             <string>Edit</string>
@@ -288,8 +274,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1085</width>
-                <height>29</height>
+                <width>1115</width>
+                <height>31</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -384,6 +370,17 @@
             </property>
         </widget>
         <separator/>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>ccFreeViewCheckBox</cstring>
+            </property>
+            <property name="text">
+                <string>Free View</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>By checking this, you can view the cookie freely.</string>
+            </property>
+        </widget>
         <widget class="QCheckBox">
             <property name="name">
                 <cstring>ccFullModelCheckBox</cstring>
@@ -640,9 +637,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>58</y>
-                <width>1033</width>
-                <height>29</height>
+                <y>60</y>
+                <width>1091</width>
+                <height>32</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -820,9 +817,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>243</x>
-                <y>87</y>
-                <width>104</width>
+                <x>270</x>
+                <y>92</y>
+                <width>111</width>
                 <height>29</height>
             </rect>
         </property>
@@ -856,9 +853,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>347</x>
-                <y>87</y>
-                <width>120</width>
+                <x>381</x>
+                <y>92</y>
+                <width>132</width>
                 <height>29</height>
             </rect>
         </property>
@@ -1008,10 +1005,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>0</x>
-                <y>116</y>
+                <x>727</x>
+                <y>121</y>
                 <width>19</width>
-                <height>16</height>
+                <height>31</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -1052,13 +1049,6 @@
                 <height>257</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -1086,13 +1076,6 @@
                 <width>30</width>
                 <height>215</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
         </property>
         <property name="label">
             <string>Tools</string>
@@ -1146,13 +1129,6 @@
                 <width>30</width>
                 <height>95</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
         </property>
         <property name="label">
             <string>Simulator</string>
@@ -2076,6 +2052,9 @@
         <property name="name">
             <cstring>orient100Action</cstring>
         </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
         <property name="iconSet">
             <iconset>image40</iconset>
         </property>
@@ -2090,6 +2069,9 @@
         <property name="name">
             <cstring>orient110Action</cstring>
         </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
         <property name="iconSet">
             <iconset>image41</iconset>
         </property>
@@ -2103,6 +2085,9 @@
     <action>
         <property name="name">
             <cstring>orient111Action</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
         </property>
         <property name="iconSet">
             <iconset>image42</iconset>
@@ -3605,6 +3590,20 @@
     </action>
     <actiongroup>
         <property name="name">
+            <cstring>cookieCutterViewActionGroup</cstring>
+        </property>
+        <property name="text">
+            <string>ActionGroup</string>
+        </property>
+        <property name="visible">
+            <bool>false</bool>
+        </property>
+        <property name="usesDropDown">
+            <bool>false</bool>
+        </property>
+    </actiongroup>
+    <actiongroup>
+        <property name="name">
             <cstring>CookieSelectionGroup</cstring>
         </property>
         <property name="text">
@@ -3629,6 +3628,9 @@
             <property name="toolTip">
                 <string>Circle Center</string>
             </property>
+            <property name="accel">
+                <string>C</string>
+            </property>
         </action>
         <action>
             <property name="name">
@@ -3645,6 +3647,9 @@
             </property>
             <property name="toolTip">
                 <string>Rectangle Center</string>
+            </property>
+            <property name="accel">
+                <string>R</string>
             </property>
         </action>
         <action>
@@ -3663,6 +3668,9 @@
             <property name="toolTip">
                 <string>Hexagon Center</string>
             </property>
+            <property name="accel">
+                <string>H</string>
+            </property>
         </action>
         <action>
             <property name="name">
@@ -3679,6 +3687,9 @@
             </property>
             <property name="toolTip">
                 <string>Triangle Center</string>
+            </property>
+            <property name="accel">
+                <string>T</string>
             </property>
         </action>
         <action>
@@ -3697,6 +3708,9 @@
             <property name="toolTip">
                 <string>Rectangle Corners</string>
             </property>
+            <property name="accel">
+                <string>Shift+R</string>
+            </property>
         </action>
         <action>
             <property name="name">
@@ -3713,6 +3727,9 @@
             </property>
             <property name="toolTip">
                 <string>Lasso Selection</string>
+            </property>
+            <property name="accel">
+                <string>L</string>
             </property>
         </action>
         <action>
@@ -3733,6 +3750,9 @@
             </property>
             <property name="toolTip">
                 <string>Default Selection</string>
+            </property>
+            <property name="accel">
+                <string>D</string>
             </property>
         </action>
     </actiongroup>
@@ -4910,6 +4930,18 @@
         <receiver>MainWindow</receiver>
         <slot>toolsFuseChunks()</slot>
     </connection>
+    <connection>
+        <sender>ccGridLineCheckBox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>showCCGridLine(bool)</slot>
+    </connection>
+    <connection>
+        <sender>ccFreeViewCheckBox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setCCFreeView(bool)</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5060,6 +5092,9 @@
     <slot>changeCCTubeButton()</slot>
     <slot>toolsBuildAtoms()</slot>
     <slot>toolsFuseChunks()</slot>
+    <slot>showCCGridLine(bool)</slot>
+    <slot>setCCFreeView(bool)</slot>
+    <slot>cookieSelect()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
