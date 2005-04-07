@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>1237</height>
+            <height>1243</height>
         </rect>
     </property>
     <property name="caption">
@@ -274,8 +274,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1115</width>
-                <height>31</height>
+                <width>1136</width>
+                <height>29</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -296,6 +296,29 @@
             </property>
         </widget>
         <separator/>
+        <widget class="QComboBox">
+            <item>
+                <property name="text">
+                    <string>Diamond</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Lonsdaleite</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Graphite</string>
+                </property>
+            </item>
+            <property name="name">
+                <cstring>ccLatticeCBox</cstring>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Grid lattice type.</string>
+            </property>
+        </widget>
         <action name="orient100Action"/>
         <action name="orient110Action"/>
         <action name="orient111Action"/>
@@ -326,7 +349,7 @@
                 <bool>true</bool>
             </property>
             <property name="text">
-                <string>Thickness (Angstroms):</string>
+                <string>Thickness:</string>
             </property>
         </widget>
         <widget class="QLineEdit">
@@ -344,6 +367,14 @@
             </property>
             <property name="whatsThis" stdset="0">
                 <string>Thickness of layer in Angstroms</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1_6</cstring>
+            </property>
+            <property name="text">
+                <string># Cells:</string>
             </property>
         </widget>
         <widget class="QSpinBox">
@@ -396,6 +427,12 @@
             <property name="name">
                 <cstring>ccGridLineCheckBox</cstring>
             </property>
+            <property name="maximumSize">
+                <size>
+                    <width>0</width>
+                    <height>0</height>
+                </size>
+            </property>
             <property name="text">
                 <string>Grid Line</string>
             </property>
@@ -409,7 +446,13 @@
             </property>
             <property name="minimumSize">
                 <size>
-                    <width>40</width>
+                    <width>0</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>0</width>
                     <height>0</height>
                 </size>
             </property>
@@ -436,8 +479,8 @@
             </property>
             <property name="maximumSize">
                 <size>
-                    <width>30</width>
-                    <height>32767</height>
+                    <width>0</width>
+                    <height>0</height>
                 </size>
             </property>
             <property name="text">
@@ -448,29 +491,22 @@
             </property>
         </widget>
         <separator/>
-        <widget class="QRadioButton">
+        <widget class="QComboBox">
+            <item>
+                <property name="text">
+                    <string>Tubes</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Spheres</string>
+                </property>
+            </item>
             <property name="name">
-                <cstring>ccTubeRadioButton</cstring>
-            </property>
-            <property name="text">
-                <string>Tube</string>
-            </property>
-            <property name="checked">
-                <bool>true</bool>
+                <cstring>ccDispModeCBox</cstring>
             </property>
             <property name="toolTip" stdset="0">
-                <string>Show cookie as connected tubes.</string>
-            </property>
-        </widget>
-        <widget class="QRadioButton">
-            <property name="name">
-                <cstring>ccSphereRadioButton</cstring>
-            </property>
-            <property name="text">
-                <string>Sphere</string>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Show atom as sphere with bond as white line.</string>
+                <string>Cookie display mode.</string>
             </property>
         </widget>
         <separator/>
@@ -637,7 +673,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>60</y>
+                <y>58</y>
                 <width>1091</width>
                 <height>32</height>
             </rect>
@@ -818,7 +854,7 @@
         <property name="geometry">
             <rect>
                 <x>270</x>
-                <y>92</y>
+                <y>90</y>
                 <width>111</width>
                 <height>29</height>
             </rect>
@@ -854,7 +890,7 @@
         <property name="geometry">
             <rect>
                 <x>381</x>
-                <y>92</y>
+                <y>90</y>
                 <width>132</width>
                 <height>29</height>
             </rect>
@@ -1006,7 +1042,7 @@
         <property name="geometry">
             <rect>
                 <x>727</x>
-                <y>121</y>
+                <y>119</y>
                 <width>19</width>
                 <height>31</height>
             </rect>
@@ -4911,18 +4947,6 @@
         <signal>clicked()</signal>
         <receiver>MainWindow</receiver>
         <slot>changeCCGridColor()</slot>
-    </connection>
-    <connection>
-        <sender>ccTubeRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>changeCCTubeButton()</slot>
-    </connection>
-    <connection>
-        <sender>ccSphereRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>changeCCSphereButton()</slot>
     </connection>
     <connection>
         <sender>toolsFuseChunksAction</sender>

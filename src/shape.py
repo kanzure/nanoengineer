@@ -165,10 +165,14 @@ class simple_shape_2d:
         # since the points were all in the same screen-parallel plane as
         # self.org (this is a guess), but it seems better to not require this
         # but just to use project_2d here (taking eyeball into account).
-        self.pt2d = map( self.project_2d, ptlist)
+        self._computeBBox()
+        
+    def _computeBBox(self):
+        """ Construct the 3d bounding box for the area """  
+        # compute bounding rectangle (2d)
+        self.pt2d = map( self.project_2d, self.ptlist)
         assert not (None in self.pt2d)
         
-        # compute bounding rectangle (2d)
         self.bboxhi = reduce(maximum, self.pt2d)
         self.bboxlo = reduce(minimum, self.pt2d)
         bboxlo, bboxhi = self.bboxlo, self.bboxhi
@@ -349,7 +353,41 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
 
     pass # end of class curve
 
-
+class Circle(simple_shape_2d):
+    """Represents the area of a circle ortho projection intersecting with a slab. """
+    def __init__(self, shp, ptlist, origin, logic, **opts):
+        """<Param> ptlist: the circle center and a point on the perimeter """
+        simple_shape_2d.__init__( self, shp, ptlist, origin, logic, opts)
+            
+    def draw(self):
+        """the profile circle draw"""
+        color =  logicColor(self.logic)
+        drawCircle(color, self.ptlist[0], self.rad, self.slab.normal)
+        
+    def isin(self, pt):
+        """Test if a point is in the area """
+        if self.slab and not self.slab.isin(pt):
+            return False
+            
+        p2d = self.project_2d(pt)
+        dist = vlen(p2d - self.cirCenter)
+        if dist <= self.rad :
+            return True
+        else:
+            return False
+   
+    def _computeBBox(self):
+        """Construct the 3D bounding box for this volume. """
+        self.rad = vlen(self.ptlist[1] - self.ptlist[0])
+        self.cirCenter = self.project_2d(self.ptlist[0])
+        
+        bbhi = self.cirCenter + V(self.rad, self.rad)
+        bblo = self.cirCenter - V(self.rad, self.rad)
+        
+        x, y = self.right, self.up
+        self.bbox = BBox(V(bblo, bbhi), V(x,y), self.slab)
+        
+    
 class shape:
     """Represents a sequence of curves, each of which may be
     additive or subtractive.
@@ -366,34 +404,22 @@ class shape:
         self.right = right
         self.up = up
         self.normal = normal
-   
+    
     def pickline(self, ptlist, origin, logic, **xx):
             """Add a new curve to the shape.
             Args define the curve (see curve) and the logic operator
             for the curve telling whether it adds or removes material.
             """
             c = curve(self, ptlist, origin, logic, **xx)
-            self.curves += [c]
-            self.bbox.merge(c.bbox)
+            #self.curves += [c]
+            #self.bbox.merge(c.bbox)
             return c
             
     def pickrect(self, pt1, pt2, org, logic, **xx):
             c = rectangle(self, pt1, pt2, org, logic, **xx)
-            self.curves += [c]
-            self.bbox.merge(c.bbox)
+            #self.curves += [c]
+            #self.bbox.merge(c.bbox)
             return c
-            
-    def undo(self):
-        """This would work for shapes, if anyone called it.
-        """
-        if self.curves: self.curves = self.curves[:-1]
-        self.havelist = 0
-
-    def clear(self):
-        """This would work for shapes, if anyone called it.
-        """
-        self.curves = []
-        self.havelist = 0
 
     def __str__(self):
         return "<Shape of " + `len(self.curves)` + ">"
@@ -403,10 +429,10 @@ class shape:
 class SelectionShape(shape):
         """This is used to construct shape for atoms/chunks selection. A curve or rectangle will be created, which is used as an area selection of all the atoms/chunks """
         def pickline(self, ptlist, origin, logic, eyeBall):
-            shape.pickline(self, ptlist, origin, logic, eye=eyeBall)
+            self.curve = shape.pickline(self, ptlist, origin, logic, eye=eyeBall)
    
         def pickrect(self, pt1, pt2, org, logic, eyeBall):
-            shape.pickrect(self, pt1, pt2, org, logic, eye=eyeBall)
+            self.curve = shape.pickrect(self, pt1, pt2, org, logic, eye=eyeBall)
             
         def select(self, assy):
             """Loop thru all the atoms that are visible and select any
@@ -430,7 +456,7 @@ class SelectionShape(shape):
         
         def _atomsSelect(self, assy):
             """Select all atoms inside the curve, ignoring thickness"""    
-            c=self.curves[0]
+            c=self.curve
             if c.logic == 1:
                 for mol in assy.molecules:
                     if mol.hidden: continue
@@ -460,7 +486,7 @@ class SelectionShape(shape):
             """
         #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
         # also added .hidden check to the last of 3 cases. Same in self.select().
-            c=self.curves[0]
+            c=self.curve
             if c.logic == 2:
                 # drag selection: unselect any selected molecule not in the area, 
                 # modified by Huaicai to fix the selection bug 10/05/04
@@ -488,16 +514,17 @@ class SelectionShape(shape):
 class CookieShape(shape):
     """ This class is used to create cookies. It supports multiple parallel layers, each curve sits
          on a particular layer."""
-    def __init__(self, right, up, normal):
+    def __init__(self, right, up, normal, mode, latticeType):
             shape.__init__(self, right, up, normal)
             ##Each element is a dictionary object storing "carbon" info for a layer
             self.carbonPostDict = {} 
             self.bondLayers = {} ##Each element is a dictionary for the bonds info for a layer
             self.displist = glGenLists(1)
             self.havelist = 0
-            self.tubeMode = True
+            self.dispMode = mode
+            self.latticeType = latticeType
             self.layerThickness = {}
-            self.layeredCurves = {}
+            self.layeredCurves = {} #A list of (merged bb, curves) for each layer
 
     def pushdown(self, lastLayer):
             """Put down one layer from last layer """
@@ -528,7 +555,13 @@ class CookieShape(shape):
             elif c.logic == 2: val = val and c.isin(pt)
             elif c.logic == 0: val = val and not c.isin(pt)
         return val
-
+    
+    def pickCircle(self, ptlist, origin, logic, layer, slabC):
+        """Add a new circle to the shape. """
+        c = Circle(self, ptlist, origin, logic, slab=slabC)
+        self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
+        self._addCurve(layer, c)
+    
     def pickline(self, ptlist, origin, logic, layer, slabC):
         """Add a new curve to the shape.
         Args define the curve (see curve) and the logic operator
@@ -548,7 +581,40 @@ class CookieShape(shape):
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
         #self._cutCookie(layer, c)
         self._addCurve(layer, c)
-            
+
+    def _updateBBox(self, curveList):
+        """Re-compute the bounding box for the list of curves"""
+        bbox = BBox()
+        for c in curveList[1:]:
+            bbox.merge(c.bbox)
+        curveList[0] = bbox
+        
+    
+    def undo(self, currentLayer):
+        """This would work for shapes, if anyone called it.
+        """
+        curves = self.layeredCurves[currentLayer]
+        if len(curves) > 1: 
+            curves = curves[:-1]
+        self._updateBBox(curves)
+        self.layeredCurves[currentLayer] = curves
+        self.havelist = 0
+
+    def clear(self, currentLayer):
+        """This would work for shapes, if anyone called it.
+        """
+        curves = self.layeredCurves[currentLayer]
+        curves = []
+        self.layeredCurves[currentLayer] = curves
+        self.havelist = 0
+
+    def combineLayers(self):
+        """Experimental code to add all curves and bbox together to make themolmake wokring. It may be removed later. """
+        for cbs in self.layeredCurves.values():
+            if cbs:
+                self.bbox.merge(cbs[0])
+                self.curves += cbs[1:]
+   
     def _hashAtomPos(self, pos):
         return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
     
@@ -568,7 +634,7 @@ class CookieShape(shape):
                 v1 = p1[0]
                 hasSinglet = True
         else: v1 = p1
-        if self.tubeMode:
+        if self.dispMode == 'Tubes':
              drawcylinder(color, p0, v1, 0.2)
         else:
             drawsphere(color, p0, 0.5, 1)
@@ -577,7 +643,6 @@ class CookieShape(shape):
             else:    
                 drawsphere(color, v1, 0.5, 1)
             drawline(white, p0, v1)
-                     
     
     def _anotherDraw(self, layerColor):
         """The original way of selecting cookies, but do it layer by layer, so we can control how to display each layer. """
@@ -588,23 +653,23 @@ class CookieShape(shape):
         for layer in self.layeredCurves.keys():
             bbox = self.layeredCurves[layer][0]
             curves = self.layeredCurves[layer][1:]
+            if not curves: continue
             color = layerColor[layer]
             for c in curves: c.draw()
             try:
                 bblo, bbhi = bbox.data[1], bbox.data[0]
-                griderator = genDiam(bblo, bbhi)
-                pp=griderator.next()
-                while (pp):
-                   p1 = p2 = None 
-                   if self.isin(pp[0], curves):
-                      if self.isin(pp[1], curves):
-                          p1 = pp[0]; p2 = pp[1]
-                      else: 
-                          p1 = pp[0]; p2 = ((pp[1]+pp[0])/2,)
-                   elif self.isin(pp[1], curves):
-                          p1 = pp[1]; p2 = ((pp[1]+pp[0])/2, )
-                   if p1 and p2: self._cellDraw(color, p1, p2) 
-                   pp=griderator.next()
+                allCells = genDiam(bblo, bbhi, self.latticeType)
+                for cell in allCells:
+                    for pp in cell:
+                        p1 = p2 = None
+                        if self.isin(pp[0], curves):
+                            if self.isin(pp[1], curves):
+                                p1 = pp[0]; p2 = pp[1]
+                            else: 
+                                p1 = pp[0]; p2 = ((pp[1]+pp[0])/2,)
+                        elif self.isin(pp[1], curves):
+                                p1 = pp[1]; p2 = ((pp[1]+pp[0])/2, )
+                        if p1 and p2: self._cellDraw(color, p1, p2) 
             except:
             # bruce 041028 -- protect against exceptions while making display
             # list, or OpenGL will be left in an unusable state (due to the lack
@@ -699,8 +764,8 @@ class CookieShape(shape):
                 else: values += [value]
    
    
-    def changeDisplayMode(self, isTubeMode):
-        self.tubeMode = isTubeMode
+    def changeDisplayMode(self, mode):
+        self.dispMode = mode
         self.havelist = 0
         
    
@@ -728,7 +793,7 @@ class CookieShape(shape):
             for layer, bonds in self.bondLayers.items():
                 color = layerColor[layer]
                 carbons = self.carbonPostDict[layer]
-                if not self.tubeMode:
+                if self.dispMode == 'Spheres':
                     for cP in carbons.values():
                         drawsphere(color, cP, 0.5, 1)
                 for cK, bList in bonds.items():
@@ -739,8 +804,8 @@ class CookieShape(shape):
                            p1 = carbons[b]
                        else: 
                             p1 = (p0 + b[1])/2.0
-                            if not self.tubeMode: drawsphere(color, p1, 0.2, 1)
-                       if self.tubeMode:
+                            if self.dispMode == 'Spheres': drawsphere(color, p1, 0.2, 1)
+                       if self.dispMode == 'Tubes':
                             drawcylinder(color, p0, p1, 0.2)
                        else:
                             drawline(white, p0, p1)    

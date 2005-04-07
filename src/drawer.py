@@ -8,6 +8,7 @@ $Id$
 """
 
 from OpenGL.GL import *
+from OpenGL.GLU import *
 import OpenGL.GLUT as glut
 import math
 from VQT import *
@@ -128,16 +129,74 @@ DiGridSp = sp4
 
 sphereList = []
 numSphereSizes = 3
-CylList = GridList = CapList = CubeList = solidCubeList = None
-rotSignList = linearLineList = linearArrowList = None
+CylList = diamondGridList = CapList = CubeList = solidCubeList = None
+rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = None
 
 halfHeight = 0.45
 
-def setup():
-    global CylList, GridList, CapList, CubeList, solidCubeList
-    global sphereList, rotSignList, linearLineList, linearArrowList
+##Some variable used by the Lonsdaleite lattice construction
+ux = 1.262; uy = 0.729; dz = 0.5153; ul = 1.544
+XLen = 2*ux
+YLen = 6*uy
+ZLen = 2*(ul + dz)
+lonsEdges = None
 
-    listbase = glGenLists(numSphereSizes + 10)
+def _makeLonsCell():
+    """Data structure to construct a Lonsdaleite lattice cell"""
+    lVp = [# 2 outward vertices
+          [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
+          # Layer 1: 7 vertices
+          [ux, -2*uy, ul],      [-ux, -2*uy, ul],     [0.0, uy, ul], 
+          [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
+                                     [-ux, 4*uy, ul],
+          # Layer 2: 7 vertices
+          [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
+          [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],     [0.0, -uy, 2*ul+dz],
+                                           [-ux, 4*uy, 2*(ul+dz)]
+         ]
+
+    lonsEdges = [ # 2 outward vertical edges for layer 1
+                      [lVp[0], lVp[3]], [lVp[1], lVp[4]],
+                      #  6 xy Edges for layer 1
+                      [lVp[2], lVp[7]], [lVp[3], lVp[7]], [lVp[7], lVp[4]],
+                      [lVp[4], lVp[6]], [lVp[4], lVp[5]],
+                      [lVp[6], lVp[8]],        
+                      #  2 outward vertical edges for layer 2
+                      [lVp[14], lVp[7]],  [lVp[13], lVp[6]], 
+                      # 6 xy Edges for layer 2
+                      [lVp[14], lVp[9]], [lVp[14], lVp[10]], [lVp[14], lVp[11]],
+                      [lVp[11], lVp[13]], [lVp[11], lVp[12]],
+                      [lVp[13], lVp[15]]
+                    ]
+                     
+    return lonsEdges 
+
+#Some variables for Graphite lattice
+gUx = 1.228; gUy = 0.709; gZLen = 1.674
+gXLen = 2*gUx; gYLen = 4*gUy
+
+def _makeGraphiteCell(zIndex):
+    """Data structure to construct a Graphite lattice cell"""
+    gVp = [[-gUx, -gUy, 0.0],   [0.0, 0.0, 0.0],        [gUx, -gUy, 0.0],
+              [-gUx, 3*gUy, 0.0], [0.0, 2*gUy, 0.0],  [gUx, 3*gUy, 0.0],
+              [gUx, 5*gUy, 0.0]
+         ]
+
+    grpEdges = [ 
+                      [gVp[0], gVp[1]], [gVp[1], lVp[2]],
+                      ##Not finished yet. We need double bond to do this??
+                    ]
+                     
+    return lonsEdges 
+
+
+
+def setup():
+    global CylList, diamondGridList, CapList, CubeList, solidCubeList
+    global sphereList, rotSignList, linearLineList, linearArrowList
+    global circleList, lonsGridList, lonsEdges
+
+    listbase = glGenLists(numSphereSizes + 12)
 
     for i in range(numSphereSizes):
         sphereList += [listbase+i]
@@ -182,16 +241,26 @@ def setup():
     glEnd()
     glEndList()
 
-    GridList = CapList + 1
-    glNewList(GridList, GL_COMPILE)
+    diamondGridList = CapList + 1
+    glNewList(diamondGridList, GL_COMPILE)
     glBegin(GL_LINES)
     for p in digrid:
         glVertex(p[0])
         glVertex(p[1])
     glEnd()
     glEndList()
+    
+    lonsGridList = diamondGridList + 1
+    lonsEdges = _makeLonsCell()
+    glNewList(lonsGridList, GL_COMPILE)
+    glBegin(GL_LINES)
+    for p in lonsEdges:
+        glVertex(p[0])
+        glVertex(p[1])
+    glEnd()
+    glEndList()
 
-    CubeList = GridList + 1
+    CubeList = lonsGridList + 1
     glNewList(CubeList, GL_COMPILE)
     glBegin(GL_QUAD_STRIP)
     glVertex((-1,-1,-1))
@@ -251,7 +320,31 @@ def setup():
     glVertex3f(0.0, 0.0, halfHeight)
     glEnd()
     glDisable(GL_LINE_SMOOTH)
-    glEndList()     
+    glEndList()
+    
+    circleList = glGenLists(1)
+    glNewList(circleList, GL_COMPILE)
+    glBegin(GL_LINE_LOOP)
+    for ii in range(60):
+        x = cos(ii*2.0*pi/60)
+        y = sin(ii*2.0*pi/60)
+        glVertex3f(x, y, 0.0)
+    glEnd()    
+    glEndList()
+    
+def drawCircle(color, center, radius, normal):
+    """Scale, rotate/translate the unit circle properly """
+    glPushMatrix()
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    glTranslate(center[0], center[1], center[2])
+    rQ = Q(V(0, 0, 1), normal)
+    glRotatef(rQ.angle*180.0/pi, rQ.x, rQ.y, rQ.z)
+    glScale(radius, radius, 1.0)
+    glCallList(circleList)
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+            
 
 def drawLinearArrows(longScale):   
     glCallList(linearArrowList)
@@ -395,13 +488,18 @@ def drawcylinder(color, pos1, pos2, radius, capped=0):
     if capped: glCallList(CapList)
     glPopMatrix()
 
-def drawline(color,pos1,pos2):
+def drawline(color,pos1,pos2, dashEnabled=False):
     glDisable(GL_LIGHTING)
     glColor3fv(color)
+    if dashEnabled: 
+        glLineStipple(1, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
     glBegin(GL_LINES)
     glVertex(pos1[0], pos1[1], pos1[2])
     glVertex(pos2[0], pos2[1], pos2[2])
     glEnd()
+    if dashEnabled: 
+        glDisable(GL_LINE_STIPPLE)
     glEnable(GL_LIGHTING)
 
 def drawwirecube(color, pos, radius):
@@ -470,22 +568,31 @@ def drawaxes(n,point,coloraxes=False):
     glEnable(GL_LIGHTING)
     glPopMatrix()
 
-def genDiam(bblo, bbhi):
-    for i in range(int(floor(bblo[0]/DiGridSp)),
-                   int(ceil(bbhi[0]/DiGridSp))):
-        for j in range(int(floor(bblo[1]/DiGridSp)),
-                       int(ceil(bbhi[1]/DiGridSp))):
-            for k in range(int(floor(bblo[2]/DiGridSp)),
-                           int(ceil(bbhi[2]/DiGridSp))):
-                off = V(i*DiGridSp, j*DiGridSp, k*DiGridSp)
-                for p in digrid:
-                    yield p[0]+off, p[1]+off
-    yield None
-
-
-def drawgrid(scale, center):
+def genDiam(bblo, bbhi, latticeType):
+    """Generate a list of possible atom positions within the area enclosed by (bblo, bbhi).
+    <Return>: A list of unit cells"""
+    if latticeType == 'DIAMOND':
+        a = 0; cellX = cellY = cellZ = DiGridSp
+    elif latticeType == 'LONSDALEITE':
+        a = 1; cellX = XLen; cellY = YLen; cellZ = ZLen
     
-    #draw grid
+    allCells = []    
+    for i in range(int(floor(bblo[0]/cellX)),
+                   int(ceil(bbhi[0]/cellX))):
+        for j in range(int(floor(bblo[1]/cellY)),
+                       int(ceil(bbhi[1]/cellY))):
+            for k in range(int(floor(bblo[2]/cellZ)),
+                           int(ceil(bbhi[2]/cellZ))):
+                off = V(i*cellX, j*cellY, k*cellZ)
+                if a == 0: allCells += [digrid + off]
+                elif a ==1: allCells += [lonsEdges + off]
+    return allCells  
+
+
+def drawGrid(scale, center, latticeType):
+    """Construct the grid model and show as position reference as cookies. The model is build around "pov" and has size of 2*"scale" on each of the (x, y, z) directions. This should be optimized latter. For "scale = 200", it takes about 1479623 loops. ---Huaicai """
+    
+    
     glDisable(GL_LIGHTING)
 
     # bruce 041201:
@@ -504,29 +611,38 @@ def drawgrid(scale, center):
     if scale > MAX_GRID_SCALE:
         scale = MAX_GRID_SCALE
 
-    bblo = center-scale
+    if latticeType == 'DIAMOND':
+        cellX = cellY = cellZ = DiGridSp
+    elif latticeType == 'LONSDALEITE':
+        cellX = XLen; cellY = YLen; cellZ = ZLen
+    
+    bblo = center - scale
     bbhi = center + scale
-    i1 = int(floor(bblo[0]/DiGridSp))
-    i2 = int(ceil(bbhi[0]/DiGridSp))
-    j1 = int(floor(bblo[1]/DiGridSp))
-    j2 = int(ceil(bbhi[1]/DiGridSp))
-    k1 = int(floor(bblo[2]/DiGridSp))
-    k2 = int(ceil(bbhi[2]/DiGridSp))
+    i1 = int(floor(bblo[0]/cellX))
+    i2 = int(ceil(bbhi[0]/cellX))
+    j1 = int(floor(bblo[1]/cellY))
+    j2 = int(ceil(bbhi[1]/cellY))
+    k1 = int(floor(bblo[2]/cellZ))
+    k2 = int(ceil(bbhi[2]/cellZ))
     glPushMatrix()
-    glTranslate(i1*DiGridSp,  j1*DiGridSp, k1*DiGridSp)
+    glTranslate(i1*cellX,  j1*cellY, k1*cellZ)
     for i in range(i1, i2):
         glPushMatrix()
         for j in range(j1, j2):
             glPushMatrix()
             for k in range(k1, k2):
-                glCallList(GridList)
-                glTranslate(0.0,  0.0, DiGridSp)
+                 if latticeType == 'DIAMOND':
+                    glCallList(diamondGridList)
+                 else:
+                    glCallList(lonsGridList)
+                 glTranslate(0.0,  0.0, cellZ)
             glPopMatrix()
-            glTranslate(0.0,  DiGridSp, 0.0)
+            glTranslate(0.0,  cellY, 0.0)
         glPopMatrix()
-        glTranslate(DiGridSp, 0.0, 0.0)
+        glTranslate(cellX, 0.0, 0.0)
     glPopMatrix()
     glEnable(GL_LIGHTING)
+
 
 def drawrectangle(pt1, pt2, rt, up, color):
     glColor3f(color[0], color[1], color[2])
@@ -569,7 +685,15 @@ def drawbrick(color, center, axis, l, h, w):
     glut.glutSolidCube(1.0)
     #glCallList(solidCubeList)
     glPopMatrix()
-    
+
+def drawLineLoop(color,lines):
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    glBegin(GL_LINE_LOOP)
+    for v in lines:
+        glVertex3fv(v)
+    glEnd()
+    glEnable(GL_LIGHTING)    
     
 def drawlinelist(color,lines):
     glDisable(GL_LIGHTING)
@@ -652,6 +776,34 @@ def makePolyList(v):
 
     assert type(segs) == type([]) #bruce 041119
     return segs
+
+def drawLonsdaleiteGrid(scale, center):
+    glDisable(GL_LIGHTING)
+    
+    bblo = center- scale
+    bbhi = center + scale
+    i1 =  int(floor(bblo[0]/XLen))
+    i2 = int(ceil(bbhi[0]/XLen))
+    j1 = int(floor(bblo[1]/YLen))
+    j2 = int(ceil(bbhi[1]/YLen))
+    k1 = int(floor(bblo[2]/ZLen))
+    k2 = int(ceil(bbhi[2]/ZLen))
+    glPushMatrix()
+    glTranslate(i1*XLen,  j1*YLen, k1*ZLen)
+    for i in range(i1, i2):
+        glPushMatrix()
+        for j in range(j1, j2):
+            glPushMatrix()
+            for k in range(k1, k2):
+                glCallList(lonsGridList)
+                glTranslate(0.0,  0.0, ZLen)
+            glPopMatrix()
+            glTranslate(0.0,  YLen, 0.0)
+        glPopMatrix()
+        glTranslate(XLen, 0.0, 0.0)
+    glPopMatrix()
+    glEnable(GL_LIGHTING)        
+
     
 ###Huaicai: test function    
 def drawDiamondCubic(color):
@@ -675,3 +827,6 @@ def drawDiamondCubic(color):
               
     glEnd()
     glEnable(GL_LIGHTING)    
+    
+
+

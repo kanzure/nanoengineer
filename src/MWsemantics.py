@@ -1186,7 +1186,6 @@ class MWsemantics(MainWindow):
         
     # get into cookiecutter mode
     def toolsCookieCut(self):
-        self.cookieTubeMode = self.ccTubeRadioButton.isChecked()
         self.glpane.setMode('COOKIE')
 
     # get into Extrude mode
@@ -1470,40 +1469,29 @@ class MWsemantics(MainWindow):
         """Change current layer to <value> layer """
         if self.glpane.mode.modename == 'COOKIE':
             self.glpane.mode.change2Layer(value)
-        
-    def enableCCAddLayer(self):
-        """By default, 'Add Layer' is disabled. After user creating any curves, this should be enabled. """
-        if not self.ccAddLayerAction.isEnabled():
-            self.ccAddLayerAction.setEnabled(True)
-
+   
+    def setCCFreeView(self, freeView):
+        """Slot function to switch between free view/cookie selection states """
+        if self.glpane.mode and self.glpane.mode.modename == 'COOKIE':
+            self.glpane.mode.setFreeView(freeView)
+    
     def cookieFullModel(self, showFullModel):
         """Slot function for the check box of 'Full Model' in cookie-cutter dashboard """
         if self.glpane.mode and self.glpane.mode.modename == 'COOKIE':
             self.glpane.mode.toggleFullModel(showFullModel)
     
+    def showCCGridLine(self, show):
+        """Slot function"""
+        if self.glpane.mode and self.glpane.mode.modename == 'COOKIE':
+            self.glpane.mode.showGridLine(show)
+            
     def changeCCGridColor(self):
         """Open the stand color chooser dialog to change grid line color """
         c = QColorDialog.getColor(QColor(222,148,0), self, "choose")
         if c.isValid():
             self.ccGridColorLabel.setPaletteBackgroundColor(c)
             self.glpane.mode.setGridLineColor(c)
-            
-    def changeCCTubeButton(self):    
-        """Slot function for the click signal of the tube radio button """
-        if self.cookieTubeMode: return
-        if self.ccSphereRadioButton.isChecked():
-            self.ccSphereRadioButton.setChecked(False)
-        self.cookieTubeMode = True
-        self.glpane.mode.setCookieDisplayMode(self.cookieTubeMode)
-        
-    def changeCCSphereButton(self):
-        """Slot function for the click signal of the sphere radio button """
-        if not self.cookieTubeMode: return
-        if self.ccTubeRadioButton.isChecked():
-            self.ccTubeRadioButton.setChecked(False)
-        self.cookieTubeMode = False
-        self.glpane.mode.setCookieDisplayMode(self.cookieTubeMode)
-            
+    
     # points of view corresponding to the three crystal
     # surfaces of diamond
 
