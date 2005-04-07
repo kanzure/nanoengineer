@@ -159,3 +159,14 @@ Name: Mark Sims
 Date: 3/25/2005
 Files: MainWindow, MWsemanitcs, fusechunksMode, GLpane
 Summary: Added support for new Fuse Chunks Tool
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/07/2005 (and some earlier dates)
+Files: runSim.py, part.py, movie.py, fileIO.py, chunk.py, chem.py, perhaps others
+Summary: Minimize Selection (and some of bug 254 fix), and safer but perhaps slower movie playing
+
+see email to cad for details.
+
+----------------------------
