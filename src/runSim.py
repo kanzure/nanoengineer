@@ -63,7 +63,7 @@ class SimRunner:
         self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
         self.set_waitcursor(True)
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
-            self.write_sim_input_file() #e should use simaspect to write file; this or something must put it into movie.alist too ####@@@@
+            self.write_sim_input_file() #e should use simaspect to write file; this puts it into movie.alist too, via writemovie
             self.spawn_process()
                 # spawn_process also includes monitor_progress [and insert results back into part]
                 # for now; result error code (or abort button flag) stored in self.errcode
@@ -522,16 +522,22 @@ def writemovie(part, movie, mflag = 0, simaspect = None):
 # standardized indentation, revised docstring [again, 050404] and some comments.
 #bruce 050404 reworded messages & revised their printed info,
 # and changed error return to return the error message string
-# (so caller can print it to history if desired). ###@@@doit in callers
+# (so caller can print it to history if desired).
 # The original in fileIO was by Huaicai shortly after 050120.
+#bruce 050406 further revisions (as commented).
 def readxyz(filename, alist):
     """Read a single-frame XYZ file created by the simulator, typically for
     minimizing a part. Check file format, check element types against those
     in alist (the number of atoms and order of their elements must agree).
-       On error, print a message to stdout
-    [###e should be changed to print redmsg to history] and return None.
+    [As of 050406, also permit H in the file to match a singlet in alist.]
+       This test will probably fail unless the xyz file was created
+    using the same atoms (in the same order) as in alist. If the atom set
+    is the same (and the same session, or the same chunk in an mmp file,
+    is involved), then the fact that we sort atoms by key when creating
+    alists for writing sim-input mmp files might make this order likely to match.
+       On error, print a message to stdout and also return it to the caller.
        On success, return a list of atom new positions
-    in the same order as alist (assuming that's the order in the xyz file).
+    in the same order as in the xyz file (hopefully the same order as in alist).
     """
     xyzFile = filename ## was assy.m.filename
     lines = open(xyzFile, "rU").readlines()
@@ -564,13 +570,17 @@ def readxyz(filename, alist):
             return msg
         try:        
             if words[0] != atomList[atomIndex].element.symbol:
-                msg = "readxyz: %s: atom %d (%s) has wrong element type." % (xyzFile, atomIndex+1, atomList[atomIndex])
-                    #bruce 050404: atomIndex is not very useful, so I added 1
-                    # (to make it agree with likely number in mmp file)
-                    # and the atom name from the model.
-                    ###@@@ need to fix this for H vs singlet (then do we revise posn here or in caller?? probably in caller)
-                print msg
-                return msg
+                if words[0] == 'H' and atomList[atomIndex].element == Singlet:
+                    #bruce 050406 permit this, to help fix bug 254 by writing H to sim for Singlets in memory
+                    pass
+                else:
+                    msg = "readxyz: %s: atom %d (%s) has wrong element type." % (xyzFile, atomIndex+1, atomList[atomIndex])
+                        #bruce 050404: atomIndex is not very useful, so I added 1
+                        # (to make it agree with likely number in mmp file)
+                        # and the atom name from the model.
+                        ###@@@ need to fix this for H vs singlet (then do we revise posn here or in caller?? probably in caller)
+                    print msg
+                    return msg
             newAtomsPos += [map(float, words[1:])]
         except ValueError:
             msg = "readxyz: %s: atom %d (%s) position number format error." % (xyzFile, atomIndex+1, atomList[atomIndex])
@@ -692,11 +702,11 @@ class simSetup_CommandRun(CommandRun):
 
     pass # end of class simSetup_CommandRun
 
-enable_minsel = False #bruce 050405 so I can commit this now... ###@@@ DO NOT COMMIT WITH THIS SET TO True
-    # set this True (at runtime) (and beg out of me the new file minsel.py,
-    #  which won't be committed under that name)
-    # to enable partly-working Minimize Selection code and bug-254-fixing code
-    # (singlets written as H).
+enable_minsel = True #bruce 050406 let's hope this works now...
+    # set this False (at runtime) to completely disable
+    # partly-working Minimize Selection code and bug-254-fixing code
+    # (singlets written as H),
+    # if it's too inconvenient to just not select anything before doing Minimize.
 
 class Minimize_CommandRun(CommandRun):
     """Class for single runs of the Minimize command; create it
@@ -714,6 +724,7 @@ class Minimize_CommandRun(CommandRun):
             return
 
         if enable_minsel:
+            # use new code iff anything is selected
             selection = self.part.selection() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
                 msg1 = "Warning: Minimize: nothing selected. For now, we'll minimize entire Part like before."
@@ -725,19 +736,19 @@ class Minimize_CommandRun(CommandRun):
             self.selection = selection #e might become a feature of all CommandRuns, at some point
             self.entire_part = entire_part #e might also be set later if selection includes everything...
         else:
-            if platform.atom_debug and 0: # 0 because minsel.py is not committed
-                msg = "atom_debug: set runSim.enable_minsel = True if you want to try out Minimize Selection (partly NIM)"
+            # always use old code
+            if platform.atom_debug:
+                msg = "atom_debug: set runSim.enable_minsel = True if you want to try out Minimize Selection"
                 self.history.message(redmsg(msg))
-            self.entire_part = entire_part = True # always use old code
+            self.entire_part = entire_part = True
 
+        expwarn = 0
         if not entire_part:
             # use new code
-            ######@@@@@@ DO NOT COMMIT before minsel.py committed, or renamed and committed, or its code moved here
-            import minsel
-            reload(minsel) # only during devel; very useful!
-            #e following func will be renamed
-            simaspect = minsel.sim_aspect( self.part, selection.atomslist() ) # note: atomslist gets atoms from selected chunks too
+            #e following might be renamed
+            simaspect = sim_aspect( self.part, selection.atomslist() ) # note: atomslist gets atoms from selected chunks too
             startmsg = "Minimize Selection: ..."
+            expwarn = 1 #e temporary
         else:
             simaspect = None
             startmsg = "Minimize: ..."
@@ -748,6 +759,8 @@ class Minimize_CommandRun(CommandRun):
         self.win.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
             self.history.message(greenmsg( startmsg))
+            if expwarn:
+                self.history.message(redmsg( "Warning: experimental feature. To use the old Minimize, first deselect all." ))
             self.makeMinMovie(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
             #self.makeMinMovie(mtype = 2) # 2 = multi-frame DPB file.
         finally:
@@ -779,16 +792,16 @@ class Minimize_CommandRun(CommandRun):
             # (maybe rename it SimRun? ###e also, it needs subclasses for the different kinds of sim runs and their results...
             #  or maybe it needs a subobject which has such subclasses -- not yet sure. [bruce 050329])
 
-        ## if minsel: pass
-            # minimize selection [bruce 050330] (ought to be a distinct command subclass...)
-            # this will use the spawning code in writemovie but has its own way of writing the mmp file.
-            # to make this clean, we need to turn writemovie into more than one method of a class
-            # with more than one subclass, so we can override one of them (writing mmp file)
-            # and another one (finding atom list). But to get it working I might just kluge it
-            # by passing it some specialized options... ###@@@ not sure
-            
+        # semi-obs comment, might still be useful [as of 050406]:
+        # minimize selection [bruce 050330] (ought to be a distinct command subclass...)
+        # this will use the spawning code in writemovie but has its own way of writing the mmp file.
+        # to make this clean, we need to turn writemovie into more than one method of a class
+        # with more than one subclass, so we can override one of them (writing mmp file)
+        # and another one (finding atom list). But to get it working I might just kluge it
+        # by passing it some specialized options... ###@@@ not sure
         
-        r = writemovie(self.part, movie, mtype, simaspect = simaspect) # write input for sim, and run sim; also sets movie.alist from simaspect
+        r = writemovie(self.part, movie, mtype, simaspect = simaspect) # write input for sim, and run sim
+            # this also sets movie.alist from simaspect
         if r:
             # We had a problem writing the minimize file.
             # Simply return (error message already emitted by writemovie). ###k
@@ -821,22 +834,152 @@ class Minimize_CommandRun(CommandRun):
         return
     pass # end of class Minimize_CommandRun
 
-# ==
+# == helper code for Minimize Selection [by bruce, circa 050406]
 
-##write_mmpfile_for_sim( alist, filename): #bruce 050325 #####@@@@@ need this, not done, review calls and all code after calls...
-##    """Write an MMP file specifically for the simulator,
-##    containing only the atoms in alist
-##    (which should all be in the same Part, but this might not be checked),
-##    and containing only the jigs which attach to those atoms
-##    (which must each be splittable if they also attach to other atoms).
-##       For now [050325], this might not be fully implemented,
-##    so we might fall back to writing the full assy (only ok for the MainPart)
-##    or emit a redmsg saying we can't do this for this Part,
-##    and then raise an exception (since we have no retval).
-##    """
-##    part = alist[0].molecule.part
-##    part.write_mmpfile_for_sim( alist, filename) # works differently in diff part classes, perhaps (more reliable in main part?)
-##    return
+from elements import Singlet
+
+#obs comment:
+###@@@ this will be a subclass of SimRun, like Movie will be... no, that's wrong.
+# Movie will be subclass of SimResults, or maybe not since those need not be a class
+# it's more like an UnderstoodFile and also an UndoableContionuousOperation...
+# and it needn't mix with simruns not related to movies.
+# So current_movie maybe split from last_simrun? might fix some bugs from aborted simruns...
+# for prefs we want last_started_simrun, for movies we want last_opened_movie (only if valid? not sure)...
+
+def atom_is_anchored(atm):
+    "is an atm anchored in space, when simulated?"
+    ###e refile as atom method?
+    #e permit filtering set of specific jigs (instances) that can affect it?
+    #e really a Part method??
+    res = False
+    for jig in atm.jigs:
+        if jig.anchors_atom(atm): # as of 050321, true only for Ground jigs
+            res = True # but continue, so as to debug this new method anchors_atom for all jigs
+    return res
+    
+class sim_aspect:
+    """Class for a "simulatable aspect" of a Part.
+    For now, there's only one kind (a subset of atoms, some fixed in position),
+    so we won't split out an abstract class for now.
+    Someday there would be other kinds, like when some chunks were treated
+    as rigid bodies or jigs and the sim was not told about all their atoms.
+    """
+    def __init__(self, part, atoms):
+        """atoms is a list of atoms within the part (e.g. the selected ones,
+        for Minimize Selection); we copy it in case caller modifies it later.
+        We become a simulatable aspect for simulating motion of those atoms,
+        starting from their current positions, with a "boundary layer" of other
+        directly bonded atoms (if any) held fixed during the simulation.
+        (If any given atoms have Ground jigs, those atoms are also treated as
+        boundary atoms and their own bonds are not explored to extend the boundary.
+        So if the user explicitly selects a complete boundary of Grounded atoms, no
+        atoms bonded to those will be included.)
+           All atoms not in our list of its boundary are ignored -- so completely
+        ignored that our atoms might move and overlap them in space.
+           We look at jigs which attach to our atoms,
+        but only if we know how to sim them -- we might not, if they also
+        touch other atoms. For now, we only look at Ground jigs (as mentioned
+        above) since this initial implem is only for Minimize. When we have
+        Simulate Selection, this will need revisiting.
+           If we ever need to emit history messages
+        (e.g. warnings) we'll do it using a global history variable (NIM)
+        or via part.assy. For now [050406] none are emitted.
+        """
+        self.part = part
+        self.moving_atoms = {}
+        self.boundary_atoms = {}
+        self.singlets = {}
+        assert atoms, "no atoms in sim_aspect"
+        for atm in atoms:
+            assert atm.molecule.part == part
+            assert atm.element != Singlet # when singlets are selectable, this whole thing needs rethinking
+            if atom_is_anchored(atm):
+                self.boundary_atoms[atm.key] = atm # no need to further explore atm's neighbors
+            else:
+                self.moving_atoms[atm.key] = atm
+        del atoms
+        # now find the boundary of the moving_atoms
+        for atm in self.moving_atoms.values():
+            for atm2 in atm.realNeighbors():
+                if atm2.key not in self.moving_atoms:
+                    self.boundary_atoms[atm2.key] = atm2 # might already be there, that's ok
+        # now find the singlets on either moving or boundary atoms
+        # (we'll write most of them as H's for the sim, but just store the singlets for now;
+        #  even the ones found on boundary atoms are not themselves fixed during the sim)
+        for atm in self.moving_atoms.values():
+            for sing in atm.singletNeighbors():
+                self.singlets[sing.key] = sing
+        for atm in self.boundary_atoms.values():
+            for sing in atm.singletNeighbors():
+                self.singlets[sing.key] = sing
+        # finally, come up with a global atom order, and enough info to check our validity later if the Part changes
+        # real atom and singlet order (all in one list, so singlet<->H conversion by user needn't revise order):
+        items = self.moving_atoms.items() + self.boundary_atoms.items() + self.singlets.items()
+        items.sort()
+        self._atoms_list = [atom for key, atom in items]
+            # make that a public attribute? nah, use an access method
+        for i in range(1,len(self._atoms_list)):
+            assert self._atoms_list[i-1] != self._atoms_list[i]
+            # since it's sorted, that proves no atom or singlet appears twice
+        # anchored_atoms alone (for making boundary jigs each time we write them out)
+        items = self.boundary_atoms.items()
+        items.sort()
+        self.anchored_atoms_list = [atom for key, atom in items]
+        #e validity checking info is NIM, except for the atom lists themselves
+        return
+    def atomslist(self):
+        return list(self._atoms_list)
+    def writemmpfile(self, filename):
+        #bruce 050404 (for most details). Imitates some of Part.writemmpfile aka fileIO.writemmpfile_part.
+        #e refile into fileIO so the mmp format code is in the same place? maybe just some of it.
+        # in fact the mmp writing code for atoms and jigs is not in fileIO anyway! tho the reading code is.
+        """write our data into an mmp file; only include just enough info to run the sim
+        [###e Should we make this work even if the atoms have moved but not restructured since we were made? I think yes.
+         That means the validity hash is really made up now, not when we're made.]
+        """
+        ## do we need to do a part.assy.update_parts() as a precaution?? if so, have to do it earlier, not now.
+        from fileIO import writemmp_mapping
+        assy = self.part.assy
+        fp = open(filename, "w")
+        mapping = writemmp_mapping(assy, min = True)
+            #e rename min option? (for minimize; implies sim as well;
+            #   affects mapping attrnames in chem.py atom.writemmp)
+        mapping.set_fp(fp)    
+        # note that this mmp file doesn't need any grouping or chunking info at all.
+        try:
+            mapping.write_header() ###e header should differ in this case
+            ## node.writemmp(mapping)
+            self.write_atoms(mapping)
+            self.write_jigs(mapping)
+            mapping.write("end mmp file for Minimize Selection (" + assy.name + ")\n") # sim & cad both ignore text after 'end'
+        except:
+            mapping.close(error = True)
+            raise
+        else:
+            mapping.close()
+        return
+    def write_atoms(self, mapping):
+        assert mapping.sim
+        for atm in self._atoms_list: # includes both real atoms and singlets, both moving and anchored, all sorted by key
+            atm.writemmp( mapping) # mapping.sim means don't include any info not relevant to the sim
+                # note: this method knows whether & how to write a Singlet as an H (repositioned)!
+    def write_jigs(self, mapping):
+        from gadgets import fake_Ground_mmp_record
+        atoms = self.anchored_atoms_list
+        nfixed = len(atoms)
+        max_per_jig = 20
+        for i in range(0, nfixed, max_per_jig): # starting indices of jigs for fixed atoms
+            indices = range( i, min( i + max_per_jig, nfixed ) )
+            if platform.atom_debug:
+                print "atom_debug: writing Ground for these %d indices: %r" % (len(indices), indices)
+            # now write a fake Ground which has just the specified atoms
+            these_atoms = [atoms[i] for i in indices]
+            line = fake_Ground_mmp_record( these_atoms, mapping) # includes \n at end
+            mapping.write(line)
+            if platform.atom_debug:
+                print "atom_debug: wrote %r" % (line,)           
+        return
+    pass # end of class sim_aspect
 
 # end
 

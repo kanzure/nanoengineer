@@ -342,6 +342,7 @@ class molecule(Node, InvalMixin):
         since it's the only place that invalidates the position arrays.
         But it is not yet the way movie playing moves atoms,
         even though it's ok for frozen molecules too.
+        [As of 050406 it is now done by movie-playing!]
            Don't use this when the entire mol moves in a systematic way
         such that self.basepos remains valid, as in mol.move or mol.rot.
         """

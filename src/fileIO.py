@@ -649,8 +649,13 @@ class _readmmp_state:
             self.sim_input_badnesses_so_far[badness] = type
             if type == 'missing_group_or_chunk' or type == 'one_part':
                 # (this message is a guess, since erroneous files could give rise to this too)
-                msg = "this mmp file was probably written as simulator input; " \
-                      "it's missing some structure and won't be readable by versions before Alpha5." #e revise version name
+                # (#e To narrow down the cmd that wrote it, we'd need more info than type or
+                #  even file comment, from old files -- sorry; maybe we should add an mmp record for
+                #  the command that made the file! Will it be bad that file contents are nondet (eg for md5)?
+                #  Probably not, since they were until recently anyway, due to dict item arb order.)
+                msg = "mmp file probably written by Minimize or Simulate -- " \
+                      "lacks original file's chunk/group structure and display modes; " \
+                      "unreadable by pre-Alpha5 versions unless resaved." #e revise version name
             elif type == 'no_shelf':
                 # (this might not happen at all for files written by Alpha5 and beyond)
                 # comment from old code's fix_grouplist:
@@ -746,9 +751,16 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
             break
     grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are data, tree, shelf
 
+    # Note about homeView and lastView [bruce 050407]... not yet ready to commit.
+    # See bruce's fileIO-data-fixer.py file (at home) for not-yet-right comment and code.
+    # Meanwhile, if we're reading a sim-input file or other erroneous file which
+    # uses the following fake 'data' group, its views will be unsavable
+    # even if you resave it and reload it and resave it, etc,
+    # unless we fix this elsewhere, maybe in reset_grouplist below. ###@@@
+    
     # now fix up sim input files and other nonstandardly-structured files;
     # use these extra groups if necessary, else discard them:
-    data = Group("data", assy, None)
+    data = Group("Data", assy, None)
     shelf = Group("Clipboard", assy, None) # name might not matter
     
     for g in grouplist:
@@ -777,7 +789,8 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
         pass # nothing was wrong!
     assert len(grouplist) == 3
         
-    state.destroy() # not before now, since it keeps track of which warnings we already emitted 
+    state.destroy() # not before now, since it keeps track of which warnings we already emitted
+
     return grouplist # from _readmmp
 
 # read a Molecular Machine Part-format file into maybe multiple molecules
@@ -798,8 +811,23 @@ def reset_grouplist(assy, grouplist):
     which we treat as data, tree, shelf.
     [appropriateness of behavior for grouplist == None is unreviewed]
     """
+    #bruce 050406 comment: this seems wrong re assy/part split, since some of these are sometimes
+    # Part attributes! It might be ok, too -- need to clear this up. #####@@@@@
     if grouplist:
+        # don't store these in any Part, since those will all be replaced with new ones
+        # by update_parts, below!
         assy.data, assy.tree, assy.shelf = grouplist
+    #bruce 050407 quick fix for reading sim-input files -- disabled for initial Minimize Selection commit:
+##    # (due to side effects of reading Csys records, it seems best to do this even if grouplist == None;
+##    #  and since it replaces assy.data, we'll do it before calling kluge_patch_assy_toplevel_groups
+##    #  which I think uses assy.data's members.)
+##    try:
+##        datamembers = [assy.homeCsys, assy.lastCsys, assy.xy, assy.yz, assy.zx]
+##        newdata = Group("Data", assy, None, datamembers) # warning: this pulls them out of assy.data, if they're in there now
+##        assy.data = newdata
+##    except:
+##        print_compact_traceback("exception in 050407 quick fix for reading sim-input files, ignored: ")
+##        pass
     #bruce 050302: old code does a lot of the following even if grouplist is None;
     # until I understand all the effects better, I won't change that.
     assy.shelf.name = "Clipboard"
@@ -925,9 +953,9 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.fp.write("mmpformat %s\n" % assy.mmpformat)
         
         if self.min:
-            self.fp.write("# mmp file for minimizer, might affect details of format\n")
+            self.fp.write("# mmp file written by Minimize; can't be read before Alpha5\n")
         elif self.sim:
-            self.fp.write("# mmp file for simulator, might affect details of format\n")
+            self.fp.write("# mmp file written by Simulate; can't be read before Alpha5\n")
         
         if not self.min:
             self.fp.write("kelvin %d\n" % assy.temperature)
@@ -1030,7 +1058,8 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     assy = part.assy
     #e assert node is tree or shelf member? is there a method for that already? is_topnode?
     workaround_for_bug_296( assy, onepart = part)
-    assy.o.saveLastView(assy)
+    assy.o.saveLastView(assy) # this updates assy.data, but we don't currently write it out below
+        # note that lastView stuff is not yet properly fixed for assembly/part split [050406]
     fp = open(filename, "w")
     mapping = writemmp_mapping(assy)
     mapping.set_fp(fp)

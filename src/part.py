@@ -1452,13 +1452,20 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
         #e jigs?
         return
     def nonempty(self): #e make this the object's boolean value too?
+        # assume that each selmol has some real atoms, not just singlets! Should always be true.
         return self.selatoms or self.selmols
     def atomslist(self):
+        "return a list of all selected real atoms, whether selected as atoms or in selected chunks; no singlets or jigs"
         #e memoize this!
         if self.selmols:
-            res = dict(self.selatoms)
+            res = dict(self.selatoms) # dict from atom keys to atoms
             for mol in self.selmols:
+                # we'll add real atoms and singlets, then remove singlets
+                # (probably faster than only adding real atoms, since .update is one bytecode
+                #  and (for large mols) most atoms are not singlets)
                 res.update(mol.atoms)
+                for s in mol.singlets:
+                    del res[s.key]
         else:
             res = self.selatoms
         items = res.items()

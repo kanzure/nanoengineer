@@ -671,6 +671,7 @@ class Movie:
     # move the atoms one frame as for movie or minimization
     # .dpb file is in units of 0.01 Angstroms
     # units here are angstroms
+    #bruce 050406 revising this for safety (see comments)
     def movatoms(self, file, addpos = ADD):
         "#doc [callers can pass ADD (True) or SUBTRACT (False) for addpos]"
         if not self.alist: return
@@ -682,23 +683,37 @@ class Movie:
         # it or fully analyzed all related code, or checked whether
         # those dangerous mods are somehow blocked during the replay.)
         for a in self.alist:
-            # (assuming mol still frozen, this will change both basepos and
-            #  curpos since they are the same object; it won't update or
-            #  invalidate other attrs of the mol, however -- ok?? [bruce 041104])
-            if addpos: a.molecule.basepos[a.index] += A(unpack('bbb',file.read(3)))*0.01
-            else: a.molecule.basepos[a.index] -= A(unpack('bbb',file.read(3)))*0.01
-                    
-        for b in self.blist.itervalues():
-            b.setup_invalidate()
-            
-        for m in self.molecules:
-            m.changeapp(0)
+            #bruce 050406 revising this for safety; I'm guessing the speed impact
+            # is minimal and tolerable (but I could be wrong). Anyway, this crashes
+            # too often, so let's first make it safe, then later make it faster again.
+            # Once we're using the new DPB format (with key frames every so often),
+            # this speed will matter less anyway.
+            delta = A(unpack('bbb',file.read(3)))*0.01
+            if addpos == SUBTRACT:
+                delta = - delta
+            newpos = a.posn() + delta
+            a.setposn(newpos) #e could make new method to optimize this and still be safe;
+                # an important optim would be to split out the chunk-invals done by
+                # setatomposn into a separate routine and call it once per chunk.
+            ## the pre-050406 code was:
+##            # (assuming mol still frozen, this will change both basepos and
+##            #  curpos since they are the same object; it won't update or
+##            #  invalidate other attrs of the mol, however -- ok?? [bruce 041104])
+##            if addpos: a.molecule.basepos[a.index] += A(unpack('bbb',file.read(3)))*0.01
+##            else: a.molecule.basepos[a.index] -= A(unpack('bbb',file.read(3)))*0.01
+
+            ## no longer needed since setposn does it (both blist and molecules):                    
+##        for b in self.blist.itervalues():
+##            b.setup_invalidate()
+##        for m in self.molecules:
+##            m.changeapp(0)
+        return
 
     # regularize the atoms' new positions after the motion
     def movend(self):
         # terrible hack for singlets in simulator, which treats them as H
         for a in self.alist:
-            if a.is_singlet(): a.snuggle()
+            if a.is_singlet(): a.snuggle() # same code as in moveAtoms()
         for m in self.molecules:
             m.unfreeze()
         self.glpane.gl_update()
@@ -706,14 +721,26 @@ class Movie:
     def moveAtoms(self, newPositions): # used when reading xyz files
         """Huaicai 1/20/05: Move a list of atoms to newPosition. After 
             all atoms moving, bond updated, update display once.
-           <parameter>newPosition is a list of atom absolute position, the list order is the same as self.alist """
-           
-        if len(newPositions) != len(self.alist): #bruce 050225 added some parameters to this error message
+           <parameter>newPosition is a list of atom absolute position,
+           the list order is the same as self.alist
+        """   
+        if len(newPositions) != len(self.alist):
+            #bruce 050225 added some parameters to this error message
+            #bruce 050406 comment: but it probably never comes out, since readxyz checks this,
+            # so I won't bother to print it to history here. But leaving it in is good for safety.
             print "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
                   (len(newPositions), len(self.alist))
             return
         for a, newPos in zip(self.alist, newPositions):
-                a.setposn(A(newPos))
+            #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
+            # (and therefore have the wrong distance from their base atom).
+            # Rather than needing to know whether or not they were H during the sim,
+            # we can just regularize the singlet-baseatom distance for all singlets.
+            # For now I'll just use setposn to set the direction and snuggle to fix the distance.
+            #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
+            # is wildly wrong, and it should also complain. I won't do this for now.
+            a.setposn(A(newPos))
+            if a.is_singlet(): a.snuggle() # same code as in movend()
         self.glpane.gl_update()
 
     pass # end of class Movie
