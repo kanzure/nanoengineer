@@ -738,19 +738,24 @@ class TreeView(QListView):
         rename - whether to enable in-place editing of the name
         some of these args might be replaced by computations we do here or in sole caller ###@@@ do it all
         ####@@@redoc below
+        after - None, or another listview item we come after 
         .. .must add to nodes: options to specify dnd, rename, icon(openness).
         NOTE: it does not add in the kids! that must be done by upMT. and only if the item should be open.
         """
-        if after: # this 'if' is required!
+        item_class = self.QListViewItem_subclass_for_node( node, parent, display_prefs, after)
+        if after: # this 'if' is required! [IIRC, you can't pass None in the constructor with after, since Qt won't know the type.]
             try:
-                item = QListViewItem(parent, after) # comes first... unless after is passed
+                item = item_class(parent, after) # comes first... unless after is passed
+                if 0: ## text-editor search-bait:
+                    item = QListViewItem(parent, after) # effectively done above
+                    item = QListViewItem(parent, text) # effectively done below
                 item.setText(0, node.name) # 0 is column number; there is no initializer with both after and text
             except:
                 # only happens on a bug we can't handle, so always print something
                 print "fyi: bug in after option, this is its value:",after ###@@@
                 raise
         else:
-            item = QListViewItem(parent, node.name) # constructor includes setText
+            item = item_class(parent, node.name) # constructor includes setText
             ###@@@ revise interface, pass the node, do this function in that init method, don't need this func at all, perhaps.
         item.object = node ###@@@ probably still ok to store it like this
         ###@@@ store node.tritem = item here, but in a new way? no, do it in caller.
@@ -772,6 +777,20 @@ class TreeView(QListView):
         ###@@@ also setProp even if that is also done separately; ###@@@ should that also do the icon? and even the other props here?
         # e.g. (someday) drop property might vary depending on open or not...
         return item
+
+    def QListViewItem_subclass_for_node(self, node, parent, display_prefs, after):
+        """Return an appropriate subclass of QListViewItem (or that class itself) for this node.
+           This subclass's __init__ must work for either of these two forms of arglist,
+        by testing the type of the second argument:
+        self, parent, after (after = another QListView item)
+        or self, parent, text.
+           Furthermore, its setText method must work for (self, 0, text)
+        in the same way as its __init__ method (or by letting QListViewItem handle it).
+           [Subclasses of TreeView can override this method, perhaps by letting their
+        tree's nodes influence the chosen subclass, or perhaps having a custom subclass
+        for the entire tree.]
+        """
+        return QListViewItem
 
     def toggle_open(self, item, openflag = None):
         """Toggle the open/closed state of this item, or set it to openflag
