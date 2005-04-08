@@ -943,15 +943,24 @@ class sim_aspect:
     def __init__(self, part, atoms):
         """atoms is a list of atoms within the part (e.g. the selected ones,
         for Minimize Selection); we copy it in case caller modifies it later.
-        We become a simulatable aspect for simulating motion of those atoms,
+        We become a simulatable aspect for simulating motion of those atoms
+        (and of any singlets bonded to them, since user has no way to select
+        those explicitly),
         starting from their current positions, with a "boundary layer" of other
         directly bonded atoms (if any) held fixed during the simulation.
+        [As of 040508 this boundary will be changed from thickness 1 to thickness 2
+         and its own singlets, if any, will also be grounded rather than moving.
+         This is because we're approximating letting the entire rest of the Part
+         be grounded, and the 2nd layer of atoms will constrain bond angles on the
+         first layer, so leaving it out would be too different from what we're
+         approximating.]
         (If any given atoms have Ground jigs, those atoms are also treated as
-        boundary atoms and their own bonds are not explored to extend the boundary.
-        So if the user explicitly selects a complete boundary of Grounded atoms, no
-        atoms bonded to those will be included.)
-           All atoms not in our list of its boundary are ignored -- so completely
-        ignored that our atoms might move and overlap them in space.
+        boundary atoms and their own bonds are only explored to an additional depth
+        of 1 (in terms of bonds) to extend the boundary.
+        So if the user explicitly selects a complete boundary of Grounded atoms,
+        only their own directly bonded real atoms will be additionally grounded.)
+           All atoms not in our list or its 2-thick boundary are ignored --
+        so much that our atoms might move and overlap them in space.
            We look at jigs which attach to our atoms,
         but only if we know how to sim them -- we might not, if they also
         touch other atoms. For now, we only look at Ground jigs (as mentioned
@@ -963,34 +972,41 @@ class sim_aspect:
         """
         self.part = part
         self.moving_atoms = {}
-        self.boundary_atoms = {}
-        self.singlets = {}
+        self.boundary1_atoms = {}
+        self.boundary2_atoms = {}
         assert atoms, "no atoms in sim_aspect"
         for atm in atoms:
             assert atm.molecule.part == part
             assert atm.element != Singlet # when singlets are selectable, this whole thing needs rethinking
             if atom_is_anchored(atm):
-                self.boundary_atoms[atm.key] = atm # no need to further explore atm's neighbors
+                self.boundary1_atoms[atm.key] = atm
             else:
                 self.moving_atoms[atm.key] = atm
+            # pretend that all singlets of selected atoms were also selected
+            # (but were not grounded, even if atm was)
+            for sing in atm.singletNeighbors():
+                self.moving_atoms[sing.key] = sing
         del atoms
-        # now find the boundary of the moving_atoms
-        for atm in self.moving_atoms.values():
-            for atm2 in atm.realNeighbors():
+        # now find the boundary1 of the moving_atoms
+        for movatm in self.moving_atoms.values():
+            for atm2 in movatm.realNeighbors():
+                # (not covering singlets is just an optim, since they're already in moving_atoms)
+                # (in fact, it's probably slower than excluding them here! I'll leave it in, for clarity.)
                 if atm2.key not in self.moving_atoms:
-                    self.boundary_atoms[atm2.key] = atm2 # might already be there, that's ok
-        # now find the singlets on either moving or boundary atoms
-        # (we'll write most of them as H's for the sim, but just store the singlets for now;
-        #  even the ones found on boundary atoms are not themselves fixed during the sim)
-        for atm in self.moving_atoms.values():
-            for sing in atm.singletNeighbors():
-                self.singlets[sing.key] = sing
-        for atm in self.boundary_atoms.values():
-            for sing in atm.singletNeighbors():
-                self.singlets[sing.key] = sing
-        # finally, come up with a global atom order, and enough info to check our validity later if the Part changes
-        # real atom and singlet order (all in one list, so singlet<->H conversion by user needn't revise order):
-        items = self.moving_atoms.items() + self.boundary_atoms.items() + self.singlets.items()
+                    self.boundary1_atoms[atm2.key] = atm2 # might already be there, that's ok
+        # now find the boundary2 of the boundary1_atoms;
+        # treat singlets of boundary1 as ordinary boundary2 atoms (unlike when we found boundary1);
+        # no need to re-explore moving atoms since we already covered their real and singlet neighbors
+        for b1atm in self.boundary1_atoms.values():
+            for atm2 in b1atm.neighbors():
+                if (atm2.key not in self.moving_atoms) and (atm2.key not in self.boundary1_atoms):
+                    self.boundary2_atoms[atm2.key] = atm2 # might be added more than once, that's ok
+        # no need to explore further -- not even for singlets on boundary2 atoms.
+
+        # Finally, come up with a global atom order, and enough info to check our validity later if the Part changes.
+        # We include all atoms (real and singlet, moving and boundary) in one list, sorted by atom key,
+        # so later singlet<->H conversion by user wouldn't affect the order.
+        items = self.moving_atoms.items() + self.boundary1_atoms.items() + self.boundary2_atoms.items()
         items.sort()
         self._atoms_list = [atom for key, atom in items]
             # make that a public attribute? nah, use an access method
@@ -998,7 +1014,7 @@ class sim_aspect:
             assert self._atoms_list[i-1] != self._atoms_list[i]
             # since it's sorted, that proves no atom or singlet appears twice
         # anchored_atoms alone (for making boundary jigs each time we write them out)
-        items = self.boundary_atoms.items()
+        items = self.boundary1_atoms.items() + self.boundary2_atoms.items()
         items.sort()
         self.anchored_atoms_list = [atom for key, atom in items]
         #e validity checking info is NIM, except for the atom lists themselves
