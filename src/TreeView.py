@@ -78,7 +78,20 @@ class TreeView(QListView):
 
         # [some of the following might belong in a subclass or need to be influenced by one:]
         self.setGeometry(QRect(0, 0, size[0], size[1]))
-        self.setSizePolicy(QSizePolicy(0,7,0,244,False)) #k what's this?
+        
+        if 0:
+            self.setSizePolicy(QSizePolicy(0,7,0,244,False)) #k what's this?
+        else:
+            # make a change needed by Geoff Leach [see his mail to cad 050304],
+            # needed (at least back then) on his Linux system and/or Qt/PyQt installation
+            # (this relates to some reported bug whose bug number I forget)
+            # [bruce 050408]
+            self.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Expanding,0,244,False)) #k what's this?
+            if platform.atom_debug:
+                if (QSizePolicy.Fixed,QSizePolicy.Expanding) != (0,7):
+                    print "atom_debug: why is %r == (QSizePolicy.Fixed,QSizePolicy.Expanding) != (0,7)?" % \
+                        ( (QSizePolicy.Fixed,QSizePolicy.Expanding), )
+        
         self.setResizePolicy(QScrollView.Manual) #k what's this? The Qt doc is pretty obscure.
             # I tried removing it, and noticed no change; in particular, the bug of a resize
             # which makes top toolbar dock taller hiding the mtree label remains.
