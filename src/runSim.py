@@ -30,6 +30,8 @@ from qt import QApplication, QCursor, Qt, QStringList, QProcess
 from movie import Movie
 # more imports lower down
 
+debug_sim = False
+
 class SimRunner:
     "class for running the simulator [subclasses can run it in special ways, maybe]"
     #bruce 050330 making this from writemovie and maybe some of Movie/SimSetup; experimental,
@@ -216,21 +218,35 @@ class SimRunner:
         movie.filetype = ext #bruce 050404 added this
 
         # Figure out tracefile name, come up with sim-command argument for it,
-        # store that in self.traceFile [###e clean that up! split filename and cmd-option, rename this attr to self.traceFileOption...]
+        # store that in self.traceFileArg [###e clean that up! split filename and cmd-option...]
         
         # The trace file saves the simulation parameters and the output data for jigs.
         # Mark 2005-03-08
-        if mflag: 
-            # We currently don't need to write a tracefile when minimizing the part (mflag != 0).
-            # [bruce comment 050324: but soon we will, to know better when the xyz file is finished or given up on. ###@@@]
-            self.traceFile = ""
+        if mflag:
+            #bruce 050407 comment: mflag true means "minimize" (value when true means output filetype).
+            # Change: Always write tracefile, so Minimize can see warnings in it.
+            # But let it have a different name depending on the output file extension,
+            # so if you create xxx.dpb and xxx.xyz, the trace file names differ.
+            # (This means you could save one movie and one minimize output for the same xxx,
+            #  and both trace files would be saved too.) That change is now in movie.get_trace_filename().
+            ## old code:
+##            # We currently don't need to write a tracefile when minimizing the part (mflag != 0).
+##            # [bruce comment 050324: but soon we will, to know better when the xyz file is finished or given up on.]
+##            self.traceFileArg = ""
+            self.traceFileName = movie.get_trace_filename()
+                # (same as in other case, but retval differs due to movie.filetype)
         else:
             # The trace filename will be the same as the movie filename, but with "-trace.txt" tacked on.
-            self.traceFile = "-q" + movie.get_trace_filename() # presumably uses movie.filename we just stored
+            self.traceFileName = movie.get_trace_filename() # presumably uses movie.filename we just stored
                 # (I guess this needn't know self.tmp_file_prefix except perhaps via movie.filename [bruce 050401])
+
+        if self.traceFileName:
+            self.traceFileArg = "-q" + self.traceFileName
+        else:
+            self.traceFileArg = ""
                 
         # This was the old tracefile - obsolete as of 2005-03-08 - Mark
-        ## traceFile = "-q"+ os.path.join(self.tmpFilePath, "sim-%d-trace.txt" % pid)
+        ## traceFileArg = "-q"+ os.path.join(self.tmpFilePath, "sim-%d-trace.txt" % pid)
 
         return None # no error
 
@@ -307,10 +323,10 @@ class SimRunner:
         
         movie = self._movie # old-code compat kluge
         moviefile = movie.filename
-        outfile = "-o%s" % moviefile
+        outfileArg = "-o%s" % moviefile
         infile = self.sim_input_file
         program = self.program
-        traceFile = self.traceFile #e rename, revise
+        traceFileArg = self.traceFileArg
 
         ext = movie.filetype #bruce 050404 added movie.filetype
         mflag = self.mflag
@@ -321,8 +337,10 @@ class SimRunner:
         else: assert 0
         
         # "args" = arguments for the simulator.
-        if mflag: 
-            args = [program, '-m', str(formarg), traceFile, outfile, infile]
+        if mflag:
+            # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
+            # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
+            args = [program, '-m', str(formarg), traceFileArg, outfileArg, infile]
         else: 
             # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
             # The timestep argument "-s + (movie.timestep)" is not supported for Alpha.
@@ -332,8 +350,8 @@ class SimRunner:
                         '-i' + str(movie.stepsper), 
                         '-r',
                         str(formarg),
-                        traceFile,
-                        outfile,
+                        traceFileArg,
+                        outfileArg,
                         infile]
         self._args = args # needed??
         self._formarg = formarg # old-code kluge
@@ -350,19 +368,19 @@ class SimRunner:
             # (deleting or renaming some file they might care about). ###@@@
             # BTW this stuff should be a method of movie, it uses private attrs...
             # and it might not be correct/safe in all cases either... [not reviewed]
-            print "movie.isOpen =",movie.isOpen
-            if movie.isOpen: 
-                print "closing moviefile"
+            if debug_sim: print "movie.isOpen =",movie.isOpen
+            if movie.isOpen:
+                if debug_sim: print "closing moviefile"
                 movie.fileobj.close()
                 movie.isOpen = False
-                print "writemovie(): movie.isOpen =", movie.isOpen
-            
-            print "deleting moviefile: [",moviefile,"]"
-            os.remove (moviefile) # Delete before spawning simulator.
-
-        # These are useful when debugging the simulator.     
-        print  "program = ",program
-        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+                if debug_sim: print "writemovie(): movie.isOpen =", movie.isOpen
+                #bruce 050407 moved the actual delete down below...
+        
+        # These are useful when debugging the simulator.
+        # [bruce 050407: But not for all users all the time! So putting them inside a flag.]
+        if debug_sim:
+            print  "program = ",program
+            print  "Spawnv args are %r" % (args,) # this %r remains (see above)
 
         arguments = QStringList()
         for arg in args:
@@ -371,6 +389,11 @@ class SimRunner:
         #bruce 050404 let simProcess be instvar so external code can abort it
         self.simProcess = None
         try:
+            if os.path.exists(moviefile):
+                #bruce 050407 moving this into the try, since it can fail if we lack write permission
+                # (and it's a good idea to give up then, so we're not fooled by an old file)
+                if debug_sim: print "deleting moviefile: [",moviefile,"]"
+                os.remove (moviefile) # Delete before spawning simulator.
             ## Start the simulator in a different process 
             self.simProcess = QProcess()
             simProcess = self.simProcess
@@ -400,6 +423,14 @@ class SimRunner:
         # what all cases have in common is that user wants us to stop now
         # (so we might or might not already be stopped, but we will be soon)
         # and self.errcode says what's going on.
+
+        # [bruce 050407:]
+        # For now:
+        # Since we're not always stopped yet, we won't scan the tracefile
+        # for error messages here... let the caller do that.
+        # Later:
+        # Do it continuously as we monitor progress (in fact, that will be
+        # *how* we monitor progress, rather than watching the filesize grow).
         return
 
     def old_guess_filesize_and_progbartext(self, movie): # also emits history msg
@@ -417,7 +448,9 @@ class SimRunner:
         # This formula is an estimate.  "filesize" must never be larger than the
         # actual final size of the XYZ file, or the progress bar will never hit 100%,
         # even though the simulator finished writing the file.
-        # - Mark 050105 
+        # - Mark 050105
+        #bruce 050407: apparently this works backwards from output file file format and minimizeQ (mflag)
+        # to figure out how to guess the filesize, and the right captions and text for the progressbar.
         if formarg == "-x":
             # Single shot minimize.
             if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
@@ -468,6 +501,40 @@ class SimRunner:
     def monitor_some_progress_doneQ(self):
         "..."
         pass
+
+    def print_sim_warnings(self): #bruce 050407; soon we should do this continuously instead
+        "#doc"
+        try:
+            tfile = self.traceFileName
+        except AttributeError:
+            return # sim never ran (not always an error, I suspect)
+        if not tfile:
+            return # no trace file was generated using a name we provide
+                   # (maybe the sim wrote one using a name it made up... nevermind that here)
+        ff = open(tfile, "rU") # "U" probably not needed, but harmless
+        lines = filter( lambda line: line.startswith("#"), ff.readlines() )
+        ff.close()
+        seen = {} # whether we saw each known error or warning tracefile-keyword
+        donecount = 0 # how many Done keywords we saw in there
+        for line in lines:
+            ## don't do this, I think: line = line[1:].strip() # discard initial "#" or "# "
+            for start in ["# Warning:", "# Error:", "# Done:"]:
+                if line.startswith(start):
+                    if start != "# Done:":
+                        if not seen:
+                            self.history.message( "Note: simulator trace file included these warnings and/or errors:")
+                        self.history.message( redmsg(line)) # leave in the '#' I think
+                        seen[start] = True
+                    else:
+                        donecount += 1
+        if not donecount:
+            self.history.message( redmsg( "Warning: simulator trace file should normally end with \"# Done:\", but it doesn't."))
+        if not donecount or seen:
+            # sim trace file was mentioned; user might wonder where it is...
+            msg = "(The simulator trace file was [%s]. It might be overwritten the next time you run a similar command.)" % tfile
+            self.history.message( msg)
+        return
+        
     pass # end of class SimRunner
     
 # ==
@@ -488,7 +555,7 @@ class SimRunner:
 #  to accept the movie to use as an argument; and, perhaps, mainly called by a Movie method.
 #  For now, I renamed assy.m -> assy.current_movie, and never grab it here at all
 #  but let it be passed in instead.] ###@@@
-def writemovie(part, movie, mflag = 0, simaspect = None):
+def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False):
     """Write an input file for the simulator, then run the simulator,
     in order to create a moviefile (.dpb file), or an .xyz file containing all
     frames(??), or an .xyz file containing what would have
@@ -500,12 +567,15 @@ def writemovie(part, movie, mflag = 0, simaspect = None):
     (This should be thought of as a Movie method even though it isn't one yet.)
     DPB = Differential Position Bytes (binary file)
     XYZ = XYZ trajectory file (text file)
-    mflag:
+    mflag: [note: mflag is called mtype in some of our callers!]
         0 = default, runs a full simulation using parameters stored in the movie object.
         1 = run the simulator with -m and -x flags, creating a single-frame XYZ file.
         2 = run the simulator with -m flags, creating a multi-frame DPB moviefile.
     Return value: false on success, true (actually an error code but no caller uses that)
     on failure (error message already emitted).
+      Either way (success or not), also copy errors and warnings from tracefile to history,
+    if print_sim_warnings = True. Someday this should happen in realtime;
+    for now [as of 050407] it happens once when we're done.
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
@@ -513,6 +583,11 @@ def writemovie(part, movie, mflag = 0, simaspect = None):
     options = "not used i think"
     simrun.run_using_old_movie_obj_to_hold_sim_params(movie, options)
         # messes needing cleanup: options useless now
+    if print_sim_warnings:
+        try:
+            simrun.print_sim_warnings()
+        except:
+            print_compact_traceback("bug in print_sim_warnings, ignored: ")
     return simrun.errcode
 
 # ==
@@ -690,7 +765,8 @@ class simSetup_CommandRun(CommandRun):
             # user hit Cancel button in SimSetup Dialog. No history msg went out; caller will do that.
             movie.destroy()
             return -1 
-        r = writemovie(self.part, movie) ###@@@ bruce 050324 comment: maybe should do following in that function too
+        r = writemovie(self.part, movie, print_sim_warnings = True)
+            ###@@@ bruce 050324 comment: maybe should do following in that function too
         if not r: 
             # Movie file created. Initialize. ###@@@ bruce 050325 comment: following mods private attrs, needs cleanup.
             movie.IsValid = True # Movie is valid.###@@@ bruce 050325 Q: what exactly does this (or should this) mean?
@@ -727,9 +803,9 @@ class Minimize_CommandRun(CommandRun):
             # use new code iff anything is selected
             selection = self.part.selection() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
-                msg1 = "Warning: Minimize: nothing selected. For now, we'll minimize entire Part like before."
+                msg1 = "Note: Minimize: nothing selected. For now, we'll minimize entire Part like before."
                 msg2 = "SOON, THIS MIGHT REQUIRE SELECT ALL to be done first!"
-                self.history.message(redmsg( msg1 + "\n" + msg2 )) # <br> might be worse than \n for small window width
+                self.history.message(( msg1 + "\n" + msg2 )) # <br> might be worse than \n for small window width
                 entire_part = True # use old code
             else:
                 entire_part = False # use new code
@@ -760,7 +836,7 @@ class Minimize_CommandRun(CommandRun):
         try:
             self.history.message(greenmsg( startmsg))
             if expwarn:
-                self.history.message(redmsg( "Warning: experimental feature. To use the old Minimize, first deselect all." ))
+                self.history.message(( "Note: experimental feature. To use the old Minimize, first deselect all." ))
             self.makeMinMovie(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
             #self.makeMinMovie(mtype = 2) # 2 = multi-frame DPB file.
         finally:
@@ -800,7 +876,7 @@ class Minimize_CommandRun(CommandRun):
         # and another one (finding atom list). But to get it working I might just kluge it
         # by passing it some specialized options... ###@@@ not sure
         
-        r = writemovie(self.part, movie, mtype, simaspect = simaspect) # write input for sim, and run sim
+        r = writemovie(self.part, movie, mtype, simaspect = simaspect, print_sim_warnings = True) # write input for sim, and run sim
             # this also sets movie.alist from simaspect
         if r:
             # We had a problem writing the minimize file.
@@ -970,14 +1046,14 @@ class sim_aspect:
         max_per_jig = 20
         for i in range(0, nfixed, max_per_jig): # starting indices of jigs for fixed atoms
             indices = range( i, min( i + max_per_jig, nfixed ) )
-            if platform.atom_debug:
-                print "atom_debug: writing Ground for these %d indices: %r" % (len(indices), indices)
+            if debug_sim:
+                print "debug_sim: writing Ground for these %d indices: %r" % (len(indices), indices)
             # now write a fake Ground which has just the specified atoms
             these_atoms = [atoms[i] for i in indices]
             line = fake_Ground_mmp_record( these_atoms, mapping) # includes \n at end
             mapping.write(line)
-            if platform.atom_debug:
-                print "atom_debug: wrote %r" % (line,)           
+            if debug_sim:
+                print "debug_sim: wrote %r" % (line,)           
         return
     pass # end of class sim_aspect
 

@@ -170,3 +170,10 @@ Summary: Minimize Selection (and some of bug 254 fix), and safer but perhaps slo
 see email to cad for details.
 
 ----------------------------
+
+Name: Bruce Smith
+Date: 4/07/2005
+Files: runSim.py, movie.py
+Summary: show warnings and errors from simulator during Minimize or Simulate
+
+----------------------------

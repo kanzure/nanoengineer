@@ -601,7 +601,13 @@ class Movie:
         """Returns the trace filename for the current movie.
         """
         fullpath, ext = os.path.splitext(self.filename)
-        return fullpath + "-trace.txt"
+        if ext == '.xyz':
+            #bruce 050407 new feature: ensure tracefilename differs when filename does
+            # (see comment next to our caller in runSim.py for why this matters)
+            suffix = "-xyztrace.txt"
+        else:
+            suffix = "-trace.txt"
+        return fullpath + suffix
         
     def get_GNUplot_filename(self):
         """Returns the GNUplot filename for the current movie.
