@@ -5,21 +5,23 @@ MWsemantics.py provides the main window class, MWsemantics.
 $Id$
 '''
 
-import qt
-from qt import QMainWindow, QPixmap, QWidget, QFrame, QPushButton
-from qt import QGroupBox, QComboBox, QAction, QMenuBar, QPopupMenu
-from qt import SIGNAL, SLOT, QListView, QListViewItem, QFileDialog
-from GLPane import *
-import os
+## bruce 050408 removed: import qt
+from qt import QWidget, QFrame, SIGNAL, QFileDialog
+    ## bruce 050408 removed: QPushButton, QMainWindow, QPixmap, QGroupBox,
+    ## QComboBox, QAction, QMenuBar, QPopupMenu, SLOT, QListView, QListViewItem
+from qt import QCursor, QBitmap, QWMatrix, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
+from GLPane import GLPane ## bruce 050408 removed: import *
+from assembly import assembly ## bruce 050408 added this, was coming from GLPane
+import os, sys
 import help
 from math import ceil
-from modelTree import *
+from modelTree import modelTree ## bruce 050408 removed: import *
 import platform
 
 from constants import *
-from elementColors import *
-from elementSelector import *
-from fileIO import *
+from elementColors import elementColors ## bruce 050408 removed: import *
+from elementSelector import elementSelector ## bruce 050408 removed: import *
+ ## bruce 050408 removed: from fileIO import *
 from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
@@ -98,6 +100,8 @@ class MWsemantics(MainWindow):
         self.assistant = AssistantWindow(self, "Assistant")
         
         # Create validator(s)
+        from qt import QDoubleValidator
+            ##bruce 050408 added this import; ideally this code should not be in MWsemantics at all
         maxd = self.ccLayerThicknessSpinBox.maxValue() * 3.5103 # Maximum value allowed
         self.vd = QDoubleValidator( 0.0, maxd , 4, self ) # 4 decimal places
         self.ccLayerThicknessLineEdit.setValidator (self.vd)
@@ -1125,6 +1129,7 @@ class MWsemantics(MainWindow):
         global helpwindow
         if not helpwindow: helpwindow = help.Help()
         helpwindow.show()
+        ## from somewhere import QAssistantClient ##bruce 050408
         #assistant  = QAssistantClient('', self)
         #assistant.showPage('/home/huaicai/atom/cad/doc/html/index.html')
 
@@ -1159,6 +1164,7 @@ class MWsemantics(MainWindow):
         QMessageBox.about ( self, "About nanoENGINEER-1", aboutstr)
              
     def helpWhatsThis(self):
+        from qt import QWhatsThis ##bruce 050408
         self.history.message(greenmsg("What's This:"))
         QWhatsThis.enterWhatsThisMode ()
 
@@ -1331,7 +1337,8 @@ class MWsemantics(MainWindow):
     def fileSaveMovie(self):
         """Save a copy of the current movie file loaded in the Movie Player.
         """
-
+        from qt import QMimeSourceFactory
+            #bruce 050408, done here since this code should be moved out of MWsemantics
         # Make sure there is a moviefile to save.
         if not self.assy.current_movie or not self.assy.current_movie.filename \
           or not os.path.exists(self.assy.current_movie.filename):
@@ -1787,11 +1794,6 @@ class MWsemantics(MainWindow):
     
     def createStatusBars(self):
         """Create some widgets inside the Qt-supplied statusbar, self.statusBar()."""
-## I can finally zap this now! [bruce 050107]
-##        self.statusBar = self.statusBar()
-##        # bruce comment 041223: it's bad to reuse this Qt-defined method name
-##        # for an attribute! I'll remove this as soon as practical.
-
         # (see also self.history.message())
 
         # Mark - Set up display mode bar (right) in status bar area.        
@@ -1803,21 +1805,11 @@ class MWsemantics(MainWindow):
         self.modebarLabel = QLabel(self.statusBar(), "modebarLabel")
         self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
         self.statusBar().addWidget(self.modebarLabel, 0, True)
-
-##        # bruce 041223 temporary compatibility kluge:
-##        # replace self.statusBar with a compatibility object, just until all
-##        # other files' uses of it (including everyone's local mods which are
-##        # not yet committed) are changed.
-##        class nullclass: pass
-##        self.statusBar = nullclass()
-##            # that could be anything whose message attribute we can overwrite!
-##        self.statusBar.message = self.history.message [provided it runs after
-##            self.history has been set in the instance... never reviewed since
-##            that system was changed, 050107]
-        
         return
     
     def hideDashboards(self):
+        # [bruce 050408 comment: this list should be recoded somehow so that it
+        #  has to list what to show, now what to hide. ##e]
         self.cookieCutterDashboard.hide()
         self.extrudeDashboard.hide()
         self.revolveDashboard.hide()
@@ -1840,10 +1832,23 @@ class MWsemantics(MainWindow):
         ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
         objList = self.queryList("QToolBar")
         for obj in objList:
-                if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard, self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard, self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard, self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard, self.cookieSelectDashboard]:
-                         self.setAppropriate(obj, False)
+            # [bruce 050408 comment: this is bad style; the default should be setAppropriate False
+            #  (to keep most dashboard names out of the context menu in the toolbar area),
+            #  and we should list here the few we want to include in that menu (setAppropriate True),
+            #  not the many we want to exclude (which is also a list that changes more often). ##e]
+            if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard,
+                self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard,
+                self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard,
+                self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
+                self.cookieSelectDashboard]:
+                    self.setAppropriate(obj, False)
 
-    # Import code for What's This support        
+    # Import code for What's This support
+    # [bruce 050408 comment: from the way this is defined, it looks like the
+    #  function createWhatsThis becomes an attribute of this class,
+    #  so it can be called above as if it was a locally defined method,
+    #  even though it's not. Nonstandard, but ok if it works. I didn't test it
+    #  to confirm this theory.]
     from whatsthis import createWhatsThis
 
     # end of class MWsemantics

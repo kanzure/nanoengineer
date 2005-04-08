@@ -8,8 +8,8 @@ Revised by many other developers since then (and perhaps before).
 $Id$
 """
 
-from qt import *
-from qtgl import *
+from qt import QFont, QWidget, QMessageBox ## bruce 050408 removed: import *
+from qtgl import QGLWidget ## bruce 050408 removed: import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -23,7 +23,7 @@ import time
 from VQT import *
 import drawer
 from shape import *
-from assembly import *
+## bruce 050408 removed: from assembly import *
 import re
 from constants import *
 
