@@ -13,7 +13,7 @@ from extrudeMode import mergeable_singlets_Q_and_offset
 from chunk import bond_at_singlets
 from HistoryWidget import redmsg
 
-def lambda_tol_nbonds(tol, nbonds):
+def fusechunks_lambda_tol_nbonds(tol, nbonds):
     if nbonds == -1:
         nbonds_str = "?"
     else:
@@ -50,11 +50,10 @@ class fusechunksMode(modifyMode):
         # If only one chunk is selected when coming in, make it the selected_chunk.
         # If more than one chunk is selected, unselect them all.
         if len(self.o.assy.selmols) == 1: 
-            self.setup_selected_chunk()
+            self.init_selected_chunk()
         else:
-            self.o.assy.unpickparts()
-            self.selected_chunk = None
-    
+            self.unpick_selected_chunk()
+
     def restore_gui(self):
         self.w.fuseChunksDashboard.hide()
         self.w.disconnect(self.w.makeBondsPB,SIGNAL("clicked()"),self.make_bonds)
@@ -62,9 +61,15 @@ class fusechunksMode(modifyMode):
 
     def tolerance_changed(self, val):
         self.tol = val * .01
-        if not self.selected_chunk: return
-        self.find_bondable_pairs() # Find bondable pairs of singlets
-        self.o.gl_update()
+        
+        if self.selected_chunk:
+            self.find_bondable_pairs() # This will update the slider tolerance label
+            self.o.gl_update()
+        else:
+            # Since no chunk is select, there are no bonds, but the slider tolerance label still needs updating.  
+            # This fixed bug 502-14.  Mark 050407
+            tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0) # 0 bonds
+            self.w.toleranceLB.setText(tol_str) 
 
     def Backup(self):
         '''Undo any bonds made between chunks.
@@ -178,40 +183,48 @@ class fusechunksMode(modifyMode):
     def leftDouble(self, event):
         # This keeps us from ending Fuse Chunks, as is the case with Move Chunks.
         pass
-                
+
     def EndPick(self, event, selSense):
-        """Pick or unpick if click.  Only one chunk can be selected.
+        """Pick if click
         """
         if not self.picking: return
         self.picking = False
 
         if self.dragdist<7: # didn't move much, call it a click
-            
-            # This will clear bonds when unselecting the current chunk,
-            # regardless of whether it is done with the control key pressed.
-            # (i.e. clicking in an empty area of the GLPane)
-            self.bondable_pairs = [] 
-            self.ways_of_bonding = {}
-                
-            # Unpick the selected chunk.
-            if selSense == 0:  # 0 = Control key pressed, so unpick
-                self.o.assy.unpick_at_event(event)
-                self.selected_chunk = None
 
-            else:  # Pick a new chunk
-                self.o.assy.onlypick_at_event(event)
-                if self.o.assy.selmols: 
-                    self.setup_selected_chunk()
-             
+            if selSense == 0: # Cntl/Cmd key pressed
+                self.o.assy.unpick_at_event(event) # Unpicks selected chunk if it is under the cursor.
+            else: 
+                self.o.assy.onlypick_at_event(event) # Picks only the chunk under the cursor, if any.
+            
+            if self.o.assy.selmols: # Is there a picked chunk?
+                self.init_selected_chunk() # Yes, so initialize it.
+            else:
+                self.unpick_selected_chunk() # No, so unpick/reset
+                    
             self.w.win_update()
 
-    def setup_selected_chunk(self):
-        '''Sets up the selected chunk for finding bondable pairs of singlets.
+    def init_selected_chunk(self):
+        '''Initializes everything required for finding bondable pairs of singlets with the selected chunk.
         '''
         self.selected_chunk = self.o.assy.selmols[0]
         self.selected_chunk_rad = self.selected_chunk.bbox.scale() * self.rfactor
         self.find_bondable_pairs() # Find bondable pairs of singlets
         
+    def unpick_selected_chunk(self):
+        '''Resets everything when the selected chunk is unselected, 
+        or when the number of selected chunks != 1 when entering mode.
+        '''
+        self.bondable_pairs = [] 
+        self.ways_of_bonding = {}
+        self.o.assy.unpickparts()
+        self.selected_chunk = None
+        
+        #There are no bonds, update the slider tolerance label.  
+        # This fixed bug 502-14.  Mark 050407
+        tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0) # 0 bonds
+        self.w.toleranceLB.setText(tol_str) 
+
     def Draw(self):
         
         modifyMode.Draw(self)
@@ -284,7 +297,7 @@ class fusechunksMode(modifyMode):
                                     
         # Update tolerance label and status bar msgs.
         nbonds = len(self.bondable_pairs)
-        tol_str = lambda_tol_nbonds(self.tol, nbonds)
+        tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds)
         self.w.toleranceLB.setText(tol_str)
         
         if nbonds:
@@ -340,6 +353,10 @@ class fusechunksMode(modifyMode):
         if self.bondable_pairs_atoms:
             self.bondable_pairs = []
             self.ways_of_bonding = {}
+        
+        # Update the slider tolerance label.  This fixed bug 502-14.  Mark 050407
+        tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0)
+        self.w.toleranceLB.setText(tol_str)        
                 
         self.w.win_update()
 
