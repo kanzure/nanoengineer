@@ -752,10 +752,14 @@ class TreeView(QListView):
                 item.setText(0, node.name) # 0 is column number; there is no initializer with both after and text
             except:
                 # only happens on a bug we can't handle, so always print something
-                print "fyi: bug in after option, this is its value:",after ###@@@
+                print "fyi: exception in QListViewItem (or subclass) constructed with this after option:", after
                 raise
         else:
-            item = item_class(parent, node.name) # constructor includes setText
+            try:
+                item = item_class(parent, node.name) # constructor includes setText
+            except:
+                print "fyi: exception in QListViewItem (or subclass) constructed with this text:", node.name
+                raise
             ###@@@ revise interface, pass the node, do this function in that init method, don't need this func at all, perhaps.
         item.object = node ###@@@ probably still ok to store it like this
         ###@@@ store node.tritem = item here, but in a new way? no, do it in caller.
