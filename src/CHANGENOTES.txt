@@ -177,3 +177,11 @@ Files: runSim.py, movie.py
 Summary: show warnings and errors from simulator during Minimize or Simulate
 
 ----------------------------
+
+Name: Bruce Smith
+Date: 4/08/2005
+Files: GLPane.py
+Summary: fix bug in which glpane or its edges would flicker to black during main-window resize
+
+----------------------------
+
