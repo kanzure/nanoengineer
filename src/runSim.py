@@ -948,7 +948,7 @@ class sim_aspect:
         those explicitly),
         starting from their current positions, with a "boundary layer" of other
         directly bonded atoms (if any) held fixed during the simulation.
-        [As of 040508 this boundary will be changed from thickness 1 to thickness 2
+        [As of 050408 this boundary will be changed from thickness 1 to thickness 2
          and its own singlets, if any, will also be grounded rather than moving.
          This is because we're approximating letting the entire rest of the Part
          be grounded, and the 2nd layer of atoms will constrain bond angles on the
