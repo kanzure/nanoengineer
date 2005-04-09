@@ -56,7 +56,7 @@ import preferences
 paneno = 0
 #  ... what a Pane ...
 
-normalBackground = 216/255.0, 213/255.0, 159/255.0
+## normalBackground = 216/255.0, 213/255.0, 159/255.0 # bruce 050408 removed this
 
 normalGridLines = (0.0, 0.0, 0.6)
 
@@ -141,10 +141,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         DebugMenuMixin._init1(self) # provides self.debug_event(); needs self.makemenu()
 
         # The background color
-        ### bruce 040928 thinks backgroundColor is never used from here,
-        ### only from self.mode
-        self.backgroundColor = normalBackground
-        ### bruce 040928 -- i'm not sure whether or not gridColor is still used
+        #bruce 040928 thinks backgroundColor is never used from here,
+        # only from self.mode
+        #bruce 050408 commented it out; no effect noticed;
+        # see also setPaletteBackgroundColor below
+        ## self.backgroundColor = normalBackground
+        
+        ##bruce 040928 -- i'm not sure whether or not gridColor is still used
         self.gridColor = normalGridLines 
 
         self.trackball = Trackball(10,10)
@@ -260,9 +263,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         """do whatever updates are needed after self.mode might have changed
         (ok if this is called more than needed, except it might be slower)
         """
+        #bruce 050408: change widget's erase color (seen only if it's resized,
+        # and only briefly -- unrelated to OpenGL clearColor) to current mode's
+        # background color; this fixes the bug in which the glpane or its edges
+        # flicker to black during a main-window resize.
+        bgcolor = self.mode.backgroundColor
+        r = int(bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
+        g = int(bgcolor[1]*255 + 0.5)
+        b = int(bgcolor[2]*255 + 0.5)
+        self.setPaletteBackgroundColor(QColor(r, g, b))
+            # see Qt docs for this and for backgroundMode
+        
         #e also update tool-icon visual state in the toolbar?
-        # bruce 041222 changed this to a full update, and changed MWsemantics to
-        # make that safe during our __init__.
+        # bruce 041222 [comment revised 050408]:
+        # changed this to a full update (not just a glpane update),
+        # though technically the non-glpane part is the job of our caller rather than us,
+        # and changed MWsemantics to make that safe during our __init__.
         self.win.win_update()
 
     # def setMode(self, modename) -- moved to modeMixin [bruce 040922]
