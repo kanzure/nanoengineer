@@ -907,6 +907,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
         # draw according to mode
         self.mode.Draw()
+        
+        # let parts (other than the main part) draw a text label, to warn
+        # the user that the main part is not being shown [bruce 050408]
+        try:
+            self.assy.part.draw_text_label(self)
+        except:
+            if platform.atom_debug:
+                print_compact_traceback( "atom_debug: exception in self.assy.part.draw_text_label(self): " )
+            pass # if it happens at all, it'll happen too often to bother users with an error message
+        
         glFlush()  #Tidy up
         ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
         return # from paintGL       

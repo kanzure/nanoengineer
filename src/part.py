@@ -485,31 +485,33 @@ class Part(InvalMixin):
     # ==
     
     def draw(self, win): ###@@@ win arg, unused, should be renamed or removed
-        try:
-            text = self.glpane_text()
-            if text:
-                ###e get to the right place on the screen; use white, block font, large, italic... #####@@@@@
-                self.drawtext( self.o, text ) # works, but shows up at origin of model space, of course
-        except:
-            print_compact_traceback("exception in drawing part title text: ")
         self.topnode.draw(self.o, self.o.display)
+
+    def draw_text_label(self, glpane):
+        "#doc; called from GLPane.paintGL just after it calls mode.Draw()"
+        # caller catches exceptions, so we don't have to bother
+        text = self.glpane_text()
+        if text:
+            # code from GLPane.drawarrow
+            glDisable(GL_LIGHTING)
+            glDisable(GL_DEPTH_TEST)
+            glPushMatrix()
+            font = QFont(QString("Helvetica"), 24, QFont.Bold)
+            glpane.qglColor(Qt.red) # this needs to be impossible to miss -- not nice-looking!
+                #e tho it might be better to pick one of several bright colors
+                # by hashing the partname, so as to change the color when the part changes.
+            # this version of renderText uses window coords (0,0 at upper left)
+            # rather than model coords (but I'm not sure what point on the string-image
+            # we're setting the location of here -- guessing it's bottom-left corner):
+            glpane.renderText(25,40, QString(text), font)
+            glPopMatrix()
+            glEnable(GL_DEPTH_TEST)
+            glEnable(GL_LIGHTING)
+            return
 
     def glpane_text(self):
         return "" # default implem, subclasses might override this
-    
-    def drawtext(self, glpane, text):
-        # code from GLPane.drawarrow
-        glDisable(GL_LIGHTING)
-        glDisable(GL_DEPTH_TEST)
-        glPushMatrix()
-        font = QFont(QString("Helvetica"), 12, QFont.Normal)
-        glpane.qglColor(QColor(75, 75, 75))
-        glpane.renderText(0.0, 0.0, 0.0, QString(text), font)
-        glPopMatrix()
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_LIGHTING)
-        return
-    
+        
     # functions from the "Select" menu
     # [these are called to change the set of selected things in this part,
     #  when it's the current part; these are event handlers which should
