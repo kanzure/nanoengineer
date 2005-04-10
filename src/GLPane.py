@@ -38,6 +38,7 @@ from movieMode import movieMode
 from zoomMode import zoomMode
 from panMode import panMode
 from rotateMode import rotateMode
+from translateMode import translateMode
 from modes import modeMixin
 
 import operator
@@ -124,7 +125,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
     default_mode_class = selectMolsMode
     other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode,
                           extrudeMode, revolveMode, fusechunksMode, movieMode,
-                          zoomMode, panMode, rotateMode]
+                          zoomMode, panMode, rotateMode, translateMode]
     
     def __init__(self, assem, master=None, name=None, win=None):
         
