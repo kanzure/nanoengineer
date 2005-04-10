@@ -16,12 +16,22 @@ class modifyMode(basicMode):
     modename = 'MODIFY'
     default_mode_status_text = "Mode: Move Chunks"
     
+    MOVEOPTS = [ 'MOVEDEFAULT', 'MOVEX', 'MOVEY', 'MOVECONSTRAINED', \
+                                'TRANSX', 'TRANSY', 'TRANSZ', \
+                                'ROTFREE' ]
+    
+    # Without this, _enterMode has an exception when entering TRANSLATE mode.
+    # Mark 050410
+    moveOption = 'MOVEDEFAULT'
+    axis = 'X'
+    
     # no __init__ method needed
 
     def Enter(self): # bruce 040922 renamed setMode to Enter (and split out init_gui)
         basicMode.Enter(self)
         self.o.assy.selectParts()
         self.dragdist = 0.0
+        
 
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
 
@@ -30,10 +40,18 @@ class modifyMode(basicMode):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
         self.w.toolsMoveMoleculeAction.setOn(1) # toggle on the Move Chunks icon
         self.w.moveMolDashboard.show() # show the Move Molecules dashboard
+        
+        self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+
+        # Always reset the dashboard icon to "Move Free" when entering MODIFY mode.
+        # Mark 050410
+        self.w.moveFreeAction.setOn(1) # toggle on the Move Free icon on the dashboard
+        self.moveOption = 'MOVEDEFAULT'
     
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
         self.w.moveMolDashboard.hide()
+        self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
         
     def keyPress(self,key):
         basicMode.keyPress(self, key)
@@ -41,9 +59,20 @@ class modifyMode(basicMode):
             self.o.setCursor(self.w.MoveAddCursor)
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSubtractCursor)
-                                
+            
+        # For these key presses, we toggle the Action item, which will send 
+        # an event to changeMoveMode, where the business is done.
+        # Mark 050410
+        elif key == Qt.Key_X:
+            self.w.transXAction.setOn(1) # toggle on the Translate X action item
+        elif key == Qt.Key_Y:
+            self.w.transYAction.setOn(1) # toggle on the Translate Y action item
+        elif key == Qt.Key_Z:
+            self.w.transZAction.setOn(1) # toggle on the Translate Z action item
+            
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
+#        print "modifyMode: keyRelease, key=", key
         if key == Qt.Key_Shift or key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSelectCursor)
 
@@ -87,6 +116,7 @@ class modifyMode(basicMode):
         self.dragdist += vlen(deltaMouse)
         
         p1, p2 = self.o.mousepoints(event)
+        
         point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
         if point == None: 
                 point = ptonline(self.movingPoint, p1, norm(p2-p1))
@@ -149,7 +179,6 @@ class modifyMode(basicMode):
     def leftCntlUp(self, event):
         self.EndPick(event, 0)
     
-    
     def leftShiftDown(self, event):
         """ Set up for sliding or rotating the selected part
         unlike select zoom/rotate, can have combined motion
@@ -162,8 +191,7 @@ class modifyMode(basicMode):
         self.Zmat = A([ma,[-ma[1],ma[0]]])
         self.picking = True
         self.dragdist = 0.0
-
-    
+        
     def leftShiftDrag(self, event):
         """move part along its axis (mouse goes up or down)
            rotate around its axis (left-right)
@@ -187,7 +215,6 @@ class modifyMode(basicMode):
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
         self.o.gl_update()
-
     
     def leftShiftUp(self, event):
         self.EndPick(event, 1)
@@ -208,11 +235,6 @@ class modifyMode(basicMode):
         if self.sellist: self.pickdraw()
         if self.o.assy: self.o.assy.draw(self.o)
 
-## bruce 040922 zapped this since it seems obsolete:
-##    def griddraw(self):
-##        """ draws point-of-view axes
-##        """
-##        drawer.drawaxes(5,-self.o.pov)
 
     def makeMenus(self): # menus modified by bruce 041103, 041217
         
@@ -261,7 +283,37 @@ class modifyMode(basicMode):
             atm.update_everything()
         for mol in self.o.assy.selmols:
             mol.update_everything()
-        
+
+    def changeMoveOption(self, action):
+        '''Slot for Move Chunks dashboard's Move Options
+        '''
+        if action == self.w.transXAction:
+            self.moveOption = 'TRANSX'
+            self.o.setMode('TRANSLATE')
+        elif action == self.w.transYAction:
+            self.moveOption = 'TRANSY'
+            self.o.setMode('TRANSLATE')
+        elif action == self.w.transZAction:
+            self.moveOption = 'TRANSZ'
+            self.o.setMode('TRANSLATE')
+        else:
+            if self.moveOption == 'MOVEDEFAULT':
+                return
+            self.moveOption = 'MOVEDEFAULT'
+            self.o.setMode('MODIFY')
+            
+    def _getMoveOption(self):
+        '''Updates the moveOption variable.
+        '''
+        if self.w.transXAction.isOn():
+            self.moveOption = 'TRANSX'
+        elif self.w.transYAction.isOn():
+            self.moveOption = 'TRANSY'
+        elif self.w.transZAction.isOn():
+            self.moveOption = 'TRANSZ'
+        else:
+            self.moveOption = 'MOVEDEFAULT'
+
     def skip(self):
         pass
 
