@@ -978,9 +978,11 @@ class basicMode(anyMode):
     
     def keyPressEvent(self, e):
         "some modes will need to override this in the future"
+        if e.isAutoRepeat(): return # Ignore autorepeating key events.  Mark 050410
         self.keyPress(e.key())
         
     def keyReleaseEvent(self, e):
+        if e.isAutoRepeat(): return # Ignore autorepeating key events.  Mark 050410
         self.keyRelease(e.key())
 
     # the old key event API (for modes which don't override keyPressEvent etc)
