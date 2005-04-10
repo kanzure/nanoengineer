@@ -185,3 +185,10 @@ Summary: fix bug in which glpane or its edges would flicker to black during main
 
 ----------------------------
 
+Name: Mark Sims
+Date: 4/10/2005
+Files: GLPane, MainWindowUI, modes, modifyMode, platform, translateMode (new)
+Summary: Implemented new "translateMode", which adds support for sliding and/or rotating selected chunks along the x, y or z axis.  New buttons added to the Move Chunks dashboard give UI access to these features.  Users can also hold the X, Y, or Z keys while in Move Chunks mode to invoke these features.
+
+----------------------------
+
