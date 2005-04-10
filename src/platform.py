@@ -69,6 +69,16 @@ class atomEvent:
         return filter_key( self._qt_event.key() )
     def ascii(self):
         return filter_key( self._qt_event.ascii() )
+        
+    # Holding down X, Y or Z "modifier keys" in MODIFY and TRANSLATE modes generates
+    # autorepeating keyPress and keyRelease events.  Need to include isAutoRepeat() so 
+    # we can ignore autorepeating key events, done in 
+    # modes.keyReleaseEvent and modes.keyPressEvent
+    # I don't believe this will be an issue, as I can think of no cases where we need autorepeating
+    # key events. TALK TO BRUCE TO MAKE SURE THIS IS OK WITH HIM.
+    # Mark 050410
+    def isAutoRepeat(self):
+        return filter_key( self._qt_event.isAutoRepeat() )
     #e more methods might be needed here
     pass
 
