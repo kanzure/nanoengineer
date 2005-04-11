@@ -8,6 +8,7 @@ $Id$
 from ElementSelectorDialog import *
 from elementColors import ElementView
 from elements import PeriodicTable
+from constants import diVDW, diCPK, diTUBES
 
 #########################################################################
 # Declaring tuples
@@ -20,10 +21,12 @@ elementAMU = { 1 : "1.008", 2 : "4.003",
 ############################################################
 
 class elementSelector(ElementSelectorDialog):
+    _displayList = (diTUBES, diCPK, diVDW)
     def __init__(self, win):
         ElementSelectorDialog.__init__(self, win)
         self.w = win
         self.elemTable = PeriodicTable
+        self.displayMode = self._displayList[0]
         
         self.elemGLPane = ElementView(self.elementFrame, "element glPane", self.w.glpane)
         # Put the GL widget inside the frame
@@ -35,22 +38,37 @@ class elementSelector(ElementSelectorDialog):
         self.w.setElement(value)
 
     def setDisplay(self, value):
-        eInfoText = "<p>" + str(value) + "</p> "
+        self.elemNum = value
+        eInfoText =   str(value) + "<br>"#"</p> "
         elemSymbol = self.elemTable.getElemSymbol(value)
+        elemName = self.elemTable.getElemName(value)
+        elemRvdw = str(self.elemTable.getElemRvdw(value))
+        elemBonds = str(self.elemTable.getElemBondCount(value))
         if not elemSymbol: return
-        eInfoText += "<p> " + "<font size=26> <b>" + elemSymbol + "</b> </font> </p>"
-        eInfoText += "<p>" + elementAMU[value] + "</p>"
+        eInfoText +=   "<font size=18> <b>" + elemSymbol + "</b> </font> <br>"#</p>"
+        eInfoText +=  elemName + "<br>"#"</p>"
+        eInfoText += "Amu: " + elementAMU[value] + "<br>"#"</p>"
+        eInfoText += "Rvdw: " + elemRvdw + "<br>"#"</p>"
+        eInfoText += "Open Bonds: " + elemBonds #</p>"
         self.elemInfoLabel.setText(eInfoText)
         
         self._updateElemGraphDisplay(value)
-        
+    
+    def changeDisplayMode(self, value):
+        """Called when any of the display mode radioButton clicked. """
+        assert value in [0, 1, 2]
+        newMode = self._displayList[value]
+        if newMode != self.displayMode:
+            self.displayMode = newMode
+            elm = self.elemTable.getElement(self.elemNum)
+            self.elemGLPane.refreshDisplay(elm, self.displayMode)    
  
     def _updateElemGraphDisplay(self, elemNum):
         """Update non user interactive controls display for current selected element: element label info and element graphics info """
         self.color = self.elemTable.getElemColor(elemNum)
         elm = self.elemTable.getElement(elemNum)
         
-        self.elemGLPane.refreshDisplay(elm)
+        self.elemGLPane.refreshDisplay(elm, self.displayMode)
          
         r =  int(self.color[0]*255 + 0.5)
         g = int(self.color[1]*255 + 0.5)
