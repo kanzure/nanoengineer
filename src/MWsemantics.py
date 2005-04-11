@@ -1111,10 +1111,10 @@ class MWsemantics(MainWindow):
         self.assy.modifySeparate()
 
     # bring molecules together and bond unbonded sites
-    def modifyWeld(self):
+    def modifyMerge(self):
         """ Create a single chunk from two of more selected chunks """
-        self.history.message(greenmsg("Weld:"))
-        self.assy.weld()
+        self.history.message(greenmsg("Merge:"))
+        self.assy.merge()
         self.win_update()
 
     def modifyAlignCommonAxis(self):

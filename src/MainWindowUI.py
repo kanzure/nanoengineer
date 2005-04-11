@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Apr 10 12:37:11 2005
+# Created: Mon Apr 11 11:18:41 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5525,8 +5525,8 @@ class MainWindow(QMainWindow):
         self.modifyCopyBondAction.setIconSet(QIconSet(self.image54))
         self.modifyEdgeBondAction = QAction(self,"modifyEdgeBondAction")
         self.modifyEdgeBondAction.setIconSet(QIconSet(self.image55))
-        self.modifyWeldAction = QAction(self,"modifyWeldAction")
-        self.modifyWeldAction.setIconSet(QIconSet(self.image56))
+        self.modifyMergeAction = QAction(self,"modifyMergeAction")
+        self.modifyMergeAction.setIconSet(QIconSet(self.image56))
         self.toggleDatumDispTbarAction = QAction(self,"toggleDatumDispTbarAction")
         self.toggleDatumDispTbarAction.setToggleAction(1)
         self.toggleDatumDispTbarAction.setOn(0)
@@ -5798,7 +5798,7 @@ class MainWindow(QMainWindow):
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.cookieCutterDashboard.setEnabled(1)
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,1040,29))
+        self.cookieCutterDashboard.setGeometry(QRect(0,0,1042,29))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
@@ -5884,7 +5884,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.moveMolDashboard)
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,58,1034,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,58,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6012,7 +6012,7 @@ class MainWindow(QMainWindow):
         self.modifyDeleteBondsAction.addTo(self.modifyToolbar)
         self.modifyStretchAction.addTo(self.modifyToolbar)
         self.modifySeparateAction.addTo(self.modifyToolbar)
-        self.modifyWeldAction.addTo(self.modifyToolbar)
+        self.modifyMergeAction.addTo(self.modifyToolbar)
         self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
@@ -6127,7 +6127,7 @@ class MainWindow(QMainWindow):
         self.modifyDeleteBondsAction.addTo(self.Modify)
         self.modifySeparateAction.addTo(self.Modify)
         self.modifyStretchAction.addTo(self.Modify)
-        self.modifyWeldAction.addTo(self.Modify)
+        self.modifyMergeAction.addTo(self.Modify)
         self.modifyAlignCommonAxisAction.addTo(self.Modify)
         self.MenuBar.insertItem(QString(""),self.Modify,9)
 
@@ -6230,7 +6230,7 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
         self.connect(self.modifySetElementAction,SIGNAL("activated()"),self.modifySetElement)
         self.connect(self.modifyStretchAction,SIGNAL("activated()"),self.modifyStretch)
-        self.connect(self.modifyWeldAction,SIGNAL("activated()"),self.modifyWeld)
+        self.connect(self.modifyMergeAction,SIGNAL("activated()"),self.modifyMerge)
         self.connect(self.movieDoneAction,SIGNAL("activated()"),self.movieDone)
         self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
         self.connect(self.movieMoveToEndAction,SIGNAL("activated()"),self.movieMoveToEnd)
@@ -6493,8 +6493,8 @@ class MainWindow(QMainWindow):
         self.modifyCopyBondAction.setMenuText(self.__tr("&Copy Bond"))
         self.modifyEdgeBondAction.setText(self.__tr("Edge Bond"))
         self.modifyEdgeBondAction.setMenuText(self.__tr("Ed&ge Bond"))
-        self.modifyWeldAction.setText(self.__tr("Weld"))
-        self.modifyWeldAction.setMenuText(self.__tr("&Weld"))
+        self.modifyMergeAction.setText(self.__tr("Merge"))
+        self.modifyMergeAction.setMenuText(self.__tr("Mer&ge"))
         self.toggleDatumDispTbarAction.setText(self.__tr("Datum Display"))
         self.toggleDatumDispTbarAction.setMenuText(self.__tr("Datum Display"))
         self.modifySetElementAction.setText(self.__tr("Element Selector"))
@@ -7015,8 +7015,8 @@ class MainWindow(QMainWindow):
     def dispGrid(self):
         print "MainWindow.dispGrid(): Not implemented yet"
 
-    def modifyWeld(self):
-        print "MainWindow.modifyWeld(): Not implemented yet"
+    def modifyMerge(self):
+        print "MainWindow.modifyMerge(): Not implemented yet"
 
     def modifyEdgeBond(self):
         print "MainWindow.modifyEdgeBond(): Not implemented yet"

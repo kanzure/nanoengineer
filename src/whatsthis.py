@@ -618,18 +618,16 @@ def createWhatsThis(self):
 
         self.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
         
-        #### Weld Chunks ####
+        #### Merge Chunks ####
 
-        modifyWeldActionText = "<u><b>Weld Chunks</b></u><br>"\
-                       "<p><img source=\"modifyWeldAction\"><br> "\
-                       "Merges two or more chunks into one chunk when in "\
-                       "<b>Select Chunks</b> mode. Creates one or more new chunks "\
-                       "when in <b>Select Atoms</b> mode. </p>"
+        modifyMergeActionText = "<u><b>Merge Chunks</b></u><br>"\
+                       "<p><img source=\"modifyMergeAction\"><br> "\
+                       "Merges two or more chunks into a single chunk.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyWeldAction",
-                                                       self.modifyWeldAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMergeAction",
+                                                       self.modifyMergeAction.iconSet().pixmap() )
        
-        self.modifyWeldAction.setWhatsThis(modifyWeldActionText )  
+        self.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
 
         #### Align to Common Axis ####
 

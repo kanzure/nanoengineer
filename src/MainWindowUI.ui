@@ -125,7 +125,7 @@
         <action name="modifyDeleteBondsAction"/>
         <action name="modifySeparateAction"/>
         <action name="modifyStretchAction"/>
-        <action name="modifyWeldAction"/>
+        <action name="modifyMergeAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </item>
     <item text="&amp;Tools" name="Tools">
@@ -274,7 +274,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1040</width>
+                <width>1042</width>
                 <height>29</height>
             </rect>
         </property>
@@ -680,7 +680,7 @@
             <rect>
                 <x>0</x>
                 <y>58</y>
-                <width>1034</width>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -1104,7 +1104,7 @@
         <action name="modifyDeleteBondsAction"/>
         <action name="modifyStretchAction"/>
         <action name="modifySeparateAction"/>
-        <action name="modifyWeldAction"/>
+        <action name="modifyMergeAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </toolbar>
     <toolbar dock="4">
@@ -2386,16 +2386,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>modifyWeldAction</cstring>
+            <cstring>modifyMergeAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image56</iconset>
         </property>
         <property name="text">
-            <string>Weld</string>
+            <string>Merge</string>
         </property>
         <property name="menuText">
-            <string>&amp;Weld</string>
+            <string>Mer&amp;ge</string>
         </property>
     </action>
     <action>
@@ -4575,10 +4575,10 @@
         <slot>modifyStretch()</slot>
     </connection>
     <connection>
-        <sender>modifyWeldAction</sender>
+        <sender>modifyMergeAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyWeld()</slot>
+        <slot>modifyMerge()</slot>
     </connection>
     <connection>
         <sender>movieDoneAction</sender>
@@ -5085,7 +5085,7 @@
     <slot>toolsBackUp()</slot>
     <slot>toolsStartOver()</slot>
     <slot>dispGrid()</slot>
-    <slot>modifyWeld()</slot>
+    <slot>modifyMerge()</slot>
     <slot>modifyEdgeBond()</slot>
     <slot>toggleModelDispTbar()</slot>
     <slot>toggleEditTbar()</slot>
