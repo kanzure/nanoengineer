@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Apr 11 11:18:41 2005
+# Created: Mon Apr 11 18:02:02 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5812,8 +5812,8 @@ class MainWindow(QMainWindow):
         self.cookieCutterDashboard.addSeparator()
         self.ccAddLayerAction.addTo(self.cookieCutterDashboard)
 
-        self.ccCurrentLayerCB = QComboBox(0,self.cookieCutterDashboard,"ccCurrentLayerCB")
-        self.ccCurrentLayerCB.setEnabled(1)
+        self.ccCurrentLayerCBox = QComboBox(0,self.cookieCutterDashboard,"ccCurrentLayerCBox")
+        self.ccCurrentLayerCBox.setEnabled(1)
         self.cookieCutterDashboard.addSeparator()
 
         self.textLabel1_3 = QLabel(self.cookieCutterDashboard,"textLabel1_3")
@@ -5838,7 +5838,6 @@ class MainWindow(QMainWindow):
         self.ccFullModelCheckBox.setEnabled(1)
 
         self.ccGridLineCheckBox = QCheckBox(self.cookieCutterDashboard,"ccGridLineCheckBox")
-        self.ccGridLineCheckBox.setMaximumSize(QSize(0,0))
         self.ccGridLineCheckBox.setChecked(1)
 
         self.ccGridColorLabel = QLabel(self.cookieCutterDashboard,"ccGridColorLabel")
@@ -6298,7 +6297,7 @@ class MainWindow(QMainWindow):
         self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectConnectedAction,SLOT("setDisabled(bool)"))
         self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectDoublyAction,SLOT("setDisabled(bool)"))
         self.connect(self.ccFullModelCheckBox,SIGNAL("toggled(bool)"),self.cookieFullModel)
-        self.connect(self.ccCurrentLayerCB,SIGNAL("activated(int)"),self.changeCCLayer)
+        self.connect(self.ccCurrentLayerCBox,SIGNAL("activated(int)"),self.changeCCLayer)
         self.connect(self.ccGridColorButton,SIGNAL("clicked()"),self.changeCCGridColor)
         self.connect(self.toolsFuseChunksAction,SIGNAL("activated()"),self.toolsFuseChunks)
         self.connect(self.ccGridLineCheckBox,SIGNAL("toggled(bool)"),self.showCCGridLine)
@@ -6373,6 +6372,7 @@ class MainWindow(QMainWindow):
         self.selectInvertAction.setAccel(self.__tr("Ctrl+Shift+I"))
         self.ccAddLayerAction.setText(self.__tr("Add Layer"))
         self.ccAddLayerAction.setMenuText(self.__tr("Add Layer"))
+        self.ccAddLayerAction.setToolTip(self.__tr("Add a new layer.(Maximum is 6 layer)"))
         self.toolsDoneAction.setText(self.__tr("Done"))
         self.toolsDoneAction.setMenuText(self.__tr("Done"))
         self.toolsCancelAction.setText(self.__tr("Cancel"))
@@ -6707,11 +6707,10 @@ class MainWindow(QMainWindow):
         self.ccLatticeCBox.clear()
         self.ccLatticeCBox.insertItem(self.__tr("Diamond"))
         self.ccLatticeCBox.insertItem(self.__tr("Lonsdaleite"))
-        self.ccLatticeCBox.insertItem(self.__tr("Graphite"))
         QToolTip.add(self.ccLatticeCBox,self.__tr("Grid lattice type."))
-        self.ccCurrentLayerCB.clear()
-        self.ccCurrentLayerCB.insertItem(self.__tr("1"))
-        QToolTip.add(self.ccCurrentLayerCB,self.__tr("Current Layer"))
+        self.ccCurrentLayerCBox.clear()
+        self.ccCurrentLayerCBox.insertItem(self.__tr("1"))
+        QToolTip.add(self.ccCurrentLayerCBox,self.__tr("Current Layer"))
         self.textLabel1_3.setText(self.__tr("Thickness:"))
         QToolTip.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))
         QWhatsThis.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))

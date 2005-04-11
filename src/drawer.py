@@ -590,7 +590,7 @@ def genDiam(bblo, bbhi, latticeType):
 
 
 def drawGrid(scale, center, latticeType):
-    """Construct the grid model and show as position reference as cookies. The model is build around "pov" and has size of 2*"scale" on each of the (x, y, z) directions. This should be optimized latter. For "scale = 200", it takes about 1479623 loops. ---Huaicai """
+    """Construct the grid model and show as position references for cookies. The model is build around "pov" and has size of 2*"scale" on each of the (x, y, z) directions. This should be optimized latter. For "scale = 200", it takes about 1479623 loops. ---Huaicai """
     
     
     glDisable(GL_LIGHTING)
@@ -828,5 +828,4 @@ def drawDiamondCubic(color):
     glEnd()
     glEnable(GL_LIGHTING)    
     
-
 

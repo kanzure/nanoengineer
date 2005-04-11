@@ -529,7 +529,7 @@ class CookieShape(shape):
     def pushdown(self, lastLayer):
             """Put down one layer from last layer """
             th, n = self.layerThickness[lastLayer]
-            print "th, n", th, n
+            #print "th, n", th, n
             return th*n
 
     def _saveMaxThickness(self, layer, thickness, normal):

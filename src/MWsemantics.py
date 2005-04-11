@@ -1468,11 +1468,8 @@ class MWsemantics(MainWindow):
     # "push down" one nanometer to cut out the next layer
     def toolsCCAddLayer(self):
         if self.glpane.mode.modename == 'COOKIE':
-            self.glpane.mode.addLayer(self.ccCurrentLayerCB)
+            self.glpane.mode.addLayer(self.ccCurrentLayerCBox)
         
-    def isCookieFullModelOn(self):
-        """Get the state of check box of 'Whole Model' in the cookie dashboard """
-        return self.ccFullModelCheckBox.isOn()
     
     def changeCCLayer(self, value):
         """Change current layer to <value> layer """

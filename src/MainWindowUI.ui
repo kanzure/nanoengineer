@@ -307,11 +307,6 @@
                     <string>Lonsdaleite</string>
                 </property>
             </item>
-            <item>
-                <property name="text">
-                    <string>Graphite</string>
-                </property>
-            </item>
             <property name="name">
                 <cstring>ccLatticeCBox</cstring>
             </property>
@@ -331,7 +326,7 @@
                 </property>
             </item>
             <property name="name">
-                <cstring>ccCurrentLayerCB</cstring>
+                <cstring>ccCurrentLayerCBox</cstring>
             </property>
             <property name="enabled">
                 <bool>true</bool>
@@ -426,12 +421,6 @@
         <widget class="QCheckBox">
             <property name="name">
                 <cstring>ccGridLineCheckBox</cstring>
-            </property>
-            <property name="maximumSize">
-                <size>
-                    <width>0</width>
-                    <height>0</height>
-                </size>
             </property>
             <property name="text">
                 <string>Grid Line</string>
@@ -682,6 +671,7 @@
                 <y>58</y>
                 <width>1036</width>
                 <height>29</height>
+
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -1556,6 +1546,9 @@
         </property>
         <property name="menuText">
             <string>Add Layer</string>
+        </property>
+        <property name="toolTip">
+            <string>Add a new layer.(Maximum is 6 layer)</string>
         </property>
     </action>
     <action>
@@ -4983,7 +4976,7 @@
         <slot>cookieFullModel(bool)</slot>
     </connection>
     <connection>
-        <sender>ccCurrentLayerCB</sender>
+        <sender>ccCurrentLayerCBox</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindow</receiver>
         <slot>changeCCLayer(int)</slot>

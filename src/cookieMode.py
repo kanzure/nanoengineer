@@ -33,6 +33,8 @@ class cookieMode(basicMode):
     SELECTION_SHAPES = ['TRIANGLE', 'RECTANGLE', 'HEXAGON', 'CIRCLE', 'DEFAULT']
     
     LATTICE_TYPES = ['DIAMOND', 'LONSDALEITE', 'GRAPHITE']
+    
+    MAX_LAYERS = 6
                            
     # methods related to entering this mode
     
@@ -51,8 +53,12 @@ class cookieMode(basicMode):
         self.whichsurf=0
         
         self.freeView = False
-        self.gridShow = self.w.ccGridLineCheckBox.isChecked()
-        self.showFullModel = self.w.isCookieFullModelOn()
+        self.w.ccFreeViewCheckBox.setChecked(self.freeView)
+        
+        self.gridShow = True
+        self.w.ccGridLineCheckBox.setChecked(self.gridShow)
+        
+        self.showFullModel = self.w.ccFullModelCheckBox.isChecked()
         self.cookieDisplayMode = str(self.w.ccDispModeCBox.currentText())
         self.latticeType = self.LATTICE_TYPES[self.w.ccLatticeCBox.currentItem()]
         
@@ -89,8 +95,8 @@ class cookieMode(basicMode):
         self.w.ccLayerThicknessSpinBox.setValue(2)
         self.setthick(2)
         
-        self.w.ccCurrentLayerCB.clear()
-        self.w.ccCurrentLayerCB.insertItem(QString(str(len(self.layers[0]))))
+        self.w.ccCurrentLayerCBox.clear()
+        self.w.ccCurrentLayerCBox.insertItem(QString(str(len(self.layers[0]))))
         self.w.ccAddLayerAction.setEnabled(False)
          
         self.w.cookieCutterDashboard.show()
@@ -127,9 +133,11 @@ class cookieMode(basicMode):
             self.w.setViewPerspecAction.setEnabled(True)
             
             #Disable controls to change layer, which cause pov change
-            self.w.ccCurrentLayerCB.setEnabled(False)
+            self.w.ccCurrentLayerCBox.setEnabled(False)
             self.isAddLayerEnabled = self.w.ccAddLayerAction.isEnabled ()
             self.w.ccAddLayerAction.setEnabled(False)
+            
+            self._enableViewChanges(True)
             
             if self.Rubber:
                 self._cancelRubberSelection()
@@ -142,8 +150,10 @@ class cookieMode(basicMode):
             self.w.setViewPerspecAction.setEnabled(False)
             
             #Restore controls to change layer/add layer
-            self.w.ccCurrentLayerCB.setEnabled(True)
+            self.w.ccCurrentLayerCBox.setEnabled(True)
             self.w.ccAddLayerAction.setEnabled(self.isAddLayerEnabled)
+            
+            self._enableViewChanges(False)
             
             self.o.ortho = True
             if self.o.shape:
@@ -221,6 +231,10 @@ class cookieMode(basicMode):
         if not self.savedOrtho:
             self.w.setViewPerspecAction.setOn(True) 
         
+        # Enable all those view options
+        self._enableViewChanges(True)    
+            
+        
     def restore_patches(self):
         self.o.ortho = self.savedOrtho
         self.o.shape = None
@@ -290,8 +304,13 @@ class cookieMode(basicMode):
         self.picking = 1
         self.cookieQuat = Q(self.o.quat)
         self.pickLineLength = 0.0
-        if not self.selectionShape == 'DEFAULT': return
-
+        if not self.selectionShape in ['DEFAULT', 'LASSO', 'RECT_CORNER']: return
+        
+        if self.selectionShape == 'LASSO':
+            self.selLassRect = False
+        elif self.selectionShape == 'RECT_CORNER':    
+            self.selLassRect = True
+            
         p1, p2 = self.o.mousepoints(event, 0.01)
         
         self.o.normal = self.o.lineOfSight
@@ -316,18 +335,19 @@ class cookieMode(basicMode):
         
         if not self.picking: return
         if self.Rubber: return
-        if not self.selectionShape == 'DEFAULT': return
+        if not self.selectionShape in ['DEFAULT', 'LASSO', 'RECT_CORNER']: return
         
         p1, p2 = self.o.mousepoints(event, 0.01)
 
         self.sellist += [p1]
         self.o.backlist += [p2]
+        
         netdist = vlen(p1-self.pickLineStart)
-
         self.pickLineLength += vlen(p1-self.pickLinePrev)
-        self.selLassRect = self.pickLineLength < 2*netdist
-
+        if self.selectionShape == 'DEFAULT':
+            self.selLassRect = self.pickLineLength < 2*netdist
         self.pickLinePrev = p1
+            
         self.o.gl_update()
     
     def leftUp(self, event):
@@ -353,9 +373,10 @@ class cookieMode(basicMode):
             if not self.o.shape:
                 self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
                 self.w.ccLatticeCBox.setEnabled(False)
+                self._enableViewChanges(False)
 
             self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
-            if self.currentLayer == len(self.layers[0]) - 1:
+            if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
                 self.w.ccAddLayerAction.setEnabled(True)
             self.sellist = []
 
@@ -371,7 +392,7 @@ class cookieMode(basicMode):
         p1, p2 = self.o.mousepoints(event, 0.01)
 
         if not self.pickLineLength > 0: ##Rubber-band/circular selection
-            if not self.selectionShape == 'DEFAULT': 
+            if not self.selectionShape in ['DEFAULT', 'LASSO', 'RECT_CORNER']: 
                 if not (self.sellist and self.o.backlist):
                     self.sellist = [p1]; self.sellist += [p1]
                     self.o.backlist = [p2]; self.o.backlist += [p2]
@@ -379,7 +400,7 @@ class cookieMode(basicMode):
                     self.o.backlist[-1] = p2
                     self._centerBasedSelect()
                     self.sellist = []
-            elif self.picking:  ##Rubber-band selection
+            elif self.picking and self.selectionShape == 'DEFAULT':  ##Rubber-band selection
                 self.sellist += [p1]
                 self.o.backlist += [p2]
                 self.Rubber = True
@@ -395,7 +416,8 @@ class cookieMode(basicMode):
         if not self.o.shape:
             self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
             self.w.ccLatticeCBox.setEnabled(False)
-
+            self._enableViewChanges(False)
+            
         # took out kill-all-previous-curves code -- Josh
         if self.selLassRect:
             self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov,
@@ -406,19 +428,13 @@ class cookieMode(basicMode):
             self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense,
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
                                   
-        if self.currentLayer == len(self.layers[0]) - 1: 
+        if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
                 self.w.ccAddLayerAction.setEnabled(True)
         self.sellist = []
 
         self.o.gl_update()
 
-
-    def middleUp(self,event):
-        """If self.cookieQuat: , which means: a shape 
-        object has been created, so if you change the view,
-        and thus self.o.quat, then the shape object will be wrong
-        ---Huaicai 3/23/05 """
-        basicMode.middleUp(self, event)
+    def _anyMiddleUp(self):
         if self.freeView: return
        
         if self.cookieQuat:
@@ -427,16 +443,41 @@ class cookieMode(basicMode):
         else:
             self.surfset(self.o.snap2trackball())
             
+    def middleUp(self, event):
+        """If self.cookieQuat: , which means: a shape 
+        object has been created, so if you change the view,
+        and thus self.o.quat, then the shape object will be wrong
+        ---Huaicai 3/23/05 """
+        basicMode.middleUp(self, event)
+        self._anyMiddleUp()
             
+    def middleShiftDown(self, event):        
+         """Disable this action when cutting cookie. """
+         if self.freeView: basicMode.middleShiftDown(self, event)   
+         
+    def middleCntlDown(self, event):        
+         """Disable this action when cutting cookie. """   
+         if self.freeView: basicMode.middleCntlDown(self, event)
+
+    def middleShiftUp(self, event):        
+         """Disable this action when cutting cookie. """   
+         if self.freeView: basicMode.middleShiftUp(self, event)
+    
+    def middleCntlUp(self, event):        
+         """Disable this action when cutting cookie. """   
+         if self.freeView: basicMode.middleCntlUp(self, event)
+
+        
     def bareMotion(self, event):
         if self.freeView: return
         
-        if self.Rubber or not self.selectionShape == 'DEFAULT':
+        if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO', 'RECT_CORNER']: 
             if not self.sellist: return
             p1, p2 = self.o.mousepoints(event, 0.01)
             try: self.sellist[-1]=p1
             except: print self.sellist
-            self.w.history.transient_msg("Double click to close curve; Press <Esc> key to cancel.")
+            if self.Rubber:
+                self.w.history.transient_msg("Double click to close curve; Press <Esc> key to cancel.")
             self.o.gl_update()
      
     def _centerBasedSelect(self):
@@ -444,6 +485,8 @@ class cookieMode(basicMode):
         if not self.o.shape:
                 self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
                 self.w.ccLatticeCBox.setEnabled(False)
+                self._enableViewChanges(False)
+                 
         p1 = self.o.backlist[1]
         p0 = self.o.backlist[0]
         pt = p1 - p0
@@ -471,6 +514,8 @@ class cookieMode(basicMode):
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
         elif self.selectionShape == 'CIRCLE':
             self.o.shape.pickCircle(self.o.backlist, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
+        if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
+                self.w.ccAddLayerAction.setEnabled(True)
         self.o.gl_update()
     
     
@@ -516,15 +561,22 @@ class cookieMode(basicMode):
         color = logicColor(self.selSense)
         if not self.selectionShape == 'DEFAULT':
             if self.sellist:
-                 drawer.drawline(white, self.sellist[0], self.sellist[1], True)
-                 if self.selectionShape == 'RECTANGLE':
-                     self._centerRectDraw(color, self.sellist)
-                 elif self.selectionShape == 'CIRCLE':
-                     self._centerCircleDraw(color, self.sellist)
-                 elif self.selectionShape == 'HEXAGON':
-                     self._centerEquiPolyDraw(color, 6, self.sellist)
-                 elif self.selectionShape == 'TRIANGLE':
-                    self._centerEquiPolyDraw(color, 3, self.sellist)   
+                 if self.selectionShape == 'LASSO':
+                     for pp in zip(self.sellist[:-1],self.sellist[1:]): 
+                            drawer.drawline(color, pp[0], pp[1])
+                 elif self.selectionShape == 'RECT_CORNER':
+                     drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
+                                 self.o.up, self.o.right, color)
+                 else:      
+                    drawer.drawline(white, self.sellist[0], self.sellist[1], True)
+                    if self.selectionShape == 'RECTANGLE':
+                        self._centerRectDraw(color, self.sellist)
+                    elif self.selectionShape == 'CIRCLE':
+                        self._centerCircleDraw(color, self.sellist)
+                    elif self.selectionShape == 'HEXAGON':
+                        self._centerEquiPolyDraw(color, 6, self.sellist)
+                    elif self.selectionShape == 'TRIANGLE':
+                        self._centerEquiPolyDraw(color, 3, self.sellist)   
         else:
             basicMode.pickdraw(self)            
 
@@ -558,7 +610,6 @@ class cookieMode(basicMode):
         drawer.drawGrid(1.5*self.o.scale, -self.o.pov, self.latticeType)
         glDisable(GL_CLIP_PLANE0)
         glDisable(GL_CLIP_PLANE1)
-        
 
    
     def makeMenus(self):
@@ -651,6 +702,20 @@ class cookieMode(basicMode):
             self.thickness = float(str(text))
         except: pass
     
+    def _enableViewChanges(self, enableFlag):
+        """Turn on or off view changes depending on <param> 'enableFlag'. Turn off view changes is needed during the cookie-cutting stage. """
+        self.w.cookieCutterViewActionGroup.setEnabled(enableFlag)
+        self.w.setViewBackAction.setEnabled(enableFlag) 
+        self.w.setViewBottomAction.setEnabled(enableFlag)
+        self.w.setViewFitToWindowAction.setEnabled(enableFlag)
+        self.w.setViewFrontAction.setEnabled(enableFlag)
+        self.w.setViewHomeAction.setEnabled(enableFlag)
+        self.w.setViewLeftAction.setEnabled(enableFlag)
+        self.w.setViewRecenterAction.setEnabled(enableFlag)
+        self.w.setViewRightAction.setEnabled(enableFlag)
+        self.w.setViewTopAction.setEnabled(enableFlag)
+        pass 
+    
     def toggleFullModel(self, showFullModel):
         """Turn on/off full model """
         self.showFullModel = showFullModel
@@ -666,7 +731,7 @@ class cookieMode(basicMode):
             self.o.gl_update()
     
     def changeSelectionShape(self, action):
-        print "Action was:", action
+        """Slot method that is called when user changes selection shape by GUI. """
         if action == self.w.CircleSelAction:
             self.selectionShape = 'CIRCLE'
         elif action == self.w.HexagonSelAction:
@@ -675,10 +740,15 @@ class cookieMode(basicMode):
             self.selectionShape = 'RECTANGLE'
         elif action == self.w.TriangleSelAction:
             self.selectionShape = 'TRIANGLE'
+        elif action == self.w.LassoSelAction:
+            self.selectionShape = 'LASSO'
+        elif action == self.w.RectCornerSelAction:
+            self.selectionShape = 'RECT_CORNER'        
         else:
             self.selectionShape = 'DEFAULT'
     
     def _getSelectionShape(self):
+        """Get the current selection shape that user chooses. """
         if self.w.CircleSelAction.isOn():
             self.selectionShape = 'CIRCLE'
         elif self.w.HexagonSelAction.isOn():
@@ -687,6 +757,10 @@ class cookieMode(basicMode):
             self.selectionShape = 'RECTANGLE'
         elif self.w.TriangleSelAction.isOn():
             self.selectionShape = 'TRIANGLE'
+        elif self.w.LassoSelAction.isOn():
+            self.selectionShape = 'LASSO'
+        elif self.w.RectCornerSelAction.isOn():
+            self.selectionShape = 'RECT_CORNER' 
         else:
             self.selectionShape = 'DEFAULT'
     

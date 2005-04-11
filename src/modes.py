@@ -776,16 +776,18 @@ class basicMode(anyMode):
         
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
-        self.picking = 0
+        self.picking = 1
 
     def middleDrag(self, event):
+        if not self.picking: return
+        
         self.o.SaveMouse(event)
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1])
-        self.o.quat += q 
+        self.o.quat += q
         self.o.gl_update()
-        self.picking = 0
-
+ 
     def middleUp(self, event):
+        self.picking = 0
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleShiftDown(self, event):
@@ -794,12 +796,14 @@ class basicMode(anyMode):
         self.o.setCursor(self.w.MoveCursor) # load MoveCursor in glpane
         
         self.o.SaveMouse(event)
-        self.picking = 0
+        self.picking = 1
     
     def middleShiftDrag(self, event):
         """Move point of view so that objects appear to follow
         the mouse on the screen.
         """
+        if not self.picking: return
+        
         h=self.o.height+0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
@@ -823,9 +827,10 @@ class basicMode(anyMode):
         self.o.pov += move
         self.o.gl_update()
         self.o.SaveMouse(event)
-        self.picking = 0
+        
     
     def middleShiftUp(self, event):
+        self.picking = 0
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
     
     def middleCntlDown(self, event):
@@ -841,13 +846,14 @@ class basicMode(anyMode):
         # start in ambivalent mode
         self.Zunlocked = 1
         self.ZRot = 0
-        self.picking = 0
+        self.picking = 1
     
     def middleCntlDrag(self, event):
         """push scene away (mouse goes up) or pull (down)
            rotate around vertical axis (left-right)
-
         """
+        if not self.picking: return
+        
         self.o.SaveMouse(event)
         dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
         ax,ay = abs(V(dx,dy))
@@ -872,10 +878,11 @@ class basicMode(anyMode):
             h=self.o.height+0.0
             self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
  
-        self.picking = 0
         self.o.gl_update()
 
+
     def middleCntlUp(self, event):
+        self.picking = 0
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
 
     def middleDouble(self, event):
