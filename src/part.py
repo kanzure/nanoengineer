@@ -1057,14 +1057,15 @@ class Part(InvalMixin):
             m.stretch(1.1)
         self.o.gl_update()
 
-    #weld selected molecules together  ###@@@ no update -- does caller do it?? [bruce 050223]
-    def weld(self):
+    #merge selected molecules together  ###@@@ no update -- does caller do it?? [bruce 050223]
+    def merge(self):
+        #mark 050411 changed name from weld to merge (Bug 515)
         #bruce 050131 comment: might now be safe for clipboard items
         # since all selection is now forced to be in the same one;
         # this is mostly academic since there's no pleasing way to use it on them,
         # though it's theoretically possible (since Groups can be cut and maybe copied).
         if len(self.selmols) < 2:
-            self.w.history.message(redmsg("need two or more selected chunks to weld")) #bruce 050131
+            self.w.history.message(redmsg("Need two or more selected chunks to merge")) #bruce 050131
             return
         self.changed() #bruce 050131 bugfix or precaution
         mol = self.selmols[0]
