@@ -8,8 +8,9 @@ Revised by many other developers since then (and perhaps before).
 $Id$
 """
 
-from qt import QFont, QWidget, QMessageBox ## bruce 050408 removed: import *
-from qtgl import QGLWidget ## bruce 050408 removed: import *
+## bruce 050408 removed several "import *" below
+from qt import QFont, QWidget, QMessageBox 
+from qtgl import QGLWidget
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -23,12 +24,10 @@ import time
 from VQT import *
 import drawer
 from shape import *
-## bruce 050408 removed: from assembly import *
 import re
 from constants import *
 
 from modifyMode import modifyMode
-# fyi: was 'import *' before bruce 040920; same with other modes here, 040922
 from cookieMode import cookieMode 
 from extrudeMode import extrudeMode, revolveMode
 from fusechunksMode import fusechunksMode
@@ -57,9 +56,7 @@ import preferences
 paneno = 0
 #  ... what a Pane ...
 
-## normalBackground = 216/255.0, 213/255.0, 159/255.0 # bruce 050408 removed this
-
-normalGridLines = (0.0, 0.0, 0.6)
+## normalGridLines = (0.0, 0.0, 0.6) # bruce 050410 removed this, and related code
 
 pi2 = pi/2.0
 pi3 = pi/3.0
@@ -140,16 +137,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.initialised = 0
 
         DebugMenuMixin._init1(self) # provides self.debug_event(); needs self.makemenu()
-
-        # The background color
-        #bruce 040928 thinks backgroundColor is never used from here,
-        # only from self.mode
-        #bruce 050408 commented it out; no effect noticed;
-        # see also setPaletteBackgroundColor below
-        ## self.backgroundColor = normalBackground
-        
-        ##bruce 040928 -- i'm not sure whether or not gridColor is still used
-        self.gridColor = normalGridLines 
 
         self.trackball = Trackball(10,10)
         self.quat = Q(1, 0, 0, 0)
@@ -997,28 +984,28 @@ def povpoint(p):
     # note z reversal -- povray is left-handed
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
 
-
-def rectgrid(o):
-    """Assigned as griddraw for a rectangular grid that is always parallel
-    to the screen.
-    """
-    drawer.drawaxes(5,-o.pov)
-    glColor3fv(self.gridColor)
-    n=int(ceil(1.5*o.scale))
-    # the grid is in eyespace
-    glPushMatrix()
-    q = o.quat
-    glTranslatef(-o.pov[0], -o.pov[1], -o.pov[2])
-    glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
-    glDisable(GL_LIGHTING)
-    glBegin(GL_LINES)
-    for x in range(-n, n+1):
-        glVertex(x,n,0)
-        glVertex(x,-n,0)
-        glVertex(n,x,0)
-        glVertex(-n,x,0)
-    glEnd()
-    glEnable(GL_LIGHTING)
-    glPopMatrix()
+##bruce 050410 removed rectgrid since unused:
+##def rectgrid(o):
+##    """Assigned as griddraw for a rectangular grid that is always parallel
+##    to the screen.
+##    """
+##    drawer.drawaxes(5,-o.pov)
+##    glColor3fv(self.gridColor)
+##    n=int(ceil(1.5*o.scale))
+##    # the grid is in eyespace
+##    glPushMatrix()
+##    q = o.quat
+##    glTranslatef(-o.pov[0], -o.pov[1], -o.pov[2])
+##    glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
+##    glDisable(GL_LIGHTING)
+##    glBegin(GL_LINES)
+##    for x in range(-n, n+1):
+##        glVertex(x,n,0)
+##        glVertex(x,-n,0)
+##        glVertex(n,x,0)
+##        glVertex(-n,x,0)
+##    glEnd()
+##    glEnable(GL_LIGHTING)
+##    glPopMatrix()
 
 # end
