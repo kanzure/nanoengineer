@@ -21,7 +21,9 @@ import platform
 from constants import *
 from elementColors import elementColors ## bruce 050408 removed: import *
 from elementSelector import elementSelector ## bruce 050408 removed: import *
- ## bruce 050408 removed: from fileIO import *
+from fileIO import *
+## bruce 050408 too-hastily removed "from fileIO import *",
+## but added it back 050410 since Mark reported it broke many things.
 from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
