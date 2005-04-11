@@ -192,3 +192,10 @@ Summary: Implemented new "translateMode", which adds support for sliding and/or 
 
 ----------------------------
 
+Name: Mark Sims
+Date: 4/11/2005
+Files: MainWindowUI, MWsemantics, part, whatsthis
+Summary: Changed "Weld Chunks" to "Merge Chunks" (bug 515).
+
+----------------------------
+
