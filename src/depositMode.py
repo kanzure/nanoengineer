@@ -122,7 +122,7 @@ def do_what_MainWindowUI_should_do(w):
     w.elemChangeComboBox.insertItem("Chlorine")
     w.elemChangeComboBox.insertItem("Argon")
     w.elemChangeComboBox.insertItem("Germanium")
-    w.elemChangeComboBox.insertItem("Astatine")
+    w.elemChangeComboBox.insertItem("Arsenic")
     w.elemChangeComboBox.insertItem("Selenium")
     w.elemChangeComboBox.insertItem("Bromine")
     w.elemChangeComboBox.insertItem("Krypton")
