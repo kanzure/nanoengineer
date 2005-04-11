@@ -15,6 +15,7 @@ from qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from HistoryWidget import redmsg
 from VQT import A
 import platform
+from debug import print_compact_stack
 
 ADD = True
 SUBTRACT = False
@@ -110,8 +111,16 @@ class Movie:
     def __getattr__(self, attr): # temporary kluge ###@@@
         if attr == 'part':
             if self.alist:
-                return self.alist[0].molecule.part # not checked for consistency, but correct if anything is
-            assert 0, "part needed before alist" ### can this happen? if it does, return cur part??? main part??? depends on why...
+                return self.alist[0].molecule.part
+                    # not checked for consistency, but correct if anything is; could be None, I think,
+                    # especially for killed atoms (guess; see bug 497) [bruce 050411]
+            #bruce 050411: the following does happen, see comments in bug 497;
+            # so until that's fixed, don't do an assertion.
+            ## assert 0, "part needed before alist"
+                ### can this happen? if it does, return cur part??? main part??? depends on why...
+            if platform.atom_debug:
+                self.debug_print_movie_info("bug: part needed before alist")
+            return None # hope this is ok, but it's probably not! ####@@@@
         if attr == 'history': return self.assy.w.history
         raise AttributeError, attr
 
@@ -201,6 +210,13 @@ class Movie:
         """Setup this movie for playing
         """
         if DEBUG1: print "movie._setup() called. filename = [" + self.filename + "]"
+
+        # disabled for initial test, since unfinished: ####@@@@
+##        #bruce 050411: verify atoms unkilled and in one part; set self.part
+##        # (but does not yet make that the current part -- do that later ###e)
+##        errcode = self.check_alist_and_part()
+##        if errcode:
+##            return 2
         
         # Check if this movie's movie file is valid
         # [bruce 050324 made _checkMovieFile a function, made it require filename,
@@ -218,6 +234,8 @@ class Movie:
 ##            self.history.message(msg)
             self._controls(0) # Disable movie control buttons.
             return r
+
+        ###@@@ this might be a good place to change current part to movie's part... review all callers and decide. [bruce 050411]
             
         self._controls(1) # Enable movie control buttons.
             
@@ -229,7 +247,7 @@ class Movie:
         if self.currentFrame == 0: self.savebasepos() 
         
         # Open movie file.
-        self.fileobj=open(self.filename,'rb')
+        self.fileobj = open(self.filename,'rb')
         self.isOpen = True
         if DEBUG1: print "movie._setup(). self.isOpen =", self.isOpen
         
@@ -749,6 +767,24 @@ class Movie:
             if a.is_singlet(): a.snuggle() # same code as in movend()
         self.glpane.gl_update()
 
+    def debug_print_movie_info(self, msg = None):
+        if not msg:
+            msg = "debug_print_movie_info"
+        print_compact_stack( msg + "\n")
+        alist = self.alist
+        if not alist:
+            alist_report = "alist false (%r)" % alist
+        elif len(alist) <= 30:
+            alist_report = "alist len %d contains %r" % (len(alist), alist)
+        else:
+            alist_report = "alist len %d starts %r..." % (len(alist), alist[0:30])
+        if self.__dict__.has_key( 'part'): # hasattr isn't safe or correct here -- it calls getattr and recurses!
+            part_report = "self.part is already set to %r" % (self.part,)
+        else:
+            part_report = "self.part is unset"
+        print "\natom_debug: movie %r:\n%s\n%s\nfilename [%s]\n" % (self, alist_report, part_report, self.filename)
+        return
+
     pass # end of class Movie
 
 # == helper functions
@@ -789,6 +825,21 @@ def _checkMovieFile(part, filename, history = None):
             msg = redmsg("Cannot play movie file [" + filename + "]. It does not exist.")
             history.message(msg)
         return 1
+
+    #bruce 050411: protect against no part (though better if caller does this); see bug 497.
+    # Might be better to let part be unspecified and figure out from the moviefile
+    # which available Part to use, but this is not
+    # currently possible -- if parts have same contents, it's not even possible in principle
+    # until we have new DPB format, and not clear how to do it even then (if we only have
+    # persistent names for files rather than parts).
+    if not part:
+        if platform.atom_debug:
+            print "atom_debug: possible bug: part is false (%r) in _checkMovieFile for %s" % (part,filename)
+            ## can't do this, no movie arg!!! self.debug_print_movie_info()
+        if print_errors:
+            msg = redmsg("Movie file [" + filename + "] can't be played for current part.") # vaguer & different wording, since bug
+            history.message(msg)
+        return 2
     
     filesize = os.path.getsize(filename) - 4
     
