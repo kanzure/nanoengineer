@@ -80,7 +80,7 @@ class modifyMode(basicMode):
     
     # no __init__ method needed
 
-    def Enter(self): # bruce 040922 renamed setMode to Enter (and split out init_gui)
+    def Enter(self):
         basicMode.Enter(self)
         self.o.assy.selectParts()
         self.dragdist = 0.0
