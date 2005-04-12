@@ -70,6 +70,44 @@ def accumulate_stats(node, stats):
     stats.nopen += int(node.open)
     return
 
+# custom QListViewItem
+
+class mt_QListViewItem( QListViewItem):
+    randcolors = [Qt.red] ## [Qt.blue, Qt.red, Qt.green, Qt.black, QColor(128,0,128), QColor(200,100,0)]
+    def setText(self, col, text): # this is called...
+        ## print "setText called in custom item",col,text
+        ##     # this happens for all nodes after the first in each set of node-kids
+        super = QListViewItem
+        return super.setText(self, col, text)
+    def paintCell(self, p, cg, col, width, align):
+                  # QPainter * p, const QColorGroup & cg, int column, int width, int align )
+                  # for align see "Qt::AlignmentFlags"... not sure if they'd help; this doesn't cover the area I want to paint
+        ## print "paintCell",p, cg, col, width, align # might happen a lot
+        ## # paintCell <constants.qt.QPainter object at 0xcf51330> <constants.qt.QColorGroup object at 0xce97120> 0 132 1
+        super = QListViewItem
+        res = super.paintCell(self, p, cg, col, width, align)
+        try:
+            node = self.object
+            assy = node.assy
+            if node != assy.tree and (node.part == assy.part or node == assy.part.topnode.dad): # needs deklugification
+                # indicate this #e maybe not for main part
+                ## print "super.paintCell returned",res # always None
+                ## Python insists self must be right class, so this fails: TreeView.drawbluething( "self arg not used", p)
+    ##            import random
+    ##            color_ind = random.randint(0, len(self.randcolors)-1) # uses both ends of range
+    ##            color = self.randcolors[color_ind]
+                color = self.randcolors[0]
+                p.setPen(QPen(color, 3)) # 3 is pen thickness; btw, this also sets color of the "moving 1 item" at bottom of DND graphic!
+                w,h = 100,9 # bbox rect size of what we draw (i think)
+                x,y = 0,0 # topleft of what we draw
+                p.drawEllipse(x,y,h,h) # gets onto topleft of the icon (pixmap) region. Useful for something but not for what I want.
+            return res
+        except:
+            print "bug"
+            print_compact_traceback("exception in mt_QListViewItem.paintCell: ")
+            return res
+    pass
+
 # main widget class
 
 class modelTree(TreeWidget):
@@ -123,6 +161,12 @@ class modelTree(TreeWidget):
     def post_update_topitems(self):
         self.tree_item, self.shelf_item = self.topitems ###k needed??
             # the actual items are different each time this is called
+
+    def QListViewItem_subclass_for_node( self, node, parent, display_prefs, after):
+        if node.is_top_of_selection_group():
+                ## can't do this -- it's causing a bug where clipboard won't reopen with red dot: or node == node.assy.shelf:
+            return mt_QListViewItem
+        return QListViewItem
 
     # special calls from external code
     
