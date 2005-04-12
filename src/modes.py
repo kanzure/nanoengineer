@@ -779,6 +779,11 @@ class basicMode(anyMode):
         self.picking = 1
 
     def middleDrag(self, event):
+        # Huaicai 4/12/05: Originally 'self.picking=0 in both middle*Down
+        # and middle*Drag methods. Change it as it is now is to prevent 
+        # possible similar bug that happened in the modifyMode where 
+        # a *Drag method is called before a *Down() method. This 
+        # comment applies to all three *Down/*Drag/*Up methods.
         if not self.picking: return
         
         self.o.SaveMouse(event)
