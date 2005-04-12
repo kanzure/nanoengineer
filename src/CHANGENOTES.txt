@@ -199,3 +199,9 @@ Summary: Changed "Weld Chunks" to "Merge Chunks" (bug 515).
 
 ----------------------------
 
+Name: Mark Sims
+Date: 4/12/2005
+Files: MainWindowUI, MWsemantics, modifyMode, translateMode
+Summary: Added "Move Delta" capability to Move Chunks mode.
+
+----------------------------
