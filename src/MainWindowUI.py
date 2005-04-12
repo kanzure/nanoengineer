@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Apr 12 00:13:31 2005
+# Created: Tue Apr 12 14:15:50 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -1510,26 +1510,23 @@ image25_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
-    "\xda\x49\x44\x41\x54\x78\x9c\xcd\x54\x31\x0e\xc2" \
-    "\x30\x10\xf3\x85\x3e\xa1\x0c\xcd\x53\xc2\x9e\x8d" \
-    "\x37\xf5\x4f\xc0\x94\x19\xee\x29\xe5\x17\x0d\x03" \
-    "\x4d\x45\x93\xa3\xea\x15\x8a\xb8\x29\x8a\xce\x96" \
-    "\x65\xcb\x47\xcc\x8c\x2d\xc6\xa4\x47\x08\x21\x86" \
-    "\x10\xe2\x5a\xa2\x1c\x5f\xa5\xcf\xb6\x6d\x01\x00" \
-    "\xb4\xdb\x47\xbe\x9e\x48\x4b\x9a\xe3\x4d\xb1\xd5" \
-    "\xf7\x6b\x45\x4f\xf0\x15\x00\x78\xef\x89\x4c\x1d" \
-    "\x01\x80\xf9\xa2\x52\xfb\x0e\x4f\x9b\x87\x97\x8f" \
-    "\x36\x4c\x31\x3c\x69\x49\x13\xe6\xb2\xf0\xf2\xd1" \
-    "\x86\x39\xec\x8b\xc4\x43\x18\x20\x53\x17\x61\x3a" \
-    "\xe7\x0a\x7b\xa4\x7d\x75\x78\x89\x98\x99\x67\xed" \
-    "\x19\x89\x93\xf1\xde\xfb\x11\x20\xa9\xeb\xee\x1d" \
-    "\x6c\x63\x91\x93\xe7\xf8\xd9\xe6\x49\xaa\x6c\x63" \
-    "\x0b\xc5\x5f\x6b\xde\xac\x0d\x03\x7e\xb4\xc2\x1d" \
-    "\x8e\x4f\x25\xb7\xb3\xba\x79\x12\xfe\xf7\xcd\x03" \
-    "\x74\xed\x5b\xd4\xbc\xb4\xb8\xb4\x7d\xeb\x9a\x07" \
-    "\xe8\xda\xf7\x7a\x36\xa5\xd1\x9c\xd2\xff\x38\x9b" \
-    "\x9f\xce\x03\xef\xa1\xc2\x82\x5d\xbf\xa0\xb3\x00" \
-    "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+    "\xb3\x49\x44\x41\x54\x78\x9c\xcd\x94\x41\x12\x80" \
+    "\x20\x08\x45\xb1\x23\x68\x07\xe6\xb4\xb6\xaa\x23" \
+    "\x44\x8b\xca\x14\x11\x2b\x6d\xa6\xbf\x52\x46\xdf" \
+    "\x7c\x01\x01\xf8\x5a\x88\x48\x88\x48\xdd\xa1\xa7" \
+    "\x60\x18\xbb\xc0\x87\x2c\xb2\xae\x3d\xb8\x60\xae" \
+    "\x95\xdb\x9d\xd2\x7c\xc4\x2c\x73\xbe\x18\x68\x17" \
+    "\x87\x96\x62\x2f\xa1\x79\x41\x9b\xe0\xfb\x65\xb9" \
+    "\xa0\x3a\x58\xe9\xac\xd4\x6d\x00\x87\x78\x19\xac" \
+    "\x74\x96\x70\xc9\x38\x0a\x45\x95\xcf\x54\x8c\xdc" \
+    "\xca\x9d\x78\x86\x62\x38\x33\xa2\x15\x8b\x3b\xb3" \
+    "\x27\x88\x00\x80\xfc\xe4\xe3\xbd\xec\xa4\x9c\x23" \
+    "\xf5\x35\x09\x94\x19\x13\xc0\x09\xac\x0a\x0e\x50" \
+    "\x66\xcc\x96\x72\x54\x83\x26\x7a\x50\xbc\x17\x9f" \
+    "\x21\x32\x16\xfd\xff\x4f\x66\x83\xac\x5f\xce\xe8" \
+    "\x7c\x1e\x4b\xea\x34\xa3\x2f\x65\x5d\xf2\x03\x6d" \
+    "\xc0\xbf\xce\x35\x52\xa1\x3d\x4b\x00\x00\x00\x00" \
+    "\x49\x45\x4e\x44\xae\x42\x60\x82"
 image26_data = [
 "22 22 64 1",
 "p c #047800",
@@ -5186,6 +5183,24 @@ image123_data = \
     "\x4d\x14\xf2\xdd\xa4\xef\x5a\xa2\xaa\x9b\x5d\xf1" \
     "\x8a\x7e\x01\x1d\x32\x7c\x2b\xdc\xc2\x1e\xab\x00" \
     "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image124_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\x8b\x49\x44\x41\x54\x78\x9c\xcd\x93\x51\x0e\x00" \
+    "\x11\x0c\x44\xcb\x11\xd8\x03\xf7\xb4\xf6\x16\xba" \
+    "\x5f\x36\x2c\xa2\x2d\x36\xe6\x4f\xc8\xe4\x65\xc6" \
+    "\x00\xec\x16\x22\x12\x22\xd2\x72\xd3\x24\xb0\x97" \
+    "\xda\xbc\x82\x2b\x8c\xc1\xa9\x8c\xfb\x70\xc6\x13" \
+    "\x18\x3f\x45\x3b\x0b\xd7\x17\x17\xee\x98\x42\x59" \
+    "\x20\xd2\xcc\x64\x20\xe3\xcc\xde\xbb\xd5\xe5\x51" \
+    "\x6e\xde\x05\x19\x67\xe4\x92\x11\x01\x00\x85\x3b" \
+    "\xe4\xe7\xb6\x94\xeb\x2b\x4c\x9b\x60\xca\x8c\xda" \
+    "\x19\x57\x60\x13\xeb\x3b\x63\x79\xdb\x24\x9d\xb4" \
+    "\x7c\x79\x8c\x5f\xf2\x7d\x6f\x59\x28\x31\xf2\x90" \
+    "\xd9\xef\xa5\x65\xfc\x51\xde\x03\xc0\x89\xee\x63" \
+    "\x27\x19\xcc\x99\x00\x00\x00\x00\x49\x45\x4e\x44" \
+    "\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -5416,6 +5431,8 @@ class MainWindow(QMainWindow):
         self.image122.loadFromData(image122_data,"PNG")
         self.image123 = QPixmap()
         self.image123.loadFromData(image123_data,"PNG")
+        self.image124 = QPixmap()
+        self.image124.loadFromData(image124_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -5502,9 +5519,9 @@ class MainWindow(QMainWindow):
         self.modifyPassivateAction.setIconSet(QIconSet(self.image23))
         self.jigsMotorAction = QAction(self,"jigsMotorAction")
         self.jigsMotorAction.setIconSet(QIconSet(self.image24))
-        self.modifyMinimizeAction = QAction(self,"modifyMinimizeAction")
-        self.modifyMinimizeAction.setEnabled(1)
-        self.modifyMinimizeAction.setIconSet(QIconSet(self.image25))
+        self.modifyMinimizeSelAction = QAction(self,"modifyMinimizeSelAction")
+        self.modifyMinimizeSelAction.setEnabled(1)
+        self.modifyMinimizeSelAction.setIconSet(QIconSet(self.image25))
         self.toggleFileTbarAction = QAction(self,"toggleFileTbarAction")
         self.toggleFileTbarAction.setToggleAction(1)
         self.toggleFileTbarAction.setOn(1)
@@ -5830,6 +5847,8 @@ class MainWindow(QMainWindow):
         self.moveDeltaAction.setIconSet(QIconSet(self.image122))
         self.moveAbsoluteAction = QAction(self,"moveAbsoluteAction")
         self.moveAbsoluteAction.setIconSet(QIconSet(self.image123))
+        self.modifyMinimizeAllAction = QAction(self,"modifyMinimizeAllAction")
+        self.modifyMinimizeAllAction.setIconSet(QIconSet(self.image124))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -5959,7 +5978,7 @@ class MainWindow(QMainWindow):
         self.textLabel1 = QLabel(self.moveChunksDashboard,"textLabel1")
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,58,1033,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,58,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6078,9 +6097,10 @@ class MainWindow(QMainWindow):
         self.HexagonSelAction.addTo(self.cookieSelectDashboard)
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.modifyToolbar.setGeometry(QRect(0,203,30,257))
+        self.modifyToolbar.setGeometry(QRect(0,203,30,284))
         self.modifyToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
-        self.modifyMinimizeAction.addTo(self.modifyToolbar)
+        self.modifyMinimizeSelAction.addTo(self.modifyToolbar)
+        self.modifyMinimizeAllAction.addTo(self.modifyToolbar)
         self.modifyHydrogenateAction.addTo(self.modifyToolbar)
         self.modifyDehydrogenateAction.addTo(self.modifyToolbar)
         self.modifyPassivateAction.addTo(self.modifyToolbar)
@@ -6091,7 +6111,7 @@ class MainWindow(QMainWindow):
         self.modifyAlignCommonAxisAction.addTo(self.modifyToolbar)
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.toolsToolbar.setGeometry(QRect(0,460,30,215))
+        self.toolsToolbar.setGeometry(QRect(0,487,30,215))
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
         self.toolsToolbar.addSeparator()
@@ -6103,14 +6123,14 @@ class MainWindow(QMainWindow):
         self.toolsFuseChunksAction.addTo(self.toolsToolbar)
         self.datumDispDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.datumDispDashboard.setGeometry(QRect(0,675,30,68))
+        self.datumDispDashboard.setGeometry(QRect(0,702,30,68))
         self.datumDispDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispDashboard)
         self.dispCsysAction.addTo(self.datumDispDashboard)
         self.simToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
-        self.simToolbar.setGeometry(QRect(0,743,30,95))
+        self.simToolbar.setGeometry(QRect(0,770,30,95))
         self.simSetupAction.addTo(self.simToolbar)
         self.simMoviePlayerAction.addTo(self.simToolbar)
         self.simPlotToolAction.addTo(self.simToolbar)
@@ -6195,7 +6215,7 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.Select,8)
 
         self.Modify = QPopupMenu(self)
-        self.modifyMinimizeAction.addTo(self.Modify)
+        self.modifyMinimizeSelAction.addTo(self.Modify)
         self.modifyPassivateAction.addTo(self.Modify)
         self.modifyHydrogenateAction.addTo(self.Modify)
         self.modifyDehydrogenateAction.addTo(self.Modify)
@@ -6226,7 +6246,7 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.Jigs,11)
 
         self.Simulator = QPopupMenu(self)
-        self.simSetupAction.addTo(self.Simulator)
+        self.toolsSimulatorAction.addTo(self.Simulator)
         self.simMoviePlayerAction.addTo(self.Simulator)
         self.simPlotToolAction.addTo(self.Simulator)
         self.MenuBar.insertItem(QString(""),self.Simulator,12)
@@ -6301,7 +6321,7 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyDeleteBondsAction,SIGNAL("activated()"),self.modifyDeleteBonds)
         self.connect(self.modifyEdgeBondAction,SIGNAL("activated()"),self.modifyEdgeBond)
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
-        self.connect(self.modifyMinimizeAction,SIGNAL("activated()"),self.modifyMinimize)
+        self.connect(self.modifyMinimizeSelAction,SIGNAL("activated()"),self.modifyMinimizeSel)
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
         self.connect(self.modifySetElementAction,SIGNAL("activated()"),self.modifySetElement)
         self.connect(self.modifyStretchAction,SIGNAL("activated()"),self.modifyStretch)
@@ -6378,6 +6398,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsFuseChunksAction,SIGNAL("activated()"),self.toolsFuseChunks)
         self.connect(self.ccGridLineCheckBox,SIGNAL("toggled(bool)"),self.showCCGridLine)
         self.connect(self.ccFreeViewCheckBox,SIGNAL("toggled(bool)"),self.setCCFreeView)
+        self.connect(self.modifyMinimizeAllAction,SIGNAL("activated()"),self.modifyMinimizeAll)
 
 
     def languageChange(self):
@@ -6472,10 +6493,10 @@ class MainWindow(QMainWindow):
         self.modifyPassivateAction.setAccel(self.__tr("Ctrl+P"))
         self.jigsMotorAction.setText(self.__tr("Rotary Motor"))
         self.jigsMotorAction.setMenuText(self.__tr("&Rotary Motor"))
-        self.modifyMinimizeAction.setText(self.__tr("Minimize"))
-        self.modifyMinimizeAction.setMenuText(self.__tr("&Minimize"))
-        self.modifyMinimizeAction.setToolTip(self.__tr("Minimize (Ctrl+M)"))
-        self.modifyMinimizeAction.setAccel(self.__tr("Ctrl+M"))
+        self.modifyMinimizeSelAction.setText(self.__tr("Minimize Selection"))
+        self.modifyMinimizeSelAction.setMenuText(self.__tr("&Minimize Selection"))
+        self.modifyMinimizeSelAction.setToolTip(self.__tr("Minimize Selection (Ctrl+M)"))
+        self.modifyMinimizeSelAction.setAccel(self.__tr("Ctrl+M"))
         self.toggleFileTbarAction.setText(self.__tr("File"))
         self.toggleFileTbarAction.setMenuText(self.__tr("File"))
         self.toggleEditTbarAction.setText(self.__tr("Edit"))
@@ -6625,9 +6646,9 @@ class MainWindow(QMainWindow):
         self.toolsMoviePlayerAction.setText(self.__tr("Movie Player"))
         self.toolsMoviePlayerAction.setMenuText(self.__tr("&Movie Player"))
         self.toolsMoviePlayerAction.setToolTip(self.__tr("Movie Player"))
-        self.toolsSimulatorAction.setText(self.__tr("Simulator"))
-        self.toolsSimulatorAction.setMenuText(self.__tr("S&imulator"))
-        self.toolsSimulatorAction.setToolTip(self.__tr("Simulator"))
+        self.toolsSimulatorAction.setText(self.__tr("Simulator Setup"))
+        self.toolsSimulatorAction.setMenuText(self.__tr("Setup..."))
+        self.toolsSimulatorAction.setToolTip(self.__tr("Simulator Setup"))
         self.toolsAddBondAction.setText(self.__tr("Add Bond"))
         self.toolsAddBondAction.setMenuText(self.__tr("Add Bond"))
         self.toolsAddBondAction.setToolTip(self.__tr("Add Bond"))
@@ -6704,7 +6725,7 @@ class MainWindow(QMainWindow):
         self.setViewHomeToCurrentAction.setText(self.__tr("Set Home View to Current View"))
         self.setViewHomeToCurrentAction.setMenuText(self.__tr("Set Home View to &Current View"))
         self.modifyAlignCommonAxisAction.setText(self.__tr("Align to Common Axis"))
-        self.modifyAlignCommonAxisAction.setMenuText(self.__tr("&Align to Common Axis"))
+        self.modifyAlignCommonAxisAction.setMenuText(self.__tr("Align to &Common Axis"))
         self.dispSetEltable1Action.setText(self.__tr("Set Atom Colors to Default"))
         self.dispSetEltable1Action.setMenuText(self.__tr("Set Atom Colors to Default"))
         self.dispSetEltable2Action.setText(self.__tr("Set Atom Colors to Alternate"))
@@ -6739,8 +6760,8 @@ class MainWindow(QMainWindow):
         self.modifyDeleteBondsAction.setMenuText(self.__tr("Delete &Bonds"))
         self.dispElementColorSettingsAction.setText(self.__tr("Element Color Settings..."))
         self.dispElementColorSettingsAction.setMenuText(self.__tr("Element Color Settings..."))
-        self.simSetupAction.setText(self.__tr("Simulator Setup"))
-        self.simSetupAction.setMenuText(self.__tr("Setup..."))
+        self.simSetupAction.setText(QString.null)
+        self.simSetupAction.setMenuText(QString.null)
         self.simMoviePlayerAction.setText(self.__tr("Movie Player"))
         self.simPlotToolAction.setText(self.__tr("Plot Tool"))
         self.dispLightingAction.setText(self.__tr("Lighting"))
@@ -6774,6 +6795,7 @@ class MainWindow(QMainWindow):
         self.DefaultSelAction.setAccel(self.__tr("D"))
         self.moveDeltaAction.setText(self.__tr("Move Delta"))
         self.moveAbsoluteAction.setText(self.__tr("Move Absolute"))
+        self.modifyMinimizeAllAction.setText(self.__tr("Minimize All"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7068,8 +7090,8 @@ class MainWindow(QMainWindow):
     def fileSetWorkDir(self):
         print "MainWindow.fileSetWorkDir(): Not implemented yet"
 
-    def modifyMinimize(self):
-        print "MainWindow.modifyMinimize(): Not implemented yet"
+    def modifyMinimizeSel(self):
+        print "MainWindow.modifyMinimizeSel(): Not implemented yet"
 
     def orientView(self,a0):
         print "MainWindow.orientView(string): Not implemented yet"
@@ -7331,6 +7353,9 @@ class MainWindow(QMainWindow):
 
     def cookieSelect(self):
         print "MainWindow.cookieSelect(): Not implemented yet"
+
+    def modifyMinimizeAll(self):
+        print "MainWindow.modifyMinimizeAll(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

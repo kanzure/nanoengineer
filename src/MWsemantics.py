@@ -1077,8 +1077,15 @@ class MWsemantics(MainWindow):
     # Modify Toolbar Slots
     ###################################
 
-    def modifyMinimize(self): #bruce 050324 moved most of this into new class Minimize_CommandRun
-        """Minimize the current Part"""
+    def modifyMinimizeAll(self): #bruce 050324 moved most of this into new class Minimize_CommandRun
+        """Minimize the entire (current) Part"""
+        from runSim import Minimize_CommandRun
+        cmdrun = Minimize_CommandRun( self)
+        cmdrun.run()
+        return
+        
+    def modifyMinimizeSel(self): #bruce 050324 moved most of this into new class Minimize_CommandRun
+        """Minimize the current selection"""
         from runSim import Minimize_CommandRun
         cmdrun = Minimize_CommandRun( self)
         cmdrun.run()
@@ -1114,7 +1121,6 @@ class MWsemantics(MainWindow):
         self.history.message(greenmsg("Separate:"))
         self.assy.modifySeparate()
 
-    # bring molecules together and bond unbonded sites
     def modifyMerge(self):
         """ Create a single chunk from two of more selected chunks """
         self.history.message(greenmsg("Merge:"))

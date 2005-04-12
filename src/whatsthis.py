@@ -524,18 +524,31 @@ def createWhatsThis(self):
         # Modify Toolbar
         ##############################################
         
-        #### Minimize ####
+        #### Minimize Selection ####
 
-        modifyMinimizeActionText = "<u><b>Minimize</b></u>    (Ctrl + M)</b></p><br>"\
-                       "<p><img source=\"modifyMinimizeAction\"><br> "\
-                       "Arranges the atoms of the model to their chemically stable point of "\
+        modifyMinimizeSelActionText = "<u><b>Minimize Selection</b></u>    (Ctrl + M)</b></p><br>"\
+                       "<p><img source=\"modifyMinimizeSelAction\"><br> "\
+                       "Arranges the atoms (<i>of the current selection</i>) to their chemically stable point of "\
                        "equilibrium in reference to the other atoms in the structure."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMinimizeAction",
-                                                       self.modifyMinimizeAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMinimizeSelAction",
+                                                       self.modifyMinimizeSelAction.iconSet().pixmap() )
 
-        self.modifyMinimizeAction.setWhatsThis(modifyMinimizeActionText )
+        self.modifyMinimizeSelAction.setWhatsThis(modifyMinimizeSelActionText )
+        
+        #### Minimize All ####
+
+        modifyMinimizeAllActionText = "<u><b>Minimize All</b></u></p><br>"\
+                       "<p><img source=\"modifyMinimizeAllAction\"><br> "\
+                       "Arranges the atoms (<i>of the entire part</i>) to their chemically stable point of "\
+                       "equilibrium in reference to the other atoms in the structure."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMinimizeAllAction",
+                                                       self.modifyMinimizeAllAction.iconSet().pixmap() )
+
+        self.modifyMinimizeAllAction.setWhatsThis(modifyMinimizeAllActionText )
         
         #### Hydrogenate ####
 

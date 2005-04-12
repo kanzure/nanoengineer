@@ -118,7 +118,7 @@
         <action name="selectDoublyAction"/>
     </item>
     <item text="&amp;Modify" name="Modify">
-        <action name="modifyMinimizeAction"/>
+        <action name="modifyMinimizeSelAction"/>
         <action name="modifyPassivateAction"/>
         <action name="modifyHydrogenateAction"/>
         <action name="modifyDehydrogenateAction"/>
@@ -146,7 +146,7 @@
         <action name="jigsThermoAction"/>
     </item>
     <item text="Simulator" name="Simulator">
-        <action name="simSetupAction"/>
+        <action name="toolsSimulatorAction"/>
         <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
     </item>
@@ -661,7 +661,7 @@
             <rect>
                 <x>0</x>
                 <y>58</y>
-                <width>1033</width>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -1069,7 +1069,7 @@
                 <x>0</x>
                 <y>203</y>
                 <width>30</width>
-                <height>257</height>
+                <height>284</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -1078,7 +1078,8 @@
         <property name="label">
             <string>Modify</string>
         </property>
-        <action name="modifyMinimizeAction"/>
+        <action name="modifyMinimizeSelAction"/>
+        <action name="modifyMinimizeAllAction"/>
         <action name="modifyHydrogenateAction"/>
         <action name="modifyDehydrogenateAction"/>
         <action name="modifyPassivateAction"/>
@@ -1095,7 +1096,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>460</y>
+                <y>487</y>
                 <width>30</width>
                 <height>215</height>
             </rect>
@@ -1120,7 +1121,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>675</y>
+                <y>702</y>
                 <width>30</width>
                 <height>68</height>
             </rect>
@@ -1148,7 +1149,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>743</y>
+                <y>770</y>
                 <width>30</width>
                 <height>95</height>
             </rect>
@@ -1688,7 +1689,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>modifyMinimizeAction</cstring>
+            <cstring>modifyMinimizeSelAction</cstring>
         </property>
         <property name="enabled">
             <bool>true</bool>
@@ -1697,13 +1698,13 @@
             <iconset>image25</iconset>
         </property>
         <property name="text">
-            <string>Minimize</string>
+            <string>Minimize Selection</string>
         </property>
         <property name="menuText">
-            <string>&amp;Minimize</string>
+            <string>&amp;Minimize Selection</string>
         </property>
         <property name="toolTip">
-            <string>Minimize (Ctrl+M)</string>
+            <string>Minimize Selection (Ctrl+M)</string>
         </property>
         <property name="accel">
             <string>Ctrl+M</string>
@@ -2772,13 +2773,13 @@
                 <iconset>image74</iconset>
             </property>
             <property name="text">
-                <string>Simulator</string>
+                <string>Simulator Setup</string>
             </property>
             <property name="menuText">
-                <string>S&amp;imulator</string>
+                <string>Setup...</string>
             </property>
             <property name="toolTip">
-                <string>Simulator</string>
+                <string>Simulator Setup</string>
             </property>
         </action>
         <action>
@@ -3324,7 +3325,7 @@
             <string>Align to Common Axis</string>
         </property>
         <property name="menuText">
-            <string>&amp;Align to Common Axis</string>
+            <string>Align to &amp;Common Axis</string>
         </property>
     </action>
     <action>
@@ -3576,10 +3577,10 @@
             <iconset>image112</iconset>
         </property>
         <property name="text">
-            <string>Simulator Setup</string>
+            <string></string>
         </property>
         <property name="menuText">
-            <string>Setup...</string>
+            <string></string>
         </property>
     </action>
     <action>
@@ -3838,6 +3839,17 @@
             <string>Move Absolute</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>modifyMinimizeAllAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image124</iconset>
+        </property>
+        <property name="text">
+            <string>Minimize All</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -3916,7 +3928,7 @@
         <data format="PNG" length="855">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000031e49444154789cb5944f482a6d14c67f7309b248692929516e8afe4005157759b4375a448b102218689112b9992235290684122511a4361104862d4202035741d31f22c8da94a410881491b41244e65b355cf5de8b1f7cdfb33ac3fb9c679ef39e735ee1e2e282ff030df590e6e7e7d5ef786f6f4fa827e747bd0e9c4e67bd54a0cab1c7e35173b91c46a311afd72ba4d369351a8d6ae78220100e87d5d9d959f47abde072b9d46c368bc562c1e3f1545452e13897cbe176bbc9e7f3844221756b6b8bd6d656cc663306830193c944a150607979998d8d0d359bcd128944787979f9bb63a3d1c8fafa3ac160105996393c3cac200702012d76381c4422114451a4a3a3a34658a89e8a5028a4bebdbd110804787c7ce4e8e8889b9b1b1a1b1b393e3eaee03a1c0e4451c46432d534b4e22ad2e9b47a7f7fcfd2d212a9540a9fcfc7d7d7174ea7b342f4e3e343ab4092a41ab735c2d16894fefe7e743a1df1789ce6e666b6b7b7191b1bd3388aa230313181a22800180c0682c1a04a157e0088a2a88aa2a83e3f3ff3fefe8ed16824914830393959415614055996696969617171114551383838e0f3f3139bcda6da6c36ed070d00c562512be9e7cf9f0034353561369b2b846559d6e272b9cce6e626f1789ce9e9e99af306009d4e87dfefa7542ad1dede4e201040afd7f3f0f0406f6faf463e393921994cb2b6b6c6dddd1d00979797c462319e9e9e2a4c340044221101201c0eab85420180c1c14162b1185d5d5d0c0c0c6809a552098bc5a27dfb7c3e868787d9dfdf176a84bfb1b0b020cccdcda9009224b1baba8adbed667c7c9c9e9e1ececfcfb9babad24a4f24125a1e55a89963afd7ab96cb656d19cecece482693148b45743a1da3a3a34c4d4d914aa5d8dddd65686808abd5fa776197cba5e6f3796df3666666b466fe8a4422c1e9e9299224699be7f57aff7c15dfa276bb9dbebe3eadcb9d9d9d4892842ccbbcbebe0260b55a1145515beb6a5408b7b5b561b7db311a8dd8ed7601e0fafa5addd9d92193c990c964585959a1bbbb5b00b8bdbd554551ac68e66f85ab9f3e8091911101d006ff5b14a829ff57d4fdd0fbfdfe7aa9c06fa6e2bf42dd8eff2dfe01d6234d14d17e8f6b0000000049454e44ae426082</data>
     </image>
     <image name="image25">
-        <data format="PNG" length="275">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000da49444154789ccd54310ec23010f3853ea10ccd53c29e8d37f54fc09419ee29e5170d034d4593a3ea158ab8298ace9665cb47cc8c2dc6a44708218610e25aa21c5fa5cfb66d0100b4db47be9e484b9ae34db1d5f76b454ff0150078ef894c1d0180f9a252fb0e4f9b87978f364c313c694913e6b2f0f2d18639ec8bc44318205317613ae70a7ba47d757889989967ed198993f1defb1120a9ebee1d6c639193e7f8d9e649aa6c630bc55f6bdeac0d037eb4c21d8e4f25b7b3ba7912fef7cd0374ed5bd4bcb4b8b47deb9a07e8daf77a36a5d19cd2ff389b9fce03efa1c2825dbfa0b30000000049454e44ae426082</data>
+        <data format="PNG" length="236">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000b349444154789ccd94411280200845b1236807e6b4b6aa23448bca14112b6da6bf5246df7c0101f85a88488848dda1a76018bbc0872cb2ae3db860ae95db9dd27cc42c73be1868178796622fa179419be0fb65b9a03a58e9acd46d00877819ac749670c9380a4595cf548cdcca9d7886623833a2158b3bb327880080fce4e3bdeca49c23f53509941913c009ac0a0e5066cc96725483267a50bc179f213216fdff4f6683ac5fcee87c1e4bea34a32f655df2036dc0bfce3552a13d4b0000000049454e44ae426082</data>
     </image>
     <image name="image26">
         <data format="XPM.GZ" length="1580">789c8dd2c76edb401006e0bb9e82b06f466093db17410eee4deedd410e5b5de52ad720ef1ece4fc9b22521c882077df8b9b3334bcd4c15c7db1bc5d44cebb1ebba17a108e7eea1988a4f9dcedbcf5f3f7eb726182bea4789a29af8d69ab82b4231590a6dca926841adcb9c892fc44a72c3057113744c5789b80366ee384a2d13592514c7de159009ce1d711714827143bc073d972c120fc1c42ba6880760e69ea1d43b910b6e184a6d8051081e889e2894e20a6d04d0a84aa2c93dd02a292df109f45a6a4eec80417985734fc12893c4bc9760d2a5421b5da22cb5d08cb804565a281cf40c321d349abc0085720af32e82b2ff3207951252132bd0a8a450d935d455f3f236e8eabd9e78d5d030837919e8555698e81c0cca288c70d3635618ffbaa1a9af9218c1580f889b3c21aab2266ea3ec51347b35c8b928d1c62d28ebca38a84dd4d93b8d0fba4a34c6468bf4110c4e3af43c09a63ac55dbd82d9298b7913d196d65b4cb4d0d0c9269d253a167353ca8031b92c89c7442f7cf2e01931d41f38a08d0cc6c8032612608a2aa00d498cb9aa4a549e26269574c26d1c812e85840fba0ffa9c332a6f7d102fcf13735513073d80ac26ee790ee439363daff5d8dbab40e9eb457c6b58a7f8abac83a17feef4d835924c3a1f62ca23c9d9f9c5e5d575e7e6f6ac97dcd1a2e4fee1b1fbf4fcf2faf63e4866b1676e7e6171697965756d7d90b4916c6c6e6defeceeed1f1cf693d976131d1d9f9c9615e3a2df417d462f1ad7f5a7480ecd3388a41c9ab48e54b328fa32695bcb8ff52531d6343f86f77c04c3e70c82cfbdd92fc1e779ac1909fa891d09fe27b1766c326efd23f9f3bdf5170ab04e1a</data>
@@ -4211,6 +4223,9 @@
     </image>
     <image name="image123">
         <data format="PNG" length="407">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000015e49444154789cb5944d6e83301085df442c7a85e40263d6e9c2ac80abf404b941d39325acc802d6e402e41aaf0b7e0a06ec48499f6409eba1d1f3e7f14055698cc948c21893a92a49e2d5b5c33f69272239c94b1cc767921711c9df52798a60404212002bdf516d6bbdfef8e1b205e8656d5bebf57d8c3311546b46f248aadbe196f9486c16265100386ed8478285afb0b76500a62e6bdbda0a441a6ab7603fbaacd7d8aebd8567fa7864fd0cdb41c1c20eeb55b6ab6f61717c80ee2af611bfec078b7db4f03a9a84aa9e5495aa7a2209e938fa953c12968752444012e2fa711c677dd21f92df2292075108240550f7db5a04e9125777fca669ce03962854d83eecb53c94d215c0a708082c53bb8a8c310b16f7fb5d86b416b676ec5a04697fa9b3ff01a0699a2b00995d9c3b8fb7e641688ecc66c5e402f2212dfed8ba5a653dd3d6d80c4daf50eadd3469cf674ce54d14f2dda4ef5aa2aa9b5df18a7e011d327c2bdcc21eab0000000049454e44ae426082</data>
+    </image>
+    <image name="image124">
+        <data format="PNG" length="196">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000008b49444154789ccd93510e00110c44cb11d803f7b4f616ba5f362ca22d36e64fc8e465c600ec16221222d272d324b097dabc822b8cc1a98cfb70c613183f453b0bd71717ee98425920d2cc6420e3ccdebbd5e5516ede051967e492110100853be4e7b694eb2b4c9b60ca8cda19576013eb3b6379db249db47c798c5ff27d6f592831f290d9efa565fc51de03c089ee632719cc990000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -4563,10 +4578,10 @@
         <slot>modifyHydrogenate()</slot>
     </connection>
     <connection>
-        <sender>modifyMinimizeAction</sender>
+        <sender>modifyMinimizeSelAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyMinimize()</slot>
+        <slot>modifyMinimizeSel()</slot>
     </connection>
     <connection>
         <sender>modifyPassivateAction</sender>
@@ -5024,6 +5039,12 @@
         <receiver>MainWindow</receiver>
         <slot>setCCFreeView(bool)</slot>
     </connection>
+    <connection>
+        <sender>modifyMinimizeAllAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyMinimizeAll()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5089,7 +5110,7 @@
     <slot>fileClose()</slot>
     <slot>fileClear()</slot>
     <slot>fileSetWorkDir()</slot>
-    <slot>modifyMinimize()</slot>
+    <slot>modifyMinimizeSel()</slot>
     <slot>orientView( string )</slot>
     <slot>setViewFitToWindow()</slot>
     <slot>modifyCopyBond()</slot>
@@ -5177,6 +5198,7 @@
     <slot>showCCGridLine(bool)</slot>
     <slot>setCCFreeView(bool)</slot>
     <slot>cookieSelect()</slot>
+    <slot>modifyMinimizeAll()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
