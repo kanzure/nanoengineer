@@ -83,6 +83,10 @@ class MWsemantics(MainWindow):
         
         import depositMode as _depositMode
         _depositMode.do_what_MainWindowUI_should_do(self)
+        
+        # mark 050411: Do this here.  We should do this for all dashboards eventually.
+        import modifyMode as _modifyMode
+        _modifyMode.do_what_MainWindowUI_should_do(self)
 
         # this got lost in MainWindowUI somehow
         self.disconnect(self.editCopyAction,SIGNAL("activated()"),self.copyDo)
@@ -1816,7 +1820,7 @@ class MWsemantics(MainWindow):
         self.datumDispDashboard.hide()  # (mark note: this is the datum display toolbar)
         self.selectMolDashboard.hide()
         self.selectAtomsDashboard.hide()
-        self.moveMolDashboard.hide()
+        self.moveChunksDashboard.hide()
         self.moviePlayerDashboard.hide()
         self.zoomDashboard.hide()
         self.panDashboard.hide()
@@ -1835,7 +1839,7 @@ class MWsemantics(MainWindow):
             #  (to keep most dashboard names out of the context menu in the toolbar area),
             #  and we should list here the few we want to include in that menu (setAppropriate True),
             #  not the many we want to exclude (which is also a list that changes more often). ##e]
-            if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveMolDashboard,
+            if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveChunksDashboard,
                 self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard,
                 self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard,
                 self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,

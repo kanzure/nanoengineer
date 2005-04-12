@@ -30,7 +30,7 @@ class translateMode(modifyMode):
         if self.moveOption == 'TRANSZ':
             self.w.transZAction.setOn(1) # toggle on the Translate Z icon
             
-        self.w.moveMolDashboard.show() # show the Move Molecules dashboard
+        self.w.moveChunksDashboard.show() # show the Move Molecules dashboard
         
         self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
         
@@ -39,7 +39,7 @@ class translateMode(modifyMode):
     
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
-        self.w.moveMolDashboard.hide()
+        self.w.moveChunksDashboard.hide()
         self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
         
     def keyPress(self,key):

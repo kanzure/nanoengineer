@@ -6,7 +6,60 @@ $Id$
 """
 
 from modes import *
+from widgets import FloatSpinBox
 
+def do_what_MainWindowUI_should_do(w):
+    'Populate the Move Chunks dashboard'
+    
+    w.moveChunksDashboard.clear()
+    
+    w.moveChunksLabel = QLabel(w.moveChunksDashboard,"Move Chunks")
+    w.moveChunksLabel.setText(" Move Chunks ")
+    w.moveChunksDashboard.addSeparator()
+
+    w.moveFreeAction.addTo(w.moveChunksDashboard)
+    
+    w.moveChunksDashboard.addSeparator()
+    
+    w.transXAction.addTo(w.moveChunksDashboard)
+    w.transYAction.addTo(w.moveChunksDashboard)
+    w.transZAction.addTo(w.moveChunksDashboard)
+    
+    w.moveChunksDashboard.addSeparator()
+    
+    w.moveXLabel = QLabel(" X ", w.moveChunksDashboard)
+    w.moveXSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveXSpinBox")
+    w.moveXLabel = QLabel(" Y ", w.moveChunksDashboard)
+    w.moveYSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveYSpinBox")
+    w.moveXLabel = QLabel(" Z ", w.moveChunksDashboard)
+    w.moveZSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveZSpinBox")
+    
+    w.moveDeltaAction.addTo(w.moveChunksDashboard)
+    
+    # Commented out all references to moveAbsoluteAction.
+    # Save this for later.  Need to sort out some issues, like what happens when 
+    # more than one chunk is moved to the same abs coord (they will overlap).  
+    # We could limit the number of chunks to 1. Talk to Bruce about this.  
+    # Mark 050412
+#    w.moveAbsoluteAction.addTo(w.moveChunksDashboard)
+    
+    w.moveChunksDashboard.addSeparator()
+    
+    w.toolsDoneAction.addTo(w.moveChunksDashboard)
+
+def set_move_xyz(win,x,y,z):
+    self = win
+    self.moveXSpinBox.setFloatValue(x)
+    self.moveYSpinBox.setFloatValue(y)
+    self.moveZSpinBox.setFloatValue(z)
+
+def get_move_xyz(win):
+    self = win
+    x = self.moveXSpinBox.floatValue()
+    y = self.moveYSpinBox.floatValue()
+    z = self.moveZSpinBox.floatValue()
+    return (x,y,z)
+    
 class modifyMode(basicMode):
     "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
 
@@ -39,9 +92,13 @@ class modifyMode(basicMode):
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
         self.w.toolsMoveMoleculeAction.setOn(1) # toggle on the Move Chunks icon
-        self.w.moveMolDashboard.show() # show the Move Molecules dashboard
+        self.w.moveChunksDashboard.show() # show the Move Molecules dashboard
         
         self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        self.w.connect(self.w.moveDeltaAction, SIGNAL("activated()"), self.moveDelta)
+#        self.w.connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
+        
+        set_move_xyz(self.w, 0, 0, 0)
 
         # Always reset the dashboard icon to "Move Free" when entering MODIFY mode.
         # Mark 050410
@@ -50,8 +107,10 @@ class modifyMode(basicMode):
     
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
-        self.w.moveMolDashboard.hide()
+        self.w.moveChunksDashboard.hide()
         self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        self.w.disconnect(self.w.moveDeltaAction, SIGNAL("activated()"), self.moveDelta)
+#        self.w.disconnect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
         
     def keyPress(self,key):
         basicMode.keyPress(self, key)
@@ -284,6 +343,16 @@ class modifyMode(basicMode):
         for mol in self.o.assy.selmols:
             mol.update_everything()
 
+    def moveDelta(self):
+        "Move select chunk(s) relative to their current position(s) by X, Y, and Z"
+        offset = get_move_xyz(self.w)
+        self.o.assy.movesel(offset)
+        self.o.gl_update()
+
+    def moveAbsolute(self):
+        "Move select chunk(s) to X, Y, and Z"
+        pass
+                
     def changeMoveOption(self, action):
         '''Slot for Move Chunks dashboard's Move Options
         '''

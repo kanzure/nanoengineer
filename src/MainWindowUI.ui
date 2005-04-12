@@ -274,7 +274,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1042</width>
+                <width>1115</width>
                 <height>29</height>
             </rect>
         </property>
@@ -639,7 +639,7 @@
     </toolbar>
     <toolbar dock="3">
         <property name="name">
-            <cstring>moveMolDashboard</cstring>
+            <cstring>moveChunksDashboard</cstring>
         </property>
         <property name="label">
             <string>Move Chunks</string>
@@ -652,14 +652,6 @@
                 <string>Move Chunks</string>
             </property>
         </widget>
-        <separator/>
-        <action name="moveFreeAction"/>
-        <separator/>
-        <action name="transXAction"/>
-        <action name="transYAction"/>
-        <action name="transZAction"/>
-        <separator/>
-        <action name="toolsDoneAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -669,9 +661,8 @@
             <rect>
                 <x>0</x>
                 <y>58</y>
-                <width>1036</width>
+                <width>1033</width>
                 <height>29</height>
-
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -3825,6 +3816,28 @@
             </property>
         </action>
     </actiongroup>
+    <action>
+        <property name="name">
+            <cstring>moveDeltaAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image122</iconset>
+        </property>
+        <property name="text">
+            <string>Move Delta</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>moveAbsoluteAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image123</iconset>
+        </property>
+        <property name="text">
+            <string>Move Absolute</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4192,6 +4205,12 @@
     </image>
     <image name="image121">
         <data format="PNG" length="182">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000007d49444154789cbdd3c10ac0200c03d076ecff7fb93be841acd6a4c50504f1f00c45457e8e5581e716be85cdac84478d4b780857f0239cc5213883c3308b533083d3308aa760047f595055dd1d22e20ea1c60b4ca7e5728417289410eea8b66dbba0fc2a063495a8f18c52ad7770ba6905b0de381c57fa83dc8ac961c61f9b2f3517b6463ff70000000049454e44ae426082</data>
+    </image>
+    <image name="image122">
+        <data format="PNG" length="480">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001a749444154789cb5d5bd6b15511005f0df488c31c51341448876a99294da8822368a45b0104d937fc0cadade3aad0ada8a8da0584b1015242282884d10211ab4f3a31013256371ef932579bedd881ed862e7de39f7ec9999bb9199fe077674dd1811bb22e248d7fd231d49477105e311f13933975b9332b3f5c13c56f101b731da9ad38134f0181b487cc189b6bc2e1e4f611c6fea7b0f17ab3d7f4417e2793cc2d5aa184e616668568b0d137886633884e54a9e5840fcad15a7f10e4b788ffb8db50b8a4ddb53ac78f910738dd8743da055f530e2b37880dea60e596810af60b2b315b5e273b897995f1b5f97b8898f357410b39dad508af5041303d64670aba1fad5a07d5b144744e03c5e64e6ea00213f711dfd2f99520a395cb152a0a7981ee2ffa832da7dd5cfb1b7cde359bcc5eb81de1531ebb8816f3534a30ccd60c538a078db7a1728edb8d850bda8d1419b159fc49a326d4351bbe51ad66be828cef4d77fdfc711d1c325dcc164a9612b56f01287b113e722e26e66ae45ffd7141197715ce9cd8d2eac157bb00f9fb03f33c7a8e3d8503d564fde0e02bb9542fec8ccef5b88ff257e01d662c36273d3cacb0000000049454e44ae426082</data>
+    </image>
+    <image name="image123">
+        <data format="PNG" length="407">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000015e49444154789cb5944d6e83301085df442c7a85e40263d6e9c2ac80abf404b941d39325acc802d6e402e41aaf0b7e0a06ec48499f6409eba1d1f3e7f14055698cc948c21893a92a49e2d5b5c33f69272239c94b1cc767921711c9df52798a60404212002bdf516d6bbdfef8e1b205e8656d5bebf57d8c3311546b46f248aadbe196f9486c16265100386ed8478285afb0b76500a62e6bdbda0a441a6ab7603fbaacd7d8aebd8567fa7864fd0cdb41c1c20eeb55b6ab6f61717c80ee2af611bfec078b7db4f03a9a84aa9e5495aa7a2209e938fa953c12968752444012e2fa711c677dd21f92df2292075108240550f7db5a04e9125777fca669ce03962854d83eecb53c94d215c0a708082c53bb8a8c310b16f7fb5d86b416b676ec5a04697fa9b3ff01a0699a2b00995d9c3b8fb7e641688ecc66c5e402f2212dfed8ba5a653dd3d6d80c4daf50eadd3469cf674ce54d14f2dda4ef5aa2aa9b5df18a7e011d327c2bdcc21eab0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
