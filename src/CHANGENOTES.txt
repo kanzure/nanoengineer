@@ -212,3 +212,14 @@ Files: MainWindowUI, MWsemantics, modes, modifyMode, platform
 Summary: Changed/added UI and slot hooks for "Minimize Selection" and "Minimize All".
 
 ----------------------------
+
+Name: Bruce Smith
+Date: 4/12/2005
+Files: runSim.py, others
+Summary: Support for Minimize Selection vs Minimize All, and improved their history messages.
+
+(This commit doesn't yet fix progress bar caption or text to say which command is running,
+and doesn't yet turn singlets into H for Minimize All like it does for Minimize Selection.
+Further improvements to these are planned, but won't be listed separately in this file.)
+
+----------------------------

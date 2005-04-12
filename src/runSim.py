@@ -280,10 +280,10 @@ class SimRunner:
     #    history.message(msg)
 
         if not self.simaspect: ## was: if movie.alist_fits_entire_part:
-            part.writemmpfile( mmpfile)
+            part.writemmpfile( mmpfile) # as of 050412 this doesn't yet turn singlets into H
         else:
             # note: simaspect has already been used to set up movie.alist; simaspect's own alist copy is used in following:
-            self.simaspect.writemmpfile( mmpfile)
+            self.simaspect.writemmpfile( mmpfile) # this does turn singlets into H
             # obs comments:
             # can't yet happen (until minimize selection) and won't yet work 
             # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
@@ -455,7 +455,7 @@ class SimRunner:
             # Single shot minimize.
             if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
                 filesize = natoms * 16 # single-frame xyz filesize (estimate)
-                pbarCaption = "Minimize"
+                pbarCaption = "Minimize" ###@@@ this string is tested in ProgressBar.py, so can't yet add "All" or "Selection".
                 pbarMsg = "Minimizing..."
             # Write XYZ trajectory file.
             else:
@@ -522,11 +522,19 @@ class SimRunner:
                 if line.startswith(start):
                     if start != "# Done:":
                         if not seen:
-                            self.history.message( "Note: simulator trace file included these warnings and/or errors:")
-                        self.history.message( redmsg(line)) # leave in the '#' I think
+                            self.history.message( "Simulator trace file included these warnings and/or errors:")
+                        if start == "# Warning:":
+                            cline = orangemsg(line)
+                        else:
+                            cline = redmsg(line)
+                        self.history.message( cline) # leave in the '#' I think
                         seen[start] = True
                     else:
+                        # "Done:" line - emitted iff it has a message on it; doesn't trigger mention of tracefile name
                         donecount += 1
+                        text = line[len(start):].strip()
+                        if text:
+                            self.history.message( line) #e color??
         if not donecount:
             self.history.message( redmsg( "Warning: simulator trace file should normally end with \"# Done:\", but it doesn't."))
         if not donecount or seen:
@@ -675,7 +683,7 @@ def readxyz(filename, alist):
 
 # == user-visible commands for running the simulator, for simulate or minimize
 
-from HistoryWidget import redmsg, greenmsg
+from HistoryWidget import redmsg, greenmsg, orangemsg
 from qt import QMimeSourceFactory
 
 class CommandRun: # bruce 050324; mainly a stub for future use when we have a CLI
@@ -684,8 +692,9 @@ class CommandRun: # bruce 050324; mainly a stub for future use when we have a CL
     don't yet have objects to represent them in a first-class way,
     but can be coded and invoked as subclasses of CommandRun.
     """
-    def __init__(self, win):
+    def __init__(self, win, *args):
         self.win = win
+        self.args = args # often not needed; might affect type of command (e.g. for Minimize)
         self.assy = win.assy
         self.part = win.assy.part
             # current Part (when the command is invoked), on which most commands will operate
@@ -778,76 +787,97 @@ class simSetup_CommandRun(CommandRun):
 
     pass # end of class simSetup_CommandRun
 
-enable_minsel = True #bruce 050406 let's hope this works now...
-    # set this False (at runtime) to completely disable
-    # partly-working Minimize Selection code and bug-254-fixing code
-    # (singlets written as H),
-    # if it's too inconvenient to just not select anything before doing Minimize.
 
 class Minimize_CommandRun(CommandRun):
-    """Class for single runs of the Minimize command; create it
-    when the command is invoked, to prep to run the command once;
+    """Class for single runs of the Minimize Selection or Minimize All commands;
+    create it when the command is invoked, to prep to run the command once;
     then call self.run() to actually run it.
+    [#e A future code cleanup might split this into a Minimize superclass
+    and separate subclasses for 'All' vs 'Sel' -- or it might not.
+    As of 050412 the official distinction is stored in entire_part.]
     """
     def run(self):
-        """Minimize the current Part""" #e in future this will only minimize the selection...
+        """Minimize the Selection or the current Part"""
         #bruce 050324 made this method from the body of MWsemantics.modifyMinimize
         # and cleaned it up a bit in terms of how it finds the movie to use.
+        
+        #bruce 050412 added 'Sel' vs 'All' now that we have two different Minimize buttons.
+        # In future the following code might become subclass-specific (and cleaner):
+        
+        ## incorrect since 'in' is by 'is' not '==' I guess:
+        ## assert self.args in [['All'], ['Sel']], "%r" % (self.args,)
+        assert len(self.args) == 1 and self.args[0] in ['All','Sel']
+        
+        entire_part = (self.args[0] == 'All')
+        ## self.entire_part = entire_part # (self attr for this is not yet used directly)
+            #e someday, this might also be set later if selection includes everything,
+            # but only for internal use, not for messages to user distinguishing the two commands.
+        if entire_part:
+            cmdname = "Minimize All"
+            startmsg = "Minimize All: ..."
+            want_simaspect = 0
+        else:
+            cmdname = "Minimize Selection"
+            startmsg = "Minimize Selection: ..."
+            want_simaspect = 1
 
-        # Make sure some chunks are in the part.
+        # Make sure some chunks are in the part. (Minimize only works with atoms, not jigs (except Grounds), for now...)
         if not self.part.molecules: # Nothing in the part to minimize.
-            self.history.message(redmsg("Minimize: Nothing to minimize."))
+            self.history.message(redmsg("%s: Nothing to minimize." % cmdname))
             return
 
-        if enable_minsel:
-            # use new code iff anything is selected
+        if not entire_part:
             selection = self.part.selection() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
-                msg1 = "Note: Minimize: nothing selected. For now, we'll minimize entire Part like before."
-                msg2 = "SOON, THIS MIGHT REQUIRE SELECT ALL to be done first!"
-                self.history.message(( msg1 + "\n" + msg2 )) # <br> might be worse than \n for small window width
-                entire_part = True # use old code
-            else:
-                entire_part = False # use new code
+                msg = "Minimize Selection: nothing selected. (Use Minimize All to minimize entire Part.)"
+                self.history.message( redmsg( msg))
+                return
             self.selection = selection #e might become a feature of all CommandRuns, at some point
-            self.entire_part = entire_part #e might also be set later if selection includes everything...
-        else:
-            # always use old code
-            if platform.atom_debug:
-                msg = "atom_debug: set runSim.enable_minsel = True if you want to try out Minimize Selection"
-                self.history.message(redmsg(msg))
-            self.entire_part = entire_part = True
 
-        expwarn = 0
-        if not entire_part:
-            # use new code
-            #e following might be renamed
-            simaspect = sim_aspect( self.part, selection.atomslist() ) # note: atomslist gets atoms from selected chunks too
-            startmsg = "Minimize Selection: ..."
-            expwarn = 1 #e temporary
-        else:
-            simaspect = None
-            startmsg = "Minimize: ..."
+        # At this point, the conditions are met to try to do the command.
+        self.history.message(greenmsg( startmsg)) #bruce 050412 doing this earlier
         
         # Disable Minimize, Simulator and Movie Player during the minimize function.
-        self.win.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
+        self.win.modifyMinimizeSelAction.setEnabled(0) # Disable "Minimize Selection"
+        self.win.modifyMinimizeAllAction.setEnabled(0) # Disable "Minimize All"
         self.win.simSetupAction.setEnabled(0) # Disable "Simulator" 
         self.win.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
-            self.history.message(greenmsg( startmsg))
-            if expwarn:
-                self.history.message(( "Note: experimental feature. To use the old Minimize, first deselect all." ))
+            simaspect = None
+            if want_simaspect:
+                simaspect = sim_aspect( self.part, selection.atomslist() ) # note: atomslist gets atoms from selected chunks too
+                # history message about singlets written as H (if any);
+                # note that this is not yet implemented for Minimize All (behavior or message) as of 050412
+                from platform import fix_plurals
+                nsinglets_H = simaspect.nsinglets_H()
+                if nsinglets_H:
+                    info = fix_plurals( "(Treating %d open bond(s) as Hydrogens, during minimization)" % nsinglets_H )
+                    self.history.message( info)
+                nsinglets_leftout = simaspect.nsinglets_leftout()
+                assert nsinglets_leftout == 0 # for now
+                # history message about how much we're working on; these atomcounts include singlets since they're written as H
+                nmoving = simaspect.natoms_moving()
+                nfixed  = simaspect.natoms_fixed()
+                info = fix_plurals( "(Minimizing %d atom(s)" % nmoving)
+                if nfixed:
+                    them_or_it = (nmoving == 1) and "it" or "them"
+                    info += fix_plurals(", holding %d atom(s) fixed around %s" % (nfixed, them_or_it) )
+                info += ")"
+                self.history.message( info) 
             self.makeMinMovie(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
             #self.makeMinMovie(mtype = 2) # 2 = multi-frame DPB file.
         finally:
-            self.win.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
+            self.win.modifyMinimizeSelAction.setEnabled(1) # Enable "Minimize Selection"
+            self.win.modifyMinimizeAllAction.setEnabled(1) # Enable "Minimize All"
             self.win.simSetupAction.setEnabled(1) # Enable "Simulator"
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
         self.history.message("Done")
         return
     def makeMinMovie(self, mtype = 1, simaspect = None):
-        """Minimize self.part, or its given simulatable aspect if supplied, and display the results.
-        mtype:
+        """Minimize self.part (for Minimize All),
+        or its given simulatable aspect if supplied (for Minimize Selection),
+        and display the results.
+        The mtype flag means:
             1 = tell writemovie() to create a single-frame XYZ file.
             2 = tell writemovie() to create a multi-frame DPB moviefile. [###@@@ not presently used, might not work anymore]
         """
@@ -1021,6 +1051,17 @@ class sim_aspect:
         return
     def atomslist(self):
         return list(self._atoms_list)
+    def natoms_moving(self):
+        return len(self._atoms_list) - len(self.anchored_atoms_list)
+    def natoms_fixed(self):
+        return len(self.anchored_atoms_list)
+    def nsinglets_H(self):
+        "return number of singlets to be written as H for the sim"
+        singlets = filter( lambda atm: atm.is_singlet(), self._atoms_list )
+        return len(singlets)
+    def nsinglets_leftout(self):
+        "return number of singlets to be entirely left out of the sim input file"
+        return 0 # for now
     def writemmpfile(self, filename):
         #bruce 050404 (for most details). Imitates some of Part.writemmpfile aka fileIO.writemmpfile_part.
         #e refile into fileIO so the mmp format code is in the same place? maybe just some of it.

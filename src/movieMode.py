@@ -32,7 +32,8 @@ class movieMode(basicMode):
         self.w.toolsMoviePlayerAction.setOn(1) # toggle on the Movie Player icon
 
         # Disable some action items in the main window.
-        self.w.modifyMinimizeAction.setEnabled(0) # Disable "Minimize"
+        self.w.modifyMinimizeSelAction.setEnabled(0) # Disable "Minimize Selection"
+        self.w.modifyMinimizeAllAction.setEnabled(0) # Disable "Minimize All"
         self.w.simSetupAction.setEnabled(0) # Disable "Simulator"
         self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
         self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save As"
@@ -65,7 +66,8 @@ class movieMode(basicMode):
 
     def restore_gui(self):
         self.w.moviePlayerDashboard.hide()
-        self.w.modifyMinimizeAction.setEnabled(1) # Enable "Minimize"
+        self.w.modifyMinimizeSelAction.setEnabled(1) # Enable "Minimize Selection"
+        self.w.modifyMinimizeAllAction.setEnabled(1) # Enable "Minimize All"
         self.w.simSetupAction.setEnabled(1) # Enable "Simulator"
         self.w.fileSaveAction.setEnabled(1) # Enable "File Save"
         self.w.fileSaveAsAction.setEnabled(1) # Enable "File Save"

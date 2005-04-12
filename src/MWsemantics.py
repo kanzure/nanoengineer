@@ -1076,18 +1076,26 @@ class MWsemantics(MainWindow):
     ###################################
     # Modify Toolbar Slots
     ###################################
-
-    def modifyMinimizeAll(self): #bruce 050324 moved most of this into new class Minimize_CommandRun
-        """Minimize the entire (current) Part"""
+        
+    def modifyMinimizeSel(self):
+        """Minimize the current selection"""
+        if platform.atom_debug: ###@@@ remove this when devel is done
+            print "atom_debug: reloading runSim on each use, for development"
+            import runSim
+            reload(runSim)
         from runSim import Minimize_CommandRun
-        cmdrun = Minimize_CommandRun( self)
+        cmdrun = Minimize_CommandRun( self, 'Sel')
         cmdrun.run()
         return
-        
-    def modifyMinimizeSel(self): #bruce 050324 moved most of this into new class Minimize_CommandRun
-        """Minimize the current selection"""
+
+    def modifyMinimizeAll(self):
+        """Minimize the entire (current) Part"""
+        if platform.atom_debug: ###@@@ remove this when devel is done
+            print "atom_debug: reloading runSim on each use, for development"
+            import runSim
+            reload(runSim)
         from runSim import Minimize_CommandRun
-        cmdrun = Minimize_CommandRun( self)
+        cmdrun = Minimize_CommandRun( self, 'All')
         cmdrun.run()
         return
   
