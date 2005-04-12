@@ -205,3 +205,10 @@ Files: MainWindowUI, MWsemantics, modifyMode, translateMode
 Summary: Added "Move Delta" capability to Move Chunks mode.
 
 ----------------------------
+
+Name: Mark Sims
+Date: 4/12/2005
+Files: MainWindowUI, MWsemantics, modes, modifyMode, platform
+Summary: Changed/added UI and slot hooks for "Minimize Selection" and "Minimize All".
+
+----------------------------
