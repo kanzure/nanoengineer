@@ -990,11 +990,19 @@ class basicMode(anyMode):
     
     def keyPressEvent(self, e):
         "some modes will need to override this in the future"
-        if e.isAutoRepeat(): return # Ignore autorepeating key events.  Mark 050410
+        # Holding down X, Y or Z "modifier keys" in MODIFY and TRANSLATE modes generates
+        # autorepeating keyPress and keyRelease events.  For now, ignore autorepeating key events.
+        # Later, we may add a flag to determine is we should ignore autorepeating key events.
+        # If a mode needs these events, simply override keyPressEvent and keyReleaseEvent.
+        # Mark 050412
+        if e.isAutoRepeat(): return
         self.keyPress(e.key())
         
     def keyReleaseEvent(self, e):
-        if e.isAutoRepeat(): return # Ignore autorepeating key events.  Mark 050410
+        
+        # Ignore autorepeating key events.  Read comments in keyPressEvent above for more detail.
+        # Mark 050412
+        if e.isAutoRepeat(): return
         self.keyRelease(e.key())
 
     # the old key event API (for modes which don't override keyPressEvent etc)
