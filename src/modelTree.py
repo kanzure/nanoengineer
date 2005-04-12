@@ -99,7 +99,7 @@ class mt_QListViewItem( QListViewItem):
                 color = self.randcolors[0]
                 p.setPen(QPen(color, 3)) # 3 is pen thickness; btw, this also sets color of the "moving 1 item" at bottom of DND graphic!
                 w,h = 100,9 # bbox rect size of what we draw (i think)
-                x,y = 0,0 # topleft of what we draw
+                x,y = -21,8 # topleft of what we draw; 0,0 is topleft corner of icon; neg coords work, not sure how far or how safe
                 p.drawEllipse(x,y,h,h) # gets onto topleft of the icon (pixmap) region. Useful for something but not for what I want.
             return res
         except:
