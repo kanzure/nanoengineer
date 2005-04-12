@@ -40,6 +40,10 @@ def greenmsg(text):
 def redmsg(text):
     """Add the tags needed to display text in red in the HistoryWidget"""
     return "<span style=\"color:#ff0000\">" + text + "</span>"
+    
+def orangemsg(text): #bruce 050412; for warnings less severe than errors; some redmsgs might need replacement with this
+    """Add the tags needed to display text in orange in the HistoryWidget"""
+    return "<span style=\"color:#e65900\">" + text + "</span>"
 
 # (this one, by bruce, is only meant for internal use)
 def _graymsg(text):
