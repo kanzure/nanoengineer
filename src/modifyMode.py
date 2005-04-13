@@ -122,11 +122,7 @@ class modifyMode(basicMode):
             self.o.setCursor(self.w.MoveAddCursor)
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSubtractCursor)
-        
-        if key == Qt.Key_M:
-            print "Mirroring Selected Chunks"
-            self.mirrorChunk()
-                
+
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
@@ -136,10 +132,16 @@ class modifyMode(basicMode):
             self.w.transYAction.setOn(1) # toggle on the Translate Y action item
         elif key == Qt.Key_Z:
             self.w.transZAction.setOn(1) # toggle on the Translate Z action item
-    
-    def mirrorChunk(self):
-        print "mirror chunks"
-        self.o.assy.Mirror()
+            
+#     For debugging/testing.  Please keep in.  Mark 050413        
+#        if key == Qt.Key_T:
+#            print "modifyMode.keyPress: T key pressed (Testing) "
+#            self.test()
+                
+#     For debugging/testing.  Please keep in.  Mark 050413          
+#    def test(self):
+#        print "modifyMode.test Called"
+#        self.o.assy.testing_this_method()  # replace this with any method
                 
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
