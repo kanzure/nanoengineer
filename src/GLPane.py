@@ -42,7 +42,7 @@ from modes import modeMixin
 
 import operator
 import struct
-from povheader import povheader
+##bruce 050413 removed: from povheader import povheader, povpoint
 
 from fileIO import *
 from HistoryWidget import greenmsg, redmsg
@@ -974,7 +974,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         print " pov: ", self.pov
         print " quat ", self.quat
 
-
     def __str__(self):
         return "<GLPane " + self.name + ">"
 
@@ -982,35 +981,5 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         return makemenu_helper(self, lis)
 
     pass # end of class GLPane
-
-# ==
-
-def povpoint(p):
-    # note z reversal -- povray is left-handed
-    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
-
-##bruce 050410 removed rectgrid since unused:
-##def rectgrid(o):
-##    """Assigned as griddraw for a rectangular grid that is always parallel
-##    to the screen.
-##    """
-##    drawer.drawaxes(5,-o.pov)
-##    glColor3fv(self.gridColor)
-##    n=int(ceil(1.5*o.scale))
-##    # the grid is in eyespace
-##    glPushMatrix()
-##    q = o.quat
-##    glTranslatef(-o.pov[0], -o.pov[1], -o.pov[2])
-##    glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
-##    glDisable(GL_LIGHTING)
-##    glBegin(GL_LINES)
-##    for x in range(-n, n+1):
-##        glVertex(x,n,0)
-##        glVertex(x,-n,0)
-##        glVertex(n,x,0)
-##        glVertex(-n,x,0)
-##    glEnd()
-##    glEnable(GL_LIGHTING)
-##    glPopMatrix()
 
 # end

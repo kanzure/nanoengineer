@@ -16,6 +16,7 @@ from GroundProp import *
 from StatProp import *
 from ThermoProp import *
 from HistoryWidget import redmsg
+from povheader import povpoint #bruce 050413
 
 Gno = 0
 def gensym(string):
@@ -25,11 +26,6 @@ def gensym(string):
     global Gno
     Gno += 1
     return string + str(Gno)
-
-def povpoint(p):
-    # note z reversal -- povray is left-handed
-    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
-
 
 class Jig(Node):
     "abstract superclass for all jigs"

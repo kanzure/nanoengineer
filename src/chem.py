@@ -25,6 +25,7 @@ from qt import *
 from Utility import *
 from MoleculeProp import *
 from mdldata import marks, links, filler
+from povheader import povpoint #bruce 050413
 
 from debug import print_compact_stack, print_compact_traceback, compact_stack
 
@@ -65,13 +66,10 @@ atKey = genKey() # generator for atom.key attribute.
     # read from an mmp file), so we now require this in the future even if the
     # key type is changed.
 
-
-###Huaicai: This function has been repeated in multiple files, not 
+###Huaicai: This function [povpoint] has been repeated in multiple files, not 
 ### good, needs to improve. I'll add one more function for transferring
 ### vector to a string, which is mainly used for color vector
-def povpoint(p):
-    # note z reversal -- povray is left-handed
-    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
+# [bruce 050413: moved povpoint elsewhere]
 
 def stringVec(v):
     return "<" + str(v[0]) + "," + str(v[1]) + "," + str(v[2]) + ">"    

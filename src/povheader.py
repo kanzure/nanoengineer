@@ -6,6 +6,12 @@ $Id$
 """
 __author__ = "Josh"
 
+#bruce 050413: moved povpoint from 4 other modules (identical copies) into this one.
+# (I'd leave it in fileIO except that would cause a recursive import problem.)
+def povpoint(p):
+    # note z reversal -- povray is left-handed
+    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
+
 povheader = """
 // COLORS:
 #declare Red     = rgb <1, 0, 0>;

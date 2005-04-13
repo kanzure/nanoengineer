@@ -47,7 +47,7 @@ import re
 from chem import * # should get chunk.bond_atoms
 from gadgets import *
 from Utility import *
-from povheader import povheader
+from povheader import povheader, povpoint
 from mdldata import *
 from HistoryWidget import redmsg # bruce 050107
 from elements import PeriodicTable
@@ -817,12 +817,18 @@ def reset_grouplist(assy, grouplist):
         # don't store these in any Part, since those will all be replaced with new ones
         # by update_parts, below!
         assy.data, assy.tree, assy.shelf = grouplist
-    #bruce 050407 quick fix for reading sim-input files -- disabled for initial Minimize Selection commit:
+    #bruce 050407 quick fix for reading sim-input files -- disabled since not yet correct; affects reading of ALL mmp files
 ##    # (due to side effects of reading Csys records, it seems best to do this even if grouplist == None;
 ##    #  and since it replaces assy.data, we'll do it before calling kluge_patch_assy_toplevel_groups
 ##    #  which I think uses assy.data's members.)
 ##    try:
 ##        datamembers = [assy.homeCsys, assy.lastCsys, assy.xy, assy.yz, assy.zx]
+##        if platform.atom_debug: ###@@@ remove soon, at least when they agree
+##            if assy.data.members == datamembers:
+##                print "atom_debug: fyi: data members agree (changing them anyway since check not done unless atom_debug)"
+##            else:
+##                print "atom_debug: fyi: data members were wrong, replacing them; old length %d, new length %d" % \
+##                      (len(assy.data.members), len(datamembers))
 ##        newdata = Group("Data", assy, None, datamembers) # warning: this pulls them out of assy.data, if they're in there now
 ##        assy.data = newdata
 ##    except:
@@ -1077,10 +1083,6 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
 
 # ==
 
-def povpoint(p):
-    # note z reversal -- povray is left-handed
-    return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
-        
 # Create a POV-Ray file
 def writepovfile(assy, filename):
     f = open(filename,"w")
