@@ -255,12 +255,17 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # and only briefly -- unrelated to OpenGL clearColor) to current mode's
         # background color; this fixes the bug in which the glpane or its edges
         # flicker to black during a main-window resize.
-        bgcolor = self.mode.backgroundColor
-        r = int(bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
-        g = int(bgcolor[1]*255 + 0.5)
-        b = int(bgcolor[2]*255 + 0.5)
-        self.setPaletteBackgroundColor(QColor(r, g, b))
-            # see Qt docs for this and for backgroundMode
+        #bruce 050413: limit this to Mac, since it turns out that bug (which has
+        # no bug number yet) was Mac-specific, but this change caused a new bug 530
+        # on Windows. (Not sure about Linux.)
+        # See also bug 141 (black during mode-change), related but different.
+        if sys.platform == 'darwin':
+            bgcolor = self.mode.backgroundColor
+            r = int(bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
+            g = int(bgcolor[1]*255 + 0.5)
+            b = int(bgcolor[2]*255 + 0.5)
+            self.setPaletteBackgroundColor(QColor(r, g, b))
+                # see Qt docs for this and for backgroundMode
         
         #e also update tool-icon visual state in the toolbar?
         # bruce 041222 [comment revised 050408]:

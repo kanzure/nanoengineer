@@ -188,7 +188,9 @@ Summary: fix bug in which glpane or its edges would flicker to black during main
 Name: Mark Sims
 Date: 4/10/2005
 Files: GLPane, MainWindowUI, modes, modifyMode, platform, translateMode (new)
-Summary: Implemented new "translateMode", which adds support for sliding and/or rotating selected chunks along the x, y or z axis.  New buttons added to the Move Chunks dashboard give UI access to these features.  Users can also hold the X, Y, or Z keys while in Move Chunks mode to invoke these features.
+Summary: Implemented new "translateMode", which adds support for sliding and/or rotating selected chunks 
+along the x, y or z axis.  New buttons added to the Move Chunks dashboard give UI access to these features.
+Users can also hold the X, Y, or Z keys while in Move Chunks mode to invoke these features.
 
 ----------------------------
 
@@ -227,6 +229,21 @@ Further improvements to these are planned, but won't be listed separately in thi
 Name: Mark Sims
 Date: 4/13/2005
 Files: MainWindowUI, MWsemantics, modifyMode, part
-Summary: Added "Modify > Invert" feature and moveDeltaPlus and moveDeltaMinus to modifyMode.  Also improved the history message for the Stretch feature.
+Summary: Added "Modify > Invert" feature and moveDeltaPlus and moveDeltaMinus to modifyMode.  
+Also improved the history message for the Stretch feature.
 
 ----------------------------
+
+Name: Bruce Smith
+Date: 4/13/2005
+Files: GLPane.py
+Summary: try to fix bug 530
+
+This limits my bugfix from 4/8/05 (glpane or its edges would flicker to
+black during main-window resize, which it turns out is a Mac-specific bug)
+to the Mac, since that change also caused a new Windows-specific bug 530
+(glpane flicker when covered by dialogs or menus, or maybe when they
+disappear).
+
+----------------------------
+
