@@ -661,7 +661,7 @@
             <rect>
                 <x>0</x>
                 <y>58</y>
-                <width>1036</width>
+                <width>1034</width>
                 <height>29</height>
             </rect>
         </property>
@@ -1069,7 +1069,7 @@
                 <x>0</x>
                 <y>203</y>
                 <width>30</width>
-                <height>284</height>
+                <height>311</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -1087,6 +1087,7 @@
         <action name="modifyStretchAction"/>
         <action name="modifySeparateAction"/>
         <action name="modifyMergeAction"/>
+        <action name="modifyInvertAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </toolbar>
     <toolbar dock="4">
@@ -1096,7 +1097,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>487</y>
+                <y>514</y>
                 <width>30</width>
                 <height>215</height>
             </rect>
@@ -1121,7 +1122,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>702</y>
+                <y>729</y>
                 <width>30</width>
                 <height>68</height>
             </rect>
@@ -1149,7 +1150,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>770</y>
+                <y>797</y>
                 <width>30</width>
                 <height>95</height>
             </rect>
@@ -3819,13 +3820,13 @@
     </actiongroup>
     <action>
         <property name="name">
-            <cstring>moveDeltaAction</cstring>
+            <cstring>moveDeltaPlusAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image122</iconset>
         </property>
         <property name="text">
-            <string>Move Delta</string>
+            <string>Move Delta (+)</string>
         </property>
     </action>
     <action>
@@ -3848,6 +3849,28 @@
         </property>
         <property name="text">
             <string>Minimize All</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>moveDeltaMinusAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image125</iconset>
+        </property>
+        <property name="text">
+            <string>Move Delta (-)</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>modifyInvertAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image126</iconset>
+        </property>
+        <property name="text">
+            <string>Invert</string>
         </property>
     </action>
 </actions>
@@ -4219,13 +4242,19 @@
         <data format="PNG" length="182">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000007d49444154789cbdd3c10ac0200c03d076ecff7fb93be841acd6a4c50504f1f00c45457e8e5581e716be85cdac84478d4b780857f0239cc5213883c3308b533083d3308aa760047f595055dd1d22e20ea1c60b4ca7e5728417289410eea8b66dbba0fc2a063495a8f18c52ad7770ba6905b0de381c57fa83dc8ac961c61f9b2f3517b6463ff70000000049454e44ae426082</data>
     </image>
     <image name="image122">
-        <data format="PNG" length="480">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001a749444154789cb5d5bd6b15511005f0df488c31c51341448876a99294da8822368a45b0104d937fc0cadade3aad0ada8a8da0584b1015242282884d10211ab4f3a31013256371ef932579bedd881ed862e7de39f7ec9999bb9199fe077674dd1811bb22e248d7fd231d49477105e311f13933975b9332b3f5c13c56f101b731da9ad38134f0181b487cc189b6bc2e1e4f611c6fea7b0f17ab3d7f4417e2793cc2d5aa184e616668568b0d137886633884e54a9e5840fcad15a7f10e4b788ffb8db50b8a4ddb53ac78f910738dd8743da055f530e2b37880dea60e596810af60b2b315b5e273b897995f1b5f97b8898f357410b39dad508af5041303d64670aba1fad5a07d5b144744e03c5e64e6ea00213f711dfd2f99520a395cb152a0a7981ee2ffa832da7dd5cfb1b7cde359bcc5eb81de1531ebb8816f3534a30ccd60c538a078db7a1728edb8d850bda8d1419b159fc49a326d4351bbe51ad66be828cef4d77fdfc711d1c325dcc164a9612b56f01287b113e722e26e66ae45ffd7141197715ce9cd8d2eac157bb00f9fb03f33c7a8e3d8503d564fde0e02bb9542fec8ccef5b88ff257e01d662c36273d3cacb0000000049454e44ae426082</data>
+        <data format="PNG" length="483">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001aa49444154789cb5d5bd6b54511005f0df048d71c1b5111124dd1692b85b692382a4112cac44ab7456226861e31f6029b1d43f410b41b0b28aa082c4ca2d0d22268aa5d1227ea163b1577dd98fec6e700fbce2de39efbc796766ee8dcc34094c4d447527c211b127228e0fe3ed1a53741a37508b888dcc5c1d48cecc911f2ce23d3ee02ea60772c7100d3cc52f243ee1d420fe381ecfa186d7655dc7a5624f0fc6115ec413dc2e19c3691cedcbaea6df6c3673800d47f00227318bd5229e5842ecd48acb58c70adee161257641c7a62d88ccd46ab57ac6afdd6e077f5b6c1d5732f35ed99bc7231c2ef45bb896d5311e6645f9fd0dd4bb3a64a962c71a1a235b111181f36867e6e74a328997fe15711637b7bc3ca477e7f11c0b7d6235bcad64fd0573a316ef2cdee0717720333771119b656b0acda119e3109ed966ba748664b992f5b2528bed325ec0379dfeed8be2fb1d7c2f5b27708601a75b44d47115f7d1880899d92eb156177d0d6d1cc36e9c8b8807d17d8344c40cae97af37f053a7eaeb3a056ae05597f87e1cc0471ccccc991ee1ff85b10efa3f88887dd525f6ea74c78fccfc4a19e949e037a4ad744191f24f180000000049454e44ae426082</data>
     </image>
     <image name="image123">
         <data format="PNG" length="407">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000015e49444154789cb5944d6e83301085df442c7a85e40263d6e9c2ac80abf404b941d39325acc802d6e402e41aaf0b7e0a06ec48499f6409eba1d1f3e7f14055698cc948c21893a92a49e2d5b5c33f69272239c94b1cc767921711c9df52798a60404212002bdf516d6bbdfef8e1b205e8656d5bebf57d8c3311546b46f248aadbe196f9486c16265100386ed8478285afb0b76500a62e6bdbda0a441a6ab7603fbaacd7d8aebd8567fa7864fd0cdb41c1c20eeb55b6ab6f61717c80ee2af611bfec078b7db4f03a9a84aa9e5495aa7a2209e938fa953c12968752444012e2fa711c677dd21f92df2292075108240550f7db5a04e9125777fca669ce03962854d83eecb53c94d215c0a708082c53bb8a8c310b16f7fb5d86b416b676ec5a04697fa9b3ff01a0699a2b00995d9c3b8fb7e641688ecc66c5e402f2212dfed8ba5a653dd3d6d80c4daf50eadd3469cf674ce54d14f2dda4ef5aa2aa9b5df18a7e011d327c2bdcc21eab0000000049454e44ae426082</data>
     </image>
     <image name="image124">
         <data format="PNG" length="196">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000008b49444154789ccd93510e00110c44cb11d803f7b4f616ba5f362ca22d36e64fc8e465c600ec16221222d272d324b097dabc822b8cc1a98cfb70c613183f453b0bd71717ee98425920d2cc6420e3ccdebbd5e5516ede051967e492110100853be4e7b694eb2b4c9b60ca8cda19576013eb3b6379db249db47c798c5ff27d6f592831f290d9efa565fc51de03c089ee632719cc990000000049454e44ae426082</data>
+    </image>
+    <image name="image125">
+        <data format="PNG" length="476">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001a349444154789cb5d53d6b54611005e06782c6b8e0da8808926e0b49742b6d242069040b2bd12a9d95085ad8f8032c2596fa13b410042bab082a48acdcd2206256b1345ac42f742cf6556ff623bb1bdc815bbc33e79e7b3833f3dec84c9388a989b0ee843822f644c48961b85d63924ee3066a11b191996b03c19939f28325bcc707dcc5f440ec18a481a7f885c4279c1a841fc7e339d4f0ba9cebb854ece989718897f004b78b62388da37dd123da70042fb08059ac15f2c43262a7565c461bab78878795da051d9bb64464a666b3d9b37ead562bf83b626d5cc9cc7b25378f47385ce0b7702dab6b3c820d0bd840bd6b42962b76aca331b2151111388f56667eae8849bcf4af89b3b8b9e5e5216ae7f11c8b7d6a35bcada8fe82b9519b77166ff0b8bb90999bb888cd929ac2b1a18a7108cf6cb35d3a4bb25251bda2f4623bc58bf8a633bf7da3f87e07df4bea24ce30e0768b883aaee23e1a1121335ba5d6ec82afa385e3d88d7311f120baff20113183ebe5eb0dfcd4e97a5ba7410dbcea22df8f03f888839939d343fcbf62ac8bfe4f44c4beea117b75a6e347667ea5acf424e2373baf772f4a3d62770000000049454e44ae426082</data>
+    </image>
+    <image name="image126">
+        <data format="PNG" length="693">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000027c49444154789cc5545d489351187ebe6f3350678c685b4a6978d185b0cfbae9b69b2018aed8c0ea2a355a1428087617e1bc1084a2925d1456c6bcaa0d2696084908312f646ca4d375e1627c9b86f9ad4cd4a9733be7ed22f7a132ffc0d18117cecf739ef39cf74f202214628805613d0cb124492449d2c1bf474479cd6c36d361e63b4dbb9f4a000887c3426e2f1c0e0b0751fe7f7dbc55e141fd2c142addb6f9b8c16ab2e90d665f59890633f171bbfbe37cff5e971bac26db99aaf3bee55586c5e4e4767c2e8a8d1693a7bbb59a92814e5a1877d140570d35598ceedda2de6431ba07ba6a6861dc45c9402775b75653a3c5e4c99d0bb7ea8c3691c3d7d97a19276a1f403ca6531f5dfcf61a2f7adf41feb976fdeda0e20580a63a63fdd953c59efbb76f425f7347c5f28d152c4c3cc1c3e79fc145d8e1b056d0bcbf8dd27fa6f39a32e6a4667bb99aafcdf67252c69cbbe2e7fd6de4b05690569730e0c79bdf48d02354de3b075de51500c04ae2137a66334831205a2aa9caa2a5129ecaeb289de9c5ddd345dbf08997d3d008c5d0250cd066190365b3e0ab19c88f23d01cff8e2f57ab90dcd83bea29063c8b6760981bc4a50f71b0a53400402c29429631883b938d2da5f725dd3a921b5049d58440ae40c4232cc04d2e9113019c1f1d31e7e044103344188e46b1ce585e5c702888d45a4a5da7d652080e05f362d719c370348a0c11c49e484488130ff5c762082a0af86689cb533246fb46a02184fc5ebfdaddfc5ebfa0218446fb46204fc9ff441221a828e88fc510271eea894404b557b4b4389cbac0443b71c2e4052396938b28d79eec78ef1d70e65377a3fe9a732efbabbdcca087f9ab024114b072b1b6c3e57ae5040ad8840ad68fff02973cb39a4881c89a0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5045,6 +5074,12 @@
         <receiver>MainWindow</receiver>
         <slot>modifyMinimizeAll()</slot>
     </connection>
+    <connection>
+        <sender>modifyInvertAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyInvert()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5199,6 +5234,7 @@
     <slot>setCCFreeView(bool)</slot>
     <slot>cookieSelect()</slot>
     <slot>modifyMinimizeAll()</slot>
+    <slot>modifyInvert()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -1135,6 +1135,11 @@ class MWsemantics(MainWindow):
         self.assy.merge()
         self.win_update()
 
+    def modifyInvert(self):
+        """ Invert the atoms of the selected chunk(s) """
+        self.history.message(greenmsg("Invert:"))
+        self.assy.Invert()
+
     def modifyAlignCommonAxis(self):
         """ Align selected chunks by rotating them """
         self.history.message(greenmsg("Align to Common Axis:"))
