@@ -34,7 +34,8 @@ def do_what_MainWindowUI_should_do(w):
     w.moveXLabel = QLabel(" Z ", w.moveChunksDashboard)
     w.moveZSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveZSpinBox")
     
-    w.moveDeltaAction.addTo(w.moveChunksDashboard)
+    w.moveDeltaPlusAction.addTo(w.moveChunksDashboard)
+    w.moveDeltaMinusAction.addTo(w.moveChunksDashboard)
     
     # Commented out all references to moveAbsoluteAction.
     # Save this for later.  Need to sort out some issues, like what happens when 
@@ -53,12 +54,13 @@ def set_move_xyz(win,x,y,z):
     self.moveYSpinBox.setFloatValue(y)
     self.moveZSpinBox.setFloatValue(z)
 
-def get_move_xyz(win):
+def get_move_xyz(win, Plus = 1):
     self = win
     x = self.moveXSpinBox.floatValue()
     y = self.moveYSpinBox.floatValue()
     z = self.moveZSpinBox.floatValue()
-    return (x,y,z)
+    if Plus: return (x,y,z) # Plus
+    else: return (-x, -y, -z) # Minus
     
 class modifyMode(basicMode):
     "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
@@ -95,7 +97,8 @@ class modifyMode(basicMode):
         self.w.moveChunksDashboard.show() # show the Move Molecules dashboard
         
         self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
-        self.w.connect(self.w.moveDeltaAction, SIGNAL("activated()"), self.moveDelta)
+        self.w.connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
+        self.w.connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
 #        self.w.connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
         
         set_move_xyz(self.w, 0, 0, 0)
@@ -109,7 +112,8 @@ class modifyMode(basicMode):
     def restore_gui(self):
         self.w.moveChunksDashboard.hide()
         self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
-        self.w.disconnect(self.w.moveDeltaAction, SIGNAL("activated()"), self.moveDelta)
+        self.w.disconnect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
+        self.w.disconnect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
 #        self.w.disconnect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
         
     def keyPress(self,key):
@@ -118,7 +122,11 @@ class modifyMode(basicMode):
             self.o.setCursor(self.w.MoveAddCursor)
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSubtractCursor)
-            
+        
+        if key == Qt.Key_M:
+            print "Mirroring Selected Chunks"
+            self.mirrorChunk()
+                
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
@@ -128,7 +136,11 @@ class modifyMode(basicMode):
             self.w.transYAction.setOn(1) # toggle on the Translate Y action item
         elif key == Qt.Key_Z:
             self.w.transZAction.setOn(1) # toggle on the Translate Z action item
-            
+    
+    def mirrorChunk(self):
+        print "mirror chunks"
+        self.o.assy.Mirror()
+                
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
 #        print "modifyMode: keyRelease, key=", key
@@ -343,12 +355,18 @@ class modifyMode(basicMode):
         for mol in self.o.assy.selmols:
             mol.update_everything()
 
-    def moveDelta(self):
-        "Move select chunk(s) relative to their current position(s) by X, Y, and Z"
-        offset = get_move_xyz(self.w)
+    def moveDeltaPlus(self):
+        "Add X, Y, and Z to the selected chunk(s) current position"
+        offset = get_move_xyz(self.w, 1)
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
+    def moveDeltaMinus(self):
+        "Subtract X, Y, and Z from the selected chunk(s) current position"
+        offset = get_move_xyz(self.w, 0)
+        self.o.assy.movesel(offset)
+        self.o.gl_update()
+        
     def moveAbsolute(self):
         "Move select chunk(s) to X, Y, and Z"
         pass
