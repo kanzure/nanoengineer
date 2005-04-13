@@ -172,7 +172,7 @@ final RMS gradient=0.974089 after 144 iterations
 142 1.38 2.19
 143 1.17 1.79
 144 0.97 1.39
-# Done: 
+# Done: Minimization final rms: 0.974089, highForce: 1.386051
 ======= test_0005.xyz =======
 15
 RMS=0.974089

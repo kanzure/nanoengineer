@@ -2,7 +2,7 @@
 ======= exitvalue =======
 0
 ======= stderr =======
-Warning: partial minimization in CG
+Warning: minimization terminated due to excessive force
 ======= stdout =======
 iters per frame = 10
 number of frames = 100
@@ -42,9 +42,9 @@ final RMS gradient=43.834339 after 14 iterations
 11 44.02 67.44
 12 43.83 67.28
 13 99429.15 197152.47
-14 43.83 3272480354115239376405119387045373251105587200.00
-# Warning: partial minimization in CG
-# Done: 
+14 43.83 67.28
+# Warning: minimization terminated due to excessive force
+# Done: Minimization final rms: 43.834339, highForce: 67.283224
 ======= test_0009.xyz =======
 18
 RMS=43.834339

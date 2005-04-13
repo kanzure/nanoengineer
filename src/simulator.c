@@ -1234,6 +1234,7 @@ void groundAtoms(struct xyz *oldPosition, struct xyz *newPosition)
 // indicates which of the four segments of position_arrays each points to
 static int positionPointerSegment[4];
 static float best_rms = 1e16;
+static float best_max_forceSquared = 1e16;
 
 #define PTR_OLD 0
 #define PTR_CUR 1
@@ -1262,13 +1263,14 @@ setupPositionsArrays()
    (actually swaps array pointers around instead of copying)
 */
 void
-updatePositionsArrays(float rms, int best_ptr)
+updatePositionsArrays(float rms, float max_forceSquared, int best_ptr)
 {
     int i;
     int segmentUsed[4];
 
     if (rms < best_rms) {
         best_rms = rms;
+        best_max_forceSquared = max_forceSquared;
         positionPointerSegment[PTR_BST] = positionPointerSegment[best_ptr];
         BestPositions = position_arrays + positionPointerSegment[PTR_BST] * NATOMS;
     }
@@ -1335,7 +1337,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
         groundAtoms(Positions, NewPositions);
-        updatePositionsArrays(rms_force, PTR_CUR);
+        updatePositionsArrays(rms_force, max_forceSquared, PTR_CUR);
     }
     initial_rms = rms_force;
     minshot(0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "1");
@@ -1382,13 +1384,23 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	    vadd2(NewPositions[j], Positions[j], f);
 	}
         groundAtoms(Positions, NewPositions);
-        updatePositionsArrays(rms_force, PTR_CUR);
+        updatePositionsArrays(rms_force, max_forceSquared, PTR_CUR);
     }
     if (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED) {
         fprintf(tracef, "# Switching to Conjugate-Gradient\n");
         return 1;
     } else {
-	minshot(1, BestPositions, best_rms, max_forceSquared, (*frameNumber)++, "SDfinal");
+	minshot(1, BestPositions, best_rms, best_max_forceSquared, (*frameNumber)++, "SDfinal");
+        if (!interruptionWarning) {
+            if (*frameNumber > steepestDescentFrames) {
+                WARNING("minimization terminated after %d iterations", steepestDescentFrames);
+            } else if (rms_force >= MAX_RMS) {
+                WARNING("minimization terminated due to excessive force");
+            } else{
+                // don't think we can get here...
+                WARNING("minimization terminated in Steepest Descent");
+            }
+        }
         return 0;
     }
 }
@@ -1486,11 +1498,18 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	    sum_forceSquared += forceSquared;
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
-        updatePositionsArrays(rms_force, PTR_NEW);
+        updatePositionsArrays(rms_force, max_forceSquared, PTR_NEW);
     }
-    minshot(1, BestPositions, best_rms, max_forceSquared, (*frameNumber)++, "final");
+    minshot(1, BestPositions, best_rms, best_max_forceSquared, (*frameNumber)++, "final");
     if (rms_force > RMS_FINAL && !interruptionWarning) {
-        WARNING("partial minimization in CG");
+        if (*frameNumber > numFrames) {
+            WARNING("minimization terminated after %d iterations", numFrames);
+        } else if (rms_force >= MAX_RMS) {
+            WARNING("minimization terminated due to excessive force");
+        } else{
+            // don't think we can get here...
+            WARNING("minimization terminated in Conjugate-Gradient");
+        }
     }
 }
 
@@ -1509,10 +1528,9 @@ void minimize(int numFrames)
     if (minimizeSteepestDescent(steepestDescentFrames, &frameNumber)) {
         minimizeConjugateGradients(conjugateGradientFrames, &frameNumber);
     } else {
-        if (!interruptionWarning) {
-            WARNING("partial minimization");
-        }
     }
+    doneExit(0, tracef, "Minimization final rms: %f, highForce: %f",
+             best_rms, sqrt(best_max_forceSquared));
 }
 
 void SIGTERMhandler(int sig) 
@@ -1800,7 +1818,7 @@ main(int argc,char **argv)
 	 */
     }
 
-    doneExit(tracef, "", 0);
+    doneExit(0, tracef, "");
 }
 
 /*

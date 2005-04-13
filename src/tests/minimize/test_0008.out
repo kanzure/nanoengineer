@@ -3,7 +3,7 @@
 ======= exitvalue =======
 0
 ======= stderr =======
-Warning: partial minimization
+Warning: minimization terminated after 100 iterations
 ======= stdout =======
 iters per frame = 10
 number of frames = 100
@@ -129,9 +129,9 @@ final RMS gradient=2734.070312 after 100 iterations
 97 9924.63 23134.93
 98 6392.63 14419.05
 99 4060.75 8083.65
-100 2734.07 8083.65
-# Warning: partial minimization
-# Done: 
+100 2734.07 8372.60
+# Warning: minimization terminated after 100 iterations
+# Done: Minimization final rms: 2734.070312, highForce: 8372.599119
 ======= test_0008.xyz =======
 14
 RMS=2734.070312

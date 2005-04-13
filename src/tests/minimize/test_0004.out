@@ -2,7 +2,7 @@
 ======= exitvalue =======
 0
 ======= stderr =======
-Warning: partial minimization in CG
+Warning: minimization terminated after 600 iterations
 ======= stdout =======
 iters per frame = 10
 number of frames = 100
@@ -630,9 +630,9 @@ final RMS gradient=2.124883 after 600 iterations
 597 12.18 25.68
 598 14.57 32.02
 599 14.50 23.81
-600 2.12 23.28
-# Warning: partial minimization in CG
-# Done: 
+600 2.12 4.36
+# Warning: minimization terminated after 600 iterations
+# Done: Minimization final rms: 2.124883, highForce: 4.360498
 ======= test_0004.xyz =======
 30
 RMS=2.124883

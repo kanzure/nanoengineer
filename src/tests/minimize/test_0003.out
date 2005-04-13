@@ -3,7 +3,7 @@ PROGRAM simulator -f300 -m -X -x test_0003.mmp
 ======= exitvalue =======
 0
 ======= stderr =======
-Warning: partial minimization in CG
+Warning: minimization terminated after 1800 iterations
 ======= stdout =======
 iters per frame = 10
 number of frames = 300
@@ -1829,9 +1829,9 @@ final RMS gradient=4.842543 after 1800 iterations
 1797 70.43 101.88
 1798 69.69 99.84
 1799 68.96 97.14
-1800 4.84 94.03
-# Warning: partial minimization in CG
-# Done: 
+1800 4.84 9.80
+# Warning: minimization terminated after 1800 iterations
+# Done: Minimization final rms: 4.842543, highForce: 9.796650
 ======= test_0003.xyz =======
 25
 RMS=14100.935116

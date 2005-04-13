@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <stdarg.h>
 
 #include "simulator.h"
 
@@ -377,22 +378,54 @@ void printheader(FILE *f, char *ifile, char *ofile, char *tfile,
     fprintf(f, "#\n");
 }
 
-void printError(FILE *f, char *s) 
+void
+printWarning(FILE *f, const char *format, ...)
 {
-    fprintf(stderr, "Error: %s\n", s);
-    fprintf(f, "# Error: %s\n", s);
+  va_list args;
+
+  fprintf(stderr, "Warning: ");
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+  va_end(args);
+  fprintf(stderr, "\n");
+
+  fprintf(f, "# Warning: ");
+  va_start(args, format);
+  vfprintf(f, format, args);
+  va_end(args);
+  fprintf(f, "\n");
 }
 
-void printWarning(FILE *f, char *s) 
+void
+printError(FILE *f, const char *format, ...)
 {
-    fprintf(stderr, "Warning: %s\n", s);
-    fprintf(f, "# Warning: %s\n", s);
+  va_list args;
+
+  fprintf(stderr, "Error: ");
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+  va_end(args);
+  fprintf(stderr, "\n");
+
+  fprintf(f, "# Error: ");
+  va_start(args, format);
+  vfprintf(f, format, args);
+  va_end(args);
+  fprintf(f, "\n");
 }
 
-void doneExit(FILE *f, char *s, int exitvalue) 
+void
+doneExit(int exitvalue, FILE *f, const char *format, ...)
 {
-    fprintf(f, "# Done: %s\n", s);
-    exit(exitvalue);
+  va_list args;
+
+  fprintf(f, "# Done: ");
+  va_start(args, format);
+  vfprintf(f, format, args);
+  va_end(args);
+  fprintf(f, "\n");
+
+  exit(exitvalue);
 }
 
 void headcon(FILE *f) {

@@ -1,7 +1,7 @@
 # Makefile for the simulator
 
 CC=gcc
-CFLAGS=-O3 -g
+CFLAGS=-O2 -g
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
 

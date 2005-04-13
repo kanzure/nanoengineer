@@ -14,10 +14,9 @@ extern int debug_flags;
 #define D_READER          (1<<1)
 #define D_MINIMIZE        (1<<2)
 
-/* should probably do varargs here so we can do printf like stuff */
 extern FILE *tracef;
-#define ERROR(s) (printError(tracef, s))
-#define WARNING(s) (printWarning(tracef, s))
+#define ERROR(s...) (printError(tracef, ## s))
+#define WARNING(s...) (printWarning(tracef, ## s))
 
 #define NATOMS 100000
 #define NBONDS 12
@@ -373,9 +372,9 @@ extern void pa(FILE *f, int i);
 extern void checkatom(FILE *f, int i);
 extern void pb(FILE *f, int i);
 extern void printAllBonds(FILE *f);
-extern void printError(FILE *f, char *s);
-extern void printWarning(FILE *f, char *s);
-extern void doneExit(FILE *f, char *s, int exitvalue);
+extern void printError(FILE *f, const char *format, ...);
+extern void printWarning(FILE *f, const char *format, ...);
+extern void doneExit(int exitvalue, FILE *f, const char *format, ...);
 extern void pq(FILE *f, int i);
 extern void pvdw(FILE *f, struct vdWbuf *buf, int n);
 extern void makatom(int elem, struct xyz posn);

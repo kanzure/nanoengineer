@@ -55,6 +55,7 @@ for dir in $TESTDIRS; do
 	    rm $out.new
 	else
 	    echo Test failed: $i 1>&2
+	    diff $out $out.new > $out.diff
 	    RET=1
 	fi
     done
