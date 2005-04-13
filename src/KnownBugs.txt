@@ -13,6 +13,8 @@ Bug Fixes In Alpha 5
 
 * Bug #489  The parameters in the simulator always reset to default rather than parameters that were set last
 
+* Bug #507  The time when ‘lighting dialog box’ pops up, the lighting settings of the model get modified automatically if the model is not under home view.
+
 
 Unsupported Features:
 
@@ -113,7 +115,6 @@ Known Bugs (All Platforms)
 
 32. Clipboard: Executing  set hotspot  on the objects already in the chunk makes another hotspot copy in clipboard and also changes the hotspot of the original copy (478)
 
-33. Lighting: The time when ‘lighting dialog box’ pops up, the lighting settings of the model get modified automatically if the model is not under home view. So make sure that the model is under ‘Home view’ before changing lighting preferences. (507)
 
 Windows Only Bugs
 
