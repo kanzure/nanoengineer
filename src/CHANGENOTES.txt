@@ -247,3 +247,10 @@ disappear).
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 4/13/2005
+Files: GLPane.py
+Summary: try to fix bug 507 (lighting prefs change works wrong unless in Home View)
+
+----------------------------
+
