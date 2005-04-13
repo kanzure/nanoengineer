@@ -1,0 +1,20 @@
+nanoENGINEER-1 Change Log
+
+$Id$
+
+
+INSTRUCTIONS
+------------
+
+Developers should update this file after every commit that fixes a bug
+or adds new functionality to nanoENGINEER-1. Please include the following
+information:
+
+Name:
+Date:
+Files:
+Summary:
+
+
+CHANGE NOTES
+------------
