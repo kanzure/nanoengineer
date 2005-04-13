@@ -223,3 +223,10 @@ and doesn't yet turn singlets into H for Minimize All like it does for Minimize 
 Further improvements to these are planned, but won't be listed separately in this file.)
 
 ----------------------------
+
+Name: Mark Sims
+Date: 4/13/2005
+Files: MainWindowUI, MWsemantics, modifyMode, part
+Summary: Added "Modify > Invert" feature and moveDeltaPlus and moveDeltaMinus to modifyMode.  Also improved the history message for the Stretch feature.
+
+----------------------------
