@@ -126,6 +126,7 @@
         <action name="modifySeparateAction"/>
         <action name="modifyStretchAction"/>
         <action name="modifyMergeAction"/>
+        <action name="modifyInvertAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </item>
     <item text="&amp;Tools" name="Tools">
@@ -661,7 +662,7 @@
             <rect>
                 <x>0</x>
                 <y>58</y>
-                <width>1034</width>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3871,6 +3872,9 @@
         </property>
         <property name="text">
             <string>Invert</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Invert</string>
         </property>
     </action>
 </actions>

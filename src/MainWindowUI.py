@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Apr 12 23:53:43 2005
+# Created: Wed Apr 13 00:29:36 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6087,7 +6087,7 @@ class MainWindow(QMainWindow):
         self.textLabel1 = QLabel(self.moveChunksDashboard,"textLabel1")
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,58,1034,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,58,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6333,6 +6333,7 @@ class MainWindow(QMainWindow):
         self.modifySeparateAction.addTo(self.Modify)
         self.modifyStretchAction.addTo(self.Modify)
         self.modifyMergeAction.addTo(self.Modify)
+        self.modifyInvertAction.addTo(self.Modify)
         self.modifyAlignCommonAxisAction.addTo(self.Modify)
         self.MenuBar.insertItem(QString(""),self.Modify,9)
 
@@ -6909,6 +6910,7 @@ class MainWindow(QMainWindow):
         self.modifyMinimizeAllAction.setText(self.__tr("Minimize All"))
         self.moveDeltaMinusAction.setText(self.__tr("Move Delta (-)"))
         self.modifyInvertAction.setText(self.__tr("Invert"))
+        self.modifyInvertAction.setMenuText(self.__tr("&Invert"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
