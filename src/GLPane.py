@@ -435,6 +435,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         """
         glEnable(GL_NORMALIZE) # bruce comment 050311: I don't know if this relates to lighting or not
 
+        #bruce 050413 try to fix bug 507 in direction of lighting:
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
         try:
             # new code
             ((a0,d0,e0),(a1,d1,e1),(a2,d2,e2)) = self._lights #e might revise format
