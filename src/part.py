@@ -1056,7 +1056,27 @@ class Part(InvalMixin):
         for m in self.selmols:
             m.stretch(1.1)
         self.o.gl_update()
+        
+        # Added history message.  Mark 050413.
+        from platform import fix_plurals
+        info = fix_plurals( "stretched %d chunk(s)" % len(self.selmols))
+        self.w.history.message( info)
 
+    #invert a chunk
+    def Invert(self):
+        '''Invert the atoms of the selected chunk(s)'''
+        if not self.selmols:
+            self.w.history.message(redmsg("no selected chunks to invert"))
+            return
+        self.changed()
+        for m in self.selmols:
+            m.stretch(-1.0)
+        self.o.gl_update()
+        
+        from platform import fix_plurals
+        info = fix_plurals( "inverted %d chunk(s)" % len(self.selmols))
+        self.w.history.message( info)
+        
     #merge selected molecules together  ###@@@ no update -- does caller do it?? [bruce 050223]
     def merge(self):
         #mark 050411 changed name from weld to merge (Bug 515)
