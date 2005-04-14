@@ -641,6 +641,17 @@ def createWhatsThis(self):
                                                        self.modifyMergeAction.iconSet().pixmap() )
        
         self.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
+                
+        #### Invert Chunks ####
+
+        modifyInvertActionText = "<u><b>Invert</b></u><br>"\
+                       "<p><img source=\"modifyInvertAction\"><br> "\
+                       "Inverts the atoms of the selected chunks.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyInvertAction",
+                                                       self.modifyInvertAction.iconSet().pixmap() )
+       
+        self.modifyInvertAction.setWhatsThis(modifyInvertActionText )  
 
         #### Align to Common Axis ####
 
