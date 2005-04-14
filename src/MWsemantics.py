@@ -28,7 +28,9 @@ from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
 from assistant import AssistantWindow
-from HistoryWidget import greenmsg, redmsg    
+from HistoryWidget import greenmsg, redmsg
+
+from movieMode import movieDashboardSlotsMixin
 
 helpwindow = None
 elementSelectorWin = None
@@ -41,7 +43,7 @@ eCCBtab2 = {}
 for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
     
-def fileparse(name):
+def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
     """breaks name into directory, main name, and extension in a tuple.
     fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
     """
@@ -61,7 +63,11 @@ class pre_init_fake_history_widget:
         pass # too early
     pass
 
-class MWsemantics(MainWindow):
+class MWsemantics( movieDashboardSlotsMixin, MainWindow):
+    "The single Main Window object."
+
+    #bruce 050413 split out movieDashboardSlotsMixin, which needs to come before MainWindow
+    # in the list of superclasses, since MainWindow overrides its methods with "NIM stubs".
     
     initialised = 0 #bruce 041222
     history = pre_init_fake_history_widget() #bruce 050107
@@ -1227,7 +1233,7 @@ class MWsemantics(MainWindow):
     def toolsFuseChunks(self):
         self.glpane.setMode('FUSECHUNKS')
             
-    def simSetup(self): #bruce 050324 moved most of this into new class simSetup_CommandRun
+    def simSetup(self):
         """Creates a movie of a molecular dynamics simulation.
         """
         from runSim import simSetup_CommandRun
@@ -1238,216 +1244,24 @@ class MWsemantics(MainWindow):
     def simPlot(self):
         """Opens the Plot Tool dialog... for details see subroutine's docstring.
         """
-        #bruce 050327 moved most of this method into a new subroutine.
         from PlotTool import simPlot
         dialog = simPlot(self.assy)
         if dialog:
-            self.plotcntl = dialog #probably useless, but done since old code did it
+            self.plotcntl = dialog #probably useless, but done since old code did it;
+                # conceivably, keeping it matters due to its refcount. [bruce 050327]
         return
     
     def simMoviePlayer(self):
         """Plays a DPB movie file created by the simulator.
         """
-        #bruce 050327 moved most of this method into a new subroutine, and fixed bugs in it.
         from movieMode import simMoviePlayer
         simMoviePlayer(self.assy)
         return
 
- #### Movie Player Dashboard Slots ############
+    #### Movie Player Dashboard Slots ############
 
-    def moviePlay(self):
-        """Play current movie foward from current position.
-        """
-#        print "MW: MoviePlay called"
-        self.assy.current_movie._play(1)
-
-    def moviePause(self):
-        """Pause movie.
-        """
-#        print "MW: MoviePause called"
-        self.assy.current_movie._pause()
-
-    def moviePlayRev(self):
-        """Play current movie in reverse from current position.
-        """
-        self.assy.current_movie._play(-1)
-
-    def movieReset(self):
-        """Move current frame position to frame 0 (beginning) of the movie.
-        """
-#        print "MW: MovieReset called"
-        self.assy.current_movie._reset()
+    #bruce 050413 moved code for movie player dashboard slots into movieMode.py
     
-    def movieMoveToEnd(self):
-        """Move frame position to the last frame (end) of the movie.
-        """
-#        print "MW: movieMoveToEnd called"
-        self.assy.current_movie._moveToEnd()
-                            
-    def moviePlayFrame(self, fnum):
-        """Show frame fnum in the current movie.
-        """
-#        print "MW: MoviePlayFrame called"
-        if fnum == self.assy.current_movie.currentFrame: return
-        self.assy.current_movie._playFrame(fnum)
-                            
-    def movieSlider(self, fnum):
-        """Show frame fnum in the current movie.
-        """
-#        print "MW: MovieSlider called"
-        if fnum == self.assy.current_movie.currentFrame: return
-        self.assy.current_movie._playSlider(fnum)
-
-    def movieInfo(self):
-        """Prints information about the current movie to the history widget.
-        """
-#        print "MW: MovieInfo called"
-        self.history.message(greenmsg("Movie Information"))
-        self.assy.current_movie._info()
-        
-    def fileOpenMovie(self):
-        """Open a movie file to play.
-        """
-        # bruce 050327 comment: this is not yet updated for "multiple movie objects"
-        # and bugfixing of bugs introduced by that is in progress (only done in a klugy
-        # way so far). ####@@@@
-        # Also it should be moved into movieMode.py.
-        self.history.message(greenmsg("Open Movie File:"))
-        assert self.assy.current_movie
-            # (since (as a temporary kluge) we create an empty one, if necessary, before entering
-            #  Movie Mode, of which this is a dashboard method [bruce 050328])
-        if self.assy.current_movie.currentFrame != 0:
-            self.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
-            return
-        
-        # Determine what directory to open.
-        if self.assy.current_movie.filename: odir, fil, ext = fileparse(self.assy.current_movie.filename)
-        else: odir = globalParms['WorkingDirectory']
-
-        fn = QFileDialog.getOpenFileName(odir,
-                "Differential Position Bytes Format (*.dpb)",
-                self )
-
-        if not fn:
-            self.history.message("Cancelled.")
-            return
-        
-        fn = str(fn)
-
-        # Check if this movie file is valid
-        # [bruce 050324 made that a function and made it print the history messages
-        #  which I've commented out below.]
-        ## r = self.assy.current_movie._checkMovieFile(fn)
-        from movie import _checkMovieFile
-        r = _checkMovieFile(self.assy.part, fn, self.history)
-        
-        if r == 1:
-##            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
-##            self.history.message(msg)
-            return
-        elif r == 2: 
-##            msg = redmsg("Movie file [" + fn + "] not valid for the current part.")
-##            self.history.message(msg)
-            if self.assy.current_movie.isOpen:
-                msg = "Movie file [" + self.assy.current_movie.filename + "] still open."
-                self.history.message(msg)
-            return
-
-        if self.assy.current_movie.isOpen: self.assy.current_movie._close()
-        self.assy.current_movie.filename = fn
-        self.assy.current_movie.set_alist_from_entire_part(self.assy.part)
-            # temporary bugfix kluge, might only partly work [bruce 050327]
-        self.assy.current_movie._setup()
-
-    def fileSaveMovie(self):
-        """Save a copy of the current movie file loaded in the Movie Player.
-        """
-        from qt import QMimeSourceFactory
-            #bruce 050408, done here since this code should be moved out of MWsemantics
-        # Make sure there is a moviefile to save.
-        if not self.assy.current_movie or not self.assy.current_movie.filename \
-          or not os.path.exists(self.assy.current_movie.filename):
-            
-            msg = redmsg("Open Movie File: No movie file to save.")
-            self.history.message(msg)
-            msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
-            QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
-                        self.simSetupAction.iconSet().pixmap() )
-            self.history.message(msg)
-            return
-        
-        self.history.message(greenmsg("Save Movie File:"))
-        
-        if self.assy.filename: sdir = self.assy.filename
-        else: sdir = globalParms['WorkingDirectory']
-
-        sfilter = QString("Differential Position Bytes Format (*.dpb)")
-        
-        fn = QFileDialog.getSaveFileName(sdir,
-                    "Differential Position Bytes Format (*.dpb);;XYZ Format (*.xyz)",
-                    self, "IDONTKNOWWHATTHISIS",
-                    "Save As",
-                    sfilter)
-        
-        if not fn:
-            self.history.message("Cancelled.")
-            return
-        else:
-            fn = str(fn)
-            dir, fil, ext2 = fileparse(fn)
-            ext =str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
-            safile = dir + fil + ext # full path of "Save As" filename
-            
-            if os.path.exists(safile): # ...and if the "Save As" file exists...
-
-                # ... confirm overwrite of the existing file.
-                ret = QMessageBox.warning( self, self.name(),
-                        "The file \"" + fil + ext + "\" already exists.\n"\
-                        "Do you want to overwrite the existing file or cancel?",
-                        "&Overwrite", "&Cancel", None,
-                        0,      # Enter == button 0
-                        1 )     # Escape == button 1
-
-                if ret==1: # The user cancelled
-                    self.history.message( "Cancelled.  File not saved." )
-                    return # Cancel clicked or Alt+C pressed or Escape pressed
-            
-            if ext == '.dpb':
-#                print "fileSaveMovie(): Saving movie file", safile
-#                print "fileSaveMovie(). self.assy.current_movie.isOpen =", self.assy.current_movie.isOpen
-                self.assy.current_movie._close()
-                import shutil
-                shutil.copy(self.assy.current_movie.filename, safile)
-                
-                # Get the trace file name.
-                tfile1 = self.assy.current_movie.get_trace_filename()
-        
-                # Copy the tracefile
-                if os.path.exists(tfile1): 
-                    fullpath, ext = os.path.splitext(safile)
-                    tfile2 = fullpath + "-trace.txt"
-                    shutil.copy(tfile1, tfile2)
-
-                self.history.message("DPB movie file saved: " + safile)
-                self.assy.current_movie._setup()
-                
-            else: 
-                # writemovie() in runSim.py creates either an dpb or xyz file based on the 
-                # file extension in assy.current_movie.filename.  To make this work for now, we
-                # need to temporarily save assy.current_movie.filename of the current movie (dpb) file,
-                # change the name, write the xyz file, then restore the dpb filename.
-                # [bruce 050325 comment: I doubt this could have ever worked, but I don't know.
-                #  For now I'm not revising it much. BTW it should be moved to some other file. ###@@@]
-                self.assy.current_movie._pause() # To fix bug 358.  Mark  050201
-                tmpname = self.assy.current_movie.filename #save the dpb filename of the current movie file.
-                self.assy.current_movie.filename = safile # the name of the XYZ file the user wants to save.
-                r = writemovie(self.part, self.assy.current_movie) # Save the XYZ moviefile
-                    # [bruce 050325 revised this but it looks wrong anyway, what about mflag??
-                    #  Besides, it runs the sim, so it will do a minimize... maybe it never worked, I don't know.]
-                if not r: # Movie file saved successfully.
-                    self.history.message("XYZ trajectory movie file saved: " + safile)
-                self.assy.current_movie.filename = tmpname # restore the dpb filename.
-                self.assy.current_movie._setup(0) # To fix bug 358.  Mark  050201
 
     ###################################
     # Slots for future tools
@@ -1831,7 +1645,7 @@ class MWsemantics(MainWindow):
     
     def hideDashboards(self):
         # [bruce 050408 comment: this list should be recoded somehow so that it
-        #  has to list what to show, now what to hide. ##e]
+        #  lists what to show, not what to hide. ##e]
         self.cookieCutterDashboard.hide()
         self.extrudeDashboard.hide()
         self.revolveDashboard.hide()
