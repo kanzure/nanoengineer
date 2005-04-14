@@ -254,3 +254,10 @@ Summary: try to fix bug 507 (lighting prefs change works wrong unless in Home Vi
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 4/14/2005
+Files: chem.py
+Summary: fixed bug 498 (btw this is probably the same as bug 361)
+
+----------------------------
+
