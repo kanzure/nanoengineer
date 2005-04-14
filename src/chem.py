@@ -569,7 +569,18 @@ class atom:
                     # (to reduce severity of undiagnosed bug 361).
                     v1 = norm(self.posn()-self.molecule.assy.ppa2.posn())
                     v2 = norm(self.molecule.assy.ppa3.posn()-self.molecule.assy.ppa2.posn())
-                    ang = acos(dot(v1,v2)) * 180/pi
+                    dotprod = dot(v1,v2)
+                    if dotprod > 1.0:
+                        #bruce 050414 investigating bugs 361 and 498 (probably the same underlying bug);
+                        # though (btw) it would probably be better to skip this angle-printing entirely ###e
+                        # if angle obviously 0 since atoms 1 and 3 are the same.
+                        # This case (dotprod > 1.0) can happen due to numeric roundoff in norm();
+                        # e.g. I've seen this be 1.0000000000000002 (as printed by '%r').
+                        # If not corrected, it can make acos() return nan or have an exception!
+                        dotprod = 1.0
+                    elif dotprod < -1.0:
+                        dotprod = -1.0
+                    ang = acos(dotprod) * 180/pi
                     ainfo += (" Angle for %s-%s-%s is %.2f degrees." %\
                         (self, self.molecule.assy.ppa2, self.molecule.assy.ppa3, ang))
                 except:
