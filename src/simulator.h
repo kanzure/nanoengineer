@@ -15,8 +15,10 @@ extern int debug_flags;
 #define D_MINIMIZE        (1<<2)
 
 extern FILE *tracef;
-#define ERROR(s...) (printError(tracef, ## s))
-#define WARNING(s...) (printWarning(tracef, ## s))
+#define ERROR(s...) (printError(tracef, "Error", 0, ## s))
+#define WARNING(s...) (printError(tracef, "Warning", 0, ## s))
+#define ERROR_ERRNO(s...) (printError(tracef, "Error", 1, ## s))
+#define WARNING_ERRNO(s...) (printError(tracef, "Warning", 1, ## s))
 
 #define NATOMS 100000
 #define NBONDS 12
@@ -292,6 +294,23 @@ struct MOT {
         double moment;
 };
 
+/* command line options */
+
+extern int ToMinimize;
+extern int IterPerFrame;
+extern int NumFrames;
+extern int DumpAsText;
+extern int DumpIntermediateText;
+extern int PrintFrameNums;
+extern int OutputFormat;
+extern int KeyRecordInterval;
+extern char *IDKey;
+
+extern char OutFileName[];
+extern char TraceFileName[];
+
+/* set to 1 when a SIGTERM is caught */
+extern int Interrupted;
 
 /* mol.c */
 extern struct vdWbuf vanderRoot;
@@ -317,7 +336,12 @@ extern struct B bond[];
 extern struct Q torq[];
 // extern char *elname[37];
 extern void pbontyp(FILE *f, struct bsdata *ab);
+extern void printAllAtoms(FILE *f);
+extern void printAllBonds(FILE *f);
+extern void tracon(FILE *f);
 extern int Iteration;
+extern void snapshot(FILE *f, int n);
+extern int minshot(FILE *f, int final, struct xyz *pos, double rms, double hifsq, int frameNumber, char *callLocation);
 extern void bondump(FILE *f);
 extern void pangben(FILE *f, struct angben *ab);
 extern int findbond(int btyp);
@@ -372,8 +396,7 @@ extern void pa(FILE *f, int i);
 extern void checkatom(FILE *f, int i);
 extern void pb(FILE *f, int i);
 extern void printAllBonds(FILE *f);
-extern void printError(FILE *f, const char *format, ...);
-extern void printWarning(FILE *f, const char *format, ...);
+extern void printError(FILE *f, const char *err_or_warn, int doPerror, const char *format, ...);
 extern void doneExit(int exitvalue, FILE *f, const char *format, ...);
 extern void pq(FILE *f, int i);
 extern void pvdw(FILE *f, struct vdWbuf *buf, int n);
@@ -399,7 +422,6 @@ extern int main(int argc, char **argv);
 /* display.c */
 extern void display(void);
 extern void init(void);
-extern void snapshot(int n);
 extern void display_init(int *argc, char *argv[]);
 extern void display_mainloop(void);
 

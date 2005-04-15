@@ -8,7 +8,7 @@
 
 int debug_flags = 0;
 
-int interrupted = 0; /* set to 1 when a SIGTERM is received */
+int Interrupted = 0; /* set to 1 when a SIGTERM is received */
 
 /** indicate next avail/total number of stretch bonds, bend bonds, and atoms */
 int Nexbon=0, Nextorq=0, Nexatom=0;
@@ -184,14 +184,15 @@ int NumFrames=100;
 int DumpAsText=0;
 int DumpIntermediateText=0;
 int PrintFrameNums=1;
+int OutputFormat=1;
+int KeyRecordInterval=32;
+char *IDKey="";
 
 char OutFileName[1024];
 char TraceFileName[1024];
 
 // for writing the differential position and trace files
 FILE *outf, *tracef;
-int *ixyz, *previxyz, *temp, ibuf1[NATOMS*3], ibuf2[NATOMS*3];
-
 
 /* for testing table routines */
 #if 0
@@ -1012,7 +1013,7 @@ void calcloop(int iters) {
 	vsetc(AveragePositions[j],0.0);
     }
 	
-    for (loop=0; loop<iters && !interrupted; loop++) {
+    for (loop=0; loop<iters && !Interrupted; loop++) {
 		
 	Iteration++;
 
@@ -1089,126 +1090,6 @@ void calcloop(int iters) {
     }
 }
 
-
-/**
- */
-void snapshot(int n) {
-    int i,j;
-    char c0, c1, c2;
-    double xyz=1.0e-2; // .xyz files are in angstroms
-
-    if (DumpAsText) {
-
-        fprintf(outf, "%d\nFrame %d, Iteration: %d\n", Nexatom, n, Iteration);
-
-        for (i=0; i<Nexatom; i++) {
-            fprintf(outf, "%s %f %f %f\n", element[atom[i].elt].symbol,
-                    AveragePositions[i].x*xyz, AveragePositions[i].y*xyz, AveragePositions[i].z*xyz);
-        }
-    }
-    else {
-        for (i=0, j=0; i<3*Nexatom; i+=3, j++) {
-            ixyz[i+0] = (int)AveragePositions[j].x;
-            ixyz[i+1] = (int)AveragePositions[j].y;
-            ixyz[i+2] = (int)AveragePositions[j].z;
-            c0=(char)(ixyz[i+0] - previxyz[i+0]);
-            fwrite(&c0, sizeof(char), 1, outf);
-            c1=(char)(ixyz[i+1] - previxyz[i+1]);
-            fwrite(&c1, sizeof(char), 1, outf);
-            c2=(char)(ixyz[i+2] - previxyz[i+2]);
-            fwrite(&c2, sizeof(char), 1, outf);
-
-            //fprintf(stderr, "%d %d %d\n", (int)c0, (int)c1, (int)c2);
-
-        }
-        temp = previxyz;
-        previxyz = ixyz;
-        ixyz = temp;
-
-    }
-
-    tracon(tracef);
-
-    fflush(outf);
-
-    // fprintf(stderr, "found Ke = %e\n",FoundKE);
-
-}
-
-
-static void min_debug(char *label, double rms, int frameNumber) 
-{
-    fprintf(stderr, "---------------- %s -- frame %d\nrms: %f\n", label, frameNumber, rms);
-    printAllAtoms(stderr);
-    printAllBonds(stderr);
-}
-
-static int interruptionWarning = 0;
-
-/**
- */
-void minshot(int final,
-             struct xyz *pos,
-             double rms,
-             double hifsq,
-             int frameNumber,
-             char *callLocation)
-{
-    int i,j;
-    char c0, c1, c2;
-    double xyz=1.0e-2; // .xyz files are in angstroms
-    /*
-    if (DEBUG(D_MINIMIZE)) {
-        min_debug(callLocation, rms, frameNumber);
-    }
-    */
-    if (DumpAsText) {
-
-        if (final || DumpIntermediateText) {
-	    fprintf(outf, "%d\nRMS=%f\n", Nexatom, rms);
-
-	    for (i=0; i<Nexatom; i++) {
-		fprintf(outf, "%s %f %f %f\n", element[atom[i].elt].symbol,
-			pos[i].x*xyz, pos[i].y*xyz, pos[i].z*xyz);
-	    }
-        }
-    }
-    else {
-        for (i=0, j=0; i<3*Nexatom; i+=3, j++) {
-            ixyz[i+0] = (int)pos[j].x;
-            ixyz[i+1] = (int)pos[j].y;
-            ixyz[i+2] = (int)pos[j].z;
-            c0=(char)(ixyz[i+0] - previxyz[i+0]);
-            fwrite(&c0, sizeof(char), 1, outf);
-            c1=(char)(ixyz[i+1] - previxyz[i+1]);
-            fwrite(&c1, sizeof(char), 1, outf);
-            c2=(char)(ixyz[i+2] - previxyz[i+2]);
-            fwrite(&c2, sizeof(char), 1, outf);
-
-            //fprintf(stderr, "%d %d %d\n", (int)c0, (int)c1, (int)c2);
-
-        }
-        temp = previxyz;
-        previxyz = ixyz;
-        ixyz = temp;
-
-	fflush(outf);
-    }
-
-    fprintf(tracef,"%d %.2f %.2f\n", frameNumber, rms, sqrt(hifsq));
-    DPRINT(D_MINIMIZE, "%d %.2f %.2f\n", frameNumber, rms, sqrt(hifsq));
-    if (final) {
-        printf("final RMS gradient=%f after %d iterations\n", rms, frameNumber);
-        if (!DumpAsText && frameNumber != NumFrames) {
-            rewind(outf);
-            fwrite(&frameNumber, sizeof(int), 1, outf);
-        }
-    }
-    if (interrupted && !interruptionWarning) {
-        WARNING("minimizer run was interrupted");
-        interruptionWarning = 1;
-    }
-}
 
 static int groundExists = 1;
 
@@ -1312,6 +1193,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
                         int *frameNumber)
 {
     int i, j;
+    int interruptionWarning;
     struct xyz f; // force
     double last_sum_forceSquared;
     double rms_force;
@@ -1340,10 +1222,10 @@ minimizeSteepestDescent(int steepestDescentFrames,
         updatePositionsArrays(rms_force, max_forceSquared, PTR_CUR);
     }
     initial_rms = rms_force;
-    minshot(0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "1");
+    minshot(outf, 0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "1");
 
     // adaptive stepsize steepest descents until RMS gradient is under RMS_CUTOVER
-    while (*frameNumber < steepestDescentFrames && !interrupted) {
+    while (*frameNumber < steepestDescentFrames && !Interrupted) {
 	last_sum_forceSquared = sum_forceSquared;
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
@@ -1358,7 +1240,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
 
-	minshot(0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "2");
+	minshot(outf, 0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "2");
 
         if ((rms_force > MAX_RMS) ||
             (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED)) {
@@ -1390,7 +1272,8 @@ minimizeSteepestDescent(int steepestDescentFrames,
         fprintf(tracef, "# Switching to Conjugate-Gradient\n");
         return 1;
     } else {
-	minshot(1, BestPositions, best_rms, best_max_forceSquared, (*frameNumber)++, "SDfinal");
+	interruptionWarning = minshot(outf, 1, BestPositions, best_rms, best_max_forceSquared,
+                                      (*frameNumber)++, "SDfinal");
         if (!interruptionWarning) {
             if (*frameNumber > steepestDescentFrames) {
                 WARNING("minimization terminated after %d iterations", steepestDescentFrames);
@@ -1408,6 +1291,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 void minimizeConjugateGradients(int numFrames, int *frameNumber)
 {
     int i, j, k;
+    int interruptionWarning;
     double forceSquared, max_forceSquared;
     double sum_old_force_squared;
     double last_sum_forceSquared;
@@ -1432,9 +1316,9 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
     rms_force = sqrt(sum_forceSquared/Nexatom);
 
     // conjugate gradients for a while
-    while (rms_force>RMS_FINAL && rms_force < MAX_RMS && *frameNumber<numFrames && !interrupted) {
+    while (rms_force>RMS_FINAL && rms_force < MAX_RMS && *frameNumber<numFrames && !Interrupted) {
 	//for (i=0; i<20 ;  i++) {
-	minshot(0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "3");
+	minshot(outf, 0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "3");
 	gamma = sum_forceSquared/last_sum_forceSquared;
 	// compute the conjugate direction 
 	last_sum_forceSquared=sum_forceSquared;
@@ -1451,7 +1335,7 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	yyy = sum_force_dot_old_force/xxx;
 	zzz = yyy;
         DPRINT(D_MINIMIZE, "xxx: %f yyy: %f\n", xxx, yyy);
-	for (k=0; k<10 && yyy*yyy>1.0 && (DumpAsText || *frameNumber<numFrames) && !interrupted; k++) {
+	for (k=0; k<10 && yyy*yyy>1.0 && (DumpAsText || *frameNumber<numFrames) && !Interrupted; k++) {
 	    for (j=0; j<Nexatom; j++) {
 		f=OldForce[j];
 		vmulc(f, movcon);
@@ -1470,7 +1354,7 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	    }
 	    rms_force = sqrt(sum_forceSquared/Nexatom);
             /*
-            minshot(0, NewPositions, rms_force, max_forceSquared, (*frameNumber)++, "4"); 
+            minshot(outf, 0, NewPositions, rms_force, max_forceSquared, (*frameNumber)++, "4"); 
             */
 	    yyy = sum_force_dot_old_force/xxx;
 	    if (yyy<zzz-zzz/(movfac)) movcon *= zzz/(zzz-yyy);
@@ -1500,7 +1384,8 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
 	rms_force = sqrt(sum_forceSquared/Nexatom);
         updatePositionsArrays(rms_force, max_forceSquared, PTR_NEW);
     }
-    minshot(1, BestPositions, best_rms, best_max_forceSquared, (*frameNumber)++, "final");
+    interruptionWarning = minshot(outf, 1, BestPositions, best_rms, best_max_forceSquared,
+                                  (*frameNumber)++, "final");
     if (rms_force > RMS_FINAL && !interruptionWarning) {
         if (*frameNumber > numFrames) {
             WARNING("minimization terminated after %d iterations", numFrames);
@@ -1535,7 +1420,7 @@ void minimize(int numFrames)
 
 void SIGTERMhandler(int sig) 
 {
-    interrupted = 1;
+    Interrupted = 1;
 }
 
 #if 0
@@ -1557,20 +1442,24 @@ static void usage()
 {
                 
     fprintf(stderr, "command line parameters:\n\
-   -dx -- dump, x= a: atoms; b: bonds; c: constraints\n\
-   -n -- expect <number> of atoms\n\
-   -m -- minimize the structure\n\
-   -i -- number of iterations per frame\n\
-   -f -- number of frames\n\
-   -s -- timestep\n\
-   -t -- temperature\n\
-   -x -- write positions as (text) .xyz file(s)\n\
-   -X -- write intermediate minimize positions to .xyz (need -x)\n\
-   -r -- repress frame numbers\n\
-   -o -- output file name (otherwise same as input)\n\
-   -q -- trace file name (otherwise trace)\n\
-   -Dn -- turn on debugging flag n (see simulator.h)\n\
-   filename -- if no ., add .mmp to read, .dpb to write\n");
+   -d<char>      -- dump, <char>= a: atoms; b: bonds; c: constraints\n\
+   -n<int>       -- expect this many atoms\n\
+   -m            -- minimize the structure\n\
+   -i<int>       -- number of iterations per frame\n\
+   -f<int>       -- number of frames\n\
+   -s<float>     -- timestep\n\
+   -t<float>     -- temperature\n\
+   -x            -- write positions as (text) .xyz file(s)\n\
+   -X            -- write intermediate minimize positions to .xyz (need -x)\n\
+   -O            -- write old format .dpb files (default)\n\
+   -N            -- write new format .dpb files\n\
+   -I<string>    -- specify IDKey\n\
+   -K<int>       -- number of delta frames between key frames\n\
+   -r            -- repress frame numbers\n\
+   -o<string>    -- output file name (otherwise same as input)\n\
+   -q<string>    -- trace file name (otherwise trace)\n\
+   -D<int>       -- turn on a debugging flag (see simulator.h)\n\
+   filename      -- if no ., add .mmp to read, .dpb to write\n");
     exit(1);
 }
 
@@ -1642,6 +1531,18 @@ main(int argc,char **argv)
 	    case 'X':
 		DumpIntermediateText=1;
 		break;
+	    case 'O':
+		OutputFormat=1;
+		break;
+	    case 'N':
+		OutputFormat=2;
+		break;
+	    case 'I':
+                IDKey=argv[i]+2;
+		break;
+	    case 'K':
+                KeyRecordInterval=atoi(argv[i]+2);
+		break;
 	    case 'r':
 		PrintFrameNums=0;
 		break;
@@ -1651,7 +1552,7 @@ main(int argc,char **argv)
                     debug_flags |= 1 << n;
                 }
 		break;
-        case 'o':
+            case 'o':
 		ofilename=argv[i]+2;
 		break;
 	    case 'q':
@@ -1664,6 +1565,10 @@ main(int argc,char **argv)
 	else {
 	    filename = argv[i];
 	}
+    }
+
+    if (DumpAsText) {
+        OutputFormat = 0;
     }
 
     if (!filename) {
@@ -1769,27 +1674,12 @@ main(int argc,char **argv)
 
     printf("\nTotal Ke = %e\n",TotalKE);
 
-    if (DumpAsText) {
-        outf = fopen(OutFileName, "w");
-        if (outf == NULL) {
-            perror(OutFileName);
-            exit(1);
-        }
-    } else {
-	ixyz=ibuf1;
-	previxyz=ibuf2;
-	for (i=0, j=0; i<3*Nexatom; i+=3, j++) {
-	    previxyz[i+0] = (int)Positions[j].x;
-	    previxyz[i+1] = (int)Positions[j].y;
-	    previxyz[i+2] = (int)Positions[j].z;
-	}
-	outf = fopen(OutFileName, "wb");  
-        if (outf == NULL) {
-            perror(OutFileName);
-            exit(1);
-        }
-	fwrite(&NumFrames, sizeof(int), 1, outf);
+    outf = fopen(OutFileName, DumpAsText ? "w" : "wb");
+    if (outf == NULL) {
+        perror(OutFileName);
+        exit(1);
     }
+    writeOutputHeader(outf);
 
     if  (ToMinimize) {
 	minimize(NumFrames);
@@ -1801,7 +1691,7 @@ main(int argc,char **argv)
 	    if ((i & 15) == 15)
 		if (PrintFrameNums) printf("\n");
 	    calcloop(IterPerFrame);
-	    snapshot(i);
+	    snapshot(outf, i);
 	}
 
 	/*  do the time-reversal (for debugging)
@@ -1813,9 +1703,10 @@ main(int argc,char **argv)
 	    if ((i & 15) == 15)
 		printf("\n");
 	    calcloop(IterPerFrame);
-	    snapshot(i);
+	    snapshot(outf, i);
 	}
 	 */
+        writeOutputTrailer(outf, NumFrames);
     }
 
     doneExit(0, tracef, "");
