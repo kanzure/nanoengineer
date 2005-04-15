@@ -25,6 +25,7 @@ from fileIO import *
 ## bruce 050408 too-hastily removed "from fileIO import *",
 ## but added it back 050410 since Mark reported it broke many things.
 from files_pdb import readpdb, writepdb #bruce 050414
+from files_mmp import readmmp, insertmmp #bruce 050414
 from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow

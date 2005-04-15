@@ -1063,15 +1063,15 @@ class sim_aspect:
         "return number of singlets to be entirely left out of the sim input file"
         return 0 # for now
     def writemmpfile(self, filename):
-        #bruce 050404 (for most details). Imitates some of Part.writemmpfile aka fileIO.writemmpfile_part.
-        #e refile into fileIO so the mmp format code is in the same place? maybe just some of it.
-        # in fact the mmp writing code for atoms and jigs is not in fileIO anyway! tho the reading code is.
+        #bruce 050404 (for most details). Imitates some of Part.writemmpfile aka files_mmp.writemmpfile_part.
+        #e refile into files_mmp so the mmp format code is in the same place? maybe just some of it.
+        # in fact the mmp writing code for atoms and jigs is not in files_mmp anyway! tho the reading code is.
         """write our data into an mmp file; only include just enough info to run the sim
         [###e Should we make this work even if the atoms have moved but not restructured since we were made? I think yes.
          That means the validity hash is really made up now, not when we're made.]
         """
         ## do we need to do a part.assy.update_parts() as a precaution?? if so, have to do it earlier, not now.
-        from fileIO import writemmp_mapping
+        from files_mmp import writemmp_mapping
         assy = self.part.assy
         fp = open(filename, "w")
         mapping = writemmp_mapping(assy, min = True)

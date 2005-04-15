@@ -535,7 +535,7 @@ class Stat(Jig):
 
     # create a blank Stat with the given list of atoms, set to 300K
     def __init__(self, assy, list):
-        # ideally len(list) should be 1, but in case code in fileIO uses more
+        # ideally len(list) should be 1, but in case code in files_mmp uses more
         # when supporting old Stat records, all I assert here is that it's at
         # least 1, but I only store the first atom [bruce 050210]
         assert len(list) >= 1
@@ -612,7 +612,7 @@ class Thermo(Jig):
 
     # creates a thermometer for a specific atom. "list" contains only one atom.
     def __init__(self, assy, list):
-        # ideally len(list) should be 1, but in case code in fileIO uses more
+        # ideally len(list) should be 1, but in case code in files_mmp uses more
         # when supporting old Thermo records, all I assert here is that it's at
         # least 1, but I only store the first atom [bruce 050210]
         assert len(list) >= 1

@@ -159,7 +159,7 @@ class assembly:
         self._modified = 0 # note: this was set to 1 at start of __init__
         
         # the current version of the MMP file format
-        # this is set in fileIO.writemmpfile_assy. Mark 050130
+        # this is set in files_mmp.writemmpfile_assy. Mark 050130
         # [bruce 050325 comments: the code that sets it might be moved or renamed now;
         #  it's not clear to me what this means
         #  (eg if you read an old file does this indicate that old file's format?)
@@ -657,7 +657,7 @@ class assembly:
         return "<Assembly of " + self.filename + ">"
 
     def writemmpfile(self, filename):
-        from fileIO import writemmpfile_assy
+        from files_mmp import writemmpfile_assy
         writemmpfile_assy( self, filename, addshelf = True)
 
     pass # end of class assembly

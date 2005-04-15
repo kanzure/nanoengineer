@@ -714,7 +714,7 @@ class Node:
         # assy.addmol "add a chunk to assy" - adds to .mols and does other things
         ##### *including tree.addmember* so what if already added elsewhere? ####@@@@ review for possible bugs in calls of that
         # - it's called in a few special places that make mols when operating on selected stuff!
-        # - in fileIO: assy.addmol(mol); mol.moveto(group) -- this might solve the issues about addmol vs groups.
+        # - in files_mmp: assy.addmol(mol); mol.moveto(group) -- this might solve the issues about addmol vs groups.
         # - ...
         # (when they don't have a group to put them in)
         # bugs if sel in clipboard.... #fix later.. just make those ops deselect clipboard... for beta work in proper space...
@@ -854,7 +854,7 @@ class Node:
 
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         """Write this Node to an mmp file, as controlled by mapping,
-        which should be an instance of fileIO.writemmp_mapping.
+        which should be an instance of files_mmp.writemmp_mapping.
         [subclasses must override this to be written into an mmp file;
          we print a debug warning if they don't.]
         """
@@ -1019,7 +1019,7 @@ class Group(Node):
     # methods before this are by bruce 050108 and should be reviewed when my rewrite is done ###@@@
 
     def kluge_change_class(self, subclass):
-        #bruce 050109 ###@@@ temporary [until fileIO & assy make this kind of assy.root, shelf, tree on their own]
+        #bruce 050109 ###@@@ temporary [until files_mmp & assy make this kind of assy.root, shelf, tree on their own]
         """Return a new Group with this one's members but of the specified subclass
         (and otherwise just like this Group, which must be in class Group itself,
         not a subclass). This won't be needed once class assembly is fixed to make
@@ -1530,7 +1530,7 @@ class Csys(DataNode):
     def show_in_model_tree(self):
         #bruce 050128; nothing's wrong with showing them, except that they are unselectable
         # and useless for anything except being renamed by dblclick (which can lead to bugs
-        # if the names are still used when fileIO reads the mmp file again). For Beta we plan
+        # if the names are still used when files_mmp reads the mmp file again). For Beta we plan
         # to make them useful and safe, and then make them showable again.
         "[overrides Node method]"
         return False
@@ -1608,7 +1608,7 @@ class PartGroup(Group):
         # same whether closed or open
         return imagename_to_pixmap("part.png")
     # And this temporary kluge makes it possible to use this subclass where it's
-    # needed, without modifying assembly.py or fileIO.py:
+    # needed, without modifying assembly.py or files_mmp.py:
     def kluge_set_initial_nonmember_kids(self, lis): #bruce 050302 comment: no longer used, for now
         """[This kluge lets the csys and datum plane model tree items
         show up in the PartGroup, without their nodes being in its members list,
@@ -1716,7 +1716,7 @@ class RootGroup(Group):
 def kluge_patch_assy_toplevel_groups(assy, assert_this_was_not_needed = False): #bruce 050109
     ####@@@@ should be turned into mods to assembly.py, or a method in it
     """This kluge is needed until we do the same thing inside assy
-    or whatever makes the toplevel groups in it (eg fileIO).
+    or whatever makes the toplevel groups in it (eg files_mmp).
     Call it as often as you want (at least once before updating model tree
     if assy might be newly loaded); it only changes things when it needs to
     (once for each newly loaded file or inited assy, basically);

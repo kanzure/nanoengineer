@@ -56,7 +56,7 @@ class molecule(Node, InvalMixin):
         # addendum [bruce 050206 -- describing the situation, not endorsing it!]:
         # (and for clipboard mols it should not be done at all!
         #  also not for mols "created in a Group", if any; for those,
-        #  probably best to do addmol/moveto like fileIO does.)
+        #  probably best to do addmol/moveto like files_mmp does.)
         if not self.mticon:
             self.init_icons()
         self.init_InvalMixin()
@@ -924,7 +924,7 @@ class molecule(Node, InvalMixin):
         is presently [050217] "info chunk <key> = <val>".
         Interp is an object to help us translate references in <val>
         into other objects read from the same mmp file or referred to by it.
-        See the calls of this method from fileIO for the doc of interp methods.
+        See the calls of this method from files_mmp for the doc of interp methods.
            If key is recognized, set the attribute or property
         it refers to to val; otherwise do nothing.
            (An unrecognized key, even if longer than any recognized key,
@@ -969,7 +969,7 @@ class molecule(Node, InvalMixin):
         # making previously-saved movies more likely to retain their validity.
         for atm in self.atoms_in_mmp_file_order():
             atm.writemmp(mapping)
-        #bruce 050217 new feature [see also a comment added to fileIO.py]:
+        #bruce 050217 new feature [see also a comment added to files_mmp.py]:
         # also write the hotspot, if there is one.
         hs = self.hotspot # uses getattr to validate it
         if hs:

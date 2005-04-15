@@ -44,7 +44,10 @@ import operator
 import struct
 ##bruce 050413 removed: from povheader import povheader, povpoint
 
-from fileIO import *
+from fileIO import * #bruce 050414 comment: this might no longer be needed;
+    # at least most symbols defined in fileIO (now moved to files_mmp)
+    # don't occur in GLPane; but I didn't check for the few that are still
+    # defined in fileIO.
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_buttons_helper
 import platform # for platform.atom_debug

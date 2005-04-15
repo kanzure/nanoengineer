@@ -449,7 +449,7 @@ class Part(InvalMixin):
         self.ensure_toplevel_group() # need if, e.g., we use Build mode to add to a clipboard item
         self.topnode.addchild(mol)
             #bruce 050202 comment: if you don't want this location for the added mol,
-            # just call mol.moveto when you're done, like fileIO does.   
+            # just call mol.moveto when you're done, like [some code in files_mmp.py] does.   
         ## done in addchild->changed_dad->inherit_part->Part.add:
         ## self.invalidate_attrs(['natoms','molecules']) # this also invals bbox and center, via molecules
         
@@ -1421,7 +1421,7 @@ class Part(InvalMixin):
     ###e refile these new methods:
 
     def writemmpfile(self, filename):
-        from fileIO import writemmpfile_part
+        from files_mmp import writemmpfile_part
         writemmpfile_part( self, filename)
 
     def selection(self): #bruce 050404 experimental feature for initial use in Minimize Selection
