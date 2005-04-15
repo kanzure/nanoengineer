@@ -80,7 +80,7 @@ from struct import unpack
 
 from chem import *
 from movie import *
-from gadgets import *
+from jigs import *
 from Utility import *
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals

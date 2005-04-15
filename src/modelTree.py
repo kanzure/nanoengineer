@@ -19,7 +19,7 @@ and split it into three modules:
 
 from TreeWidget import * # including class TreeWidget itself, and Node, Group
 from chunk import molecule
-from gadgets import Jig
+from jigs import Jig
 import platform # for atom_debug
 
 

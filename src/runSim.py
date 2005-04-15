@@ -1097,7 +1097,7 @@ class sim_aspect:
             atm.writemmp( mapping) # mapping.sim means don't include any info not relevant to the sim
                 # note: this method knows whether & how to write a Singlet as an H (repositioned)!
     def write_jigs(self, mapping):
-        from gadgets import fake_Ground_mmp_record
+        from jigs import fake_Ground_mmp_record
         atoms = self.anchored_atoms_list
         nfixed = len(atoms)
         max_per_jig = 20

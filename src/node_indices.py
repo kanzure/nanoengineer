@@ -18,12 +18,12 @@ so Utility.py can stay small and to the point.
 __author__ = "bruce"
 
 from Utility import Node, Group
-from gadgets import Jig
+from jigs import Jig
 
 # quick try at fixing bug 296 for josh emergency use!
 # doing it all in this file, though ideally some small part of this code
 # (the part that says "isinstance", mainly) belongs in utility.py and/or
-# gadgets.py (but I have local mods in both those files which i am not
+# jigs.py (but I have local mods in both those files which i am not
 # ready to commit yet, thus it's easier for me to not change them now).
 # [bruce 050111]
 

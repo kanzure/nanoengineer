@@ -29,7 +29,7 @@ debug_prints = 0 # whether atom_debug enables dprint; ok to commit with 0 or 1
 from qt import *
 from constants import *
 from chem import *
-from gadgets import *
+from jigs import *
 from Utility import *
 from selectMode import selectMode
 import sys, os, time

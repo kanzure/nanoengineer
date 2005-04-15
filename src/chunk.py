@@ -1342,7 +1342,7 @@ class molecule(Node, InvalMixin):
     def kill(self):
         """(Public method)
         Kill a molecule: unpick it, break its external bonds, kill its atoms
-        (which should kill any gadgets attached only to this mol),
+        (which should kill any jigs attached only to this mol),
         remove it from its group (if any) and from its assembly (if any);
         make it forget its group and assembly.
         It's legal to kill a mol twice, and common now that emptying a mol
@@ -1363,8 +1363,8 @@ class molecule(Node, InvalMixin):
             b.bust()
         self.externs = [] #bruce 041029 precaution against repeated kills
         
-        #10/28/04, delete all atoms, so gadgets attached can be deleted when no atoms
-        #  attaching the gadget . Huaicai
+        #10/28/04, delete all atoms, so jigs attached can be deleted when no atoms
+        #  attaching the jig . Huaicai
         for a in self.atoms.values():
             a.kill()
             # this will recursively kill this chunk! Should be ok,

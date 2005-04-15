@@ -27,7 +27,7 @@ from VQT import *
 from string import * # this might no longer be needed [bruce 050414 comment]
 import re
 from chem import * # needed for atom, bond_atoms, maybe not anything else [bruce 050414 guess]
-from gadgets import *
+from jigs import *
 from Utility import *
 from povheader import povheader, povpoint
 from mdldata import *

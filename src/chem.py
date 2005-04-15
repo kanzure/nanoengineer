@@ -46,7 +46,7 @@ CPKvdW = 0.25
 
 Gno = 0
 def gensym(string):
-    # warning, there is also a function like this in gadgets.py
+    # warning, there is also a function like this in jigs.py
     # but with its own global counter!
     """return string appended with a unique number"""
     global Gno
