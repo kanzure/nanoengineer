@@ -1,11 +1,10 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 '''
 elementColors.py
 
 $Id$
 '''
 from ElementColorsDialog import *
-from fileIO import readElementColors, saveElementColors
 from elements import PeriodicTable 
 from constants import globalParms, diVDW, diCPK, diTUBES 
 from ThumbView import *
@@ -36,7 +35,12 @@ class elementColors(ElementColorsDialog):
         self.elemTable = PeriodicTable
         self.displayMode = self._displayList[0]
         
-        buttons = [(self.pushButton1, 1), (self.pushButton2, 2), (self.pushButton5, 5), (self.pushButton6, 6), (self.pushButton7,7), (self.pushButton8, 8), (self.pushButton9, 9), (self.pushButton10, 10), (self.pushButton13, 13), (self.pushButton14, 14), (self.pushButton15, 15), (self.pushButton16, 16), (self.pushButton17, 17), (self.pushButton18, 18), (self.pushButton32,32), (self.pushButton33, 33), (self.pushButton34, 34), (self.pushButton35, 35), (self.pushButton36, 36), (self.pushButton51, 51), (self.pushButton52, 52), (self.pushButton53, 53), (self.pushButton54, 54)]
+        buttons = [(self.pushButton1, 1), (self.pushButton2, 2), (self.pushButton5, 5), (self.pushButton6, 6),
+                   (self.pushButton7,7), (self.pushButton8, 8), (self.pushButton9, 9), (self.pushButton10, 10),
+                   (self.pushButton13, 13), (self.pushButton14, 14), (self.pushButton15, 15), (self.pushButton16, 16),
+                   (self.pushButton17, 17), (self.pushButton18, 18), (self.pushButton32,32), (self.pushButton33, 33),
+                   (self.pushButton34, 34), (self.pushButton35, 35), (self.pushButton36, 36), (self.pushButton51, 51),
+                   (self.pushButton52, 52), (self.pushButton53, 53), (self.pushButton54, 54)]
         
         self.buttonGroup = QButtonGroup(self)
         self.buttonGroup.setExclusive(True)
@@ -135,7 +139,8 @@ class elementColors(ElementColorsDialog):
         self.reconnectChangingControls()
         
     def updateElemGraphDisplay(self):
-        """Update non user interactive controls display for current selected element: element label info and element graphics info """
+        """Update non user interactive controls display for current selected element:
+        element label info and element graphics info """
         elemNum =  self.buttonGroup.selectedId()
         self.color = self.elemTable.getElemColor(elemNum)
         
@@ -149,7 +154,8 @@ class elementColors(ElementColorsDialog):
  
 
     def read_element_rgb_table(self):
-        """Open file browser to select a file to read from, read the data, update elements color in the selector dialog and also the display models """
+        """Open file browser to select a file to read from, read the data,
+        update elements color in the selector dialog and also the display models """
         # Determine what directory to open.
         import os
         if self.w.assy.filename: odir = os.path.dirname(self.w.assy.filename)
@@ -176,7 +182,8 @@ class elementColors(ElementColorsDialog):
         
         
     def write_element_rgb_table(self):
-        """Save the current set of element preferences into an external file---currently only r,g,b color of each element will be saved."""
+        """Save the current set of element preferences into an external file---
+        currently only r,g,b color of each element will be saved."""
         if not self.fileName:
            sdir = globalParms['WorkingDirectory']
         else:
@@ -271,7 +278,8 @@ class elementColors(ElementColorsDialog):
         
     def ok(self):
         #if self.isElementModified and not self.isFileSaved:
-            #ret = QMessageBox.question(self, "Warnings", "Do you want to save the element colors into a file?", QMessageBox.Yes, QMessageBox.No)
+            #ret = QMessageBox.question(self, "Warnings",
+            # "Do you want to save the element colors into a file?", QMessageBox.Yes, QMessageBox.No)
             #if ret == QMessageBox.Yes:
             #    self.write_element_rgb_table()
             
@@ -325,7 +333,9 @@ class ElementView(ThumbView):
         self.updateGL()
     
     def _constructModel(self, elm, pos, dispMode):
-        """This is to try to repeat what 'oneUnbonded()' function does, but hope to remove some stuff not needed here. The main purpose is to build the geometry model for element display. 
+        """This is to try to repeat what 'oneUnbonded()' function does,
+        but hope to remove some stuff not needed here.
+        The main purpose is to build the geometry model for element display. 
         <Param> elm: An object of class elem
         <Param> dispMode: the display mode of the atom--(int)
         <Return>: the molecule which contains the geometry model.
@@ -346,6 +356,74 @@ class ElementView(ThumbView):
         atm.make_singlets_when_no_bonds()
         return mol
 
+# ==
+
+#bruce 050414 moved readElementColors and saveElementColors from fileIO.py
+# into this module, and (while they were still in fileIO -- see its cvs diff)
+# slightly revised the wording/formatting of their docstrings.
+# Sometime they should be changed to print their error messages into the
+# history widget, not sys.stdout.
+
+def readElementColors(fileName):
+    """Read element colors (ele #, r, g, b) from a text file.
+    Each element is on a new line. A line starting '#' is a comment line.
+    <Parameter> fileName: a string for the input file name
+    <Return>:  A list of quardral tuples--(ele #, r, g, b) if succeed, otherwise 'None'
+    """
+    try:
+        lines = open(fileName, "rU").readlines()         
+    except:
+        print "Exception occurred to open file: ", fileName
+        return None
+    
+    elemColorTable = []
+    for line in lines: 
+        if not line.startswith('#'):
+            try:
+                words = line.split()
+                row = map(int, words[:4])
+                # Check Element Number validity
+                if row[0] >= 0 and row[0] <= 54:
+                    # Check RGB index values
+                    if row[1] < 0 or row[1] > 255 or row[2] < 0 or row[2] > 255 or row[3] < 0 or row[3] > 255:
+                        raise ValueError, "An RGB index value not in a valid range (0-255)."
+                    elemColorTable += [row]
+                else:
+                    raise ValueError, "Element number value not in a valid range."
+            except:
+               print "Error in element color file %s.  Invalid value in line: %sElement color file not loaded." % (fileName, line)
+               return None
+    
+    return elemColorTable           
+
+
+def saveElementColors(fileName, elemTable):
+    """Write element colors (ele #, r, g, b) into a text file.
+    Each element is on a new line.  A line starting '#' is a comment line.
+    <Parameter> fileName: a string for the input file name
+    <Parameter> elemTable: A dictionary object of all elements in our periodical table 
+    """
+    assert type(fileName) == type(" ")
+    
+    try:
+        f = open(fileName, "w")
+    except:
+        print "Exception occurred to open file %s to write: " % fileName
+        return None
+   
+    f.write("# nanoENGINEER-1.com Element Color File, Version 050311\n")
+    f.write("# File format: ElementNumber r(0-255) g(0-255) b(0-255) \n")
+    
+    for eleNum, elm in elemTable.items():
+        col = elm.color
+        r = int(col[0] * 255 + 0.5)
+        g = int(col[1] * 255 + 0.5)
+        b = int(col[2] * 255 + 0.5)
+        f.write(str(eleNum) + "  " + str(r) + "  " + str(g) + "  " + str(b) + "\n")
+    
+    f.close()
+
+# ==
 
 ##Junk code###
 ## The following code used to be for drawing text on a QGLWidget

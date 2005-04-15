@@ -14,8 +14,13 @@ functionality from MWsemantics.py.
 """
 
 #bruce 050414 comment: surely most of these imports are no longer needed;
-# when the remaining file formats are split out, they should copy only
-# the ones they need, and not as "import *".
+# but this is hard to know for sure, since both MWsemantics and GLPane
+# say "from fileIO import *", thereby picking up everything we import
+# below, including all symbols from 7 modules!
+# When the remaining file formats are split out, they should copy only
+# the ones they need, and not as "import *". Then the only code left
+# in this module will be these imports -- perhaps still in use, as
+# explained above.
 
 from Numeric import *
 from VQT import *
@@ -174,72 +179,6 @@ def writemdlfile(assy, filename):
     fpos = f.tell()
     f.write(mdlfooter)
     f.write("FileInfoPos=%d\n"%fpos)
-    f.close()
-    
-# ==
-
-###e these should be moved into elementColors.py,
-# and should print their error messages into the history widget, not sys.stdout.
-# [bruce 050405/050414 comment]
-#bruce 050414 slightly revised the wording/formatting of their docstrings.
-
-def readElementColors(fileName):
-    """Read element colors (ele #, r, g, b) from a text file.
-    Each element is on a new line. A line starting '#' is a comment line.
-    <Parameter> fileName: a string for the input file name
-    <Return>:  A list of quardral tuples--(ele #, r, g, b) if succeed, otherwise 'None'
-    """
-    try:
-        lines = open(fileName, "rU").readlines()         
-    except:
-        print "Exception occurred to open file: ", fileName
-        return None
-    
-    elemColorTable = []
-    for line in lines: 
-        if not line.startswith('#'):
-            try:
-                words = line.split()
-                row = map(int, words[:4])
-                # Check Element Number validity
-                if row[0] >= 0 and row[0] <= 54:
-                    # Check RGB index values
-                    if row[1] < 0 or row[1] > 255 or row[2] < 0 or row[2] > 255 or row[3] < 0 or row[3] > 255:
-                        raise ValueError, "An RGB index value not in a valid range (0-255)."
-                    elemColorTable += [row]
-                else:
-                    raise ValueError, "Element number value not in a valid range."
-            except:
-               print "Error in element color file %s.  Invalid value in line: %sElement color file not loaded." % (fileName, line)
-               return None
-    
-    return elemColorTable           
-
-
-def saveElementColors(fileName, elemTable):
-    """Write element colors (ele #, r, g, b) into a text file.
-    Each element is on a new line.  A line starting '#' is a comment line.
-    <Parameter> fileName: a string for the input file name
-    <Parameter> elemTable: A dictionary object of all elements in our periodical table 
-    """
-    assert type(fileName) == type(" ")
-    
-    try:
-        f = open(fileName, "w")
-    except:
-        print "Exception occurred to open file %s to write: " % fileName
-        return None
-   
-    f.write("# nanoENGINEER-1.com Element Color File, Version 050311\n")
-    f.write("# File format: ElementNumber r(0-255) g(0-255) b(0-255) \n")
-    
-    for eleNum, elm in elemTable.items():
-        col = elm.color
-        r = int(col[0] * 255 + 0.5)
-        g = int(col[1] * 255 + 0.5)
-        b = int(col[2] * 255 + 0.5)
-        f.write(str(eleNum) + "  " + str(r) + "  " + str(g) + "  " + str(b) + "\n")
-    
     f.close()
 
 # end
