@@ -405,10 +405,10 @@ class SimRunner:
             filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
                 # also emits a history message...
             self.errcode = self.win.progressbar.launch( filesize,
-                            moviefile, 
-                            pbarCaption, 
-                            pbarMsg, 
-                            1)
+                            filename = moviefile, 
+                            caption = pbarCaption, 
+                            message = pbarMsg, 
+                            show_duration = 1)
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
             if simProcess:
@@ -455,28 +455,37 @@ class SimRunner:
             # Single shot minimize.
             if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
                 filesize = natoms * 16 # single-frame xyz filesize (estimate)
-                pbarCaption = "Minimize" ###@@@ this string is tested in ProgressBar.py, so can't yet add "All" or "Selection".
+                pbarCaption = "Minimize" # might be changed below
+                    #bruce 050415: this string used to be tested in ProgressBar.py, so it couldn't have "All" or "Selection".
+                    # Now it can -- we change it below (to caption from caller), or use this value if caller didn't provide one.
                 pbarMsg = "Minimizing..."
             # Write XYZ trajectory file.
             else:
                 filesize = movie.totalFramesRequested * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
-                pbarCaption = "Save File"
+                pbarCaption = "Save File" # might be changed below
                 pbarMsg = "Saving XYZ trajectory file " + os.path.basename(moviefile) + "..."
         else: 
             # Multiframe minimize
             if mflag:
                 filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
-                pbarCaption = "Minimize"
+                pbarCaption = "Minimize" # might be changed below
                 pbarMsg = None #bruce 050401 added this
             # Simulate
             else:
                 filesize = (movie.totalFramesRequested * natoms * 3) + 4
-                pbarCaption = "Simulator"
+                pbarCaption = "Simulator" # might be changed below
                 pbarMsg = "Creating movie file " + os.path.basename(moviefile) + "..."
                 msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
                         + ", Steps per Frame: " + str(movie.stepsper)\
                         + ", Temperature: " + str(movie.temp)
                 self.history.message(msg)
+        #bruce 050415: let caller specify caption via movie object's cmdname (might not be set, depending on caller) [needs cleanup]
+        try:
+            caption_from_movie = movie.cmdname
+        except AttributeError:
+            caption_from_movie = None
+        if caption_from_movie:
+            pbarCaption = caption_from_movie
         return filesize, pbarCaption, pbarMsg
 
     # seperate monitor routines not yet split out from spawn_process, not yet called ###@@@doit
@@ -820,6 +829,7 @@ class Minimize_CommandRun(CommandRun):
             cmdname = "Minimize Selection"
             startmsg = "Minimize Selection: ..."
             want_simaspect = 1
+        self.cmdname = cmdname #e in principle this should come from farther outside... maybe from a Command object
 
         # Make sure some chunks are in the part. (Minimize only works with atoms, not jigs (except Grounds), for now...)
         if not self.part.molecules: # Nothing in the part to minimize.
@@ -905,6 +915,11 @@ class Minimize_CommandRun(CommandRun):
         # with more than one subclass, so we can override one of them (writing mmp file)
         # and another one (finding atom list). But to get it working I might just kluge it
         # by passing it some specialized options... ###@@@ not sure
+
+        movie.cmdname = self.cmdname #bruce 050415 kluge so writemovie knows proper progress bar caption to use
+            # (not really wrong -- appropriate for only one of several
+            # classes Movie should be split into, i.e. one for the way we're using it here, to know how to run the sim,
+            # which is perhaps really self (a SimRunner), once the code is fully cleaned up.
         
         r = writemovie(self.part, movie, mtype, simaspect = simaspect, print_sim_warnings = True) # write input for sim, and run sim
             # this also sets movie.alist from simaspect
