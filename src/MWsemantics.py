@@ -24,7 +24,7 @@ from elementSelector import elementSelector ## bruce 050408 removed: import *
 from fileIO import *
 ## bruce 050408 too-hastily removed "from fileIO import *",
 ## but added it back 050410 since Mark reported it broke many things.
-from files_pdb import readpdb, writepdb #bruce 050414
+from files_pdb import readpdb, insertpdb, writepdb #bruce 050414 [bruce 050415 add insertpdb to fix bug 546]
 from files_mmp import readmmp, insertmmp #bruce 050414
 from debug import print_compact_traceback
 
@@ -303,14 +303,18 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         
         if fn:
             fn = str(fn)
-            if not os.path.exists(fn): return
+            if not os.path.exists(fn):
+                #bruce 050415: I think this should never happen;
+                # in case it does, I added a history message (to existing if/return code).
+                self.history.message( redmsg( "File not found: " + fn) )
+                return
 
             if fn[-3:] == "mmp":
                 try:
                     insertmmp(self.assy, fn)
                 except:
-                    print "MWsemantics.py: fileInsert(): error inserting file" + fn
-                    self.history.message( "Problem inserting MMP file: " + fn )
+                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % fn )
+                    self.history.message( redmsg( "Internal error while inserting MMP file: " + fn) )
                 else:
                     self.assy.changed() # The file and the part are not the same.
                     self.history.message( "MMP file inserted: " + fn )
@@ -319,13 +323,13 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 try:
                     insertpdb(self.assy, fn)
                 except:
-                    print "MWsemantics.py: fileInsert(): error inserting PDB file" + fn
-                    self.history.message( "Problem inserting file: " + fn )
+                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % fn )
+                    self.history.message( redmsg( "Internal error while inserting PDB file: " + fn) )
                 else:
                     self.assy.changed() # The file and the part are not the same.
                     self.history.message( "PDB file inserted: " + fn )
             
-            self.glpane.scale=self.assy.bbox.scale()
+            self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
             self.mt.mt_update()
 
