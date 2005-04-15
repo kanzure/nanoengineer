@@ -53,6 +53,7 @@ class SimRunner:
         self.mflag = mflag # see docstring
         self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
+        self.said_we_are_done = False #bruce 050415
         return
     
     def run_using_old_movie_obj_to_hold_sim_params(self, movie, options):
@@ -97,6 +98,7 @@ class SimRunner:
         else: # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
             history.message(msg)
+        self.said_we_are_done = True # since saying we aborted or had an error is good enough... ###e revise if kill can take time.
         return # caller should look at self.errcode
         # semi-obs comment? [by bruce few days before 050404, partly expresses an intention]
         # results themselves are a separate object (or more than one?) stored in attrs... (I guess ###k)
@@ -457,7 +459,8 @@ class SimRunner:
                 filesize = natoms * 16 # single-frame xyz filesize (estimate)
                 pbarCaption = "Minimize" # might be changed below
                     #bruce 050415: this string used to be tested in ProgressBar.py, so it couldn't have "All" or "Selection".
-                    # Now it can -- we change it below (to caption from caller), or use this value if caller didn't provide one.
+                    # Now it can have them (as long as it starts with Minimize, for now) --
+                    # so we change it below (to caption from caller), or use this value if caller didn't provide one.
                 pbarMsg = "Minimizing..."
             # Write XYZ trajectory file.
             else:
@@ -479,9 +482,11 @@ class SimRunner:
                         + ", Steps per Frame: " + str(movie.stepsper)\
                         + ", Temperature: " + str(movie.temp)
                 self.history.message(msg)
-        #bruce 050415: let caller specify caption via movie object's cmdname (might not be set, depending on caller) [needs cleanup]
+        #bruce 050415: let caller specify caption via movie object's _cmdname
+        # (might not be set, depending on caller) [needs cleanup].
+        # For important details see same-dated comment above.
         try:
-            caption_from_movie = movie.cmdname
+            caption_from_movie = movie._cmdname
         except AttributeError:
             caption_from_movie = None
         if caption_from_movie:
@@ -512,7 +517,7 @@ class SimRunner:
         pass
 
     def print_sim_warnings(self): #bruce 050407; soon we should do this continuously instead
-        "#doc"
+        "#doc; might change self.said_we_are_done to False or True, or leave it alone"
         try:
             tfile = self.traceFileName
         except AttributeError:
@@ -525,13 +530,16 @@ class SimRunner:
         ff.close()
         seen = {} # whether we saw each known error or warning tracefile-keyword
         donecount = 0 # how many Done keywords we saw in there
+        self.mentioned_sim_trace_file = False
         for line in lines:
             ## don't do this, I think: line = line[1:].strip() # discard initial "#" or "# "
             for start in ["# Warning:", "# Error:", "# Done:"]:
                 if line.startswith(start):
                     if start != "# Done:":
+                        self.said_we_are_done = False # not needed if lines come in their usual order
                         if not seen:
-                            self.history.message( "Simulator trace file included these warnings and/or errors:")
+                            self.history.message( "Messages from simulator trace file:") #e am I right to not say this just for Done:?
+                            self.mentioned_sim_trace_file = True
                         if start == "# Warning:":
                             cline = orangemsg(line)
                         else:
@@ -543,17 +551,46 @@ class SimRunner:
                         donecount += 1
                         text = line[len(start):].strip()
                         if text:
-                            self.history.message( line) #e color??
+                            if "# Error:" in seen:
+                                line = redmsg(line)
+                            elif "# Warning:" in seen:
+                                line = orangemsg(line)
+                            self.history.message( line) #k is this the right way to choose the color?
+                            ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
+                            ## self.said_we_are_done = True # so we don't have to say it again [bruce 050415]
         if not donecount:
+            self.said_we_are_done = False # not needed unless other code has bugs
+            # Note [bruce 050415]: this happens when user presses Abort,
+            # since we don't abort the sim process gently enough. This should be fixed.
             self.history.message( redmsg( "Warning: simulator trace file should normally end with \"# Done:\", but it doesn't."))
-        if not donecount or seen:
+            self.mentioned_sim_trace_file = True
+        if self.mentioned_sim_trace_file:
             # sim trace file was mentioned; user might wonder where it is...
-            msg = "(The simulator trace file was [%s]. It might be overwritten the next time you run a similar command.)" % tfile
-            self.history.message( msg)
+            # but [bruce 050415] only say this if the location has changed since last time we said it,
+            # and only include the general advice once per session.
+            global last_sim_tracefile
+            if last_sim_tracefile != tfile:
+                preach = (last_sim_tracefile == None)
+                last_sim_tracefile = tfile
+                msg = "(The simulator trace file was [%s]." % tfile
+                if preach:
+                    msg += " It might be overwritten the next time you run a similar command."
+                msg += ")"
+                self.history.message( msg)
         return
         
     pass # end of class SimRunner
-    
+
+# this global needs to preserve its value when we reload!
+try:
+    last_sim_tracefile
+except:
+    last_sim_tracefile = None
+else:
+    ## if platform.atom_debug:
+    ##     print "atom_debug: reload retaining last_sim_tracefile = %r" % (last_sim_tracefile ,)
+    pass
+
 # ==
 
 # writemovie used to be here, but is now split into methods of class SimRunner above [bruce 050401]
@@ -597,6 +634,7 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
     simrun = SimRunner( part, mflag, simaspect = simaspect) #e in future mflag should choose subclass (or caller should)
+    movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
     options = "not used i think"
     simrun.run_using_old_movie_obj_to_hold_sim_params(movie, options)
         # messes needing cleanup: options useless now
@@ -880,8 +918,10 @@ class Minimize_CommandRun(CommandRun):
             self.win.modifyMinimizeSelAction.setEnabled(1) # Enable "Minimize Selection"
             self.win.modifyMinimizeAllAction.setEnabled(1) # Enable "Minimize All"
             self.win.simSetupAction.setEnabled(1) # Enable "Simulator"
-            self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"     
-        self.history.message("Done")
+            self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
+        simrun = self._movie._simrun #bruce 050415 klugetower
+        if not simrun.said_we_are_done:
+            self.history.message("Done.")
         return
     def makeMinMovie(self, mtype = 1, simaspect = None):
         """Minimize self.part (for Minimize All),
@@ -908,6 +948,10 @@ class Minimize_CommandRun(CommandRun):
             # (maybe rename it SimRun? ###e also, it needs subclasses for the different kinds of sim runs and their results...
             #  or maybe it needs a subobject which has such subclasses -- not yet sure. [bruce 050329])
 
+        self._movie = movie #bruce 050415 kluge; note that class SimRun does the same thing.
+            # Probably it means that this class, SimRun, and this way of using Movie should all be the same,
+            # or at least have more links than they do now. ###@@@
+
         # semi-obs comment, might still be useful [as of 050406]:
         # minimize selection [bruce 050330] (ought to be a distinct command subclass...)
         # this will use the spawning code in writemovie but has its own way of writing the mmp file.
@@ -916,7 +960,7 @@ class Minimize_CommandRun(CommandRun):
         # and another one (finding atom list). But to get it working I might just kluge it
         # by passing it some specialized options... ###@@@ not sure
 
-        movie.cmdname = self.cmdname #bruce 050415 kluge so writemovie knows proper progress bar caption to use
+        movie._cmdname = self.cmdname #bruce 050415 kluge so writemovie knows proper progress bar caption to use
             # (not really wrong -- appropriate for only one of several
             # classes Movie should be split into, i.e. one for the way we're using it here, to know how to run the sim,
             # which is perhaps really self (a SimRunner), once the code is fully cleaned up.
