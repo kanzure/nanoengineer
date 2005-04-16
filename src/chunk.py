@@ -802,7 +802,8 @@ class molecule(Node, InvalMixin):
             #  to fix bug 452 item 15 (no havelist inval for non-current parts
             #  when global default display mode is changed); this will incidentally
             #  optimize some related behaviors by avoiding some needless havelist invals,
-            #  once we remove the now-unneeded changeapp of all mols upon global dispdef change. ###d@@@doit]
+            #  now that we've also removed the now-unneeded changeapp of all mols upon
+            #  global dispdef change (in GLPane.setDisplay).]
             
             if self.havelist == (disp,): # value must agree with set of havelist, below
                 glCallList(self.displist)
