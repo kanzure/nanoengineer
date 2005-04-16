@@ -1,8 +1,8 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
-<class>progressBarDialog</class>
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>ProgressBarDialog</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>progressBarDialog</cstring>
+        <cstring>ProgressBarDialog</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -133,7 +133,7 @@
     <connection>
         <sender>abortPB</sender>
         <signal>clicked()</signal>
-        <receiver>progressBarDialog</receiver>
+        <receiver>ProgressBarDialog</receiver>
         <slot>abort()</slot>
     </connection>
 </connections>

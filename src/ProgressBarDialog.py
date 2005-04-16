@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ProgressBarDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\ProgressBarDialog.ui'
 #
-# Created: Wed Jan 12 17:17:29 2005
+# Created: Fri Apr 15 20:06:54 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -367,18 +367,18 @@ image0_data = [
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
 ]
 
-class progressBarDialog(QDialog):
+class ProgressBarDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
         self.image0 = QPixmap(image0_data)
 
         if not name:
-            self.setName("progressBarDialog")
+            self.setName("ProgressBarDialog")
 
         self.setIcon(self.image0)
 
-        progressBarDialogLayout = QVBoxLayout(self,11,6,"progressBarDialogLayout")
+        ProgressBarDialogLayout = QVBoxLayout(self,11,6,"ProgressBarDialogLayout")
 
         layout24 = QVBoxLayout(None,0,6,"layout24")
 
@@ -390,11 +390,11 @@ class progressBarDialog(QDialog):
         self.progress.setSizePolicy(QSizePolicy(7,0,0,0,self.progress.sizePolicy().hasHeightForWidth()))
         self.progress.setTotalSteps(0)
         layout24.addWidget(self.progress)
-        progressBarDialogLayout.addLayout(layout24)
+        ProgressBarDialogLayout.addLayout(layout24)
 
         self.msgLabel2 = QLabel(self,"msgLabel2")
         self.msgLabel2.setAlignment(QLabel.AlignCenter)
-        progressBarDialogLayout.addWidget(self.msgLabel2)
+        ProgressBarDialogLayout.addWidget(self.msgLabel2)
 
         layout25 = QHBoxLayout(None,0,6,"layout25")
         spacer2 = QSpacerItem(91,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -404,7 +404,7 @@ class progressBarDialog(QDialog):
         layout25.addWidget(self.abortPB)
         spacer1 = QSpacerItem(91,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout25.addItem(spacer1)
-        progressBarDialogLayout.addLayout(layout25)
+        ProgressBarDialogLayout.addLayout(layout25)
 
         self.languageChange()
 
@@ -422,7 +422,7 @@ class progressBarDialog(QDialog):
 
 
     def abort(self):
-        print "progressBarDialog.abort(): Not implemented yet"
+        print "ProgressBarDialog.abort(): Not implemented yet"
 
     def __tr(self,s,c = None):
-        return qApp.translate("progressBarDialog",s,c)
+        return qApp.translate("ProgressBarDialog",s,c)
