@@ -1106,6 +1106,32 @@ class Part(InvalMixin):
         self.o.gl_update()
 
     # == jig makers
+
+    def place_new_jig(self, jig): #bruce 050415, split from all jig makers, extended, bugfixed
+        """Place a new jig
+        (created by user, from atoms which must all be in this Part)
+        into a good place in this Part's model tree.
+        """
+        atoms = jig.atoms # public attribute of the jig
+        assert atoms, "bug: new jig has no atoms: %r" % jig
+        for atm in atoms:
+            assert atm.molecule.part == self, "bug: new jig's atoms are not all in the current Part"
+        # First just put it after any atom's chunk (as old code did); then fix that place below.
+        self.ensure_toplevel_group() #bruce 050415 fix bug 452 item 17
+        mol = atoms[0].molecule # arbitrary chunk involved with this jig
+        mol.dad.addchild(jig)
+        assert jig.part == self, "bug in place_new_jig's way of setting correct .part for jig %r" % jig
+        # Now put it in the right place in the tree, if it didn't happen to end up there in addchild.
+        # BTW, this might still be a good thing to do, even once it won't need to be done
+        # when we save the file (by workaround_for_bug_296), i.e. even once the mmp format
+        # is improved to permit forward refs to jigs.
+        from node_indices import fix_one_or_complain
+        def errfunc(msg):
+            "local function for error message output"
+            # I think this should never happen
+            self.assy.w.history.message( redmsg( "Internal error making new jig: " + msg))
+        fix_one_or_complain( jig, self.topnode, errfunc)
+        return
     
     def makeRotaryMotor(self, sightline):
         """Creates a Rotary Motor connected to the selected atoms.
@@ -1118,10 +1144,11 @@ class Part(InvalMixin):
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
             del(m) #bruce comment 050223: this statement has no effect.
+                # bruce 050415: I suspect it might cause bugs to not kill the jig now... untested.
+                # [same issue exists for some other jigs too]
             return
-        mol = self.selatoms.values()[0].molecule
-        mol.dad.addchild(m)
         self.unpickatoms()
+        self.place_new_jig(m)
       
     def makeLinearMotor(self, sightline):
         """Creates a Linear Motor connected to the selected atoms.
@@ -1135,9 +1162,8 @@ class Part(InvalMixin):
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
             del(m) #bruce comment 050223: this statement has no effect.
             return
-        mol = self.selatoms.values()[0].molecule
-        mol.dad.addchild(m)
         self.unpickatoms()
+        self.place_new_jig(m)
 
     def makeground(self):
         """Grounds (anchors) all the selected atoms so that 
@@ -1149,9 +1175,8 @@ class Part(InvalMixin):
         if not self.selatoms: return
         if len(self.selatoms) > 30: return
         m = Ground(self.assy, self.selatoms.values())
-        mol = self.selatoms.values()[0].molecule
-        mol.dad.addchild(m)
         self.unpickatoms()
+        self.place_new_jig(m)
 
     def makestat(self):
         """Attaches a Langevin thermostat to the single atom selected.
@@ -1159,8 +1184,8 @@ class Part(InvalMixin):
         if not self.selatoms: return
         if len(self.selatoms) != 1: return
         m = Stat(self.assy, self.selatoms.values())
-        m.atoms[0].molecule.dad.addchild(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
+        self.place_new_jig(m)
         
     def makethermo(self):
         """Attaches a thermometer to the single atom selected.
@@ -1168,8 +1193,8 @@ class Part(InvalMixin):
         if not self.selatoms: return
         if len(self.selatoms) != 1: return
         m = Thermo(self.assy, self.selatoms.values())
-        m.atoms[0].molecule.dad.addchild(m) #bruce 050210 replaced obs .mol attr
         self.unpickatoms()
+        self.place_new_jig(m)
 
     # == helpers for SelectConnected and SelectDoubly
     

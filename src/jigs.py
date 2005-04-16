@@ -46,12 +46,12 @@ class Jig(Node):
         self.atoms = list(atomlist) # this is always [] for some subclasses
             # but is apparently required to be always nonempty for others
             # bruce 050316: copy it (precaution in case caller modifies it later)
-        if atomlist:
-            #e should we split this jig if attached to more than one mol??
-            # not necessarily, tho the code to update its appearance
-            # when one of the atoms move is not yet present. [bruce 041202]
-            for a in atomlist:
-                a.jigs += [self]
+        # [note: the following is what our setAtoms method does for some jigs]
+        #e should we split this jig if attached to more than one mol??
+        # not necessarily, tho the code to update its appearance
+        # when one of the atoms move is not yet present. [bruce 041202]
+        for a in atomlist:
+            a.jigs += [self]
         #e it might make sense to init other attrs here too, like color
         return
         
@@ -80,6 +80,7 @@ class Jig(Node):
         return self.mticon[self.hidden]
         
     def setAtoms(self, atomlist):
+        # [as of 050415 (and long before) this is only used for motors; __init__ does same thing for other jigs]
         if self.atoms:
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
             #e remove them? would need to prevent recursive kill.

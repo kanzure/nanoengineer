@@ -225,7 +225,7 @@ def node_at(root, pos):
         raise IndexError, "nothing at that position in group"
     return node_at(child, rest)
 
-def fix_one_or_complain(node, root, msgfunc):
+def fix_one_or_complain(node, root, msgfunc): #bruce 050415: fyi: this is now called by external code
     try:
         return fix_one_node(node, root)
     except ValueError, msg:
