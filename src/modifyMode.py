@@ -71,12 +71,9 @@ class modifyMode(basicMode):
     modename = 'MODIFY'
     default_mode_status_text = "Mode: Move Chunks"
     
-    MOVEOPTS = [ 'MOVEDEFAULT', 'MOVEX', 'MOVEY', 'MOVECONSTRAINED', \
-                                'TRANSX', 'TRANSY', 'TRANSZ', \
-                                'ROTFREE' ]
+    MOVEOPTS = [ 'MOVEDEFAULT', 'TRANSX', 'TRANSY', 'TRANSZ' ]
     
-    # Without this, _enterMode has an exception when entering TRANSLATE mode.
-    # Mark 050410
+    # class variables
     moveOption = 'MOVEDEFAULT'
     axis = 'X'
     
@@ -105,7 +102,7 @@ class modifyMode(basicMode):
 
         # Always reset the dashboard icon to "Move Free" when entering MODIFY mode.
         # Mark 050410
-        self.w.moveFreeAction.setOn(1) # toggle on the Move Free icon on the dashboard
+        self.w.moveFreeAction.setOn(1) # toggle on the Move Free action on the dashboard
         self.moveOption = 'MOVEDEFAULT'
     
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
@@ -148,7 +145,10 @@ class modifyMode(basicMode):
 #        print "modifyMode: keyRelease, key=", key
         if key == Qt.Key_Shift or key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSelectCursor)
-
+        if key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z: 
+#            print "modeMode.keyRelease: returning to Move Chunks mode.  key=",key
+            self.w.moveFreeAction.setOn(1) # toggle on the Move Chunks icon
+            
     def rightShiftDown(self, event):
             basicMode.rightShiftDown(self, event)
             self.o.setCursor(self.w.MoveSelectCursor)
@@ -158,24 +158,46 @@ class modifyMode(basicMode):
             self.o.setCursor(self.w.MoveSelectCursor)
            
     def leftDown(self, event):
-        """Move the selected object(s) in the plane of the screen following
-        the mouse.
+        """Move the selected object(s).
         """
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0
-        
-        wX = event.pos().x()
-        wY = self.o.height - event.pos().y()
-        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-        if wZ[0][0] >= 1.0: 
+        self.transDelta = 0 # X, Y or Z deltas for translate.
+        self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
+
+        # Move section
+        if self.moveOption == 'MOVEDEFAULT':        
+            wX = event.pos().x()
+            wY = self.o.height - event.pos().y()
+            wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+            if wZ[0][0] >= 1.0: 
                 junk, self.movingPoint = self.o.mousepoints(event)
-        else:        
+            else:
                 self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
+        # end of Move section
+
+        # Translate section
+        else:
+            if self.moveOption == 'TRANSX': 
+                ma = V(1,0,0) # X Axis
+                self.axis = 'X'
+            elif self.moveOption == 'TRANSY': 
+                ma = V(0,1,0) # Y Axis
+                self.axis = 'Y'
+            elif self.moveOption == 'TRANSZ': 
+                ma = V(0,0,1) # Z Axis
+                self.axis = 'Z'
+            else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
+        
+            ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+            self.Zmat = A([ma,[-ma[1],ma[0]]])
+        # end of Translate section
         
     def leftDrag(self, event):
-        """Move the selected object(s) in the plane of the screen following
-        the mouse.
+        """Move the selected object(s):
+        - in the plane of the screen following the mouse, 
+        - or slide and rotate along the an axis
         """
         #Huaicai 3/23/05: This following line will fix bugs like 460. But
         #the root of the serials of bugs including a lot of cursor bugs is
@@ -184,20 +206,67 @@ class modifyMode(basicMode):
         # Call. 
         if not self.picking: return
 
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+        # Move section
+        if self.moveOption == 'MOVEDEFAULT':
+            deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
-        self.dragdist += vlen(deltaMouse)
+#            self.dragdist += vlen(deltaMouse)
         
-        p1, p2 = self.o.mousepoints(event)
+            p1, p2 = self.o.mousepoints(event)
         
-        point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
-        if point == None: 
+            point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
+            if point == None: 
                 point = ptonline(self.movingPoint, p1, norm(p2-p1))
         
-        self.o.assy.movesel(point - self.movingPoint)
-        self.o.gl_update()
-        self.movingPoint = point
+            # Print status bar msg indicating the current move delta.
+            if self.o.assy.selmols:
+                self.moveOffset += norm(point - self.movingPoint) # Increment move offset
+                msg = "Offset: X: %.2f   Y: %.2f   Z: %.2f" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
+                self.w.history.transient_msg(msg)
+            
+            self.o.assy.movesel(point - self.movingPoint)
+            self.movingPoint = point
+
+        # end of Move section
+        
+        # Translate section
+        else: 
+            #self.o.setCursor(self.w.MoveRotateMolCursor)
+        
+            w=self.o.width+0.0
+            h=self.o.height+0.0
+            deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                       self.o.MousePos[1] - event.pos().y())
+            a =  dot(self.Zmat, deltaMouse)
+            dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+        
+            self.transDelta += dx # Increment move delta
+        
+            for mol in self.o.assy.selmols:
+                if self.moveOption == 'TRANSX': ma = V(1,0,0) # X Axis
+                elif self.moveOption == 'TRANSY': ma = V(0,1,0) # Y Axis
+                elif self.moveOption == 'TRANSZ': ma = V(0,0,1) # Z Axis
+                else: 
+                    print "modifyMode.leftDrag: Error - unknown moveOption value =", self.moveOption
+                    continue
+
+                mol.move(dx*ma)
+                mol.rot(Q(ma,-dy))
+        
+            # Print status bar msg indicating the current move delta.
+            if self.o.assy.selmols:
+                msg = "%s delta: %.2f Angstroms" % (self.axis, self.transDelta)
+                self.w.history.transient_msg(msg)
+            
+        # end of Translate section
+
+        # common finished code
+        
+        self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
+        self.o.gl_update()
+        
+    # end of leftDrag
 
     def leftUp(self, event):
         self.EndPick(event, 2)
@@ -378,27 +447,9 @@ class modifyMode(basicMode):
         '''
         if action == self.w.transXAction:
             self.moveOption = 'TRANSX'
-            self.o.setMode('TRANSLATE')
         elif action == self.w.transYAction:
             self.moveOption = 'TRANSY'
-            self.o.setMode('TRANSLATE')
         elif action == self.w.transZAction:
-            self.moveOption = 'TRANSZ'
-            self.o.setMode('TRANSLATE')
-        else:
-            if self.moveOption == 'MOVEDEFAULT':
-                return
-            self.moveOption = 'MOVEDEFAULT'
-            self.o.setMode('MODIFY')
-            
-    def _getMoveOption(self):
-        '''Updates the moveOption variable.
-        '''
-        if self.w.transXAction.isOn():
-            self.moveOption = 'TRANSX'
-        elif self.w.transYAction.isOn():
-            self.moveOption = 'TRANSY'
-        elif self.w.transZAction.isOn():
             self.moveOption = 'TRANSZ'
         else:
             self.moveOption = 'MOVEDEFAULT'
