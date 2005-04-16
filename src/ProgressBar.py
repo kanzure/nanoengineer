@@ -1,30 +1,17 @@
 # Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
 '''
-ProgressBar.py
+ProgressBar.py - progress bar dialog, for use while waiting for simulator
+to finish writing output into a known file of known final length.
 
 $Id$
 '''
 __author__ = "Mark"
 
 import os, time
-from qt import *
 
-
-#bruce 050415 I want to rename progressBarDialog to ProgressBarDialog
-# but plan to ask someone else to do it in the .ui file.
-# So I'll temporarily kluge this to work either way:
-
-progressBarDialog = ProgressBarDialog = None
-
-from ProgressBarDialog import * # should define one or the other of those two classnames but not both
-
-assert not (progressBarDialog and ProgressBarDialog), "p and P are %r and %r" % (progressBarDialog , ProgressBarDialog)
-
-ProgressBarDialog = progressBarDialog or ProgressBarDialog
-del progressBarDialog
-
-#end bruce 050415 temporary kluge
-
+from qt import qApp
+from ProgressBarDialog import ProgressBarDialog
+    #bruce 050415 removed "import *" from both of those
 
 class ProgressBar( ProgressBarDialog ):
     def __init__(self):
