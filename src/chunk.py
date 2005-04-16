@@ -789,15 +789,25 @@ class molecule(Node, InvalMixin):
 
             disp = self.get_dispdef(glpane) #bruce 041109 split into separate method
             # disp is passed to two methods below... but if we use a cached display
-            # list, it's not reflected in that, and we don't check for this here;
+            # list, it's not reflected in that, and we don't check for this here
+            # [interjection, much later, 050415 -- now we do check for it];
             # this would cause bugs in redrawing after changing the glpane's display
             # mode, except that doing that calls changeapp() on the required mols,
             # so it's ok in theory. [comment by bruce 041109/041123]
 
             # cache molecule display as GL list
-            if self.havelist:
+            
+            # [bruce 050415 changed value of self.havelist when it's not 0,
+            #  from 1 to (disp,),
+            #  to fix bug 452 item 15 (no havelist inval for non-current parts
+            #  when global default display mode is changed); this will incidentally
+            #  optimize some related behaviors by avoiding some needless havelist invals,
+            #  once we remove the now-unneeded changeapp of all mols upon global dispdef change. ###d@@@doit]
+            
+            if self.havelist == (disp,): # value must agree with set of havelist, below
                 glCallList(self.displist)
             else:
+                self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way
                 glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
 
                 # bruce 041028 -- protect against exceptions while making display
@@ -811,7 +821,12 @@ class molecule(Node, InvalMixin):
                     # it might have left the externs incomplete # bruce 041105 night
                     self.invalidate_attr('externs')
                 glEndList()
-                self.havelist = 1 # always set this flag, even if exception happened,
+                # This is the only place where havelist is set to anything true;
+                # the value it's set to must match the value it's compared with, above.
+                # [bruce 050415 revised what it's set to/compared with; details above]
+                self.havelist = (disp,) #e should also include element-color-table-change-count
+                assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
+                # always set the self.havelist flag, even if exception happened,
                 # so it doesn't keep happening with every redraw of this molecule.
                 #e (in future it might be safer to remake the display list to contain
                 # only a known-safe thing, like a bbox and an indicator of the bug.)

@@ -786,8 +786,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             self.win.dispbarLabel.setText("    ")
         else:    
             self.win.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
-        for mol in self.assy.molecules:
-            if mol.display == diDEFAULT: mol.changeapp(1)
+        #bruce 050415: following should no longer be needed
+        # (and it wasn't enough, anyway, since missed mols in non-current parts;
+        #  see comments in chunk.py about today's bugfix in molecule.draw for
+        #  bug 452 item 15)
+        ## for mol in self.assy.molecules:
+        ##     if mol.display == diDEFAULT: mol.changeapp(1)
+        return
 
     def setZoomFactor(self, zFactor):
             self.zoomFactor = zFactor
