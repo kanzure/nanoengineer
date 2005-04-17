@@ -221,7 +221,7 @@ class DebugMenuMixin:
     #e rename private attrs to start with '_debug' instead of 'debug'
     #e generalize so the debug menu can be customized? not sure it's needed.
 
-    debug_menu = None # needed for use before _init1 or if that fails
+    ## debug_menu = None # needed for use before _init1 or if that fails
     
     def _init1(self, win = None):
         # figure out this mixin's idea of main window
@@ -238,8 +238,7 @@ class DebugMenuMixin:
             self._debug_classname = "class " + self.__class__.__name__
         except:
             self._debug_classname = "<some class>"
-        # make the menu
-        self.debug_menu = self.makemenu( self.debug_menu_items() )
+        # make the menu -- now done each time it's needed
         return
 
     def makemenu(self, lis): # bruce 050304 added this, so subclasses no longer have to
@@ -256,7 +255,11 @@ class DebugMenuMixin:
             return None
 
     def debug_menu_items(self):
-        "[subclasses can in theory override this, but probably needn't and shouldn't]"
+        """#doc; as of 050416 this will be called every time the debug menu needs to be put up,
+        so that the menu contents can be different each time (i.e. so it can be a dynamic menu)
+        [subclasses can override this; best if they call this superclass method
+        and modify its result, e.g. add new items at top or bottom]
+        """
         import debug
         res = [
             ('(debugging menu)', noop, 'disabled'),
@@ -273,15 +276,22 @@ class DebugMenuMixin:
             res.extend( [
                 ('run py code', self._debug_runpycode),
             ] )
+        #bruce 050416: use a "checkmark item" now that we're remaking this menu dynamically:
+        import platform
+        if platform.atom_debug:
+            res.extend( [
+                ('ATOM_DEBUG', self._debug_disable_atom_debug, 'checked' ),
+            ] )
+        else:
+            res.extend( [
+                ('ATOM_DEBUG', self._debug_enable_atom_debug ),
+            ] )
         res.extend( [
-            #e use a "checkmark item" when we're remaking this menu dynamically:
-            ('enable ATOM_DEBUG', self._debug_enable_atom_debug ),
-            ('disable ATOM_DEBUG', self._debug_disable_atom_debug ),
             ('choose font', self._debug_choose_font),
         ] )
         if self._debug_win:
             res.extend( [
-                ('call update_parts()', self._debug_update_parts ),
+                ('call update_parts()', self._debug_update_parts ), ###e also should offer check_parts
             ] )
         res.extend( [
             ('print self', self._debug_printself),
@@ -372,16 +382,21 @@ class DebugMenuMixin:
 
     def do_debug_menu(self, event):
         "[public method for subclasses] #doc"
-        menu = self.debug_menu
-        self.current_event = event # (so debug commands can see it)
+        ## menu = self.debug_menu
+        #bruce 050416: remake the menu each time it's needed
+        menu = None
+        try:
+            lis = self.debug_menu_items()
+            menu = self.makemenu( lis ) # might be []
+        except:
+            print_compact_traceback("bug in do_debug_menu ignored; menu_spec is %r" % (lis,) )
+            menu = None # for now
         
-        # this code written from Qt/PyQt docs... note that some Atom
-        # modules use menu.exec_loop() but others use menu.popup(); I
-        # don't know for sure whether this matters here, or which is
-        # best. -- bruce ca. 040916
-        
-        menu.exec_loop(event.globalPos(), 1)
-        self.current_event = None
+        ## removed [bruce 050416] since badly named and not yet used:
+        ## self.current_event = event # (so debug commands can see it)
+        if menu:
+            menu.exec_loop(event.globalPos(), 1)
+        ## self.current_event = None
         return 1
 
     def _debug_printself(self):
