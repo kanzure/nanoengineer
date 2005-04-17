@@ -904,15 +904,13 @@ class molecule(Node, InvalMixin):
         return # from molecule.draw_displist()
 
     def overdraw_hotspot(self, glpane, disp):
-        # bruce 050131: this is to support a new debugging feature
-        # (which soon after Alpha can be replaced with a more useful real feature),
-        # namely the model tree's "briefly show" menu command
-        # (only available when ATOM_DEBUG is set, since more frustrating than useful
-        #  and added after the new-feature deadline passed for Alpha).
-        #    If atom_debug and if this chunk is a clipboard item, display its hotspot
+        # bruce 050131 [at that time this depended on atom_debug;
+        # sometime later I relaxed that and forgot to mention the date in this comment]:
+        # If this chunk is a (toplevel) clipboard item, display its hotspot
         # (if there is one), like we do selatom (so no worries about resetting havelist).
-##        if not platform.atom_debug:
-##            return # redundant with caller
+        # bruce 050416 warning: the conditions here need to match those in depositMode's
+        # methods for mentioning hotspot in statusbar, and for deciding whether a clipboard
+        # item is pastable. All this duplicated hardcoded conditioning is bad, needs cleanup.
         try:
             # if any of this fails (which is normal), it means don't use this feature for self.
             assert self in self.assy.shelf.members
