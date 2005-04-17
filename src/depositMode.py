@@ -541,6 +541,15 @@ class depositMode(basicMode):
             what = "click to paste"
         if onto_open_bond:
             cmd = "%s onto open bond at %s" % (what, self.posn_str(selatom))
+            #bruce 050416 also indicate hotspot if we're on clipboard
+            # (and if this hotspot will be drawn in special color, since explaining that
+            #  special color is the main point of this statusbar-text addendum)
+            if selatom == selatom.molecule.hotspot and not self.viewing_main_part():
+                # also only if chunk at toplevel in clipboard (ie pastable)
+                # (this is badly in need of cleanup, since both here and chunk.draw
+                #  should not hardcode the cond for that, they should all ask the same method here)
+                if selatom.molecule in self.o.assy.shelf.members: 
+                    cmd += " (hotspot)"
         elif selatom:
             cmd = "click to drag %r" % selatom
         else:
@@ -1285,29 +1294,58 @@ class depositMode(basicMode):
 	glEnable(GL_LIGHTING)
         return
 
+    def viewing_main_part(self): #bruce 050416 ###e should refile into assy
+        return self.o.assy.current_selgroup_iff_valid() == self.o.assy.tree
+    
+    def makeMenus_each_event(self): #bruce 050416 using new feature for dynamic context menus
         
-    def makeMenus(self):
+        self.Menu_spec = []
+        ###e could include disabled chunk & selatom name at the top, whether selatom is singlet, hotspot, etc.
         
-        self.Menu_spec = [
-            ('Set Hotspot and Copy as Pastable', self.setHotSpot),
+        # figure out which Set Hotspot menu item to include, and whether to disable it or leave it out
+        if self.viewing_main_part():
+            text, meth = ('Set Hotspot and Copy as Pastable', self.setHotSpot)
                 # bruce 050121 renamed this from "Set Hotspot".
                 # if you want the name to be shorter, then change the method
                 # to do something simpler! Note that the locally set hotspot
                 # matters if we later drag this chunk to the clipboard.
                 # IMHO, the complexity is a sign that the design
                 # should not yet be considered finished!
-            ('Select This Chunk', self.select),
-                # bruce 050121 changed Select to a more explicit name.
-                #e someday we ought to remake this each time it's needed,
-                # and then include the chunk name if it's not too long!
-            None,
+        else:
+            text, meth = ('Set Hotspot of clipboard item', self.setHotSpot_clipitem) ###implem
+                ###e could check if it has a hotspot already, if that one is different, etc
+                ###e could include atom name in menu text... Set Hotspot to X13
+        if self.o.selatom and self.o.selatom.is_singlet():
+            item = (text, meth)
+        elif self.o.selatom:
+            item = (text, meth, 'disabled')
+        else:
+            item = None
+        if item:
+            self.Menu_spec.append(item)
+
+        # figure out Select This Chunk item text and whether to include it
+        if self.o.selatom:
+            name = self.o.selatom.molecule.name
+            item = ('Select Chunk %r' % name, self.select)
+                # bruce 050121 changed Select to a more explicit name, Select This Chunk.
+                # bruce 050416 using actual chunk name. (#e Should we worry about it being too long?)
+                #e should rename self.select method, once I'm sure it's not called elsewhere (not easy to confirm)
+                #e maybe should disable this or change to checkmark item (with unselect action) if it's already selected??
+            self.Menu_spec.append(item)
+
+        if self.Menu_spec:
+            self.Menu_spec.append(None)
+        self.Menu_spec.extend( [
             # bruce 041217 added the following, rather than just Done:
             #bruce 051213 added 'checked' and reordered these to conform with toolbar.
             ('Select Chunks', self.w.toolsSelectMolecules),
             ('Select Atoms', self.w.toolsSelectAtoms), 
             ('Move Chunks', self.w.toolsMoveMolecule),
             ('Build Atoms', self.skip, 'checked'),
-        ]
+        ] )
+
+        ###e submenu for pastables, with one checked? Or use Menu_spec_control for that?
 
         self.debug_Menu_spec = [
             ("debug: dump", self.dump)
@@ -1326,6 +1364,12 @@ class depositMode(basicMode):
             ('Passivate', self.o.assy.modifyPassivate),
             ('Hydrogenate', self.o.assy.modifyHydrogenate),
             ('Dehydrogenate', self.o.assy.modifyDehydrogenate) ]
+
+    def setHotSpot_clipitem(self): #bruce 050416; duplicates some code from setHotSpot
+        if self.o.selatom and self.o.selatom.element == Singlet:
+            self.o.selatom.molecule.set_hotspot( self.o.selatom) ###e add history message??
+        ###e also set this as the pastable??
+        return        
         
     def setHotSpot(self): #bruce 050121 revised this and renamed its menu item
         # revised 041124 to fix bug 169, by mark and then by bruce
