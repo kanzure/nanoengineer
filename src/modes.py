@@ -206,7 +206,7 @@ class basicMode(anyMode):
         self.sellist = []
         self.selLassRect = 0
 
-        self.setup_menus()
+        self.setup_menus_in_init()
 
     def init_prefs(self): # bruce 050105 new feature [bruce 050117 cleaned it up]
         "set some of our constants from user preferences, if they exist"
@@ -229,21 +229,29 @@ class basicMode(anyMode):
         prefs[key] = color # this stores the new color into a prefs db file
         return
     
-    def setup_menus(self): # rewritten by bruce 041103
+    def setup_menus(self, makeMenuMethod): # rewritten by bruce 041103; extended 050416 with makeMenuMethod (klugy, sorry)
         mod_attrs = ['Menu_spec_shift', 'Menu_spec_control']
-        all_attrs = ['Menu_spec'] + mod_attrs + ['debug_Menu_spec']
-        for attr in all_attrs + ['Menu1','Menu2','Menu3']:
+        all_attrs = ['Menu_spec'] + mod_attrs + ['debug_Menu_spec'] # the ones makeMenuMethod might set up
+        for attr in all_attrs: ### + ['Menu1','Menu2','Menu3']:
             if hasattr(self, attr):
-                # probably never happens
-                del self.__dict__[attr]
-        self.makeMenus() # bruce 040923 moved this here, from the subclasses
+                # probably never happens for makeMenuMethod = self.makeMenus;
+                # but routine for makeMenuMethod = self.makeMenus_each_event
+                del self.__dict__[attr] # note: they better not be a class attr or this will fail!
+        #bruce 050416: give it a default menu; for modes we have now, this won't ever be seen unless there are bugs
+        self.Menu_spec = [('<modename should go here>', noop, 'disabled')] ###e change to actual modename
+        ## self.makeMenus() # bruce 040923 moved this here, from the subclasses
+        if makeMenuMethod() == 'was not overridden':
+            # it's an old mode subclass, using static Menu_specs only; leave previously computed menus alone
+            assert self.Menu1 and self.Menu2 and self.Menu3
+            return
         # bruce 041103 changed details of what self.makeMenus() should do
-        for attr in ['Menu1','Menu2','Menu3']:
-            assert not hasattr(self, attr), \
-                "obsolete menu attr should not be defined: %r.%s" % (self, attr)
+        # bruce 050416: now we might be calling that one or the newer self.makeMenus_each_event()
+##        for attr in ['Menu1','Menu2','Menu3']:
+##            assert not hasattr(self, attr), \
+##                "obsolete menu attr should not be defined: %r.%s" % (self, attr)
         # makeMenus should have set self.Menu_spec, and maybe some sister attrs
         assert hasattr(self, 'Menu_spec'), "%r.makeMenus() failed to set up" \
-               " self.Menu_spec (to be a menu spec list)" % self
+               " self.Menu_spec (to be a menu spec list)" % self # should never happen after 050416
         orig_Menu_spec = list(self.Menu_spec)
             # save a copy for comparisons, before we modify it
         # define the ones not defined by makeMenus;
@@ -288,7 +296,24 @@ class basicMode(anyMode):
         self.Menu3 = self.makemenu(self.Menu_spec_control)
 
     def makeMenus(self):
-        assert 0, "mode subclass %r must implement makeMenus()" % self.__class__.__name__
+        """[subclasses should implement this if they want to compute one set of
+        Menu_specs during __init__, to be used every time they put up a context menu;
+        it should set self.Menu_spec (and related attrs) and return None]
+        """
+        pass
+
+    def makeMenus_each_event(self):
+        """[subclasses should implement this if they want to compute
+        a different set of menu_specs each time they put up a context menu;
+        it should set self.Menu_spec (and related attrs) and return None]
+        """
+        return 'was not overridden' # this hardcoded string is detected by caller
+
+    def setup_menus_in_init(self):
+        self.setup_menus( self.makeMenus )
+
+    def setup_menus_in_each_cmenu_event(self):
+        self.setup_menus( self.makeMenus_each_event )
 
     def warning(self, *args, **kws):
         self.o.warning(*args, **kws)
@@ -907,6 +932,7 @@ class basicMode(anyMode):
     # right button actions... #doc
     
     def rightDown(self, event):
+        self.setup_menus_in_each_cmenu_event()
         self.Menu1.exec_loop(event.globalPos(),3)
         # [bruce 041104 comment:] Huaicai says that menu.popup and menu.exec_loop
         # differ in that menu.popup returns immediately, whereas menu.exec_loop
@@ -934,6 +960,7 @@ class basicMode(anyMode):
         pass
     
     def rightShiftDown(self, event):
+        self.setup_menus_in_each_cmenu_event()
         self.Menu2.exec_loop(event.globalPos(),3)
 
                 
@@ -944,6 +971,7 @@ class basicMode(anyMode):
         pass
     
     def rightCntlDown(self, event):
+        self.setup_menus_in_each_cmenu_event()
         self.Menu3.exec_loop(event.globalPos(),3)
         
     def rightCntlDrag(self, event):
@@ -1023,8 +1051,8 @@ class basicMode(anyMode):
 
     def makemenu(self, lis):
         # bruce 040909 moved most of this method into GLPane.
-        win = self.o
-        return win.makemenu(lis)
+        glpane = self.o
+        return glpane.makemenu(lis)
 
     def pickdraw(self):
         """Draw the (possibly unfinished) freehand selection curve.
