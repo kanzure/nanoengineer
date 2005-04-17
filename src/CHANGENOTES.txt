@@ -261,3 +261,13 @@ Summary: fixed bug 498 (btw this is probably the same as bug 361)
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 4/16/2005
+Files: modes.py, depositMode.py
+Summary: Use a "dynamic context menu" in Build mode; revise Set Hotspot for clipboard parts.
+
+For details, see email to cad list, subject line:
+  CHECKIN: dynamic context menus; Set Hotspot for clipboard parts
+
+----------------------------
+
