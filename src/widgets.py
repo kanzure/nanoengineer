@@ -143,7 +143,6 @@ class TogglePrefCheckBox(QCheckBox):
 # helper for making popup menus from our own "menu specs"
 # consisting of nested lists
 # [moved here from GLPane.py -- bruce 050112]
-# [should replace the one in modelTree with this one]
 
 def makemenu_helper(self, lis):
     """make and return a reusable popup menu from lis,
@@ -157,47 +156,52 @@ def makemenu_helper(self, lis):
        The 'self' argument should be the Qt widget
     which is using this function to put up a menu.
     """
+    from debug import print_compact_traceback
     # bruce 040909-16 moved this method from basicMode to GLPane,
     # leaving a delegator for it in basicMode.
     # (bruce was not the original author, but modified it)
     win = self #e misnamed, should probably be widget #k
     menu = QPopupMenu(win)
     for m in lis:
-        if m and isinstance(m[1], QPopupMenu): #bruce 041010 added this case
-            submenu = m[1]
-            menu.insertItem( win.trUtf8(m[0]), submenu )
-                # (similar code might work for QAction case too, not sure)
-        elif m and isinstance(m[1], type([])): #bruce 041103 added this case
-            submenu = makemenu_helper(win, m[1]) # [used to call self.makemenu]
-            menu.insertItem( win.trUtf8(m[0]), submenu )
-        elif m:
-            assert callable(m[1]), \
-                "%r[1] needs to be a callable" % (m,) #bruce 041103
-            if len(m) == 2:
-                # old code
-                # (this case might not be needed anymore, but it's known to work)
-                act = QAction(win,m[0]+'Action')
-                act.setText(win.trUtf8(m[0]))
-                act.setMenuText(win.trUtf8(m[0]))
-                act.addTo(menu)
-                win.connect(act, SIGNAL("activated()"), m[1])
+        try: #bruce 050416 added try/except as debug code and for safety
+            if m and isinstance(m[1], QPopupMenu): #bruce 041010 added this case
+                submenu = m[1]
+                menu.insertItem( win.trUtf8(m[0]), submenu )
+                    # (similar code might work for QAction case too, not sure)
+            elif m and isinstance(m[1], type([])): #bruce 041103 added this case
+                submenu = makemenu_helper(win, m[1]) # [used to call self.makemenu]
+                menu.insertItem( win.trUtf8(m[0]), submenu )
+            elif m:
+                assert callable(m[1]), \
+                    "%r[1] needs to be a callable" % (m,) #bruce 041103
+                if len(m) == 2:
+                    # old code
+                    # (this case might not be needed anymore, but it's known to work)
+                    act = QAction(win,m[0]+'Action')
+                    act.setText(win.trUtf8(m[0]))
+                    act.setMenuText(win.trUtf8(m[0]))
+                    act.addTo(menu)
+                    win.connect(act, SIGNAL("activated()"), m[1])
+                else:
+                    # new code to support some additional menu item options
+                    # (likely to be expanded to support more).
+                    # Only used for len(m) > 2, though it presumably works
+                    # just as well for len 2 (try it sometime). [bruce 050112]
+                    mitem_id = menu.insertItem( win.trUtf8(m[0]) )
+                    menu.connectItem(mitem_id, m[1]) # semi-guess
+                    for option in m[2:]:
+                        if option == 'checked':
+                            menu.setItemChecked(mitem_id, True)
+                        if option == 'disabled':
+                            menu.setItemEnabled(mitem_id, False)
+                        #e and something to use QMenuData.setAccel
+                        #e and something to run whatever func you want on menu and mitem_id
+                    pass
             else:
-                # new code to support some additional menu item options
-                # (likely to be expanded to support more).
-                # Only used for len(m) > 2, though it presumably works
-                # just as well for len 2 (try it sometime). [bruce 050112]
-                mitem_id = menu.insertItem( win.trUtf8(m[0]) )
-                menu.connectItem(mitem_id, m[1]) # semi-guess
-                for option in m[2:]:
-                    if option == 'checked':
-                        menu.setItemChecked(mitem_id, True)
-                    if option == 'disabled':
-                        menu.setItemEnabled(mitem_id, False)
-                    #e and something to use QMenuData.setAccel
-                    #e and something to run whatever func you want on menu and mitem_id
-                pass
-        else:
-            menu.insertSeparator()
+                menu.insertSeparator()
+        except:
+            print_compact_traceback("exception in makemenu_helper ignored, for %r:\n" % (m,) )
+            pass #e could add a fake menu item here as an error message
     return menu
 
 # end
