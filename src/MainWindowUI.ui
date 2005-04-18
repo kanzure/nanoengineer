@@ -37,7 +37,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>33</height>
+            <height>37</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -275,7 +275,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1115</width>
+                <width>1291</width>
                 <height>29</height>
             </rect>
         </property>
@@ -294,6 +294,11 @@
             </property>
             <property name="text">
                 <string> Cookie Cutter</string>
+            </property>
+        </widget>
+        <widget class="QSpinBox">
+            <property name="name">
+                <cstring>spinBox4</cstring>
             </property>
         </widget>
         <separator/>
@@ -662,8 +667,8 @@
             <rect>
                 <x>0</x>
                 <y>58</y>
-                <width>1036</width>
-                <height>29</height>
+                <width>1089</width>
+                <height>32</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -841,9 +846,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>243</x>
-                <y>87</y>
-                <width>104</width>
+                <x>270</x>
+                <y>90</y>
+                <width>111</width>
                 <height>29</height>
             </rect>
         </property>
@@ -877,9 +882,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>347</x>
-                <y>87</y>
-                <width>120</width>
+                <x>381</x>
+                <y>90</y>
+                <width>132</width>
                 <height>29</height>
             </rect>
         </property>
@@ -1029,10 +1034,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>0</x>
-                <y>116</y>
+                <x>727</x>
+                <y>119</y>
                 <width>19</width>
-                <height>16</height>
+                <height>31</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -3824,6 +3829,9 @@
             <property name="name">
                 <cstring>DiamondSelAction</cstring>
             </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
             <property name="iconSet">
                 <iconset>image122</iconset>
             </property>
@@ -3833,10 +3841,16 @@
             <property name="toolTip">
                 <string>Diamond Center</string>
             </property>
+            <property name="accel">
+                <string>Shift+D</string>
+            </property>
         </action>
         <action>
             <property name="name">
                 <cstring>SquareSelAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
             </property>
             <property name="iconSet">
                 <iconset>image123</iconset>
@@ -3846,6 +3860,9 @@
             </property>
             <property name="toolTip">
                 <string>Square Center</string>
+            </property>
+            <property name="accel">
+                <string>S</string>
             </property>
         </action>
     </actiongroup>
@@ -3911,6 +3928,9 @@
         <property name="name">
             <cstring>rotateClockwiseAction</cstring>
         </property>
+        <property name="toggleAction">
+            <bool>false</bool>
+        </property>
         <property name="iconSet">
             <iconset>image129</iconset>
         </property>
@@ -3921,6 +3941,9 @@
     <action>
         <property name="name">
             <cstring>rotateCounterClockwiseAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>false</bool>
         </property>
         <property name="iconSet">
             <iconset>image130</iconset>

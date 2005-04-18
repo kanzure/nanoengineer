@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Apr 13 14:12:31 2005
+# Created: Wed Apr 13 14:50:31 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6115,8 +6115,10 @@ class MainWindow(QMainWindow):
         self.DefaultSelAction.setOn(1)
         self.DefaultSelAction.setIconSet(QIconSet(self.image121))
         self.DiamondSelAction = QAction(self.CookieSelectionGroup,"DiamondSelAction")
+        self.DiamondSelAction.setToggleAction(1)
         self.DiamondSelAction.setIconSet(QIconSet(self.image122))
         self.SquareSelAction = QAction(self.CookieSelectionGroup,"SquareSelAction")
+        self.SquareSelAction.setToggleAction(1)
         self.SquareSelAction.setIconSet(QIconSet(self.image123))
         self.moveDeltaPlusAction = QAction(self,"moveDeltaPlusAction")
         self.moveDeltaPlusAction.setIconSet(QIconSet(self.image124))
@@ -6261,7 +6263,7 @@ class MainWindow(QMainWindow):
         self.textLabel1 = QLabel(self.moveChunksDashboard,"textLabel1")
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,58,1036,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,58,1088,32))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6320,7 +6322,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.zoomDashboard)
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.panDashboard.setGeometry(QRect(243,87,104,29))
+        self.panDashboard.setGeometry(QRect(270,90,111,29))
         self.panDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -6329,7 +6331,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.panDashboard)
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.rotateDashboard.setGeometry(QRect(347,87,120,29))
+        self.rotateDashboard.setGeometry(QRect(381,90,132,29))
         self.rotateDashboard.setPaletteBackgroundColor(QColor(230,231,230))
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
@@ -6367,7 +6369,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.fuseChunksDashboard)
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.depositAtomDashboard.setGeometry(QRect(0,116,19,16))
+        self.depositAtomDashboard.setGeometry(QRect(727,119,19,31))
         self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.cookieSelectDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
@@ -6424,7 +6426,7 @@ class MainWindow(QMainWindow):
 
         self.MenuBar = QMenuBar(self,"MenuBar")
 
-        self.MenuBar.setGeometry(QRect(0,0,1115,33))
+        self.MenuBar.setGeometry(QRect(0,0,1115,37))
         self.MenuBar.setPaletteBackgroundColor(QColor(236,233,216))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
@@ -7083,8 +7085,10 @@ class MainWindow(QMainWindow):
         self.DefaultSelAction.setAccel(self.__tr("D"))
         self.DiamondSelAction.setText(self.__tr("Diamond Center"))
         self.DiamondSelAction.setToolTip(self.__tr("Diamond Center"))
+        self.DiamondSelAction.setAccel(self.__tr("Shift+D"))
         self.SquareSelAction.setText(self.__tr("Square Center"))
         self.SquareSelAction.setToolTip(self.__tr("Square Center"))
+        self.SquareSelAction.setAccel(self.__tr("S"))
         self.moveDeltaPlusAction.setText(self.__tr("Move Delta (+)"))
         self.moveAbsoluteAction.setText(self.__tr("Move Absolute"))
         self.modifyMinimizeAllAction.setText(self.__tr("Minimize All"))

@@ -1304,67 +1304,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def toolsCancel(self):
         self.glpane.mode.Flush()
 
-    #######################################
-    # Cookie Cutter Dashboard Slots
-    #######################################
-    
-    # "push down" one nanometer to cut out the next layer
-    def toolsCCAddLayer(self):
-        if self.glpane.mode.modename == 'COOKIE':
-            self.glpane.mode.addLayer(self.ccCurrentLayerCBox)
-        
-    
-    def changeCCLayer(self, value):
-        """Change current layer to <value> layer """
-        if self.glpane.mode.modename == 'COOKIE':
-            self.glpane.mode.change2Layer(value)
    
-    def setCCFreeView(self, freeView):
-        """Slot function to switch between free view/cookie selection states """
-        if self.glpane.mode and self.glpane.mode.modename == 'COOKIE':
-            self.glpane.mode.setFreeView(freeView)
-    
-    def cookieFullModel(self, showFullModel):
-        """Slot function for the check box of 'Full Model' in cookie-cutter dashboard """
-        if self.glpane.mode and self.glpane.mode.modename == 'COOKIE':
-            self.glpane.mode.toggleFullModel(showFullModel)
-    
-    def showCCGridLine(self, show):
-        """Slot function"""
-        if self.glpane.mode and self.glpane.mode.modename == 'COOKIE':
-            self.glpane.mode.showGridLine(show)
-            
-    def changeCCGridColor(self):
-        """Open the stand color chooser dialog to change grid line color """
-        c = QColorDialog.getColor(QColor(222,148,0), self, "choose")
-        if c.isValid():
-            self.ccGridColorLabel.setPaletteBackgroundColor(c)
-            self.glpane.mode.setGridLineColor(c)
-    
-    # points of view corresponding to the three crystal
-    # surfaces of diamond
-
-    # along one axis
-    def orient100(self):
-        self.glpane.mode.surfset(0)
-        self.glpane.snapquat100()
-
-    # halfway between two axes
-    def orient110(self):
-        self.glpane.mode.surfset(1)
-        self.glpane.snapquat110()
-
-    # equidistant from three axes
-    def orient111(self):
-        self.glpane.mode.surfset(2)
-        self.glpane.snapquat111()
-
-    # lots of things ???
-    def orientView(self, a0=None):
-        print "MainWindow.orientView(string):", a0
-        self.glpane.quat = Q(1,0,0,0)
-        self.glpane.pov = V(0,0,0)
-        self.glpane.gl_update()
 
     #######################################
     # Element Selector Slots

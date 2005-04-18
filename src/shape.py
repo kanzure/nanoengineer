@@ -512,8 +512,7 @@ class SelectionShape(shape):
                                     break   
 
 class CookieShape(shape):
-    """ This class is used to create cookies. It supports multiple parallel layers, each curve sits
-         on a particular layer."""
+    """ This class is used to create cookies. It supports multiple parallel layers, each curve sits on a particular layer."""
     def __init__(self, right, up, normal, mode, latticeType):
             shape.__init__(self, right, up, normal)
             ##Each element is a dictionary object storing "carbon" info for a layer
@@ -555,6 +554,23 @@ class CookieShape(shape):
             elif c.logic == 2: val = val and c.isin(pt)
             elif c.logic == 0: val = val and not c.isin(pt)
         return val
+    
+    def _isIn(self, pt, c):
+        """Check if point <pt> is within the logic result of curve <c> and all previous curves. Instead of looping through all previous curves, we update each _isIn() result into a global dictionary object, and use the global dictionary object and the current curve <c> to compute if point <pt> is in, and update the global list accordingly."""
+        
+        pKey = self._hasAtomPos(pt)
+        if c.logic == 1: 
+            if c.isin(pt) and not self.carbonPostDict.hasKey(pKey):
+                self.carbonPostDict[pKey] = pt
+        elif c.logic == 2: 
+            if not c.isin(pt) and self.carbonPostDict.hasKey(pKey):
+                del self.carbonPostDict[pKey]
+        elif c.logic == 0: 
+            if c.isin(pt) and self.carbonPostDict.hasKey(pKey):
+                del self.carbonPostDict[pKey]
+            
+        return pKey
+        
     
     def pickCircle(self, ptlist, origin, logic, layer, slabC):
         """Add a new circle to the shape. """
@@ -729,10 +745,12 @@ class CookieShape(shape):
             while (pp):
                 pph=[None, None]
                 for p, ii in zip(pp, (0,1)):
+                   pph[ii] = self._hashAtomPos(p) 
                    if c.isin(p):
-                      pph[ii] = self._hashAtomPos(p)
                       if not pph[ii] in carbons:
                          carbons[pph[ii]] = p
+                   elif not pph[ii] in carbons:
+                        pph[ii] = None 
                 if pph[0] and pph[1]: 
                     self._saveBonds(bonds, pph[0], pph[1])
                 elif pph[0]:
@@ -756,12 +774,12 @@ class CookieShape(shape):
                 values = dict[key]
                 #print "key, value, all values:", key, value,values       
                 if not value in values :
-                   if type(value) ==type((1,1)):
+                   if type(value) == type((1,1)):
                        for v in values: 
-                            if v==value: 
-                                 v=value[0]; break
+                            if v == value: 
+                                 v = value[0]; break
                    #print "key, value: ", key, value
-                else: values += [value]
+                #else: values += [value]
    
    
     def changeDisplayMode(self, mode):

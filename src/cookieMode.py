@@ -5,8 +5,8 @@ cookieMode.py -- cookie cutter mode.
 $Id$
 
 """
-
 from modes import *
+from CookieCtrlPanel import CookieCtrlPanel
 
 class cookieMode(basicMode):
 
@@ -16,11 +16,7 @@ class cookieMode(basicMode):
     modename = 'COOKIE'
     default_mode_status_text = "Mode: Cookie Cutter"
     
-    ## default initial values
-    #savedOrtho = 0
-
     MAX_LATTICE_CELL = 25
-    # no __init__ method needed
     
     layerColors = ((0.0, 85.0/255.0, 127/255.0),
                            (85/255.0, 85/255.0, 0.0),
@@ -37,11 +33,15 @@ class cookieMode(basicMode):
     MAX_LAYERS = 6
                            
     # methods related to entering this mode
+    def __init__(self, glpane):
+        """The initial function is called only once for the whole program """
+        basicMode.__init__(self, glpane)
+        self.ctrlPanel = CookieCtrlPanel(self.w)
     
-    def Enter(self): # bruce 040922 split setMode into Enter and init_gui (fyi)
+    def Enter(self): 
         basicMode.Enter(self)
         self.oldPov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
-        self.o.snap2trackball()
+        self.whichsurf = self.o.snap2trackball()
         self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
 
@@ -50,17 +50,16 @@ class cookieMode(basicMode):
         self.cookieQuat = None
 
         self.thickness = -1
-        self.whichsurf=0
         
         self.freeView = False
-        self.w.ccFreeViewCheckBox.setChecked(self.freeView)
+        self.ctrlPanel.freeViewCheckBox.setChecked(self.freeView)
         
         self.gridShow = True
-        self.w.ccGridLineCheckBox.setChecked(self.gridShow)
+        self.ctrlPanel.gridLineCheckBox.setChecked(self.gridShow)
         
-        self.showFullModel = self.w.ccFullModelCheckBox.isChecked()
-        self.cookieDisplayMode = str(self.w.ccDispModeCBox.currentText())
-        self.latticeType = self.LATTICE_TYPES[self.w.ccLatticeCBox.currentItem()]
+        self.showFullModel = self.ctrlPanel.fullModelCheckBox.isChecked()
+        self.cookieDisplayMode = str(self.ctrlPanel.dispModeCBox.currentText())
+        self.latticeType = self.LATTICE_TYPES[self.ctrlPanel.latticeCBox.currentItem()]
         
         self.layers = [] ## Stores 'org, color' for each layer
         self.layers += [[V(self.o.pov[0], self.o.pov[1], self.o.pov[2])], [A(gray)]]  
@@ -69,56 +68,27 @@ class cookieMode(basicMode):
         self.picking = None
         self.Rubber = None
        
-        self._getSelectionShape()
+        self.selectionShape = self.ctrlPanel.getSelectionShape()
         
-
-    # init_gui handles all the GUI display when entering this mode [mark 041004
+    
     def init_gui(self):
-        self.o.setCursor(self.w.CookieAddCursor)
-        self.w.toolsCookieCutAction.setOn(1) # toggle on the Cookie Cutter icon
+        """GUI items need initialization every time."""
+        self.ctrlPanel.initGui()
         
-        #Huaicai 3/29: Added the condition to fix bug 477
-        self.w.dispbarLabel.setText("    ")
+        #This can't be done in the above call. During this time, 
+        # the ctrlPanel can't find the cookieMode, the nullMode
+        # is used instead. I don't know if that's good or not, but
+        # I think the code readability is not very good. --Huaicai 
+        self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
+   
+   
+    def restore_gui(self):
+        """Restore GUI items when exit every time. """
+        self.ctrlPanel.restoreGui()
         
-        self.w.ccLatticeCBox.setEnabled(True)
-        
-        #Set projection to ortho, display them
-        self.w.setViewOrthoAction.setOn(True)  
-        self.w.setViewOrthoAction.setEnabled(False)
-        self.w.setViewPerspecAction.setEnabled(False)
-        
-        #Add view actions into the actionGroup to make each action mutual exclusive
-        self.w.cookieCutterViewActionGroup.add(self.w.orient100Action)
-        self.w.cookieCutterViewActionGroup.add(self.w.orient110Action)
-        self.w.cookieCutterViewActionGroup.add(self.w.orient111Action)
-        
-        self.w.ccLayerThicknessSpinBox.setValue(2)
-        self.setthick(2)
-        
-        self.w.ccCurrentLayerCBox.clear()
-        self.w.ccCurrentLayerCBox.insertItem(QString(str(len(self.layers[0]))))
-        self.w.ccAddLayerAction.setEnabled(False)
-         
-        self.w.cookieCutterDashboard.show()
-        self.w.connect(self.w.ccLayerThicknessSpinBox,SIGNAL("valueChanged(int)"),
-                       self.setthick)
-        self.w.connect(self.w.ccLayerThicknessLineEdit,SIGNAL("textChanged( const QString &)"),
-                       self.setthicktext)
-        
-        self.w.connect(self.w.CookieSelectionGroup, SIGNAL("selected(QAction *)"),self.changeSelectionShape)
-        self.w.connect(self.w.ccDispModeCBox, SIGNAL("activated(const QString &)"), self.changeCookieDispMode)
-        self.w.connect(self.w.ccLatticeCBox, SIGNAL("activated ( int )"), self.changeLatticeType)  
-                       
-        # Disable some action items in the main window.
-        self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
-        self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
-        
-        # Hide the modify toolbar
-        self.w.modifyToolbar.hide()
-        
-        #Show the Cookie Selection Dashboard
-        self.w.cookieSelectDashboard.show()
+        if not self.savedOrtho:
+            self.w.setViewPerspecAction.setOn(True) 
+    
     
     def setFreeView(self, freeView):
         """When in this mode(freeView is true), cookie-cutting is freezing """
@@ -133,14 +103,14 @@ class cookieMode(basicMode):
             self.w.setViewPerspecAction.setEnabled(True)
             
             #Disable controls to change layer, which cause pov change
-            self.w.ccCurrentLayerCBox.setEnabled(False)
-            self.isAddLayerEnabled = self.w.ccAddLayerAction.isEnabled ()
-            self.w.ccAddLayerAction.setEnabled(False)
+            self.ctrlPanel.currentLayerCBox.setEnabled(False)
+            self.isAddLayerEnabled = self.ctrlPanel.addLayerButton.isEnabled ()
+            self.ctrlPanel.addLayerButton.setEnabled(False)
             
-            self._enableViewChanges(True)
+            self.ctrlPanel.enableViewChanges(True)
             
             if self.Rubber:
-                self._cancelRubberSelection()
+                self._cancelSelection()
                 self.w.history.message(redmsg("Changed to free view mode,the unfinished cookie selection will be cancelled."))
             
         else: ## cookie cutting mode
@@ -150,18 +120,16 @@ class cookieMode(basicMode):
             self.w.setViewPerspecAction.setEnabled(False)
             
             #Restore controls to change layer/add layer
-            self.w.ccCurrentLayerCBox.setEnabled(True)
-            self.w.ccAddLayerAction.setEnabled(self.isAddLayerEnabled)
+            self.ctrlPanel.currentLayerCBox.setEnabled(True)
+            self.ctrlPanel.addLayerButton.setEnabled(self.isAddLayerEnabled)
             
-            self._enableViewChanges(False)
+            self.ctrlPanel.enableViewChanges(False)
             
             self.o.ortho = True
             if self.o.shape:
                 self.o.quat = Q(self.cookieQuat)
                 self.o.pov = V(self.cookiePov[0], self.cookiePov[1], self.cookiePov[2]) 
-                self.o.gl_update()
-            else:
-                self.surfset(self.o.snap2trackball())
+            self.surfset(self.o.snap2trackball())
                 
       
     def showGridLine(self, show):
@@ -172,7 +140,7 @@ class cookieMode(basicMode):
         """Set the grid Line color to c. c is an object of QColor """
         self.gridColor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
         
-    def changeCookieDispMode(self, mode):
+    def changeDispMode(self, mode):
         """Change cookie display mode as 'mode'.
         """
         self.cookieDisplayMode = str(mode)
@@ -198,49 +166,14 @@ class cookieMode(basicMode):
         # it's mostly a matter of taste whether to put this statement into StateCancel, restore_patches, or clear()...
         # it probably doesn't matter in effect, in this case. To be safe (e.g. in case of Abandon), I put it in more than one place.
         return None
-    
-    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
-    def restore_gui(self):
-        self.w.cookieCutterDashboard.hide()
-        self.w.disconnect(self.w.ccLayerThicknessSpinBox,SIGNAL("valueChanged(int)"),
-                       self.setthick)
-        
-        self.w.disconnect(self.w.ccLayerThicknessLineEdit,SIGNAL("textChanged( const QString &)"),
-                       self.setthicktext)
-                       
-        self.w.disconnect(self.w.CookieSelectionGroup,SIGNAL("selected(QAction *)"), self.changeSelectionShape)
-        self.w.disconnect(self.w.ccDispModeCBox,SIGNAL("activated(const QString &)"), self.changeCookieDispMode)
-        self.w.disconnect(self.w.ccLatticeCBox, SIGNAL("activated ( int )"), self.changeLatticeType)
-                       
-        self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
-        self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
-        
-        #Hide the Cookie Selection Dashboard
-        self.w.cookieSelectDashboard.hide()
-        
-        # Show the modify toolbar
-        self.w.modifyToolbar.show()
-        
-        #Restore display mode status message
-        self.w.dispbarLabel.setText( "Default Display: " + dispLabel[self.o.display] )
-        
-        # Restore view projection, enable them.
-        self.w.setViewOrthoAction.setEnabled(True)
-        self.w.setViewPerspecAction.setEnabled(True)
-        if not self.savedOrtho:
-            self.w.setViewPerspecAction.setOn(True) 
-        
-        # Enable all those view options
-        self._enableViewChanges(True)    
-            
+   
         
     def restore_patches(self):
         self.o.ortho = self.savedOrtho
         self.o.shape = None
         self.sellist = []
         self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2])
-    # other dashboard methods (not yet revised by bruce 040922 ###e)
+    
     
     def Backup(self):
         if self.o.shape:
@@ -256,7 +189,7 @@ class cookieMode(basicMode):
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.CookieSubtractCursor)
         elif key == Qt.Key_Escape:
-            self._cancelRubberSelection()
+            self._cancelSelection()
         if 0:   
             if key in (Qt.Key_C, Qt.Key_H, Qt.Key_R):
                 self.sellist = []
@@ -347,8 +280,10 @@ class cookieMode(basicMode):
         if self.selectionShape == 'DEFAULT':
             self.selLassRect = self.pickLineLength < 2*netdist
         self.pickLinePrev = p1
-            
+        
+        self.w.history.transient_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
         self.o.gl_update()
+        
     
     def leftUp(self, event):
         self.EndDraw(event)
@@ -372,12 +307,12 @@ class cookieMode(basicMode):
         
             if not self.o.shape:
                 self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
-                self.w.ccLatticeCBox.setEnabled(False)
-                self._enableViewChanges(False)
+                self.ctrlPanel.latticeCBox.setEnabled(False)
+                self.ctrlPanel.enableViewChanges(False)
 
             self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
             if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
-                self.w.ccAddLayerAction.setEnabled(True)
+                self.ctrlPanel.addLayerButton.setEnabled(True)
             self.sellist = []
 
             self.w.history.transient_msg("")
@@ -388,6 +323,7 @@ class cookieMode(basicMode):
         """Close a selection curve and do the selection
         """
         if self.freeView: return
+        if not self.picking: return
         
         p1, p2 = self.o.mousepoints(event, 0.01)
 
@@ -400,10 +336,14 @@ class cookieMode(basicMode):
                     self.o.backlist[-1] = p2
                     self._centerBasedSelect()
                     self.sellist = []
+                    self.w.history.transient_msg("   ")
             elif self.picking and self.selectionShape == 'DEFAULT':  ##Rubber-band selection
                 self.sellist += [p1]
                 self.o.backlist += [p2]
                 self.Rubber = True
+            else: #This means single click/release without moving  
+                self.sellist = []
+                self.o.backlist = []
             return
             
         self.picking = 0
@@ -415,8 +355,8 @@ class cookieMode(basicMode):
         # bruce 041213 comment: shape might already exist, from prior drags
         if not self.o.shape:
             self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
-            self.w.ccLatticeCBox.setEnabled(False)
-            self._enableViewChanges(False)
+            self.ctrlPanel.latticeCBox.setEnabled(False)
+            self.ctrlPanel.enableViewChanges(False)
             
         # took out kill-all-previous-curves code -- Josh
         if self.selLassRect:
@@ -429,9 +369,10 @@ class cookieMode(basicMode):
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
                                   
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
-                self.w.ccAddLayerAction.setEnabled(True)
+                self.ctrlPanel.addLayerButton.setEnabled(True)
         self.sellist = []
-
+        
+        self.w.history.transient_msg("   ")
         self.o.gl_update()
 
     def _anyMiddleUp(self):
@@ -454,8 +395,7 @@ class cookieMode(basicMode):
     def middleShiftDown(self, event):        
          """Disable this action when cutting cookie. """
          if self.freeView: basicMode.middleShiftDown(self, event)   
-         
-    def middleCntlDown(self, event):        
+    def middleCntlDown(self, event):
          """Disable this action when cutting cookie. """   
          if self.freeView: basicMode.middleCntlDown(self, event)
 
@@ -477,32 +417,43 @@ class cookieMode(basicMode):
             try: self.sellist[-1]=p1
             except: print self.sellist
             if self.Rubber:
-                self.w.history.transient_msg("Double click to close curve; Press <Esc> key to cancel.")
+                self.w.history.transient_msg("Double click to end selection; Press <Esc> key to cancel selection.")
+            else:
+                self.w.history.transient_msg("Left click to end selection; Press <Esc> key to cancel selection.")
             self.o.gl_update()
      
     def _centerBasedSelect(self):
         """End the center based selection"""
         if not self.o.shape:
                 self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
-                self.w.ccLatticeCBox.setEnabled(False)
-                self._enableViewChanges(False)
+                self.ctrlPanel.latticeCBox.setEnabled(False)
+                self.ctrlPanel.enableViewChanges(False)
                  
         p1 = self.o.backlist[1]
         p0 = self.o.backlist[0]
         pt = p1 - p0
-        if self.selectionShape == 'RECTANGLE':
+        if self.selectionShape in ['RECTANGLE', 'DIAMOND']:
             hw = dot(self.o.right, pt)*self.o.right
             hh = dot(self.o.up, pt)*self.o.up
-            pt1 = p0 - hw + hh
-            pt2 = p0 + hw - hh
-            self.o.shape.pickrect(pt1, pt2, -self.o.pov,
+            if self.selectionShape == 'RECTANGLE':
+                pt1 = p0 - hw + hh
+                pt2 = p0 + hw - hh
+                self.o.shape.pickrect(pt1, pt2, -self.o.pov,
                                   self.selSense, self.currentLayer,
                                   Slab(-self.o.pov, self.o.out,
                                             self.thickness))
-        elif self.selectionShape in ['HEXAGON', 'TRIANGLE']:
-            if self.selectionShape == 'HEXAGON':
-                sides = 6
-            else: sides = 3
+            elif self.selectionShape == 'DIAMOND':
+                pp = []
+                pp += [p0 + hh]; pp += [p0 - hw]
+                pp += [p0 - hh];  pp += [p0 + hw]; pp += [pp[0]]
+                self.o.shape.pickline(pp, -self.o.pov, self.selSense,
+                                  self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
+  
+        elif self.selectionShape in ['HEXAGON', 'TRIANGLE', 'SQUARE']:
+            if self.selectionShape == 'HEXAGON': sides = 6
+            elif self.selectionShape == 'TRIANGLE': sides = 3
+            elif self.selectionShape == 'SQUARE': sides = 4
+            
             hQ = Q(self.o.out, 2.0*pi/sides)
             pp = []
             pp += [p1]
@@ -512,26 +463,33 @@ class cookieMode(basicMode):
             pp += [p1]
             self.o.shape.pickline(pp, -self.o.pov, self.selSense,
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
+                                  
         elif self.selectionShape == 'CIRCLE':
             self.o.shape.pickCircle(self.o.backlist, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
+            
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
-                self.w.ccAddLayerAction.setEnabled(True)
+                self.ctrlPanel.addLayerButton.setEnabled(True)
+              
         self.o.gl_update()
     
     
-    def _centerRectDraw(self, color, pts):
-        """Construct center based Rectange to draw
+    def _centerRectDiamDraw(self, color, pts, sType):
+        """Construct center based Rectange or Diamond to draw
             <Param> pts: (the center and a corner point)"""
         pt = pts[1] - pts[0]
         hw = dot(self.o.right, pt)*self.o.right
         hh = dot(self.o.up, pt)*self.o.up
-        
         pp = []
-        pp = [pts[0] - hw + hh]
-        pp += [pts[0] - hw - hh]
-        pp += [pts[0] + hw - hh]
-        pp += [pts[0] + hw + hh]
         
+        if sType == 'RECTANGLE':
+            pp = [pts[0] - hw + hh]
+            pp += [pts[0] - hw - hh]
+            pp += [pts[0] + hw - hh]
+            pp += [pts[0] + hw + hh]
+        elif sType == 'DIAMOND':
+            pp += [pts[0] + hh]; pp += [pts[0] - hw]
+            pp += [pts[0] - hh];  pp += [pts[0] + hw]
+            
         drawer.drawLineLoop(color, pp)    
     
     def _centerEquiPolyDraw(self, color, sides, pts):
@@ -567,14 +525,16 @@ class cookieMode(basicMode):
                  elif self.selectionShape == 'RECT_CORNER':
                      drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
                                  self.o.up, self.o.right, color)
-                 else:      
+                 else:
                     drawer.drawline(white, self.sellist[0], self.sellist[1], True)
-                    if self.selectionShape == 'RECTANGLE':
-                        self._centerRectDraw(color, self.sellist)
+                    if self.selectionShape in ['RECTANGLE', 'DIAMOND']:
+                        self._centerRectDiamDraw(color, self.sellist, self.selectionShape)
                     elif self.selectionShape == 'CIRCLE':
                         self._centerCircleDraw(color, self.sellist)
                     elif self.selectionShape == 'HEXAGON':
                         self._centerEquiPolyDraw(color, 6, self.sellist)
+                    elif self.selectionShape == 'SQUARE':
+                        self._centerEquiPolyDraw(color, 4, self.sellist)
                     elif self.selectionShape == 'TRIANGLE':
                         self._centerEquiPolyDraw(color, 3, self.sellist)   
         else:
@@ -630,11 +590,9 @@ class cookieMode(basicMode):
     def copy(self):
         print 'NYI'
 
-    def addLayer(self, layerCombox):
+    def addLayer(self):
         """Add a new layer: the new layer will always be at the end"""
         if self.o.shape:
-            self.w.ccAddLayerAction.setEnabled(False)
-            
             lastLayerId = len(self.layers[0]) - 1
             pov = self.layers[0][lastLayerId]
             pov = V(pov[0], pov[1], pov[2])
@@ -650,12 +608,10 @@ class cookieMode(basicMode):
             self.layers[1] += [color]
             size = len(self.layers[0])
            
-            layerCombox.insertItem(QString(str(size)))
-            layerCombox.setCurrentItem(size-1)
-            
             self.change2Layer(size-1)
-            self.o.gl_update()
             
+            return size
+
 
     def change2Layer(self, layerIndex):
         """Change current layer to layer <layerIndex>"""
@@ -668,12 +624,12 @@ class cookieMode(basicMode):
         self.o.pov = V(pov[0], pov[1], pov[2])
         
         maxCells = self._findMaxNoLattCell(self.currentLayer)
-        self.w.ccLayerThicknessSpinBox.setMaxValue(maxCells)
+        self.ctrlPanel.layerCellsSpinBox.setMaxValue(maxCells)
        
         ##Cancel any rubber selection if any.
         if self.Rubber:
             self.w.history.message(redmsg("Layer changed during rubber window cookie selection, cancel the selection."))
-            self._cancelRubberSelection()
+            self._cancelSelection()
        
         self.o.gl_update()
       
@@ -689,85 +645,41 @@ class cookieMode(basicMode):
 
     def surfset(self, num):
         self.whichsurf = num
-        self.setthick(self.w.ccLayerThicknessSpinBox.value())
+        self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
 
-    def setthick(self, num):
+    def setThickness(self, num):
         self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)
         s = "%3.4f" % (self.thickness)
-        self.w.ccLayerThicknessLineEdit.setText(s)
-
-    def setthicktext(self, text):
-        try:
-#            if self.w.vd.validate( text, 0 )[0] != 2: self.w.ccLayerThicknessLineEdit.setText(s[:-1])
-            self.thickness = float(str(text))
-        except: pass
-    
-    def _enableViewChanges(self, enableFlag):
-        """Turn on or off view changes depending on <param> 'enableFlag'. Turn off view changes is needed during the cookie-cutting stage. """
-        self.w.cookieCutterViewActionGroup.setEnabled(enableFlag)
-        self.w.setViewBackAction.setEnabled(enableFlag) 
-        self.w.setViewBottomAction.setEnabled(enableFlag)
-        self.w.setViewFitToWindowAction.setEnabled(enableFlag)
-        self.w.setViewFrontAction.setEnabled(enableFlag)
-        self.w.setViewHomeAction.setEnabled(enableFlag)
-        self.w.setViewLeftAction.setEnabled(enableFlag)
-        self.w.setViewRecenterAction.setEnabled(enableFlag)
-        self.w.setViewRightAction.setEnabled(enableFlag)
-        self.w.setViewTopAction.setEnabled(enableFlag)
-        pass 
-    
+        self.ctrlPanel.layerThicknessLineEdit.setText(s)
+   
     def toggleFullModel(self, showFullModel):
         """Turn on/off full model """
         self.showFullModel = showFullModel
         self.o.gl_update()
     
-    def _cancelRubberSelection(self):
-        """Cancel rubber selection before it's finished """
+    def _cancelSelection(self):
+        """Cancel rubber or center based selection before it's finished """
         if self.Rubber:
-            self.sellist = []
             self.Rubber = False
+        
+        #elif self.selectionShape in ['DEFAULT', 'LASSO', 'RECT_CORNER']: return
+        
+        if self.sellist:
+            self.o.backlist = []    
+            self.sellist = []
             self.picking = False
             self.w.history.transient_msg("")
             self.o.gl_update()
+        
     
-    def changeSelectionShape(self, action):
-        """Slot method that is called when user changes selection shape by GUI. """
-        if action == self.w.CircleSelAction:
-            self.selectionShape = 'CIRCLE'
-        elif action == self.w.HexagonSelAction:
-            self.selectionShape = 'HEXAGON'
-        elif action == self.w.RectCtrSelAction:
-            self.selectionShape = 'RECTANGLE'
-        elif action == self.w.TriangleSelAction:
-            self.selectionShape = 'TRIANGLE'
-        elif action == self.w.LassoSelAction:
-            self.selectionShape = 'LASSO'
-        elif action == self.w.RectCornerSelAction:
-            self.selectionShape = 'RECT_CORNER'        
-        else:
-            self.selectionShape = 'DEFAULT'
-    
-    def _getSelectionShape(self):
-        """Get the current selection shape that user chooses. """
-        if self.w.CircleSelAction.isOn():
-            self.selectionShape = 'CIRCLE'
-        elif self.w.HexagonSelAction.isOn():
-            self.selectionShape = 'HEXAGON'
-        elif self.w.RectCtrSelAction.isOn():
-            self.selectionShape = 'RECTANGLE'
-        elif self.w.TriangleSelAction.isOn():
-            self.selectionShape = 'TRIANGLE'
-        elif self.w.LassoSelAction.isOn():
-            self.selectionShape = 'LASSO'
-        elif self.w.RectCornerSelAction.isOn():
-            self.selectionShape = 'RECT_CORNER' 
-        else:
-            self.selectionShape = 'DEFAULT'
     
     def changeLatticeType(self, lType):
         """Change lattice type as 'lType'. """
         self.latticeType = self.LATTICE_TYPES[lType]
         self.o.gl_update()
+    
+    def changeSelectionShape(self, newShape):
+        self.selectionShape = newShape
         
     pass # end of class cookieMode
 
