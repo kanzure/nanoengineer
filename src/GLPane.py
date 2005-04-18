@@ -55,6 +55,9 @@ from debug import DebugMenuMixin, print_compact_traceback
 import preferences
 
 
+debug_lighting = False #bruce 050418
+
+
 paneno = 0
 #  ... what a Pane ...
 
@@ -126,7 +129,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                           extrudeMode, revolveMode, fusechunksMode, movieMode,
                           zoomMode, panMode, rotateMode]
     
-    def __init__(self, assem, master=None, name=None, win=None):
+    def __init__(self, assy, master=None, name=None, win=None):
         
         self.win = win
 
@@ -138,10 +141,40 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         paneno += 1
         self.initialised = 0
 
-        DebugMenuMixin._init1(self) # provides self.debug_event(); needs self.makemenu()
+        DebugMenuMixin._init1(self) # provides self.debug_event() [might provide or require more things too... #doc]
 
         self.trackball = Trackball(10,10)
+
+
+        # Current view attributes (sometimes saved in or loaded from
+        #  the currently displayed part or its mmp file):
+        
+        # rotation
         self.quat = Q(1, 0, 0, 0)
+        # point of view (i.e. negative of center of view)
+        self.pov = V(0.0, 0.0, 0.0)
+        # half-height of window in Angstroms
+        self.scale = 10.0
+        # zoom factor
+        self.zoomFactor = 1.0
+
+
+        # Other "current preference" attributes. ###e Maybe some of these should
+        # also be part-specific and/or saved in the mmp file? [bruce 050418]
+
+        # clipping planes, as percentage of distance from the eye
+        self.near = 0.66
+        self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
+                               ## more likely sitting within the view volume
+        # start in perspective mode
+        self.ortho = 0
+        # default display form for objects in the window
+        # even tho there is only one assembly to a window,
+        # this is here in anticipation of being able to have
+        # multiple windows on the same assembly
+        self.display = default_display_mode #bruce 041129
+        self.win.dispbarLabel.setText( "Default Display: " + dispLabel[self.display] )
+        
 
         # Current coordinates of the mouse.
         self.MousePos = V(0,0)
@@ -152,25 +185,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # the toggle button state for Csys
         self.cSysToggleButton = True
  
-        # point of view, and half-height of window in Angstroms
-        self.pov = V(0.0, 0.0, 0.0)
-        self.scale = 10.0
-
-        # clipping planes, as percentage of distance from the eye
-        self.near = 0.66
-        self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
-                               ## more likely sitting within the view volume
-
-        self.zoomFactor = 1.0
-        # start in perspective mode
-        self.ortho = 0
-
         ##Huaicai 2/8/05: If this is true, redraw everything. It's better to split
         ##the paintGL() to several functions, so we may choose to draw 
         ##every thing, or only some thing that has been changed.
         self.redrawGL = True  
         
         # not selecting anything currently
+        # [as of 050418 (and before), this is used in cookieMode and selectMode]
         self.shape = None
 
         self.setMouseTracking(True)
@@ -181,12 +202,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # just copied it from MWsemantics.
         self.setFocusPolicy(QWidget.StrongFocus)
 
-        # default display form for objects in the window
-        # even tho there is only one assembly to a window,
-        # this is here in anticipation of being able to have
-        # multiple windows on the same assembly
-        self.display = default_display_mode #bruce 041129
-        self.win.dispbarLabel.setText( "Default Display: " + dispLabel[self.display] )
         self.singlet = None
         self.selatom = None # josh 10/11/04 supports depositMode
 
@@ -194,7 +209,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
         drawer.setup()
 
-        self.setAssy(assem)
+        self.setAssy(assy)
 
         self.loadLighting() #bruce 050311
         
@@ -222,7 +237,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         assy.lastCsys.zoomFactor = self.zoomFactor
             
             
-    def setAssy(self, assem):
+    def setAssy(self, assy):
         """[bruce comment 040922] This is called from self.__init__,
         and from MWSemantics.__clear when user asks to open a new
         file, etc.  Apparently, it is supposed to forget whatever is
@@ -239,10 +254,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         sure I'm right about that, since I didn't test it.
         """
         
-        assem.o = self
-        self.assy = assem
+        assy.o = self
+        self.assy = assy
         
-        self.setInitialView(assem)
+        self.setInitialView(assy)
         
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() 
@@ -558,9 +573,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 d = dc[0]
                 res.append( (a,d,e) )
             self.setLighting( res, gl_update = gl_update)
-            ## self.win.history.message( greenmsg( "Lighting preferences loaded" )) # not desired for now
-            if platform.atom_debug:
-                print "atom_debug: fyi: Lighting preferences loaded"
+            if debug_lighting:
+                print "debug_lighting: fyi: Lighting preferences loaded"
             return True
         except:
             print_compact_traceback("bug: exception in loadLighting (current prefs not altered): ")
@@ -990,8 +1004,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
     def __str__(self):
         return "<GLPane " + self.name + ">"
 
-    def makemenu(self, lis):
-        return makemenu_helper(self, lis)
+    def makemenu(self, menu_spec):
+        # this overrides the one from DebugMenuMixin (with the same code), but that's ok,
+        # since we want to be self-contained in case someone later removes that mixin class;
+        # this method is called by our modes to make their context menus.
+        # [bruce 050418 comment]
+        return makemenu_helper(self, menu_spec)
 
     pass # end of class GLPane
 

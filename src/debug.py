@@ -241,10 +241,15 @@ class DebugMenuMixin:
         # make the menu -- now done each time it's needed
         return
 
-    def makemenu(self, lis): # bruce 050304 added this, so subclasses no longer have to
-        "[can be overridden by a subclass, but probably never needs to be]"
+    def makemenu(self, menu_spec): # bruce 050304 added this, so subclasses no longer have to
+        """Make and return a menu object for use in this widget, from the given menu_spec.
+        [This can be overridden by a subclass, but probably never needs to be,
+        unless it needs to make *all* menus differently (thus we do use the overridden
+        version if one is present) or unless it uses it independently from this mixin
+        and wants to be self-contained.]
+        """
         from widgets import makemenu_helper
-        return makemenu_helper(self, lis)
+        return makemenu_helper(self, menu_spec)
     
     def _debug_history(self):
         # figure out where to send history messages
@@ -386,10 +391,10 @@ class DebugMenuMixin:
         #bruce 050416: remake the menu each time it's needed
         menu = None
         try:
-            lis = self.debug_menu_items()
-            menu = self.makemenu( lis ) # might be []
+            menu_spec = self.debug_menu_items()
+            menu = self.makemenu( menu_spec ) # might be []
         except:
-            print_compact_traceback("bug in do_debug_menu ignored; menu_spec is %r" % (lis,) )
+            print_compact_traceback("bug in do_debug_menu ignored; menu_spec is %r" % (menu_spec,) )
             menu = None # for now
         
         ## removed [bruce 050416] since badly named and not yet used:

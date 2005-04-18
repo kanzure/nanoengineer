@@ -39,12 +39,6 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from struct import unpack
-
-##bruce 050222 thinks the following are not needed here anymore:
-##from drawer import drawsphere, drawcylinder, drawline, drawaxes
-##from drawer import segstart, drawsegment, segend, drawwirecube
-##from shape import *
-
 from chem import *
 from movie import *
 from jigs import *
@@ -53,13 +47,16 @@ from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from inval import InvalMixin
 from changes import begin_event_handler, end_event_handler
-from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS # can't yet import class assembly -- recursive import problem; do it at runtime
+from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
 
 
 # number of atoms for detail level 0
 HUGE_MODEL = 20000
 # number of atoms for detail level 1
 LARGE_MODEL = 5000
+
+debug_parts = False # set this to True in a debugger, to enable some print statements, etc
+
 
 class Part(InvalMixin):
     """
@@ -121,8 +118,8 @@ class Part(InvalMixin):
         ## self.temperature = 300 # for now this is an attr of assy
         ## self.waals = None ## bruce 050325 removed since nowhere used
 
-##        if platform.atom_debug:
-##            print "atom_debug: fyi: created Part:", self
+        if debug_parts:
+            print "debug_parts: fyi: created Part:", self
 
         return # from Part.__init__
 
@@ -153,8 +150,9 @@ class Part(InvalMixin):
             # this is normal, e.g. in ensure_one_part, so don't complain
             return
         if node.part:
-            if platform.atom_debug: #e this will be common, remove it as soon as you see it (unless i do the remove explicitly)
-                print "atom_debug: fyi: node added to new part so removed from old part first:", node, self, node.part
+            if debug_parts:
+                # this will be common
+                print "debug_parts: fyi: node added to new part so removed from old part first:", node, self, node.part
             node.part.remove(node)
         assert node.part == None
         assert not node.picked # since remove did it, or it was not in a part and could not have been picked (I think!)
@@ -190,9 +188,9 @@ class Part(InvalMixin):
         node.part = None
         if self.topnode == node:
             self.topnode = None #k can this happen when any nodes are left??? if so, is it bad?
-            if platform.atom_debug:
-                print "atom_debug: fyi: topnode leaves part, %d nodes remain" % self.nodecount
-            # it can happen when I drag a Group out of clipboard: "atom_debug: fyi: topnode leaves part, 2 nodes remain"
+            if debug_parts:
+                print "debug_parts: fyi: topnode leaves part, %d nodes remain" % self.nodecount
+            # it can happen when I drag a Group out of clipboard: "debug_parts: fyi: topnode leaves part, 2 nodes remain"
             # and it doesn't seem to be bad (the other 2 nodes were pulled out soon).
         if self.nodecount <= 0:
             assert self.nodecount == 0
@@ -202,8 +200,8 @@ class Part(InvalMixin):
 
     def destroy(self):
         "forget everything, let all storage be reclaimed; only valid if we have no nodes left" # implem is a guess
-        if platform.atom_debug:
-            print "atom_debug: fyi: destroying part", self
+        if debug_parts:
+            print "debug_parts: fyi: destroying part", self
         assert self.nodecount == 0, "can't destroy a Part which still has nodes" # esp. since it doesn't have a list of them!
             # actually it could scan self.assy.root to find them... but for now, we'll enforce this anyway.
         ## self.invalidate_all_attrs() # not needed
