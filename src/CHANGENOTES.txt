@@ -271,3 +271,9 @@ For details, see email to cad list, subject line:
 
 ----------------------------
 
+Name: Mark Sims
+Date: 4/17/2005
+Files: modifyMode
+Summary: Implemented moveAbsolute() for one or more chunks.
+
+----------------------------

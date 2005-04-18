@@ -7,6 +7,7 @@ $Id$
 
 from modes import *
 from widgets import FloatSpinBox
+from HistoryWidget import redmsg
 
 def do_what_MainWindowUI_should_do(w):
     'Populate the Move Chunks dashboard'
@@ -36,13 +37,7 @@ def do_what_MainWindowUI_should_do(w):
     
     w.moveDeltaPlusAction.addTo(w.moveChunksDashboard)
     w.moveDeltaMinusAction.addTo(w.moveChunksDashboard)
-    
-    # Commented out all references to moveAbsoluteAction.
-    # Save this for later.  Need to sort out some issues, like what happens when 
-    # more than one chunk is moved to the same abs coord (they will overlap).  
-    # We could limit the number of chunks to 1. Talk to Bruce about this.  
-    # Mark 050412
-#    w.moveAbsoluteAction.addTo(w.moveChunksDashboard)
+    w.moveAbsoluteAction.addTo(w.moveChunksDashboard)
     
     w.moveChunksDashboard.addSeparator()
     
@@ -96,7 +91,7 @@ class modifyMode(basicMode):
         self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
         self.w.connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
         self.w.connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
-#        self.w.connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
+        self.w.connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
         
         set_move_xyz(self.w, 0, 0, 0)
 
@@ -111,13 +106,13 @@ class modifyMode(basicMode):
         self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
         self.w.disconnect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
         self.w.disconnect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
-#        self.w.disconnect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
+        self.w.disconnect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
         
     def keyPress(self,key):
         basicMode.keyPress(self, key)
         if key == Qt.Key_Shift:
             self.o.setCursor(self.w.MoveAddCursor)
-        if key == Qt.Key_Control:
+        elif key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSubtractCursor)
 
         # For these key presses, we toggle the Action item, which will send 
@@ -128,12 +123,13 @@ class modifyMode(basicMode):
         elif key == Qt.Key_Y:
             self.w.transYAction.setOn(1) # toggle on the Translate Y action item
         elif key == Qt.Key_Z:
+            print "modifyMode.keyPress: Z key pressed"
             self.w.transZAction.setOn(1) # toggle on the Translate Z action item
-            
+
 #     For debugging/testing.  Please keep in.  Mark 050413        
-#        if key == Qt.Key_T:
-#            print "modifyMode.keyPress: T key pressed (Testing) "
-#            self.test()
+#        elif key == Qt.Key_M:
+#            print "modifyMode.keyPress: M key pressed Testing moveAbsolute "
+#            self.moveAbsolute()
                 
 #     For debugging/testing.  Please keep in.  Mark 050413          
 #    def test(self):
@@ -221,9 +217,9 @@ class modifyMode(basicMode):
             # Print status bar msg indicating the current move delta.
             if self.o.assy.selmols:
                 self.moveOffset += norm(point - self.movingPoint) # Increment move offset
-                msg = "Offset: X: %.2f   Y: %.2f   Z: %.2f" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
+                msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
                 self.w.history.transient_msg(msg)
-            
+
             self.o.assy.movesel(point - self.movingPoint)
             self.movingPoint = point
 
@@ -428,20 +424,46 @@ class modifyMode(basicMode):
 
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
+        if not self.o.assy.selmols: 
+            self.w.history.message(redmsg("No chunks selected."))
+            return
         offset = get_move_xyz(self.w, 1)
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
     def moveDeltaMinus(self):
         "Subtract X, Y, and Z from the selected chunk(s) current position"
+        if not self.o.assy.selmols: 
+            self.w.history.message(redmsg("No chunks selected."))
+            return
         offset = get_move_xyz(self.w, 0)
         self.o.assy.movesel(offset)
         self.o.gl_update()
-        
+
     def moveAbsolute(self):
-        "Move select chunk(s) to X, Y, and Z"
-        pass
-                
+        '''Move selected chunk(s) to absolute X, Y, and Z by computing the bbox center
+        of everything as if they were one big chunk, then move everything as a unit.
+        '''
+        if not self.o.assy.selmols: 
+            self.w.history.message(redmsg("No chunks selected."))
+            return
+        # Compute bbox for selected chunk(s).
+        from shape import BBox
+        bbox = BBox()
+        for mol in self.o.assy.selmols:
+              bbox.merge(mol.bbox)
+        pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
+        pt2 = get_move_xyz(self.w, 1) # pt2 = X, Y, Z values from dashboard.
+        offset = pt2 - pt1 # Compute offset for movesel.
+        self.o.assy.movesel(offset) # Move the selected chunk(s).
+        # Print history message about what happened.
+        if len(self.o.assy.selmols) == 1:
+            msg = "Chunk [%s] moved to [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.o.assy.selmols[0].name, pt2[0], pt2[1], pt2[2])
+        else:
+            msg = "Selected chunks moved by offset [X: %.2f] [Y: %.2f] [Z: %.2f]" % (offset[0], offset[1], offset[2])
+        self.w.history.message(msg)
+        self.o.gl_update()
+
     def changeMoveOption(self, action):
         '''Slot for Move Chunks dashboard's Move Options
         '''
