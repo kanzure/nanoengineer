@@ -5,7 +5,7 @@ fileIO.py -- reading and writing miscellaneous file formats
 
 $Id$
 
-History: bruce 040514 split out most of this module's code
+History: bruce 050414 split out most of this module's code
 into separate modules for each file format,
 except for the ones that remain. These too might soon be
 in format-specific modules, leaving this one empty until
