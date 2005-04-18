@@ -1479,7 +1479,11 @@ class ClipboardItemPart(Part):
         #e abbreviate long names...
         return "%s (%s)" % (self.topnode.name, self.location_name())
     def location_name(self):
-        return "clipboard item %d" % ( self.clipboard_item_number(), )
+        "[used in history messages and on glpane]"
+        # bruce 050418 change:
+        ## return "clipboard item %d" % ( self.clipboard_item_number(), )
+        return "on Clipboard" #e might be better to rename that to Shelf, so only the current
+            # pastable (someday also in OS clipboard) can be said to be "on the Clipboard"!
     def clipboard_item_number(self):
         "this can be different every time..."
         return self.assy.shelf.members.index(self.topnode) + 1

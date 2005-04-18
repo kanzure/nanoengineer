@@ -191,6 +191,7 @@ class assembly:
         self._last_current_selgroup = self.tree
         return
 
+    next_clipboard_item_number = 1 # initial value of instance variable
     def name_autogrouped_nodes_for_clipboard(self, nodes, howmade = ""):
         """Make up a default initial name for an automatically made Group
         whose purpose is to keep some nodes in one clipboard item.
@@ -203,7 +204,35 @@ class assembly:
            Someday we might use these args (or anything else, e.g. self.filename)
         to help make up the name.
         """
-        return "<Clipboard item>"
+        # original version: return "<Clipboard item>"
+        # bruce 050418: to improve this and avoid the unfixed bug of '<' in names
+        # (which mess up history widget's html),
+        # I'll use "Clipboard item <n>" where n grows forever, per-file,
+        # except that rather than storing it, I'll just look at the nodes now in the file,
+        # and remember the highest one used while the file was loaded in the session.
+        # (So saving and reloading the file will start over based on the numbers used in the file,
+        #  which is basically good.)
+        #e (Should I use a modtime instead (easier to implement, perhaps more useful)? No;
+        #   instead, someday make that info available for *all* nodes in a 2nd MT column.)
+        prefix = "Clipboard item" # permit space, or not, between this and a number, to recognize a number
+        for node in self.shelf.members:
+            name = node.name
+            number = None
+            if name.startswith(prefix):
+                rest = name[len(prefix):].strip()
+                if rest and rest.isdigit():
+                    try:
+                        number = int(rest)
+                    except:
+                        # can this happen (someday) for weird unicode digits permitted by isdigit? who knows...
+                        print "ignoring clipboard item name containing weird digits: %r" % (name,)
+                        number = None
+            if number != None and self.next_clipboard_item_number <= number:
+                # don't use any number <= one already in use
+                self.next_clipboard_item_number = number + 1
+        res = "%s %d" % (prefix, self.next_clipboard_item_number)
+        self.next_clipboard_item_number += 1 # also don't reuse this number in this session
+        return res
     
     # == Parts
     
