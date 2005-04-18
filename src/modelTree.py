@@ -154,7 +154,7 @@ class modelTree(TreeWidget):
             # so it's no longer needed for safety?
         kluge_patch_assy_toplevel_groups( self.assy, assert_this_was_not_needed = True)
             # fixes Group subclasses of assy.shelf and assy.tree, and
-            # [not anymore, as of some time before 050417] inserts assy.data.members into assy.tree
+            # [not anymore, as of some time before 050417] inserts assy.viewdata.members into assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
         return [self.assy.tree, self.assy.shelf]
 

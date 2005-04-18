@@ -1593,7 +1593,7 @@ class Csys(DataNode):
 ##        # This means that Datum objects (stored using their current mmp record)
 ##        # will never be safe to include in assy.tree of mmp files which should
 ##        # be readable by old code, and they have no meaningful effect in their
-##        # standard location (assy.data), so we might as well deprecate their
+##        # standard location (assy.viewdata), so we might as well deprecate their
 ##        # mmp record, discard it whenever read by new code and never write it
 ##        # into mmp files, and start from scratch when we want real "datum planes".
 ##        new = Datum(self.assy, self.name, self.type,
@@ -1610,7 +1610,7 @@ class Csys(DataNode):
 
 class PartGroup(Group):
     """A specialized Group for holding the entire "main model" of an assembly,
-    with provisions for including the "assy.data" elements as initial kids, but not in self.members
+    with provisions for including the "assy.viewdata" elements as initial kids, but not in self.members
     (which is a kluge, and hopefully can be removed reasonably soon, though perhaps not for Alpha).
     """
     _initialkids = [] #bruce 050302
@@ -1629,7 +1629,7 @@ class PartGroup(Group):
 ##    def kluge_set_initial_nonmember_kids(self, lis): #bruce 050302 comment: no longer used, for now
 ##        """[This kluge lets the csys and datum plane model tree items
 ##        show up in the PartGroup, without their nodes being in its members list,
-##        since other code wants their nodes to remain in assy.data, but they can
+##        since other code wants their nodes to remain in assy.viewdata, but they can
 ##        only have one .dad at a time. Use of it means you can't assume node.dad
 ##        corresponds to model tree item parent!]
 ##        """
@@ -1759,11 +1759,11 @@ def kluge_patch_assy_toplevel_groups(assy, assert_this_was_not_needed = False): 
             fixroot = 1
         if assy.tree.__class__ == Group:
             assy.tree = assy.tree.kluge_change_class( PartGroup)
-            ##bruce 050302 removing use of 'data' here,
+            ##bruce 050302 removing use of 'viewdata' here,
             # since its elements are no longer shown in the modelTree,
             # and I might as well not figure them out re assy/part split until we want
             # them back and know how we want them to behave regarding parts.
-##            lis = list(assy.data.members)
+##            lis = list(assy.viewdata.members)
 ##            # are these in the correct order (CSys XY YZ ZX)? I think so. [bruce 050110]
 ##            assy.tree.kluge_set_initial_nonmember_kids( lis )
             fixroot = 1

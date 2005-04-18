@@ -86,7 +86,7 @@ class Part(InvalMixin):
         
         # _modified?? not yet needed for individual parts, but will be later.
         
-        # coord sys stuff? data? lastCsys homeCsys xy yz zx ###@@@ review which ivars needed; do we want unique names?? no.
+        # coord sys stuff? viewdata? lastCsys homeCsys xy yz zx ###@@@ review which ivars needed; do we want unique names?? no.
         # the coordinate system (Actually default view) ####@@@@ does this belong to each Part?? guess: yes
         self.homeCsys = Csys(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
         self.lastCsys = Csys(self.assy, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
@@ -97,8 +97,8 @@ class Part(InvalMixin):
 ##        self.yz = Datum(self.assy, "YZ", "plane", V(0,0,0), V(1,0,0))
 ##        self.zx = Datum(self.assy, "ZX", "plane", V(0,0,0), V(0,1,0))
         grpl1 = [self.homeCsys, self.lastCsys] ## , self.xy, self.yz, self.zx] # [note: only use of .xy, .yz, .zx as of 050417]
-        self.data = Group("Data", self.assy, None, grpl1)
-        self.data.open = False
+        self.viewdata = Group("View Data", self.assy, None, grpl1) #bruce 050418 renamed this; not a user-visible change
+        self.viewdata.open = False
 
         # name? no, at least not yet, until there's a Part Tree Widget.
         
@@ -236,7 +236,7 @@ class Part(InvalMixin):
     
     # == compatibility methods
 
-    #####@@@@@ find and fix all sets of .tree or .root or .data or .shelf
+    #####@@@@@ find and fix all sets of .tree or .root or .data (old name, should all be renamed now) or .viewdata (new name) or .shelf
     
     def _get_tree(self): #k this would run for part.tree; does that ever happen?
         print_compact_stack("_get_tree is deprecated: ")

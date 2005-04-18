@@ -835,7 +835,7 @@ class TreeView(QListView):
     
     ###@@@@ the following should be rewritten to scan item tree, not node tree...
         # then maybe it would not matter if item.parent ~= node.dad.
-        # so it'd work for data nodes even if we don't make that correspondence strict.
+        # so it'd work for viewdata nodes even if we don't make that correspondence strict.
         
     def update_open_selected_in_itemtree(self, item, do_setOpen = True, do_invisible_nodes = True):
         ###@@@ change to also update text, icon? anything but structure... rename??
@@ -853,7 +853,7 @@ class TreeView(QListView):
         # this will pull them into this file;
         # later worry about making them item-centric not node-centric...
         # and about fixing them to use methods on items not in tw, so sel works better.
-        # btw what about data members (kids but not members, might not be reached here)?
+        # btw what about viewdata members (kids but not members, might not be reached here)?
         #  is it moot? ignore for now. or ask node for all members for this use... ie all possible kids, kids_if_open...
         # useful in our treemaker too i guess.
         listview = self
@@ -875,7 +875,7 @@ class TreeView(QListView):
                 # if the members are not visible now, don't update them now (optim, I guess)
                 if not (node.openable() and getattr(node,'open',False)):
                     return
-            for kid in node.members: ###@@@ for data guys, use kids_if_open
+            for kid in node.members: ###@@@ for viewdata guys, use kids_if_open
                 self.update_items_from_nodes_open_selected(kid, do_setOpen = do_setOpen)
         return
     

@@ -185,6 +185,12 @@ class assembly:
         self.current_movie = None
             # before 050325 this was called self.m and was always the same Movie object (per assy)
 
+        # make sure these exist [bruce 050418]:
+        assert self.tree
+        assert self.tree.part
+        assert self.tree.part.homeCsys
+        assert self.tree.part.lastCsys
+        
         return # from assembly.__init__
 
     def init_current_selgroup(self):
@@ -524,7 +530,7 @@ class assembly:
     
     # attrnames to delegate to the current part
     # (ideally for writing as well as reading, until all using-code is upgraded) ###@@@ use __setattr__ ?? etc??
-    part_attrs = ['molecules','selmols','selatoms']
+    part_attrs = ['molecules','selmols','selatoms','homeCsys','lastCsys']
     ##part_methods = ['selectAll','selectNone','selectInvert']###etc... the callable attrs of part class??
     part_methods = filter( lambda attr:
                              not attr.startswith('_')
@@ -535,7 +541,7 @@ class assembly:
 ##        print "dir(Part) = ",dir(Part)
     #####@@@@@ for both of the following:
     part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
-    part_attrs_review = ['ppa2','ppa3','data','homeCsys','lastCsys','xy','yz','zx']
+    part_attrs_review = ['ppa2','ppa3','viewdata']
         ###@@@ bruce 050325 removed 'alist', now all legit uses of that are directly on Part or Movie
         ### similarly removed 'temperature' (now on assy like it was),'waals' (never used)
         #e in future, we'll split out our own methods for some of these, incl .changed
@@ -601,7 +607,7 @@ class assembly:
             raise AttributeError, attr
         raise AttributeError, attr
 
-    # == change-tracking
+    # == change-tracking [needs to be extended to be per-part or per-node, and for Undo]
     
     def has_changed(self): # bruce 050107
         """Report whether this assembly (or something it contains)

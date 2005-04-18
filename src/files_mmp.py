@@ -595,7 +595,7 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
     modify assy in various ways (a bad design, see comment in insertmmp)
     (but don't actually add file contents to assy -- let caller do that if and where it prefers),
     and return either None (after an error for which caller should store no file contents at all)
-    or a list of 3 Groups, which caller should treat as having roles "data", "tree", "shelf",
+    or a list of 3 Groups, which caller should treat as having roles "viewdata", "tree", "shelf",
     regardless of how many toplevel items were in the file, or of whether they were groups.
     (We handle normal mmp files with exactly those 3 groups, old sim-input files with only
     the first two, and newer sim-input files for Parts (one group) or for minimize selection
@@ -618,25 +618,25 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
             ###e general history msg for stopping early on error
             ###e special return value then??
             break
-    grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are data, tree, shelf
+    grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
 
     # Note about homeView and lastView [bruce 050407]... not yet ready to commit.
-    # See bruce's fileIO-data-fixer.py file (at home) for not-yet-right comment and code.
+    # See bruce's fileIO-data-fixer.py file (at home) [renamed data as viewdata 050418] for not-yet-right comment and code.
     # Meanwhile, if we're reading a sim-input file or other erroneous file which
-    # uses the following fake 'data' group, its views will be unsavable
+    # uses the following fake 'viewdata' group, its views will be unsavable
     # even if you resave it and reload it and resave it, etc,
     # unless we fix this elsewhere, maybe in reset_grouplist below. ###@@@
     
     # now fix up sim input files and other nonstandardly-structured files;
     # use these extra groups if necessary, else discard them:
-    data = Group("Data", assy, None)
+    viewdata = Group("View Data", assy, None)
     shelf = Group("Clipboard", assy, None) # name might not matter
     
     for g in grouplist:
         if not g.is_group(): # might happen for files that ought to be 'one_part', too, I think, if clipboard item was not grouped
             state.guess_sim_input('missing_group_or_chunk') # normally same warning already went out for the missing chunk 
             tree = Group("tree", assy, None, grouplist)
-            grouplist = [ data, tree, shelf ]
+            grouplist = [ viewdata, tree, shelf ]
             break
     if len(grouplist) == 0:
         state.format_error("nothing in file")
@@ -645,7 +645,7 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
         state.guess_sim_input('one_part')
             # note: 'one_part' gives same warning as 'missing_group_or_chunk' as of 050406
         tree = Group("tree", assy, None, grouplist) #bruce 050406 removed [0] to fix bug in last night's new code
-        grouplist = [ data, tree, shelf ]
+        grouplist = [ viewdata, tree, shelf ]
     elif len(grouplist) == 2:
         state.guess_sim_input('no_shelf')
         grouplist.append( shelf)
@@ -653,7 +653,7 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
         state.format_error("more than 3 toplevel groups -- treating them all as in the main part")
             #bruce 050405 change; old code discarded all the data
         tree = Group("tree", assy, None, grouplist)
-        grouplist = [ data, tree, shelf ]
+        grouplist = [ viewdata, tree, shelf ]
     else:
         pass # nothing was wrong!
     assert len(grouplist) == 3
@@ -677,7 +677,7 @@ def reset_grouplist(assy, grouplist):
     if grouplist is None, indicating file had bad format,
     do some but not all of the usual side effects.
     Otherwise grouplist must be a list of exactly 3 Groups (not checked),
-    which we treat as data, tree, shelf.
+    which we treat as viewdata, tree, shelf.
     [appropriateness of behavior for grouplist == None is unreviewed]
     """
     #bruce 050406 comment: this seems wrong re assy/part split, since some of these are sometimes
@@ -685,28 +685,28 @@ def reset_grouplist(assy, grouplist):
     if grouplist:
         # don't store these in any Part, since those will all be replaced with new ones
         # by update_parts, below!
-        assy.data, assy.tree, assy.shelf = grouplist
+        assy.viewdata, assy.tree, assy.shelf = grouplist
     #bruce 050407 quick fix for reading sim-input files -- disabled since not yet correct; affects reading of ALL mmp files
 ##    # (due to side effects of reading Csys records, it seems best to do this even if grouplist == None;
-##    #  and since it replaces assy.data, we'll do it before calling kluge_patch_assy_toplevel_groups
-##    #  which I think uses assy.data's members.)
+##    #  and since it replaces assy.viewdata, we'll do it before calling kluge_patch_assy_toplevel_groups
+##    #  which I think uses assy.viewdata's members.)
 ##    try:
-##        datamembers = [assy.homeCsys, assy.lastCsys, assy.xy, assy.yz, assy.zx]
+##        viewdatamembers = [assy.homeCsys, assy.lastCsys, assy.xy, assy.yz, assy.zx]
 ##        if platform.atom_debug: ###@@@ remove soon, at least when they agree
-##            if assy.data.members == datamembers:
-##                print "atom_debug: fyi: data members agree (changing them anyway since check not done unless atom_debug)"
+##            if assy.viewdata.members == viewdatamembers:
+##                print "atom_debug: fyi: viewdata members agree (changing them anyway since check not done unless atom_debug)"
 ##            else:
-##                print "atom_debug: fyi: data members were wrong, replacing them; old length %d, new length %d" % \
-##                      (len(assy.data.members), len(datamembers))
-##        newdata = Group("Data", assy, None, datamembers) # warning: this pulls them out of assy.data, if they're in there now
-##        assy.data = newdata
+##                print "atom_debug: fyi: viewdata members were wrong, replacing them; old length %d, new length %d" % \
+##                      (len(assy.viewdata.members), len(viewdatamembers))
+##        newviewdata = Group("View Data", assy, None, viewdatamembers) # warning: this pulls them out of assy.viewdata, if they're in there now
+##        assy.viewdata = newviewdata
 ##    except:
 ##        print_compact_traceback("exception in 050407 quick fix for reading sim-input files, ignored: ")
 ##        pass
     #bruce 050302: old code does a lot of the following even if grouplist is None;
     # until I understand all the effects better, I won't change that.
     assy.shelf.name = "Clipboard"
-    assy.data.open = assy.shelf.open = False
+    assy.viewdata.open = assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
     #bruce 050131 for Alpha:
     from Utility import kluge_patch_assy_toplevel_groups
@@ -722,8 +722,8 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
         # isInsert = True prevents most side effects on assy;
         # a better design would be to let the caller do them (or not)
     if grouplist:
-        data, mainpart, shelf = grouplist
-        del data, shelf
+        viewdata, mainpart, shelf = grouplist
+        del viewdata, shelf
         assy.part.ensure_toplevel_group()
         assy.part.topnode.addchild( mainpart )
     return
@@ -906,7 +906,7 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
 
     try:
         mapping.write_header()
-        assy.data.writemmp(mapping)
+        assy.viewdata.writemmp(mapping)
         assy.tree.writemmp(mapping)
         
         mapping.write("end1\n")
@@ -933,7 +933,7 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     assy = part.assy
     #e assert node is tree or shelf member? is there a method for that already? is_topnode?
     workaround_for_bug_296( assy, onepart = part)
-    assy.o.saveLastView(assy) # this updates assy.data, but we don't currently write it out below
+    assy.o.saveLastView(assy) # this updates assy.viewdata, but we don't currently write it out below
         # note that lastView stuff is not yet properly fixed for assembly/part split [050406]
     fp = open(filename, "w")
     mapping = writemmp_mapping(assy)
