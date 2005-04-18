@@ -31,12 +31,7 @@ from constants import *
 from chem import *
 from jigs import *
 from Utility import *
-from selectMode import selectMode
 import sys, os, time
-
-from platform import fix_buttons_helper
-from widgets import makemenu_helper
-from debug import DebugMenuMixin
 
 
 class TreeView(QListView):

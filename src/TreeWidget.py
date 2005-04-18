@@ -18,6 +18,10 @@ and split it into three modules:
 """
 
 from TreeView import * # including class TreeView, and import * from many other modules
+from widgets import makemenu_helper
+from platform import fix_buttons_helper
+from debug import DebugMenuMixin
+from selectMode import selectMode
 from selectMode import selectMolsMode, selectAtomsMode
 allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons
 
@@ -350,8 +354,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def fix_buttons(self, but, when):
         return fix_buttons_helper(self, but, when)
     
-    def makemenu(self, lis):
-        return makemenu_helper(self, lis)    
+    def makemenu(self, menu_spec):
+        # this overrides the one from DebugMenuMixin (with the same code), but that's ok,
+        # since we want to be self-contained in case someone later removes that mixin class.
+        # [bruce 050418 comment]
+        return makemenu_helper(self, menu_spec)    
 
     def item_x_edges(self, item):
         """Given a QListViewItem of ours (not None(??) or opts so None seems all to left of openclose, etc??),
