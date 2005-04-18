@@ -4,7 +4,7 @@ files_mmp.py -- reading and writing MMP files
 
 $Id$
 
-History: bruce 040514 pulled this out of fileIO.py rev. 1.97
+History: bruce 050414 pulled this out of fileIO.py rev. 1.97
 (of which it was the major part),
 since I am splitting that into separate modules for each file format.
 
@@ -427,25 +427,36 @@ class _readmmp_state:
                              m.group(4), m.group(5)]))
                     scale = float(m.group(6))
                     self.assy.homeCsys = Csys(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
+                        #bruce 050417 comment (about Huaicai's preexisting code):
+                        # this name "OldVersion" is detected in MWsemantics.fileOpen (one of our callers)
+                        # and changed to "HomeView", also triggering other side effects at that time.
                     self.addmember(self.assy.homeCsys)
                     self.assy.lastCsys = Csys(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
                     self.addmember(self.assy.lastCsys)
 
-    def _read_datum(self, card): # datum -- Datum object
-        if not self.isInsert: #Skip this record if inserting
-            m = re.match(datumpat,card)
-            if not m:
-                self.warning("mmp syntax error; ignoring line: %r" % card)
-                return
-            name = m.group(1)
-            type = m.group(5)
-            col = tuple(map(int, [m.group(2), m.group(3), m.group(4)]))
-            vec1 = A(map(float, [m.group(6), m.group(7), m.group(8)]))
-            vec2 = A(map(float, [m.group(9), m.group(10), m.group(11)]))
-            vec3 = A(map(float, [m.group(12), m.group(13), m.group(14)]))
-            new = Datum(self.assy,name,type,vec1,vec2,vec3)
-            self.addmember(new)
-            new.rgb = col
+# bruce 050417: removing class Datum (and ignoring its mmp record "datum"),
+# since it has no useful effect (and not writing it will not even be
+# noticed by old code reading our mmp files). But the code should be kept around,
+# since we might reuse some of it when we someday have real "datum planes".
+# More info about this can be found in other comments/emails.
+##    def _read_datum(self, card): # datum -- Datum object
+##        if not self.isInsert: #Skip this record if inserting
+##            m = re.match(datumpat,card)
+##            if not m:
+##                self.warning("mmp syntax error; ignoring line: %r" % card)
+##                return
+##            name = m.group(1)
+##            type = m.group(5)
+##            col = tuple(map(int, [m.group(2), m.group(3), m.group(4)]))
+##            vec1 = A(map(float, [m.group(6), m.group(7), m.group(8)]))
+##            vec2 = A(map(float, [m.group(9), m.group(10), m.group(11)]))
+##            vec3 = A(map(float, [m.group(12), m.group(13), m.group(14)]))
+##            new = Datum(self.assy,name,type,vec1,vec2,vec3)
+##            self.addmember(new)
+##            new.rgb = col
+
+    def _read_datum(self, card): # datum -- Datum object -- old version deprecated by bruce 050417
+        pass # don't warn about an unrecognized mmp record, even when atom_debug
 
     def addmember(self, thing): #bruce 050405 split this out
         self.groupstack[-1].addchild(thing)

@@ -323,6 +323,7 @@ class Node:
         return True, node # might be None
             
     def show_in_model_tree(self): #bruce 050127 ###e needs renaming, sounds like "scroll to make visible" [050310]
+        #bruce 050417 warning: I think I never ended up honoring this. Not sure.
         """Should this node be shown in the model tree widget?
         True for most nodes. Can be overridden by subclasses.
         [Added so that Datum Plane nodes won't be shown. Initially,
@@ -1551,41 +1552,57 @@ class Csys(DataNode):
     pass # end of class Csys
 
 
-class Datum(DataNode):
-    """ A datum point, plane, or line"""
-    
-    def __init__(self, assy, name, type, cntr, x = V(0,0,1), y = V(0,1,0)):
-        self.const_icon = imagename_to_pixmap("datumplane.png")
-        Node.__init__(self, assy, name)
-        self.type = type
-        self.center = cntr
-        self.x = x
-        self.y = y
-        self.rgb = (0,0,255)
-
-    def show_in_model_tree(self): #bruce 050127
-        "[overrides Node method]"
-        return False
-        
-    def writemmp(self, mapping):
-        mapping.write("datum (" + self.name + ") " +
-                "(%d, %d, %d) " % self.rgb +
-                self.type + " " +
-                "(%f, %f, %f) " % tuple(self.center) +
-                "(%f, %f, %f) " % tuple(self.x) +
-                "(%f, %f, %f)\n" % tuple(self.y))
-
-    def __str__(self):
-        return "<datum " + self.name + ">"
-
-    def copy(self, dad, offset):
-        new = Datum(self.assy, self.name, self.type,
-                    self.center+offset, self.x, self.y)
-        new.rgb = self.rgb
-        new.dad = dad
-        return new
-
-    pass # end of class Datum
+# bruce 050417: removing class Datum (and ignoring its mmp record "datum"),
+# since it has no useful effect (and not writing it will not even be
+# noticed by old code reading our mmp files). But the code should be kept around,
+# since we might reuse some of it when we someday have real "datum planes".
+# More info about this can be found in other comments/emails.
+##class Datum(DataNode):
+##    """ A datum point, plane, or line"""
+##    
+##    def __init__(self, assy, name, type, cntr, x = V(0,0,1), y = V(0,1,0)):
+##        self.const_icon = imagename_to_pixmap("datumplane.png")
+##        Node.__init__(self, assy, name)
+##        self.type = type
+##        self.center = cntr
+##        self.x = x
+##        self.y = y
+##        self.rgb = (0,0,255)
+##
+##    def show_in_model_tree(self): #bruce 050127
+##        "[overrides Node method]"
+##        return False
+##        
+##    def writemmp(self, mapping):
+##        mapping.write("datum (" + self.name + ") " +
+##                "(%d, %d, %d) " % self.rgb +
+##                self.type + " " +
+##                "(%f, %f, %f) " % tuple(self.center) +
+##                "(%f, %f, %f) " % tuple(self.x) +
+##                "(%f, %f, %f)\n" % tuple(self.y))
+##
+##    def __str__(self):
+##        return "<datum " + self.name + ">"
+##
+##    def copy(self, dad, offset):
+##        #bruce 050417 comment: this should not have "offset" arg,
+##        # since Node.copy doesn't, so if a Datum object gets into main part MT
+##        # (which only happens if you construct a nonstandard mmp file by hand,
+##        #  but could also happen if we used them more generally in future code)
+##        # and user tries to copy it in MT (using this code), we get a traceback.
+##        # This means that Datum objects (stored using their current mmp record)
+##        # will never be safe to include in assy.tree of mmp files which should
+##        # be readable by old code, and they have no meaningful effect in their
+##        # standard location (assy.data), so we might as well deprecate their
+##        # mmp record, discard it whenever read by new code and never write it
+##        # into mmp files, and start from scratch when we want real "datum planes".
+##        new = Datum(self.assy, self.name, self.type,
+##                    self.center+offset, self.x, self.y)
+##        new.rgb = self.rgb
+##        new.dad = dad
+##        return new
+##
+##    pass # end of class Datum
 
 # rest of file added by bruce 050108/050109, needs review when done ###@@@
 
@@ -1593,7 +1610,7 @@ class Datum(DataNode):
 
 class PartGroup(Group):
     """A specialized Group for holding the entire "main model" of an assembly,
-    with provisions for including the "data" elements as initial kids, but not in self.members
+    with provisions for including the "assy.data" elements as initial kids, but not in self.members
     (which is a kluge, and hopefully can be removed reasonably soon, though perhaps not for Alpha).
     """
     _initialkids = [] #bruce 050302
@@ -1607,18 +1624,18 @@ class PartGroup(Group):
     def node_icon(self, display_prefs):
         # same whether closed or open
         return imagename_to_pixmap("part.png")
-    # And this temporary kluge makes it possible to use this subclass where it's
-    # needed, without modifying assembly.py or files_mmp.py:
-    def kluge_set_initial_nonmember_kids(self, lis): #bruce 050302 comment: no longer used, for now
-        """[This kluge lets the csys and datum plane model tree items
-        show up in the PartGroup, without their nodes being in its members list,
-        since other code wants their nodes to remain in assy.data, but they can
-        only have one .dad at a time. Use of it means you can't assume node.dad
-        corresponds to model tree item parent!]
-        """
-        lis = filter( lambda node: node.show_in_model_tree(), lis)
-            # bruce 050127; for now this is the only place that honors node.show_in_model_tree()!
-        self._initialkids = list(lis)
+##    # And this temporary kluge makes it possible to use this subclass where it's
+##    # needed, without modifying assembly.py or files_mmp.py:
+##    def kluge_set_initial_nonmember_kids(self, lis): #bruce 050302 comment: no longer used, for now
+##        """[This kluge lets the csys and datum plane model tree items
+##        show up in the PartGroup, without their nodes being in its members list,
+##        since other code wants their nodes to remain in assy.data, but they can
+##        only have one .dad at a time. Use of it means you can't assume node.dad
+##        corresponds to model tree item parent!]
+##        """
+##        lis = filter( lambda node: node.show_in_model_tree(), lis)
+##            # bruce 050127; for now this is the only place that honors node.show_in_model_tree()!
+##        self._initialkids = list(lis)
     def kids(self, display_prefs):
         "overrides Group.kids"
         if not self.openable() or not display_prefs.get('open',False):
