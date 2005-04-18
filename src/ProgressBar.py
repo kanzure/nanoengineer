@@ -107,7 +107,7 @@ class ProgressBar( ProgressBarDialog ):
         hours = int(secs/3600) # use int divisor, not float
             # (btw, the int() wrapper has no effect until python int '/' operator changes to produce nonints)
         minutes = int(secs/60 - hours*60)
-        seconds = int(secs - minutes*60 - hours*3600) #bruce 050415 bugfix: also subtract hours
+        seconds = int(secs - minutes*60 - hours*3600) #bruce 050415 fix bug 439: also subtract hours
         if hours:
             return '%02d:%02d:%02d' % (hours, minutes, seconds)
         else:
