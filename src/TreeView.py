@@ -349,11 +349,6 @@ class TreeView(QListView):
         ## colorgroup = None #k ok? no; and this one is called arg 1; seems inconsistent...
         
         if sys.platform == 'win32':
-#        if 1: ### for release, change to "if sys.platform == 'windows'" -- or whatever the correct name is!
-            # note to Mark -- try not to change this call itself, but only what that new method does --
-            # that way we confine all differences to that new method our_paintCell
-            # (even calling item.setSelected(False) can be inside there, not here, if it's needed).
-            # But if necessary, you can try changing anything in this method paint_item too. -- bruce 050202 10:16am PST
             self.our_paintCell( item, painter, colorgroup, col, width, align)
         else:
             item.paintCell( painter, colorgroup, col, width, align)
@@ -378,6 +373,8 @@ class TreeView(QListView):
         """Quick Alpha-release hack [bruce 050202]:
         This is a place added by bruce for Mark to try out variations in how to call item.paintCell,
         and/or replacements of it by our own drawing code using QPainter methods on painter.
+        [bruce comment 050417] Note that it draws a rect in place of the icon,
+        to work around a windows-specific limitation or Qt bug, so should only be used on Windows.
         """
         # iconpixmap is the node's icon from model tree (22 x 22 pixels).
 #        iconpixmap = item.pixmap(0)
@@ -473,7 +470,7 @@ class TreeView(QListView):
             self.update_state_0( paintevent)
         finally:
             self.setUpdatesEnabled( old_UpdatesEnabled)
-            self.update() #####@@@@@ might cause infrepeat... try it anyway
+            self.update() # might cause infrepeat... try it anyway [seems to be ok]
         #e should be no need to do an update right here, since we're only
         # called when a repaint is about to happen! But an updateContents
         # might be good, here or in the sole caller or grandcaller. ###@@@
@@ -525,18 +522,11 @@ class TreeView(QListView):
             lastitem = item
             self.topitems.append(item)
         
-##        self.tree = self.make_new_subtree_for_node( self.assy.tree, listview)
-##        self.shelf = self.make_new_subtree_for_node( self.assy.shelf, listview, after = self.tree)
-
         # Update open/highlighted state of all tree items [text, icon already done above]
         ###@@@ code copied below - merge?
 
         for item in self.topitems:
             self.update_open_selected_in_itemtree( item)
-
-##        ###obs, handle by scanning items not nodes (store kidlist on items??):
-##        ###@@@ following might be unsafe -- so instead, fix above func to use all kids:
-##        ## self.update_items_from_nodes_open_selected( self.assy.data)
 
         self.post_update_topitems() # let subclass know about new self.topitems
         
@@ -560,7 +550,7 @@ class TreeView(QListView):
 
     def get_topnodes(self):
         "[subclasses must override this to tell us what nodes to actually show]"
-        return [] ###e a better stub/testing value might be a comment node, if there is such a node class
+        return [] #e a better stub/testing value might be a comment node, if there is such a node class
     
     def post_update_topitems(self):
         "#doc"
