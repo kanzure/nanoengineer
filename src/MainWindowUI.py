@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Apr 19 10:37:52 2005
+# Created: Tue Apr 19 10:45:32 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6444,6 +6444,7 @@ class MainWindow(QMainWindow):
 
         self.Modify = QPopupMenu(self)
         self.modifyMinimizeSelAction.addTo(self.Modify)
+        self.modifyMinimizeAllAction.addTo(self.Modify)
         self.modifyPassivateAction.addTo(self.Modify)
         self.modifyHydrogenateAction.addTo(self.Modify)
         self.modifyDehydrogenateAction.addTo(self.Modify)

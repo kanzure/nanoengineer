@@ -119,6 +119,7 @@
     </item>
     <item text="&amp;Modify" name="Modify">
         <action name="modifyMinimizeSelAction"/>
+        <action name="modifyMinimizeAllAction"/>
         <action name="modifyPassivateAction"/>
         <action name="modifyHydrogenateAction"/>
         <action name="modifyDehydrogenateAction"/>
