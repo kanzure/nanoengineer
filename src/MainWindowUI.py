@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Apr 19 10:45:32 2005
+# Created: Tue Apr 19 17:47:11 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7000,31 +7000,22 @@ class MainWindow(QMainWindow):
         self.CookieSelectionGroup.setText(self.__tr("ActionGroup"))
         self.CircleSelAction.setText(self.__tr("Circle Center"))
         self.CircleSelAction.setToolTip(self.__tr("Circle Center"))
-        self.CircleSelAction.setAccel(self.__tr("C"))
         self.RectCtrSelAction.setText(self.__tr("Rectangle Center"))
         self.RectCtrSelAction.setToolTip(self.__tr("Rectangle Center"))
-        self.RectCtrSelAction.setAccel(self.__tr("R"))
         self.HexagonSelAction.setText(self.__tr("Hexagon Center"))
         self.HexagonSelAction.setToolTip(self.__tr("Hexagon Center"))
-        self.HexagonSelAction.setAccel(self.__tr("H"))
         self.TriangleSelAction.setText(self.__tr("Triangle Center"))
         self.TriangleSelAction.setToolTip(self.__tr("Triangle Center"))
-        self.TriangleSelAction.setAccel(self.__tr("T"))
         self.RectCornerSelAction.setText(self.__tr("Rectangle Corners"))
         self.RectCornerSelAction.setToolTip(self.__tr("Rectangle Corners"))
-        self.RectCornerSelAction.setAccel(self.__tr("Shift+R"))
         self.LassoSelAction.setText(self.__tr("Lasso Selection"))
         self.LassoSelAction.setToolTip(self.__tr("Lasso Selection"))
-        self.LassoSelAction.setAccel(self.__tr("L"))
         self.DefaultSelAction.setText(self.__tr("Default Selection"))
         self.DefaultSelAction.setToolTip(self.__tr("Default Selection"))
-        self.DefaultSelAction.setAccel(self.__tr("D"))
         self.DiamondSelAction.setText(self.__tr("Diamond Center"))
         self.DiamondSelAction.setToolTip(self.__tr("Diamond Center"))
-        self.DiamondSelAction.setAccel(self.__tr("Shift+D"))
         self.SquareSelAction.setText(self.__tr("Square Center"))
         self.SquareSelAction.setToolTip(self.__tr("Square Center"))
-        self.SquareSelAction.setAccel(self.__tr("S"))
         self.moveDeltaPlusAction.setText(self.__tr("Move Delta (+)"))
         self.moveAbsoluteAction.setText(self.__tr("Move Absolute"))
         self.modifyMinimizeAllAction.setText(self.__tr("Minimize All"))

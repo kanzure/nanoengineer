@@ -41,15 +41,13 @@ class cookieMode(basicMode):
     def Enter(self): 
         basicMode.Enter(self)
         self.oldPov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
-        self.whichsurf = self.o.snap2trackball()
+        self.surfset(self.o.snap2trackball())
+        
         self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
-
         self.o.ortho = 1
-
         self.cookieQuat = None
-
-        self.thickness = -1
+        #self.thickness = -1
         
         self.freeView = False
         self.ctrlPanel.freeViewCheckBox.setChecked(self.freeView)
@@ -130,6 +128,7 @@ class cookieMode(basicMode):
                 self.o.quat = Q(self.cookieQuat)
                 self.o.pov = V(self.cookiePov[0], self.cookiePov[1], self.cookiePov[2]) 
             self.surfset(self.o.snap2trackball())
+            
                 
       
     def showGridLine(self, show):
@@ -646,6 +645,10 @@ class cookieMode(basicMode):
     def surfset(self, num):
         self.whichsurf = num
         self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
+        button = self.ctrlPanel.orientButtonGroup.find(self.whichsurf)
+        button.setOn(True)
+        self.w.dispbarLabel.setText(QToolTip.textFor(button))
+        
 
     def setThickness(self, num):
         self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)

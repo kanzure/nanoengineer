@@ -365,7 +365,7 @@
                             </property>
                             <property name="minimumSize">
                                 <size>
-                                    <width>0</width>
+                                    <width>90</width>
                                     <height>40</height>
                                 </size>
                             </property>
@@ -495,13 +495,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>60</red>
-                            <green>215</green>
-                            <blue>205</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -536,13 +529,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>210</red>
-                            <green>210</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -567,13 +553,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>35</red>
-                            <green>165</green>
-                            <blue>75</blue>
-                        </color>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -600,13 +579,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>255</red>
-                            <green>170</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -632,13 +604,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>191</red>
-                            <green>0</green>
-                            <blue>0</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -663,13 +628,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>85</red>
-                            <green>255</green>
-                            <blue>127</blue>
-                        </color>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -699,13 +657,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>210</red>
-                            <green>210</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -731,13 +682,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>255</red>
-                            <green>213</green>
-                            <blue>73</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -762,13 +706,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>149</red>
-                            <green>223</green>
-                            <blue>0</blue>
-                        </color>
                     </property>
                     <property name="backgroundOrigin">
                         <enum>ParentOrigin</enum>
@@ -801,13 +738,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>210</red>
-                            <green>210</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -835,13 +765,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>206</red>
-                            <green>206</green>
-                            <blue>0</blue>
-                        </color>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -874,13 +797,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>229</red>
-                            <green>62</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -908,13 +824,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>230</red>
-                            <green>144</green>
-                            <blue>23</blue>
-                        </color>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -944,13 +853,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>77</red>
-                            <green>202</green>
-                            <blue>156</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -978,13 +880,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>210</red>
-                            <green>210</green>
-                            <blue>255</blue>
-                        </color>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -1014,13 +909,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>170</red>
-                            <green>0</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1048,13 +936,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>238</red>
-                            <green>183</green>
-                            <blue>53</blue>
-                        </color>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -1084,13 +965,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>0</red>
-                            <green>180</green>
-                            <blue>135</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1119,13 +993,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>210</red>
-                            <green>210</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1150,13 +1017,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>170</red>
-                            <green>85</green>
-                            <blue>200</blue>
-                        </color>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
@@ -1183,13 +1043,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>156</red>
-                            <green>156</green>
-                            <blue>156</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1215,13 +1068,6 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>170</red>
-                            <green>170</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
@@ -1246,13 +1092,6 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>80</red>
-                            <green>135</green>
-                            <blue>255</blue>
-                        </color>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>

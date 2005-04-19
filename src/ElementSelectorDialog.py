@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Mon Apr 11 11:24:31 2005
+# Created: Tue Apr 19 18:10:33 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -533,7 +533,7 @@ class ElementSelectorDialog(QDialog):
 
         self.elemColorLabel = QLabel(self,"elemColorLabel")
         self.elemColorLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.elemColorLabel.sizePolicy().hasHeightForWidth()))
-        self.elemColorLabel.setMinimumSize(QSize(0,40))
+        self.elemColorLabel.setMinimumSize(QSize(90,40))
         self.elemColorLabel.setTextFormat(QLabel.RichText)
         self.elemColorLabel.setAlignment(QLabel.AlignCenter)
         layout3.addWidget(self.elemColorLabel)
@@ -577,7 +577,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton1 = QPushButton(self.elementButtonGroup,"pushButton1")
         self.pushButton1.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton1.sizePolicy().hasHeightForWidth()))
-        self.pushButton1.setPaletteBackgroundColor(QColor(60,215,205))
         self.pushButton1.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton1.setToggleButton(1)
         self.pushButton1.setOn(0)
@@ -589,7 +588,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton2 = QPushButton(self.elementButtonGroup,"pushButton2")
         self.pushButton2.setEnabled(1)
         self.pushButton2.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton2.sizePolicy().hasHeightForWidth()))
-        self.pushButton2.setPaletteBackgroundColor(QColor(210,210,255))
         self.pushButton2.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton2.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton2,2)
@@ -598,7 +596,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton6 = QPushButton(self.elementButtonGroup,"pushButton6")
         self.pushButton6.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton6.sizePolicy().hasHeightForWidth()))
-        self.pushButton6.setPaletteBackgroundColor(QColor(35,165,75))
         self.pushButton6.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton6.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton6,6)
@@ -607,7 +604,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton7 = QPushButton(self.elementButtonGroup,"pushButton7")
         self.pushButton7.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton7.sizePolicy().hasHeightForWidth()))
-        self.pushButton7.setPaletteBackgroundColor(QColor(255,170,255))
         self.pushButton7.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton7.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton7,7)
@@ -616,7 +612,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton8 = QPushButton(self.elementButtonGroup,"pushButton8")
         self.pushButton8.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton8.sizePolicy().hasHeightForWidth()))
-        self.pushButton8.setPaletteBackgroundColor(QColor(191,0,0))
         self.pushButton8.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton8.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton8,8)
@@ -625,7 +620,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton9 = QPushButton(self.elementButtonGroup,"pushButton9")
         self.pushButton9.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton9.sizePolicy().hasHeightForWidth()))
-        self.pushButton9.setPaletteBackgroundColor(QColor(85,255,127))
         self.pushButton9.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton9.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton9,9)
@@ -635,7 +629,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton10 = QPushButton(self.elementButtonGroup,"pushButton10")
         self.pushButton10.setEnabled(1)
         self.pushButton10.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton10.sizePolicy().hasHeightForWidth()))
-        self.pushButton10.setPaletteBackgroundColor(QColor(210,210,255))
         self.pushButton10.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton10.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton10,10)
@@ -644,7 +637,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton16 = QPushButton(self.elementButtonGroup,"pushButton16")
         self.pushButton16.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton16.sizePolicy().hasHeightForWidth()))
-        self.pushButton16.setPaletteBackgroundColor(QColor(255,213,73))
         self.pushButton16.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton16.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton16,16)
@@ -653,7 +645,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton17 = QPushButton(self.elementButtonGroup,"pushButton17")
         self.pushButton17.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton17.sizePolicy().hasHeightForWidth()))
-        self.pushButton17.setPaletteBackgroundColor(QColor(149,223,0))
         self.pushButton17.setBackgroundOrigin(QPushButton.ParentOrigin)
         self.pushButton17.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton17.setToggleButton(1)
@@ -664,7 +655,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton18 = QPushButton(self.elementButtonGroup,"pushButton18")
         self.pushButton18.setEnabled(1)
         self.pushButton18.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton18.sizePolicy().hasHeightForWidth()))
-        self.pushButton18.setPaletteBackgroundColor(QColor(210,210,255))
         self.pushButton18.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton18.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton18,18)
@@ -674,7 +664,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton32 = QPushButton(self.elementButtonGroup,"pushButton32")
         self.pushButton32.setEnabled(1)
         self.pushButton32.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton32.sizePolicy().hasHeightForWidth()))
-        self.pushButton32.setPaletteBackgroundColor(QColor(206,206,0))
         self.pushButton32.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton32.setToggleButton(1)
         self.pushButton32.setOn(0)
@@ -685,7 +674,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton33 = QPushButton(self.elementButtonGroup,"pushButton33")
         self.pushButton33.setEnabled(1)
         self.pushButton33.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton33.sizePolicy().hasHeightForWidth()))
-        self.pushButton33.setPaletteBackgroundColor(QColor(229,62,255))
         self.pushButton33.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton33.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton33,33)
@@ -695,7 +683,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton34 = QPushButton(self.elementButtonGroup,"pushButton34")
         self.pushButton34.setEnabled(1)
         self.pushButton34.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton34.sizePolicy().hasHeightForWidth()))
-        self.pushButton34.setPaletteBackgroundColor(QColor(230,144,23))
         self.pushButton34.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton34.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton34,34)
@@ -705,7 +692,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton35 = QPushButton(self.elementButtonGroup,"pushButton35")
         self.pushButton35.setEnabled(1)
         self.pushButton35.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton35.sizePolicy().hasHeightForWidth()))
-        self.pushButton35.setPaletteBackgroundColor(QColor(77,202,156))
         self.pushButton35.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton35.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton35,35)
@@ -715,7 +701,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton36 = QPushButton(self.elementButtonGroup,"pushButton36")
         self.pushButton36.setEnabled(1)
         self.pushButton36.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton36.sizePolicy().hasHeightForWidth()))
-        self.pushButton36.setPaletteBackgroundColor(QColor(210,210,255))
         self.pushButton36.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton36.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton36,36)
@@ -725,7 +710,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton51 = QPushButton(self.elementButtonGroup,"pushButton51")
         self.pushButton51.setEnabled(0)
         self.pushButton51.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton51.sizePolicy().hasHeightForWidth()))
-        self.pushButton51.setPaletteBackgroundColor(QColor(170,0,255))
         self.pushButton51.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton51.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton51,51)
@@ -735,7 +719,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton52 = QPushButton(self.elementButtonGroup,"pushButton52")
         self.pushButton52.setEnabled(0)
         self.pushButton52.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton52.sizePolicy().hasHeightForWidth()))
-        self.pushButton52.setPaletteBackgroundColor(QColor(238,183,53))
         self.pushButton52.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton52.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton52,52)
@@ -745,7 +728,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton53 = QPushButton(self.elementButtonGroup,"pushButton53")
         self.pushButton53.setEnabled(0)
         self.pushButton53.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton53.sizePolicy().hasHeightForWidth()))
-        self.pushButton53.setPaletteBackgroundColor(QColor(0,180,135))
         self.pushButton53.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton53.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton53,53)
@@ -755,7 +737,6 @@ class ElementSelectorDialog(QDialog):
         self.pushButton54 = QPushButton(self.elementButtonGroup,"pushButton54")
         self.pushButton54.setEnabled(0)
         self.pushButton54.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton54.sizePolicy().hasHeightForWidth()))
-        self.pushButton54.setPaletteBackgroundColor(QColor(210,210,255))
         self.pushButton54.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton54.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton54,54)
@@ -764,7 +745,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton15 = QPushButton(self.elementButtonGroup,"pushButton15")
         self.pushButton15.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton15.sizePolicy().hasHeightForWidth()))
-        self.pushButton15.setPaletteBackgroundColor(QColor(170,85,200))
         self.pushButton15.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton15.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton15,15)
@@ -773,7 +753,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton14 = QPushButton(self.elementButtonGroup,"pushButton14")
         self.pushButton14.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton14.sizePolicy().hasHeightForWidth()))
-        self.pushButton14.setPaletteBackgroundColor(QColor(156,156,156))
         self.pushButton14.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton14.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton14,14)
@@ -782,7 +761,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton13 = QPushButton(self.elementButtonGroup,"pushButton13")
         self.pushButton13.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton13.sizePolicy().hasHeightForWidth()))
-        self.pushButton13.setPaletteBackgroundColor(QColor(170,170,255))
         self.pushButton13.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton13.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton13,13)
@@ -791,7 +769,6 @@ class ElementSelectorDialog(QDialog):
 
         self.pushButton5 = QPushButton(self.elementButtonGroup,"pushButton5")
         self.pushButton5.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton5.sizePolicy().hasHeightForWidth()))
-        self.pushButton5.setPaletteBackgroundColor(QColor(80,135,255))
         self.pushButton5.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton5.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton5,5)

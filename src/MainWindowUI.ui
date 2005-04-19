@@ -3668,9 +3668,6 @@
             <property name="toolTip">
                 <string>Circle Center</string>
             </property>
-            <property name="accel">
-                <string>C</string>
-            </property>
         </action>
         <action>
             <property name="name">
@@ -3687,9 +3684,6 @@
             </property>
             <property name="toolTip">
                 <string>Rectangle Center</string>
-            </property>
-            <property name="accel">
-                <string>R</string>
             </property>
         </action>
         <action>
@@ -3708,9 +3702,6 @@
             <property name="toolTip">
                 <string>Hexagon Center</string>
             </property>
-            <property name="accel">
-                <string>H</string>
-            </property>
         </action>
         <action>
             <property name="name">
@@ -3727,9 +3718,6 @@
             </property>
             <property name="toolTip">
                 <string>Triangle Center</string>
-            </property>
-            <property name="accel">
-                <string>T</string>
             </property>
         </action>
         <action>
@@ -3748,9 +3736,6 @@
             <property name="toolTip">
                 <string>Rectangle Corners</string>
             </property>
-            <property name="accel">
-                <string>Shift+R</string>
-            </property>
         </action>
         <action>
             <property name="name">
@@ -3767,9 +3752,6 @@
             </property>
             <property name="toolTip">
                 <string>Lasso Selection</string>
-            </property>
-            <property name="accel">
-                <string>L</string>
             </property>
         </action>
         <action>
@@ -3791,9 +3773,6 @@
             <property name="toolTip">
                 <string>Default Selection</string>
             </property>
-            <property name="accel">
-                <string>D</string>
-            </property>
         </action>
         <action>
             <property name="name">
@@ -3811,9 +3790,6 @@
             <property name="toolTip">
                 <string>Diamond Center</string>
             </property>
-            <property name="accel">
-                <string>Shift+D</string>
-            </property>
         </action>
         <action>
             <property name="name">
@@ -3830,9 +3806,6 @@
             </property>
             <property name="toolTip">
                 <string>Square Center</string>
-            </property>
-            <property name="accel">
-                <string>S</string>
             </property>
         </action>
     </actiongroup>

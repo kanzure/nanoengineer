@@ -1,8 +1,16 @@
+# Copyright (c) 2005 Nanorex, Inc.  All rights reserved
+"""
+CookieCtrlPanel.py
+
+Class used for the GUI controls for the cookie mode.
+
+$Id$
+"""
 from qt import *
 from Utility import imagename_to_pixmap
 from constants import dispLabel
 
-class CookieCtrlPanel(QObject):
+class CookieCtrlPanel:
        """This is class is served to provide GUI controls to the cookie-cutter mode. """
        
        def __init__(self, parent):
@@ -10,7 +18,7 @@ class CookieCtrlPanel(QObject):
             self.w = parent
             self._createDashBoard()
             
-            self.actionNamesList = [(self.w.CircleSelAction,'CIRCLE'), (self.w.HexagonSelAction, 'HEXAGON'), (self.w.RectCtrSelAction, 'RECTANGLE'), (self.w.TriangleSelAction, 'TRIANGLE'), (self.w.LassoSelAction, 'LASSO'), (self.w.RectCornerSelAction, 'RECT_CORNER'), (self.w.SquareSelAction, 'SQUARE'), (self.w.DiamondSelAction, 'DIAMOND'), (self.w.DefaultSelAction, 'DEFAULT')]
+            self.actionNamesList = [(self.w.CircleSelAction,'CIRCLE', 'C'), (self.w.HexagonSelAction, 'HEXAGON', 'H'), (self.w.RectCtrSelAction, 'RECTANGLE', 'R'), (self.w.TriangleSelAction, 'TRIANGLE', 'T'), (self.w.LassoSelAction, 'LASSO', 'L'), (self.w.RectCornerSelAction, 'RECT_CORNER', 'SHIFT+R'), (self.w.SquareSelAction, 'SQUARE', 'S'), (self.w.DiamondSelAction, 'DIAMOND', 'SHIFT+D'), (self.w.DefaultSelAction, 'DEFAULT', 'D')]
        
             
        def _createDashBoard(self):
@@ -48,7 +56,7 @@ class CookieCtrlPanel(QObject):
             tButton1.setToggleButton(1)
             tButton1.setOn(0)
             tButton1.setPixmap(imagename_to_pixmap('surface100-t.png'))
-            QToolTip.add(tButton1,self.w.tr("Surface 100."))
+            QToolTip.add(tButton1,self.w.tr("Surface 100"))
             
             self.orientButtonGroup.insert( tButton1, 0)
             orientButtonGroupLayout.addWidget(tButton1, 0, 0)
@@ -66,7 +74,7 @@ class CookieCtrlPanel(QObject):
             tButton2.setToggleButton(1)
             tButton2.setOn(0)
             tButton2.setPixmap(imagename_to_pixmap('surface110-t.png'))
-            QToolTip.add(tButton2,self.w.tr("Surface 110."))
+            QToolTip.add(tButton2,self.w.tr("Surface 110"))
             
             self.orientButtonGroup.insert( tButton2, 1)
             orientButtonGroupLayout.addWidget(tButton1, 1,0)
@@ -75,7 +83,7 @@ class CookieCtrlPanel(QObject):
             tButton3.setToggleButton(1)
             tButton3.setOn(0)
             tButton3.setPixmap(imagename_to_pixmap('surface111-t.png'))
-            QToolTip.add(tButton3,self.w.tr("Surface 111."))
+            QToolTip.add(tButton3,self.w.tr("Surface 111"))
             
             self.orientButtonGroup.insert(tButton3, 2)
             orientButtonGroupLayout.addWidget(tButton3,1,1)
@@ -172,27 +180,36 @@ class CookieCtrlPanel(QObject):
             
        def _makeConnections(self):
             """Connect signal to slots """
-            self.connect(self.latticeCBox, SIGNAL("activated ( int )"), self.changeLatticeType)  
+            self.w.connect(self.latticeCBox, SIGNAL("activated ( int )"), self.changeLatticeType)  
             
-            self.connect(self.orientButtonGroup, SIGNAL("clicked(int)"), self.changeGridOrientation)
+            self.w.connect(self.orientButtonGroup, SIGNAL("clicked(int)"), self.changeGridOrientation)
             
-            self.connect(self.antiRotateButton, SIGNAL("clicked()"), self.antiRotateView)
-            self.connect(self.rotateButton, SIGNAL("clicked()"), self.rotateView)
+            self.w.connect(self.antiRotateButton, SIGNAL("clicked()"), self.antiRotateView)
+            self.w.connect(self.rotateButton, SIGNAL("clicked()"), self.rotateView)
             
-            self.connect(self.addLayerButton,SIGNAL("clicked()"), self.addLayer)
-            self.connect(self.currentLayerCBox,SIGNAL("activated(int)"), self.changeLayer)
+            self.w.connect(self.addLayerButton,SIGNAL("clicked()"), self.addLayer)
+            self.w.connect(self.currentLayerCBox,SIGNAL("activated(int)"), self.changeLayer)
             
-            self.connect(self.layerCellsSpinBox,SIGNAL("valueChanged(int)"), self.setThickness)
+            self.w.connect(self.layerCellsSpinBox,SIGNAL("valueChanged(int)"), self.setThickness)
             
-            self.connect(self.gridColorButton,SIGNAL("clicked()"),self.changeGridColor)
-            self.connect(self.gridLineCheckBox,SIGNAL("toggled(bool)"),self.showGridLine)
-            self.connect(self.freeViewCheckBox,SIGNAL("toggled(bool)"),self.setFreeView)
-            self.connect(self.fullModelCheckBox, SIGNAL("toggled(bool)"),self.toggleFullModel)
+            self.w.connect(self.gridColorButton,SIGNAL("clicked()"),self.changeGridColor)
+            self.w.connect(self.gridLineCheckBox,SIGNAL("toggled(bool)"),self.showGridLine)
+            self.w.connect(self.freeViewCheckBox,SIGNAL("toggled(bool)"),self.setFreeView)
+            self.w.connect(self.fullModelCheckBox, SIGNAL("toggled(bool)"),self.toggleFullModel)
             
-            self.connect(self.dispModeCBox, SIGNAL("activated(const QString &)"), self.changeDispMode)
+            self.w.connect(self.dispModeCBox, SIGNAL("activated(const QString &)"), self.changeDispMode)
             
-            self.connect(self.w.CookieSelectionGroup, SIGNAL("selected(QAction *)"),self.changeSelectionShape)
+            self.w.connect(self.w.CookieSelectionGroup, SIGNAL("selected(QAction *)"),self.changeSelectionShape)
        
+       def _setAutoShapeAcclKeys(self, on):
+           """If <on>, then set the acceleration keys for autoshape selection in this mode, otherwise, like when exit. set it to empty. """
+           if on:
+                for item in self.actionNamesList:
+                    item[0].setAccel(self.w.tr(item[2]))
+           else:
+               for item in self.actionNamesList:
+                    item[0].setAccel(self.w.tr(''))
+               
        
        def initGui(self):
             """This is used to initialize GUI items which needs to change every time when the mode is on. """
@@ -200,7 +217,8 @@ class CookieCtrlPanel(QObject):
             self.w.toolsCookieCutAction.setOn(1) # toggle on the Cookie Cutter icon
             
             #Huaicai 3/29: Added the condition to fix bug 477
-            self.w.dispbarLabel.setText("    ")
+            tip = QToolTip.textFor(self.orientButtonGroup.selected())
+            self.w.dispbarLabel.setText(tip)
             
             self.latticeCBox.setEnabled(True)
             
@@ -229,6 +247,9 @@ class CookieCtrlPanel(QObject):
             
             #Show the Cookie Selection Dashboard
             self.w.cookieSelectDashboard.show()  
+            
+            #Set acclerating keys for auto-selection shape
+            self._setAutoShapeAcclKeys(True)
        
        
        def restoreGui(self):
@@ -255,7 +276,9 @@ class CookieCtrlPanel(QObject):
             
             # Enable all those view options
             self.enableViewChanges(True)
-       
+            
+            # Turn off acclerating keys
+            self._setAutoShapeAcclKeys(False)
        
        def enableViewChanges(self, enableFlag):
             """Turn on or off view changes depending on <param> 'enableFlag'. Turn off view changes is needed during the cookie-cutting stage. """
@@ -279,6 +302,8 @@ class CookieCtrlPanel(QObject):
         
        def changeSelectionShape(self, action):
             """Slot method that is called when user changes selection shape by GUI. """
+            if self.w.glpane.mode.modename != 'COOKIE': return
+            
             for item in self.actionNamesList:
                 if action == item[0]:
                     sShape = item[1]
@@ -339,20 +364,24 @@ class CookieCtrlPanel(QObject):
            if value == 0: self._orient100()
            elif value == 1: self._orient110()
            elif value == 2: self._orient111()
+           
+           tip = QToolTip.textFor(self.orientButtonGroup.selected())
+           self.w.dispbarLabel.setText(tip)
        
        def _rotView(self, direction):
            """Rotate the view anti-clockwise or clockWise. 
            If <direction> == True, anti-clockwise rotate, otherwise, 
            clockwise rotate"""
            from math import pi
-           from VQT import Q
+           from VQT import Q, V
            
            angle = self.gridRotateAngle.value()
            if not direction: angle = -angle
            angle = pi * angle/180.0
        
            glpane = self.w.glpane
-           glpane.quat += Q(glpane.out, angle)
+           
+           glpane.quat += Q(V(0, 0, 1), angle)
            glpane.gl_update()
        
        def antiRotateView(self):
