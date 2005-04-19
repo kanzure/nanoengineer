@@ -1460,6 +1460,10 @@ class Part(InvalMixin):
         # but it's not clear how valid it is after the part contents itself starts changing...
         # so don't worry about this yet, consider it part of the experiment...
         return Selection( self, self.selatoms, self.selmols )
+
+    def selection_for_all(self): #bruce 050419 for use in Minimize All
+        "return a selection object referring to all our atoms (regardless of the current selection, and not changing it)"
+        return Selection( self, {}, self.molecules )
         
     # end of class Part
 
@@ -1514,6 +1518,10 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
     def atomslist(self):
         "return a list of all selected real atoms, whether selected as atoms or in selected chunks; no singlets or jigs"
         #e memoize this!
+        # [bruce 050419 comment: memoizing it might matter for correctness
+        #  if mol contents change, not only for speed. But it's not yet needed,
+        #  since in the only current use of this, the atomslist is grabbed once
+        #  and stored elsewhere.]
         if self.selmols:
             res = dict(self.selatoms) # dict from atom keys to atoms
             for mol in self.selmols:

@@ -862,7 +862,7 @@ class Minimize_CommandRun(CommandRun):
         if entire_part:
             cmdname = "Minimize All"
             startmsg = "Minimize All: ..."
-            want_simaspect = 0
+            want_simaspect = 1 #bruce 050419 changed this to 1 as part of making Min All use same code as Min Sel
         else:
             cmdname = "Minimize Selection"
             startmsg = "Minimize Selection: ..."
@@ -880,7 +880,11 @@ class Minimize_CommandRun(CommandRun):
                 msg = "Minimize Selection: nothing selected. (Use Minimize All to minimize entire Part.)"
                 self.history.message( redmsg( msg))
                 return
-            self.selection = selection #e might become a feature of all CommandRuns, at some point
+        else:
+            selection = self.part.selection_for_all() # like .selection() but for all atoms presently in the part [bruce 050419]
+            # no need to check emptiness, this was done above
+        
+        self.selection = selection #e might become a feature of all CommandRuns, at some point
 
         # At this point, the conditions are met to try to do the command.
         self.history.message(greenmsg( startmsg)) #bruce 050412 doing this earlier
@@ -893,7 +897,9 @@ class Minimize_CommandRun(CommandRun):
         try:
             simaspect = None
             if want_simaspect:
-                simaspect = sim_aspect( self.part, selection.atomslist() ) # note: atomslist gets atoms from selected chunks too
+                simaspect = sim_aspect( self.part, selection.atomslist() )
+                    # note: atomslist gets atoms from selected chunks, not only selected atoms
+                    # (i.e. it gets atoms whether you're in Select Atoms or Select Chunks mode)
                 # history message about singlets written as H (if any);
                 # note that this is not yet implemented for Minimize All (behavior or message) as of 050412
                 from platform import fix_plurals
