@@ -427,9 +427,11 @@ class _readmmp_state:
                              m.group(4), m.group(5)]))
                     scale = float(m.group(6))
                     self.assy.homeCsys = Csys(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
-                        #bruce 050417 comment (about Huaicai's preexisting code):
-                        # this name "OldVersion" is detected in MWsemantics.fileOpen (one of our callers)
-                        # and changed to "HomeView", also triggering other side effects at that time.
+                        #bruce 050417 comment
+                        # (about Huaicai's preexisting code, some of which I moved into this file 050418):
+                        # this name "OldVersion" is detected in fix_assy_and_glpane_views_after_readmmp
+                        # (called from MWsemantics.fileOpen, one of our callers)
+                        # and changed to "HomeView", also triggering other side effects on glpane at that time.
                     self.addmember(self.assy.homeCsys)
                     self.assy.lastCsys = Csys(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
                     self.addmember(self.assy.lastCsys)
@@ -691,7 +693,7 @@ def reset_grouplist(assy, grouplist):
 ##    #  and since it replaces assy.viewdata, we'll do it before calling kluge_patch_assy_toplevel_groups
 ##    #  which I think uses assy.viewdata's members.)
 ##    try:
-##        viewdatamembers = [assy.homeCsys, assy.lastCsys, assy.xy, assy.yz, assy.zx]
+##        viewdatamembers = [assy.homeCsys, assy.lastCsys] ## , assy.xy, assy.yz, assy.zx]
 ##        if platform.atom_debug: ###@@@ remove soon, at least when they agree
 ##            if assy.viewdata.members == viewdatamembers:
 ##                print "atom_debug: fyi: viewdata members agree (changing them anyway since check not done unless atom_debug)"
@@ -726,6 +728,21 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
         del viewdata, shelf
         assy.part.ensure_toplevel_group()
         assy.part.topnode.addchild( mainpart )
+    return
+
+def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
+    "#doc; does gl_update but callers should not rely on that"
+    #bruce 050418 moved this code (written by Huaicai) out of MWsemantics.fileOpen
+    # (my guess is it should mostly be done by readmmp itself);
+    # here is Huaicai's comment about it:
+    # Huaicai 12/14/04, set the initial orientation to the file's home view orientation 
+    # when open a file; set the home view scale = current fit-in-view scale
+    if assy.homeCsys.name == "OldVersion": ## old version of mmp file
+        assy.homeCsys.name = "HomeView"
+        glpane.quat = Q( assy.homeCsys.quat)
+        self.setViewFitToWindow()
+    else:    
+        glpane.setInitialView(assy)
     return
 
 # == writing mmp files

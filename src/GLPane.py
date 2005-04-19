@@ -254,7 +254,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         csys.scale = self.scale
         csys.pov = V(self.pov[0], self.pov[1], self.pov[2])
         csys.zoomFactor = self.zoomFactor
-            
+
+    # ==
+    
     def setAssy(self, assy):
         """[bruce comment 040922] This is called from self.__init__,
         and from MWSemantics.__clear when user asks to open a new
@@ -280,7 +282,45 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() 
 
-    # "callback methods" from modeMixin:
+    # == view toolbar helper methods
+    
+    # [bruce 050418 made these from corresponding methods in MWsemantics.py,
+    #  which still exist but call these, perhaps after printing a history message.]
+    
+    def setViewHome(self):
+        "Change current view to our model's home view, and gl_update."
+        self.setViewFromCsys( self.assy.homeCsys)
+        self.gl_update()
+
+    def setViewFitToWindow(self):
+        "Change current view so that our model's bbox fits in our window, and gl_update."
+        #Recalculate center and bounding box for the assembly    
+        self.assy.computeBoundingBox()
+        self.scale = self.assy.bbox.scale()
+        aspect = float(self.width) / self.height
+        if aspect < 1.0:
+             self.scale /= aspect
+        self.pov = V(-self.assy.center[0], -self.assy.center[1], -self.assy.center[2]) 
+        self.setZoomFactor(1.0)
+        self.gl_update()
+
+    def setViewHomeToCurrent(self):
+        "Change our model's home view to be our current view, and mark model as changed."
+        self.saveViewInCsys( self.assy.homeCsys)
+        self.assy.changed() # Csys record changed in assy.  Mark [041215]
+
+    def setViewRecenter(self):
+        "Recenter our current view around the origin of modeling space, and gl_update."
+        self.pov = V(0,0,0)
+        self.assy.computeBoundingBox()
+        self.scale = self.assy.bbox.scale() + vlen(self.assy.center)
+            #bruce 050418 comments:
+            # - doesn't this need to correct for aspect ratio, like setViewFitToWindow does? ###e
+            # - why does it mark assy as changed? I doubt it should.
+        self.assy.changed()
+        self.gl_update()
+    
+    # == "callback methods" from modeMixin:
 
     def update_after_new_mode(self):
         """do whatever updates are needed after self.mode might have changed

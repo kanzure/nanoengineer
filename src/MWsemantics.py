@@ -21,11 +21,9 @@ import platform
 from constants import *
 from elementColors import elementColors ## bruce 050408 removed: import *
 from elementSelector import elementSelector ## bruce 050408 removed: import *
-from fileIO import *
-## bruce 050408 too-hastily removed "from fileIO import *",
-## but added it back 050410 since Mark reported it broke many things.
-from files_pdb import readpdb, insertpdb, writepdb #bruce 050414 [bruce 050415 add insertpdb to fix bug 546]
-from files_mmp import readmmp, insertmmp #bruce 050414
+from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
+from files_pdb import readpdb, insertpdb, writepdb
+from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
 from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
@@ -285,6 +283,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         """If this window is empty (has no assembly), do nothing.
         Else create a new empty one.
         """
+        #bruce 050418 comment: this has never worked correctly to my knowledge,
+        # and therefore it was made unavailable from the UI some time ago.
         foo = MWsemantics()
         foo.show()
 
@@ -379,6 +379,9 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             isMMPFile = False
             if fn[-3:] == "mmp":
                 readmmp(self.assy,fn)
+                    #bruce 050418 comment: we need to check for an error return
+                    # and in that case don't clear or have other side effects on assy;
+                    # this is not yet perfectly possible in readmmmp.
                 self.history.message("MMP file opened: [" + fn + "]")
                 isMMPFile = True
                 
@@ -393,20 +396,15 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
 
             self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
 
-            # Huaicai 12/14/04, set the initial orientation to the file's home view orientation 
-            # when open a file; set the home view scale = current fit-in-view scale  
             if isMMPFile:
-                    if self.assy.homeCsys.name == "OldVersion": ## old version of mmp file
-                        self.assy.homeCsys.name = "HomeView"
-                        self.glpane.quat = Q( self.assy.homeCsys.quat)
-                        self.setViewFitToWindow()
-                    else:    
-                        self.glpane.setInitialView(self.assy)
+                #bruce 050418 moved this code into a new function in files_mmp.py
+                # (but my guess is it should mostly be done by readmmp itself)
+                fix_assy_and_glpane_views_after_readmmp( self.assy, self.glpane)
             else: ###PDB or other file format        
                 self.setViewFitToWindow()
-                
-            self.mt.mt_update()
 
+            self.glpane.gl_update() #bruce 050418
+            self.mt.mt_update()
 
     def fileSave(self):
         
@@ -699,39 +697,23 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def setViewHome(self):
         """Reset view to Home view"""
         self.history.message(greenmsg("Current View: HOME"))
-        self.glpane.setViewFromCsys( self.assy.homeCsys)
-        self.glpane.gl_update()
+        self.glpane.setViewHome()
 
     def setViewFitToWindow(self):
         """ Fit to Window """
-        #Recalculate center and bounding box for the assembly    
 #        self.history.message(greenmsg("Fit to Window:"))
-        
-        self.assy.computeBoundingBox()
-        self.glpane.scale = self.assy.bbox.scale()
-        aspect = float(self.glpane.width) / self.glpane.height
-        if aspect < 1.0:
-             self.glpane.scale /= aspect
-        self.glpane.pov = V(-self.assy.center[0], -self.assy.center[1], -self.assy.center[2]) 
-        self.glpane.setZoomFactor(1.0)
-        self.glpane.gl_update()
+        self.glpane.setViewFitToWindow()
             
-    def setViewHomeToCurrent(self):
-        """Changes Home view to the current view.  This saves the view info in the Csys"""
+    def setViewHomeToCurrent(self): #bruce 050418 revised docstring, and moved bodies of View methods into GLPane
+        """Changes Home view of the model to the current view in the glpane."""
         self.history.message(greenmsg("Set Home View to Current View:"))
-        self.glpane.saveViewInCsys( self.assy.homeCsys)
-        self.assy.changed() # Csys record changed in assy.  Mark [041215]
+        self.glpane.setViewHomeToCurrent()
             
     def setViewRecenter(self):
         """Recenter the view around the origin of modeling space.
         """
         self.history.message(greenmsg("Recenter View:"))
-        self.glpane.pov = V(0,0,0)
-        self.assy.computeBoundingBox()     
-        self.glpane.scale = self.assy.bbox.scale() + vlen(self.assy.center)
-            #bruce 050418 comment: doesn't this need to correct for aspect ratio, like setViewFitToWindow does? ###e
-        self.glpane.gl_update()
-        self.assy.changed()
+        self.glpane.setViewRecenter()
                 
     def zoomTool(self):
         """Zoom Tool, allowing the user to specify a rectangular area 
