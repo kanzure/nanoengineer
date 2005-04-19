@@ -536,7 +536,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 tmpname = os.path.join(dir, '~' + fil + '.m~')
                 self.assy.writemmpfile(tmpname)
             except:
-                print "MWsemantics.py: fileSaveAs(): error writing file" + safile
+                #bruce 050419 revised printed error message
+                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file [%s]: " % safile )
                 self.history.message(redmsg( "Problem saving file: " + safile ))
                 
                 # If you want to see what was wrong with the MMP file, you

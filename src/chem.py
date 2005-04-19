@@ -361,7 +361,7 @@ class atom:
         """
         #bruce 041206 moved rad *= 1.1 (for TUBES) from atom.draw into this method
         if dispdef == diDEFAULT: #bruce 041129 permanent debug code, re bug 21
-            if platform.atom_debug:
+            if platform.atom_debug and 0: #bruce 050419 disable this since always happens for Element Color Prefs dialog
                 print "bug warning: dispdef == diDEFAULT in atom.howdraw for %r" % self
             dispdef = default_display_mode # silently work around that bug [bruce 041206]
         if self.element == Singlet:
