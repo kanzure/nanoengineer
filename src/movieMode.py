@@ -31,7 +31,7 @@ class movieMode(basicMode):
 
     def init_gui(self):
 
-        self.w.toolsMoviePlayerAction.setOn(1) # toggle on the Movie Player icon
+        self.w.simMoviePlayerAction.setOn(1) # toggle on the Movie Player icon
 
         # Disable some action items in the main window.
         self.w.modifyMinimizeSelAction.setEnabled(0) # Disable "Minimize Selection"
@@ -401,4 +401,3 @@ class movieDashboardSlotsMixin:
     pass # end of class movieDashboardSlotsMixin
 
 # end
-

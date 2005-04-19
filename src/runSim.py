@@ -792,7 +792,7 @@ class simSetup_CommandRun(CommandRun):
             #e (Is there a way to make that act like a button, so clicking on it in history plays that movie?
             #   If so, make sure it plays the correct one even if new ones have been made since then!)
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
-                        self.win.toolsMoviePlayerAction.iconSet().pixmap() )
+                        self.win.simMoviePlayerAction.iconSet().pixmap() )
             self.history.message(msg)
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
             self.win.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
@@ -1174,4 +1174,3 @@ class sim_aspect:
     pass # end of class sim_aspect
 
 # end
-
