@@ -214,28 +214,46 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.loadLighting() #bruce 050311
         
         return # from GLPane.__init__        
-        
+
+    #bruce 050418 split the following Csys methods into two methods each,
+    # so MWsemantics can share code with them. Also revised their docstrings.
+    
     def setInitialView(self, assy):
-        """Huaicai 1/27/05: part of the code of this method comes
-        from original setAssy() method. This method can be called
-        after setAssy() has been called, for example, when opening
-        an mmp file. Sets the initial view.
-        """   
-        self.quat = Q(assy.lastCsys.quat)
-        self.scale = assy.lastCsys.scale
-        self.pov = V(assy.lastCsys.pov[0], assy.lastCsys.pov[1], assy.lastCsys.pov[2])
-        self.zoomFactor = assy.lastCsys.zoomFactor
+        """Set the initial (or current) view used by this GLPane
+        to the one stored in assy.lastCsys, i.e. to assy's "Last View".
+        """
+        # Huaicai 1/27/05: part of the code of this method comes
+        # from original setAssy() method. This method can be called
+        # after setAssy() has been called, for example, when opening
+        # an mmp file. 
+        self.setViewFromCsys( assy.lastCsys)
+
+    def setViewFromCsys(self, csys):
+        "Set the initial or current view used by this GLPane to the one stored in the given Csys object."
+        self.quat = Q(csys.quat)
+        self.scale = csys.scale
+        self.pov = V(csys.pov[0], csys.pov[1], csys.pov[2])
+        self.zoomFactor = csys.zoomFactor
     
     def saveLastView(self, assy):
-        """Huaicai 1/27/05: before mmp file saving, this method
-        should be called to save the last view user has, which will
-        be used as the initial view when it is opened again.
-        """    
-        assy.lastCsys.quat = Q(self.quat)
-        assy.lastCsys.scale = self.scale
-        assy.lastCsys.pov = V(self.pov[0], self.pov[1], self.pov[2])
-        assy.lastCsys.zoomFactor = self.zoomFactor
-            
+        """Save the current view used by this GLPane in assy.lastCsys,
+        which (when this assy is later saved in an mmp file)
+        will be saved as assy's "Last View".
+        """
+        # Huaicai 1/27/05: before mmp file saving, this method
+        # should be called to save the last view user has, which will
+        # be used as the initial view when it is opened again.
+        self.saveViewInCsys( assy.lastCsys)
+
+    def saveViewInCsys(self, csys):
+        "Save the current view used by this GLPane in the given Csys object."
+        #e [bruce comment 050418: it would be good to verify csys has the right type,
+        #   since almost any python object could be used here without any immediately
+        #   detectable error. Maybe this should be a method in csys.]
+        csys.quat = Q(self.quat)
+        csys.scale = self.scale
+        csys.pov = V(self.pov[0], self.pov[1], self.pov[2])
+        csys.zoomFactor = self.zoomFactor
             
     def setAssy(self, assy):
         """[bruce comment 040922] This is called from self.__init__,

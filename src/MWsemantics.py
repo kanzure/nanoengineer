@@ -699,38 +699,27 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def setViewHome(self):
         """Reset view to Home view"""
         self.history.message(greenmsg("Current View: HOME"))
-        self.glpane.quat = Q(self.assy.homeCsys.quat) 
-        self.glpane.scale = self.assy.homeCsys.scale
-        self.glpane.pov = V(self.assy.homeCsys.pov[0], self.assy.homeCsys.pov[1], self.assy.homeCsys.pov[2])
-        self.glpane.zoomFactor = self.assy.homeCsys.zoomFactor
-        
+        self.glpane.setViewFromCsys( self.assy.homeCsys)
         self.glpane.gl_update()
-
 
     def setViewFitToWindow(self):
         """ Fit to Window """
         #Recalculate center and bounding box for the assembly    
 #        self.history.message(greenmsg("Fit to Window:"))
         
-        self.assy.computeBoundingBox()     
-
-        self.glpane.scale=self.assy.bbox.scale()
-        aspect = float(self.glpane.width)/self.glpane.height
+        self.assy.computeBoundingBox()
+        self.glpane.scale = self.assy.bbox.scale()
+        aspect = float(self.glpane.width) / self.glpane.height
         if aspect < 1.0:
              self.glpane.scale /= aspect
         self.glpane.pov = V(-self.assy.center[0], -self.assy.center[1], -self.assy.center[2]) 
         self.glpane.setZoomFactor(1.0)
         self.glpane.gl_update()
-
             
     def setViewHomeToCurrent(self):
         """Changes Home view to the current view.  This saves the view info in the Csys"""
         self.history.message(greenmsg("Set Home View to Current View:"))
-        self.assy.homeCsys.quat = Q(self.glpane.quat)
-        self.assy.homeCsys.scale = self.glpane.scale
-        self.assy.homeCsys.pov = V(self.glpane.pov[0], self.glpane.pov[1], self.glpane.pov[2])
-        self.assy.homeCsys.zoomFactor = self.glpane.zoomFactor 
-        
+        self.glpane.saveViewInCsys( self.assy.homeCsys)
         self.assy.changed() # Csys record changed in assy.  Mark [041215]
             
     def setViewRecenter(self):
@@ -738,9 +727,9 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         """
         self.history.message(greenmsg("Recenter View:"))
         self.glpane.pov = V(0,0,0)
-       
         self.assy.computeBoundingBox()     
         self.glpane.scale = self.assy.bbox.scale() + vlen(self.assy.center)
+            #bruce 050418 comment: doesn't this need to correct for aspect ratio, like setViewFitToWindow does? ###e
         self.glpane.gl_update()
         self.assy.changed()
                 
@@ -749,7 +738,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         by holding down the left button and dragging the mouse to zoom 
         into a specific area of the model.
         """
-        # we never want these modes (ZOOM, PAN, ROTATE) to be set to "prevMode". 
+        # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
             self.glpane.prevModeColor = self.glpane.mode.backgroundColor
@@ -763,7 +752,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def panTool(self):
         """Pan Tool allows X-Y panning using the left mouse button.
         """
-        # we never want these modes (ZOOM, PAN, ROTATE) to be set to "prevMode". 
+        # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
             self.glpane.prevModeColor = self.glpane.mode.backgroundColor
@@ -774,7 +763,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def rotateTool(self):
         """Rotate Tool allows free rotation using the left mouse button.
         """
-        # we never want these modes (ZOOM, PAN, ROTATE) to be set to "prevMode". 
+        # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
             self.glpane.prevModeColor = self.glpane.mode.backgroundColor
