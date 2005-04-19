@@ -1,5 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 elements.py -- elements, periodic table, element display prefs
 
@@ -67,7 +66,11 @@ class elem:
 
 
 class Singleton(object):
-    """Base class of Singleton, each subclass will only create 1 single instance. Note: If subclass has __init__(), it will be called multiple times whenever you want to create an instance of the sub-class, although only the same single instance will be returned. """
+    """Base class of Singleton, each subclass will only create 1 single instance.
+    Note: If subclass has __init__(), it will be called multiple times whenever
+    you want to create an instance of the sub-class, although only the same
+    single instance will be returned.
+    """
     _singletons = {}
     def __new__(cls, *args, **kwds):
         if not cls._singletons.has_key(cls):
@@ -75,8 +78,13 @@ class Singleton(object):
         return cls._singletons[cls]
 
 class ElementPeriodicTable(Singleton):
-    """Implement all elements related properties and functionality. Only one instance will be availabe for the whole application.It's better to have 'class elem' as an inner class, so user will not be able to create an element him/her-self, which normally will cause trouble. By doing that, it makes our code more modular and bugs more localized, easier to test. Whenever any element color/rad changes, it will depend on the user who use the element to update its display---Huaicai 3/8/05"""
-    
+    """Implement all elements related properties and functionality. Only one instance
+    will be availabe for the whole application. It's better to have 'class elem' as an
+    inner class, so user will not be able to create an element him/her-self, which
+    normally will cause trouble. By doing that, it makes our code more modular and
+    bugs more localized, easier to test. Whenever any element color/rad changes,
+    it will depend on the user who use the element to update its display---Huaicai 3/8/05
+    """
     # the formations of bonds -- standard offsets
     uvec = norm(V(1,1,1))
     tetra4 = uvec * A([[1,1,1], [-1,1,-1], [-1,-1,1], [1,-1,-1]])
@@ -179,11 +187,19 @@ class ElementPeriodicTable(Singleton):
         if  not self._perodicalTable:
            self._createElements(0, self._mendeleev)
            self._createElements(51, self._appendix)
+           #bruce 050419 add public attributes to count changes
+           # to any element's color or rvdw; the only requirement is that
+           # each one changes at least once per user event which
+           # changes their respective attributes for one or more elements.
+           self.color_change_counter = 1
+           self.rvdw_change_counter = 1
            
     def _createElements(self, startIndex, elmTable):
-        """Create elements for all member of <elmTable>. Use preference value of each element if avaible, otherwise, use default value.  
+        """Create elements for all member of <elmTable>.
+        Use preference value of each element if available, otherwise, use default value.  
         <Param> startIndex: the starting element index
-        <Param> elmTable: a list of elements needed to create """
+        <Param> elmTable: a list of elements needed to create
+        """
         prefs = prefs_context()
         for elm in elmTable:
                 rad_color = prefs.get(elm[0], self._defaultRad_Color[elm[0]])
@@ -195,7 +211,11 @@ class ElementPeriodicTable(Singleton):
     
     def _loadTableSettings(self, elSym2rad_color, changeNotFound = True ):
         """Load a table of elements rad/color setting into the current set _perodicalTable. 
-        <Param> elnum2rad_color:  A dictionary of (eleSym : (rvdw, [r,g,b])). [r,g,b] can be None, which requires color from default setting"""
+        <Param> elnum2rad_color:  A dictionary of (eleSym : (rvdw, [r,g,b])).
+                [r,g,b] can be None, which requires color from default setting
+        """
+        self.rvdw_change_counter += 1
+        self.color_change_counter += 1
         for elm in self._perodicalTable.values():
             try:
                 e_symbol = elm.symbol
@@ -218,11 +238,13 @@ class ElementPeriodicTable(Singleton):
         self. _loadTableSettings(self._defaultRad_Color)
         
     def loadAlternates(self):
-        """Update the elements properties in the _periodicalTable as that from _altRad_Color, if not find, load it from default."""
+        """Update the elements properties in the _periodicalTable as that from _altRad_Color,
+        if not find, load it from default."""
         self. _loadTableSettings(self._altRad_Color)
         
     def deepCopy(self):
-        """Deep copy the current setting of elements rvdw/color, in case user cancel the modifications """
+        """Deep copy the current setting of elements rvdw/color,
+        in case user cancel the modifications """
         copyPTable = {}
         for elm in self._perodicalTable.values():
             if type(elm.color) != type([1,1,1]):
@@ -238,6 +260,7 @@ class ElementPeriodicTable(Singleton):
         """Set a list of elements color 
         <param>colTab: A list of tuples in the form of <elNum, r, g, b> """
         assert type(colTab) == type([1,1, 1,1])
+        self.color_change_counter += 1
         for elm in colTab:
             self._perodicalTable[elm[0]].color = [elm[1], elm[2], elm[3]]
         #self._updateModelDisplay()
@@ -246,6 +269,7 @@ class ElementPeriodicTable(Singleton):
         """Set element <eleNum> color as <c> """
         assert type(eleNum) == type(1)
         assert type(c) == type([1,1,1])
+        self.color_change_counter += 1
         self._perodicalTable[eleNum].color = c
         #self._updateModelDisplay()
         
@@ -270,7 +294,8 @@ class ElementPeriodicTable(Singleton):
         return self._perodicalTable
     
     def getElement(self, num_or_name_or_symbol):
-        """Return the element for <num_or_name_or_symbol>, which is either the index, name or symbol of the element """
+        """Return the element for <num_or_name_or_symbol>,
+        which is either the index, name or symbol of the element """
         s = num_or_name_or_symbol
         if s in self._eltName2Num:
             s = self._eltName2Num[s]
@@ -293,7 +318,8 @@ class ElementPeriodicTable(Singleton):
         return self._perodicalTable[eleNum].name
         
     def getElemBondCount(self, eleNum):
-        """Return the number of open bonds for element <eleNum>. Currently, only for the single bond case. """
+        """Return the number of open bonds for element <eleNum>.
+        Currently, only for the single bond case. """
         elem = self._perodicalTable[eleNum]
         bond = elem.bonds
         if bond:
