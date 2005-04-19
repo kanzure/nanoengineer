@@ -1600,14 +1600,21 @@ class molecule(Node, InvalMixin):
     # would be too slow. Instead we have these methods:
     
     def get_sel_radii_squared(self):
-        if not self.haveradii:
+        #bruce 050419 fix bug 550 by fancifying haveradii
+        # in the same way as for havelist (see 'bruce 050415').
+        # Note: this must also be invalidated when one atom's display mode changes,
+        # and it is, by atom.setDisplay calling changeapp(1) on its chunk.
+        disp = self.get_dispdef() ##e should caller pass this instead?
+        if self.haveradii != (disp,): # value must agree with set, below
+            # don't have them, or have them for wrong display mode
+            ###e (or, someday, for wrong element-radius prefs)
             try:
                 res = self.compute_sel_radii_squared()
             except:
                 print_compact_traceback("bug in %r.compute_sel_radii_squared(), using []: " % self)
                 res = [] #e len(self.atoms) copies of something would be better
             self.sel_radii_squared_private = res
-            self.haveradii = 1
+            self.haveradii = (disp,)
         return self.sel_radii_squared_private
     
     def compute_sel_radii_squared(self):
