@@ -148,7 +148,7 @@
     </item>
     <item text="Simulator" name="Simulator">
         <action name="simSetupAction"/>
-        <action name="toolsMoviePlayerAction"/>
+        <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
@@ -667,7 +667,7 @@
             <rect>
                 <x>0</x>
                 <y>58</y>
-                <width>1033</width>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -1167,7 +1167,7 @@
             <string>Simulator</string>
         </property>
         <action name="simSetupAction"/>
-        <action name="toolsMoviePlayerAction"/>
+        <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
     </toolbar>
 </toolbars>
@@ -2753,7 +2753,7 @@
         </action>
         <action>
             <property name="name">
-                <cstring>toolsMoviePlayerAction</cstring>
+                <cstring>simMoviePlayerAction</cstring>
             </property>
             <property name="toggleAction">
                 <bool>true</bool>
@@ -4985,7 +4985,7 @@
         <slot>toolsMoveMolecule()</slot>
     </connection>
     <connection>
-        <sender>toolsMoviePlayerAction</sender>
+        <sender>simMoviePlayerAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>simMoviePlayer()</slot>
