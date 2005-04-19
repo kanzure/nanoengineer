@@ -804,8 +804,11 @@ class molecule(Node, InvalMixin):
             #  optimize some related behaviors by avoiding some needless havelist invals,
             #  now that we've also removed the now-unneeded changeapp of all mols upon
             #  global dispdef change (in GLPane.setDisplay).]
-            
-            if self.havelist == (disp,): # value must agree with set of havelist, below
+            # [bruce 050419 also including something for element radius and color prefs,
+            #  to fix bugs in updating display when those change (eg bug 452 items 12-A, 12-B).]
+
+            eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
+            if self.havelist == (disp, eltprefs): # value must agree with set of havelist, below
                 glCallList(self.displist)
             else:
                 self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way
@@ -825,7 +828,7 @@ class molecule(Node, InvalMixin):
                 # This is the only place where havelist is set to anything true;
                 # the value it's set to must match the value it's compared with, above.
                 # [bruce 050415 revised what it's set to/compared with; details above]
-                self.havelist = (disp,) #e should also include element-color-table-change-count
+                self.havelist = (disp, eltprefs)
                 assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
                 # always set the self.havelist flag, even if exception happened,
                 # so it doesn't keep happening with every redraw of this molecule.
@@ -1605,7 +1608,8 @@ class molecule(Node, InvalMixin):
         # Note: this must also be invalidated when one atom's display mode changes,
         # and it is, by atom.setDisplay calling changeapp(1) on its chunk.
         disp = self.get_dispdef() ##e should caller pass this instead?
-        if self.haveradii != (disp,): # value must agree with set, below
+        eltprefs = PeriodicTable.rvdw_change_counter # (color changes don't matter for this, unlike for havelist)
+        if self.haveradii != (disp,eltprefs): # value must agree with set, below
             # don't have them, or have them for wrong display mode
             ###e (or, someday, for wrong element-radius prefs)
             try:
@@ -1614,7 +1618,7 @@ class molecule(Node, InvalMixin):
                 print_compact_traceback("bug in %r.compute_sel_radii_squared(), using []: " % self)
                 res = [] #e len(self.atoms) copies of something would be better
             self.sel_radii_squared_private = res
-            self.haveradii = (disp,)
+            self.haveradii = (disp,eltprefs)
         return self.sel_radii_squared_private
     
     def compute_sel_radii_squared(self):
