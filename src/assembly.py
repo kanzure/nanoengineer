@@ -193,6 +193,13 @@ class assembly:
         
         return # from assembly.__init__
 
+    def construct_viewdata(self): #bruce 050418; this replaces old assy.data attribute for writing mmp files
+        grpl1 = self.tree.part.viewdata_members()
+        #e in future we might also grab these from the other parts,
+        # but store them in some other way which won't mess up old code which reads the file we'll write these into
+        # (namely, as some new mmp record type which the old code would ignore)
+        return Group("View Data", self, None, grpl1)
+
     def init_current_selgroup(self):
         self._last_current_selgroup = self.tree
         return
@@ -483,10 +490,8 @@ class assembly:
         didany = self.root.unpick_all_except( sg )
 
         # notify observers of changes to our current selgroup (after the side effect of the unpick!)
-        try:
-            self.o.gl_update()
-        except:
-            print_compact_traceback("too early for self.o.gl_update? ") ######@@@@@@
+        self.o.set_part( self.part)
+        ## done by that: self.o.gl_update()
         
         # print a history message about a new current Part, if possible #####@@@@@ not when initing to self.tree!
         try:
@@ -541,7 +546,7 @@ class assembly:
 ##        print "dir(Part) = ",dir(Part)
     #####@@@@@ for both of the following:
     part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
-    part_attrs_review = ['ppa2','ppa3','viewdata']
+    part_attrs_review = ['ppa2','ppa3']
         ###@@@ bruce 050325 removed 'alist', now all legit uses of that are directly on Part or Movie
         ### similarly removed 'temperature' (now on assy like it was),'waals' (never used)
         #e in future, we'll split out our own methods for some of these, incl .changed

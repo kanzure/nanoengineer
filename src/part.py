@@ -76,7 +76,7 @@ class Part(InvalMixin):
         self.topnode = topnode
             # some old code refers to topnode as tree or root, but that's deprecated
             # since it doesn't work for setting the value (it causes bugs we won't detect)
-            ######@@@@@@ so change all uses of that...
+            # so change all uses of that... maybe I have by now? ###k
         self.nodecount = 0 # doesn't yet include topnode
         self.add(topnode)
         # for now:
@@ -84,44 +84,44 @@ class Part(InvalMixin):
         assert isinstance(assy, assembly)
         assert isinstance(topnode, Node)
         
-        # _modified?? not yet needed for individual parts, but will be later.
-        
-        # coord sys stuff? viewdata? lastCsys homeCsys xy yz zx ###@@@ review which ivars needed; do we want unique names?? no.
-        # the coordinate system (Actually default view) ####@@@@ does this belong to each Part?? guess: yes
+        # self._modified?? not yet needed for individual parts, but will be later.
+
+        # HomeView and LastView -- these are per-part, are switched into GLPane when current part changes ###@@@doit,
+        # ###@@@ doit differently, by having glpane know what part to show, not assume it's identical to any current part!
+        # and are written into mmp file for main part and in future for other parts.
         self.homeCsys = Csys(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
         self.lastCsys = Csys(self.assy, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
+        
         ##bruce 050417 zapping all Datum objects, since this will have no important effect,
         ## even when old code reads our mmp files.
         ## More info about this can be found in other comments/emails.
 ##        self.xy = Datum(self.assy, "XY", "plane", V(0,0,0), V(0,0,1))
 ##        self.yz = Datum(self.assy, "YZ", "plane", V(0,0,0), V(1,0,0))
 ##        self.zx = Datum(self.assy, "ZX", "plane", V(0,0,0), V(0,1,0))
-        grpl1 = [self.homeCsys, self.lastCsys] ## , self.xy, self.yz, self.zx] # [note: only use of .xy, .yz, .zx as of 050417]
-        self.viewdata = Group("View Data", self.assy, None, grpl1) #bruce 050418 renamed this; not a user-visible change
-        self.viewdata.open = False
 
-        # name? no, at least not yet, until there's a Part Tree Widget.
+        ##bruce 050418 replacing this with viewdata_members method and its caller in assy:
+##        grpl1 = [self.homeCsys, self.lastCsys] ## , self.xy, self.yz, self.zx] # [note: only use of .xy, .yz, .zx as of 050417]
+##        self.viewdata = Group("View Data", self.assy, None, grpl1) #bruce 050418 renamed this; not a user-visible change
+##        self.viewdata.open = False
+
+        # self.name? no, at least not yet, until there's a Part Tree Widget...
         
-        # filename? might need one for helping store associated files... could share assy.filename for now.
-
         # some attrs are recomputed as needed (see below for their _recompute_ or _get_ methods):
-        # e.g. molecules, bbox, center, drawLevel
-
-        # not here: alist, selatoms, selmols - they're all done by a _recompute_xxx
+        # e.g. molecules, bbox, center, drawLevel, alist, selatoms, selmols
                 
         # movie ID, for future use. [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]
         ## self.movieID=0
-        # ppa = previous picked atoms. ###@@@ not sure per-part; should reset when change mode or part
-        self.ppa2 = self.ppa3 = None
         
-        ### Some information needed for the simulation or coming from mmp file
-        ## self.temperature = 300 # for now this is an attr of assy
-        ## self.waals = None ## bruce 050325 removed since nowhere used
+        # ppa = previous picked atoms. ###@@@ not sure these are per-part; should reset when change mode or part
+        self.ppa2 = self.ppa3 = None
 
         if debug_parts:
             print "debug_parts: fyi: created Part:", self
 
         return # from Part.__init__
+
+    def viewdata_members(self): #bruce 050418: this helps replace old assy.data for writing mmp files
+        return [self.homeCsys, self.lastCsys]
 
     def __repr__(self):
         classname = self.__class__.__name__
@@ -204,6 +204,8 @@ class Part(InvalMixin):
             print "debug_parts: fyi: destroying part", self
         assert self.nodecount == 0, "can't destroy a Part which still has nodes" # esp. since it doesn't have a list of them!
             # actually it could scan self.assy.root to find them... but for now, we'll enforce this anyway.
+        if self.assy and self.assy.o: #e someday change this to self.glpane??
+            self.assy.o.forget_part(self) # just in case we're its current part
         ## self.invalidate_all_attrs() # not needed
         for attr in self.__dict__.keys():
             delattr(self,attr) # is this safe, in arb order of attrs??

@@ -400,41 +400,46 @@ class _readmmp_state:
         sr.name = name
         sr.color = col
         self.addmember(sr)
-         
+        
     def _read_csys(self, card): # csys -- Coordinate System
-        if not self.isInsert: #Skip this record if inserting
-            ###Huaicai 1/27/05, new file format with home view 
-            ### and last view information        
-            m = new_csyspat.match(card)
-            if m:        
-                    name = m.group(1)
-                    wxyz = A(map(float, [m.group(2), m.group(3),
-                             m.group(4), m.group(5)]))
-                    scale = float(m.group(6))
-                    pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
-                    zoomFactor = float(m.group(10))
-                    if (name == "HomeView"):
-                            self.assy.homeCsys = Csys(self.assy, name, scale, pov, zoomFactor, wxyz)
-                            self.addmember(self.assy.homeCsys)
-                    elif (name == "LastView"):                         
-                            self.assy.lastCsys = Csys(self.assy, name, scale, pov, zoomFactor, wxyz)
-                            self.addmember(self.assy.lastCsys)
+        #bruce 050418 revising this to not have side effects on assy.
+        # Instead, caller can do that by scanning the group these are read into.
+        # This means we can now ignore the isInsert flag and always return
+        # these records. Finally, I'll return them all, not just the ones with
+        # special names we recognize; caller can detect those names when it needs to.
+        ## if not self.isInsert: #Skip this record if inserting
+        ###Huaicai 1/27/05, new file format with home view 
+        ### and last view information        
+        m = new_csyspat.match(card)
+        if m:        
+            name = m.group(1)
+            wxyz = A(map(float, [m.group(2), m.group(3),
+                     m.group(4), m.group(5)]))
+            scale = float(m.group(6))
+            pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
+            zoomFactor = float(m.group(10))
+            csys = Csys(self.assy, name, scale, pov, zoomFactor, wxyz)
+            self.addmember( csys) # regardless of name; no side effects on assy (yet) for any name,
+                # though later code will recognize the names HomeView and LastView and treat them specially
+        else:
+            m = old_csyspat.match(card)
+            if m:
+                name = m.group(1)
+                wxyz = A(map(float, [m.group(2), m.group(3),
+                         m.group(4), m.group(5)]))
+                scale = float(m.group(6))
+                homeCsys = Csys(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
+                    #bruce 050417 comment
+                    # (about Huaicai's preexisting code, some of which I moved into this file 050418):
+                    # this name "OldVersion" is detected in fix_assy_and_glpane_views_after_readmmp
+                    # (called from MWsemantics.fileOpen, one of our callers)
+                    # and changed to "HomeView", also triggering other side effects on glpane at that time.
+                lastCsys = Csys(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
+                self.addmember(homeCsys)
+                self.addmember(lastCsys)
             else:
-              m = old_csyspat.match(card)
-              if m:
-                    name = m.group(1)
-                    wxyz = A(map(float, [m.group(2), m.group(3),
-                             m.group(4), m.group(5)]))
-                    scale = float(m.group(6))
-                    self.assy.homeCsys = Csys(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
-                        #bruce 050417 comment
-                        # (about Huaicai's preexisting code, some of which I moved into this file 050418):
-                        # this name "OldVersion" is detected in fix_assy_and_glpane_views_after_readmmp
-                        # (called from MWsemantics.fileOpen, one of our callers)
-                        # and changed to "HomeView", also triggering other side effects on glpane at that time.
-                    self.addmember(self.assy.homeCsys)
-                    self.assy.lastCsys = Csys(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
-                    self.addmember(self.assy.lastCsys)
+                print "bad format in csys record, ignored:", csys #bruce 050418
+        return
 
 # bruce 050417: removing class Datum (and ignoring its mmp record "datum"),
 # since it has no useful effect (and not writing it will not even be
@@ -622,6 +627,7 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
             break
     grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
 
+    #bruce 050418: if my fixes today for HomeView & LastView work, then following comment is obs: ###@@@
     # Note about homeView and lastView [bruce 050407]... not yet ready to commit.
     # See bruce's fileIO-data-fixer.py file (at home) [renamed data as viewdata 050418] for not-yet-right comment and code.
     # Meanwhile, if we're reading a sim-input file or other erroneous file which
@@ -631,8 +637,8 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
     
     # now fix up sim input files and other nonstandardly-structured files;
     # use these extra groups if necessary, else discard them:
-    viewdata = Group("View Data", assy, None)
-    shelf = Group("Clipboard", assy, None) # name might not matter
+    viewdata = Group("Fake View Data", assy, None) # name is never used or stored
+    shelf = Group("Clipboard", assy, None) # name might not matter since caller resets it
     
     for g in grouplist:
         if not g.is_group(): # might happen for files that ought to be 'one_part', too, I think, if clipboard item was not grouped
@@ -675,47 +681,58 @@ def reset_grouplist(assy, grouplist):
     #bruce 050302 split this out of readmmp;
     # it should be entirely rewritten and become an assy method
     """[private]
-    stick a new grouplist into assy, within readmmp;
-    if grouplist is None, indicating file had bad format,
+    Stick a new just-read grouplist into assy, within readmmp.
+       If grouplist is None, indicating file had bad format,
     do some but not all of the usual side effects.
-    Otherwise grouplist must be a list of exactly 3 Groups (not checked),
-    which we treat as viewdata, tree, shelf.
     [appropriateness of behavior for grouplist == None is unreviewed]
+       Otherwise grouplist must be a list of exactly 3 Groups
+    (though this is not fully checked here),
+    which we treat as viewdata, tree, shelf.
+       Changed viewdata behavior 050418:
+    We used to assume (if necessary) that viewdata contains Csys records
+    which, when parsed during _readmmp, had side effects of storing themselves in assy
+    (which was a bad design).
+    Now we scan it and perform those side effects ourselves.
     """
-    #bruce 050406 comment: this seems wrong re assy/part split, since some of these are sometimes
-    # Part attributes! It might be ok, too -- need to clear this up. #####@@@@@
-    if grouplist:
-        # don't store these in any Part, since those will all be replaced with new ones
-        # by update_parts, below!
-        assy.viewdata, assy.tree, assy.shelf = grouplist
-    #bruce 050407 quick fix for reading sim-input files -- disabled since not yet correct; affects reading of ALL mmp files
-##    # (due to side effects of reading Csys records, it seems best to do this even if grouplist == None;
-##    #  and since it replaces assy.viewdata, we'll do it before calling kluge_patch_assy_toplevel_groups
-##    #  which I think uses assy.viewdata's members.)
-##    try:
-##        viewdatamembers = [assy.homeCsys, assy.lastCsys] ## , assy.xy, assy.yz, assy.zx]
-##        if platform.atom_debug: ###@@@ remove soon, at least when they agree
-##            if assy.viewdata.members == viewdatamembers:
-##                print "atom_debug: fyi: viewdata members agree (changing them anyway since check not done unless atom_debug)"
-##            else:
-##                print "atom_debug: fyi: viewdata members were wrong, replacing them; old length %d, new length %d" % \
-##                      (len(assy.viewdata.members), len(viewdatamembers))
-##        newviewdata = Group("View Data", assy, None, viewdatamembers) # warning: this pulls them out of assy.viewdata, if they're in there now
-##        assy.viewdata = newviewdata
-##    except:
-##        print_compact_traceback("exception in 050407 quick fix for reading sim-input files, ignored: ")
-##        pass
-    #bruce 050302: old code does a lot of the following even if grouplist is None;
-    # until I understand all the effects better, I won't change that.
-    assy.shelf.name = "Clipboard"
-    assy.viewdata.open = assy.shelf.open = False
-    assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
-    #bruce 050131 for Alpha:
+    #bruce 050418: revising this for assy/part split
     from Utility import kluge_patch_assy_toplevel_groups
+    if grouplist == None:
+        # do most of what old code did (most of which probably shouldn't be done,
+        # but this needs more careful review (especially in case old code has
+        # already messed things up by clearing assy), and merging with callers,
+        # which don't even check for any kind of error return from readmmp),
+        # except (as of 050418) don't do any side effects from viewdata.
+        # Note: this is intentionally duplicated with code from the other case,
+        # since the plan is to clean up each case independently.
+        assy.shelf.name = "Clipboard"
+        assy.shelf.open = False
+        assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
+        kluge_patch_assy_toplevel_groups(assy)
+        assy.update_parts()
+        return
+    viewdata, tree, shelf = grouplist
+        # don't yet store these in any Part, since those will all be replaced
+        # with new ones by update_parts, below!
+    assy.tree = tree
+    assy.shelf = shelf
+        # below, we'll scan viewdata for Csys records to store into mainpart
+    assy.shelf.name = "Clipboard"
+    assy.shelf.open = False
+    assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
     kluge_patch_assy_toplevel_groups(assy)
-    #bruce 050309 for assy/part split
-    assy.update_parts()
-##    assy.fix_parts() #bruce 050302 for assy/part split
+    assy.update_parts() #bruce 050309 for assy/part split
+    # Now the parts exist, so it's safe to store the viewdata into the mainpart;
+    # this imitates what the pre-050418 code did when the csys records were parsed;
+    # note that not all mmp files have anything at all in viewdata
+    # (e.g. some sim-input files don't).
+    mainpart = assy.tree.part
+    for m in viewdata.members:
+        if isinstance(m, Csys):
+            if m.name == "HomeView" or m.name == "OldVersion":
+                    # "OldVersion" will be changed to "HomeView" later... see comment elsewhere
+                mainpart.homeCsys = m
+            elif m.name == "LastView":
+                mainpart.lastCsys = m
     return
 
 def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly/part bugs, I hope
@@ -737,12 +754,17 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
     # here is Huaicai's comment about it:
     # Huaicai 12/14/04, set the initial orientation to the file's home view orientation 
     # when open a file; set the home view scale = current fit-in-view scale
-    if assy.homeCsys.name == "OldVersion": ## old version of mmp file
-        assy.homeCsys.name = "HomeView"
-        glpane.quat = Q( assy.homeCsys.quat)
-        self.setViewFitToWindow()
+    #bruce 050418 change this for assembly/part split (per-part Csys attributes)
+    mainpart = assy.tree.part
+    assert assy.part == mainpart # necessary for glpane view funcs to refer to it (or was at one time)
+    if mainpart.homeCsys.name == "OldVersion": ## old version of mmp file
+        mainpart.homeCsys.name = "HomeView"
+        glpane.set_part(mainpart) # also sets view, but maybe not fully correctly in this case ###k
+        glpane.quat = Q( mainpart.homeCsys.quat) # might be redundant with above
+        glpane.setViewFitToWindow()
     else:    
-        glpane.setInitialView(assy)
+        glpane.set_part(mainpart)
+        ## done by that: glpane._setInitialViewFromPart( mainpart)
     return
 
 # == writing mmp files
@@ -900,11 +922,17 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
     for both tree and shelf unless addshelf = False)
     into a new MMP file of the given filename.
     Should be called via the assy method writemmpfile.
+    Should properly save entire file regardless of current part
+    and without changing current part.
     """
     #bruce 050325 renamed this from writemmp
     # to avoid confusion with Node.writemmp.
     # Also, there's now an assy method which calls it
     # and a sister function for Parts which has a Part method.
+    
+    ##Huaicai 1/27/05, save the last view before mmp file saving
+    #bruce 050419 revised to save into glpane's current part
+    assy.o.saveLastView()
 
     assy.update_parts() #bruce 050325 precaution
     
@@ -913,9 +941,6 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
     else:
         workaround_for_bug_296( assy, onepart == assy.tree.part)
     
-    ##Huaicai 1/27/05, save the last view before mmp file saving
-    assy.o.saveLastView(assy)
-    
     fp = open(filename, "w")
 
     mapping = writemmp_mapping(assy) ###e should pass sim or min options when used that way...
@@ -923,7 +948,7 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
 
     try:
         mapping.write_header()
-        assy.viewdata.writemmp(mapping)
+        assy.construct_viewdata().writemmp(mapping)
         assy.tree.writemmp(mapping)
         
         mapping.write("end1\n")
@@ -941,6 +966,8 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
 
 def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     "write an mmp file for a single Part"
+    part.assy.o.saveLastView() ###e should change to part.glpane? not sure... [bruce 050419 comment]
+        # this updates assy.part csys records, but we don't currently write them out below
     node = part.topnode
     assert part == node.part
     part.assy.update_parts() #bruce 050325 precaution
@@ -950,8 +977,6 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     assy = part.assy
     #e assert node is tree or shelf member? is there a method for that already? is_topnode?
     workaround_for_bug_296( assy, onepart = part)
-    assy.o.saveLastView(assy) # this updates assy.viewdata, but we don't currently write it out below
-        # note that lastView stuff is not yet properly fixed for assembly/part split [050406]
     fp = open(filename, "w")
     mapping = writemmp_mapping(assy)
     mapping.set_fp(fp)

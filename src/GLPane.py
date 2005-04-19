@@ -146,6 +146,19 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.trackball = Trackball(10,10)
 
 
+        # [bruce 050419 new feature:]
+        # The current Part to be displayed in this GLPane.
+        # Logically this might not be the same as it's assy's current part, self.assy.part,
+        # though in initial implem it will be the same except
+        # when the part is changing... but the brief difference is important
+        # since that's how the GLPane knows which previous part to store its
+        # current view attributes in, before grabbing them from the new current part.
+        # But some code might (incorrectly in principle, ok for now)
+        # use self.assy.part when it should be using self.part.
+        # The only thing we're sure self.part must be used for is to know in which
+        # part the view attributes belong. ###@@@doit
+        self.part = None
+        
         # Current view attributes (sometimes saved in or loaded from
         #  the currently displayed part or its mmp file):
         
@@ -215,18 +228,59 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         
         return # from GLPane.__init__        
 
-    #bruce 050418 split the following Csys methods into two methods each,
-    # so MWsemantics can share code with them. Also revised their docstrings.
+    # self.part maintainance [bruce 050419]
     
-    def setInitialView(self, assy):
+    def set_part(self, part):
+        """change our current part to the one given, and take on that part's view;
+        ok if old or new part is None;
+        note that when called on our current part,
+        effect is to store our view into it
+        (which might not actually be needed, but is fast enough and harmless)
+        """
+        if self.part != part:
+            self.gl_update() # we depend on this not doing the redraw until after we return
+        self._close_part() # saves view into old part (if not None)
+        self.part = part
+        self._open_part() # loads view from new part (if not None)
+
+    def forget_part(self, part):
+        "[public] if you know about this part, forget about it (call this from dying parts)" ###@@@ doit
+        if self.part == part:
+            self.set_part(None)
+        return
+
+    def _close_part(self):
+        "[private] save our current view into self.part [if not None] and forget about self.part"
+        if self.part:
+            self._saveLastViewIntoPart( self.part)
+        self.part = None
+
+    def _open_part(self):
+        "[private] after something set self.part, load our current view from it"
+        if self.part:
+            self._setInitialViewFromPart( self.part)
+        # else our current view doesn't matter
+        return
+
+    def saveLastView(self):
+        "[public method] update the view of all parts you are displaying (presently only one or none) from your own view"
+        if self.part:
+            self._saveLastViewIntoPart( self.part)
+    
+    #bruce 050418 split the following Csys methods into two methods each,
+    # so MWsemantics can share code with them. Also revised their docstrings,
+    # and revised them for assembly/part split (i.e. per-part csys records),
+    # and renamed them as needed to reflect that.
+    
+    def _setInitialViewFromPart(self, part):
         """Set the initial (or current) view used by this GLPane
-        to the one stored in assy.lastCsys, i.e. to assy's "Last View".
+        to the one stored in part.lastCsys, i.e. to part's "Last View".
         """
         # Huaicai 1/27/05: part of the code of this method comes
         # from original setAssy() method. This method can be called
         # after setAssy() has been called, for example, when opening
         # an mmp file. 
-        self.setViewFromCsys( assy.lastCsys)
+        self.setViewFromCsys( part.lastCsys)
 
     def setViewFromCsys(self, csys):
         "Set the initial or current view used by this GLPane to the one stored in the given Csys object."
@@ -235,15 +289,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.pov = V(csys.pov[0], csys.pov[1], csys.pov[2])
         self.zoomFactor = csys.zoomFactor
     
-    def saveLastView(self, assy):
-        """Save the current view used by this GLPane in assy.lastCsys,
-        which (when this assy is later saved in an mmp file)
-        will be saved as assy's "Last View".
+    def _saveLastViewIntoPart(self, part):
+        """Save the current view used by this GLPane into part.lastCsys,
+        which (when this part's assy is later saved in an mmp file)
+        will be saved as that part's "Last View".
+        [As of 050418 this still only gets saved in the file for the main part]
         """
         # Huaicai 1/27/05: before mmp file saving, this method
         # should be called to save the last view user has, which will
         # be used as the initial view when it is opened again.
-        self.saveViewInCsys( assy.lastCsys)
+        self.saveViewInCsys( part.lastCsys)
 
     def saveViewInCsys(self, csys):
         "Save the current view used by this GLPane in the given Csys object."
@@ -273,51 +328,64 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         back to current state if the openfile fails... tho I'm not
         sure I'm right about that, since I didn't test it.
         """
-        
-        assy.o = self
+        assy.o = self ###@@@ should only the part know the glpane?? or, only the mode itself? [bruce 050418 comment]
         self.assy = assy
-        
-        self.setInitialView(assy)
+        try:
+            mainpart = assy.tree.part
+            assert mainpart
+        except:
+            # I hope this never happens... but I don't know; if it does, reorder things?? [bruce 050418 comment]
+            if platform.atom_debug:
+                print "atom_debug: no mainpart yet in setAssy (ok during init); using a fake one"
+            mainpart = Part(self) #bruce 050418 -- might be common during init; use this just for its lastCsys
+            self._setInitialViewFromPart( mainpart)
+        else:
+            if platform.atom_debug:
+                print "atom_debug: had mainpart in setAssy" # not sure if this will ever happen!
+            self.set_part( mainpart)
         
         # defined in modeMixin [bruce 040922]; requires self.assy
-        self._reinit_modes() 
+        self._reinit_modes()
 
     # == view toolbar helper methods
     
     # [bruce 050418 made these from corresponding methods in MWsemantics.py,
-    #  which still exist but call these, perhaps after printing a history message.]
+    #  which still exist but call these, perhaps after printing a history message.
+    #  Also revised them for assembly/part split, i.e. per-part csys attributes.]
     
     def setViewHome(self):
-        "Change current view to our model's home view, and gl_update."
-        self.setViewFromCsys( self.assy.homeCsys)
+        "Change current view to our model's home view (for glpane's current part), and gl_update."
+        self.setViewFromCsys( self.part.homeCsys)
         self.gl_update()
 
     def setViewFitToWindow(self):
         "Change current view so that our model's bbox fits in our window, and gl_update."
-        #Recalculate center and bounding box for the assembly    
-        self.assy.computeBoundingBox()
-        self.scale = self.assy.bbox.scale()
+        #Recalculate center and bounding box for the current part
+        part = self.part
+        part.computeBoundingBox()
+        self.scale = part.bbox.scale()
         aspect = float(self.width) / self.height
         if aspect < 1.0:
              self.scale /= aspect
-        self.pov = V(-self.assy.center[0], -self.assy.center[1], -self.assy.center[2]) 
+        self.pov = V(-part.center[0], -part.center[1], -part.center[2]) 
         self.setZoomFactor(1.0)
         self.gl_update()
 
     def setViewHomeToCurrent(self):
-        "Change our model's home view to be our current view, and mark model as changed."
-        self.saveViewInCsys( self.assy.homeCsys)
-        self.assy.changed() # Csys record changed in assy.  Mark [041215]
+        "Save our current view as home view of glpane's current part, and mark part as changed."
+        self.saveViewInCsys( self.part.homeCsys)
+        self.part.changed() # Mark [041215]
 
     def setViewRecenter(self):
-        "Recenter our current view around the origin of modeling space, and gl_update."
+        "Recenter our current view around the origin of modeling space in our current part, and gl_update."
+        part = self.part
         self.pov = V(0,0,0)
-        self.assy.computeBoundingBox()
-        self.scale = self.assy.bbox.scale() + vlen(self.assy.center)
+        part.computeBoundingBox()
+        self.scale = part.bbox.scale() + vlen(part.center)
             #bruce 050418 comments:
             # - doesn't this need to correct for aspect ratio, like setViewFitToWindow does? ###e
-            # - why does it mark assy as changed? I doubt it should.
-        self.assy.changed()
+            # - why does it mark part as changed? I doubt it should (side effect of computeBoundingBox shouldn't require it).
+        part.changed()
         self.gl_update()
     
     # == "callback methods" from modeMixin:
@@ -989,10 +1057,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # let parts (other than the main part) draw a text label, to warn
         # the user that the main part is not being shown [bruce 050408]
         try:
-            self.assy.part.draw_text_label(self)
+            self.part.draw_text_label(self)
         except:
             if platform.atom_debug:
-                print_compact_traceback( "atom_debug: exception in self.assy.part.draw_text_label(self): " )
+                print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
             pass # if it happens at all, it'll happen too often to bother users with an error message
         
         glFlush()  #Tidy up
