@@ -120,7 +120,8 @@ class Jig(Node):
     
     def pick(self): 
         """select the Jig"""
-        self.assy.w.history.message(self.getinfo()) 
+        if self.assy: #bruce 050419 add 'if' as quick safety hack re bug 451-9 (not a real fix, but removes the traceback) ###@@@
+            self.assy.w.history.message(self.getinfo()) 
         if not self.picked: #bruce 050131 added this condition (maybe good for history.message too?)
             Node.pick(self) #bruce 050131 for Alpha: using Node.pick
             self.normcolor = self.color # bug if this is done twice in a row! [bruce 050131 maybe fixed now due to the 'if']
