@@ -207,7 +207,7 @@ class selectMode(basicMode):
             ]
         
         self.Menu_spec_shift = [
-            ('Delete        Del', self.o.assy.kill),
+            ('Delete        Del', self.o.assy.delete_sel),
             ('Move', self.move), # redundant but intentionally left in for now
             None,
             ('Hide', self.o.assy.Hide),

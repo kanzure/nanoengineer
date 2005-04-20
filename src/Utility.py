@@ -726,7 +726,7 @@ class Node:
         # ... and addmol is not good for adding things to assy... but some of it is needed (more than just .molecules), in theory...
 
         # ... I ended up not yet supporting this in changed_dad, but just having some or all DND moves call assy.update_mols!
-        # Maybe I'll make assy methods cut/copy/delete do this too, not sure.
+        # Maybe I'll make assy methods cut/copy/delete_sel do this too, not sure.
 
         # end of bruce new features 050205 for Alpha
         # [they are all comments! well, those are useful too... and less likely to cause new bugs (soon anyway) than actual code!]
@@ -1085,7 +1085,7 @@ class Group(Node):
            Note: the existence of this method (as an attribute) might be used as a check
         for whether a Node can be treated like a Group [as of 050201].
            Special case: legal and no effect if newchild is None or 0 (or anything false);
-        this turns out to be needed by assy.copy/Group.copy or Jig.copy! [050131 comment]
+        this turns out to be needed by assy.copy_sel/Group.copy or Jig.copy! [050131 comment]
         [Warning (from when this was called addmember):
          semantics (place of insertion, and optional arg name/meaning)
          are not consistent with Node.addmember; see my comments in its docstring.
@@ -1355,26 +1355,26 @@ class Group(Node):
                     # put them before self, to preserve order [bruce 050126]
             self.kill()
 
-    #bruce 050131 implemented this since it seems safe now... ###@@@ test it
-    # but it's NOT YET USED -- it's replaced by the following older method
-    # which refuses to copy Groups, since it's past the Alpha new-feature deadline.
-    #bruce 050214 comment: this might be safe, but is not yet good enough,
-    # e.g. it doesn't handle bonds between copied chunks... probably better to redo all copying
-    # as a 2-pass algorithm, and until then, leave groups uncopyable.
-    def copy(self, dad):
-        assert 0, "this is not yet used!"
-        ###@@@ need to review all copy methods for inconsistent semantics
-        # (internal like mol.copy, or menu-event-handlers?)
-        if self.__class__ != Group:
-            return None
-        res = Group( self.name, self.assy, None) #e should we use chem.gensym(self.name)?
-            # dad None here, for Alpha, to work with assy.copy as of 050131
-        for x in self.members:
-            res.addchild(x.copy(res))
-                # .copy doesn't do addchild itself, returns None for Jigs; addchild tolerates both offenses
-        return res
+##    #bruce 050131 implemented this since it seems safe now... ###@@@ test it
+##    # but it's NOT YET USED -- it's replaced by the following older method
+##    # which refuses to copy Groups, since it's past the Alpha new-feature deadline.
+##    #bruce 050214 comment: this might be safe, but is not yet good enough,
+##    # e.g. it doesn't handle bonds between copied chunks... probably better to redo all copying
+##    # as a 2-pass algorithm, and until then, leave groups uncopyable.
+##    def copy(self, dad):
+##        assert 0, "this is not yet used!"
+##        ###@@@ need to review all copy methods for inconsistent semantics
+##        # (internal like mol.copy, or menu-event-handlers?)
+##        if self.__class__ != Group:
+##            return None
+##        res = Group( self.name, self.assy, None) #e should we use chem.gensym(self.name)?
+##            # dad None here, for Alpha, to work with assy.copy_sel as of 050131
+##        for x in self.members:
+##            res.addchild(x.copy(res))
+##                # .copy doesn't do addchild itself, returns None for Jigs; addchild tolerates both offenses
+##        return res
 
-    #bruce 050131 note: this older method intentionally replaces the previous copy method! (for Alpha)
+##    #bruce 050131 note: this older method intentionally replaces the previous copy method! (for Alpha)
     def copy(self, dad):
         ###@@@ need to review all copy methods for inconsistent semantics
         # (internal like mol.copy, or menu-event-handlers?)

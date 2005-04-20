@@ -488,16 +488,16 @@ class modelTree(TreeWidget):
     # anyway I tried to fix or mitigate their bugs [bruce 050131]:
     
     def cm_copy(self):
-        self.assy.copy()
+        self.assy.copy_sel()
         self.mt_update()
     
     def cm_cut(self):
-        self.assy.cut()
+        self.assy.cut_sel()
         self.mt_update()
     
     def cm_delete(self): # renamed from cm_kill which was renamed from kill
         # note: this is now the same code as MWsemantics.killDo. [bruce 050131]
-        self.assy.kill()
+        self.assy.delete_sel()
         self.win.win_update() # Changed from self.mt_update for deleting from MT menu. Mark [04-12-03]
 
     pass # end of class modelTree

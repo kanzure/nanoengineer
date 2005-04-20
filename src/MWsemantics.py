@@ -666,11 +666,11 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     # into the assy methods they call, so the menu command versions also have them
     
     def editCut(self):
-        self.assy.cut()
+        self.assy.cut_sel()
         self.win_update()
 
     def editCopy(self):
-        self.assy.copy()
+        self.assy.copy_sel()
         self.win_update()
 
     def editPaste(self):
@@ -683,7 +683,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def killDo(self):
         """ Deletes selected atoms, chunks, jigs and groups.
         """
-        self.assy.kill()
+        self.assy.delete_sel()
         self.win_update() #bruce 050131 made this identical with mtree cmenu version
         ## self.glpane.gl_update()
         ## self.mt.mt_update()

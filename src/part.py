@@ -791,14 +791,20 @@ class Part(InvalMixin):
         for a in self.selatoms.itervalues():
             a.prin()
     
-    # == #####@@@@@ cut/copy/paste/kill will all be revised to handle bonds better (copy or break them as appropriate)
-    # incl jig-atom connections too
+    # == ###@@@ cut/copy/paste/kill will all be revised to handle bonds better (copy or break them as appropriate)
+    # incl jig-atom connections too [bruce, ca. time of assy/part split]
+    # [renamings, bruce 050419: kill -> delete_sel, cut -> cut_sel, copy -> copy_sel; does paste also need renaming? to what?]
     
     # bruce 050131/050201 revised these Cut and Copy methods to fix some Alpha bugs;
     # they need further review after Alpha, and probably could use some merging. ###@@@
-    # See also assy.kill (Delete operation).
-    
+    # See also assy.delete_sel (Delete operation).
+
     def cut(self):
+        if platform.atom_debug:
+            print_compact_stack( "atom_debug: assy.cut called, should use its new name cut_sel: ")
+        return self.cut_sel()
+    
+    def cut_sel(self): #bruce 050419 renamed this from cut to avoid confusion with Node method and follow new _sel convention
         eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
         center_these = []
         try:
@@ -819,7 +825,7 @@ class Part(InvalMixin):
                 
                 #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
                 # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
-                # (No such restriction will be required for assy.copy, even when it copies entire groups.)
+                # (No such restriction will be required for assy.copy_sel, even when it copies entire groups.)
                 self.topnode.unpick_top()
                 ## self.w.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
                 ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
@@ -834,7 +840,7 @@ class Part(InvalMixin):
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
                 # bruce 050131 inference from recalled bug report:
                 # this must fail in some way that addchild handles, or tolerate jigs/groups but shouldn't;
-                # one difference is that for chunks it would leave them in assy.molecules whereas copy would not;
+                # one difference is that for chunks it would leave them in assy.molecules whereas copy_sel would not;
                 # guess: that last effect (and the .pick we used to do) might be the most likely cause of some bugs --
                 # like bug 278! Because findpick (etc) uses assy.molecules. So I fixed this with sanitize_for_clipboard, below.
                 # [later, 050307: replaced that with update_parts.]
@@ -855,8 +861,8 @@ class Part(InvalMixin):
                 nshelf_before = len(self.shelf.members) #bruce 050201
                 for ob in new.members[:]:
                     # [bruce 050302 copying that members list, to fix bug 360 item 8, like I fixed
-                    #  bug 360 item 5 in "copy" 2 weeks ago. It's silly that I didn't look for the same
-                    #  bug in this method too, when I fixed it in copy.]
+                    #  bug 360 item 5 in "copy_sel" 2 weeks ago. It's silly that I didn't look for the same
+                    #  bug in this method too, when I fixed it in copy_sel.]
                     # bruce 050131 try fixing bug 278 in a limited, conservative way
                     # (which won't help the underlying problem in other cases like drag & drop, sorry),
                     # based on the theory that chunks remaining in assy.molecules is the problem:
@@ -891,6 +897,11 @@ class Part(InvalMixin):
             self.w.win_update() ###stub of how this relates to ending the handler
         return
 
+    def copy(self):
+        if platform.atom_debug:
+            print_compact_stack( "atom_debug: assy.copy called, should use its new name copy_sel: ")
+        return self.copy_sel()
+    
     # copy any selected parts (molecules) [making a new clipboard item... #doc #k]
     #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
     #  Bruce's comments (based on reading the code, not all verified by test): [###obs comments]
@@ -905,10 +916,11 @@ class Part(InvalMixin):
     #    2. Is it intentional to select only the last item added to the
     #  clipboard? (This will be the topmost selected item, since (at least
     #  for now) the group members are in bottom-to-top order.)
-    def copy(self):
+    
+    def copy_sel(self): #bruce 050419 renamed this from copy
         self.w.history.message(greenmsg("Copy:"))
         if self.selatoms:
-            #bruce 050201-bug370: revised this in same way as for assy.cut (above)
+            #bruce 050201-bug370: revised this in same way as for assy.cut_sel (above)
             self.w.history.message(redmsg("Copying selected atoms is not yet supported.")) #bruce 050131
             ## return
         new = Group(gensym("Copy"), self.assy, None)
@@ -923,7 +935,7 @@ class Part(InvalMixin):
         #  in addchild. So we end up with a members list of copied chunks from assy.tree.]
         self.topnode.apply2picked(lambda(x): new.addchild(x.copy(None))) #bruce 050215 changed mol.copy arg from new to None
 
-        # unlike for cut, no self.changed() should be needed
+        # unlike for cut_sel, no self.changed() should be needed
         
         if new.members:
             nshelf_before = len(self.shelf.members) #bruce 050201
@@ -962,7 +974,14 @@ class Part(InvalMixin):
         pass # to be implemented
 
     def kill(self):
-        "delete everything selected in this Part [except the top node, if we're an immortal Part]"
+        if platform.atom_debug:
+            print_compact_stack( "atom_debug: assy.kill called, should use its new name delete_sel: ")
+        self.delete_sel()
+
+    def delete_sel(self):
+        "delete all selected nodes or atoms in this Part [except the top node, if we're an immortal Part]"
+        #bruce 050419 renamed this from kill, to distinguish it
+        # from standard meaning of obj.kill() == kill that obj
         #bruce 050201 for Alpha: revised this to fix bug 370
         ## "delete whatever is selected from this assembly " #e use this in the assy version of this method, if we need one
         self.w.history.message(greenmsg("Delete:"))
@@ -989,17 +1008,17 @@ class Part(InvalMixin):
 
     ###@@@ move/rot should be extended to apply to jigs too (and fit into some naming convention)
     
-    # move any selected parts in space ("move" is an offset vector)
-    def movesel(self, move):
+    def movesel(self, offset):
+        "move selected chunks in space"
         for mol in self.selmols:
             self.changed()
-            mol.move(move)
+            mol.move(offset)
  
-    # rotate any selected parts in space ("rot" is a quaternion)
-    def rotsel(self, rot):
+    def rotsel(self, quat):
+        "rotate selected chunks in space"
         for mol in self.selmols:
             self.changed()
-            mol.rot(rot)
+            mol.rot(quat)
 
     # == these are event handlers which do their own full UI updates at the end
     

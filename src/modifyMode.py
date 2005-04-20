@@ -378,7 +378,7 @@ class modifyMode(basicMode):
         
         self.Menu_spec = [
             ('Stretch', self.o.assy.Stretch),
-            ('Delete     Del', self.o.assy.kill),
+            ('Delete     Del', self.o.assy.delete_sel),
             ('Hide', self.o.assy.Hide),
             None,
             # bruce 041217 added the following (rather than just Done)

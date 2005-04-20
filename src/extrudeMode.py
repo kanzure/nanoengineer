@@ -1745,12 +1745,12 @@ class extrudeMode(basicMode):
         self.o._reinit_modes()
         print "done with reinit modes, now see if you can select the reloaded mode"
         return
-    
-    def copy(self):
-        print 'NYI'
 
-    def move(self):
-        print 'NYI'
+    #bruce 050419: these seem unused    
+##    def copy(self):
+##        print 'NYI'
+##    def move(self):
+##        print 'NYI'
 
     pass # end of class extrudeMode
 
