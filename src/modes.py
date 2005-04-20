@@ -228,27 +228,35 @@ class basicMode(anyMode):
         key = self.bgcolor_prefs_key
         prefs[key] = color # this stores the new color into a prefs db file
         return
+
+    #bruce 050416 revised makeMenus-related methods to permit "dynamic context menus",
+    # then revised them again 050420 to fix bug 554 which this introduced.
+
+    call_makeMenus_for_each_event = False # default value of class attribute; subclasses can override
     
-    def setup_menus(self, makeMenuMethod): # rewritten by bruce 041103; extended 050416 with makeMenuMethod (klugy, sorry)
+    def setup_menus_in_init(self):
+        if not self.call_makeMenus_for_each_event:
+            self.setup_menus( )
+
+    def setup_menus_in_each_cmenu_event(self):
+        if self.call_makeMenus_for_each_event:
+            self.setup_menus( )
+
+    def setup_menus(self): # rewritten by bruce 041103; slight changes 050416, 050420
+        "call self.makeMenus(), postprocess the menu_spec attrs it sets, and turn them into self.Menu1 etc"
         mod_attrs = ['Menu_spec_shift', 'Menu_spec_control']
-        all_attrs = ['Menu_spec'] + mod_attrs + ['debug_Menu_spec'] # the ones makeMenuMethod might set up
-        for attr in all_attrs: ### + ['Menu1','Menu2','Menu3']:
+        all_attrs = ['Menu_spec'] + mod_attrs + ['debug_Menu_spec']
+        # delete any Menu_spec attrs previously set (needed when call_makeMenus_for_each_event is true)
+        for attr in all_attrs + ['Menu1','Menu2','Menu3']:
             if hasattr(self, attr):
-                # probably never happens for makeMenuMethod = self.makeMenus;
-                # but routine for makeMenuMethod = self.makeMenus_each_event
-                del self.__dict__[attr] # note: they better not be a class attr or this will fail!
+                del self.__dict__[attr]
         #bruce 050416: give it a default menu; for modes we have now, this won't ever be seen unless there are bugs
-        self.Menu_spec = [('<modename should go here>', noop, 'disabled')] ###e change to actual modename
-        ## self.makeMenus() # bruce 040923 moved this here, from the subclasses
-        if makeMenuMethod() == 'was not overridden':
-            # it's an old mode subclass, using static Menu_specs only; leave previously computed menus alone
-            assert self.Menu1 and self.Menu2 and self.Menu3
-            return
+        self.Menu_spec = [('<modename should go here>', noop, 'disabled')] ###e change to actual modename, if this is ever used
+        self.makeMenus() # bruce 040923 moved this here, from the subclasses
         # bruce 041103 changed details of what self.makeMenus() should do
-        # bruce 050416: now we might be calling that one or the newer self.makeMenus_each_event()
-##        for attr in ['Menu1','Menu2','Menu3']:
-##            assert not hasattr(self, attr), \
-##                "obsolete menu attr should not be defined: %r.%s" % (self, attr)
+        for attr in ['Menu1','Menu2','Menu3']:
+            assert not hasattr(self, attr), \
+                "obsolete menu attr should not be defined: %r.%s" % (self, attr)
         # makeMenus should have set self.Menu_spec, and maybe some sister attrs
         assert hasattr(self, 'Menu_spec'), "%r.makeMenus() failed to set up" \
                " self.Menu_spec (to be a menu spec list)" % self # should never happen after 050416
@@ -296,25 +304,16 @@ class basicMode(anyMode):
         self.Menu3 = self.makemenu(self.Menu_spec_control)
 
     def makeMenus(self):
-        """[subclasses should implement this if they want to compute one set of
-        Menu_specs during __init__, to be used every time they put up a context menu;
-        it should set self.Menu_spec (and related attrs) and return None]
+        """[Subclasses can override this to assign menu_spec lists (describing
+        the context menus they want to have) to self.Menu_specs (and related attributes).
+        Depending on a class constant call_makeMenus_for_each_event (default False),
+        this will be called once during init (default behavior) or on every mousedown
+        that needs to put up a context menu (useful for "dynamic context menus").]
         """
-        pass
+        pass ###e move the default menu_spec to here in case subclasses want to use it?
 
-    def makeMenus_each_event(self):
-        """[subclasses should implement this if they want to compute
-        a different set of menu_specs each time they put up a context menu;
-        it should set self.Menu_spec (and related attrs) and return None]
-        """
-        return 'was not overridden' # this hardcoded string is detected by caller
-
-    def setup_menus_in_init(self):
-        self.setup_menus( self.makeMenus )
-
-    def setup_menus_in_each_cmenu_event(self):
-        self.setup_menus( self.makeMenus_each_event )
-
+    # ==
+    
     def warning(self, *args, **kws):
         self.o.warning(*args, **kws)
 

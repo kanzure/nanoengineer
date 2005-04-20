@@ -1296,8 +1296,10 @@ class depositMode(basicMode):
 
     def viewing_main_part(self): #bruce 050416 ###e should refile into assy
         return self.o.assy.current_selgroup_iff_valid() == self.o.assy.tree
+
+    call_makeMenus_for_each_event = True #bruce 050416/050420 using new feature for dynamic context menus
     
-    def makeMenus_each_event(self): #bruce 050416 using new feature for dynamic context menus
+    def makeMenus(self):
         
         self.Menu_spec = []
         ###e could include disabled chunk & selatom name at the top, whether selatom is singlet, hotspot, etc.
