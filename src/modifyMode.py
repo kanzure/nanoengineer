@@ -123,7 +123,6 @@ class modifyMode(basicMode):
         elif key == Qt.Key_Y:
             self.w.transYAction.setOn(1) # toggle on the Translate Y action item
         elif key == Qt.Key_Z:
-            print "modifyMode.keyPress: Z key pressed"
             self.w.transZAction.setOn(1) # toggle on the Translate Z action item
 
 #     For debugging/testing.  Please keep in.  Mark 050413        
@@ -160,6 +159,7 @@ class modifyMode(basicMode):
         self.picking = True
         self.dragdist = 0.0
         self.transDelta = 0 # X, Y or Z deltas for translate.
+        self.rotDelta = 0 # delta for constrained rotations.
         self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
 
         # Move section
@@ -187,7 +187,13 @@ class modifyMode(basicMode):
             else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
         
             ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+            # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
+            # This creates a special case problem when the user wants to constrain rotation around
+            # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
+            # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
+            if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
             self.Zmat = A([ma,[-ma[1],ma[0]]])
+
         # end of Translate section
         
     def leftDrag(self, event):
@@ -206,7 +212,6 @@ class modifyMode(basicMode):
         if self.moveOption == 'MOVEDEFAULT':
             deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
-#            self.dragdist += vlen(deltaMouse)
         
             p1, p2 = self.o.mousepoints(event)
         
@@ -225,7 +230,7 @@ class modifyMode(basicMode):
 
         # end of Move section
         
-        # Translate section
+        # Translate/Rotate section
         else: 
             #self.o.setCursor(self.w.MoveRotateMolCursor)
         
@@ -235,23 +240,26 @@ class modifyMode(basicMode):
                        self.o.MousePos[1] - event.pos().y())
             a =  dot(self.Zmat, deltaMouse)
             dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
-        
-            self.transDelta += dx # Increment move delta
-        
-            for mol in self.o.assy.selmols:
-                if self.moveOption == 'TRANSX': ma = V(1,0,0) # X Axis
-                elif self.moveOption == 'TRANSY': ma = V(0,1,0) # Y Axis
-                elif self.moveOption == 'TRANSZ': ma = V(0,0,1) # Z Axis
-                else: 
-                    print "modifyMode.leftDrag: Error - unknown moveOption value =", self.moveOption
-                    continue
 
-                mol.move(dx*ma)
-                mol.rot(Q(ma,-dy))
+            if self.moveOption == 'TRANSX': ma = V(1,0,0) # X Axis
+            elif self.moveOption == 'TRANSY': ma = V(0,1,0) # Y Axis
+            elif self.moveOption == 'TRANSZ': ma = V(0,0,1) # Z Axis
+            else: 
+                print "modifyMode.leftDrag: Error - unknown moveOption value =", self.moveOption
+                return
+
+            self.transDelta += dx # Increment translation delta
+            qrot = Q(ma,-dy) # Quat for rotation delta.
+            self.rotDelta += qrot.angle *180.0/pi * sign(dy) # Increment rotation delta (and convert to degrees)
+            
+            # Move the selected chunks    
+            for mol in self.o.assy.selmols:
+                mol.move(dx*ma) # Translate
+                mol.rot(qrot) # Rotate
         
-            # Print status bar msg indicating the current move delta.
+            # Print status bar msg indicating the current translation and rotation delta.
             if self.o.assy.selmols:
-                msg = "%s delta: %.2f Angstroms" % (self.axis, self.transDelta)
+                msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
                 self.w.history.transient_msg(msg)
             
         # end of Translate section
