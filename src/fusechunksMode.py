@@ -46,6 +46,8 @@ class fusechunksMode(modifyMode):
         self.w.fuseChunksDashboard.show() # show the Fuse Chunks dashboard
         self.w.connect(self.w.makeBondsPB,SIGNAL("clicked()"),self.make_bonds)
         self.w.connect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
+        # This is so we can use the X, Y, Z modifier keys from modifyMode.
+        self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
         
         # If only one chunk is selected when coming in, make it the selected_chunk.
         # If more than one chunk is selected, unselect them all.
@@ -58,6 +60,7 @@ class fusechunksMode(modifyMode):
         self.w.fuseChunksDashboard.hide()
         self.w.disconnect(self.w.makeBondsPB,SIGNAL("clicked()"),self.make_bonds)
         self.w.disconnect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
+        self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
 
     def tolerance_changed(self, val):
         self.tol = val * .01
@@ -105,83 +108,8 @@ class fusechunksMode(modifyMode):
             msg = "Fuse Chunks: No bonds have been made yet.  Undo ignored."
             self.w.history.message(redmsg(msg))
         
-    def leftDrag(self, event):
-        """Move the selected chunk in the plane of the screen following
-        the mouse.
-        """
-        
-        # Need to look at moving all this back into modifyMode.leftDrag
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y(), 0.0)
-        self.dragdist += vlen(deltaMouse)
-        
-        p1, p2 = self.o.mousepoints(event)
-        point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
-        if point == None: 
-                point = ptonline(self.movingPoint, p1, norm(p2-p1))
-        
-        self.o.assy.movesel(point - self.movingPoint)
-        
-        # This is the only line that is different from modifyMode.leftDrag.
-        if self.selected_chunk: 
-            self.find_bondable_pairs() # Find bondable pairs of singlets
-
-        self.o.gl_update()
-        self.movingPoint = point
-        self.o.SaveMouse(event)        
-
-    def leftShiftDrag(self, event):
-        """move chunk along its axis (mouse goes up or down)
-           rotate around its axis (left-right)
-        """
-
-        self.o.setCursor(self.w.MoveRotateMolCursor)
-        
-        w=self.o.width+0.0
-        h=self.o.height+0.0
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y())
-        a =  dot(self.Zmat, deltaMouse)
-        dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
-
-        # This is always be only one chunk.
-        for mol in self.o.assy.selmols:
-            ma = mol.getaxis()
-            mol.move(dx*ma)
-            mol.rot(Q(ma,-dy))
-        
-        # This is the only line that is different from modifyMode.leftShiftDrag.    
-        if self.selected_chunk: 
-            self.find_bondable_pairs() # Find bondable pairs of singlets
-
-        self.dragdist += vlen(deltaMouse)
-        self.o.SaveMouse(event)
-        self.o.gl_update()
-
-    def leftCntlDrag(self, event):
-        """Do an incremental trackball action on each selected part.
-        """
-        
-        self.o.setCursor(self.w.RotateMolCursor)
-        
-        w=self.o.width+0.0
-        h=self.o.height+0.0
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y(), 0.0)
-        self.dragdist += vlen(deltaMouse)
-        self.o.SaveMouse(event)
-        q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1],
-                                    self.o.quat)
-        self.o.assy.rotsel(q)
-
-        # This is the only line that is different from modifyMode.leftCntlDrag.
-        if self.selected_chunk: 
-            self.find_bondable_pairs() # Find bondable pairs of singlets
-        
-        self.o.gl_update()
-        
     def leftDouble(self, event):
-        # This keeps us from ending Fuse Chunks, as is the case with Move Chunks.
+        # This keeps us from leaving Fuse Chunks mode, as is the case in Move Chunks mode.
         pass
 
     def EndPick(self, event, selSense):
@@ -209,7 +137,6 @@ class fusechunksMode(modifyMode):
         '''
         self.selected_chunk = self.o.assy.selmols[0]
         self.selected_chunk_rad = self.selected_chunk.bbox.scale() * self.rfactor
-        self.find_bondable_pairs() # Find bondable pairs of singlets
         
     def unpick_selected_chunk(self):
         '''Resets everything when the selected chunk is unselected, 
@@ -226,9 +153,24 @@ class fusechunksMode(modifyMode):
         self.w.toleranceLB.setText(tol_str) 
 
     def Draw(self):
-        
+
+        # If only one chunk is selected when coming in, make it the selected_chunk.
+        # If more than one chunk is selected, unselect them all.
+        # There is a bug when selecting more than one chunk using the model tree.
+        # The model tree is not updated properly.  I'm guessing this is an easy fix, but
+        # I need to ask Bruce.  I need to be careful of recursive updates if I call the wrong
+        # thing inside here.  Mark 050420.
+        if len(self.o.assy.selmols) == 1: 
+            self.init_selected_chunk()
+        else:
+            self.unpick_selected_chunk()
+            
+        # Only works if one chunk is selected.    
+        if self.selected_chunk: 
+            self.find_bondable_pairs() # Find bondable pairs of singlets
+                                
         modifyMode.Draw(self)
-        
+
         # Color the bondable pairs or singlets and bond lines between them
         if self.bondable_pairs:
             for s1,s2 in self.bondable_pairs:
@@ -299,11 +241,6 @@ class fusechunksMode(modifyMode):
         nbonds = len(self.bondable_pairs)
         tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds)
         self.w.toleranceLB.setText(tol_str)
-        
-        if nbonds:
-            self.w.history.transient_msg("")
-        else:
-            self.w.history.transient_msg("Drag chunk with open bonds near another chunk with open bonds to create new bonds.")
 
     def make_bonds(self):
         "Make bonds between all bondable pairs of singlets"

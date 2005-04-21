@@ -71,6 +71,8 @@ class modifyMode(basicMode):
     # class variables
     moveOption = 'MOVEDEFAULT'
     axis = 'X'
+    RotationOnly = False
+    TranslationOnly = False
     
     # no __init__ method needed
 
@@ -124,16 +126,12 @@ class modifyMode(basicMode):
             self.w.transYAction.setOn(1) # toggle on the Translate Y action item
         elif key == Qt.Key_Z:
             self.w.transZAction.setOn(1) # toggle on the Translate Z action item
-
-#     For debugging/testing.  Please keep in.  Mark 050413        
-#        elif key == Qt.Key_M:
-#            print "modifyMode.keyPress: M key pressed Testing moveAbsolute "
-#            self.moveAbsolute()
-                
-#     For debugging/testing.  Please keep in.  Mark 050413          
-#    def test(self):
-#        print "modifyMode.test Called"
-#        self.o.assy.testing_this_method()  # replace this with any method
+            
+        # R and T keys constrain movement to rotation or translation only while they are pressed.
+        elif key == Qt.Key_R:
+            self.RotationOnly = True # Rotation only.
+        elif key == Qt.Key_T:
+            self.TranslationOnly = True # Translation only.
                 
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
@@ -141,8 +139,11 @@ class modifyMode(basicMode):
         if key == Qt.Key_Shift or key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSelectCursor)
         if key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z: 
-#            print "modeMode.keyRelease: returning to Move Chunks mode.  key=",key
             self.w.moveFreeAction.setOn(1) # toggle on the Move Chunks icon
+        if key == Qt.Key_R:
+            self.RotationOnly = False # Unconstrain translation.
+        if key == Qt.Key_T:
+            self.TranslationOnly = False # Unconstrain rotation.
             
     def rightShiftDown(self, event):
             basicMode.rightShiftDown(self, event)
@@ -240,6 +241,9 @@ class modifyMode(basicMode):
                        self.o.MousePos[1] - event.pos().y())
             a =  dot(self.Zmat, deltaMouse)
             dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+            
+            if self.RotationOnly: dx = 0.0
+            if self.TranslationOnly: dy = 0.0
 
             if self.moveOption == 'TRANSX': ma = V(1,0,0) # X Axis
             elif self.moveOption == 'TRANSY': ma = V(0,1,0) # Y Axis
