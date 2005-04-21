@@ -109,8 +109,6 @@ Known Bugs (All Platforms)
 
 29. Povray file of a model neglects the user defined lighting and displays the Povray image in nE-1’s default lighting. (447)
 
-30. Clipboard: Executing  set hotspot  on the objects already in the chunk makes another hotspot copy in clipboard and also changes the hotspot of the original copy (478)
-
 
 Windows Only Bugs
 
