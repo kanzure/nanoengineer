@@ -277,3 +277,8 @@ Files: modifyMode
 Summary: Implemented moveAbsolute() for one or more chunks.
 
 ----------------------------
+
+Name: Mark Sims
+Date: 4/20/2005
+Files: modifyMode, fusechunksMode
+Summary: Fixed bug 502-12. Implemented the Move Chunks modifier keys X, Y, and Z for Fuse Chunks to allow constrained translation and rotation around the 3 primary axes. I also added R and T modifier keys.
