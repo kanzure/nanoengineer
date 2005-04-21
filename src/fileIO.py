@@ -86,8 +86,8 @@ def writepovfile(assy, filename):
     f.write("\nunion {\t\n") ##Head of the union object
  
     # Write atoms and bonds in the part
-    assy.part.writepov(f, assy.o.display)
-        #bruce 050420 changed assy.tree to assy.part to fix an assy/part bug
+    assy.part.topnode.writepov(f, assy.o.display)
+        #bruce 050421 changed assy.tree to assy.part.topnode to fix an assy/part bug
     
     farPos = -cdist*assy.o.scale*assy.o.out*assy.o.far + eyePos
     nearPos = -cdist*assy.o.scale*assy.o.out*assy.o.near + eyePos
@@ -124,7 +124,7 @@ def writemdlfile(assy, filename):
     # To test this, we need to get a copy of Animation Master.
     # Mark [05-01-14]
     for mol in assy.molecules: 
-        if (not mol.hidden) and (mol.disp != diINVISIBLE): natoms += len(mol.atoms)
+        if (not mol.hidden) and (mol.display != diINVISIBLE): natoms += len(mol.atoms) #bruce 050421 disp->display (bugfix?)
 #    print "fileIO: natoms =", natoms
 
     f = open(filename, 'w');
@@ -134,8 +134,8 @@ def writemdlfile(assy, filename):
     
     # Write atoms with spline coordinates
     f.write("Splines=%d\n"%(13*natoms))
-    assy.part.writemdl(alist, f, assy.o.display)
-        #bruce 050420 changed assy.tree to assy.part to fix an assy/part bug
+    assy.part.topnode.writemdl(alist, f, assy.o.display)
+        #bruce 050421 changed assy.tree to assy.part.topnode to fix an assy/part bug
     
     # Write the GROUP information
     # Currently, each atom is 

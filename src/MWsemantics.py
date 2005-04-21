@@ -484,7 +484,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 writepdb(self.assy, safile)
             except:
                 print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving file: " + safile ))
+                self.history.message(redmsg( "Problem saving PDB file: " + safile ))
             else:
                 self.assy.filename = safile
                 self.assy.name = fil
@@ -497,8 +497,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             try:
                 writepovfile(self.assy, safile)
             except:
-                print "MWsemantics.py: saveFile(): error writing file " + safile
-                self.history.message(redmsg( "Problem saving file: " + safile ))
+                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
+                self.history.message(redmsg( "Problem saving POV-Ray file: " + safile ))
             else:
                 self.history.message( "POV-Ray file saved: " + safile )
             
@@ -506,8 +506,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             try:
                 writemdlfile(self.assy, safile)
             except:
-                print "MWsemantics.py: saveFile(): error writing file " + safile
-                self.history.message(redmsg( "Problem saving file: " + safile ))
+                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
+                self.history.message(redmsg( "Problem saving MDL file: " + safile ))
             else:
                 self.history.message( "MDL file saved: " + safile )
             
@@ -516,8 +516,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 image = self.glpane.grabFrameBuffer()
                 image.save(safile, "JPEG", 85)
             except:
-                print "MWsemantics.py: saveFile(): error writing file" + safile
-                self.history.message(redmsg( "Problem saving file: " + safile ))
+                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
+                self.history.message(redmsg( "Problem saving JPEG file: " + safile ))
             else:
                 self.history.message( "JPEG file saved: " + safile )
             
@@ -526,8 +526,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 image = self.glpane.grabFrameBuffer()
                 image.save(safile, "PNG")
             except:
-                print "MWsemantics.py: saveFile(): error writing file" + safile
-                self.history.message(redmsg( "JPEGProblem saving file: " + safile ))
+                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
+                self.history.message(redmsg( "Problem saving PNG file: " + safile ))
             else:
                 self.history.message( "PNG file saved: " + safile )
                     
