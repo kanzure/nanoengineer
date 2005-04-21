@@ -73,7 +73,12 @@ def writepovfile(assy, filename):
             vdist = cdist / aspect
     eyePos = vdist * assy.o.scale*assy.o.out-assy.o.pov
     # Camera info
-    f.write("\ncamera {\n  location " + povpoint(eyePos)  + "\n  up " + povpoint(up) + "\n  right " + povpoint(right) + "\n  sky " + povpoint(assy.o.up) + "\n angle " + str(angle) + "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
+    f.write("\ncamera {\n  location " + povpoint(eyePos)  +
+            "\n  up " + povpoint(up) +
+            "\n  right " + povpoint(right) +
+            "\n  sky " + povpoint(assy.o.up) +
+            "\n angle " + str(angle) +
+            "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
  
     # write a union object, which encloses all following objects, so it's 
     # easier to set a global modifier like "Clipped_by" for all objects
@@ -81,7 +86,8 @@ def writepovfile(assy, filename):
     f.write("\nunion {\t\n") ##Head of the union object
  
     # Write atoms and bonds in the part
-    assy.tree.writepov(f, assy.o.display)
+    assy.part.writepov(f, assy.o.display)
+        #bruce 050420 changed assy.tree to assy.part to fix an assy/part bug
     
     farPos = -cdist*assy.o.scale*assy.o.out*assy.o.far + eyePos
     nearPos = -cdist*assy.o.scale*assy.o.out*assy.o.near + eyePos
@@ -128,7 +134,8 @@ def writemdlfile(assy, filename):
     
     # Write atoms with spline coordinates
     f.write("Splines=%d\n"%(13*natoms))
-    assy.tree.writemdl(alist, f, assy.o.display)
+    assy.part.writemdl(alist, f, assy.o.display)
+        #bruce 050420 changed assy.tree to assy.part to fix an assy/part bug
     
     # Write the GROUP information
     # Currently, each atom is 
