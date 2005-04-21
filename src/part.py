@@ -208,7 +208,17 @@ class Part(InvalMixin):
             self.assy.o.forget_part(self) # just in case we're its current part
         ## self.invalidate_all_attrs() # not needed
         for attr in self.__dict__.keys():
-            delattr(self,attr) # is this safe, in arb order of attrs??
+            if not attr.startswith('_'):
+                #bruce 050420 see if this 'if' prevents Python interpreter hang
+                # when this object is later passed as argument to other code
+                # in bug 519 (though it probably won't fix the bug);
+                # before this we were perhaps deleting Python-internal attrs too,
+                # such as __dict__ and __class__!
+                if platform.atom_debug:
+                    print "atom_debug: destroying part - deleting i mean resetting attr:",attr
+                ## still causes hang in movie mode:
+                ## delattr(self,attr) # is this safe, in arb order of attrs??
+                setattr(self, attr, None)
         return
 
     # incremental update methods
@@ -294,7 +304,7 @@ class Part(InvalMixin):
             if isinstance(n, molecule):
                 # check for duplicates (mol at two places in tree) using a dict, whose values accumulate our mols list
                 if seen.get(id(n)):
-                    print "bug: some chunk occurs twice in assy.tree; semi-tolerated but not fixed"
+                    print "bug: some chunk occurs twice in this part's topnode tree; semi-tolerated but not fixed"
                     return # from func only
                 seen[id(n)] = n
             return # from func only
