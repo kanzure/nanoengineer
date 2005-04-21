@@ -53,6 +53,8 @@ class Jig(Node):
         for a in atomlist:
             a.jigs += [self]
         #e it might make sense to init other attrs here too, like color
+        self.disabled_by_user_choice = False #bruce 050421
+            ###@@@ not yet written into mmp file or read from it... should be! affects sim; thus affects mmp record.
         return
         
     #bruce 041202 made the icons class constants, so they will be loaded once
@@ -180,12 +182,66 @@ class Jig(Node):
 
     def is_disabled(self): #bruce 050421 experiment related to bug 451-9
         "[overrides Node method]"
+        return self.disabled_by_user_choice or self.disabled_by_atoms()
+
+    def disabled_by_atoms(self): #e rename?
+        "is this jig necessarily disabled (due to some atoms being in a different part)?"
         part = self.part
         for atm in self.atoms:
             if part != atm.molecule.part:
-                return True # disabled or partly disabled [might want to override this for Grounds ###e]
+                return True # disabled (or partly disabled??) due to some atoms not being in the same Part
+                #e We might want to loosen this for a Ground (and only disable the atoms in a different Part),
+                # but for initial bugfixing, let's treat all atoms the same for all jigs and see how that works.
         return False
-    
+
+    def getinfo(self): #bruce 050421 added this wrapper method and renamed the subclass methods it calls.
+        sub = self._getinfo()
+        disablers = []
+        if self.disabled_by_user_choice:
+            disablers.append("by choice")
+        if self.disabled_by_atoms():
+            if self.part.topnode == self.assy.tree:
+                why = "some atoms on clipboard"
+            else:
+                why = "some atoms in a different Part"
+            disablers.append(why)
+        if len(disablers) == 2:
+            why = disablers[0] + ", and by " + disablers[1]
+        elif len(disablers) == 1:
+            why = disablers[0]
+        else:
+            assert not disablers
+            why = ""
+        if why:
+            sub += " [DISABLED (%s)]" % why
+        return sub
+
+    def draw(self, win, dispdef): #bruce 050421 added this wrapper method and renamed the subclass methods it calls. ###@@@writepov too
+        if self.hidden:
+            return
+        disabled = self.is_disabled()
+        if disabled:
+            # use dashed line (see drawer.py's drawline for related code)
+            glLineStipple(1, 0xE3C7) # 0xAAAA dots are too small; 0x3F07 assymetrical; try dashes len 4,6, gaps len 3, start mid-6
+            glEnable(GL_LINE_STIPPLE)
+            # and display polys as their edges (see drawer.py's drawwirecube for related code)
+            glPolygonMode(GL_FRONT, GL_LINE)
+            glPolygonMode(GL_BACK, GL_LINE)
+            glDisable(GL_LIGHTING)
+            glDisable(GL_CULL_FACE) # this makes motors look too busy, but without it, they look too weird (which seems worse)
+
+        try:
+            self._draw(win, dispdef)
+        except:
+            pass #e need errmsg, at least for atom_debug
+        
+        if disabled:
+            glEnable(GL_CULL_FACE)
+            glEnable(GL_LIGHTING)
+            glPolygonMode(GL_FRONT, GL_FILL)
+            glDisable(GL_LINE_STIPPLE)
+        return
+
     #e there might be other common methods to pull into here
 
     pass # end of class Jig
@@ -267,7 +323,7 @@ class RotaryMotor(Jig):
     def axen(self):
         return self.axis
    
-    def getinfo(self):
+    def _getinfo(self):
         return "[Object: Rotary Motor] [Name: " + str(self.name) + "] [Torque = " + str(self.torque) + "] [Speed = " +str(self.speed) + "]"
         
     def getstatistics(self, stats):
@@ -275,8 +331,7 @@ class RotaryMotor(Jig):
                
     # Rotary Motor is drawn as a cylinder along the axis,
     #  with a spoke to each atom
-    def draw(self, win, dispdef):
-        if self.hidden: return
+    def _draw(self, win, dispdef):
         bCenter = self.center - (self.length / 2.0) * self.axis
         tCenter = self.center + (self.length / 2.0) * self.axis
         drawcylinder(self.color, bCenter, tCenter, self.radius, 1 )
@@ -290,6 +345,7 @@ class RotaryMotor(Jig):
     # spoke(<cap-point>, <base-point>, scylinder-radius, <r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
+        if self.is_disabled(): return #bruce 050421
         c = self.posn()
         a = self.axen()
         file.write("rmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + povpoint(c-(self.length / 2.0)*a)  + "," + str (self.radius) +
@@ -397,7 +453,7 @@ class LinearMotor(Jig):
     def axen(self):
         return self.axis
    
-    def getinfo(self):
+    def _getinfo(self):
         return "[Object: Linear Motor] [Name: " + str(self.name) + \
                     "] [Force = " + str(self.force) + \
                     "] [Stiffness = " +str(self.stiffness) + "]"
@@ -407,8 +463,7 @@ class LinearMotor(Jig):
    
     # drawn as a gray box along the axis,
     # with a thin cylinder to each atom 
-    def draw(self, win, dispdef):
-        if self.hidden: return
+    def _draw(self, win, dispdef):
         drawbrick(self.color, self.center, self.axis, self.length, self.width, self.width)
         drawLinearSign((0,0,0), self.center, self.axis, self.length, self.width, self.width)
         for a in self.atoms:
@@ -420,6 +475,7 @@ class LinearMotor(Jig):
     # spoke(<cap-point>, <base-point>, sbox-radius, <r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
+        if self.is_disabled(): return #bruce 050421
         c = self.posn()
         a = self.axen()
         file.write("lmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + 
@@ -471,8 +527,7 @@ class Ground(Jig):
         self.cntl.exec_loop()
 
     # it's drawn as a wire cube around each atom (default color = black)
-    def draw(self, win, dispdef):
-        if self.hidden: return
+    def _draw(self, win, dispdef):
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
@@ -481,6 +536,7 @@ class Ground(Jig):
     # ground(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
+        if self.is_disabled(): return #bruce 050421
         if self.picked: c = self.normcolor
         else: c = self.color
         for a in self.atoms:
@@ -488,7 +544,7 @@ class Ground(Jig):
             grec = "ground(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
             file.write(grec)
 
-    def getinfo(self):
+    def _getinfo(self):
         return "[Object: Ground] [Name: " + str(self.name) + "] [Total Grounds: " + str(len(self.atoms)) + "]"
 
     def getstatistics(self, stats):
@@ -571,8 +627,7 @@ class Stat(Jig):
         self.cntl.exec_loop()
 
     # it's drawn as a wire cube around each atom (default color = blue)
-    def draw(self, win, dispdef):
-        if self.hidden: return
+    def _draw(self, win, dispdef):
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
@@ -581,6 +636,7 @@ class Stat(Jig):
     # stat(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
+        if self.is_disabled(): return #bruce 050421
         if self.picked: c = self.normcolor
         else: c = self.color
         for a in self.atoms:
@@ -588,7 +644,7 @@ class Stat(Jig):
             srec = "stat(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
             file.write(srec)
 
-    def getinfo(self):
+    def _getinfo(self):
         return  "[Object: Thermostat] "\
                     "[Name: " + str(self.name) + "] "\
                     "[Temp = " + str(self.temp) + "K]" + "] "\
@@ -647,8 +703,7 @@ class Thermo(Jig):
         self.cntl.exec_loop()
 
     # it's drawn as a wire cube around each atom (default color = purple)
-    def draw(self, win, dispdef):
-        if self.hidden: return
+    def _draw(self, win, dispdef):
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
@@ -657,6 +712,7 @@ class Thermo(Jig):
     # thermo(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
+        if self.is_disabled(): return #bruce 050421
         if self.picked: c = self.normcolor
         else: c = self.color
         for a in self.atoms:
@@ -664,7 +720,7 @@ class Thermo(Jig):
             srec = "thermo(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
             file.write(srec)
 
-    def getinfo(self):
+    def _getinfo(self):
         return  "[Object: Thermometer] "\
                     "[Name: " + str(self.name) + "] "\
                     "[Attached to: " + str(self.atoms[0].molecule.name) + "] "
