@@ -73,7 +73,8 @@ def accumulate_stats(node, stats):
 # custom QListViewItem
 
 class mt_QListViewItem( QListViewItem):
-    randcolors = [Qt.red] ## [Qt.blue, Qt.red, Qt.green, Qt.black, QColor(128,0,128), QColor(200,100,0)]
+    "used for nodes with specialize drawing for various purposes (maybe more than one purpose at once)"
+    dotcolor = Qt.red # also available: Qt.blue, Qt.green, Qt.black, QColor(128,0,128), QColor(200,100,0)...
     def setText(self, col, text): # this is called...
         ## print "setText called in custom item",col,text
         ##     # this happens for all nodes after the first in each set of node-kids
@@ -84,29 +85,51 @@ class mt_QListViewItem( QListViewItem):
                   # for align see "Qt::AlignmentFlags"... not sure if they'd help; this doesn't cover the area I want to paint
         ## print "paintCell",p, cg, col, width, align # might happen a lot
         ## # paintCell <constants.qt.QPainter object at 0xcf51330> <constants.qt.QColorGroup object at 0xce97120> 0 132 1
+        # 0. grab useful values; if this fails use super method
         super = QListViewItem
-        res = super.paintCell(self, p, cg, col, width, align)
         try:
             node = self.object
             assy = node.assy
-            if node != assy.tree and (node.part == assy.part or node == assy.part.topnode.dad): # needs deklugification
-                # indicate this #e maybe not for main part
-                ## print "super.paintCell returned",res # always None
-                ## Python insists self must be right class, so this fails: TreeView.drawbluething( "self arg not used", p)
-    ##            import random
-    ##            color_ind = random.randint(0, len(self.randcolors)-1) # uses both ends of range
-    ##            color = self.randcolors[color_ind]
-                color = self.randcolors[0]
-                p.setPen(QPen(color, 3)) # 3 is pen thickness; btw, this also sets color of the "moving 1 item" at bottom of DND graphic!
-                w,h = 100,9 # bbox rect size of what we draw (i think)
-                x,y = -21,8 # topleft of what we draw; 0,0 is topleft corner of icon; neg coords work, not sure how far or how safe
-                p.drawEllipse(x,y,h,h) # gets onto topleft of the icon (pixmap) region. Useful for something but not for what I want.
-            return res
+            sg = assy.current_selgroup_iff_valid()
         except:
             print "bug"
             print_compact_traceback("exception in mt_QListViewItem.paintCell: ")
-            return res
-    pass
+            return super.paintCell(self, p, cg, col, width, align)
+        # 1. modify painter before superclass paintcell runs
+        p.save()
+        if node.is_disabled():
+            # italic name indicates a disabled node (e.g. a jig whose atoms are not in same part, which won't affect the sim)
+            p.shear(0, -0.5)
+            # WARNING: this shear might have no effect on some platforms, because Qt doc for QListViewItem.paintCell says
+            # it should assume painter p state is undefined (I think). Of course p's translation matters, so maybe that's why
+            # shear matters, I don't know; or it might just be a Qt bug that it works on the Mac. I also tried setting its
+            # pen color and thickness [ p.setPen(QPen(Qt.red, 3)) ], and this had no effect, as predicted by that Qt doc.
+            # [bruce 050421]
+            #e We should also perhaps alter color for some nodes, e.g. the chunks "touched" by selected jigs (or chunks?)
+            # or vice versa... above comment implies that to do this in their text, we'd pass paintCell a modified cg;
+            # or we could draw more stuff on top of them (like the red dot below). [bruce 050421]
+        res = super.paintCell(self, p, cg, col, width, align)
+        p.restore() # without this, shear also affects the red dot drawn below,
+            # and text in the drag-graphic (but not other QLVitems) [bruce 050421]
+        # 2. red dot indicates currently shown clipboard item, if any
+        try:
+            if sg == node and node != assy.tree:
+                ## before 050421 this class was only used when node.is_top_of_selection_group(), and that if condition was: 
+                ## if node != assy.tree and (node.part == assy.part or node == assy.part.topnode.dad): # needs deklugification
+                # 
+                ## print "super.paintCell returned",res # always None
+                ## Python insists self must be right class, so this fails: TreeView.drawbluething( "self arg not used", p)
+                p.save()
+                p.setPen(QPen(self.dotcolor, 3)) # 3 is pen thickness; btw, this also sets color of the "moving 1 item" at bottom of DND graphic!
+                w,h = 100,9 # bbox rect size of what we draw (i think)
+                x,y = -21,8 # topleft of what we draw; 0,0 is topleft corner of icon; neg coords work, not sure how far or how safe
+                p.drawEllipse(x,y,h,h) # gets onto topleft of the icon (pixmap) region. Useful for something but not for what I want.
+                p.restore() # without this, changed color affects text in the drag-graphic [bruce 050421]
+        except:
+            print "bug"
+            print_compact_traceback("exception in mt_QListViewItem.paintCell: ")
+        return res
+    pass # end of class mt_QListViewItem
 
 # main widget class
 
@@ -163,7 +186,7 @@ class modelTree(TreeWidget):
             # the actual items are different each time this is called
 
     def QListViewItem_subclass_for_node( self, node, parent, display_prefs, after):
-        if node.is_top_of_selection_group():
+        if node.is_top_of_selection_group() or node.is_disabled():
                 ## can't do this -- it's causing a bug where clipboard won't reopen with red dot: or node == node.assy.shelf:
             return mt_QListViewItem
         return QListViewItem
@@ -247,16 +270,21 @@ class modelTree(TreeWidget):
 
         res.append(None) # separator
 
-        # Group command -- only when more than one thing is picked, and they're all in the same "assembly-node" --
-        # kluging this for now as "PartGroup or a Shelf member", but it ought to be determined more rationally.
-        # In fact, to save time, for now I'll just only do it in the first topnode, self.assy.tree (node, the partgroup)
-        # or self.tree_item (the QListViewItem). I'll disable it when anything else is selected (i.e. in the shelf).
-        # Then when we fix up the clipboard semantics I'll make it more general. ###e ###@@@
-
-        if len(nodeset) < 2 or self.tree_node.picked or self.shelf_node.haspicked():
+        # Group command -- only ok for 2 or more subtrees of any Part,
+        # or for exactly one clipboard item topnode itself if it's not already a Group.
+        # [rules loosened by bruce 050419]
+        
+        if len(nodeset) >= 2:
+            # note that these nodes are always in the same Part and can't include its topnode
+            ok = True
+        else:
+            # exactly one node - better be a clipboard item and not a group
+            node = nodeset[0]
+            ok = (node.dad == self.shelf_node and not node.is_group())
+            ok = False ###@@@ disabled for commit since not yet working [bruce 050421]
+        if not ok:
             res.append(( 'Group', noop, 'disabled' ))
         else:
-            # 2 or more subtrees of the PartGroup -- should always be ok to group them
             res.append(( 'Group', self.cm_group ))
 
         # Ungroup command -- only when exactly one picked Group is what we have, of a suitable kind.
@@ -265,22 +293,17 @@ class modelTree(TreeWidget):
 
         if len(nodeset) == 1 and nodeset[0].permits_ungrouping():
             # (this implies it's a group, or enough like one)
-            res.append(( 'Ungroup', self.cm_ungroup ))
+            node = nodeset[0]
+            if node.dad == self.shelf_node and len(node.members) > 1:
+                text = "Ungroup into separate clipboard items" #bruce 050419 new feature (distinct text in this case)
+            else:
+                text = "Ungroup"
+            res.append(( text, self.cm_ungroup ))
         else:
             res.append(( 'Ungroup', noop, 'disabled' ))
 
         ## res.append(None) # separator - from now on, add these at start of optional sets, not at end
 
-##        # Special clipboard-selection commands
-##        # [bruce 050131 -- only available when ATOM_DEBUG is set,
-##        #  since Alpha new-feature deadline has passed
-##        #  and since not yet useful enough except for debugging, anyway]
-##        if platform.atom_debug:
-##            if len(nodeset) >= 1 and nodeset[0].find_selection_group() != self.tree_node:
-##                # selection is in a selection group which is not the one usually displayed (i.e. in a clipboard item)
-##                res.append(None) # separator
-##                res.append(( 'Briefly Show', self.cm_briefly_show ))
-        
         # Edit Properties command -- only provide this when there's exactly one thing to apply it to,
         # and it says it can handle it.
         ###e Command name should depend on what the thing is, e.g. "Part Properties", "Chunk Properties".
@@ -325,16 +348,6 @@ class modelTree(TreeWidget):
 ##        
 ##        res.append(( fix_plurals("(%d selected item(s))" % len(nodeset)), noop, 'disabled' ))
 
-        ## bruce 050316: this warning should be no longer needed.
-##        # pre-alpha warning [050126] (hope to be able to remove this for alpha):
-##        shelf_npicked = self.shelf_node.nodespicked() - int(self.shelf_node.picked)
-##            # clipboard itself, picked alone, probably has no bad bugs to warn about
-##        if shelf_npicked:
-##            res.append(None) # separator
-##            res.append(( fix_plurals("(%d selected item(s) in clipboard)" % shelf_npicked), noop, 'disabled' ))
-##            res.append(( "WARNING (alpha): some operations or modes don't work", noop ))
-##            res.append(( "or have bugs for selected items in clipboard", noop ))
-
         return res # from make_cmenuspec_for_set
 
     ## Context menu handler functions [bruce 050112 renamed them; "hide" hid a QWidget method!]
@@ -345,12 +358,12 @@ class modelTree(TreeWidget):
     def cm_hide(self):
         self.win.history.message("Hide: %d selected items or groups" % len(self.topmost_selected_nodes()))
         self.assy.permit_pick_parts() #e should not be needed here, but see if it fixes my bugs ###@@@ #k still needed? if so, why?
-        self.assy.Hide() # operates only on assy.tree, using apply2picked; includes win_update
+        self.assy.Hide() # includes win_update
         
     def cm_unhide(self):
         self.win.history.message("Unhide: %d selected items or groups" % len(self.topmost_selected_nodes()))
         self.assy.permit_pick_parts() #e should not be needed here [see same comment above]
-        self.assy.Unhide() # operates only on assy.tree, using apply2picked; includes win_update
+        self.assy.Unhide() # includes win_update
     
     def cm_properties(self):
         nodeset = self.topmost_selected_nodes()
@@ -365,31 +378,44 @@ class modelTree(TreeWidget):
                 self.win.win_update()
         return
     
-    def cm_group(self): # bruce 050126 adding comments and changing behavior
-        "put the selected subtrees (if more than one) into a new Group"
+    def cm_group(self): # bruce 050126 adding comments and changing behavior; 050420 permitting exactly one subtree
+        "put the selected subtrees (one or more than one) into a new Group"
         ##e I wonder if option/alt/midButton should be like a "force" or "power" flag
         # for cmenus; in this case, it would let this work even for a single element,
         # making a 1-item group. That idea can wait. [bruce 050126]
-        ###@@@ the use of assy.tree to find what to operate on is wrong
-        # (and will prevent this from working inside the clipboard);
-        # this is tolerable for the moment. [bruce 050126]
-        node = self.assy.tree.hindmost() # smallest nodetree containing all picked nodes 
+        #bruce 050420 making this work inside clipboard items too
+        # TEST if assy.part updated in time ####@@@@ -- no, change to selgroup!
+        sg = self.assy.current_selgroup()
+        node = sg.hindmost() # smallest nodetree containing all picked nodes 
         if not node:
             self.win.history.message("nothing selected to Group") # should never happen
             return # hindmost can return "None", with no "picked" attribute. Mark 401210.
         if node.picked:
-            # prevent 1-item Groups from being formed
-            # (should never occur, if caller constructs menu properly, unless it wants
-            #  to permit 1-item groups, which would require a new special case here to do
-            #  correctly, I think -- bruce 050126)
-            # bruce comment 050316: this is also the only case which could mess up the Part structure.
-            # If we permit it, we'll need update_parts or the some other fixup to put the Group in a Part
-            # Until then, we can ignore Parts in this method.
-            self.win.history.message("single item, not making a new Group")
-            return
-        # node is an unpicked Group; more than one of its children are either picked
-        # or contain something picked (but maybe none of them are directly picked).
-        # we'll make a new Group inside node, just before the first child containing
+            #bruce 050420: permit this case whenever possible (formation of 1-item group);
+            # cmenu constructor should disable or leave out the menu command when desired.
+            if node != sg:
+                assert node.dad # in fact, it'll be part of the same sg subtree (perhaps equal to sg)
+                node = node.dad
+                assert not node.picked
+                # fall through -- general case below can handle this.
+            else:
+                # the picked item is the topnode of a selection group.
+                # If it's the main part, we could make a new group inside it
+                # containing all its children (0 or more). This can't happen yet
+                # so I'll be lazy and save it for later.
+                assert node != self.assy.tree
+                # Otherwise it's a clipboard item. Let the Part take care of it
+                # since it needs to patch up its topnode, choose the right name,
+                # preserve its view attributes, etc.
+                assert node.part.topnode == node
+                newtop = node.part.create_new_toplevel_group()
+                self.win.history.message("made new group %s" % newtop.name) ###k see if this looks ok with autogenerated name
+                return
+        # (above 'if' might change node and then fall through to here)
+        # node is an unpicked Group inside (or equal to) sg;
+        # more than one of its children (or exactly one if we fell through from the node.picked case above)
+        # are either picked or contain something picked (but maybe none of them are directly picked).
+        # We'll make a new Group inside node, just before the first child containing
         # anything picked, and move all picked subtrees into it (preserving their order;
         # but losing their structure in terms of unpicked groups that contain some of them).
         ###e what do we do with the picked state of things we move? worry about the invariant! ####@@@@
@@ -413,7 +439,8 @@ class modelTree(TreeWidget):
             # even so, I'd feel better if it unpicked them before moving them...
             # but I guess it doesn't. for now, just see if it works this way... seems to work.
             # ... later [050316], it evidently does unpick them, or maybe delmember does.
-        msg = "grouped %d items into %s" % (len(new.members), new.name)
+        from platform import fix_plurals
+        msg = fix_plurals("grouped %d item(s) into " % len(new.members)) + "%s" % new.name
         self.win.history.message( msg)
 
         # now, should we pick the new group so that glpane picked state has not changed?
@@ -448,8 +475,14 @@ class modelTree(TreeWidget):
             # simplest fix -- just make sure to update the part structure when you're done.
             # [bruce 050316]
             need_update_parts.append( node.assy)
-        msg = "ungrouping %d item(s) from %r" % (len(node.members), node.name)
-        msg = fix_plurals(msg)
+            #bruce 050419 comment: if exactly one child, might as well retain the same Part... does this matter?
+            # Want to retain its name (if group name was automade)? think about this a bit before doing it...
+            # maybe fixing bugs for >1 child case will also cover this case. ###e
+            #bruce 050420 addendum: I did some things in Part.__init__ which might handle all this well enough. We'll see. ###@@@ #k
+        if node.is_top_of_selection_group() and len(node.members) > 1:
+            msg = "splitting %r into %d new clipboard items" % (node.name, len(node.members))
+        else:
+            msg = fix_plurals("ungrouping %d item(s) from " % len(node.members)) + "%s" % node.name
         self.win.history.message( msg)
         node.ungroup()
         # this also unpicks the nodes... is that good? Not really, it'd be nice to see who they were,
@@ -461,27 +494,6 @@ class modelTree(TreeWidget):
             assy.update_parts() # this should break new inter-part bonds
         self.win.glpane.gl_update()
         self.mt_update()
-
-##    def cm_briefly_show(self): #bruce 050131 experiment (only user-visible when ATOM_DEBUG is set)
-##        nodeset = self.topmost_selected_nodes()
-##        if len(nodeset) == 0: return
-##        selgroup = nodeset[0].find_selection_group()
-##        ## if selgroup != self.tree_node: return
-##        ##     # should never be called this way so far, tho it'd work if it was
-##        # begin kluge block: [I don't yet know if this will work! In fact, it works on Mac but not on Windows.]
-##        from HistoryWidget import greenmsg #e or use redmsg here? or orange, for a warning?
-##        from Utility import node_name
-##        msg = "briefly showing %r; most operations unsafe in Alpha; click in model tree to end" % node_name(selgroup)
-##        self.win.history.message( greenmsg( msg ))
-##        oldtree = selgroup.assy.tree
-##        selgroup.assy.tree = selgroup
-##        try:
-##            self.win.glpane.paintGL()
-##                # direct repaint, not gl_update, since the next gl_update's
-##                # redraw will redraw the main part
-##        finally:
-##            selgroup.assy.tree = oldtree
-##        return # without updating!
 
     # copy and cut and delete are doable by tool buttons
     # so they might as well be available from here as well;

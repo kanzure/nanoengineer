@@ -261,8 +261,9 @@ class assembly:
         # (and when dad has a part); and to do this to kids when groups with no parts are added to nodes with parts.
         # So only for a node-move must we worry and do it later... or so it seems, 050308 806pm.
         from part import MainPart, ClipboardItemPart
-        self.ensure_one_part(self.tree, MainPart)
-        for node in self.shelf.members:
+        for node in [self.tree]:
+            self.ensure_one_part(node, MainPart)
+        for node in list(self.shelf.members): #bruce 050420: copy list as a precaution (probably not needed)
             self.ensure_one_part(node, ClipboardItemPart)
         # now all nodes have correct parts, so it's safe to break inter-part bonds.
         # in the future we're likely to do this separately for efficiency (only on nodes that might need it).
@@ -276,20 +277,28 @@ class assembly:
         assert self.selgroup_part(sg)
         return
     
-    def ensure_one_part(self, node, partclass):
+    def ensure_one_part(self, node, partclass): #bruce 050420 revised this to help with bug 556
         """Ensure node is the top node of its own Part, and all its kids are in that Part.
-        If node's part is None or not owned by node (ie node is not its topnode),
-        give node its own new Part of the given class. (Class is not used if node already owns its Part.)
-        If kids are not in node's part, add them.
+        Specifically:
+           If node's part is None or not owned by node (ie node is not its own part's topnode),
+        give node its own new Part of the given class (permitting the new part to copy some
+        info from node's old part, like view attrs, if it wants to).
+        (Class is not used if node already owns its Part.)
+           If node's kids (recursively) are not in node's (old or new) part, add them.
         [But don't try to break inter-Part bonds, since when this is run,
          some nodes might still be in the wrong Part, e.g. when several nodes
          will be moved from one part to another.]
+           We have no way to be sure node's old part doesn't have other nodes besides
+        our node's recursive kids; caller can assure this by covering all nodes with some call
+        of this method.
         """
-        if node.part and node != node.part.topnode:
-            # this happens, e.g., when moving a Group to the clipboard, and it becomes a new clipboard item
-            node.part.remove(node) # node's kids will be removed below
-            assert not node.part
-        if not node.part:
+        #bruce 050420: don't remove node from its old wrong part. Old code was:
+##        if node.part and node != node.part.topnode:
+##            # this happens, e.g., when moving a Group to the clipboard, and it becomes a new clipboard item
+##            node.part.remove(node) # node's kids will be removed below
+##            assert not node.part
+##        if not node.part:
+        if not node.part or node.part.topnode != node:
             part1 = partclass(self, node)
             assert node.part == part1
             assert node == node.part.topnode

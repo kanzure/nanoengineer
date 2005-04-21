@@ -186,6 +186,10 @@ class Node:
         [overridden in Group]
         """
         return False # for a leaf node
+
+    def is_disabled(self): #bruce 050421 experiment related to bug 451-9
+        "Should this node look disabled when shown in model tree (but remain fully functional for selection)?"
+        return False 
     
     def redmsg(self, msg): #bruce 050203
         from HistoryWidget import redmsg
@@ -1543,10 +1547,26 @@ class Csys(DataNode):
                 ") (%f, %f, %f, %f) (%f) (%f, %f, %f) (%f)\n" % v)
 
     def copy(self, dad=None):
-        print "can't copy a csys"
-        return self
+        #bruce 050420 -- revise this (it was a stub) for sake of Part view propogation upon topnode ungrouping;
+        # note that various Node.copy methods are not yet consistent, and I'm not fixing this now.
+        # (When I do, I think they will not accept "dad" but will accept a "mapping", and will never rename the copy.)
+        # The data copied is the same as what can be passed to init and what writemmp writes.
+        # Note that the copy needs to have the same exact name, not a variant (since the name
+        # is meaningful for the internal uses of this object, in the present implem).
+        assert dad == None
+        if "a kluge is ok since I'm in a hurry":
+            # the data in this Csys might not be up-to-date, since the glpane "caches it"
+            # (if we're the Home or Last View of its current Part)
+            # and doesn't write it back after every user event!
+            # probably it should... but until it does, do it now, before copying it!
+            self.assy.o.saveLastView()                
+        if 0 and platform.atom_debug:
+            print "atom_debug: copying csys:", self
+        return Csys( self.assy, self.name, self.scale, self.pov, self.zoomFactor, self.quat )
 
     def __str__(self):
+        #bruce 050420 comment: this is inadequate, but before revising it
+        # I'd have to verify it's not used internally, like Jig.__str__ used to be!!
         return "<csys " + self.name + ">"
         
     pass # end of class Csys
@@ -1644,6 +1664,8 @@ class PartGroup(Group):
         return list(self._initialkids + regularkids)
     def edit(self):
         cntl = PartProp(self.assy)
+            #bruce comment 050420: PartProp is passed assy and gets its stats from assy.tree.
+            # This needs revision if it should someday be available for Parts on the clipboard.
         cntl.exec_loop()
         self.assy.mt.mt_update()
     def description_for_history(self):
@@ -1673,9 +1695,26 @@ class ClipboardShelfGroup(Group):
         if len(nodes) > 1 and drag_type == 'move': ####@@@@ desired for copy too, but below implem would be wrong for that...
             name = self.assy.name_autogrouped_nodes_for_clipboard( nodes, howmade = drag_type )
             new = Group(name, self.assy, None) ###k review last arg ####@@@@
+            parts = {} # maps id(part) to part for all nonnull parts in nodes
+                #bruce 050420: fix an unreported bug related to bug 556, but for dragged nodes which get auto-grouped.
+                # If the nodes all have same .part (of those which have a .part) (I believe they will always all have
+                # the same nonnull part, but I'm testing this to be robust), add new group to that part too;
+                # this part will be replaced later by update_parts, but serves to pass on these node's view in glpane
+                # to the new part. (The replacement might be "needless" if we were dragging *all* nodes from
+                # that part, but we're not bothering here to make its topnode correct -- and we surely couldn't
+                # if we're only dragging *some* nodes from it.)
             for node in nodes[:]: #bruce 050216 don't reverse the order, it's already correct
+                part = node.part
+                if part:
+                    parts[id(part)] = part
+                del part
                 node.unpick() #bruce 050216; don't know if needed or matters; 050307 moved from after to before moveto
                 node.moveto(new) ####@@@@ guess, same as in super.drop_on (move here, regardless of drag_type? no, not correct!)
+            if len(parts) == 1:
+                part = parts.values()[0]
+                part.add(new) #bruce 050420, explained in comment above
+                if 0 and platform.atom_debug:
+                    print "atom_debug: added autogroup to shared part of its nodes"
             nodes = [new] # a new length-1 list of nodes
             self.assy.w.history.message( "(fyi: Grouped some nodes to keep them in one clipboard item)" ) ###e improve text
         return Group.drop_on(self, drag_type, nodes)

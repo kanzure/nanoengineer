@@ -90,6 +90,7 @@ class Jig(Node):
             
     def copy(self, dad):
         self.assy.w.history.message( redmsg("Jigs cannot yet be copied"))
+        #bruce 050420 comment: see comments in Csys.copy.
         return None
         
     # josh 10/26 to fix bug 85
@@ -138,13 +139,13 @@ class Jig(Node):
         #bruce 050208 made this default method. Is it ever called, in any subclasses??
         pass
 
-    def break_interpart_bonds(self): #bruce 050316 fix the jig analog of bug 371
+    def break_interpart_bonds(self): #bruce 050316 fix the jig analog of bug 371; 050421 undo that change for Alpha5... ###@@@
         "[overrides Node method]"
         #e this should be a "last resort", i.e. it's often better if interpart bonds
         # could split the jig in two, or pull it into a new Part.
         # But that's NIM (as of 050316) so this is needed to prevent some old bugs.
         for atm in self.atoms[:]:
-            if self.part != atm.molecule.part:
+            if self.part != atm.molecule.part and 0: ###@@@ try out not doing this; jigs will draw and save inappropriately at first...
                 self.rematom(atm) # this might kill self, if we remove them all
         return
 
@@ -177,6 +178,14 @@ class Jig(Node):
             return "<%s at %#x>" % (self.__class__.__name__, id(self)) # untested
         pass
 
+    def is_disabled(self): #bruce 050421 experiment related to bug 451-9
+        "[overrides Node method]"
+        part = self.part
+        for atm in self.atoms:
+            if part != atm.molecule.part:
+                return True # disabled or partly disabled [might want to override this for Grounds ###e]
+        return False
+    
     #e there might be other common methods to pull into here
 
     pass # end of class Jig
