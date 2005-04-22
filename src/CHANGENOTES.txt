@@ -281,4 +281,16 @@ Summary: Implemented moveAbsolute() for one or more chunks.
 Name: Mark Sims
 Date: 4/20/2005
 Files: modifyMode, fusechunksMode
-Summary: Fixed bug 502-12. Implemented the Move Chunks modifier keys X, Y, and Z for Fuse Chunks to allow constrained translation and rotation around the 3 primary axes. I also added R and T modifier keys.
+Summary: Fixed bug 502-12. Implemented the Move Chunks modifier keys X, Y, and Z for Fuse Chunks to allow 
+constrained translation and rotation around the 3 primary axes. I also added R and T modifier keys.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/21/2005
+Files: Utility.py chunk.py files_mmp.py jigs.py
+Summary:  fix bug 406: save leaf node hidden state in mmp file
+
+----------------------------
+
+
