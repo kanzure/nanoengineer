@@ -144,7 +144,13 @@ class Part(InvalMixin):
 
         return # from Part.__init__
 
-    def viewdata_members(self): #bruce 050418: this helps replace old assy.data for writing mmp files
+    def viewdata_members(self, i): #bruce 050418: this helps replace old assy.data for writing mmp files
+        #bruce 050421: patch names for sake of saving per-Part views;
+        # should be ok since names not otherwise used (I hope);
+        # if not (someday), we can make copies and patch their names
+        suffix = i and str(i) or ""
+        self.homeCsys.name = "HomeView" + suffix
+        self.lastCsys.name = "LastView" + suffix
         return [self.homeCsys, self.lastCsys]
 
     def __repr__(self):

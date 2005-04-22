@@ -41,7 +41,10 @@ when the info record was added, for info chunk hotspot.
 are interpretable, at least once per "release".)
 
 '050130 required; 050421 optional' -- bruce, adding new info records,
-at least "info leaf hidden" and "info opengroup open", maybe more.
+namely "info leaf hidden" and "info opengroup open";
+and adding "per-part views" in the initial data group,
+whose names are HomeView%d and LastView%d. All these changes are
+backward-compatible -- old code will ignore the new records.
 
 ===
 
@@ -412,7 +415,9 @@ class _readmmp_state:
         # Instead, caller can do that by scanning the group these are read into.
         # This means we can now ignore the isInsert flag and always return
         # these records. Finally, I'll return them all, not just the ones with
-        # special names we recognize; caller can detect those names when it needs to.
+        # special names we recognize (the prior code only called self.addmember
+        # if the csys name was HomeView or LastView); caller can detect those
+        # special names when it needs to.
         ## if not self.isInsert: #Skip this record if inserting
         ###Huaicai 1/27/05, new file format with home view 
         ### and last view information        
@@ -427,6 +432,7 @@ class _readmmp_state:
             csys = Csys(self.assy, name, scale, pov, zoomFactor, wxyz)
             self.addmember( csys) # regardless of name; no side effects on assy (yet) for any name,
                 # though later code will recognize the names HomeView and LastView and treat them specially
+                # (050421 extension: also some related names, for Part views)
         else:
             m = old_csyspat.match(card)
             if m:
@@ -751,6 +757,19 @@ def reset_grouplist(assy, grouplist):
                 mainpart.homeCsys = m
             elif m.name == "LastView":
                 mainpart.lastCsys = m
+            elif m.name.startswith("HomeView"):
+                maybe_set_partview(assy, m, "HomeView", 'homeCsys')
+            elif m.name.startswith("LastView"):
+                maybe_set_partview(assy, m, "LastView", 'lastCsys')
+    return
+
+def maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421
+    partnodes = assy.shelf.members
+    for i in range(len(partnodes)): #e inefficient if there are a huge number of shelf items...
+        if csys.name == nameprefix + "%d" % (i+1):
+            part = partnodes[i].part
+            setattr(part, csysattr, csys)
+            break
     return
 
 def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly/part bugs, I hope

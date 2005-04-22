@@ -194,10 +194,18 @@ class assembly:
         return # from assembly.__init__
 
     def construct_viewdata(self): #bruce 050418; this replaces old assy.data attribute for writing mmp files
-        grpl1 = self.tree.part.viewdata_members()
-        #e in future we might also grab these from the other parts,
+        #bruce 050421: extend this for saving per-part views (bug 555)
+        grpl1 = self.tree.part.viewdata_members(0)
+        # Now grab these from the other parts too,
         # but store them in some other way which won't mess up old code which reads the file we'll write these into
-        # (namely, as some new mmp record type which the old code would ignore)
+        # (namely, as some new mmp record type which the old code would ignore)...
+        # or just as a Csys with a name the old code will not store!
+        # (This name comes from the argument we pass in.)
+        partnodes = self.shelf.members
+        grpl1 = list(grpl1) # precaution, not needed for current implem as of 050421
+        for i,node in zip(range(len(partnodes)),partnodes):
+            ll = node.part.viewdata_members(i+1)
+            grpl1.extend(ll)
         return Group("View Data", self, None, grpl1)
 
     def init_current_selgroup(self):
