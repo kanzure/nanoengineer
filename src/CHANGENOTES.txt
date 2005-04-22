@@ -293,4 +293,9 @@ Summary:  fix bug 406: save leaf node hidden state in mmp file
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 4/21/2005
+Files: Utility.py files_mmp.py
+Summary:  save group open state in mmp file
 
+----------------------------

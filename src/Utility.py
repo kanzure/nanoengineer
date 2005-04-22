@@ -969,12 +969,47 @@ class Group(Node):
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
         Node.__init__(self, assy, name, dad)
         self.open = True
-        for ob in list: self.addchild(ob)
+        for ob in list:
+            self.addchild(ob)
 
     def is_group(self):
         """[overrides Node method; see its docstring]"""
         return True
-    
+
+    open_specified_by_mmp_file = False
+    def readmmp_info_opengroup_setitem( self, key, val, interp ): #bruce 050421, to read group open state from mmp file
+        """This is called when reading an mmp file, for each "info opengroup" record
+        which occurs right after this node's "group" record is read and no other node
+        (or "group" record) has been read.
+           Key is a list of words, val a string; the entire record format
+        is presently [050421] "info opengroup <key> = <val>".
+        Interp is an object to help us translate references in <val>
+        into other objects read from the same mmp file or referred to by it.
+        See the calls of this method from files_mmp for the doc of interp methods.
+           If key is recognized, set the attribute or property
+        it refers to to val; otherwise do nothing (or for subclasses of Group
+        which handle certain keys specially, call the same method in the superclass
+        for other keys).
+           (An unrecognized key, even if longer than any recognized key,
+        is not an error. Someday it would be ok to warn about an mmp file
+        containing unrecognized info records or keys, but not too verbosely
+        (at most once per file per type of info).)
+        """
+        if key == ['open']:
+            # val should be "True" or "False" (unrecognized vals are ignored)
+            if val == 'True':
+                self.open = True
+                self.open_specified_by_mmp_file = True # so code to close the clipboard won't override it
+            elif val == 'False':
+                self.open = False
+                self.open_specified_by_mmp_file = True
+            elif platform.atom_debug:
+                print "atom_debug: maybe not an error: \"info opengroup open\" ignoring unrecognized val %r" % (val,)
+        else:
+            if platform.atom_debug:
+                print "atom_debug: fyi: info opengroup (in Group) with unrecognized key %r (not an error)" % (key,)
+        return
+
     def drag_move_ok(self): return True # same as for Node
     def drag_copy_ok(self): return True # for my testing... maybe make it False for Alpha though ###e ####@@@@ 050201
     def is_selection_group_container(self): #bruce 050131 for Alpha
@@ -1523,6 +1558,9 @@ class Group(Node):
   
     def writemmp(self, mapping): #bruce 050322 revised interface
         mapping.write("group (" + self.name + ")\n")
+        mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False")) #bruce 050421
+            # All "info opengroup" records should be written before we write any of our members.
+            # If Group subclasses override this method (and don't call it), they'll need to behave similarly.
         for x in self.members:
             x.writemmp(mapping)
         mapping.write("egroup (" + self.name + ")\n")
@@ -1588,6 +1626,7 @@ class Csys(DataNode):
              self.pov[0], self.pov[1], self.pov[2], self.zoomFactor)
         mapping.write("csys (" + self.name +
                 ") (%f, %f, %f, %f) (%f) (%f, %f, %f) (%f)\n" % v)
+        self.writemmp_info_leaf(mapping) #bruce 050421 (only matters once these are present in main tree)
 
     def copy(self, dad=None):
         #bruce 050420 -- revise this (it was a stub) for sake of Part view propogation upon topnode ungrouping;

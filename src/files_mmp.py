@@ -41,7 +41,7 @@ when the info record was added, for info chunk hotspot.
 are interpretable, at least once per "release".)
 
 '050130 required; 050421 optional' -- bruce, adding new info records,
-at least info leaf hidden, maybe more.
+at least "info leaf hidden" and "info opengroup open", maybe more.
 
 ===
 
@@ -734,7 +734,8 @@ def reset_grouplist(assy, grouplist):
     assy.shelf = shelf
         # below, we'll scan viewdata for Csys records to store into mainpart
     assy.shelf.name = "Clipboard"
-    assy.shelf.open = False
+    if not assy.shelf.open_specified_by_mmp_file: #bruce 050421 added condition
+        assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
     kluge_patch_assy_toplevel_groups(assy)
     assy.update_parts() #bruce 050309 for assy/part split
