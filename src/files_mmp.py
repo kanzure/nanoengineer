@@ -36,7 +36,12 @@ the format was changed so that two (rather than one) Csys records
 were stored, one for Home View and one for Last View
 
 '050130 required; 050217 optional' -- introduced by bruce on 050217,
-when the info record was added.
+when the info record was added, for info chunk hotspot.
+(The optional part needs incrementing whenever more kinds of info records
+are interpretable, at least once per "release".)
+
+'050130 required; 050421 optional' -- bruce, adding new info records,
+at least info leaf hidden, maybe more.
 
 ===
 
@@ -50,7 +55,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050130 required; 050217 optional'
+MMP_FORMAT_VERSION_TO_WRITE = '050130 required; 050421 optional'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
@@ -190,7 +195,8 @@ class _readmmp_state:
         name = getname(card, "Grp")
         assert name != None #bruce 050405 hope/guess
         old_opengroup = self.groupstack[-1]
-        new_opengroup = Group(name, self.assy, old_opengroup) # this includes addchild of new group to old_opengroup
+        new_opengroup = Group(name, self.assy, old_opengroup)
+            # this includes addchild of new group to old_opengroup (so don't call self.addmember)
         self.groupstack.append(new_opengroup)
 
     def _read_egroup(self, card): # egroup: close the current group record
@@ -506,8 +512,12 @@ class _readmmp_state:
         # the other mmp-record readers in this big if/elif statement,
         # and is likely to need changing sometime. It's self.mol.
         # Now make dict of all current items that info record might refer to.
-        currents = dict(chunk = self.mol)
-        interp = mmp_interp(self.ndix) #e could optim by using the same object each time
+        currents = dict(
+            chunk = self.mol,
+            opengroup = self.groupstack[-1], #bruce 050421
+            leaf = ([None] + self.groupstack[-1].members)[-1] #bruce 050421
+        )
+        interp = mmp_interp(self.ndix) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card
         return
 
@@ -560,7 +570,7 @@ class mmp_interp: #bruce 050217
         return self.ndix[int(atnum)]
     pass
 
-def readmmp_info( card, currents, interp ): #bruce 050217
+def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421
     """Handle an info record 'card' being read from an mmp file;
     currents should be a dict from thingtypes to the current things of those types,
     for all thingtypes which info records can give info about (so far, just 'chunk');
@@ -582,17 +592,24 @@ def readmmp_info( card, currents, interp ): #bruce 050217
     what = what.strip() # e.g. "chunk xxx" for info of type xxx about the current chunk
     val = val.strip()
     what = what.split() # e.g. ["chunk", "xxx"], always 2 or more words
-    type = what[0]
+    type = what[0] # as of 050421 this can be 'chunk' or 'opengroup' or 'leaf' ###k
     name = what[1:] # list of words (typically contains exactly one word, an attribute-name)
     thing = currents.get(type)
     if thing: # can be false if type not recognized, or if current one was None
         # record info about the current thing of type <type>
         try:
-            thing.readmmp_info_setitem( name, val, interp )
-        except:
-            print_compact_traceback("error reading info record for %s %r, ignored: " % (type, name) )
+            meth = getattr(thing, "readmmp_info_%s_setitem" % type) # should be safe regardless of the value of 'type'
+        except AttributeError:
+            if platform.atom_debug:
+                print "atom_debug: fyi: object %r doesn't accept \"info %s\" keys (like %r); ignoring it (not an error)" \
+                      % (thing, type, name)
+        else:
+            try:
+                meth( name, val, interp )
+            except:
+                print_compact_traceback("internal error in %r interpreting %r, ignored: " % (thing,card) )
     elif platform.atom_debug:
-        print "atom_debug: fyi: no object found for info record for %s %r; ignoring it (not an error)" % (type, name)
+        print "atom_debug: fyi: no object found for \"info %s\"; ignoring info record (not an error)" % (type,)
     return
 
 # ==

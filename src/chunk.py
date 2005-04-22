@@ -935,7 +935,7 @@ class molecule(Node, InvalMixin):
             pass
         pass
 
-    def readmmp_info_setitem( self, key, val, interp ): #bruce 050217
+    def readmmp_info_chunk_setitem( self, key, val, interp ): #bruce 050217, renamed 050421
         """This is called when reading an mmp file, for each "info chunk" record.
         Key is a list of words, val a string; the entire record format
         is presently [050217] "info chunk <key> = <val>".
@@ -980,6 +980,7 @@ class molecule(Node, InvalMixin):
         "[overrides Node.writemmp]"
         disp = mapping.dispname(self.display)
         mapping.write("mol (" + self.name + ") " + disp + "\n")
+        self.writemmp_info_leaf(mapping)
         #bruce 050228: write atoms in the same order they were created in,
         # so as to preserve atom order when an mmp file is read and written
         # with no atoms created or destroyed and no chunks reordered, thus

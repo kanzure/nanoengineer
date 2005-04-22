@@ -187,6 +187,38 @@ class Node:
         """
         return False # for a leaf node
 
+    def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 050421, part of fixing bug 406
+        """This is called when reading an mmp file, for each "info leaf" record
+        which occurs right after this node is read and no other node has been read.
+        (If this node is a group, we're called after it's closed, but groups should
+        ignore this record.)
+           Key is a list of words, val a string; the entire record format
+        is presently [050421] "info leaf <key> = <val>".
+        Interp is an object to help us translate references in <val>
+        into other objects read from the same mmp file or referred to by it.
+        See the calls of this method from files_mmp for the doc of interp methods.
+           If key is recognized, set the attribute or property
+        it refers to to val; otherwise do nothing (or for subclasses of Node
+        which handle certain keys specially, call the same method in the superclass
+        for other keys).
+           (An unrecognized key, even if longer than any recognized key,
+        is not an error. Someday it would be ok to warn about an mmp file
+        containing unrecognized info records or keys, but not too verbosely
+        (at most once per file per type of info).)
+        """
+        if self.is_group():
+            if platform.atom_debug:
+                print "atom_debug: mmp file error, ignored: a group got info leaf %r = ..." % (key,)
+            return
+        if key == ['hidden']:
+            # val should be "True" or "False" (unrecognized vals are treated as False)
+            val = (val == 'True')
+            self.hidden = val
+        else:
+            if platform.atom_debug:
+                print "atom_debug: fyi: info leaf (in Node) with unrecognized key %r (not an error)" % (key,)
+        return
+    
     def is_disabled(self): #bruce 050421 experiment related to bug 451-9
         "Should this node look disabled when shown in model tree (but remain fully functional for selection)?"
         return False 
@@ -874,6 +906,17 @@ class Node:
         ## old code, now cleaned up and turned into Jig.writemmp:
 ##        # bruce comment 050108/050210: this is used for Jigs. It uses __repr__ nonstandardly!
 ##        f.write(self.__repr__(atnums))
+
+    def writemmp_info_leaf(self, mapping): #bruce 050421
+        """leaf node subclasses should call this in their writemmp methods,
+        after writing enough that the mmp file reader will have created a Node for them
+        and added it to its current group (at the end is always safe, if they write no sub-nodes)
+        [could be overridden by subclasses with more kinds of "info leaf" keys to write]
+        """
+        assert not self.is_group()
+        if self.hidden:
+            mapping.write("info leaf hidden = True\n")
+        return
         
 #    def writemdl(self, alist, f, dispdef):
 #        pass

@@ -161,6 +161,7 @@ class Jig(Node):
         line = self.mmp_record(mapping.atnums) # includes '\n' at end
         if line:
             mapping.write(line)
+            self.writemmp_info_leaf(mapping) # only in this case, in case other case means no true node written [bruce 050421]
         else:
             Node.writemmp(self, mapping)
 
