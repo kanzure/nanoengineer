@@ -98,6 +98,12 @@ class mt_QListViewItem( QListViewItem):
         # 1. modify painter before superclass paintcell runs
         p.save()
         if node.is_disabled():
+            if 1: #bruce 050423 try to fix bug 562 by erasing to the right of our italic text...
+                ## use p.clipRegion? p.eraseRect? Ask QLV for the rect?
+                ## print "width is",self.width() -- width needs args for font and column and maybe more! (could find them if necessary)
+                ## print "height is",self.height()
+                p.eraseRect(0,0,500,self.height())
+                    # the 500 is just an obviously-too-large width... will it mess up scrollbar? not on mac.
             # italic name indicates a disabled node (e.g. a jig whose atoms are not in same part, which won't affect the sim)
             p.shear(0, -0.5)
             # WARNING: this shear might have no effect on some platforms, because Qt doc for QListViewItem.paintCell says
