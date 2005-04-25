@@ -299,3 +299,23 @@ Files: Utility.py files_mmp.py
 Summary:  save group open state in mmp file
 
 ----------------------------
+
+Name: Bruce Smith
+Date: 4/25/2005
+Files: files_mmp.py jigs.py node_indices.py Utility.py
+Summary: "new jig mmpfile behaviors seem to work in simple tests"
+
+The new jig behaviors deserve mention in release notes, as one aspect
+of the assembly/Part split. 
+
+They have no effect unless you drag jigs (or the chunks containing the atoms
+they attach to) from one Part to another in the model tree, or unless
+you use the new MT context menu command to disable a jig. And if you
+do these things, it's designed with the intention that you can figure
+out what's going on.
+
+For details: I summarized the plan in recent mail to cad list (late last
+week), subject "full list of jig/clipboard requirements for Alpha 5".
+
+----------------------------
+
