@@ -27,24 +27,6 @@ from jigs import Jig
 # ready to commit yet, thus it's easier for me to not change them now).
 # [bruce 050111]
 
-def node_must_follow_what_nodes(node):
-    """If this node is a leaf node which must come after some other leaf nodes
-    due to limitations in the mmp file format, then return a list of those nodes
-    it must follow; otherwise return []. For all Groups, return [].
-    If we upgrade the mmp file format to permit forward refs to atoms,
-    then this function could return [] for all nodes.
-    """
-    if isinstance(node, Jig):
-        #e should make this a method in Jig, which in Node returns []
-        mols = []
-        for atm in node.atoms:
-            mol = atm.molecule
-            if mol not in mols:
-                # quadratic time for huge multi-mol jigs, could use dict if that matters
-                mols.append(mol)
-        return mols
-    return []
-
 def node_position( node, root, inner_indices = []):
     """given a node which is somewhere in the node-subtree rooted at root, return its "extended index",
     i.e. a list of 0 or more indices of subtrees in their dads,
@@ -146,7 +128,7 @@ def fix_one_node(node, root):
     Note that moving this node changes the indices in the tree of many other nodes.
     Return 1 if we moved it, 0 if we did not. (Numbers, not booleans!)
     """
-    after_these = node_must_follow_what_nodes( node)
+    after_these = node.node_must_follow_what_nodes()
     newpos = node_new_index( node, root, after_these) # might raise ValueError, that's fine
     if newpos == None:
         return 0
@@ -238,7 +220,7 @@ def fix_one_or_complain(node, root, msgfunc): #bruce 050415: fyi: this is now ca
         return 0
     pass
 
-def move_jigs_if_needed(root, msgfunc):
+def move_jigs_if_needed(root, msgfunc): # (this is the entry point for workaround_for_bug_296)
     """move all necessary jigs under root later in the tree under root;
     emit error messages for ones needing to go out of tree
     (by calling msgfunc on error msg strings),

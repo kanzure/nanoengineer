@@ -46,6 +46,9 @@ and adding "per-part views" in the initial data group,
 whose names are HomeView%d and LastView%d. All these changes are
 backward-compatible -- old code will ignore the new records.
 
+'050130 required; 050422 optional' -- bruce, adding forward_ref,
+info leaf forwarded, and info leaf disabled.
+
 ===
 
 General notes about when to change the mmp format version:
@@ -58,7 +61,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050130 required; 050421 optional'
+MMP_FORMAT_VERSION_TO_WRITE = '050130 required; 050422 optional'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
@@ -121,6 +124,8 @@ def getname(str, default):
 class _readmmp_state:
     """Hold the state needed by _readmmp between lines;
     and provide some methods to help with reading the lines.
+    [See also the classes mmp_interp (another read-helper)
+     and writemmp_mapping.]
     """
     #bruce 050405 made this class from most of _readmmp to help generalize it
     # (e.g. for reading sim input files for minimize selection)
@@ -139,18 +144,22 @@ class _readmmp_state:
             # (the only group which can accept children, as we read the file, is always self.groupstack[-1];
             #  in the old code this was called opengroup [bruce 050405])
         self.sim_input_badnesses_so_far = {} # helps warn about sim-input files
+        self.markers = {} #bruce 050422 for forward_ref records
         return
 
     def destroy(self):
-        self.assy = self.history = self.mol = self.ndix = self.groupstack = None
+        self.assy = self.history = self.mol = self.ndix = self.groupstack = self.markers = None
 
     def extract_toplevel_items(self):
         """for use only when done: extract the list of toplevel items
         (removing them from our artificial Group if any);
         but don't verify they are Groups or alter them, that's up to the caller.
         """
+        for marker in self.markers.values():
+            marker.kill() #bruce 050422; semi-guess
+        self.markers = None
         if len(self.groupstack) > 1:
-            self.warning("mmp file had %d unclosed groups" % len(self.groupstack) - 1)
+            self.warning("mmp file had %d unclosed groups" % (len(self.groupstack) - 1))
         topgroup = self.groupstack[0]
         self.groupstack = "error if you keep reading after this"
         res = topgroup.members[:]
@@ -523,9 +532,20 @@ class _readmmp_state:
             opengroup = self.groupstack[-1], #bruce 050421
             leaf = ([None] + self.groupstack[-1].members)[-1] #bruce 050421
         )
-        interp = mmp_interp(self.ndix) #e could optim by using the same object each time [like 'self']
+        interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card
         return
+
+    def _read_forward_ref(self, card):
+        "forward_ref (%s) ..."
+        # add a marker which can be used later to insert the target node in the right place,
+        # and also remember the marker here in the mapping (so we can offer that service) ###doc better ###@@@ def & call service
+        lp_id_rp = card.split()[1]
+        assert lp_id_rp[0] + lp_id_rp[-1] == "()"
+        ref_id = lp_id_rp[1:-1]
+        marker = MarkerNode(self.assy, ref_id) ###@@@ need to remove this if not used... and given that, node type would not matter much.
+        self.addmember(marker)
+        self.markers[ref_id] = marker
 
     def guess_sim_input(self, type): #bruce 050405
         """Caller finds (and will correct) weird structure which makes us guess
@@ -565,15 +585,39 @@ class _readmmp_state:
     
     pass # end of class _readmmp_state
 
+# helper for forward_ref
+
+class MarkerNode(Node):
+    def __init__(self, assy, ref_id):
+        name = ref_id
+        Node.__init__(self, assy, name) # will passing no assy be legal? I doubt it... so don't bother trying.
+        return
+    pass
+
 # helpers for _read_info method:
 
-class mmp_interp: #bruce 050217
-    "helps translate object refs in mmp file to their objects"
-    def __init__(self, ndix):
+class mmp_interp: #bruce 050217; revised docstrings 050422
+    """helps translate object refs in mmp file to their objects, while reading the file
+    [compare to class writemmp_mapping, which helps turn objs to their refs while writing the file]
+    [but also compare to class _readmmp_state... maybe this should be the same object as that. ###k]
+    """
+    def __init__(self, ndix, markers):
         self.ndix = ndix # maps atom numbers to atoms (??)
+        self.markers = markers
     def atom(self, atnum):
-        "map atnum string to atom, while reading mmp file"
+        """map atnum string to atom, while reading mmp file
+        (raises KeyError if that atom-number isn't recognized,
+         which is an mmp file format error)
+        """
         return self.ndix[int(atnum)]
+    def move_forwarded_node( self, node, val):
+        "find marker based on val, put node after it, and then del the marker"
+        try:
+            marker = self.markers.pop(val) # val is a string; should be ok since we also read it as string from forward_ref record
+        except KeyError:
+            assert 0, "mmp format error: no forward_ref was written for this forwarded node" ###@@@ improve errmsg
+        marker.addsibling(node)
+        marker.kill()
     pass
 
 def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421
@@ -807,53 +851,55 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
 # == writing mmp files
 
 def workaround_for_bug_296(assy, onepart = None):
-    """If needed, move jigs in assy.tree and each assy.shelf member to later positions
-    (and emit appropriate messages about this),
-    since current mmp file format requires jigs to come after
-    all chunks whose atoms they connect to.
-    If onepart is provided, then do this only for the node (if any)
-    whose part is onepart.
-    """
-    # bruce 050111 temp fix for bug 296 (maybe enough for Alpha)
-    # bruce 050202 adds:
-    # I developed an extension to this fix for jigs in clipboard items,
-    # but decided not to commit it for Alpha. It's in a diff -c, mailed to cad
-    # for inclusion as a bug296 comment, for testing and use after Alpha.
-    # It might as well be put in as soon as anyone has time, after Alpha goes out.
-    # bruce 050325: I finally put that in, and then further modified this code,
-    # e.g. adding onepart option.
-    def errfunc(msg):
-        "local function for error message output"
-        assy.w.history.message( redmsg( msg))
-    try:
-        from node_indices import move_jigs_if_needed
-        count = 0
-        if onepart == assy.tree.part or not onepart:
-            count = move_jigs_if_needed(assy.tree, errfunc) # (this does the work)
-        shelf_extra = ""
-        try:
-            #bruce 050202 extension to fix it in shelf too [not committed until 050325]
-            count2 = 0
-            for m in assy.shelf.members:
-                count1 = 0
-                if onepart == m.part or not onepart:
-                    count1 = move_jigs_if_needed(m, errfunc)
-                count += count1 # important to count these now in case of exception in next loop iteration
-                count2 += count1
-            if count2:
-                shelf_extra = "of which %d were in clipboard, " % count2
-        except:
-            print_compact_traceback("bug in workaround_for_bug_296 for some shelf item: ")
-            shelf_extra = ""
-        if count:
-            from platform import fix_plurals
-            movedwhat = fix_plurals( "%d jig(s)" % count)
-            warning = "Warning: moved %s within model tree, %s" \
-              "to work around limitation in Alpha mmp file format" % (movedwhat, shelf_extra)
-            assy.w.history.message( redmsg( warning))
-    except:
-        print_compact_traceback("bug in bug-296 bugfix in files_mmp.writemmpfile_assy or _part: ")
-    return
+##    print "not doing workaround_for_bug_296!"
+    return #####@@@@@ 050422
+##    """If needed, move jigs in assy.tree and each assy.shelf member to later positions
+##    (and emit appropriate messages about this),
+##    since current mmp file format requires jigs to come after
+##    all chunks whose atoms they connect to.
+##    If onepart is provided, then do this only for the node (if any)
+##    whose part is onepart.
+##    """
+##    # bruce 050111 temp fix for bug 296 (maybe enough for Alpha)
+##    # bruce 050202 adds:
+##    # I developed an extension to this fix for jigs in clipboard items,
+##    # but decided not to commit it for Alpha. It's in a diff -c, mailed to cad
+##    # for inclusion as a bug296 comment, for testing and use after Alpha.
+##    # It might as well be put in as soon as anyone has time, after Alpha goes out.
+##    # bruce 050325: I finally put that in, and then further modified this code,
+##    # e.g. adding onepart option.
+##    def errfunc(msg):
+##        "local function for error message output"
+##        assy.w.history.message( redmsg( msg))
+##    try:
+##        from node_indices import move_jigs_if_needed
+##        count = 0
+##        if onepart == assy.tree.part or not onepart:
+##            count = move_jigs_if_needed(assy.tree, errfunc) # (this does the work)
+##        shelf_extra = ""
+##        try:
+##            #bruce 050202 extension to fix it in shelf too [not committed until 050325]
+##            count2 = 0
+##            for m in assy.shelf.members:
+##                count1 = 0
+##                if onepart == m.part or not onepart:
+##                    count1 = move_jigs_if_needed(m, errfunc)
+##                count += count1 # important to count these now in case of exception in next loop iteration
+##                count2 += count1
+##            if count2:
+##                shelf_extra = "of which %d were in clipboard, " % count2
+##        except:
+##            print_compact_traceback("bug in workaround_for_bug_296 for some shelf item: ")
+##            shelf_extra = ""
+##        if count:
+##            from platform import fix_plurals
+##            movedwhat = fix_plurals( "%d jig(s)" % count)
+##            warning = "Warning: moved %s within model tree, %s" \
+##              "to work around limitation in Alpha mmp file format" % (movedwhat, shelf_extra)
+##            assy.w.history.message( redmsg( warning))
+##    except:
+##        print_compact_traceback("bug in bug-296 bugfix in files_mmp.writemmpfile_assy or _part: ")
+##    return
 
 class writemmp_mapping: #bruce 050322, to help with minimize selection and other things
     """Provides an object for accumulating data while writing an mmp file.
@@ -871,17 +917,19 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.atnums = atnums = {}
         atnums['NUM'] = 0 # kluge from old code, kept for now
             #e soon change atnums to store strings, and keep 'NUM' as separate instvar
-        self.options = options
+        self.options = options # as of 050422, one of them is 'leave_out_sim_disabled_nodes'
         self.sim = options.get('sim', False) # simpler file just for the simulator?
         self.min = options.get('min', False) # even more simple, just for minimize?
         if self.min:
             self.sim = True
+        self.forwarded_nodes_after_opengroup = {}
+        self.forwarded_nodes_after_child = {}
         pass
     def set_fp(self, fp):
         "set file pointer to write to (don't forget to call write_header after this!)"
         self.fp = fp
     def write(self, lines):
-        "write one or more \n-terminates lines to our file pointer"
+        "write one or more \n-terminates lines (passed as a single string) to our file pointer"
         #e future versions might also hash these lines, to help make a movie id
         self.fp.write(lines)
     def close(self, error = False):
@@ -951,6 +999,69 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         else:
             disp = dispNames[display]
         return disp
+    # bruce 050422: support for writing forward-refs to nodes, and later writing the nodes at the right time
+    # (to be used for jigs which occur before their atoms in the model tree ordering)
+    # 1. methods for when the node first wishes it could be written out
+    past_sim_part_of_file = False # set to True by external code (kluge?)
+    def not_yet_past_where_sim_stops_reading_the_file(self):
+        return not self.past_sim_part_of_file
+    def node_ref_id(self, node):
+        return id(node)
+    def write_forwarded_node_after_nodes( self, node, after_these, force_disabled_for_sim = False ):
+        """Due to the mmp file format, node says it must come after the given nodes in the file,
+        and optionally also after where the sim stops reading the file.
+        Write it out in a nice place in the tree (for sake of old code which doesn't know it should
+        be moved back into its original place), as soon in the file as is consistent with these conditions.
+        In principle this might be "now", but that's an error -- that is, caller is required
+        to only call us if it has to. (We might find a way to relax that condition, but that's harder
+        than it sounds.)
+        """
+        # It seems too hard to put it in as nice a place as the old code did,
+        # and be sure it's also a safe place... so let's just put it after the last node in after_these,
+        # or in some cases right after where the sim stops reading (but in a legal place re shelf group structure).
+        from node_indices import node_position, node_at
+        root = self.assy.root # one group containing everything in the entire file
+            # this should be ok even if "too high" (as when writing a single part),
+            # but probably only due to how we're called ... not sure.
+        if force_disabled_for_sim:
+            if self.options.get('leave_out_sim_disabled_nodes',False):
+                return # best to never write it in this case!
+            # assume we're writing the whole assy, so in this case, write it no sooner than just inside the shelf group.
+            after_these = list(after_these) + [self.assy.shelf] # for a group, being after it means being after its "begin record"
+        afterposns = map( lambda node1: node_position(node1, root), after_these)
+        after_this_pos = max(afterposns)
+        after_this_node = node_at(root, after_this_pos)
+        if after_this_node.is_group():
+            assert after_this_node == self.assy.shelf, \
+                   "forwarding to after end of a group is not yet properly implemented: %r" % after_this_node
+                # (not even if we now skipped to end of that group (by pushing to 'child' not 'opengroup'),
+                #  since ends aren't ordered like starts, so max was wrong in that case.)
+            self.push_node(node, self.forwarded_nodes_after_opengroup, after_this_node)
+        else:
+            self.push_node(node, self.forwarded_nodes_after_child, after_this_node)
+    def push_node(self, node, dict1, key):
+        list1 = dict1.setdefault(key, []) #k syntax #k whether pyobjs ok as keys
+        list1.append(node)
+    # 2. methods for actually writing it out, when it finally can be
+    def pop_forwarded_nodes_after_opengroup(self, og):
+        return self.pop_nodes( self.forwarded_nodes_after_opengroup, og)
+    def pop_forwarded_nodes_after_child(self, ch):
+        return self.pop_nodes( self.forwarded_nodes_after_child, ch)
+    def pop_nodes( self, dict1, key):
+        list1 = dict1.pop(key, [])
+        return list1
+    def write_forwarded_node_for_real(self, node):
+        self.write_node(node)
+        #e also write some forward anchor... not sure if before or after... probably "after child" or "after node" (or leaf if is one)
+        assert not node.is_group() # for now; true since we're only used on jigs; desirable since "info leaf" only works in this case
+        self.write_info_leaf( 'forwarded', self.node_ref_id(node) )
+    def write_info_leaf( self, key, val):
+        "write an info leaf record for key and val. WARNING: writes str(val) for any python type of val"
+        val = str(val)
+        assert '\n' not in val
+        self.write( "info leaf %s = %s\n" % (key, val) )
+    def write_node(self, node):
+        node.writemmp(self)
     pass # end of class writemmp_mapping
 
 # bruce 050322 revised to use mapping; 050325 split, removed assy.alist set
@@ -989,6 +1100,7 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
         assy.tree.writemmp(mapping)
         
         mapping.write("end1\n")
+        mapping.past_sim_part_of_file = True
         
         if addshelf:
             assy.shelf.writemmp(mapping)
@@ -1015,7 +1127,7 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     #e assert node is tree or shelf member? is there a method for that already? is_topnode?
     workaround_for_bug_296( assy, onepart = part)
     fp = open(filename, "w")
-    mapping = writemmp_mapping(assy)
+    mapping = writemmp_mapping(assy, leave_out_sim_disabled_nodes = True)
     mapping.set_fp(fp)
     try:
         mapping.write_header() ###e header should differ in this case

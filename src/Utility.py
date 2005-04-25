@@ -214,6 +214,15 @@ class Node:
             # val should be "True" or "False" (unrecognized vals are treated as False)
             val = (val == 'True')
             self.hidden = val
+        elif key == ['disabled']: #bruce 050422
+            # val should be "True" or "False" (unrecognized vals are treated as False)
+            val = (val == 'True')
+            self.disabled_by_user_choice = val
+        elif key == ['forwarded']: #bruce 050422
+            # this happens just after we read this leaf node (self) from an mmp file,
+            # and means we should move it from where it was just placed (at the end of some Group still being read)
+            # to a previous location indicated by val, and available via interp.
+            interp.move_forwarded_node( self, val)
         else:
             if platform.atom_debug:
                 print "atom_debug: fyi: info leaf (in Node) with unrecognized key %r (not an error)" % (key,)
@@ -889,6 +898,17 @@ class Node:
     def dumptree(self, depth=0):
         print depth*"...", self.name
 
+    def node_must_follow_what_nodes(self): #bruce 050422 made Node and Jig implems of this from function of same name
+        """[should be overridden by Jig]
+        If this node is a leaf node which must come after some other leaf nodes
+        due to limitations in the mmp file format, then return a list of those nodes
+        it must follow; otherwise return []. For all Groups, return [].
+        If we upgrade the mmp file format to permit forward refs to atoms,
+        then this function could return [] for all nodes
+        (unless by then there are nodes needing prior-refs to things other than atoms).
+        """
+        return []
+
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         """Write this Node to an mmp file, as controlled by mapping,
         which should be an instance of files_mmp.writemmp_mapping.
@@ -916,6 +936,12 @@ class Node:
         assert not self.is_group()
         if self.hidden:
             mapping.write("info leaf hidden = True\n")
+        try:
+            disabled = self.disabled_by_user_choice # only Jigs have this so far
+        except:
+            disabled = False # the default, won't be written
+        if disabled:
+            mapping.write("info leaf disabled = True\n") #bruce 050422
         return
         
 #    def writemdl(self, alist, f, dispdef):
@@ -1561,8 +1587,14 @@ class Group(Node):
         mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False")) #bruce 050421
             # All "info opengroup" records should be written before we write any of our members.
             # If Group subclasses override this method (and don't call it), they'll need to behave similarly.
+        # [bruce 050422: this is where we'd write out "jigs moved forward" if they should come at start of this group...]
+        for xx in mapping.pop_forwarded_nodes_after_opengroup(self):
+            mapping.write_forwarded_node_for_real(xx)
         for x in self.members:
             x.writemmp(mapping)
+            # [bruce 050422: ... and this is where we'd write them, to put them after some member leaf or group.]
+            for xx in mapping.pop_forwarded_nodes_after_child(x):
+                mapping.write_forwarded_node_for_real(xx)
         mapping.write("egroup (" + self.name + ")\n")
         
     def writepov(self, f, dispdef):

@@ -155,26 +155,114 @@ class Jig(Node):
         "does this jig hold this atom fixed in space? [should be overridden by subclasses as needed]"
         return False # for most jigs
 
+    def node_must_follow_what_nodes(self): #bruce 050422 made Node and Jig implems of this from function of same name
+        """[overrides Node method]
+        """
+        mols = {} # maps id(mol) to mol [bruce 050422 optim: use dict, not list]
+        for atm in self.atoms:
+            mol = atm.molecule
+            if id(mol) not in mols:
+                mols[id(mol)] = mol
+        return mols.values()
+
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         "[overrides Node.writemmp; could be overridden by Jig subclasses, but isn't (as of 050322)]"
          #bruce 050322 made this from old Node.writemmp, but replaced nonstandard use of __repr__
-        line = self.mmp_record(mapping.atnums) # includes '\n' at end
+        line, wroteleaf = self.mmp_record(mapping) # includes '\n' at end
         if line:
             mapping.write(line)
-            self.writemmp_info_leaf(mapping) # only in this case, in case other case means no true node written [bruce 050421]
+            if wroteleaf:
+                self.writemmp_info_leaf(mapping)
+                # only in this case, since other case means no node was actually written [bruce 050421]
         else:
-            Node.writemmp(self, mapping)
+            Node.writemmp(self, mapping) # just writes comment into file and atom_debug msg onto stdout
 
-    def mmp_record(self, atnums = None):
-        ###e should revise interface to use mapping, factor some common code from implems into mapping methods
-        """[subclasses must override this to return their mmp record,
-        which must consist of 1 or more lines each ending in '\n',
-        including the last line; or return None to force caller to use some default value]
+    def mmp_record(self, mapping = None):
+        #bruce 050422 factored this out of all the existing Jig subclasses, changed arg from ndix to mapping
+        #e could factor some code from here into mapping methods
+        """Returns a pair (line, wroteleaf)
+        where line is the standard MMP record for any jig
+        (one string containing one or more lines including their \ns):
+            jigtype (name) (r, g, b) ... [atnums-list]\n
+        where ... is defined by a jig-specific submethod,
+        and (as a special kluge) might contain \n and start
+        another mmp record to hold the atnums-list!
+        And, where wroteleaf is True iff this line creates a leaf node (susceptible to "info leaf") when read.
+           Warning: the mmp file parser for most jigs cares that the data fields are separated
+        by exactly one blank space. Using two spaces makes it fail!
+           If mapping is supplied, then mapping.ndix maps atom keys to atom numbers (atnums)
+        for use only in this writemmp event; if not supplied, just use atom keys as atnums,
+        since we're being called by Jig.__repr__.
+           [Subclasses could override this to return their mmp record,
+        which must consist of 1 or more lines (all in one string which we return) each ending in '\n',
+        including the last line; or return None to force caller to use some default value;
+        but they shouldn't, because we've pulled all the common code for Jigs into here,
+        so all they need to override is mmp_record_jigspecific_midpart.]
         """
-        return None
+        if mapping:
+            ndix = mapping.atnums
+        else:
+            ndix = None
+        nums = self.atnums_or_None( ndix)
+        del ndix
+        if nums == None or (self.is_disabled() and mapping.not_yet_past_where_sim_stops_reading_the_file()):
+            # We need to return a forward ref record now, and set up mapping object to write us out for real, later.
+            # This means figuring out when to write us... and rather than ask atnums_or_None for more help on that,
+            # we use a variant of the code that used to actually move us before writing the file (since that's easiest for now).
+            # But at least we can get mapping to do most of the work for us, if we tell it which nodes we need to come after,
+            # and whether we insist on being invisible to the simulator even if we don't have to be
+            # (since all our atoms are visible to it).
+            ref_id = mapping.node_ref_id(self) #e should this only be known to a mapping method which gives us the fwdref record??
+            mmprectype_name = "%s (%s)" % (self.mmp_record_name, self.name)
+            fwd_ref_to_return_now = "forward_ref (%s) # %s\n" % (str(ref_id), mmprectype_name) # the stuff after '#' is just a comment
+            after_these = self.node_must_follow_what_nodes()
+            assert after_these # but this alone does not assert that they weren't all already written out! The next method should do that.
+            mapping.write_forwarded_node_after_nodes( self, after_these, force_disabled_for_sim = self.is_disabled() )
+            return fwd_ref_to_return_now , False
+        atnums_list = " ".join(map(str,nums))
+        if self.picked:
+            c = self.normcolor
+            # [bruce 050422 comment: this code looks weird, but i guess it undoes pick effect on color]
+        else:
+            c = self.color
+        color = map(int,A(c)*255)
+        mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, self.name, color[0], color[1], color[2])
+        midpart = self.mmp_record_jigspecific_midpart()
+        if not midpart:
+            # because '  ' fails where ' ' is required (in the mmp file parser), we have to handle this case specially!
+            return mmprectype_name_color + " " + atnums_list + "\n" , True
+        return mmprectype_name_color + " " + midpart + " " +  atnums_list + "\n" , True
+
+    def mmp_record_jigspecific_midpart(self):
+        """#doc
+        (see rmotor's version's docstring for details)
+        [some subclasses need to override this]
+        """
+        return ""
+
+    def atnums_or_None(self, ndix):
+        """Return list of atnums to write, as ints(??) (using ndix to encode them),
+        or None if some atoms were not yet written to the file.
+        (If ndix not supplied, as when we're called by __repr__, use atom keys for atnums.)
+        [Jig method; overridden by some subclasses]
+        """
+        if ndix:
+            try:
+                nums = map((lambda a: ndix[a.key]), self.atoms)
+            except KeyError: # assume this is from ndix not containing a.key
+                # too soon to write this jig -- would require forward ref to an atom, which mmp format doesn't support
+                return None
+        else:
+            nums = map((lambda a: a.key), self.atoms)
+        return nums
 
     def __repr__(self): #bruce 050322 compatibility method, probably not needed, but affects debugging
-        line = self.mmp_record()
+        try:
+            line, wroteleaf = self.mmp_record()
+            assert wroteleaf
+        except: #bruce 050422
+            print_compact_traceback( "bug in Jig.__repr__ call of self.mmp_record() ignored: " )
+            line = None
         if line:
             return line
         else:
@@ -247,6 +335,7 @@ class Jig(Node):
 
     pass # end of class Jig
 
+# == Motors
 
 class RotaryMotor(Jig):
     '''A Rotary Motor has an axis, represented as a point and
@@ -354,27 +443,20 @@ class RotaryMotor(Jig):
         for a in self.atoms:
             file.write("spoke(" + povpoint(c) + "," + povpoint(a.posn()) + "," + str (self.sradius) +
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
-
-    # Returns the MMP record for the current Rotary Motor as:
-    # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
-    def mmp_record(self, ndix = None):
-        #bruce 050322 renamed this from __repr__, which was nonstandardly used; see comments in Jig
-        cxyz=self.posn() * 1000
-        axyz=self.axen() * 1000
-        if self.picked: c = self.normcolor
-        else: c = self.color
-        color=map(int,A(c)*255)
-        s="rmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f\n" %\
-           (self.name, color[0], color[1], color[2], self.torque, self.speed,
+    
+    # Returns the jig-specific mmp data for the current Rotary Motor as:
+    #    torque speed (cx, cy, cz) (ax, ay, az) length radius sradius \n shaft
+    mmp_record_name = "rmotor"
+    def mmp_record_jigspecific_midpart(self):
+        cxyz = self.posn() * 1000
+        axyz = self.axen() * 1000
+        dataline = "%.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f" % \
+           (self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]),
-            self.length, self.radius, self.sradius)
-        if ndix:
-            nums = map((lambda a: ndix[a.key]), self.atoms)
-        else:
-            nums = map((lambda a: a.key), self.atoms)
-        return s + "shaft " + " ".join(map(str,nums)) + "\n"
-
+            self.length, self.radius, self.sradius   )
+        return dataline + "\n" + "shaft"
+    
     pass # end of class RotaryMotor
 
 
@@ -485,28 +567,23 @@ class LinearMotor(Jig):
         for a in self.atoms:
             file.write("spoke(" + povpoint(c) + "," + povpoint(a.posn())  + "," + str (self.sradius) +
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
-
-    # Returns the MMP record for the current Linear Motor as:
-    # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
-    def mmp_record(self, ndix = None):
+    
+    # Returns the jig-specific mmp data for the current Linear Motor as:
+    #    stiffness force (cx, cy, cz) (ax, ay, az) length width sradius \n shaft
+    mmp_record_name = "lmotor"
+    def mmp_record_jigspecific_midpart(self):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        if self.picked: c = self.normcolor
-        else: c = self.color
-        color=map(int,A(c)*255)
-        s = "lmotor (%s) (%d, %d, %d) %.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f\n" %\
-           (self.name, color[0], color[1], color[2], self.stiffness, self.force, 
+        dataline = "%.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f" % \
+           (self.stiffness, self.force, 
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]),
-            self.length, self.width, self.sradius)
-        if ndix:
-            nums = map((lambda a: ndix[a.key]), self.atoms)
-        else:
-            nums = map((lambda a: a.key), self.atoms)
-        return s + "shaft " + " ".join(map(str, nums)) + "\n"
-
+            self.length, self.width, self.sradius    )
+        return dataline + "\n" + "shaft"
+    
     pass # end of class LinearMotor
 
+# == Ground
 
 class Ground(Jig):
     '''a Ground just has a list of atoms that are anchored in space'''
@@ -550,26 +627,14 @@ class Ground(Jig):
 
     def getstatistics(self, stats):
         stats.ngrounds += len(self.atoms)
-        
-    # Returns the MMP record for the current Ground as:
-    # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}    
-    def mmp_record(self, ndix = None):
-        # shares some code with fake_Ground_mmp_record [bruce 050404]
-        if self.picked: c = self.normcolor
-        else: c = self.color
-        color=map(int,A(c)*255)
-        s = "ground (%s) (%d, %d, %d) " %\
-           (self.name, color[0], color[1], color[2])
-        if ndix:
-            nums = map((lambda a: ndix[a.key]), self.atoms)
-        else:
-            nums = map((lambda a: a.key), self.atoms)
 
-        return s + " ".join(map(str,nums)) + "\n"
+    mmp_record_name = "ground"
+    def mmp_record_jigspecific_midpart(self): # see also fake_Ground_mmp_record [bruce 050404]
+        return ""
 
-    def anchors_atom(self, atm): #bruce 050321
+    def anchors_atom(self, atm): #bruce 050321; revised 050423 (warning: quadratic time for large ground jigs in Minimize)
         "does this jig hold this atom fixed in space? [overrides Jig method]"
-        return atm in self.atoms
+        return (atm in self.atoms) and not self.is_disabled()
     
     pass # end of class Ground
 
@@ -588,7 +653,39 @@ def fake_Ground_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize S
     nums = map((lambda a: ndix[a.key]), atoms)
     return s + " ".join(map(str,nums)) + "\n"
 
-class Stat(Jig):
+# == Stat and Thermo
+
+class Jig_onChunk_by1atom( Jig ):
+    """Subclass for Stat and Thermo, which are on one atom in cad code,
+    but on its whole chunk in simulator,
+    by means of being written into mmp file as the min and max atnums in that chunk
+    (whose atoms always occupy a contiguous range of atnums, since those are remade per writemmp event),
+    plus the atnum of their one user-visible atom.
+    """
+    def atnums_or_None(self, ndix):
+        """return list of atnums to write, or None if some atoms not yet written
+        [overrides Jig method]
+        """
+        assert len(self.atoms) == 1
+        atm = self.atoms[0]
+        if ndix:
+            # for mmp file -- return numbers of first, last, and defining atom
+            atomkeys = [atm.key] + atm.molecule.atoms.keys() # arbitrary order except first list element
+                # first key occurs twice, that's ok (but that it's first matters)
+                # (this is just a kluge so we don't have to process it thru ndix separately)
+            try:
+                nums = map((lambda ak: ndix[ak]), atomkeys)
+            except KeyError:
+                # too soon to write this jig -- would require forward ref to an atom, which mmp format doesn't support
+                return None
+            nums = [min(nums), max(nums), nums[0]]
+        else:
+            # for __repr__ -- in this case include only our defining atom, and return key rather than atnum
+            nums = map((lambda a: a.key), self.atoms)
+        return nums
+    pass
+    
+class Stat( Jig_onChunk_by1atom ):
     '''A Stat is a Langevin thermostat, which sets a chunk to a specific
     temperature during a simulation. A Stat is defined and drawn on a single
     atom, but its record in an mmp file includes 3 atoms:
@@ -654,27 +751,14 @@ class Stat(Jig):
     def getstatistics(self, stats):
         stats.nstats += len(self.atoms)
 
-    # Returns the MMP record for the current Stat as:
-    # stat (name) (r, g, b) (temp) first_atom last_atom box_atom
-    def mmp_record(self, ndix = None):
-        if self.picked: c = self.normcolor
-        else: c = self.color
-        color=map(int,A(c)*255)
-        s = "stat (%s) (%d, %d, %d) (%d) " %\
-           (self.name, color[0], color[1], color[2], int(self.temp) )
-        if ndix:
-            atomkeys = [self.atoms[0].key] + self.atoms[0].molecule.atoms.keys()
-                # first key occurs twice, that's ok (but that it's first matters)
-            nums = map((lambda ak: ndix[ak]), atomkeys)
-            nums = [min(nums), max(nums), nums[0]]
-        else:
-            nums = map((lambda a: a.key), self.atoms)
-        return s + " ".join(map(str,nums)) + "\n"
+    mmp_record_name = "stat"
+    def mmp_record_jigspecific_midpart(self):
+        return "(%d)" % int(self.temp)
 
     pass # end of class Stat
 
 
-class Thermo(Jig):
+class Thermo(Jig_onChunk_by1atom):
     '''A Thermo is a thermometer which measures the temperature of a chunk
     during a simulation. A Thermo is defined and drawn on a single
     atom, but its record in an mmp file includes 3 atoms and applies to all
@@ -730,23 +814,10 @@ class Thermo(Jig):
         #bruce 050210 fixed this as requested by Mark
         stats.nthermos += len(self.atoms)
 
-    # Returns the MMP record for the current Thermo as:
-    # thermo (name) (r, g, b) first_atom last_atom box_atom
-    def mmp_record(self, ndix = None):
-        if self.picked: c = self.normcolor
-        else: c = self.color
-        color=map(int,A(c)*255)
-        s = "thermo (%s) (%d, %d, %d) " %\
-           (self.name, color[0], color[1], color[2] )
-        if ndix:
-            atomkeys = [self.atoms[0].key] + self.atoms[0].molecule.atoms.keys()
-                # first key occurs twice, that's ok (but that it's first matters)
-            nums = map((lambda ak: ndix[ak]), atomkeys)
-            nums = [min(nums), max(nums), nums[0]]
-        else:
-            nums = map((lambda a: a.key), self.atoms)
-        return s + " ".join(map(str,nums)) + "\n"
-
+    mmp_record_name = "thermo"
+    def mmp_record_jigspecific_midpart(self):
+        return ""
+    
     pass # end of class Thermo
 
 # end of module jigs.py
