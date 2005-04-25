@@ -543,7 +543,7 @@ class _readmmp_state:
         lp_id_rp = card.split()[1]
         assert lp_id_rp[0] + lp_id_rp[-1] == "()"
         ref_id = lp_id_rp[1:-1]
-        marker = MarkerNode(self.assy, ref_id) ###@@@ need to remove this if not used... and given that, node type would not matter much.
+        marker = MarkerNode(self.assy, ref_id) # note: we remove this if not used, so its node type might not matter much.
         self.addmember(marker)
         self.markers[ref_id] = marker
 
@@ -823,9 +823,27 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
         # a better design would be to let the caller do them (or not)
     if grouplist:
         viewdata, mainpart, shelf = grouplist
-        del viewdata, shelf
+        del viewdata
+        ## not yet (see below): del shelf
         assy.part.ensure_toplevel_group()
         assy.part.topnode.addchild( mainpart )
+        #bruce 050425 to fix bug 563:
+        # Inserted mainpart might contain jigs whose atoms were in clipboard of inserted file.
+        #   Internally, right now, those atoms exist, in legitimate chunks in assy
+        # (with a chain of dads going up to 'shelf' (the localvar above), which has no dad),
+        # and have not been killed. Bug 563 concerns these jigs being inserted with no provision
+        # for their noninserted atoms. It's not obvious what's best to do in this case, but a safe
+        # simple solution seems to be to pretend to insert and then delete the shelf we just read,
+        # thus officially killing those atoms, and removing them from those jigs, with whatever
+        # effects that might have (e.g. removing those jigs if all their atoms go away).
+        #   (When we add history messages for jigs which die from losing all atoms,
+        # those should probably differ in this case and in the usual case,
+        # but those are NIM for now.)
+        #   I presume it's ok to kill these atoms without first inserting them into any Part...
+        # at least, it seems unlikely to mess up any specific Part, since they're not now in one.
+        #e in future -- set up special history-message behavior for jigs killed by this:
+        shelf.kill()
+        #e in future -- end of that special history-message behavior
     return
 
 def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
