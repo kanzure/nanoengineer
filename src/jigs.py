@@ -36,12 +36,25 @@ def gensym(string):
 
 class Jig(Node):
     "abstract superclass for all jigs"
-    sym = "Jig"
-    # each subclass can define sym as a class constant,
-    # to customize the name-making code in __init__
+    
+    # Each Jig subclass must define the class variables:
+    # - icon_names -- a list of two icon basenames (one normal and one "hidden") (unless it overrides node_icon)
+    #
+    # and the class constants:
+    # - mmp_record_name (if it's ever written to an mmp file)
+    #
+    # and can optionally redefine some of the following class constants:
+    sym = "Jig" # affects name-making code in __init__
+    pickcolor = (1.0, 0.0, 0.0) # color in glpane when picked (default: red)
+    mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
+    
+    #e we should sometime clean up the normcolor and color attributes, but it's hard,
+    # since they're used strangly in the *Prop.py files and in our pick and unpick methods.
+    # But at least we'll give them default values for the sake of new jig subclasses. [bruce 050425]
+    color = normcolor = (0.5, 0.5, 0.5)
+    
     def __init__(self, assy, atomlist):
-        "each subclass needs to call this"
-        self.init_icons()
+        "each subclass needs to call this, at least sometime before it's used as a Node"
         Node.__init__(self, assy, gensym("%s." % self.sym))
         self.atoms = list(atomlist) # this is always [] for some subclasses
             # but is apparently required to be always nonempty for others
@@ -56,30 +69,10 @@ class Jig(Node):
         self.disabled_by_user_choice = False #bruce 050421
             ###@@@ not yet written into mmp file or read from it... should be! affects sim; thus affects mmp record.
         return
-        
-    #bruce 041202 made the icons class constants, so they will be loaded once
-    # per Atom run per subclass, rather than every time we create another jig!
-    # But they can't be actually loaded when this module is imported
-    # (otherwise we get the error message
-    #  "QPaintDevice: Must construct a QApplication before a QPaintDevice"),
-    # so we defer the load for each subclass until the first time one of its
-    # instances is created. I might move this whole thing into class Node.
-    def init_icons(self): #e this might make more sense in Node...
-        # see also the same-named, related method in class molecule.
-        "each subclass must define mticon = [] as a class constant"
-        if self.mticon or not self.icon_names:
-            # mticon will be set to a subclass-specific class constant;
-            # if we've already loaded the icons (or don't need to for this
-            # subclass), return now -- we load them once per subclass.
-            return
-        # the following runs once per Atom session per Jig subclass.
-        for name in self.icon_names: #e could use a key/value dict instead...
-            self.mticon.append( imagename_to_pixmap( name))
-        return
 
-    def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]
-        "a subclass should override this if it uses mticon[] indices differently"
-        return self.mticon[self.hidden]
+    def node_icon(self, display_prefs): #bruce 050425 simplified this
+        "a subclass should override this if it needs to choose its icons differently"
+        return imagename_to_pixmap( self.icon_names[self.hidden] )
         
     def setAtoms(self, atomlist):
         # [as of 050415 (and long before) this is only used for motors; __init__ does same thing for other jigs]
@@ -305,6 +298,10 @@ class Jig(Node):
             sub += " [DISABLED (%s)]" % why
         return sub
 
+    def _getinfo(self):
+        "Return a string for display in history or Properties [subclasses should override this]"
+        return "[%s: %s]" % (self.sym, self.name)
+
     def draw(self, win, dispdef): #bruce 050421 added this wrapper method and renamed the subclass methods it calls. ###@@@writepov too
         if self.hidden:
             return
@@ -344,7 +341,6 @@ class RotaryMotor(Jig):
        To Be Done -- selecting & manipulation'''
     
     sym = "Rotary Motor"
-    mticon = []
     icon_names = ["rmotor.png", "rmotor-hide.png"]
 
     # create a blank Rotary Motor not connected to anything    
@@ -355,7 +351,6 @@ class RotaryMotor(Jig):
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
         self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
-        self.pickcolor = (1.0, 0.0, 0.0) # red
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 2.0 # default cylinder radius
         self.sradius = 0.5 #default spoke radius
@@ -467,7 +462,6 @@ class LinearMotor(Jig):
        To Be Done -- selecting & manipulation'''
 
     sym = "Linear Motor"
-    mticon = []
     icon_names = ["lmotor.png", "lmotor-hide.png"]
 
     # create a blank Linear Motor not connected to anything
@@ -479,7 +473,6 @@ class LinearMotor(Jig):
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
         self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
-        self.pickcolor = (1.0, 0.0, 0.0)
         self.length = 10.0 # default length of Linear Motor box
         self.width = 2.0 # default box width
         self.sradius = 0.5 #default spoke radius
@@ -589,7 +582,6 @@ class Ground(Jig):
     '''a Ground just has a list of atoms that are anchored in space'''
 
     sym = "Ground"
-    mticon = []
     icon_names = ["ground.png", "ground-hide.png"]
 
     # create a blank Ground with the given list of atoms
@@ -597,7 +589,6 @@ class Ground(Jig):
         Jig.__init__(self, assy, list)
         self.color = (0.0, 0.0, 0.0)
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
-        self.pickcolor = (1.0, 0.0, 0.0) # ground is red when picked
         self.cntl = GroundProp(self, assy.o)
 
     def edit(self):
@@ -702,7 +693,6 @@ class Stat( Jig_onChunk_by1atom ):
     '''
     #bruce 050210 for Alpha-2: fix bug in Stat record reported by Josh to ne1-users    
     sym = "Stat"
-    mticon = []
     icon_names = ["stat.png", "stat-hide.png"]
 
     # create a blank Stat with the given list of atoms, set to 300K
@@ -715,8 +705,6 @@ class Stat( Jig_onChunk_by1atom ):
         Jig.__init__(self, assy, list)
         # set default color of new stat to blue
         self.color = self.normcolor = (0.0, 0.0, 1.0) 
-        # stat is red when picked
-        self.pickcolor = (1.0, 0.0, 0.0) 
         self.temp = 300
         self.cntl = StatProp(self, assy.o)
     
@@ -766,7 +754,6 @@ class Thermo(Jig_onChunk_by1atom):
     '''
     #bruce 050210 for Alpha-2: fixed same bug as in Stat.
     sym = "Thermo"
-    mticon = []
     icon_names = ["thermo.png", "thermo-hide.png"]
 
     # creates a thermometer for a specific atom. "list" contains only one atom.
@@ -779,8 +766,6 @@ class Thermo(Jig_onChunk_by1atom):
         Jig.__init__(self, assy, list)
         # set default color of new thermo to dark red
         self.color = self.normcolor = (0.6, 0.0, 0.2) 
-        # thermo is red when picked
-        self.pickcolor = (1.0, 0.0, 0.0)
         self.cntl = ThermoProp(self, assy.o)
     
     def edit(self):
