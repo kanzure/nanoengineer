@@ -1467,7 +1467,7 @@ static void usage()
 main(int argc,char **argv)
 {
     int i, j, n;
-    int da=0, db=0, dc=0, dw=0, mmpkey=0, dpbkey=0;
+    int da=0, db=0, dc=0, dw=0;
     struct xyz p, foo;
     double therm = 0.645;
 	
@@ -1655,7 +1655,7 @@ main(int argc,char **argv)
         exit(1);
     }
     printheader(tracef, filename, OutFileName, TraceFileName, 
-                Nexatom, mmpkey, dpbkey, NumFrames, IterPerFrame, Temperature);
+                Nexatom, NumFrames, IterPerFrame, Temperature);
 
     if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)Nexatom));

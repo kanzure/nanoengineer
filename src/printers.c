@@ -385,7 +385,7 @@ void snapshot(FILE *outf, int n)
         writeNewFrame(outf, AveragePositions);
         break;
     }
-    
+
     tracon(tracef);
     flushOutputFile(outf);
     // fprintf(stderr, "found Ke = %e\n",FoundKE);
@@ -756,7 +756,7 @@ void pcon(FILE *f, int i) {
 }
 
 void printheader(FILE *f, char *ifile, char *ofile, char *tfile, 
-                 int na, int MMPKey, int DPBKey, int nf, int spf, double temp)
+                 int na, int nf, int spf, double temp)
 {
     int i, ncols;
     
@@ -772,10 +772,10 @@ void printheader(FILE *f, char *ifile, char *ofile, char *tfile,
     fprintf(f, "# Output File: %s\n", ofile);
     fprintf(f, "# Trace File: %s\n", tfile);
     fprintf(f, "# Number of Atoms: %d\n", na);
-    /*
-    fprintf(f, "# MMP Key: %d\n", MMPKey);
-    fprintf(f, "# DPB Key: %d\n", DPBKey);
-    */
+
+    if (IDKey != NULL && IDKey[0] != '\0') {
+        fprintf(f, "# IDKey: %s\n", IDKey);
+    }
     fprintf(f, "# Number of Frames: %d\n", nf);
     fprintf(f, "# Steps per Frame: %d\n", spf);
     fprintf(f, "# Temperature: %.1f\n", temp);
