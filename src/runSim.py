@@ -30,7 +30,7 @@ from qt import QApplication, QCursor, Qt, QStringList, QProcess
 from movie import Movie
 # more imports lower down
 
-debug_sim = False
+debug_sim = 0 # DO NOT COMMIT with 1
 
 class SimRunner:
     "class for running the simulator [subclasses can run it in special ways, maybe]"
@@ -370,6 +370,8 @@ class SimRunner:
             # (deleting or renaming some file they might care about). ###@@@
             # BTW this stuff should be a method of movie, it uses private attrs...
             # and it might not be correct/safe in all cases either... [not reviewed]
+            #bruce 050425 comment: is this trying to reuse an old movie obj for a new movie?
+            # does it ever happen now that the movie is open?
             if debug_sim: print "movie.isOpen =",movie.isOpen
             if movie.isOpen:
                 if debug_sim: print "closing moviefile"

@@ -159,7 +159,10 @@ class Part(InvalMixin):
             topnodename = "%r" % self.topnode.name
         except:
             topnodename = "<topnode??>"
-        return "<%s %#x %s (%d nodes)>" % (classname, id(self), topnodename, self.nodecount)
+        try:
+            return "<%s %#x %s (%d nodes)>" % (classname, id(self), topnodename, self.nodecount)
+        except:
+            return "<some part, exception in its __repr__>" #bruce 050425
 
     # == updaters (###e refile??)
 

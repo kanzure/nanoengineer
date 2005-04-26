@@ -883,9 +883,10 @@ class Node:
            If this kind of Node *doesn't* support editing of properties,
         return a suitable text string for use in an error message.
         """
-        # bruce 050121 inferred docstring from all 7 implems and 1 call.
+        #bruce 050121 inferred docstring from all 7 implems and 1 call.
         # Also added feature of refusing and returning error message, used in 2 implems so far.
-        return "Nodes of class %s don't provide a property-editing dialog." % self.__class__.__name__
+        #bruce 050425 revised this error message.
+        return "Edit Properties is not available for %s." % self.__class__.__name__
 
     def edit_props_enabled(self): #bruce 050121 added this feature
         """Subclasses should override this and make it return False

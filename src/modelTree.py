@@ -555,7 +555,7 @@ class modelTree(TreeWidget):
 
     def cm_enable(self): #bruce 050421
         nodeset = self.topmost_selected_nodes()
-        assert len(nodeset) == 1
+        assert len(nodeset) == 1, "len nodeset should be 1, but nodeset is %r" % nodeset
         node = nodeset[0]
         jig = node
         jig.disabled_by_user_choice = False
