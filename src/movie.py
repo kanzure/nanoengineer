@@ -16,13 +16,14 @@ from HistoryWidget import redmsg
 from VQT import A
 import platform
 from debug import print_compact_stack
+from jigs import Jig #bruce 050425
 
 ADD = True
 SUBTRACT = False
 FWD = 1
 REV = -1
 DEBUG0 = 0
-DEBUG1 = 0
+DEBUG1 = 0 # DO NOT COMMIT WITH 1
 
 playDirection = { FWD : "Forward", REV : "Reverse" }
 
@@ -35,6 +36,14 @@ class Movie:
     for setting up a new simulator run
     (even for Minimize, though it might never make a moviefile).
     """
+    #bruce 050425 tried making this a Jig, but not calling Jig.__init__
+    # until later in its life than its own __init__; this caused trouble
+    # from name conflict Node.part / Movie.part; probably better to make a
+    # small related Jig and let them have pointers to each other.
+    # (So I should remove the Jig code in here, but I won't now since I'm about to commit a bugfix.)
+    #bruce 050425: define some things which are needed for being a Jig subclass:
+    sym = "Movie"
+    icon_names = ["xxx.png", "xxx-hide.png"] ###e
     #bruce 050324 comment: note that this class is misnamed --
     # it's really a SimRunnerAndResultsUser... which might
     # make and then use .xyz or .dpb results; if .dpb, it's able
@@ -103,6 +112,7 @@ class Movie:
             # and this attribute is not presently used in the cad code.
         # bruce 050324 added these:
         self.alist = None # list of atoms for which this movie was made, if this has yet been defined
+        self.did_jig_init = False #bruce 050425
         
 ##        # bruce 050324 added this: #### NOT YET, IT WON'T WORK UNTIL WE DELAY CREATION OF THIS OBJECT
 ##        self.part = self.assy.part # movie is assumed valid only for the current part at its time of creation
@@ -111,10 +121,13 @@ class Movie:
     def __getattr__(self, attr): # temporary kluge ###@@@
         if attr == 'part':
             if self.alist:
-                return self.alist[0].molecule.part
+                part = self.alist[0].molecule.part
                     # not checked for consistency, but correct if anything is; could be None, I think,
                     # especially for killed atoms (guess; see bug 497) [bruce 050411]
-            #bruce 050411: the following does happen, see comments in bug 497;
+                if not part and platform.atom_debug:
+                    print_compact_stack( "part false (%r) here; alist[0].molecule is %r: " % (part, self.alist[0].molecule) )
+                return part
+             #bruce 050411: the following does happen, see comments in bug 497;
             # so until that's fixed, don't do an assertion.
             ## assert 0, "part needed before alist"
                 ### can this happen? if it does, return cur part??? main part??? depends on why...
@@ -125,7 +138,8 @@ class Movie:
         raise AttributeError, attr
 
     def destroy(self): #bruce 050325
-        # so far only to be called before file is made; should work either way and _close if necessary.
+        # so far this is only meant to be called before the file is made;
+        # it should be revised to work either way and _close if necessary.
         # for now, just break cycles.
         self.win = self.assy = self.part = self.alist = self.history = self.fileobj = None
 
@@ -168,6 +182,12 @@ class Movie:
         # all atoms have the same Part, which is not None, and there's at least one atom.
         self.alist = alist
         self.natoms = len(alist) #bruce 050404; note, some old code might reset this (perhaps wrongly?) when reading a .dpb file
+        ## too early in movie lifecycle for this
+        ## (plus it causes a bug (mmp_record_name not yet defined for this Jig subclass)
+        ##  when we try to save the sim-input mmp file -- but maybe i fixed that bug?
+        ##  yes, but linelen might be too long for sim!!!
+        ##  Even comments are limited to 512 or they might crash it!)
+        ## self.become_jig_in_MT() #bruce 050425 experiment
         return
 
     def set_alist_from_entire_part(self, part):
@@ -203,6 +223,21 @@ class Movie:
 ##        ###e split into a part method to get alist, and our own set_alist method
 ##        self.set_alist(res) #e could optimize (bypass checks in that method)
 ##        return None
+
+    # ==
+
+    def become_jig_in_MT(self, part = None): #bruce 050425 experiment
+        "#doc"
+        if not self.did_jig_init:
+            self.did_jig_init = True # don't redo it even if it fails this time
+            Jig.__init__(self, self.assy, self.alist) ###k collisions in attr names with those in Jig??
+            if not part:
+                part = self.assy.part
+            part.addmol(self) # note: this is misnamed, it works for any node [###e make its docstring admit that!]
+            self.assy.w.mt.mt_update()
+        elif platform.atom_debug:
+            print_compact_stack( "atom debug: warning: become_jig_in_MT called more than once for %r: " % self)
+        return            
         
     # == methods for playing the movie file we know about (ie the movie we represent)
 
@@ -223,6 +258,10 @@ class Movie:
         #  and made it print the history messages which I've commented out below.]
         ## r = self._checkMovieFile()
         part = self.part
+        if not part.alive: #bruce 050425 bugfix-attempt for destroyed parts
+            del self.part
+            part = self.part # it will be recomputed by our __getattr__
+            assert part.alive
         r = _checkMovieFile(part, self.filename, self.history)
         
         if r == 1:
@@ -276,7 +315,7 @@ class Movie:
 
         if hflag: self._info()
         
-        # startframe and currentframe are compared in _close to determine if the assy has changed.
+        # startframe and currentframe are compared in _close to determine if the assy has changed due to playing this movie.
         self.startFrame = self.currentFrame
         
         return 0
@@ -295,12 +334,15 @@ class Movie:
     def _close(self):
         """Close movie file and adjust atom positions.
         """
-        if DEBUG1: print "movie._close() called. self.isOpen =", self.isOpen
+        if DEBUG1: print_compact_stack( "movie._close() called. self.isOpen = %r" % self.isOpen)
         if not self.isOpen: return
         self._pause(0) 
         self.fileobj.close() # Close the movie file.
+        self.isOpen = False #bruce 050425 guess: see if this fixes some bugs
+        if DEBUG1: print "self.isOpen = False #bruce 050425 guess: see if this fixes some bugs" ###@@@
         self.movend() # Unfreeze atoms.
-        if self.startFrame != self.currentFrame: self.assy.changed()
+        if self.startFrame != self.currentFrame:
+            self.assy.changed()
         
         # Delete the array containing the original atom positions for the model.
         # We no longer need them since the movie file is closed.
@@ -311,6 +353,10 @@ class Movie:
         """
 
         if DEBUG0: print "movie._play() called.  Direction = ", playDirection[ direction ]
+
+        if not self.isOpen:
+            self.history.message( redmsg( "Movie file is no longer playable." )) #bruce 050425 mitigates bug 519 ###@@@
+            return
         
         if direction == FWD and self.currentFrame == self.totalFramesActual: return
         if direction == REV and self.currentFrame == 0: return
@@ -699,6 +745,8 @@ class Movie:
     def movatoms(self, file, addpos = ADD):
         "#doc [callers can pass ADD (True) or SUBTRACT (False) for addpos]"
         if not self.alist: return
+        if not self.isOpen and platform.atom_debug:
+            print_compact_stack("atom_debug: movatoms called but not self.isOpen: ") #bruce 050425
         ###e bruce 041104 thinks this should first check whether the
         # molecules involved have been updated in an incompatible way
         # (which might change the indices of atoms); otherwise crashes
@@ -834,7 +882,7 @@ def _checkMovieFile(part, filename, history = None):
     # persistent names for files rather than parts).
     if not part:
         if platform.atom_debug:
-            print "atom_debug: possible bug: part is false (%r) in _checkMovieFile for %s" % (part,filename)
+            print_compact_stack( "atom_debug: possible bug: part is false (%r) in _checkMovieFile for %s" % (part,filename))
             ## can't do this, no movie arg!!! self.debug_print_movie_info()
         if print_errors:
             msg = redmsg("Movie file [" + filename + "] can't be played for current part.") # vaguer & different wording, since bug
