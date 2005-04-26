@@ -319,3 +319,14 @@ week), subject "full list of jig/clipboard requirements for Alpha 5".
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 4/25/2005
+Files: movie.py
+Summary:  fixed bugs 519, 384-6 
+
+Warning: these fixes are not only "band-aids" (instead of the required
+major surgery), but they only cover the wounds when you look at them from
+certain directions, which happen to include the ones in those bug reports.
+
+----------------------------
+
