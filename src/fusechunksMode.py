@@ -48,13 +48,6 @@ class fusechunksMode(modifyMode):
         self.w.connect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
         # This is so we can use the X, Y, Z modifier keys from modifyMode.
         self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
-        
-        # If only one chunk is selected when coming in, make it the selected_chunk.
-        # If more than one chunk is selected, unselect them all.
-        if len(self.o.assy.selmols) == 1: 
-            self.init_selected_chunk()
-        else:
-            self.unpick_selected_chunk()
 
     def restore_gui(self):
         self.w.fuseChunksDashboard.hide()
@@ -65,7 +58,7 @@ class fusechunksMode(modifyMode):
     def tolerance_changed(self, val):
         self.tol = val * .01
         
-        if self.selected_chunk:
+        if self.o.assy.selmols:
             self.find_bondable_pairs() # This will update the slider tolerance label
             self.o.gl_update()
         else:
@@ -112,63 +105,16 @@ class fusechunksMode(modifyMode):
         # This keeps us from leaving Fuse Chunks mode, as is the case in Move Chunks mode.
         pass
 
-    def EndPick(self, event, selSense):
-        """Pick if click
-        """
-        if not self.picking: return
-        self.picking = False
-
-        if self.dragdist<7: # didn't move much, call it a click
-
-            if selSense == 0: # Cntl/Cmd key pressed
-                self.o.assy.unpick_at_event(event) # Unpicks selected chunk if it is under the cursor.
-            else: 
-                self.o.assy.onlypick_at_event(event) # Picks only the chunk under the cursor, if any.
-            
-            if self.o.assy.selmols: # Is there a picked chunk?
-                self.init_selected_chunk() # Yes, so initialize it.
-            else:
-                self.unpick_selected_chunk() # No, so unpick/reset
-                    
-            self.w.win_update()
-
-    def init_selected_chunk(self):
-        '''Initializes everything required for finding bondable pairs of singlets with the selected chunk.
-        '''
-        self.selected_chunk = self.o.assy.selmols[0]
-        self.selected_chunk_rad = self.selected_chunk.bbox.scale() * self.rfactor
-        
-    def unpick_selected_chunk(self):
-        '''Resets everything when the selected chunk is unselected, 
-        or when the number of selected chunks != 1 when entering mode.
-        '''
-        self.bondable_pairs = [] 
-        self.ways_of_bonding = {}
-        self.o.assy.unpickparts()
-        self.selected_chunk = None
-        
-        #There are no bonds, update the slider tolerance label.  
-        # This fixed bug 502-14.  Mark 050407
-        tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0) # 0 bonds
-        self.w.toleranceLB.setText(tol_str) 
-
     def Draw(self):
 
-        # If only one chunk is selected when coming in, make it the selected_chunk.
-        # If more than one chunk is selected, unselect them all.
-        # There is a bug when selecting more than one chunk using the model tree.
-        # The model tree is not updated properly.  I'm guessing this is an easy fix, but
-        # I need to ask Bruce.  I need to be careful of recursive updates if I call the wrong
-        # thing inside here.  Mark 050420.
-        if len(self.o.assy.selmols) == 1: 
-            self.init_selected_chunk()
-        else:
-            self.unpick_selected_chunk()
-            
-        # Only works if one chunk is selected.    
-        if self.selected_chunk: 
+        # This is important and needed in case there is nothing selected.  I mention this because
+        # it looks redundant since is the first thing done in find_bondable_pairs(). 
+        self.bondable_pairs = []
+        self.ways_of_bonding = {}
+        
+        if self.o.assy.selmols: 
             self.find_bondable_pairs() # Find bondable pairs of singlets
-                                
+
         modifyMode.Draw(self)
 
         # Color the bondable pairs or singlets and bond lines between them
@@ -193,49 +139,57 @@ class fusechunksMode(modifyMode):
         self.bondable_pairs = []
         self.ways_of_bonding = {}
         
-        # Get center of the selected chunk.
-        self.selected_chunk_ctr = self.selected_chunk.bbox.center()
+        for chunk in self.o.assy.selmols:
         
-        # Loop through all the chunks in the part to search for bondable pairs of singlets.
-        for mol in self.o.assy.molecules:
-            if self.selected_chunk == mol: continue # Skip itself
-            if mol.hidden: continue # Skip hidden chunks
+            # Get center and sphere of the selected chunk.
+            chunk_ctr = chunk.bbox.center()
+            chunk_rad = chunk.bbox.scale() * self.rfactor
+        
+            # Loop through all the mols in the part to search for bondable pairs of singlets.
+            for mol in self.o.assy.molecules:
+                if chunk == mol: continue # Skip itself
+                if mol.hidden: continue # Skip hidden chunks
+                if mol in self.o.assy.selmols: continue # Skip other selected chunks
+                
+                # Skip this chunk if it's bounding box does not overlap the selected chunk's bbox.
+                mol_ctr = mol.bbox.center()
+                mol_rad = mol.bbox.scale()* self.rfactor
+                
+                # I add self.tol twice - tol is a radius, and extreme situations require a diameter
+                # to catch all possible bonds.  Extreme situations happen in bonds b/w long, skinny rods.
+                # Remember: chunk = a selected chunk, mol = a non-selected chunk.
+                if vlen (mol_ctr - chunk_ctr) > mol_rad + chunk_rad + self.tol + self.tol:
+                    # Skip this chunk.
+                    # print "Skipped ", mol.name
+                    continue
+                else:
 
-            # Skip this chunk if it's bounding box does not overlap the selected chunk's bbox.
-            mol_ctr = mol.bbox.center()
-            mol_rad = mol.bbox.scale()* self.rfactor
-            if vlen (mol_ctr - self.selected_chunk_ctr) > mol_rad + self.selected_chunk_rad + self.tol:
-                # Skip this chunk.
-                # print "Skipped ", mol.name
-                continue
-            else:
-
-                # Loop through all the singlets in the selected chunk.
-                for s1 in self.selected_chunk.singlets:
-                    # Loop through all the singlets in this chunk.
-                    for s2 in mol.singlets:
+                    # Loop through all the singlets in the selected chunk.
+                    for s1 in chunk.singlets:
+                        # Loop through all the singlets in this chunk.
+                        for s2 in mol.singlets:
                         
-                        # I substituted the line below in place of mergeable_singlets_Q_and_offset,
-                        # which compares the distance between s1 and s2.  If the distance
-                        # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
-                        # a proper use of tol, but it works for now.   Mark 050327
-                        if vlen (s1.posn() - s2.posn()) <= self.tol:
+                            # I substituted the line below in place of mergeable_singlets_Q_and_offset,
+                            # which compares the distance between s1 and s2.  If the distance
+                            # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
+                            # a proper use of tol, but it works for now.   Mark 050327
+                            if vlen (s1.posn() - s2.posn()) <= self.tol:
                             
-                        # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset2 = V(0,0,0), self.tol)
-                        # if ok:
-                        # we can ignore ideal and err, we know s1, s2 can bond at this tol
+                            # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset2 = V(0,0,0), self.tol)
+                            # if ok:
+                            # we can ignore ideal and err, we know s1, s2 can bond at this tol
                                     
-                            self.bondable_pairs.append( (s1,s2) ) # Add this pair to the list
+                                self.bondable_pairs.append( (s1,s2) ) # Add this pair to the list
             
-                            # Now increment ways_of_bonding for each of the two singlets.
-                            if s1.key in self.ways_of_bonding:
-                                self.ways_of_bonding[s1.key] += 1
-                            else:
-                                self.ways_of_bonding[s1.key] = 1
-                            if s2.key in self.ways_of_bonding:
-                                self.ways_of_bonding[s2.key] += 1
-                            else:
-                                self.ways_of_bonding[s2.key] = 1
+                                # Now increment ways_of_bonding for each of the two singlets.
+                                if s1.key in self.ways_of_bonding:
+                                    self.ways_of_bonding[s1.key] += 1
+                                else:
+                                    self.ways_of_bonding[s1.key] = 1
+                                if s2.key in self.ways_of_bonding:
+                                    self.ways_of_bonding[s2.key] += 1
+                                else:
+                                    self.ways_of_bonding[s2.key] = 1
                                     
         # Update tolerance label and status bar msgs.
         nbonds = len(self.bondable_pairs)
@@ -278,12 +232,12 @@ class fusechunksMode(modifyMode):
         # Merge the chunks if the "merge chunks" checkbox is checked
         if self.w.mergeCB.isChecked() and self.bondable_pairs_atoms:
             for a1, a2 in self.bondable_pairs_atoms:
-                # Ignore a1, they are atoms from selected_chunk
-                # It is possible that a2 is an atom from selected_chunk, so check it
-                if a2.molecule != self.selected_chunk:
+                # Ignore a1, they are atoms from the selected chunk(s)
+                # It is possible that a2 is an atom from a selected chunk, so check it
+                if a2.molecule != a1.molecule:
                     if a2.molecule not in self.merged_chunks:
                         self.merged_chunks.append(a2.molecule)
-                        self.selected_chunk.merge(a2.molecule)
+                        a1.molecule.merge(a2.molecule)
 
         # This must be done before gl_update, or it will try to draw the 
         # bondable singlets again, which generates errors.
