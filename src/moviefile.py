@@ -14,14 +14,86 @@ __author__ = "Bruce" #k for now... I might bring in some older code too
 
 # these imports are anticipated, perhaps not all needed
 import os, sys
-from struct import unpack
-from VQT import A
+from struct import unpack # fyi: used for old-format header, no longer for delta frames
+## from VQT import A
+from Numeric import array, Int8
 import platform
 from debug import print_compact_stack, print_compact_traceback
 
+def MovieFile(filename, history = None):
+    """Given the name of an existing old-format movie file,
+    return an object which can read frames from it
+    (perhaps only after receiving further advice from its client code,
+     like the absolute atom positions for one specific frame).
+       The returned object should also know whatever can be known
+    from the moviefile itself about the movie... like number of frames and atoms...
+    for the old format, that's all there is.
+       In case of a fatal error, print an appropriate message to history (if provided)
+    and return None. We might also print warnings to history (I don't know #k).
+       In future, when new format is available, we'll detect the format in the file
+    and open it in the proper way, perhaps also taking optional arguments for a trace filename,
+    perhaps handling files that have not yet been finished or perhaps not yet even started, etc....
+       See also the docstring of class OldFormatMovieFile.
+    """
+    # for now, assume old format, and assume file exists and has reached its final size.
+    reader = OldFormatMovieFile_startup( filename, history)
+    if reader.open_and_read_header_errQ():
+        return None
+    return OldFormatMovieFile( reader)
 
-##e should rename this (see comment higher up for why)
-class MovieFile: #bruce 050426 
+class OldFormatMovieFile_startup:
+    def __init__(self, filename, history = None):
+        self.filename = filename
+        self.history = history
+        self.fileobj = None
+        self.errcode = None
+    def open_and_read_header_errQ(self):
+        # because we assume file is fully written, we can do all this stuff immediately for now:
+        #e try/except too?
+        self.open_file()
+        self.read_header()
+        return self.errcode
+    def open_file(self):
+        assert not self.fileobj #e if we relax this, then worry about whether we should seek to start of file
+        self.fileobj = open(self.filename,'rb')
+    def read_header(self):
+        # assume we're at start of file
+        # Read header (4 bytes) from file containing the number of frames in the moviefile.
+        self.totalFramesActual = unpack('i',self.fileobj.read(4))[0]
+        # Compute natoms
+        filesize = os.path.getsize(self.filename)
+        self.natoms = (filesize - 4) / (self.totalFramesActual * 3)
+        if self.natoms * (self.totalFramesActual * 3) != (filesize - 4):
+            msg = "Movie file [%s] has invalid length -- might be truncated or still being written." % self.filename
+            self.error(msg)
+            return # how far do we return, on error?? (I mean, should we raise an exception instead?) ###k
+        return
+    def error(self, msg):
+        self.errcode = msg or "error" # public attr for callers to see...
+        if self.history:
+            from HistoryWidget import redmsg
+            self.history.message( redmsg( msg))
+        else:
+            print "error:",msg
+        return
+    def delta_frame_bytes(self, n):
+        "return the bytes of the delta frame which has index n (assuming our file is open and n is within legal range)"
+        filepos = (n * self.natoms * 3) + 4
+        if not self.fileobj:
+            # this might not yet ever happen, not sure.
+            self.open_file() #e check for error? check length still the same, etc? 
+        self.fileobj.seek( filepos)
+        return self.fileobj.read(self.natoms * 3)
+    def close(self):
+        if self.fileobj:
+            self.fileobj.close()
+        self.fileobj = None
+    def destroy(self):
+        self.close()
+        return # no other large state in this object
+    pass 
+
+class OldFormatMovieFile: #bruce 050426 
     """Know the filename and format of an existing moviefile, and enough about it to read requested frames from it
     and report absolute atom positions (even if those frames, or all frames in the file, are differential frames).
        Provide methods for renaming it (actually moving or copying the file), when this is safe.
@@ -43,28 +115,37 @@ class MovieFile: #bruce 050426
     # the general parts of the new-format file header, only the "trajectory part".
     # So probably some other object would parse the header and only then hand off the rest of the file
     # to one of these.
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, filereader):
+        self.filereader = filereader # this has file pointer, knows filename & header, can read raw frames
+
+        #e someday:
         # conceivably the file does not yet exist and this is not an error
         # (if we're being used on a still-growing file whose producer didn't quite start writing it yet),
         # so let's check these things as needed/requested rather than on init.
         # For now we'll just "know that we don't know them".
         # This might be best done using __getattr__... and perhaps some quantities
         # are different each time we look (like file length)... not yet decided.
+        #
+        # now: just assume the file is complete before we're called, and grab these things from filereader.
 
-        # But does the caller need to tell us the set of starting atom positions,
-        # in case the file doesn't? What if it doesn't know (for new-format file being explored)? ###e
-        # ... the way it tells us is by calling donate_immutable_cached_frame if it needs to,
+        # Q: But does the caller need to tell us the set of starting atom positions,
+        # in case the file doesn't? What if it doesn't know (for new-format file being explored)?
+        # A: the way it tells us is by calling donate_immutable_cached_frame if it needs to,
         # on any single frame it wants (often but not always frame 0).
 
+        self.totalFramesActual = filereader.totalFramesActual
+        self.natoms = filereader.natoms # maybe these should be the same object... not sure
         self.temp_mutable_frames = {}
         self.cached_immutable_frames = {} #e for some callers, store a cached frame 0 here
 
-    ###e stuff for file header, natoms, format, size, etc, goes here; some of it is told to our init, not derived here.
+    def destroy(self):
+        self.cached_immutable_frames = self.temp_mutable_frames = None
+        self.filereader.destroy()
+        self.filereader = None
 
     def frame_index_in_range(n):
         assert type(n) == type(1)
-        return n >= 0 #####stub
+        return 0 <= n <= self.totalFramesActual # I think inclusive at both ends is correct...
 
     def ref_to_transient_frame_n(self, n):
         """[This is meant to be the main external method for retrieving our atom positions,
@@ -218,5 +299,14 @@ class MovieFile: #bruce 050426
             return None
         pass
 
+    def delta_frame(self, n):
+        "return the delta frame of index n, as an appropriately-typed Numeric array"
+        bytes = self.filereader.delta_frame_bytes(n)
+        ## older code: delta = A(unpack('bbb',file.read(3)))*0.01
+        # (with luck, reading the whole frame at once will be a nice speedup for fast-forwarding...)
+        res = array(bytes,Int8)
+        res.shape = (-1,3)
+        return res * 0.01 #e it might be nice to avoid that multiply someday...
+        
     pass # end of class MovieFile
 
