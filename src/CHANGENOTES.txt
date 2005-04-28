@@ -333,6 +333,27 @@ certain directions, which happen to include the ones in those bug reports.
 Name: Bruce Smith
 Date: 4/27/2005
 Files: part.py MWsemantics.py modelTree.py
-Summary:  fixed bug 566
+Summary:  fixed bug 566 [not sure if this bug predated last release (A4) or not]
 
 ----------------------------
+
+Name: Bruce Smith
+Date: 4/28/2005
+Files: chem.py moviefile.py movie.py movieMode.py
+Summary: preliminary new movie code for Alpha5
+
+Excerpt from my CHECKIN mail; for many more details see that mail:
+
+I committed a major rewrite of the lowest-level movie code, as an
+attempt to fix or mitigate a lot of its bugs (new and old) for Alpha5....
+
+The basic change is that if you change the Part and then re-play the movie,
+or change it while you're still in movieMode playing the movie, then
+rather than crashing (tracebacks), it does its best to "do what you're
+asking for" (whether or not it's sensible), safely. That is, it keeps
+track of which atoms the movie is about, and moves them (except for deleted
+ones), and doesn't move the newly added ones.
+....
+
+----------------------------
+
