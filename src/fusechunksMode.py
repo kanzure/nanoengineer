@@ -13,16 +13,23 @@ from extrudeMode import mergeable_singlets_Q_and_offset
 from chunk import bond_at_singlets
 from HistoryWidget import redmsg
 
-def fusechunks_lambda_tol_nbonds(tol, nbonds):
-    if nbonds == -1:
+def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds):
+    if nbonds < 0:
         nbonds_str = "?"
     else:
         nbonds_str = "%d" % (nbonds,)
+        
+    if mbonds < 0:
+        mbonds_str = "?"
+    else:
+        mbonds_str = "%d" % (mbonds,)
+        
     tol_str = ("      %d" % int(tol*100.0))[-3:]
     # fixed-width (3 digits) but using initial spaces
     # (doesn't have all of desired effect, due to non-fixed-width font)
     tol_str = tol_str + "%"
-    return "%s => %s bonds" % (tol_str,nbonds_str)
+    
+    return "%s => %s/%s bonds" % (tol_str,nbonds_str,mbonds_str)
     
 class fusechunksMode(modifyMode):
     "Allows user to move one chunk and fuse it to other chunks in the part"
@@ -32,7 +39,10 @@ class fusechunksMode(modifyMode):
     modename = 'FUSECHUNKS'
     default_mode_status_text = "Mode: Fuse Chunks"
     
-    selected_chunk = None # The selected chunk we are moving around
+    # something_was_picked is a special boolean flag needed by Draw() to determine when 
+    # the state has changed from something selected to nothing selected.  It is used to 
+    # properly update the tolerance label on the dashboard when all chunks are unselected.
+    something_was_picked = False 
     bondcolor = white # Color of bond lines
     bondable_pairs = [] # List of bondable singlets
     ways_of_bonding = {} # Number of bonds each singlet found
@@ -48,6 +58,8 @@ class fusechunksMode(modifyMode):
         self.w.connect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
         # This is so we can use the X, Y, Z modifier keys from modifyMode.
         self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        if self.o.assy.selmols:
+            self.something_was_picked = True
 
     def restore_gui(self):
         self.w.fuseChunksDashboard.hide()
@@ -64,7 +76,7 @@ class fusechunksMode(modifyMode):
         else:
             # Since no chunk is select, there are no bonds, but the slider tolerance label still needs updating.  
             # This fixed bug 502-14.  Mark 050407
-            tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0) # 0 bonds
+            tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, self.multibonds()) # 0 bonds
             self.w.toleranceLB.setText(tol_str) 
 
     def Backup(self):
@@ -114,6 +126,16 @@ class fusechunksMode(modifyMode):
         
         if self.o.assy.selmols: 
             self.find_bondable_pairs() # Find bondable pairs of singlets
+            if not self.something_was_picked: 
+                self.something_was_picked = True
+        else:
+            # Nothing is selected, so there are no bondable pairs.
+            # Check if we need to update the slider tolerance label.
+            # This fixed bug 502-14.  Mark 050407
+            if self.something_was_picked:
+                tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0) # 0 bonds
+                self.w.toleranceLB.setText(tol_str)
+                self.something_was_picked = False # Reset flag
 
         modifyMode.Draw(self)
 
@@ -193,7 +215,7 @@ class fusechunksMode(modifyMode):
                                     
         # Update tolerance label and status bar msgs.
         nbonds = len(self.bondable_pairs)
-        tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds)
+        tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds,self.multibonds())
         self.w.toleranceLB.setText(tol_str)
 
     def make_bonds(self):
@@ -223,10 +245,11 @@ class fusechunksMode(modifyMode):
                 # We keep track of it so we can print a msg to the user
                 # that we aren't bonding this pair (and other previous pairs).
         if not_bonded:
-            if not_bonded == 1:
-                msg = "%d open bond had multiple bonds. It was not bonded." % (not_bonded,)
+            singlets_not_bonded = self.multibonds()
+            if singlets_not_bonded == 1:
+                msg = "%d open bond had multiple bonds. It was not bonded." % (singlets_not_bonded,)
             else:
-                msg = "%d open bonds had multiple bonds. They were not bonded." % (not_bonded,)
+                msg = "%d open bonds had multiple bonds. They were not bonded." % (singlets_not_bonded,)
             self.w.history.message(redmsg(msg))
                         
         # Merge the chunks if the "merge chunks" checkbox is checked
@@ -246,9 +269,25 @@ class fusechunksMode(modifyMode):
             self.ways_of_bonding = {}
         
         # Update the slider tolerance label.  This fixed bug 502-14.  Mark 050407
-        tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0)
+        tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0)
         self.w.toleranceLB.setText(tol_str)        
                 
         self.w.win_update()
 
+    def multibonds(self):
+        '''Returns the number of open bonds (singlets) with multiple bonds.
+        '''
+        mbonds = 0
+        singlets = []
+        
+        for s1, s2 in self.bondable_pairs:
+            if self.ways_of_bonding[s1.key] > 1:
+                if s1 not in singlets:
+                    singlets.append(s1)
+            if self.ways_of_bonding[s2.key] > 1:
+                if s2 not in singlets:
+                    singlets.append(s2)
+                
+        return len(singlets)
+        
 # end of class fusechunksMode
