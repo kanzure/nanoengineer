@@ -975,6 +975,13 @@ class atom:
         radius of an H. move it back. the molecule may or may not be still
         in frozen mode. Do all needed invals.
         """
+        if not self.bonds:
+            #bruce 050428: a bug, but probably just means we're a killed singlet.
+            # The caller should be fixed, and maybe is_singlet should check this too,
+            # but for now let's also make it harmless here:
+            if platform.atom_debug:
+                print_compact_stack( "atom_debug: bug (ignored): snuggling a killed singlet: ")
+            return
         #bruce 050406 revised docstring to say mol needn't be frozen.
         # note that this could be rewritten to call ideal_posn_re_neighbor,
         # but we'll still use it since it's better tested and faster.

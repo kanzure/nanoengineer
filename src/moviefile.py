@@ -146,7 +146,7 @@ class OldFormatMovieFile: #bruce 050426
     def matches_alist(self, alist):
         return self.natoms == len(alist) #e could someday check more...
     def recheck_matches_alist(self, alist):
-        return self.matches_alist() ###@@@ stub, fails to recheck the file! should verify same header and same or larger nframes.
+        return self.matches_alist(alist) ###@@@ stub, fails to recheck the file! should verify same header and same or larger nframes.
     def destroy(self):
         self.cached_immutable_frames = self.temp_mutable_frames = None
         self.filereader.destroy()
