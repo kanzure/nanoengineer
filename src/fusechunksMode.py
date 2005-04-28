@@ -49,7 +49,14 @@ class fusechunksMode(modifyMode):
     bondable_pairs_atoms = [] # List of atom pairs that have been bonded.
     tol = 1.0 # tol is the distance between two bondable singlets.
     rfactor = .75 # 
-    
+
+    def Enter(self):
+        basicMode.Enter(self)
+        self.o.assy.selectParts()
+        self.dragdist = 0.0
+        self.saveDisp = self.o.display
+        self.o.setDisplay(diTUBES)
+            
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
         self.w.toolsFuseChunksAction.setOn(1) # toggle on the Fuse Chunks icon
@@ -67,6 +74,9 @@ class fusechunksMode(modifyMode):
         self.w.disconnect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
         self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
 
+    def restore_patches(self):
+        self.o.setDisplay(self.saveDisp)
+        
     def tolerance_changed(self, val):
         self.tol = val * .01
         
