@@ -41,7 +41,7 @@ def MovieFile(filename, history = None):
         return None
     return OldFormatMovieFile( reader)
 
-class OldFormatMovieFile_startup:
+class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to recheck header later, and big one needs invalid state anyway
     def __init__(self, filename, history = None):
         self.filename = filename
         self.history = history
@@ -78,7 +78,9 @@ class OldFormatMovieFile_startup:
         return
     def delta_frame_bytes(self, n):
         "return the bytes of the delta frame which has index n (assuming our file is open and n is within legal range)"
-        filepos = (n * self.natoms * 3) + 4
+        # note: the first one has index 1 (since it gives delta from time 0 to time 1).
+        assert n > 0
+        filepos = ((n-1) * self.natoms * 3) + 4
         if not self.fileobj:
             # this might not yet ever happen, not sure.
             self.open_file() #e check for error? check length still the same, etc? 
@@ -88,6 +90,7 @@ class OldFormatMovieFile_startup:
         if self.fileobj:
             self.fileobj.close()
         self.fileobj = None
+    close_file = close
     def destroy(self):
         self.close()
         return # no other large state in this object
@@ -138,12 +141,18 @@ class OldFormatMovieFile: #bruce 050426
         self.temp_mutable_frames = {}
         self.cached_immutable_frames = {} #e for some callers, store a cached frame 0 here
 
+    def get_totalFramesActual(self):
+        return self.totalFramesActual
+    def matches_alist(self, alist):
+        return self.natoms == len(alist) #e could someday check more...
+    def recheck_matches_alist(self, alist):
+        return self.matches_alist() ###@@@ stub, fails to recheck the file! should verify same header and same or larger nframes.
     def destroy(self):
         self.cached_immutable_frames = self.temp_mutable_frames = None
         self.filereader.destroy()
         self.filereader = None
 
-    def frame_index_in_range(n):
+    def frame_index_in_range(self, n):
         assert type(n) == type(1)
         return 0 <= n <= self.totalFramesActual # I think inclusive at both ends is correct...
 
@@ -188,7 +197,11 @@ class OldFormatMovieFile: #bruce 050426
             #  I'm not sure, since intermediate states would use 4x the memory, so we might do smaller pieces at a time...)
             n0 += 1
             df = self.delta_frame(n0) # array of differences to add to frame n0-1 to get frame n0
-            frame0 += df # note: += modifies frame0 in place (if it's a Numeric array, as we hope); that's desired
+            try:
+                frame0 += df # note: += modifies frame0 in place (if it's a Numeric array, as we hope); that's desired
+            except ValueError: # frames are not aligned -- happens when slider reaches right end
+                print "frames not aligned; shapes:",frame0.shape, df.shape
+                raise
         while n0 > n:
             # (this never happens if we just moved forwards, but there's no need to "confirm" or "enforce" that fact)
             # move backwards using a delta frame
@@ -300,13 +313,16 @@ class OldFormatMovieFile: #bruce 050426
         pass
 
     def delta_frame(self, n):
-        "return the delta frame of index n, as an appropriately-typed Numeric array"
+        "return the delta frame with index n, as an appropriately-typed Numeric array"
         bytes = self.filereader.delta_frame_bytes(n)
         ## older code: delta = A(unpack('bbb',file.read(3)))*0.01
         # (with luck, reading the whole frame at once will be a nice speedup for fast-forwarding...)
         res = array(bytes,Int8)
         res.shape = (-1,3)
         return res * 0.01 #e it might be nice to avoid that multiply someday...
-        
+
+    def close_file(self):
+        self.filereader.close_file() # but don't forget about it!
+    
     pass # end of class MovieFile
 
