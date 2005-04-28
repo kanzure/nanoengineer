@@ -218,7 +218,8 @@ class Movie:
         raise AttributeError, attr
 
     def destroy(self): #bruce 050325
-        # so far this is only meant to be called before the file has been made;
+        # so far this is only meant to be called before the file has been made
+        # (eg it doesn't destroy our big fancy subobjects);
         # it should be revised to work either way and _close if necessary.
         # for now, just break cycles.
         self.win = self.assy = self.part = self.alist = self.history = self.fileobj = None
@@ -473,22 +474,26 @@ class Movie:
         if not (yes or other):
             if not killed:
                 # should never happen, I think
-                self.history.message( orangemsg( "Warning: this movie has no atoms."))
+                self.warning( "this movie has no atoms. Playing it anyway (no visible effect).")
             else:
-                self.history.message( orangemsg( "Warning: all of this movie's atoms have been deleted."))
-        if not yes:
-            self.history.message( orangemsg( "Warning: to see this movie playing, you must display a different Part.")) #e which one, or ones?
-        elif other or killed:
-            if killed:
-                self.history.message( orangemsg( "Warning: some of this movie's atoms have been deleted. (Playing it still moves the remaining ones.)"))
-            if other:
-                self.history.message( orangemsg( "Warning: some of this movie's atoms have been moved to another Part (maybe one on the clipboard). "
-                                                 "Playing it moves its atoms in whichever Parts they reside in."))
-            if yes < part.natoms:
-                # (this assumes part.natoms has been properly updated by the caller. Make sure _setup does this!) #####@@@@@
-                self.history.message( orangemsg( "Warning: some displayed atoms are not in this movie, and stay fixed while it plays."))
+                self.warning( "all of this movie's atoms have been deleted. Playing it anyway (no visible effect).")
+        else:
+            if not yes:
+                self.warning( "to see this movie playing, you must display a different Part.") #e which one, or ones?
+            elif other or killed:
+                if killed:
+                    self.warning( "some of this movie's atoms have been deleted. (Playing it still moves the remaining atoms.)")
+                if other:
+                    self.warning( "some of this movie's atoms have been moved to another Part (maybe one on the clipboard). " \
+                                  "Playing it moves its atoms in whichever Parts they reside in." )
+                if yes < part.natoms:
+                    # (this assumes part.natoms has been properly updated by the caller; _setup does this.)
+                    self.warning( "some displayed atoms are not in this movie, and stay fixed while it plays.")
         return
-    
+
+    def warning(self, text):
+        self.history.message( orangemsg( "Warning: " + text))
+        
     def _close(self):
         """Close movie file and adjust atom positions.
         """
@@ -1011,6 +1016,17 @@ class alist_and_moviefile:
             self.current_frame = n
         else:
             self.current_frame = None # since it's unknown (#k ok for all callers?)
+        return
+    def destroy(self):
+        try:
+            if self.moviefile:
+                self.moviefile.destroy()
+            if self.movable_atoms:
+                self.movable_atoms.destroy()
+            self.alist = None
+        except:
+            if platform.atom_debug:
+                print_compact_traceback("atom_debug: exception in alist_and_moviefile.destroy() ignored: ")
         return
     def might_be_playable(self):
         return self.valid() # from the last time this was checked -- it's not re-checked now
