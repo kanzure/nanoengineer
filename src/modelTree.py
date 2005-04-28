@@ -534,16 +534,19 @@ class modelTree(TreeWidget):
     
     def cm_copy(self):
         self.assy.copy_sel()
-        self.mt_update()
+        ## bruce 050427: removing mt_update since copy_sel does win_update:
+        ## self.mt_update()
     
     def cm_cut(self):
         self.assy.cut_sel()
-        self.win.win_update() # Changed from self.mt_update [bruce 050421 precaution, seems necessary tho I didn't notice bugs]
+        ## bruce 050427: removing win_update since cut_sel does it:
+        ## self.win.win_update() # Changed from self.mt_update [bruce 050421 precaution, seems necessary tho I didn't notice bugs]
     
     def cm_delete(self): # renamed from cm_kill which was renamed from kill
         # note: this is now the same code as MWsemantics.killDo. [bruce 050131]
         self.assy.delete_sel()
-        self.win.win_update() # Changed from self.mt_update for deleting from MT menu. Mark [04-12-03]
+        ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
+        ##self.win.win_update()
 
     def cm_disable(self): #bruce 050421
         nodeset = self.topmost_selected_nodes()

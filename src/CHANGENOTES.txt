@@ -330,3 +330,9 @@ certain directions, which happen to include the ones in those bug reports.
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 4/27/2005
+Files: part.py MWsemantics.py modelTree.py
+Summary:  fixed bug 566
+
+----------------------------

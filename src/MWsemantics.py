@@ -684,9 +684,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         """ Deletes selected atoms, chunks, jigs and groups.
         """
         self.assy.delete_sel()
-        self.win_update() #bruce 050131 made this identical with mtree cmenu version
-        ## self.glpane.gl_update()
-        ## self.mt.mt_update()
+        ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
+        ##self.win_update()
 
     def editFind(self):
         self.history.message(redmsg("Find: Not implemented yet."))

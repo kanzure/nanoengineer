@@ -1055,6 +1055,8 @@ class Part(InvalMixin):
             self.topnode.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
         self.topnode.apply2picked(lambda o: o.kill())
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
+        #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
+        self.w.win_update()
         return
 
     # ==
