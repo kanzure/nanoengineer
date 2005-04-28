@@ -231,8 +231,8 @@ class Part(InvalMixin):
             self.destroy()
         return
 
-    def destroy(self):
-        "forget everything, let all storage be reclaimed; only valid if we have no nodes left" # implem is a guess
+    def destroy(self): #bruce 050428 making this much more conservative for Alpha5 release and to fix bug 573 
+        "forget enough to prevent memory leaks; only valid if we have no nodes left" # implem is a guess
         if debug_parts:
             print "debug_parts: fyi: destroying part", self
         assert self.nodecount == 0, "can't destroy a Part which still has nodes" # esp. since it doesn't have a list of them!
@@ -240,20 +240,28 @@ class Part(InvalMixin):
         if self.assy and self.assy.o: #e someday change this to self.glpane??
             self.assy.o.forget_part(self) # just in case we're its current part
         ## self.invalidate_all_attrs() # not needed
-        # set all attrs to None, including self.alive, otherwise True to indicate we're not yet destroyed
         self.alive = False # do this one first ####@@@@ see if this can help a Movie who knows us see if we're safe... [050420]
-        for attr in self.__dict__.keys():
-            if not attr.startswith('_'):
-                #bruce 050420 see if this 'if' prevents Python interpreter hang
-                # when this object is later passed as argument to other code
-                # in bug 519 (though it probably won't fix the bug);
-                # before this we were perhaps deleting Python-internal attrs too,
-                # such as __dict__ and __class__!
-                if 0 and platform.atom_debug:
-                    print "atom_debug: destroying part - deleting i mean resetting attr:",attr
-                ## still causes hang in movie mode:
-                ## delattr(self,attr) # is this safe, in arb order of attrs??
-                setattr(self, attr, None)
+        if "be conservative for now, though memory leaks might result": #bruce 050428 
+            return
+        # bruce 050428 removed the rest for now. In fact, even what we had was probably not enough to
+        # prevent memory leaks, since we've never paid attention to that, so the Nodes might have them
+        # (in the topnode tree, deleted earlier, or the View nodes we still have, which might get into
+        #  temporary Groups in writemmp_file code and not get properly removed from those groups).
+        ## BTW, bug 573 came from self.assy = None followed by __getattr__ wanting attrs from self.assy
+        ## such as 'w' or 'current_selgroup_iff_valid'.
+##        # set all attrs to None, including self.alive (which is otherwise True to indicate we're not yet destroyed)
+##        for attr in self.__dict__.keys():
+##            if not attr.startswith('_'):
+##                #bruce 050420 see if this 'if' prevents Python interpreter hang
+##                # when this object is later passed as argument to other code
+##                # in bug 519 (though it probably won't fix the bug);
+##                # before this we were perhaps deleting Python-internal attrs too,
+##                # such as __dict__ and __class__!
+##                if 0 and platform.atom_debug:
+##                    print "atom_debug: destroying part - deleting i mean resetting attr:",attr
+##                ## still causes hang in movie mode:
+##                ## delattr(self,attr) # is this safe, in arb order of attrs??
+##                setattr(self, attr, None)
         return
 
     # incremental update methods
