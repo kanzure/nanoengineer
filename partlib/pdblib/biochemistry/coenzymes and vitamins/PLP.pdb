@@ -1,0 +1,53 @@
+HEADER
+REMARK MacSpartan exported Tue, Mar 11, 1997 4:55:33 PM
+HETATM    1  C   UNK  0001       0.661   1.156  -2.583
+HETATM    2  C   UNK  0001       0.023   1.288  -1.189
+HETATM    3  N   UNK  0001      -1.109   1.667   1.300
+HETATM    4  C   UNK  0001      -0.513   0.204  -0.486
+HETATM    5  C   UNK  0001      -0.020   2.557  -0.608
+HETATM    6  C   UNK  0001      -0.596   2.723   0.651
+HETATM    7  C   UNK  0001      -1.082   0.436   0.769
+HETATM    8  C   UNK  0001      -0.486  -1.219  -1.067
+HETATM    9  O   UNK  0001       0.512   3.676  -1.282
+HETATM   10  C   UNK  0001      -0.641   4.115   1.289
+HETATM   11  H   UNK  0001      -1.515  -0.393   1.339
+HETATM   12  H   UNK  0001      -1.527   1.797   2.212
+HETATM   13  H   UNK  0001       0.373   4.528   1.328
+HETATM   14  H   UNK  0001      -1.051   4.049   2.303
+HETATM   15  H   UNK  0001      -1.275   4.770   0.680
+HETATM   16  H   UNK  0001       1.443   3.759  -1.072
+HETATM   17  O   UNK  0001       0.733   0.085  -3.175
+HETATM   18  H   UNK  0001       1.065   2.050  -3.071
+HETATM   19  H   UNK  0001       0.537  -1.470  -1.368
+HETATM   20  H   UNK  0001      -1.131  -1.244  -1.952
+HETATM   21  O   UNK  0001      -0.944  -2.187  -0.145
+HETATM   22  P   UNK  0001       0.370  -2.671   0.988
+HETATM   23  O   UNK  0001       0.922  -1.416   1.746
+HETATM   24  O   UNK  0001      -0.277  -3.853   2.181
+HETATM   25  O   UNK  0001       1.707  -3.432   0.054
+CONECT    1    2   17   18
+CONECT    2    1    5    4
+CONECT    3    6    7   12
+CONECT    4    7    2    8
+CONECT    5    2    6    9
+CONECT    6    5    3   10
+CONECT    7    3    4   11
+CONECT    8    4   19   20   21
+CONECT    9    5   16
+CONECT   10    6   13   14   15
+CONECT   11    7
+CONECT   12    3
+CONECT   13   10
+CONECT   14   10
+CONECT   15   10
+CONECT   16    9
+CONECT   17    1
+CONECT   18    1
+CONECT   19    8
+CONECT   20    8
+CONECT   21    8   22
+CONECT   22   21   23   24   25
+CONECT   23   22
+CONECT   24   22
+CONECT   25   22
+END

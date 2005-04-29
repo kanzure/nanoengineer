@@ -1,0 +1,151 @@
+HEADER
+REMARK MacSpartan exported Thu, Sep 16, 2004 10:50:29 AM
+HETATM    1  H   UNK  0001       0.809  -1.594   0.486
+HETATM    2  C   UNK  0001       0.728  -1.120   1.459
+HETATM    3  C   UNK  0001       1.643  -0.240   1.899
+HETATM    4  C   UNK  0001       2.821   0.111   1.103
+HETATM    5  C   UNK  0001       2.814   0.663  -0.127
+HETATM    6  H   UNK  0001       3.776   0.858  -0.596
+HETATM    7  C   UNK  0001       1.647   1.059  -0.893
+HETATM    8  C   UNK  0001       1.651   1.569  -2.141
+HETATM    9  C   UNK  0001       2.915   1.834  -2.943
+HETATM   10  H   UNK  0001       3.666   2.327  -2.316
+HETATM   11  C   UNK  0001       2.670   2.726  -4.164
+HETATM   12  H   UNK  0001       3.600   2.836  -4.735
+HETATM   13  H   UNK  0001       2.408   3.735  -3.818
+HETATM   14  C   UNK  0001       1.557   2.221  -5.097
+HETATM   15  C   UNK  0001       0.405   1.482  -4.370
+HETATM   16  C   UNK  0001       0.380   1.936  -2.882
+HETATM   17  H   UNK  0001       0.329   3.037  -2.859
+HETATM   18  C   UNK  0001      -0.977   1.450  -2.374
+HETATM   19  C   UNK  0001      -1.901   1.511  -3.594
+HETATM   20  H   UNK  0001      -2.710   2.234  -3.437
+HETATM   21  C   UNK  0001      -1.031   1.913  -4.811
+HETATM   22  C   UNK  0001      -1.607   1.388  -6.160
+HETATM   23  C   UNK  0001      -0.696   1.729  -7.347
+HETATM   24  H   UNK  0001       0.269   1.223  -7.277
+HETATM   25  H   UNK  0001      -0.523   2.808  -7.418
+HETATM   26  H   UNK  0001      -1.145   1.397  -8.290
+HETATM   27  C   UNK  0001      -3.016   1.976  -6.456
+HETATM   28  H   UNK  0001      -3.126   2.957  -5.979
+HETATM   29  C   UNK  0001      -4.171   1.058  -6.031
+HETATM   30  H   UNK  0001      -4.147   0.897  -4.953
+HETATM   31  H   UNK  0001      -4.045   0.083  -6.513
+HETATM   32  C   UNK  0001      -5.524   1.662  -6.424
+HETATM   33  H   UNK  0001      -5.615   2.662  -5.976
+HETATM   34  C   UNK  0001      -6.761   0.828  -6.033
+HETATM   35  C   UNK  0001      -6.778  -0.538  -6.719
+HETATM   36  H   UNK  0001      -6.683  -0.429  -7.806
+HETATM   37  H   UNK  0001      -7.733  -1.049  -6.544
+HETATM   38  H   UNK  0001      -5.975  -1.190  -6.363
+HETATM   39  O   UNK  0001      -7.918   1.535  -6.502
+HETATM   40  H   UNK  0001      -7.945   2.397  -6.052
+HETATM   41  C   UNK  0001      -6.903   0.663  -4.519
+HETATM   42  H   UNK  0001      -6.108   0.042  -4.095
+HETATM   43  H   UNK  0001      -7.865   0.202  -4.268
+HETATM   44  H   UNK  0001      -6.888   1.637  -4.017
+HETATM   45  H   UNK  0001      -5.544   1.836  -7.508
+HETATM   46  H   UNK  0001      -3.125   2.152  -7.534
+HETATM   47  H   UNK  0001      -1.686   0.294  -6.117
+HETATM   48  H   UNK  0001      -1.040   3.013  -4.861
+HETATM   49  H   UNK  0001      -2.356   0.525  -3.734
+HETATM   50  H   UNK  0001      -0.934   0.421  -1.998
+HETATM   51  H   UNK  0001      -1.352   2.079  -1.559
+HETATM   52  C   UNK  0001       0.600  -0.049  -4.519
+HETATM   53  H   UNK  0001       1.561  -0.382  -4.115
+HETATM   54  H   UNK  0001       0.583  -0.350  -5.571
+HETATM   55  H   UNK  0001      -0.180  -0.623  -4.009
+HETATM   56  H   UNK  0001       1.174   3.087  -5.651
+HETATM   57  H   UNK  0001       2.013   1.563  -5.847
+HETATM   58  H   UNK  0001       3.338   0.879  -3.277
+HETATM   59  H   UNK  0001       0.693   0.932  -0.387
+HETATM   60  C   UNK  0001       4.123  -0.170   1.831
+HETATM   61  H   UNK  0001       4.976   0.211   1.255
+HETATM   62  H   UNK  0001       4.250  -1.258   1.910
+HETATM   63  C   UNK  0001       4.150   0.448   3.241
+HETATM   64  C   UNK  0001       2.900   0.095   4.044
+HETATM   65  C   UNK  0001       1.620   0.419   3.267
+HETATM   66  O   UNK  0001       0.500  -0.027   4.034
+HETATM   67  H   UNK  0001       0.468   0.536   4.825
+HETATM   68  H   UNK  0001       1.512   1.503   3.136
+HETATM   69  H   UNK  0001       2.889   0.644   4.994
+HETATM   70  H   UNK  0001       2.913  -0.972   4.306
+HETATM   71  H   UNK  0001       5.036   0.088   3.776
+HETATM   72  O   UNK  0001       4.260   1.871   3.173
+HETATM   73  H   UNK  0001       5.006   2.086   2.588
+HETATM   74  H   UNK  0001      -0.127  -1.393   2.070
+CONECT    1    2
+CONECT    2    1    3   74
+CONECT    3    2    4   65
+CONECT    4    3    5   60
+CONECT    5    4    6    7
+CONECT    6    5
+CONECT    7    5    8   59
+CONECT    8    7    9   16
+CONECT    9    8   10   11   58
+CONECT   10    9
+CONECT   11    9   12   13   14
+CONECT   12   11
+CONECT   13   11
+CONECT   14   15   11   56   57
+CONECT   15   16   52   14   21
+CONECT   16    8   15   17   18
+CONECT   17   16
+CONECT   18   16   19   50   51
+CONECT   19   20   18   21   49
+CONECT   20   19
+CONECT   21   15   19   22   48
+CONECT   22   21   23   27   47
+CONECT   23   22   24   25   26
+CONECT   24   23
+CONECT   25   23
+CONECT   26   23
+CONECT   27   22   28   29   46
+CONECT   28   27
+CONECT   29   27   30   31   32
+CONECT   30   29
+CONECT   31   29
+CONECT   32   29   33   34   45
+CONECT   33   32
+CONECT   34   32   35   39   41
+CONECT   35   34   36   37   38
+CONECT   36   35
+CONECT   37   35
+CONECT   38   35
+CONECT   39   34   40
+CONECT   40   39
+CONECT   41   34   42   43   44
+CONECT   42   41
+CONECT   43   41
+CONECT   44   41
+CONECT   45   32
+CONECT   46   27
+CONECT   47   22
+CONECT   48   21
+CONECT   49   19
+CONECT   50   18
+CONECT   51   18
+CONECT   52   15   53   54   55
+CONECT   53   52
+CONECT   54   52
+CONECT   55   52
+CONECT   56   14
+CONECT   57   14
+CONECT   58    9
+CONECT   59    7
+CONECT   60    4   61   62   63
+CONECT   61   60
+CONECT   62   60
+CONECT   63   60   64   71   72
+CONECT   64   65   69   63   70
+CONECT   65    3   64   66   68
+CONECT   66   65   67
+CONECT   67   66
+CONECT   68   65
+CONECT   69   64
+CONECT   70   64
+CONECT   71   63
+CONECT   72   63   73
+CONECT   73   72
+CONECT   74    2
+END

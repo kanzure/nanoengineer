@@ -1,0 +1,249 @@
+ORIGX1      1.000000  0.000000  0.000000        0.00000
+ORIGX2      0.000000  1.000000  0.000000        0.00000
+ORIGX3      0.000000  0.000000  1.000000        0.00000
+SCALE1      0.100000  0.000000  0.000000        0.00000
+SCALE2      0.000000  0.100000  0.000000        0.00000
+SCALE3      0.000000  0.000000  0.100000        0.00000
+ATOM      1  C           1      -1.181  -5.219   0.523  1.00  0.00
+ATOM      2  C           1      -1.527  -4.219   1.449  1.00  0.00
+ATOM      3  C           1      -2.926  -4.225   1.593  1.00  0.00
+ATOM      4  C           1      -2.507  -6.252  -1.261  1.00  0.00
+ATOM      5  C           1      -1.457  -6.035  -2.171  1.00  0.00
+ATOM      6  C           1      -0.257  -5.406  -1.736  1.00  0.00
+ATOM      7  C           1      -0.120  -4.999  -0.398  1.00  0.00
+ATOM      8  C           1      -0.814  -2.989   1.466  1.00  0.00
+ATOM      9  C           1       0.236  -2.771   0.556  1.00  0.00
+ATOM     10  C           1       0.585  -3.781  -0.381  1.00  0.00
+ATOM     11  C           1      -3.628  -2.998   1.754  1.00  0.00
+ATOM     12  C           1      -2.924  -1.781   1.770  1.00  0.00
+ATOM     13  C           1      -3.721  -6.043  -1.939  1.00  0.00
+ATOM     14  C           1      -5.365  -3.801   0.228  1.00  0.00
+ATOM     15  C           1      -4.842  -2.788   1.077  1.00  0.00
+ATOM     16  C           1      -2.023  -5.695  -3.413  1.00  0.00
+ATOM     17  C           1      -3.423  -5.698  -3.270  1.00  0.00
+ATOM     18  C           1       0.883  -3.436  -1.711  1.00  0.00
+ATOM     19  C           1       0.365  -4.440  -2.548  1.00  0.00
+ATOM     20  C           1      -5.934  -3.460  -1.012  1.00  0.00
+ATOM     21  C           1      -5.589  -4.461  -1.939  1.00  0.00
+ATOM     22  C           1      -3.703  -0.820   1.102  1.00  0.00
+ATOM     23  C           1      -4.888  -1.443   0.671  1.00  0.00
+ATOM     24  C           1      -0.210  -4.093  -3.802  1.00  0.00
+ATOM     25  C           1      -1.395  -4.716  -4.232  1.00  0.00
+ATOM     26  C           1      -5.286  -4.112  -3.283  1.00  0.00
+ATOM     27  C           1      -4.210  -4.726  -3.945  1.00  0.00
+ATOM     28  C           1      -5.463  -1.096  -0.582  1.00  0.00
+ATOM     29  C           1      -5.981  -2.100  -1.420  1.00  0.00
+ATOM     30  C           1      -1.675   0.162   0.139  1.00  0.00
+ATOM     31  C           1      -3.075   0.159   0.282  1.00  0.00
+ATOM     32  C           1       0.491  -1.075  -1.192  1.00  0.00
+ATOM     33  C           1       0.837  -2.076  -2.118  1.00  0.00
+ATOM     34  C           1      -2.174  -3.755  -4.901  1.00  0.00
+ATOM     35  C           1      -3.589  -3.759  -4.756  1.00  0.00
+ATOM     36  C           1      -0.286  -0.114  -1.861  1.00  0.00
+ATOM     37  C           1      -1.377   0.507  -1.192  1.00  0.00
+ATOM     38  C           1      -3.642   0.499  -0.960  1.00  0.00
+ATOM     39  C           1      -4.841  -0.131  -1.395  1.00  0.00
+ATOM     40  C           1      -5.683  -1.755  -2.749  1.00  0.00
+ATOM     41  C           1      -5.333  -2.765  -3.686  1.00  0.00
+ATOM     42  C           1      -4.978  -0.537  -2.733  1.00  0.00
+ATOM     43  C           1      -2.591   0.716  -1.870  1.00  0.00
+ATOM     44  C           1      -4.812  -5.422  -1.269  1.00  0.00
+ATOM     45  C           1      -4.674  -5.016   0.070  1.00  0.00
+ATOM     46  C           1      -3.445  -5.228   0.756  1.00  0.00
+ATOM     47  C           1      -2.367  -5.842   0.094  1.00  0.00
+ATOM     48  C           1      -1.509  -1.777   1.625  1.00  0.00
+ATOM     49  C           1      -0.888  -0.811   0.814  1.00  0.00
+ATOM     50  C           1       0.189  -1.425   0.152  1.00  0.00
+ATOM     51  C           1      -4.284  -2.547  -4.596  1.00  0.00
+ATOM     52  C           1      -3.917  -0.317  -3.654  1.00  0.00
+ATOM     53  C           1      -3.571  -1.317  -4.580  1.00  0.00
+ATOM     54  C           1      -1.470  -2.538  -4.884  1.00  0.00
+ATOM     55  C           1      -0.256  -2.748  -4.207  1.00  0.00
+ATOM     56  C           1      -2.172  -1.312  -4.724  1.00  0.00
+ATOM     57  C           1       0.268  -1.735  -3.358  1.00  0.00
+ATOM     58  C           1      -0.424  -0.520  -3.201  1.00  0.00
+ATOM     59  C           1      -2.731   0.306  -3.225  1.00  0.00
+ATOM     60  C           1      -1.652  -0.308  -3.886  1.00  0.00
+TER      61
+CONECT    1    2                                                                
+CONECT    2    1                                                                
+CONECT    1    7                                                                
+CONECT    7    1                                                                
+CONECT    1   47                                                                
+CONECT   47    1                                                                
+CONECT    2    3                                                                
+CONECT    3    2                                                                
+CONECT    2    8                                                                
+CONECT    8    2                                                                
+CONECT    3   11                                                                
+CONECT   11    3                                                                
+CONECT    3   46                                                                
+CONECT   46    3                                                                
+CONECT    4    5                                                                
+CONECT    5    4                                                                
+CONECT    4   13                                                                
+CONECT   13    4                                                                
+CONECT    4   47                                                                
+CONECT   47    4                                                                
+CONECT    5    6                                                                
+CONECT    6    5                                                                
+CONECT    5   16                                                                
+CONECT   16    5                                                                
+CONECT    6    7                                                                
+CONECT    7    6                                                                
+CONECT    6   19                                                                
+CONECT   19    6                                                                
+CONECT    7   10                                                                
+CONECT   10    7                                                                
+CONECT    8    9                                                                
+CONECT    9    8                                                                
+CONECT    8   48                                                                
+CONECT   48    8                                                                
+CONECT    9   10                                                                
+CONECT   10    9                                                                
+CONECT    9   50                                                                
+CONECT   50    9                                                                
+CONECT   10   18                                                                
+CONECT   18   10                                                                
+CONECT   11   12                                                                
+CONECT   12   11                                                                
+CONECT   11   15                                                                
+CONECT   15   11                                                                
+CONECT   12   22                                                                
+CONECT   22   12                                                                
+CONECT   12   48                                                                
+CONECT   48   12                                                                
+CONECT   13   17                                                                
+CONECT   17   13                                                                
+CONECT   13   44                                                                
+CONECT   44   13                                                                
+CONECT   14   15                                                                
+CONECT   15   14                                                                
+CONECT   14   20                                                                
+CONECT   20   14                                                                
+CONECT   14   45                                                                
+CONECT   45   14                                                                
+CONECT   15   23                                                                
+CONECT   23   15                                                                
+CONECT   16   17                                                                
+CONECT   17   16                                                                
+CONECT   16   25                                                                
+CONECT   25   16                                                                
+CONECT   17   27                                                                
+CONECT   27   17                                                                
+CONECT   18   19                                                                
+CONECT   19   18                                                                
+CONECT   18   33                                                                
+CONECT   33   18                                                                
+CONECT   19   24                                                                
+CONECT   24   19                                                                
+CONECT   20   21                                                                
+CONECT   21   20                                                                
+CONECT   20   29                                                                
+CONECT   29   20                                                                
+CONECT   21   26                                                                
+CONECT   26   21                                                                
+CONECT   21   44                                                                
+CONECT   44   21                                                                
+CONECT   22   23                                                                
+CONECT   23   22                                                                
+CONECT   22   31                                                                
+CONECT   31   22                                                                
+CONECT   23   28                                                                
+CONECT   28   23                                                                
+CONECT   24   25                                                                
+CONECT   25   24                                                                
+CONECT   24   55                                                                
+CONECT   55   24                                                                
+CONECT   25   34                                                                
+CONECT   34   25                                                                
+CONECT   26   27                                                                
+CONECT   27   26                                                                
+CONECT   26   41                                                                
+CONECT   41   26                                                                
+CONECT   27   35                                                                
+CONECT   35   27                                                                
+CONECT   28   29                                                                
+CONECT   29   28                                                                
+CONECT   28   39                                                                
+CONECT   39   28                                                                
+CONECT   29   40                                                                
+CONECT   40   29                                                                
+CONECT   30   31                                                                
+CONECT   31   30                                                                
+CONECT   30   37                                                                
+CONECT   37   30                                                                
+CONECT   30   49                                                                
+CONECT   49   30                                                                
+CONECT   31   38                                                                
+CONECT   38   31                                                                
+CONECT   32   33                                                                
+CONECT   33   32                                                                
+CONECT   32   36                                                                
+CONECT   36   32                                                                
+CONECT   32   50                                                                
+CONECT   50   32                                                                
+CONECT   33   57                                                                
+CONECT   57   33                                                                
+CONECT   34   35                                                                
+CONECT   35   34                                                                
+CONECT   34   54                                                                
+CONECT   54   34                                                                
+CONECT   35   51                                                                
+CONECT   51   35                                                                
+CONECT   36   37                                                                
+CONECT   37   36                                                                
+CONECT   36   58                                                                
+CONECT   58   36                                                                
+CONECT   37   43                                                                
+CONECT   43   37                                                                
+CONECT   38   39                                                                
+CONECT   39   38                                                                
+CONECT   38   43                                                                
+CONECT   43   38                                                                
+CONECT   39   42                                                                
+CONECT   42   39                                                                
+CONECT   40   41                                                                
+CONECT   41   40                                                                
+CONECT   40   42                                                                
+CONECT   42   40                                                                
+CONECT   41   51                                                                
+CONECT   51   41                                                                
+CONECT   42   52                                                                
+CONECT   52   42                                                                
+CONECT   43   59                                                                
+CONECT   59   43                                                                
+CONECT   44   45                                                                
+CONECT   45   44                                                                
+CONECT   45   46                                                                
+CONECT   46   45                                                                
+CONECT   46   47                                                                
+CONECT   47   46                                                                
+CONECT   48   49                                                                
+CONECT   49   48                                                                
+CONECT   49   50                                                                
+CONECT   50   49                                                                
+CONECT   51   53                                                                
+CONECT   53   51                                                                
+CONECT   52   53                                                                
+CONECT   53   52                                                                
+CONECT   52   59                                                                
+CONECT   59   52                                                                
+CONECT   53   56                                                                
+CONECT   56   53                                                                
+CONECT   54   55                                                                
+CONECT   55   54                                                                
+CONECT   54   56                                                                
+CONECT   56   54                                                                
+CONECT   55   57                                                                
+CONECT   57   55                                                                
+CONECT   56   60                                                                
+CONECT   60   56                                                                
+CONECT   57   58                                                                
+CONECT   58   57                                                                
+CONECT   58   60                                                                
+CONECT   60   58                                                                
+CONECT   59   60                                                                
+CONECT   60   59                                                                
+MASTER        0    0    0    0    0    0    0    6   60    1  180    0
+END

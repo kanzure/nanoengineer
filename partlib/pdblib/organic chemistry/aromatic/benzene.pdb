@@ -1,0 +1,24 @@
+ATOM      1  C                   1.199   0.769  -0.024
+ATOM      2  C                   1.225  -0.627  -0.032
+ATOM      3  C                   0.029  -1.348  -0.062
+ATOM      4  C                  -1.192  -0.672  -0.085
+ATOM      5  C                  -1.219   0.724  -0.077
+ATOM      6  C                  -0.023   1.445  -0.048
+ATOM      7  H                   2.128   1.329  -0.001
+ATOM      8  H                   2.175  -1.151  -0.015
+ATOM      9  H                   0.050  -2.432  -0.067
+ATOM     10  H                  -2.121  -1.232  -0.107
+ATOM     11  H                  -2.167   1.248  -0.095
+ATOM     12  H                  -0.044   2.529  -0.042
+CONECT    2    1
+CONECT    3    2
+CONECT    4    3
+CONECT    5    4
+CONECT    6    5    1
+CONECT    7    1
+CONECT    8    2
+CONECT    9    3
+CONECT   10    4
+CONECT   11    5
+CONECT   12    6
+END
