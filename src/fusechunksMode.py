@@ -11,9 +11,47 @@ __author__ = "Mark"
 from modifyMode import *
 from extrudeMode import mergeable_singlets_Q_and_offset
 from chunk import bond_at_singlets
-from HistoryWidget import redmsg
+from HistoryWidget import redmsg, orangemsg
+from platform import fix_plurals
 
-def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds):
+def do_what_MainWindowUI_should_do(w):
+    'Populate the Fuse Chunks dashboard'
+    
+    w.fuseChunksDashboard.clear()
+    
+    w.fuseChunksLabel = QLabel(w.fuseChunksDashboard)
+    w.fuseChunksLabel.setText(" Fuse Chunks ")
+    w.fuseChunksDashboard.addSeparator()
+
+    w.moveFreeAction.addTo(w.fuseChunksDashboard)
+    
+    w.fuseChunksDashboard.addSeparator()
+    
+    w.transXAction.addTo(w.fuseChunksDashboard)
+    w.transYAction.addTo(w.fuseChunksDashboard)
+    w.transZAction.addTo(w.fuseChunksDashboard)
+    
+    w.fuseChunksDashboard.addSeparator()
+    
+    w.makeBondsPB = QPushButton("Make Bonds", w.fuseChunksDashboard)
+    
+    w.mergeCB = QCheckBox("Merge", w.fuseChunksDashboard)
+    w.mergeCB.setChecked(True)
+    
+    w.fuseChunksDashboard.addSeparator()
+    
+    w.tolLB = QLabel(w.fuseChunksDashboard)
+    w.tolLB.setText(" Tolerance: ")
+    w.toleranceSL = QSlider(0,300,5,100,Qt.Horizontal,w.fuseChunksDashboard)
+    w.toleranceLB = QLabel(w.fuseChunksDashboard)
+    w.toleranceLB.setText("100% => 0 bondable pairs")
+        
+    w.fuseChunksDashboard.addSeparator()
+    
+    w.toolsBackUpAction.addTo(w.fuseChunksDashboard)
+    w.toolsDoneAction.addTo(w.fuseChunksDashboard)
+    
+def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds, bondable_pairs):
     if nbonds < 0:
         nbonds_str = "?"
     else:
@@ -21,15 +59,19 @@ def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds):
         
     if mbonds < 0:
         mbonds_str = "?"
+    elif mbonds == 0:
+        mbonds_str = " "
     else:
-        mbonds_str = "%d" % (mbonds,)
+        mbonds_str = "(%d  non-bondable) " % (mbonds,)
         
     tol_str = ("      %d" % int(tol*100.0))[-3:]
     # fixed-width (3 digits) but using initial spaces
     # (doesn't have all of desired effect, due to non-fixed-width font)
     tol_str = tol_str + "%"
     
-    return "%s => %s/%s bonds" % (tol_str,nbonds_str,mbonds_str)
+#    return "%s => %s/%s bonds" % (tol_str,nbonds_str,mbonds_str)
+#    return "%s => [%s bondable pairs] [%s bonds / %s multibonds] " % (tol_str,bondable_pairs,nbonds_str,mbonds_str)
+    return "%s => %s bondable pairs %s" % (tol_str,bondable_pairs,mbonds_str)
     
 class fusechunksMode(modifyMode):
     "Allows user to move one chunk and fuse it to other chunks in the part"
@@ -65,8 +107,14 @@ class fusechunksMode(modifyMode):
         self.w.connect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
         # This is so we can use the X, Y, Z modifier keys from modifyMode.
         self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        
         if self.o.assy.selmols:
             self.something_was_picked = True
+            
+        # Always reset the dashboard icon to "Move Free" when entering FUSE CHUNKS mode.
+        # Mark 050428
+        self.w.moveFreeAction.setOn(1) # toggle on the Move Free action on the dashboard
+        self.moveOption = 'MOVEDEFAULT'
 
     def restore_gui(self):
         self.w.fuseChunksDashboard.hide()
@@ -86,7 +134,7 @@ class fusechunksMode(modifyMode):
         else:
             # Since no chunk is select, there are no bonds, but the slider tolerance label still needs updating.  
             # This fixed bug 502-14.  Mark 050407
-            tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, self.multibonds()) # 0 bonds
+            tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0) # 0 bonds
             self.w.toleranceLB.setText(tol_str) 
 
     def Backup(self):
@@ -100,21 +148,25 @@ class fusechunksMode(modifyMode):
             for a1, a2 in self.bondable_pairs_atoms:
                 b = a1.get_neighbor_bond(a2)
                 if b: b.bust()
-                
-            # Separate and restore the merged chunks' name(s).
-            # This isn't implemented yet - need help from Bruce here.
-            # I'm thinking: 
-            #   1. select any atom from the a1 list. This would be an atom from selected_chunk.
-            #   2. call part.marksingle or bring in code from part.conncomp . This would
-            #       select all atoms in selected_chunk.
-            #   3. bring in code from modifySeparate to separate all chunks.  We need to rename them
-            #       differently than modifySeparate().
-            # This should get us our original chunks.  Now we need to 
-            # figure out how to rename each restored chunk back to it's original name.
-           
-            # Here are the original names...
-            for chunk in self.merged_chunks:
-                print "Restore chunk: ", chunk.name
+            
+            # This is the best we can do for Alpha 5.  This will be handled properly when Undo
+            # gets implemented (probably Alpha 7 or 8).  For now, let's just let the user know what 
+            # happened and give them an idea of how to restore the orginal chunks (if they were 
+            # merged).
+            # Mark 050428.
+            
+            if self.merged_chunks:
+                nchunks_str = "%d" % (len(self.merged_chunks) + 1,)   
+                msg = "Fuse Chunks: Bonds broken between %s chunks." % (nchunks_str)
+                self.w.history.message(msg)
+                msg = "Warning: Cannot separate the original chunks. You can do this yourself using <b>Modify > Separate</b>."
+                self.w.history.message(orangemsg(msg))
+            
+                cnames = "Their names were: "
+                # Here are the original names...
+                for chunk in self.merged_chunks:
+                    cnames += '[' + chunk.name + '] '
+                self.w.history.message(cnames)
             
             self.find_bondable_pairs() # Find bondable pairs of singlets
             self.o.gl_update()
@@ -143,7 +195,7 @@ class fusechunksMode(modifyMode):
             # Check if we need to update the slider tolerance label.
             # This fixed bug 502-14.  Mark 050407
             if self.something_was_picked:
-                tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0) # 0 bonds
+                tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0) # 0 bonds
                 self.w.toleranceLB.setText(tol_str)
                 self.something_was_picked = False # Reset flag
 
@@ -225,7 +277,8 @@ class fusechunksMode(modifyMode):
                                     
         # Update tolerance label and status bar msgs.
         nbonds = len(self.bondable_pairs)
-        tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds,self.multibonds())
+        mbonds, singlets_not_bonded, singlet_pairs = self.multibonds()
+        tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds, mbonds, singlet_pairs)
         self.w.toleranceLB.setText(tol_str)
 
     def make_bonds(self):
@@ -233,7 +286,9 @@ class fusechunksMode(modifyMode):
         
         self.bondable_pairs_atoms = []
         self.merged_chunks = []
-        not_bonded = 0 # Bondable pairs not bonded counter
+        singlet_found_with_multiple_bonds = False # True when there are singlets with multiple bonds.
+        total_bonds_made = 0 # The total number of open bond pairs that formed bonds.
+        singlets_not_bonded = 0 # Number of open bonds not bonded.
         
 #        print self.bondable_pairs
         
@@ -250,18 +305,9 @@ class fusechunksMode(modifyMode):
                 bond_at_singlets(s1, s2, move = False) # Bond the singlets.
                 self.o.assy.changed() # The assy has changed.
             else:
-                not_bonded += 1
-                # One of the two singlets had more than one way to bond.
-                # We keep track of it so we can print a msg to the user
-                # that we aren't bonding this pair (and other previous pairs).
-        if not_bonded:
-            singlets_not_bonded = self.multibonds()
-            if singlets_not_bonded == 1:
-                msg = "%d open bond had multiple bonds. It was not bonded." % (singlets_not_bonded,)
-            else:
-                msg = "%d open bonds had multiple bonds. They were not bonded." % (singlets_not_bonded,)
-            self.w.history.message(redmsg(msg))
-                        
+                singlet_found_with_multiple_bonds = True
+                
+
         # Merge the chunks if the "merge chunks" checkbox is checked
         if self.w.mergeCB.isChecked() and self.bondable_pairs_atoms:
             for a1, a2 in self.bondable_pairs_atoms:
@@ -271,6 +317,31 @@ class fusechunksMode(modifyMode):
                     if a2.molecule not in self.merged_chunks:
                         self.merged_chunks.append(a2.molecule)
                         a1.molecule.merge(a2.molecule)
+                        
+        # Print history msgs to inform the user what happened.                         
+        if singlet_found_with_multiple_bonds:
+            mbonds, singlets_not_bonded, bp = self.multibonds()
+
+            total_bonds_made = len(self.bondable_pairs_atoms)
+            
+#            m1 = fix_plurals( "%d bond(s) made with " % total_bonds_made)
+#            m2 = fix_plurals( "%d chunk(s) " % len(self.merged_chunks))
+#            msg = fix_plurals( "%d bond(s) made with %d chunk(s) " % total_bonds_made, len(self.merged_chunks))
+#            self.w.history.message(msg)
+            
+            if singlets_not_bonded == 1:
+                msg = "%d open bond had more than one option to form bonds with. It was not bonded." % (singlets_not_bonded,)
+            else:
+                msg = "%d open bonds had more than one option to form bonds with. They were not bonded." % (singlets_not_bonded,)
+            self.w.history.message(orangemsg(msg))
+            
+        else:  # All bond pairs had only one way to bond.
+            total_bonds_made = len(self.bondable_pairs_atoms)
+            
+        m1 = fix_plurals( "%d bond(s) made with " % total_bonds_made)
+        m2 = fix_plurals( "%d chunk(s) ." % len(self.merged_chunks))
+        self.w.history.message(m1 + m2)
+
 
         # This must be done before gl_update, or it will try to draw the 
         # bondable singlets again, which generates errors.
@@ -279,25 +350,37 @@ class fusechunksMode(modifyMode):
             self.ways_of_bonding = {}
         
         # Update the slider tolerance label.  This fixed bug 502-14.  Mark 050407
-        tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0)
+        tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0)
         self.w.toleranceLB.setText(tol_str)        
                 
         self.w.win_update()
 
     def multibonds(self):
-        '''Returns the number of open bonds (singlets) with multiple bonds.
+        '''Returns the following information about bondable pairs:
+            - the number of multiple bonds
+            - number of open bonds (singlets) with multiple bonds
+            - number of open bond pairs that will bond
         '''
-        mbonds = 0
-        singlets = []
+        mbonds = 0 # number of multiple bonds
+        mbond_singlets = [] # list of singlets with multiple bonds (these will not bond)
+        sbond_singlets = 0 # number of singlets with single bonds (these will bond)
         
         for s1, s2 in self.bondable_pairs:
-            if self.ways_of_bonding[s1.key] > 1:
-                if s1 not in singlets:
-                    singlets.append(s1)
-            if self.ways_of_bonding[s2.key] > 1:
-                if s2 not in singlets:
-                    singlets.append(s2)
+            
+            if self.ways_of_bonding[s1.key] == 1 and self.ways_of_bonding[s2.key] == 1:
+                sbond_singlets += 1
+                continue
                 
-        return len(singlets)
+            if self.ways_of_bonding[s1.key] > 1:
+                if s1 not in mbond_singlets:
+                    mbond_singlets.append(s1)
+                    mbonds += self.ways_of_bonding[s1.key] - 1 # The first one doesn't count.
+                
+            if self.ways_of_bonding[s2.key] > 1:
+                if s2 not in mbond_singlets:
+                    mbond_singlets.append(s2)
+                    mbonds += self.ways_of_bonding[s2.key] - 1 # The first one doesn't count.
+
+        return mbonds, len(mbond_singlets), sbond_singlets
         
 # end of class fusechunksMode
