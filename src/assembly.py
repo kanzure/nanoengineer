@@ -4,8 +4,6 @@
 assembly.py -- provides class assembly, for everything stored in one file,
 including one main part and zero or more clipboard items; see also part.py.
 
-TEMPORARILY OWNED BY BRUCE 050202 for the Part/assembly split ####@@@@
-
 $Id$
 
 ==
@@ -85,6 +83,8 @@ from Utility import *
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 
+debug_assy_changes = 0 #bruce 050429
+
 # bruce 050308 adding named constants for selwhat values;
 # not yet uniformly used (i.e. most code still uses hardcoded 0 or 2,
 #  and does boolean tests on selwhat to see if chunks can be selected);
@@ -95,13 +95,15 @@ SELWHAT_CHUNKS = 2
 
 from part import Part # this must come after the SELWHAT constants! #e move them into constants.py??
 
+assy_number = 0 # count assembly objects [bruce 050429]
 
 class assembly:
     """#doc
     """
     def __init__(self, win, name = None):        
-        # ignore changes to this assembly during __init__;
-        # this will be set back to 0 at the end of __init__:
+        # ignore changes to this assembly during __init__, and after it,
+        # until the client code first calls our reset_changed method.
+        # [bruce 050429 revised that behavior and this comment, re bug 413]
         self._modified = 1 
         
         # the MWsemantics displaying this assembly. 
@@ -112,6 +114,11 @@ class assembly:
         
         # the name if any
         self.name = name or gensym("Assembly")
+
+        #bruce 050429
+        global assy_number
+        assy_number += 1
+        self._debug_name = self.name + "-%d" % assy_number
 
         # the Clipboard... this is replaced by another one later (of a different class),
         # once or twice each time a file is opened. ####@@@@ should clean up
@@ -155,8 +162,10 @@ class assembly:
         kluge_patch_assy_toplevel_groups( self)
         self.update_parts() #bruce 050309 for assy/part split
 
-        # 1 if there is a structural difference between assy and file
-        self._modified = 0 # note: this was set to 1 at start of __init__
+        #bruce 050429 as part of fixing bug 413, no longer resetting self._modified here --
+        # client code should call reset_changed instead, when appropriate.
+##        # 1 if there is a structural difference between assy and file
+##        self._modified = 0 # note: this was set to 1 at start of __init__
         
         # the current version of the MMP file format
         # this is set in files_mmp.writemmpfile_assy. Mark 050130
@@ -185,6 +194,9 @@ class assembly:
         self.current_movie = None
             # before 050325 this was called self.m and was always the same Movie object (per assy)
 
+        if debug_assy_changes:
+            print "debug_assy_changes: creating", self
+        
         # make sure these exist [bruce 050418]:
         assert self.tree
         assert self.tree.part
@@ -206,7 +218,12 @@ class assembly:
         for i,node in zip(range(len(partnodes)),partnodes):
             ll = node.part.viewdata_members(i+1)
             grpl1.extend(ll)
-        return Group("View Data", self, None, grpl1)
+        #bruce 050429 part of fix for bug 413: insulate self from misguided self.changed()
+        # done when this Group is made.
+        oldmod = self.begin_suspend_noticing_changes()
+        res = Group("View Data", self, None, grpl1)
+        self.end_suspend_noticing_changes(oldmod)
+        return res
 
     def init_current_selgroup(self):
         self._last_current_selgroup = self.tree
@@ -673,8 +690,21 @@ class assembly:
             #  event), so we'll review them for speed at that time. For now,
             #  only saving this assembly to file (or loading or clearing it)
             #  is permitted to reset this flag to 0.]
-            
-            self.w.history.message("(fyi: part now has unsaved changes)") #e revise terminology?
+
+            # Emit a history message reminding user about unsaved changes.
+            #bruce 050429: along with fixing bug 413 about when this msg comes out,
+            # I'm improving its wording (see comments in same bug report, and/or me/Ninad email).
+            try:
+                junk, basename = os.path.split(self.filename)
+                assert basename # it's normal for this to fail, when there is no file yet
+                msg = "The file %r now has unsaved changes." % basename
+            except:
+                msg = "The part now has unsaved changes." # there is no file yet, so we can't say "the file". #e improve?
+            self.w.history.message( msg)
+            if debug_assy_changes:
+                import time
+                print time.asctime(), self, self.name
+                print_compact_stack("atom_debug: emitting message: part now has unsaved changes")
 
             ## [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]
 ##            # Regenerate the movie ID.
@@ -695,9 +725,45 @@ class assembly:
         # way to get the same effect (like recording a "modtime" or "event counter").
         return
 
+    # Methods to toggle change-noticing during specific sections of code.
+    # (These depend on assy._modified working as it did on 050109 - 050429;
+    #  they'll need review when we add per-Part _modified flag, Undo, etc.)
+    # [written by bruce 050110 as helper functions in Utility.py;
+    #  renamed and moved here by bruce 050429, re bug 413]
+
+    def begin_suspend_noticing_changes(self):
+        """See docstring of end_suspend_noticing_changes."""
+        oldmod = self._modified
+        self._modified = 1
+        return oldmod # this must be passed to the 'end' function
+        # also, if this is True, caller can safely not worry about
+        # calling "end" of this, i suppose; best not to depend on that
+
+    def end_suspend_noticing_changes(self, oldmod):
+        """Call this sometime after every call of begin_suspend_noticing_changes.
+        These begin/end pairs can be nested, but see the caveat below about the oldmod argument in that case.
+           The argument should be the begin method's return value, unless you know you want the new situation
+        to look "not modified", in which case the argument should be False.
+        Note that even calls of self.reset_changed() (between the begin and end methods)
+        are not noticed, so if one occurred and should have been noticed,
+        this can only be fixed by passing False to this method.
+           Caveat: with nested begin/end pairs, if an inner end's oldmod was False
+        (instead of the "correct" value returned by its matching begin method),
+        then changes after that inner end method *will* (incorrectly) be noticed.
+        This is a bug in the present implementation which needs to be worked around.
+        It might be inherent in the present API, I don't know; the present API has no
+        protection for mismatch-bugs and needs revision anyway.
+           It's probably safe even if the assembly object these methods are being called on
+        is not the same for the begin and end methods!
+        """ # docstring by bruce 050429
+        self._modified = oldmod
+        return
+
     def reset_changed(self): # bruce 050107
         """[private method] #doc this... see self.changed() docstring.
         """
+        if debug_assy_changes:
+            print_compact_stack( "debug_assy_changes: %r: reset_changed: " % self )
         self._modified = 0
 
     # ==
@@ -722,6 +788,8 @@ class assembly:
     # ==
 
     def __str__(self):
+        if platform.atom_debug:
+            return "<Assembly of file %r" % self.filename + " (id = %r, _debug_name = %r)>" % (id(self), self._debug_name) #bruce 050429
         return "<Assembly of " + self.filename + ">"
 
     def writemmpfile(self, filename):

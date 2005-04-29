@@ -1072,6 +1072,11 @@ class Group(Node):
         if self.part:
             self.part.changed() # does assy.changed too
         elif self.assy:
+            # [bruce 050429 comment: I'm suspicious this is needed or good if we have no part (re bug 413),
+            #  but it's too dangerous to change it just before a release, so bug 413 needs a different fix
+            #  (and anyway this is not the only source of assy.changed() from opening a file -- at least
+            #   chunk.setDisplay also does it). For Undo we might let .changed() propogate only into direct
+            #   parents, and then those assy.changed() would not happen and bug 413 might be fixable differently.]
             self.assy.changed()
             # it is ok for something in part.changed() or assy.changed() to modify self.__cmfuncs
         cm = self.__cmfuncs
@@ -1901,7 +1906,8 @@ def kluge_patch_assy_toplevel_groups(assy, assert_this_was_not_needed = False): 
     # this is now also called in assembly.__init__ and in readmmp,
     # not only from the mtree.
     
-    oldmod = assy_begin_suspend_noticing_changes(assy)
+    ## oldmod = assy_begin_suspend_noticing_changes(assy)
+    oldmod = assy.begin_suspend_noticing_changes()
     # does doing it this soon help? don't know why, was doing before root mod...
     # now i am wondering if i was wrong and bug of wrongly reported assy mod
     # got fixed even by just doing this down below, just before remaking root.
@@ -1940,26 +1946,28 @@ def kluge_patch_assy_toplevel_groups(assy, assert_this_was_not_needed = False): 
             ## assy.set_current_selgroup( assy.tree) -- no, checks are not needed and history message is bad
             assy.init_current_selgroup() #050315
     finally:
-        assy_end_suspend_noticing_changes(assy,oldmod)
+        ## assy_end_suspend_noticing_changes(assy,oldmod)
+        assy.end_suspend_noticing_changes(oldmod)
         if fixroot and assert_this_was_not_needed: #050315
             if platform.atom_debug:
                 print_compact_stack("atom_debug: fyi: kluge_patch_assy_toplevel_groups sees fixroot and assert_this_was_not_needed: ")
     return
 
-# these should also become assy methods, I guess
-# (they depend on assy._modified working as it did on 050109)
-# [writen by bruce 050110]
-
-def assy_begin_suspend_noticing_changes(assy):
-    oldmod = assy._modified
-    assy._modified = 1
-    return oldmod # this must be passed to the 'end' function
-    # also, if this is True, caller can safely not worry about
-    # calling "end" of this, i suppose; best not to depend on that
-
-def assy_end_suspend_noticing_changes(assy, oldmod):
-    assy._modified = oldmod
-    return
+    ##bruce 050429 moved these into assembly.py as assy methods, and will call them elsewhere too, re bug 413:
+### these should also become assy methods, I guess
+### (they depend on assy._modified working as it did on 050109)
+### [writen by bruce 050110]
+##
+##def assy_begin_suspend_noticing_changes(assy):
+##    oldmod = assy._modified
+##    assy._modified = 1
+##    return oldmod # this must be passed to the 'end' function
+##    # also, if this is True, caller can safely not worry about
+##    # calling "end" of this, i suppose; best not to depend on that
+##
+##def assy_end_suspend_noticing_changes(assy, oldmod):
+##    assy._modified = oldmod
+##    return
 
 # ==
 

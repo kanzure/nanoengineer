@@ -122,6 +122,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
 
         # start with empty window 
         self.assy = assembly(self, "Untitled")
+        #bruce 050429: as part of fixing bug 413, it's now required to call
+        # self.assy.reset_changed() sometime in this method; it's called below.
         
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
         self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
@@ -182,8 +184,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         # and paste the atom rather than the clipboard by default
         self.pasteP = False
         
-        
-        # bruce 050104 moved find_or_make_Nanorex_prefs_directory to an earlier time
+        self.assy.reset_changed() #bruce 050429, part of fixing bug 413
         
         self.initialised = 1
         self.win_update() # bruce 041222
@@ -610,6 +611,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         
         if isFileSaved: 
                 self.__clear()
+                self.assy.reset_changed() #bruce 050429, part of fixing bug 413
                 self.win_update()
 
 
