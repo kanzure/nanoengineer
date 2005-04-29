@@ -357,3 +357,10 @@ ones), and doesn't move the newly added ones.
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 4/29/2005
+Files: assembly.py Utility.py MWsemantics.py
+Summary:  fixed bug 413; revised wording of unsaved changes message
+
+----------------------------
+
