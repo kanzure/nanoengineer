@@ -55,7 +55,7 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
         return self.errcode
     def open_file(self):
         assert not self.fileobj #e if we relax this, then worry about whether we should seek to start of file
-        self.fileobj = open(self.filename,'rb') #####@@@@@ missing file is possible when we've closed and reopen
+        self.fileobj = open(self.filename,'rb') ###@@@ missing file is possible when we reopen after closing; this is caught below
     def read_header(self):
         # assume we're at start of file
         # Read header (4 bytes) from file containing the number of frames in the moviefile.
@@ -65,6 +65,10 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
         self.natoms = (filesize - 4) / (self.totalFramesActual * 3)
         if self.natoms * (self.totalFramesActual * 3) != (filesize - 4):
             msg = "Movie file [%s] has invalid length -- might be truncated or still being written." % self.filename
+                # (Without knowing correct natoms (as we don't in this case), we can't reliably say whether it has
+                #  missing frames, partly written frames, etc.)
+                # For new format files this would only be a warning; we could use the whole frames.
+                # But for old-format files, it means our calc of natoms will be wrong for them! So it's fatal.
             self.error(msg)
             return # how far do we return, on error?? (I mean, should we raise an exception instead?) ###k
         return
@@ -87,15 +91,15 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
             if not self.fileobj:
                 # this might not yet ever happen, not sure.
                 self.open_file() #e check for error? check length still the same, etc? 
-            self.fileobj.seek( filepos) #####@@@@@ failure here might be possible if file got shorter after size measured -- not sure
+            self.fileobj.seek( filepos) ####@@@@ failure here might be possible if file got shorter after size measured -- not sure
             res = self.fileobj.read(nbytes)
             assert len(res) == nbytes # this can fail, if file got shorter after we measured its size...
         except:
-            # might be good to detect, warn, set flag, return 0s.... #####@@@@@ test this
+            # might be good to detect, warn, set flag, return 0s.... ####@@@@ test this
             if platform.atom_debug: # if this happens at all it might happen a lot...
                 print_compact_traceback( "atom_debug: ignoring exception reading delta_frame %d, returning all 00s: " % n)
-            res = "\x00" * nbytes ###k
-            assert len(res) == nbytes, "mistake in python zero-byte syntax"
+            res = "\x00" * nbytes
+            assert len(res) == nbytes, "mistake in python zero-byte syntax" # but I checked it, should be ok
         return res
     def close(self):
         if self.fileobj:

@@ -21,7 +21,7 @@ from qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from HistoryWidget import redmsg, orangemsg
 from VQT import A
 import platform
-from debug import print_compact_stack
+from debug import print_compact_stack, print_compact_traceback
 from moviefile import MovieFile #e might be renamed, creation API revised, etc
 ## can't do this here (recursive import), so done at runtime:
 ## from movieMode import _controls 
@@ -186,6 +186,10 @@ class Movie:
         self.debug_dump("end of init")
         return
 
+    ##bruce 050428 removing 1-hour-old why_not_playable feature,
+    ## since ill-conceived, incomplete, and what's there doesn't work (for unknown reasons).
+##    why_not_playable = ""
+##        # reason why we're not playable (when we're not), if known (always a string; a phrase; never used if truly playable)
     def might_be_playable(self): #bruce 050427
         """Is it reasonable to try to play this movie?
         This does NOT check whether it's still valid for its atoms or the current part;
@@ -202,8 +206,14 @@ class Movie:
             return False #e history message??
         filename_ok = self.filename and self.filename.endswith('.dpb') and os.path.exists(self.filename)
         if not self.alist_and_moviefile:
+##            if not filename_ok and not self.why_not_playable:
+##                self.why_not_playable = "need filename of existing .dpb file" # can this ever be seen??
             return filename_ok # ok to try playing it, though we don't yet know for sure whether this will work.
-        return self.alist_and_moviefile.might_be_playable()
+        else:
+            res = self.alist_and_moviefile.might_be_playable()
+##            self.why_not_playable = self.alist_and_moviefile.why_not_playable
+##                #e (is this a sign the whynot should be part of the retval?)
+            return res
 
     file_trashed = False
     def fyi_reusing_your_moviefile( self, moviefile):
@@ -217,6 +227,7 @@ class Movie:
                 # note, this wording is from point of view of caller -- *we* are the previously open movie.
                 # I'm assuming it's overwritten, not only removed, since no reason to remove it except to overwrite it.
             self.file_trashed = True
+##            self.why_not_playable = "moviefile overwritten by a more recent simulation" #e or get more detail from an arg?
         return
     
     def __getattr__(self, attr):
@@ -548,8 +559,12 @@ class Movie:
         
         if DEBUG0: print "movie._play() called.  Direction = ", playDirection[ direction ]
 
-        if not self.isOpen:
-            self.history.message( redmsg( "Movie file is not presently playable." )) #bruce 050425 mitigates bug 519 ###@@@
+        if not self.isOpen: #bruce 050428 not sure if this is the best condition to use here ###@@@
+            if (not self.might_be_playable()) and 0: ## self.why_not_playable:
+                msg = "Movie file is not presently playable: %s." ## % (self.why_not_playable,)
+            else:
+                msg = "Movie file is not presently playable." ###e needs more detail, especially when error happened long before.
+            self.history.message( redmsg( msg )) #bruce 050425 mitigates bug 519 [since then, it got fixed -- bruce 050428]
             return
         
         if direction == FWD and self.currentFrame == self.totalFramesActual: return
@@ -1065,12 +1080,15 @@ class alist_and_moviefile:
         """
         self.alist = alist # needed for rechecking the match
         self.history = assy.w.history # not yet used, but probably will be used for error messages
-        self.moviefile = MovieFile( filename)
+        self.moviefile = MovieFile( filename, history = self.history)
+        self.movable_atoms = None 
         if not self.moviefile:
-            print "need error msg here" #e errmsg in history? #####@@@@@
+            pass ## MovieFile will have emitted a history message (I hope)
             return
-        self._valid = self.moviefile.matches_alist(alist)
+        self._valid = self.moviefile.matches_alist(alist) # this never emits a history message (for now)
         if not self._valid:
+            # for now, we happen to know exactly why they're not valid... [bruce 050428]
+            self.history.message( redmsg( "Movie file contents not valid for this Part (wrong number of atoms)."))
             self.moviefile.destroy()
             self.moviefile = None
             return # caller should check self.valid()
@@ -1094,6 +1112,7 @@ class alist_and_moviefile:
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: exception in alist_and_moviefile.destroy() ignored: ")
         return
+##    why_not_playable = "" #e need to set this to actual reasons when possible
     def might_be_playable(self):
         return self.valid() # from the last time this was checked -- it's not re-checked now
     def valid(self):
