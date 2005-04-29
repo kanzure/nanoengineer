@@ -74,8 +74,10 @@ class movieMode(basicMode):
         self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool" [#k]
         
         # MP dashboard initialization.
-        #####@@@@@ try this soon:
-        self._controls(0) # bruce 050428 precaution
+        self._controls(0) # bruce 050428 precaution (has no noticable effect but seems safer in theory)
+        #bruce 050428, working on bug 395: I think some undesirable state is left in the dashboard, so let's reinit it
+        # (and down below we might like to init it from the movie if possible, but it's not always possible).
+        self.w._movieDashboard_reinit() ###e could pass frameno? is max frames avail yet in all playable movies? not sure.
         # [bruce 050426 comment: probably this should just be a call of an update method, also used during the mode ###e]
         movie = self.o.assy.current_movie # might be None, but might_be_playable() true implies it's not
         if self.might_be_playable(): #bruce 050426 added condition
@@ -294,6 +296,16 @@ class movieDashboardSlotsMixin:
     # bruce 050428: this says whether to ignore signals from slider and spinbox, since they're being changed
     # by the program rather than by the user. (#e The Movie method that sets it should be made a method of this class.)
     _movieDashboard_ignore_slider_and_spinbox = False
+    def _movieDashboard_reinit(self):
+        self._movieDashboard_ignore_slider_and_spinbox = True
+        try:
+            self.frameNumberSB.setMaxValue(999999) # in UI.py code
+            self.frameNumberSL.setMaxValue(999999) # guess
+            self.frameNumberSB.setValue(0) # guess
+            self.frameNumberSL.setValue(0) # guess
+        finally:
+            self._movieDashboard_ignore_slider_and_spinbox = False
+        return
     def moviePlay(self):
         """Play current movie foward from current position.
         """
@@ -331,7 +343,7 @@ class movieDashboardSlotsMixin:
             return
         if self._movieDashboard_ignore_slider_and_spinbox:
             return
-        ## next line is redundant, should remove ###e [bruce 050428 comment] #####@@@@@ 2 lines in all
+        ## next line is redundant, so I removed it [bruce 050428]
         ## if fnum == self.assy.current_movie.currentFrame: return
 
         self._movieDashboard_in_valuechanged_SB = True
@@ -348,7 +360,7 @@ class movieDashboardSlotsMixin:
             return
         if self._movieDashboard_ignore_slider_and_spinbox:
             return
-        ## next line is redundant, should remove ###e [bruce 050428 comment]
+        ## next line is redundant, so I removed it [bruce 050428]
         ## if fnum == self.assy.current_movie.currentFrame: return
 
         self._movieDashboard_in_valuechanged_SL = True

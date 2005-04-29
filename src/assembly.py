@@ -707,6 +707,17 @@ class assembly:
     def checkpicked(self, always_print = 0):
         if always_print: print "fyi: checkpicked() is disabled until assy/part split is completed"
         return
+
+    # ==
+
+    def apply2movies(self, func): #bruce 050428
+        "apply func to all possibly-ever-playable Movie objects we know about. (Not to mere sim-param-holders for minimize, etc.)"
+        if self.current_movie:
+            # for now, this is the only one! (even if it's a "mere param-holder".)
+            # at some point there'll also be movie nodes in the MT...
+            ##e when there can be more than one, perhaps catch exceptions here and/or "or" the retvals together...
+            func( self.current_movie)
+        return
     
     # ==
 

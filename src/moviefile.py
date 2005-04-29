@@ -55,7 +55,7 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
         return self.errcode
     def open_file(self):
         assert not self.fileobj #e if we relax this, then worry about whether we should seek to start of file
-        self.fileobj = open(self.filename,'rb')
+        self.fileobj = open(self.filename,'rb') #####@@@@@ missing file is possible when we've closed and reopen
     def read_header(self):
         # assume we're at start of file
         # Read header (4 bytes) from file containing the number of frames in the moviefile.
@@ -80,12 +80,23 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
         "return the bytes of the delta frame which has index n (assuming our file is open and n is within legal range)"
         # note: the first one has index 1 (since it gives delta from time 0 to time 1).
         assert n > 0
-        filepos = ((n-1) * self.natoms * 3) + 4
-        if not self.fileobj:
-            # this might not yet ever happen, not sure.
-            self.open_file() #e check for error? check length still the same, etc? 
-        self.fileobj.seek( filepos)
-        return self.fileobj.read(self.natoms * 3)
+        nbytes = self.natoms * 3 # number of bytes in frame (if complete) -- no relation to frame index n
+        filepos = ((n-1) * nbytes) + 4
+        try:
+            # several things here can fail if file is changing on disk in various ways
+            if not self.fileobj:
+                # this might not yet ever happen, not sure.
+                self.open_file() #e check for error? check length still the same, etc? 
+            self.fileobj.seek( filepos) #####@@@@@ failure here might be possible if file got shorter after size measured -- not sure
+            res = self.fileobj.read(nbytes)
+            assert len(res) == nbytes # this can fail, if file got shorter after we measured its size...
+        except:
+            # might be good to detect, warn, set flag, return 0s.... #####@@@@@ test this
+            if platform.atom_debug: # if this happens at all it might happen a lot...
+                print_compact_traceback( "atom_debug: ignoring exception reading delta_frame %d, returning all 00s: " % n)
+            res = "\x00" * nbytes ###k
+            assert len(res) == nbytes, "mistake in python zero-byte syntax"
+        return res
     def close(self):
         if self.fileobj:
             self.fileobj.close()

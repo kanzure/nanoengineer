@@ -131,7 +131,7 @@ class SimRunner:
             # Make sure some chunks are in the part.
             if not part.molecules: # Nothing in the part to minimize.
                 msg = redmsg("Can't create movie.  No chunks in part.")
-                    #####@@@@@ is this redundant with callers? yes for simSetup,
+                    ####@@@@ is this redundant with callers? yes for simSetup,
                     # don't know about minimize, or the weird fileSave call in MWsem.
                 self.history.message(msg)
                 return -1
@@ -362,23 +362,24 @@ class SimRunner:
         # (only implemented for the same movie obj, THIS IS A BUG and might be partly new... ####@@@@)
 
         # We can't overwrite an existing moviefile, so delete it if it exists.
-        if os.path.exists(moviefile):
-            # [bruce 050401 comment:]
-            # and make sure the movie obj is not still trying to use the file, first!
-            # this is an old-code kluge... but necessary. In future we probably need
-            # to inform *all* our current sims and movies that we're doing this
-            # (deleting or renaming some file they might care about). ###@@@
-            # BTW this stuff should be a method of movie, it uses private attrs...
-            # and it might not be correct/safe in all cases either... [not reviewed]
-            #bruce 050425 comment: is this trying to reuse an old movie obj for a new movie?
-            # does it ever happen now that the movie is open?
-            if debug_sim: print "movie.isOpen =",movie.isOpen
-            if movie.isOpen:
-                if debug_sim: print "closing moviefile"
-                movie.fileobj.close()
-                movie.isOpen = False
-                if debug_sim: print "writemovie(): movie.isOpen =", movie.isOpen
-                #bruce 050407 moved the actual delete down below...
+        ##bruce 050428 this is now all done by fyi_reusing_your_moviefile, lower down.
+##        if os.path.exists(moviefile):
+##            # [bruce 050401 comment:]
+##            # and make sure the movie obj is not still trying to use the file, first!
+##            # this is an old-code kluge... but necessary. In future we probably need
+##            # to inform *all* our current sims and movies that we're doing this
+##            # (deleting or renaming some file they might care about). ###@@@
+##            # BTW this stuff should be a method of movie, it uses private attrs...
+##            # and it might not be correct/safe in all cases either... [not reviewed]
+##            #bruce 050425 comment: is this trying to reuse an old movie obj for a new movie?
+##            # does it ever happen now that the movie is open?
+##            if debug_sim: print "movie.isOpen =",movie.isOpen
+##            if movie.isOpen:
+##                if debug_sim: print "closing moviefile"
+##                movie.fileobj.close()
+##                movie.isOpen = False
+##                if debug_sim: print "writemovie(): movie.isOpen =", movie.isOpen
+##                #bruce 050407 moved the actual delete down below...
         
         # These are useful when debugging the simulator.
         # [bruce 050407: But not for all users all the time! So putting them inside a flag.]
@@ -394,6 +395,16 @@ class SimRunner:
         self.simProcess = None
         try:
             if os.path.exists(moviefile):
+                #bruce 050428: do something about this being the moviefile for an existing open movie.
+                try:
+                    ## print "calling apply2movies",moviefile
+                    self.assy.apply2movies( lambda movie: movie.fyi_reusing_your_moviefile( moviefile) )
+                    # note that this is only correct if we're sure it won't be called for the new Movie
+                    # we're making right now! For now, this is true. Later we might need to add an "except for this movie" arg.
+                except:
+                    #e in future they might tell us to lay off this way... for now it's a bug, but we'll ignore it.
+                    print_compact_traceback("exception in preparing to reuse moviefile for new movie ignored: ")
+                    pass
                 #bruce 050407 moving this into the try, since it can fail if we lack write permission
                 # (and it's a good idea to give up then, so we're not fooled by an old file)
                 if debug_sim: print "deleting moviefile: [",moviefile,"]"
@@ -769,9 +780,10 @@ class simSetup_CommandRun(CommandRun):
         ###@@@ we could permit this in movie player mode if we'd now tell that mode to stop any movie it's now playing
         # iff it's the current mode.
 
-        previous_movie = self.assy.current_movie
+        previous_movie = self.assy.current_movie # problem: hides it from apply2movies. [solved below] do we even still need this?
             # might be None; will be used only for default param values for new Movie
-        self.assy.current_movie = None # (this is restored on error)
+        ## bruce 050428 don't do this so it's not hidden from apply2movies and since i think it's no longer needed:
+        ## self.assy.current_movie = None # (this is restored on error)
 
         self.movie = None
         r = self.makeSimMovie( previous_movie) # will store self.movie as the one it made, or leave it as None if cancelled
@@ -804,7 +816,7 @@ class simSetup_CommandRun(CommandRun):
             self.history.message("Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
         return
 
-    def makeSimMovie(self, previous_movie): #####@@@@@@ some of this should be a Movie method since it uses attrs of Movie...
+    def makeSimMovie(self, previous_movie): ####@@@@ some of this should be a Movie method since it uses attrs of Movie...
         #bruce 050324 made this from the Part method makeSimMovie.
         # It's called only from self.run() above; not clear it should be a separate method,
         # or if it is, that it's split from the caller at the right boundary.
@@ -998,6 +1010,7 @@ class Minimize_CommandRun(CommandRun):
             # I have not reviewed this and it's obviously not cleaned up (since it modifies private movie attrs).
             # But I will have this change the current movie, which would be correct in theory, i think, and might be needed
             # before trying to play it (or might be a side effect of playing it, this is not reviewed either).
+            ###e bruce 050428 comment: if self.assy.current_movie exists, should do something like close or destroy it... need to review
             self.assy.current_movie = movie
             movie.currentFrame = 0
             # If _setup() returns a non-zero value, something went wrong loading the movie.

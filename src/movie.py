@@ -193,12 +193,35 @@ class Movie:
         BUT if it has been previously checked and found invalid, this should return False or perhaps redo the check.
         For more info see docstring of class Movie.
         """
+        if self.file_trashed:
+            #bruce 050428: some new sim in this process has trashed our file (even if it didn't complete properly)
+            # (btw, this doesn't yet help if it was some other process which did the trashing)
+            #e (it would be nicer if new sims would store into a temp file until they completed successfully;
+            #   even then they need to set this (via method below)
+            #   and they might want to ask before doing that, or use a new filename)
+            return False #e history message??
         filename_ok = self.filename and self.filename.endswith('.dpb') and os.path.exists(self.filename)
         if not self.alist_and_moviefile:
             return filename_ok # ok to try playing it, though we don't yet know for sure whether this will work.
         return self.alist_and_moviefile.might_be_playable()
+
+    file_trashed = False
+    def fyi_reusing_your_moviefile( self, moviefile):
+        """If moviefile happens to be the name of our own moviefile,
+        know that it's being trashed and we'll never again be playable
+        (unless we have not yet read any data from it,
+         in which case we're no worse off than before, I suppose).
+        """
+        if self.filename and self.filename == moviefile and self.alist_and_moviefile:
+            self.warning( "overwriting moviefile (previously open movie will no longer be playable)." )
+                # note, this wording is from point of view of caller -- *we* are the previously open movie.
+                # I'm assuming it's overwritten, not only removed, since no reason to remove it except to overwrite it.
+            self.file_trashed = True
+        return
     
     def __getattr__(self, attr):
+        if attr == 'history':
+            return self.assy.w.history
 ##        if attr == 'part':
 ##            if self.alist:
 ##                part = self.alist[0].molecule.part
@@ -214,7 +237,6 @@ class Movie:
 ##            if platform.atom_debug:
 ##                self.debug_print_movie_info("bug: part needed before alist")
 ##            return None # hope this is ok, but it's probably not! ####@@@@
-        if attr == 'history': return self.assy.w.history
         raise AttributeError, attr
 
     def destroy(self): #bruce 050325
@@ -715,7 +737,7 @@ class Movie:
             if not self.showEachFrame:
                 #bruce 050428 adding this to see if it speeds up "forward to end"
                 ###e potential optim: increase skip, as long as time passed will not be too bad
-                skip_n = max(19,skip_n) #####@@@@@ ok?
+                skip_n = max(19,skip_n) # seems ok, though value is surely too big for huge models and too small for tiny ones ###e
             delta_n = 1 + skip_n
             for ii in range(delta_n): # slowness should not be an issue compared to time it takes to scan file... until new file format??
                 self.currentFrame += inc
@@ -723,7 +745,7 @@ class Movie:
                     break
 
             # now self.currentFrame needs to be shown
-            if 1: ## self.showEachFrame: #####@@@@@ old code said if 1 for this... what's best? maybe update them every 0.1 sec?
+            if 1: ## self.showEachFrame: ####@@@@ old code said if 1 for this... what's best? maybe update them every 0.1 sec?
                 self.update_dashboard_currentFrame()
             if 1:
                 self.alist_and_moviefile.play_frame( self.currentFrame) # doing this every time makes it a lot slower, vs doing nothing!
@@ -764,7 +786,7 @@ class Movie:
         self.glpane.gl_update() #e bruce 050427 comment: we should optimize and only do this if we didn't just do it in the loop
 
         if 1: ## if not from_slider:
-            #bruce 050428 always do this, since Mark agrees it'd be good for moving the slider to pause the movie #####@@@@@ test slider
+            #bruce 050428 always do this, since Mark agrees it'd be good for moving the slider to pause the movie
             if DEBUG0: print "movie._playToFrame(): Calling _pause"
             self._pause(0) # Force pause. Takes care of variable and dashboard maintenance.
             if DEBUG0: print "movie._playToFrame(): BYE!"
