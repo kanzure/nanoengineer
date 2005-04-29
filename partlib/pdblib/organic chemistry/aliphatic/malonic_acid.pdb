@@ -1,0 +1,24 @@
+COMPND  malonic acid                                                            
+HETATM    1  C                  -0.971  -0.126  -0.537                
+HETATM    2  C                   0.376   0.578  -0.587                
+HETATM    3  C                   1.249   0.285   0.620                
+HETATM    4  O                   1.617   1.073   1.460                
+HETATM    5  O                   1.600  -1.013   0.661                
+HETATM    6  O                  -2.037   0.433  -0.396                
+HETATM    7  O                  -0.833  -1.458  -0.700                
+HETATM   10  H                   0.203   1.678  -0.640                
+HETATM   11  H                   0.915   0.289  -1.518                
+HETATM    8  H                   2.141  -1.127   1.460                
+HETATM    9  H                   0.111  -1.682  -0.747                
+CONECT    1    2    6    7                                   
+CONECT    2    1    3   10   11                              
+CONECT    3    2    4    5                                   
+CONECT    4    3                                             
+CONECT    5    3    8                                        
+CONECT    6    1                                             
+CONECT    7    1    9                                        
+CONECT   10    2                                             
+CONECT   11    2                                             
+CONECT    8    5                                             
+CONECT    9    7                                             
+END   
