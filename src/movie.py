@@ -870,6 +870,50 @@ class Movie:
         """
         fullpath, ext = os.path.splitext(self.filename)
         return fullpath + "-plot.txt"
+    
+    def moveAtoms(self, newPositions): # used when reading xyz files
+        """Huaicai 1/20/05: Move a list of atoms to newPosition. After 
+            all atoms moving, bond updated, update display once.
+           <parameter>newPosition is a list of atom absolute position,
+           the list order is the same as self.alist
+        """   
+        if len(newPositions) != len(self.alist):
+            #bruce 050225 added some parameters to this error message
+            #bruce 050406 comment: but it probably never comes out, since readxyz checks this,
+            # so I won't bother to print it to history here. But leaving it in is good for safety.
+            print "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
+                  (len(newPositions), len(self.alist))
+            return
+        for a, newPos in zip(self.alist, newPositions):
+            #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
+            # (and therefore have the wrong distance from their base atom).
+            # Rather than needing to know whether or not they were H during the sim,
+            # we can just regularize the singlet-baseatom distance for all singlets.
+            # For now I'll just use setposn to set the direction and snuggle to fix the distance.
+            #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
+            # is wildly wrong, and it should also complain. I won't do this for now.
+            a.setposn(A(newPos))
+            if a.is_singlet(): a.snuggle() # same code as in movend()
+        self.glpane.gl_update()
+        return
+
+##    def debug_print_movie_info(self, msg = None): #bruce, sometime before 050427
+##        if not msg:
+##            msg = "debug_print_movie_info"
+##        print_compact_stack( msg + "\n")
+##        alist = self.alist
+##        if not alist:
+##            alist_report = "alist false (%r)" % alist
+##        elif len(alist) <= 30:
+##            alist_report = "alist len %d contains %r" % (len(alist), alist)
+##        else:
+##            alist_report = "alist len %d starts %r..." % (len(alist), alist[0:30])
+##        if self.__dict__.has_key( 'part'): # hasattr isn't safe or correct here -- it calls getattr and recurses!
+##            part_report = "self.part is already set to %r" % (self.part,)
+##        else:
+##            part_report = "self.part is unset"
+##        print "\natom_debug: movie %r:\n%s\n%s\nfilename [%s]\n" % (self, alist_report, part_report, self.filename)
+##        return
 
     pass # end of class Movie
 
@@ -1087,53 +1131,6 @@ class alist_and_moviefile:
     def close_file(self):
         self.moviefile.close_file()
     pass # end of class alist_and_moviefile
-
-# ==
-    
-    def moveAtoms(self, newPositions): # used when reading xyz files
-        """Huaicai 1/20/05: Move a list of atoms to newPosition. After 
-            all atoms moving, bond updated, update display once.
-           <parameter>newPosition is a list of atom absolute position,
-           the list order is the same as self.alist
-        """   
-        if len(newPositions) != len(self.alist):
-            #bruce 050225 added some parameters to this error message
-            #bruce 050406 comment: but it probably never comes out, since readxyz checks this,
-            # so I won't bother to print it to history here. But leaving it in is good for safety.
-            print "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
-                  (len(newPositions), len(self.alist))
-            return
-        for a, newPos in zip(self.alist, newPositions):
-            #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
-            # (and therefore have the wrong distance from their base atom).
-            # Rather than needing to know whether or not they were H during the sim,
-            # we can just regularize the singlet-baseatom distance for all singlets.
-            # For now I'll just use setposn to set the direction and snuggle to fix the distance.
-            #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
-            # is wildly wrong, and it should also complain. I won't do this for now.
-            a.setposn(A(newPos))
-            if a.is_singlet(): a.snuggle() # same code as in movend()
-        self.glpane.gl_update()
-
-    def debug_print_movie_info(self, msg = None): #bruce, sometime before 050427
-        if not msg:
-            msg = "debug_print_movie_info"
-        print_compact_stack( msg + "\n")
-        alist = self.alist
-        if not alist:
-            alist_report = "alist false (%r)" % alist
-        elif len(alist) <= 30:
-            alist_report = "alist len %d contains %r" % (len(alist), alist)
-        else:
-            alist_report = "alist len %d starts %r..." % (len(alist), alist[0:30])
-        if self.__dict__.has_key( 'part'): # hasattr isn't safe or correct here -- it calls getattr and recurses!
-            part_report = "self.part is already set to %r" % (self.part,)
-        else:
-            part_report = "self.part is unset"
-        print "\natom_debug: movie %r:\n%s\n%s\nfilename [%s]\n" % (self, alist_report, part_report, self.filename)
-        return
-
-    pass # end of class Movie
 
 # == helper functions
 
