@@ -335,13 +335,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             assert mainpart
         except:
             # I hope this never happens... but I don't know; if it does, reorder things?? [bruce 050418 comment]
+            # [bruce 050428: I've never seen it that I noticed...]
             if platform.atom_debug:
                 print "atom_debug: no mainpart yet in setAssy (ok during init); using a fake one"
             mainpart = Part(self) #bruce 050418 -- might be common during init; use this just for its lastCsys
             self._setInitialViewFromPart( mainpart)
         else:
-            if platform.atom_debug:
-                print "atom_debug: had mainpart in setAssy" # not sure if this will ever happen!
+            if 0 and platform.atom_debug:
+                print "atom_debug: had mainpart in setAssy" # [bruce 050428: this always happens, so disabling the message]
             self.set_part( mainpart)
         
         # defined in modeMixin [bruce 040922]; requires self.assy
