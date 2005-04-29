@@ -163,6 +163,14 @@
         <property name="name">
             <cstring>fileToolbar</cstring>
         </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>70</width>
+                <height>29</height>
+            </rect>
+        </property>
         <property name="label">
             <string>File</string>
         </property>
@@ -180,6 +188,16 @@
                 <width>126</width>
                 <height>29</height>
             </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
+        </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
         </property>
         <property name="label">
             <string>Edit</string>
@@ -232,6 +250,9 @@
                 <height>29</height>
             </rect>
         </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
+        </property>
         <property name="label">
             <string>Display Modes</string>
         </property>
@@ -259,257 +280,26 @@
         <property name="name">
             <cstring>helpToolbar</cstring>
         </property>
+        <property name="geometry">
+            <rect>
+                <x>804</x>
+                <y>0</y>
+                <width>70</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
+        </property>
         <property name="label">
             <string>Help</string>
         </property>
         <action name="helpAssistantAction"/>
         <action name="helpWhatsThisAction"/>
-    </toolbar>
-    <toolbar dock="3">
-        <property name="name">
-            <cstring>cookieCutterDashboard</cstring>
-        </property>
-        <property name="enabled">
-            <bool>true</bool>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>1115</width>
-                <height>29</height>
-            </rect>
-        </property>
-        <property name="backgroundOrigin">
-            <enum>WidgetOrigin</enum>
-        </property>
-        <property name="label">
-            <string>Cookie Cutter</string>
-        </property>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>textLabel2</cstring>
-            </property>
-            <property name="enabled">
-                <bool>true</bool>
-            </property>
-            <property name="text">
-                <string> Cookie Cutter</string>
-            </property>
-        </widget>
-        <widget class="QSpinBox">
-            <property name="name">
-                <cstring>spinBox4</cstring>
-            </property>
-        </widget>
-        <separator/>
-        <widget class="QComboBox">
-            <item>
-                <property name="text">
-                    <string>Diamond</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Lonsdaleite</string>
-                </property>
-            </item>
-            <property name="name">
-                <cstring>ccLatticeCBox</cstring>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Grid lattice type.</string>
-            </property>
-        </widget>
-        <action name="orient100Action"/>
-        <action name="orient110Action"/>
-        <action name="orient111Action"/>
-        <separator/>
-        <action name="ccAddLayerAction"/>
-        <widget class="QComboBox">
-            <item>
-                <property name="text">
-                    <string>1</string>
-                </property>
-            </item>
-            <property name="name">
-                <cstring>ccCurrentLayerCBox</cstring>
-            </property>
-            <property name="enabled">
-                <bool>true</bool>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Current Layer</string>
-            </property>
-        </widget>
-        <separator/>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>textLabel1_3</cstring>
-            </property>
-            <property name="enabled">
-                <bool>true</bool>
-            </property>
-            <property name="text">
-                <string>Thickness:</string>
-            </property>
-        </widget>
-        <widget class="QLineEdit">
-            <property name="name">
-                <cstring>ccLayerThicknessLineEdit</cstring>
-            </property>
-            <property name="enabled">
-                <bool>true</bool>
-            </property>
-            <property name="readOnly">
-                <bool>true</bool>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Thickness of layer in Angstroms</string>
-            </property>
-            <property name="whatsThis" stdset="0">
-                <string>Thickness of layer in Angstroms</string>
-            </property>
-        </widget>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>textLabel1_6</cstring>
-            </property>
-            <property name="text">
-                <string># Cells:</string>
-            </property>
-        </widget>
-        <widget class="QSpinBox">
-            <property name="name">
-                <cstring>ccLayerThicknessSpinBox</cstring>
-            </property>
-            <property name="enabled">
-                <bool>true</bool>
-            </property>
-            <property name="maxValue">
-                <number>25</number>
-            </property>
-            <property name="minValue">
-                <number>1</number>
-            </property>
-            <property name="value">
-                <number>2</number>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Number of lattice cells</string>
-            </property>
-            <property name="whatsThis" stdset="0">
-                <string>Number of lattice cells</string>
-            </property>
-        </widget>
-        <separator/>
-        <widget class="QCheckBox">
-            <property name="name">
-                <cstring>ccFreeViewCheckBox</cstring>
-            </property>
-            <property name="text">
-                <string>Free View</string>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>By checking this, you can view the cookie freely.</string>
-            </property>
-        </widget>
-        <widget class="QCheckBox">
-            <property name="name">
-                <cstring>ccFullModelCheckBox</cstring>
-            </property>
-            <property name="enabled">
-                <bool>true</bool>
-            </property>
-            <property name="text">
-                <string>Whole Model</string>
-            </property>
-        </widget>
-        <widget class="QCheckBox">
-            <property name="name">
-                <cstring>ccGridLineCheckBox</cstring>
-            </property>
-            <property name="text">
-                <string>Grid Line</string>
-            </property>
-            <property name="checked">
-                <bool>true</bool>
-            </property>
-        </widget>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>ccGridColorLabel</cstring>
-            </property>
-            <property name="minimumSize">
-                <size>
-                    <width>0</width>
-                    <height>0</height>
-                </size>
-            </property>
-            <property name="maximumSize">
-                <size>
-                    <width>0</width>
-                    <height>0</height>
-                </size>
-            </property>
-            <property name="paletteBackgroundColor">
-                <color>
-                    <red>222</red>
-                    <green>148</green>
-                    <blue>0</blue>
-                </color>
-            </property>
-            <property name="frameShape">
-                <enum>StyledPanel</enum>
-            </property>
-            <property name="text">
-                <string></string>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Grid line color.</string>
-            </property>
-        </widget>
-        <widget class="QPushButton">
-            <property name="name">
-                <cstring>ccGridColorButton</cstring>
-            </property>
-            <property name="maximumSize">
-                <size>
-                    <width>0</width>
-                    <height>0</height>
-                </size>
-            </property>
-            <property name="text">
-                <string>...</string>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Customize grid line color.</string>
-            </property>
-        </widget>
-        <separator/>
-        <widget class="QComboBox">
-            <item>
-                <property name="text">
-                    <string>Tubes</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Spheres</string>
-                </property>
-            </item>
-            <property name="name">
-                <cstring>ccDispModeCBox</cstring>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Cookie display mode.</string>
-            </property>
-        </widget>
-        <separator/>
-        <action name="toolsBackUpAction"/>
-        <action name="toolsStartOverAction"/>
-        <action name="toolsDoneAction"/>
-        <action name="toolsCancelAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -646,7 +436,56 @@
     </toolbar>
     <toolbar dock="3">
         <property name="name">
+            <cstring>cookieCutterDashboard</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>296</x>
+                <y>0</y>
+                <width>95</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
+        </property>
+        <property name="label">
+            <string>Cookie Cutter</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>ccLabel</cstring>
+            </property>
+            <property name="text">
+                <string>Cookie Cutter</string>
+            </property>
+        </widget>
+    </toolbar>
+    <toolbar dock="3">
+        <property name="name">
             <cstring>moveChunksDashboard</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>391</x>
+                <y>0</y>
+                <width>96</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
+        </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
         </property>
         <property name="label">
             <string>Move Chunks</string>
@@ -667,7 +506,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>58</y>
+                <y>29</y>
                 <width>1036</width>
                 <height>29</height>
             </rect>
@@ -848,7 +687,7 @@
         <property name="geometry">
             <rect>
                 <x>243</x>
-                <y>87</y>
+                <y>58</y>
                 <width>104</width>
                 <height>29</height>
             </rect>
@@ -884,7 +723,7 @@
         <property name="geometry">
             <rect>
                 <x>347</x>
-                <y>87</y>
+                <y>58</y>
                 <width>120</width>
                 <height>29</height>
             </rect>
@@ -914,131 +753,34 @@
         <property name="name">
             <cstring>fuseChunksDashboard</cstring>
         </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
         <property name="label">
-            <string>Toolbar</string>
+            <string>Fuse Chunks</string>
         </property>
         <widget class="QLabel">
             <property name="name">
-                <cstring>textLabel1_5</cstring>
+                <cstring>textLabel1_3</cstring>
             </property>
             <property name="text">
                 <string>Fuse Chunks</string>
             </property>
         </widget>
-        <separator/>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>tolLB</cstring>
-            </property>
-            <property name="text">
-                <string>Tolerance:</string>
-            </property>
-        </widget>
-        <widget class="Spacer">
-            <property name="name">
-                <cstring>spacer3</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Horizontal</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>10</width>
-                    <height>20</height>
-                </size>
-            </property>
-        </widget>
-        <widget class="QSlider">
-            <property name="name">
-                <cstring>toleranceSL</cstring>
-            </property>
-            <property name="maxValue">
-                <number>300</number>
-            </property>
-            <property name="value">
-                <number>100</number>
-            </property>
-            <property name="orientation">
-                <enum>Horizontal</enum>
-            </property>
-        </widget>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>toleranceLB</cstring>
-            </property>
-            <property name="text">
-                <string>100% =&gt; 0 Bonds</string>
-            </property>
-        </widget>
-        <widget class="Spacer">
-            <property name="name">
-                <cstring>spacer5</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Horizontal</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>10</width>
-                    <height>20</height>
-                </size>
-            </property>
-        </widget>
-        <widget class="QPushButton">
-            <property name="name">
-                <cstring>makeBondsPB</cstring>
-            </property>
-            <property name="text">
-                <string>Make Bonds</string>
-            </property>
-        </widget>
-        <widget class="QCheckBox">
-            <property name="name">
-                <cstring>mergeCB</cstring>
-            </property>
-            <property name="text">
-                <string>Merge Chunks</string>
-            </property>
-            <property name="checked">
-                <bool>true</bool>
-            </property>
-        </widget>
-        <widget class="Spacer">
-            <property name="name">
-                <cstring>spacer4</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Horizontal</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>27</height>
-                </size>
-            </property>
-        </widget>
-        <action name="toolsBackUpAction"/>
-        <action name="toolsDoneAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
             <cstring>depositAtomDashboard</cstring>
         </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
         <property name="geometry">
             <rect>
-                <x>0</x>
-                <y>116</y>
+                <x>559</x>
+                <y>58</y>
                 <width>19</width>
-                <height>16</height>
+                <height>29</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -1047,6 +789,9 @@
                 <green>231</green>
                 <blue>230</blue>
             </color>
+        </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
         </property>
         <property name="label">
             <string>Build Dashboard</string>
@@ -3149,7 +2894,7 @@
             <cstring>nullAction</cstring>
         </property>
         <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
         </property>
         <property name="iconSet">
             <iconset>image92</iconset>
@@ -4293,12 +4038,6 @@
         <slot>toolsCCAddLayer()</slot>
     </connection>
     <connection>
-        <sender>ccLayerThicknessLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>MainWindow</receiver>
-        <slot>validateThickness()</slot>
-    </connection>
-    <connection>
         <sender>dispBGColorAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -5049,40 +4788,10 @@
         <slot>setDisabled(bool)</slot>
     </connection>
     <connection>
-        <sender>ccFullModelCheckBox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>MainWindow</receiver>
-        <slot>cookieFullModel(bool)</slot>
-    </connection>
-    <connection>
-        <sender>ccCurrentLayerCBox</sender>
-        <signal>activated(int)</signal>
-        <receiver>MainWindow</receiver>
-        <slot>changeCCLayer(int)</slot>
-    </connection>
-    <connection>
-        <sender>ccGridColorButton</sender>
-        <signal>clicked()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>changeCCGridColor()</slot>
-    </connection>
-    <connection>
         <sender>toolsFuseChunksAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>toolsFuseChunks()</slot>
-    </connection>
-    <connection>
-        <sender>ccGridLineCheckBox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>MainWindow</receiver>
-        <slot>showCCGridLine(bool)</slot>
-    </connection>
-    <connection>
-        <sender>ccFreeViewCheckBox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>MainWindow</receiver>
-        <slot>setCCFreeView(bool)</slot>
     </connection>
     <connection>
         <sender>modifyMinimizeAllAction</sender>

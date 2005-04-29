@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Apr 19 17:47:11 2005
+# Created: Thu Apr 28 15:25:30 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5955,7 +5955,7 @@ class MainWindow(QMainWindow):
         self.moveYAction.setToggleAction(1)
         self.moveYAction.setIconSet(QIconSet(self.image91))
         self.nullAction = QAction(self,"nullAction")
-        self.nullAction.setEnabled(1)
+        self.nullAction.setEnabled(0)
         self.nullAction.setIconSet(QIconSet(self.image92))
         self.nullAction.setVisible(1)
         self.jigsStatAction = QAction(self,"jigsStatAction")
@@ -6076,11 +6076,14 @@ class MainWindow(QMainWindow):
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.fileToolbar.setGeometry(QRect(0,0,70,29))
         self.fileOpenAction.addTo(self.fileToolbar)
         self.fileSaveAction.addTo(self.fileToolbar)
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.editToolbar.setGeometry(QRect(70,0,126,29))
+        self.editToolbar.setPaletteBackgroundColor(QColor(230,231,230))
+        self.editToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.editUndoAction.addTo(self.editToolbar)
         self.editRedoAction.addTo(self.editToolbar)
         self.editCutAction.addTo(self.editToolbar)
@@ -6104,6 +6107,7 @@ class MainWindow(QMainWindow):
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.molecularDispToolbar.setGeometry(QRect(468,0,182,29))
+        self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
@@ -6119,71 +6123,10 @@ class MainWindow(QMainWindow):
         self.selectDoublyAction.addTo(self.selectToolbar)
         self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.helpToolbar.setGeometry(QRect(804,0,70,29))
+        self.helpToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.helpAssistantAction.addTo(self.helpToolbar)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
-        self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
-
-        self.cookieCutterDashboard.setEnabled(1)
-        self.cookieCutterDashboard.setGeometry(QRect(0,0,1115,29))
-        self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
-
-        self.textLabel2 = QLabel(self.cookieCutterDashboard,"textLabel2")
-        self.textLabel2.setEnabled(1)
-
-        self.spinBox4 = QSpinBox(self.cookieCutterDashboard,"spinBox4")
-        self.cookieCutterDashboard.addSeparator()
-
-        self.ccLatticeCBox = QComboBox(0,self.cookieCutterDashboard,"ccLatticeCBox")
-        self.orient100Action.addTo(self.cookieCutterDashboard)
-        self.orient110Action.addTo(self.cookieCutterDashboard)
-        self.orient111Action.addTo(self.cookieCutterDashboard)
-        self.cookieCutterDashboard.addSeparator()
-        self.ccAddLayerAction.addTo(self.cookieCutterDashboard)
-
-        self.ccCurrentLayerCBox = QComboBox(0,self.cookieCutterDashboard,"ccCurrentLayerCBox")
-        self.ccCurrentLayerCBox.setEnabled(1)
-        self.cookieCutterDashboard.addSeparator()
-
-        self.textLabel1_3 = QLabel(self.cookieCutterDashboard,"textLabel1_3")
-        self.textLabel1_3.setEnabled(1)
-
-        self.ccLayerThicknessLineEdit = QLineEdit(self.cookieCutterDashboard,"ccLayerThicknessLineEdit")
-        self.ccLayerThicknessLineEdit.setEnabled(1)
-        self.ccLayerThicknessLineEdit.setReadOnly(1)
-
-        self.textLabel1_6 = QLabel(self.cookieCutterDashboard,"textLabel1_6")
-
-        self.ccLayerThicknessSpinBox = QSpinBox(self.cookieCutterDashboard,"ccLayerThicknessSpinBox")
-        self.ccLayerThicknessSpinBox.setEnabled(1)
-        self.ccLayerThicknessSpinBox.setMaxValue(25)
-        self.ccLayerThicknessSpinBox.setMinValue(1)
-        self.ccLayerThicknessSpinBox.setValue(2)
-        self.cookieCutterDashboard.addSeparator()
-
-        self.ccFreeViewCheckBox = QCheckBox(self.cookieCutterDashboard,"ccFreeViewCheckBox")
-
-        self.ccFullModelCheckBox = QCheckBox(self.cookieCutterDashboard,"ccFullModelCheckBox")
-        self.ccFullModelCheckBox.setEnabled(1)
-
-        self.ccGridLineCheckBox = QCheckBox(self.cookieCutterDashboard,"ccGridLineCheckBox")
-        self.ccGridLineCheckBox.setChecked(1)
-
-        self.ccGridColorLabel = QLabel(self.cookieCutterDashboard,"ccGridColorLabel")
-        self.ccGridColorLabel.setMinimumSize(QSize(0,0))
-        self.ccGridColorLabel.setMaximumSize(QSize(0,0))
-        self.ccGridColorLabel.setPaletteBackgroundColor(QColor(222,148,0))
-        self.ccGridColorLabel.setFrameShape(QLabel.StyledPanel)
-
-        self.ccGridColorButton = QPushButton(self.cookieCutterDashboard,"ccGridColorButton")
-        self.ccGridColorButton.setMaximumSize(QSize(0,0))
-        self.cookieCutterDashboard.addSeparator()
-
-        self.ccDispModeCBox = QComboBox(0,self.cookieCutterDashboard,"ccDispModeCBox")
-        self.cookieCutterDashboard.addSeparator()
-        self.toolsBackUpAction.addTo(self.cookieCutterDashboard)
-        self.toolsStartOverAction.addTo(self.cookieCutterDashboard)
-        self.toolsDoneAction.addTo(self.cookieCutterDashboard)
-        self.toolsCancelAction.addTo(self.cookieCutterDashboard)
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.selectAtomsDashboard.setEnabled(1)
@@ -6197,13 +6140,22 @@ class MainWindow(QMainWindow):
         self.SAFilterList.setEnabled(1)
         self.selectAtomsDashboard.addSeparator()
         self.modifySetElementAction.addTo(self.selectAtomsDashboard)
+        self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
+
+        self.cookieCutterDashboard.setGeometry(QRect(296,0,95,29))
+        self.cookieCutterDashboard.setPaletteBackgroundColor(QColor(230,231,230))
+
+        self.ccLabel = QLabel(self.cookieCutterDashboard,"ccLabel")
         self.moveChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
+        self.moveChunksDashboard.setGeometry(QRect(391,0,96,29))
+        self.moveChunksDashboard.setPaletteBackgroundColor(QColor(230,231,230))
+        self.moveChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1 = QLabel(self.moveChunksDashboard,"textLabel1")
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,58,1036,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,29,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6262,7 +6214,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.zoomDashboard)
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.panDashboard.setGeometry(QRect(243,87,104,29))
+        self.panDashboard.setGeometry(QRect(243,58,104,29))
         self.panDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -6271,7 +6223,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.panDashboard)
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.rotateDashboard.setGeometry(QRect(347,87,120,29))
+        self.rotateDashboard.setGeometry(QRect(347,58,120,29))
         self.rotateDashboard.setPaletteBackgroundColor(QColor(230,231,230))
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
@@ -6279,38 +6231,15 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.rotateDashboard)
         self.fuseChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
+        self.fuseChunksDashboard.setEnabled(1)
 
-        self.textLabel1_5 = QLabel(self.fuseChunksDashboard,"textLabel1_5")
-        self.fuseChunksDashboard.addSeparator()
-
-        self.tolLB = QLabel(self.fuseChunksDashboard,"tolLB")
-        spacer3 = QSpacerItem(10,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        QApplication.sendPostedEvents(self.fuseChunksDashboard,QEvent.ChildInserted)
-        self.fuseChunksDashboard.boxLayout().addItem(spacer3)
-
-        self.toleranceSL = QSlider(self.fuseChunksDashboard,"toleranceSL")
-        self.toleranceSL.setMaxValue(300)
-        self.toleranceSL.setValue(100)
-        self.toleranceSL.setOrientation(QSlider.Horizontal)
-
-        self.toleranceLB = QLabel(self.fuseChunksDashboard,"toleranceLB")
-        spacer5 = QSpacerItem(10,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        QApplication.sendPostedEvents(self.fuseChunksDashboard,QEvent.ChildInserted)
-        self.fuseChunksDashboard.boxLayout().addItem(spacer5)
-
-        self.makeBondsPB = QPushButton(self.fuseChunksDashboard,"makeBondsPB")
-
-        self.mergeCB = QCheckBox(self.fuseChunksDashboard,"mergeCB")
-        self.mergeCB.setChecked(1)
-        spacer4 = QSpacerItem(20,27,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        QApplication.sendPostedEvents(self.fuseChunksDashboard,QEvent.ChildInserted)
-        self.fuseChunksDashboard.boxLayout().addItem(spacer4)
-        self.toolsBackUpAction.addTo(self.fuseChunksDashboard)
-        self.toolsDoneAction.addTo(self.fuseChunksDashboard)
+        self.textLabel1_3 = QLabel(self.fuseChunksDashboard,"textLabel1_3")
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.depositAtomDashboard.setGeometry(QRect(0,116,19,16))
+        self.depositAtomDashboard.setEnabled(1)
+        self.depositAtomDashboard.setGeometry(QRect(559,58,19,29))
         self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
+        self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.cookieSelectDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
         self.DefaultSelAction.addTo(self.cookieSelectDashboard)
@@ -6494,7 +6423,6 @@ class MainWindow(QMainWindow):
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
-        self.connect(self.ccLayerThicknessLineEdit,SIGNAL("textChanged(const QString&)"),self.validateThickness)
         self.connect(self.dispBGColorAction,SIGNAL("activated()"),self.dispBGColor)
         self.connect(self.dispCPKAction,SIGNAL("activated()"),self.dispCPK)
         self.connect(self.dispCsysAction,SIGNAL("activated()"),self.dispCsys)
@@ -6620,12 +6548,7 @@ class MainWindow(QMainWindow):
         self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
         self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectConnectedAction,SLOT("setDisabled(bool)"))
         self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectDoublyAction,SLOT("setDisabled(bool)"))
-        self.connect(self.ccFullModelCheckBox,SIGNAL("toggled(bool)"),self.cookieFullModel)
-        self.connect(self.ccCurrentLayerCBox,SIGNAL("activated(int)"),self.changeCCLayer)
-        self.connect(self.ccGridColorButton,SIGNAL("clicked()"),self.changeCCGridColor)
         self.connect(self.toolsFuseChunksAction,SIGNAL("activated()"),self.toolsFuseChunks)
-        self.connect(self.ccGridLineCheckBox,SIGNAL("toggled(bool)"),self.showCCGridLine)
-        self.connect(self.ccFreeViewCheckBox,SIGNAL("toggled(bool)"),self.setCCFreeView)
         self.connect(self.modifyMinimizeAllAction,SIGNAL("activated()"),self.modifyMinimizeAll)
         self.connect(self.modifyInvertAction,SIGNAL("activated()"),self.modifyInvert)
 
@@ -7030,33 +6953,6 @@ class MainWindow(QMainWindow):
         self.molecularDispToolbar.setLabel(self.__tr("Display Modes"))
         self.selectToolbar.setLabel(self.__tr("Select"))
         self.helpToolbar.setLabel(self.__tr("Help"))
-        self.cookieCutterDashboard.setLabel(self.__tr("Cookie Cutter"))
-        self.textLabel2.setText(self.__tr(" Cookie Cutter"))
-        self.ccLatticeCBox.clear()
-        self.ccLatticeCBox.insertItem(self.__tr("Diamond"))
-        self.ccLatticeCBox.insertItem(self.__tr("Lonsdaleite"))
-        QToolTip.add(self.ccLatticeCBox,self.__tr("Grid lattice type."))
-        self.ccCurrentLayerCBox.clear()
-        self.ccCurrentLayerCBox.insertItem(self.__tr("1"))
-        QToolTip.add(self.ccCurrentLayerCBox,self.__tr("Current Layer"))
-        self.textLabel1_3.setText(self.__tr("Thickness:"))
-        QToolTip.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))
-        QWhatsThis.add(self.ccLayerThicknessLineEdit,self.__tr("Thickness of layer in Angstroms"))
-        self.textLabel1_6.setText(self.__tr("# Cells:"))
-        QToolTip.add(self.ccLayerThicknessSpinBox,self.__tr("Number of lattice cells"))
-        QWhatsThis.add(self.ccLayerThicknessSpinBox,self.__tr("Number of lattice cells"))
-        self.ccFreeViewCheckBox.setText(self.__tr("Free View"))
-        QToolTip.add(self.ccFreeViewCheckBox,self.__tr("By checking this, you can view the cookie freely."))
-        self.ccFullModelCheckBox.setText(self.__tr("Whole Model"))
-        self.ccGridLineCheckBox.setText(self.__tr("Grid Line"))
-        self.ccGridColorLabel.setText(QString.null)
-        QToolTip.add(self.ccGridColorLabel,self.__tr("Grid line color."))
-        self.ccGridColorButton.setText(self.__tr("..."))
-        QToolTip.add(self.ccGridColorButton,self.__tr("Customize grid line color."))
-        self.ccDispModeCBox.clear()
-        self.ccDispModeCBox.insertItem(self.__tr("Tubes"))
-        self.ccDispModeCBox.insertItem(self.__tr("Spheres"))
-        QToolTip.add(self.ccDispModeCBox,self.__tr("Cookie display mode."))
         self.selectAtomsDashboard.setLabel(self.__tr("Select Atoms"))
         self.textLabel2_2.setText(self.__tr("Select Atoms"))
         self.SAFilter.setText(self.__tr("Filter:"))
@@ -7080,6 +6976,8 @@ class MainWindow(QMainWindow):
         self.SAFilterList.insertItem(self.__tr("Selenium"))
         self.SAFilterList.insertItem(self.__tr("Bromine"))
         self.SAFilterList.insertItem(self.__tr("Krypton"))
+        self.cookieCutterDashboard.setLabel(self.__tr("Cookie Cutter"))
+        self.ccLabel.setText(self.__tr("Cookie Cutter"))
         self.moveChunksDashboard.setLabel(self.__tr("Move Chunks"))
         self.textLabel1.setText(self.__tr("Move Chunks"))
         self.moviePlayerDashboard.setLabel(self.__tr("Movie Player Dashboard"))
@@ -7095,12 +6993,8 @@ class MainWindow(QMainWindow):
         self.panTextLabel.setText(self.__tr("Pan Tool"))
         self.rotateDashboard.setLabel(self.__tr("Rotate Tool"))
         self.rotateTextLabel.setText(self.__tr("Rotate Tool"))
-        self.fuseChunksDashboard.setLabel(self.__tr("Toolbar"))
-        self.textLabel1_5.setText(self.__tr("Fuse Chunks"))
-        self.tolLB.setText(self.__tr("Tolerance:"))
-        self.toleranceLB.setText(self.__tr("100% => 0 Bonds"))
-        self.makeBondsPB.setText(self.__tr("Make Bonds"))
-        self.mergeCB.setText(self.__tr("Merge Chunks"))
+        self.fuseChunksDashboard.setLabel(self.__tr("Fuse Chunks"))
+        self.textLabel1_3.setText(self.__tr("Fuse Chunks"))
         self.depositAtomDashboard.setLabel(self.__tr("Build Dashboard"))
         self.cookieSelectDashboard.setLabel(self.__tr("Toolbar"))
         self.modifyToolbar.setLabel(self.__tr("Modify"))
