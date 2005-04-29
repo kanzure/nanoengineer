@@ -9,6 +9,8 @@ Bug Fixes In Alpha 5
 
 * Bug #371 Display bug associated with a cut operation on a chunk (which is bonded with another chunk). It stretches the inter-chunk bond and keeps bonded portion of cut chunk visible
 
+* Bug #395 Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie.
+
 * Bug #422 Minimize: Large values written to the MMP (or to the generated XYZ) file after minimizing a model containing overlapped open bonds or excessively stretched bonds 
 
 * Bug # 433 Errors/bugs when a blank PDB file is inserted into any open file using File->Insert.
@@ -55,25 +57,21 @@ Known Bugs (All Platforms)
 
 6. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at “ www.nanoengineer-1.com/mambo/index.php?option=com_content&task=view&id=23&Itemid=37  “
 
-7. Simulator: in some cases, hydrogen atoms or other elements ‘fly away’ while running a simulation movie. (528, 558) 
+7. Simulator: In some cases, hydrogen atoms or other elements ‘fly away’ while running a simulation movie. (528, 558) 
 
 8. Minimize sometimes gives partial results. For some structures it needs multiple executions of ‘minimize’ to boil down the high force to a lower value. (567) 
 
-9. Movie: Some bugs occur if one tries to play a movie file that is not valid for an opened MMP file.( A movie file becomes invalid if you make certain modifications to the file after creating the movie e.g. add/delete atoms) . This may result in loss of data. Therefore, do not try to play a movie file that is invalid for the opened part. (384)
+9. Povray file of a model neglects the user defined lighting and displays the povray image in nE-1’s default lighting. (447)
 
-10. Movie: Movie player directly jumps to the last frame if, you play a movie, then create a new movie with lesser number of frames than the original one and then enter the movie player in order to play the new movie (395)
+10. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. (168) 
 
-11. Povray file of a model neglects the user defined lighting and displays the povray image in nE-1’s default lighting. (447)
+11. Selection/Jigs: Cannot select a jig (i.e. motor, ground, thermostat or thermometer) in the graphics area. Jigs may only be selected via the model tree. (6) 
 
-12. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. (168) 
+12. Selection: Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
 
-13. Selection/Jigs: Cannot select a jig (i.e. motor, ground, thermostat or thermometer) in the graphics area. Jigs may only be selected via the model tree. (6) 
+13. Selection: ‘Select Doubly’ can often take a long time to complete. (102)
 
-14. Selection: Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
-
-15. Selection: ‘Select Doubly’ can often take a long time to complete. (102)
-
-16. Extrude Tool: The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
+14. Extrude Tool: The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
 
 -- Get everything adjusted first in the 'rod mode'.  For example, select the proper bond offset sphere or arrange the copy units such that you can see their open bonds highlighted in a way you would like to bond them. (In general, while in the ring mode, adjustments made from graphics area don’t work)
 
@@ -83,31 +81,31 @@ Known Bugs (All Platforms)
 
 -- Select the 'Done' button on the dashboard when finished. (155)
 
-17. Extrude Tool: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
+15. Extrude Tool: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
 
-18. Extrude Tool: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
+16. Extrude Tool: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
 
-19. Exrude Tool: Extrude’s ring feature doesn’t take the curvature into account for the bonds formed. (494)
+17. Exrude Tool: Extrude’s ring feature doesn’t take the curvature into account for the bonds formed. (494)
 
-20. Cookie Cutter: Large selections can cause response latency. (8)
+18. Cookie Cutter: Large selections can cause response latency. (8)
 
-21. Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
+19. Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
 
-22. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
+20. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
 
-23. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
+21. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
 
-24. Align to common axis averages the axis vectors of the selected chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks. (187)
+22. Align to common axis averages the axis vectors of the selected chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks. (187)
 
-25. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
+23. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
 
-26. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
+24. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
 
-27. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+25. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
 
-28. Display: The front clipping plane will sometimes clip objects that should not be clipped.
+26. Display: The front clipping plane will sometimes clip objects that should not be clipped.
 
-29. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+27. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
 
 Windows Only Bugs
