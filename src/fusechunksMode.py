@@ -21,8 +21,10 @@ def do_what_MainWindowUI_should_do(w):
     
     w.fuseChunksLabel = QLabel(w.fuseChunksDashboard)
     w.fuseChunksLabel.setText(" Fuse Chunks ")
+    
     w.fuseChunksDashboard.addSeparator()
 
+    # moveFreeAction, transXAction, transYAction, and transZAction are shared with modifyMode.
     w.moveFreeAction.addTo(w.fuseChunksDashboard)
     
     w.fuseChunksDashboard.addSeparator()
@@ -93,9 +95,7 @@ class fusechunksMode(modifyMode):
     rfactor = .75 # 
 
     def Enter(self):
-        basicMode.Enter(self)
-        self.o.assy.selectParts()
-        self.dragdist = 0.0
+        modifyMode.Enter(self)
         self.saveDisp = self.o.display
         self.o.setDisplay(diTUBES)
             
