@@ -93,6 +93,10 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         # mark 050411: Do this here.  We should do this for all dashboards eventually.
         import modifyMode as _modifyMode
         _modifyMode.do_what_MainWindowUI_should_do(self)
+        
+        # mark 050428: Added Fuse Chunk dashboard.
+        import fusechunksMode as _fusechunksMode
+        _fusechunksMode.do_what_MainWindowUI_should_do(self)
 
         # this got lost in MainWindowUI somehow
         self.disconnect(self.editCopyAction,SIGNAL("activated()"),self.copyDo)
@@ -110,14 +114,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         
         # Create Assistant - Mark 11-23-2004
         self.assistant = AssistantWindow(self, "Assistant")
-        
-        # Create validator(s)
-        from qt import QDoubleValidator
-            ##bruce 050408 added this import; ideally this code should not be in MWsemantics at all
-        maxd = self.ccLayerThicknessSpinBox.maxValue() * 3.5103 # Maximum value allowed
-        self.vd = QDoubleValidator( 0.0, maxd , 4, self ) # 4 decimal places
-        self.ccLayerThicknessLineEdit.setValidator (self.vd)
-        
+
         windowList += [self]
         if name == None:
             self.setName("nanoENGINEER-1") # Mark 11-05-2004
