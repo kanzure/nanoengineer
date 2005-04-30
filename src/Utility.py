@@ -945,8 +945,8 @@ class Node:
             mapping.write("info leaf disabled = True\n") #bruce 050422
         return
         
-#    def writemdl(self, alist, f, dispdef):
-#        pass
+    def writemdl(self, alist, f, dispdef): #bruce 050430 added Node default method to fix bug reported by Ninad for A5
+        pass
 
     def writepov(self, file, dispdef): #bruce 050208 added Node default method
         pass
