@@ -37,7 +37,8 @@ What is new in nanoENGINEER-1 v0.0.5 (Alpha 5):
   - improved minimization
   - cutover from steepest descent to conjugate-gradient now occurs only when the 
     highest force <= 150 pN and the RMS value is <= 50 pN
-  - more informative and understandable history messages for the user
+  - more informative and understandable history messages for the user, including warnings
+    and errors during a simulation or minimization.
 9. New Select Menu: Includes all options from the Select Toolbar
 10. Display > Show Invisible Atoms: Resets the display of any invisible atoms in the 
     selected chunk(s).
@@ -50,9 +51,16 @@ What is new in nanoENGINEER-1 v0.0.5 (Alpha 5):
 15. Added Element Selector to the Build Atoms dashboard.
 16. Lighting Tool: Added Restore Defaults button.
 17. Changed Modify > Weld to Modify > Merge
-18. Hidden state of model tree nodes are saved in MMP file and restored when reopening the part.
-19. Open/close state of model tree groups are saved in MMP file and restored when reopening 
-    the part.
+18. Hidden state of model tree nodes are saved in the MMP file and restored when 
+    reopening the part.
+19. Open/close state of model tree groups are saved in MMP file and restored when 
+    reopening the part.
+20. Jigs:
+  - Jigs are automatically deleted if all the atoms to which they are attached are deleted.
+  - Jigs can be cut and pasted to the Clipboard.
+  - Jigs can be disabled via the Model Tree context menu.
+  - Disabled jigs are ignored and have no effect during simulation runs.
+  - Disabled state of jigs are saved in MMP file and restored when reopenng the part.
 
 
 What was new in v0.0.4 (3/14/2005):
