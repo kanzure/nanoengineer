@@ -28,19 +28,21 @@ Unsupported Features:
 
 3. Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. 
 
-4. The 'Clipboard' has limitations and some bugs. 
+4. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading a PDB file and also while writing a PDB or MMP file. Therefore, if you open such a PDB file, do not save it using current nE-1 version (569)
 
-5. The symmetry information for a selected chunk cannot be obtained. (261)
+5. The 'Clipboard' has limitations and some bugs. 
 
-6. sp and sp2 bonds are not supported.
+6. The symmetry information for a selected chunk cannot be obtained. (261)
 
-7. Aromatic bonds are not supported.
+7. sp and sp2 bonds are not supported.
 
-8. Bonds are not selectable.
+8. Aromatic bonds are not supported.
 
-9. Linear motors are not supported by the simulator. (393) 
+9. Bonds are not selectable.
 
-10. Unicode characters are not supported for naming the items. Also, to avoid some bugs do not use a closing parenthesis symbol ‘)’ while naming the items in nE-1. (474)
+10. Linear motors are not supported by the simulator. (393) 
+
+11. Unicode characters are not supported for naming the items. Also, to avoid some bugs do not use a closing parenthesis symbol ‘)’ while naming the items in nE-1. (474)
 
 
 Known Bugs (All Platforms)
@@ -53,7 +55,7 @@ Known Bugs (All Platforms)
 
 4. Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)
 
-5. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. nanoENGINEER-1 doesn't give any warning message for users trying to save such features in a .pdb file. (252)
+5. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. nanoENGINEER-1 doesn't give any warning message for users trying to save such features in a PDB file. (252)
 
 6. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at “ www.nanoengineer-1.com/mambo/index.php?option=com_content&task=view&id=23&Itemid=37  “
 
@@ -87,25 +89,27 @@ Known Bugs (All Platforms)
 
 17. Exrude Tool: Extrude’s ring feature doesn’t take the curvature into account for the bonds formed. (494)
 
-18. Cookie Cutter: Large selections can cause response latency. (8)
+18.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode , after adjusting the chunks (to be extruded) as ‘bondables’ with their copy units. (495)
 
-19. Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
+19. Cookie Cutter: Large selections can cause response latency. (8)
 
-20. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
+20. Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
 
-21. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
+21. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
 
-22. Align to common axis averages the axis vectors of the selected chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks. (187)
+22. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
 
-23. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
+23. Align to common axis averages the axis vectors of the selected chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks. (187)
 
-24. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
+24. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
 
-25. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+25. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
 
-26. Display: The front clipping plane will sometimes clip objects that should not be clipped.
+26. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
 
-27. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+27. Display: The front clipping plane will sometimes clip objects that should not be clipped.
+
+28. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
 
 Windows Only Bugs
