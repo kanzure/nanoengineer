@@ -1,41 +1,40 @@
-                     README for nanoENGINEER-1 (TM)
-                     -----------------------------
+README
  
-VERSION/INFO:
+Version/Info:
  
   This is nanoENGINEER-1 v0.0.5 (Alpha 5) as of May 2, 2005.
   See the COPYRIGHT section for distribution and copyright notices.
   Send all bug reports and questions for nanoENGINEER-1 to 
   support@nanorex.com.
 
-  For the most recent version of this file, check 
-  http://www.nanoengineer-1.com/doc/README.htm
+  You may access the most current copy of this file on-line at:
+  http://www.nanoengineer-1.com in the Documentation section.
 
 
-MINIMUM SYSTEM REQUIREMENTS:
+Minimum System Requirements:
 
   Linux:
     1 GHz Intel/AMD processor or equivalent 
     512 MB RAM
-    300 MB available disk space
+    35 MB available disk space
     3D graphics accelerator card
 
   Macintosh:
     1 GHz PowerPC G4 processor
     Mac OS X 10.3 and later 
     512 MB RAM
-    300 MB available disk space
+    35 MB available disk space
     3D graphics accelerator card
 
   Windows:
     1 GHz Intel Pentium M processor or equivalent
     WindowsXP
     512 MB RAM
-    300 MB available disk space
+    35 MB available disk space
     3D graphics accelerator card
 
 
-INSTALLATION:
+Installation:
 
   1. Simply run the package installer for your system type.
 
@@ -46,7 +45,7 @@ INSTALLATION:
 
   Windows and MacOSX Installation:
 
-     GNUplot 4.0 is included with the Win32 package installer.
+     GNUplot 4.0 is included with the package installer.
      No extra software is required.
 
   Linux Installation (optional): 
@@ -60,19 +59,21 @@ INSTALLATION:
      in nE-1 will work fine.
 
 
-NEW STUFF:
+New Features:
 
-  See RELEASENOTES.txt for the latest info, including new
-  features.   You may access a copy of this file at:
-  http://www.nanoengineer-1.com/doc/ReleaseNotes.htm
-
-
-UNSUPPORTED/BUGS:
-
-  Please see the file http://www.nanoengineer-1.com/doc/KnownBugs.htm
+  See RELEASENOTES.txt for the latest info, including new features.
+  You may access the most current copy of this file on-line at:
+  http://www.nanoengineer-1.com in the Documentation section.
 
 
-COPYRIGHT:
+Known Bugs and Unsupported Features:
+
+  See KnownBugs.txt for the latest info regarding new and fixed bugs.
+  You may access the most current copy of this file on-line at:
+  http://www.nanoengineer-1.com in the Documentation section.
+
+
+Copyright:
 
   Copyright (c) 2004-2005 Nanorex, Inc.
 
