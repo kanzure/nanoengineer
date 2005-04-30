@@ -1,7 +1,54 @@
-RELEASE NOTES FOR nanoENGINEER-1 v0.0.4 (Alpha 4)
-March 14, 2005
+RELEASE NOTES FOR nanoENGINEER-1 v0.0.5 (Alpha 5)
+May 2, 2005
 
-What's new in 0.0.4:
+1. Minimize Selection: Will minimize the current selection only.
+2. Cookie Cutter:
+  - Support for Lonsdaleite (hexagonal diamond)
+  - Modify selection curve(s) for any cookie layer
+  - Diamond surface orientation displayed in the  status bar
+  - Rotate lattice grid by increments, around the POV (point of view) axis.
+  - Abort/restart the current selection using the Esc key
+  - Cookie layers are displayed in different colors
+  - Option to display selection as spheres, similar to CPK mode, but with bonds drawn as white lines.
+  - Option to change the grid line color
+  - Option to display the rest of the model
+  - New shape selection options (triangle, rectangle, hexagon, square and diamond)
+3. Clipboard:
+  - Selected items are now displayed and editable in Graphics Area.
+  - Drag and drop works reliably to/from clipboard
+4. Move Chunks:
+  - Translate selected chunks by a specified X, Y, Z offset
+  - Move selected chunk(s) to an absolute position
+  - Dashboard options offer constrained rotation and translation along the X, Y, or Z axis.
+  - Modifier keys activate constrained rotation and translation along the X (X key), Y (Y key) or Z (Z key) axis.
+  - Modifier keys limit interactive movement to rotation (R key) or translation (T key)
+5. Fuse Chunks:
+  - New tool for interactively connecting open bonds between two or more chunks
+  - Option to merge connected chunks into a single chunk
+  - Fine control (using modifier keys) of chunk movement while finding and highlighting bondable pairs of atom between chunks.
+6. Modify > Invert: Inverts the atoms of the selected chunk(s)
+7.Select Atoms: New Atom Selection Filter available on dashboard
+8. Simulator:
+  - aborted simulation runs can be played in movie player
+  - improved minimization
+  - cutover from steepest descent to conjugate-gradient now occurs only when (highest force <= 150 pN && rms <= 50 pN)
+  - more informative and understandable history messages for the user
+9. New Select Menu: Includes all options from the Select Toolbar
+10. Display > Show Invisible Atoms: Resets the display of any invisible atoms in the selected chunk(s).
+11. Display > Reset Chunk Display: Resets the display of all atoms in the selected chunk(s).
+12. Movie Player:
+  - Better validation of movie files with current part.
+  - Movies will still play after the part has been changed by moving the original
+13. Plot Tool: Changed GNUplot filename suffix from "-trace.plt" to "-plot.txt"
+14. Removed Element Selector from Modify toolbar.
+15. Added Element Selector to the Build Atoms dashboard.
+16. Lighting Tool: Added Restore Defaults button.
+17. Changed Modify > Weld to Modify > Merge
+18. Hidden state of model tree nodes are saved in MMP file and restored when reopening the part.
+19. Open/close state of model tree groups are saved in MMP file and restored when reopening the part.
+
+
+What was new in 0.0.4:
 
 1. Element Selector: 
   - removed controls for changing element colors.
@@ -24,7 +71,7 @@ What's new in 0.0.4:
 6. Simulator: new toolbar/menu contains Simulator, Movie Player and Plot Tool.
 
 
-in 0.0.3 (2/28/2005):
+What was new in 0.0.3 (2/28/2005):
 
 1. Select > Doubly: The cursor displays the "Wait Cursor" (hourglass) while 
    Select > Doubly is working.
@@ -41,13 +88,13 @@ in 0.0.3 (2/28/2005):
    the user on which configurations will produce the most bonds. 
 
 
-in 0.0.2 (2/14/2005):
+What was new in 0.0.2 (2/14/2005):
 
 1. Simulator works on MacOSX.
 2. Fixed bug in cad that limited the simulator to no more than 940 frames
    on Windows.
 
 
-in 0.0.1 (2/2/2005):
+What was new in 0.0.1 (2/2/2005):
 
 1. Everything
