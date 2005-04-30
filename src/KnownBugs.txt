@@ -30,7 +30,7 @@ Unsupported Features:
 
 4. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading a PDB file and also while writing a PDB or MMP file. Therefore, if you open such a PDB file, do not save it using current nE-1 version (569)
 
-5. The 'Clipboard' has limitations and some bugs. 
+5. The 'Clipboard' is still experimental and has some  bugs related to history messages it emits. 
 
 6. The symmetry information for a selected chunk cannot be obtained. (261)
 
@@ -91,31 +91,37 @@ Known Bugs (All Platforms)
 
 18.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode , after adjusting the chunks (to be extruded) as ‘bondables’ with their copy units. (495)
 
-19. Cookie Cutter: Large selections can cause response latency. (8)
+19. Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard ‘Part’), then the movie can not be ‘viewed’. But it continues to run. nE-1 doesn’t print a warning message to instruct user to click on the appropriate ‘Part’, for which the movie is created for,  to view the movie. (578-5)
 
-20. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)
+20. Cookie Cutter: Large selections can cause response latency. (8)
 
-21. Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
+21. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)
 
-22. Fuse Chunks: If the chunks were ‘merged’ in previous operation while bonding them together, ‘Back Up’ button on the dashboard doesn’t ‘unmerge’ them. It only deletes the bond formed in earlier operation. (486-10)
+22. Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
 
-23. Fuse Chunks: Back up button on dashboard to delete a bond formed in previous operation deletes the bond, but it doesn’t restore the previous bond angles. (502-16)
+23. Fuse Chunks: If the chunks were ‘merged’ in previous operation while bonding them together, ‘Back Up’ button on the dashboard doesn’t ‘unmerge’ them. It only deletes the bond formed in earlier operation. (486-10)
 
-24. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
+24. Fuse Chunks: Back up button on dashboard to delete a bond formed in previous operation deletes the bond, but it doesn’t restore the previous bond angles. (502-16)
 
-25. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
+25. Fuse Chunks: Some history message generated are not correct for current version but these will become valid once bond ontology is implemented in nE-1 because of the same reason the back up button in fuse chunks has a related bug. (580)
 
-26. Align to common axis averages the axis vectors of the selected chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks. (187)
+26. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
 
-27. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
+27. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
 
-28. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
+28. Align to common axis averages the axis vectors of the selected chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks. (187)
 
-29. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+29. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
 
-30. Display: The front clipping plane will sometimes clip objects that should not be clipped.
+30. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
 
-31. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+31. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+
+32. Display: The front clipping plane will sometimes clip objects that should not be clipped.
+
+33. Dialogs and Dashboard: Users operating nE-1 with a low screen resolution report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Element Selector need resizing etc. (231, 513, 581)
+
+34. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
 
 Windows Only Bugs
