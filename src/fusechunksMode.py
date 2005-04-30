@@ -324,11 +324,6 @@ class fusechunksMode(modifyMode):
 
             total_bonds_made = len(self.bondable_pairs_atoms)
             
-#            m1 = fix_plurals( "%d bond(s) made with " % total_bonds_made)
-#            m2 = fix_plurals( "%d chunk(s) " % len(self.merged_chunks))
-#            msg = fix_plurals( "%d bond(s) made with %d chunk(s) " % total_bonds_made, len(self.merged_chunks))
-#            self.w.history.message(msg)
-            
             if singlets_not_bonded == 1:
                 msg = "%d open bond had more than one option to form bonds with. It was not bonded." % (singlets_not_bonded,)
             else:
@@ -338,10 +333,8 @@ class fusechunksMode(modifyMode):
         else:  # All bond pairs had only one way to bond.
             total_bonds_made = len(self.bondable_pairs_atoms)
             
-        m1 = fix_plurals( "%d bond(s) made with " % total_bonds_made)
-        m2 = fix_plurals( "%d chunk(s) ." % len(self.merged_chunks))
-        self.w.history.message(m1 + m2)
-
+        msg = fix_plurals( "%d bond(s) made" % total_bonds_made)
+        self.w.history.message(msg)
 
         # This must be done before gl_update, or it will try to draw the 
         # bondable singlets again, which generates errors.
