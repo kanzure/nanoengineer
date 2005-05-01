@@ -20,7 +20,6 @@ from constants import *
 from debug import print_compact_traceback
 import platform 
 
-## color = [0.22, 0.35, 0.18, 1.0] # bruce 041214 thinks this is unused
 
 class BBox:
     """ implement a bounding box in 3-space
@@ -30,25 +29,29 @@ class BBox:
     data is stored hi, lo so we can use subtract.reduce
     """
     def __init__(self, point1=None, point2=None, slab = None):
+        """Huaicai 4/23/05: added some comments as below to help understand the code. """
         if slab:
-            # convert from a 2d box and axes
+            # convert from 2d (x, y) coordinates into its 3d world (x, y, 0) coordinates(the lower-left and upper-right corner). In another word, the 3d coordinates minus the z offset of the plane.
             x=dot(A(point1),A(point2))
+            # Get the vector from upper-right point to the lower-left point
             dx = subtract.reduce(x)
+            # Get the upper-left and lower right corner points
             oc=x[1]+V(point2[0]*dot(dx,point2[0]),point2[1]*dot(dx,point2[1]))
+            # Get the four 3d cooridinates on the bottom cookie-cutting plane
             sq1 = cat(x,oc) + slab.normal*dot(slab.point, slab.normal)
+            # transfer the above 4 3d coordinates in parallel to get that on the top plane, put them together
             sq1 = cat(sq1, sq1+slab.thickness*slab.normal)
             self.data = V(maximum.reduce(sq1), minimum.reduce(sq1))
         elif point2:
             # just 2 3d points
             self.data = V(maximum(point1, point2),minimum(point1, point2))
         elif point1:
-            # list of points
+            # list of points: could be 2d or 3d?  +/- 1.8 to make the bounding box enclose the vDw ball of an atom?
             self.data = V(maximum.reduce(point1) + 1.8, minimum.reduce(point1) - 1.8)
         else:
             # a null bbox
             self.data = None
-        
-            
+    
             
     def add(self, point):
         vl = cat(self.data, point)
@@ -108,7 +111,17 @@ class Slab:
 def fill(mat,p,dir):
     """ Fill a curve drawn in matrix mat in 1's on 0's with 1's.
     p is V(i,j) of a point to fill from. dir is 1 or -1 for the
-    standard recursive fill algorithm
+    standard recursive fill algorithm. 
+    Huaicai: This function is used to fill the area between the rectangle bounding box and the boundary
+    of the curve with 1's. The bounding box is extended by (lower left corner -2, right top corner + 2). 
+    The curve boundary is filled with 1's. So mat[1,:] = 0, mat[-1,:]=0, mat[:, 1]=0;
+    mat[:, -1]=0, which mean the area is connected. If we start from mat[1,1], dir =1, then we scan the 
+    first line from left to right. If it's 0, fill it as 1 until we touch 1. For each element in the line, we also 
+    check it's neighbor above and below. For the neighbor elements, if the neighbor touches 1 but 
+    previous neighbor is 0, then scan the neighbor line in the reverse order. I think this algorithm is better
+    than the simple recursive flood filling algorithm. The seed mat[1,1] is always inside the area, and 
+    most probably this filling area is smaller than that inside the curve. I think it also reduces repeated 
+    checking/filling of the classical algorithm.
     """
     if mat[p]: return
     up = dn = 0
@@ -139,7 +152,6 @@ def fill(mat,p,dir):
 # I'm not sure we'll always want to depend on that agreement of coord systems
 # for everything in one shape.
 
-
 class simple_shape_2d: 
     "common code for selection curve and selection rectangle"
     def __init__(self, shp, ptlist, origin, logic, opts):
@@ -160,6 +172,9 @@ class simple_shape_2d:
         self.slab = opts.get('slab', None) # how thick in what direction
         self.eyeball = opts.get('eye', None) # for projecting if not in ortho mode
         
+        if self.eyeball:
+            self.eye2Pov = vlen(self.org - self.eyeball)
+        
         # project the (3d) path onto the plane. Warning: arbitrary 2d origin!
         # Note: original code used project_2d_noeyeball, and I think this worked
         # since the points were all in the same screen-parallel plane as
@@ -178,6 +193,10 @@ class simple_shape_2d:
         bboxlo, bboxhi = self.bboxlo, self.bboxhi
         
         # compute 3d bounding box
+        # Note: bboxlo, bboxhi are 2d coordinates relative to the on plane
+        # 2D coordinate system: self.right and self.up. When constructing
+        # the 3D bounding box, the coordinates will be transformed back to 
+        # 3d world coordinates.
         if self.slab:
             x, y = self.right, self.up
             self.bbox = BBox(V(bboxlo, bboxhi), V(x,y), self.slab)
@@ -186,8 +205,12 @@ class simple_shape_2d:
         return
 
     def project_2d_noeyeball(self, pt):
-        """Project a point into our plane (ignoring eyeball).
-           Warning: arbitrary origin!
+        """Bruce: Project a point into our plane (ignoring eyeball). Warning: arbitrary origin!
+           
+           Huaicai 4/20/05: This is just to project pt into a 2d coordinate 
+           system (self.right, self.up) on a plane through pt and parallel to the screen 
+           plane. For perspective projection, (x,y) on this plane is different than that on the plane 
+           through pov.
         """
         x, y = self.right, self.up
         return V(dot(pt, x), dot(pt, y))
@@ -203,9 +226,9 @@ class simple_shape_2d:
             pfix = self.project_2d_noeyeball(self.org)
             p -= pfix
             try:
-                ###e we recompute this a lot; should cache it in self or self.shp
-                p = p / (dot(pt - self.eyeball, self.normal) / 
-                         vlen(self.org - self.eyeball))
+                ###e we recompute this a lot; should cache it in self or self.shp--Bruce
+                ## Huaicai 04/23/05: made the change as suggested by Bruce above.
+                p = p / (dot(pt - self.eyeball, self.normal) / self.eye2Pov)
             except:
                 # bruce 041214 fix of unreported bug:
                 # point is too close to eyeball for in-ness to be determined!
@@ -263,7 +286,7 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         ibbhi = array(map(int,ceil(8*self.bboxhi)+2))
         ibblo = array(map(int,floor(8*self.bboxlo)-2))
         bboxlo = self.bboxlo
-
+        
         # draw the curve in these matrices and fill it
         # [bruce 041214 adds this comment: this might be correct but it's very
         # inefficient -- we should do it geometrically someday. #e]
@@ -284,9 +307,9 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
                 mat[ij]=1
             pt0 = pt
         mat1 += mat
+        
         fill(mat1,array([1,1]),1)
         mat1 -= mat
-        
         # boolean raster of filled-in shape
         self.matrix = mat1
         # where matrix[0,0] is in x,y space
@@ -438,15 +461,20 @@ class SelectionShape(shape):
             """Loop thru all the atoms that are visible and select any
                 that are 'in' the shape, ignoring the thickness parameter.
             """
-        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
-        # also added .hidden check to the last of 3 cases. Left everything else
-        # as I found it. This code ought to be cleaned up to make it clear that
-        # it uses the same way of finding the selection-set of atoms, for all
-        # three logic cases in each of select and partselect. If anyone adds
-        # back any differences, this needs to be explained and justified in a
-        # comment; lacking that, any such differences should be considered bugs.
-        # (BTW I don't know whether it's valid to care about logic of only the
-        # first curve in the shape, as this code does.)
+            #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
+            # also added .hidden check to the last of 3 cases. Left everything else
+            # as I found it. This code ought to be cleaned up to make it clear that
+            # it uses the same way of finding the selection-set of atoms, for all
+            # three logic cases in each of select and partselect. If anyone adds
+            # back any differences, this needs to be explained and justified in a
+            # comment; lacking that, any such differences should be considered bugs.
+            # (BTW I don't know whether it's valid to care about logic of only the
+            # first curve in the shape, as this code does.)
+            
+            # Huaicai 04/23/05: For selection, every shape only has one curve, so 
+            # the above worry by Bruce is not necessary. The reason of not reusing
+            # shape is because after each selection user may change view orientation,
+            # which requires a new shape creation.
         
             if assy.selwhat:
                 self._chunksSelect(assy)

@@ -47,13 +47,15 @@ class cookieMode(basicMode):
         self.savedOrtho = self.o.ortho
         self.o.ortho = 1
         self.cookieQuat = None
-        #self.thickness = -1
         
         self.freeView = False
         self.ctrlPanel.freeViewCheckBox.setChecked(self.freeView)
         
         self.gridShow = True
         self.ctrlPanel.gridLineCheckBox.setChecked(self.gridShow)
+        
+        self.gridSnap = False
+        self.ctrlPanel.snapGridCheckBox.setChecked(self.gridSnap)
         
         self.showFullModel = self.ctrlPanel.fullModelCheckBox.isChecked()
         self.cookieDisplayMode = str(self.ctrlPanel.dispModeCBox.currentText())
@@ -243,7 +245,7 @@ class cookieMode(basicMode):
         elif self.selectionShape == 'RECT_CORNER':    
             self.selLassRect = True
             
-        p1, p2 = self.o.mousepoints(event, 0.01)
+        p1, p2 = self._getPoints(event)#self.o.mousepoints(event, 0.01)
         
         self.o.normal = self.o.lineOfSight
         self.sellist = [p1]
@@ -269,7 +271,7 @@ class cookieMode(basicMode):
         if self.Rubber: return
         if not self.selectionShape in ['DEFAULT', 'LASSO', 'RECT_CORNER']: return
         
-        p1, p2 = self.o.mousepoints(event, 0.01)
+        p1, p2 = self._getPoints(event)#self.o.mousepoints(event, 0.01)
 
         self.sellist += [p1]
         self.o.backlist += [p2]
@@ -313,7 +315,7 @@ class cookieMode(basicMode):
             if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
                 self.ctrlPanel.addLayerButton.setEnabled(True)
             self.sellist = []
-
+            
             self.w.history.transient_msg("")
             self.o.gl_update()        
         
@@ -324,7 +326,7 @@ class cookieMode(basicMode):
         if self.freeView: return
         if not self.picking: return
         
-        p1, p2 = self.o.mousepoints(event, 0.01)
+        p1, p2 = self. _getPoints(event)#self.o.mousepoints(event, 0.01)
 
         if not self.pickLineLength > 0: ##Rubber-band/circular selection
             if not self.selectionShape in ['DEFAULT', 'LASSO', 'RECT_CORNER']: 
@@ -412,7 +414,7 @@ class cookieMode(basicMode):
         
         if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO', 'RECT_CORNER']: 
             if not self.sellist: return
-            p1, p2 = self.o.mousepoints(event, 0.01)
+            p1, p2 = self._getPoints(event)#self.o.mousepoints(event, 0.01)
             try: self.sellist[-1]=p1
             except: print self.sellist
             if self.Rubber:
@@ -673,8 +675,7 @@ class cookieMode(basicMode):
             self.picking = False
             self.w.history.transient_msg("")
             self.o.gl_update()
-        
-    
+  
     
     def changeLatticeType(self, lType):
         """Change lattice type as 'lType'. """
@@ -683,7 +684,272 @@ class cookieMode(basicMode):
     
     def changeSelectionShape(self, newShape):
         self.selectionShape = newShape
+    
+    def _project2Plane(self, pt):
+        """Project a 3d point <pt> into the plane parallel to screen and through "pov". 
+            Return the projected point. """
+        op = -self.o.pov
+        np = self.o.lineOfSight
         
+        v1 = op - pt
+        v2 = dot(v1, np)*np
+        
+        vr = pt + v2
+        return vr
+ 
+    def _snap100Grid(self, cellOrig, bLen, p2):
+        """Snap point <p2> to its nearest 100 surface grid point"""
+        orig3d = self._project2Plane(cellOrig)
+        out = self.o.out
+        sqrt2 = 1.41421356/2
+        if abs(out[2]) > 0.5:
+            rt0 = V(1, 0, 0)
+            up0 = V(0,1, 0)
+            right = V(sqrt2, -sqrt2, 0.0)
+            up = V(sqrt2, sqrt2, 0.0)
+        elif abs(out[0]) > 0.5:
+            rt0 = V(0, 1, 0)
+            up0 = V(0, 0, 1)
+            right = V(0.0, sqrt2, -sqrt2)
+            up = V(0.0, sqrt2, sqrt2)
+        elif abs(out[1]) > 0.5:
+            rt0 = V(0, 0, 1)
+            up0 = V(1, 0, 0)
+            right = V(-sqrt2, 0.0, sqrt2)
+            up = V(sqrt2, 0.0, sqrt2)    
+       
+        pt1 = p2 - orig3d
+        pt = V(dot(rt0, pt1), dot(up0, pt1))
+        pt -= V(2*bLen, 2*bLen)
+            
+        pt1 = V(sqrt2*pt[0]-sqrt2*pt[1], sqrt2*pt[0]+sqrt2*pt[1])
+      
+        dx = pt1[0]/(2*sqrt2*bLen)
+        dy = pt1[1]/(2*sqrt2*bLen)
+        if dx > 0: dx += 0.5
+        else: dx -= 0.5
+        ii = int(dx)
+        if dy > 0: dy += 0.5
+        else: dy -= 0.5
+        jj = int(dy)
+            
+        nxy = orig3d + 4*sqrt2*bLen*up + ii*2*sqrt2*bLen*right + jj*2*sqrt2*bLen*up
+        
+        return nxy
+ 
+ 
+    def _snap110Grid(self, offset, p2):
+        """Snap point <p2> to its nearest 110 surface grid point"""
+        uLen = 0.87757241
+        DELTA = 0.0005
+
+        if abs(self.o.out[1]) < DELTA: #Looking between X-Z
+                if self.o.out[2]*self.o.out[0] < 0:
+                    vType = 0  
+                    right = V(1, 0, 1)
+                    up = V(0, 1, 0)
+                    rt = V(1, 0, 0)
+                else: 
+                    vType = 2  
+                    if self.o.out[2] < 0:
+                        right = V(-1, 0, 1)
+                        up = V(0, 1, 0)
+                        rt = V(0, 0, 1)
+                    else: 
+                        right = V(1, 0, -1)
+                        up = V(0, 1, 0)
+                        rt = V(1, 0, 0)
+        elif abs(self.o.out[0]) < DELTA: # Looking between Y-Z
+            if self.o.out[1] * self.o.out[2] < 0:  
+                vType = 0
+                right = V(0, 1, 1)
+                up = V(1, 0, 0)
+                rt = V(0, 0, 1)
+            else:
+                vType = 2
+                if self.o.out[2] > 0: 
+                    right = V(0, -1, 1)
+                    up = V(1, 0, 0)
+                    rt = V(0, 0, 1)
+                else:
+                    right = V(0, 1, -1)
+                    up = V(1, 0, 0)
+                    rt = V(0, 1, 0)
+        elif abs(self.o.out[2]) < DELTA: # Looking between X-Y
+            if self.o.out[0] * self.o.out[1] < 0:
+                vType = 0
+                right = V(1, 1, 0)
+                up = V(0, 0, 1)
+                rt = (1, 0, 0)
+            else:
+                vType = 2
+                if self.o.out[0] < 0:        
+                    right = V(1, -1 , 0)
+                    up = V(0, 0, 1)
+                    rt = (1, 0, 0)
+                else:
+                    right = V(-1, 1, 0)
+                    up = V(0, 0, 1)
+                    rt = V(0, 1, 0)
+        else: ##Sth wrong
+            raise ValueError, self.out
+            
+       
+        orig3d = self._project2Plane(offset)
+        p2 -= orig3d
+        pt = V(dot(rt, p2), dot(up, p2))
+        #print "vtype, org, pt: ", vType,  offset, pt
+        
+        if vType == 0:  ## projected orig-point is at the corner
+            if pt[1] < uLen:
+                uv1 = [[0,0], [1,1], [2, 0], [3, 1], [4, 0]]
+                ij = self._findSnap4Corners(uv1, uLen, pt)
+            elif pt[1] < 2*uLen:
+                if pt[0] < 2*uLen:
+                    if pt[1] < 1.5*uLen: ij = [1, 1]
+                    else: ij = [1, 2]
+                else:
+                    if pt[1] < 1.5*uLen: ij = [3, 1]
+                    else: ij = [3, 2]
+            elif pt[1] < 3*uLen:
+                uv1 = [[0,3], [1,2], [2,3], [3, 2], [4, 3]]
+                ij = self._findSnap4Corners(uv1, uLen, pt)
+            else:
+                if pt[1] < 3.5*uLen: j = 3
+                else: j = 4
+                if pt[0] < uLen: i = 0
+                elif pt[0] < 3*uLen: i = 2
+                else: i = 4
+                ij = [i, j]
+        
+        elif vType == 2: ## projected orig-point is in the middle
+             if pt[1] < uLen:
+                 if pt[1] < 0.5*uLen: j = 0
+                 else: j = 1
+                 if pt[0] < -1*uLen: i = -2
+                 elif pt[0] < uLen: i = 0
+                 else: i = 2
+                 ij = [i, j]
+             elif pt[1] < 2*uLen:
+                 uv1 = [[-2, 1], [-1, 2], [0, 1], [1, 2], [2, 1]]
+                 ij = self._findSnap4Corners(uv1, uLen, pt)
+             elif pt[1] < 3*uLen:
+                 if pt[1] < 2.5*uLen: j = 2
+                 else: j = 3
+                 if pt[0] < 0: i = -1
+                 else: i = 1
+                 ij = [i, j]
+             else:
+                 uv1 = [[-2, 4], [-1, 3], [0, 4], [1, 3], [2, 4]]
+                 ij = self._findSnap4Corners(uv1, uLen, pt)
+                 
+            
+        nxy = orig3d + ij[0]*uLen*right + ij[1]*uLen*up
+        #print "ij[0], ij[1]: ", ij[0], ij[1]
+        #print "orig3d, nxy: ", orig3d, nxy
+        
+        return nxy     
+    
+    def _getNCartP2d(self, ax1, ay1, pt):
+        """Axis <ax> and <ay> is not perpendicular, so we project pt to axis
+        <ax> or <ay> by parallel to <ay> or <ax>. The returned 2d coordinates are not cartesian coordinates """
+        
+        ax = norm(ax1)
+        ay = norm(ay1)
+        try:
+            lx = (ay[1]*pt[0] - ay[0]*pt[1])/(ax[0]*ay[1] - ay[0]*ax[1])
+            ly = (ax[1]*pt[0] - ax[0]*pt[1])/(ax[1]*ay[0] - ax[0]*ay[1])
+        except ZeroDivisionError:
+            print " In _getNCartP2d() of cookieMode.py, divide-by-zero detected."
+            return None
+        
+        return V(lx, ly)
+        
+    
+    def _snap111Grid(self, offset, p2):
+        """Snap point <p2> to its nearest 111 surface grid point"""
+        DELTA = 0.00005
+        uLen = 0.58504827
+        
+        sqrt6 = sqrt(6)
+        #print "o.right, o.up, o.out = ", self.o.right, self.o.up, self.o.out
+        orig3d = self._project2Plane(V(0, 0,0))
+        p2 -= orig3d
+        
+        #print "orig3d, p2: ", orig3d, p2
+        if (self.o.out[0] > 0 and self.o.out[1] > 0 and self.o.out[2] > 0) or \
+                (self.o.out[0] < 0 and self.o.out[1] < 0 and self.o.out[2] < 0):
+            axy =[V(1, 1, -2), V(-1, 2, -1),  V(-2, 1, 1), V(-1, -1, 2), V(1, -2, 1), V(2, -1, -1), V(1, 1, -2)]
+        elif (self.o.out[0] < 0 and self.o.out[1] < 0 and self.o.out[2] > 0) or \
+                (self.o.out[0] > 0 and self.o.out[1] > 0 and self.o.out[2] < 0):
+            axy =[V(1, -2, -1), V(2, -1, 1),  V(1, 1, 2), V(-1, 2, 1), V(-2, 1, -1), V(-1, -1, -2), V(1, -2, -1)]
+        elif (self.o.out[0] < 0 and self.o.out[1] > 0 and self.o.out[2] > 0) or \
+                (self.o.out[0] > 0 and self.o.out[1] < 0 and self.o.out[2] < 0):
+            axy =[V(2, 1, 1), V(1, 2, -1),  V(-1, 1, -2), V(-2, -1, -1), V(-1, -2, 1), V(1, -1, 2), V(2, 1, 1)]
+        elif (self.o.out[0] > 0 and self.o.out[1] < 0 and self.o.out[2] > 0) or \
+                (self.o.out[0] < 0 and self.o.out[1] > 0 and self.o.out[2] < 0):
+            axy =[V(-1, -2, -1), V(1, -1, -2),  V(2, 1, -1), V(1, 2, 1), V(-1, 1, 2), V(-2, -1, 1), V(-1, -2, -1)]
+        
+        vlen_p2 = vlen(p2)
+        if vlen_p2 < DELTA:
+            ax = axy[0]
+            ay = axy[1]
+        else:
+            for ii in range(size(axy) -1):
+                cos_theta = dot(axy[ii], p2)/(vlen(axy[ii])*vlen_p2)
+                ## the 2 vectors has an angle > 60 degrees 
+                if cos_theta < 0.5: continue
+                cos_theta = dot(axy[ii+1], p2)/(vlen(axy[ii+1])*vlen_p2)
+                if cos_theta > 0.5:  
+                    ax = axy[ii]
+                    ay = axy[ii+1]
+                    break
+       
+        p2d = self._getNCartP2d(ax, ay, p2)
+        
+        i = int(p2d[0]/uLen/sqrt6 + 0.5)
+        j = int(p2d[1]/uLen/sqrt6 + 0.5)
+        
+        #print "i, j, ax, ay: ", i, j, ax, ay
+        
+        nxy = orig3d + i*uLen*ax + j*uLen*ay 
+        
+        return nxy
+        
+    
+    def _findSnap4Corners(self, uv1, uLen, pt, vLen = None):
+        """Compute  distance from point <pt> to corners and select the nearest corner."""
+        if not vLen: vLen = uLen
+        hd = 0.5*sqrt(uLen*uLen + vLen*vLen)
+        
+        iof = -uv1[0][0]
+        ix = int(floor((pt[0]+iof*uLen)/uLen))
+        #print "ix: ", ix
+        dist = vlen(V(uv1[ix][0]*uLen, uv1[ix][1]*vLen) - pt)
+        if dist < hd:
+            return uv1[ix]
+        else: return uv1[ix+1]
+
+    
+    def _getPoints(self, event):
+        """This method is used to get the points in near clipping plane and pov plane which are in line with the mouse clicking point in the screen plane. Adjust these 2 points if self.snapGrid == True.
+        <event> is the mouse event.
+        Return a tuple of those 2 points.
+        """
+        p1, p2 = self.o.mousepoints(event, 0.01)
+        vlen_p1p2 = vlen(p1 - p2)
+        
+        if not self.gridSnap: 
+            return p1, p2
+        else: # Snap selection point to grid point
+             cellOrig, uLen = drawer.findCell(p2, self.latticeType)
+             
+             if self.whichsurf == 0: p2 = self._snap100Grid(cellOrig, uLen, p2)
+             elif self.whichsurf == 1: p2 = self._snap110Grid(cellOrig, p2)
+             else: p2 = self._snap111Grid(cellOrig, p2)
+             
+             return p2 + vlen_p1p2*self.o.out, p2
+  
     pass # end of class cookieMode
 
 # == helper functions

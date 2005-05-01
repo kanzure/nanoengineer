@@ -568,6 +568,42 @@ def drawaxes(n,point,coloraxes=False):
     glEnable(GL_LIGHTING)
     glPopMatrix()
 
+def findCell(pt, latticeType):
+    """Return the cell which contains the point <pt> """
+    if latticeType == 'DIAMOND':
+        a = 0; cellX = cellY = cellZ = DiGridSp
+    elif latticeType == 'LONSDALEITE':
+        a = 1; cellX = XLen; cellY = YLen; cellZ = ZLen
+    
+    i = int(floor(pt[0]/cellX))
+    j = int(floor(pt[1]/cellY))
+    k = int(floor(pt[2]/cellZ))
+    
+    orig = V(i*cellX, j*cellY, k*cellZ)
+    
+    return orig, sp1
+    
+def getGridCellPoints(pt, latticeType): 
+    grid=A([[sp0, sp0, sp0], [sp1, sp1, sp1], [sp2, sp2, sp0], [sp3, sp3, sp1], 
+        [sp4, sp4, sp0], [sp2, sp0, sp2], [sp3, sp1, sp3], [sp4, sp2, sp2],
+        [sp0, sp2, sp2], [sp1, sp3, sp3], [sp2, sp4, sp2], [sp4, sp0, sp4], 
+        [sp2, sp2, sp4], [sp0, sp4, sp4]])
+    
+    cubeCorner = [[sp0, sp0, sp0], [sp4, sp0, sp0], [sp4, sp4, sp0], [sp0, sp4, sp0],
+                            [sp0, sp0, sp4], [sp4, sp0, sp4], [sp4, sp4, sp4], [sp0, sp4, sp4]]
+    
+    if latticeType == 'DIAMOND':
+        a = 0; cellX = cellY = cellZ = DiGridSp
+    elif latticeType == 'LONSDALEITE':
+        a = 1; cellX = XLen; cellY = YLen; cellZ = ZLen       
+    i = int(floor(pt[0]/cellX))
+    j = int(floor(pt[1]/cellY))
+    k = int(floor(pt[2]/cellZ))
+    
+    orig = V(i*cellX, j*cellY, k*cellZ)
+    
+    return orig + grid 
+    
 def genDiam(bblo, bbhi, latticeType):
     """Generate a list of possible atom positions within the area enclosed by (bblo, bbhi).
     <Return>: A list of unit cells"""
@@ -642,6 +678,8 @@ def drawGrid(scale, center, latticeType):
         glTranslate(cellX, 0.0, 0.0)
     glPopMatrix()
     glEnable(GL_LIGHTING)
+    
+    #drawCubeCell(V(1, 0, 0))
 
 
 def drawrectangle(pt1, pt2, rt, up, color):
@@ -778,6 +816,7 @@ def makePolyList(v):
     return segs
 
 def drawLonsdaleiteGrid(scale, center):
+    """This function is obsolete. Call dragGrid() and pass approriate parameter to draw the Lonsdaleite Lattice """
     glDisable(GL_LIGHTING)
     
     bblo = center- scale
@@ -827,5 +866,27 @@ def drawDiamondCubic(color):
               
     glEnd()
     glEnable(GL_LIGHTING)    
-    
 
+def drawCubeCell(color):
+    vs = [[sp0, sp0, sp0], [sp4, sp0, sp0], [sp4, sp4, sp0], [sp0, sp4, sp0],
+                            [sp0, sp0, sp4], [sp4, sp0, sp4], [sp4, sp4, sp4], [sp0, sp4, sp4]]
+    
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    glBegin(GL_LINE_LOOP)
+    for ii in range(4):
+        glVertex3fv(vs[ii])
+    glEnd()
+    
+    glBegin(GL_LINE_LOOP)
+    for ii in range(4, 8):
+        glVertex3fv(vs[ii])
+    glEnd()
+    
+    glBegin(GL_LINES)
+    for ii in range(4):
+        glVertex3fv(vs[ii])
+        glVertex3fv(vs[ii+4])
+    glEnd()
+    
+    glEnable(GL_LIGHTING) 

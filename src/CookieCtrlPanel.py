@@ -149,6 +149,9 @@ class CookieCtrlPanel:
             self.gridLineCheckBox = QCheckBox("Grid Line", row2Comp,"gridLineCheckBox")
             self.gridLineCheckBox.setChecked(1)
             QToolTip.add(self.gridLineCheckBox,self.w.tr("Show or hide the grid line."))
+            self.snapGridCheckBox = QCheckBox("Snap Grid       ", row2Comp,"snapGridCheckBox")
+            #self.snapGridCheckBox.setChecked(1)
+            QToolTip.add(self.snapGridCheckBox,self.w.tr("Snap selection point to a nearest cell grid point."))
 
             self.gridColorLabel = QLabel(self.w.cookieCutterDashboard,"gridColorLabel")
             self.gridColorLabel.setMinimumSize(QSize(0,0))
@@ -196,6 +199,7 @@ class CookieCtrlPanel:
             self.w.connect(self.gridLineCheckBox,SIGNAL("toggled(bool)"),self.showGridLine)
             self.w.connect(self.freeViewCheckBox,SIGNAL("toggled(bool)"),self.setFreeView)
             self.w.connect(self.fullModelCheckBox, SIGNAL("toggled(bool)"),self.toggleFullModel)
+            self.w.connect(self.snapGridCheckBox, SIGNAL("toggled(bool)"), self.setGridSnap)
             
             self.w.connect(self.dispModeCBox, SIGNAL("activated(const QString &)"), self.changeDispMode)
             
@@ -346,6 +350,11 @@ class CookieCtrlPanel:
        def showGridLine(self, show):
             """Slot function"""
             self.w.glpane.mode.showGridLine(show)
+            
+       def setGridSnap(self, snap):
+           """Turn on/off the grid snap option """
+           self.w.glpane.mode.gridSnap = snap
+           pass
                 
        def changeGridColor(self):
             """Open the stand color chooser dialog to change grid line color """
@@ -356,6 +365,13 @@ class CookieCtrlPanel:
 
        def changeLatticeType(self, lType):
            self.w.glpane.mode.changeLatticeType(lType)
+           if lType != 0: #Changes to other lattice type
+                #Disable the snap to grid feature
+                self.setGridSnap(False)
+                self.snapGridCheckBox.setEnabled(False)
+           else:
+               self.snapGridCheckBox.setEnabled(True)
+                
 
        def changeDispMode(self, mode):
             self.w.glpane.mode.changeDispMode(mode)
