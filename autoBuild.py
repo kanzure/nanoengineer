@@ -1,9 +1,10 @@
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+
 import os
 import sys
 import getopt
 from shutil import *
 from debug import *
-
 
 class NanoBuild:
     """Auto build process on Linux:
@@ -23,7 +24,7 @@ o an executable and affiliated files.
           (4.3). Copy cad/src/KnownBugs.html, README, LICENSE ito <app/doc>
    (5).
 """
-    def  __init__(self, appname, iconfile, rootDir, version, relNo, stat):
+    def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag):
         self.currentPath = os.getcwd()
         self.rootPath = rootDir
         self.appName = appname
@@ -31,6 +32,7 @@ o an executable and affiliated files.
         self.version = version
         self.releaseNo = relNo
         self.status = stat
+        self.cvsTag = tag
 
         self.atomPath = os.path.join(self.rootPath, 'atom')
         if sys.platform == 'darwin':
@@ -72,12 +74,20 @@ o an executable and affiliated files.
                 if ret <= 0: raise Exception, "start pageant.exe with key file dsa_privaate.ppk failed."
 
             os.chdir(self.atomPath)
-            if os.system('cvs -Q checkout -R cad/src'): raise Exception, "cvs checkout cad/src failed."
-            if os.system('cvs -Q checkout -R cad/images'): raise Exception, "cvs checkout cad/images failed."
-            if os.system('cvs -Q checkout -R cad/doc/html'): raise Exception, "cvs checkout cad/doc/html failed."
-            if os.system('cvs -Q checkout -R cad/partlib/mmplib'): raise Exception, "cvs checkout cad/partlib/mmplib failed."
-            if os.system('cvs -Q checkout -R cad/partlib/pdblib'): raise Exception, "cvs checkout cad/partlib/pdblib failed."
-            if os.system('cvs -Q checkout -R sim'): raise Exception, "cvs checkout sim failed."
+            if not self.cvsTag:
+                if os.system('cvs -Q checkout -R cad/src'): raise Exception, "cvs checkout cad/src failed."
+                if os.system('cvs -Q checkout -R cad/images'): raise Exception, "cvs checkout cad/images failed."
+                if os.system('cvs -Q checkout -R cad/doc/html'): raise Exception, "cvs checkout cad/doc/html failed."
+                if os.system('cvs -Q checkout -R cad/partlib/mmplib'): raise Exception, "cvs checkout cad/partlib/mmplib failed."
+                if os.system('cvs -Q checkout -R cad/partlib/pdblib'): raise Exception, "cvs checkout cad/partlib/pdblib failed."
+                if os.system('cvs -Q checkout -R sim'): raise Exception, "cvs checkout sim failed."
+            else:
+                if os.system('cvs -Q checkout -r %s -R cad/src' % self.cvsTag): raise Exception, "cvs checkout cad/src failed."
+                if os.system('cvs -Q checkout -r %s -R cad/images' % self.cvsTag): raise Exception, "cvs checkout cad/images failed."
+                if os.system('cvs -Q checkout -r %s -R cad/doc/html' % self.cvsTag): raise Exception, "cvs checkout cad/doc/html failed."
+                if os.system('cvs -Q checkout -r %s -R cad/partlib/mmplib' % self.cvsTag): raise Exception, "cvs checkout cad/partlib/mmplib failed."
+                if os.system('cvs -Q checkout -r %s -R cad/partlib/pdblib' % self.cvsTag): raise Exception, "cvs checkout cad/partlib/pdblib failed."
+                if os.system('cvs -Q checkout -r %s -R sim' % self.cvsTag): raise Exception, "cvs checkout sim failed."
             
             # Remove all those 'CVS' directories and their entries.
             self._removeCVSFiles('cad')
@@ -546,6 +556,7 @@ irectory, its contents will be erased. By default, it's <appnam
     -o target location
     -i  icon file
    -s release state 
+   -t cvs tag
     -h help
 
 
@@ -555,12 +566,13 @@ irectory, its contents will be erased. By default, it's <appnam
     --iconfile=<Icon file for the app/exe, currently ignored on
 Linux>
     --state=<release status: Alpha, beta, gamma...>
+    --cvstag=<the cvs tag used to check out files>
     --help
     """
 
 def main():
-    shortargs = 'h:a:o:i:s:'
-    longargs = ['help', 'appname=', 'outdir=', 'iconfile=', 'state=']
+    shortargs = 'h:a:o:i:s:t:'
+    longargs = ['help', 'appname=', 'outdir=', 'iconfile=', 'state=', 'cvstag=']
    
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortargs, longargs)
@@ -585,6 +597,7 @@ def main():
     version = args[0]
     releaseNo = args[1]
     status = None
+    cvsTag = None
     
     for o, a in opts:
         if o in ("-a", "--appname"):
@@ -597,6 +610,8 @@ def main():
            if a == 'a': status = "(Alpha %s)" % releaseNo
            elif a == 'b': status = "(Beta %s)" % releaseNo
            else: status = "(Gamma %s)" % releaseNo
+        elif o in ("-t", "--cvstag"):
+            cvsTag = a
         elif o in ("-h", "--help"):
             usage()
             sys.exit()
@@ -611,7 +626,7 @@ def main():
                 if answer == 'no':
                     sys.exit()
 
-    builder = NanoBuild(appName, iconFile, rootDir, version, releaseNo, status)
+    builder = NanoBuild(appName, iconFile, rootDir, version, releaseNo, status, cvsTag)
     builder.build()
 
     if sys.platform == 'linux2':
