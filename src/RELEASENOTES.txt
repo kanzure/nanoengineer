@@ -30,32 +30,28 @@ What is new in nanoENGINEER-1 v0.0.5 (Alpha 5):
   - Option to merge connected chunks into a single chunk
   - Fine control (using modifier keys) of chunk movement while finding and highlighting 
     bondable pairs of atom between chunks.
-6. Modify > Invert: Inverts the atoms of the selected chunk(s)
+6. Modify > Invert: Inverts the atom positions of the selected chunk(s) around their 
+    center in space
 7.Select Atoms: New Atom Selection Filter available on dashboard
 8. Simulator:
-  - aborted simulation runs can be played in movie player
-  - improved minimization
-  - cutover from steepest descent to conjugate-gradient now occurs only when the 
-    highest force <= 150 pN and the RMS value is <= 50 pN
-  - more informative and understandable history messages for the user, including warnings
+  - Improvements in minimizer, returning the best position from run
+  - Multiple runs may improve position further
+  - More informative and understandable history messages for the user, including warnings
     and errors during a simulation or minimization.
 9. New Select Menu: Includes all options from the Select Toolbar
 10. Display > Show Invisible Atoms: Resets the display of any invisible atoms in the 
     selected chunk(s).
 11. Display > Reset Chunk Display: Resets the display of all atoms in the selected chunk(s).
-12. Movie Player:
-  - Better validation of movie files with current part.
-  - Movies will still play after the part has been changed by moving the original
-13. Plot Tool: Changed GNUplot filename suffix from "-trace.plt" to "-plot.txt"
-14. Removed Element Selector from Modify toolbar.
-15. Added Element Selector to the Build Atoms dashboard.
-16. Lighting Tool: Added Restore Defaults button.
-17. Changed Modify > Weld to Modify > Merge
-18. Hidden state of model tree nodes are saved in the MMP file and restored when 
+12. Plot Tool: Changed GNUplot filename suffix from "-trace.plt" to "-plot.txt"
+13. Removed Element Selector from Modify toolbar.
+14. Added Element Selector to the Build Atoms dashboard.
+15. Lighting Tool: Added Restore Defaults button.
+16. Changed Modify > Weld to Modify > Merge
+17. Hidden state of model tree nodes are saved in the MMP file and restored when 
     reopening the part.
-19. Open/close state of model tree groups are saved in MMP file and restored when 
+18. Open/close state of model tree groups are saved in MMP file and restored when 
     reopening the part.
-20. Jigs:
+19. Jigs:
   - Jigs are automatically deleted if all the atoms to which they are attached are deleted.
   - Jigs can be cut and pasted to the Clipboard.
   - Jigs can be disabled via the Model Tree context menu.
