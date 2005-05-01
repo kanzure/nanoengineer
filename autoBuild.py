@@ -37,7 +37,7 @@ o an executable and affiliated files.
         self.atomPath = os.path.join(self.rootPath, 'atom')
         if sys.platform == 'darwin':
                 self.installRootPath = os.path.join(self.rootPath, 'installRoot')
-                self.buildSourcePath = os.path.join(self.installRootPath, self.appName)
+                self.buildSourcePath = os.path.join(self.installRootPath, self.appName + '-' + self.version + '.' + self.releaseNo)
                 self.diskImagePath = os.path.join(self.rootPath, 'diskImage')
                 self.resourcePath = os.path.join(self.rootPath, 'resources')
         else:
@@ -107,8 +107,8 @@ o an executable and affiliated files.
                         os.chdir(self.currentPath)
                         copy('background.jpg', self.resourcePath)
                         #copy('Welcome.rtf', self.resourcePath)
-                        copy('postinstall', self.resourcePath)
-                        copy('/usr/local/lib/libaquaterm.1.0.0.dylib', self.rootPath)
+                        #copy('postinstall', self.resourcePath)
+                        copy('libaquaterm.1.0.0.dylib', self.buildSourcePath)
                         copy('setup.py', os.path.join(self.atomPath,'cad/src'))
                                                 
                         os.chdir(os.path.join(self.atomPath,'cad/src'))
@@ -123,6 +123,7 @@ o an executable and affiliated files.
                         os.chdir(self.currentPath)
                         os.mkdir(os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/bin'))
                         copytree('assistant.app',  os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/bin/assistant.app'))
+                        copytree('/Applications/AquaTerm.app',  os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/bin/AquaTerm.app'))
                         copy(os.path.join(self.atomPath, 'sim/src/simulator'), os.path.join(self.buildSourcePath, self.appName + '.app', 'Contents/bin'))
                         copy('/usr/local/bin/gnuplot', os.path.join(self.buildSourcePath, self.appName + '.app', 'Contents/bin'))
 
@@ -246,11 +247,50 @@ o an executable and affiliated files.
             print_compact_traceback("In _addDLLs(): ")
             return False
 
+    def _writePostFlightFile(self, pfFile):
+        """Write the postflight file Mac Package Installer """
+        try:
+             fix_message = """#!/bin/bash
+echo on
+echo $2
+cd /
+
+if [ ! -d "usr" ]; then \\
+     mkdir usr ; \\
+fi
+
+cd usr
+
+if [ ! -d "local" ]; then \\
+     mkdir local; \\
+fi
+
+cd local 
+
+if [ ! -d "lib" ]; then \\
+    mkdir lib; \\
+fi
+
+"""
+             pf  = open(pfFile, 'w')
+             pf.write(fix_message)
+             instPath = os.path.basename(self.buildSourcePath)
+             pf.write("mv $2/%s/libaquaterm.1.0.0.dylib /usr/local/lib\n\n" % instPath)             
+             pf.write('exit 0\n')
+             pf.close()
+             from stat import S_IREAD, S_IEXEC, S_IROTH, S_IXOTH  
+             os.chmod(pfFile, S_IREAD | S_IEXEC | S_IROTH | S_IXOTH)
+             print "----Postflight file has been written."
+             return True
+        except:
+            print_compact_traceback("In _createPostflightFile(): ")
+            return False
+
     def _createWelcomeFile(self, welcomeFile):
         """Write the welcome file for Mac package installer """
         try:
              wf = open(welcomeFile, 'w')
-             message = "Welcome to %s v%s.%s %s. You will be guidedthrough the steps necessary to install this software. Just relax.\n" % (self.appName, self.version, self.releaseNo, self.status)
+             message = "Welcome to %s v%s.%s %s. You will be guided through the steps necessary to install this software. By default, this software will be installed into /Applications directory with all files under its own sub-directory. So, just relax.\n" % (self.appName, self.version, self.releaseNo, self.status)
              wf.write(message)
              wf.close()
              print "----Welcome file has been written."
@@ -526,12 +566,14 @@ ing assembly.
              if not self._buildRpm(specFile, self.buildSourcePath): return
 
         else:
-             welcomeFile = os.path.join(self.resoucePath, 'Welcome.txt')
+             welcomeFile = os.path.join(self.resourcePath, 'Welcome.txt')
              if not self._createWelcomeFile(welcomeFile): return
+             postflightFile = os.path.join(self.resourcePath, 'postflight')
+             if not self._writePostFlightFile(postflightFile): return
              plistFile = os.path.join(self.rootPath, 'Info.plist')
              words = self.version.split('.')
              if not self._createPlistFile(plistFile, self.appName, words[0], words[1], self.releaseNo): return
-             pkgName = os.path.join(self.diskImagePath, self.appName + '.pkg')
+             pkgName = os.path.join(self.diskImagePath, self.appName + '-' + self.version + '.' + self.releaseNo + '.pkg')
              descrip = os.path.join(self.currentPath, 'Description.plist')
              if not self._buildPkg(pkgName, self.installRootPath, self.resourcePath, plistFile, descrip): return
 
