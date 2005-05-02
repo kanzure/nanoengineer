@@ -1993,10 +1993,9 @@ def shakedown_poly_eval_evec_axis(basepos):
     return polyhedron, evals, evec, axis # from shakedown_poly_evals_evec_axis
 
 
-def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
-    #bruce 041109 rewrote this, added move arg, renamed it from makeBonded
-    #bruce 041119 added args and retvals to help fix bugs #203 and #121
-    """(Public method; does all needed invalidations.)
+###e why is this in chunk.py? It's mostly about bonds and atoms. I bet it belongs in chem.py. [bruce 050429] or depositMode.py [050502]
+def bond_at_singlets(s1, s2, **opts):
+    """[Public function; does all needed invalidations.]
     s1 and s2 are singlets; make a bond between their real atoms in
     their stead.
        If the real atoms are in different molecules, and if move = 1
@@ -2005,9 +2004,14 @@ def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
     set its center to the bond point and its axis to the line of the bond.
        It's an error if s1 == s2, or if they're on the same atom. It's a
     warning (no error, but no bond made) if the real atoms of the singlets
-    are already bonded. (We might add more error or warning conditions later.)
+    are already bonded, unless we're able to make the existing bond have
+    higher valence, which we'll only attempt if increase_bond_valence = True.
+    If the singlets are bonded to their base atoms with different valences,
+    it's an error if we're unable to adjust those to match... #####@@@@@ #k.
+    (We might add more error or warning conditions later.)
        The return value says whether there was an error, and what was done:
-    we return (flag, status) where flag is 0 for ok (a bond was made)
+    we return (flag, status) where flag is 0 for ok (a bond was made or an
+    existing bond was given a higher valence, and s1 and s2 were killed)
     or 1 or 2 for no bond made (1 = not an error, 2 = an error),
     and status is a string explaining what was done, or why nothing was
     done, suitable for displaying in a status bar.
@@ -2015,8 +2019,26 @@ def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
     (the default), then we also print a nasty warning with the details
     of the error, saying it's a bug. 
     """
-    def do_error(status, error_details):
-        if print_error_details and error_details:
+    obj = bonder_at_singlets(s1, s2, **opts)
+    return obj.retval
+
+class bonder_at_singlets:
+    "handles one call of bond_at_singlets"
+    #bruce 041109 rewrote this, added move arg, renamed it from makeBonded
+    #bruce 041119 added args and retvals to help fix bugs #203 and #121
+    #bruce 050429 plans to permit increasing the valence of an existing bond, #####@@@@@doit
+    # and also checking for matched valences of s1 and s2. #####@@@@@doit
+    # also changed it from function to class
+    def __init__(self, s1, s2, move = True, print_error_details = True, increase_bond_valence = False):
+        self.s1 = s1
+        self.s2 = s2
+        self.move = move
+        self.print_error_details = print_error_details
+        self.increase_bond_valence = increase_bond_valence
+        self.retval = self.main()
+        return
+    def do_error(self, status, error_details):
+        if self.print_error_details and error_details:
             print "BUG: bond_at_singlets:", error_details
             print "Doing nothing (but further bugs may be caused by this)."
             print_compact_stack()
@@ -2026,65 +2048,146 @@ def bond_at_singlets(s1, s2, move = 1, print_error_details = 1):
             flag = 1
         status = status or "can't bond here"
         return (flag, status)
-    if not s1.is_singlet():
-        return do_error("not both singlets", "not a singlet: %r" % s1)
-    if not s2.is_singlet():
-        return do_error("not both singlets", "not a singlet: %r" % s2)
-    a1 = singlet_atom(s1)
-    a2 = singlet_atom(s2)
-    if s1 == s2: #bruce 041119
-        return do_error("can't bond a singlet to itself",
-          "asked to bond atom %r to itself,\n"
-          " from the same singlet %r (passed twice)" % (a1, s1)) # untested formatting
-    if a1 == a2: #bruce 041119, part of fix for bug #203
-        return do_error("can't bond an atom (%r) to itself" % a1,
-          "asked to bond atom %r to itself,\n"
-          " from different singlets, %r and %r." % (a1, s1, s2))
-    if bonded(a1,a2):
-        #bruce 041119, part of fix for bug #121
-        # not an error (so arg2 is None)
-        return do_error("can't make another bond between atoms %r and %r;" \
-                        " they are already bonded" % (a1,a2), None)
-    # ok, now we'll really do it.
-    status = "bonded atoms %r and %r" % (a1, a2)
-    m1 = a1.molecule
-    m2 = a2.molecule
-    if m1 != m2 and move:
-        # Comments by bruce 041123, related to fix for bug #150:
-        #
-        # Move m1 to an ideal position for bonding to m2, but [as bruce's fix
-        # to comment #1 of bug 150, per Josh suggestion; note that this bug will
-        # be split and what we're fixing might get a new bug number] only if it
-        # has no external bonds except the one we're about to make. (Even a bond
-        # to the other of m1 or m2 will disqualify it, since that bond might get
-        # messed up by a motion. This might be a stricter limit than Josh meant
-        # to suggest, but it seems right. If bonds back to the same mol should
-        # not prevent the motion, we can use 'externs_except_to' instead.)
-        #
-        # I am not sure if moving m2 rather than m1, in case m1 is not qualified
-        # to be moved, would be a good UI feature, nor whether it would be safe
-        # for the calling code (a drag event processor in Build mode), so for now
-        # I won't permit that, though it would be easy to do.
-        #
-        # Note that this motion feature will be much more useful once we fix
-        # another bug about not often enough merging atoms into single larger
-        # molecules, in Build mode. [end of bruce 041123 comments]
-        def ok_to_move(mol1, mol2):
-            "ok to move mol1 if we're about to bond it to mol2?"
-            return mol1.externs == []
-            #e you might prefer externs_except_to(mol1, [mol2]), but probably not
-        if ok_to_move(m1,m2):
-            status += ", and moved %r to match" % m1.name
-            m1.rot(Q(a1.posn()-s1.posn(), s2.posn()-a2.posn()))
-            m1.move(s2.posn()-s1.posn())
-        else:
-            status += " (but didn't move %r -- it already has a bond)" % m1.name
-    #e [bruce 041109 asks: does it matter that the following code forgets which
-    #   singlets were involved, before bonding?]
-    s1.kill()
-    s2.kill()
-    m1.bond(a1,a2)
-    return (0, status) # from bond_at_singlets
+    def main(self):
+        s1 = self.s1
+        s2 = self.s2
+        do_error = self.do_error
+        if not s1.is_singlet():
+            return do_error("not both singlets", "not a singlet: %r" % s1)
+        if not s2.is_singlet():
+            return do_error("not both singlets", "not a singlet: %r" % s2)
+        a1 = self.a1 = singlet_atom(s1)
+        a2 = self.a2 = singlet_atom(s2)
+        if s1 == s2: #bruce 041119
+            return do_error("can't bond a singlet to itself",
+              "asked to bond atom %r to itself,\n"
+              " from the same singlet %r (passed twice)" % (a1, s1)) # untested formatting
+        if a1 == a2: #bruce 041119, part of fix for bug #203
+            #####@@@@@ should we permit this as a way of changing the bonding pattern by summing the valences of these bonds? YES! [doit]
+            return do_error("can't bond an atom (%r) to itself" % a1,
+              "asked to bond atom %r to itself,\n"
+              " from different singlets, %r and %r." % (a1, s1, s2))
+        if bonded(a1,a2):
+            #bruce 041119, part of fix for bug #121
+            # not an error (so arg2 is None)
+            if self.increase_bond_valence:
+                # we'll try that -- it might or might not work, but it has its own error messages if it fails
+                return self.upgrade_existing_bond()
+            else:
+                return do_error("can't make another bond between atoms %r and %r;" \
+                                " they are already bonded" % (a1,a2), None)
+        #####@@@@@ worry about s1 and s2 valences being different
+            # (not sure exactly what we'll do then!
+            #  do bonds want to keep track of a range of permissible valences??
+            #  it's a real concept (I think) and it's probably expensive to recompute.
+            #  BTW, if there is more than one way to resolve the error, they might want to
+            #  permit the linkage but not pick the way to resolve it, but wait for you
+            #  to drag the v-error indicator (or whatever).)
+        #####@@@@@ worry about s1 and s2 valences being not V_SINGLE
+        
+        # ok, now we'll really do it.
+        return self.bond_unbonded_atoms()
+    def bond_unbonded_atoms(self):
+        s1, a1 = self.s1, self.a1
+        s2, a2 = self.s2, self.a2
+        status = "bonded atoms %r and %r" % (a1, a2) #e maybe subr should make this?? #e subr might prefix it with bond-type made ###@@@
+        # we only consider "move m1" in the case of no preexisting bond,
+        # so we only need it in this submethod (in fact, if it was in
+        # the other one, it would never run, due to the condition about
+        # sep mols and no externs)
+        m1 = a1.molecule
+        m2 = a2.molecule
+        if m1 != m2 and self.move:
+            # Comments by bruce 041123, related to fix for bug #150:
+            #
+            # Move m1 to an ideal position for bonding to m2, but [as bruce's fix
+            # to comment #1 of bug 150, per Josh suggestion; note that this bug will
+            # be split and what we're fixing might get a new bug number] only if it
+            # has no external bonds except the one we're about to make. (Even a bond
+            # to the other of m1 or m2 will disqualify it, since that bond might get
+            # messed up by a motion. This might be a stricter limit than Josh meant
+            # to suggest, but it seems right. If bonds back to the same mol should
+            # not prevent the motion, we can use 'externs_except_to' instead.)
+            #
+            # I am not sure if moving m2 rather than m1, in case m1 is not qualified
+            # to be moved, would be a good UI feature, nor whether it would be safe
+            # for the calling code (a drag event processor in Build mode), so for now
+            # I won't permit that, though it would be easy to do.
+            #
+            # Note that this motion feature will be much more useful once we fix
+            # another bug about not often enough merging atoms into single larger
+            # molecules, in Build mode. [end of bruce 041123 comments]
+            def ok_to_move(mol1, mol2):
+                "ok to move mol1 if we're about to bond it to mol2?"
+                return mol1.externs == []
+                #e you might prefer externs_except_to(mol1, [mol2]), but probably not
+            if ok_to_move(m1,m2):
+                status += ", and moved %r to match" % m1.name
+                m1.rot(Q(a1.posn()-s1.posn(), s2.posn()-a2.posn()))
+                m1.move(s2.posn()-s1.posn())
+            else:
+                status += " (but didn't move %r -- it already has a bond)" % m1.name
+        self.status = status
+        return self.actually_bond()
+    def actually_bond(self):
+        "#doc... (if it succeeds, uses self.status to report what it did)"
+        #e [bruce 041109 asks: does it matter that the following code forgets which
+        #   singlets were involved, before bonding?]
+        #####@@@@@ this needs to worry about valence of s1 and s2 bonds, and thus of new bond
+        s1, a1 = self.s1, self.a1
+        s2, a2 = self.s2, self.a2
+        try: # use old code until new code works and unless new code is needed; CHANGE THIS SOON #####@@@@@
+            v1, v2 = s1.singlet_v6(), s2.singlet_v6() # new code available
+            assert v1 != V_SINGLE or v2 != V_SINGLE # new code needed
+        except:
+            # old code can be used for now
+            s1.kill()
+            s2.kill()
+            bond_atoms(a1,a2)
+            return (0, self.status) # effectively from bond_at_singlets
+        # new code, handles any valences for s1, s2
+        vnew = min(v1,v2)
+        bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
+        # can that fail? I don't think so; if it could, it'd need to have new API and return us an error message explaining why.
+        vused = bond.v6 # this will be the created bond
+        prefixes = {V_SINGLE:'single',V_DOUBLE:'double',V_TRIPLE:'triple',V_AROMATIC:'aromatic',V_GRAPHITE:'graphite'} ###e refile
+        prefix = prefixes[vused] + '-'
+        status = prefix + self.status # use prefix even for single bond, for now #k
+        # add something to status message if not all valence from s1 or s2 was used
+        # (can this happen for both singlets at once? maybe 'a' vs 'g' can do that -- not sure.)
+        if v1 > vused or v2 > vused:
+            status += "; some bond-valence unused on "
+            if v1 > vused:
+                status += "%r" % a1
+            if v1 > vused and v2 > vused:
+                status += " and " #e could rewrite this like this: " and ".join(atomreprs)
+            if v2 > vused:
+                status += "%r"
+        return (0, status)
+    def upgrade_existing_bond(self):
+        s1, a1 = self.s1, self.a1
+        s2, a2 = self.s2, self.a2
+        v1, v2 = s1.singlet_v6(), s2.singlet_v6()
+        vdelta = min(v1,v2) # but depending on the existing bond, we might use less than this, or none
+        bond = find_bond(a1, a2)
+        vdelta_used = bond.increase_valence_noupdate(vdelta) # increases to legal value, returns actual amount of increase (maybe 0)
+        if not vdelta_used:
+            return do_error("can't increase valence of bond between atoms %r and %r" % (a1,a2), None) #e say existing valence? say why not?
+        s1.singlet_reduce_valence_noupdate(vdelta)
+            # this might or might not kill it;
+            # it might even reduce valence to 0 but not kill it,
+            # letting base atom worry about that
+            # (and letting it take advantage of the singlet's position, when it updates things)
+        s2.singlet_reduce_valence_noupdate(vdelta)
+        a1.update_valence()
+            # repositions/alters existing singlets, updates bonding pattern, valence errors, etc;
+            # might reorder bonds, kill singlets; but doesn't move the atom and doesn't alter
+            # existing real bonds or other atoms; it might let atom record how it wants to move,
+            # when it has a chance and wants to clean up structure, if this can ever be ambiguous
+            # later when the current state (including positions of old singlets) is gone.
+        a2.update_valence()
+        return (0, "increased bond valence between atoms %r and %r" % (a1,a2)) #e say existing and new valence?
+    pass # end of class bonder_at_singlets, the helper for function bond_at_singlets
 
 def externs_except_to(mol, others): #bruce 041123; not yet used or tested
     # [written to help bond_at_singlets fix bug 150, but not used for that]

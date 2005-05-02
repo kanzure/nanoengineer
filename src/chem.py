@@ -34,6 +34,9 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
 
 from elements import *
 
+## no, better to use it directly so changeable at runtime:
+## debug_bonds = platform.atom_debug #####@@@@@ DO NOT COMMIT with 1
+
 # from chunk import * -- done at end of file,
 # until other code that now imports its symbols from this module
 # has been updated to import from chunk directly.
@@ -1020,7 +1023,7 @@ class atom:
         # singlets anyway -- which is fine
 
     def is_singlet(self):
-        return self.element == Singlet
+        return self.element == Singlet # [bruce 050502 comment: it's possible self is killed and len(self.bonds) is 0]
     
     def singlet_neighbor(self): #bruce 041109 moved here from extrudeMode.py
         "return the atom self (a known singlet) is bonded to, checking assertions"
@@ -1031,6 +1034,19 @@ class atom:
         assert atom.element != Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self,atom)
         return atom
 
+    # higher-valence bonds methods [bruce 050502]
+    
+    def singlet_v6(self):
+        assert self.element == Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
+        assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
+        return self.bonds[0].v6
+
+    def singlet_reduce_valence_noupdate(self, vdelta):
+        assert self.element == Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
+        assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
+        self.bonds[0].reduce_valence_noupdate(vdelta, permit_illegal_valence = True) # permits in-between, 0, or negative(?) valence
+        return
+    
     # debugging methods (not yet fully tested; use at your own risk)
     
     def invalidate_everything(self): # for an atom, remove it and then readd it to its mol
@@ -1240,7 +1256,9 @@ def oneUnbonded(elem, assy, pos):
     assy.addmol(mol)
     return atm
 
-# ==
+
+# === Bonds [this file should be split in two at this point -- bruce 050502 #####@@@@@]
+
 
 class bondtype:
     """not implemented
@@ -1254,13 +1272,20 @@ class bondtype:
     # num angrad1, aks1;        // angular radius and stiffness for at1
     # num angrad2, aks2;        // angular radius and stiffness for at2
 
-# == Bond
-
-def bonded(at1, at2): #bruce 041119
+def bonded(a1, a2): #bruce 041119 #e optimized by bruce 050502 (this indirectly added "assert a1 != a2")
     "are these atoms (or singlets) already directly bonded?"
-    return at2 in at1.neighbors()
+    ## return a2 in a1.neighbors()
+    return not not find_bond(a1, a2)
 
-def bond_atoms(at1,at2):
+def find_bond(a1, a2): #bruce 050502; there might be an existing function in some other file, to merge this with
+    "If a1 and a2 are bonded, return their Bond object; if not, return None."
+    assert a1 != a2
+    for bond in a1.bonds:
+        if bond.atom1 == a2 or bond.atom2 == a2:
+            return bond
+    return None
+
+def bond_atoms_oldversion(at1,at2): #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
     """Make a new bond between atoms at1 and at2 (and add it to their lists of bonds),
     if they are not already bonded; if they are already bonded do nothing. Return None.
     (The new bond object, if one is made, can't be found except by scanning the bonds
@@ -1314,6 +1339,150 @@ def bond_atoms(at1,at2):
         
     return
 
+#bruce 050429: preliminary plan for higher-valence bonds (might need a better term for that):
+#
+# - Bond objects continue to compare equal when on same pair of atoms (even if they have a
+# different valence), and (partly by means of this -- probably it's a kluge) they continue
+# to allow only one Bond between any two atoms (two real atoms, or one real atom and one singlet).
+#
+# - I don't think we need to change anything basic about "internal vs external bonds",
+# coordinates, basic inval/draw schemes (except to properly draw new kinds of bonds),
+# etc. (Well, not due to bond valence -- we might change those things for other reasons.)
+#
+# - Each Bond object has a valence. Atoms often sum the valences of their bonds
+# and worry about this, but they no longer "count their bonds" -- at least not as a
+# substitute for summing the valences. (To prevent this from being done by accident,
+# we might even decide that their list of bonds is not really a list, at least temporarily
+# while this is being debugged. #?)
+#
+# This is the first time bonds have any state that needs to be saved,
+# except for their existence between their two atoms. This will affect mmpfile read/write,
+# copying of molecules (which needs rewriting anyway, to copy jigs/groups/atomsets too),
+# lots of things about depositMode, maybe more.
+#
+# - Any bond object can have its valence change over time (just as the coords,
+# elements, or even identities of its atoms can also change). This makes it a lot
+# easier to write code which modifies chemical structures in ways which preserve (some)
+# bonding but with altered valence on some bonds.
+#
+# - Atoms might decide they fit some "bonding pattern" and reorder
+# their list of bonds into a definite order to match that pattern (this is undecided #?).
+# This might mean that code which replaces one bond with a same-valence bond should do it
+# in the same place in the list of bonds (no idea if we even have any such code #k).
+#
+# - We might also need to "invalidate an atom's bonding pattern" when we change anything
+# it might care about, about its bonds or even its neighboring elements (two different flags). #?
+#
+# - We might need to permit atoms to have valence errors, either temporarily or permanently,
+# and keep track of this. We might distinguish between "user-permitted" or even "user-intended"
+# valence errors, vs "transient undesired" valence errors which we intend to automatically
+# quickly get rid of. If valence errors can be long-lasting, we'll want to draw them somehow.
+# 
+# - Singlets still require exactly one bond (unless they've been killed), but it can have
+# any valence. This might affect how they're drawn, how they consider forming new bonds
+# (in extrude, fuse chunks, depositMode, etc), and how they're written into sim-input mmp files.
+#
+# - We represent the bond valence as an integer (6 times the actual valence), since we don't
+# want to worry about roundoff errors when summing and comparing valences. (Nor to pay the speed
+# penalty for using exactly summable python objects that pretend to have the correct numeric value.)
+#
+# An example of what we don't want to have to worry about:
+#
+#   >>> 1/2.0 + 1/3.0 + 1/6.0
+#   0.99999999999999989
+#   >>> _ >= 1.0
+#   False
+#
+# We do guarantee to all code using these bond-valence constants that they can be subtracted
+# and compared as numbers -- i.e. that they are "proportional" to the numeric valence.
+# Some operations transiently create bonds with unsupported values of valence, especially bonds
+# to singlets, and this is later cleaned up by the involved atoms when they update their bonding
+# patterns, before those bonds are ever drawn. Except for bugs or perhaps during debugging,
+# only standard-valence bonds will ever be drawn, or saved in files, or seen by most code.
+
+# ==
+
+# Bond valence constants -- exact ints, 6 times the numeric valence they represent.
+# If these need an order, their standard order is the same as the order of their numeric valences
+# (as shown here).  ###e move these into constants.py? maybe not...
+
+V_SINGLE = 6 * 1
+V_GRAPHITE = 6 * 4/3  # (this can't be written 6 * (1+1/3) or 6 * (1+1/3.0) - first one is wrong, second one is not an exact int)
+V_AROMATIC = 6 * 3/2
+V_DOUBLE = 6 * 2
+V_TRIPLE = 6 * 3
+
+BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_TRIPLE]
+BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bond3'] # some code assumes these all start with "bond"
+
+BOND_LETTERS = ['?'] * (V_TRIPLE+1)
+for v6,mmprec in zip(BOND_VALENCES,BOND_MMPRECORDS):
+    BOND_LETTERS[v6] = mmprec[4] # '1','g',etc
+BOND_LETTERS[0] = '0' # see comment in Bond.draw
+BOND_LETTERS = "".join(BOND_LETTERS)
+    ## print "BOND_LETTERS:",BOND_LETTERS # 0?????1?ga??2?????3
+
+# == helper functions related to bonding (I might move these lower in the file #e)
+
+def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False):
+    """Bond atoms a1 and a2 by making a new bond of valence vnew (which must be one
+    of the constants in chem.BOND_VALENCES, not a numerically expressed valence).
+    The new bond is returned. If for some reason it can't be made, None is returned
+    (but if that can happen, we should revise the API so an error message can be returned).
+    Error if these two atoms are already bonded.
+       If provided, s1 and s2 are the existing singlets on a1 and a2 (respectively)
+    whose valence should be reduced (or eliminated, in which case they are deleted)
+    to provide valence for the new bond. (If they don't have enough, other adjustments
+    will be made; this function is free to alter, remove, or replace any existing
+    singlets on either atom.)
+       For now, this function will never alter the valence of any existing bonds
+    to real atoms. If necessary, it will introduce valence errors on a1 and/or a2.
+    (Or if they already had valence errors, it might remove or alter those.)
+       If no_corrections = True, this function will not alter singlets on a1 or a2,
+    but will either completely ignore issues of total valence of these atoms, or will
+    limit itself to tracking valence errors or setting related flags (this is undecided).
+    (This might be useful for code which builds new atoms rather than modifying
+    existing ones, such as when reading mmp files or copying existing atoms.)
+       vnew should always be provided (to get the behavior documented here).
+    For backwards compatibility, when vnew is not provided, this function calls the
+    old code [pre-higher-valence-bonds, pre-050502] which acts roughly as if
+    vnew = V_SINGLE, s1 = s2 = None, no_corrections = True, except that it returns
+    None rather than the newly made bond, and unlike this function doesn't mind
+    if there's an existing bond, but does nothing in that case; this behavior might
+    be relied on by the current code for copying bonds when copying a chunk, which
+    might copy some of them twice.
+       Using the old bond_atoms code by not providing vnew is deprecated,
+    and might eventually be made impossible after all old calling code is converted
+    for higher-valence bonds.
+    """
+    if vnew == None:
+        assert s1 == s2 == None
+        assert no_corrections == False
+        bond_atoms_oldversion( a1, a2)
+        return
+    # quick hack for new version, using old version
+    assert vnew in BOND_VALENCES
+    assert not bonded(a1,a2)
+    bond_atoms_oldversion(a1,a2)
+    bond = find_bond(a1,a2) ###IMPLEM
+    assert bond
+    if vnew != V_SINGLE:
+        bond.increase_valence_noupdate( vnew - V_SINGLE)
+    if not no_corrections:
+        if s1:
+            s1.singlet_reduce_valence_noupdate(vnew)
+        if s2:
+            s2.singlet_reduce_valence_noupdate(vnew) ###k
+        a1.update_valence() ###k
+        a2.update_valence()
+    return bond
+
+def bond_v6(bond):
+    "Return bond.v6. Useful in map, filter, etc."
+    return bond.v6
+
+# ==
+
 #bruce 041109:
 # Capitalized name of class Bond, so we can find all uses of it in the code;
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
@@ -1328,7 +1497,10 @@ class Bond:
        The two atoms in a bond should always be different objects.
        We don't support more than one bond between the same two
     atoms; trying to add the second one will do nothing, because
-    of Bond.__eq__. We don't yet support double or triple bonds.
+    of Bond.__eq__. We don't yet support double or triple bonds...
+    but [bruce 050429 addendum] soon after Alpha 5 we'll start
+    supporting those, and I'll start prototyping them right now --
+    DO NOT COMMIT until post-Alpha5.
        Bonds have a private member 'key' so they can be compared equal
     whenever they involve the same pair of atoms (in either order).
        Bonds sometimes store geometric info used to draw them; see
@@ -1348,7 +1520,7 @@ class Bond:
     them after they're not on their atoms).
     """
     
-    def __init__(self, at1, at2): # no longer also called from self.rebond()
+    def __init__(self, at1, at2, v6 = V_SINGLE): # no longer also called from self.rebond()
         """create a bond from atom at1 to atom at2.
         the key created will be the same whichever order the atoms are
         given, and is used to compare bonds.
@@ -1359,12 +1531,26 @@ class Bond:
         we will do all necessary invalidations, in case the new bond is indeed
         added to those atoms (as I think it always will be in the current code).
         """
-        self.atom1 = at1
+        self.atom1 = at1 ###k are these public attributes? For now I'll assume yes. [bruce 050502]
         self.atom2 = at2
+        self.v6 = v6 # bond-valence times 6, as exact int; a public attribute
+        assert v6 in BOND_VALENCES
         ## self.picked = 0 # bruce 041029 removed this since it seems unused
         self.changed_atoms()
         self.invalidate_bonded_mols() #bruce 041109 new feature
 
+    def set_v6(self, v6):
+        assert v6 in BOND_VALENCES
+        self.v6 = v6
+        #e update geometric things?? tell the atoms too??
+        if self.atom1.molecule == self.atom2.molecule:
+            # we're in that molecule's display list
+            self.atom1.molecule.changeapp(0)
+        return
+
+    def numeric_valence(self): # has a long name so you won't be tempted to use it when you should use .v6
+        return self.v6 / 6.0
+    
     def changed_atoms(self):
         """Private method to call when the atoms assigned to this bond are changed.
         WARNING: does not call setup_invalidate(), though that would often also
@@ -1696,7 +1882,29 @@ class Bond:
 #                    print "draw: bond a2---c2: ", self.a2pos, self.c2    
                 else:
                     drawsphere(black, self.c2, TubeRadius, level)
-                    
+        if self.v6 != V_SINGLE or platform.atom_debug: # debug_bonds #####@@@@@
+            glDisable(GL_LIGHTING)
+            ## glDisable(GL_DEPTH_TEST)
+            glPushMatrix()
+            font = QFont( QString("Times"), 10)#QFont(QString("Helvetica"), 12, QFont.Normal) ###E optimize this, keep in glpane
+            glpane.qglColor(QColor(75, 75, 75))
+            p = self.center + glpane.out * 0.6
+                ###WRONG -- depends on rotation when display list is made! But quite useful for now.
+            v6 = self.v6
+            try:
+                ltr = BOND_LETTERS[v6]
+                    # includes special case of '0' for v6 == 0,
+                    # which should only show up for transient states that are never drawn, except in case of bugs
+            except IndexError: # should only show up for transient states...
+                if v6 < 0:
+                    ltr = '-'
+                else:
+                    ltr = '+'
+            glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
+            glPopMatrix()
+            ## glEnable(GL_DEPTH_TEST)
+            glEnable(GL_LIGHTING)
+        return # from Bond.draw
 
     # write to a povray file:  draw a single bond [never reviewed by bruce]
     # [note: this redundantly computes attrs like __setup_update computes for

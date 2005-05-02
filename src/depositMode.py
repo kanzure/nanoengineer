@@ -913,6 +913,8 @@ class depositMode(basicMode):
         self.o.gl_update()
 
     def dragged_singlet_over_singlet(self, dragatom, selatom):
+        #bruce 050429: it'd be nice to highlight the involved bonds and atoms, too...
+        # incl any existing bond between same atoms. (by overdraw for speed, or more lines) #####@@@@@ tryit
         #bruce 041119 split this out and added checks to fix bugs #203
         # (for bonding atom to itself) and #121 (atoms already bonded).
         # I fixed 121 by doing nothing to already-bonded atoms, but in
@@ -925,7 +927,7 @@ class depositMode(basicMode):
             # since we think we caught them all before calling it
             print_error_details = 1
         flag, status = bond_at_singlets(dragatom, selatom, \
-                         print_error_details = print_error_details)
+                         print_error_details = print_error_details, increase_bond_valence = True)
         # we ignore flag, which says whether it's ok, warning, or error
         self.w.history.message("%s: %s" % (self.msg_modename, status))
         return
@@ -1253,7 +1255,9 @@ class depositMode(basicMode):
 	by default
 	"""
 	basicMode.Draw(self)
-        if self.line: drawline(white, self.line[0], self.line[1])
+        if self.line:
+            drawline(white, self.line[0], self.line[1])
+            #####@@@@@ if this is for a higher-valence bond, draw differently
         self.o.assy.draw(self.o)
         self.surface()
 
