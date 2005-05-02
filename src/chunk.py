@@ -1,16 +1,26 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
-
 '''
 chunk.py -- provides class molecule, for a chunk of atoms
-which are moved and selected as a unit.
+which can be moved and selected as a unit.
 
-[No longer owned by bruce as of 041206]
-
-[split out of chem.py by bruce circa 041118]
+TEMPORARILY OWNED BY BRUCE AS OF 050502 for introducing higher-valence bonds #####@@@@@
 
 $Id$
+
+History:
+
+- originally by Josh
+
+- lots of changes, by various developers
+
+- split out of chem.py by bruce circa 041118
 '''
 __author__ = "Josh"
+
+# a lot of what we import from chem might not be needed here in chunk.py,
+# but note that as of 050502 they are all imported into chem.py (at end of that file)
+# and everything from it is imported into some other modules.
+# [bruce comment 050502] ###@@@
 
 from chem import *
 
