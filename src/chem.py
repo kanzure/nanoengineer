@@ -119,12 +119,16 @@ class atom:
     those might be copied in the private method atom.copy_for_mol_copy().
     """
     # bruce 041109-16 wrote docstring
+    # default values of instance variables:
+    __killed = 0
+    picked = 0
+    display = diDEFAULT # rarely changed for atoms
+    _modified_valence = False #bruce 050502
     def __init__(self, sym, where, mol):
         """create an atom of element sym (e.g. 'C')
         at location where (e.g. V(36, 24, 36))
         belonging to molecule mol, which is part of assembly assy
         """
-        self.__killed = 0
         # unique key for hashing
         self.key = atKey.next()
         # element-type object
@@ -141,9 +145,11 @@ class atom:
         # whether the atom is selected; see also assembly.selatoms
         # (note that Nodes also have .picked, with the same meaning, but atoms
         #  are not Nodes)
-        self.picked = 0
+        ## [initialized as a class constant:]
+        ## self.picked = 0
         # can be set to override molecule or global value
-        self.display = diDEFAULT
+        ## [initialized as a class constant:]
+        ## self.display = diDEFAULT
 
         # pointer to molecule containing this atom
         # (note that the assembly is not explicitly stored
@@ -1060,10 +1066,47 @@ class atom:
         assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
         return self.bonds[0].v6
 
+    singlet_valence = singlet_v6 ###@@@ need to decide which name to keep! probably this one, singlet_valence. [050502 430pm]
+
     def singlet_reduce_valence_noupdate(self, vdelta):
+            # this might or might not kill it;
+            # it might even reduce valence to 0 but not kill it,
+            # letting base atom worry about that
+            # (and letting it take advantage of the singlet's position, when it updates things)
         assert self.element == Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
         assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
         self.bonds[0].reduce_valence_noupdate(vdelta, permit_illegal_valence = True) # permits in-between, 0, or negative(?) valence
+        return
+
+    def update_valence(self):
+            # repositions/alters existing singlets, updates bonding pattern, valence errors, etc;
+            # might reorder bonds, kill singlets; but doesn't move the atom and doesn't alter
+            # existing real bonds or other atoms; it might let atom record how it wants to move,
+            # when it has a chance and wants to clean up structure, if this can ever be ambiguous
+            # later, when the current state (including positions of old singlets) is gone.
+        from bonds import V_ZERO_VALENCE, BOND_VALENCES # this might not work at top of file (recursive import); fix later ###@@@
+        if self._modified_valence:
+            self._modified_valence = False # do this first, so exceptions in the following only happen once
+            if platform.atom_debug:
+                print "atom_debug: update_valence starting to updating it for",self
+            ## assert 0, "nim"###@@@
+            # the only easy part is to kill singlets with illegal valences, and warn if those were not 0.
+            zerokilled = badkilled = 0
+            for sing in self.singNeighbors(): ###@@@ check out the other calls of this for code that might help us here...
+                sv = sing.singlet_valence()
+                if sv == V_ZERO_VALENCE:
+                    sing.kill()
+                    zerokilled += 1
+                elif sv not in BOND_VALENCES:
+                    # hmm... best to kill it and start over, I think, at least for now
+                    sing.kill()
+                    badkilled += 1
+            if platform.atom_debug:
+                print "atom_debug: update_valence %r killed %d zero-valence and %d bad-valence singlets" % \
+                      (self, zerokilled, badkilled)
+            ###e now fix things up... not sure exactly under what conds, or using what code (but see existing code mentioned above)
+        elif platform.atom_debug:
+            print "atom_debug: update_valence thinks it doesn't need to update it for",self
         return
     
     # debugging methods (not yet fully tested; use at your own risk)

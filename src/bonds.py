@@ -190,7 +190,7 @@ def bond_atoms_oldversion(at1,at2): #bruce 050502 renamed this from bond_atoms; 
 
 # Bond valence constants -- exact ints, 6 times the numeric valence they represent.
 # If these need an order, their standard order is the same as the order of their numeric valences
-# (as shown here).  ###e move these into constants.py? maybe not...
+# (as in the constant list BOND_VALENCES).
 
 V_SINGLE = 6 * 1
 V_GRAPHITE = 6 * 4/3  # (this can't be written 6 * (1+1/3) or 6 * (1+1/3.0) - first one is wrong, second one is not an exact int)
@@ -200,11 +200,22 @@ V_TRIPLE = 6 * 3
 
 BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_TRIPLE]
 BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bond3'] # some code assumes these all start with "bond"
+bond_type_names = {V_SINGLE:'single', V_DOUBLE:'double', V_TRIPLE:'triple', V_AROMATIC:'aromatic', V_GRAPHITE:'graphite'}
 
-BOND_LETTERS = ['?'] * (V_TRIPLE+1)
-for v6,mmprec in zip(BOND_VALENCES,BOND_MMPRECORDS):
+BOND_VALENCES_HIGHEST_FIRST = list(BOND_VALENCES)
+BOND_VALENCES_HIGHEST_FIRST.reverse()
+
+V_ZERO_VALENCE = 0 # used as a temporary valence by some code
+
+BOND_LETTERS = ['?'] * (V_TRIPLE+1) # modified just below, to become a string; used in initial Bond.draw method
+
+for v6, mmprec in zip( BOND_VALENCES, BOND_MMPRECORDS ):
     BOND_LETTERS[v6] = mmprec[4] # '1','g',etc
+    # for this it's useful to also have '?' for in-between values but not for negative or too-high values,
+    # so a list or string is more useful than a dict
+
 BOND_LETTERS[0] = '0' # see comment in Bond.draw
+
 BOND_LETTERS = "".join(BOND_LETTERS)
     ## print "BOND_LETTERS:",BOND_LETTERS # 0?????1?ga??2?????3
 
@@ -325,16 +336,110 @@ class Bond:
         self.changed_atoms()
         self.invalidate_bonded_mols() #bruce 041109 new feature
 
-    def set_v6(self, v6):
+    def set_v6(self, v6): ###@@@ not yet used?? can't be used for illegal valences, as our actual setters need to do...
         assert v6 in BOND_VALENCES
         self.v6 = v6
-        #e update geometric things?? tell the atoms too??
+        self.changed_valence()
+
+    def reduce_valence_noupdate(self, vdelta, permit_illegal_valence = False):
+        # option permits in-between, 0, or negative(?) valence
+        """Decrease this bond's valence by at most vdelta (which must be nonnegative),
+        but always to a supported value in BOND_VALENCES (unless permit_illegal_valence is true);
+        return the actual amount of decrease (maybe 0; in the same scale as BOND_VALENCES).
+           When permit_illegal_valence is true, any valence can be reached, even one which
+        is lower than any permitted valence, zero, or negative (###k not sure that's good, or ever tried).
+           [The starting valence (self.v6) need not be a legal one(??); but by default
+        the final valence must be legal; not sure what should happen if no delta in [0,vdelta] makes
+        it legal! For now, raise an AssertionError(?) exception then. #####@@@@@]
+        """
+        # we want the lowest permitted valence which is at least v_have - vdelta, i.e. in the range v_want to v_have.
+        # This code is very similar to that of increase_valence_noupdate, but differs in a few important places!
+        assert vdelta >= 0
+        v_have = self.v6
+        v_want = v_have - vdelta
+        if not permit_illegal_valence:
+            # make v_want legal (or raise exception if that's not possible)
+            did_break = else_reached = 0
+            for v_to_try in BOND_VALENCES: # this list is in lowest-to-highest order
+                if v_want <= v_to_try <= v_have: # warning: order of comparison will differ in the sister method for "increase"
+                    v_want = v_to_try # good thing we'll break now, since this assignment alters the meaning of the loop-test
+                    did_break = 1
+                    break
+            else:
+                else_reached = 1
+                if platform.atom_debug:
+                    print "atom_debug: else clause reached"
+                    # i don't know python's rules about this; it might relate to #iters == 0
+            if platform.atom_debug:
+                if not (did_break != else_reached):
+                    # this is what I hope it means (whether we fell out the end or not) but fear it doesn't
+                    print "atom_debug: i hoped for did_break != else_reached but it's not true"
+            if not did_break:
+                # no valence is legal! Not yet sure what to do in this case. (Or whether it ever happens.)
+                assert 0, "no valence reduction of %r from 0 to vdelta %r is legal!" % (v_have, vdelta)
+            assert v_want in BOND_VALENCES # sanity check
+        # now set valence to v_want
+        if v_want != v_have:
+            self.v6 = v_want
+            self.changed_valence()
+        return v_have - v_want # return actual decrease (warning: order of subtraction will differ in sister method)
+
+    def increase_valence_noupdate(self, vdelta, permit_illegal_valence = False): #k is that option needed?
+        """Increase this bond's valence by at most vdelta (which must be nonnegative),
+        but always to a supported value in BOND_VALENCES (unless permit_illegal_valence is true);
+        return the actual amount of increase (maybe 0; in the same scale as BOND_VALENCES).
+           When permit_illegal_valence is true, any valence can be reached, even one which
+        is higher than any permitted valence (###k not sure that's good, or ever tried).
+           [The starting valence (self.v6) need not be a legal one(??); but by default
+        the final valence must be legal; not sure what should happen if no delta in [0,vdelta] makes
+        it legal! For now, raise an AssertionError(?) exception then. #####@@@@@]
+        """
+        # we want the highest permitted valence which is at most v_have + vdelta, i.e. in the range v_have to v_want.
+        # This code is very similar to that of reduce_valence_noupdate but several things are reversed.
+        assert vdelta >= 0
+        v_have = self.v6
+        v_want = v_have + vdelta
+        if not permit_illegal_valence:
+            # make v_want legal (or raise exception if that's not possible)
+            did_break = else_reached = 0
+            for v_to_try in BOND_VALENCES_HIGHEST_FIRST: # this list is in highest-to-lowest order, unlike BOND_VALENCES
+                if v_have <= v_to_try <= v_want: # warning: order of comparison differs in sister method
+                    v_want = v_to_try # good thing we'll break now, since this assignment alters the meaning of the loop-test
+                    did_break = 1
+                    break
+            else:
+                else_reached = 1
+                if platform.atom_debug:
+                    print "atom_debug: else clause reached in increase_valence_noupdate"
+            if platform.atom_debug:
+                if not (did_break != else_reached):
+                    print "atom_debug: i hoped for did_break != else_reached but it's not true, in increase_valence_noupdate"
+            if not did_break:
+                # no valence is legal! Not yet sure what to do in this case. (Or whether it ever happens.)
+                assert 0, "no valence increase of %r from 0 to vdelta %r is legal!" % (v_have, vdelta)
+            assert v_want in BOND_VALENCES # sanity check
+        # now set valence to v_want
+        if v_want != v_have:
+            self.v6 = v_want
+            self.changed_valence()
+        return v_want - v_have # return actual increase (warning: order of subtraction differs in sister method)
+
+    def changed_valence(self):
+        """[private method]
+        This should be called whenever this bond's valence is changed
+        (whether to a legal or (presumably temporary) illegal value).
+        It does whatever invalidations that requires, but does no "updates".
+        """
+        ###e update geometric things, using setup_invalidate?? ###@@@
+        self.setup_invalidate() # not sure this is needed, but let's do it to make sure it's safe if/when it's needed [bruce 050502]
+        # tell the atoms we're doing this
+        self.atom1._modified_valence = self.atom2._modified_valence = True # (this uses a private attr of class atom; might be revised)
         if self.atom1.molecule == self.atom2.molecule:
-            # we're in that molecule's display list
+            # we're in that molecule's display list, so it needs to know we'll look different when redrawn
             self.atom1.molecule.changeapp(0)
         return
 
-    def numeric_valence(self): # has a long name so you won't be tempted to use it when you should use .v6
+    def numeric_valence(self): # has a long name so you won't be tempted to use it when you should use .v6 ###@@@ not yet used?
         return self.v6 / 6.0
     
     def changed_atoms(self):
@@ -393,6 +498,8 @@ class Bond:
          (FYI: It need not be called for other changes that might affect bond
         appearance, like disp or color of bonded molecules, though for internal
         bonds, the molecule's .havelist should be reset when those things change.)
+         (It's not yet clear whether this needs to be called when bond-valence is changed.
+        If it does, that will be done from one place, the changed_valence() method. [bruce 050502])
           Note that before the "inval/update" revisions [bruce 041104],
         self.setup() (the old name for this method, from point of view of callers)
         did the recomputation now done on demand by __setup_update; now this method
@@ -929,8 +1036,7 @@ class bonder_at_singlets:
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
         # can that fail? I don't think so; if it could, it'd need to have new API and return us an error message explaining why.
         vused = bond.v6 # this will be the created bond
-        prefixes = {V_SINGLE:'single',V_DOUBLE:'double',V_TRIPLE:'triple',V_AROMATIC:'aromatic',V_GRAPHITE:'graphite'} ###e refile
-        prefix = prefixes[vused] + '-'
+        prefix = bond_type_names[vused] + '-'
         status = prefix + self.status # use prefix even for single bond, for now #k
         # add something to status message if not all valence from s1 or s2 was used
         # (can this happen for both singlets at once? maybe 'a' vs 'g' can do that -- not sure.)
