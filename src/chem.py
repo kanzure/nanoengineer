@@ -473,15 +473,25 @@ class atom:
            int(xyz[0]), int(xyz[1]), int(xyz[2]), disp)
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
         # write only the bonds which have now had both atoms written
-        bl = [] # (note: in pre-050322 code bl held ints, not strings)
+        #bruce 050502: write higher-valence bonds using their new mmp records,
+        # one line per type of bond (only if we need to write any bonds of that type)
+        bldict = {} # maps valence to list of 0 or more atom-encodings for bonds of that valence we need to write
+        ## bl = [] # (note: in pre-050322 code bl held ints, not strings)
         for b in self.bonds:
             oa = b.other(self)
             #bruce 050322 revised this:
             oa_code = mapping.encode_atom(oa) # None, or true and prints as "atom number string"
             if oa_code:
+                # we'll write this bond, since both atoms have been written
+                valence = b.v6
+                bl = bldict.setdefault(valence, [])
                 bl.append(oa_code)
-        if len(bl) > 0:
-            mapping.write("bond1 " + " ".join(bl) + "\n")
+        bondrecords = bldict.items()
+        bondrecords.sort() # by valence
+        from bonds import bonds_mmprecord # avoid recursive import problem by doing this at runtime
+        for valence, atomcodes in bondrecords:
+            assert len(atomcodes) > 0
+            mapping.write( bonds_mmprecord( valence, atomcodes ) + "\n")
     
     # write to a povray file:  draw a single atom
     def writepov(self, file, dispdef, col):

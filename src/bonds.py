@@ -199,7 +199,9 @@ V_DOUBLE = 6 * 2
 V_TRIPLE = 6 * 3
 
 BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_TRIPLE]
-BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bond3'] # some code assumes these all start with "bond"
+BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bond3']
+    # (Some code might assume these all start with "bond".)
+    # (These mmp record names are also hardcoded into mmp-reading code in files_mmp.py.)
 bond_type_names = {V_SINGLE:'single', V_DOUBLE:'double', V_TRIPLE:'triple', V_AROMATIC:'aromatic', V_GRAPHITE:'graphite'}
 
 BOND_VALENCES_HIGHEST_FIRST = list(BOND_VALENCES)
@@ -220,6 +222,18 @@ BOND_LETTERS = "".join(BOND_LETTERS)
     ## print "BOND_LETTERS:",BOND_LETTERS # 0?????1?ga??2?????3
 
 # == helper functions related to bonding (I might move these lower in the file #e)
+
+def bonds_mmprecord( valence, atomcodes ):
+    """Return the mmp record line (not including its terminating '\n')
+    which represents one or more bonds of the same (given) valence
+    (which must be a supported valence)
+    from the prior atom in the mmp file to each of the listed atoms
+    (given as atomcodes, a list of the strings used to encode them
+     in the mmp file being written).
+    """
+    ind = BOND_VALENCES.index(valence) # exception if not a supported valence
+    recname = BOND_MMPRECORDS[ind]
+    return recname + " " + " ".join(atomcodes)
 
 def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False):
     """Bond atoms a1 and a2 by making a new bond of valence vnew (which must be one

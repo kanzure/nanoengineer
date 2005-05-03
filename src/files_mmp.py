@@ -49,6 +49,21 @@ backward-compatible -- old code will ignore the new records.
 '050130 required; 050422 optional' -- bruce, adding forward_ref,
 info leaf forwarded, and info leaf disabled.
 
+'050502 required' -- bruce, now writing bond2, bond3, bonda, bondg
+for higher-valence bonds appearing in the model (if any). (The code
+that actually writes these is not in this file.)
+
+Actually, "required" is conservative -- these are only "required" if
+higher-valence bonds are present in the model being written.
+
+Unfortunately, we don't yet have any way to say that to old code reading the file.
+(This would require declaring these new bond records in the file, using a "declare"
+record known by older reading-code, and telling it (as part of the declaration,
+something formal that meant) "if you see these new record types and don't understand
+them, then you miss some essential bond info of the kind carried by bond1 which you
+do understand". In other words, "error if you see bond2 (etc), don't understand it,
+but do understand (and care about) bond1".)
+
 ===
 
 General notes about when to change the mmp format version:
@@ -61,7 +76,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050130 required; 050422 optional'
+MMP_FORMAT_VERSION_TO_WRITE = '050502 required' # replaces '050130 required; 050422 optional'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
@@ -262,13 +277,29 @@ class _readmmp_state:
         self.prevcard = card
         
     def _read_bond1(self, card):
-        list = map(int, re.findall("\d+",card[5:]))
+        return self.read_bond_record(card, V_SINGLE)
+        
+    def _read_bond2(self, card):
+        return self.read_bond_record(card, V_DOUBLE)
+        
+    def _read_bond3(self, card):
+        return self.read_bond_record(card, V_TRIPLE)
+        
+    def _read_bonda(self, card):
+        return self.read_bond_record(card, V_AROMATIC)
+        
+    def _read_bondg(self, card):
+        return self.read_bond_record(card, V_GRAPHITE)
+
+    def read_bond_record(self, card, valence):
+        list = map(int, re.findall("\d+",card[5:])) # note: this assumes all bond mmp-record-names are the same length, 5 chars.
         try:
             for a in map((lambda n: self.ndix[n]), list):
-                bond_atoms( self.prevatom, a)
+                bond_atoms( self.prevatom, a, valence, no_corrections = True) # bruce 050502 revised this
         except KeyError:
             print "error in MMP file: atom ", self.prevcard
             print card
+            #e better error action, like some exception?
             
     # Read the MMP record for a Rotary Motor as either:
     # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az) length, radius, spoke_radius
