@@ -793,10 +793,17 @@ class Bond:
             glDisable(GL_LIGHTING)
             ## glDisable(GL_DEPTH_TEST)
             glPushMatrix()
-            font = QFont( QString("Times"), 10)#QFont(QString("Helvetica"), 12, QFont.Normal) ###E optimize this, keep in glpane
-            glpane.qglColor(QColor(75, 75, 75))
+            font = QFont( QString("Times"), 10)
+                # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works in other code for Helvetica
+                ###e should adjust fontsize based on scale, depth...
+                #e could optimize this, keep in glpane
+            ## glpane.qglColor(QColor(75, 75, 75)) # gray
+            ## glpane.qglColor(QColor(200, 40, 140)) # majenta
+            glpane.qglColor(QColor(255, 255, 255)) # white
             p = self.center + glpane.out * 0.6
                 ###WRONG -- depends on rotation when display list is made! But quite useful for now.
+                # Could fix this by having a separate display list, or no display list, for these kinds of things --
+                # would need a separate display list per chunk and per offset.
             v6 = self.v6
             try:
                 ltr = BOND_LETTERS[v6]
@@ -1071,7 +1078,7 @@ class bonder_at_singlets:
         bond = find_bond(a1, a2)
         vdelta_used = bond.increase_valence_noupdate(vdelta) # increases to legal value, returns actual amount of increase (maybe 0)
         if not vdelta_used:
-            return do_error("can't increase valence of bond between atoms %r and %r" % (a1,a2), None) #e say existing valence? say why not?
+            return self.do_error("can't increase valence of bond between atoms %r and %r" % (a1,a2), None) #e say existing valence? say why not?
         s1.singlet_reduce_valence_noupdate(vdelta)
             # this might or might not kill it;
             # it might even reduce valence to 0 but not kill it,
