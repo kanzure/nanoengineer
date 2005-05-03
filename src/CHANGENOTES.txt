@@ -362,5 +362,20 @@ Date: 4/29/2005
 Files: assembly.py Utility.py MWsemantics.py
 Summary:  fixed bug 413; revised wording of unsaved changes message
 
+------------------------------------------ Alpha 6 --------------------------------------------
+
+### something by Huaicai about cookie cutter snap to grid? I don't know
+if he needs to add that here, I just wanted to make a place for it;
+Huaicai can remove this comment [bruce 050502]
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/2/2005
+Files: bonds.py chem.py chunk.py depositMode.py files_mmp.py
+Summary: split bonds.py out of chem.py; very partial support for bond2 etc, including in mmp files
+
+For details (about how preliminary and partial it is) see email to cad list.
+
 ----------------------------
 
