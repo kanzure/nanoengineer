@@ -71,6 +71,12 @@ void makatom(int elem, struct xyz posn) {
 void makbond(int a, int b, int ord) {
     int n, t, typ, ta, tb, a1, a2;
     double bl, sbl;
+
+    /*****************************************************************************************************/
+    /* Patch to insure that multiple bonds get treated as single bonds until we do the right thing. */
+    ord=1;
+    /*****************************************************************************************************/
+    
 	
     DPRINT(D_READER, "making bond %d--%d\n",a,b);
     bond[Nexbon].an1=a;
