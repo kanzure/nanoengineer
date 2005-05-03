@@ -88,10 +88,9 @@ atKey = genKey() # generator for atom.key attribute.
     # read from an mmp file), so we now require this in the future even if the
     # key type is changed.
 
-###Huaicai: This function [povpoint] has been repeated in multiple files, not 
-### good, needs to improve. I'll add one more function for transferring
+###Huaicai: ... I'll add one more function for transferring
 ### vector to a string, which is mainly used for color vector
-# [bruce 050413: moved povpoint elsewhere]
+# [see also povpoint] [bruce revised this comment, 050502]
 
 def stringVec(v):
     return "<" + str(v[0]) + "," + str(v[1]) + "," + str(v[2]) + ">"    
@@ -237,15 +236,14 @@ class atom:
         #e (should this be a separate method -- does anything else need it?)
         for b in self.bonds:
             b.setup_invalidate()
-        ##bruce 050406 removing this, since too verbose for movie-playing:
-##        if platform.atom_debug and self.jigs:
-##            print "bug: atom.setposn needs to invalidate jigs, but that's nim"
+        ###e we also need to invalidate jigs which care about their atoms' positions
         return
 
     def adjSinglets(self, atom, nupos):
         """We're going to move atom, a neighbor of yours, to nupos,
         so adjust the positions of your singlets to match.
         """
+        ###k could this be called for atom being itself a singlet, when dragging a singlet? [bruce 050502 question]
         apo = self.posn()
         # find the delta quat for the average real bond and apply
         # it to the singlets
@@ -457,10 +455,6 @@ class atom:
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         "[compatible with Node.writemmp, though we're not a subclass of Node]"
         num_str = mapping.encode_next_atom(self) # (note: pre-050322 code used an int here)
-##        atnums['NUM'] += 1
-##        num = atnums['NUM']
-##        alist += [self]
-##        atnums[self.key] = num
         disp = mapping.dispname(self.display) # note: affected by mapping.sim flag
         posn = self.posn() # might be revised below
         eltnum = self.element.eltnum # might be revised below
@@ -486,7 +480,6 @@ class atom:
             oa_code = mapping.encode_atom(oa) # None, or true and prints as "atom number string"
             if oa_code:
                 bl.append(oa_code)
-##            if oa.key in atnums: bl += [atnums[oa.key]]
         if len(bl) > 0:
             mapping.write("bond1 " + " ".join(bl) + "\n")
     
@@ -511,9 +504,7 @@ class atom:
         disp, radius = self.howdraw(dispdef)
         xyz=map(float, A(self.posn()))
         rgb=map(int,A(color)*255)
-        atnum = len(alist) # current atom number
-#        print "chem.writemdl(): atnum =", atnum,", xyz = ",xyz,", radius = ",radius,", rgb = ",rgb
-        
+        atnum = len(alist) # current atom number        
         alist.append([xyz, radius, rgb])
         
         # Write spline info for this atom
@@ -540,7 +531,7 @@ class atom:
                 f.write("3825467393 1 %d\n%d\n%s%s"%
                            (index+59+atomOffset, links[index]+atomOffset,
                             filler, filler))
-
+        return
 
     def checkpick(self, p1, v1, disp, r=None, iPic=None):
         """Selection function for atoms: [Deprecated! bruce 041214]
@@ -691,8 +682,7 @@ class atom:
             pass
         return nuat
 
-    def copy(self): # bruce 041116, new method
-        # (warning: has previous name of copy_for_mol_copy method)
+    def copy(self): # bruce 041116, new method (has same name as an older method, now named copy_for_mol_copy)
         """Public method: copy an atom, with no special assumptions;
         new atom is not in any mol but could be added to one using mol.addatom.
         """
@@ -1016,9 +1006,7 @@ class atom:
         o = self.bonds[0].other(self)
         op = o.posn()
         np = norm(self.posn()-op)*o.element.rcovalent + op
-        # bruce 041112 rewrote last line
-        self.setposn(np)
-        ## self.molecule.curpos[self.index] = np
+        self.setposn(np) # bruce 041112 rewrote last line
 
     def Passivate(self):
         """[Public method, does all needed invalidations:]
