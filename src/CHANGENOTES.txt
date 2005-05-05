@@ -379,3 +379,10 @@ For details (about how preliminary and partial it is) see email to cad list.
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/4/2005
+Files: TreeWidget.py modelTree.py
+Summary: added model tree context menu command to select all atoms of any Jig or set of Jigs
+
+----------------------------
+

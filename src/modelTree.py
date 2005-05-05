@@ -372,6 +372,15 @@ class modelTree(TreeWidget):
             if allstats.nhidden:
                 res.append(( "(%d of these are hidden)" % allstats.nhidden, noop, 'disabled' ))
 
+            if allstats.njigs == allstats.n and allstats.njigs:
+                # only jigs are selected -- offer to select their atoms [bruce 050504]
+                if allstats.njigs == 1:
+                    natoms = len(nodeset[0].atoms)
+                    myatoms = fix_plurals( "this jig's %d atom(s)" % natoms )
+                else:
+                    myatoms = "these jigs' atoms"
+                res.append(('Select ' + myatoms, self.cm_select_jigs_atoms ))
+
 ##        ##e following msg is not true, since nodeset doesn't include selection under selected groups!
 ##        # need to replace it with a better breakdown of what's selected,
 ##        # incl how much under selected groups is selected. Maybe we'll add a list of major types
@@ -563,6 +572,17 @@ class modelTree(TreeWidget):
         jig = node
         jig.disabled_by_user_choice = False
         self.win.win_update()
+
+    def cm_select_jigs_atoms(self): #bruce 050504
+        nodeset = self.topmost_selected_nodes()
+        for jig in nodeset:
+            assert isinstance( jig, Jig) # caller guarantees they are all jigs
+            for atm in jig.atoms:
+                atm.pick()
+            jig.unpick() # not done by picking atoms
+        self.win.win_update()
+        # note: caller (which puts up context menu) does self.update_select_mode(); we depend on that.
+        return
     
     pass # end of class modelTree
 

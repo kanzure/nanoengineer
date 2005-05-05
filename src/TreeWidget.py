@@ -523,16 +523,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
         currently selected, then we change the visible selection mode to fit
         what is actually selected.
         """
-        #e should optim: this can call repaintGL redundantly
-        # with win.win_update() [bruce 041220; is this still true? 050124]
-        # [later: is that a typo meaning paintGL? which is now called gl_update,
-        #  and soon will be ok to call redundantly? 050127]
         mode = self.win.glpane.mode
         if not isinstance(mode, selectMode):
             return
         assy = self.assy
         if assy.selatoms and isinstance( mode, selectMolsMode):
-            self.win.toolsSelectAtoms() ###k check tool name - this case not needed by treewidget
+            self.win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work
         elif assy.selmols and isinstance( mode, selectAtomsMode):
             self.win.toolsSelectMolecules()
         else:
