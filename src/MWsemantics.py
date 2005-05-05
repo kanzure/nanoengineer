@@ -31,6 +31,7 @@ from assistant import AssistantWindow
 from HistoryWidget import greenmsg, redmsg
 
 from movieMode import movieDashboardSlotsMixin
+from changes import register_postinit_object
 
 helpwindow = None
 elementSelectorWin = None
@@ -185,13 +186,24 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.pasteP = False
         
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
-        
+
         self.initialised = 1
+
+        # be told to add new Jigs menu items, now or as they become available [bruce 050504]
+        register_postinit_object( "Jigs menu items", self )
+
         self.win_update() # bruce 041222
         
         return # from MWsemantics.__init__
 
-
+    def postinit_item(self, item): #bruce 050504
+        try:
+            item(self)
+        except:
+            # blame item
+            print_compact_traceback( "exception (ignored) in postinit_item(%r): " % item )
+        return
+        
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]
         
