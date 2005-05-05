@@ -543,18 +543,18 @@ class modelTree(TreeWidget):
     # anyway I tried to fix or mitigate their bugs [bruce 050131]:
     
     def cm_copy(self):
-        self.assy.copy_sel()
+        self.assy.copy_sel(use_selatoms = False)
         ## bruce 050427: removing mt_update since copy_sel does win_update:
         ## self.mt_update()
     
     def cm_cut(self):
-        self.assy.cut_sel()
+        self.assy.cut_sel(use_selatoms = False)
         ## bruce 050427: removing win_update since cut_sel does it:
         ## self.win.win_update() # Changed from self.mt_update [bruce 050421 precaution, seems necessary tho I didn't notice bugs]
     
     def cm_delete(self): # renamed from cm_kill which was renamed from kill
         # note: this is now the same code as MWsemantics.killDo. [bruce 050131]
-        self.assy.delete_sel()
+        self.assy.delete_sel(use_selatoms = False) #bruce 050505 don't touch atoms, to fix bug (reported yesterday in checkin mail)
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win.win_update()
 

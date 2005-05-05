@@ -865,12 +865,13 @@ class Part(InvalMixin):
             print_compact_stack( "atom_debug: assy.cut called, should use its new name cut_sel: ")
         return self.cut_sel()
     
-    def cut_sel(self): #bruce 050419 renamed this from cut to avoid confusion with Node method and follow new _sel convention
+    def cut_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
+        #bruce 050419 renamed this from cut to avoid confusion with Node method and follow new _sel convention
         eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
         center_these = []
         try:
             self.w.history.message(greenmsg("Cut:"))
-            if self.selatoms:
+            if use_selatoms and self.selatoms:
                 #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
                 # changed condition to not use selwhat, since jigs can be selected even in Select Atoms mode
                 self.w.history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
@@ -943,7 +944,7 @@ class Part(InvalMixin):
                 self.w.history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
                     ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
             else:
-                if not self.selatoms:
+                if not (use_selatoms and self.selatoms):
                     #bruce 050201-bug370: we don't need this if the message for selatoms already went out
                     self.w.history.message(redmsg("Nothing to cut.")) #bruce 050201
         finally:
@@ -978,9 +979,10 @@ class Part(InvalMixin):
     #  clipboard? (This will be the topmost selected item, since (at least
     #  for now) the group members are in bottom-to-top order.)
     
-    def copy_sel(self): #bruce 050419 renamed this from copy
+    def copy_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
+        #bruce 050419 renamed this from copy
         self.w.history.message(greenmsg("Copy:"))
-        if self.selatoms:
+        if use_selatoms and self.selatoms:
             #bruce 050201-bug370: revised this in same way as for assy.cut_sel (above)
             self.w.history.message(redmsg("Copying selected atoms is not yet supported.")) #bruce 050131
             ## return
@@ -1014,7 +1016,7 @@ class Part(InvalMixin):
             self.w.history.message( fix_plurals("Copied %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
                 ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
         else:
-            if not self.selatoms:
+            if not (use_selatoms and self.selatoms):
                 #bruce 050201-bug370: we don't need this if the message for selatoms already went out
                 self.w.history.message(redmsg("Nothing to Copy.")) #bruce 050201
         self.assy.update_parts() # stub, 050308; overkill! should just apply to the new shelf items. ####@@@@ 
@@ -1039,7 +1041,7 @@ class Part(InvalMixin):
             print_compact_stack( "atom_debug: assy.kill called, should use its new name delete_sel: ")
         self.delete_sel()
 
-    def delete_sel(self):
+    def delete_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         "delete all selected nodes or atoms in this Part [except the top node, if we're an immortal Part]"
         #bruce 050419 renamed this from kill, to distinguish it
         # from standard meaning of obj.kill() == kill that obj
@@ -1047,7 +1049,7 @@ class Part(InvalMixin):
         ## "delete whatever is selected from this assembly " #e use this in the assy version of this method, if we need one
         self.w.history.message(greenmsg("Delete:"))
         ###@@@ #e this also needs a results-message, below.
-        if self.selatoms:
+        if use_selatoms and self.selatoms:
             self.changed()
             for a in self.selatoms.values():
                 a.kill()
