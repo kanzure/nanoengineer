@@ -2,13 +2,16 @@
 """
 changes.py
 
-A fast general-purpose change-tracker.
+A fast general-purpose change-tracker, and related utilities.
 
 $Id$
 
 This will eventually be used to help with Undo, among other things.
 
 Its initial use is to help fix up Part membership of Nodes after they move.
+[As of 050504 these are used only as stubs, I think, but later they'll be
+ used in an essential way to help with Undo, and maybe with other things,
+ so I'll leave them around for now.]
 
 [This module is owned by Bruce until further notice.]
 
@@ -18,6 +21,114 @@ Its initial use is to help fix up Part membership of Nodes after they move.
 __author__ = "Bruce"
 
 import os, sys, time # needed?
+from debug import print_compact_traceback, print_compact_stack
+
+# ==
+
+class pairmatcher:
+    """Keep two forever-growing lists,
+    and call a specified function on each pair of items in these lists,
+    in a deterministic order,
+    as this becomes possible due to the lists growing.
+    Normally this function should return None;
+    otherwise it should return special codes which
+    control our behavior (see the code for details).
+    """
+    def __init__(self, func, debug_name = "?"):
+        self.d1s = []
+        self.d2s = []
+        self.func = func #e will this func ever need to be changed, after we're made?
+        self.debug_name = debug_name
+    def another_dim2(self, d2):
+        for d1 in self.d1s:
+            self.doit(d1,d2) # doit for existing d1s
+        self.d2s.append(d2) # and for future d1s
+    def another_dim1(self, d1):
+        for d2 in self.d2s:
+            self.doit(d1,d2) # doit for existing d2s
+        self.d1s.append(d1) # and for future d2s
+    def doit(self, d1, d2):
+        try:
+            retcode = self.func(d1,d2)
+            if retcode:
+                if retcode == "remove d1":
+                    # note: we might or might not be iterating over d1s right now!
+                    self.d1s = list(self.d1s) # in case we are, modify a fresh copy
+                    self.d1s.remove(d1)
+                elif retcode == "remove d2":
+                    self.d2s = list(self.d2s)
+                    self.d2s.remove(d2)
+                else:
+                    print_compact_stack( "bug (ignored): unrecognized return code %r in pairmatcher %r: " % \
+                                         (retcode, self.debug_name))
+            #e any other use for retval??
+        except:
+            print_compact_traceback( "exception in pairmatcher %r ignored: " % self.debug_name)
+        return
+    pass
+
+class MakerDict:
+    "A read-only dict with a function for constructing missing elements"
+    def __init__( self, func):
+        self.data = {}
+        self.func = func
+    def __getitem__(self, key): # (no need for __setitem__ or other dict methods)
+        try:
+            return self.data[key]
+        except KeyError:
+            self.data[key] = self.func(key)
+            return self.data[key]
+    pass
+
+# A place for objects of one kind of register themselves under some name,
+# so that objects of another kind can meet all of them using a pairmatcher (#doc better?)
+
+def postinit_func( d1, d2):
+    """after d1 is inited, tell it about d2
+    (meant to be called for every d1 of one kind,
+     and every d2 of another kind,
+     registered below under the same name)
+    """
+    try:
+        d1.postinit_item(d2)
+    except:
+        # blame d1
+        print_compact_traceback( "exception in d1.postinit_item(d2) ignored; removing d1: ") #e objnames? safe_repr(obj)?
+        return "remove d1" # special code recognized by the pairmatcher
+
+postinit_pairmatchers = MakerDict( lambda name: pairmatcher( postinit_func, debug_name = name) )
+
+# the public functions:
+
+# (for main window Jig menu items we'll use the typename "Jigs menu items" since maybe other things will have Jigs menus)
+
+def register_postinit_object( typename, object):
+    """Cause object to receive the method-call object.postinit_item(item)
+    for every postinit item registered under the same typename,
+    in the order of their registration,
+    whether item is already registered or will be registered in the future.
+    """
+    pairmatcher = postinit_pairmatchers[ typename]
+    pairmatcher.another_dim1( object)
+
+def register_postinit_item( typename, item):
+    """Cause every object registered with register_postinit_object
+    under the same typename (whether registered already or in the future,
+    and in their order of registration)
+    to receive the method call object.postinit_item(item) for this item.
+    """
+    pairmatcher = postinit_pairmatchers[ typename]
+    pairmatcher.another_dim2( item)    
+
+# ==
+
+_keep_these_forever = {}
+
+def keep_forever(thing):
+    "a place to put stuff if you need to make sure it's never deallocated by Python"
+    _keep_these_forever[id(thing)] = thing
+
+# ==
 
 # Objects to record changes as they're reported, fairly efficiently.
 
