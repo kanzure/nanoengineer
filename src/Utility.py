@@ -128,6 +128,8 @@ class Node:
         #  with treewidget-specific state #e)
     dad = None
     part = None #bruce 050303
+    disabled_by_user_choice = False
+        # [bruce 050505 made this default on all Nodes, tho only Jigs use the attr so far; see also is_disabled]
 
     def __init__(self, assy, name, dad = None): #bruce 050216 fixed inconsistent arg order, made name required
         """Make a new node (Node or any subclass), in the given assembly (assy)
@@ -177,6 +179,12 @@ class Node:
             assert self.dad == dad
         return
 
+    def set_disabled_by_user_choice(self, val): #bruce 050505 as part of fixing bug 593
+        self.disabled_by_user_choice = val
+        if self.part:
+            self.part.changed() #e someday we'll do self.changed which will do dad.changed....
+        return
+    
     def is_group(self): #bruce 050216
         """Is self a Group node (i.e. an instance of Group or a subclass)?
         This is almost as deprecated as isinstance(self, Group),
@@ -228,7 +236,7 @@ class Node:
                 print "atom_debug: fyi: info leaf (in Node) with unrecognized key %r (not an error)" % (key,)
         return
     
-    def is_disabled(self): #bruce 050421 experiment related to bug 451-9
+    def is_disabled(self): #bruce 050421 experiment related to bug 451-9 #e what Jig method does belongs here... [050505 comment]
         "Should this node look disabled when shown in model tree (but remain fully functional for selection)?"
         return False 
     
@@ -937,11 +945,7 @@ class Node:
         assert not self.is_group()
         if self.hidden:
             mapping.write("info leaf hidden = True\n")
-        try:
-            disabled = self.disabled_by_user_choice # only Jigs have this so far
-        except:
-            disabled = False # the default, won't be written
-        if disabled:
+        if self.disabled_by_user_choice: # [bruce 050505 revised this so all Nodes have the attribute, tho so far only Jigs use it]
             mapping.write("info leaf disabled = True\n") #bruce 050422
         return
         

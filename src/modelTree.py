@@ -563,7 +563,7 @@ class modelTree(TreeWidget):
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
         jig = node # caller guarantees this is a jig; if not, this silently has no effect
-        jig.disabled_by_user_choice = True
+        jig.set_disabled_by_user_choice( True) # use Node method as part of fixing bug 593 [bruce 050505]
         self.win.win_update()
 
     def cm_enable(self): #bruce 050421
@@ -571,7 +571,7 @@ class modelTree(TreeWidget):
         assert len(nodeset) == 1, "len nodeset should be 1, but nodeset is %r" % nodeset
         node = nodeset[0]
         jig = node
-        jig.disabled_by_user_choice = False
+        jig.set_disabled_by_user_choice( False)
         self.win.win_update()
 
     def cm_select_jigs_atoms(self): #bruce 050504

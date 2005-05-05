@@ -66,8 +66,7 @@ class Jig(Node):
         for a in atomlist:
             a.jigs += [self]
         #e it might make sense to init other attrs here too, like color
-        self.disabled_by_user_choice = False #bruce 050421
-            ###@@@ not yet written into mmp file or read from it... should be! affects sim; thus affects mmp record.
+        ## this is now the default for all Nodes [050505]: self.disabled_by_user_choice = False #bruce 050421
         return
 
     def node_icon(self, display_prefs): #bruce 050425 simplified this
