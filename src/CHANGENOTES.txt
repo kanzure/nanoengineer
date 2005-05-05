@@ -386,3 +386,10 @@ Summary: added model tree context menu command to select all atoms of any Jig or
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/5/2005
+Files: Utility.py jigs.py modelTree.py
+Summary: fix Alpha5 bug 593: disabling/enabling Jigs now marks file as changed
+
+----------------------------
+
