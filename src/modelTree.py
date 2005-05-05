@@ -21,6 +21,7 @@ from TreeWidget import * # including class TreeWidget itself, and Node, Group
 from chunk import molecule
 from jigs import Jig
 import platform # for atom_debug
+from HistoryWidget import redmsg, greenmsg, orangemsg # not all used, that's ok
 
 
 # helpers for making context menu commands
@@ -575,11 +576,22 @@ class modelTree(TreeWidget):
 
     def cm_select_jigs_atoms(self): #bruce 050504
         nodeset = self.topmost_selected_nodes()
+        otherpart = {} #bruce 050505 to fix bug 589
+        did_these = {}
         for jig in nodeset:
             assert isinstance( jig, Jig) # caller guarantees they are all jigs
             for atm in jig.atoms:
-                atm.pick()
+                if atm.molecule.part == jig.part:
+                    atm.pick()
+                    did_these[atm.key] = atm
+                else:
+                    otherpart[atm.key] = atm
             jig.unpick() # not done by picking atoms
+        msg = fix_plurals("Selected %d atom(s)" % len(did_these)) # might be 0, that's ok
+        if otherpart:
+            msg += fix_plurals(" (skipped %d atom(s) which were not in this Part)" % len(otherpart))
+            msg = orangemsg(msg) # the whole thing, I guess
+        self.win.history.message(msg)
         self.win.win_update()
         # note: caller (which puts up context menu) does self.update_select_mode(); we depend on that.
         return
