@@ -181,6 +181,19 @@ class Node:
 
     def set_disabled_by_user_choice(self, val): #bruce 050505 as part of fixing bug 593
         self.disabled_by_user_choice = val
+        self.changed()
+
+    def changed(self): #bruce 050505
+        """Call this whenever something in the node changes
+        which would affect what gets written to an mmp file
+        when the node gets written.
+           Try to call it exactly when needed, since calling it
+        when not needed leads to the user being told there are
+        unsaved changes, and asked to confirm discards of the model
+        upon loading a new one, even when there are no actual changes.
+           But if you're not sure, calling it when not needed is better
+        than not calling it when needed.
+        """
         if self.part:
             self.part.changed() #e someday we'll do self.changed which will do dad.changed....
         return

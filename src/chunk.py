@@ -965,6 +965,11 @@ class molecule(Node, InvalMixin):
             (hs_num,) = val.split()
             hs = interp.atom(hs_num)
             self.set_hotspot(hs)
+        elif key == ['color']: #bruce 050505
+            # val should be 3 decimal ints from 0-255; colors of None are not saved since they're the default
+            r,g,b = map(int, val.split())
+            color = r/255.0, g/255.0, b/255.0
+            self.setcolor(color)
         else:
             if platform.atom_debug:
                 print "atom_debug: fyi: info chunk with unrecognized key %r" % (key,)
@@ -1007,6 +1012,11 @@ class molecule(Node, InvalMixin):
             hs_num = mapping.encode_atom(hs)
             assert hs_num != None
             mapping.write("info chunk hotspot = %s\n" % hs_num)
+        if self.color:
+            r = int(self.color[0]*255 + 0.5)
+            g = int(self.color[1]*255 + 0.5)
+            b = int(self.color[2]*255 + 0.5)
+            mapping.write("info chunk color = %d %d %d\n" % (r,g,b))
         return
 
     # write to a povray file:  draw the atoms and bonds inside a molecule
@@ -1226,17 +1236,26 @@ class molecule(Node, InvalMixin):
         return self.quat.rot(self.axis)
 
     def setcolor(self, color):
-        """change the molecule's color
+        """change the molecule's color;
+        new color should be None (let atom colors use their element colors)
+        or a 3-tuple.
         """
+        # None or a 3-tuple; it matters that the 3-tuple is never boolean False,
+        # so don't use a Numeric array! As a precaution, let's enforce this now. [bruce 050505]
+        if color != None:
+            r,g,b = color
+            color = r,g,b
         self.color = color
+            # warning: some callers (MoleculeProp.py) first trash self.color, then call us to bless it. [bruce 050505 comment]
         self.havelist = 0
+        self.changed() #[bruce 050505]
 
     def setDisplay(self, disp):
         "change the molecule's display mode"
         self.display = disp
         self.havelist = 0
         self.haveradii = 0
-        self.assy.changed()
+        self.changed() # [bruce 050505 revised this]
 
     def show_invisible_atoms(self):
         """Resets the display mode for each invisible (diINVISIBLE) atom 

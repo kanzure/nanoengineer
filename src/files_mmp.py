@@ -64,6 +64,8 @@ them, then you miss some essential bond info of the kind carried by bond1 which 
 do understand". In other words, "error if you see bond2 (etc), don't understand it,
 but do understand (and care about) bond1".)
 
+'050502 required; 050505 optional' -- bruce, adding "info chunk color".
+
 ===
 
 General notes about when to change the mmp format version:
@@ -76,7 +78,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050502 required' # replaces '050130 required; 050422 optional'
+MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050505 optional' # replaces '050502 required'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *

@@ -400,3 +400,10 @@ Summary: commands in MT empty-space context menu: new clipboard item; delete all
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/5/2005
+Files: files_mmp.py Utility.py chunk.py
+Summary: chunk color now saved in mmp file.
+
+----------------------------
+
