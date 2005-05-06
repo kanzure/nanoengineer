@@ -854,7 +854,9 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     # set the color of the selected molecule
     # atom colors cannot be changed singly
     def dispObjectColor(self):
-        if not self.assy.selmols: return
+        if not self.assy.selmols: 
+            self.history.message(redmsg("Set Chunk Color: No chunks selected.")) #bruce 050505 added this message
+            return
         c = QColorDialog.getColor(QColor(100,100,100), self, "choose")
         if c.isValid():
             molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
