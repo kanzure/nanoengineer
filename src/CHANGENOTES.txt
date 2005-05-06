@@ -393,3 +393,10 @@ Summary: fix Alpha5 bug 593: disabling/enabling Jigs now marks file as changed
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/5/2005
+Files: modelTree.py
+Summary: commands in MT empty-space context menu: new clipboard item; delete all clipboard items.
+
+----------------------------
+

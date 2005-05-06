@@ -218,6 +218,8 @@ class modelTree(TreeWidget):
         # I think we might as well remake this every time, for most kinds of menus,
         # so it's easy for it to depend on current state.
         # I really doubt this will be too slow. [bruce 050113]
+
+        from platform import fix_plurals
         
         if not nodeset:
             #e later we'll add useful menu commands for no nodes,
@@ -225,11 +227,19 @@ class modelTree(TreeWidget):
             # In fact, we'll probably remove this special case
             # and instead let each menu command decide whether it applies
             # in this case.
-            return [('Model Tree (nothing selected)',noop,'disabled')] #e more later
+            res = [('Model Tree (nothing selected)',noop,'disabled')]
+            #bruce 050505 adding some commands here (cm_delete_clipboard is a just-reported NFR from Mark)
+            res.append(( 'Create new empty clipboard item', self.cm_new_clipboard_item ))
+            lenshelf = len(self.assy.shelf.members)
+            if lenshelf:
+                if lenshelf > 2:
+                    text = 'Delete all %d clipboard items' % lenshelf
+                else:
+                    text = 'Delete all clipboard items'
+                res.append(( text, self.cm_delete_clipboard ))
+            return res
 
         res = []
-
-        from platform import fix_plurals
 
         # first put in a Hide item, checked or unchecked. But what if the hidden-state is mixed?
         # then there is a need for two menu commands! Or, use the command twice, fully hide then fully unhide -- not so good.
@@ -595,6 +605,18 @@ class modelTree(TreeWidget):
         self.win.win_update()
         # note: caller (which puts up context menu) does self.update_select_mode(); we depend on that.
         return
+
+    def cm_new_clipboard_item(self): #bruce 050505
+        name = self.assy.name_autogrouped_nodes_for_clipboard( [] ) # will this end up being the part name too? not sure... ###k
+        self.assy.shelf.addchild( Group(name, self.assy, None) )
+        self.assy.update_parts()
+        self.mt_update()
+
+    def cm_delete_clipboard(self): #bruce 050505
+        ###e get confirmation from user?
+        for item in self.assy.shelf.members[:]:
+            item.kill() # will this be safe even if one of these is presently displayed? ###k
+        self.mt_update()
     
     pass # end of class modelTree
 
