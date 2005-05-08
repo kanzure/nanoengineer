@@ -971,7 +971,10 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def selectConnected(self):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
-        Huaicai 1/19/05: This is called when user clicks the tool button, but when the user choose from pop up menu, only assy.selectConnected() called. I don't think this is good by any means, so I'll try to make them almost the same, but still keep this function. 
+        Huaicai 1/19/05: This is called when user clicks the tool button,
+        but when the user choose from pop up menu, only assy.selectConnected() called.
+        I don't think this is good by any means, so I'll try to make them almost the same,
+        but still keep this function. 
         """
         self.assy.selectConnected()
         
