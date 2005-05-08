@@ -800,7 +800,11 @@ class Bond:
             ## glpane.qglColor(QColor(75, 75, 75)) # gray
             ## glpane.qglColor(QColor(200, 40, 140)) # majenta
             glpane.qglColor(QColor(255, 255, 255)) # white
-            p = self.center + glpane.out * 0.6
+            try:
+                glpane_out = glpane.out
+            except AttributeError:
+                glpane_out = V(0.0, 0.0, 1.0) # kluge for Element Selector [bruce 050507 bugfix]
+            p = self.center + glpane_out * 0.6
                 ###WRONG -- depends on rotation when display list is made! But quite useful for now.
                 # Could fix this by having a separate display list, or no display list, for these kinds of things --
                 # would need a separate display list per chunk and per offset.
