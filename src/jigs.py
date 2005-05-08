@@ -8,6 +8,8 @@ History: Mostly written as gadgets.py (I'm not sure by whom);
 renamed to jigs.py by bruce 050414; jigs.py 1.1 should be an
 exact copy of gadgets.py rev 1.72,
 except for this module-docstring and a few blank lines and comments.
+
+bruce 050507 pulled in the jig-making methods from class Part.
 """
 
 from VQT import *
@@ -804,4 +806,77 @@ class Thermo(Jig_onChunk_by1atom):
     
     pass # end of class Thermo
 
+# ===
+
+class jigmakers_Mixin: #bruce 050507 moved these here from part.py
+    """Provide Jig-making methods to class Part.
+    These should be refactored into some common code
+    and new methods in the specific Jig subclasses.
+    """
+
+    def makeRotaryMotor(self, sightline):
+        """Creates a Rotary Motor connected to the selected atoms.
+        There is a limit of 30 atoms.  Any more will choke the file parser
+        in the simulator.
+        """
+        if not self.selatoms: return
+        if len(self.selatoms) > 30: return
+        m = RotaryMotor(self.assy)
+        m.findCenter(self.selatoms.values(), sightline)
+        if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
+            del(m) #bruce comment 050223: this statement has no effect.
+                # bruce 050415: I suspect it might cause bugs to not kill the jig now... untested.
+                # [same issue exists for some other jigs too]
+            return
+        self.unpickatoms()
+        self.place_new_jig(m)
+      
+    def makeLinearMotor(self, sightline):
+        """Creates a Linear Motor connected to the selected atoms.
+        There is a limit of 30 atoms.  Any more will choke the file parser
+        in the simulator.
+        """
+        if not self.selatoms: return
+        if len(self.selatoms) > 30: return
+        m = LinearMotor(self.assy)
+        m.findCenter(self.selatoms.values(), sightline)
+        if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
+            del(m) #bruce comment 050223: this statement has no effect.
+            return
+        self.unpickatoms()
+        self.place_new_jig(m)
+
+    def makeground(self):
+        """Grounds (anchors) all the selected atoms so that 
+        they will not move during a simulation run.
+        There is a limit of 30 atoms per Ground.  Any more will choke the file parser
+        in the simulator. To work around this, just make more Grounds.
+        """
+        # [bruce 050210 modified docstring]
+        if not self.selatoms: return
+        if len(self.selatoms) > 30: return
+        m = Ground(self.assy, self.selatoms.values())
+        self.unpickatoms()
+        self.place_new_jig(m)
+
+    def makestat(self):
+        """Attaches a Langevin thermostat to the single atom selected.
+        """
+        if not self.selatoms: return
+        if len(self.selatoms) != 1: return
+        m = Stat(self.assy, self.selatoms.values())
+        self.unpickatoms()
+        self.place_new_jig(m)
+        
+    def makethermo(self):
+        """Attaches a thermometer to the single atom selected.
+        """
+        if not self.selatoms: return
+        if len(self.selatoms) != 1: return
+        m = Thermo(self.assy, self.selatoms.values())
+        self.unpickatoms()
+        self.place_new_jig(m)
+
+    pass # end of class jigmakers_Mixin
+    
 # end of module jigs.py

@@ -5,6 +5,8 @@ modeMixin, for GLPane.
 
 $Id$
 
+[bruce 050507 moved Hydrogenate and Dehydrogenate into another file]
+
 ==
 
 Originally written by Josh.
@@ -1071,137 +1073,8 @@ class basicMode(anyMode):
             for pp in pl:
                 drawer.drawline(color,pp[0],pp[1])
 
-    ######################
-    ## some buttons that will vary by mode -- Josh 10/14
-    ######################
-
-    # add hydrogen atoms to each dangling bond
-    # Changed this method to mirror what modifyDehydrogenate does.
-    # It is more informative about the number of chunks modified, etc.
-    # Mark 050124
-    def modifyHydrogenate(self):
-        """Add hydrogen atoms to open bonds on selected chunks/atoms.
-        """
-        from platform import fix_plurals
-        fixmols = {} # helps count modified mols for statusbar
-        if self.o.assy.selmols:
-            counta = countm = 0
-            for m in self.o.assy.selmols:
-                changed = m.Hydrogenate()
-                if changed:
-                    counta += changed
-                    countm += 1
-                    fixmols[id(m)] = m
-            if counta:
-                didwhat = "Added %d atom(s) to %d chunk(s)" \
-                          % (counta, countm)
-                if len(self.o.assy.selmols) > countm:
-                    didwhat += \
-                        " (%d selected chunk(s) had no open bonds)" \
-                        % (len(self.o.assy.selmols) - countm)
-                didwhat = fix_plurals(didwhat)
-            else:
-                didwhat = "Selected chunks contain no open bonds"    
-
-        elif self.o.assy.selatoms:
-            count = 0
-            for a in self.o.assy.selatoms.values():
-                ma = a.molecule
-                for atm in a.neighbors():
-                    matm = atm.molecule
-                    changed = atm.Hydrogenate()
-                    if changed:
-                        count += 1
-                        fixmols[id(ma)] = ma
-                        fixmols[id(matm)] = matm
-            if fixmols:
-                didwhat = \
-                    "Added %d atom(s) to %d chunk(s)" \
-                    % (count, len(fixmols))
-                didwhat = fix_plurals(didwhat)
-                # Technically, we *should* say ", affected" instead of "from"
-                # since the count includes mols of neighbors of
-                # atoms we removed, not always only mols of atoms we removed.
-                # Since that's rare, we word this assuming it didn't happen.
-                # [#e needs low-pri fix to be accurate in that rare case;
-                #  might as well deliver that as a warning, since that case is
-                #  also "dangerous" in some sense.]
-            else:
-                didwhat = "No open bonds on selected atoms"
-        else:
-            didwhat = "Nothing selected"
-
-        if fixmols:
-            self.o.assy.changed()
-            self.w.win_update()
-        self.w.history.message(didwhat)
-        return
-
-    # Remove hydrogen atoms from each selected atom/chunk
-    # (coded by Mark ~10/18/04; bugfixed/optimized/msgd by Bruce same day,
-    #  and cleaned up (and perhaps further bugfixed) after shakedown changes
-    #  on 041118.)
-    #  Bruce warns: I'm skeptical this belongs in basicMode; probably it will need
-    #  rewriting as soon as some specific mode wants to do it differently.)
-    def modifyDehydrogenate(self):
-        """Remove hydrogen atoms from selected chunks/atoms.
-        """
-        from platform import fix_plurals
-        fixmols = {} # helps count modified mols for statusbar
-        if self.o.assy.selmols:
-            counta = countm = 0
-            for m in self.o.assy.selmols:
-                changed = m.Dehydrogenate()
-                if changed:
-                    counta += changed
-                    countm += 1
-                    fixmols[id(m)] = m
-            if counta:
-                didwhat = "Removed %d atom(s) from %d chunk(s)" \
-                          % (counta, countm)
-                if len(self.o.assy.selmols) > countm:
-                    didwhat += \
-                        " (%d selected chunk(s) had no hydrogens)" \
-                        % (len(self.o.assy.selmols) - countm)
-                didwhat = fix_plurals(didwhat)
-            else:
-                didwhat = "Selected chunks contain no hydrogens"
-        elif self.o.assy.selatoms:
-            count = 0
-            for a in self.o.assy.selatoms.values():
-                ma = a.molecule
-                for atm in list(a.neighbors()) + [a]:
-                    #bruce 041018 semantic change: added [a] as well
-                    matm = atm.molecule
-                    changed = atm.Dehydrogenate()
-                    if changed:
-                        count += 1
-                        fixmols[id(ma)] = ma
-                        fixmols[id(matm)] = matm
-            if fixmols:
-                didwhat = \
-                    "Removed %d atom(s) from %d chunk(s)" \
-                    % (count, len(fixmols))
-                didwhat = fix_plurals(didwhat)
-                # Technically, we *should* say ", affected" instead of "from"
-                # since the count includes mols of neighbors of
-                # atoms we removed, not always only mols of atoms we removed.
-                # Since that's rare, we word this assuming it didn't happen.
-                # [#e needs low-pri fix to be accurate in that rare case;
-                #  might as well deliver that as a warning, since that case is
-                #  also "dangerous" in some sense.]
-            else:
-                didwhat = "No hydrogens bonded to selected atoms"
-        else:
-            didwhat = "Nothing selected"
-        if fixmols:
-            self.o.assy.changed() #e shouldn't we do this in lower-level methods?
-            self.w.win_update()
-        self.w.history.message(didwhat)
-        return
-
     def surfset(self, num):
-        "stub for setting diamond surface orientation in cookie mode"
+        "noop method, meant to be overridden in cookieMode for setting diamond surface orientation"
         pass
     
     pass # end of class basicMode
@@ -1457,3 +1330,5 @@ class modeMixin:
         return
 
     pass # end of class modeMixin
+
+# end
