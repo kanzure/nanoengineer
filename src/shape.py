@@ -544,8 +544,12 @@ class CookieShape(shape):
     def __init__(self, right, up, normal, mode, latticeType):
             shape.__init__(self, right, up, normal)
             ##Each element is a dictionary object storing "carbon" info for a layer
-            self.carbonPostDict = {} 
-            self.bondLayers = {} ##Each element is a dictionary for the bonds info for a layer
+            self.carbonPosDict = {} 
+            self.hedroPosDict = {}
+            self.markedAtoms = {}
+            #Each element is a dictionary for the bonds info for a layer
+            self.bondLayers = {} 
+            
             self.displist = glGenLists(1)
             self.havelist = 0
             self.dispMode = mode
@@ -588,14 +592,14 @@ class CookieShape(shape):
         
         pKey = self._hasAtomPos(pt)
         if c.logic == 1: 
-            if c.isin(pt) and not self.carbonPostDict.hasKey(pKey):
-                self.carbonPostDict[pKey] = pt
+            if c.isin(pt) and not self.carbonPosDict.hasKey(pKey):
+                self.carbonPosDict[pKey] = pt
         elif c.logic == 2: 
-            if not c.isin(pt) and self.carbonPostDict.hasKey(pKey):
-                del self.carbonPostDict[pKey]
+            if not c.isin(pt) and self.carbonPosDict.hasKey(pKey):
+                del self.carbonPosDict[pKey]
         elif c.logic == 0: 
-            if c.isin(pt) and self.carbonPostDict.hasKey(pKey):
-                del self.carbonPostDict[pKey]
+            if c.isin(pt) and self.carbonPosDict.hasKey(pKey):
+                del self.carbonPosDict[pKey]
             
         return pKey
         
@@ -604,6 +608,7 @@ class CookieShape(shape):
         """Add a new circle to the shape. """
         c = Circle(self, ptlist, origin, logic, slab=slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
+        self._cutCookie(layer, c)
         self._addCurve(layer, c)
     
     def pickline(self, ptlist, origin, logic, layer, slabC):
@@ -613,7 +618,7 @@ class CookieShape(shape):
         """
         c = shape.pickline(self, ptlist, origin, logic, slab=slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
-        #self._cutCookie(layer, c)
+        self._cutCookie(layer, c)
         self._addCurve(layer, c)
         
     def pickrect(self, pt1, pt2, org, logic, layer, slabC):
@@ -623,7 +628,7 @@ class CookieShape(shape):
         """
         c = shape.pickrect(self, pt1, pt2, org, logic, slab=slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
-        #self._cutCookie(layer, c)
+        self._cutCookie(layer, c)
         self._addCurve(layer, c)
 
     def _updateBBox(self, curveList):
@@ -653,7 +658,7 @@ class CookieShape(shape):
         self.havelist = 0
 
     def combineLayers(self):
-        """Experimental code to add all curves and bbox together to make themolmake wokring. It may be removed later. """
+        """Experimental code to add all curves and bbox together to make the molmake working. It may be removed later. """
         for cbs in self.layeredCurves.values():
             if cbs:
                 self.bbox.merge(cbs[0])
@@ -710,7 +715,7 @@ class CookieShape(shape):
                             if self.isin(pp[1], curves):
                                 p1 = pp[0]; p2 = pp[1]
                             else: 
-                                p1 = pp[0]; p2 = ((pp[1]+pp[0])/2,)
+                                p1 = pp[0]; p2 = ((pp[1]+pp[0])/2, )
                         elif self.isin(pp[1], curves):
                                 p1 = pp[1]; p2 = ((pp[1]+pp[0])/2, )
                         if p1 and p2: self._cellDraw(color, p1, p2) 
@@ -729,108 +734,390 @@ class CookieShape(shape):
         self.havelist = 0
         
         bblo, bbhi = c.bbox.data[1], c.bbox.data[0]
-        griderator = genDiam(bblo, bbhi)
+        allCells = genDiam(bblo, bbhi, self.latticeType)
+        if self.carbonPosDict.has_key(layer):
+            carbons = self.carbonPosDict[layer]
+        else: carbons = {}
+        
+        if self.hedroPosDict.has_key(layer):
+            hedrons = self.hedroPosDict[layer]
+        else: hedrons = {}
+        
         if c.logic == 0: ##Remove if inside
-            if not self.bondLayers[layer]: return
+            markedAtoms = self.markedAtoms
+            if not self.bondLayers or not self.bondLayers[layer]: return
             else:
                 bonds = self.bondLayers[layer]
-                carbons = self.carbonPostDict[layer]
-                pp=griderator.next()
-                while (pp):
-                       for p in pp:
-                            if not c.isin(p): continue
-                            pph = self._hashAtomPos(p)
-                            if bonds.has_key(pph):
-                                del bonds[pph]
-                            if carbons.has_key(pph):
-                                del carbons[pph]
-                       pp=griderator.next()
+                for cell in allCells:
+                    for pp in cell:
+                       ppInside = [False, False]
+                       for ii in range(2):
+                            if c.isin(pp[ii]): 
+                                ppInside[ii] = True
+                       if ppInside[0] or ppInside[1]:
+                            self._logic0Bond(carbons, bonds, markedAtoms, hedrons, ppInside, pp)
+                self. _removeMarkedAtoms(bonds, markedAtoms, 
+                                                                            carbons, hedrons)
+        
         elif c.logic == 2: ##Remove if outside
-            for la in self.bondLayers.keys():
-                if la != layer:        
-                        del self.bondLayers[la]
-                        del self.carbonPostDict[la]
-            if not self.bondLayers.has_key(layer): return
+            if not self.bondLayers or not self.bondLayers[layer]: return
             bonds = self.bondLayers[layer]
-            carbons = self.carbonPostDict[layer]
-            pp=griderator.next()
-            while (pp):
-                for p in pp:
-                    if c.isin(p): continue
-                    pph = self._hashAtomPos(p)
-                    if carbons.has_key(pph):
-                       del carbons[pph]
-                       del bonds[pph]
-                pp=griderator.next()
+            newBonds = {}; newCarbons = {}; newHedrons = {}; 
+            insideAtoms = {}
+            newStorage = (newBonds, newCarbons, newHedrons)
+            for cell in allCells:
+                for pp in cell:
+                    pph = [None, None]
+                    for ii in range(2):
+                        if c.isin(pp[ii]): 
+                            pph[ii] = self._hashAtomPos(pp[ii])
+                            if bonds.has_key(pph[ii]):
+                                insideAtoms[pph[ii]] = pp[ii]
+                    
+                    if (not pph[0]) and pph[1] and carbons.has_key(pph[1]):
+                        pph[0] = self._hashAtomPos(pp[0])
+                        if bonds.has_key(pph[0]):
+                            newCarbons[pph[1]] = pp[1]
+                            newHedrons[pph[0]] = pp[0]
+                            if not newBonds.has_key(pph[0]):
+                                newBonds[pph[0]] = [(pph[1], 1)]
+                            else: newBonds[pph[0]] += [(pph[1], 1)]
+            if insideAtoms:
+                self._logic2Bond(carbons, bonds, hedrons, insideAtoms, newStorage)
+            bonds, carbons, hedrons = newStorage
+            
         elif c.logic == 1: ##Include if inside
             if self.bondLayers.has_key(layer):
                 bonds = self.bondLayers[layer]
-                carbons = self.carbonPostDict[layer]
             else:
                 bonds = {}
-                carbons = {}
-            pp=griderator.next()
-            while (pp):
-                pph=[None, None]
-                for p, ii in zip(pp, (0,1)):
-                   pph[ii] = self._hashAtomPos(p) 
-                   if c.isin(p):
-                      if not pph[ii] in carbons:
-                         carbons[pph[ii]] = p
-                   elif not pph[ii] in carbons:
-                        pph[ii] = None 
-                if pph[0] and pph[1]: 
-                    self._saveBonds(bonds, pph[0], pph[1])
-                elif pph[0]:
-                    p1h = self._hashAtomPos(pp[1])
-                    self._saveBonds(bonds, pph[0], (p1h,pp[1]))
-                elif pph[1]:
-                    p0h = self._hashAtomPos(pp[0])
-                    self._saveBonds(bonds, pph[1], (p0h,pp[0]))
-                pp=griderator.next()
-            self.bondLayers[layer] = bonds    
-            self.carbonPostDict[layer] = carbons
-            
-        self.havelist = 1
+            for cell in allCells:
+                for pp in cell:
+                    pph=[None, None]
+                    ppInside = [False, False]
+                    for ii in range(2):
+                        pph[ii] = self._hashAtomPos(pp[ii]) 
+                        if c.isin(pp[ii]):
+                            ppInside[ii] = True
+                    if ppInside[0] or ppInside[1]:
+                        self._logic1Bond(carbons, hedrons, bonds, pp, pph, ppInside)        
+                        
+        self.bondLayers[layer] = bonds
+        self.carbonPosDict[layer] = carbons
+        self.hedroPosDict[layer] = hedrons
         
+        #print "bonds", bonds   
+        self.havelist = 1
+    
+    
+    def _logic0Bond(self, carbons, bonds, markedAtoms, hedrons, ppInside, pp):
+            """For each pair of points<pp[0], pp[1]>, if both points are inside the
+                curve and are existed carbons, delete the bond, and mark the 
+                'should be' removed atoms. Otherwise, delete half bond or 
+                change full to half bond accoringly. """
             
-    def _saveBonds(self, dict, key, value):
-            """ """
+            def _deleteHalfBond(which_in):
+                """Internal function: when the value-- carbon atom is removed from an half bond, delete the half bond. """
+                markedAtoms[pph[which_in]] = pp[which_in]    
+                try:
+                    values = bonds[pph[0]]
+                    values.remove((pph[1], which_in))
+                    bonds[pph[0]] = values
+                    if len(values) == 0: del bonds[pph[0]]
+                    #print "Delete half bond: ", pph[0], (pph[1], which_in)
+                except:
+                    print "No such half bond: ", pph[0], (pph[1], which_in)
+                
+            def _changeFull2Half(del_id, which_in):
+                """internal function: If there is a full bond and when the value(2ndin a bond pair) carbon atom is removed, change it to half bond"""
+                if not hedrons.has_key(pph[del_id]): hedrons[pph[del_id]] = pp[del_id]
+                markedAtoms[pph[del_id]] = pp[del_id]
+                if bonds.has_key(pph[0]):
+                    values = bonds[pph[0]]
+                    idex = values.index(pph[1])
+                    values[idex] = (pph[1], which_in)
+                    bonds[pph[0]] = values
+                    #print "Change full to half bond: ", pph[0], (pph[1], which_in)
+                
+            pph = []
+            pph += [self._hashAtomPos(pp[0])]
+            pph += [self._hashAtomPos(pp[1])]
+            if ppInside[0] and ppInside[1]:
+                # Delete full bond
+                if carbons.has_key(pph[0]) and carbons.has_key(pph[1]):
+                    markedAtoms[pph[0]] = pp[0]
+                    markedAtoms[pph[1]] = pp[1]
+                    values = bonds[pph[0]]
+                    values.remove(pph[1])
+                    bonds[pph[0]] = values
+                    if len(values) == 0: del bonds[pph[0]]
+                # Delete half bond                              
+                elif carbons.has_key(pph[0]):
+                    #markedAtoms[pph[0]] = pp[0]
+                    _deleteHalfBond(0)
+                # Delete half bond
+                elif carbons.has_key(pph[1]):
+                    _deleteHalfBond(1)
+            elif ppInside[0]:
+                # Full bond becomes half bond, carbon becomes hedron
+                if carbons.has_key(pph[0]) and carbons.has_key(pph[1]):
+                    markedAtoms[pph[0]] = pp[0]
+                    #_changeFull2Half(0, 1)
+                # Delete half bond    
+                elif carbons.has_key(pph[0]):
+                    #markedAtoms[pph[0]] = pp[0]
+                    _deleteHalfBond(0)
+            elif ppInside[1]:
+                # Full bond becomes half bond, carbon becomes hedron
+                if carbons.has_key(pph[1]) and carbons.has_key(pph[0]):
+                    _changeFull2Half(1, 0)
+                # Delete half bond    
+                elif carbons.has_key(pph[1]):
+                    _deleteHalfBond(1)
+                           
+    
+    def _logic1Bond(self, carbons, hedrons, bonds, pp, pph, ppInside):
+            """For each pair of points <pp[0], pp[1]>, create a full bond if 
+                necessary and if both points are inside the curve ; otherwise, 
+                if one point is in while the other is not, create a half bond if 
+                necessary."""
+            if ppInside[0] and ppInside[1]:
+                if (not pph[0] in carbons) and (not pph[1] in carbons):
+                    if pph[0] in hedrons: del hedrons[pph[0]]
+                    if pph[1] in hedrons: del hedrons[pph[1]]
+                    carbons[pph[0]] = pp[0]
+                    carbons[pph[1]] = pp[1]
+                    # create a new full bond
+                    self._createBond(bonds, pph[0], pph[1], -1, True) 
+                elif not pph[0] in carbons:
+                    if pph[0] in hedrons: del hedrons[pph[0]]
+                    carbons[pph[0]] = pp[0]
+                    # update half bond to full bond
+                    self._changeHf2FullBond(bonds, pph[0], pph[1], 1) 
+                elif not pph[1] in carbons:
+                    if pph[1] in hedrons: del hedrons[pph[1]]
+                    carbons[pph[1]] = pp[1]
+                    # update half bond to full bond
+                    self._changeHf2FullBond(bonds, pph[0], pph[1], 0) 
+                # create full bond
+                else: self._createBond(bonds, pph[0], pph[1])
+                
+            elif ppInside[0]:
+                if (not pph[0] in carbons) and (not pph[1] in carbons):
+                    if pph[0] in hedrons: del hedrons[pph[0]]
+                    carbons[pph[0]] = pp[0]
+                    if not pph[1] in hedrons: hedrons[pph[1]] = pp[1]
+                    # create new half bond
+                    self._createBond(bonds, pph[0], pph[1], 0, True) 
+                elif not pph[0] in carbons:
+                    if pph[0] in hedrons: del hedrons[pph[0]]
+                    carbons[pph[0]] = pp[0]
+                    #update half bond to full bond
+                    self._changeHf2FullBond(bonds, pph[0], pph[1], 1) 
+                elif not pph[1] in carbons:
+                    if not pph[1] in hedrons: hedrons[pph[1]] = pp[1]
+                    # create half bond, with 0 in, 1 out
+                    self._createBond(bonds, pph[0], pph[1], 0) 
+                # create full bond
+                else: self._createBond(bonds, pph[0], pph[1])
+                
+            elif ppInside[1]:
+                if (not pph[0] in carbons) and (not pph[1] in carbons):
+                    if pph[1] in hedrons: del hedrons[pph[1]]
+                    carbons[pph[1]] = pp[1]
+                    if not pph[0] in hedrons: hedrons[pph[0]] = pp[0]
+                    # create new half bond, with 1 in, 0 out
+                    self._createBond(bonds, pph[0], pph[1], 1, True) 
+                elif not pph[0] in carbons:
+                    if not pph[0] in hedrons: hedrons[pph[0]] = pp[0]
+                    # create half bond, with 1 in, 0 out
+                    self._createBond(bonds, pph[0], pph[1], 1) 
+                elif not pph[1] in carbons:
+                    if pph[1] in hedrons: del hedrons[pph[1]]
+                    carbons[pph[1]] = pp[1]
+                    #update half bond to full bond
+                    self._changeHf2FullBond(bonds, pph[0], pph[1], 0) 
+                # create full bond
+                else: self._createBond(bonds, pph[0], pph[1])      
+    
+    
+    def _logic2Bond(self, carbons, bonds, hedrons, insideAtoms,  \
+                                                         newStorage):
+        """Processing all bonds having key inside the current selection curve.
+            For a bond with the key outside, the value inside the selection 
+            curve, we deal with it when we scan the edges of each cell. To 
+            make sure no such bonds are lost, we need to enlarge the 
+            bounding box at least 1 lattice cell.
+        """
+        newBonds, newCarbons, newHedrons = newStorage
+        
+        for a in insideAtoms.keys():
+            values = bonds[a]
+            newValues = []
+            # The key <a> is carbon:
+            if carbons.has_key(a):
+                if not newCarbons.has_key(a):
+                    newCarbons[a] = insideAtoms[a]
+                for b in values:
+                    if type(b) == type(1): #Full bond
+                        # If the carbon inside, keep the bond
+                        if insideAtoms.has_key(b):
+                            if not newCarbons.has_key(b):
+                                newCarbons[b] = insideAtoms[b]
+                            newValues += [b]
+                        else: # outside carbon, change it to h-bond
+                            if not newHedrons.has_key(b):
+                                newHedrons[b] = carbons[b]
+                            newValues += [(b, 0)]
+                    else: # Half bond, keep it
+                        if insideAtoms.has_key(b[0]):
+                            p = insideAtoms[b[0]]
+                        elif hedrons.has_key(b[0]):
+                            p = hedrons[b[0]]
+                        else: 
+                            raise ValueError, (a, b[0])
+                        if not newHedrons.has_key(b[0]):
+                            newHedrons[b[0]] = p
+                        newValues += [b]
+            else: # The key <a> is not a carbon
+                if not newHedrons.has_key(a):
+                    newHedrons[a] = insideAtoms[a]
+                for b in values:
+                    # Inside h-bond, keep it
+                    if insideAtoms.has_key(b[0]):
+                        if not newHedrons.has_key(b[0]): 
+                            newHedrons[b[0]] = insideAtoms[b[0]]
+                        newValues += [b]
+            if newValues: newBonds[a] = newValues        
+        
+    def _removeMarkedAtoms(self, bonds, markedAtoms, 
+                                                                                carbons, hedrons):
+        """ Remove all carbons that should have been removed because of 
+            the new selection curve. Update bonds that have the carbon as 
+            key. For a bond who has the carbon as its value, we'll leave them 
+            as they are, untill the draw() call. When it finds a value of a bond 
+            can't find its carbon position, either remove the bond if it was a 
+            half bond or change it to half bond if it was full bond, and find its 
+            carbon position in markedAtoms{}"""
+        
+        for ph in markedAtoms.keys(): 
+             if carbons.has_key(ph):
+                #print "Remove carbon: ", ph    
+                if bonds.has_key(ph):
+                    values = bonds[ph]
+                    for b in values[:]:
+                        if type(b) == type(1):
+                            idex = values.index(b)
+                            values[idex]  = (b, 1)
+                            #print "Post processing: Change full to half bond: ", ph, values[idex]
+                        else:
+                            values.remove(b)
+                            print "Erase half bond:", ph, b
+                    bonds[ph] = values        
+                    if len(values) == 0:
+                        del bonds[ph]
+                    else:
+                        hedrons[ph] = carbons[ph]
+                del carbons[ph]
+    
+    
+    def _changeHf2FullBond(self, bonds, key, value, which_in):
+            """If there is a half bond, change it to full bond. Otherwise, create
+               a new full bond. 
+               <which_in>: the atom which exists before. """
+            foundHalfBond = False
+            
+            if bonds.has_key(key):
+                values = bonds[key]
+                for ii in range(len(values)):
+                    if type(values[ii]) == type((1,1)) and values[ii][0] == value:
+                        values[ii] = value
+                        foundHalfBond = True                
+                        break
+                if not foundHalfBond: values += [value]
+                #bonds[key] = values
+            elif not bonds.has_key(key):
+                bonds[key] = [value]
+                
+                                  
+    def _createBond(self, dict, key, value, half_in = -1, 
+                                                                        new_bond = False):
+            """Create a new bond if <new_bond> is True. Otherwise, search if
+                there is such a full/half bond, change it appropriately if found. 
+                Otherwise, create a new bond.
+                If <half_in> == -1, it's a full bond; otherwise, it means a half bond with the atom of <half_in> is inside. """
             if not key in dict:
+                if half_in < 0:
                    dict[key] = [value]
+                else: dict[key] = [(value, half_in)]
             else:
                 values = dict[key]
-                #print "key, value, all values:", key, value,values       
-                if not value in values :
-                   if type(value) == type((1,1)):
-                       for v in values: 
-                            if v == value: 
-                                 v = value[0]; break
-                   #print "key, value: ", key, value
-                #else: values += [value]
-   
+                if half_in < 0:
+                    if new_bond:
+                        values += [value]
+                    else:
+                        found = False
+                        for ii in range(len(values)):
+                            if type(values[ii]) == type(1):
+                                if value == values[ii]:
+                                    found = True
+                                    break
+                            elif value == values[ii][0]:
+                                values[ii] = value
+                                found = True
+                                break
+                        if not found:
+                            values += [value]     
+                else:
+                    if new_bond:
+                        values +=[(value, half_in)]
+                    else:
+                        try:
+                            idex = values.index((value, half_in))
+                        except:
+                            values += [(value, half_in)]
+                dict[key] = values
+                
    
     def changeDisplayMode(self, mode):
         self.dispMode = mode
         self.havelist = 0
         
+    def _bondDraw(self, color, p0, p1, carbonAt):
+        if self.dispMode == 'Tubes':
+            drawcylinder(color, p0, p1, 0.2)
+        else:
+            if carbonAt < 0:
+                drawsphere(color, p0, 0.5, 1)
+                drawsphere(color, p1, 0.5, 1)
+            elif carbonAt == 0:
+                drawsphere(color, p0, 0.5, 1)
+                drawsphere(color, p1, 0.2, 1)
+            elif carbonAt == 1:
+                drawsphere(color, p0, 0.2, 1)
+                drawsphere(color, p1, 0.5, 1)
+            
+            drawline(white, p0, p1)  
+                    
    
     def draw(self, win, layerColor):
         """Draw the shape. win, not used, is for consistency among
         drawing functions (and may be used if drawing logic gets
         more sophisticated.
 
-        Find  binding box for the curve and check the position each
-        carbon atom in a diamond lattice would occupy for being 'in'
+        Find  the bounding box for the curve and check the position of each
+        carbon atom in a lattice would occupy for being 'in'
         the shape. A tube representation of the atoms thus selected is
         saved as a GL call list for fast drawing.
         
         This method is only for cookie-cutter mode. --Huaicai
         """
-        if 1: 
+        if 0: 
             self._anotherDraw(layerColor)
             return
-            
+        
+        markedAtoms = self.markedAtoms
+        
         if self.havelist:
             glCallList(self.displist)
             return
@@ -838,29 +1125,64 @@ class CookieShape(shape):
         try:
             for layer, bonds in self.bondLayers.items():
                 color = layerColor[layer]
-                carbons = self.carbonPostDict[layer]
-                if self.dispMode == 'Spheres':
-                    for cP in carbons.values():
-                        drawsphere(color, cP, 0.5, 1)
+                self.layeredCurves[layer][-1].draw()
+                bonds = self.bondLayers[layer]
+                carbons = self.carbonPosDict[layer]
+                hedrons = self.hedroPosDict[layer]
+                              
                 for cK, bList in bonds.items():
-                   hasSinglet = False
-                   p0 = carbons[cK]
-                   for b in bList:
-                       if type(b) == type(1):
-                           p1 = carbons[b]
-                       else: 
-                            p1 = (p0 + b[1])/2.0
-                            if self.dispMode == 'Spheres': drawsphere(color, p1, 0.2, 1)
-                       if self.dispMode == 'Tubes':
-                            drawcylinder(color, p0, p1, 0.2)
-                       else:
-                            drawline(white, p0, p1)    
+                  if carbons.has_key(cK):  p0 = carbons[cK]
+                  for b in bList[:]:
+                       carbonAt = -1
+                       if type(b) == type(1): #Full bond
+                           if carbons.has_key(b):
+                                p1 = carbons[b]
+                           else: #which means the carbon was removed
+                                p1 = markedAtoms[b]
+                                #print "Carbon was removed: ", b, p1
+                                idex = bList.index(b)
+                                bList[idex] = (b, 0)
+                                hedrons[b] = p1
+                                p1 = (p0 + p1) / 2.0
+                                carbonAt = 0
+                       else: #Half bond
+                           carbonAt = b[1]
+                           if b[1]: 
+                                if carbons.has_key(b[0]): # otherwise, means the carbon has been removed.
+                                    p1 = carbons[b[0]]
+                                    if hedrons.has_key(cK):
+                                        p0 = hedrons[cK]
+                                        p0 = (p0 + p1) / 2.0
+                                    else: #half bond becomes full bond because of new selection
+                                        p0 = carbons[cK]
+                                        idex = bList.index(b)
+                                        bList[idex] = b[0]
+                                else: # remove the half bond
+                                    bList.remove(b)
+                                    #print "delete half bond: (%d: " %cK, b
+                                    if len(bList) == 0: 
+                                        del bonds[cK]
+                                        break
+                                    continue
+                           else:
+                                if hedrons.has_key(b[0]):
+                                    p1 = hedrons[b[0]]
+                                    p1 = (p0 + p1) / 2.0
+                                else: #Which means half bond becoms full bond because of new selection
+                                    p1 = carbons[b[0]]
+                                    idex = bList.index(b)
+                                    bList[idex] = b[0]
+                       
+                       self._bondDraw(color, p0, p1, carbonAt)    
+                  bonds[cK] = bList
         except:
             # bruce 041028 -- protect against exceptions while making display
             # list, or OpenGL will be left in an unusable state (due to the lack
             # of a matching glEndList) in which any subsequent glNewList is an
             # invalid operation. (Also done in chem.py; see more comments there.)
+            print "cK: ", cK
             print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
+        self.markedAtoms = {}
         glEndList()
         self.havelist = 1 # always set this flag, even if exception happened.
     
@@ -872,7 +1194,7 @@ class CookieShape(shape):
         allCarbons = {}
         mol = molecule(assy, gensym("Cookie."))
         for layer, bonds in self.bondLayers.items():
-            carbons = self.carbonPostDict[layer]
+            carbons = self.carbonPosDict[layer]
             for cK, cP in carbons.items():
                 if not cK in allCarbons:
                     atomCell = atom("C", cP, mol) 

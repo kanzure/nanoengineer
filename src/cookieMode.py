@@ -683,7 +683,13 @@ class cookieMode(basicMode):
         self.o.gl_update()
     
     def changeSelectionShape(self, newShape):
-        self.selectionShape = newShape
+        if newShape != self.selectionShape:
+            #Cancel current selection if any. Otherwise, it may cause
+            #bugs like 587
+            if self.sellist: ##
+                self.w.history.message(redmsg("Current cookie selection was cancelled because of selection shape change. "))
+                self._cancelSelection()
+            self.selectionShape = newShape
     
     def _project2Plane(self, pt):
         """Project a 3d point <pt> into the plane parallel to screen and through "pov". 
