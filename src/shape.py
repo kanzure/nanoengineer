@@ -647,6 +647,14 @@ class CookieShape(shape):
             curves = curves[:-1]
         self._updateBBox(curves)
         self.layeredCurves[currentLayer] = curves
+        
+        ##Kludge to make the undo work.
+        self.carbonPosDict[currentLayer] = {} 
+        self.hedroPosDict[currentLayer] = {}
+        self.bondLayers[currentLayer] = {}
+        for c in curves[1:]:
+            self._cutCookie(currentLayer, c)
+        
         self.havelist = 0
 
     def clear(self, currentLayer):
