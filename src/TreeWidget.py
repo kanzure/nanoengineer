@@ -1896,10 +1896,25 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # Huaicai & Mark to strip whitespace, reject null name, and update
         # displayed item text if different from whatever ends up as the node's
         # name; moved much of that into Node.try_rename.
-        text_now_displayed = str(text) # turn QString into python string
-        del text
-        # use text_now_displayed (not further changed) for comparison with final name that should be displayed
-        (ok, newname) = item.object.try_rename(text_now_displayed) #e pass col?
+        try:
+            text_now_displayed = str(text) # turn QString into python string
+        except UnicodeEncodeError: #bruce 050508 experiment (failed) and bug-mitigation (succeeded)
+##            if platform.atom_debug:
+##                print "atom_debug: fyi: trying to handle UnicodeEncodeError for renamed item"
+##            text_now_displayed = unicode(text)
+##            # fails: wrong funny chars in glpane, exception when writing new name to history file
+            (ok, newname) = (False, "non-ASCII characters are not yet supported")
+            # semi-kluge: text_now_displayed is used below in two ways -- error message (written to hist, must be ascii)
+            # and must differ from item.object.name so that gets written back into the MT item.
+            # non-kluge solution would be to bring that code in here too, or separate those uses.
+            # what I'll do -- make "not ok" also always cause item.setText, below.
+            text_now_displayed = ('%r' % unicode(text))[2:-1] # change u'...' to ...
+            assert type(text_now_displayed) == type(""), "repr of unicode is not ordinary string"
+            del text
+        else:
+            del text
+            # use text_now_displayed (not further changed) for comparison with final name that should be displayed
+            (ok, newname) = item.object.try_rename(text_now_displayed) #e pass col?
         if ok:
             res = "renamed %s to %r" % (what, newname)
             if newname != item.object.name: #bruce 050128
@@ -1913,7 +1928,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             res = "can't rename %s to \"%s\": %s" % (what, text_now_displayed, reason) #e redmsg too?
             ##e not sure this is legal (it's a func but maybe not a method): res = self.win.history.redmsg(res)
         newname = item.object.name # better to just get it from here -- shouldn't even return it from try_rename! #e
-        if text_now_displayed != newname:
+        if (not ok) or text_now_displayed != newname:
             # (this can happen for multiple reasons, depending on Node.try_rename:
             #  new name refused, whitespace stripped, etc)
             # update the display to reflect the actual new name

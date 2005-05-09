@@ -463,6 +463,9 @@ class Node:
         name = name.strip() # remove whitespace from both ends
         if not name:
             return (False, "blank name is not permitted")
+        if ')' in name:
+            #bruce 050508 bug-mitigation (these names can't yet be properly reloaded from mmp files)
+            return (False, "names containing ')' are not yet supported")
         # accept the new name.
         self.name = name
         if self.assy:
