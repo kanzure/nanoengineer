@@ -407,3 +407,11 @@ Summary: chunk color now saved in mmp file.
 
 ----------------------------
 
+
+Name: Bruce Smith
+Date: 5/10/2005
+Files: chem.py
+Summary: fixed bug 466: Transmute now sets file-modified flag.
+
+----------------------------
+
