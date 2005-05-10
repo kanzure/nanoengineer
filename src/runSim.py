@@ -801,7 +801,8 @@ class simSetup_CommandRun(CommandRun):
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 self.history.message(msg) 
             msg = "Movie written to [" + movie.filename + "]."\
-                        "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon."
+                        "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon " \
+                        "and press Play on the Movie Mode dashboard." #bruce 050510 added note about Play button.
             # This makes a copy of the movie tool icon to put in the HistoryWidget.
             #e (Is there a way to make that act like a button, so clicking on it in history plays that movie?
             #   If so, make sure it plays the correct one even if new ones have been made since then!)

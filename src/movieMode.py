@@ -22,6 +22,16 @@ from HistoryWidget import redmsg, orangemsg
 
 from qt import QFileDialog, QMessageBox, QString, QMimeSourceFactory
 
+auto_play = False # whether to automatically start playing the movie when you enter the mode
+    # bruce 050510 disabling automatic play per Mark urgent request (this is also a bug or NFR in bugzilla).
+    # Not sure whether this will need to be added back under certain conditions,
+    # therefore I'm adding this flag, so it's easy to review all the places that might need changing.
+
+
+####@@@@ It might need removing from other places in the code, as well, like entering the mode.
+
+###doc
+
 class movieMode(basicMode):
     """ This class is used to play movie files.
        Users know it as "Movie mode".
@@ -90,7 +100,9 @@ class movieMode(basicMode):
         self.w.moviePlayerDashboard.show()
         
         if self.might_be_playable(): # We have a movie file ready.  It's showtime! [bruce 050426 changed .filename -> .might_be_playable()]
-            movie._setup() # Cue movie.
+            movie._setup() # Cue movie. [bruce 050501 comment: I don't think this actually starts playing it, and I hope not.]
+            if movie.filename: #k not sure this cond is needed or what to do if not true [bruce 050510]
+                self.w.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
         else:
             self._controls(0) # Movie control buttons are disabled.
 
@@ -221,7 +233,8 @@ def simMoviePlayer(assy):
 
     if assy.current_movie and assy.current_movie.might_be_playable():
         win.glpane.setMode('MOVIE')
-        win.moviePlay() # [bruce 050427 guess: simulate pressing the play button]
+        if auto_play:
+            win.moviePlay() # [bruce 050427 guess: simulate pressing the play button]
         return
 
     # no valid current movie, look for saved one with same name as assy
@@ -241,9 +254,10 @@ def simMoviePlayer(assy):
             # No current way to tell how to do that, and this might be done even if it's not valid
             # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
             # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
-            history.message("Movie Player: playing previously saved movie for this part.")
+            history.message("Movie Player: %s previously saved movie for this part." % (auto_play and "playing" or "loading"))
             win.glpane.setMode('MOVIE')
-            win.moviePlay()
+            if auto_play:
+                win.moviePlay()
             return
     # else if no assy.filename or no movie found from that:
     # bruce 050327 comment -- do what the old code did, except for the moviePlay
@@ -252,6 +266,7 @@ def simMoviePlayer(assy):
         # temporary kluge until bugs in movieMode for no assy.current_movie are fixed
     win.glpane.setMode('MOVIE')
     ## win.moviePlay()
+        # [bruce 0505010 comment: not sure if this one would need auto_play, if it worked again]
     return
 
 # ==
