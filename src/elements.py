@@ -2,9 +2,22 @@
 """
 elements.py -- elements, periodic table, element display prefs
 
-[bruce 041221 split this module out of chem.py]
-
 $Id$
+
+History:
+
+Initially by Josh as part of chem.py.
+
+Bruce 041221 split this module out of chem.py,
+and (around then) added support for alternate color/radius tables.
+
+Huaicai circa 050309 revised outer levels of structure, added support
+for loading and saving color/radius tables into files, added preferences code.
+[This comment added by bruce 050509.]
+
+Bruce circa 050509 made minor changes for higher-order bonds,
+did some reformatting, corrected some out-of-date comments or docstrings,
+removed some obsolete commented-out code.
 """
 __author__ = "Josh"
 
@@ -12,11 +25,9 @@ from VQT import *
 from preferences import prefs_context
 
 # == Elements, and periodic table
-#Elno = 0
 
 class elem:
-    """one of these for each element type --
-    warning, order of creation matters, since it sets eltnum member!"""
+    """one of these for each element type"""
     def __init__(self, Elno, sym, n, m, rv, col, bn):
         """called from a table in the source
         
@@ -31,9 +42,7 @@ class elem:
              info about angle between bonds, as an array of vectors
         """
         # bruce 041216 modified the above docstring
-        #global Elno
         self.eltnum = Elno
-        #Elno += 1
         self.symbol = sym
         self.name = n
         self.color = col
@@ -93,7 +102,6 @@ class ElementPeriodicTable(Singleton):
     tetra2 = A([[-1,0,0], [0.342, -0.9396, 0]])
     straight = A([[-1,0,0], [1,0,0]])
     flat = A([[-0.5,0.866,0], [-0.5,-0.866,0], [1,0,0]])
-
     onebond = A([[1,0,0]]) # for use with valence-1 elements
     
     _defaultRad_Color = {"X": (1.1,  [0.8, 0.0, 0.0]), "H" : (1.2,  [0.0, 0.6, 0.6]),
@@ -133,51 +141,52 @@ class ElementPeriodicTable(Singleton):
                         "O" :  (1.322,), "P" :  ( 1.784,),
                         "S" :  (1.741,), "Sb" :  ( 2.200,),
                         "Se" :  (  1.881,), "Si" :  ( 1.825, [0.4353, 0.3647, 0.5216]),
-                        "Ti" :  ( 2.300,)}
-    _mendeleev=[("X", "Singlet",  0.001, [[1, 0, None]]),
-                          ("H",  "Hydrogen", 1.6737, [[1, 30, onebond]]),
-                          ("He", "Helium",   6.646, None),
-                          ("Li", "Lithium",    11.525, [[1, 152, None]]),
-                          ("Be", "Beryllium",  14.964, [[2, 114, None]]),
-                          ("B",  "Boron",   17.949,  [[3, 90, flat]]),
-                          ("C",  "Carbon", 19.925,  [[4, 77, tetra4], [3, 71, flat], [2, 66, straight], [1, 59, None]]),
-                          ("N",  "Nitrogen",   23.257,  [[3, 70, tetra3], [2, 62, tetra2], [1, 54.5, None] ]),
-                          ("O",  "Oxygen",  26.565, [[2, 66, oxy2], [1, 55, None]]),
-                          ("F",  "Fluorine",  31.545, [[1, 64, onebond]]),
-                          ("Ne", "Neon",       33.49,  None),
-                          ("Na", "Sodium",     38.1726, [[1, 186, None]]),
-                          ("Mg", "Magnesium",  40.356,  [[2, 160, None]]),
-                          ("Al", "Aluminum",   44.7997, [[3, 143, flat]]),
-                          ("Si", "Silicon",    46.6245, [[4, 117, tetra4]]),
-                          ("P",  "Phosphorus", 51.429,  [[3, 110, tetra3]]),
-                          ("S",  "Sulfur",     53.233,  [[2, 104, tetra2]]),
-                          ("Cl", "Chlorine",   58.867,  [[1, 99, onebond]]),
-                          ("Ar", "Argon",      66.33,   None),
-                          ("K",  "Potassium",  64.9256, [[1, 231, None]]),
-                          ("Ca", "Calcium",    66.5495, [[2, 197, tetra2]]),
-                          ("Sc", "Scandium",   74.646,  [[3, 160, tetra3]]),
-                          ("Ti", "Titanium",   79.534,  [[4, 147, tetra4]]),
-                          ("V",  "Vanadium",   84.584,  [[5, 132, None]]),
-                          ("Cr", "Chromium",   86.335,  [[6, 125, None]]),
-                          ("Mn", "Manganese",  91.22,   [[7, 112, None]]),
-                          ("Fe", "Iron",       92.729,  [[3, 124, None]]),
-                          ("Co", "Cobalt",     97.854,  [[3, 125, None]]),
-                          ("Ni", "Nickel",     97.483,  [[3, 125, None]]),
-                          ("Cu", "Copper",    105.513,  [[2, 128, None]]),
-                          ("Zn", "Zinc",      108.541,  [[2, 133, None]]),
-                          ("Ga", "Gallium",   115.764,  [[3, 135, None]]),
-                          ("Ge", "Germanium", 120.53,  [[4, 122, tetra4]]),
-                          ("As", "Arsenic",   124.401, [[5, 119, tetra3]]),
-                          ("Se", "Selenium",  131.106,  [[6, 120, tetra2]]),
-                          ("Br", "Bromine",   132.674,  [[1, 119, onebond]]),
-                          ("Kr", "Krypton",   134.429,  None)]
-
+                        "Ti" :  ( 2.300,)
+                     }
+    _mendeleev = [("X",  "Singlet",     0.001,  [[1, 0, None]]),
+                  ("H",  "Hydrogen",    1.6737, [[1, 30, onebond]]),
+                  ("He", "Helium",      6.646,  None),
+                  ("Li", "Lithium",    11.525,  [[1, 152, None]]),
+                  ("Be", "Beryllium",  14.964,  [[2, 114, None]]),
+                  ("B",  "Boron",      17.949,  [[3, 90, flat]]),
+                  ("C",  "Carbon",     19.925,  [[4, 77, tetra4], [3, 71, flat],   [2, 66, straight], [1, 59, None]]),
+                  ("N",  "Nitrogen",   23.257,  [[3, 70, tetra3], [2, 62, tetra2], [1, 54.5, None] ]),
+                  ("O",  "Oxygen",     26.565,  [[2, 66, oxy2],   [1, 55, None]]),
+                  ("F",  "Fluorine",   31.545,  [[1, 64, onebond]]),
+                  ("Ne", "Neon",       33.49,   None),
+                  ("Na", "Sodium",     38.1726, [[1, 186, None]]),
+                  ("Mg", "Magnesium",  40.356,  [[2, 160, None]]),
+                  ("Al", "Aluminum",   44.7997, [[3, 143, flat]]),
+                  ("Si", "Silicon",    46.6245, [[4, 117, tetra4]]),
+                  ("P",  "Phosphorus", 51.429,  [[3, 110, tetra3]]),
+                  ("S",  "Sulfur",     53.233,  [[2, 104, tetra2]]),
+                  ("Cl", "Chlorine",   58.867,  [[1, 99, onebond]]),
+                  ("Ar", "Argon",      66.33,   None),
+                  ("K",  "Potassium",  64.9256, [[1, 231, None]]),
+                  ("Ca", "Calcium",    66.5495, [[2, 197, tetra2]]),
+                  ("Sc", "Scandium",   74.646,  [[3, 160, tetra3]]),
+                  ("Ti", "Titanium",   79.534,  [[4, 147, tetra4]]),
+                  ("V",  "Vanadium",   84.584,  [[5, 132, None]]),
+                  ("Cr", "Chromium",   86.335,  [[6, 125, None]]),
+                  ("Mn", "Manganese",  91.22,   [[7, 112, None]]),
+                  ("Fe", "Iron",       92.729,  [[3, 124, None]]),
+                  ("Co", "Cobalt",     97.854,  [[3, 125, None]]),
+                  ("Ni", "Nickel",     97.483,  [[3, 125, None]]),
+                  ("Cu", "Copper",    105.513,  [[2, 128, None]]),
+                  ("Zn", "Zinc",      108.541,  [[2, 133, None]]),
+                  ("Ga", "Gallium",   115.764,  [[3, 135, None]]),
+                  ("Ge", "Germanium", 120.53,   [[4, 122, tetra4]]),
+                  ("As", "Arsenic",   124.401,  [[5, 119, tetra3]]),
+                  ("Se", "Selenium",  131.106,  [[6, 120, tetra2]]),
+                  ("Br", "Bromine",   132.674,  [[1, 119, onebond]]),
+                  ("Kr", "Krypton",   134.429,  None)
+                ]
     # Antimony is element 51
-    _appendix = [("Sb", "Antimony",   124.401,  [[3, 119, tetra3]]),
-                         ("Te", "Tellurium",  131.106,  [[2, 120, tetra2]]),
-                         ("I", "Iodine",   132.674,  [[1, 119, onebond]]),
-                         ("Xe", "Xenon",   134.429,  None)]
-                         
+    _appendix = [ ("Sb", "Antimony",  124.401,  [[3, 119, tetra3]]),
+                  ("Te", "Tellurium", 131.106,  [[2, 120, tetra2]]),
+                  ("I",  "Iodine",    132.674,  [[1, 119, onebond]]),
+                  ("Xe", "Xenon",     134.429,  None)
+                ]
     _perodicalTable = {}
     _eltName2Num = {}
     _eltSym2Num = {}
