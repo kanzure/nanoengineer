@@ -123,10 +123,14 @@ class atom:
     picked = 0
     display = diDEFAULT # rarely changed for atoms
     _modified_valence = False #bruce 050502
+    atomtype = None # atom (hybridization) type: one of 'sp3', 'sp2', 'sp', or something else...
+        # or None for not yet defined (e.g. this atom was just read from mmp file) ###@@@ use getattr??
+        # [bruce 050509, for initial implem of higher bond orders]
     def __init__(self, sym, where, mol):
-        """create an atom of element sym (e.g. 'C')
+        """Create an atom of element sym (e.g. 'C')
         at location where (e.g. V(36, 24, 36))
-        belonging to molecule mol, which is part of assembly assy
+        belonging to molecule mol (can be None).
+        Atom initially has no bonds and default hybridization type.
         """
         # unique key for hashing
         self.key = atKey.next()
@@ -239,6 +243,13 @@ class atom:
         ###e we also need to invalidate jigs which care about their atoms' positions
         return
 
+##    def fix_hyb(self): # i mean atomtype
+##        """If self.hyb is set, make sure it's valid for this element type (and existing bonds???).
+##        If not, set it to default value for this element type (given existing bonds???).
+##        [return it??]
+##        """
+##        pass ###@@@ need this?
+    
     def adjSinglets(self, atom, nupos):
         """We're going to move atom, a neighbor of yours, to nupos,
         so adjust the positions of your singlets to match.
@@ -362,7 +373,7 @@ class atom:
     def setDisplay(self, disp):
         self.display = disp
         self.molecule.changeapp(1)
-        self.molecule.assy.changed() # bruce 041206 bugfix (unreported bug)
+        self.changed() # bruce 041206 bugfix (unreported bug); revised, bruce 050509
         # bruce 041109 comment:
         # atom.setDisplay changes appearance of this atom's bonds,
         # so: do we need to invalidate the bonds? No, they don't store display
@@ -819,11 +830,23 @@ class atom:
                 # moving this atom to its neighbor atom's chunk, too
                 # [btw we *do* permit self.element == Singlet before we change it]
                 print "atom_debug: fyi, bug?: mvElement changing %r to a singlet" % self
+        if self.element == elt:
+            if platform.atom_debug: #bruce 050509
+                print "atom_debug: fyi, bug?: mvElement changing %r to its existing element type" % self
+            return #bruce 050509, not 100% sure it's correct, but if not, caller probably has a bug (eg replies on our invals)        
+        self.changed() #bruce 050509
         self.element = elt
         for b in self.bonds:
             b.setup_invalidate()
         self.molecule.changeapp(1)
         # no need to invalidate shakedown-related things, I think [bruce 041112]
+
+    def changed(self): #bruce 050509; perhaps should use more widely
+        mol = self.molecule
+        if not mol: return #k needed??
+        part = mol.part
+        if not part: return # (might well be needed, tho not sure)
+        part.changed()
 
     def invalidate_bonds(self): # also often inlined
         for b in self.bonds:
