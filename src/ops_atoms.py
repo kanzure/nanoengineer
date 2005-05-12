@@ -75,7 +75,8 @@ class ops_atoms_Mixin:
                 m.Passivate() # lack of arg makes it work on only selected atoms
                 # (maybe it could just iterate over selatoms... #e)
                 
-        self.changed() # could be much smarter
+        # bruce 050511: remove self.changed (since done as needed in atom.Passivate) to fix bug 376
+        ## self.changed() # could be much smarter
         self.o.gl_update()
 
     # add hydrogen atoms to each dangling bond
