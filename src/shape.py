@@ -587,23 +587,6 @@ class CookieShape(shape):
             elif c.logic == 0: val = val and not c.isin(pt)
         return val
     
-    def _isIn(self, pt, c):
-        """Check if point <pt> is within the logic result of curve <c> and all previous curves. Instead of looping through all previous curves, we update each _isIn() result into a global dictionary object, and use the global dictionary object and the current curve <c> to compute if point <pt> is in, and update the global list accordingly."""
-        
-        pKey = self._hasAtomPos(pt)
-        if c.logic == 1: 
-            if c.isin(pt) and not self.carbonPosDict.hasKey(pKey):
-                self.carbonPosDict[pKey] = pt
-        elif c.logic == 2: 
-            if not c.isin(pt) and self.carbonPosDict.hasKey(pKey):
-                del self.carbonPosDict[pKey]
-        elif c.logic == 0: 
-            if c.isin(pt) and self.carbonPosDict.hasKey(pKey):
-                del self.carbonPosDict[pKey]
-            
-        return pKey
-        
-    
     def pickCircle(self, ptlist, origin, logic, layer, slabC):
         """Add a new circle to the shape. """
         c = Circle(self, ptlist, origin, logic, slab=slabC)
@@ -665,6 +648,15 @@ class CookieShape(shape):
         self.layeredCurves[currentLayer] = curves
         self.havelist = 0
 
+    def anyCurvesLeft(self):
+        """Return True if there are curve(s) left, otherwise, False. 
+            This can be used by user to decide if the shape object
+            can be deleted. """
+        for cbs in self.layeredCurves.values():
+            if len(cbs) > 1:
+                return True
+        return False
+            
     def combineLayers(self):
         """Experimental code to add all curves and bbox together to make the molmake working. It may be removed later. """
         for cbs in self.layeredCurves.values():

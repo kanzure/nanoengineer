@@ -26,8 +26,6 @@ class cookieMode(basicMode):
                            (1.0, 0.0, 127.0/255.0),
                            )
     
-    SELECTION_SHAPES = ['TRIANGLE', 'RECTANGLE', 'HEXAGON', 'CIRCLE', 'DEFAULT']
-    
     LATTICE_TYPES = ['DIAMOND', 'LONSDALEITE', 'GRAPHITE']
     
     MAX_LAYERS = 6
@@ -65,8 +63,9 @@ class cookieMode(basicMode):
         self.layers += [[V(self.o.pov[0], self.o.pov[1], self.o.pov[2])], [A(gray)]]  
         self.currentLayer = 0
  
-        self.picking = None
+        self.cookieDrawBegins = None
         self.Rubber = None
+        self.lastDrawStored = []
        
         self.selectionShape = self.ctrlPanel.getSelectionShape()
         
@@ -130,8 +129,7 @@ class cookieMode(basicMode):
                 self.o.quat = Q(self.cookieQuat)
                 self.o.pov = V(self.cookiePov[0], self.cookiePov[1], self.cookiePov[2]) 
             self.surfset(self.o.snap2trackball())
-            
-                
+    
       
     def showGridLine(self, show):
         self.gridShow = show
@@ -179,6 +177,14 @@ class cookieMode(basicMode):
     def Backup(self):
         if self.o.shape:
             self.o.shape.undo(self.currentLayer)
+        
+            #If no curves left, let users do what they can just like
+            #when they first enter into cookie mode.
+            if not self.o.shape.anyCurvesLeft():
+                #self.o.shape = None
+                #self.enableViewChanges(True)
+                self.StartOver()
+            
         self.o.gl_update()
 
     # mouse and key events
@@ -186,9 +192,9 @@ class cookieMode(basicMode):
         basicMode.keyPress(self, key)
         if self.freeView: return
         #Don't change cursor during selection
-        if key == Qt.Key_Shift and not self.picking:
+        if key == Qt.Key_Shift and not self.cookieDrawBegins:
             self.o.setCursor(self.w.CookieCursor)
-        elif key == Qt.Key_Control and not self.picking:
+        elif key == Qt.Key_Control and not self.cookieDrawBegins:
             self.o.setCursor(self.w.CookieSubtractCursor)
         elif key == Qt.Key_Escape:
             self._cancelSelection()
@@ -203,13 +209,12 @@ class cookieMode(basicMode):
                 self.hexagonSelection = True
             elif key == Qt.Key_R:
                 self.rectangleSelection = True    
-            
-                                
+    
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
         if self.freeView: return
         #Don't change cursor during selection
-        if (key == Qt.Key_Shift or key == Qt.Key_Control) and not self.picking:
+        if (key == Qt.Key_Shift or key == Qt.Key_Control) and not self.cookieDrawBegins:
             self.o.setCursor(self.w.CookieAddCursor)
     
     def rightShiftDown(self, event):
@@ -237,9 +242,15 @@ class cookieMode(basicMode):
         if self.freeView: return
         if self.Rubber: return
         
-        self.picking = 1
+        self.cookieDrawBegins = 1
         self.cookieQuat = Q(self.o.quat)
         self.pickLineLength = 0.0
+        
+        ## Start color xor operations
+        self.o.redrawGL = False
+        glDisable(GL_DEPTH_TEST)
+        glEnable(GL_COLOR_LOGIC_OP)
+        glLogicOp(GL_XOR)
         
         if not self.selectionShape in ['DEFAULT', 'LASSO']: return
         if self.selectionShape == 'LASSO':
@@ -250,7 +261,7 @@ class cookieMode(basicMode):
         
         self.sellist = [p1]
         self.o.backlist = [p2]
-        self.pickLineStart = self.pickLinePrev = p1
+        #self.pickLineStart = self.pickLinePrev = p1
         
     
     def leftDrag(self, event):
@@ -267,7 +278,7 @@ class cookieMode(basicMode):
         """
         if self.freeView: return
         
-        if not self.picking: return
+        if not self.cookieDrawBegins: return
         if self.Rubber: return
         if not self.selectionShape in ['DEFAULT', 'LASSO']: return
         
@@ -276,14 +287,15 @@ class cookieMode(basicMode):
         self.sellist += [p1]
         self.o.backlist += [p2]
         
-        netdist = vlen(p1-self.pickLineStart)
-        self.pickLineLength += vlen(p1-self.pickLinePrev)
+        netdist = vlen(p1 - self.sellist[0])#self.pickLineStart)
+        self.pickLineLength += vlen(p1 - self.sellist[-2])#self.pickLinePrev)
         if self.selectionShape == 'DEFAULT':
             self.selLassRect = self.pickLineLength < 2*netdist
-        self.pickLinePrev = p1
+        #self.pickLinePrev = p1
         
         self.w.history.transient_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
-        self.o.gl_update()
+        #self.o.gl_update()
+        self.pickdraw()
         
     
     def leftUp(self, event):
@@ -297,7 +309,7 @@ class cookieMode(basicMode):
 
     def leftDouble(self, event):
         """End rubber selection """
-        if self.freeView or not self.picking: return
+        if self.freeView or not self.cookieDrawBegins: return
         
         if self.Rubber and not self.rubberWithoutMoving:
             self._traditionalSelect()
@@ -306,7 +318,7 @@ class cookieMode(basicMode):
     def EndDraw(self, event, sense):
         """Close a selection curve and do the selection
         """
-        if self.freeView or not self.picking: return
+        if self.freeView or not self.cookieDrawBegins: return
         
         p1, p2 = self. _getPoints(event)#self.o.mousepoints(event, 0.01)
  
@@ -315,11 +327,11 @@ class cookieMode(basicMode):
             if not self.selectionShape in ['DEFAULT', 'LASSO']: 
                 if not (self.sellist and self.o.backlist): #The first click release
                     self.selSense = sense
-                    self.sellist = [p1]; self.sellist += [p1]
+                    self.sellist = [p1]; self.sellist += [p1]; self.sellist += [p1]
                     self.o.backlist = [p2]; self.o.backlist += [p2]
                     if self.selectionShape == 'RECT_CORNER':    
                             self.selLassRect = True
-                    #Disable view changes when begin curve drawing        
+                    #Disable view changes when begin curve drawing 
                     self.ctrlPanel.enableViewChanges(False)
                 else: #The end click release
                     self.o.backlist[-1] = p2
@@ -333,18 +345,17 @@ class cookieMode(basicMode):
                 if not self.Rubber:
                     self.Rubber = True
                     self.rubberWithoutMoving = True
-                     #Disable view changes when begin curve drawing        
+                    #Disable view changes when begin curve drawing        
                     self.ctrlPanel.enableViewChanges(False)
             else: #This means single click/release without dragging for Lasso
                 self.sellist = []
                 self.o.backlist = []
-                self.picking = False
+                self.cookieDrawBegins = False
         else: #Default(excluding rubber band)/Lasso selection
             self.sellist += [p1]
             self.o.backlist += [p2]
             self._traditionalSelect()    
-        
-        
+    
     def _anyMiddleUp(self):
         if self.freeView: return
        
@@ -353,15 +364,21 @@ class cookieMode(basicMode):
             self.o.gl_update()
         else:
             self.surfset(self.o.snap2trackball())
-            
+
+    def middleDown(self, event):
+        """Disable this method when in curve drawing"""
+        if not self.cookieDrawBegins:
+            basicMode.middleDown(self, event)
+     
     def middleUp(self, event):
         """If self.cookieQuat: , which means: a shape 
         object has been created, so if you change the view,
         and thus self.o.quat, then the shape object will be wrong
         ---Huaicai 3/23/05 """
-        basicMode.middleUp(self, event)
-        self._anyMiddleUp()
-            
+        if not self.cookieDrawBegins:
+            basicMode.middleUp(self, event)
+            self._anyMiddleUp()
+           
     def middleShiftDown(self, event):        
          """Disable this action when cutting cookie. """
          if self.freeView: basicMode.middleShiftDown(self, event)   
@@ -380,22 +397,49 @@ class cookieMode(basicMode):
     
     def Wheel(self, event):
         """When in curve drawing stage, disable the zooming. """
-        if not self.picking: basicMode.Wheel(self, event)
+        if not self.cookieDrawBegins: basicMode.Wheel(self, event)
         
     def bareMotion(self, event):
-        if self.freeView or not self.picking: return
+        if self.freeView or not self.cookieDrawBegins: return
         
         if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO']: 
             if not self.sellist: return
-            p1, p2 = self._getPoints(event)#self.o.mousepoints(event, 0.01)
-            try: self.sellist[-1]=p1
-            except: print self.sellist
+            p1, p2 = self._getPoints(event)
+            try: 
+                if self.Rubber: self.pickLinePrev = self.sellist[-1]
+                else:  self.sellist[-2] = self.sellist[-1]
+                self.sellist[-1] = p1
+            except:
+                print self.sellist
             if self.Rubber:
                 self.rubberWithoutMoving = False
                 self.w.history.transient_msg("Double click to end selection; Press <Esc> key to cancel selection.")
             else:
                 self.w.history.transient_msg("Left click to end selection; Press <Esc> key to cancel selection.")
+            #self.o.gl_update()
+            self.pickdraw()
+   
+    def _afterCookieSelection(self):
+        """Restore some variable states after the each curve selection """
+        if self.sellist:
+            self.pickdraw(True)
+            
+            self.cookieDrawBegins = False
+            self.Rubber = False
+            self.selLassRect = False
+            self.sellist = []
+            self.o.backlist = []
+            
+            self.w.history.transient_msg("   ")
+            # Restore the cursor when the selection is done.
+            self.o.setCursor(self.w.CookieAddCursor)
+            
+            #Restore GL states
+            self.o.redrawGL = True
+            glDisable(GL_COLOR_LOGIC_OP)
+            glEnable(GL_DEPTH_TEST)
             self.o.gl_update()
+     
      
     def _traditionalSelect(self):
         """The original curve selection"""
@@ -410,28 +454,18 @@ class cookieMode(basicMode):
             
         # took out kill-all-previous-curves code -- Josh
         if self.selLassRect:
-            self.selLassRect = False
-            self.o.shape.pickrect(self.o.backlist[0], self.o.backlist[-2], self.o.pov,
-                                  self.selSense, self.currentLayer,
+            self.o.shape.pickrect(self.o.backlist[0], self.o.backlist[-2], 
+                    self.o.pov, self.selSense, self.currentLayer,
                                   Slab(-self.o.pov, self.o.out, self.thickness))
         else:
             self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense,
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
-            #print "default shape, without moving, double click."
-                                  
+        
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
                 self.ctrlPanel.addLayerButton.setEnabled(True)
-        
-        self.picking = False
-        self.Rubber = False
-        self.sellist = []
-        
-        self.w.history.transient_msg("   ")
-        # Restore the cursor when the selection is done.
-        self.o.setCursor(self.w.CookieAddCursor)
-        self.o.gl_update()
- 
-     
+        self._afterCookieSelection()
+  
+  
     def _centerBasedSelect(self):
         """End the center based selection"""
         if not self.o.shape:
@@ -476,23 +510,16 @@ class cookieMode(basicMode):
                                   
         elif self.selectionShape == 'CIRCLE':
             self.o.shape.pickCircle(self.o.backlist, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
-            
+        
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
                 self.ctrlPanel.addLayerButton.setEnabled(True)
-        
-        self.picking = False
-        self.sellist = []
-        self.w.history.transient_msg("   ")          
-        
-        # Restore the cursor when the selection is done.
-        self.o.setCursor(self.w.CookieAddCursor)
-        self.o.gl_update()
+        self._afterCookieSelection()                          
     
-    
-    def _centerRectDiamDraw(self, color, pts, sType):
+        
+    def _centerRectDiamDraw(self, color, pts, sType, lastDraw):
         """Construct center based Rectange or Diamond to draw
             <Param> pts: (the center and a corner point)"""
-        pt = pts[1] - pts[0]
+        pt = pts[2] - pts[0]
         hw = dot(self.o.right, pt)*self.o.right
         hh = dot(self.o.up, pt)*self.o.up
         pp = []
@@ -505,56 +532,132 @@ class cookieMode(basicMode):
         elif sType == 'DIAMOND':
             pp += [pts[0] + hh]; pp += [pts[0] - hw]
             pp += [pts[0] - hh];  pp += [pts[0] + hw]
-            
+        
+        if not self.lastDrawStored:
+            self.lastDrawStored += [pp]
+            self.lastDrawStored += [pp]
+         
+        self.lastDrawStored[0] = self.lastDrawStored[1]
+        self.lastDrawStored[1] = pp    
+        
+        if not lastDraw:
+            drawer.drawLineLoop(color, self.lastDrawStored[0])
+        else: self.lastDrawStored = []     
         drawer.drawLineLoop(color, pp)    
+  
     
-    def _centerEquiPolyDraw(self, color, sides, pts):
+    def _centerEquiPolyDraw(self, color, sides, pts, lastDraw):
         """Construct a center based equilateral polygon to draw. 
         <Param> sides: the number of sides for the polygon
         <Param> pts: (the center and a corner point) """
         hQ = Q(self.o.out, 2.0*pi/sides)
-        pt = pts[1] - pts[0]
+        pt = pts[2] - pts[0]
         pp = []
-        pp += [pts[1]]
+        pp += [pts[2]]
         for ii in range(1, sides):
             pt = hQ.rot(pt)
             pp += [pt + pts[0]]
         
+        if not self.lastDrawStored:
+            self.lastDrawStored += [pp]
+            self.lastDrawStored += [pp]
+         
+        self.lastDrawStored[0] = self.lastDrawStored[1]
+        self.lastDrawStored[1] = pp    
+        
+        if not lastDraw:
+            drawer.drawLineLoop(color, self.lastDrawStored[0])        
+        else: self.lastDrawStored = []
         drawer.drawLineLoop(color, pp)        
    
-    def _centerCircleDraw(self, color, pts):
+   
+    def _centerCircleDraw(self, color, pts, lastDraw):
         """Construct center based hexagon to draw 
         <Param> pts: (the center and a corner point)"""
-        pt = pts[1] - pts[0]
+        pt = pts[2] - pts[0]
         rad = vlen(pt)
         
-        drawer.drawCircle(color, pts[0], rad, self.o.out)
+        if not self.lastDrawStored:
+            self.lastDrawStored += [rad]
+            self.lastDrawStored += [rad]
+         
+        self.lastDrawStored[0] = self.lastDrawStored[1]
+        self.lastDrawStored[1] = rad    
         
-    def pickdraw(self):
+        if not lastDraw:
+            drawer.drawCircle(color, pts[0], self.lastDrawStored[0], self.o.out)
+        else:
+            self.lastDrawStored = []
+        
+        drawer.drawCircle(color, pts[0], rad, self.o.out)
+    
+    
+    def _getXorColor(self, color):
+        """Get color for <color>.  When the color is XORed with background color, it will get <color>
+        """
+        rgb = []
+        for ii in range(3):
+            f = int(color[ii]*255)
+            b = int(self.backgroundColor[ii]*255)
+            rgb += [(f ^ b)/255.0]
+        
+        return rgb    
+ 
+    def pickdraw(self, lastDraw = False):
         """selection curve draw"""
         color = logicColor(self.selSense)
+        color = self._getXorColor(color)
+        
         if not self.selectionShape == 'DEFAULT':
             if self.sellist:
                  if self.selectionShape == 'LASSO':
-                     for pp in zip(self.sellist[:-1],self.sellist[1:]): 
+                     if not lastDraw:
+                        for pp in zip(self.sellist[:-2],self.sellist[1:-1]): 
+                            drawer.drawline(color, pp[0], pp[1])
+                     for pp in zip(self.sellist[:-1],self.sellist[1:]):
                             drawer.drawline(color, pp[0], pp[1])
                  elif self.selectionShape == 'RECT_CORNER':
+                     if not lastDraw:
+                        drawer.drawrectangle(self.sellist[0], self.sellist[-2],
+                                 self.o.up, self.o.right, color)
                      drawer.drawrectangle(self.sellist[0], self.sellist[-1],
                                  self.o.up, self.o.right, color)
                  else:
-                    drawer.drawline(white, self.sellist[0], self.sellist[1], True)
+                    xor_white = self._getXorColor(white)
+                    if not lastDraw:
+                        drawer.drawline(xor_white, self.sellist[0], self.sellist[1], True)
+                    drawer.drawline(xor_white, self.sellist[0], self.sellist[2], True)
                     if self.selectionShape in ['RECTANGLE', 'DIAMOND']:
-                        self._centerRectDiamDraw(color, self.sellist, self.selectionShape)
+                        self._centerRectDiamDraw(color, self.sellist, self.selectionShape, lastDraw)
                     elif self.selectionShape == 'CIRCLE':
-                        self._centerCircleDraw(color, self.sellist)
+                        self._centerCircleDraw(color, self.sellist, lastDraw)
                     elif self.selectionShape == 'HEXAGON':
-                        self._centerEquiPolyDraw(color, 6, self.sellist)
+                        self._centerEquiPolyDraw(color, 6, self.sellist, lastDraw)
                     elif self.selectionShape == 'SQUARE':
-                        self._centerEquiPolyDraw(color, 4, self.sellist)
+                        self._centerEquiPolyDraw(color, 4, self.sellist, lastDraw)
                     elif self.selectionShape == 'TRIANGLE':
-                        self._centerEquiPolyDraw(color, 3, self.sellist)   
-        else:
-            basicMode.pickdraw(self)            
+                        self._centerEquiPolyDraw(color, 3, self.sellist, lastDraw)   
+        else: #Default selection shape
+            if self.Rubber:
+                if not lastDraw:
+                    drawer.drawline(color, self.sellist[-2], self.pickLinePrev)
+                drawer.drawline(color, self.sellist[-2], self.sellist[-1])
+            else:
+                if not lastDraw:
+                    for pp in zip(self.sellist[:-2],self.sellist[1:-1]): 
+                        drawer.drawline(color, pp[0], pp[1])
+                for pp in zip(self.sellist[:-1],self.sellist[1:]):
+                    drawer.drawline(color,pp[0],pp[1])
+                
+                if self.selLassRect:  # Draw the rectangle window
+                    if not lastDraw:
+                        drawer.drawrectangle(self.sellist[0], self.sellist[-2],
+                                     self.o.up, self.o.right, color)
+                    drawer.drawrectangle(self.sellist[0], self.sellist[-1],
+                                     self.o.up, self.o.right, color)
+        
+        glFlush()
+        self.o.swapBuffers() #Update display         
 
 
     def Draw(self):
@@ -642,9 +745,9 @@ class cookieMode(basicMode):
         maxCells = self._findMaxNoLattCell(self.currentLayer)
         self.ctrlPanel.layerCellsSpinBox.setMaxValue(maxCells)
        
-        ##Cancel any rubber selection if any.
-        if self.Rubber:
-            self.w.history.message(redmsg("Layer changed during rubber window cookie selection, cancel the selection."))
+        ##Cancel any selection if any.
+        if self.cookieDrawBegins:
+            self.w.history.message(redmsg("Layer changed during cookie selection, cancel this selection."))
             self._cancelSelection()
        
         self.o.gl_update()
@@ -678,17 +781,21 @@ class cookieMode(basicMode):
         self.o.gl_update()
     
     def _cancelSelection(self):
-        """Cancel rubber or center based selection before it's finished """
-        if self.Rubber:
-            self.Rubber = False
-        
-        if self.sellist:
-            self.o.backlist = []    
-            self.sellist = []
-            self.picking = False
-            self.w.history.transient_msg("")
-            self.o.gl_update()
-        
+        """Cancel selection before it's finished """
+        if 0: 
+            if self.Rubber:
+                self.Rubber = False
+            
+            if self.sellist:
+                self.pickdraw(True)
+                
+                self.o.backlist = []    
+                self.sellist = []
+                self.cookieDrawBegins = False
+                self.w.history.transient_msg("")
+                
+                #self.o.gl_update()
+        self._afterCookieSelection()
         if not self.o.shape: self.ctrlPanel.enableViewChanges(True)
         
     

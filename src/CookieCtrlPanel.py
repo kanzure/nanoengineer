@@ -283,6 +283,7 @@ class CookieCtrlPanel:
             
             # Turn off acclerating keys
             self._setAutoShapeAcclKeys(False)
+            
        
        def enableViewChanges(self, enableFlag):
             """Turn on or off view changes depending on <param> 'enableFlag'. Turn off view changes is needed during the cookie-cutting stage. """

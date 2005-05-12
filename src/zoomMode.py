@@ -12,15 +12,8 @@ from modes import *
 
 class zoomMode(basicMode):
     # class constants
-    backgroundColor = 0.5, 0.5, 0.5
     modename = 'ZOOM'
     default_mode_status_text = "Mode: Zoom"
-    
-    # flag indicating when to draw the rubber band window.
-    #rbw = False
-    rbwcolor = navy
-
-    # no __init__ method needed
     
     # methods related to entering this mode
     
@@ -33,8 +26,9 @@ class zoomMode(basicMode):
         #brightness = bg[0] + bg[1] + bg[2]
         #if brightness >= 1.5: self.rbwcolor = navy
         #else: self.rbwcolor = white
-        ## Set RBW color as the same as bg color, then it will draw as black
-        self.rbwcolor = bg
+        ## Set RBW color as the same as bg color, then it will draw as black 
+        ## Set it as white
+        self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
         
         self.glStatesChanged = False
         
