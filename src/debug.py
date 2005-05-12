@@ -391,6 +391,7 @@ class DebugMenuMixin:
         #bruce 050416: remake the menu each time it's needed
         menu = None
         try:
+            menu_spec = "<not yet computed>" # might be needed for error message in 'except' clause [bruce 050509 bugfix]
             menu_spec = self.debug_menu_items()
             menu = self.makemenu( menu_spec ) # might be []
         except:
