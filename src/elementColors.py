@@ -336,7 +336,7 @@ class ElementView(ThumbView):
         """This is to try to repeat what 'oneUnbonded()' function does,
         but hope to remove some stuff not needed here.
         The main purpose is to build the geometry model for element display. 
-        <Param> elm: An object of class elem
+        <Param> elm: An object of class Elem
         <Param> dispMode: the display mode of the atom--(int)
         <Return>: the molecule which contains the geometry model.
         """
@@ -353,6 +353,10 @@ class ElementView(ThumbView):
         mol = molecule(assy, 'dummy') 
         atm = atom(elm.symbol, pos, mol)
         atm.display = dispMode
+        ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom: ####@@@@
+        ## atm.set_atomtype_but_dont_revise_singlets('sp2')
+        ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
+        ## (which can be passed to set_atomtype_but_dont_revise_singlets)
         atm.make_singlets_when_no_bonds()
         return mol
 

@@ -1,0 +1,193 @@
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+"""
+build_utils.py -- some utilities for Build mode.
+
+Owned by bruce while atomtypes and higher-order bonds are being implemented.
+
+$Id$
+
+History:
+
+Original code written by Josh in depositMode.py.
+
+Bruce moved it into this separate file, 050510,
+and added superstructure, in preparation for extending it to atom types
+with new bonding patterns. And did some of that extension, 050511. [It's ongoing.]
+"""
+__author__ = "Josh"
+
+
+from VQT import norm
+from chem import atom # the class
+
+from debug import print_compact_traceback
+
+class DepositionTool:
+    "#doc"
+    pass
+
+class PastableDepositionTool(DepositionTool): # not yet filled in (with code from depositMode.py) or used
+    def __init__(self, pastable):
+        self.pastable = pastable
+        return
+    def attach_to(self, singlet): # NIM (in PastableDepositionTool)
+        assert 0, "nim"
+    pass
+
+class AtomTypeDepositionTool(DepositionTool):
+    """DepositionTool for depositing atoms of a given type (element and bonding pattern)."""
+    #bruce 050510 made this from some methods in depositMode, and extended it for atomtypes.
+    def __init__(self, atomtype):
+        self.atomtype = atomtype
+        return
+    
+    ###################################################################
+    #  Oh, ye acolytes of klugedom, feast your eyes on the following  #
+    ###################################################################
+
+    # [comment initially by josh, revised by bruce circa 041115-041215, 050510]
+    # singlet is supposedly the lit-up singlet we're pointing to.
+    # make a new atom of [our atomtype].
+    # bond the new atom to singlet, and to any other singlets around which you'd
+    # expect it to form bonds with (for now this might be based solely on nearness ###@@@).
+    # Also make new singlets to reach desired total number of bonds.
+    #   Note that these methods don't use self except to
+    # find each other... so they could be turned into functions for general use. #e
+    #   To help fix bug 131 I'm [bruce circa 041215] splitting each of the old code's methods
+    # bond1 - bond4 into a new method to position and make the new atom (for any number of bonds)
+    # and methods moved to class atom to add more singlets as needed.
+    
+    # bruce 041123 new features:
+    # return the new atom and a description of it, or None and the reason we made nothing.
+
+    def attach_to( self, singlet): # in AtomTypeDepositionTool
+        """[public method]
+        Deposit a new atom of self.atomtype onto the given singlet,
+        and make other bonds (to other near-enough atoms with singlets)
+        as appropriate. (Maybe more than one bond per other atom, in some cases??)###@@@
+           Return the new atom and a description of it, or None and the reason we made nothing. #k
+        ###@@@ should worry about bond direction! at least as a filter!
+        """
+        atype = self.atomtype
+        if not atype.numbonds:
+            return (None, "%s makes no bonds; can't attach one to an open bond" % atype.fullname_for_msg())
+        spot = self.findSpot(singlet)
+        pl = [(singlet, spot)] # will grow to a list of pairs (s, its spot)
+            # bruce change 041215: always include this one in the list
+            # (probably no effect, but gives later code less to worry about;
+            #  before this there was no guarantee singlet was in the list
+            #  (tho it probably always was), or even that the list was nonempty,
+            #  without analyzing the subrs in more detail than I'd like!)
+        rl = [singlet.singlet_neighbor()]
+            # list of real neighbors of singlets in pl [for bug 232 fix]
+        mol = singlet.molecule
+        cr = atype.rcovalent
+
+        # bruce 041215: might as well fix the bug about searching for open bonds
+        # in other mols too, since it's easy; search in this one first, and stop
+        # when you find enough atoms to bond to.
+        searchmols = list(singlet.molecule.part.molecules) #bruce 050510 revised this
+        searchmols.remove(singlet.molecule)
+        searchmols.insert(0, singlet.molecule)
+        # max number of real bonds we can make (now this can be more than 4)
+        maxpl = atype.numbonds
+        
+        for mol in searchmols:
+          for s in mol.nearSinglets(spot, cr * 1.9):
+              #bruce 041216 changed 1.5 to 1.9 above (it's a heuristic);
+              # see email discussion (ninad, bruce, josh)
+            #bruce 041203 quick fix for bug 232:
+            # don't include two singlets on the same real atom!
+            # (It doesn't matter which one we pick, in terms of which atom we'll
+            #  bond to, but it might affect the computation in the bonding
+            #  method of where to put the new atom, so ideally we'd do something
+            #  more principled than just using the findSpot output from the first
+            #  singlet in the list for a given real atom -- e.g. maybe we should
+            #  average the spots computed for all singlets of the same real atom.
+            #  But this is good enough for now.)
+            #bruce 050510 adds: worse, the singlets are in an arb position... really we should just ask if
+            # it makes sense to bond to each nearby *atom*, for the ones too near to comfortably *not* be bonded to. ###@@@
+            ###@@@ bruce 050221: bug 372: sometimes s is not a singlet. how can this be??
+            # guess: mol.singlets is not always invalidated when it should be. But even that theory
+            # doesn't seem to fully explain the bug report... so let's find out a bit more, at least:
+            try:
+                real = s.singlet_neighbor() 
+            except:
+                print_compact_traceback("bug 372 caught red-handed: ")
+                print "bug 372-related data: mol = %r, mol.singlets = %r" % (mol, mol.singlets)
+                continue
+            if real not in rl:
+                pl += [(s, self.findSpot(s))]
+                rl += [real]
+          # after we're done with each mol (but not in the middle of any mol),
+          # stop if we have as many open bonds as we can use
+          if len(pl) >= maxpl:
+            break
+        del mol, s, real
+        
+        n = min(atype.numbonds, len(pl)) # number of real bonds to make; always >= 1
+        pl = pl[0:n] # discard the extra pairs (old code did this too, implicitly)
+        
+        # bruce 041215 change: for n > 4, old code gave up now;
+        # new code makes all n bonds for any n, tho it won't add singlets
+        # for n > 4. (Both old and new code don't know how to add enough
+        # singlets for n >= 3 and numbonds > 4. They might add some, tho.)
+        # Note: new_bonded_n uses len(pl) as its n.
+        atm = self.new_bonded_n( pl)
+        atm.make_enough_singlets() # (tries its best, but doesn't always make enough)
+        desc = "%r (in %r)" % (atm, atm.molecule.name)
+        #e what if caller renames atm.molecule??
+        if n > 1: #e really: if n > (number of singlets clicked on at once)
+            desc += " (%d bonds made)" % n
+        return atm, desc
+
+    # given self.atomtype and a singlet, find the place an atom of that type
+    # would like to be if bonded at that singlet,
+    # assuming the bond direction should not change.
+    #e (Should this be an AtomType method?)
+    def findSpot(self, singlet):
+        obond = singlet.bonds[0]
+        a1 = obond.other(singlet)
+        cr = self.atomtype.rcovalent
+        pos = singlet.posn() + cr*norm(singlet.posn()-a1.posn())
+        return pos
+        
+    def new_bonded_n( self, lis):
+        """[private method]
+        make and return an atom (of self.atomtype) bonded to the n singlets in lis,
+        which is a list of n pairs (singlet, pos), where each pos is the ideal
+        position for a new atom bonded to its singlet alone.
+        The new atom will always have n real bonds and no singlets.
+        We don't check whether n is too many bonds for self.atomtype, nor do we care what
+        kind of bond positions it would prefer. (This is up to the caller, if
+        it matters; since the singlets typically already existed, there's not
+        a lot that could be done about the bonding pattern, anyway, though we
+        could imagine finding a position that better matched it. #e)
+        """
+        # bruce 041215 made this from the first parts of the older methods bond1
+        # through bond4; the rest of each of those have become atom methods like
+        # make_singlets_when_2_bonds.
+        # The caller (self.attach [now renamed self.attach_to]) has been revised
+        # to use these, and the result is (I think) equivalent to the old code,
+        # except when el.numbonds > 4 [later: caller's new subrs now use atomtype not el],
+        # when it does what it can rather than
+        # doing nothing. The purpose was to fix bug 131 by using the new atom
+        # methods by themselves.
+        s1, p1 = lis[0]
+        mol = s1.molecule # (same as its realneighbor's mol)
+        totpos = + p1 # (copy it, so += can be safely used below)
+        for sk, pk in lis[1:]: # 0 or more pairs after the first
+            totpos += pk # warning: += can modify a mutable totpos
+        pos = totpos / (0.0 + len(lis)) # use average of ideal positions
+        atm = atom(self.atomtype, pos, mol)
+        for sk, pk in lis:
+            sk.bonds[0].rebond(sk, atm)
+        return atm
+
+    pass # end of class AtomTypeDepositionTool
+
+## see also:
+##    # return the singlets in the given sphere (point, radius),
+##    # sorted by increasing distance from point
+##    # bruce 041207 comment: this is only used in depositMode.attach.
+##    def nearSinglets(self, point, radius):

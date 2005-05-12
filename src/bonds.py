@@ -275,7 +275,7 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     assert vnew in BOND_VALENCES
     assert not bonded(a1,a2)
     bond_atoms_oldversion(a1,a2)
-    bond = find_bond(a1,a2) ###IMPLEM
+    bond = find_bond(a1,a2)
     assert bond
     if vnew != V_SINGLE:
         bond.increase_valence_noupdate( vnew - V_SINGLE)
@@ -580,8 +580,8 @@ class Bond:
         vec = norm(vec)
         # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
         #  etc, so the entire bond is drawn as if "too long".)
-        rcov1 = self.atom1.element.rcovalent
-        rcov2 = self.atom2.element.rcovalent
+        rcov1 = self.atom1.atomtype.rcovalent
+        rcov2 = self.atom2.atomtype.rcovalent
         self.c1 = self.a1pos + vec*rcov1
         self.c2 = self.a2pos - vec*rcov2
         self.toolong = (leng > rcov1 + rcov2)
@@ -848,8 +848,8 @@ class Bond:
         vec = norm(vec)
         # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
         #  etc, so the entire bond is drawn as if "too long".)
-        rcov1 = self.atom1.element.rcovalent
-        rcov2 = self.atom2.element.rcovalent
+        rcov1 = self.atom1.atomtype.rcovalent
+        rcov2 = self.atom2.atomtype.rcovalent
         c1 = a1pos + vec*rcov1
         c2 = a2pos - vec*rcov2
         toolong = (leng > rcov1 + rcov2)
@@ -868,10 +868,10 @@ class Bond:
         ##             cylinder written to a pov file    
             DELTA = 1.0E-5
             isSingleCylinder = False
-            if  self.atom1.element.rcovalent < DELTA:
+            if  self.atom1.atomtype.rcovalent < DELTA:
                     col = color2
                     isSingleCylinder = True
-            if  self.atom2.element.rcovalent < DELTA:
+            if  self.atom2.atomtype.rcovalent < DELTA:
                     col = color1
                     isSingleCylinder = True
             if isSingleCylinder:        
@@ -1139,6 +1139,9 @@ class bonder_at_singlets:
 # this code knows where to place missing bonds in carbon
 # sure to be used later
 # [code and comment by Josh, in chem.py, long before 050502]
+# [bruce adds, 050510: probably this was superseded by his depositMode code;
+#  as of today it would fail since Carbon.bonds[0][1] is now
+#  Carbon.atomtypes[0].rcovalent * 100.0, I think]
 
 ##         # length of Carbon-Hydrogen bond
 ##         lCHb = (Carbon.bonds[0][1] + Hydrogen.bonds[0][1]) / 100.0

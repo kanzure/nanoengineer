@@ -1,8 +1,8 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
-depositMode.py
+depositMode.py -- Build mode.
 
-Build mode.
+Owned by bruce while atomtypes and higher-order bonds are being implemented.
 
 $Id$
 """
@@ -82,16 +82,14 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomLabel.setText(" Build ")
     w.depositAtomDashboard.addSeparator()
 
-    w.pasteComboBox = QComboBox(0,w.depositAtomDashboard,
-                                     "pasteComboBox")
+    w.pasteComboBox = QComboBox(0,w.depositAtomDashboard, "pasteComboBox")
     # bruce 041124: that combobox needs to be wider, or to grow to fit items
     # (before this change it had width 100 and minimumWidth 0):
     w.pasteComboBox.setMinimumWidth(160) # barely holds "(clipboard is empty)"
 
     w.depositAtomDashboard.addSeparator()
 
-    w.elemChangeComboBox = QComboBox(0,w.depositAtomDashboard,
-                                     "elemChangeComboBox")
+    w.elemChangeComboBox = QComboBox(0,w.depositAtomDashboard, "elemChangeComboBox")
     
     w.modifySetElementAction.addTo(w.depositAtomDashboard)
 
@@ -107,10 +105,18 @@ def do_what_MainWindowUI_should_do(w):
     w.toolsDoneAction.addTo(w.depositAtomDashboard)
     w.depositAtomDashboard.setLabel("Build")
     w.elemChangeComboBox.clear()
+    # WARNING [comment added by bruce 050511]:
+    # these are identified by *position*, not by their text, using corresponding entries in eCCBtab1;
+    # this is done by win.elemChange even though nothing but depositMode calls that;
+    # the current element is stored in win.Element (as an atomic number ###k).
+    # All this needs cleanup so it's safer to modify this and so atomtype can sometimes be included.
+    # Both eCCBtab1 and eCCBtab2 are set up and used in MWsemantics but should be moved here,
+    # or perhaps with some part moved into elements.py if it ought to share code with elementSelector.py
+    # and elementColors.py (though it doesn't now).
     w.elemChangeComboBox.insertItem("Hydrogen")
     w.elemChangeComboBox.insertItem("Helium")
     w.elemChangeComboBox.insertItem("Boron")
-    w.elemChangeComboBox.insertItem("Carbon")
+    w.elemChangeComboBox.insertItem("Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2)
     w.elemChangeComboBox.insertItem("Nitrogen")
     w.elemChangeComboBox.insertItem("Oxygen")
     w.elemChangeComboBox.insertItem("Fluorine")
@@ -552,6 +558,7 @@ class depositMode(basicMode):
                     cmd += " (hotspot)"
         elif selatom:
             cmd = "click to drag %r" % selatom
+            cmd += " (%s)" % selatom.atomtype.fullname_for_msg() # nested parens ###e improve    
         else:
             cmd = "%s at \"water surface\"" % what
             #e cmd += " at position ..."
@@ -576,9 +583,28 @@ class depositMode(basicMode):
             else:
                 return "nothing to paste" # (trying would be an error)
         else:
-            el =  PeriodicTable.getElement(self.w.Element)
-            return "click to deposit %s" % el.name
-            
+            atype = self.pastable_atomtype()
+            return "click to deposit %s" % atype.fullname_for_msg()
+
+    def pastable_element(self):
+        return PeriodicTable.getElement(self.w.Element)
+
+    _pastable_atomtype = None
+    def set_pastable_atomtype(self, name):
+        current_element = self.pastable_element()
+        self._pastable_atomtype = current_element.find_atomtype(name)
+            # store entire atomtype object; only used if element remains correct (not an error if it doesn't)
+        return
+
+    def pastable_atomtype(self): #bruce 050511 ###@@@ use more?
+        "return the current pastable atomtype"
+        #e we might extend this to remember a current atomtype per element... not sure if useful
+        current_element = self.pastable_element()
+        if self._pastable_atomtype and self._pastable_atomtype.element == current_element:
+            return self._pastable_atomtype
+        self._pastable_atomtype = current_element.atomtypes[0]
+        return self._pastable_atomtype
+    
     def posn_str(self, atm): #bruce 041123
         """return the position of an atom
         as a string for use in our status messages
@@ -618,7 +644,7 @@ class depositMode(basicMode):
         self.pivot = self.pivax = self.dragmol = None #bruce 041130 precautions
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
         a = self.o.selatom
-        el =  PeriodicTable.getElement(self.w.Element)
+        atype = self.pastable_atomtype()
         self.modified = 1
         self.o.assy.changed()
         if a: # if something was "lit up"
@@ -642,9 +668,17 @@ class depositMode(basicMode):
                         status = "nothing selected to paste" #k correct??
                         chunk = None #bruce 041207
                 else:
-                    # user wants to create an atom of element el
-                    a1, desc = self.attach(el, a)
+                    # user wants to create an atom of type atype
+                    # (revised by bruce 050511)
+                    if 1: # during devel, at least
+                        import build_utils
+                        reload(build_utils)
+                    from build_utils import AtomTypeDepositionTool
+                    deptool = AtomTypeDepositionTool( atype)
+                    a1, desc = deptool.attach_to(a) #e this might need to take over the generation of the following status msg...
+                    ## a1, desc = self.attach(el, a)
                     if a1 != None:
+                        self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
                         status = "replaced open bond on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
                         chunk = a1.molecule #bruce 041207
                     else:
@@ -707,7 +741,7 @@ class depositMode(basicMode):
                     status = "nothing selected to paste" #k correct??
                     chunk = None #bruce 041207
             else:
-                self.o.selatom = oneUnbonded(el, self.o.assy, atomPos)
+                self.o.selatom = oneUnbonded(atype.element, self.o.assy, atomPos, atomtype = atype)
                 self.dragmol = self.o.selatom.molecule
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
                 chunk = self.o.selatom.molecule #bruce 041207
@@ -914,7 +948,7 @@ class depositMode(basicMode):
 
     def dragged_singlet_over_singlet(self, dragatom, selatom):
         #bruce 050429: it'd be nice to highlight the involved bonds and atoms, too...
-        # incl any existing bond between same atoms. (by overdraw for speed, or more lines) #####@@@@@ tryit
+        # incl any existing bond between same atoms. (by overdraw, for speed, or by more lines) ####@@@@ tryit
         #bruce 041119 split this out and added checks to fix bugs #203
         # (for bonding atom to itself) and #121 (atoms already bonded).
         # I fixed 121 by doing nothing to already-bonded atoms, but in
@@ -1023,141 +1057,6 @@ class depositMode(basicMode):
         return numol, "copy of %r" % pastable.name
 
 
-    ###################################################################
-    #  Oh, ye acolytes of klugedom, feast your eyes on the following  #
-    ###################################################################
-
-    # singlet is supposedly the lit-up singlet we're pointing to.
-    # make a new atom of el.
-    # bond the new atom to it, and any other ones around you'd
-    # expect it to form bonds with
-    # [bruce comment 041115: only bonds to singlets in same molecule; why?
-    #  more info 041203:
-    #  answer from josh: that's a bug, but we won't fix it for alpha.
-    #  bruce thinks it has a recent bug number (eg 220-230) but forgets what it is.
-    #  Update 041215: fixed it below!
-    # ]
-    # bruce comments 041215: also makes new singlets to reach desired total
-    # number of bonds. Note that these methods don't use self except to
-    # find each other... could be turned into functions for general use. #e
-    # To help fix bug 131 I'm splitting each of the old code's methods
-    # bond1 - bond4 into a new
-    # method to position and make the new atom (for any number of bonds)
-    # and methods moved to class atom to add more singlets as needed.
-    
-    # bruce 041123 new features:
-    # return the new atom and a description of it, or None and the reason we made nothing.
-    def attach(self, el, singlet):
-        if not el.numbonds:
-            return (None, "%s makes no bonds; can't attach one to an open bond" % el.name)
-        spot = self.findSpot(el, singlet)
-        pl = [(singlet, spot)] # will grow to a list of pairs (s, its spot)
-            # bruce change 041215: always include this one in the list
-            # (probably no effect, but gives later code less to worry about;
-            #  before this there was no guarantee singlet was in the list
-            #  (tho it probably always was), or even that the list was nonempty,
-            #  without analyzing the subrs in more detail than I'd like!)
-        rl = [singlet.singlet_neighbor()]
-            # list of real neighbors of singlets in pl [for bug 232 fix]
-        mol = singlet.molecule
-        cr = el.rcovalent
-
-        # bruce 041215: might as well fix the bug about searching for open bonds
-        # in other mols too, since it's easy; search in this one first, and stop
-        # when you find enough atoms to bond to.
-        searchmols = list(self.o.assy.molecules)
-        searchmols.remove(singlet.molecule)
-        searchmols.insert(0, singlet.molecule)
-        # max number of real bonds we can make (now this can be more than 4)
-        maxpl = el.numbonds
-        
-        for mol in searchmols:
-          for s in mol.nearSinglets(spot, cr * 1.9):
-              #bruce 041216 changed 1.5 to 1.9 above (it's a heuristic);
-              # see email discussion (ninad, bruce, josh)
-            #bruce 041203 quick fix for bug 232:
-            # don't include two singlets on the same real atom!
-            # (It doesn't matter which one we pick, in terms of which atom we'll
-            #  bond to, but it might affect the computation in the bonding
-            #  method of where to put the new atom, so ideally we'd do something
-            #  more principled than just using the findSpot output from the first
-            #  singlet in the list for a given real atom -- e.g. maybe we should
-            #  average the spots computed for all singlets of the same real atom.
-            #  But this is good enough for now.)
-            ###@@@ bruce 050221: bug 372: sometimes s is not a singlet. how can this be??
-            # guess: mol.singlets is not always invalidated when it should be. But even that theory
-            # doesn't seem to fully explain the bug report... so let's find out a bit more, at least:
-            try:
-                real = s.singlet_neighbor() 
-            except:
-                print_compact_traceback("bug 372 caught red-handed: ")
-                print "bug 372-related data: mol = %r, mol.singlets = %r" % (mol, mol.singlets)
-                continue
-            if real not in rl:
-                pl += [(s, self.findSpot(el, s))]
-                rl += [real]
-          # after we're done with each mol (but not in the middle of any mol),
-          # stop if we have as many open bonds as we can use
-          if len(pl) >= maxpl:
-            break
-        del mol, s, real
-        
-        n = min(el.numbonds, len(pl)) # number of real bonds to make; always >= 1
-        pl = pl[0:n] # discard the extra pairs (old code did this too, implicitly)
-        
-        # bruce 041215 change: for n > 4, old code gave up now;
-        # new code makes all n bonds for any n, tho it won't add singlets
-        # for n > 4. (Both old and new code don't know how to add enough
-        # singlets for n >= 3 and numbonds > 4. They might add some, tho.)
-        # Note: new_bonded_n uses len(pl) as its n.
-        atm = self.new_bonded_n(el,pl)
-        atm.make_enough_singlets() # (tries its best, but doesn't always make enough)
-        desc = "%r (in %r)" % (atm, atm.molecule.name)
-        #e what if caller renames atm.molecule??
-        if n > 1: #e really: if n > (number of singlets clicked on at once)
-            desc += " (%d bonds made)" % n
-        self.o.gl_update() ##e probably should be moved to caller
-        return atm, desc
-
-    # given an element and a singlet, find the place an atom of the
-    # element would like to be if bonded at the singlet
-    def findSpot(self, el, singlet):
-        obond = singlet.bonds[0]
-        a1 = obond.other(singlet)
-        cr = el.rcovalent
-        pos = singlet.posn() + cr*norm(singlet.posn()-a1.posn())
-        return pos
-        
-    def new_bonded_n(self, el, lis):
-        """[private method; ignores self:]
-        make and return an atom (of element el) bonded to the n singlets in lis,
-        which is a list of n pairs (singlet, pos), where each pos is the ideal
-        position for a new atom bonded to its singlet alone.
-        The new atom will always have n real bonds and no singlets.
-        We don't check whether n is too many bonds for el, nor do we care what
-        kind of bond positions el would prefer. (This is up to the caller, if
-        it matters; since the singlets typically already existed, there's not
-        a lot that could be done about the bonding pattern, anyway, though we
-        could imagine finding a position that better matched it. #e)
-        """
-        # bruce 041215 made this from the first parts of the older methods bond1
-        # through bond4; the rest of each of those have become atom methods like
-        # make_singlets_when_2_bonds. The caller (self.attach) has been revised
-        # to use these, and the result is (I think) equivalent to the old code,
-        # except when el.numbonds > 4, when it does what it can rather than
-        # doing nothing. The purpose was to fix bug 131 by using the new atom
-        # methods by themselves.
-        s1, p1 = lis[0]
-        mol = s1.molecule # (same as its realneighbor's mol)
-        totpos = + p1 # (copy it, so += can be safely used below)
-        for sk, pk in lis[1:]: # 0 or more pairs after the first
-            totpos += pk # warning: += can modify a mutable totpos
-        pos = totpos / (0.0 + len(lis)) # use average of ideal positions
-        atm = atom(el.symbol, pos, mol)
-        for sk, pk in lis:
-            sk.bonds[0].rebond(sk, atm)
-        return atm
-
     ####################
     # buttons
     ####################
@@ -1257,7 +1156,7 @@ class depositMode(basicMode):
 	basicMode.Draw(self)
         if self.line:
             drawline(white, self.line[0], self.line[1])
-            #####@@@@@ if this is for a higher-valence bond, draw differently
+            ####@@@@ if this is for a higher-valence bond, draw differently
         self.o.assy.draw(self.o)
         self.surface()
 
@@ -1310,15 +1209,16 @@ class depositMode(basicMode):
         
         # figure out which Set Hotspot menu item to include, and whether to disable it or leave it out
         if self.viewing_main_part():
-            text, meth = ('Set Hotspot and Copy as Pastable', self.setHotSpot)
-                # bruce 050121 renamed this from "Set Hotspot".
-                # if you want the name to be shorter, then change the method
+            text, meth = ('Set Hotspot and Copy', self.setHotSpot)
+                # bruce 050121 renamed this from "Set Hotspot" to "Set Hotspot and Copy as Pastable".
+                # bruce 050511 shortened that to "Set Hotspot and Copy".
+                # If you want the name to be shorter, then change the method
                 # to do something simpler! Note that the locally set hotspot
                 # matters if we later drag this chunk to the clipboard.
                 # IMHO, the complexity is a sign that the design
                 # should not yet be considered finished!
         else:
-            text, meth = ('Set Hotspot of clipboard item', self.setHotSpot_clipitem) ###implem
+            text, meth = ('Set Hotspot of clipboard item', self.setHotSpot_clipitem)
                 ###e could check if it has a hotspot already, if that one is different, etc
                 ###e could include atom name in menu text... Set Hotspot to X13
         if self.o.selatom and self.o.selatom.is_singlet():
@@ -1340,6 +1240,48 @@ class depositMode(basicMode):
                 #e maybe should disable this or change to checkmark item (with unselect action) if it's already selected??
             self.Menu_spec.append(item)
 
+        # change atom hybridization type [initial kluge]
+        selatom = self.o.selatom
+        atomtypes = (not selatom) and ['fake'] or selatom.element.atomtypes
+            # kluge: ['fake'] is so the idiom "x and y or z" can pick y;
+            # otherwise we'd use [] for 'y', but that doesn't work since it's false.
+##        if selatom and not selatom.is_singlet():
+##            self.Menu_spec.append(( '%s' % selatom.atomtype.fullname_for_msg(), noop, 'disabled' )) 
+        if len(atomtypes) > 1: # i.e. if elt has >1 atom type available! (then it must not be Singlet, btw)
+            # make a submenu for the available types, checkmarking the current one, disabling if illegal to change, sbartext for why
+            # (this code belongs in some more modular place... where exactly? it's part of an atom-type-editor for use in a menu...
+            #  put it with Atom, or with AtomType? ###e)
+            res = []
+            for atype in atomtypes:
+                res.append(( atype.fullname_for_msg(), lambda arg1=None, arg2=None, atype=atype: atype.apply_to(selatom),
+                                 # Notes: the atype=atype is required -- otherwise each lambda refers to the same
+                                 # localvar 'atype' -- effectively by reference, not by value --
+                                 # even though it changes during this loop!
+                                 #   Also at least one of the arg1 and arg2 are required, otherwise atype ends up being an int,
+                                 # at least acc'd to exception we get here. Why is Qt passing this an int? Nevermind for now. ###k
+                             (atype == selatom.atomtype) and 'checked' or None,
+                             (not atype.ok_to_apply_to(selatom)) and 'disabled' or None
+                           ))
+            self.Menu_spec.append(( 'Atom Type: %s' % selatom.atomtype.fullname_for_msg(), res ))
+##            self.Menu_spec.append(( 'Atom Type', res ))
+
+        ###e offer to change element, too (or should the same submenu be used? not sure)
+
+        # offer to clean up singlet positions (not sure if this item should be so prominent)
+        if selatom and not selatom.is_singlet():
+            sings = selatom.singNeighbors()
+            if sings or selatom.bad():
+                if sings:
+                    text = 'Reposition open bonds'
+                        # - this might be offered even if they don't need repositioning;
+                        # not easy to fix, but someday we'll always reposition them whenever needed
+                        # and this menu command can be removed then.
+                        # - ideally we'd reposition H's too... ###e
+                else:
+                    text = 'Add open bonds' # this text is only used if it doesn't have enough
+                self.Menu_spec.append(( text, selatom.remake_singlets ))
+
+        # separator and changers to other modes
         if self.Menu_spec:
             self.Menu_spec.append(None)
         self.Menu_spec.extend( [
@@ -1359,18 +1301,29 @@ class depositMode(basicMode):
 
         # Ninad asks whether we should add more elements to this [bruce 041103]
         self.Menu_spec_shift = [
-            ('Carbon', self.w.setCarbon),
+            ('(change pastable element:)', noop, 'disabled'), #bruce 050510
+            ('Carbon(sp3)', self.setCarbon_sp3), #e could make this a method on the atomtype, and give that a name or find it here
+            ('Carbon(sp2)', self.setCarbon_sp2),
             ('Hydrogen', self.w.setHydrogen),
             ('Oxygen', self.w.setOxygen),
             ('Nitrogen', self.w.setNitrogen) ]
 
         # Ninad says this is redundant, but I left it in; Josh should decide
         # for this mode [bruce 041103]
+        # (If this remains, shouldn't these cmds also first select just the selatom's chunk? [bruce 050510])
         self.Menu_spec_control = [
             ('Passivate', self.o.assy.modifyPassivate),
             ('Hydrogenate', self.o.assy.modifyHydrogenate),
             ('Dehydrogenate', self.o.assy.modifyDehydrogenate) ]
 
+    def setCarbon_sp3(self):
+        self.w.setCarbon() # MWsemantics shouldn't really be involved in this at all... at some point this will get revised
+        self.set_pastable_atomtype('sp3')
+    
+    def setCarbon_sp2(self):
+        self.w.setCarbon()
+        self.set_pastable_atomtype('sp2')
+            
     def setHotSpot_clipitem(self): #bruce 050416; duplicates some code from setHotSpot
         if self.o.selatom and self.o.selatom.element == Singlet:
             self.o.selatom.molecule.set_hotspot( self.o.selatom) ###e add history message??
@@ -1411,7 +1364,7 @@ class depositMode(basicMode):
             
             self.o.assy.shelf.addchild(new) # adds at the end
             self.o.assy.update_parts() # bruce 050316; needed when adding clipboard items.
-                # Is this soon enough for UpdateDashboard?? or does it matter if it comes first? #####@@@@@
+                # Is this soon enough for UpdateDashboard?? or does it matter if it comes first? ####@@@@
             
             # bruce 050121 don't change selection anymore; it causes too many bugs
             # to have clipboard items selected. Once my new model tree code is

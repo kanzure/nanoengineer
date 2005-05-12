@@ -15,60 +15,76 @@ Huaicai circa 050309 revised outer levels of structure, added support
 for loading and saving color/radius tables into files, added preferences code.
 [This comment added by bruce 050509.]
 
-Bruce circa 050509 made minor changes for higher-order bonds,
-did some reformatting, corrected some out-of-date comments or docstrings,
-removed some obsolete commented-out code.
+Bruce 050509 did some reformatting, corrected some out-of-date comments or
+docstrings, removed some obsolete commented-out code. (Committed 050510.)
+
+Bruce 050510 made some changes for "atomtypes" with their own bonding patterns.
 """
 __author__ = "Josh"
 
 from VQT import *
 from preferences import prefs_context
+from atomtypes import AtomType
 
 # == Elements, and periodic table
 
-class elem:
-    """one of these for each element type"""
-    def __init__(self, Elno, sym, n, m, rv, col, bn):
+class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since too common in strings/comments)
+    """There is exactly one of these objects for each supported element in the periodic table.
+    Its identity (as a python object) never changes during the run.
+    Instead, if prefs changes are made in color, radius, or perhaps bonding pattern,
+    this object's contents will be modified accordingly.
+    """
+    def __init__(self, eltnum, sym, name, mass, rvdw, color, bn):
         """called from a table in the source
-        
+
+        eltnum = atomic number (e.g. H is 1, C is 6); for Singlet this is 0
         sym = (e.g.) "H"
-        n = (e.g.) "Hydrogen"
-        m = atomic mass in e-27 kg
-        rv = van der Waals radius
-        col = color (RGB, 0-1)
+        name = (e.g.) "Hydrogen"
+        mass = atomic mass in e-27 kg
+        rvdw = van der Waals radius
+            [warning: vdw radius is used for display, and is changeable as a display preference!
+             If we ever need to use it for chemical purposes, we'll need a separate unchanging copy
+             for that!]
+        color = color (RGB, 0-1)
         bn = bonding info: list of triples:
              # of bonds in this form
              covalent radius (units of 0.01 Angstrom)
              info about angle between bonds, as an array of vectors
+             optional 4th item in the "triple": name of this bonding pattern, if it has one
         """
-        # bruce 041216 modified the above docstring
-        self.eltnum = Elno
+        # bruce 041216 and 050510 modified the above docstring
+        self.eltnum = eltnum
         self.symbol = sym
-        self.name = n
-        self.color = col
-        self.mass = m
-        self.rvdw = rv
-        self.rcovalent = bn and bn[0][1]/100.0
-        if not self.rcovalent:
-            self.rcovalent = 0.0
-        # (Note: rcovalent used to be None for nonbonding elements like Helium,
-        # which made most uses of it errors (e.g. when drawing bonds to Helium).
-        # Once we decided such bonds should be allowed to exist, we made it act
-        # like 0.0 in the drawing code, then replaced that with this more
-        # general change to 0.0, hoping to avoid possible other (hypothetical)
-        # bugs. As far as I know this is ok, but I have not fully analyzed every
-        # possible consequence of this change. [bruce 041217])
-        self.bonds = bn
-        self.numbonds = bn and bn[0][0]
-        if not self.numbonds:
-            self.numbonds = 0 # similar reason as above [bruce 041217]
-        self.base = None
-        self.quats = [] # ends up one shorter than self.numbonds [bruce 041217]
-        if bn and bn[0][2]:
-            s = bn[0][2][0]
-            self.base = s
-            for v in bn[0][2][1:]:
-                self.quats += [Q(s,v)]
+        self.name = name
+        self.color = color
+        self.mass = mass
+        self.rvdw = rvdw
+        ## self.bonds = bn # not needed anymore, I hope
+        if not bn: # e.g. Helium
+            bn = [[0, 0, None]]
+        valence = bn[0][0]
+        assert type(valence) == type(1)
+        assert valence in [0,1,2,3,4,5,6,7] # in fact only up to 4 is properly supported
+        self.atomtypes = map( lambda bn_triple: AtomType( self, bn_triple, valence ), bn ) # creates cyclic refs, that's ok
+            # This is a public attr. Client code should not generally modify it!
+            # But if we someday have add_atomtype method, it can append or insert,
+            # as long as it remembers that client code treats index 0 as the default atomtype for this element.
+            # Client code is not allowed to assume a given atomtype's position in this list remains constant!
+        return
+
+    def find_atomtype(self, atomtype_name): #bruce 050511
+        """Given an atomtype name or fullname (or an atomtype object itself)
+        for this element, return the atomtype object.
+        Raise an exception (various exception types are possible)
+        if no atomtype for this element matches the name (or equals the passed object).
+        Given None, return this element's default atomtype object.
+        """
+        if not atomtype_name: # permit None or "" for now
+            return self.atomtypes[0]
+        for atomtype in self.atomtypes: # in order from [0], though this should not matter since at most one should match
+            if atomtype.name == atomtype_name or atomtype.fullname == atomtype_name or atomtype == atomtype_name:
+                return atomtype # we're not bothering to optimize for atomtype_name being the same obj we return
+        assert 0, "%r is not a valid atomtype name or object for %s" % (atomtype_name, self.name)
 
     def __repr__(self):
         return "<Element: " + self.symbol + "(" + self.name + ")>"
@@ -88,7 +104,7 @@ class Singleton(object):
 
 class ElementPeriodicTable(Singleton):
     """Implement all elements related properties and functionality. Only one instance
-    will be availabe for the whole application. It's better to have 'class elem' as an
+    will be availabe for the whole application. It's better to have 'class Elem' as an
     inner class, so user will not be able to create an element him/her-self, which
     normally will cause trouble. By doing that, it makes our code more modular and
     bugs more localized, easier to test. Whenever any element color/rad changes,
@@ -149,9 +165,21 @@ class ElementPeriodicTable(Singleton):
                   ("Li", "Lithium",    11.525,  [[1, 152, None]]),
                   ("Be", "Beryllium",  14.964,  [[2, 114, None]]),
                   ("B",  "Boron",      17.949,  [[3, 90, flat]]),
-                  ("C",  "Carbon",     19.925,  [[4, 77, tetra4], [3, 71, flat],   [2, 66, straight], [1, 59, None]]),
-                  ("N",  "Nitrogen",   23.257,  [[3, 70, tetra3], [2, 62, tetra2], [1, 54.5, None] ]),
-                  ("O",  "Oxygen",     26.565,  [[2, 66, oxy2],   [1, 55, None]]),
+                  ("C",  "Carbon",     19.925,  [[4, 77, tetra4, 'sp3'],
+                                                 [3, 71, flat, 'sp2'],
+                                                 [2, 66, straight, 'sp'],
+                                                 ## [1, 59, None]
+                                                 #e name? what is this anyway?
+                                                 # I don't know how it could bond... let's leave it out for now. [bruce 050510]
+                                                 ]),
+                  ("N",  "Nitrogen",   23.257,  [[3, 70, tetra3, 'sp3'],
+                                                 [2, 62, tetra2, 'sp2'], # sp2??? wrong angles...
+                                                     #e note there is also an sp2 with 3 single bonds (graphitic)... how to rep it here?
+                                                 [1, 54.5, onebond, 'sp'],
+                                                 [3, 62, flat, 'sp2(graphitic)'], # this is just a guess! (for graphitic N) (and the 62 is made up)
+                                                 ]),
+                  ("O",  "Oxygen",     26.565,  [[2, 66, oxy2, 'sp3'],
+                                                 [1, 55, onebond, 'sp2']]), # sp2?
                   ("F",  "Fluorine",   31.545,  [[1, 64, onebond]]),
                   ("Ne", "Neon",       33.49,   None),
                   ("Na", "Sodium",     38.1726, [[1, 186, None]]),
@@ -212,7 +240,7 @@ class ElementPeriodicTable(Singleton):
         prefs = prefs_context()
         for elm in elmTable:
                 rad_color = prefs.get(elm[0], self._defaultRad_Color[elm[0]])
-                el = elem(startIndex, elm[0], elm[1], elm[2], rad_color[0], rad_color[1], elm[3])
+                el = Elem(startIndex, elm[0], elm[1], elm[2], rad_color[0], rad_color[1], elm[3])
                 startIndex += 1
                 self. _perodicalTable[el.eltnum] = el
                 self._eltName2Num[el.name] = el.eltnum
@@ -323,18 +351,16 @@ class ElementPeriodicTable(Singleton):
         return self._perodicalTable[eleNum].mass
     
     def getElemName(self, eleNum):
-        """Return the mass for element <eleNum> """
+        """Return the name for element <eleNum> """
         return self._perodicalTable[eleNum].name
         
-    def getElemBondCount(self, eleNum):
-        """Return the number of open bonds for element <eleNum>.
-        Currently, only for the single bond case. """
+    def getElemBondCount(self, eleNum, atomtype = None): #bruce 050511 fixed for atomtype changes, added atomtype option
+        """Return the number of open bonds for element <eleNum> (with no real bonds).
+        If atomtype is provided, use that atomtype, otherwise use the default atomtype
+        (i.e. assume all the open bonds should be single bonds).
+        """
         elem = self._perodicalTable[eleNum]
-        bond = elem.bonds
-        if bond:
-            return bond[0][0]
-        else:
-            return 0
+        return elem.atomtypes[0].numbonds
     
     def getElemSymbol(self, eleNum):
         """ <Param> eleNum: element index

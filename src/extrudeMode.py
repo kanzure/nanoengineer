@@ -1884,10 +1884,8 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
     res_bad = (False, None, None)
     a1 = singlet_atom(s1)
     a2 = singlet_atom(s2)
-    e1 = a1.element
-    e2 = a2.element
-    r1 = e1.rcovalent
-    r2 = e2.rcovalent
+    r1 = a1.atomtype.rcovalent
+    r2 = a2.atomtype.rcovalent
     dir1 = norm(s1.posn()-a1.posn())
     dir2 = norm(s2.posn()-a2.posn())
     # the open bond directions (from their atoms) should point approximately

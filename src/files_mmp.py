@@ -66,6 +66,13 @@ but do understand (and care about) bond1".)
 
 '050502 required; 050505 optional' -- bruce, adding "info chunk color".
 
+'050502 required; 050511 optional' -- bruce, adding "info atom atomtype".
+
+Strictly speaking, these are required in the sense that the atoms in the file
+will seem to have the wrong number of bonds if these are not understood. But since
+the file would still be usable to old code, and no altered file would be better
+for old code, we call these new records optional.
+
 ===
 
 General notes about when to change the mmp format version:
@@ -78,7 +85,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050505 optional' # replaces '050502 required'
+MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050511 optional'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
@@ -152,6 +159,7 @@ class _readmmp_state:
         self.isInsert = isInsert
         #bruce 050405 made the following from old _readmmp localvars, and revised their comments
         self.mol = None # the current molecule being built, if any [bruce comment 050228]
+        self.prevatom = None # the last atom read, if any [bruce 050511 added this initialization]
         self.ndix = {}
         topgroup = Group("__opengroup__", assy, None)
             #bruce 050405 topgroup holds toplevel groups (or other items) as members; replaces old code's grouplist
@@ -563,7 +571,8 @@ class _readmmp_state:
         currents = dict(
             chunk = self.mol,
             opengroup = self.groupstack[-1], #bruce 050421
-            leaf = ([None] + self.groupstack[-1].members)[-1] #bruce 050421
+            leaf = ([None] + self.groupstack[-1].members)[-1], #bruce 050421
+            atom = self.prevatom #bruce 050511
         )
         interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card
@@ -653,10 +662,11 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
         marker.kill()
     pass
 
-def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421
+def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 050511
     """Handle an info record 'card' being read from an mmp file;
     currents should be a dict from thingtypes to the current things of those types,
-    for all thingtypes which info records can give info about (so far, just 'chunk');
+    for all thingtypes which info records can give info about
+    (including 'chunk', 'opengroup', 'leaf', 'atom');
     interp should be an mmp_interp object #doc.
        The side effect of this function, when given "info <type> <name> = <val>",
     is to tell the current thing of type <type> (that is, the last one read from this file)
@@ -675,7 +685,7 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421
     what = what.strip() # e.g. "chunk xxx" for info of type xxx about the current chunk
     val = val.strip()
     what = what.split() # e.g. ["chunk", "xxx"], always 2 or more words
-    type = what[0] # as of 050421 this can be 'chunk' or 'opengroup' or 'leaf' ###k
+    type = what[0] # as of 050511 this can be 'chunk' or 'opengroup' or 'leaf' or 'atom'
     name = what[1:] # list of words (typically contains exactly one word, an attribute-name)
     thing = currents.get(type)
     if thing: # can be false if type not recognized, or if current one was None
@@ -903,7 +913,7 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
 
 def workaround_for_bug_296(assy, onepart = None):
 ##    print "not doing workaround_for_bug_296!"
-    return #####@@@@@ 050422
+    return #####@@@@@ 050422 -- SHOULD REMOVE THIS FUNCTION AND ALL CALLS TO IT
 ##    """If needed, move jigs in assy.tree and each assy.shelf member to later positions
 ##    (and emit appropriate messages about this),
 ##    since current mmp file format requires jigs to come after

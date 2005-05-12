@@ -43,6 +43,7 @@ from MoleculeProp import *
 from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413
 
+from HistoryWidget import orangemsg
 from debug import print_compact_stack, print_compact_traceback, compact_stack
 
 import platform # for atom_debug; note that uses of atom_debug should all grab it
@@ -102,7 +103,9 @@ def stringVec(v):
 # go in before doing the renaming at all, then define atom() to print a warning
 # and call Atom().
 
-class atom:
+from inval import InvalMixin #bruce 050510
+
+class atom(InvalMixin):
     """An atom instance represents one real atom, or one "singlet"
     (a place near a real atom where another atom could bond to it).
        At any time, each atom has an element, a position in space,
@@ -123,19 +126,37 @@ class atom:
     picked = 0
     display = diDEFAULT # rarely changed for atoms
     _modified_valence = False #bruce 050502
-    atomtype = None # atom (hybridization) type: one of 'sp3', 'sp2', 'sp', or something else...
-        # or None for not yet defined (e.g. this atom was just read from mmp file) ###@@@ use getattr??
-        # [bruce 050509, for initial implem of higher bond orders]
-    def __init__(self, sym, where, mol):
+    ## atomtype -- set when first demanded, or can be explicitly set using set_atomtype or set_atomtype_but_dont_revise_singlets
+    def __init__(self, sym, where, mol): #bruce 050511 allow sym to be elt symbol (as before), another atom, or an atomtype
         """Create an atom of element sym (e.g. 'C')
+        (or, same elt/atomtype as atom sym; or, same atomtype as atomtype sym)
         at location where (e.g. V(36, 24, 36))
         belonging to molecule mol (can be None).
         Atom initially has no bonds and default hybridization type.
         """
         # unique key for hashing
         self.key = atKey.next()
-        # element-type object
-        self.element = PeriodicTable.getElement(sym)
+        # self.element is an Elem object which specifies this atom's element
+        # (this will be redundant with self.atomtype when that's set,
+        #  but at least for now we keep it as a separate attr,
+        #  both because self.atomtype is not always set,
+        #  and since a lot of old code wants to use self.element directly)
+        atype = None
+        try:
+            self.element = sym.element
+                # permit sym to be another atom or an atomtype object -- anything that has .element
+            #e could assert self.element is now an Elem, but don't bother -- if not, we'll find out soon enough
+        except:
+            # this is normal, since sym is usually an element symbol like 'C'
+            self.element = PeriodicTable.getElement(sym)
+        else:
+            # sym was an atom or atomtype; use its atomtype for this atom as well (in a klugy way, sorry)
+            try:
+                atype = sym.atomtype # works if sym was an atom
+            except:
+                atype = sym
+            assert atype.element == self.element # trivial in one of these cases, should improve #e
+        
         # 'where' is atom's absolute location in model space,
         # until replaced with 'no' by shakedown, indicating
         # the location should be found using the formula in self.posn();
@@ -171,8 +192,55 @@ class atom:
             pass
         # (optional debugging code to show which code creates bad atoms:)
         ## if platform.atom_debug:
-        ##     self._source = compact_stack()        
+        ##     self._source = compact_stack()
+        if atype:
+            self.set_atomtype_but_dont_revise_singlets( atype)
         return # from atom.__init__
+
+    def atomtype_iff_set(self):
+        return self.__dict__.get('atomtype', None)
+    
+    _inputs_for_atomtype = []
+    def _recompute_atomtype(self):
+        """Something needs this atom's atomtype but it doesn't yet have one.
+        Give it our best guess of type, for whatever current bonds it has.
+        """
+        return self.reguess_atomtype()
+
+    def reguess_atomtype(self):
+        """Compute and return the best guess for this atom's atomtype
+        given its current real bonds and open bond user-assigned types
+        (but don't save this, and don't compare it to the current self.atomtype).
+        """
+        return self.element.atomtypes[0] ###@@@ stub. when it works, might use it in Transmute or even build_utils.
+
+    def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype*; perhaps use more widely
+        "#doc"
+        atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
+        assert atomtype.element == self.element # [redundant with find_atomtype]
+        self.atomtype = atomtype
+        ###e need any invals or updates for this method?? ###@@@
+        return
+        
+    def set_atomtype(self, atomtype, always_remake_singlets = False):
+        """[public method; not super-fast]
+        Set this atom's atomtype as requested, and do all necessary invalidations or updates,
+        including remaking our singlets as appropriate, and [###@@@ NIM] invalidating or updating bond valences.
+           It's ok to pass None (warning: this sets default atomtype even if current one is different!),
+        atomtype's name (specific to self.element) or fullname, or atomtype object. ###@@@ also match to fullname_for_msg()??? ###e
+        The atomtype's element must match the current value of self.element --
+        we never change self.element (for that, see mvElement).
+           Special case: if new atomtype would be same as existing one (and that is already set), do nothing
+        (rather than killing and remaking singlets, or even correcting their positions),
+        unless always_remake_singlets is true. [not sure if this will be used in atomtype-setting menu-cmds ###@@@]
+        """
+        # Note: mvElement sets self.atomtype directly; if it called this method, we'd have infrecur!
+        atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
+        assert atomtype.element == self.element # [redundant with find_atomtype] #e or transmute if not??
+        if always_remake_singlets or (self.atomtype_iff_set() != atomtype):
+            self.direct_Transmute( atomtype.element, atomtype ) ###@@@ not all its needed invals/updates are implemented yet
+            # note: self.atomtype = atomtype is done in direct_Transmute when it calls mvElement
+        return
 
     def posn(self):
         """Return the absolute position of the atom in space.
@@ -242,13 +310,6 @@ class atom:
             b.setup_invalidate()
         ###e we also need to invalidate jigs which care about their atoms' positions
         return
-
-##    def fix_hyb(self): # i mean atomtype
-##        """If self.hyb is set, make sure it's valid for this element type (and existing bonds???).
-##        If not, set it to default value for this element type (given existing bonds???).
-##        [return it??]
-##        """
-##        pass ###@@@ need this?
     
     def adjSinglets(self, atom, nupos):
         """We're going to move atom, a neighbor of yours, to nupos,
@@ -324,13 +385,12 @@ class atom:
 
     def bad(self): #bruce 041217 experiment
         "is this atom breaking any rules?"
-        elt = self.element
-        if elt == Singlet:
-            # should be correct, but this case won't be used as of 041217
+        if self.element == Singlet:
+            # should be correct, but this case won't be used as of 041217 [probably no longer needed even if used -- 050511]
             numbonds = 1
         else:
-            numbonds = elt.numbonds
-        return numbonds != len(self.bonds)
+            numbonds = self.atomtype.numbonds
+        return numbonds != len(self.bonds) ####@@@@ doesn't check bond valence at all... should it??
 
     def overdraw_with_special_color(self, color, level = None):
         "Draw this atom slightly larger than usual with the given special color and optional drawlevel."
@@ -483,6 +543,10 @@ class atom:
         print_fields = (num_str, eltnum,
            int(xyz[0]), int(xyz[1]), int(xyz[2]), disp)
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
+        #bruce 050511: also write atomtype if it's not the default
+        atype = self.atomtype_iff_set()
+        if atype and atype != self.element.atomtypes[0]:
+            mapping.write( "info atom atomtype = %s\n" % atype.name )
         # write only the bonds which have now had both atoms written
         #bruce 050502: write higher-valence bonds using their new mmp records,
         # one line per type of bond (only if we need to write any bonds of that type)
@@ -503,6 +567,25 @@ class atom:
         for valence, atomcodes in bondrecords:
             assert len(atomcodes) > 0
             mapping.write( bonds_mmprecord( valence, atomcodes ) + "\n")
+
+    def readmmp_info_atom_setitem( self, key, val, interp ): #bruce 050511
+        "For documentation, see docstring of an analogous method, such as readmmp_info_leaf_setitem."
+        if key == ['atomtype']:
+            # val should be the name of one of self.element's atomtypes (not an error if unrecognized)
+            try:
+                atype = self.element.find_atomtype(val)
+            except:
+                # didn't find it. (#e We ought to have a different API so a real error could be distinguished from that.)
+                if platform.atom_debug:
+                    print "atom_debug: fyi: info atom atomtype (in class atom) with unrecognized atomtype %r (not an error)" % (val,)
+                pass
+            else:
+                self.set_atomtype_but_dont_revise_singlets( atype)
+                    # don't add singlets, since this mmp record comes before the bonds, including bonds to singlets
+        else:
+            if platform.atom_debug:
+                print "atom_debug: fyi: info atom (in class atom) with unrecognized key %r (not an error)" % (key,)
+        return
     
     # write to a povray file:  draw a single atom
     def writepov(self, file, dispdef, col):
@@ -588,8 +671,13 @@ class atom:
         if self == self.molecule.assy.ppa2: return
             
         xyz = self.posn()
-        ainfo = ("Atom %s [%s] [X = %.3f] [Y = %.3f] [Z = %.3f]" % \
-            ( self, self.element.name, xyz[0], xyz[1], xyz[2] ))
+
+        atype_string = ""
+        if len(self.element.atomtypes) > 1: #bruce 050511
+            atype_string = "(%s) " % self.atomtype.name
+
+        ainfo = ("Atom %s %s[%s] [X = %.3f] [Y = %.3f] [Z = %.3f]" % \
+            ( self, atype_string, self.element.name, xyz[0], xyz[1], xyz[2] ))
         
         # ppa2 is the previously picked atom.  ppa3 is the atom picked before ppa2.
         # They are both reset to None when entering SELATOMS mode.
@@ -631,12 +719,12 @@ class atom:
             self.molecule.assy.ppa3 = self.molecule.assy.ppa2 
         
         # ppa2 is self for next atom picked.
-        self.molecule.assy.ppa2 = self 
+        self.molecule.assy.ppa2 = self
             
-        if len(self.bonds) != self.element.numbonds:
+        if len(self.bonds) != self.atomtype.numbonds:
             # I hope this can't be called for singlets! [bruce 041217]
             ainfo += platform.fix_plurals(" (has %d bond(s), should have %d)" % \
-                                          (len(self.bonds), self.element.numbonds))
+                                          (len(self.bonds), self.atomtype.numbonds))
         return ainfo
 
     def pick(self):
@@ -809,10 +897,11 @@ class atom:
 
     singletNeighbors = singNeighbors #bruce 050404, soon should just rename it and all the uses ###e ###@@@
     
-    def mvElement(self, elt):
+    def mvElement(self, elt, atomtype = None): #bruce 050511 added atomtype arg
         """[Public low-level method:]
         Change the element type of this atom to element elt
         (an element object for a real element, not Singlet),
+        and its atomtype to atomtype (which if provided must be an atomtype for elt),
         and do the necessary invalidations (including if the
         *prior* element type was Singlet).
            Note: this does not change any atom or singlet positions, so callers
@@ -820,22 +909,34 @@ class atom:
         It does not even delete or add extra singlets to match the new element
         type; for that, use atom.Transmute.
         """
-        if (self.element == Singlet) != (elt == Singlet):
-            # set of singlets is changing
-            #bruce 050224: fix bug 372 by invalidating singlets
-            self.molecule.invalidate_attr('singlets')
+        if atomtype == None:
+            atomtype = elt.atomtypes[0]
+            # Note: we do this even if self.element == elt and self.atomtype != elt.atomtypes[0] !
+            # That is, passing no atomtype is *always* equivalent to passing elt's default atomtype,
+            # even if this results in changing this atom's atomtype but not its element.
+        assert atomtype.element == elt
         if platform.atom_debug:
             if elt == Singlet: #bruce 041118
                 # this is unsupported; if we support it it would require
                 # moving this atom to its neighbor atom's chunk, too
                 # [btw we *do* permit self.element == Singlet before we change it]
                 print "atom_debug: fyi, bug?: mvElement changing %r to a singlet" % self
-        if self.element == elt:
+        if self.atomtype_iff_set() == atomtype:
+            assert self.element == elt # i.e. assert that self.element and self.atomtype were consistent
             if platform.atom_debug: #bruce 050509
-                print "atom_debug: fyi, bug?: mvElement changing %r to its existing element type" % self
-            return #bruce 050509, not 100% sure it's correct, but if not, caller probably has a bug (eg replies on our invals)        
+                print_compact_stack( "atom_debug: fyi, bug?: mvElement changing %r to its existing element and atomtype" % self )
+            return #bruce 050509, not 100% sure it's correct, but if not, caller probably has a bug (eg relies on our invals)
+        # now we're committed to doing the change
+        if (self.element == Singlet) != (elt == Singlet):
+            # set of singlets is changing
+            #bruce 050224: fix bug 372 by invalidating singlets
+            self.molecule.invalidate_attr('singlets')
         self.changed() #bruce 050509
         self.element = elt
+        self.atomtype = atomtype
+            # note: we have to set self.atomtype directly -- if we used set_atomtype,
+            # we'd have infrecur since it calls *us*! [#e maybe this should be revised??]
+            # (would it be ok to call set_atomtype_but_dont_revise_singlets?? #k)
         for b in self.bonds:
             b.setup_invalidate()
         self.molecule.changeapp(1)
@@ -991,10 +1092,17 @@ class atom:
             it_to_me_direction = norm( me - it )
             it_to_me_direction = norm( it_to_me_direction )
                 # for original len close to 0, this might help make new len 1 [bruce 050404]
-        my_elem = pretend_I_am or self.element
-        its_elem = neighbor.element
-        # assume bond-type is single bond for now
-        newlen = my_elem.rcovalent + its_elem.rcovalent #k Singlet.rcovalent better be 0, check this
+        if pretend_I_am: #bruce 050511 revised for atomtype
+            ## my_elem = pretend_I_am # not needed
+            my_atype = pretend_I_am.atomtypes[0] # even if self.element == pretend_I_am
+        else:
+            ## my_elem = self.element
+            my_atype = self.atomtype
+        ## its_elem = neighbor.element # not needed
+        its_atype = neighbor.atomtype
+            # presently we ignore the bond-valence between us and that neighbor atom,
+            # even if this can vary for different bonds to it (for the atomtype it has)
+        newlen = my_atype.rcovalent + its_atype.rcovalent #k Singlet.atomtypes[0].rcovalent better be 0, check this
         return it + newlen * it_to_me_direction
         
     def Dehydrogenate(self):
@@ -1038,10 +1146,10 @@ class atom:
         # but we'll still use it since it's better tested and faster.
         o = self.bonds[0].other(self)
         op = o.posn()
-        np = norm(self.posn()-op)*o.element.rcovalent + op
+        np = norm(self.posn()-op)*o.atomtype.rcovalent + op
         self.setposn(np) # bruce 041112 rewrote last line
 
-    def Passivate(self):
+    def Passivate(self): ###@@@ not yet modified for atomtypes since it's not obvious what it should do! [bruce 050511]
         """[Public method, does all needed invalidations:]
         Change the element type of this atom to match the number of
         bonds with other real atoms, and delete singlets.
@@ -1146,48 +1254,87 @@ class atom:
         print "atom.update_everything() does nothing"
         return
 
-    def Transmute(self, elt, force = False): #bruce 041215, written to fix bug 131
+    def Transmute(self, elt, force = False, atomtype = None): #bruce 050511 added atomtype arg  ###@@@ callers should pass atomtype
+        ###@@@ review semantics/docstring for atomtype
         """[Public method, does all needed invalidations:]
         If this is a real atom, change its element type to elt (not Singlet),
+        and its atomtype to the atomtype object passed,
+        or if none is passed to elt's default atomtype or self's existing one (not sure which!###@@@),
         and replace its singlets (if any) with new ones (if any are needed)
-        to match the desired number of bonds for the new element type.
+        to match the desired number of bonds for the new element/atomtype.
+        [As of 050511 before atomtype arg added, new atom type is old one if elt is same and
+         old one already correct, else is default atom type. This needs improvement. ###@@@]
         Never remove real bonds, even if there are too many. Don't change
         bond lengths (except to replaced singlets) or atom positions.
         If there are too many real bonds for the new element type, refuse
         to transmute unless force is True.
         """
+        ##print "transmute called, self.atomtype_iff_set is %r" % self.atomtype_iff_set()
+        ##print "transmute called, elt atomtype = %r %r, self attrs for those are %r, %r" % (elt, atomtype, self.element, self.atomtype) 
         if self.element == Singlet:
+            # does this ever happen? #k
             return
-        if self.element == elt and len(self.bonds) == elt.numbonds:
-            # leave existing singlet positions alone, if right number
+        if atomtype == None:
+            if self.element == elt and len(self.bonds) == self.atomtype.numbonds:
+                ## this code might be used if we don't always return due to bond valence: ###@@@
+                ## atomtype = self.atomtype # use current atomtype if we're correct for it now, even if it's not default atomtype
+                return # since elt and desired atomtype are same as now and we're correct
+            else:
+                atomtype = elt.atomtypes[0] # use default atomtype of elt
+                ##print "transmute picking this dflt atomtype", atomtype 
+        assert atomtype.element == elt
+        # in case a specific atomtype was passed or the default one was chosen,
+        # do another check to return early if requested change is a noop and our bond count is correct
+        if self.element == elt and self.atomtype == atomtype and len(self.bonds) == atomtype.numbonds:
+            # leave existing singlet positions alone in this case -- not sure this is best! ###@@@ #e review
+            ##print "transmute returning since noop to change to these: %r %r" % (elt, atomtype)
             return
-        nbonds = len(self.realNeighbors())
-        if nbonds > elt.numbonds:
-            # transmuting would break valence rules
+        # now we're committed to changing things
+        nbonds = len(self.realNeighbors()) ###@@@ should also consider the bond-valence to them...
+        if nbonds > atomtype.numbonds:
+            # transmuting would break valence rules [###@@@ should instead use a different atomtype, if possible!]
+            ###@@@ but a more normal case for using different one is if existing bond *valence* is too high...
+            # note: this msg (or msg-class, exact text can vary) can get emitted too many times in a row.
+            name = atomtype.fullname_for_msg()
             if force:
-                msg = "warning: Transmute broke valence rules, made (e.g.) %s with %d bonds" % (elt.name, nbonds)
-                self.molecule.assy.w.history.message(msg)
+                msg = "warning: Transmute broke valence rules, made (e.g.) %s with %d bonds" % (name, nbonds)
+                self.molecule.assy.w.history.message( orangemsg(msg) )
                 # fall through
             else:
-                msg = "warning: Transmute refused to make (e.g.) a %s with %d bonds" % (elt.name, nbonds)
-                self.molecule.assy.w.history.message(msg)
+                msg = "warning: Transmute refused to make (e.g.) a %s with %d bonds" % (name, nbonds)
+                self.molecule.assy.w.history.message( orangemsg(msg) )
                 return
-        # in all other cases, replace all singlets with 0 or more new ones
-        for atm in self.singNeighbors():
-            atm.kill()
-                # (since atm is a singlet, this doesn't replace it with a singlet)
-        self.mvElement(elt)
-        self.make_enough_singlets()
+        # in all other cases, do the change (even if it's a noop) and also replace all singlets with 0 or more new ones
+        self.direct_Transmute( elt, atomtype)
+        return
 
-    def make_enough_singlets(self): #bruce 041215, written to fix bug 131
+    def direct_Transmute(self, elt, atomtype): #bruce 050511 split this out of Transmute
+        """[Public method, does all needed invalidations:]
+        With no checks except that the operation is legal,
+        kill all singlets, change elt and atomtype
+        (both must be provided and must match), and make new singlets.
+        """
+        for atm in self.singNeighbors():
+            atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
+        self.mvElement(elt, atomtype)
+        self.make_enough_singlets()
+        return # from direct_Transmute
+
+    def remake_singlets(self): #bruce 050511
+        for atm in self.singNeighbors():
+            atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
+        self.make_enough_singlets()
+        return # from remake_singlets
+
+    def make_enough_singlets(self): #bruce 050510 extending this to use atomtypes; all subrs still need to set singlet valence ####@@@@
         """[Public method, does all needed invalidations:]
         Add 0 or more singlets to this real atom, until it has as many bonds
-        as its element type prefers (but at most 4, since we use special-case
+        as its element and atom type prefers (but at most 4, since we use special-case
         code whose knowledge only goes that high). Add them in good positions
         relative to existing bonds (if any) (which are not changed, whether
         they are real or open bonds).
         """
-        if len(self.bonds) >= self.element.numbonds:
+        if len(self.bonds) >= self.atomtype.numbonds:
             return # don't want any more bonds
         # number of existing bonds tells how to position new open bonds
         # (for some n we can't make arbitrarily high numbers of wanted open
@@ -1208,17 +1355,17 @@ class atom:
     # the make_singlets methods were split out of the private depositMode methods
     # (formerly called bond1 - bond4), to help implement atom.Transmute [bruce 041215]
 
-    def make_singlets_when_no_bonds(self):
+    def make_singlets_when_no_bonds(self): #bruce 050511 partly revised this for atomtypes
         "[private method; see docstring for make_singlets_when_2_bonds]"
         # unlike the others, this was split out of oneUnbonded [bruce 041215]
-        elem = self.element
-        if elem.bonds and elem.bonds[0][2]:
-            r = elem.rcovalent
+        atype = self.atomtype
+        if atype.bondvectors:
+            r = atype.rcovalent
             pos = self.posn()
             mol = self.molecule
-            for dp in elem.bonds[0][2]:
+            for dp in atype.bondvectors:
                 x = atom('X', pos+r*dp, mol)
-                mol.bond(self,x)
+                bond_atoms(self,x) ###@@@ set valence? or update it later?
         return
     
     def make_singlets_when_1_bond(self):
@@ -1227,15 +1374,15 @@ class atom:
         ## its value is 0.85065080835203999; where does it come from? it hide bugs. ###@@@
         assert len(self.bonds) == 1
         assert not self.is_singlet()
-        el = self.element
-        if len(el.quats): #bruce 041119 revised to support "onebond" elements
+        atype = self.atomtype
+        if len(atype.quats): #bruce 041119 revised to support "onebond" elements
             # There is at least one other bond we should make (as open bond);
             # this rotates the atom to match the existing bond
             pos = self.posn()
             s1pos = self.bonds[0].ubp(self)
             r = s1pos - pos
             del s1pos # same varname used differently below
-            rq = Q(r,el.base)
+            rq = Q(r,atype.base)
             # if the other atom has any other bonds, align 60 deg off them
             # [bruce 041215 comment: might need revision if numbonds > 4]
             a1 = self.bonds[0].other(self) # our real neighbor
@@ -1245,54 +1392,54 @@ class atom:
                     a2pos = a1.bonds[1].other(a1).posn()
                 else:
                     a2pos = a1.bonds[0].other(a1).posn()
-                s1pos = pos+(rq + el.quats[0] - rq).rot(r)
+                s1pos = pos+(rq + atype.quats[0] - rq).rot(r)
                 spin = twistor(r,s1pos-pos, a2pos-a1.posn()) + Q(r, pi/3.0)
             else: spin = Q(1,0,0,0)
             mol = self.molecule
-            for q in el.quats:
+            for q in atype.quats:
                 q = rq + q - rq - spin
                 x = atom('X', pos+q.rot(r), mol)
-                mol.bond(self,x)
+                bond_atoms(self,x)
         return
         
-    def make_singlets_when_2_bonds(self):
+    def make_singlets_when_2_bonds(self): #bruce 050511 updating this (and sister methods) for atom types
         """[private method for make_enough_singlets:]
         Given an atom with exactly 2 real bonds (and no singlets),
-        see if it wants more bonds (due to its element type),
-        and make extra singlets if so,
+        see if it wants more bonds (due to its atom type),
+        and make extra singlets if so, [###@@@ with what valence?]
         in good positions relative to the existing real bonds.
         Precise result might depend on order of existing bonds in self.bonds.
         """
         assert len(self.bonds) == 2 # usually both real bonds; doesn't matter
-        el = self.element
-        if el.numbonds <= 2: return # optimization
+        atype = self.atomtype
+        if atype.numbonds <= 2: return # optimization
         # rotate the atom to match the 2 bonds it already has
         # (i.e. figure out a suitable quat -- no effect on atom itself)
         pos = self.posn()
         s1pos = self.bonds[0].ubp(self)
         s2pos = self.bonds[1].ubp(self)
         r = s1pos - pos
-        rq = Q(r,el.base)
+        rq = Q(r,atype.base)
         # this moves the second bond to a possible position;
         # note that it doesn't matter which bond goes where
-        q1 = rq + el.quats[0] - rq
+        q1 = rq + atype.quats[0] - rq
         b2p = q1.rot(r)
         # rotate it into place
         tw = twistor(r, b2p, s2pos - pos)
         # now for all the rest
         # (I think this should work for any number of new bonds [bruce 041215])
         mol = self.molecule
-        for q in el.quats[1:]:
+        for q in atype.quats[1:]:
             q = rq + q - rq + tw
             x = atom('X', pos+q.rot(r), mol)
-            mol.bond(self,x)
+            bond_atoms(self,x)
         return
 
     def make_singlets_when_3_bonds(self):
         "[private method; see docstring for make_singlets_when_2_bonds]"
         assert len(self.bonds) == 3
-        el = self.element
-        if el.numbonds > 3:
+        atype = self.atomtype
+        if atype.numbonds > 3:
             # bruce 041215 to fix a bug (just reported in email, no bug number):
             # Only do this if we want more bonds.
             # (But nothing is done to handle more than 4 desired bonds.
@@ -1313,10 +1460,10 @@ class atom:
                 if platform.atom_debug:
                     print "atom_debug: fyi: self at center of its neighbors (more or less)",self,self.bonds
                 dir = norm(cross(s1pos-pos,s2pos-pos)) ###@@@ need to test this!
-            opos = pos + el.rcovalent*dir
+            opos = pos + atype.rcovalent*dir
             mol = self.molecule
             x = atom('X', opos, mol)
-            mol.bond(self,x)
+            bond_atoms(self,x)
         return
 
     pass # end of class atom
@@ -1325,17 +1472,21 @@ def singlet_atom(singlet):
     "return the atom a singlet is bonded to, checking assertions"
     return singlet.singlet_neighbor()
 
-def oneUnbonded(elem, assy, pos):
-    """[bruce comment 040928:] create one unbonded atom, of element elem,
-    at position pos, in its own new molecule."""
+def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype option
+    """Create one unbonded atom, of element elem
+    and (if supplied) the given atomtype (otherwise the default atomtype for elem),
+    at position pos, in its own new chunk.
+    """
     # bruce 041215 moved this from chunk.py to chem.py, and split part of it
     # into the new atom method make_singlets_when_no_bonds, to help fix bug 131.
     mol = molecule(assy, 'bug') # name is reset below!
     atm = atom(elem.symbol, pos, mol)
     # bruce 041124 revised name of new mol, was gensym('Chunk.');
     # no need for gensym since atom key makes the name unique, e.g. C1.
+    atm.set_atomtype_but_dont_revise_singlets(atomtype) # ok to pass None, type name, or type object; this verifies no change in elem
+        # note, atomtype might well already be the value we're setting; if it is, this should do nothing
     mol.name = "Chunk-%s" % str(atm)
-    atm.make_singlets_when_no_bonds()
+    atm.make_singlets_when_no_bonds() # notices atomtype
     assy.addmol(mol)
     return atm
 
