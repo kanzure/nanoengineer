@@ -26,6 +26,7 @@ from qt import *
 import sys, os, time
 import platform # for atom_debug, and more
 from debug import DebugMenuMixin
+from constants import noop
 
 
 # [formatters by Mark; moved into this file by bruce 050107;
@@ -119,7 +120,34 @@ class History_QTextEdit(QTextEdit, DebugMenuMixin):
     def repaint(self, *args):
         print "repaint, %r" % args # this is not being called, even though we're getting PaintEvents above.
         return QTextEdit.repaint(*args)
-    pass
+    def debug_menu_items(self):
+        "overrides method from DebugMenuMixin"
+        super = DebugMenuMixin
+        usual = super.debug_menu_items(self)
+            # list of (text, callable) pairs, None for separator
+        ours = [
+                ## ("reload modules and remake widget", self._reload_and_remake),
+                ## ("(treewidget instance created %s)" % self._init_time, lambda x:None, 'disabled'),
+                ## ("history widget debug menu", noop, 'disabled'),
+                ]
+        ## ours.append(None)
+        ours.extend(usual)
+        #e more new ones on bottom?
+        ## [not yet working:]
+        ## ours.append(("last colored text", self._debug_find_last_colored_text))
+        return ours
+    def _debug_find_last_colored_text(self): #bruce 050509 experiment; not yet working
+        "search backwards for the last item of colored text"
+        case_sensitive = True
+        word_only = False
+        forward = False
+        lookfor = "<span style=\"color:#" # limit this to error or warning? problem: this even finds "gray" timestamps.
+            # that is, it *should* find them, but in fact it doesn't seem to work at all -- it doesn't move the cursor.
+            # Could it be that it's not looking in the html, only in the main text? Yes -- it finds this if it's in main text!
+            # So I should have it look for something recognizable other than color, maybe "] error" or "] warning". ###e
+        # first back up a bit??
+        self.find( lookfor, case_sensitive, word_only, forward) # modifies cursor position; could pass and return para/index(??)
+    pass # end of class History_QTextEdit
     
 class HistoryWidget:
     # - Someday we're likely to turn this widget into a frame with buttons.
@@ -202,7 +230,7 @@ class HistoryWidget:
             ff = "this module's"
             tt = "<exception discarded>"
         self._print_msg("atom_debug: %s modtime is %s" % (ff,tt))
-    
+
     def _append(self, something): ###e perhaps split into append_text, append_html, and append_msg
         """[private method] Append some text to the widget and the optional history file.
         The text is not processed except to add newlines as needed.
