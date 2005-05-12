@@ -801,10 +801,14 @@ class Node:
         # [they are all comments! well, those are useful too... and less likely to cause new bugs (soon anyway) than actual code!]
     
     def hide(self):
+        if not self.hidden:
+            self.changed() #bruce 050512 part of fixing bug 614
         self.hidden = True
         self.unpick()
         
     def unhide(self):
+        if self.hidden:
+            self.changed() #bruce 050512 part of fixing bug 614
         self.hidden = False
 
     def apply2all(self, fn):

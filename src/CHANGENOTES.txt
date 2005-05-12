@@ -430,3 +430,10 @@ Summary: introduced "atom types" (very incomplete); part of the new bonds ontolo
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/12/2005
+Files: Utility.py
+Summary: fixed bug 614 - Hide/Unhide now mark file as needing save (probably too minor for release notes)
+
+----------------------------
+
