@@ -407,11 +407,26 @@ Summary: chunk color now saved in mmp file.
 
 ----------------------------
 
-
 Name: Bruce Smith
 Date: 5/10/2005
 Files: chem.py
 Summary: fixed bug 466: Transmute now sets file-modified flag.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/11/2005
+Files: ops_atoms.py
+Summary: fix bug 376 (only tested for no traceback, not correctness)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/11/2005
+Files: lots
+Summary: introduced "atom types" (very incomplete); part of the new bonds ontology
+
+(see mail to cad for details: CHECKIN mail has list of files, prior mail has explanation)
 
 ----------------------------
 
