@@ -878,6 +878,7 @@ class TreeView(QListView):
         if not item:
             if platform.atom_debug:
                 print "atom_debug: fyi: MT node with no item (still waiting for MT.update Qt event?)"
+            return
         # bruce 050512 continues: Worse, it can happen that item is no longer valid -- the first time we call a method on it,
         # we get an exception from PyQt "RuntimeError: underlying C/C++ object has been deleted". My bug 620 comments give
         # details on that as well. Let's check this here with a harmless method and get it over with:
@@ -886,6 +887,7 @@ class TreeView(QListView):
         except:
             if platform.atom_debug:
                 print "atom_debug: fyi: MT node with invalid item (still waiting for MT.update Qt event?)"
+            return
         # Now it should be safe to use item.
         if do_setOpen:
             if node.openable(): ###e needs cleanup: use node_isOpen/isOpenable split from current item_ methods
