@@ -23,6 +23,8 @@ and split it into three modules:
 
 debug_painting = 0 ###@@@ DO NOT COMMIT with 1
 
+debug_mt_updates = 0 ###@@@ DO NOT COMMIT with 1
+
 debug_prints = 0 # whether atom_debug enables dprint; ok to commit with 0 or 1
 
 ###@@@ some of these imports are only needed by subclasses
@@ -137,6 +139,8 @@ class TreeView(QListView):
         that node can be passed as a second argument as a possible optimization
         (though as of 050113 the current implem does not take advantage of this).
         """
+        if debug_mt_updates:
+            print "debug_mt_updates: mt_update called"
         self.needs_update_state = 1 # we'll respond to this in our custom method during the next paintEvent
         if not self.isUpdatesEnabled():
             if platform.atom_debug:
@@ -283,9 +287,9 @@ class TreeView(QListView):
         # - doesn't prevent its top column label from being drawn
         # - doesn't prevent regular PaintEvent from happening.
 
-##        if self.debug_dragstuff: #####@@@@@ KLUGE: this is defined only by a subclass TreeWidget
+##        if self.debug_dragstuff: ####@@@@ KLUGE: this is defined only by a subclass TreeWidget
 ##            rect = event.rect() # QPaintEvent method: the rect we need to update ###k do we see these during autoscroll? Yes! Good.
-##            print "viewportPaintEvent with rect:",rect.left(),rect.top(),rect.width(),rect.height() #####@@@@@
+##            print "viewportPaintEvent with rect:",rect.left(),rect.top(),rect.width(),rect.height() ####@@@@
 ##            # we might just override this in TreeWidget so it can do its extra drawing on top, during drag & drop.
         self.update_state_iff_needed( event)
 
@@ -457,6 +461,8 @@ class TreeView(QListView):
         # and it says other things which lead me to guess
         # that it might avoid infrecur from repaint by QListView,
         # and even if not, might reduce screen flicker or other problems.
+        if debug_mt_updates:
+            print "debug_mt_updates: update_state called"
         old_UpdatesEnabled = self.isUpdatesEnabled()
         if not old_UpdatesEnabled:
             self.dprint( "atom_debug: not old_UpdatesEnabled") # error?
@@ -469,6 +475,8 @@ class TreeView(QListView):
         #e should be no need to do an update right here, since we're only
         # called when a repaint is about to happen! But an updateContents
         # might be good, here or in the sole caller or grandcaller. ###@@@
+        if debug_mt_updates:
+            print "debug_mt_updates: update_state returning normally"
         return
 
     def update_state_0( self, paintevent):
@@ -858,7 +866,27 @@ class TreeView(QListView):
         # useful in our treemaker too i guess.
         listview = self
         item = self.nodeItem(node)
-        assert item
+        #bruce 050512 re bug 620: it can happen that item is None because node is newly made
+        # since the last time the MT was fully updated. To fix comment#0 of that bug, check for this.
+        # For details of how that can happen, see my comments in that bug report. Roughly, if you click
+        # in MT while waiting for a long op to finish which at the end needs to remake MT and does so by
+        # calling mt_update, it happens because Qt first processes our click, then the mt update event.
+        # [#e One better fix might be to remake the MT at the end of the user event that messed up the nodes it shows.
+        # Then this would happen before the click was processed so it'd be up to date... we might still want to
+        # detect this and discard that click in case it was on the wrong item. Anyway that's all NIM for now.
+        # Another fix would be to scan the item-tree here (as last made from a node-tree), not the new node-tree. #e]
+        if not item:
+            if platform.atom_debug:
+                print "atom_debug: fyi: MT node with no item (still waiting for MT.update Qt event?)"
+        # bruce 050512 continues: Worse, it can happen that item is no longer valid -- the first time we call a method on it,
+        # we get an exception from PyQt "RuntimeError: underlying C/C++ object has been deleted". My bug 620 comments give
+        # details on that as well. Let's check this here with a harmless method and get it over with:
+        try:
+            item.text(0) # returns text in column 0
+        except:
+            if platform.atom_debug:
+                print "atom_debug: fyi: MT node with invalid item (still waiting for MT.update Qt event?)"
+        # Now it should be safe to use item.
         if do_setOpen:
             if node.openable(): ###e needs cleanup: use node_isOpen/isOpenable split from current item_ methods
                 item.setExpandable(True) #bruce 050128 bugfix
@@ -870,7 +898,7 @@ class TreeView(QListView):
         ## old: listview.setSelected(item, node.picked)
         item.setSelected(node.picked)
         item.repaint()
-        if hasattr(node, 'members'): # clean this up... won't be enough for PartGroup! ####@@@@
+        if hasattr(node, 'members'): # clean this up... won't be enough for PartGroup! ###@@@
             if not do_invisible_nodes:
                 # if the members are not visible now, don't update them now (optim, I guess)
                 if not (node.openable() and getattr(node,'open',False)):

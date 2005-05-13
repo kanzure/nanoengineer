@@ -437,3 +437,10 @@ Summary: fixed bug 614 - Hide/Unhide now mark file as needing save (probably too
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/12/2005
+Files: TreeView.py
+Summary: fixed bug 620 - exceptions in MT when clicked while waiting for long op to complete
+
+----------------------------
+
