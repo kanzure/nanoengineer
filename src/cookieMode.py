@@ -86,7 +86,13 @@ class cookieMode(basicMode):
         self.ctrlPanel.restoreGui()
         
         if not self.savedOrtho:
-            self.w.setViewPerspecAction.setOn(True) 
+            self.w.setViewPerspecAction.setOn(True)
+            
+        #Restore GL states
+        self.o.redrawGL = True
+        glDisable(GL_COLOR_LOGIC_OP)
+        glEnable(GL_DEPTH_TEST)
+            
     
     
     def setFreeView(self, freeView):
@@ -164,6 +170,7 @@ class cookieMode(basicMode):
         self.o.shape = None
         # it's mostly a matter of taste whether to put this statement into StateCancel, restore_patches, or clear()...
         # it probably doesn't matter in effect, in this case. To be safe (e.g. in case of Abandon), I put it in more than one place.
+        
         return None
    
         
@@ -593,15 +600,21 @@ class cookieMode(basicMode):
     
     
     def _getXorColor(self, color):
-        """Get color for <color>.  When the color is XORed with background color, it will get <color>
+        """Get color for <color>.  When the color is XORed with background color, it will get <color>. If background color is close to <color>
+        , we'll use white color. 
         """
-        rgb = []
-        for ii in range(3):
-            f = int(color[ii]*255)
-            b = int(self.backgroundColor[ii]*255)
-            rgb += [(f ^ b)/255.0]
-        
-        return rgb    
+        bg = self.backgroundColor
+        diff = vlen(A(color)-A(bg))
+        if diff < 0.5:
+            return (1-bg[0], 1-bg[1], 1-bg[2])
+        else:
+            rgb = []
+            for ii in range(3):
+                f = int(color[ii]*255)
+                b = int(bg[ii]*255)
+                rgb += [(f ^ b)/255.0]
+            
+            return rgb    
  
     def pickdraw(self, lastDraw = False):
         """selection curve draw"""

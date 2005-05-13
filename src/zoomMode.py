@@ -22,13 +22,11 @@ class zoomMode(basicMode):
         # Set background color to the previous mode's bg color
         bg = self.backgroundColor = self.o.prevModeColor
         
-        # Set RBW color based on brightness of bg color
-        #brightness = bg[0] + bg[1] + bg[2]
-        #if brightness >= 1.5: self.rbwcolor = navy
-        #else: self.rbwcolor = white
-        ## Set RBW color as the same as bg color, then it will draw as black 
-        ## Set it as white
-        self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
+        # rubber window shows as white color normally, but when the
+        # background becomes bright, we'll set it as black.
+        brightness = bg[0] + bg[1] + bg[2]
+        if brightness > 1.5: self.rbwcolor = bg
+        else: self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
         
         self.glStatesChanged = False
         

@@ -625,20 +625,21 @@ class CookieShape(shape):
     def undo(self, currentLayer):
         """This would work for shapes, if anyone called it.
         """
-        curves = self.layeredCurves[currentLayer]
-        if len(curves) > 1: 
-            curves = curves[:-1]
-        self._updateBBox(curves)
-        self.layeredCurves[currentLayer] = curves
-        
-        ##Kludge to make the undo work.
-        self.carbonPosDict[currentLayer] = {} 
-        self.hedroPosDict[currentLayer] = {}
-        self.bondLayers[currentLayer] = {}
-        for c in curves[1:]:
-            self._cutCookie(currentLayer, c)
-        
-        self.havelist = 0
+        if self.layeredCurves.has_key(currentLayer):
+            curves = self.layeredCurves[currentLayer]
+            if len(curves) > 1: 
+                curves = curves[:-1]
+            self._updateBBox(curves)
+            self.layeredCurves[currentLayer] = curves
+            
+            ##Kludge to make the undo work.
+            self.carbonPosDict[currentLayer] = {} 
+            self.hedroPosDict[currentLayer] = {}
+            self.bondLayers[currentLayer] = {}
+            for c in curves[1:]:
+                self._cutCookie(currentLayer, c)
+            
+            self.havelist = 0
 
     def clear(self, currentLayer):
         """This would work for shapes, if anyone called it.
