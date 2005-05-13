@@ -1901,10 +1901,14 @@ class molecule(Node, InvalMixin):
         # by making debug-prints trigger recomputes.
         if self == _nullMol:
             return "<_nullMol>"
-        elif self.assy:
-            return "<Chunk (%d atoms) at %#x>" % (len(self.atoms), id(self))
+        try:
+            name = "%r" % self.name
+        except:
+            name = "(exception in self.name repr)"
+        if self.assy:
+            return "<Chunk %s (%d atoms) at %#x>" % (name, len(self.atoms), id(self))
         else:
-            return "<Chunk, KILLED (no assy), at %#x of %d atoms>" % (id(self), len(self.atoms)) # note other order
+            return "<Chunk %s, KILLED (no assy), at %#x of %d atoms>" % (name, id(self), len(self.atoms)) # note other order
         pass
 
     def dump(self):
