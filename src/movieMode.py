@@ -240,7 +240,7 @@ def simMoviePlayer(assy):
     # no valid current movie, look for saved one with same name as assy
     ## history.message("Plot Tool: No simulation has been run yet.")
     if assy.filename:
-        if assy.part != assy.tree.part:
+        if assy.part is not assy.tree.part:
             msg = "Movie Player: Warning: Looking for saved movie for main part, not for displayed clipboard item."
             history.message(orangemsg(msg))
         mfile = assy.filename[:-4] + ".dpb"

@@ -296,7 +296,7 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
     # no valid current movie, look for saved one with same name as assy
     history.message("Plot Tool: No simulation has been run yet.")
     if assy.filename:
-        if assy.part != assy.tree.part:
+        if assy.part is not assy.tree.part:
             history.message("Plot Tool: Warning: Looking for saved movie for main part, not for displayed clipboard item.")
         mfile = assy.filename[:-4] + ".dpb"
         movie = find_saved_movie( assy, mfile)

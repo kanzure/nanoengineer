@@ -15,6 +15,10 @@ atom types with variable bonding patterns
 (and higher-order bonds, though as of 050511 these atoms
 don't yet know anything directly about bond-orders
 and their .valence attribute is probably not yet used.)
+
+bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+on __xxx__ attrs in python objects.
+
 """
 
 # element.atomtypes -> list of atom types usable for that element
@@ -58,7 +62,7 @@ class AtomType:
         self.fullname = elem.name + '/' + self.name #ok? [see also self.fullname_for_msg()]
         # bondvectors might be None or a list of vectors whose length should be numbonds (except for two buggy elements);
         # if None it means the old code would not set self.base and self.quats... not sure all effects or reasons, but imitate for now
-        if bondvectors != None:
+        if bondvectors is not None:
             ## doesn't work, don't know why: assert type(bondvectors) == type(()) or type(bondvectors) == type([])
             if len(bondvectors) != numbonds:
                 if elem.name not in ["Arsenic", "Selenium"]: # known bugs
@@ -88,7 +92,7 @@ class AtomType:
         # (so our caller, making menu, can disable illegal cmds)
         ##print "apply_to for self = %r" % self
         atom.Transmute( self.element, atomtype = self)
-        if atom.atomtype != self:
+        if atom.atomtype is not self:
             # it didn't work for some reason (clean up way of finding history, and/or get Transmute to say why it failed #e)
             atom.molecule.assy.w.history.message( redmsg( "Can't change %r to %s" % (atom, self.fullname_for_msg()))) #e say why not
     def ok_to_apply_to(self, atom):

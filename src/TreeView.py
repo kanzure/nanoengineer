@@ -800,7 +800,7 @@ class TreeView(QListView):
             open = node.open #e self.isOpen(node)?
         except AttributeError:
             open = False # or could mean node is not openable! nevermind for now
-        if openflag == None:
+        if openflag is None:
             # toggle open/closed state
             open = not open
             # fall thru
@@ -855,7 +855,7 @@ class TreeView(QListView):
         """set the properties in the model tree widget to match
         those in the tree datastructure #redoc
         """
-        assert _guard_ == None # this makes sure we don't supply too many positional arguments!
+        assert _guard_ is None # this makes sure we don't supply too many positional arguments!
         # bruce 050110 made this from the old Node.setProp and Group.setProp methods,
         # deprecated now (removed asap).
         # this will pull them into this file;

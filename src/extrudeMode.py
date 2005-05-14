@@ -1906,7 +1906,7 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
     ideal_offset2 = a1_a2_offset - a1_a2_offset_now # required shift of a2
     error_offset2 = (r1 + r2) / 2.0 # josh's guess (replaces 1.0 from the initial tests)
     error_offset2 *= tol # bruce 050324 new feature, untested ###@@@
-    if offset2 != None: #bruce 050328 bugfix: don't use boolean test of offset2
+    if offset2 is not None: #bruce 050328 bugfix: don't use boolean test of offset2 #050513 != -> is not
         if vlen(offset2 - ideal_offset2) > error_offset2:
             return res_bad
     return (True, ideal_offset2, error_offset2)

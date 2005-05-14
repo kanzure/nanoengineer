@@ -31,6 +31,9 @@ assembly.py was almost certainly originated by Josh.
 bruce 050507 moved various methods out of this file, into more appropriate
 smaller files, some existing (jigs.py) and some new (ops_*.py).
 
+bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+on __xxx__ attrs in python objects.
+
 """
 
 ###e imports -- many of these are probably not needed [bruce 050507 removed some of them]
@@ -188,7 +191,7 @@ class Part( jigmakers_Mixin, InvalMixin,
     # follows tree revision, since picked nodes control selection group using tree structure alone.
 
     def add(self, node):
-        if node.part == self:
+        if node.part is self:
             # this is normal, e.g. in ensure_one_part, so don't complain
             return
         if node.part:
@@ -196,7 +199,7 @@ class Part( jigmakers_Mixin, InvalMixin,
                 # this will be common
                 print "debug_parts: fyi: node added to new part so removed from old part first:", node, self, node.part
             node.part.remove(node)
-        assert node.part == None
+        assert node.part is None
         assert not node.picked # since remove did it, or it was not in a part and could not have been picked (I think!)
         #e assert a mol's atoms not picked too (too slow to do it routinely; bugs in this are likely to be noticed)
         node.part = self
@@ -216,7 +219,7 @@ class Part( jigmakers_Mixin, InvalMixin,
         and some of its neighbors might be moving to the same new part).
         Node (and its atoms, if it's a chunk) will be unpicked before the removal.
         """
-        assert node.part == self
+        assert node.part is self
         node.unpick() # this maintains selmols if necessary
         if isinstance(node, molecule):
             # need to unpick the atoms? [would be better to let the node itself have a method for this]
@@ -228,7 +231,7 @@ class Part( jigmakers_Mixin, InvalMixin,
             self.adjust_natoms(- len(node.atoms))
         self.nodecount -= 1
         node.part = None
-        if self.topnode == node:
+        if self.topnode is node:
             self.topnode = None #k can this happen when any nodes are left??? if so, is it bad?
             if debug_parts:
                 print "debug_parts: fyi: topnode leaves part, %d nodes remain" % self.nodecount
@@ -634,12 +637,12 @@ class Part( jigmakers_Mixin, InvalMixin,
         atoms = jig.atoms # public attribute of the jig
         assert atoms, "bug: new jig has no atoms: %r" % jig
         for atm in atoms:
-            assert atm.molecule.part == self, "bug: new jig's atoms are not all in the current Part"
+            assert atm.molecule.part is self, "bug: new jig's atoms are not all in the current Part"
         # First just put it after any atom's chunk (as old code did); then fix that place below.
         self.ensure_toplevel_group() #bruce 050415 fix bug 452 item 17
         mol = atoms[0].molecule # arbitrary chunk involved with this jig
         mol.dad.addchild(jig)
-        assert jig.part == self, "bug in place_new_jig's way of setting correct .part for jig %r" % jig
+        assert jig.part is self, "bug in place_new_jig's way of setting correct .part for jig %r" % jig
         # Now put it in the right place in the tree, if it didn't happen to end up there in addchild.
         # BTW, this might still be a good thing to do, even once it won't need to be done
         # when we save the file (by workaround_for_bug_296), i.e. even once the mmp format

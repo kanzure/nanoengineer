@@ -10,6 +10,10 @@ exact copy of gadgets.py rev 1.72,
 except for this module-docstring and a few blank lines and comments.
 
 bruce 050507 pulled in the jig-making methods from class Part.
+
+bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+on __xxx__ attrs in python objects.
+
 """
 
 from VQT import *
@@ -135,14 +139,18 @@ class Jig(Node):
         #bruce 050208 made this default method. Is it ever called, in any subclasses??
         pass
 
-    def break_interpart_bonds(self): #bruce 050316 fix the jig analog of bug 371; 050421 undo that change for Alpha5... ###@@@
+    def break_interpart_bonds(self): #bruce 050316 fix the jig analog of bug 371; 050421 undo that change for Alpha5 (see below)
         "[overrides Node method]"
         #e this should be a "last resort", i.e. it's often better if interpart bonds
         # could split the jig in two, or pull it into a new Part.
         # But that's NIM (as of 050316) so this is needed to prevent some old bugs.
-        for atm in self.atoms[:]:
-            if self.part != atm.molecule.part and 0: ###@@@ try out not doing this; jigs will draw and save inappropriately at first...
-                self.rematom(atm) # this might kill self, if we remove them all
+        #bruce 050421 for Alpha5 decided to permit all Jig-atom interpart bonds, but just let them
+        # make the Jig disabled. That way you can drag Jigs out and back into a Part w/o losing their atoms.
+        # (And we avoid bugs from removing Jigs and perhaps their clipboard-item Parts at inconvenient times.)
+        #bruce 050513 as long as the following code does nothing, let's speed it up ("is not") and also comment it out.
+##        for atm in self.atoms[:]:
+##            if self.part is not atm.molecule.part and 0: ###@@@ try out not doing this; jigs will draw and save inappropriately at first...
+##                self.rematom(atm) # this might kill self, if we remove them all
         return
 
     def anchors_atom(self, atm): #bruce 050321, renamed 050404
@@ -199,7 +207,7 @@ class Jig(Node):
             ndix = None
         nums = self.atnums_or_None( ndix)
         del ndix
-        if nums == None or (self.is_disabled() and mapping.not_yet_past_where_sim_stops_reading_the_file()):
+        if nums is None or (self.is_disabled() and mapping.not_yet_past_where_sim_stops_reading_the_file()):
             # We need to return a forward ref record now, and set up mapping object to write us out for real, later.
             # This means figuring out when to write us... and rather than ask atnums_or_None for more help on that,
             # we use a variant of the code that used to actually move us before writing the file (since that's easiest for now).
@@ -271,7 +279,7 @@ class Jig(Node):
         "is this jig necessarily disabled (due to some atoms being in a different part)?"
         part = self.part
         for atm in self.atoms:
-            if part != atm.molecule.part:
+            if part is not atm.molecule.part:
                 return True # disabled (or partly disabled??) due to some atoms not being in the same Part
                 #e We might want to loosen this for a Ground (and only disable the atoms in a different Part),
                 # but for initial bugfixing, let's treat all atoms the same for all jigs and see how that works.
@@ -283,7 +291,7 @@ class Jig(Node):
         if self.disabled_by_user_choice:
             disablers.append("by choice")
         if self.disabled_by_atoms():
-            if self.part.topnode == self.assy.tree:
+            if self.part.topnode is self.assy.tree:
                 why = "some atoms on clipboard"
             else:
                 why = "some atoms in a different Part"

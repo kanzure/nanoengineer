@@ -48,7 +48,7 @@ class panMode(basicMode):
         """
         self.w.panToolAction.setOn(0) # toggle off the Pan Tool icon
         ## [bruce's symbol to get him to review it soon: ####@@@@]
-        if new_mode == None:
+        if new_mode is None:
             try:
                 m = self.o.prevMode # spelling??
                 new_mode = m

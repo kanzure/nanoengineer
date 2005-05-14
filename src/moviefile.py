@@ -205,7 +205,7 @@ class OldFormatMovieFile: #bruce 050426
         assert self.frame_index_in_range(n)
         n0 = self.nearest_knownposns_frame_index(n)
         frame0 = self.copy_of_known_frame_or_None(n0) # an array of absposns we're allowed to modify, valid for n0
-        assert frame0 != None # don't test it as a boolean -- it might be all 0.0 which in Numeric means it's false!
+        assert frame0 is not None # don't test it as a boolean -- it might be all 0.0 which in Numeric means it's false!
         while n0 < n:
             # move forwards using a delta frame (which is never cached, tho this code doesn't need to know that)
             # (##e btw it might be faster to read several at once and combine them into one, or add all at once, using Numeric ops!

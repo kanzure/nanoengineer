@@ -58,7 +58,7 @@ class widget_filler:
     def end(self):
         self.where.pop()
     def label(self, text):
-        if self.label_prefix != None:
+        if self.label_prefix is not None:
             name = self.label_prefix + text.strip()
         else:
             name = None #k ok?

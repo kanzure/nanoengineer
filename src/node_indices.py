@@ -130,7 +130,7 @@ def fix_one_node(node, root):
     """
     after_these = node.node_must_follow_what_nodes()
     newpos = node_new_index( node, root, after_these) # might raise ValueError, that's fine
-    if newpos == None:
+    if newpos is None:
         return 0
     move_one_node(node, root, newpos)
     return 1

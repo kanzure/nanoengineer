@@ -17,6 +17,10 @@ History:
 - split out of chem.py by bruce 050502
 
 - support for higher-valence bonds added by bruce 050502 - ??? [ongoing]
+
+- bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
+  for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
+
 '''
 __author__ = "Josh"
 
@@ -65,9 +69,9 @@ def bonded(a1, a2): #bruce 041119 #e optimized by bruce 050502 (this indirectly 
 
 def find_bond(a1, a2): #bruce 050502; there might be an existing function in some other file, to merge this with
     "If a1 and a2 are bonded, return their Bond object; if not, return None."
-    assert a1 != a2
+    assert a1 is not a2
     for bond in a1.bonds:
-        if bond.atom1 == a2 or bond.atom2 == a2:
+        if bond.atom1 is a2 or bond.atom2 is a2:
             return bond
     return None
 
@@ -89,7 +93,7 @@ def bond_atoms_oldversion(at1,at2): #bruce 050502 renamed this from bond_atoms; 
     # either makes (as the constructor does) or doesn't make (when the atoms are
     # already bonded). The test for a prior bond makes more sense outside of the
     # Bond constructor.
-    if at1 == at2: #bruce 041119, partial response to bug #203
+    if at1 is at2: #bruce 041119, partial response to bug #203
         print "BUG: bond_atoms was asked to bond %r to itself." % at1
         print "Doing nothing (but further bugs may be caused by this)."
         print_compact_stack("stack when same-atom bond attempted: ")
@@ -122,8 +126,16 @@ def bond_atoms_oldversion(at1,at2): #bruce 050502 renamed this from bond_atoms; 
         #  later: it happens a lot when entering Extrude; guess: mol.copy copies
         #  each internal bond twice (sounds right, but I did not verify this).]
         pass
-        
     return
+
+def bond_atoms_faster(at1, at2, v6): #bruce 050513
+    """Bond two atoms, which must not be already bonded (this might not be checked).
+    Return the new bond object (which is given default valence of V_SINGLE).
+    """
+    b = Bond(at1, at2, v6) # (this does all necessary invals, and asserts at1 is not at2)
+    at1.bonds.append(b)
+    at2.bonds.append(b)
+    return b
 
 #bruce 050429: preliminary plan for higher-valence bonds (might need a better term for that):
 #
@@ -266,19 +278,21 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     and might eventually be made impossible after all old calling code is converted
     for higher-valence bonds.
     """
-    if vnew == None:
-        assert s1 == s2 == None
+    if vnew is None:
+        assert s1 is s2 is None
         assert no_corrections == False
-        bond_atoms_oldversion( a1, a2)
+        bond_atoms_oldversion( a1, a2) # warning: mol.copy might rely on this being noop when bond already exists!
         return
-    # quick hack for new version, using old version
-    assert vnew in BOND_VALENCES
+    # quick hack for new version, using optimized/stricter old version
+    ## assert vnew in BOND_VALENCES
     assert not bonded(a1,a2)
-    bond_atoms_oldversion(a1,a2)
-    bond = find_bond(a1,a2)
-    assert bond
-    if vnew != V_SINGLE:
-        bond.increase_valence_noupdate( vnew - V_SINGLE)
+    ## bond_atoms_oldversion(a1,a2)
+    ## bond = find_bond(a1,a2)
+    ## assert bond
+    bond = bond_atoms_faster(a1,a2, vnew) #bruce 050513 using this in place of surrounding commented-out code
+    assert bond is not None
+    ## if vnew != V_SINGLE:
+    ##     bond.increase_valence_noupdate( vnew - V_SINGLE)
     if not no_corrections:
         if s1:
             s1.singlet_reduce_valence_noupdate(vnew)
@@ -448,7 +462,7 @@ class Bond:
         self.setup_invalidate() # not sure this is needed, but let's do it to make sure it's safe if/when it's needed [bruce 050502]
         # tell the atoms we're doing this
         self.atom1._modified_valence = self.atom2._modified_valence = True # (this uses a private attr of class atom; might be revised)
-        if self.atom1.molecule == self.atom2.molecule:
+        if self.atom1.molecule is self.atom2.molecule:
             # we're in that molecule's display list, so it needs to know we'll look different when redrawn
             self.atom1.molecule.changeapp(0)
         return
@@ -463,7 +477,7 @@ class Bond:
         """
         at1 = self.atom1
         at2 = self.atom2
-        assert at1 != at2
+        assert at1 is not at2
         self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key)
         #bruce 050317: debug warning for interpart bonds, or bonding killed atoms/chunks,
         # or bonding to chunks not yet added to any Part (but not warning about internal
@@ -474,13 +488,13 @@ class Bond:
         # (in case caller plans to move the chunks into the same part, but hasn't yet).
         # It might turn out this happens a lot (and is not a bug), if callers make a
         # new chunk, bond to it, and only then add it into the tree of Nodes.
-        if platform.atom_debug and at1.molecule != at2.molecule:
-            if (not at1.molecule.assy) or (not at2.molecule.assy):
+        if platform.atom_debug and at1.molecule is not at2.molecule:
+            if (at1.molecule.assy is not None) or (at2.molecule.assy is not None):
                 print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r" % (at1,at2))
-            elif (not at1.molecule.part) or (not at2.molecule.part): # assume false means None, maybe untrue if bugs happen
+            elif (at1.molecule.part is not None) or (at2.molecule.part is not None):
                 if 0: #bruce 050321 this happens a lot when reading an mmp file, so disable it for now
                     print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r" % (at1,at2))
-            elif at1.molecule.part != at2.molecule.part:
+            elif at1.molecule.part is not at2.molecule.part:
                 print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r" % (at1,at2))
         return
     
@@ -490,10 +504,11 @@ class Bond:
         (internal bonds) or put into into mol.externs (external bonds),
         though this knowledge should ideally be private to class molecule.
         """
-        # assume mols are not None (they might be _nullMol, that's ok)
+        # assume mols are not None (they might be _nullMol, that's ok);
+        # if they are, we'll detect the error with exceptions in either case below
         mol1 = self.atom1.molecule
         mol2 = self.atom2.molecule
-        if mol1 != mol2:
+        if mol1 is not mol2:
             # external bond
             mol1.invalidate_attr('externs')
             mol2.invalidate_attr('externs')
@@ -562,7 +577,7 @@ class Bond:
         """
         # [docstring revised, and inval/update scheme added, by bruce 041104]
         # [docstring improved, and code revised to not recompute basepos, 041201]
-        if self.atom1.molecule != self.atom2.molecule:
+        if self.atom1.molecule is not self.atom2.molecule:
             # external bond; use absolute positions for all attributes.
             self.a1pos = self.atom1.posn()
             self.a2pos = self.atom2.posn()
@@ -595,10 +610,12 @@ class Bond:
         missing attr due to a bug in the calling code. Now that this __getattr__
         method exists, no other calls of self.__setup_update() should be needed.
         """
-        if attr[0] == '_' or (not attr in ['a1pos','a2pos','c1','c2','center','toolong']):
+        if attr[0] == '_':
+            raise AttributeError, attr # be fast since probably common for __xxx__
+        if attr not in ('a1pos','a2pos','c1','c2','center','toolong'):
             # unfortunately (since it's slow) we can't avoid checking this first,
             # or we risk infinite recursion due to a missing attr needed by setup
-            raise AttributeError, attr # be fast since probably common for __xxx__
+            raise AttributeError, attr
         self.__setup_update() # this should add the attribute (or raise an exception
           # if it's called too early while initing the bond or one of its molecules)
         return self.__dict__[attr] # raise exception if attr still missing
@@ -606,8 +623,8 @@ class Bond:
     def other(self, atm):
         """Given one atom the bond is connected to, return the other one
         """
-        if self.atom1 == atm: return self.atom2
-        assert self.atom2 == atm #bruce 041029
+        if self.atom1 is atm: return self.atom2
+        assert self.atom2 is atm #bruce 041029
         return self.atom1
 
     def othermol(self, mol): #bruce 041123; not yet used or tested
@@ -616,26 +633,26 @@ class Bond:
         Note that this implies that for an internal bond within mol,
         the input must be mol and we always return mol.
         """
-        if mol == self.atom1.molecule:
+        if mol is self.atom1.molecule:
             return self.atom2.molecule
-        elif mol == self.atom2.molecule:
+        elif mol is self.atom2.molecule:
             return self.atom1.molecule
         else:
             assert mol in [self.atom1.molecule, self.atom2.molecule]
-            # this always fails -- it's just our "understandable error message"
+            # this always fails (so it's ok if it's slow) -- it's just our "understandable error message"
         pass
     
     def ubp(self, atom):
         """ unbond point (atom must be one of the bond's atoms) """
         #bruce 041115 bugfixed this for when mol.quat is not 1,
         # tho i never looked for or saw an effect from the bug in that case
-        if atom == self.atom1:
+        if atom is self.atom1:
             point = self.c1 # this might call self.__setup_update()
         else:
-            assert atom == self.atom2
+            assert atom is self.atom2
             point = self.c2
         # now figure out what coord system that's in
-        if self.atom1.molecule != self.atom2.molecule:
+        if self.atom1.molecule is not self.atom2.molecule:
             return point
         else:
             # convert to absolute position for caller
@@ -685,12 +702,12 @@ class Bond:
         # Josh said: intended for use on singlets, other uses may have bugs.
         # bruce 041109: I think that means "old" is intended to be a singlet.
         # I will try to make it safe for any atoms, and do all needed invals.
-        if self.atom1 == old:
+        if self.atom1 is old:
             old.unbond(self) # also kills old if it's a singlet, as of 041115
             ## if len(old.bonds) == 1: del old.molecule.atoms[old.key] --
             ## the above code removed the singlet, old, without killing it.
             self.atom1 = new
-        elif self.atom2 == old:
+        elif self.atom2 is old:
             old.unbond(self)
             self.atom2 = new
         else:
@@ -720,6 +737,9 @@ class Bond:
                 print "rebond bug (%r): new.bonds.count(self) == %r" % (self, new.bonds.count(self))
         return
 
+    #####@@@@@ bruce 050513 comment: should seriously consider removing these __eq__/__ne__ methods
+    # and revising bond_atoms accordingly (as an optim).
+    
     def __eq__(self, ob):
         return ob.key == self.key
 
@@ -751,8 +771,8 @@ class Bond:
         color1 = col or self.atom1.element.color
         color2 = col or self.atom2.element.color
 
-        disp=max(self.atom1.display, self.atom2.display)
-        if disp == diDEFAULT: disp= dispdef
+        disp = max(self.atom1.display, self.atom2.display)
+        if disp == diDEFAULT: disp = dispdef
         if disp == diLINES:
             if not self.toolong:
                 drawline(color1, self.a1pos, self.center)
@@ -768,6 +788,10 @@ class Bond:
             v2 = self.atom2.display != diINVISIBLE
             ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
             # to look at each mol's .hidden (but this is purely a guess)
+            ###e bruce 050513 future optim idea: when color1 == color2, draw just
+            # one longer cylinder, then overdraw toolong indicator if needed.
+            # Significant for big parts. BUT, why spend time on this when I
+            # expect we'll do this drawing in C code before too long?
             if not self.toolong:
                 if v1:
                     drawcylinder(color1, self.a1pos, self.center, TubeRadius)
@@ -836,7 +860,7 @@ class Bond:
        ##Huaicai 1/15/05: It seems the attributes from __setup__update() is not correct,
        ## at least for pov file writing, so compute it here locally. To fix bug 346,347
         disp=max(self.atom1.display, self.atom2.display)
-        if disp == diDEFAULT: disp= dispdef
+        if disp == diDEFAULT: disp = dispdef
         color1 = col or self.atom1.element.color
         color2 = col or self.atom2.element.color
         
@@ -969,11 +993,11 @@ class bonder_at_singlets:
             return do_error("not both singlets", "not a singlet: %r" % s2)
         a1 = self.a1 = singlet_atom(s1)
         a2 = self.a2 = singlet_atom(s2)
-        if s1 == s2: #bruce 041119
+        if s1 is s2: #bruce 041119
             return do_error("can't bond a singlet to itself",
               "asked to bond atom %r to itself,\n"
               " from the same singlet %r (passed twice)" % (a1, s1)) # untested formatting
-        if a1 == a2: #bruce 041119, part of fix for bug #203
+        if a1 is a2: #bruce 041119, part of fix for bug #203
             #####@@@@@ should we permit this as a way of changing the bonding pattern by summing the valences of these bonds? YES! [doit]
             return do_error("can't bond an atom (%r) to itself" % a1,
               "asked to bond atom %r to itself,\n"
@@ -1008,7 +1032,7 @@ class bonder_at_singlets:
         # sep mols and no externs)
         m1 = a1.molecule
         m2 = a2.molecule
-        if m1 != m2 and self.move:
+        if m1 is not m2 and self.move:
             # Comments by bruce 041123, related to fix for bug #150:
             #
             # Move m1 to an ideal position for bonding to m2, but [as bruce's fix

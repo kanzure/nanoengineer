@@ -14,6 +14,10 @@ History:
 - lots of changes, by various developers
 
 - split out of chem.py by bruce circa 041118
+
+- bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
+  for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
+
 '''
 __author__ = "Josh"
 
@@ -132,15 +136,16 @@ class molecule(Node, InvalMixin):
         
         return # from molecule.__init__
 
-    def break_interpart_bonds(self): #bruce 050308-16 to help fix bug 371
+    def break_interpart_bonds(self): #bruce 050308-16 to help fix bug 371; revised 050513
         "[overrides Node method]"
+        assert self.part is not None
         # check atom-atom bonds
         for b in self.externs[:]:
             #e should this loop body be a bond method??
-            m1 = b.atom1.molecule
+            m1 = b.atom1.molecule # one of m1,m2 is self but we won't bother finding out which
             m2 = b.atom2.molecule
-            assert m1.part and m2.part ###@@@ justified??
-            if m1.part != m2.part:
+            if m1.part is not m2.part:
+                assert m1.part is not None and m2.part is not None ###@@@ justified??
                 b.bust() 
         # check atom-jig bonds ####@@@@ in the future! Callers also need to handle some jigs specially first, which this would destroy
         ### actually this would be inefficient from this side (it would scan all atoms), so let's let the jigs handle it...
@@ -151,14 +156,14 @@ class molecule(Node, InvalMixin):
         # make sure no other code forgot to call us and set it directly
         assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
         self._hotspot = hotspot
-        assert self.hotspot == hotspot, "getattr bug, or specified hotspot is invalid"
+        assert self.hotspot is hotspot, "getattr bug, or specified hotspot is invalid"
         assert not 'hotspot' in self.__dict__.keys(), "bug in getattr for hotspot"
         return
     
     def _get_hotspot(self): #bruce 050217; used by getattr
         hs = self._hotspot
         if not hs: return None
-        if hs.is_singlet() and hs.molecule == self:
+        if hs.is_singlet() and hs.molecule is self:
             # hs should be a valid hotspot; if you see no bug, return it
             if hs.killed(): # this also checks whether its key is in self.atoms
                 # bug detected
@@ -216,7 +221,7 @@ class molecule(Node, InvalMixin):
     
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to atom at2.
-        Error if at1 == at2 (causes printed warning and does nothing).
+        Error if at1 is at2 (causes printed warning and does nothing).
         (This should really be a separate function, not a method on molecule,
         since the specific molecule asked to do this need not be either atom's
         molecule, and is not used in the method at all.)
@@ -248,7 +253,7 @@ class molecule(Node, InvalMixin):
         """
         atm.invalidate_bonds() # might not be needed
         # make atom know molecule
-        assert atm.molecule == None or atm.molecule == _nullMol
+        assert atm.molecule is None or atm.molecule is _nullMol
         atm.molecule = self
         atm.index = -1 # illegal value
         assert atm.xyz != 'no'
@@ -279,7 +284,7 @@ class molecule(Node, InvalMixin):
         self.invalidate_atom_lists() # do this first, in case exceptions below
 
         # make atom independent of molecule
-        assert atm.molecule == self
+        assert atm.molecule is self
         atm.xyz = atm.posn() # make atom know its position independently of self
         # atm.posn() uses atm.index and atm.molecule, so must be used before
         # those are trashed by the following code:
@@ -309,10 +314,32 @@ class molecule(Node, InvalMixin):
         """
         self.havelist = 0
         self.haveradii = 0
-        self.invalidate_attrs(['externs','atlist'])
+        # bruce 050513 try to optimize this
+        # (since it's 25% of time to read atom records from mmp file, 1 sec for 8k atoms)
+        ## self.invalidate_attrs(['externs','atlist'])
             # (invalidating externs is needed if atom (when in mol) has bonds
             # going out (extern bonds), or inside it (would be extern if atom
             # moved out), so do it always)
+        need = 0
+        try:
+            del self.externs
+        except:
+            pass
+        else:
+            need = 1
+        try:
+            del self.atlist
+        except:
+            pass
+        else:
+            need = 1
+        if need:
+            # this causes trouble, not yet sure why:
+            ## self.changed_attrs(['externs','atlist'])
+            ## AssertionError: validate_attr finds no attr 'externs' was saved, in <Chunk 'Ring Gear' (5167 atoms) at 0xd967440>
+            # so do this instead:
+            self.externs = self.atlist = -1
+            self.invalidate_attrs(['externs','atlist'])
         return
 
     # debugging methods (not fully tested, use at your own risk)
@@ -377,7 +404,7 @@ class molecule(Node, InvalMixin):
         # arrays that store pos directly (everything else depends on them):
         self.curpos[ind] = pos
         atpos = self.__dict__.get('atpos')
-        if atpos == None: # note: "if atpos" would be false if all entries 0.0!
+        if atpos is None: # note: "if atpos" would be false if all entries 0.0!
             # nothing more to do -- everything else depends on atpos
             return
         assert atpos is self.curpos, "atpos should be same object as curpos"
@@ -394,14 +421,14 @@ class molecule(Node, InvalMixin):
         # usually the case for a 1-atom molecule! [That mistake in the following
         # code caused bug 218, fixed by bruce 041130.]
         basepos = self.__dict__.get('basepos')
-        if basepos != None and (basepos is not self.curpos):
+        if basepos is not None and (basepos is not self.curpos): #bruce 050513 optim: use 'is not None' (here and below)
             # (actually this would be a noop if the mol was frozen,
             #  even though basepos is curpos then,
             #  since the transform on pos would be the identity then;
             #  but it seems better to not do it twice, anyway)
             basepos[ind] = self.abs_to_base( pos)
         # But some invals are needed either then, or if the mol is frozen:
-        if basepos != None:
+        if basepos is not None:
             self.changed_attr('basepos')
         return # from setatomposn
     
@@ -440,7 +467,7 @@ class molecule(Node, InvalMixin):
         # [bruce 041207, by separate experiment]. Some callers test the boolean
         # value we compute for self.singlets. Since the elements are pyobjs,
         # this would probably work even if filter returned an array.)
-        return filter( lambda atm: atm.element == Singlet, self.atlist )
+        return filter( lambda atm: atm.element is Singlet, self.atlist )
 
     _inputs_for_singlpos = ['singlets','atpos']
     def _recompute_singlpos(self):
@@ -655,7 +682,7 @@ class molecule(Node, InvalMixin):
     
     def invalidate_all_bonds(self):
         ###e TOO SLOW for an inval routine; should just incr a version counter
-        for atm in self.atoms.values():
+        for atm in self.atoms.itervalues(): #bruce 050513 use itervalues
             for bon in atm.bonds:
                 bon.setup_invalidate()
     
@@ -707,13 +734,15 @@ class molecule(Node, InvalMixin):
     
     # Externs.
     _inputs_for_externs = [] # only invalidated by hand
-    def _recompute_externs(self):
+    def _recompute_externs(self): #bruce 050513 optimized this
         # following code simplified from self.draw()
         externs = []
         for atm in self.atoms.itervalues():
             for bon in atm.bonds:
-                if bon.other(atm).molecule != self:
-                    externs += [bon] # external bond
+                ## if bon.other(atm).molecule != self # slower than needed:
+                if bon.atom1.molecule is not self or bon.atom2.molecule is not self:
+                    # external bond
+                    externs.append(bon)
         return externs
     
     def freeze(self):
@@ -829,11 +858,11 @@ class molecule(Node, InvalMixin):
                 # of a matching glEndList) in which any subsequent glNewList is an
                 # invalid operation. (Also done in shape.py; not needed in drawer.py.)
                 try:
-                    self.draw_displist(glpane, disp) # also recomputes self.externs
+                    self.draw_displist(glpane, disp) # also recomputes self.externs [not anymore -- bruce 050513]
                 except:
                     print_compact_traceback("exception in molecule.draw_displist ignored: ")
-                    # it might have left the externs incomplete # bruce 041105 night
-                    self.invalidate_attr('externs')
+                    # it might have left the externs incomplete # bruce 041105 night [not anymore -- bruce 050513]
+                    ## self.invalidate_attr('externs')
                 glEndList()
                 # This is the only place where havelist is set to anything true;
                 # the value it's set to must match the value it's compared with, above.
@@ -852,7 +881,7 @@ class molecule(Node, InvalMixin):
             # (this keeps it from affecting the display list, so depositMode.bareMotion
             #  can change selatom without havelist=0, for a large speedup [bruce 041206])
             selatom = glpane.selatom
-            if selatom and selatom.molecule == self:
+            if selatom is not None and selatom.molecule is self:
                 try:
                     color = self._colorfunc(selatom)
                 except: # no such attr, or it's None, or it has a bug
@@ -870,40 +899,69 @@ class molecule(Node, InvalMixin):
             print_compact_traceback("exception in molecule.draw, continuing: ")
             
         glPopMatrix()
-        
+
+        # Could we return now if display mode "disp" never draws bonds?
+        # No -- individual atoms might override that display mode.
+        # Someday we might decide to record whether that's true when recomputing externs,
+        # and to invalidate it as needed -- since it's rare for atoms to override display modes.
+        # Or we might even keep a list of all our atoms which override our display mode. ###e
+        # [bruce 050513 comment]
+        drawLevel = self.assy.drawLevel
+        bondcolor = self.color
         for bon in self.externs:
-            bon.draw(glpane, disp, self.color, self.assy.drawLevel)
+            bon.draw(glpane, disp, bondcolor, drawLevel)
         return # from molecule.draw()
 
-    def draw_displist(self, glpane, disp): #bruce 041028 split this out of molecule.draw
+    def draw_displist(self, glpane, disp): #bruce 050513 optimizing this somewhat
 
         drawLevel = self.assy.drawLevel
         drawn = {}
-        self.externs = []
+        ## self.externs = [] # bruce 050513 removing this
+        # bruce 041014 hack for extrude -- use _colorfunc if present [part 1; optimized 050513]
+        _colorfunc = getattr(self, '_colorfunc', None) # might be None or missing #####@@@@@ should supply a default so always there
+        color = self.color # only used if _colorfunc is None
+        bondcolor = self.color # never changed
         
-        for atm in self.atoms.values():
+        for atm in self.atoms.itervalues(): #bruce 050513 using itervalues here (probably safe, speed is needed)
             try:
-                # bruce 041014 hack for extrude -- use _colorfunc if present
-                try:
-                    color = self._colorfunc(atm)
-                except: # no such attr, or it's None, or it has a bug
-                    color = self.color
-                # end bruce hack, except for use of color rather than
+                # bruce 041014 hack for extrude -- use _colorfunc if present [part 2; optimized 050513]
+                if _colorfunc is not None:
+                    try:
+                        color = _colorfunc(atm)
+                    except: # _colorfunc has a bug; reporting this would be too verbose, sorry #e could report for only 1st atom?
+                        color = self.color
+                # otherwise color is still set from above
+                
+                # end bruce hack 041014, except for use of color rather than
                 # self.color in atm.draw (but not in bon.draw -- good??)
-                atm.draw(glpane, disp, color, drawLevel)
-                for bon in atm.bonds:
-                    if bon.key not in drawn:
-                        if bon.other(atm).molecule != self:
-                            self.externs += [bon]
-                        else:
-                            drawn[bon.key] = bon
-                            bon.draw(glpane, disp, self.color, drawLevel)
+                atomdisp = atm.draw(glpane, disp, color, drawLevel)
+                #bruce 050513 optim: if self and atm display modes don't need to draw bonds,
+                # we can skip drawing bonds here without checking whether their other atoms
+                # have their own display modes and want to draw them,
+                # since we'll notice that when we get to those other atoms
+                # (whether in self or some other chunk).
+                # (We could ask atm.draw to return a flag saying whether to draw its bonds here.)
+                #    To make this safe, we'd need to not recompute externs here,
+                # but that should be ok since they're computed separately anyway now.
+                # So I'm removing that now, and doing this optim.
+                ###e (I might need to specialcase it for singlets so their bond-valence number is still drawn...)
+                # [bruce 050513]
+                if atomdisp in (diCPK, diLINES, diTUBES): #e should we move this tuple into bonds module or Bond class?
+                    for bon in atm.bonds:
+                        if bon.key not in drawn:
+                            ## if bon.other(atm).molecule != self: could be faster [bruce 050513]:
+                            if bon.atom1.molecule is not self or bon.atom2.molecule is not self:
+                                pass ## self.externs.append(bon) # bruce 050513 removing this
+                            else:
+                                # internal bond, not yet drawn
+                                drawn[bon.key] = bon
+                                bon.draw(glpane, disp, bondcolor, drawLevel)
             except:
                 # [bruce 041028 general workaround to make bugs less severe]
                 # exception in drawing one atom. Ignore it and try to draw the
                 # other atoms. #e In future, draw a bug-symbol in its place.
                 print_compact_traceback("exception in drawing one atom or bond ignored: ")
-                # (this might mean some externs are missing; never mind that for now.)
+                # (this might mean some externs are missing; never mind that for now.) [bruce 050513 -- not anymore]
                 try:
                     print "current atom was:",atm
                 except:
@@ -926,9 +984,9 @@ class molecule(Node, InvalMixin):
         # item is pastable. All this duplicated hardcoded conditioning is bad, needs cleanup.
         try:
             # if any of this fails (which is normal), it means don't use this feature for self.
-            assert self in self.assy.shelf.members
             hs = self.hotspot
-            assert hs and hs.is_singlet() and hs.key in self.atoms and hs != glpane.selatom
+            assert hs is not None and hs.is_singlet() and hs.key in self.atoms and hs is not glpane.selatom
+            assert self in self.assy.shelf.members
         except:
             pass
         else:
@@ -1010,7 +1068,7 @@ class molecule(Node, InvalMixin):
             # atoms just written above, and therefore should have an encoding
             # already assigned for the current mmp file:
             hs_num = mapping.encode_atom(hs)
-            assert hs_num != None
+            assert hs_num is not None
             mapping.write("info chunk hotspot = %s\n" % hs_num)
         if self.color:
             r = int(self.color[0]*255 + 0.5)
@@ -1242,7 +1300,7 @@ class molecule(Node, InvalMixin):
         """
         # None or a 3-tuple; it matters that the 3-tuple is never boolean False,
         # so don't use a Numeric array! As a precaution, let's enforce this now. [bruce 050505]
-        if color != None:
+        if color is not None:
             r,g,b = color
             color = r,g,b
         self.color = color
@@ -1402,7 +1460,7 @@ class molecule(Node, InvalMixin):
         # and fully legal, and made kill forget about dad and assy.
         # Note that _nullMol might be killed every so often.
         # (caller no longer needs to set externs to [] when there are no atoms)
-        if self == _nullMol:
+        if self is _nullMol:
             return
         # all the following must be ok for an already-killed molecule!
         self.unpick() #bruce 050214 comment: keep doing this here even though Node.kill now does it too
@@ -1454,7 +1512,7 @@ class molecule(Node, InvalMixin):
                 # let the Part handle it
                 if self.part:
                     self.part.remove(self)
-                    assert self.part == None
+                    assert self.part is None
         Node.kill(self) #bruce 050214 moved this here, made it unconditional
         return # from molecule.kill
 
@@ -1527,7 +1585,7 @@ class molecule(Node, InvalMixin):
         assert len(radii_2) == len(self.atoms)
         selatom = self.assy.o.selatom
         unpatched_seli_radius2 = None
-        if selatom and selatom.molecule == self:
+        if selatom is not None and selatom.molecule is self:
             # need to patch for selatom, and warn subr of its smaller radii too
             seli = selatom.index
             unpatched_seli_radius2 = radii_2[seli]
@@ -1541,7 +1599,7 @@ class molecule(Node, InvalMixin):
         except:
             print_compact_traceback("bug in findAtomUnderMouse_Numeric_stuff: ")
             res = []
-        if unpatched_seli_radius2 != None:
+        if unpatched_seli_radius2 is not None:
             radii_2[seli] = unpatched_seli_radius2
         return res # from findAtomUnderMouse
 
@@ -1582,7 +1640,7 @@ class molecule(Node, InvalMixin):
 
         pairs = [] # list of 0 to 2 (z, mainindex) pairs which pass near_cutoff
 
-        if near_cutoff != None:
+        if near_cutoff is not None:
             # returned index will be None if there was no positive elt; checked below
             closest_front_p1i = index_of_smallest_positive_elt(near_cutoff - fronts)
             ## if backs_ok: closest_back_p1i = index_of_smallest_positive_elt(near_cutoff - backs)
@@ -1593,9 +1651,9 @@ class molecule(Node, InvalMixin):
 ##        if not backs_ok:
 ##            closest_back_p1i = None
         
-        if closest_front_p1i != None:
+        if closest_front_p1i is not None:
             pairs.append( (fronts[closest_front_p1i], p1inds[closest_front_p1i] ) )
-##        if closest_back_p1i != None:
+##        if closest_back_p1i is not None:
 ##            pairs.append( (backs[closest_back_p1i], closest_back_p1i) )
 
         # add selatom if necessary:
@@ -1621,7 +1679,7 @@ class molecule(Node, InvalMixin):
         
         # We've narrowed it down to a single candidate, which passes near_cutoff!
         # Does it pass far_cutoff?
-        if far_cutoff != None:
+        if far_cutoff is not None:
             if closest_z < far_cutoff:
                 return []
 
@@ -1899,7 +1957,7 @@ class molecule(Node, InvalMixin):
         # Note: if you extend this, make sure it doesn't recompute anything
         # (like len(self.singlets) would do) or that will confuse debugging
         # by making debug-prints trigger recomputes.
-        if self == _nullMol:
+        if self is _nullMol:
             return "<_nullMol>"
         try:
             name = "%r" % self.name

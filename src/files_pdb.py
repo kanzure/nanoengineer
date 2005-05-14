@@ -89,7 +89,7 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
 def readpdb(assy,filename):
     """Reads a pdb file"""
     mol  = _readpdb(assy, filename, isInsert = False)
-    if mol:
+    if mol is not None:
         assy.addmol(mol)
     return
     
@@ -98,7 +98,7 @@ def readpdb(assy,filename):
 def insertpdb(assy,filename):
     """Reads a pdb file and inserts it into the existing model """
     mol  = _readpdb(assy, filename, isInsert = True)
-    if mol:
+    if mol is not None:
         assy.addmol(mol)
     return
 

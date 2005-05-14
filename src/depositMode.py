@@ -5,6 +5,10 @@ depositMode.py -- Build mode.
 Owned by bruce while atomtypes and higher-order bonds are being implemented.
 
 $Id$
+
+- bruce 050513 optims: using 'is' and 'is not' rather than '==', '!='
+  for atoms, elements, atomtypes, in several places (not all commented individually); 050513
+ 
 """
 __author__ = "Josh"
 
@@ -67,7 +71,7 @@ def find_hotspot_for_pasting(obj):
 
     #bruce 050217: fix_bad_hotspot won't be needed anymore, since I'm making mol.hotspot use getattr to fix other bugs
 ##def fix_bad_hotspot(mol): # bug workaround [guessing it'll fix a bug I noticed, but this is speculative so far -- bruce 050121]
-##    if mol.hotspot and (mol.hotspot not in mol.singlets):
+##    if mol.hotspot is not None and (mol.hotspot not in mol.singlets): # revised 050513
 ##        if platform.atom_debug:
 ##            print "atom_debug: fix_bad_hotspot removed a bad hotspot from %r" % mol
 ##        mol.hotspot = None
@@ -513,8 +517,8 @@ class depositMode(basicMode):
         # warning: don't change self.o.selatom yet, since findAtomUnderMouse uses
         # its current value to support hysteresis for its selection radius.
         atm = self.o.assy.findAtomUnderMouse(event, water_cutoff = True, singlet_ok = True)
-        assert oldselatom == self.o.selatom
-        if atm and (atm.element==Singlet or not singOnly):
+        assert oldselatom is self.o.selatom
+        if atm is not None and (atm.element is Singlet or not singOnly):
             pass # we'll use this atm as the new selatom
         else:
             atm = None
@@ -524,7 +528,7 @@ class depositMode(basicMode):
             # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
             msg = self.describe_leftDown_action( self.o.selatom)
             self.w.history.transient_msg( msg) # uses status bar #e rename that method
-        if self.o.selatom != oldselatom:
+        if self.o.selatom is not oldselatom:
             # update display
             self.o.gl_update() # draws selatom too, since its chunk is not hidden
         return
@@ -550,13 +554,13 @@ class depositMode(basicMode):
             #bruce 050416 also indicate hotspot if we're on clipboard
             # (and if this hotspot will be drawn in special color, since explaining that
             #  special color is the main point of this statusbar-text addendum)
-            if selatom == selatom.molecule.hotspot and not self.viewing_main_part():
+            if selatom is selatom.molecule.hotspot and not self.viewing_main_part():
                 # also only if chunk at toplevel in clipboard (ie pastable)
                 # (this is badly in need of cleanup, since both here and chunk.draw
                 #  should not hardcode the cond for that, they should all ask the same method here)
                 if selatom.molecule in self.o.assy.shelf.members: 
                     cmd += " (hotspot)"
-        elif selatom:
+        elif selatom is not None:
             cmd = "click to drag %r" % selatom
             cmd += " (%s)" % selatom.atomtype.fullname_for_msg() # nested parens ###e improve    
         else:
@@ -600,7 +604,7 @@ class depositMode(basicMode):
         "return the current pastable atomtype"
         #e we might extend this to remember a current atomtype per element... not sure if useful
         current_element = self.pastable_element()
-        if self._pastable_atomtype and self._pastable_atomtype.element == current_element:
+        if self._pastable_atomtype is not None and self._pastable_atomtype.element is current_element:
             return self._pastable_atomtype
         self._pastable_atomtype = current_element.atomtypes[0]
         return self._pastable_atomtype
@@ -649,7 +653,7 @@ class depositMode(basicMode):
         self.o.assy.changed()
         if a: # if something was "lit up"
             ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
-            if a.element == Singlet:
+            if a.element is Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
                 if self.w.pasteP:
                     # user wants to paste something
@@ -677,7 +681,7 @@ class depositMode(basicMode):
                     deptool = AtomTypeDepositionTool( atype)
                     a1, desc = deptool.attach_to(a) #e this might need to take over the generation of the following status msg...
                     ## a1, desc = self.attach(el, a)
-                    if a1 != None:
+                    if a1 is not None:
                         self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
                         status = "replaced open bond on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
                         chunk = a1.molecule #bruce 041207
@@ -767,10 +771,10 @@ class depositMode(basicMode):
         # parallel to screen. (I don't know if there was a bug report for that.)
         # Should be moved into modes.py and used in modifyMode too. ###e
         p1, p2 = self.o.mousepoints(event)
-        if perp == None:
+        if perp is None:
             perp = self.o.out
         point2 = planeXline(point, perp, p1, norm(p2-p1)) # args are (ppt, pv, lpt, lv)
-        if point2 == None:
+        if point2 is None:
             # should never happen, but use old code as a last resort:
             point2 = ptonline(point, p1, norm(p2-p1))
         return point2
@@ -834,7 +838,7 @@ class depositMode(basicMode):
         ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
         self.modified = 1
         self.o.assy.changed()
-        if a.element == Singlet:
+        if a.element is Singlet:
             pivatom = a.neighbors()[0]
             neigh = pivatom.realNeighbors()
             self.baggage = pivatom.singNeighbors()
@@ -875,7 +879,7 @@ class depositMode(basicMode):
         a = self.dragatom
         apos0 = a.posn()
         px = self.dragto(a.posn(), event)
-        if a.element != Singlet and not self.pivot:
+        if a.element is not Singlet and not self.pivot:
             # no pivot, just dragging it around
             apo = a.posn()
             # find the delta quat for the average real bond and apply
@@ -913,13 +917,13 @@ class depositMode(basicMode):
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
         self.update_selatom(event, singOnly = True) # indicate singlets we might bond to
             #bruce 041130 asks: is it correct to do that when a is real?
-        if a.element == Singlet:
+        if a.element is Singlet:
             self.line = [a.posn(), px]
         #bruce 041130 added status bar message with new coordinates
         apos1 = a.posn()
         if apos1 - apos0:
             ##k does this ever overwrite some other message we want to keep??
-            if a.element == Singlet:
+            if a.element is Singlet:
                 # this message might not be useful enough to be worthwhile...
                 msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
             else:
@@ -937,7 +941,7 @@ class depositMode(basicMode):
         self.line = None
         self.update_selatom(event, singOnly = True)
         if self.dragatom.is_singlet():
-            if self.o.selatom and self.o.selatom != self.dragatom:
+            if self.o.selatom and self.o.selatom is not self.dragatom:
                 dragatom = self.dragatom
                 selatom = self.o.selatom
                 if selatom.is_singlet(): #bruce 041119, just for safety
@@ -953,7 +957,7 @@ class depositMode(basicMode):
         # (for bonding atom to itself) and #121 (atoms already bonded).
         # I fixed 121 by doing nothing to already-bonded atoms, but in
         # the future we might want to make a double bond. #e
-        if selatom.singlet_neighbor() == dragatom.singlet_neighbor():
+        if selatom.singlet_neighbor() is dragatom.singlet_neighbor():
             # this is a bug according to the subroutine, but not to us
             print_error_details = 0
         else:
@@ -973,7 +977,7 @@ class depositMode(basicMode):
         a = self.o.selatom
         if a:
             # this may change hybridization someday
-            if a.element == Singlet: return
+            if a.element is Singlet: return
             self.w.history.message("deleting %r" % a) #bruce 041208
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
@@ -1198,7 +1202,7 @@ class depositMode(basicMode):
         return
 
     def viewing_main_part(self): #bruce 050416 ###e should refile into assy
-        return self.o.assy.current_selgroup_iff_valid() == self.o.assy.tree
+        return self.o.assy.current_selgroup_iff_valid() is self.o.assy.tree
 
     call_makeMenus_for_each_event = True #bruce 050416/050420 using new feature for dynamic context menus
     
@@ -1245,7 +1249,7 @@ class depositMode(basicMode):
         atomtypes = (not selatom) and ['fake'] or selatom.element.atomtypes
             # kluge: ['fake'] is so the idiom "x and y or z" can pick y;
             # otherwise we'd use [] for 'y', but that doesn't work since it's false.
-##        if selatom and not selatom.is_singlet():
+##        if selatom is not None and not selatom.is_singlet():
 ##            self.Menu_spec.append(( '%s' % selatom.atomtype.fullname_for_msg(), noop, 'disabled' )) 
         if len(atomtypes) > 1: # i.e. if elt has >1 atom type available! (then it must not be Singlet, btw)
             # make a submenu for the available types, checkmarking the current one, disabling if illegal to change, sbartext for why
@@ -1259,7 +1263,7 @@ class depositMode(basicMode):
                                  # even though it changes during this loop!
                                  #   Also at least one of the arg1 and arg2 are required, otherwise atype ends up being an int,
                                  # at least acc'd to exception we get here. Why is Qt passing this an int? Nevermind for now. ###k
-                             (atype == selatom.atomtype) and 'checked' or None,
+                             (atype is selatom.atomtype) and 'checked' or None,
                              (not atype.ok_to_apply_to(selatom)) and 'disabled' or None
                            ))
             self.Menu_spec.append(( 'Atom Type: %s' % selatom.atomtype.fullname_for_msg(), res ))
@@ -1268,7 +1272,7 @@ class depositMode(basicMode):
         ###e offer to change element, too (or should the same submenu be used? not sure)
 
         # offer to clean up singlet positions (not sure if this item should be so prominent)
-        if selatom and not selatom.is_singlet():
+        if selatom is not None and not selatom.is_singlet():
             sings = selatom.singNeighbors()
             if sings or selatom.bad():
                 if sings:
@@ -1325,7 +1329,7 @@ class depositMode(basicMode):
         self.set_pastable_atomtype('sp2')
             
     def setHotSpot_clipitem(self): #bruce 050416; duplicates some code from setHotSpot
-        if self.o.selatom and self.o.selatom.element == Singlet:
+        if self.o.selatom and self.o.selatom.element is Singlet:
             self.o.selatom.molecule.set_hotspot( self.o.selatom) ###e add history message??
         ###e also set this as the pastable??
         return        
@@ -1336,7 +1340,7 @@ class depositMode(basicMode):
         the molecule.  (if there's only one, it's automatically the
         hotspot) [... and copy mol onto the clipboard...]
         """
-        if self.o.selatom and self.o.selatom.element == Singlet:
+        if self.o.selatom and self.o.selatom.element is Singlet:
             self.o.selatom.molecule.set_hotspot( self.o.selatom)
             
             ###e in future, if that mol is on the clipboard, don't copy it there!
@@ -1394,8 +1398,8 @@ class depositMode(basicMode):
         oldp = self.pastable
         self.pastable = pastable
         self.UpdateDashboard()
-        if not self.pastable == pastable:
-            #k (probably this implies self.pastable == None,
+        if not self.pastable is pastable:
+            #k (probably this implies self.pastable is None,
             #   but no point in checking this)
             #e someday: history message that we failed
             self.pastable = oldp

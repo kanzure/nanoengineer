@@ -238,7 +238,7 @@ class Movie:
 ##                part = self.alist[0].molecule.part
 ##                    # not checked for consistency, but correct if anything is; could be None, I think,
 ##                    # especially for killed atoms (guess; see bug 497) [bruce 050411]
-##                if not part and platform.atom_debug:
+##                if part is None and platform.atom_debug:
 ##                    print_compact_stack( "part false (%r) here; alist[0].molecule is %r: " % (part, self.alist[0].molecule) )
 ##                return part
 ##             #bruce 050411: the following does happen, see comments in bug 497;
@@ -356,7 +356,7 @@ class Movie:
         if not self.alist_and_moviefile:
             # we haven't yet set up this correspondence. Do it now. Note that the filename needs to be set up here,
             # but the alist might or might not have been (and if it was, it might not be all the atoms in the current Part).
-            if self.alist == None:
+            if self.alist is None:
                 # alist should equal current Part; then verify moviefile works for that.
                 #e In future, we might also permit alist to come from selection now,
                 # if this has right natoms for moviefile and whole part doesn't.
@@ -492,7 +492,7 @@ class Movie:
 
     def warn_if_other_part(self, part): #bruce 050427; to call when play is pressed, more or less...
         "warn the user if playing this movie won't move any (or all) atoms in the given part (or about other weird conditions too)."
-        if self.alist == None:
+        if self.alist is None:
             return
         # like .touches_part() in a subobject, but can be called sooner...
         yes = 0 # counts the ones we'll move
@@ -907,7 +907,7 @@ class Movie:
             # For now I'll just use setposn to set the direction and snuggle to fix the distance.
             #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
             # is wildly wrong, and it should also complain. I won't do this for now.
-            a.setposn(A(newPos))
+            a.setposn_batch(A(newPos)) #bruce 050513 try to optimize this
             if a.is_singlet(): a.snuggle() # same code as in movend()
         self.glpane.gl_update()
         return
@@ -969,7 +969,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         """
         #e later we'll optimize this by owning atoms and speeding up or eliminating invals
         for atm, pos in zip(self.alist, newposns):
-            atm.setposn( pos)
+            atm.setposn_batch( pos) #bruce 050513 try to optimize this
 
     set_posns_no_inval = set_posns #e for now... later this can be faster, and require own/release around it
 
@@ -994,7 +994,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
 ##        del parts
 ##        if 0: #e do we want this? maybe as a warning?
 ##            # check them all before freezing any (does this cover killed atoms too? I think so.)
-##            if len(self.parts) > 1 or self.parts[0] == None:
+##            if len(self.parts) > 1 or self.parts[0] is None: #revised 050513
 ##                self.history.message( redmsg( "Can't play movie, since not all its atoms are still in the same Part, or some have been deleted" ))
 ##                assert 0 # not sure how well this will be caught... #e should use retval, fix caller ####@@@@
 ##            part = self.parts[0] # only ok if we don't keep going above when >1 part...
@@ -1033,7 +1033,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
 ##
 ##    def touches_part(self, part): ###@@@ not currently used, I think
 ##        for atm in self.alist:
-##            if part == atm.molecule.part:
+##            if part is atm.molecule.part: #revised 050513
 ##                return True
 ##        return False
         
@@ -1093,7 +1093,7 @@ class alist_and_moviefile:
             self.moviefile = None
             return # caller should check self.valid()
         self.movable_atoms = MovableAtomList( assy, alist)
-        if curframe_in_alist != None:
+        if curframe_in_alist is not None:
             n = curframe_in_alist
             frame_n = self.movable_atoms.get_posns()
             self.moviefile.donate_immutable_cached_frame( n, frame_n)
@@ -1137,6 +1137,8 @@ class alist_and_moviefile:
         ma = self.movable_atoms
         if mf.frame_index_in_range(n):
             frame_n = mf.ref_to_transient_frame_n(n)
+            #####@@@@@ bruce 050513
+            ## print "not playing frame %d" % n
             ma.set_posns(frame_n) # now we no longer need frame_n
                 # (note: set_posns did invals but not updates.)
             self.current_frame = n #k might not be needed -- our caller keeps its own version of this
@@ -1198,7 +1200,7 @@ def _checkMovieFile(part, filename, history = None):
     # currently possible -- if parts have same contents, it's not even possible in principle
     # until we have new DPB format, and not clear how to do it even then (if we only have
     # persistent names for files rather than parts).
-    if not part:
+    if part is None:
         if platform.atom_debug:
             print_compact_stack( "atom_debug: possible bug: part is false (%r) in _checkMovieFile for %s" % (part,filename))
             ## can't do this, no movie arg!!! self.debug_print_movie_info()

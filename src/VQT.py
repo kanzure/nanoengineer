@@ -63,7 +63,7 @@ class Q:
     """
     def __init__(self, x, y=None, z=None, w=None):
         # 4 numbers
-        if w != None: self.vec=V(x,y,z,w)
+        if w is not None: self.vec=V(x,y,z,w)
         elif z: # three axis vectors
             # Just use first two
             a100 = V(1,0,0)

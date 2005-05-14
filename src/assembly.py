@@ -54,6 +54,9 @@ The Part/assembly distinction is unfinished, particularly in how it relates to s
 
 Prior history unclear; almost certainly originated by Josh.
 
+bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+on __xxx__ attrs in python objects.
+
 """
 
 ###@@@ Note: lots of old code below has been commented out for the initial
@@ -265,7 +268,7 @@ class assembly:
                         # can this happen (someday) for weird unicode digits permitted by isdigit? who knows...
                         print "ignoring clipboard item name containing weird digits: %r" % (name,)
                         number = None
-            if number != None and self.next_clipboard_item_number <= number:
+            if number is not None and self.next_clipboard_item_number <= number:
                 # don't use any number <= one already in use
                 self.next_clipboard_item_number = number + 1
         res = "%s %d" % (prefix, self.next_clipboard_item_number)
@@ -294,6 +297,10 @@ class assembly:
         # in the future we're likely to do this separately for efficiency (only on nodes that might need it).
         for node in [self.tree] + self.shelf.members:
             node.part.break_interpart_bonds()
+            # note: this is not needed when shelf has no members, unless there are bugs its assertions catch.
+            # but rather than not do it then, I'll just make it fast, since it should be able to be fast
+            # (except for needing to recompute externs, but probably something else would need to do that anyway).
+            # [bruce 050513] [####@@@@ review this decision later]
         # now make sure current_selgroup() runs without errors, and also make sure
         # its side effects (from fixing an out of date selgroup, notifying observers
         # of any changes (e.g. glpane)) happen now rather than later.
@@ -318,15 +325,15 @@ class assembly:
         of this method.
         """
         #bruce 050420: don't remove node from its old wrong part. Old code was:
-##        if node.part and node != node.part.topnode:
+##        if node.part and node is not node.part.topnode: #revised 050513
 ##            # this happens, e.g., when moving a Group to the clipboard, and it becomes a new clipboard item
 ##            node.part.remove(node) # node's kids will be removed below
 ##            assert not node.part
 ##        if not node.part:
-        if not node.part or node.part.topnode != node:
+        if not node.part or node.part.topnode is not node:
             part1 = partclass(self, node)
-            assert node.part == part1
-            assert node == node.part.topnode
+            assert node.part is part1
+            assert node is node.part.topnode
         # now make sure all node's kids (recursively) are in node.part
         addmethod = node.part.add
         node.apply2all( addmethod ) # noop for nodes already in part;
@@ -344,11 +351,11 @@ class assembly:
             #e print the above in an except clause, so on asfail we'd see it...
             try:
                 assert node.is_top_of_selection_group() ##e rename node.is_selection_group()??
-                assert node.part.topnode == node # this also verifies each node has a different part
+                assert node.part.topnode is node # this also verifies each node has a different part
                 kids = []
                 node.apply2all( kids.append ) # includes node itself
                 for kid in kids:
-                    assert kid.part == node.part
+                    assert kid.part is node.part
                 assert node.part.nodecount == len(kids), "node.part.nodecount %d != len(kids) %d" % (node.part.nodecount, len(kids))
             except:
                 print "exception while checking part-related stuff about node:", node
@@ -388,13 +395,13 @@ class assembly:
         Never has side effects.
         """
         if not sg: return False
-        if sg.assy != self: return False
+        if sg.assy is not self: return False
         if not sg.is_top_of_selection_group():
             return False
         if not self.root.is_ascendant(sg):
             return False # can this ever happen??
         # I think we won't check the Part, even though it could, in theory,
-        # be present but wrong (in the sense that sg.part.topnode != sg),
+        # be present but wrong (in the sense that sg.part.topnode is not sg),
         # since that way, this method can be independent of Parts,
         # and since is_top_of_selection_group should have been enough
         # for what this method is used for. Logically, we use this to see
@@ -414,7 +421,7 @@ class assembly:
            If the current selgroup is changed, the new one is both returned and stored.
         """
         sg = self.current_selgroup_iff_valid()
-        if sg:
+        if sg is not None:
             return sg
         # now we're a bit redundant with that method (this seems necessary);
         # also, at this point we're almost certain to debug print and/or
@@ -423,11 +430,11 @@ class assembly:
         # since that guy was invalid, we'll definitely forget about it now
         # except for its use below as 'sg' (in this run of this method).
         self._last_current_selgroup = None # hopefully to be revised below
-        if sg and sg.assy == self and self.root.is_ascendant(sg):
+        if sg is not None and sg.assy is self and self.root.is_ascendant(sg):
             assert not sg.is_top_of_selection_group() # the only remaining way it could have been wrong
             # this is the one case where we use the invalid _last_current_selgroup in deciding on the new one.
             newsg = sg.find_selection_group() # might be None
-            if not newsg:
+            if newsg is None:
                 newsg = self.tree
         else:
             newsg = self.tree
@@ -442,7 +449,7 @@ class assembly:
             return None
         # Note: set_current_selgroup looks at prior self._last_current_selgroup,
         # so the fact that we set that to None (above) is important.
-        # Also, what if newsg == sg (should never happen here)?
+        # Also, what if newsg is sg (should never happen here)?
         # Then it won't be valid (else we'd have returned at top of this method)
         # and we'll see debug prints in set_current_selgroup.
         self.set_current_selgroup( newsg) # this stores it and notifies observers if any (eg updates glpane)
@@ -453,7 +460,7 @@ class assembly:
         and if so return its .part, and if not return None after emitting debug prints
         (which always indicates a bug, I'm 90% sure as I write it -- except maybe during init ###k #doc).
         """
-        if not sg or not sg.part or not sg.part.topnode == sg:
+        if not sg or not sg.part or not sg.part.topnode is sg:
             #doc: ... assy.tree.part being None.
             # (which might happen during init, and trying to make a part for it might infrecur or otherwise be bad.)
             # so if following debug print gets printed, we might extend it to check whether that "good excuse" is the case.
@@ -464,7 +471,7 @@ class assembly:
                 assert sg
                 assert sg.part
                 assert sg.part.topnode
-                assert sg.part.topnode == sg, "part %r topnode is %r should be %r" % (sg.part, sg.part.topnode, sg)
+                assert sg.part.topnode is sg, "part %r topnode is %r should be %r" % (sg.part, sg.part.topnode, sg)
             return None
         return sg.part
     
@@ -479,7 +486,7 @@ class assembly:
         [#e: not sure if we should do any unpicking or updating, in general;
          current caller doesn't need or want any.]
         """
-        if self._last_current_selgroup == old_top:
+        if self._last_current_selgroup is old_top:
             self._last_current_selgroup = new_top
             # no need (in fact, it would be bad) to call current_selgroup_changed, AFAIK
             # (does this suggest that "current part" concept ought to be more
@@ -496,7 +503,7 @@ class assembly:
         prior = self.current_selgroup_iff_valid() # don't call current_selgroup itself here --
             # it might try to "fix an out of date current selgroup"
             # and end up unpicking the node being passed to us.
-        if node == prior:
+        if node is prior:
             return # might be redundant with some callers, that's ok [#e simplify them?]
         if not prior and self._last_current_selgroup:
             prior = 0 # tell submethod that we don't know the true prior one
@@ -596,11 +603,11 @@ class assembly:
             if 1:
                 # open all containing nodes below assy.root (i.e. the clipboard, if we're a clipboard item)
                 containing_node = sg.dad
-                while containing_node and containing_node != self.root:
+                while containing_node is not None and containing_node is not self.root:
                     containing_node.open = True
                     containing_node = containing_node.dad
             part = self.selgroup_part(sg)
-            if not part:
+            if part is None:
                 #e [this IS REDUNDANT with debug prints inside selgroup_part] [which for debugging are now asserts #####@@@@@]
                 # no point in trying to fix it -- if that was possible, current_selgroup() did it.
                 # if it has no bugs, the only problem it couldn't fix would be assy.tree.part being None.

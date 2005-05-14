@@ -6,10 +6,16 @@ inval.py -- simple invalidation/update system for attributes within an object
 This file is owned by bruce.
 
 $Id$
+
+bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+on __xxx__ attrs in python objects.
+
 '''
 __author__ = "bruce"
 
 from debug import print_compact_stack, print_compact_traceback
+
+debug_counter = 0 # uncomment the related code (far below) to find out what's calling our __getattr__ [bruce 050513]
 
 # For now, we only support formulas whose set of inputs is constant,
 # in the sense that evaluating the formula always accesses all the inputs.
@@ -100,7 +106,7 @@ def make_invalmap_for(obj):
         recompute_attrs.remove(attr)
         inputs = getattr(obj, "_inputs_for_" + attr)
         output = attr
-        assert type(inputs) == type([])
+        assert type(inputs) is type([])
         imap.record_output_depends_on_inputs( output, inputs)
     assert not recompute_attrs, \
            "some _recompute_ attrs lack _inputs_for_ attrs: %r" % recompute_attrs
@@ -171,7 +177,18 @@ class InvalMixin:
         invalid, at runtime) by......
         """
         if attr.startswith('_'): # e.g. __repr__, __add__, etc -- be fast
-             raise AttributeError, attr
+##            #bruce 050513 debug code to see why this is called so many times (1.7M times for load/draw 4k atom part)
+##            global debug_counter
+##            debug_counter -= 1
+##            if debug_counter < 0:
+##                debug_counter = 38653
+##                print_compact_stack("a random _xxx call of this, for %r of %r: " % (attr, self))
+            raise AttributeError, attr
+##        global debug_counter
+##        debug_counter -= 1
+##        if debug_counter < 0:
+##            debug_counter = 38653
+##            print_compact_stack("a random non-_xxx call of this, for %r of %r: " % (attr, self))
         return getattr_helper(self, attr)
     
     # invalidation methods for client objects to call manually
@@ -299,18 +316,18 @@ def getattr_helper(self, attr):
     # (and we'll be loose and not warn if it was already stored --
     #  I don't know if asserting it was not stored could be correct in theory);
     # or it's None and correct value should have been stored (and might also be None).
-    if val != None:
+    if val is not None:
         setattr(self, attr, val) # store it ourselves
     else:
         val = self.__dict__.get(attr)# so we can return it from __getattr__
-        if val == None and self.__dict__.get(attr,1):
+        if val is None and self.__dict__.get(attr,1):
             # (test is to see if get result depends on default value '1')
             # error: val was neither returned nor stored; always raise exception
             # (but store it ourselves to discourage recursion if exception ignored)
             setattr(self, attr, val) 
             msg = "bug: _recompute_%s returned None, and did not store any value" % attr
             print msg
-            assert val != None, msg # not sure if this will be seen
+            assert val is not None, msg # not sure if this will be seen
     ## self.validate_attr(attr) # noop except for asserts, so removed for now
     return val
 

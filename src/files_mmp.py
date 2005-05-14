@@ -17,6 +17,9 @@ mainly (but not only) for the classes molecule, atom, and Jig.
 keep the reading and writing code for one format together --
 since it's mostly not together now.)
 
+bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+on __xxx__ attrs in python objects.
+
 ===
 
 Notes by bruce 050217 about mmp file format version strings:
@@ -230,7 +233,7 @@ class _readmmp_state:
     def _read_group(self, card): # group: begins a Group (of chunks, jigs, and/or Groups)
         #bruce 050405 revised this; it can be further simplified
         name = getname(card, "Grp")
-        assert name != None #bruce 050405 hope/guess
+        assert name is not None #bruce 050405 hope/guess
         old_opengroup = self.groupstack[-1]
         new_opengroup = Group(name, self.assy, old_opengroup)
             # this includes addchild of new group to old_opengroup (so don't call self.addmember)
@@ -239,7 +242,7 @@ class _readmmp_state:
     def _read_egroup(self, card): # egroup: close the current group record
         #bruce 050405 revised this; it can be further simplified
         name = getname(card, "Grp")
-        assert name != None #bruce 050405 hope/guess
+        assert name is not None #bruce 050405 hope/guess
         if len(self.groupstack) == 1:
             return "egroup %r when no groups remain unclosed" % (name,)
         curgroup = self.groupstack.pop()
@@ -272,7 +275,7 @@ class _readmmp_state:
         n = int(m.group(1))
         sym = PeriodicTable.getElement(int(m.group(2))).symbol
         xyz = A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
-        if not self.mol:
+        if self.mol is None:
             #bruce 050405 new feature for reading new bare sim-input mmp files
             self.guess_sim_input('missing_group_or_chunk')
             self.mol = molecule(self.assy,  "sim chunk")
@@ -784,7 +787,7 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
 def readmmp(assy, filename): #bruce 050302 split out some subroutines for use in other code
     """Read an mmp file to create a new model (including a new Clipboard)."""
     grouplist = _readmmp(assy, filename)
-    reset_grouplist(assy, grouplist) # handles grouplist == None (though not very well)
+    reset_grouplist(assy, grouplist) # handles grouplist is None (though not very well)
     return
     
 def reset_grouplist(assy, grouplist):
@@ -794,7 +797,7 @@ def reset_grouplist(assy, grouplist):
     Stick a new just-read grouplist into assy, within readmmp.
        If grouplist is None, indicating file had bad format,
     do some but not all of the usual side effects.
-    [appropriateness of behavior for grouplist == None is unreviewed]
+    [appropriateness of behavior for grouplist is None is unreviewed]
        Otherwise grouplist must be a list of exactly 3 Groups
     (though this is not fully checked here),
     which we treat as viewdata, tree, shelf.
@@ -806,7 +809,7 @@ def reset_grouplist(assy, grouplist):
     """
     #bruce 050418: revising this for assy/part split
     from Utility import kluge_patch_assy_toplevel_groups
-    if grouplist == None:
+    if grouplist is None:
         # do most of what old code did (most of which probably shouldn't be done,
         # but this needs more careful review (especially in case old code has
         # already messed things up by clearing assy), and merging with callers,
@@ -898,7 +901,7 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
     # when open a file; set the home view scale = current fit-in-view scale
     #bruce 050418 change this for assembly/part split (per-part Csys attributes)
     mainpart = assy.tree.part
-    assert assy.part == mainpart # necessary for glpane view funcs to refer to it (or was at one time)
+    assert assy.part is mainpart # necessary for glpane view funcs to refer to it (or was at one time)
     if mainpart.homeCsys.name == "OldVersion": ## old version of mmp file
         mainpart.homeCsys.name = "HomeView"
         glpane.set_part(mainpart) # also sets view, but maybe not fully correctly in this case ###k
@@ -1093,7 +1096,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         after_this_pos = max(afterposns)
         after_this_node = node_at(root, after_this_pos)
         if after_this_node.is_group():
-            assert after_this_node == self.assy.shelf, \
+            assert after_this_node is self.assy.shelf, \
                    "forwarding to after end of a group is not yet properly implemented: %r" % after_this_node
                 # (not even if we now skipped to end of that group (by pushing to 'child' not 'opengroup'),
                 #  since ends aren't ordered like starts, so max was wrong in that case.)
@@ -1148,7 +1151,7 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
     if addshelf:
         workaround_for_bug_296( assy)
     else:
-        workaround_for_bug_296( assy, onepart == assy.tree.part)
+        workaround_for_bug_296( assy, onepart == assy.tree.part) #bruce 050513: '==' should be '='! Bug but doesn't matter anymore.
     
     fp = open(filename, "w")
 
@@ -1179,9 +1182,9 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     part.assy.o.saveLastView() ###e should change to part.glpane? not sure... [bruce 050419 comment]
         # this updates assy.part csys records, but we don't currently write them out below
     node = part.topnode
-    assert part == node.part
+    assert part is node.part
     part.assy.update_parts() #bruce 050325 precaution
-    if part != node.part and platform.atom_debug:
+    if part is not node.part and platform.atom_debug:
         print "atom_debug: bug?: part changed during writemmpfile_part, using new one"
     part = node.part
     assy = part.assy

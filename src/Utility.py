@@ -12,6 +12,10 @@ This file should have a more descriptive name, but that can wait.
 [Temporarily owned by Bruce circa 050105; might be extensively revised.]
 
 $Id$
+
+bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+on __xxx__ attrs in python objects.
+
 """
 __author__ = "Josh"
 
@@ -86,7 +90,7 @@ nodekey = genKey()
 
 def node_id(node):
     "session-unique id for a Node (never reused) (legal to call for None, then returns None)"
-    if node == None:
+    if node is None:
         return None
     assert isinstance(node, Node) #e might relax this later
     try:
@@ -98,7 +102,7 @@ def node_id(node):
 # superclass of all Nodes
 
 def node_name(node): # use in error or debug messages for safety, rather than node.name
-    if node == None: return "<None>"
+    if node is None: return "<None>"
     try:
         return node.name
     except AttributeError:
@@ -154,7 +158,7 @@ class Node:
 
         # assy -- as temporary kluge, permitted to be a Part as well [bruce 050223]
         from assembly import assembly # the class
-        if assy and not isinstance(assy, assembly) and not assy == '<not an assembly>':
+        if assy is not None and not isinstance(assy, assembly) and assy != '<not an assembly>':
             try:
                 #bruce 050223 probably a temporary debug kluge, though it might turn out we prefer to store a Part anyway, not sure...
                 # permit this to be a Part and use its assy, but warn about this
@@ -168,7 +172,7 @@ class Node:
                 print_compact_traceback("bug in Node.__init__ assy check, hopefully ignored: ")
                 print "assy is %r" % (assy,)
         # verify assy is not None (not sure if that's allowed in principle, but I think it never happens) [050223]
-        if not assy:
+        if assy is None:
             if platform.atom_debug: # might not yet be safe to print self, esp if it's a subclass
                 print_compact_stack("atom_debug: Node or Group constructed with null assy = %r" % assy)
         self.assy = assy
@@ -176,7 +180,7 @@ class Node:
             dad.addchild(self) #bruce 050206 changed addmember to addchild, enforcing dad correctness
                 # warning [bruce 050316]: this might call inherit_part; subclasses must be ready for this
                 # by the time their inits call ours, e.g. a Group must have a members list by then.
-            assert self.dad == dad
+            assert self.dad is dad
         return
 
     def set_disabled_by_user_choice(self, val): #bruce 050505 as part of fixing bug 593
@@ -279,7 +283,7 @@ class Node:
                 node.dad = None
                 return False
             node = node.dad # never None, we just checked it above
-        return node.assy and node == node.assy.root ###e this is the part that knows too much about an assy. should ask it instead.
+        return node.assy and node is node.assy.root ###e this is the part that knows too much about an assy. should ask it instead.
 ##    
 ##        # first try was:
 ##        #e if nodes forget about .assy (as will be easiest when we support more than one assy at a time),
@@ -335,9 +339,9 @@ class Node:
             return
         # ours is this node's selgroup, and might or might not already be the current one in self.assy
         prior = self.assy.current_selgroup_iff_valid() # might be None but otherwise is always valid; no side effects [revised 050310]
-        if ours != prior:
+        if ours is not prior:
 ##            if platform.atom_debug:
-##                print "change_current_selgroup_to_include_self: prior %r != ours %r" % \
+##                print "change_current_selgroup_to_include_self: prior %r is not ours %r" % \
 ##                      (node_name(prior), node_name(ours))
             self.assy.set_current_selgroup( ours)
                 # this unpicks everything not in 'ours' and warns if it unpicked anything
@@ -348,8 +352,8 @@ class Node:
 ##        # warning, this is also the name of an assy instance var -- that one should have a private name
 ##        try:
 ##            maybe = self.assy.current_selection_group
-##            if maybe == None: return None
-##            if maybe.assy != self.assy:
+##            if maybe is None: return None
+##            if maybe.assy is not self.assy: #revised 050513
 ##                return None
 ##            if not maybe.is_top_of_selection_group():
 ##                return None
@@ -383,7 +387,7 @@ class Node:
                 break
             node = node.dad # might be None; always is eventually, so loop always terminates by then
             if node:
-                # don't try this test for node == self, since it's not a "dad of self"
+                # don't try this test for node is self, since it's not a "dad of self"
                 if node.picked:
                     return False, node                
         return True, node # might be None
@@ -505,7 +509,7 @@ class Node:
         # (to fix bug 360 item 6 comment 9, which had been fixed in the old MT's DND code too)
         if drag_type == 'move':
             for node in nodes:
-                if (node != self and node.is_ascendant(self)) or (node == self and node.is_group()):
+                if (node is not self and node.is_ascendant(self)) or (node is self and node.is_group()):
                     print "fyi: refusing drag-move since it would form a cycle"
                         #e should change retval-spec and get this into a redmsg
                     return False
@@ -587,7 +591,7 @@ class Node:
         is never again used, but that practice should be deprecated, and then
         this method should detect the error of node.dad already being set,
         or perhaps be extended to remove node from its dad.)
-        [Special case: legal and no effect if node == self. But this should be
+        [Special case: legal and no effect if node is self. But this should be
         made into an error, since it violates the rule that node is not presently
         in any Group!]
         [It is unlikely that any subclass should override this, since its
@@ -596,7 +600,7 @@ class Node:
         [Before bruce 050113 this was called Node.addmember, but it had different
         semantics from Group.addmember, so I split that into two methods.]
         """
-        if node == self:
+        if node is self:
             # bruce comment 010510: looks like an error, and not nearly the
             # only one possible... maybe we should detect more errors too,
             # and either work around them (as this does) or report them.
@@ -680,7 +684,7 @@ class Node:
         return value says whether anything was actually unpicked
         """
         # this implem should work for Groups too, since self.unpick does.
-        if self == node:
+        if self is node:
             return False
         res = self.picked # since no retval from unpick_top; this is a correct one if our invariants are always true
         self.unpick_top()
@@ -743,7 +747,7 @@ class Node:
         ## changed.dads.record(node) # make sure node's Part will be updated later if needed [bruce 050303]
         assert node.dad #k not sure if good to need this, but seems to fit existing calls... that might change [050205 comment]
             #e if no dad: assy, space, selgroup is None.... or maybe keep prior ones around until new real dad, not sure
-        assert node.assy == node.dad.assy or node.assy == None
+        assert node.assy is node.dad.assy or node.assy is None
             # bruce 050308, since following assy code & part code has no provision yet for coexisting assemblies
         node.assy = node.dad.assy # this might change soon, or might not... but if it's valid at all, it needs to be propogated down!
             # we leave it like this for now only in case it's ever being used to init the assy field from None.
@@ -771,7 +775,7 @@ class Node:
         "#doc [overridden in Group]"
         assert not self.part
         part.add(self)
-        assert self.part == part # correct only for leaf nodes
+        assert self.part is part # correct only for leaf nodes
     
     def changed_dad_comments(): "never called, just some semi-obs comments I need here for awhile"
         # new features 050205 for Alpha (to help fix DND/clipboard bugs):
@@ -869,12 +873,12 @@ class Node:
         """Is node in the subtree of nodes headed by self?
         [Optimization of Group.is_ascendant for leaf nodes; see its docstring for more info.]
         """
-        return self == node # only correct for self being a leaf node
+        return self is node # only correct for self being a leaf node
 
     def moveto(self, node, before=False): #e should be renamed for d&d, and cleaned up; has several external calls
         """Move self to a new location in the model tree, before or after node,
         or if node is a Group, somewhere inside it (reinterpreting 'before' flag
-        as 'top' flag, to decide where inside it). Special case: if self == node,
+        as 'top' flag, to decide where inside it). Special case: if self is node,
         return with no effect (even if node is a Group).
         """
         #bruce 050110 updated docstring to fit current code.
@@ -985,8 +989,9 @@ class Node:
         pass
 
     def break_interpart_bonds(self): #bruce 050308 for assy/part split, and to fix bug 371 and related bugs for Jigs
-        """Break all bonds (atom-atom or atom-Jig or (in future) anything similar)
+        """Break all illegal bonds (atom-atom or atom-Jig or (in future) anything similar)
         between this node and other nodes in a different Part.
+        [Note that as of 050513 and earlier, all atom-Jig interpart bonds are permitted; but we let the Jig decide that.] 
         Error if this node or nodes it bonds to have no .part.
         Subclasses with bonds must override this method as appropriate.
            It's ok if some kinds of nodes do this more fancily than mere "breakage",
@@ -998,9 +1003,9 @@ class Node:
         have this method called on them or not.
            The Group implem does *not* call this on its members --
         use apply2all for that.
-        [As of 030508, this is overridden only in class molecule and
+        [As of 050308, this is overridden only in class molecule and
          class Jig and/or its subclasses.]
-        """#####@@@@@doit in molecule and Jig and subclasses
+        """
         pass
 
     # end of class Node
@@ -1164,7 +1169,7 @@ class Group(Node):
         not a subclass). This won't be needed once class assembly is fixed to make
         the proper subclasses directly.
         """
-        assert self.__class__ == Group
+        assert self.__class__ is Group
         new = subclass(self.name, self.assy, self.dad) # no members yet
         assert isinstance(new, Group) # (but usually it's also some subclass of Group, unlike self)
         if self.dad:
@@ -1266,14 +1271,14 @@ class Group(Node):
         if newchild.is_ascendant(self):
             #bruce 050205 adding this for safety (should prevent DND-move cycles as a last resort, tho might lose moved nodes)
             if platform.atom_debug:
-                # this msg covers newchild==self too since that's a length-1 cycle
+                # this msg covers newchild is self too since that's a length-1 cycle
                 print "atom_debug: addchild refusing to form a cycle, doing nothing; this indicates a bug in the caller:",self,newchild
             return
         if newchild.dad:
             # first cleanly remove newchild from its prior home.
             # (Callers not liking this can set newchild.dad = None before calling us.
             #  But doing so (or not liking this) is deprecated.)
-            if newchild.dad == self:
+            if newchild.dad is self:
                 # this might be wanted (as a way of moving a node within self.members)
                 # (and a caller might request it by accident when moving a node from a general position,
                 #  so we want to cooperate), but the general-case code won't work
@@ -1285,13 +1290,13 @@ class Group(Node):
                     # i'll remove this msg soon after i first see it.
                     print "atom_debug: fyi: addchild asked to move newchild within self.members, might need special cases",self,newchild
                     print "...options: top = %r, after = %r, before = %r" % (top , after , before)
-                if type(before) == type(1):
+                if type(before) is type(1):
                      # indices will change, use real nodes instead
                      # (ok even if real node is 'newchild'! we detect that below)
                     before = self.members[before]
-                if type(after) == type(1):
+                if type(after) is type(1):
                     after = self.members[after]
-                if before == newchild or after == newchild:
+                if before is newchild or after is newchild:
                     # this is a noop, and it's basically a valid request, so just do it now (i.e. return immediately);
                     # note that general-case code would fail since these desired-position-markers
                     # would be gone once we remove newchild from self.members.
@@ -1309,15 +1314,15 @@ class Group(Node):
             #   probably we need some subscription-to-changes or modtime system...)
         if top:
             self.members.insert(0, newchild) # Insert newchild at the very top
-        elif after != None: # 0 has different meaning than None!
-            if type(after) != type(0):
+        elif after is not None: # 0 has different meaning than None!
+            if type(after) is not type(0):
                 after = self.members.index(after) # raises ValueError if not found, that's fine
             if after == -1:
                 self.members += [newchild] # Add newchild to the bottom (.insert at -1+1 doesn't do what we want for this case)
             else:
                 self.members.insert(after+1, newchild) # Insert newchild after the given position #k does this work for negative indices?
-        elif before != None:
-            if type(before) != type(0):
+        elif before is not None:
+            if type(before) is not type(0):
                 before = self.members.index(before) # raises ValueError if not found, that's fine
             self.members.insert(before, newchild) # Insert newchild before the given position #k does this work for negative indices?
         else:
@@ -1332,9 +1337,9 @@ class Group(Node):
         return
 
     def delmember(self, obj):
-        if obj.dad != self: # bruce 050205 new feature -- check for this (but do nothing about it)
+        if obj.dad is not self: # bruce 050205 new feature -- check for this (but do nothing about it)
             if platform.atom_debug:
-                print_compact_stack( "atom_debug: fyi: delmember finds obj.dad != self: ") #k does this ever happen?
+                print_compact_stack( "atom_debug: fyi: delmember finds obj.dad is not self: ") #k does this ever happen?
         obj.unpick() #bruce 041029 fix bug 145 [callers should not depend on this happening! see below]
             #k [bruce 050202 comment, added 050205]: review this unpick again sometime, esp re DND drag_move
             # (it might be more relevant for addchild than for here; more likely it should be made not needed by callers)
@@ -1503,7 +1508,7 @@ class Group(Node):
 ##        assert 0, "this is not yet used!"
 ##        ###@@@ need to review all copy methods for inconsistent semantics
 ##        # (internal like mol.copy, or menu-event-handlers?)
-##        if self.__class__ != Group:
+##        if self.__class__ is not Group:
 ##            return None
 ##        res = Group( self.name, self.assy, None) #e should we use chem.gensym(self.name)?
 ##            # dad None here, for Alpha, to work with assy.copy_sel as of 050131
@@ -1537,7 +1542,7 @@ class Group(Node):
          thus it's legal to call this for node being any node's dad.)
         """
         while node:
-            if node == self: return True
+            if node is self: return True
             node = node.dad
         return False
         
@@ -1597,7 +1602,7 @@ class Group(Node):
     def dumptree(self, depth=0):
         print depth*"...", self.name
         for x in self.members:
-            if x.dad != self: print "bad thread:", x, self, x.dad
+            if x.dad is not self: print "bad thread:", x, self, x.dad
             x.dumptree(depth+1)
 
     def draw(self, o, dispdef):
@@ -1664,7 +1669,7 @@ class Csys(DataNode):
         self.const_icon = imagename_to_pixmap("csys.png")
         Node.__init__(self, assy, name)
         self.scale = scale
-        assert type(pov) == type(V(1, 0, 0))
+        assert type(pov) is type(V(1, 0, 0))
         self.pov = V(pov[0], pov[1], pov[2])
         self.zoomFactor = zoomFactor
         
@@ -1697,7 +1702,7 @@ class Csys(DataNode):
         # The data copied is the same as what can be passed to init and what writemmp writes.
         # Note that the copy needs to have the same exact name, not a variant (since the name
         # is meaningful for the internal uses of this object, in the present implem).
-        assert dad == None
+        assert dad is None
         if "a kluge is ok since I'm in a hurry":
             # the data in this Csys might not be up-to-date, since the glpane "caches it"
             # (if we're the Home or Last View of its current Part)
@@ -1849,7 +1854,7 @@ class ClipboardShelfGroup(Group):
                 # if we're only dragging *some* nodes from it.)
             for node in nodes[:]: #bruce 050216 don't reverse the order, it's already correct
                 part = node.part
-                if part:
+                if part is not None:
                     parts[id(part)] = part
                 del part
                 node.unpick() #bruce 050216; don't know if needed or matters; 050307 moved from after to before moveto
@@ -1938,10 +1943,10 @@ def kluge_patch_assy_toplevel_groups(assy, assert_this_was_not_needed = False): 
     # anyway that bug *is* fixed now, so ok for now, worry about it later. ###@@@
     fixroot = 0
     try:
-        if assy.shelf.__class__ == Group:
+        if assy.shelf.__class__ is Group:
             assy.shelf = assy.shelf.kluge_change_class( ClipboardShelfGroup)
             fixroot = 1
-        if assy.tree.__class__ == Group:
+        if assy.tree.__class__ is Group:
             assy.tree = assy.tree.kluge_change_class( PartGroup)
             ##bruce 050302 removing use of 'viewdata' here,
             # since its elements are no longer shown in the modelTree,
@@ -1951,7 +1956,7 @@ def kluge_patch_assy_toplevel_groups(assy, assert_this_was_not_needed = False): 
 ##            # are these in the correct order (CSys XY YZ ZX)? I think so. [bruce 050110]
 ##            assy.tree.kluge_set_initial_nonmember_kids( lis )
             fixroot = 1
-        if assy.root.__class__ == Group or fixroot:
+        if assy.root.__class__ is Group or fixroot:
             fixroot = 1 # needed for the "assert_this_was_not_needed" check
             ## sanitize_for_clipboard has been replaced by update_parts done by callers [050309]:
 ##            for m in assy.shelf.members:

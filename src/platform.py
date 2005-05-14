@@ -511,12 +511,12 @@ def load_window_pos_size( win, keyprefix, defaults = None, screen = None, histme
     limited by supplied screen size, both given as ((pos_x,pos_y),(size_x,size_y)).
     (#e Someday, maybe restore more aspects like dock layout and splitter bar positions??)
     """
-    if defaults == None:
+    if defaults is None:
         defaults = get_window_pos_size(win)
     dpos, dsize = defaults
     px,py = dpos # check correctness of args, even if not used later
     sx,sy = dsize
-    if screen == None:
+    if screen is None:
         screen = screen_pos_size()
     ((x0,y0),(w,h)) = screen
     x1 = x0 + w

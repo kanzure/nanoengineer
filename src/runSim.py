@@ -120,7 +120,7 @@ class SimRunner:
         movie = self._movie
 
         # set up alist (list of atoms for sim input and output files, in order)
-        if movie.alist != None:
+        if movie.alist is not None:
             # this movie object is being reused, which is a bug. complain... and try to work around.
             if platform.atom_debug: # since I expect this is possible for "save movie file" until fixed... [bruce 050404] (maybe not? it had assert 0)
                 print "BUG (worked around??): movie object being reused unexpectedly"
@@ -275,7 +275,7 @@ class SimRunner:
         part = self.part
         mmpfile = self.sim_input_file # the filename to write to
         movie = self._movie # old-code compat kluge
-        assert movie.alist != None #bruce 050404
+        assert movie.alist is not None #bruce 050404
         
         # Tell user we're creating the movie file...
     #    msg = "Creating movie file [" + moviefile + "]"
@@ -583,7 +583,7 @@ class SimRunner:
             # and only include the general advice once per session.
             global last_sim_tracefile
             if last_sim_tracefile != tfile:
-                preach = (last_sim_tracefile == None)
+                preach = (last_sim_tracefile is None)
                 last_sim_tracefile = tfile
                 msg = "(The simulator trace file was [%s]." % tfile
                 if preach:
@@ -822,7 +822,7 @@ class simSetup_CommandRun(CommandRun):
         # It's called only from self.run() above; not clear it should be a separate method,
         # or if it is, that it's split from the caller at the right boundary.
         suffix = self.part.movie_suffix()
-        if suffix == None: #bruce 050316 temporary kluge
+        if suffix is None: #bruce 050316 temporary kluge
             self.history.message( redmsg( "Simulator is not yet implemented for clipboard items."))
             return -1
         ###@@@ else use suffix below!
@@ -954,7 +954,7 @@ class Minimize_CommandRun(CommandRun):
         """
         #bruce 050324 made this from the Part method makeMinMovie.
         suffix = self.part.movie_suffix()
-        if suffix == None: #bruce 050316 temporary kluge; as of circa 050326 this is not used anymore
+        if suffix is None: #bruce 050316 temporary kluge; as of circa 050326 this is not used anymore
             self.w.history.message( redmsg( "Minimize is not yet implemented for clipboard items."))
             return
         #e use suffix below? maybe no need since it's ok if the same filename is reused for this.

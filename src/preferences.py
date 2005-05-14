@@ -219,7 +219,7 @@ def _close():
 def _reopen():
     _ensure_shelf_exists()
     global _shelf
-    assert _shelf == None
+    assert _shelf is None
     _shelf = shelve.open(_shelfname)
     # don't bother to re-update our _cache! This would be too slow to do every time.
     return

@@ -17,6 +17,10 @@ History:
 - elements.py was split out of this module on 041221
 
 - class Bond and associated code was moved into new file bonds.py by bruce 050502
+
+- bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
+  for atoms, molecules, elements, parts, assys, atomtypes in many places (not all commented individually); 050513
+
 '''
 __author__ = "Josh"
 
@@ -155,7 +159,7 @@ class atom(InvalMixin):
                 atype = sym.atomtype # works if sym was an atom
             except:
                 atype = sym
-            assert atype.element == self.element # trivial in one of these cases, should improve #e
+            assert atype.element is self.element # trivial in one of these cases, should improve #e
         
         # 'where' is atom's absolute location in model space,
         # until replaced with 'no' by shakedown, indicating
@@ -179,7 +183,7 @@ class atom(InvalMixin):
         # (note that the assembly is not explicitly stored
         #  and that the index is only set later by methods in the molecule)
         self.molecule = None # checked/replaced by mol.addatom
-        if mol:
+        if mol is not None:
             mol.addatom(self)
             # bruce 041109 wrote addatom to do following for us and for hopmol:
             ## self.molecule = mol
@@ -193,7 +197,7 @@ class atom(InvalMixin):
         # (optional debugging code to show which code creates bad atoms:)
         ## if platform.atom_debug:
         ##     self._source = compact_stack()
-        if atype:
+        if atype is not None:
             self.set_atomtype_but_dont_revise_singlets( atype)
         return # from atom.__init__
 
@@ -217,7 +221,7 @@ class atom(InvalMixin):
     def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype*; perhaps use more widely
         "#doc"
         atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
-        assert atomtype.element == self.element # [redundant with find_atomtype]
+        assert atomtype.element is self.element # [redundant with find_atomtype]
         self.atomtype = atomtype
         ###e need any invals or updates for this method?? ###@@@
         return
@@ -236,8 +240,8 @@ class atom(InvalMixin):
         """
         # Note: mvElement sets self.atomtype directly; if it called this method, we'd have infrecur!
         atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
-        assert atomtype.element == self.element # [redundant with find_atomtype] #e or transmute if not??
-        if always_remake_singlets or (self.atomtype_iff_set() != atomtype):
+        assert atomtype.element is self.element # [redundant with find_atomtype] #e or transmute if not??
+        if always_remake_singlets or (self.atomtype_iff_set() is not atomtype):
             self.direct_Transmute( atomtype.element, atomtype ) ###@@@ not all its needed invals/updates are implemented yet
             # note: self.atomtype = atomtype is done in direct_Transmute when it calls mvElement
         return
@@ -261,7 +265,7 @@ class atom(InvalMixin):
         else:
             return + self.molecule.curpos[self.index]
 
-    def baseposn(self): #bruce 041107; rewritten 041201 to help fix bug 204
+    def baseposn(self): #bruce 041107; rewritten 041201 to help fix bug 204; optimized 050513
         """Like posn, but return the mol-relative position.
         Semi-private method -- should always be legal, but assumes you have
         some business knowing about the mol-relative coordinate system, which is
@@ -270,12 +274,19 @@ class atom(InvalMixin):
         if it recomputed basepos! But as of that date we'll never compute
         basepos or atpos if they're invalid.
         """
-        #e Does this mean we no longer use baseposn for drawing? Does that
+        #comment from 041201:
+        #e Does this mean we no longer use basepos for drawing? Does that
         # matter (for speed)? We still use it for things like mol.rot().
         # We could inline the old baseposn into mol.draw, for speed.
         # BTW would checking for basepos here be worth the cost of the check? (guess: yes.) ###e
         # For speed, I'll inline this here: return self.molecule.abs_to_base( self.posn())
-        return self.molecule.quat.unrot(self.posn() - self.molecule.basecenter)
+        #new code from 050513:
+        mol = self.molecule
+        basepos = mol.__dict__.get('basepos') #bruce 050513
+        if basepos is not None and self.xyz != 'no':
+            return basepos[self.index]
+        # fallback to slower code from 041201:
+        return mol.quat.unrot(self.posn() - mol.basecenter)
 
     def setposn(self, pos):
         """set the atom's absolute position,
@@ -304,12 +315,27 @@ class atom(InvalMixin):
             # the position is stored in the molecule, so let it figure out the
             # proper way of adjusting it -- this also does the necessary invals.
             self.molecule.setatomposn(self.index, pos, self.element)
+                # Warning: if atpos exists, this does lots of work being "incremental" rather than
+                # just getting rid of it. Would it be better to always get rid of it completely?
+                # At least, callers who'll call us a lot should consider doing that first. [bruce 050513]
         # also invalidate the bonds or jigs which depend on our position.
         #e (should this be a separate method -- does anything else need it?)
         for b in self.bonds:
             b.setup_invalidate()
         ###e we also need to invalidate jigs which care about their atoms' positions
         return
+
+    def setposn_batch(self, pos): #bruce 050513; I wonder if almost all calls of setposn should be this instead? maybe...
+        "use this in place of setposn, for speed, if you will run it a lot on atoms in the same chunk"
+        mol = self.molecule
+        try:
+            del mol.atpos
+        except:
+            pass
+        else:
+            mol.changed_attr('atpos', skip = ('basepos',) )
+                #e not yet perfect, since we'd like to let mol stay frozen, with basepos same as curpos; will it when atpos comes back?
+        self.setposn(pos)
     
     def adjSinglets(self, atom, nupos):
         """We're going to move atom, a neighbor of yours, to nupos,
@@ -333,7 +359,7 @@ class atom(InvalMixin):
         new = V(0,0,0)
         for at in n:
             old += at.posn()-apo
-            if at == atom: new += nupos-apo
+            if at is atom: new += nupos-apo
             else: new += at.posn()-apo
         if n:
             q=Q(old,new)
@@ -359,6 +385,7 @@ class atom(InvalMixin):
         the molecule or glpane, but a molecule's color overrides the atom's
         element-dependent one. No longer treats glpane.selatom specially
         (caller can draw selatom separately, on top of the regular atom).
+           Return value gives the display mode we used (our own or inherited).
         """
         assert not self.__killed
         # note use of basepos (in atom.baseposn) since it's being drawn under
@@ -381,11 +408,11 @@ class atom(InvalMixin):
             #  even though there's not yet any way to turn this feature off.)
             color = (self.bad() and ErrorPickedColor) or PickedColor
             drawwiresphere(color, pos, pickedrad)
-        return
+        return disp # bruce 050513 added retval to help with an optim
 
     def bad(self): #bruce 041217 experiment
         "is this atom breaking any rules?"
-        if self.element == Singlet:
+        if self.element is Singlet:
             # should be correct, but this case won't be used as of 041217 [probably no longer needed even if used -- 050511]
             numbonds = 1
         else:
@@ -396,7 +423,7 @@ class atom(InvalMixin):
         "Draw this atom slightly larger than usual with the given special color and optional drawlevel."
         #bruce 050324; meant for use in Fuse Chunks mode;
         # also could perhaps speed up Extrude's singlet-coloring #e
-        if level == None:
+        if level is None:
             level = self.molecule.assy.drawLevel
         pos = self.posn() # note, unlike for draw_as_selatom, this is in main model coordinates
         drawrad = self.selatom_radius() # slightly larger than normal drawing radius
@@ -406,7 +433,7 @@ class atom(InvalMixin):
     def draw_as_selatom(self, glpane, dispdef, color, level):
         #bruce 041206, to avoid need for changeapp() when selatom changes
         # (fyi, as of 041206 the color arg is not used)
-        if self.element == Singlet:
+        if self.element is Singlet:
             color = LEDon
         else:
             color = orange
@@ -415,10 +442,10 @@ class atom(InvalMixin):
         drawsphere(color, pos, drawrad, level) # always draw, regardless of disp
 
     def selatom_radius(self, dispdef = None): #bruce 041207, should integrate with draw_as_selatom
-        if dispdef == None:
+        if dispdef is None:
             dispdef = self.molecule.get_dispdef()
         disp, drawrad = self.howdraw(dispdef)
-        if self.element == Singlet:
+        if self.element is Singlet:
             drawrad *= 1.02
                 # increased radius might not be needed, if we would modify the
                 # OpenGL depth threshhold criterion used by GL_DEPTH_TEST
@@ -461,7 +488,7 @@ class atom(InvalMixin):
             if platform.atom_debug and 0: #bruce 050419 disable this since always happens for Element Color Prefs dialog
                 print "bug warning: dispdef == diDEFAULT in atom.howdraw for %r" % self
             dispdef = default_display_mode # silently work around that bug [bruce 041206]
-        if self.element == Singlet:
+        if self.element is Singlet:
             try:
                 disp, rad_unused = self.bonds[0].other(self).howdraw(dispdef)
             except:
@@ -510,14 +537,14 @@ class atom(InvalMixin):
         """
         if self.picked:
             return True # even for invisible atoms
-        if self.element == Singlet:
+        if self.element is Singlet:
             disp = self.bonds[0].other(self).display
         else:
             disp = self.display
         if disp == diDEFAULT: # usual case; use dispdef
             # (note that singlets are assumed to reside in same chunks as their
             # real neighbor atoms, so the same dispdef is valid for them)
-            if dispdef == None:
+            if dispdef is None:
                 disp = self.molecule.get_dispdef()
             else:
                 disp = dispdef
@@ -529,7 +556,7 @@ class atom(InvalMixin):
         disp = mapping.dispname(self.display) # note: affected by mapping.sim flag
         posn = self.posn() # might be revised below
         eltnum = self.element.eltnum # might be revised below
-        if mapping.sim and self.element == Singlet:
+        if mapping.sim and self.element is Singlet:
             # special case for singlets in mmp files meant only for simulator:
             # pretend we're a Hydrogen, and revise posn and eltnum accordingly
             # (for writing only, not stored in our attrs)
@@ -545,7 +572,7 @@ class atom(InvalMixin):
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
         #bruce 050511: also write atomtype if it's not the default
         atype = self.atomtype_iff_set()
-        if atype and atype != self.element.atomtypes[0]:
+        if atype is not None and atype is not self.element.atomtypes[0]:
             mapping.write( "info atom atomtype = %s\n" % atype.name )
         # write only the bonds which have now had both atoms written
         #bruce 050502: write higher-valence bonds using their new mmp records,
@@ -649,7 +676,7 @@ class atom(InvalMixin):
         """
         #bruce 041206 revised docstring to match code
         #bruce 041207 comment: the only call of checkpick is from assy.findpick
-        if self.element == Singlet: return None
+        if self.element is Singlet: return None
         if not r:
             disp, r = self.howdraw(disp)
         # bruce 041214:
@@ -668,7 +695,7 @@ class atom(InvalMixin):
         #  that, using independent code).
         # bruce 050218 changing XYZ format to %.3f (after earlier discussion with Josh).
         
-        if self == self.molecule.assy.ppa2: return
+        if self is self.molecule.assy.ppa2: return
             
         xyz = self.posn()
 
@@ -730,7 +757,7 @@ class atom(InvalMixin):
     def pick(self):
         """make the atom selected
         """
-        if self.element == Singlet: return
+        if self.element is Singlet: return
         # If select atoms filter is on, only pick element type in the filter combobox
         if self.molecule.assy.w.SAFilter.isChecked() and \
             self.element.name != self.molecule.assy.w.SAFilterList.currentText(): return
@@ -757,7 +784,7 @@ class atom(InvalMixin):
         # bruce 041214: should never be picked, so Singlet test is not needed,
         # and besides if it ever *does* get picked (due to a bug) you should let
         # the user unpick it!
-        ## if self.element == Singlet: return 
+        ## if self.element is Singlet: return 
         if self.picked:
             try:
                 #bruce 050309 catch exceptions, and do this before picked=0
@@ -838,7 +865,7 @@ class atom(InvalMixin):
         # normally replace an atom (bonded to self) with a singlet,
         # but don't replace a singlet (at2) with a singlet,
         # and don't add a singlet to another singlet (self).
-        if self.element == Singlet:
+        if self.element is Singlet:
             if not self.bonds:
                 self.kill() # bruce 041115 added this and revised all callers
             else:
@@ -846,7 +873,7 @@ class atom(InvalMixin):
                 # don't kill it, in this case [bruce 041115; I don't know if this ever happens]
             return None
         at2 = b.other(self)
-        if at2.element == Singlet:
+        if at2.element is Singlet:
             return None
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
         self.molecule.bond(self, x) # invals mol as needed
@@ -856,7 +883,8 @@ class atom(InvalMixin):
         '''Return the bond to a neighboring atom, or None if none exists.
         '''
         for b in self.bonds:
-            if b.other(self) == neighbor:
+            ## if b.other(self) == neighbor: could be faster [bruce 050513]:
+            if b.atom1 is neighbor or b.atom2 is neighbor:
                return b
         return None
             
@@ -870,12 +898,12 @@ class atom(InvalMixin):
         or vice versa, which changes how they need to be drawn.
         """
         # bruce 041222 removed side effect on self.picked
-        if self.molecule == numol:
+        if self.molecule is numol:
             return
         self.molecule.delatom(self) # this also invalidates our bonds
         numol.addatom(self)
         for atm in self.singNeighbors():
-            assert self.element != Singlet # (only if we have singNeighbors!)
+            assert self.element is not Singlet # (only if we have singNeighbors!)
                 # (since hopmol would infrecur if two singlets were bonded)
             atm.hopmol(numol)
         return
@@ -888,12 +916,12 @@ class atom(InvalMixin):
     def realNeighbors(self):
         """return a list of the atoms not singlets bonded to this one
         """
-        return filter(lambda atm: atm.element != Singlet, self.neighbors())
+        return filter(lambda atm: atm.element is not Singlet, self.neighbors())
     
     def singNeighbors(self):
         """return a list of the singlets bonded to this atom
         """
-        return filter(lambda atm: atm.element == Singlet, self.neighbors())
+        return filter(lambda atm: atm.element is Singlet, self.neighbors())
 
     singletNeighbors = singNeighbors #bruce 050404, soon should just rename it and all the uses ###e ###@@@
     
@@ -909,25 +937,25 @@ class atom(InvalMixin):
         It does not even delete or add extra singlets to match the new element
         type; for that, use atom.Transmute.
         """
-        if atomtype == None:
+        if atomtype is None:
             atomtype = elt.atomtypes[0]
-            # Note: we do this even if self.element == elt and self.atomtype != elt.atomtypes[0] !
+            # Note: we do this even if self.element is elt and self.atomtype is not elt.atomtypes[0] !
             # That is, passing no atomtype is *always* equivalent to passing elt's default atomtype,
             # even if this results in changing this atom's atomtype but not its element.
-        assert atomtype.element == elt
+        assert atomtype.element is elt
         if platform.atom_debug:
-            if elt == Singlet: #bruce 041118
+            if elt is Singlet: #bruce 041118
                 # this is unsupported; if we support it it would require
                 # moving this atom to its neighbor atom's chunk, too
-                # [btw we *do* permit self.element == Singlet before we change it]
+                # [btw we *do* permit self.element is Singlet before we change it]
                 print "atom_debug: fyi, bug?: mvElement changing %r to a singlet" % self
-        if self.atomtype_iff_set() == atomtype:
-            assert self.element == elt # i.e. assert that self.element and self.atomtype were consistent
+        if self.atomtype_iff_set() is atomtype:
+            assert self.element is elt # i.e. assert that self.element and self.atomtype were consistent
             if platform.atom_debug: #bruce 050509
                 print_compact_stack( "atom_debug: fyi, bug?: mvElement changing %r to its existing element and atomtype" % self )
             return #bruce 050509, not 100% sure it's correct, but if not, caller probably has a bug (eg relies on our invals)
         # now we're committed to doing the change
-        if (self.element == Singlet) != (elt == Singlet):
+        if (self.element is Singlet) != (elt is Singlet):
             # set of singlets is changing
             #bruce 050224: fix bug 372 by invalidating singlets
             self.molecule.invalidate_attr('singlets')
@@ -944,9 +972,9 @@ class atom(InvalMixin):
 
     def changed(self): #bruce 050509; perhaps should use more widely
         mol = self.molecule
-        if not mol: return #k needed??
+        if mol is None: return #k needed??
         part = mol.part
-        if not part: return # (might well be needed, tho not sure)
+        if part is None: return # (might well be needed, tho not sure)
         part.changed()
 
     def invalidate_bonds(self): # also often inlined
@@ -968,7 +996,7 @@ class atom(InvalMixin):
                 assert self.__killed == 1
                 assert not self.picked
                 from chunk import _nullMol
-                assert self.molecule == _nullMol or self.molecule == None
+                assert self.molecule is _nullMol or self.molecule is None
                 # thus don't do this: assert not self.key in self.molecule.assy.selatoms
                 assert not self.bonds
                 assert not self.jigs
@@ -995,7 +1023,7 @@ class atom(InvalMixin):
         will themselves be killed.)
         """
         if self.__killed:
-            if not self.element == Singlet:
+            if not self.element is Singlet:
                 print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
             else:
                 # Note: killing a selected mol, using Delete key, kills a lot of
@@ -1037,7 +1065,7 @@ class atom(InvalMixin):
                         # eg when killing a chunk, since these new singlets are
                         # wasted then. [bruce 041201]
             # note: as of 041029 unbond also invalidates externs if necessary
-            ## if n.element == Singlet: n.kill() -- done in unbond as of 041115
+            ## if n.element is Singlet: n.kill() -- done in unbond as of 041115
         self.bonds = [] #bruce 041029 mitigate repeated kills
 
         # only after disconnected from everything else, remove it from its molecule
@@ -1059,7 +1087,7 @@ class atom(InvalMixin):
            If hydrogenate succeeds return number 1, otherwise, 0.
         """
         # Huaicai 1/19/05 added return value.
-        if not self.element == Singlet: return 0
+        if not self.element is Singlet: return 0
         other = self.bonds[0].other(self)
         self.mvElement(Hydrogen)
         #bruce 050406 rewrote the following, so it no longer depends
@@ -1094,7 +1122,7 @@ class atom(InvalMixin):
                 # for original len close to 0, this might help make new len 1 [bruce 050404]
         if pretend_I_am: #bruce 050511 revised for atomtype
             ## my_elem = pretend_I_am # not needed
-            my_atype = pretend_I_am.atomtypes[0] # even if self.element == pretend_I_am
+            my_atype = pretend_I_am.atomtypes[0] # even if self.element is pretend_I_am
         else:
             ## my_elem = self.element
             my_atype = self.atomtype
@@ -1113,7 +1141,7 @@ class atom(InvalMixin):
         """
         # [fyi: some new features were added by bruce, 041018 and 041029;
         #  need for callers to shakedown or kill mols removed, bruce 041116]
-        if self.element == Hydrogen and not self.killed():
+        if self.element is Hydrogen and not self.killed():
             #bruce 041029 added self.killed() check above to fix bug 152
             self.kill()
             # note that the new singlet produced by killing self might be in a
@@ -1177,21 +1205,21 @@ class atom(InvalMixin):
         # singlets anyway -- which is fine
 
     def is_singlet(self):
-        return self.element == Singlet # [bruce 050502 comment: it's possible self is killed and len(self.bonds) is 0]
+        return self.element is Singlet # [bruce 050502 comment: it's possible self is killed and len(self.bonds) is 0]
     
     def singlet_neighbor(self): #bruce 041109 moved here from extrudeMode.py
         "return the atom self (a known singlet) is bonded to, checking assertions"
-        assert self.element == Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
+        assert self.element is Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
             #bruce 050221 added data to the assert, hoping to track down bug 372 when it's next seen
         obond = self.bonds[0]
         atom = obond.other(self)
-        assert atom.element != Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self,atom)
+        assert atom.element is not Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self,atom)
         return atom
 
     # higher-valence bonds methods [bruce 050502]
     
     def singlet_v6(self):
-        assert self.element == Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
+        assert self.element is Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
         assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
         return self.bonds[0].v6
 
@@ -1202,7 +1230,7 @@ class atom(InvalMixin):
             # it might even reduce valence to 0 but not kill it,
             # letting base atom worry about that
             # (and letting it take advantage of the singlet's position, when it updates things)
-        assert self.element == Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
+        assert self.element is Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
         assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
         self.bonds[0].reduce_valence_noupdate(vdelta, permit_illegal_valence = True) # permits in-between, 0, or negative(?) valence
         return
@@ -1271,21 +1299,21 @@ class atom(InvalMixin):
         """
         ##print "transmute called, self.atomtype_iff_set is %r" % self.atomtype_iff_set()
         ##print "transmute called, elt atomtype = %r %r, self attrs for those are %r, %r" % (elt, atomtype, self.element, self.atomtype) 
-        if self.element == Singlet:
+        if self.element is Singlet:
             # does this ever happen? #k
             return
-        if atomtype == None:
-            if self.element == elt and len(self.bonds) == self.atomtype.numbonds:
+        if atomtype is None:
+            if self.element is elt and len(self.bonds) == self.atomtype.numbonds:
                 ## this code might be used if we don't always return due to bond valence: ###@@@
                 ## atomtype = self.atomtype # use current atomtype if we're correct for it now, even if it's not default atomtype
                 return # since elt and desired atomtype are same as now and we're correct
             else:
                 atomtype = elt.atomtypes[0] # use default atomtype of elt
                 ##print "transmute picking this dflt atomtype", atomtype 
-        assert atomtype.element == elt
+        assert atomtype.element is elt
         # in case a specific atomtype was passed or the default one was chosen,
         # do another check to return early if requested change is a noop and our bond count is correct
-        if self.element == elt and self.atomtype == atomtype and len(self.bonds) == atomtype.numbonds:
+        if self.element is elt and self.atomtype is atomtype and len(self.bonds) == atomtype.numbonds:
             # leave existing singlet positions alone in this case -- not sure this is best! ###@@@ #e review
             ##print "transmute returning since noop to change to these: %r %r" % (elt, atomtype)
             return
@@ -1388,7 +1416,7 @@ class atom(InvalMixin):
             a1 = self.bonds[0].other(self) # our real neighbor
             if len(a1.bonds)>1:
                 # don't pick ourself
-                if self == a1.bonds[0].other(a1):
+                if self is a1.bonds[0].other(a1):
                     a2pos = a1.bonds[1].other(a1).posn()
                 else:
                     a2pos = a1.bonds[0].other(a1).posn()

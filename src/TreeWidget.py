@@ -214,7 +214,7 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         dragobj, filtered_nodes = self.client.advise_starting_drag_and_get_dragobj( self.drag_type, self.nodes )
         if not dragobj:
             return
-        if filtered_nodes == None:
+        if filtered_nodes is None:
             return # not really needed but it's in the API for that retval #e fix
         
         ###@@@ we moved a lot from here into client -- does here even still need self.nodes, for example?
@@ -281,7 +281,7 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
 ##                print_compact_traceback("oops: ")
                 
         # dropped on model tree (tho it does not accept it): target == dragsource == <modelTree.modelTree object at 0xce2d120>
-        # dropped on glpane: target == None. dropped on external app Terminal: target == None.
+        # dropped on glpane: target is None. dropped on external app Terminal: target is None.
         # dropped on the HistoryWidget (which does accept it and the text gets into it):
         #   target = <constants.qt.QWidget object at 0xd4c39f0>
         # (PyQt doesn't realize its true class, I guess... but who knows which obj it is anyway)
@@ -303,7 +303,7 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         pass
     def cleanup(self, client = None): ###@@@ call this from above
         "we're done; reset whatever we set outside this object, remove reference cycles, etc"
-        assert self.client == None or self.client == client
+        assert self.client is None or self.client is client
         self.dragsource = self.client = None
         #e clean statusbar; dragobj if stored here
     pass # end of class drag_and_drop_handler
@@ -587,7 +587,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # This means we want a context menu, for the given item
             # (regardless of which part of it we clicked on (even openclose or left)!),
             # or for a set of selected items which it's part of
-            # (this is detected in following subr), or for no item if item == None.
+            # (this is detected in following subr), or for no item if item is None.
             # The menu (and the selection-modifying behavior before we put it up) can ignore dblclick.
             # 050126: let's pass it the modifier keys too (more clearly ok for shift
             # than for control, but try both for now).
@@ -1513,7 +1513,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return self.itemAt(vpos) # might be None
     
     def draw_stubsymbol_at_cpos_in_viewport(self, painter, cpos, color = Qt.red, blot = False):
-        if cpos == None:
+        if cpos is None:
             # warning: other code in this file just says "if cpos",
             # so if we switch to Numeric, watch out for (0,0) being false!
             return
@@ -1613,11 +1613,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # should we disable the drag_handler, or rely on mouseRelease to do that? ###e ####@@@@
         
         # We might be inside autoscroll, with drop-point highlighting disabled...
-        # detectable by self.last_dragMove_cpos == None. In that case we should
+        # detectable by self.last_dragMove_cpos is None. In that case we should
         # refuse the drop. Ideally we'd report what the drop would have been into...
         # not for now since computing that is nim even for an accepted drop! ###e revisit
         
-        disabled = (self.last_dragMove_cpos == None) # used more than once below
+        disabled = (self.last_dragMove_cpos is None) # used more than once below
 
         # the following code is similar in dragLeave and Drop, not sure if identical
         self.last_dragMove_ok = False # not needed right now, but might matter
