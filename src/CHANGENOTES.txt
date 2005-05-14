@@ -444,3 +444,12 @@ Summary: fixed bug 620 - exceptions in MT when clicked while waiting for long op
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/13/2005
+Files: 28 files
+Summary: optimized mmp read, VdW draw, movie play; '==' -> 'is' in many files
+
+For details see email: "CHECKIN: optimized readmmp, draw VdW, movies (I think)"
+
+----------------------------
+
