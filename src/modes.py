@@ -1204,25 +1204,11 @@ class modeMixin:
         # temporary (prevent bug-risk of reentrant event processing by
         # current mode)
         mode = self._find_mode(mode)
-        try:
-            refused = mode._enterMode()
-        except:
-            msg = "bug: exception in _enterMode for mode %r; using default mode" % (mode.modename,)
-            print_compact_traceback("%s: " % msg)
-            refused = 1
-            # let the mode get ready for use; it can assume self.mode
-            # will be set to it, but not that it already has been.  It
-            # should emit a message and return True if it wants to
-            # refuse becoming the new mode.
-        if refused:
-            # as of 040922 this never happens, but it might be routine
-            # for fancier new modes like Extrude
-            mode = self.default_mode
-            refused1 = mode._enterMode()
-            assert not refused1, "default mode should never refuse"
-        self.mode = mode # finally it's ok to send events to the new mode
-        
-        # bruce 050106: added this status/history message about new mode...
+
+        #bruce 050515: moved this "Entering Mode" message to before _enterMode
+        # so it comes before any history messages that emits. If the new mode
+        # refuses (but has no exception), assume it will emit a message about that.
+        #bruce 050106: added this status/history message about new mode...
         # I'm not sure this is the best place to put it, but it's the best
         # existing single place I could find.
         msg = "Entering %s" % mode.default_mode_status_text
@@ -1230,6 +1216,7 @@ class modeMixin:
             # also, not clear if we should use get_mode_status_text instead.
         import MWsemantics
         greenmsg = MWsemantics.greenmsg
+        redmsg = MWsemantics.redmsg
         try: # bruce 050112
             # (could be made cleaner by defining too_early in HistoryWidget,
             #  or giving message() a too_early_ok option)
@@ -1238,9 +1225,32 @@ class modeMixin:
             too_early = 0
         if not too_early:
             self.win.history.message( greenmsg( msg), norepeat_id = msg )
+
+        try:
+            refused = mode._enterMode()
+                # let the mode get ready for use; it can assume self.mode
+                # will be set to it, but not that it already has been.  It
+                # should emit a message and return True if it wants to
+                # refuse becoming the new mode.
+        except:
+            msg = "bug: exception in _enterMode for mode %r; using default mode" % (mode.modename,)
+            print_compact_traceback("%s: " % msg)
+            if not too_early:
+                self.win.history.message( redmsg( "internal error while entering mode, using default mode" ))
+            refused = 1
+        if refused:
+            # as of 040922 this never happens, but it might be routine
+            # for fancier new modes like Extrude
+            mode = self.default_mode
+            refused1 = mode._enterMode()
+            assert not refused1, "default mode should never refuse"
+        self.mode = mode # finally it's ok to send events to the new mode
+        
+        #bruce 050515: this is old location of Entering Mode histmsg, now moved before _enterMode
         
         self.update_after_new_mode()
-        
+        return # from start_using_mode
+    
     def _find_mode(self, modename_or_obj = None):
         """internal method: look up the specified mode (name or
            object) which other code wants us to switch to; return mode
