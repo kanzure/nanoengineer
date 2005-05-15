@@ -749,6 +749,10 @@ class molecule(Node, InvalMixin):
         """ set the molecule up for minimization or simulation"""
         # bruce 041112 modified this
         ###e bruce 041104 comment: need to stop movie if atpos is invalidated
+        #bruce 050515 comment: recent movie optim includes (I think) del atpos but leaving
+        # basepos around; this will cause trouble for anything invalidating atpos; #####@@@@@
+        # until it's fixed in general (by redefining or better formalizing "frozen" state),
+        # I'll at least fix it in unfreeze, below.
         self.update_curpos() # make sure every atom is in curpos
         self.basecenter = V(0,0,0)
         self.quat = Q(1,0,0,0)
@@ -761,9 +765,10 @@ class molecule(Node, InvalMixin):
     def unfreeze(self):
         """ to be done at the end of minimization or simulation"""
         # bruce 041112 rewrote this
+        self.invalidate_attr('basepos') # bruce 050515 bugfix in recent movie-playing optimization
         self.invalidate_attr('atpos') # effectively, do a shakedown
           # (reset basepos, basecenter, and quat to usual values, etc)
-        assert not self.__dict__.has_key('basepos')
+        assert not self.__dict__.has_key('basepos') # should be deleted when we inval atpos
 
     def get_dispdef(self, glpane = None):
         "reveal what dispdef we will use to draw this molecule"
