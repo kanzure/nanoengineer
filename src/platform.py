@@ -69,6 +69,10 @@ class atomEvent:
         return filter_key( self._qt_event.key() )
     def ascii(self):
         return filter_key( self._qt_event.ascii() )
+    def state(self):
+        return self._qt_event.state()
+    def stateAfter(self):
+        return self._qt_event.stateAfter()
     # Added isAutoRepeat.  Mark 050410
     def isAutoRepeat(self):
         return filter_key( self._qt_event.isAutoRepeat() )
