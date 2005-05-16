@@ -333,7 +333,8 @@ class atom(InvalMixin):
         except:
             pass
         else:
-            mol.changed_attr('atpos', skip = ('basepos',) )
+            mol.changed_attr('atpos') #### , skip = ('basepos',) )
+                #####@@@@@ this 'skip' probably causes bug 632, but is it needed for speed? [bruce 050516]
                 #e not yet perfect, since we'd like to let mol stay frozen, with basepos same as curpos; will it when atpos comes back?
         self.setposn(pos)
     
