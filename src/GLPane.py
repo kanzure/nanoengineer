@@ -9,7 +9,7 @@ $Id$
 """
 
 ## bruce 050408 removed several "import *" below
-from qt import QFont, QWidget, QMessageBox 
+from qt import QFont, QWidget, QMessageBox
 from qtgl import QGLWidget
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -1137,6 +1137,60 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # this method is called by our modes to make their context menus.
         # [bruce 050418 comment]
         return makemenu_helper(self, menu_spec)
+    
+    def debug_menu_items(self): #bruce 050515 experiment
+        "overrides method from DebugMenuMixin"
+        super = DebugMenuMixin
+        usual = super.debug_menu_items(self)
+            # list of (text, callable) pairs, None for separator
+        ours = list(usual)
+        try:
+            # submenu for available custom modes [bruce 050515]
+            #e should add special text to the item for current mode (if any) saying we'll reload it
+            modemenu = []
+            for modename, modefile in self.custom_mode_names_files():
+                modemenu.append(( modename,
+                                  lambda arg1 = None, arg2 = None, modename = modename, modefile = modefile:
+                                    self.enter_custom_mode(modename, modefile) # not sure how many args are passed
+                                ))
+            if modemenu:
+                ours.append(("custom modes", modemenu))
+        except:
+            print_compact_traceback("exception ignored: ")
+        return ours
+
+    def custom_mode_names_files(self):
+        modes_dir = os.path.join( self.win.tmpFilePath, "Modes")
+        if not os.path.isdir( modes_dir):
+            return []
+        res = []
+        for file in os.listdir( modes_dir):
+            if file.endswith('.py'):
+                modename, ext = os.path.splitext(file)
+                modefile = os.path.join( modes_dir, file)
+                res.append(( modename, modefile ))
+        return res
+
+    def enter_custom_mode( self, modename, modefile): #bruce 050515 experiment
+        fn = modefile
+        if not os.path.exists(fn):
+            self.win.history.message("should never happen: file does not exist: [%s]" % fn)
+            return
+        dir, file = os.path.split(fn)
+        base, ext = os.path.splitext(file)
+        ## modename = base
+        ###e need better way to import from this specific file!
+        # (Like using an appropriate function in the import-related Python library module.)
+        # This kluge is not protected against weird chars in base.
+        if dir not in sys.path:
+            sys.path.append(dir)
+        exec("import %s as _module" % (base,)) ###e use the platform or debug func to limit this to GPL versions
+        reload(_module)
+        exec("from %s import %s as _modeclass" % (base,base))
+        modeobj = _modeclass(self) # this should put it into self.modetab under the name defined in the mode module
+        self.modetab[modename] = modeobj # also put it in under this name, if different [### will this cause bugs?]
+        self.setMode(modename)
+        return
 
     pass # end of class GLPane
 
