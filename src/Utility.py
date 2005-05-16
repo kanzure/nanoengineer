@@ -13,7 +13,7 @@ This file should have a more descriptive name, but that can wait.
 
 $Id$
 
-bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+bruce 050513-16 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
 
 """
@@ -277,7 +277,7 @@ class Node:
         """
         # this implem ought to work even if we have more than one assy someday
         node = self
-        while node.dad:
+        while node.dad is not None:
             if not node in node.dad.members:
                 print_compact_stack("error (ignored): some node is not in it's dad's members list: ")
                 node.dad = None
@@ -289,7 +289,7 @@ class Node:
 ##        #e if nodes forget about .assy (as will be easiest when we support more than one assy at a time),
 ##        # then it might be better to say "valid member of *any* assy", and go up dad chain to look for one,
 ##        # presuming you find a node with explicit assy at the top. (if not, it's homeless, thus invalid.)
-##        if not self.assy:
+##        if self.assy is None: #revised 050516
 ##            return False
 ##        return self.assy.root.is_ascendant(self)
 ##            # this doesn't check for nodes being members of their dads! so some bugs might fool it.
@@ -330,7 +330,7 @@ class Node:
 ##            if platform.atom_debug:
 ##                print "atom_debug: fyi: change_current_selgroup_to_include_self returns early with picked dad %r" % node_name(ours)
             return # no need to change (important optimization for recursive picking in groups)
-        if not ours:
+        if ours is None:
             # this might happen for non-bugs since changed_dad calls it for picked nodes,
             # but it makes sense to skeptically review any way that can happen,
             # so the debug print is good even if it's not always a bug [bruce comment 050310]
@@ -369,7 +369,7 @@ class Node:
         (as of 050131 that should happen only for Clipboard or Root).
         """
         node = self
-        while node:
+        while node is not None:
             if node.is_top_of_selection_group():
                 break
             node = node.dad # might be None; always is eventually, so loop always terminates by then
@@ -382,11 +382,11 @@ class Node:
         Prefer the picked_dad retval since it's faster.
         """
         node = self
-        while node:
+        while node is not None:
             if node.is_top_of_selection_group():
                 break
             node = node.dad # might be None; always is eventually, so loop always terminates by then
-            if node:
+            if node is not None:
                 # don't try this test for node is self, since it's not a "dad of self"
                 if node.picked:
                     return False, node                
@@ -1246,7 +1246,7 @@ class Group(Node):
         # 050206 (after Alpha out); most dates 050201-050202 below are date of change at home.
         #bruce 050201 added _guard_, after, before
         assert _guard_ == 050201
-        if not newchild:
+        if newchild is None:
             #bruce 050201 comment: sometimes newchild was the number 0,
             # since Group.copy returned that as a failure code!!!
             # Or it can be None (Jig.copy, or Group.copy after I changed it).
@@ -1410,7 +1410,7 @@ class Group(Node):
         "#doc [overrides Node method]"
         Node.inherit_part(self, part)
         for m in self.members:
-            if not m.part:
+            if m.part is None:
                 m.inherit_part(part)
         return
 
@@ -1541,7 +1541,7 @@ class Group(Node):
         (node must be a Node or None (for None we return False);
          thus it's legal to call this for node being any node's dad.)
         """
-        while node:
+        while node is not None:
             if node is self: return True
             node = node.dad
         return False
@@ -1672,12 +1672,12 @@ class Csys(DataNode):
         assert type(pov) is type(V(1, 0, 0))
         self.pov = V(pov[0], pov[1], pov[2])
         self.zoomFactor = zoomFactor
-        
-        if not x and not y and not z:
+
+        #bruce 050516 probable bugfix, using "is None" rather than "if not x and not y and not z:"
+        if x is None and y is None and z is None:
             self.quat = Q(w)
         else:
             self.quat = Q(x, y, z, w)
-            
         return
 
     def show_in_model_tree(self):
@@ -2010,13 +2010,13 @@ def topmost_nodes( nodes): #bruce 050303
     """
     res = {} # from id(node) to node
     for node in nodes:
-        assert node # incorrect otherwise, false values won't have .is_ascendant method
+        assert node is not None # incorrect otherwise -- None won't have .is_ascendant method
         dad = node # not node.dad, that way we remove dups as well (might never be needed, but good)
-        while dad:
+        while dad is not None:
             if id(dad) in res:
                 break
             dad = node.dad
-        if not dad:
+        if dad is None:
             # node and its dads (all levels) were not in res
             # add node, but also remove any members that are below it (how?)
             #e (could be more efficient if we sorted nodes by depth in tree,

@@ -162,7 +162,7 @@ class molecule(Node, InvalMixin):
     
     def _get_hotspot(self): #bruce 050217; used by getattr
         hs = self._hotspot
-        if not hs: return None
+        if hs is None: return None
         if hs.is_singlet() and hs.molecule is self:
             # hs should be a valid hotspot; if you see no bug, return it
             if hs.killed(): # this also checks whether its key is in self.atoms
@@ -290,7 +290,7 @@ class molecule(Node, InvalMixin):
         # those are trashed by the following code:
         atm.index = -1 # illegal value
         global _nullMol
-        if not _nullMol:
+        if _nullMol is None:
             # this caused a bus error when done right after class molecule
             # defined; don't know why (class Node not yet ok??) [bruce 041116]
             _nullMol = molecule("<not an assembly>", 'name-of-_nullMol')
@@ -604,7 +604,7 @@ class molecule(Node, InvalMixin):
         # I don't think that can happen, but if it can, I need to know.
         # So find out which of the attrs we recompute already exist:
         ## print "_recompute_atpos on %r" % self
-        if not self.assy:
+        if self.assy is None:
             if platform.atom_debug:
                 print_compact_stack("fyi, recompute atpos called on killed mol %r: " % self)
 ##        for attr in ['atpos', 'atlist', 'average_position', 'basepos']:
@@ -719,7 +719,9 @@ class molecule(Node, InvalMixin):
         """Return the center to use for rotations and stretches and perhaps some
         other purposes (user-settable, or the average atom position by default)
         """
-        return self.user_specified_center or self.average_position
+        if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
+            return self.user_specified_center
+        return self.average_position
 
     # What used to be called self.center, used mainly to relate basepos and curpos,
     # is now called self.basecenter and is not a recomputed attribute,
@@ -776,7 +778,7 @@ class molecule(Node, InvalMixin):
         if self.display != diDEFAULT:
             disp = self.display
         else:
-            if not glpane:
+            if glpane is None:
                 # this possibility added by bruce 041207
                 glpane = self.assy.o
             disp = glpane.display
@@ -1179,7 +1181,7 @@ class molecule(Node, InvalMixin):
             # (this might recompute basepos using __getattr__; probably not
             #  needed since the += below would do it too, but let's be safe --
             #  no harm since it won't be done twice)
-        if not point:
+        if point is None: #bruce 050516 bugfix (was "if not point")
             point = self.center # not basecenter!
         factor = float(factor)
         
@@ -1614,7 +1616,7 @@ class molecule(Node, InvalMixin):
         ## removed support for backs_ok, since atom backs are not drawn
         from Numeric import take, nonzero, compress # and more...
         p1 = (r_xy_2 <= radii_2) # indices of candidate atoms
-        if not p1:
+        if not p1: # i.e. if p1 is an array of all false/0 values [bruce 050516 guess/comment]
             # no atoms hit by line of sight (common when several mols shown)
             return []
         p1inds = nonzero(p1) # indices of the nonzero elements of p1
@@ -1885,7 +1887,7 @@ class molecule(Node, InvalMixin):
             if extern_atoms_bonds:
                 ## print "... but it will make them into singlets"
                 # don't make our hotspot ambiguous, if it wasn't already
-                if not self.hotspot and len(self.singlets) == 1:
+                if self.hotspot is None and len(self.singlets) == 1:
                     # we have an implicit but unambiguous hotspot:
                     # make it explicit in the copy [bruce 041123]
                     copied_hotspot = self.singlets[0]
@@ -1894,11 +1896,11 @@ class molecule(Node, InvalMixin):
                 x = atom('X', b.ubp(a) + offset, numol)
                 na = ndix[a.key]
                 numol.bond(na, x)
-        if copied_hotspot:
+        if copied_hotspot is not None:
             numol.set_hotspot( ndix[copied_hotspot.key])
         #e also copy (but translate by offset) user-specified axis, center, etc,
         #  if we ever have those
-        if self.user_specified_center:
+        if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
             numol.user_specified_center = self.user_specified_center + offset
         numol.curpos = self.curpos + offset
             # (if offset was 0, that is still needed to ensure the new curpos

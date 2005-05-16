@@ -278,7 +278,7 @@ def begin_event_handler( whats_running = None):
 
 def end_event_handler(eh):
     global handler
-    while handler and handler != eh:
+    while handler is not None and handler is not eh: #bruce 050516 'is not'
         handler = handler.end_was_forgotten()
     if handler:
         handler = handler.end()

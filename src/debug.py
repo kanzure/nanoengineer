@@ -93,7 +93,7 @@ def compact_traceback():
         return "<incorrect call of compact_traceback(): no exception is being handled>"
     try:
         printlines = []
-        while traceback:
+        while traceback is not None:
             # cf. PythonDocumentation/ref/types.html;
             # starting from current stack level (of exception handler),
             # going deeper (towards innermost frame, where exception occurred):
@@ -118,7 +118,7 @@ def print_compact_stack( msg = "current stack:\n", skip_innermost_n = 2 ):
 def compact_stack( skip_innermost_n = 1 ):
     printlines = []
     frame = sys._getframe( skip_innermost_n)
-    while frame: # innermost first
+    while frame is not None: # innermost first
         filename = frame.f_code.co_filename
         lineno = frame.f_lineno
         printlines.append("[%s:%r]" % ( os.path.basename(filename), lineno ))

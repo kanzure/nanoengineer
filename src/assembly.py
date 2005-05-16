@@ -54,7 +54,7 @@ The Part/assembly distinction is unfinished, particularly in how it relates to s
 
 Prior history unclear; almost certainly originated by Josh.
 
-bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+bruce 050513-16 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
 
 """
@@ -324,13 +324,13 @@ class assembly:
         our node's recursive kids; caller can assure this by covering all nodes with some call
         of this method.
         """
-        #bruce 050420: don't remove node from its old wrong part. Old code was:
+        #bruce 050420: don't remove node from its old wrong part. Old code [revised 050516] was:
 ##        if node.part and node is not node.part.topnode: #revised 050513
 ##            # this happens, e.g., when moving a Group to the clipboard, and it becomes a new clipboard item
 ##            node.part.remove(node) # node's kids will be removed below
-##            assert not node.part
-##        if not node.part:
-        if not node.part or node.part.topnode is not node:
+##            assert node.part is None
+##        if node.part is None:
+        if node.part is None or node.part.topnode is not node:
             part1 = partclass(self, node)
             assert node.part is part1
             assert node is node.part.topnode
@@ -394,7 +394,7 @@ class assembly:
         then return True, otherwise False (not an error).
         Never has side effects.
         """
-        if not sg: return False
+        if sg is None: return False
         if sg.assy is not self: return False
         if not sg.is_top_of_selection_group():
             return False
@@ -441,7 +441,7 @@ class assembly:
         # now newsg is the one we'll *try* to change to and return, if *it* is valid.
         # (if it is not None but not valid, that's probably a bug, and we won't change to it;
         #  ideally we'd change to self.tree then, but since it's probably a bug we won't bother.)
-        if not newsg:
+        if newsg is None:
             #k probably can't happen unless self.tree is None, which I hope never happens here
             if platform.atom_debug:
                 print_compact_stack("atom_debug: cur selgroup None, no tree(?), should never happen: ")
@@ -460,7 +460,7 @@ class assembly:
         and if so return its .part, and if not return None after emitting debug prints
         (which always indicates a bug, I'm 90% sure as I write it -- except maybe during init ###k #doc).
         """
-        if not sg or not sg.part or not sg.part.topnode is sg:
+        if sg is None or sg.part is None or sg.part.topnode is not sg:
             #doc: ... assy.tree.part being None.
             # (which might happen during init, and trying to make a part for it might infrecur or otherwise be bad.)
             # so if following debug print gets printed, we might extend it to check whether that "good excuse" is the case.
@@ -468,9 +468,9 @@ class assembly:
                 print_compact_stack("atom_debug: fyi: selgroup.part problem during: ")
             if 1:
                 # for now, always raise an exception #####@@@@@
-                assert sg
-                assert sg.part
-                assert sg.part.topnode
+                assert sg is not None
+                assert sg.part is not None
+                assert sg.part.topnode is not None
                 assert sg.part.topnode is sg, "part %r topnode is %r should be %r" % (sg.part, sg.part.topnode, sg)
             return None
         return sg.part
@@ -505,7 +505,7 @@ class assembly:
             # and end up unpicking the node being passed to us.
         if node is prior:
             return # might be redundant with some callers, that's ok [#e simplify them?]
-        if not prior and self._last_current_selgroup:
+        if prior is None and self._last_current_selgroup:
             prior = 0 # tell submethod that we don't know the true prior one
         if not self.valid_selgroup(node):
             # probably a bug in the caller. Complain, and don't change current selgroup.
@@ -551,6 +551,7 @@ class assembly:
         if didany:
             try: # precaution against new bugs in this alpha-bug-mitigation code
                 # what did we deselect?
+                # [note, prior might be None or 0, so boolean test is needed [bruce guess/comment 050516]]
                 if prior and not isinstance(prior, Group):
                     what = node_name(prior)
                 elif prior:
