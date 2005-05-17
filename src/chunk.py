@@ -31,6 +31,8 @@ from chem import *
 from debug import print_compact_stack, print_compact_traceback
 from inval import InvalMixin
 
+_inval_all_bonds_counter = 1 #bruce 050516
+
 
 # == debug code is near end of file
 
@@ -63,6 +65,8 @@ class molecule(Node, InvalMixin):
     _hotspot = None
     
     def __init__(self, assembly, name = None):
+        self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
+            # the counter it sets is always set, and always unique
         # note [bruce 041116]:
         # new molecules are NOT automatically added to assembly.
         # this has to be done separately (if desired) by assembly.addmol
@@ -251,7 +255,10 @@ class molecule(Node, InvalMixin):
            (It's not worth tracking changes to the set of singlets in the mol,
         so instead we recompute self.singlets and self.singlpos as needed.)
         """
-        atm.invalidate_bonds() # might not be needed
+        ## atm.invalidate_bonds() # might not be needed
+        ## [definitely not after bruce 050516, since changing atm.molecule is enough;
+        #   if this is not changing it, then atm was in _nullMol and we don't care
+        #   whether its bonds are valid.]
         # make atom know molecule
         assert atm.molecule is None or atm.molecule is _nullMol
         atm.molecule = self
@@ -280,7 +287,7 @@ class molecule(Node, InvalMixin):
         and (for safety and possibly to break cycles of python refs) removing all
         connections from atm back to self.
         """
-        atm.invalidate_bonds()
+        ## atm.invalidate_bonds() # not needed after bruce 050516; see comment in addatom
         self.invalidate_atom_lists() # do this first, in case exceptions below
 
         # make atom independent of molecule
@@ -679,12 +686,20 @@ class molecule(Node, InvalMixin):
     
     def invalidate_internal_bonds(self):
         self.invalidate_all_bonds() # easiest to just do this
-    
-    def invalidate_all_bonds(self):
-        ###e TOO SLOW for an inval routine; should just incr a version counter
-        for atm in self.atoms.itervalues(): #bruce 050513 use itervalues
-            for bon in atm.bonds:
-                bon.setup_invalidate()
+
+    def invalidate_all_bonds(self): #bruce 050516 optimized this
+        global _inval_all_bonds_counter
+        _inval_all_bonds_counter += 1
+            # it's good that values of this global are not used on more than one chunk,
+            # since that way there's no need to worry about whether the bond
+            # inval/update code, which should be the only code to look at this counter,
+            # needs to worry that its data looks right but is for the wrong chunks.
+        self.bond_inval_count = _inval_all_bonds_counter
+        return
+##        # TOO SLOW for an inval routine; should just incr a version counter
+##        for atm in self.atoms.itervalues(): #bruce 050513 use itervalues
+##            for bon in atm.bonds:
+##                bon.setup_invalidate()
     
     _inputs_for_average_position = ['atpos']
     def _recompute_average_position(self):
@@ -768,6 +783,7 @@ class molecule(Node, InvalMixin):
         """ to be done at the end of minimization or simulation"""
         # bruce 041112 rewrote this
         self.invalidate_attr('basepos') # bruce 050515 bugfix in recent movie-playing optimization
+            # [only needed if atpos missing and basepos there, which is the bug, and which this only partly fixes]
         self.invalidate_attr('atpos') # effectively, do a shakedown
           # (reset basepos, basecenter, and quat to usual values, etc)
         assert not self.__dict__.has_key('basepos') # should be deleted when we inval atpos
@@ -1257,9 +1273,9 @@ class molecule(Node, InvalMixin):
         self.changed_attr('atpos', skip = ('bbox','basepos'))
         
         # we've moved one end of each external bond, so invalidate them...
+        # [bruce 050516 comment (95% sure it's right): note that we don't, and need not, inval internal bonds]
         for bon in self.externs:
             bon.setup_invalidate()
-
         return
 
     def base_to_abs(self, anything): # bruce 041115
@@ -1994,12 +2010,17 @@ class molecule(Node, InvalMixin):
             atm.xyz = atm.posn()
             atm.index = -1
             atm.molecule = self
-            for bon in atm.bonds:
-                bon.setup_invalidate()
-                # Probably not needed -- will happen when self.atpos is remade.
-                # It's ok that atm is moved already (and it better be,
-                # since even if we did this before moving atm,
-                # the other atom might be moved by now).
+            #bruce 050516: changing atm.molecule is now enough in itself
+            # to invalidate atm's bonds, since their validity now depends on
+            # a counter stored in (and unique to) atm.molecule having
+            # a specific stored value; in the new molecule (self) this will
+            # have a different value. So I can remove the following code:
+##            for bon in atm.bonds:
+##                bon.setup_invalidate()
+##                # Probably not needed -- will happen when self.atpos is remade.
+##                # It's ok that atm is moved already (and it better be,
+##                # since even if we did this before moving atm,
+##                # the other atom might be moved by now).
         self.atoms.update(mol.atoms)
         self.invalidate_atom_lists()
         # be safe, since we just stole all mol's atoms:
