@@ -237,15 +237,15 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         effect is to store our view into it
         (which might not actually be needed, but is fast enough and harmless)
         """
-        if self.part != part:
+        if self.part is not part:
             self.gl_update() # we depend on this not doing the redraw until after we return
         self._close_part() # saves view into old part (if not None)
         self.part = part
         self._open_part() # loads view from new part (if not None)
 
     def forget_part(self, part):
-        "[public] if you know about this part, forget about it (call this from dying parts)" ###@@@ doit
-        if self.part == part:
+        "[public] if you know about this part, forget about it (call this from dying parts)"
+        if self.part is part:
             self.set_part(None)
         return
 
@@ -940,6 +940,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
     def getZoomFactor(self):
             return self.zoomFactor        
 
+    _needs_repaint = 1 #bruce 050516 experiment -- initial value is true
+    
     def gl_update(self): #bruce 050127
         """External code should call this when it thinks the GLPane needs
         redrawing, rather than directly calling paintGL, unless it really
@@ -951,6 +953,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         user event, since this will cause only one call of paintGL, after
         that user event handler has finished.
         """
+        self._needs_repaint = 1 #bruce 050516 experiment
         # (To restore the pre-050127 behavior, it would be sufficient to
         # change the next line from "self.update()" to "self.paintGL()".)
         self.update()
@@ -981,6 +984,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         if not self.initialised: return
        
         if not self.redrawGL: return
+
+        if not self._needs_repaint: #bruce 050516 experiment
+            # This probably happens fairly often when Qt calls paintGL but our own code
+            # didn't change anything and therefore didn't call gl_update.
+            # The plan is to return in this case, but until I'm sure that's safe
+            # (and/or know what else needs to be checked, like the GLPane widget size in case that changed),
+            # I'll just print a debug message about the missed chance for an optimization.
+            # (Removed message since it happens a lot, mainly when context menu is put up, window goes bg or fg, etc.
+            #  What we need is a debug pref to turn off repainting then, so we can see if it's needed on each platform.
+            #  Even if it is, we might optimize by somehow painting from the existing buffer
+            # without swapping or clearing it. ###@@@)
+            pass
+##            if platform.atom_debug:
+##                print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ")
+        self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
 
         if self.need_setup_lighting:
             # I don't know if it matters to avoid calling this every time...
