@@ -411,17 +411,17 @@ class CookieCtrlPanel:
 
        def _orient100(self):
             """ Along one axis """
-            self.w.glpane.mode.surfset(0)
+            self.w.glpane.mode.setOrientSurf(0)
             self.w.glpane.snapquat100()
     
        def _orient110(self):
             """halfway between two axes"""           
-            self.w.glpane.mode.surfset(1)
+            self.w.glpane.mode.setOrientSurf(1)
             self.w.glpane.snapquat110()
     
        def _orient111(self):
             """equidistant from three axes """
-            self.w.glpane.mode.surfset(2)
+            self.w.glpane.mode.setOrientSurf(2)
             self.w.glpane.snapquat111()
     
        

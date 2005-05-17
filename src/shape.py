@@ -708,7 +708,7 @@ class CookieShape(shape):
             for c in curves: c.draw()
             try:
                 bblo, bbhi = bbox.data[1], bbox.data[0]
-                allCells = genDiam(bblo, bbhi, self.latticeType)
+                allCells = genDiam(bblo-1.6, bbhi+1.6, self.latticeType)
                 for cell in allCells:
                     for pp in cell:
                         p1 = p2 = None
@@ -735,7 +735,8 @@ class CookieShape(shape):
         self.havelist = 0
         
         bblo, bbhi = c.bbox.data[1], c.bbox.data[0]
-        allCells = genDiam(bblo, bbhi, self.latticeType)
+        #Without +(-) 1.6, cookie for lonsdaileite may not be right
+        allCells = genDiam(bblo-1.6, bbhi+1.6, self.latticeType)
         if self.carbonPosDict.has_key(layer):
             carbons = self.carbonPosDict[layer]
         else: carbons = {}
@@ -746,7 +747,7 @@ class CookieShape(shape):
         
         if c.logic == 0: ##Remove if inside
             markedAtoms = self.markedAtoms
-            if not self.bondLayers or not self.bondLayers[layer]: return
+            if not self.bondLayers or not self.bondLayers.has_key(layer):   return
             else:
                 bonds = self.bondLayers[layer]
                 for cell in allCells:
@@ -761,7 +762,7 @@ class CookieShape(shape):
                                                                             carbons, hedrons)
         
         elif c.logic == 2: ##Remove if outside
-            if not self.bondLayers or not self.bondLayers[layer]: return
+            if not self.bondLayers or not self.bondLayers.has_key(layer):       return
             bonds = self.bondLayers[layer]
             newBonds = {}; newCarbons = {}; newHedrons = {}; 
             insideAtoms = {}
@@ -1046,7 +1047,8 @@ class CookieShape(shape):
             """Create a new bond if <new_bond> is True. Otherwise, search if
                 there is such a full/half bond, change it appropriately if found. 
                 Otherwise, create a new bond.
-                If <half_in> == -1, it's a full bond; otherwise, it means a half bond with the atom of <half_in> is inside. """
+                If <half_in> == -1, it's a full bond; otherwise, it means a half 
+                bond with the atom of <half_in> is inside. """
             if not key in dict:
                 if half_in < 0:
                    dict[key] = [value]
@@ -1188,31 +1190,90 @@ class CookieShape(shape):
         self.havelist = 1 # always set this flag, even if exception happened.
     
     def buildChunk(self, assy):
-        """Build molecules for the cookie """
+        """Build molecule for the cookies. First, combine bonds from
+        all layers together, which may fuse some half bonds to full bonds. """
         from chunk import molecule
         from chem import gensym, atom
         
-        allCarbons = {}
-        mol = molecule(assy, gensym("Cookie."))
-        for layer, bonds in self.bondLayers.items():
-            carbons = self.carbonPosDict[layer]
-            for cK, cP in carbons.items():
-                if not cK in allCarbons:
-                    atomCell = atom("C", cP, mol) 
-                    allCarbons[cK] = atomCell
-            for cK, cB in bonds.items():
-                a1 = allCarbons[cK]
-                for bb in cB:
-                    if type(bb) == type(1):
-                        a2 = allCarbons[bb]
-                    else:
-                        a2 = atom("X", bb, mol)
-                    mol.bond(a1, a2)
-        if len(mol.atoms) > 0:
-        #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
-            assy.addmol(mol)
-            assy.unpickatoms()
-            assy.unpickparts()
-            assy.selwhat = 2
-            mol.pick()
-            assy.mt.mt_update()                
+        numLayers = len(self.bondLayers)
+        if numLayers:
+            allBonds = {}
+            allCarbons = {}
+            
+            #Copy the bonds, carbons and hedron from the first layer
+            for ii in range(numLayers):
+                if self.bondLayers.has_key(ii):
+                    for bKey, bValue in self.bondLayers[ii].items():
+                        allBonds[bKey] = bValue
+            
+                    del self.bondLayers[ii]
+                    break
+            
+            for carbons in self.carbonPosDict.values():
+                for cKey, cValue in carbons.items():
+                        allCarbons[cKey] = cValue
+                        
+            for hedrons in self.hedroPosDict.values():        
+                    for hKey, hValue in hedrons.items():
+                        allCarbons[hKey] = hValue
+                    
+            for bonds in self.bondLayers.values():
+                for bKey, bValues in bonds.items():
+                    if bKey in allBonds:
+                        existValues = allBonds[bKey]
+                        for bValue in bValues:
+                            if type(bValue) == type((1,1)):
+                                if bValue[1]: ctValue = (bValue[0], 0)
+                                else: ctValue = (bValue[0], 1)
+                                if ctValue in existValues:
+                                    idex = existValues.index(ctValue)
+                                    existValues[idex] = bValue[0]
+                                else:
+                                    existValues += [bValue]
+                            else: existValues += [bValue]
+                        allBonds[bKey] = existValues
+                    else: allBonds[bKey] = bValues
+            
+            #print "allbonds: ", allBonds
+            #print "allCarbons: ", allCarbons
+                
+            carbonAtoms = {}
+            mol = molecule(assy, gensym("Cookie."))
+            for bKey, bBonds in allBonds.items():
+                keyHedron = True
+                if len(bBonds):
+                    for bond in bBonds:
+                        if keyHedron:
+                            if type(bBonds[0]) == type(1) or (not bBonds[0][1]):
+                                if not bKey in carbonAtoms:
+                                    keyAtom = atom("C", allCarbons[bKey], mol) 
+                                    carbonAtoms[bKey] = keyAtom
+                                else: keyAtom = carbonAtoms[bKey]
+                                keyHedron = False
+                        
+                        if keyHedron:    
+                            if type(bond) != type((1,1)): raise ValueError, (bKey, bond, bBonds)
+                            else:
+                                xp = (allCarbons[bKey] + allCarbons[bond[0]])/2.0
+                                keyAtom = atom("X", xp, mol)         
+                            
+                        if type(bond) == type(1) or bond[1]:
+                            if type(bond) == type(1):
+                                bvKey = bond
+                            else: bvKey = bond[0]
+                            if not bvKey in carbonAtoms:
+                                bondAtom = atom("C", allCarbons[bvKey], mol) 
+                                carbonAtoms[bvKey] = bondAtom
+                            else: bondAtom = carbonAtoms[bvKey]
+                        else:
+                            xp = (allCarbons[bKey] + allCarbons[bond[0]])/2.0
+                            bondAtom = atom("X", xp, mol)     
+                        
+                        mol.bond(keyAtom, bondAtom)
+        
+            if len(mol.atoms) > 0:
+            #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
+                assy.addmol(mol)
+                assy.unpickparts()
+                mol.pick()
+                assy.mt.mt_update()                

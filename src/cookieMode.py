@@ -39,13 +39,14 @@ class cookieMode(basicMode):
     def Enter(self): 
         basicMode.Enter(self)
         self.oldPov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
-        self.surfset(self.o.snap2trackball())
+        self.setOrientSurf(self.o.snap2trackball())
         
         self.o.pov -= 3.5*self.o.out
         self.savedOrtho = self.o.ortho
-        self.o.ortho = 1
+        self.o.ortho = True
         self.cookieQuat = None
         
+        ##Every time enters into this mode, we need to set this to False
         self.freeView = False
         self.ctrlPanel.freeViewCheckBox.setChecked(self.freeView)
         
@@ -59,11 +60,11 @@ class cookieMode(basicMode):
         self.cookieDisplayMode = str(self.ctrlPanel.dispModeCBox.currentText())
         self.latticeType = self.LATTICE_TYPES[self.ctrlPanel.latticeCBox.currentItem()]
         
-        self.layers = [] ## Stores 'org, color' for each layer
-        self.layers += [[V(self.o.pov[0], self.o.pov[1], self.o.pov[2])], [A(gray)]]  
+        self.layers = [] ## Stores 'surface origin' for each layer
+        self.layers += [V(self.o.pov[0], self.o.pov[1], self.o.pov[2])]
         self.currentLayer = 0
  
-        self.cookieDrawBegins = None
+        self.cookieDrawBegins = False
         self.Rubber = None
         self.lastDrawStored = []
        
@@ -77,7 +78,9 @@ class cookieMode(basicMode):
         #This can't be done in the above call. During this time, 
         # the ctrlPanel can't find the cookieMode, the nullMode
         # is used instead. I don't know if that's good or not, but
-        # I think the code readability is not very good. --Huaicai 
+        # generally speaking, I think the code structure for mode 
+        # operations like enter/init/cancel, etc, are kind of confusing.
+        # The code readability is also not very good. --Huaicai
         self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
    
    
@@ -92,8 +95,7 @@ class cookieMode(basicMode):
         self.o.redrawGL = True
         glDisable(GL_COLOR_LOGIC_OP)
         glEnable(GL_DEPTH_TEST)
-            
-    
+   
     
     def setFreeView(self, freeView):
         """When in this mode(freeView is true), cookie-cutting is freezing """
@@ -107,16 +109,16 @@ class cookieMode(basicMode):
             self.w.setViewOrthoAction.setEnabled(True)
             self.w.setViewPerspecAction.setEnabled(True)
             
-            #Disable controls to change layer, which cause pov change
+            #Disable controls to change layer.
             self.ctrlPanel.currentLayerCBox.setEnabled(False)
             self.isAddLayerEnabled = self.ctrlPanel.addLayerButton.isEnabled ()
             self.ctrlPanel.addLayerButton.setEnabled(False)
             
             self.ctrlPanel.enableViewChanges(True)
             
-            if self.Rubber:
-                self._cancelSelection()
-                self.w.history.message(redmsg("Changed to free view mode,the unfinished cookie selection will be cancelled."))
+            if self.cookieDrawBegins: #Cancel any unfinished cookie drawing
+                self._afterCookieSelection()
+                self.w.history.message(redmsg("In free view mode,the unfinished cookie selection has be cancelled."))
             
         else: ## cookie cutting mode
             self.o.setCursor(self.w.CookieAddCursor)
@@ -134,7 +136,7 @@ class cookieMode(basicMode):
             if self.o.shape:
                 self.o.quat = Q(self.cookieQuat)
                 self.o.pov = V(self.cookiePov[0], self.cookiePov[1], self.cookiePov[2]) 
-            self.surfset(self.o.snap2trackball())
+            self.setOrientSurf(self.o.snap2trackball())
     
       
     def showGridLine(self, show):
@@ -146,7 +148,8 @@ class cookieMode(basicMode):
         self.gridColor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
         
     def changeDispMode(self, mode):
-        """Change cookie display mode as 'mode'.
+        """Change cookie display mode as <mode>, which can be 'Tubes'
+            or 'Spheres'.
         """
         self.cookieDisplayMode = str(mode)
         if self.o.shape:
@@ -161,8 +164,8 @@ class cookieMode(basicMode):
 
     def StateDone(self):
         if self.o.shape:
-            molmake(self.o.assy, self.o.shape) #bruce 050222 revised this call
-            #self.o.shape.buildChunk(self.o.assy)
+            #molmake(self.o.assy, self.o.shape) #bruce 050222 revised this call
+            self.o.shape.buildChunk(self.o.assy)
         self.o.shape = None
         return None
 
@@ -188,8 +191,6 @@ class cookieMode(basicMode):
             #If no curves left, let users do what they can just like
             #when they first enter into cookie mode.
             if not self.o.shape.anyCurvesLeft():
-                #self.o.shape = None
-                #self.enableViewChanges(True)
                 self.StartOver()
             
         self.o.gl_update()
@@ -203,20 +204,9 @@ class cookieMode(basicMode):
             self.o.setCursor(self.w.CookieCursor)
         elif key == Qt.Key_Control and not self.cookieDrawBegins:
             self.o.setCursor(self.w.CookieSubtractCursor)
-        elif key == Qt.Key_Escape:
+        elif key == Qt.Key_Escape and self.cookieDrawBegins:
             self._cancelSelection()
         
-        if 0:  #Obsolete, we use Action Object acclerating key instead.   
-            if key in (Qt.Key_C, Qt.Key_H, Qt.Key_R):
-                self.sellist = []
-                self.o.backlist = []
-            if key == Qt.Key_C:
-                self.circleSelection = True
-            elif key == Qt.Key_H:
-                self.hexagonSelection = True
-            elif key == Qt.Key_R:
-                self.rectangleSelection = True    
-    
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
         if self.freeView: return
@@ -249,7 +239,7 @@ class cookieMode(basicMode):
         if self.freeView: return
         if self.Rubber: return
         
-        self.cookieDrawBegins = 1
+        self.cookieDrawBegins = True
         self.cookieQuat = Q(self.o.quat)
         self.pickLineLength = 0.0
         
@@ -264,13 +254,12 @@ class cookieMode(basicMode):
             self.selLassRect = False
         
         self.selSense = sense    
-        p1, p2 = self._getPoints(event)#self.o.mousepoints(event, 0.01)
+        p1, p2 = self._getPoints(event)
         
         self.sellist = [p1]
         self.o.backlist = [p2]
-        #self.pickLineStart = self.pickLinePrev = p1
         
-    
+        
     def leftDrag(self, event):
         self.ContinDraw(event)
     
@@ -289,19 +278,17 @@ class cookieMode(basicMode):
         if self.Rubber: return
         if not self.selectionShape in ['DEFAULT', 'LASSO']: return
         
-        p1, p2 = self._getPoints(event)#self.o.mousepoints(event, 0.01)
+        p1, p2 = self._getPoints(event)
 
         self.sellist += [p1]
         self.o.backlist += [p2]
         
-        netdist = vlen(p1 - self.sellist[0])#self.pickLineStart)
-        self.pickLineLength += vlen(p1 - self.sellist[-2])#self.pickLinePrev)
+        netdist = vlen(p1 - self.sellist[0])
+        self.pickLineLength += vlen(p1 - self.sellist[-2])
         if self.selectionShape == 'DEFAULT':
             self.selLassRect = self.pickLineLength < 2*netdist
-        #self.pickLinePrev = p1
         
         self.w.history.transient_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
-        #self.o.gl_update()
         self.pickdraw()
         
     
@@ -327,7 +314,7 @@ class cookieMode(basicMode):
         """
         if self.freeView or not self.cookieDrawBegins: return
         
-        p1, p2 = self. _getPoints(event)#self.o.mousepoints(event, 0.01)
+        p1, p2 = self. _getPoints(event)
  
         if not self.pickLineLength > 0: 
             #Rect_corner/circular selection
@@ -370,7 +357,7 @@ class cookieMode(basicMode):
             self.o.quat = Q(self.cookieQuat)
             self.o.gl_update()
         else:
-            self.surfset(self.o.snap2trackball())
+            self.setOrientSurf(self.o.snap2trackball())
 
     def middleDown(self, event):
         """Disable this method when in curve drawing"""
@@ -404,7 +391,8 @@ class cookieMode(basicMode):
     
     def Wheel(self, event):
         """When in curve drawing stage, disable the zooming. """
-        if not self.cookieDrawBegins: basicMode.Wheel(self, event)
+        if not self.cookieDrawBegins: 
+            basicMode.Wheel(self, event)
         
     def bareMotion(self, event):
         if self.freeView or not self.cookieDrawBegins: return
@@ -468,13 +456,14 @@ class cookieMode(basicMode):
             self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense,
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
         
-        if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
+        if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
                 self.ctrlPanel.addLayerButton.setEnabled(True)
         self._afterCookieSelection()
   
   
     def _centerBasedSelect(self):
-        """End the center based selection"""
+        """Construct the right center based selection shape to generate the
+         cookie. """
         if not self.o.shape:
                 self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
                 self.ctrlPanel.latticeCBox.setEnabled(False)
@@ -518,7 +507,7 @@ class cookieMode(basicMode):
         elif self.selectionShape == 'CIRCLE':
             self.o.shape.pickCircle(self.o.backlist, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
         
-        if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers[0]) - 1:
+        if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
                 self.ctrlPanel.addLayerButton.setEnabled(True)
         self._afterCookieSelection()                          
     
@@ -617,7 +606,7 @@ class cookieMode(basicMode):
             return rgb    
  
     def pickdraw(self, lastDraw = False):
-        """selection curve draw"""
+        """Draw the selection curve."""
         color = logicColor(self.selSense)
         color = self._getXorColor(color)
         
@@ -679,14 +668,14 @@ class cookieMode(basicMode):
             self.griddraw()
         if self.sellist:
             self.pickdraw()
-        if self.o.shape: self.o.shape.draw(self.o, self.layerColors)#self.layers[1])
+        if self.o.shape: self.o.shape.draw(self.o, self.layerColors)
         if self.showFullModel:
             self.o.assy.draw(self.o)
 
     def griddraw(self):
         """Assigned as griddraw for a diamond lattice grid that is fixed in
-        space but cut out into a slab one nanometer thick parallel to the screen
-        (and is equivalent to what the cookie-cutter will cut).
+        space but cut out into a slab one nanometer thick parallel to the 
+        screen (and is equivalent to what the cookie-cutter will cut).
         """
         # the grid is in modelspace but the clipping planes are in eyespace
         glPushMatrix()
@@ -725,21 +714,16 @@ class cookieMode(basicMode):
     def addLayer(self):
         """Add a new layer: the new layer will always be at the end"""
         if self.o.shape:
-            lastLayerId = len(self.layers[0]) - 1
-            pov = self.layers[0][lastLayerId]
+            lastLayerId = len(self.layers) - 1
+            pov = self.layers[lastLayerId]
             pov = V(pov[0], pov[1], pov[2])
             pov -= self.o.shape.pushdown(lastLayerId)
             
             ## Make sure pushdown() doesn't return V(0,0,0)
-            color = self.layers[1][lastLayerId] - 0.05
-            if (color[0] < 0): color[0] = 0.0
-            if (color[1] < 0): color[1] = 0.0
-            if (color[2] < 0): color[2] = 0.0
-            
-            self.layers[0] += [pov]
-            self.layers[1] += [color]
-            size = len(self.layers[0])
+            self.layers += [pov]
+            size = len(self.layers)
            
+            # Change the new layer as the current layer
             self.change2Layer(size-1)
             
             return size
@@ -749,9 +733,9 @@ class cookieMode(basicMode):
         """Change current layer to layer <layerIndex>"""
         if layerIndex == self.currentLayer: return
         
-        assert layerIndex in range(len(self.layers[0]))
+        assert layerIndex in range(len(self.layers))
         
-        pov = self.layers[0][layerIndex]
+        pov = self.layers[layerIndex]
         self.currentLayer = layerIndex
         self.o.pov = V(pov[0], pov[1], pov[2])
         
@@ -768,14 +752,17 @@ class cookieMode(basicMode):
         
     def _findMaxNoLattCell(self, curLay):
         """Find the possible max no of lattice cells for this layer """
-        if curLay == len(self.layers[0]) - 1:
+        if curLay == len(self.layers) - 1:
             return self.MAX_LATTICE_CELL
         else:
-            depth = vlen(self.layers[0][curLay+1] - self.layers[0][curLay])
+            depth = vlen(self.layers[curLay+1] - self.layers[curLay])
             num = int(depth/(DiGridSp*sqrt(self.whichsurf+1)) + 0.5)
             return num
 
-    def surfset(self, num):
+    def setOrientSurf(self, num):
+        """Set the current view orientation surface to <num>, which
+        can be one of values(0, 1, 2) representing 100, 110, 111 surface respectively. """
+        
         self.whichsurf = num
         self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
         button = self.ctrlPanel.orientButtonGroup.find(self.whichsurf)
@@ -795,19 +782,6 @@ class cookieMode(basicMode):
     
     def _cancelSelection(self):
         """Cancel selection before it's finished """
-        if 0: 
-            if self.Rubber:
-                self.Rubber = False
-            
-            if self.sellist:
-                self.pickdraw(True)
-                
-                self.o.backlist = []    
-                self.sellist = []
-                self.cookieDrawBegins = False
-                self.w.history.transient_msg("")
-                
-                #self.o.gl_update()
         self._afterCookieSelection()
         if not self.o.shape: self.ctrlPanel.enableViewChanges(True)
         
@@ -934,12 +908,10 @@ class cookieMode(basicMode):
                     rt = V(0, 1, 0)
         else: ##Sth wrong
             raise ValueError, self.out
-            
-       
+        
         orig3d = self._project2Plane(offset)
         p2 -= orig3d
         pt = V(dot(rt, p2), dot(up, p2))
-        #print "vtype, org, pt: ", vType,  offset, pt
         
         if vType == 0:  ## projected orig-point is at the corner
             if pt[1] < uLen:
@@ -983,13 +955,10 @@ class cookieMode(basicMode):
              else:
                  uv1 = [[-2, 4], [-1, 3], [0, 4], [1, 3], [2, 4]]
                  ij = self._findSnap4Corners(uv1, uLen, pt)
-                 
-            
-        nxy = orig3d + ij[0]*uLen*right + ij[1]*uLen*up
-        #print "ij[0], ij[1]: ", ij[0], ij[1]
-        #print "orig3d, nxy: ", orig3d, nxy
         
-        return nxy     
+        nxy = orig3d + ij[0]*uLen*right + ij[1]*uLen*up
+        return nxy
+    
     
     def _getNCartP2d(self, ax1, ay1, pt):
         """Axis <ax> and <ay> is not perpendicular, so we project pt to axis
@@ -1013,11 +982,9 @@ class cookieMode(basicMode):
         uLen = 0.58504827
         
         sqrt6 = sqrt(6)
-        #print "o.right, o.up, o.out = ", self.o.right, self.o.up, self.o.out
         orig3d = self._project2Plane(V(0, 0,0))
         p2 -= orig3d
         
-        #print "orig3d, p2: ", orig3d, p2
         if (self.o.out[0] > 0 and self.o.out[1] > 0 and self.o.out[2] > 0) or \
                 (self.o.out[0] < 0 and self.o.out[1] < 0 and self.o.out[2] < 0):
             axy =[V(1, 1, -2), V(-1, 2, -1),  V(-2, 1, 1), V(-1, -1, 2), V(1, -2, 1), V(2, -1, -1), V(1, 1, -2)]
@@ -1051,8 +1018,6 @@ class cookieMode(basicMode):
         i = int(p2d[0]/uLen/sqrt6 + 0.5)
         j = int(p2d[1]/uLen/sqrt6 + 0.5)
         
-        #print "i, j, ax, ay: ", i, j, ax, ay
-        
         nxy = orig3d + i*uLen*ax + j*uLen*ay 
         
         return nxy
@@ -1063,9 +1028,11 @@ class cookieMode(basicMode):
         if not vLen: vLen = uLen
         hd = 0.5*sqrt(uLen*uLen + vLen*vLen)
         
-        iof = -uv1[0][0]
-        ix = int(floor((pt[0]+iof*uLen)/uLen))
-        #print "ix: ", ix
+        ix = int(floor(pt[0]/uLen)) - uv1[0][0]
+        if ix == -1: ix = 0
+        elif ix == (len(uv1) - 1): ix = len(uv1) - 2
+        elif ix < -1 or ix >= len(uv1): raise ValueError, (uv1, pt, uLen, ix)
+        
         dist = vlen(V(uv1[ix][0]*uLen, uv1[ix][1]*vLen) - pt)
         if dist < hd:
             return uv1[ix]
@@ -1073,12 +1040,14 @@ class cookieMode(basicMode):
 
     
     def _getPoints(self, event):
-        """This method is used to get the points in near clipping plane and pov plane which are in line with the mouse clicking point in the screen plane. Adjust these 2 points if self.snapGrid == True.
+        """This method is used to get the points in near clipping plane and pov plane which are in line with the mouse clicking point on the screen plane. Adjust these 2 points if self.snapGrid == True.
         <event> is the mouse event.
         Return a tuple of those 2 points.
         """
         p1, p2 = self.o.mousepoints(event, 0.01)
-        vlen_p1p2 = vlen(p1 - p2)
+        # For each curve, the following value is constant, so it could be
+        # optimized by saving it to the curve object.
+        vlen_p1p2 = vlen(p1 - p2) 
         
         if not self.gridSnap: 
             return p1, p2
@@ -1145,9 +1114,7 @@ def molmake(assy,shap):
     if len(mol.atoms) > 0:
         #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
         assy.addmol(mol)
-        assy.unpickatoms()
         assy.unpickparts()
-        assy.selwhat = 2
         mol.pick()
         assy.mt.mt_update()
 
