@@ -517,13 +517,16 @@ class Bond:
             mol1.havelist = 0
         return
 
-    def setup_invalidate(self):
-        """Semi-private method for bonds. Invalidates cached geometric values
-        related to drawing the bond.
-         This must be called whenever the position or element of either bonded
+    # ==
+    
+    def setup_invalidate(self): # revised 050516
+        """Semi-private method for bonds -- used by code in Bond, atom and chunk classes.
+        Invalidates cached geometric values related to drawing the bond.
+           This must be called whenever the position or element of either bonded
         atom is changed, or when either atom's molecule changes if this affects
         whether it's an external bond (since the coordinate system used for drawing
-        is different in each case).
+        is different in each case), UNLESS either bonded chunk's invalidate_all_bonds()
+        methods is called (which increment a counter checked by our __getattr__).
          (FYI: It need not be called for other changes that might affect bond
         appearance, like disp or color of bonded molecules, though for internal
         bonds, the molecule's .havelist should be reset when those things change.)
@@ -535,14 +538,7 @@ class Bond:
         only does the invalidation which makes sure that recomputation will happen
         when it's needed.
         """
-        # just delete all the attrs recomputed by self.__setup_update()
-        try:
-            del self.c1
-        except AttributeError:
-            pass # assume other attrs are also not there
-        else:
-            # assume other attrs are also there
-            del self.c2, self.center, self.a1pos, self.a2pos, self.toolong
+        self._valid_data = None
         # For internal bonds, or bonds that used to be internal,
         # callers need to have reset havelist of affected mols,
         # but the changes in atoms that required them to call setup_invalidate
@@ -554,33 +550,22 @@ class Bond:
         # This change might speed up some redraws, esp. in move or deposit modes.
         return
 
-    def __setup_update(self):
-        """Private method. Before bruce 041104 this was called self.setup()
-        and was called more widely; now the method of that name just invalidates
-        the same attrs we recompute, by deleting them.
-           This method is only called by __getattr__ when we need to recompute one
-        or more of certain attributes, to set up the bond for drawing, or to
-        compute the unbonding point with bond.ubp() (used to make replacement
-        singlets in atom.unbond and atom.kill methods, even if they'll be
-        discarded right away as all atoms in some big chunk are killed 1 by 1).
-           We store all attributes we compute in the same coordinate system,
-        which is mol-relative (basecenter/quat) for internal bonds, but absolute
-        for external bonds.
-           The specific attributes we recompute (and set, until next invalidated)
-        are: a1pos, a2pos (positions of the atoms); c1, c2, and center (points
-        along the bond useful for drawing it); toolong (flag) saying whether bond
-        is too long. (Before 041112 there was no toolong flag, but center was None
-        for long bonds.)
-           As of 041201 we'll no longer recompute atpos or basepos if they are
-        invalid, so that atom.kill (our caller via unbond and ubp), which
-        invalidates them, won't also recompute them.
+    def _recompute_geom(self, abs_coords = False): #bruce 050516 made this from __setup_update
+        """[private method meant for our __getattr__ method, and for writepov]
+        Recompute and return (but don't store)
+        the 6-tuple (a1pos, c1, center, c2, a2pos, toolong),
+        which describes this bond's geometry, useful for drawing (OpenGL or writepov)
+        and for self.ubp().
+           If abs_coords is true, always use absolute coords;
+        otherwise, use them only for external bonds, and for internal bonds
+        (i.e. between atoms in the same mol) use mol-relative coords.
         """
-        # [docstring revised, and inval/update scheme added, by bruce 041104]
-        # [docstring improved, and code revised to not recompute basepos, 041201]
-        if self.atom1.molecule is not self.atom2.molecule:
+        atom1 = self.atom1
+        atom2 = self.atom2
+        if abs_coords or (atom1.molecule is not atom2.molecule):
             # external bond; use absolute positions for all attributes.
-            self.a1pos = self.atom1.posn()
-            self.a2pos = self.atom2.posn()
+            a1pos = atom1.posn()
+            a2pos = atom2.posn()
         else:
             # internal bond; use mol-relative positions for all attributes.
             # Note 1: this means any change to mol's coordinate system
@@ -588,38 +573,69 @@ class Bond:
             # in this bond! That's a pain (and inefficient), so I might
             # replace it by a __getattr__ mol-coordsys-version-number check...
             # ##e [bruce 041115]
-            self.a1pos = self.atom1.baseposn()
-            self.a2pos = self.atom2.baseposn()
-        vec = self.a2pos - self.a1pos
-        leng = 0.98 * vlen(vec)
+            a1pos = atom1.baseposn() #e could optim, since their calcs of whether basepos is present are the same
+            a2pos = atom2.baseposn()
+        vec = a2pos - a1pos
+        leng = 0.98 * vlen(vec) # 0.98 makes it a bit less common that we set toolong below [bruce 050516 comment]
         vec = norm(vec)
+            #e possible optim, don't know if it matters:
+            # norm could be inlined, since we already have vlen;
+            # but what would really be faster (I suspect) is to compute these
+            # bond params for all internal bonds in an entire chunk at once, using Numeric. ###@@@
+            # [bruce 050516]
         # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
-        #  etc, so the entire bond is drawn as if "too long".)
-        rcov1 = self.atom1.atomtype.rcovalent
-        rcov2 = self.atom2.atomtype.rcovalent
-        self.c1 = self.a1pos + vec*rcov1
-        self.c2 = self.a2pos - vec*rcov2
-        self.toolong = (leng > rcov1 + rcov2)
-        self.center = (self.c1 + self.c2) / 2.0 # before 041112 this was None when self.toolong
-        return
+        #  etc, so for nonsense bonds like He-He the entire bond is drawn as if "too long".)
+        rcov1 = atom1.atomtype.rcovalent
+        rcov2 = atom2.atomtype.rcovalent
+        c1 = a1pos + vec*rcov1
+        c2 = a2pos - vec*rcov2
+        toolong = (leng > rcov1 + rcov2)
+        center = (c1 + c2) / 2.0 # before 041112 this was None when toolong
+        return a1pos, c1, center, c2, a2pos, toolong
 
-    def __getattr__(self, attr): # bond.__getattr__ #bruce 041104
-        """Called when one of the attrs computed by self.__setup_update() is
-        needed, but was not yet computed or was deleted since last computed
-        (as our way of invalidating it). Also might be called for an arbitrary
-        missing attr due to a bug in the calling code. Now that this __getattr__
-        method exists, no other calls of self.__setup_update() should be needed.
+    atom1 = atom2 = _valid_data = None # make sure these attrs always have values!
+    _saved_geom = None
+    
+    def __getattr__(self, attr): # bond.__getattr__ #bruce 041104; totally revised 050516
+        """Return attributes related to bond geometry, recomputing them if they
+        are not stored or if the stored ones are no longer valid.
+           For all other attr names, raise an AttributeError (quickly, for __xxx__ names).
         """
         if attr[0] == '_':
             raise AttributeError, attr # be fast since probably common for __xxx__
-        if attr not in ('a1pos','a2pos','c1','c2','center','toolong'):
-            # unfortunately (since it's slow) we can't avoid checking this first,
-            # or we risk infinite recursion due to a missing attr needed by setup
+        # after this, attr is either an updated_attr or a bug, so it's ok to assume we need to recompute if invalid...
+        # if any of the attrs used by recomputing geom are missing, we'll get infinite recursion;
+        # these are just atom1, atom2, and the ones used herein.
+        current_data = (self.atom1.molecule.bond_inval_count, self.atom2.molecule.bond_inval_count)
+        if self._valid_data != current_data:
+            # need to recompute
+            # (note: to inval this bond alone, set self._valid_data = None; this is required if you
+            #  change anything used by _recompute_geom, unless you change bond_inval_count for one of
+            #  the bonded chunks.)
+            self._valid_data = current_data # do this first, even if exception in _recompute_geom()
+            self._saved_geom = geom = self._recompute_geom()
+        else:
+            geom = self._saved_geom # when valid, should always have been computed, thus be of proper length
+        if attr == 'geom':
+            return geom # callers desiring speed should use this case, to get several attrs but only check validity once
+        elif attr == 'a1pos':
+            return geom[0]
+        elif attr == 'c1':
+            return geom[1]
+        elif attr == 'center':
+            return geom[2]
+        elif attr == 'c2':
+            return geom[3]
+        elif attr == 'a2pos':
+            return geom[4]
+        elif attr == 'toolong':
+            return geom[5]
+        else:
             raise AttributeError, attr
-        self.__setup_update() # this should add the attribute (or raise an exception
-          # if it's called too early while initing the bond or one of its molecules)
-        return self.__dict__[attr] # raise exception if attr still missing
+        pass
 
+    # ==
+    
     def other(self, atm):
         """Given one atom the bond is connected to, return the other one
         """
@@ -643,7 +659,11 @@ class Bond:
         pass
     
     def ubp(self, atom):
-        """ unbond point (atom must be one of the bond's atoms) """
+        """unbond point (atom must be one of the bond's atoms)
+        [Note: this is used to make replacement
+        singlets in atom.unbond and atom.kill methods, even if they'll be
+        discarded right away as all atoms in some big chunk are killed 1 by 1.]
+        """
         #bruce 041115 bugfixed this for when mol.quat is not 1,
         # tho i never looked for or saw an effect from the bug in that case
         if atom is self.atom1:
@@ -738,7 +758,7 @@ class Bond:
         return
 
     #####@@@@@ bruce 050513 comment: should seriously consider removing these __eq__/__ne__ methods
-    # and revising bond_atoms accordingly (as an optim).
+    # and revising bond_atoms accordingly (as an optim). One use of them is probably in a .count method in another file.
     
     def __eq__(self, ob):
         return ob.key == self.key
@@ -756,11 +776,15 @@ class Bond:
         [bruce, 041104, thinks that leads to some bugs in bond looks.]
         Bonds are drawn only in certain display modes (CPK, LINES, TUBES).
         The display mode is inherited from the atoms or molecule (as passed in
-         via dispdef from the calling molecule -- this might cause bugs if some
-         callers change display mode but don't set havelist = 0, but maybe they do).
+        via dispdef from the calling molecule -- this might cause bugs if some
+        callers change display mode but don't set havelist = 0, but maybe they do).
         Lines or tubes change color from atom to atom, and are red in the middle
         for long bonds. CPK bonds are drawn in the calling molecule's color or
         in the constant bondColor (which is light gray).
+           Note that all drawing coords are based on either .posn or .baseposn
+        of the atoms, according to whether this is an external or internal bond,
+        and the caller has to draw those kinds of bonds in the proper coordinate
+        system (absolute or mol-relative for external or internal bonds respectively).
         """
         #bruce 041104 revised docstring, added comments about possible bugs.
         # Note that this code depends on finding the attrs toolong, center,
@@ -772,18 +796,22 @@ class Bond:
         color2 = col or self.atom2.element.color
 
         disp = max(self.atom1.display, self.atom2.display)
-        if disp == diDEFAULT: disp = dispdef
+        if disp == diDEFAULT:
+            disp = dispdef
         if disp == diLINES:
-            if not self.toolong:
-                drawline(color1, self.a1pos, self.center)
-                drawline(color2, self.a2pos, self.center)
+            a1pos, c1, center, c2, a2pos, toolong = self.geom
+            if not toolong:
+                drawline(color1, a1pos, center)
+                drawline(color2, a2pos, center)
             else:
-                drawline(color1, self.a1pos, self.c1)
-                drawline(color2, self.a2pos, self.c2)
-                drawline(red, self.c1, self.c2)
-        if disp == diCPK:
-            drawcylinder(col or bondColor, self.a1pos, self.a2pos, 0.1)
-        if disp == diTUBES:
+                drawline(color1, a1pos, c1)
+                drawline(color2, a2pos, c2)
+                drawline(red, c1, c2)
+        elif disp == diCPK:
+            a1pos, c1, center, c2, a2pos, toolong = self.geom #e could be optimized to compute less for this case
+            drawcylinder(col or bondColor, a1pos, a2pos, 0.1)
+        elif disp == diTUBES:
+            a1pos, c1, center, c2, a2pos, toolong = self.geom
             v1 = self.atom1.display != diINVISIBLE
             v2 = self.atom2.display != diINVISIBLE
             ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
@@ -792,27 +820,27 @@ class Bond:
             # one longer cylinder, then overdraw toolong indicator if needed.
             # Significant for big parts. BUT, why spend time on this when I
             # expect we'll do this drawing in C code before too long?
-            if not self.toolong:
-                if v1:
-                    drawcylinder(color1, self.a1pos, self.center, TubeRadius)
-                if v2:
-                    drawcylinder(color2, self.a2pos, self.center, TubeRadius)
-                if not (v1 and v2):
-                    drawsphere(black, self.center, TubeRadius, level)
-#                print "draw: bond 1---2: ", self.a1pos, self.a2pos    
+            if not toolong:
+                if v1 and v2 and (not color1 != color2): # "not !=" is in case colors are Numeric arrays (don't know if possible)
+                    #bruce 050516 optim: draw only one cylinder in this common case
+                    drawcylinder(color1, a1pos, a2pos, TubeRadius)
+                else:
+                    if v1:
+                        drawcylinder(color1, a1pos, center, TubeRadius)
+                    if v2:
+                        drawcylinder(color2, a2pos, center, TubeRadius)
+                    if not (v1 and v2):
+                        drawsphere(black, center, TubeRadius, level)
             else:
-                drawcylinder(red, self.c1, self.c2, TubeRadius)
-#                print "draw: bond c1--c2: ", self.c1, self.c2    
+                drawcylinder(red, c1, c2, TubeRadius)
                 if v1:
-                    drawcylinder(color1, self.a1pos, self.c1, TubeRadius)
-#                    print "draw: bond a1---c1: ", self.a1pos, self.c1    
+                    drawcylinder(color1, a1pos, c1, TubeRadius)
                 else:
-                    drawsphere(black, self.c1, TubeRadius, level)
+                    drawsphere(black, c1, TubeRadius, level)
                 if v2:
-                    drawcylinder(color2, self.a2pos, self.c2, TubeRadius)
-#                    print "draw: bond a2---c2: ", self.a2pos, self.c2    
+                    drawcylinder(color2, a2pos, c2, TubeRadius)
                 else:
-                    drawsphere(black, self.c2, TubeRadius, level)
+                    drawsphere(black, c2, TubeRadius, level)
         if self.v6 != V_SINGLE or platform.atom_debug: # debug_bonds #####@@@@@
             glDisable(GL_LIGHTING)
             ## glDisable(GL_DEPTH_TEST)
@@ -848,18 +876,16 @@ class Bond:
             glEnable(GL_LIGHTING)
         return # from Bond.draw
 
-    # write to a povray file:  draw a single bond [never reviewed by bruce]
-    # [note: this redundantly computes attrs like __setup_update computes for
-    #  draw, and instead we should just use those attrs, but I did not make
-    #  this change since there is a current bug report which someone might
-    #  fix by altering povpoint and the V(1,1,-1) kluges in here,
-    #  and I want to avoid a cvs merge conflict. When this is fixed,
-    #  note that I have changed self.center and added self.toolong; see
-    #  self.draw() for details. -- bruce 041112 ###e]
     def writepov(self, file, dispdef, col):
-       ##Huaicai 1/15/05: It seems the attributes from __setup__update() is not correct,
-       ## at least for pov file writing, so compute it here locally. To fix bug 346,347
-        disp=max(self.atom1.display, self.atom2.display)
+        "Write this bond to a povray file (always using absolute coords, even for internal bonds)."
+        ##Huaicai 1/15/05: It seems the attributes from __setup__update() is not correct,
+        ## at least for pov file writing, so compute it here locally. To fix bug 346,347
+        #bruce 050516 comment: my guess is, those attrs were "not correct" for internal bonds
+        # since in that case they're in the chunk's private "basecenter/quat" coordinate
+        # system, not the absolute (model) coordinate system. So I am now comparing these
+        # to what's returned by _recompute_geom with abs_coords = True. If that's correct,
+        # we can change this code to use that routine.
+        disp = max(self.atom1.display, self.atom2.display)
         if disp == diDEFAULT: disp = dispdef
         color1 = col or self.atom1.element.color
         color2 = col or self.atom2.element.color
@@ -878,9 +904,14 @@ class Bond:
         c2 = a2pos - vec*rcov2
         toolong = (leng > rcov1 + rcov2)
         center = (c1 + c2) / 2.0 # before 041112 this was None when self.toolong
+
+        if platform.atom_debug: #bruce 050516; explained above ####@@@@
+            if self._recompute_geom(abs_coords = True) != (a1pos, c1, center, c2, a2pos, toolong):
+                print "atom_debug: _recompute_geom wrong in writepov!" #e and say why, if this ever happens
+            # if this works, we can always use _recompute_geom for external bonds,
+            # and optim by using self.geom for internals.
         
-        
-        if disp<0: disp= dispdef
+        if disp < 0: disp = dispdef
         if disp == diLINES:
             file.write("line(" + povpoint(a1pos) +
                        "," + povpoint(a2pos) + ")\n")
@@ -898,22 +929,23 @@ class Bond:
             if  self.atom2.atomtype.rcovalent < DELTA:
                     col = color1
                     isSingleCylinder = True
-            if isSingleCylinder:        
+            if isSingleCylinder:
                 file.write("tube3(" + povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + stringVec(col) + ")\n")
-            else:      
-                if not self.toolong:
-                        file.write("tube2(" + povpoint(a1pos) +
-                           "," + stringVec(color1) +
-                           "," + povpoint(center) + "," +
-                           povpoint(a2pos) + "," +
-                           stringVec(color2) + ")\n")
+            else:
+                if not toolong: #bruce 050516 changed this from self.toolong to toolong
+                    file.write("tube2(" + povpoint(a1pos) +
+                       "," + stringVec(color1) +
+                       "," + povpoint(center) + "," +
+                       povpoint(a2pos) + "," +
+                       stringVec(color2) + ")\n")
                 else:
-                        file.write("tube1(" + povpoint(a1pos) +
-                           "," + stringVec(color1) +
-                           "," + povpoint(c1) + "," +
-                           povpoint(c2) + "," + 
-                           povpoint(a2pos) + "," +
-                           stringVec(color2) + ")\n")
+                    file.write("tube1(" + povpoint(a1pos) +
+                       "," + stringVec(color1) +
+                       "," + povpoint(c1) + "," +
+                       povpoint(c2) + "," + 
+                       povpoint(a2pos) + "," +
+                       stringVec(color2) + ")\n")
+        return
 
     def __str__(self):
         return str(self.atom1) + " <--> " + str(self.atom2)
