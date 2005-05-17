@@ -701,6 +701,8 @@ class depositMode(basicMode):
                 e=a.molecule.externs
                 if len(e)==1: # pivot around one bond
                     self.pivot = e[0].center
+                        # warning: Bond.center is only in abs coords since
+                        # this is an external bond [bruce 050516 comment]
                     self.pivax = None
                     return
                 elif len(e)==2: # pivot around 2 bonds
