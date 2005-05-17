@@ -283,7 +283,7 @@ class atom(InvalMixin):
         #new code from 050513:
         mol = self.molecule
         basepos = mol.__dict__.get('basepos') #bruce 050513
-        if basepos is not None and self.xyz != 'no':
+        if basepos is not None and self.xyz == 'no': #bruce 050516 bugfix: fix sense of comparison to 'no'
             return basepos[self.index]
         # fallback to slower code from 041201:
         return mol.quat.unrot(self.posn() - mol.basecenter)
@@ -978,9 +978,9 @@ class atom(InvalMixin):
         if part is None: return # (might well be needed, tho not sure)
         part.changed()
 
-    def invalidate_bonds(self): # also often inlined
-        for b in self.bonds:
-            b.setup_invalidate()
+##    def invalidate_bonds(self): # also often inlined
+##        for b in self.bonds:
+##            b.setup_invalidate()
         
     def killed(self): #bruce 041029
         """(Public method) Report whether an atom has been killed.
