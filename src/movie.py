@@ -723,6 +723,8 @@ class Movie:
         # This is the main loop to compute atom positions from the current frame to "fnum".
         # After this loop completes, we paint the model -- but also during it.
         # We also recursively process QEvents during it. [bruce 050427 revised this comment]
+        # [bruce question 050516: do those events ever include movie dashboard slider
+        #  or button events which call this method recursively?? ####@@@@]
         self.debug_dump("before playToFrame loop", fnum = fnum, inc = inc)
         if from_slider:
             # [bruce 050427: this case got a lot simpler.]
@@ -782,7 +784,7 @@ class Movie:
 ## ##                self.win.movieProgressBar.setProgress(self.currentFrame) # Progress bar
 ##                self.update_dashboard_currentFrame()
                         
-            # Process queued events
+            # Process queued events [bruce comment 050516: note that this will do a paintGL from our earlier gl_update above ####@@@@]
             qApp.processEvents()
                 #e bruce 050427 comment: should we check to see if the user changed the controls,
                 # and (if so) change the fnum we're heading for?? ###@@@
@@ -908,7 +910,8 @@ class Movie:
             #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
             # is wildly wrong, and it should also complain. I won't do this for now.
             a.setposn_batch(A(newPos)) #bruce 050513 try to optimize this
-            if a.is_singlet(): a.snuggle() # same code as in movend()
+            if a.is_singlet(): # same code as in movend()
+                a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
         self.glpane.gl_update()
         return
 
@@ -1000,7 +1003,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
 ##            part = self.parts[0] # only ok if we don't keep going above when >1 part...
 ##            self.assy.set_current_part(part) #obs comment: ###@@@ ok here?? should also do this whenever movie dashboard is used, i think...
         for m in self.molecules:
-            if m.part: # not for killed ones!
+            if m.part is not None: # not for killed ones!
                 m.freeze()        
         return
     
@@ -1015,7 +1018,8 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
                 a.snuggle() # same code as in moveAtoms() except for killed-atom check
             #e could optimize this (enough to do it continuously) by using Numeric to do them all at once
         for m in self.molecules:
-            if m.part: # not for killed ones! (even if killed since own_atoms was called)
+            # should be ok even if some atoms moved into other mols since this was made [bruce 050516 comment]
+            if m.part is not None: # not for killed ones! (even if killed since own_atoms was called)
                 m.unfreeze()
         self.glpane.gl_update() # needed because of the snuggle above
         return
@@ -1038,6 +1042,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
 ##        return False
         
     def update_displays(self):
+        ###@@@ should use same glpane as in self.glpane.gl_update code above (one or the other is wrong) [bruce 050516 guess/comment]
         self.assy.o.gl_update() #stub? someday might need to update the MT as well if it's showing animated icons for involved Parts...
 
     def destroy(self):
