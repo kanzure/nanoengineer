@@ -160,7 +160,13 @@ class HistoryWidget:
         optional arg header_line should be a string, generally not ending in '\n'
         """
         if header_line == None:
-            header_line = "session history, started at: %s" % time.asctime() #stub
+            ## header_line_1 = "(running from [%s])" % os.path.dirname(os.path.abspath(sys.argv[0])) #bruce 050516
+            ## header_line_2 = "session history, started at: %s" % time.asctime() #stub
+            ## header_line = header_line_1 + '<br>' + header_line_2 # <br> is now tested and works [bruce 050516]
+            timestr = time.asctime() # do this first
+            path = os.path.dirname(os.path.abspath(sys.argv[0])) #bruce 050516 added "running from" path to this message
+                # (if this proves to be too long, we can shorten it or make it only come out when atom_debug is set)
+            header_line = "session history (running from %s), started at: %s" % (path, timestr) #stub
         self._init_widget(parent)
         file_msg = self._init_file(filename, mkdirs = mkdirs)
         self._append(header_line) # appends to both widget and file
