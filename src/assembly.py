@@ -88,14 +88,6 @@ from platform import fix_plurals
 
 debug_assy_changes = 0 #bruce 050429
 
-# bruce 050308 adding named constants for selwhat values;
-# not yet uniformly used (i.e. most code still uses hardcoded 0 or 2,
-#  and does boolean tests on selwhat to see if chunks can be selected);
-# not sure if these would be better off as assembly class constants:
-# values for assy.selwhat: what to select: 0=atoms, 2 = molecules
-SELWHAT_ATOMS = 0
-SELWHAT_CHUNKS = 2
-
 from part import Part # this must come after the SELWHAT constants! #e move them into constants.py??
 
 assy_number = 0 # count assembly objects [bruce 050429]
@@ -103,7 +95,7 @@ assy_number = 0 # count assembly objects [bruce 050429]
 class assembly:
     """#doc
     """
-    def __init__(self, win, name = None):        
+    def __init__(self, win, name = None):
         # ignore changes to this assembly during __init__, and after it,
         # until the client code first calls our reset_changed method.
         # [bruce 050429 revised that behavior and this comment, re bug 413]
@@ -158,7 +150,12 @@ class assembly:
         # what to select: 0=atoms, 2 = molecules
         # [bruce 050308 change: new code should use SELWHAT_ATOMS and SELWHAT_CHUNKS
         #  instead of hardcoded constants, and never do boolean tests of selwhat]
-        self.selwhat = SELWHAT_CHUNKS
+        #bruce 050517: as of now, self.selwhat should only be set (other than by this init)
+        # via self.set_selwhat(). [BTW, when we make a new assy and init this, are we sure it
+        # always corresponds to the mode? Probably it does now only since we change to that mode
+        # when opening files. #k]
+        self.selwhat = SELWHAT_CHUNKS # initial value for new assy
+        self._last_set_selwhat = self.selwhat
         
         #bruce 050131 for Alpha:
         from Utility import kluge_patch_assy_toplevel_groups
@@ -207,6 +204,17 @@ class assembly:
         assert self.tree.part.lastCsys
         
         return # from assembly.__init__
+
+    def set_selwhat(self, selwhat): #bruce 050517
+        ## print_compact_stack( "set_selwhat to %r: " % (selwhat,))
+        assert selwhat in (0,2) # i.e. (SELWHAT_ATOMS, SELWHAT_CHUNKS)
+        if not self._last_set_selwhat == self.selwhat: # compare last officially set one to last actual one
+            if platform.atom_debug: # condition is because cookiemode will do this, for now
+                print_compact_stack( "atom_debug: bug: this failed to call set_selwhat, but set it directly, to %r:\n " \
+                                     % (self.selwhat,) )
+        self.selwhat = selwhat
+        self._last_set_selwhat = self.selwhat
+        return
 
     def construct_viewdata(self): #bruce 050418; this replaces old assy.data attribute for writing mmp files
         #bruce 050421: extend this for saving per-part views (bug 555)

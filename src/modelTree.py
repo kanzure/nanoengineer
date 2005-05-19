@@ -408,12 +408,15 @@ class modelTree(TreeWidget):
     
     def cm_hide(self):
         self.win.history.message("Hide: %d selected items or groups" % len(self.topmost_selected_nodes()))
-        self.assy.permit_pick_parts() #e should not be needed here, but see if it fixes my bugs ###@@@ #k still needed? if so, why?
+        #####@@@@@ bruce 050517 comment: the following line (of unknown reason or date, but by me) causes bug 500;
+        # that method was added 050125 and used in chunk.pick on same date, so adding it here must be then or later.
+        # Let's see what happens if I remove it?
+        ## self.assy.permit_pick_parts() #e should not be needed here, but see if it fixes my bugs ###@@@ #k still needed? if so, why?
         self.assy.Hide() # includes win_update
         
     def cm_unhide(self):
         self.win.history.message("Unhide: %d selected items or groups" % len(self.topmost_selected_nodes()))
-        self.assy.permit_pick_parts() #e should not be needed here [see same comment above]
+        ## self.assy.permit_pick_parts() #e should not be needed here [see same comment above]
         self.assy.Unhide() # includes win_update
     
     def cm_properties(self):

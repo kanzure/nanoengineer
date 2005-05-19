@@ -20,7 +20,7 @@ and split it into three modules:
 from TreeView import * # including class TreeView, and import * from many other modules
 from widgets import makemenu_helper
 from platform import fix_buttons_helper
-from debug import DebugMenuMixin
+from debug import DebugMenuMixin, print_compact_stack, print_compact_traceback
 from selectMode import selectMode
 from selectMode import selectMolsMode, selectAtomsMode
 allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons
@@ -512,27 +512,88 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     # external update methods
     
-    def update_select_mode(self): #bruce 050124; this should become a mode-specific method and be used more generally.
+    def update_select_mode(self): #bruce 050124; should generalize and refile; should be used for more or for all events ###@@@
         """This should be called at the end of event handlers which might have
         changed the current internal selection mode (atoms vs chunks),
         to resolve disagreements between that and the visible selection mode
         iff it's one of the Select modes. If the current mode is not one of
         Select Atoms or Select Chunks, this routine has no effect.
+        (In particular, if selwhat changed but could be changed back to what it was,
+        it does nothing to correct that, and indeed it doesn't know the old value of
+        selwhat unless the current mode (being a selectMode) implies that.)
+           [We should generalize this so that other modes could constrain the selection
+        mode to just one of atoms vs chunks if they wanted to. However, the details of this
+        need design, since for those modes we'd change the selection whereas for the
+        select modes we change which mode we're in and don't change the selection. ###@@@]
            If possible, we leave the visible mode the same (even changing assy.selwhat
-        to fit, if nothing is actually selected). But if forced to, by what is
-        currently selected, then we change the visible selection mode to fit
-        what is actually selected.
+        to fit, if nothing is actually selected [that part was NIM until 050519]).
+        But if forced to, by what is currently selected, then we change the visible
+        selection mode to fit what is actually selected. (We always assert that selwhat
+        permitted whatever was selected to be selected.)
         """
-        mode = self.win.glpane.mode
-        if not isinstance(mode, selectMode):
-            return
+        #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy
-        if assy.selatoms and isinstance( mode, selectMolsMode):
-            self.win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work
-        elif assy.selmols and isinstance( mode, selectAtomsMode):
-            self.win.toolsSelectMolecules()
+        win = self.win
+        mode = self.win.glpane.mode
+        del self
+        part = assy.part
+        # 0. Appraise the situation.
+        # 0a: assy.selwhat is what internal code thinks selection restriction is, currently.
+        selwhat = assy.selwhat
+        assert selwhat in (SELWHAT_CHUNKS, SELWHAT_ATOMS) # any more choices, or change in rules, requires rewriting this method
+        # 0b. What does current mode think it needs to be?
+        # (Someday we might distinguish modes that constrain this,
+        #  vs modes that change to fit it or to fit the actual selection.
+        #  For now we only handle modes that change to fit the actual selection.) 
+        selwhat_from_mode = None # most modes don't care
+        if isinstance( mode, selectMolsMode):
+            selwhat_from_mode = SELWHAT_CHUNKS
+        elif isinstance( mode, selectAtomsMode):
+            selwhat_from_mode = SELWHAT_ATOMS
+        change_mode_to_fit = (selwhat_from_mode is not None) # used later; someday some modes won't follow this
+        # 0c. What does current selection itself think it needs to be?
+        # (If its desires are inconsistent, complain and fix them.)
+        if assy.selatoms and assy.selmols:
+            print "bug, fyi: there are both atoms and chunks selected. Deselecting some of them to fit current mode or internal code."
+            new_selwhat_influences = ( selwhat_from_mode, selwhat) # old mode has first say in this case, if it wants it
+            #e (We could rewrite this (equivalently) to just use the other case with selwhat_from_sel = None.)
         else:
-            pass # nothing selected -- don't worry about assy.selwhat
+            # figure out what to do, in this priority order: actual selection, old mode, internal code.
+            if assy.selatoms:
+                selwhat_from_sel = SELWHAT_ATOMS
+            elif assy.selmols:
+                selwhat_from_sel = SELWHAT_CHUNKS
+            else:
+                selwhat_from_sel = None
+            new_selwhat_influences = ( selwhat_from_sel, selwhat_from_mode, selwhat)
+            if selwhat_from_sel is not None and selwhat_from_sel != selwhat:
+                print "bug, fyi: actual selection (typecode %d) inconsistent " \
+                      "with internal variable for that; fixing this" % selwhat_from_sel
+        # Let the strongest (first listed) influence, of those with an opinion,
+        # decide what selmode we'll be in now, and make everything consistent with that.
+        for opinion in new_selwhat_influences:
+            if opinion is not None:
+                # We have our decision. Carry it out (on mode, selection, and assy.selwhat) and return.
+                selwhat = opinion
+                if change_mode_to_fit:
+                    if selwhat == SELWHAT_CHUNKS:
+                        win.toolsSelectMolecules()
+                    elif selwhat == SELWHAT_ATOMS:
+                        win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work
+                # that might have fixed the following too, but never mind, we'll just always do it -- sometimes it's needed.
+                if selwhat == SELWHAT_CHUNKS:
+                    part.unpickatoms()
+                    assy.set_selwhat(SELWHAT_CHUNKS)
+                elif selwhat == SELWHAT_ATOMS:
+                    if assy.selmols: # only if needed (due to a bug), since this also desels Groups and Jigs
+                        # (never happens if no bug, since then the actual selection has the strongest say -- as of 050519 anyway)
+                        part.unpickparts()
+                    assy.set_selwhat(SELWHAT_ATOMS) # (this by itself does not deselect anything, as of 050519)
+                return
+        assert 0, "new_selwhat_influences should not have ended in None: %r" % (new_selwhat_influences,)
+        # scratch comments:
+        # if we had been fixing selwhat in the past, it would have fixed bug 500 in spite of permit_pick_parts in cm_hide/cm_unhide.
+        # So why aren't we? let's find out with some debug code... (now part of the above, in theory)
         return
 
     def update_glpane(self):
