@@ -59,7 +59,7 @@ class movieMode(basicMode):
         #  but for now I'll leave it in.]
         self.o.assy.unpickatoms()
         self.o.assy.unpickparts()
-        self.o.assy.selwhat = 0
+        self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
 
     def init_gui(self):
 

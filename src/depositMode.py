@@ -169,9 +169,9 @@ class depositMode(basicMode):
         basicMode.Enter(self)
         self.o.assy.unpickatoms()
         self.o.assy.unpickparts()
+        self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
         self.saveDisp = self.o.display
         self.o.setDisplay(diTUBES)
-        self.o.assy.selwhat = 0
         self.new = None # bruce 041124 suspects this is never used
         self.modified = 0 # bruce 040923 new code
         self.pastable = None #k would it be nicer to preserve it from the past??
