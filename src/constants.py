@@ -67,25 +67,25 @@ default_display_mode = diVDW
 TubeRadius = 0.3
 
 #colors
-black = (0.0, 0.0, 0.0)
-blue = (0.0,0.0,0.6)
-aqua = (0.15, 1.0, 1.0)
-orange = (1.0,0.25,0.0)
-red = (1.0,0.0,0.0)
+black =  (0.0, 0.0, 0.0)
+blue =   (0.0, 0.0, 0.6)
+aqua =   (0.15, 1.0, 1.0)
+orange = (1.0, 0.25, 0.0)
+red =    (1.0, 0.0, 0.0)
 yellow = (1.0, 1.0, 0.0)
-green = (0.0, 1.0, 0.0)
+green =  (0.0, 1.0, 0.0)
 purple = (1.0, 0.0, 1.0)
-white = (1.0,1.0,1.0)
-gray = (0.5, 0.5, 0.5)
-navy = (0.0, 0.09, 0.44)
+white =  (1.0, 1.0, 1.0)
+gray =   (0.5, 0.5, 0.5)
+navy =   (0.0, 0.09, 0.44)
 
 LEDoff = (0.8, 0.0, 0.0)
-LEDon = (1.0, 0.5, 0.5)
+LEDon =  (1.0, 0.5, 0.5)
 
 bondColor = (0.25, 0.25, 0.25)
 
 PickedColor = (0.0, 0.0, 1.0)
-ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 experiment
+ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)
 
 globalParms = {}
 globalParms['WorkingDirectory'] = "."
@@ -106,3 +106,15 @@ elemKeyTab =  [('H', Qt.Key_H, 1),
                ('P', Qt.Key_P, 15),
                ('S', Qt.Key_S, 16),
                ('Cl', Qt.Key_L, 17)]
+
+# values for assy.selwhat variable [moved here from assembly.py by bruce 050519]
+
+# bruce 050308 adding named constants for selwhat values;
+# not yet uniformly used (i.e. most code still uses hardcoded 0 or 2,
+#  and does boolean tests on selwhat to see if chunks can be selected);
+# not sure if these would be better off as assembly class constants:
+# values for assy.selwhat: what to select: 0=atoms, 2 = molecules
+SELWHAT_ATOMS = 0
+SELWHAT_CHUNKS = 2
+
+# end
