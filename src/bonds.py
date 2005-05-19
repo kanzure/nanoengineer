@@ -489,9 +489,9 @@ class Bond:
         # It might turn out this happens a lot (and is not a bug), if callers make a
         # new chunk, bond to it, and only then add it into the tree of Nodes.
         if platform.atom_debug and at1.molecule is not at2.molecule:
-            if (at1.molecule.assy is not None) or (at2.molecule.assy is not None):
+            if (at1.molecule.assy is None) or (at2.molecule.assy is None): #bruce 050519 fixed 'is not' -> 'is' (recent typo, i presume)
                 print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r" % (at1,at2))
-            elif (at1.molecule.part is not None) or (at2.molecule.part is not None):
+            elif (at1.molecule.part is None) or (at2.molecule.part is None): #bruce 050519 fixed 'is not' -> 'is'
                 if 0: #bruce 050321 this happens a lot when reading an mmp file, so disable it for now
                     print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r" % (at1,at2))
             elif at1.molecule.part is not at2.molecule.part:
