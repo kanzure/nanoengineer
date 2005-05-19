@@ -12,10 +12,14 @@ onto a sphere, tracking the cursor on the sphere.
 $Id$
 """
 
+__author__ = "Josh"
+
 import math, types
 from math import *
 from Numeric import *
 from LinearAlgebra import *
+import platform
+debug_quats = 1 #bruce 050518; I'll leave this turned on in the main sources for awhile
 
 intType = type(2)
 floType = type(2.0)
@@ -25,13 +29,27 @@ def V(*v): return array(v, Float)
 def A(a):  return array(a, Float)
 
 def cross(v1, v2):
+    #bruce 050518 comment: for int vectors, this presumably gives an int vector result
+    # (which is correct, and unlikely to cause bugs even in calling code unaware of it,
+    #  but ideally all calling code would be checked).
     return V(v1[1]*v2[2] - v1[2]*v2[1],
              v1[2]*v2[0] - v1[0]*v2[2],
              v1[0]*v2[1] - v1[1]*v2[0])
 
-def vlen(v1): return sqrt(dot(v1, v1))
+def vlen(v1):
+    #bruce 050518 question: is vlen correct for int vectors, not only float ones?
+    # In theory it should be, since sqrt works for int args and always gives float answers.
+    # And is it correct for Numeric arrays of vectors? I don't know; norm is definitely not.
+    return sqrt(dot(v1, v1))
 
 def norm(v1):
+    #bruce 050518 questions:
+    # - Is this correct for int vectors, not only float ones?
+    # In theory it should be, since vlen is always a float (see above).
+    # - Is it correct for Numeric arrays of vectors (doing norm on each one alone)?
+    # No... clearly the "if" makes the same choice for all of them, but even ignoring that,
+    # it gives an alignment exception for any vector-array rather than working at all.
+    # I don't know how hard that would be to fix.
     lng = vlen(v1)
     if lng:
         return v1 / lng
@@ -50,47 +68,111 @@ def orthodist(p1, v1, p2):
     wid = vlen(p1+dist*v1-p2)
     return (dist, wid)
 
-class Q:
+#bruce 050518 added these:
+X_AXIS = V(1,0,0)
+Y_AXIS = V(0,1,0)
+Z_AXIS = V(0,0,1)
+
+class Q: # by Josh; some comments and docstring revised by bruce 050518
     """Q(W, x, y, z) is the quaternion with axis vector x,y,z
     and sin(theta/2) = W
-    (e.g. Q(1,0,0,0) is no rotation)
+    (e.g. Q(1,0,0,0) is no rotation [used a lot])
+    [Warning: the python argument names are not in the same order as in
+     the usage-form above! This is not a bug, just possibly confusing.]
+    
     Q(x, y, z) where x, y, and z are three orthonormal vectors
     is the quaternion that rotates the standard axes into that
-    reference frame. (the frame has to be right handed, or there's
-    no quaternion that can do it!)
-    Q(V(x,y,z), theta) is what you probably want.
-    Q(vector, vector) gives the quat that rotates between them
+    reference frame [this was first used, and first made correct, by bruce 050518]
+    (the frame has to be right handed, or there's no quaternion that can do it!)
+    
+    Q(V(x,y,z), theta) is what you probably want [axis vector and angle]. [used widely]
+    
+    Q(vector, vector) gives the quat that rotates between them [used widely]
+    [bruce 050518 asks: which such quat? presumably the one that does the least rotation in all]
+    
+    [undocumented until 050518: Q(number) gives Q(1,0,0,0) [perhaps never used, not sure];
+     Q(quat) gives a copy of that quat [used fairly often];
+     Q([W,x,y,z]) (for any sequence type) gives the same quat as Q(W, x, y, z)
+     [used for parsing csys records, maybe in other places].]
     """
+    counter = 50 # initial value of instance variable
+        # [bruce 050518 moved it here, fixing bug in which it sometimes didn't get inited]
     def __init__(self, x, y=None, z=None, w=None):
-        # 4 numbers
-        if w is not None: self.vec=V(x,y,z,w)
-        elif z: # three axis vectors
+        if w is not None: # 4 numbers
+            # [bruce comment 050518: note than ints are not turned to floats,
+            #  and no checking (of types or values) or normalization is done,
+            #  and that these arg names don't correspond to their meanings,
+            #  which are W,x,y,z (as documented) rather than x,y,z,w.]
+            self.vec = V(x,y,z,w)
+        
+        elif z is not None: # three axis vectors
             # Just use first two
-            a100 = V(1,0,0)
-            c1 = cross(a100,x)
-            if vlen(c1)<0.000001:
-                self.vec = Q(y,z).vec
-                return
-            ax1 = norm((a100+x)/2.0)
-            x2 = cross(ax1,c1)
-            a010 = V(0,1,0)
-            c2 = cross(a010,y)
-            if vlen(c2)<0.000001:
-                self.vec = Q(x,z).vec
-                return
-            ay1 = norm((a010+y)/2.0)
-            y2 = cross(ay1,c2)
-            axis = cross(x2, y2)
-            nw = sqrt(1.0 + x[0] + y[1] + z[2])/2.0
-            axis = norm(axis)*sqrt(1.0-nw**2)
-            self.vec = V(nw, axis[0], axis[1], axis[2])
+            # [bruce comments 050518:
+            #  - bugfix/optim: test z for None, not for truth value
+            #    (only fixes z = V(0,0,0) which is not allowed here anyway, so not very important)
+            #  - This case was not used until now, and was wrong for some or all inputs
+            #    (not just returning the inverse quat as I initially thought);
+            #    so I fixed it.
+            #  - The old code sometimes used 'z' but the new code never does
+            #    (except to decide to use this case, and when debug_quats to check the results).
+            
+            # Q(x, y, z) where x, y, and z are three orthonormal vectors
+            # is the quaternion that rotates the standard axes into that
+            # reference frame
+            ##e could have a debug check for vlen(x), y,z, and ortho and right-handed...
+            # but when this is false (due to caller bugs), the check_posns_near below should catch it.
+            xfixer = Q( X_AXIS, x)
+            y_axis_2 = xfixer.rot(Y_AXIS)
+            yfixer = twistor( x, y_axis_2, y)
+            res = xfixer
+            res += yfixer # warning: modifies res -- xfixer is no longer what it was
+            if debug_quats:
+                check_posns_near( res.rot(X_AXIS), x, "x" )
+                check_posns_near( res.rot(Y_AXIS), y, "y" )
+                check_posns_near( res.rot(Z_AXIS), z, "z" )
+            self.vec = res.vec
+            if debug_quats:
+                res = self # sanity check
+                check_posns_near( res.rot(X_AXIS), x, "sx" )
+                check_posns_near( res.rot(Y_AXIS), y, "sy" )
+                check_posns_near( res.rot(Z_AXIS), z, "sz" )
+            return
+##            # the old code (incorrect, and was not used):
+##            a100 = V(1,0,0)
+##            c1 = cross(a100,x)
+##            if vlen(c1)<0.000001:
+##                if debug_quats or platform.atom_debug: #bruce 050518
+##                    # i suspect it's wrong, always giving a 90 degree rotation, and not setting self.counter
+##                    print "debug_quats: using Q(y,z).vec case"
+##                self.vec = Q(y,z).vec
+##                return
+##            ax1 = norm((a100+x)/2.0)
+##            x2 = cross(ax1,c1)
+##            a010 = V(0,1,0)
+##            c2 = cross(a010,y)
+##            if vlen(c2)<0.000001:
+##                if debug_quats or platform.atom_debug: #bruce 050518 -- same comment as above
+##                    print "debug_quats: using Q(x,z).vec case"
+##                self.vec = Q(x,z).vec
+##                return
+##            ay1 = norm((a010+y)/2.0)
+##            y2 = cross(ay1,c2)
+##            axis = cross(x2, y2)
+##            nw = sqrt(1.0 + x[0] + y[1] + z[2])/2.0
+##            axis = norm(axis)*sqrt(1.0-nw**2)
+##            self.vec = V(nw, axis[0], axis[1], axis[2])
             
         elif type(y) in numTypes:
-            # axis vector and angle
+            # axis vector and angle [used often]
             v = (x / vlen(x)) * sin(y*0.5)
             self.vec = V(cos(y*0.5), v[0], v[1], v[2])
-        elif y:
-            # rotation between 2 vectors
+            
+        elif y is not None:
+            # rotation between 2 vectors [used often]
+            #bruce 050518 bugfix/optim: test y for None, not for truth value
+            # (only fixes y = V(0,0,0) which is not allowed here anyway, so not very important)
+            # [I didn't yet verify it does this in correct order; could do that from its use
+            # in bonds.py or maybe the new indirect use in jigs.py (if I checked iadd too). ###@@@]
             x = norm(x)
             y = norm(y)
             v = cross(x, y)
@@ -112,13 +194,16 @@ class Q:
             else:
                 s=sqrt(1-w**2)/vl
                 self.vec=V(w, v[0]*s, v[1]*s, v[2]*s)
+        
         elif type(x) in numTypes:
-            # just one number
+            # just one number [#k is this ever used?]
             self.vec=V(1, 0, 0, 0)
+        
         else:
+            #bruce 050518 comment: a copy of the quat x, or of any length-4 sequence [both forms are used]
             self.vec=V(x[0], x[1], x[2], x[3])
-        self.counter = 50
-
+        return # from Q.__init__
+    
     def __getattr__(self, name):
         if name == 'w':
             return self.vec[0]
@@ -136,17 +221,27 @@ class Q:
         elif name == 'matrix':
             # this the transpose of the normal form
             # so we can use it on matrices of row vectors
-            self.__dict__['matrix'] = array([\
-                    [1.0 - 2.0*(self.y**2 + self.z**2),
-                     2.0*(self.x*self.y + self.z*self.w),
-                     2.0*(self.z*self.x - self.y*self.w)],
-                    [2.0*(self.x*self.y - self.z*self.w),
-                     1.0 - 2.0*(self.z**2 + self.x**2),
-                     2.0*(self.y*self.z + self.x*self.w)],
-                    [2.0*(self.z*self.x + self.y*self.w),
-                     2.0*(self.y*self.z - self.x*self.w),
-                     1.0 - 2.0 * (self.y**2 + self.x**2)]])
-            return self.__dict__['matrix']
+            # [bruce comment 050518: there is a comment on self.vunrot()
+            #  which seems to contradict the above old comment by Josh.
+            #  Josh says he revised the transpose situation later than he wrote the rest,
+            #  so he's not surprised if some comments (or perhaps even rarely-used
+            #  code cases?? not sure) are out of date.
+            #  I didn't yet investigate the true situation.
+            #     To clarify the code, I'll introduce local vars w,x,y,z, mat.
+            #  This will optimize it too (avoiding 42 __getattr__ calls!).
+            # ]
+            w, x, y, z = self.vec
+            self.__dict__['matrix'] = mat = array([\
+                    [1.0 - 2.0*(y**2 + z**2),
+                     2.0*(x*y + z*w),
+                     2.0*(z*x - y*w)],
+                    [2.0*(x*y - z*w),
+                     1.0 - 2.0*(z**2 + x**2),
+                     2.0*(y*z + x*w)],
+                    [2.0*(z*x + y*w),
+                     2.0*(y*z - x*w),
+                     1.0 - 2.0 * (y**2 + x**2)]])
+            return mat
         else:
             raise AttributeError, 'No "%s" in Quaternion' % name
         
@@ -170,6 +265,7 @@ class Q:
 
 
     def __setattr__(self, name, value):
+        #bruce comment 050518: possible bug (depends on usage, unknown): this doesn't call __reset
         if name=="w": self.vec[0] = value
         elif name=="x": self.vec[1] = value
         elif name=="y": self.vec[2] = value
@@ -277,6 +373,10 @@ class Q:
 
     def vunrot(self,v):
         # for use with row vectors
+        # [bruce comment 050518: the above old comment by Josh seems to contradict
+        #  the comment about 'matrix' in __getattr__ (also old and by Josh)
+        #  that it's the transpose of the normal form so it can be used for row vectors.
+        #  See the other comment for more info.]
         return matrixmultiply(v,transpose(self.matrix))
 
     def rot(self,v):
@@ -286,6 +386,7 @@ def twistor(axis, pt1, pt2):
     """return the quaternion that, rotating around axis, will bring 
     pt1 closest to pt2.
     """
+    #bruce 050518 comment: now using this in some cases of Q.__init__; not the ones this uses!
     q = Q(axis, V(0,0,1))
     pt1 = q.rot(pt1)
     pt2 = q.rot(pt2)
@@ -359,8 +460,17 @@ def planeXline(ppt, pv, lpt, lv):
 def cat(a,b):
     """concatenate two arrays (the NumPy version is a mess)
     """
-    if not a: return b
-    if not b: return a
+    #bruce comment 050518: these boolean tests look like bugs!
+    # I bet they should be testing the number of entries being 0, or so.
+    # So I added some debug code to warn us if this happens.
+    if not a:
+        if (debug_quats or platform.atom_debug):
+            print "debug_quats: cat(a,b) with false a -- is it right?",a
+        return b
+    if not b:
+        if (debug_quats or platform.atom_debug):
+            print "debug_quats: cat(a,b) with false b -- is it right?",b
+        return a
     r1 = shape(a)
     r2 = shape(b)
     if len(r1) == len(r2): return concatenate((a,b))
@@ -371,5 +481,41 @@ def cat(a,b):
 def Veq(v1, v2):
     "tells if v1 is all equal to v2"
     return logical_and.reduce(v1==v2)
+    #bruce comment 050518: I guess that not (v1 != v2) would also work (and be slightly faster)
+    # (in principle it would work, based on my current understanding of Numeric...)
 
-__author__ = "Josh"
+# == bruce 050518 moved the following here from extrudeMode.py (and bugfixed/docstringed them)
+    
+def floats_near(f1,f2): #bruce, circa 040924
+    """Say whether two floats are "near" in value (just for use in sanity-check assertions).
+    """
+    ## return abs( f1-f2 ) <= 0.0000001
+    return abs( f1-f2 ) <= 0.000001 * max(abs(f1),abs(f2)) #bruce 050518 revised this
+
+def check_floats_near(f1,f2,msg = ""): #bruce, circa 040924
+    "Complain to stdout if two floats are not near; return whether they are."
+    if floats_near(f1,f2):
+        return True # means good (they were near)
+    if msg:
+        fmt = "not near (%s):" % msg
+    else:
+        fmt = "not near:"
+    # fmt is not a format but a prefix
+    print fmt,f1,f2
+    return False # means bad
+
+def check_posns_near(p1,p2,msg=""): #bruce, circa 040924
+    "Complain to stdout if two length-3 float vectors are not near; return whether they are."
+    res = True #bruce 050518 bugfix -- was False (which totally disabled this)
+    for i in [0,1,2]:
+        res = res and check_floats_near(p1[i],p2[i],msg+"[%d]"%i)
+    return res
+
+def check_quats_near(q1,q2,msg=""): #bruce, circa 040924
+    "Complain to stdout if two quats are not near; return whether they are."
+    res = True #bruce 050518 bugfix -- was False (which totally disabled this)
+    for i in [0,1,2,3]:
+        res = res and check_floats_near(q1[i],q2[i],msg+"[%d]"%i)
+    return res
+
+# end

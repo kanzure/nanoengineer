@@ -1676,8 +1676,16 @@ class Csys(DataNode):
         #bruce 050516 probable bugfix, using "is None" rather than "if not x and not y and not z:"
         if x is None and y is None and z is None:
             self.quat = Q(w)
+            #bruce 050518 comment: this form is used with w an array of 4 floats (in same order
+            # as in mmp file's csys record), when parsing csys mmprecords,
+            # or with w a quat in other places.
         else:
             self.quat = Q(x, y, z, w)
+            #bruce 050518 question: why are these in different order than in arglist? bug?? ###k
+            # ... this is used with wxyz = 0.0, 1.0, 0.0, 0.0 to initialize both views for any Part. No other uses.
+            # And order is not consistent with mmp record, either. Therefore I can and should revise it. Later.
+            # Looks like the main error is that the vars are misnamed/misordered, both here and in init arglist.
+            # Best revision would probably just be to disallow this form! #e 
         return
 
     def show_in_model_tree(self):
@@ -1715,7 +1723,7 @@ class Csys(DataNode):
 
     def __str__(self):
         #bruce 050420 comment: this is inadequate, but before revising it
-        # I'd have to verify it's not used internally, like Jig.__str__ used to be!!
+        # I'd have to verify it's not used internally, like Jig.__repr__ used to be!!
         return "<csys " + self.name + ">"
         
     pass # end of class Csys

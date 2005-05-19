@@ -14,6 +14,7 @@ bruce 050507 pulled in the jig-making methods from class Part.
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
 
+bruce circa 050518 made rmotor arrow rotate along with the atoms.
 """
 
 from VQT import *
@@ -121,7 +122,8 @@ class Jig(Node):
     
     def pick(self): 
         """select the Jig"""
-        if self.assy: #bruce 050419 add 'if' as quick safety hack re bug 451-9 (not a real fix, but removes the traceback) ###@@@
+        if self.assy is not None:
+            #bruce 050419 add 'if' as quick safety hack re bug 451-9 (not a real fix, but removes the traceback) ###@@@
             self.assy.w.history.message(self.getinfo()) 
         if not self.picked: #bruce 050131 added this condition (maybe good for history.message too?)
             Node.pick(self) #bruce 050131 for Alpha: using Node.pick
@@ -328,7 +330,8 @@ class Jig(Node):
         try:
             self._draw(win, dispdef)
         except:
-            pass #e need errmsg, at least for atom_debug
+            print_compact_traceback("exception in drawing jig ignored: ") #bruce 050518
+            # this is verbose, but it's a true serious error that needs to be known about
         
         if disabled:
             glEnable(GL_CULL_FACE)
@@ -359,6 +362,11 @@ class RotaryMotor(Jig):
         self.speed = 0.0 # in gHz
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
+        self._initial_posns = None #bruce 050518
+            # We need to reset _initial_posns to None whenever we recompute
+            # self.axis from scratch or change the atom list in any way (even reordering it).
+            # For now, we do this everywhere it's needed "by hand",
+            # rather than in some (not yet existing) systematic and general way.
         self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 2.0 # default cylinder radius
@@ -375,6 +383,7 @@ class RotaryMotor(Jig):
         self.speed = speed
         self.center = center
         self.axis = norm(axis)
+        self._initial_posns = None #bruce 050518
         self.length = length
         self.radius = radius
         self.sradius = sradius
@@ -382,6 +391,7 @@ class RotaryMotor(Jig):
     # for a motor read from a file, the "shaft" record
     def setShaft(self, shft):
         self.setAtoms(shft) #bruce 041105 code cleanup
+        self._initial_posns = None #bruce 050518
 
     # for a motor created by the UI, center is average point and
     # axis (kludge) is the average of the cross products of
@@ -390,7 +400,17 @@ class RotaryMotor(Jig):
     def findCenter(self, shft, los):
         self.setAtoms(shft) #bruce 041105 code cleanup
         # array of absolute atom positions
-        # can't use xyz, might be from different molecules
+        self.recompute_center_axis(los)
+        self.edit()
+
+    def recompute_center_axis(self, los = None): #bruce 050518 split this out of findCenter, for use in a new cmenu item
+        if los is None:
+            los = self.assy.o.lineOfSight
+        shft = self.atoms
+        # remaining code is a kluge, according to the comment above findcenter;
+        # note that it depends on order of atoms, presumably initially derived
+        # from the selatoms dict and thus arbitrary (not even related to order
+        # in which user selected them or created them). [bruce 050518 comment]
         pos=A(map((lambda a: a.posn()), shft))
         self.center=sum(pos)/len(pos)
         relpos=pos-self.center
@@ -402,13 +422,14 @@ class RotaryMotor(Jig):
             guess = map(cross, relpos[:-1], relpos[1:])
             guess = map(lambda x: sign(dot(los,x))*x, guess)
             self.axis=norm(sum(guess))
-        self.edit()
+        self._initial_posns = None
+        return
 
     def edit(self):
         self.cntl.setup()
         self.cntl.exec_loop()
 
-    def move(self, offset):
+    def move(self, offset): #k can this ever be called?
         self.center += offset
 
     def posn(self):
@@ -422,18 +443,125 @@ class RotaryMotor(Jig):
         
     def getstatistics(self, stats):
         stats.nrmotors += 1
-               
+
+    def rematom(self, *args, **opts): #bruce 050518
+        self._initial_posns = None
+        super = Jig
+        return super.rematom(self, *args, **opts)
+
+    def norm_project_posns(self, posns):
+        """[Private helper for getrotation]
+        Given a Numeric array of position vectors relative to self.center,
+        project them along self.axis and normalize them (and return that --
+        but we take ownership of posns passed to us, so we might or might not
+        modify it and might or might not return the same (modified) object.
+        """
+        axis = self.axis
+        dots = dot(posns, axis)
+        ## axis_times_dots = axis * dots #  guess from this line: exceptions.ValueError: frames are not aligned
+        axis_times_dots = A(len(dots) * [axis]) * reshape(dots,(len(dots),1)) #k would it be ok to just use axis * ... instead?
+        posns -= axis_times_dots
+        ##posns = norm(posns) # some exception from this
+        posns = A(map(norm, posns))
+            # assumes no posns are right on the axis! now we think they are on a unit circle perp to the axis...
+        # posns are now projected to a plane perp to axis and centered on self.center, and turned into unit-length vectors.
+        return posns # (note: in this implem, we did modify the mutable argument posns, but are returning a different object anyway.)
+        
+    def getrotation(self): #bruce 050518 new feature for showing rotation of rmotor in its cap-arrow
+        """Return a rotation angle for the motor. This is arbitrary, but rotates smoothly
+        with the atoms, averaging out their individual thermal motion.
+        It is not history-dependent -- e.g. it will be consistent regardless of how you jump around
+        among the frames of a movie. But if we ever implement remaking or revising the motor position,
+        or if you delete some of the motor's atoms, this angle is forgotten and essentially resets to 0.
+        (That could be fixed, and the angle even saved in the mmp file, if desired. See code comments
+        for other possible improvements.)
+        """
+        # possible future enhancements:
+        # - might need to preserve rotation when we forget old posns, by setting an arb offset then;
+        # - might need to preserve it in mmp file??
+        # - might need to draw it into PovRay file??
+        # - might need to preserve it when we translate or rotate entire jig with its atoms (doing which is NIM for now)
+        # - could improve and generalize alg, and/or have sim do it (see comments below for details).
+        #
+        posns = A(map( lambda a: a.posn(), self.atoms ))
+        posns -= self.center
+        if self._initial_posns is None:
+            # (we did this after -= center, so no need to forget posns if we translate the entire jig)
+            self._initial_posns = posns # note, we're storing *relative* positions, in spite of the name!
+            self._initial_quats = None # compute these the first time they're needed (since maybe never needed)
+            return 0.0 # returning this now (rather than computing it below) is just an optim, in theory
+        assert len(self._initial_posns) == len(posns), "bug in invalidating self._initial_posns when rmotor atoms change"
+        if not (self._initial_posns != posns): # have to use not(x!=y) rather than (x==y) due to Numeric semantics!
+            # no (noticable) change in positions - return quickly
+            # (but don't change stored posns, in case this misses tiny changes which could accumulate over time)
+            # (we do this before the subsequent stuff, to not waste redraw time when posns don't change;
+            #  just re correctness, we could do it at a later stage)
+            return 0.0
+        # now we know the posns are different, and we have the old ones to compare them to.
+        posns = self.norm_project_posns( posns) # this might modify posns object, and might return same or different object
+        quats = self._initial_quats
+        if quats is None:
+            # precompute a quat to rotate new posns into a standard coord system for comparison to old ones
+            # (Q args must be orthonormal and right-handed)
+            oldposns = + self._initial_posns # don't modify those stored initial posns
+                # (though it probably wouldn't matter if we did -- from now on,
+                #  they are only compared to None and checked for length, as of 050518)
+            oldposns = self.norm_project_posns( oldposns)
+            axis = self.axis
+            quats = self._initial_quats = [ Q(axis,pos1,cross(axis,pos1)) for pos1 in oldposns ]
+        angs = []
+        for qq, pos2 in zip( self._initial_quats, posns):
+            npos2 = qq.unrot(pos2)
+            # now npos2 is in yz plane, and pos1 (if transformed) would just be the y axis in that plane;
+            # just get its angle in that plane (defined so that if pos2 = pos1, ie npos2 = (0,1,0), then angle is 0)
+            ang = angle(npos2[1], npos2[2]) # in degrees
+            angs.append(ang)
+        # now average these angles, paying attention to their being on a circle
+        # (which means the average of 1 and 359 is 0, not 180!)
+        angs.sort()
+            # Warning: this sort is only correct since we know they're in the range [0,360] (inclusive range is ok).
+            # It might be correct for any range that covers the circle exactly once, e.g. [-180,180]
+            # (not fully analyzed for that), but it would definitely be wrong for e.g. [-0.001, 360.001]!
+            # So be careful if you change how angle() works.
+        angs = A(angs)
+        gaps = angs[1:] - angs[:-1]
+        gaps = [angs[0] - angs[-1] + 360] + list(gaps)
+        i = argmax(gaps)
+        ##e Someday we should check whether this largest gap is large enough for this to make sense (>>180);
+        # we are treating the angles as "clustered together in the part of the circle other than this gap"
+        # and averaging them within that cluster. It would also make sense to discard outliers,
+        # but doing this without jittering the rotation angle (as individual points become closer
+        # to being outliers) would be challenging. Maybe better to just give up unless gap is, say, >>340.
+        ##e Before any of that, just get the sim to do this in a better way -- interpret the complete set of
+        # atom motions as approximating some overall translation and rotation, and tell us this, so we can show
+        # not only rotation, but axis wobble and misalignment, and so these can be plotted.
+        angs = list(angs)
+        angs = angs[i:] + angs[:i] # start with the one just after the largest gap
+        relang0 = angs[0]
+        angs = A(angs) - relang0 # be relative to that, when we average them
+        # but let them all be in the range [0,360)!
+        angs = (angs + 720) % 360
+            # We need to add 720 since Numeric's mod produces negative outputs
+            # for negative inputs (unlike Python's native mod, which is correct)!
+            # How amazingly ridiculous.
+        ang = (sum(angs) / len(angs)) + relang0
+        ang = ang % 360 # this is Python mod, so it's safe
+        return ang
+        
     # Rotary Motor is drawn as a cylinder along the axis,
     #  with a spoke to each atom
     def _draw(self, win, dispdef):
         bCenter = self.center - (self.length / 2.0) * self.axis
         tCenter = self.center + (self.length / 2.0) * self.axis
         drawcylinder(self.color, bCenter, tCenter, self.radius, 1 )
-        ### Draw the rotation sign #####
-        drawRotateSign((0,0,0), bCenter, tCenter, self.radius)            
         for a in self.atoms:
             drawcylinder(self.color, self.center, a.posn(), self.sradius)
-            
+        rotby = self.getrotation() #bruce 050518
+            # if exception in getrotation, just don't draw the rotation sign
+            # (safest now that people might believe what it shows about amount of rotation)
+        drawRotateSign((0,0,0), bCenter, tCenter, self.radius, rotation = rotby)
+        return
+    
     # Write "rmotor" and "spoke" records to POV-Ray file in the format:
     # rmotor(<cap-point>, <base-point>, cylinder-radius, <r, g, b>)
     # spoke(<cap-point>, <base-point>, scylinder-radius, <r, g, b>)
@@ -463,6 +591,22 @@ class RotaryMotor(Jig):
     
     pass # end of class RotaryMotor
 
+def angle(x,y): #bruce 050518; see also atan2 (noticed used in VQT.py) which might do roughly the same thing
+    """Return the angle above the x axis of the line from 0,0 to x,y,
+    in a numerically stable way, assuming vlen(V(x,y)) is very close to 1.0.
+    """
+    if y < 0: return 360 - angle(x,-y)
+    if x < 0: return 180 - angle(-x,y)
+    if y > x: return 90 - angle(y,x)
+    #e here we could normalize length if we felt like it,
+    # and/or repair any glitches in continuity at exactly 45 degrees
+    res = asin(y)*180/pi
+    #print "angle(%r,%r) -> %r" % (x,y,res) 
+    if res < 0:
+        return res + 360 # should never happen
+    return res
+
+# ==
 
 class LinearMotor(Jig):
     '''A Linear Motor has an axis, represented as a point and

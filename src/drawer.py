@@ -419,7 +419,7 @@ def drawLinearSign(color, center, axis, l, h, w):
         
 
         
-def drawRotateSign(color, pos1, pos2, radius):
+def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
         """Rotate sign on top of the caps of the cylinder """
         glPushMatrix()
         glColor3fv(color)
@@ -434,6 +434,7 @@ def drawRotateSign(color, pos1, pos2, radius):
                 glRotate(angle, 0.0, 1.0, 0.0)
         else:
                 glRotate(angle, axis[1], -axis[0], 0.0)
+        glRotate(rotation, 0.0, 0.0, 1.0) #bruce 050518
         glScale(radius,radius,vlen(vec))
         
         glLineWidth(2.0)
