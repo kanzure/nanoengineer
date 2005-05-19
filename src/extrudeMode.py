@@ -1,20 +1,19 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
-THIS FILE IS PRESENTLY OWNED BY BRUCE -- please don't change it in any way,
-however small, unless this is necessary to make Atom work properly for other developers.
-[bruce 040921, 041015, ...]
+extrudeMode.py
+
+Extrude mode, including its internal "rod" and "ring" modes.
+Unfinished [as of 050518], especially ring mode.
 
 $Id$
 
-Extrude mode. Not yet finished (especially ring mode), as of 050107.
-
--- bruce 040924/041011/041015
+History: by bruce, 040924/041011/041015... 050107...
 """
+__author__ = "bruce"
 
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
 from modes import *
-
 
 from handles import *
 from debug import print_compact_traceback
@@ -23,16 +22,19 @@ from chunk import bond_at_singlets #k needed?
 import platform
 from widgets import FloatSpinBox, TogglePrefCheckBox
 
+from VQT import check_floats_near, check_posns_near, check_quats_near
+    #bruce 050518 moved those defs out of this file
+
 show_revolve_ui_features = 1 # for now
 
-class BendData:
-    """instances hold sets of attributes related to a single "bend value" (inter-unit rotation-quat, etc).
-    
-    This class (and concept) exists only to support Revolve, but it can also be used for bend-features in Extrude.
-    We'll be set up to permit, in general, placing successive units around any spiral or screw
-    (though the UI may or may not permit this level of generality to be used).
-    """
-    pass # not yet used or fully designed; see a notesfile    
+##class BendData:
+##    """instances hold sets of attributes related to a single "bend value" (inter-unit rotation-quat, etc).
+##    
+##    This class (and concept) exists only to support Revolve, but it can also be used for bend-features in Extrude.
+##    We'll be set up to permit, in general, placing successive units around any spiral or screw
+##    (though the UI may or may not permit this level of generality to be used).
+##    """
+##    pass # not yet used or fully designed; see a notesfile    
 
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
 
@@ -693,8 +695,9 @@ class extrudeMode(basicMode):
         if ii == 0:
             ###e we should warn if retvals are not same as basemol values; need a routine to "compare center and quat",
             # like our near test for floats; Numeric can help for center, but we need it for quat too
-            check_posns_near( centerii, basemol.center )
-            check_quats_near( quatii, basemol.quat )
+            if platform.atom_debug: #bruce 050518 added this condition, at same time as bugfixing the checkers to not be noops
+                check_posns_near( centerii, basemol.center )
+                check_quats_near( quatii, basemol.quat )
             pass
         return centerii, quatii
 
@@ -1951,35 +1954,6 @@ class revolveMode(extrudeMode):
     is_revolve = 1
 
     pass
-
-
-# more customized should-be mol methods
-    
-def floats_near(f1,f2):
-    return abs( f1-f2 ) <= 0.0000001 # just for use in sanity-check assertions
-
-def check_floats_near(f1,f2,msg = ""):
-    if floats_near(f1,f2):
-        return True # means good (they were near)
-    if msg:
-        fmt = "not near (%s):" % msg
-    else:
-        fmt = "not near:"
-    # fmt is not a format but a prefix
-    print fmt,f1,f2 # printing a lot...
-    return False # means bad
-
-def check_posns_near(p1,p2,msg=""):
-    res = False
-    for i in [0,1,2]:
-        res = res and check_floats_near(p1[i],p2[i],msg+"[%d]"%i)
-    return res
-
-def check_quats_near(q1,q2,msg=""):
-    res = False
-    for i in [0,1,2,3]:
-        res = res and check_floats_near(q1[i],q2[i],msg+"[%d]"%i)
-    return res
 
 # see above, slightly, for a list of a few unfinished things or bugs in the code
 # end
