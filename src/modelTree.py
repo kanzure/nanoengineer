@@ -355,6 +355,19 @@ class modelTree(TreeWidget):
             res.append(( 'Properties', self.cm_properties ))
         else:
             res.append(( 'Properties', noop, 'disabled' )) # nim for multiple items
+
+        # Certain classes have specific commands related to changing specific properties...
+        # this needs a general interface, but for this first example,
+        # this non-general one will be enough [bruce 050519]:
+        if len(nodeset) == 1:
+            try:
+                meth = nodeset[0].recenter_on_atoms
+            except AttributeError:
+                pass
+            else:
+                #e might be nice to dim it if atoms haven't moved since it was made or recentered
+                res.append(( 'Recenter on atoms', self.cm_recenter_on_atoms ))
+            pass
          
         # copy, cut, delete, maybe duplicate...
         # some of them are not-for-use-in-clipboard [bruce 050131]
@@ -424,6 +437,7 @@ class modelTree(TreeWidget):
         nodeset = self.topmost_selected_nodes()
         if len(nodeset) != 1:
             self.win.history.message("error: cm_properties called on no or multiple items")
+                # (internal error, not user error)
         else:
             node = nodeset[0]
             res = node.edit() #e rename method!
@@ -432,7 +446,21 @@ class modelTree(TreeWidget):
             else:
                 self.win.win_update()
         return
-    
+
+    def cm_recenter_on_atoms(self): #bruce 050519; sometime figure out how to refile this with the most general class it's for
+        nodeset = self.topmost_selected_nodes()
+        if len(nodeset) != 1:
+            self.win.history.message("error: cm_recenter_on_atoms called on no or multiple items")
+                # (internal error, not user error)
+        else:
+            node = nodeset[0]
+            self.assy.w.history.message( "Recenter Motor [%s] for current atom positions" % node.name)
+            node.recenter_on_atoms() # some nodes don't have this method; that's ok since there's
+                # only one node (so nothing more we needed to do, if this raises an exception)
+                # (anyway, caller nominally guarantees this node *does* have this method.)
+            self.win.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
+        return
+
     def cm_group(self): # bruce 050126 adding comments and changing behavior; 050420 permitting exactly one subtree
         "put the selected subtrees (one or more than one) into a new Group (and update)"
         ##e I wonder if option/alt/midButton should be like a "force" or "power" flag

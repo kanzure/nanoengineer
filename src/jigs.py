@@ -425,6 +425,12 @@ class RotaryMotor(Jig):
         self._initial_posns = None
         return
 
+    def recenter_on_atoms(self):
+        "called from model tree cmenu command"
+        self.recompute_center_axis()
+        #e maybe return whether we moved??
+        return
+    
     def edit(self):
         self.cntl.setup()
         self.cntl.exec_loop()

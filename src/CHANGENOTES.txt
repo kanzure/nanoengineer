@@ -478,3 +478,16 @@ See email to cad, "selection issues summary".
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/19/2005
+Files: jigs.py modelTree.py
+Summary: added MT cmenu command for rotary motors: Recenter on atoms
+
+This mitigates the bug/NFR asking for the motor to move automatically 
+when the atoms do (if they are all moved together, in Move Chunks mode).
+It doesn't really fix that, but it's not fully obvious how to fix that
+(e.g. when only some of the atoms move). Even so, I assume we'll fix
+that sometime, so this is a temporary "holdover" until the real fix.
+
+----------------------------
+
