@@ -385,6 +385,7 @@ class modelTree(TreeWidget):
 
             if allstats.njigs == allstats.n and allstats.njigs:
                 # only jigs are selected -- offer to select their atoms [bruce 050504]
+                # (text searches for this code might like to find "Select this jig's" or "Select these jigs'")
                 if allstats.njigs == 1:
                     natoms = len(nodeset[0].atoms)
                     myatoms = fix_plurals( "this jig's %d atom(s)" % natoms )
@@ -591,16 +592,33 @@ class modelTree(TreeWidget):
         nodeset = self.topmost_selected_nodes()
         otherpart = {} #bruce 050505 to fix bug 589
         did_these = {}
+        nprior = len(self.assy.selatoms)
         for jig in nodeset:
             assert isinstance( jig, Jig) # caller guarantees they are all jigs
+            # If we didn't want to desel the jig, I'd have to say:
+                # note: this does not deselect the jig (good); and permit_pick_atoms would deselect it (bad);
+                # so to keep things straight (not sure this is actually needed except to avoid a debug message),
+                # just set SELWHAT_ATOMS here; this is legal because no chunks are selected. Actually, bugs might occur
+                # in which that's not true... I forget whether I fixed those recently or only analyzed them (due to delays
+                # in update event posting vs processing)... but even if they can occur, it's not high-priority to fix them,
+                # esp since selection rules might get revised soon.
+                ## self.assy.set_selwhat(SELWHAT_ATOMS)
+            # but (I forgot when I wrote that) we *do* desel the jig,
+            # so instead I can just say:
+            self.assy.part.permit_pick_atoms() # changes selwhat and deselects all chunks, jigs, and groups
+            # [bruce 050519 8pm]
             for atm in jig.atoms:
                 if atm.molecule.part == jig.part:
                     atm.pick()
                     did_these[atm.key] = atm
                 else:
                     otherpart[atm.key] = atm
-            jig.unpick() # not done by picking atoms
+            ## jig.unpick() # not done by picking atoms [no longer needed since done by permit_pick_atoms]
         msg = fix_plurals("Selected %d atom(s)" % len(did_these)) # might be 0, that's ok
+        if nprior: #bruce 050519
+            #e msg should distinguish between atoms already selected and also selected again just now,
+            # vs already and not now; for now, instead, we just try to be ambiguous about that
+            msg += fix_plurals(" (%d atom(s) remain selected from before)" % nprior)
         if otherpart:
             msg += fix_plurals(" (skipped %d atom(s) which were not in this Part)" % len(otherpart))
             msg = orangemsg(msg) # the whole thing, I guess

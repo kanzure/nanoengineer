@@ -116,5 +116,6 @@ elemKeyTab =  [('H', Qt.Key_H, 1),
 # values for assy.selwhat: what to select: 0=atoms, 2 = molecules
 SELWHAT_ATOMS = 0
 SELWHAT_CHUNKS = 2
+SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"} # for use in messages
 
 # end

@@ -567,8 +567,15 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 selwhat_from_sel = None
             new_selwhat_influences = ( selwhat_from_sel, selwhat_from_mode, selwhat)
             if selwhat_from_sel is not None and selwhat_from_sel != selwhat:
-                print "bug, fyi: actual selection (typecode %d) inconsistent " \
-                      "with internal variable for that; fixing this" % selwhat_from_sel
+                # following code will fix this with no harm, so let's not consider it a big deal,
+                # but it does indicate a bug -- so just print a debug-only message.
+                # (As of 050519 740pm, we get this from the jig cmenu command "select this jig's atoms"
+                #  when the current mode is more compatible with selecting chunks. But I think this causes
+                #  no harm, so I might as well wait until we further revise selection code to fix it.)
+                if platform.atom_debug:
+                    print "atom_debug: bug, fyi: actual selection (%s) inconsistent " \
+                          "with internal variable for that (%s); will fix internal variable" % \
+                          (SELWHAT_NAMES[selwhat_from_sel], SELWHAT_NAMES[selwhat])
         # Let the strongest (first listed) influence, of those with an opinion,
         # decide what selmode we'll be in now, and make everything consistent with that.
         for opinion in new_selwhat_influences:
