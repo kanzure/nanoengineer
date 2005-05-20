@@ -582,7 +582,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
             if opinion is not None:
                 # We have our decision. Carry it out (on mode, selection, and assy.selwhat) and return.
                 selwhat = opinion
-                if change_mode_to_fit:
+                if change_mode_to_fit and selwhat_from_mode != selwhat:
+                    #bruce 050520 fix bug 644 by only doing this if needed (i.e. if selwhat_from_mode != selwhat).
+                    # Without this fix, redundantly changing the mode using these tool buttons
+                    # immediately cancels (or completes?) any node-renaming-by-dblclick
+                    # right after it gets initiated (almost too fast to see).
                     if selwhat == SELWHAT_CHUNKS:
                         win.toolsSelectMolecules()
                     elif selwhat == SELWHAT_ATOMS:
