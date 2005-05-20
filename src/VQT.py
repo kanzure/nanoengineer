@@ -486,11 +486,12 @@ def Veq(v1, v2):
 
 # == bruce 050518 moved the following here from extrudeMode.py (and bugfixed/docstringed them)
     
-def floats_near(f1,f2): #bruce, circa 040924
+def floats_near(f1,f2): #bruce, circa 040924, revised 050518 to be relative, 050520 to be absolute for small numbers.
     """Say whether two floats are "near" in value (just for use in sanity-check assertions).
     """
     ## return abs( f1-f2 ) <= 0.0000001
-    return abs( f1-f2 ) <= 0.000001 * max(abs(f1),abs(f2)) #bruce 050518 revised this
+    ## return abs( f1-f2 ) <= 0.000001 * max(abs(f1),abs(f2))
+    return abs( f1-f2 ) <= 0.000001 * max( abs(f1), abs(f2), 0.1) #e maybe let callers pass a different "scale" than 0.1?
 
 def check_floats_near(f1,f2,msg = ""): #bruce, circa 040924
     "Complain to stdout if two floats are not near; return whether they are."
