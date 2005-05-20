@@ -445,11 +445,36 @@ Summary: fixed bug 620 - exceptions in MT when clicked while waiting for long op
 ----------------------------
 
 Name: Bruce Smith
-Date: 5/13/2005
+Date: 5/13/2005 [and several days thereafter]
 Files: 28 files
 Summary: optimized mmp read, VdW draw, movie play; '==' -> 'is' in many files
 
-For details see email: "CHECKIN: optimized readmmp, draw VdW, movies (I think)"
+For details see email: "CHECKIN: optimized readmmp, draw VdW, movies (I think)".
+
+Basically: some ops on large parts are faster now, e.g. movie playing, file opening,
+selecting atoms (due to the redraw speedup).
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/19/2005
+Files: Utility.py VQT.py drawer.py jigs.py
+Summary: rotary motor circular arrow rotates with motor during movies
+
+(It also rotates in Move Chunks mode, but only because we haven't yet fixed the
+bug or NFR about wanting the motor to move along with the chunk. During this kind
+of motion there can be glitches (unjustified sudden changes) in the displayed angle,
+since the spokes get far from their nominal arrangement. These glitches are harmless.)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/19/2005
+Files:  assembly.py TreeWidget.py modelTree.py ops_select.py
+
+Summary: fix bug 500, revise selwhat vs selmode code, related behavior changes
+
+See email to cad, "selection issues summary".
 
 ----------------------------
 
