@@ -501,6 +501,11 @@ not obviously wrong on the test cases I tried, and fast. (It is also,
 in theory, compatible with Selection Filter, so that should be changed
 to no longer disable this operation, but that hasn't yet been done.)
 
+Warning: the new code (like the old) does use recursion rather than iteration
+and might get an exception for big parts due to hitting the recursion limit.
+If this starts to happen, it can be considered a new bug, and it can be fixed
+w/o too much trouble (maybe another 1/2 day of work).
+
 ----------------------------
 
 
