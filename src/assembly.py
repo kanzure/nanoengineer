@@ -315,6 +315,13 @@ class assembly:
         sg = self.current_selgroup()
         # and make sure selgroup_part finds a part from it, too
         assert self.selgroup_part(sg)
+        # 050519 new feature: since bonds might have been broken above (by break_interpart_bonds), do this too:
+        self.update_bonds() #e overkill -- might need to be optimized
+        return
+
+    def update_bonds(self): #bruce 050519
+        for node in [self.tree] + self.shelf.members:
+            node.part.update_bonds()
         return
     
     def ensure_one_part(self, node, partclass): #bruce 050420 revised this to help with bug 556

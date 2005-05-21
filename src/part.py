@@ -185,7 +185,7 @@ class Part( jigmakers_Mixin, InvalMixin,
     # == membership maintenance
 
     # Note about selection of nodes moving between parts:
-    # when nodes are removed or added to parts, we ensure they (or their atoms) are not picked,
+    # when nodes are removed from or added to parts, we ensure they (or their atoms) are not picked,
     # so that we needn't worry about updating selatoms, selmols, or current selection group;
     # this also seems best in terms of the UI. But note that it's not enough, if .part revision
     # follows tree revision, since picked nodes control selection group using tree structure alone.
@@ -194,14 +194,14 @@ class Part( jigmakers_Mixin, InvalMixin,
         if node.part is self:
             # this is normal, e.g. in ensure_one_part, so don't complain
             return
-        if node.part:
+        if node.part is not None:
             if debug_parts:
                 # this will be common
                 print "debug_parts: fyi: node added to new part so removed from old part first:", node, self, node.part
             node.part.remove(node)
         assert node.part is None
         assert not node.picked # since remove did it, or it was not in a part and could not have been picked (I think!)
-        #e assert a mol's atoms not picked too (too slow to do it routinely; bugs in this are likely to be noticed)
+        #e should assert a mol's atoms not picked too (too slow to do it routinely; bugs in this are likely to be noticed)
         node.part = self
         self.nodecount += 1
         if isinstance(node, molecule): #####@@@@@ #e better if we let the node add itself to our stats and lists, i think...
@@ -211,6 +211,8 @@ class Part( jigmakers_Mixin, InvalMixin,
         # note that node is not added to any comprehensive list of nodes; in fact, we don't have one.
         # presumably this function is only called when node was just, or is about to be,
         # added to a nodetree in a place which puts it into this part's tree.
+        # Therefore, in the absence of bugs and at the start of any user event handler,
+        # self.topnode should serve as a comprehensive tree of this part's nodes.
         return
     
     def remove(self, node):
@@ -609,6 +611,15 @@ class Part( jigmakers_Mixin, InvalMixin,
         # Note: this implem assumes that the nodes in self are exactly the node-tree under self.topnode.
         # As of 050309 this is always true (after update_parts runs), but might not be required except here.
         self.topnode.apply2all( lambda node: node.break_interpart_bonds() )
+        return
+
+    # ==
+
+    def update_bonds(self): #bruce 050519
+        """Re-estimate bond orders for all bonds in this Part which might need it (based on tracked changes),
+        for purposes of display, mmp bond records for sim, build UI behavior.
+        """
+        pass #NIM - first we have to track the changes which might affect this
         return
 
     # == these are event handlers which do their own full UI updates at the end
