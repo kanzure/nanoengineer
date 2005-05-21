@@ -491,3 +491,16 @@ that sometime, so this is a temporary "holdover" until the real fix.
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/20/2005
+Files: op_select_doubly.py ops_connected.py
+Summary: New code for Select Doubly (fixes bug 582; makes this op linear time).
+
+The old code was wrong (at least since Alpha1) and slow. The new code is
+not obviously wrong on the test cases I tried, and fast. (It is also,
+in theory, compatible with Selection Filter, so that should be changed
+to no longer disable this operation, but that hasn't yet been done.)
+
+----------------------------
+
+
