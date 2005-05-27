@@ -255,7 +255,7 @@ class PlotTool(PlotToolDialog):
         if sys.platform == 'win32': # Windows
             editor = "C:/WINDOWS/notepad.exe"
         elif sys.platform == 'darwin': # MacOSX
-            editor = "/usr/bin/open"
+            editor = "/usr/bin/open" ###e needs -e argument [bruce 050527 comment]
         else: # Linux
             editor = "/usr/bin/kwrite"
             
