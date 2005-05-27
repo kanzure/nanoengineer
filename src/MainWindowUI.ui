@@ -146,6 +146,7 @@
         <action name="jigsGroundAction"/>
         <action name="jigsStatAction"/>
         <action name="jigsThermoAction"/>
+        <action name="jigsGamessAction"/>
     </item>
     <item text="Simulator" name="Simulator">
         <action name="simSetupAction"/>
@@ -3640,6 +3641,17 @@
             <string>Rotate Counter Clockwise</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>jigsGamessAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image129</iconset>
+        </property>
+        <property name="text">
+            <string>Gamess</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4028,6 +4040,9 @@
     </image>
     <image name="image128">
         <data format="PNG" length="566">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001fd49444154789cb594bf6b136118c73fcff52201a911f14e8290c125a190cb281da4c441a13888c3e1a46650071d1c04978245374171e85217b11d0a378afe0982144473e090201d04491b8881900a89c93d0e3d4312f3eb8afdc2bb1cef7d9e0fdff7bd1355e528621c09352a58448e8b88fc57b0882c006f81ab33ed8fd2b1887c01f680ebaa5a9fb4375215a669de13912e7073aac434e37c3e6fd6ebf5b4aa2e074170a1dd6e4bb95c3e05b8aafa23b2b1ebba738ee32cd56ab58d2008b654f59a6118bf62b1d80b6007b83fe920cd71d052a97447559f009f44e4ae88f8c562711f40447e02eb80031447314656e1384e01780a6c02cf7cdf1f38a8d0f439700628a86a7b98f14f15b95cee3cb002ac653299956128801ed8ac01e780c551c603e0d0e436f01dd8f33caf3beaa510be0378c02311393111ac07b92822af7cdf7f3d0eda170f380d5c9908ce66b32e30077c9c014a78dd5e020f44e4ec5870986f8d46a3320b38cc3ba009b8c353b16d7bd5b22c1d5eb66dafaa2ad3167019f80c2cfc7dd6bb6eb66dbf0796fb66bea956abb76651169163c00650011eaa6ab737359d4ecf5b96b59d4aa5d4b2aced594c87ac1781afc0d280713c1ebfd46ab57693c964b152a9e42274dc13071e036de0460f6c18c687442271b2d96c363b9dceef43800162c02e5018f8a44564fe90c0fe04aaba1fe9471f257f00b9ed1338a53e10e20000000049454e44ae426082</data>
+    </image>
+    <image name="image129">
+        <data format="PNG" length="732">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000002a349444154789ca594bb4b335b14c57f31ce34426286a8d108218daf8892c4c2421b2382606363295682f807585fec2c6c04b1b53222b1b14c080946c107f8407c81c14e64741003432233eedb09f792997c7caef2acbdd759ecbdce813fc4e6e6a6fc692d4053a38262b1287b7b7b52281448a7d3522e97259fcf37bcc4e3446c6c6c483e9f475555aad52ab3b3b3a4d36942a110afafaff87c3e7677771dfb1d1d0f0c0cd0dede8e699af87c3e745dc7b22cdedede88c562d8b6fd778e0152a9942c2c2c90cd66a956ab288ac2eded2dcfcfcf1c1c1c303636e6daef884c2623a3a3a3128d46a5afaf4f82c1a00032313121baaebbced97579aaaa629a26c9649260308861180402015455c5ebf5ba9a7264cbe5b22c2e2e6218065353538442216cdbc6b66dcecfcf11118e8e8efe71ea6f76221445a1bfbf1f4dd3181c1c2497cb717676866ddbb4b5b5e1f7fb5d1dbbe2e5e545969797a5abab4b22918800a2699a5c5d5d35ccb1eb8c3b3b3b3d9148844aa5f213af582cc6f0f070c334347c791f1f1fcccdcdb1b6b686a228d46a35dedfdf7fe718e0f8f898783c4ead56c3e3f170797949a9546ad4e62e7c71712187878784c361babbbb01f8fafa627f7fff77c285420111211008f0f8f88888e0f57a393939e1e1e1c1751c8e715b5a5a92d5d555e6e7e7f9fefee6e9e989542a856559e4723992c96443d775e1f7fb65666646b6b7b7e5e6e646e2f1b800a2288a00d2d4d424894442aeafafeb3aafeb3893c9c8d6d616e17018d33429954a542a15003a3a3a1011a2d1289665392eb2ae706b6b2b777777f4f4f4d0dcdc8caeeb2412097a7b7b01300c83fbfb7b5a5a5a7ecefe0fc7a0afacac88a6699c9e9ef2f9f949369bfd0f3f3939c9fafa3a43434375355c5f90aeebb2b3b343b158fc19c5c8c808e3e3e34c4f4fffdd5ffc5bfc0babe125f896d1599f0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -4805,6 +4820,12 @@
         <receiver>MainWindow</receiver>
         <slot>modifyInvert()</slot>
     </connection>
+    <connection>
+        <sender>jigsGamessAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeGamess()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4960,6 +4981,7 @@
     <slot>cookieSelect()</slot>
     <slot>modifyMinimizeAll()</slot>
     <slot>modifyInvert()</slot>
+    <slot>makeGamess()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
