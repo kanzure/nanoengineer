@@ -1,25 +1,20 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
-
 """
-Classes for objects in the model,
-with a uniform API to permit them to be shown in the model tree.
-
-This file mainly defines superclass Node and its subclass Group;
-other files define other subclasses of Node, such as molecule and Jig.
-
-This file should have a more descriptive name, but that can wait.
-
-[Temporarily owned by Bruce circa 050105; might be extensively revised.]
+Utility.py -- class Node (superclass for all model-tree objects), Group, and a few subclasses,
+defining a uniform API to permit all Node subclasses to be shown in the model tree.
 
 $Id$
 
-bruce 050513-16 replaced some == with 'is' and != with 'is not', to avoid __getattr__
-on __xxx__ attrs in python objects.
+Other files define other subclasses of Node, such as molecule and Jig.
 
+This file should have a more descriptive name, but that can wait.
+
+#e Should be split into separate modules for Node, Group and specialized Groups, and others.
+
+History: originally by Josh; gradually has been greatly extended by Bruce
+but the basic structure of Nodes and Groups has not been changed.
 """
 __author__ = "Josh"
-
-# [some changes and docstrings by bruce]
 
 from VQT import *
 from shape import *
@@ -132,6 +127,7 @@ class Node:
         #  with treewidget-specific state #e)
     dad = None
     part = None #bruce 050303
+    prior_part = None #bruce 050527
     disabled_by_user_choice = False
         # [bruce 050505 made this default on all Nodes, tho only Jigs use the attr so far; see also is_disabled]
 
@@ -153,17 +149,10 @@ class Node:
         #bruce 050205 added docstring; bruce 050216 revised it
         self.name = name or "" # assumed to be a string by some code
         
-##        #bruce 050205 new fields to help fix clipboard/DND bugs -- not yet used, but will be used soon
-##        # (and which anticipate some planned Beta features):
-##        self.space = None # not a node (what it is is explained separately or not yet);
-##            # more like an assy or "subassy";
-##            # addmember might change this to dad.assy
-##        self.selgroup = -1 # cached find_selection_group() retval, a Node or None, -1 means invalid #e or use getattr? or maintain?
-##        #end bruce 050205 new fields
-
         # assy -- as temporary kluge, permitted to be a Part as well [bruce 050223]
         from assembly import assembly # the class
         if assy is not None and not isinstance(assy, assembly) and assy != '<not an assembly>':
+            assert 0, "Node assy must be an assembly, not a Part" # bruce 050527 stop permitting this [remove all this code, in a week]
             try:
                 #bruce 050223 probably a temporary debug kluge, though it might turn out we prefer to store a Part anyway, not sure...
                 # permit this to be a Part and use its assy, but warn about this
@@ -265,40 +254,11 @@ class Node:
     def redmsg(self, msg): #bruce 050203
         from HistoryWidget import redmsg
         ###@@@ we ought to make this work even after assy set to None in Node.kill!
-        self.assy.w.history.message( redmsg( msg ))
+        if self.assy is not None:
+            self.assy.w.history.message( redmsg( msg ))
+        else:
+            print "bug: redmsg in killed node:", msg #bruce 050527
 
-##    def select_enabled(self): #obs, better to just override self.pick() [bruce 050206]
-##        """Whether model tree should permit selection of this node (and all its members).
-##        [To be overridden by Nodes it would be unsafe for the user to *ever* select.
-##         Warning: internal code should not select them either, but this might not be enforced.]
-##        """
-##        return True # for most nodes
-
-    def has_home(self): #bruce 050303; depends on assy more than I'd like, but seems needed for some purposes
-        """Is this node a valid tree-member of its assy? (I.e. not yet deleted from its assy's node-tree.)
-        [Some node methods require this to be true, with exceptions otherwise;
-         so all node methods may assume it (whenever it might matter)
-         unless their docstrings say otherwise.]
-        """
-        # this implem ought to work even if we have more than one assy someday
-        node = self
-        while node.dad is not None:
-            if not node in node.dad.members:
-                print_compact_stack("error (ignored): some node is not in it's dad's members list: ")
-                node.dad = None
-                return False
-            node = node.dad # never None, we just checked it above
-        return node.assy and node is node.assy.root ###e this is the part that knows too much about an assy. should ask it instead.
-##    
-##        # first try was:
-##        #e if nodes forget about .assy (as will be easiest when we support more than one assy at a time),
-##        # then it might be better to say "valid member of *any* assy", and go up dad chain to look for one,
-##        # presuming you find a node with explicit assy at the top. (if not, it's homeless, thus invalid.)
-##        if self.assy is None: #revised 050516
-##            return False
-##        return self.assy.root.is_ascendant(self)
-##            # this doesn't check for nodes being members of their dads! so some bugs might fool it.
-    
     def is_top_of_selection_group(self): #bruce 050131 for Alpha [#e rename is_selection_group?] [#e rename concept "selectable set"?]
         """Whether this node is the top of a "selection group".
         (This can be true of leaf nodes as well as group nodes, in spite of the name.)
@@ -332,8 +292,6 @@ class Node:
         if not foundselgroup:
             # found a "picked dad"
             assert ours.picked
-##            if platform.atom_debug:
-##                print "atom_debug: fyi: change_current_selgroup_to_include_self returns early with picked dad %r" % node_name(ours)
             return # no need to change (important optimization for recursive picking in groups)
         if ours is None:
             # this might happen for non-bugs since changed_dad calls it for picked nodes,
@@ -345,29 +303,9 @@ class Node:
         # ours is this node's selgroup, and might or might not already be the current one in self.assy
         prior = self.assy.current_selgroup_iff_valid() # might be None but otherwise is always valid; no side effects [revised 050310]
         if ours is not prior:
-##            if platform.atom_debug:
-##                print "change_current_selgroup_to_include_self: prior %r is not ours %r" % \
-##                      (node_name(prior), node_name(ours))
             self.assy.set_current_selgroup( ours)
                 # this unpicks everything not in 'ours' and warns if it unpicked anything
         return
-
-    ## bruce 050310 revising this and moving it into an assy method
-##    def current_selection_group(self): #bruce 050131 for Alpha
-##        # warning, this is also the name of an assy instance var -- that one should have a private name
-##        try:
-##            maybe = self.assy.current_selection_group
-##            if maybe is None: return None
-##            if maybe.assy is not self.assy: #revised 050513
-##                return None
-##            if not maybe.is_top_of_selection_group():
-##                return None
-##            if not self.assy.root.is_ascendant(maybe):
-##                return None
-##        except:
-##            print_compact_traceback("exception in current_selection_group() ignored, returning None: ")
-##            return None
-##        return maybe
 
     def find_selection_group(self): #bruce 050131 for Alpha #####@@@@@ needs update/review for being called on deleted nodes; pass assy?
         """Return the selection group to which this node belongs, or None if none
@@ -398,7 +336,7 @@ class Node:
         return True, node # might be None
             
     def show_in_model_tree(self): #bruce 050127 ###e needs renaming, sounds like "scroll to make visible" [050310]
-        #bruce 050417 warning: I think I never ended up honoring this. Not sure.
+        #bruce 050417 warning: I think I never ended up honoring this. Not sure. #bruce 050527: It's not honored now, anyway.
         """Should this node be shown in the model tree widget?
         True for most nodes. Can be overridden by subclasses.
         [Added so that Datum Plane nodes won't be shown. Initially,
@@ -467,6 +405,8 @@ class Node:
         - or, reject it, and return (False, reason it's not ok).
           (The reason should be a string suitable for error messages.)
         """
+        #e some of TreeWidget.slot_itemRenamed should be moved into a new caller of this in Node,
+        # so other Qt widgets can also safely try to rename Nodes. [bruce 050527 comment]
         if not self.rename_enabled():
             return (False, "renaming this node is not permitted")
         name = name.strip() # remove whitespace from both ends
@@ -482,7 +422,7 @@ class Node:
         ###e should inval any observers (i.e. model tree) -- not yet needed, I think [bruce 050119]
         return (True, name)
         
-    def drag_move_ok(self): # renamed/split from drag_enabled; docstring revised 050201 #####@@@@@ honor it!
+    def drag_move_ok(self): # renamed/split from drag_enabled; docstring revised 050201
         """Say whether a drag_move which includes this node can be started (for "drag and drop").
         It's ok if only some drop-targets (nodes or inter-node gaps) can accept this node;
         we'll ask the targets if they'll take a specific drag_moved list of nodes (which includes this node).
@@ -493,7 +433,11 @@ class Node:
         """
         return True
         
-    def drag_copy_ok(self): # renamed/split from drag_enabled; docstring revised 050201 #####@@@@@ honor it!
+    def drag_copy_ok(self): # renamed/split from drag_enabled; docstring revised 050201
+        #bruce 050527 comment: this API needs revision, since the decision for jigs depends on what other nodes are included.
+        # And we should revise it more, so we can construct a Copier object, let it "prep",
+        # and use it for not only filtering out some nodes (like this does)
+        # but getting the summary msg for the drag graphic, etc. #####@@@@@
         """Say whether a drag_copy which includes this node can be started (for "drag and drop").
         Same comments as for drag_move_ok apply.
         [some subclasses should override this]
@@ -540,19 +484,28 @@ class Node:
             for node in nodes[:]:
                 node.moveto(self) ###k guess/stub; works
         else:
-            for node in nodes[:]:
-                nc = node.copy(None) # note: before 050215 we passed dad=self -- weird, but due to other weirdness in copy, didn't matter
-                if nc: # can be None if the copy is refused (since nim for that Node subclass, as for Group as of 050203)
+##            if 1:
+                #bruce 050527 new code to "copy anything". Preliminary (probably not enough history messages, or maybe sometimes
+                # too many). Would be better to create the Copier object (done in a subr here) earlier, when the drag is started,
+                # for various reasons mentioned elsewhere.
+                from ops_copy import copied_nodes_for_DND
+                autogroup_at_top = isinstance(self, ClipboardShelfGroup)
+                    #####@@@@@ kluge! replace with per-group variable or func.
+                    #e or perhaps better, a per-group method to process the nodes list, eg to do the grouping
+                    # as the comment in copied_nodes_for_DND or its subr suggests.
+                nodes = copied_nodes_for_DND(nodes, autogroup_at_top = autogroup_at_top)
+                if not nodes: # might be None
+                    return [] # return copied nodes
+                for nc in nodes[:]:
                     res.append(nc)
                     self.addmember(nc) # self is sometimes a Group, so this does need to be addmember (not addchild or addsibling)
-        #bruce 050308 quick inefficient fix for assy/part split... ####@@@@ review for optimization
-        self.assy.update_parts()
-##        #bruce 050203: adding a quick bugfix for clipboard-DND bugs
-##        # which was written 050202 and intended for Alpha-1, but didn't make it in.
-##        # In the future this might be optimized to only call update_mols when necessary,
-##        # and/or some of what update_mols does might be done more incrementally and more generally.
-##        self.assy.update_mols()
-##        #end bruce 050203 addition
+##            else:#old code
+##              for node in nodes[:]:
+##                nc = node.copy(None) # note: before 050215 we passed dad=self -- weird, but due to other weirdness in copy, didn't matter
+##                if nc: # can be None if the copy is refused (since nim for that Node subclass, as for Group as of 050203)
+##                    res.append(nc)
+##                    self.addmember(nc) # self is sometimes a Group, so this does need to be addmember (not addchild or addsibling)
+        self.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of this)
         return res
 
     #bruce 050203: these drop_unders were not used for Alpha-1 -- no time to support dropping into gaps.
@@ -751,17 +704,22 @@ class Node:
         node = self
         ## not needed as of 050309:
         ## changed.dads.record(node) # make sure node's Part will be updated later if needed [bruce 050303]
-        assert node.dad #k not sure if good to need this, but seems to fit existing calls... that might change [050205 comment]
+        assert node.dad is not None #k not sure if good to need this, but seems to fit existing calls... that might change [050205 comment]
             #e if no dad: assy, space, selgroup is None.... or maybe keep prior ones around until new real dad, not sure
         assert node.assy is node.dad.assy or node.assy is None
             # bruce 050308, since following assy code & part code has no provision yet for coexisting assemblies
         node.assy = node.dad.assy # this might change soon, or might not... but if it's valid at all, it needs to be propogated down!
             # we leave it like this for now only in case it's ever being used to init the assy field from None.
         #bruce 050308: continually let assigned node.dad.part get inherited by unassigned node.part (recursively)
-        if node.dad.part and not node.part:
-            # note, this is the usual way that newly made nodes acquire their .part for the first time!
-            # they might be this node or one of its kids (if they were added to a homeless Group, which is this node).
-            node.inherit_part(node.dad.part) # recurses only into kids with no .parts
+        if node.dad.part is not None:
+            if node.part is None:
+                # note, this is the usual way that newly made nodes acquire their .part for the first time!
+                # they might be this node or one of its kids (if they were added to a homeless Group, which is this node).
+                node.inherit_part(node.dad.part) # recurses only into kids with no .parts
+        else:
+            #bruce 050527 new feature: dad can also inherit from kid, but only prior_part
+            if node.dad.prior_part is None: # as well as node.dad.part, already checked
+                node.copy_prior_part_to(node.dad)
         if node.picked:
             # bruce 050131 for Alpha:
             # worry about whether node is in a different selection group than before;
@@ -778,37 +736,11 @@ class Node:
         return
 
     def inherit_part(self, part): #bruce 050308
-        "#doc [overridden in Group]"
-        assert not self.part
+        "#doc (see Group method docstring) [overridden in Group]"
+        # this implem is sufficient only for leaf nodes
+        assert self.part is None
         part.add(self)
-        assert self.part is part # correct only for leaf nodes
-    
-    def changed_dad_comments(): "never called, just some semi-obs comments I need here for awhile"
-        # new features 050205 for Alpha (to help fix DND/clipboard bugs):
-        # Figure out whether our molecules need to be added to / removed from assy.molecules,
-        # or more generally (someday), whether we exited and/or entered a "space"
-        # which wants to keep track of what's inside it (etc).
-
-        # Did we leave assy.tree? Let's assume we were in it if _old_dad was None ... what maintains assy.molecules now?
-        # assy.__init__ sets to []
-        # assy.addmol "add a chunk to assy" - adds to .mols and does other things
-        ##### *including tree.addmember* so what if already added elsewhere? ####@@@@ review for possible bugs in calls of that
-        # - it's called in a few special places that make mols when operating on selected stuff!
-        # - in files_mmp: assy.addmol(mol); mol.moveto(group) -- this might solve the issues about addmol vs groups.
-        # - ...
-        # (when they don't have a group to put them in)
-        # bugs if sel in clipboard.... #fix later.. just make those ops deselect clipboard... for beta work in proper space...
-        #  tho if we only do .mols that is better than nothing ie a true partial bugfix.
-        # sanitize_for_clipboard_0
-        # chunk's mol.kill [so i reviewed it now, revised its debug code]
-        # ... this is all, so DND into group in tree must now ... only work if you were already in tree, since no addmol.
-        # ... and addmol is not good for adding things to assy... but some of it is needed (more than just .molecules), in theory...
-
-        # ... I ended up not yet supporting this in changed_dad, but just having some or all DND moves call assy.update_mols!
-        # Maybe I'll make assy methods cut/copy/delete_sel do this too, not sure.
-
-        # end of bruce new features 050205 for Alpha
-        # [they are all comments! well, those are useful too... and less likely to cause new bugs (soon anyway) than actual code!]
+        assert self.part is part
     
     def hide(self):
         if not self.hidden:
@@ -914,11 +846,28 @@ class Node:
         for attr in self.copyable_attrs:
             val = getattr(self, attr)
             setattr(target, attr, val) # turns some default class attrs into unneeded instance attrs (nevermind for now)
+        self.copy_prior_part_to( target)
+
+    def copy_prior_part_to(self, target): #bruce 050527 
+        """If target (presumed to be a Node) has no part or prior_part, set its prior_part from self,
+        for sake of initial views of new Parts containing target, if any such new Parts are yet to be made.
+        """
+        if target.part is None and target.prior_part is None:
+            if self.part is not None:
+                target.prior_part = self.part
+            else:
+                target.prior_part = self.prior_part
         return
 
     def own_mutable_copyable_attrs(self): #bruce 050526 #e use more widely?
         "#doc; some subclasses must extend this"
         pass
+    
+    def copy(self, dad): # just for backwards compatibility until old code is changed [050527]
+        self.redmsg("This cannot yet be copied")
+        if platform.atom_debug:
+            print_compact_stack("atom_debug: who's still calling this deprecated method? this is:\n ")
+        return None # bruce 050131 changed this from "return 0"
     
     # ==
     
@@ -1028,9 +977,6 @@ class Node:
         if platform.atom_debug:
             print "atom_debug:", line
         return
-        ## old code, now cleaned up and turned into Jig.writemmp:
-##        # bruce comment 050108/050210: this is used for Jigs. It uses __repr__ nonstandardly!
-##        f.write(self.__repr__(atnums))
 
     def writemmp_info_leaf(self, mapping): #bruce 050421
         """leaf node subclasses should call this in their writemmp methods,
@@ -1216,22 +1162,6 @@ class Group(Node):
         # we'll have to pass in some args... don't do that unless/until we need to.
         return True
 
-## no need for this, can be same as what we inherit
-##    def rename_enabled(self):
-##        "whether tree widgets should permit the user to rename this node"
-##        rename = True # true for most Groups
-##        ###@@@ these kluges (taken from the deprecated self.buildNode) should be replaced by new subclasses of Group
-##        if self.name == "Clipboard": rename = False # Do not allow the clipboard to be renamed
-##        if self.name == self.assy.name: rename = False # Do not allow the part node to be renamed
-##        return rename
-
-## no need for these, same as what we inherit; but we might generalize them to give info about what types can be dragged or dropped
-##    def drag_enabled(self): # something related to drag and drop, drag aspect ###k what exactly?
-##        return True
-##    
-##    def drop_enabled(self): # something related to drag and drop, drop aspect ###k what exactly?
-##        return True
-
     # methods before this are by bruce 050108 and should be reviewed when my rewrite is done ###@@@
 
     def kluge_change_class(self, subclass):
@@ -1282,11 +1212,6 @@ class Group(Node):
             mem.changed_dad() # reason is explained above [bruce 050205]
         new.dad.changed_members() # since new class is different from self.class, this might be needed ###@@@ is it ok?
         return new
-
-# bruce 050108 removed all uses of setopen, since it should be defined
-# on tree items, not nodes        
-##    def setopen(self):
-##        self.open = True
 
     # bruce 050113 deprecated addmember and confined it to Node; see its docstring.
 
@@ -1459,9 +1384,6 @@ class Group(Node):
         # I'm very skeptical of doing this history.message
         # recursively, but I'm not changing it for Alpha
         msg = self.description_for_history() # bruce 050121 let subclass decide on this
-##        if self.name == self.assy.name: msg = "Part Name: [" + self.name +"]"
-##        elif self.name == "Clipboard": msg = "Clipboard"
-##        else: msg = "Group Name: [" + self.name +"]"
         self.assy.w.history.message( msg )
         return
 
@@ -1493,8 +1415,12 @@ class Group(Node):
             # to res = res or ob.unpick_all_except( node)!
         return res
 
-    def inherit_part(self, part): #bruce 050308
-        "#doc [overrides Node method]"
+    def inherit_part(self, part): # Group method; bruce 050308
+        """Self (a Group) is inheriting part from its dad.
+        Set this part in self and all partless kids
+        (assuming those are all at the top of the nodetree under self).
+        [overrides Node method]
+        """
         Node.inherit_part(self, part)
         for m in self.members:
             if m.part is None:
@@ -1650,7 +1576,7 @@ class Group(Node):
         else:
             return imagename_to_pixmap("group-collapsed.png")
 
-    def kids(self, display_prefs): #bruce 050109
+    def kids(self, display_prefs): #bruce 050109 [#k is this used?]
         """[Overrides Node.kids()]
         Return the ordered list of our kids which should be displayed in a model
         tree widget which is using (for this node itself) the given display prefs
@@ -1919,9 +1845,7 @@ class ClipboardShelfGroup(Group):
     """
     def postcopy_in_mapping(self, mapping): #bruce 050524
         assert 0, "RootGroup.postcopy_in_mapping should never be called!"
-##    def select_enabled(self): return False #bruce 050131 for Alpha -- not yet used, maybe not needed
     def pick(self): #bruce 050131 for Alpha
-        # I might just do this and not bother honoring select_enabled; don't know yet.
         msg = "Clipboard can't be selected or dragged. (Individual clipboard items can be.)"
         ## bruce 050316: no longer do this: self.redmsg( msg)
         self.assy.w.history.transient_msg( msg)
@@ -1935,29 +1859,30 @@ class ClipboardShelfGroup(Group):
         # and ought to stay that way by default; user can drag them one-at-a-time if desired.
         # (In theory this grouping need only be done for the subsets of them which are bonded;
         #  for now that's too hard -- maybe not for long, similar to bug 371.)
-        if len(nodes) > 1 and drag_type == 'move': ####@@@@ desired for copy too, but below implem would be wrong for that...
+        if len(nodes) > 1 and drag_type == 'move': #####@@@@@ desired for copy too, but below implem would be wrong for that...
             name = self.assy.name_autogrouped_nodes_for_clipboard( nodes, howmade = drag_type )
-            new = Group(name, self.assy, None) ###k review last arg ####@@@@
-            parts = {} # maps id(part) to part for all nonnull parts in nodes
-                #bruce 050420: fix an unreported bug related to bug 556, but for dragged nodes which get auto-grouped.
-                # If the nodes all have same .part (of those which have a .part) (I believe they will always all have
-                # the same nonnull part, but I'm testing this to be robust), add new group to that part too;
-                # this part will be replaced later by update_parts, but serves to pass on these node's view in glpane
-                # to the new part. (The replacement might be "needless" if we were dragging *all* nodes from
-                # that part, but we're not bothering here to make its topnode correct -- and we surely couldn't
-                # if we're only dragging *some* nodes from it.)
+            new = Group(name, self.assy, None)
+#bruce 050527 removing part-related code, since it is redundant with more general code added elsewhere, today [tested!]
+##            parts = {} # maps id(part) to part for all nonnull parts in nodes
+##                #bruce 050420: fix an unreported bug related to bug 556, but for dragged nodes which get auto-grouped.
+##                # If the nodes all have same .part (of those which have a .part) (I believe they will always all have
+##                # the same nonnull part, but I'm testing this to be robust), add new group to that part too;
+##                # this part will be replaced later by update_parts, but serves to pass on these node's view in glpane
+##                # to the new part. (The replacement might be "needless" if we were dragging *all* nodes from
+##                # that part, but we're not bothering here to make its topnode correct -- and we surely couldn't
+##                # if we're only dragging *some* nodes from it.)
             for node in nodes[:]: #bruce 050216 don't reverse the order, it's already correct
-                part = node.part
-                if part is not None:
-                    parts[id(part)] = part
-                del part
+##                part = node.part
+##                if part is not None:
+##                    parts[id(part)] = part
+##                del part
                 node.unpick() #bruce 050216; don't know if needed or matters; 050307 moved from after to before moveto
                 node.moveto(new) ####@@@@ guess, same as in super.drop_on (move here, regardless of drag_type? no, not correct!)
-            if len(parts) == 1:
-                part = parts.values()[0]
-                part.add(new) #bruce 050420, explained in comment above
-                if 0 and platform.atom_debug:
-                    print "atom_debug: added autogroup to shared part of its nodes"
+##            if len(parts) == 1:
+##                part = parts.values()[0]
+##                part.add(new) #bruce 050420, explained in comment above
+##                if 0 and platform.atom_debug:
+##                    print "atom_debug: added autogroup to shared part of its nodes"
             nodes = [new] # a new length-1 list of nodes
             self.assy.w.history.message( "(fyi: Grouped some nodes to keep them in one clipboard item)" ) ###e improve text
         return Group.drop_on(self, drag_type, nodes)
@@ -2003,7 +1928,6 @@ class RootGroup(Group):
     """
     def postcopy_in_mapping(self, mapping): #bruce 050524
         assert 0, "RootGroup.postcopy_in_mapping should never be called!"
-##    def select_enabled(self): return False #bruce 050131 for Alpha -- should never matter
     def pick(self): #bruce 050131 for Alpha
         self.redmsg( "Internal error: tried to select assy.root (ignored)" )
     #e does this need to differ from a Group? maybe in some dnd/rename attrs...
@@ -2078,22 +2002,6 @@ def kluge_patch_assy_toplevel_groups(assy, assert_this_was_not_needed = False): 
                 print_compact_stack("atom_debug: fyi: kluge_patch_assy_toplevel_groups sees fixroot and assert_this_was_not_needed: ")
     return
 
-    ##bruce 050429 moved these into assembly.py as assy methods, and will call them elsewhere too, re bug 413:
-### these should also become assy methods, I guess
-### (they depend on assy._modified working as it did on 050109)
-### [writen by bruce 050110]
-##
-##def assy_begin_suspend_noticing_changes(assy):
-##    oldmod = assy._modified
-##    assy._modified = 1
-##    return oldmod # this must be passed to the 'end' function
-##    # also, if this is True, caller can safely not worry about
-##    # calling "end" of this, i suppose; best not to depend on that
-##
-##def assy_end_suspend_noticing_changes(assy, oldmod):
-##    assy._modified = oldmod
-##    return
-
 # ==
 
 ##descendents? spelling..
@@ -2122,49 +2030,5 @@ def topmost_nodes( nodes): #bruce 050303
                     del res[id(other)]
             res[id(node)] = node
     return res.values()
-
-# ==
-
-# this might be obs as of 050303 don't yet know
-
-# bruce 050225.
-#e someday we'll have a superclass, for "operation tracker/guider/stagers" or so...
-# and for serving as a history-object afterwards.
-
-class MovingNodes:
-    """Class for organizing one multi-node move operation.
-    Can be extended for nodetree-types with more structure that needs to be maintained
-    (we do this in part.py for nodetrees with nodes divided into parts, and inter-node
-    bonds which should not be inter-part bonds).
-       To do a move of a set of nodes, create this object,
-    call its begin method (maybe do those steps together),
-    do the actual node-moving by means of addchild operations
-    (thus rearranging the node-tree to accomplish the raw move),
-    making sure those ops call our track_changed_dad method [###e and for which nodes, exactly?],
-    and finally call this object's end method
-    to do things which subclasses might need to extend, e.g.
-    to maintain the mapping from nodes to parts (based on the changed tree structure),
-    and to break any bonds between nodes that are now in different parts,
-    and to help parts keep their own lists of their nodes, selected nodes, etc.
-       What this superclass provides is the structure for tracking all this
-    and some help to subclasses for analyzing the nodesets.
-    """
-    def __init__(self, *_begin_args, **_begin_kws): #e superclass method?
-        if _begin_args or _begin_kws:
-            self.begin(*_begin_args, **_begin_kws)
-    def begin(self, nodes):
-        "prepare the given set of toplevel nodes to be moved (along with their entire subtrees)"
-        self.fixnodes = {}
-        map( self.track_changed_dad, nodes) # should not be needed -- do an assert instead? no, not clear they all have to move
-        pass
-    def track_changed_dad(self, node): # not needed if we do it in the begin method and its nodes were complete and no new nodes made
-        self.fixnodes[id(node)] = node
-        pass
-    def end(self):
-        "clean up extended structure after the node-motion is complete" #e with both old and new trees as arguments?
-        #e or, one tree, and old and new 'dad attrs' and 'members attrs' (ie old and new tree structures)? in fact, map btwn those?
-        # use fixnodes...
-        pass
-    pass
     
 # end

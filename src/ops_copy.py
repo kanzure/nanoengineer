@@ -235,6 +235,23 @@ class ops_copy_Mixin:
 
 # ==
 
+def copied_nodes_for_DND( nodes, autogroup_at_top = False): #bruce 050527
+    from ops_select import Selection
+    if not nodes:
+        return None
+    part = nodes[0].part # kluge
+    copier = Copier(Selection(part, nodes = nodes))
+    copier.prep_for_copy_to_shelf()
+    if not copier.ok():
+        #e histmsg?
+        return None
+    nodes = copier.copy_as_list_for_DND() # might be None (after histmsg) or a list
+    if nodes and autogroup_at_top:
+        nodes = copier.autogroup_if_several(nodes)
+    return nodes
+
+# ==
+
 class Copier: #bruce 050523-050526; might need revision for merging with DND copy
     "Controller for copying selected nodes and/or atoms."
     def __init__(self, sel):
@@ -325,13 +342,41 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
     def whynot(self):
         return self._whynot or "can't copy those items"
 
-    # this makes the actual copy (into a known destination) using the info computed above
+    # this makes the actual copy (into a known destination) using the info computed above; there are two variants.
+
+    def copy_as_list_for_DND(self): #bruce 050527 added this variant and split out the other one
+        "Return a list of nodes, or None"
+        return self.copy_as_list( make_partial_groups = False)
+        
     def copy_as_node_for_shelf(self):
         """Create and return a new single node (not yet placed in any Group)
         which is a copy of our selected objects meant for the Clipboard;
         or return None (after history message -- would it be better to let caller do that??)
         if all selected objects refuse to be copied.
         """
+        newstuff = self.copy_as_list( make_partial_groups = True) # might be None
+        if newstuff is None:
+            return None
+        return self.wrap_or_rename( newstuff)
+
+    def copy_as_list(self, make_partial_groups = True):
+        """[private helper method]
+        Create and return a list of one or more new nodes (not yet placed in any Group)
+        which is a copy of our selected objects,
+        or return None (after history message -- would it be better to let caller do that??)
+        if all objects refuse to be copied.
+           It's up to caller whether to group these nodes if there is more than one,
+        whether to rename the top node, whether to recenter them,
+        and whether to place them in the same or in a different Part as the one they started in.
+           Assuming no bugs, the returned nodes might have internode bonds, but they have no
+        bonds or jig-atom references (in either direction) between them as a set, and anything else.
+        So, even if we copy a jig and caller intends to place it in the same Part,
+        this method (unless extended! ###e) won't let that jig refer to anything except copied
+        atoms (copied as part of the same set of nodes). [So to implement a "Duplicate" function
+        for jigs, letting duplicates refer to the same atoms, this method would need to be extended.
+        Or maybe copy for jigs with none of their atoms copied should have a different meaning?? #e]
+        """
+        self.make_partial_groups = make_partial_groups # used by self.recurse
         # Copy everything we need to (except for extern bonds, and finishing up of jig refs to atoms).
         self.origid_to_copy = {} # various obj copy methods use/extend this, to map id(orig-obj) to copy-obj for all levels of obj
         self.extern_atoms_bonds = []
@@ -383,7 +428,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         # Now clean up the toplevel Group structure of the copy, and return it.
         newstuff = self.newstuff
         del self.newstuff
-        assert not newstuff or len(newstuff) == 1
+        assert (not self.make_partial_groups) or (not newstuff or len(newstuff) == 1)
             # since either verytopnode is a leaf and refused or got copied,
             # or it's a group and copied as one (or all contents refused -- not sure if it copies then #k)
             # (this assert is not required by following code, it's just here as a sanity check)
@@ -394,8 +439,15 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             # everything refused to be copied. Can happen (e.g. for a single selected jig at the top).
             self.assy.w.history.message( redmsg( "That selection can't be copied by itself." )) ###e improve message
             return None
-        # wrap or rename result
-        if len(newstuff) > 1:
+
+        # further processing depends on the caller (a public method of this class)
+        return newstuff
+
+    def autogroup_if_several(self, newstuff): #bruce 050527
+        #e should probably refile this into self.assy or so,
+        # or even into Node or Group (for target node which asks for the grouping to do),
+        # and merge with similar code
+        if newstuff and len(newstuff) > 1:
             # add wrapping group
             name = self.assy.name_autogrouped_nodes_for_clipboard( newstuff) #k argument
             res = Group(name, self.assy, None, newstuff)
@@ -403,6 +455,15 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 # (which does not yet exist), like is done in create_new_toplevel_group;
                 # not sure when to do that or how to trigger it; probably could create a
                 # fake old part here just to hold the name...
+                # addendum, 050527: new prior_part feature might be doing this now; find out sometime #k
+            newstuff = [res]
+        return newstuff
+        
+    def wrap_or_rename(self, newstuff):
+        # wrap or rename result
+        if len(newstuff) > 1: #revised 050527
+            newstuff = self.autogroup_if_several(newstuff)
+            (res,) = newstuff
         else:
             res = newstuff[0]
             # now rename it, like old code would do (in mol.copy), though whether
@@ -453,11 +514,15 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             # if there's some reason to do so.
             res = orig.copy_full_in_mapping(self)
         elif orig.is_group():
-            save = self.newstuff
-            self.newstuff = []
+            if self.make_partial_groups: #bruce 050527 made this optional so DND copy can not do it
+                save = self.newstuff
+                self.newstuff = []
             map( self.recurse, orig.members)
-            newstuff = self.newstuff
-            self.newstuff = save
+            if self.make_partial_groups: #050527
+                newstuff = self.newstuff
+                self.newstuff = save
+            else:
+                newstuff = None
             if newstuff:
                 # we'll make some sort of Group from it, as a partial copy of orig
                 # (note that orig is a group which was not selected, so is only needed

@@ -508,4 +508,15 @@ w/o too much trouble (maybe another 1/2 day of work).
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 5/26/2005
+Files: lots
+Summary: support for copying selected atoms, jigs, Groups
+
+(and the next day, did some bugfixes and extended the change to DND copy in MT)
+
+For details, see mail to cad list, not yet sent, hopefully to be sent
+within a few days.
+
+----------------------------
 

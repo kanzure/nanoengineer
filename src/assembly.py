@@ -325,11 +325,12 @@ class assembly:
             node.part.update_bonds()
         return
     
-    def ensure_one_part(self, node, partclass): #bruce 050420 revised this to help with bug 556
-        """Ensure node is the top node of its own Part, and all its kids are in that Part.
+    def ensure_one_part(self, node, part_constructor): #bruce 050420 revised this to help with bug 556; revised again 050527
+        """Ensure node is the top node of its own Part, and all its kids are in that Part,
+        either by verifying this situation, or creating a new Part just for node and its kids.
         Specifically:
            If node's part is None or not owned by node (ie node is not its own part's topnode),
-        give node its own new Part of the given class (permitting the new part to copy some
+        give node its own new Part using the given constructor (permitting the new part to copy some
         info from node's old part, like view attrs, if it wants to).
         (Class is not used if node already owns its Part.)
            If node's kids (recursively) are not in node's (old or new) part, add them.
@@ -346,9 +347,9 @@ class assembly:
 ##            node.part.remove(node) # node's kids will be removed below
 ##            assert node.part is None
 ##        if node.part is None:
-        if node.part is None or node.part.topnode is not node:
-            part1 = partclass(self, node)
-            assert node.part is part1
+        if node.part is None or node.part.topnode is not node: # if node has no part or does not own its part (as its topnode)
+            part1 = part_constructor(self, node) # make a new part with node on top -- uses node's old part (if any) for initial view
+            assert node.part is part1 # since making the new part should have added node to it, and set node.part to it
             assert node is node.part.topnode
         # now make sure all node's kids (recursively) are in node.part
         addmethod = node.part.add
