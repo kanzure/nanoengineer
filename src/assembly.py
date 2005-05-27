@@ -82,6 +82,7 @@ from struct import unpack
 from chem import *
 from movie import *
 from jigs import *
+from jig_Gamess import *
 from Utility import *
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
