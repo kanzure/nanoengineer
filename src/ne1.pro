@@ -2,7 +2,6 @@
 <kodeproject>
  <project target="\atom.py" open="1" version="8.0" name="nanoENGINEER-1" >
   <pyfile type="file" name="VQT.py" />
-  <pyfile type="file" name="atom.py" />
   <pyfile type="file" name="checkui.py" />
   <pyfile type="file" name="chem.py" />
   <pyfile type="file" name="constants.py" />
@@ -14,7 +13,6 @@
   <pyfile type="file" name="elementSelector.py" />
   <pyfile type="file" name="extrudeMode.py" />
   <pyfile type="file" name="fileIO.py" />
-  <pyfile type="file" name="gadgets.py" />
   <pyfile type="file" name="GLPane.py" />
   <pyfile type="file" name="GroundProp.py" />
   <pyfile type="file" name="help.py" />
@@ -93,5 +91,33 @@
   <pyfile type="file" name="ThermoProp.py" />
   <pyfile type="file" name="panMode.py" />
   <pyfile type="file" name="rotateMode.py" />
+  <pyfile type="file" name="TreeView.py" />
+  <pyfile type="file" name="TreeWidget.py" />
+  <pyfile type="file" name="nanoENGINEER-1.py" />
+  <pyfile type="file" name="atom.py" />
+  <uifile type="file" name="PlotToolDialog.ui" >
+   <pyfile url="\PlotToolDialog.py" type="file" name="PlotToolDialog.py" />
+  </uifile>
+  <pyfile type="file" name="PlotTool.py" />
+  <pyfile type="file" name="elementColors.py" />
+  <uifile type="file" name="LightingToolDialog.ui" >
+   <pyfile url="\LightingToolDialog.py" type="file" name="LightingToolDialog.py" />
+  </uifile>
+  <pyfile type="file" name="LightingTool.py" />
+  <pyfile type="file" name="part.py" />
+  <pyfile type="file" name="fusechunksMode.py" />
+  <pyfile type="file" name="widgets.py" />
+  <pyfile type="file" name="translateMode.py" />
+  <pyfile type="file" name="jigs.py" />
+  <pyfile type="file" name="files_mmp.py" />
+  <pyfile type="file" name="files_pdb.py" />
+  <pyfile type="file" name="CookieCtrlPanel.py" />
+  <pyfile type="file" name="minimize.py" />
+  <pyfile type="file" name="gamessParms.py" />
+  <uifile type="file" name="GamessPropDialog.ui" >
+   <pyfile url="\GamessPropDialog.py" type="file" name="GamessPropDialog.py" />
+  </uifile>
+  <pyfile type="file" name="GamessProp.py" />
+  <pyfile type="file" name="bonds.py" />
  </project>
 </kodeproject>
