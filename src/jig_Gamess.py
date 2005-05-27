@@ -71,7 +71,8 @@ class Gamess(Jig):
 class gamessParms:
     def __init__(self, name):
         
-        self.name = name or "" # assumed to be a string by some code
+        self.name = name or "" # Parms set name, assumed to be a string by some code
+        self.ui = ctlRec('UI', ui)
         self.contrl = ctlRec('CONTRL',contrl)
         self.scf = ctlRec('SCF',scf)
         self.system = ctlRec('SYSTEM',system)
@@ -88,7 +89,10 @@ class gamessParms:
         self.scf.prin1(f)
         self.system.prin1(f)
         self.mp2.prin1(f)
-        if sys.platform != 'win32': # PC-GAMESS does not support DFT section records. Mark 052105
+        # $$$ This needs to be fixed. Wrong conditional.  
+        # Should check a global var for GAMESS version.
+        # PC GAMESS does not support DFT section records. Mark 052105
+        if sys.platform != 'win32': 
             self.dft.prin1(f)
         self.guess.prin1(f)
         self.statpt.prin1(f)

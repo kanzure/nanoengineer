@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>475</width>
-            <height>500</height>
+            <height>498</height>
         </rect>
     </property>
     <property name="caption">
@@ -464,7 +464,7 @@
                         </property>
                         <widget class="QButtonGroup">
                             <property name="name">
-                                <cstring>mplvl_btngrp</cstring>
+                                <cstring>ecm_btngrp</cstring>
                             </property>
                             <property name="title">
                                 <string></string>
@@ -787,108 +787,86 @@
                 </property>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout27</cstring>
+                        <cstring>layout21</cstring>
                     </property>
                     <hbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLayoutWidget">
+                        <widget class="QLabel">
                             <property name="name">
-                                <cstring>layout29</cstring>
+                                <cstring>textLabel5</cstring>
                             </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel5</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Density Convergence :</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QComboBox">
-                                    <item>
-                                        <property name="text">
-                                            <string>Coarse (10E-4)</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>Default (10E-5)</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>Fine (10E-6)</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>Very Fine (10E-7)</string>
-                                        </property>
-                                    </item>
-                                    <property name="name">
-                                        <cstring>density_conv_combox</cstring>
-                                    </property>
-                                    <property name="currentItem">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
-                                    </property>
-                                </widget>
-                            </hbox>
+                            <property name="text">
+                                <string>Density Convergence :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
                         </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout26</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
+                        <widget class="QComboBox">
+                            <item>
+                                <property name="text">
+                                    <string>Coarse (10E-4)</string>
                                 </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel2_2</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>RAM (MB) :</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QComboBox">
-                                    <item>
-                                        <property name="text">
-                                            <string>Default</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>2000</string>
-                                        </property>
-                                    </item>
-                                    <property name="name">
-                                        <cstring>ram_combox</cstring>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Select the amount of system memory to use in the energy calculation.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Select the amount of system memory to use in the energy calculation.</string>
-                                    </property>
-                                </widget>
-                            </hbox>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Default (10E-5)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Fine (10E-6)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Very Fine (10E-7)</string>
+                                </property>
+                            </item>
+                            <property name="name">
+                                <cstring>density_conv_combox</cstring>
+                            </property>
+                            <property name="currentItem">
+                                <number>1</number>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel2_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Memory :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>memory_spinbox</cstring>
+                            </property>
+                            <property name="maxValue">
+                                <number>1024</number>
+                            </property>
+                            <property name="minValue">
+                                <number>70</number>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1</cstring>
+                            </property>
+                            <property name="text">
+                                <string>MB</string>
+                            </property>
                         </widget>
                     </hbox>
                 </widget>
@@ -1110,10 +1088,10 @@
         <slot>close()</slot>
     </connection>
     <connection>
-        <sender>mplvl_btngrp</sender>
+        <sender>ecm_btngrp</sender>
         <signal>clicked(int)</signal>
         <receiver>GamessPropDialog</receiver>
-        <slot>set_mplevel()</slot>
+        <slot>set_ecmethod()</slot>
     </connection>
     <connection>
         <sender>save_parms_btn</sender>
@@ -1154,7 +1132,7 @@
 </connections>
 <slots>
     <slot>writeinpfile()</slot>
-    <slot>set_mplevel()</slot>
+    <slot>set_ecmethod()</slot>
     <slot>set_multiplicity()</slot>
     <slot>open_atoms_list_in_editor()</slot>
     <slot>set_jig_filenames()</slot>

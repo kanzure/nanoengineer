@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'GamessPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Thu May 26 22:32:45 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Fri May 27 17:38:32 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -138,30 +138,30 @@ class GamessPropDialog(QDialog):
 
         layout31 = QVBoxLayout(None,0,6,"layout31")
 
-        self.mplvl_btngrp = QButtonGroup(self.groupBox2,"mplvl_btngrp")
-        self.mplvl_btngrp.setExclusive(1)
-        self.mplvl_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.mplvl_btngrp.layout().setSpacing(6)
-        self.mplvl_btngrp.layout().setMargin(11)
-        mplvl_btngrpLayout = QGridLayout(self.mplvl_btngrp.layout())
-        mplvl_btngrpLayout.setAlignment(Qt.AlignTop)
+        self.ecm_btngrp = QButtonGroup(self.groupBox2,"ecm_btngrp")
+        self.ecm_btngrp.setExclusive(1)
+        self.ecm_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.ecm_btngrp.layout().setSpacing(6)
+        self.ecm_btngrp.layout().setMargin(11)
+        ecm_btngrpLayout = QGridLayout(self.ecm_btngrp.layout())
+        ecm_btngrpLayout.setAlignment(Qt.AlignTop)
 
         layout30 = QHBoxLayout(None,0,6,"layout30")
 
-        self.none_radiobtn = QRadioButton(self.mplvl_btngrp,"none_radiobtn")
+        self.none_radiobtn = QRadioButton(self.ecm_btngrp,"none_radiobtn")
         self.none_radiobtn.setChecked(1)
-        self.mplvl_btngrp.insert( self.none_radiobtn,-1)
+        self.ecm_btngrp.insert( self.none_radiobtn,-1)
         layout30.addWidget(self.none_radiobtn)
 
-        self.dft_radiobtn = QRadioButton(self.mplvl_btngrp,"dft_radiobtn")
+        self.dft_radiobtn = QRadioButton(self.ecm_btngrp,"dft_radiobtn")
         layout30.addWidget(self.dft_radiobtn)
 
-        self.mp2_radiobtn = QRadioButton(self.mplvl_btngrp,"mp2_radiobtn")
-        self.mplvl_btngrp.insert( self.mp2_radiobtn,-1)
+        self.mp2_radiobtn = QRadioButton(self.ecm_btngrp,"mp2_radiobtn")
+        self.ecm_btngrp.insert( self.mp2_radiobtn,-1)
         layout30.addWidget(self.mp2_radiobtn)
 
-        mplvl_btngrpLayout.addLayout(layout30,0,0)
-        layout31.addWidget(self.mplvl_btngrp)
+        ecm_btngrpLayout.addLayout(layout30,0,0)
+        layout31.addWidget(self.ecm_btngrp)
 
         self.core_electrons_checkbox = QCheckBox(self.groupBox2,"core_electrons_checkbox")
         self.core_electrons_checkbox.setEnabled(0)
@@ -203,28 +203,27 @@ class GamessPropDialog(QDialog):
         groupBox3Layout = QVBoxLayout(self.groupBox3.layout())
         groupBox3Layout.setAlignment(Qt.AlignTop)
 
-        layout27 = QHBoxLayout(None,0,6,"layout27")
-
-        layout29 = QHBoxLayout(None,0,6,"layout29")
+        layout21 = QHBoxLayout(None,0,6,"layout21")
 
         self.textLabel5 = QLabel(self.groupBox3,"textLabel5")
         self.textLabel5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel5)
+        layout21.addWidget(self.textLabel5)
 
         self.density_conv_combox = QComboBox(0,self.groupBox3,"density_conv_combox")
-        layout29.addWidget(self.density_conv_combox)
-        layout27.addLayout(layout29)
-
-        layout26 = QHBoxLayout(None,0,6,"layout26")
+        layout21.addWidget(self.density_conv_combox)
 
         self.textLabel2_2 = QLabel(self.groupBox3,"textLabel2_2")
         self.textLabel2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.textLabel2_2)
+        layout21.addWidget(self.textLabel2_2)
 
-        self.ram_combox = QComboBox(0,self.groupBox3,"ram_combox")
-        layout26.addWidget(self.ram_combox)
-        layout27.addLayout(layout26)
-        groupBox3Layout.addLayout(layout27)
+        self.memory_spinbox = QSpinBox(self.groupBox3,"memory_spinbox")
+        self.memory_spinbox.setMaxValue(1024)
+        self.memory_spinbox.setMinValue(70)
+        layout21.addWidget(self.memory_spinbox)
+
+        self.textLabel1 = QLabel(self.groupBox3,"textLabel1")
+        layout21.addWidget(self.textLabel1)
+        groupBox3Layout.addLayout(layout21)
 
         layout54 = QHBoxLayout(None,0,6,"layout54")
 
@@ -280,11 +279,11 @@ class GamessPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(475,500).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(475,498).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.close)
-        self.connect(self.mplvl_btngrp,SIGNAL("clicked(int)"),self.set_mplevel)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.ecm_btngrp,SIGNAL("clicked(int)"),self.set_ecmethod)
         self.connect(self.save_parms_btn,SIGNAL("clicked()"),self.writeinpfile)
         self.connect(self.atoms_list_btn,SIGNAL("clicked()"),self.open_atoms_list_in_editor)
         self.connect(self.name_linedit,SIGNAL("returnPressed()"),self.set_jig_filenames)
@@ -355,7 +354,7 @@ class GamessPropDialog(QDialog):
         QToolTip.add(self.multi_combox,self.__tr("N + 1, where N is the number of unpaired electrons."))
         QWhatsThis.add(self.multi_combox,self.__tr("N + 1, where N is the number of unpaired electrons."))
         self.groupBox2.setTitle(self.__tr("Electron Correlation Method"))
-        self.mplvl_btngrp.setTitle(QString.null)
+        self.ecm_btngrp.setTitle(QString.null)
         self.none_radiobtn.setText(self.__tr("None"))
         QToolTip.add(self.none_radiobtn,self.__tr("Select this button to neglect electron correlation in the calculation."))
         QWhatsThis.add(self.none_radiobtn,self.__tr("Select this button to neglect electron correlation in the calculation."))
@@ -412,12 +411,8 @@ class GamessPropDialog(QDialog):
         self.density_conv_combox.setCurrentItem(1)
         QToolTip.add(self.density_conv_combox,self.__tr("Selects the accuracy of the electron density convergence for the energy calculation."))
         QWhatsThis.add(self.density_conv_combox,self.__tr("Selects the accuracy of the electron density convergence for the energy calculation."))
-        self.textLabel2_2.setText(self.__tr("RAM (MB) :"))
-        self.ram_combox.clear()
-        self.ram_combox.insertItem(self.__tr("Default"))
-        self.ram_combox.insertItem(self.__tr("2000"))
-        QToolTip.add(self.ram_combox,self.__tr("Select the amount of system memory to use in the energy calculation."))
-        QWhatsThis.add(self.ram_combox,self.__tr("Select the amount of system memory to use in the energy calculation."))
+        self.textLabel2_2.setText(self.__tr("Memory :"))
+        self.textLabel1.setText(self.__tr("MB"))
         self.extrap_checkbox.setText(self.__tr("EXTRAP"))
         QToolTip.add(self.extrap_checkbox,self.__tr("Controls Pople extrapolation of the Fock matrix."))
         QWhatsThis.add(self.extrap_checkbox,self.__tr("Controls Pople extrapolation of the Fock matrix."))
@@ -452,8 +447,8 @@ class GamessPropDialog(QDialog):
     def writeinpfile(self):
         print "GamessPropDialog.writeinpfile(): Not implemented yet"
 
-    def set_mplevel(self):
-        print "GamessPropDialog.set_mplevel(): Not implemented yet"
+    def set_ecmethod(self):
+        print "GamessPropDialog.set_ecmethod(): Not implemented yet"
 
     def set_multiplicity(self):
         print "GamessPropDialog.set_multiplicity(): Not implemented yet"

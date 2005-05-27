@@ -6,22 +6,40 @@ $Id$
 '''
 __author__ = "Mark"
 
-contrl={'runtyp':'ENERGY', 'coord':'UNIQUE', 'scftyp':'RHF', 'icharg':0, 'mult':1, 'mplevl':0, 'maxit':200,
+
+# Ask Bruce where all this should ultimately live.
+
+# This is the GAMESS UI widget default settings.
+
+ui={'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize':1, 'ncore':0,
+        'conv':1, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':1,'soscf':0,'rstrct':0}
+
+# These are the GAMESS parms set defaults.
+
+# $ CONTRL group defaults ####################################
+contrl={'runtyp':'ENERGY', 'coord':'UNIQUE', 'scftyp':'RHF', 'icharg':0, 'mult':1, 'mplevl':'0', 'maxit':200,
         'icut':11, 'inttyp':'HONDO', 'qmttol':'1.0E-6', 'dfttyp':0, 'nprint':9}
         
-scftyp=['RHF', 'UHF', 'ROHF']
-nprint=-5,-2,7,8,9
+scftyp=['RHF', 'UHF', 'ROHF'] # SCFTYP
+mplevl=[ 0, 0, '2'] # MPLEVL: None=0, DFT=0, MP2='2'
+inttyp=['POPLE', 'POPLE', 'HONDO'] # INTTYP: None=POPLE, DFT=POPLE, MP2=HONDO
+nprint=-5,-2,7,8,9 # No currently used.
 
+# $SCF group defaults ####################################
 scf={'conv':8, 'nconv':8, 'extrap':'.T.','dirscf':'.T.', 'damp':'.F.', 'shift':'.F.', 'diis':'.T.',
      'soscf':'.F.','rstrct':'.F.'}
      
-conv='10E-04','10E-05','10E-06','10E-07'
-     
-tf='.F.', '.T.'
+conv='10E-04','10E-05','10E-06','10E-07' # Density Convergence
+tf='.F.', '.T.' # True/False for SCF parameters
 
+# $SYSTEM group defaults
 system={'timlim':1000, 'memory':70000000}
-mp2={'ncore':0}
 
+
+mp2={'ncore':0} # Core electrons for MP2
+ncore=[0, '0']
+
+ecm=['None', 'DFT', 'MP2'] # Electron Correlation Method
 DFT=1
 MP2=2
 
@@ -29,10 +47,23 @@ dft={'dfttyp':'NONE', 'gridsize':0}
 dfttyp='SLATER','BECKE','GILL','PBE','SVWN','SLYP', 'SOP', 'BVWN', \
     'BLYP', 'BOP', 'GVWN', 'GLYP', 'GOP', 'PBEVWN', 'PBELYP', \
     'PBEOP', 'HVWN', 'HLYP', 'HOP', 'BHHLYP', 'B3LYP'
-gridsize='NRAD=48 NTHE=12 NPHI=24 SWITCH=1.0E-03', \
-    'NRAD=96 NTHE=12 NPHI=24 SWITCH=3.0E-04', \
-    'NRAD=96 NTHE=24 NPHI=48 SWITCH=3.0E-04', \
-    'NRAD=96 NTHE=36 NPHI=72 SWITCH=3.0E-04'
+gridsize= 'NRAD=48 NTHE=12 NPHI=24 SWITCH=1.0E-03', \
+                'NRAD=96 NTHE=12 NPHI=24 SWITCH=3.0E-04', \
+                'NRAD=96 NTHE=24 NPHI=48 SWITCH=3.0E-04', \
+                'NRAD=96 NTHE=36 NPHI=72 SWITCH=3.0E-04'
+
+pcgms_dfttyp = 'SLATER (E)','B88 (E)','GILL96 (E)','XPBE96 (E)','LYP (C)', \
+    'VWN1RPA (C)','VWN5 (C)','PW91LDA (C)','CPBE96 (C)','CPW91 (C)', \
+    'SLYP (E+C)','BLYP (E+C)','GLYP (E+C)','SVWN1RPA (E+C)', \
+    'BVWN1RPA (E+C)','VWN5 (E+C)','BVWN5 (E+C)','PBE96 (E+C)', \
+    'PBEPW91 (E+C)','B3LYP1 (H)','BELYP5 (H)','BHHLYP (H)','PBE0 (H)', \
+    'PBE1PW91 (H)','B3PW91 (H)'
+    
+pcgms_gridsize='NRAD=48 LMAX=19', \
+                            'NRAD=63 LMAX=29', \
+                            'NRAD=63 LMAX=53', \
+                            'NRAD=95 LMAX=89', \
+                            'NRAD=128 LMAX=131'
 
 guess={'guess':'HUCKEL'}
     
@@ -122,13 +153,9 @@ class GamessProp(GamessPropDialog):
         self.name =gamess.name # The name of this GAMESS jig
         self.inputfile = '' # GAMESS INP filename
         self.outputfile = '' # GAMESS OUT filename (aka log file)
-        self.datfile = 'PUNCH' # PC-GAMESS ONLY - will need to change this based on GAMESS version.
+        self.datfile = 'PUNCH' # PC GAMESS only - will need to change this if GAMESS version.
         self.atomsfile = '' # Atoms List file containing $DATA info
         self.gmsbatfile = '' # The WinGAMESS batch filename.  Not implemented.
-        #self.pset = gamessParms('Parameter Set 1') # The default parameter set object
-        #self.psets.append(self.pset)
-#        self.psets.append(gamessParms('Parameter Set 1'))
-#        self.pset = self.gamess.psets[0]
 
         # THESE FIRST 4 VARIABLES SHOULD BE GLOBAL
         # AND CHANGABLE FROM THE USER PREFS AREA.
@@ -144,13 +171,15 @@ class GamessProp(GamessPropDialog):
             os.mkdir(self.gmstmpdir)
             print "Created Gamess tmpdir:", self.gmstmpdir
         
+        self.load_dfttyp_combox() # SHOULD LIVE ELSEWHERE. 
+        
         if self.setup(0): return
         self.exec_loop()
 
     def setup(self, pnum):
-        ''' Setup widgets to default (or default) values. Return true on error (not yet possible).
-        This is not implemented yet.
+        ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
+        print "setup: pset number =", pnum
         
         gamess = self.gamess
         self.pset = self.gamess.pset_number(pnum)
@@ -158,14 +187,41 @@ class GamessProp(GamessPropDialog):
         # Init the top widgets (name, psets drop box, comment)
         self.name_linedit.setText(self.name)
         self.load_psets_combox()
-#        self.psets_combox.setCurrentItem(pnum)
+        self.psets_combox.setCurrentItem(pnum)
         self.update_comment()
         
-        # Init the Electronic Structure Props and Basis Set section.
-        self.scftyp_btngrp.setButton(scftyp.index(self.pset.contrl.scftyp))
-        self.icharg_spinbox.setValue(int(self.pset.contrl.icharg))
-        self.multi_combox.setCurrentItem(int(self.pset.contrl.mult) - 1)
-
+        # Electronic Structure Props and Basis Set section.
+        self.scftyp_btngrp.setButton(self.pset.ui.scftyp) # RHF, UHF, or ROHF
+        self.gbasis_combox.setCurrentItem(self.pset.ui.gbasis) # Basis set
+        self.icharg_spinbox.setValue(self.pset.ui.icharg) # Charge
+        self.multi_combox.setCurrentItem(self.pset.ui.mult) # Multiplicity
+        # Disable RHF if multiplicity is not the first item.
+        if self.pset.ui.mult == 0:
+            self.rhf_radiobtn.setEnabled(1) # Enable RHF
+        else:
+            self.rhf_radiobtn.setEnabled(0) # Disable RHF
+        
+        # Electron Correlation Method
+        ecm = self.pset.ui.ecm
+        print "Setup: ECM = ",ecm
+        self.ecm_btngrp.setButton(self.pset.ui.ecm) # None, DFT or MP2
+        self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
+        self.dfttyp_combox.setCurrentItem(self.pset.ui.dfttyp) # DFT Functional
+        self.pset.ui.gridesize = self.gridsize_combox.currentItem() # Grid Size
+        self.core_electrons_checkbox.setChecked(self.pset.ui.ncore) # Include core electrons
+            
+        # Convergence Criteria and Memory Usage
+        # Set Density Convergence
+        self.density_conv_combox.setCurrentItem(self.pset.ui.conv)
+        # Set RAM
+        self.extrap_checkbox.setChecked(self.pset.ui.extrap) # EXTRAP
+        self.dirscf_checkbox.setChecked(self.pset.ui.dirscf) # DIRSCF
+        self.damp_checkbox.setChecked(self.pset.ui.damp) # DAMP
+        self.diis_checkbox.setChecked(self.pset.ui.diis) # DIIS
+        self.shift_checkbox.setChecked(self.pset.ui.shift) # SHIFT
+        self.soscf_checkbox.setChecked(self.pset.ui.soscf) # SOSCF
+        self.rstrct_checkbox.setChecked(self.pset.ui.rstrct) # RSTRCT
+        
         self.update_filenames() # This updates the GAMESS filenames.
         
         # If there is an error, return 1. NIY.
@@ -181,15 +237,16 @@ class GamessProp(GamessPropDialog):
         '''Add or change a pset from the pset combo box.'''
         # New.. was selected.  Add a new pset.
         if val == self.psets_combox.count()-1:
+            print "add_pset: Adding new pset, val = ", val
+            self.save_ui_settings() # Save the UI settings, which will also save parms set.
             self.pset = self.gamess.add_pset()
-            self.setup(val)
-            self.psets_combox.setCurrentItem(0)
+            self.setup(0)
         else: # Change to an existing pset.
+            print "add_pset: Changing to existing pset, val = ", val
+            self.save_ui_settings() # Save the UI settings, which will also save parms set.
             self.pset = self.gamess.pset_number(val)
             self.setup(val)
-            self.psets_combox.setCurrentItem(val)
-        
-        
+
     def load_psets_combox(self):
         '''Load list of parms sets in the combobox widget'''
         
@@ -199,7 +256,7 @@ class GamessProp(GamessPropDialog):
         for p in self.gamess.psets[::-1]:
             self.psets_combox.insertItem(p.name)
         self.psets_combox.insertItem("New...")
-            
+        
     def rename_pset(self):
         '''Rename the current parms set name.
         '''
@@ -210,7 +267,17 @@ class GamessProp(GamessPropDialog):
     def update_pset_combox_item(self):
         '''Rename the current pset name in the combo box'''
         print 'update_pset_combox_item: Not Implemented Yet'
-        
+
+    def load_dfttyp_combox(self):
+        '''Load list of DFT function in a combobox widget'''
+        self.dfttyp_combox.clear() # Clear all combo box items
+        if self.gmsver == GAMESS:
+            for f in dfttyp:
+                self.dfttyp_combox.insertItem(f)
+        else:
+            for f in pcgms_dfttyp:
+                self.dfttyp_combox.insertItem(f)
+                
     def update_filenames(self):
         self.inputfile = self.name + '.inp'
         self.outputfile = self.name + '.out'
@@ -222,19 +289,10 @@ class GamessProp(GamessPropDialog):
         comment = 'Jig = "' + self.name + '" Parms Set = "' + self.pset.name + '" ' + timestr
         self.comment_linedit.setText(QString(comment))
         
-#    def set_host_combox(self):
-#        'Add default option to GAMESS Server Host and Version combo box'
-#        if sys.platform == 'win32':
-#            hoststr = 'localhost (PC GAMESS)'
-#        else:
-#            hoststr = 'localhost (GAMESS)'
-#            
-#        self.host_combox.clear() # Clear all combo box items
-#        self.host_combox.insertItem(hoststr) # Add the default item.
-            
-    def set_mplevel(self, val):
+    def set_ecmethod(self, val):
         '''Enable/disable widgets when user changes Electron Correlation Method.
         '''
+#        print "set_ecmethod = ", val
         if val == DFT:
             self.dfttyp_label.setEnabled(1)
             self.dfttyp_combox.setEnabled(1)
@@ -261,7 +319,11 @@ class GamessProp(GamessPropDialog):
     def set_multiplicity(self, val):
         '''Enable/disable widgets when user changes Multiplicity.
         '''
-        if val != 0 and scftyp[self.scftyp_btngrp.selectedId()] == 'RHF':
+        
+        if val != 0:
+            if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':
+                self.rhf_radiobtn.setEnabled(0)
+                return
             
             ret = QMessageBox.warning( self, "Multiplicity Conflict",
                 "If Multiplicity is greater than 1, then <b>UHF</b> or <b>ROHF</b> must be selected.\n"
@@ -291,35 +353,53 @@ class GamessProp(GamessPropDialog):
 #        self.myparms = save_params
         return
 
+    def save_ui_settings(self):
+        
+        # Electronic Structure Props and Basis Set section.
+        self.pset.ui.scftyp = self.scftyp_btngrp.selectedId() # SCFTYP = RHF, UHF, or ROHF
+        self.pset.ui.icharg = self.icharg_spinbox.value() # Charge
+        self.pset.ui.mult = self.multi_combox.currentItem() # Multiplicity
+        
+        # Electron Correlation Method
+        self.pset.ui.ecm = self.ecm_btngrp.selectedId() # None, DFT or MP2
+        self.pset.ui.inttyp = self.ecm_btngrp.selectedId() # INTTYP
+        self.pset.ui.gbasis = self.gbasis_combox.currentItem() # Basis Set
+        self.pset.ui.dfttyp = self.dfttyp_combox.currentItem() # DFT Functional Type
+        self.pset.ui.gridesize = self.gridsize_combox.currentItem() # Grid Size
+        self.pset.ui.ncore = self.core_electrons_checkbox.isChecked() # Include core electrons
+        
+        # Convergence Criteria and Memory Usage
+        
+        self.pset.ui.conv = self.density_conv_combox.currentItem() # Density Convergence
+        self.pset.ui.memory = self.memory_spinbox.value() # Memory
+        self.pset.ui.extrap = self.extrap_checkbox.isChecked() # EXTRAP
+        self.pset.ui.dirscf = self.dirscf_checkbox.isChecked() # DIRSCF
+        self.pset.ui.damp = self.damp_checkbox.isChecked() # DAMP
+        self.pset.ui.diis = self.diis_checkbox.isChecked() # DIIS
+        self.pset.ui.shift = self.shift_checkbox.isChecked() # SHIFT
+        self.pset.ui.soscf = self.soscf_checkbox.isChecked() # SOSCF
+        self.pset.ui.rstrct = self.rstrct_checkbox.isChecked() # RSTRCT
+        
+        self.save_parms() # Now save params.
+        
     def save_parms(self):
         
         # $CONTRL Section ###########################################
         
-        self.pset.contrl.scftyp = scftyp[self.scftyp_btngrp.selectedId()] # SCFTYP
-        self.pset.contrl.icharg = str(self.icharg_spinbox.value()) # ICHARG
-        self.pset.contrl.mult = str(self.multi_combox.currentText()) #MULT
+        # Parms Values
+        self.pset.contrl.scftyp = scftyp[self.pset.ui.scftyp] # SCFTYP
+        self.pset.contrl.icharg = str(self.pset.ui.icharg) # ICHARG
+        self.pset.contrl.mult = str(self.pset.ui.mult) #MULT
+        self.pset.contrl.mplevl = mplevl[self.pset.ui.ecm] # MPLEVL
+        self.pset.contrl.inttyp = inttyp[self.pset.ui.inttyp] # INTTYP
         
-        # MPLEVL
-        mplvl = self.mplvl_btngrp.selectedId()
-        if mplvl == MP2:
-            self.pset.contrl.mplevl = '2'
-        else:
-            self.pset.contrl.mplevl = '0'
-            
-        # INTTYP
-        if mplvl == MP2:
-            self.pset.contrl.inttyp = 'HONDO'
-        elif mplvl == DFT:
-            self.pset.contrl.inttyp = 'POPLE'
-        else: # None.  Not sure in INNTYP keyword should be included when None.  Ask Damian.  Mark 052105.
-            self.pset.contrl.inttyp = 'POPLE' # or None?
         
         # ICUT and QMTTOL
         s = str(self.gbasis_combox.currentText())
         m = s.count('+') # If there is a plus sign in the basis set name, we have "diffuse orbitals"
         if m: # We have diffuse orbitals
             self.pset.contrl.icut = 11
-            if sys.platform != 'win32': # PC-GAMESS does not support QMTTOL. Mark 052105
+            if sys.platform != 'win32': # PC GAMESS does not support QMTTOL. Mark 052105
                 self.pset.contrl.qmttol = '3.0E-6'
             else:
                 self.pset.contrl.qmttol = None
@@ -330,58 +410,54 @@ class GamessProp(GamessPropDialog):
             else:
                 self.pset.contrl.qmttol = None # PC GAMESS does not support QMTTOL. Mark 052105
         
-        # DFTTYP (Windows with PC GAMESS only)
+        # DFTTYP (PC GAMESS only)
         # The DFT section record is not supported for PC GAMESS.  Instead, the DFTTYP keyword 
-        # is included in the CONTRL section.  Right now, I'm only testing if the platform is Windows and
-        # assuming PC GAMESS is installed.  This will need to be fixed as there is another Windows
-        # version of GAMESS (called the "American" version; PC GAMESS is the "Russian" version)
-        # that does support the DFT section record.  I suggest we add a user pref to determine what
-        # version of GAMESS is used and then test for that.  Mark 052105.
+        # is included in the CONTRL section.  
         if self.gmsver == PCGAMESS:
-            self.pset.contrl.dfttyp = 0 # No DFTTYP keyword will be written.
-            if mplvl == DFT:
-                self.pset.contrl.dfttyp = dfttyp[self.dfttyp_combox.currentItem()] # DFTTYP
+            if ecm[self.pset.ui.ecm] == 'DFT':
+                self.pset.contrl.dfttyp = pcgms_dfttyp[self.pset.ui.dfttyp] # DFTTYP in $CONTRL
+            else: # None or MP2
+                self.pset.contrl.dfttyp = 0
         
         # $SCF Section ###########################################
         
-        self.pset.scf.extrap = tf[self.extrap_checkbox.isChecked()] # EXTRAP
-        self.pset.scf.dirscf = tf[self.dirscf_checkbox.isChecked()] # DIRSCF
-        self.pset.scf.damp = tf[self.damp_checkbox.isChecked()] # DAMP
-        self.pset.scf.diis = tf[self.diis_checkbox.isChecked()] # DIIS
-        self.pset.scf.shift = tf[self.shift_checkbox.isChecked()] # SHIFT
-        self.pset.scf.soscf = tf[self.soscf_checkbox.isChecked()] # SOSCF
-        self.pset.scf.rstrct = tf[self.rstrct_checkbox.isChecked()] # RSTRCT
+        self.pset.scf.extrap = tf[self.pset.ui.extrap] # EXTRAP
+        self.pset.scf.dirscf = tf[self.pset.ui.dirscf] # DIRSCF
+        self.pset.scf.damp = tf[self.pset.ui.damp] # DAMP
+        self.pset.scf.diis = tf[self.pset.ui.diis] # DIIS
+        self.pset.scf.shift = tf[self.pset.ui.shift] # SHIFT
+        self.pset.scf.soscf = tf[self.pset.ui.soscf] # SOSCF
+        self.pset.scf.rstrct = tf[self.pset.ui.rstrct] # RSTRCT
         
         # CONV (GAMESS) or 
         # NCONV (PC GAMESS)
         if self.gmsver == GAMESS:
-            self.pset.scf.conv = conv[self.density_conv_combox.currentItem()] # CONV (GAMESS)
+            self.pset.scf.conv = conv[self.pset.ui.conv] # CONV (GAMESS)
             self.pset.scf.nconv = 0 # Turn off NCONV
         else: # PC GAMESS
-            self.pset.scf.nconv = conv[self.density_conv_combox.currentItem()] # NCONV (PC GAMESS)
+            self.pset.scf.nconv = conv[self.pset.ui.conv] # NCONV (PC GAMESS)
             self.pset.scf.conv = 0 # Turn off CONV
         
         # $SYSTEM Section ###########################################
         
         self.pset.system.timlin = 1000 # Time limit in minutes
-        if self.ram_combox.currentItem() == 0:
-            self.pset.system.memory = 70000000 # Default
-        else:
-            self.pset.system.memory = int(self.ram_combox.currentText()) * 1000000
+        self.pset.system.memory = self.pset.ui.memory * 1000000
         
         # $MP2 Section ###########################################
         
-        self.pset.mp2.ncore = None
-        if self.core_electrons_checkbox.isChecked():
-            self.pset.mp2.ncore = '0'
+        self.pset.mp2.ncore = ncore[self.pset.ui.ncore]
+        
+#        self.pset.mp2.ncore = None
+#        if self.core_electrons_checkbox.isChecked():
+#            self.pset.mp2.ncore = '0'
         
         # $DFT Section ###########################################
         
-        self.pset.dft.dfttyp = 'NONE'
-        self.pset.dft.gridsize = 0
-        if mplvl == DFT:
-            self.pset.dft.dfttyp = dfttyp[self.dfttyp_combox.currentItem()] # DFTTYP
-            self.pset.dft.gridsize = gridsize[self.gridsize_combox.currentItem()] # GRIDSIZE
+#        self.pset.dft.dfttyp = 'NONE'
+#        self.pset.dft.gridsize = 0
+#        if mplevl[self.ecm_btngrp.selectedId()] == 'DFT':
+#            self.pset.dft.dfttyp = dfttyp[self.dfttyp_combox.currentItem()] # DFTTYP
+#            self.pset.dft.gridsize = gridsize[self.gridsize_combox.currentItem()] # GRIDSIZE
         
         # $GUESS Section ###########################################
         
@@ -394,8 +470,11 @@ class GamessProp(GamessPropDialog):
     def writeinpfile(self):
         'Write GAMESS input file'
         
+        # Save UI settings
+        self.save_ui_settings()
+        
         # Save parms and write to file
-        self.save_parms()
+#        self.save_parms()
         
         f = open(self.inputfile,'w') # Open GAMESS input file.
         
