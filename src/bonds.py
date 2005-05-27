@@ -137,6 +137,18 @@ def bond_atoms_faster(at1, at2, v6): #bruce 050513
     at2.bonds.append(b)
     return b
 
+def bond_copied_atoms(at1, at2, oldbond): #bruce 050524
+    """Bond the given atoms (and return the new bond object),
+    copying whatever bond state is relevant from oldbond,
+    which is presumably a bond between the originals of the same atoms,
+    or it might be a half-copied bond if at1 or at2 is a singlet
+    (whether to use this function like that is not yet decided).
+       This API assumes that bond state is not "directional".
+    If that changes, we'll probably need to be told which atom is which
+    in the old bond wrt the new bond.
+    """
+    return bond_atoms_faster(at1, at2, oldbond.v6)
+
 #bruce 050429: preliminary plan for higher-valence bonds (might need a better term for that):
 #
 # - Bond objects continue to compare equal when on same pair of atoms (even if they have a

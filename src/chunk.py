@@ -63,6 +63,12 @@ class molecule(Node, InvalMixin):
 
     # class constants to serve as default values of attributes
     _hotspot = None
+    _colorfunc = None
+    # user_specified_center -- see far below; as of 050526 it's sometimes used, but it's always None
+
+    copyable_attrs = Node.copyable_attrs + ('display', 'color') # this extends the tuple from Node
+        # (could add _colorfunc, but better to handle it separately in case this gets used for mmp writing someday)
+        #e should add user_specified_center once that's in active use (or to another list for mutable attrs to copy)
     
     def __init__(self, assembly, name = None):
         self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
@@ -156,11 +162,11 @@ class molecule(Node, InvalMixin):
         # tho that won't work when we can later apply this to a subtree... so review it then.
         return
     
-    def set_hotspot(self, hotspot): #bruce 050217
+    def set_hotspot(self, hotspot, permit_invalid = False): #bruce 050217; 050524 added keyword arg
         # make sure no other code forgot to call us and set it directly
         assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
         self._hotspot = hotspot
-        assert self.hotspot is hotspot, "getattr bug, or specified hotspot is invalid"
+        assert self.hotspot is hotspot or permit_invalid, "getattr bug, or specified hotspot is invalid"
         assert not 'hotspot' in self.__dict__.keys(), "bug in getattr for hotspot"
         return
     
@@ -907,7 +913,7 @@ class molecule(Node, InvalMixin):
             if selatom is not None and selatom.molecule is self:
                 try:
                     color = self._colorfunc(selatom)
-                except: # no such attr, or it's None, or it has a bug
+                except: # no such attr [should not happen after 050524], or it's None [usual case], or it has a bug
                     color = self.color
                 level = self.assy.drawLevel #e or always use best level??
                 selatom.draw_as_selatom(glpane, disp, color, level)
@@ -941,7 +947,7 @@ class molecule(Node, InvalMixin):
         drawn = {}
         ## self.externs = [] # bruce 050513 removing this
         # bruce 041014 hack for extrude -- use _colorfunc if present [part 1; optimized 050513]
-        _colorfunc = getattr(self, '_colorfunc', None) # might be None or missing #####@@@@@ should supply a default so always there
+        _colorfunc = self._colorfunc # might be None [as of 050524 we supply a default so it's always there]
         color = self.color # only used if _colorfunc is None
         bondcolor = self.color # never changed
         
@@ -1045,7 +1051,7 @@ class molecule(Node, InvalMixin):
             # the hotspot to be set for this chunk (which is being read from an mmp file)
             (hs_num,) = val.split()
             hs = interp.atom(hs_num)
-            self.set_hotspot(hs)
+            self.set_hotspot(hs) # this assertfails if hotspot is invalid [#k does caller handle that? ####@@@@]
         elif key == ['color']: #bruce 050505
             # val should be 3 decimal ints from 0-255; colors of None are not saved since they're the default
             r,g,b = map(int, val.split())
@@ -1839,10 +1845,153 @@ class molecule(Node, InvalMixin):
         i=argsort(compress(p,r))
         return take(compress(p,self.singlets),i)
 
-    
     def update_curpos(self):
         "private method: make sure self.curpos includes all atoms"
         self.atpos # recompute atpos if necessary, to update curpos
+
+    # == copy methods (extended/revised by bruce 050524-26)
+
+    def will_copy_if_selected(self, sel):
+        return True
+
+    def will_partly_copy_due_to_selatoms(self, sel):
+        assert 0, "should never be called, since a chunk does not *refer* to selatoms, or appear in atom.jigs"
+        return True # but if it ever is called, answer should be true
+    
+    def copy_empty_shell_in_mapping(self, mapping):
+        """[private method to help the public copy methods]
+        Copy this chunk's name (w/o change), properties, etc, but not any of its atoms
+        (caller will presumably copy some or all of them separately).
+        Don't copy hotspot. New chunk is in same assy but not in any Group or Part.
+           #doc: invalidation status of resulting chunk?
+        Update orig->copy correspondence in mapping (for self, and in future
+        for any copyable subobject which gets copied by this method, if any does).
+           Never refuses. Returns copy (a new chunk with no atoms).
+        Ok to assume self has never yet been copied.
+        """
+        numol = molecule(self.assy, self.name)
+        self.copy_copyable_attrs_to(numol) # copies .name (redundantly), .hidden, .display, .color...
+        mapping.record_copy(self, numol)
+        # also copy user-specified axis, center, etc, if we ever have those
+##        if self.user_specified_center is not None:
+##            numol.user_specified_center = + self.user_specified_center # copy_copyable_attrs_to would not be enough (mutability)
+        ## numol.setDisplay(self.display)
+        numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
+        return numol
+
+    def copy_full_in_mapping(self, mapping): # Chunk method [bruce 050526]
+        """#doc;
+        overrides Node method;
+        only some atom copies get recorded in mapping (if we think it might need them)
+        """
+        numol = self.copy_empty_shell_in_mapping( mapping)
+        # now copy the atoms, all at once (including all their existing singlets, even though those might get revised)
+        # note: the following code is very similar to copy_in_mapping_with_specified_atoms, but not identical.
+        self.update_curpos() # shouldn't matter whether we do this before or after copy_empty_shell
+        pairlis = []
+        ndix = {} # maps old-atom key to corresponding new atom
+        for a in self.atoms.itervalues():
+            na = a.copy_for_mol_copy(numol) # has same .index, meant for new molecule
+            pairlis.append((a, na))
+            ndix[a.key] = na
+        numol.invalidate_atom_lists() # probably needed, since copy_for_mol_copy says it is
+        numol.curpos = + self.curpos #050524 moved this before copying of bonds, in case they start caring about atom coords
+        self._copy_atoms_handle_bonds_jigs( pairlis, ndix, mapping)
+        # note: no way to handle hotspot yet, since how to do that might depend on whether
+        # extern bonds are broken... so let's copy an explicit one, and tell the mapping
+        # if we have an implicit one... or, register a cleanup function with the mapping.
+        copied_hotspot = self.hotspot # might be None (this uses __getattr__ to ensure the stored one is valid)
+        if copied_hotspot is not None:
+            numol.set_hotspot( ndix[copied_hotspot.key])
+        elif len(self.singlets) == 1: #e someday it might also work if there are two singlets on the same base atom!
+            # we have an implicit but unambiguous hotspot:
+            # might need to make it explicit in the copy [bruce 041123, revised 050524]
+            copy_of_hotspot = ndix[self.singlets[0].key]
+            mapping.do_at_end( lambda ch = copy_of_hotspot, numol = numol: numol._preserve_implicit_hotspot(ch) )
+        return numol # from copy_full_in_mapping
+
+    def _copy_atoms_handle_bonds_jigs(self, pairlis, ndix, mapping):
+        """[private helper for some copy methods]
+        Given some copied atoms (in a private format in pairlis and ndix),
+        ensure their bonds and jigs will be taken care of.
+        """
+        from bonds import bond_copied_atoms
+        origid_to_copy = mapping.origid_to_copy
+        extern_atoms_bonds = mapping.extern_atoms_bonds
+            #e could be integrated with mapping.do_at_end,
+            # but it's probably better not to, so as to specialize it for speed;
+            # even so, could clean this up to bond externs as soon as 2nd atom seen
+            # (which might be more efficient, though that doesn't matter much
+            #  since externs should not be too frequent); could do all this in a Bond method #e
+        for (a, na) in pairlis:
+            if a.jigs: # a->na mapping might be needed if those jigs are copied, or confer properties on atom a
+                origid_to_copy[id(a)] = na # inlines mapping.record_copy for speed
+            for b in a.bonds:
+                a2key = b.other(a).key
+                if a2key in ndix:
+                    # internal bond - make the analogous one [this should include all bonds to singlets]
+                    #bruce 050524 changes: don't do it twice for the same bond;
+                    # and use bond_copied_atoms to copy bond state (e.g. bond-order policy and estimate) from old bond.
+                    if a.key < a2key:
+                        # arbitrary condition which is true for exactly one ordering of the atoms;
+                        # note both keys are for original atoms (it would also work if both were from
+                        # copied atoms, but not if they were mixed)
+                        bond_copied_atoms(na, ndix[a2key], b)
+                else:
+                    # external bond [or at least outside of atoms in pairlis/ndix] - caller will handle it when all chunks
+                    # and individual atoms have been copied (copy it if it appears here twice, or break it if once)
+                    # [note: similar code will be in atom.copy_in_mapping] 
+                    extern_atoms_bonds.append( (a,b) ) # it's ok if this list has several entries for one 'a'
+                    origid_to_copy[id(a)] = na
+                        # a->na mapping will be needed outside this method, to copy or break this bond
+                pass
+            pass
+        return # from _copy_atoms_handle_bonds_jigs
+
+    def copy_in_mapping_with_specified_atoms(self, mapping, atoms): #bruce 050524-050526
+        """Copy yourself in this mapping (for the first and only time),
+        but with only some of your atoms (and all their singlets).
+        [#e hotspot? fix later if needed, hopefully by replacing that concept
+         with a jig (see comment below for ideas).]
+        """
+        numol = self.copy_empty_shell_in_mapping( mapping)
+        all = list(atoms)
+        for a in atoms:
+            all.extend(a.singNeighbors())
+        items = [(atom.key, atom) for atom in all]
+        items.sort()
+        pairlis = []
+        ndix = {}
+        if len(items) < len(self.atoms) and not numol.name.endswith('-frag'):
+            # rename to indicate that this copy has fewer atoms, in the same way Separate does
+            numol.name += '-frag'
+                #e want to add a serno to -frag, e.g. -frag1, -frag2?
+                # If so, see -copy for how, and need to fix endswith tests for -frag.
+        for key, a in items:
+            na = a.copy()
+            numol.addatom(na)
+            pairlis.append((a, na))
+            ndix[key] = na
+        self._copy_atoms_handle_bonds_jigs( pairlis, ndix, mapping)
+        ##e do anything about hotspot? easiest: if we copy it (explicit or implicit) or its base atom, put them in mapping,
+        # and register some other func (than the one copy_in_mapping does) to fix it up at the end.
+        # Could do this uniformly in copy_empty_shell_in_mapping, and here just be sure to tell mapping.record_copy.
+        #
+        # (##e But really we ought to simplify all this code by just replacing the hotspot concept
+        #  with a "bonding-point jig" or perhaps a bond property. That might be less work! And more useful!
+        #  And then one chunk could have several hotspots with different pastable names and paster-jigs!
+        #  And the paster-jig could refer to real atoms to be merged with what you paste it on, not only singlets!
+        #  Or to terminating groups (like H) to pop off if you use that pasting point (but not if you use some other one).
+        #  Maybe even to terminating groups connected to base at more than one place, so you could make multiple bonds at once!
+        #  Or instead of a terminating group, it could include a pattern of what it should suggest adding itself to!
+        #  Even for one bond, this could help it orient the addition as intended, spatially!)
+        return numol
+    
+    def _preserve_implicit_hotspot( self, hotspot): #bruce 050524 #e could also take base-atom arg to use as last resort
+        if len(self.singlets) > 1 and self.hotspot is None:
+            numol.set_hotspot( hotspot, permit_invalid = True) # this checks everything before setting it; if invalid, silent noop
+
+    # == old copy method -- should remove ASAP but might still be needed for awhile (as of 050526)
     
     def copy(self, dad=None, offset=V(0,0,0), cauterize = 1):
         """Public method: Copy the molecule to a new molecule.
@@ -1926,13 +2075,11 @@ class molecule(Node, InvalMixin):
         numol.dad = dad
         if dad and platform.atom_debug: #bruce 050215
             print "atom_debug: mol.copy got an explicit dad (this is deprecated):", dad
-        try:
-            numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py
-            # (renamed to start '_' for efficiency in __getattr__ when missing)
-        except AttributeError:
-            pass
+        numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
         return numol
 
+    # ==
+    
     def Passivate(self, p=False):
         """[Public method, does all needed invalidations:]
         Passivate the selected atoms in this chunk, or all its atoms if p=True.

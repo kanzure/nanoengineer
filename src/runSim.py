@@ -890,13 +890,14 @@ class Minimize_CommandRun(CommandRun):
             return
 
         if not entire_part:
-            selection = self.part.selection() # compact rep of the currently selected subset of the Part's stuff
+            selection = self.part.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
                 msg = "Minimize Selection: nothing selected. (Use Minimize All to minimize entire Part.)"
                 self.history.message( redmsg( msg))
                 return
         else:
-            selection = self.part.selection_for_all() # like .selection() but for all atoms presently in the part [bruce 050419]
+            selection = self.part.selection_for_all()
+                # like .selection_from_glpane() but for all atoms presently in the part [bruce 050419]
             # no need to check emptiness, this was done above
         
         self.selection = selection #e might become a feature of all CommandRuns, at some point

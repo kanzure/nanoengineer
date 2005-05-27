@@ -135,6 +135,11 @@ class Node:
     disabled_by_user_choice = False
         # [bruce 050505 made this default on all Nodes, tho only Jigs use the attr so far; see also is_disabled]
 
+    copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526
+        # subclasses need to extend this
+        #e could someday use these to help make mmp writing and reading more uniform,
+        # if we also listed the ones handled specially (so we can only handle the others in the new uniform way)
+
     def __init__(self, assy, name, dad = None): #bruce 050216 fixed inconsistent arg order, made name required
         """Make a new node (Node or any subclass), in the given assembly (assy)
         (I think assy must always be supplied, but I'm not sure),
@@ -553,7 +558,7 @@ class Node:
     #bruce 050203: these drop_unders were not used for Alpha-1 -- no time to support dropping into gaps.
     # (they are not yet fully implemented, either.)
 
-    def drop_under_ok(self, drag_type, nodes, after = None): #####@@@@@ honor it!
+    def drop_under_ok(self, drag_type, nodes, after = None): ###@@@ honor it!
         """Say whether it's ok to drag these nodes (using drag_type)
         into a child-position under self,
         either after the given child 'after'
@@ -564,12 +569,13 @@ class Node:
         """
         return hasattr(self, 'addchild') # i.e. whether it's a Group!
 
-    def drop_under(self, drag_type, nodes, after = None): #e move to Group, implem subrs, use #####@@@@@
+    def drop_under(self, drag_type, nodes, after = None): #e move to Group, implem subrs, use ###@@@
         "#doc"
         if drag_type == 'copy':
-            nodes = copy_nodes(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc) #####@@@@@ IMPLEM
+            nodes = copy_nodes(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc)
+                ###@@@ see ops_copy for newer ways to do this...
         for node in nodes:
-            self.addchildren(nodes, after = after) #####@@@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
+            self.addchildren(nodes, after = after) ###@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
         return
 
     def node_icon(self, display_prefs):
@@ -850,6 +856,72 @@ class Node:
         #bruce 050121 inferred docstring from 2 implems and 1 call
         return
 
+    # == copy methods -- by default, Nodes can't be copied, but all copyable Node subclasses
+    # == should override these methods.
+
+    def will_copy_if_selected(self, sel): #bruce 050525
+        """Will this node copy itself when asked (via copy_in_mapping or postcopy_in_mapping [#doc which one!])
+        because it's selected in sel, which is being copied as a whole?
+        [Node types which implement an appropriate copy method should override this method.]
+        """
+        return False # conservative answer
+
+    def will_partly_copy_due_to_selatoms(self, sel): #bruce 050525
+        """Will this node copy all or part of itself when asked (via ### [#doc which method!])
+        because it confers properties on some selected atoms in sel, which is being copied as a whole?
+        [Node types which implement an appropriate copy method should override this method too.]
+        """
+        return False # conservative answer
+
+    def confers_properties_on(self, atom): #bruce 050524
+        """Does this Jig (or any node that might appear in atom.jigs)
+        confer a property on atom, so that it should be partly copied
+        (by self.###what??) if atom is?
+        """
+        return False # default value for most jigs and (for now) all other Nodes
+        
+    def copy_full_in_mapping(self, mapping): # Node method [bruce 050526]
+        """
+        If self can be fully copied, this method (as overridden in self's subclass) should do so,
+        recording in mapping how self and all its components (eg chunk atoms, group members) get copied,
+        and returning the copy of self.
+           If self will refuse to be fully copied, this method should return None.
+        ###k does it need to record that in mapping, too?? not for now.
+           It can assume self and all its components have not been copied yet (except for shared components like bonds #k #doc).
+        It can leave out some mapping records for components, if it knows nothing will need to know them
+        (e.g. atoms only need them regarding some bonds and jigs).
+           For references to things which might not have been copied yet, or might never be copied (e.g. atom refs in jigs),
+        this method can make an incomplete copy and record a method in mapping to fix it up at the end. But it must decide
+        now whether self will agree or refuse to be copied (using mapping.sel if necessary to know what is being copied in all).
+           [All copyable subclasses should override this method.]
+        """
+        return None # conservative version
+
+    def copy_in_mapping_with_specified_atoms(self, mapping, atoms):
+        "#doc; certain subclasses should override"
+        return None
+
+    def copy_copyable_attrs_to(self, target): #bruce 050526
+        """Copy all copyable attrs (as defined by a subclass-specific constant tuple)
+        from self to target (presumably a Node of the same subclass, but this is not checked,
+        and violating it might not be an error, in principle).
+        Doesn't do any invals or updates in target.
+           Warning: attribute values are not themselves copied (e.g. if any are lists or dicts
+        or Numeric arrays, target and self will be sharing the same mutable object).
+           This is intended as a private helper method for subclass-specific copy methods,
+        which may need to do further work to make these attribute-copies fully correct.
+        """
+        for attr in self.copyable_attrs:
+            val = getattr(self, attr)
+            setattr(target, attr, val) # turns some default class attrs into unneeded instance attrs (nevermind for now)
+        return
+
+    def own_mutable_copyable_attrs(self): #bruce 050526 #e use more widely?
+        "#doc; some subclasses must extend this"
+        pass
+    
+    # ==
+    
     def kill(self):
         ###@@@ bruce 050214 changes and comments:
         #e needs docstring;
@@ -1020,7 +1092,7 @@ class Group(Node):
     Its members can be Groups, jigs, or molecules.
     """
     
-    def __init__(self, name, assy,  dad, list = []): ###@@@ review inconsistent arg order
+    def __init__(self, name, assy, dad, list = []): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
         Node.__init__(self, assy, name, dad)
@@ -1359,6 +1431,21 @@ class Group(Node):
         self.changed_members() # must be done *after* they change
         return
 
+    def steal_members(self): #bruce 050526
+        """Remove all of this group's members (like delmember would do)
+        and return them as a list. Assume self doesn't yet have a dad and no members are picked.
+        [Private method, for copy -- not reviewed for general use!]
+        """
+        res = self.members
+        self.members = []
+        for obj in res:
+            if obj.dad is not self: # error, debug-reported but ignored
+                if platform.atom_debug:
+                    print_compact_stack( "atom_debug: fyi: steal_members finds obj.dad is not self: ") #k does this ever happen?
+            obj.dad = None
+        ## assume not needed for our private purpose, though it would be needed in general: self.changed_members()
+        return res
+
     def pick(self):
         """select the Group -- and all its members! [see also pick_top]
         [overrides Node.pick]
@@ -1498,32 +1585,29 @@ class Group(Node):
                     # put them before self, to preserve order [bruce 050126]
             self.kill()
 
-##    #bruce 050131 implemented this since it seems safe now... ###@@@ test it
-##    # but it's NOT YET USED -- it's replaced by the following older method
-##    # which refuses to copy Groups, since it's past the Alpha new-feature deadline.
-##    #bruce 050214 comment: this might be safe, but is not yet good enough,
-##    # e.g. it doesn't handle bonds between copied chunks... probably better to redo all copying
-##    # as a 2-pass algorithm, and until then, leave groups uncopyable.
-##    def copy(self, dad):
-##        assert 0, "this is not yet used!"
-##        ###@@@ need to review all copy methods for inconsistent semantics
-##        # (internal like mol.copy, or menu-event-handlers?)
-##        if self.__class__ is not Group:
-##            return None
-##        res = Group( self.name, self.assy, None) #e should we use chem.gensym(self.name)?
-##            # dad None here, for Alpha, to work with assy.copy_sel as of 050131
-##        for x in self.members:
-##            res.addchild(x.copy(res))
-##                # .copy doesn't do addchild itself, returns None for Jigs; addchild tolerates both offenses
-##        return res
+    # == Group copy methods [revised/added by bruce 050524-050526]
 
-##    #bruce 050131 note: this older method intentionally replaces the previous copy method! (for Alpha)
-    def copy(self, dad):
-        ###@@@ need to review all copy methods for inconsistent semantics
-        # (internal like mol.copy, or menu-event-handlers?)
-        self.redmsg("Groups cannot yet be copied")
-            ###@@@ should remove that limitation
-        return None # bruce 050131 changed this from "return 0"
+    def will_copy_if_selected(self, sel):
+        return True
+
+    def copy_full_in_mapping(self, mapping): # Group method [bruce 050526]
+        """
+        #doc; overrides Node method; copies any subclass of Group as if it was a plain Group
+        [subclasses can override or extend that behavior if desired]
+        """
+        new = Group(self.name, self.assy, None)
+        self.copy_copyable_attrs_to(new)
+            # redundantly copies .name; also copies .open
+            # (This might be wrong for some Group subclasses! Not an issue for now, but someday
+            #  it might be better to use attrlist from target, or intersection of their attrlists...)
+        mapping.record_copy(self, new) # asserts it was not already copied
+        for mem in self.members:
+            memcopy = mem.copy_full_in_mapping(mapping) # can be None, if mem refused to be copied
+            if memcopy is not None:
+                new.addchild(memcopy)
+        return new
+
+    # ==
     
     def kill(self):
         #bruce 050214: called Node.kill instead of inlining it; enhanced Node.kill;
@@ -1833,6 +1917,8 @@ class PartGroup(Group):
 class ClipboardShelfGroup(Group):
     """A specialized Group for holding the Clipboard (aka Shelf). [This will be revised... ###@@@]
     """
+    def postcopy_in_mapping(self, mapping): #bruce 050524
+        assert 0, "RootGroup.postcopy_in_mapping should never be called!"
 ##    def select_enabled(self): return False #bruce 050131 for Alpha -- not yet used, maybe not needed
     def pick(self): #bruce 050131 for Alpha
         # I might just do this and not bother honoring select_enabled; don't know yet.
@@ -1915,6 +2001,8 @@ class RootGroup(Group):
     (1) the assembly itself might as well be this Node,
     (2)  the toplevel members of an assembly will differ from what they are now.
     """
+    def postcopy_in_mapping(self, mapping): #bruce 050524
+        assert 0, "RootGroup.postcopy_in_mapping should never be called!"
 ##    def select_enabled(self): return False #bruce 050131 for Alpha -- should never matter
     def pick(self): #bruce 050131 for Alpha
         self.redmsg( "Internal error: tried to select assy.root (ignored)" )

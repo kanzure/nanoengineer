@@ -1140,7 +1140,7 @@ class extrudeMode(basicMode):
         # restore normal appearance
         for mol in self.molcopies:
             try:
-                del mol._colorfunc
+                del mol._colorfunc # let class attr [added 050524] be visible again; exception if it already was
                 mol.changeapp(0)
             except:
                 pass
@@ -1290,11 +1290,12 @@ class extrudeMode(basicMode):
         """
         mark = self.i1_to_mark[i1] # mark is basemol key, but unrelated to other mols' keys
         for atm in unit.atoms.itervalues():
-            try:
+            #bruce 050524 removed try/except now that all atoms have .info (default None)
+##            try:
                 if atm.info == mark:
                     return atm
-            except:
-                pass # not sure if singlets have .info
+##            except:
+##                pass # not sure if singlets have .info
         print "extrude bug (trying to ignore it): singlet not found",unit,i1
         # can happen until we remove dup i1,i2 from bonds
         return None

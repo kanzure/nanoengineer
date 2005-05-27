@@ -55,23 +55,29 @@ class Jig(Node):
     pickcolor = (1.0, 0.0, 0.0) # color in glpane when picked (default: red)
     mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
     
+    # class constants used as default values of instance variables:
+    
     #e we should sometime clean up the normcolor and color attributes, but it's hard,
     # since they're used strangly in the *Prop.py files and in our pick and unpick methods.
     # But at least we'll give them default values for the sake of new jig subclasses. [bruce 050425]
     color = normcolor = (0.5, 0.5, 0.5)
     
-    def __init__(self, assy, atomlist):
+    atoms = None
+    cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
+    
+    copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color') # this extends the tuple from Node
+        # most Jig subclasses need to extend this further
+    
+    def __init__(self, assy, atomlist): # Warning: some Jig subclasses don't accept atomlist arg in __init__
         "each subclass needs to call this, at least sometime before it's used as a Node"
         Node.__init__(self, assy, gensym("%s." % self.sym))
-        self.atoms = list(atomlist) # this is always [] for some subclasses
-            # but is apparently required to be always nonempty for others
-            # bruce 050316: copy it (precaution in case caller modifies it later)
-        # [note: the following is what our setAtoms method does for some jigs]
+        self.setAtoms(atomlist) #bruce 050526 revised this; this matters since some subclasses now override setAtoms
+            # Note: the atomlist fed to __init__ is always [] for some subclasses
+            # (with the real one being fed separately, later, to self.setAtoms)
+            # but is apparently required to be always nonempty for other subclasses.
         #e should we split this jig if attached to more than one mol??
         # not necessarily, tho the code to update its appearance
         # when one of the atoms move is not yet present. [bruce 041202]
-        for a in atomlist:
-            a.jigs += [self]
         #e it might make sense to init other attrs here too, like color
         ## this is now the default for all Nodes [050505]: self.disabled_by_user_choice = False #bruce 050421
         return
@@ -87,13 +93,76 @@ class Jig(Node):
             #e remove them? would need to prevent recursive kill.
         self.atoms = list(atomlist) # bruce 050316: copy the list
         for a in atomlist:
-            a.jigs += [self]
-            
-    def copy(self, dad):
-        self.assy.w.history.message( redmsg("Jigs cannot yet be copied"))
-        #bruce 050420 comment: see comments in Csys.copy.
-        return None
-        
+            a.jigs.append(self)
+
+    def needs_atoms_to_survive(self): #bruce 050526
+        return True # for all Jigs that exist so far
+    
+    # == copy methods [default values or common implems for Jigs,
+    # == when these differ from Node methods] [bruce 050526 revised these]
+    
+    def will_copy_if_selected(self, sel):
+        "[overrides Node method]"
+        # Copy this jig if asked, provided the copy will refer to atoms if necessary.
+        # Whether it's disabled (here and/or in the copy, and why) doesn't matter.
+        if not self.needs_atoms_to_survive():
+            return True
+        for atom in self.atoms:
+            if sel.picks_atom(atom):
+                return True
+        ##print "wont copy if sel", self
+        return False #e need to give a reason why not??
+
+    def will_partly_copy_due_to_selatoms(self, sel):
+        return True # at least for jigs that are already known to confer properties on some copied atoms!
+
+    def copy_full_in_mapping(self, mapping):
+        clas = self.__class__
+        new = clas(self.assy, []) # don't pass any atoms yet (maybe not all of them are yet copied)
+            # won't work for Motors, they should override this or clean up their init methods to accept atomlist
+        # Now, how to copy all the desired state? We could wait til fixup stage, then use mmp write/read methods!
+        # But I'd rather do this cleanly and have the mmp methods use these, instead...
+        # by declaring copyable attrs, or so.
+        new._orig = self
+        new._mapping = mapping
+        new.name = "[being copied]" # should never be seen
+        mapping.do_at_end( new._copy_fixup_at_end)
+        #k any need to call mapping.record_copy??
+        return new
+
+    def _copy_fixup_at_end(self):
+        """[Private method]
+        This runs at the end of a copy operation to copy attributes from the old jig
+        (which could have been done at the start but might as well be done now for most of them)
+        and copy atom refs (which has to be done now in case some atoms were not copied when the jig itself was).
+        Self is the copy, self._orig is the original.
+        """
+        orig = self._orig
+        del self._orig
+        mapping = self._mapping
+        del self._mapping
+        copy = self
+        orig.copy_copyable_attrs_to(copy) # replaces .name set by __init__
+        self.own_mutable_copyable_attrs() # eliminate unwanted sharing of mutable copyable_attrs
+        if orig.picked:
+            # clean up weird color attribute situation (since copy is not picked)
+            # by modifying color attrs as if we unpicked the copy
+            self.color = self.normcolor
+        nuats = []
+        for atom in orig.atoms:
+            nuat = mapping.mapper(atom)
+            if nuat is not None:
+                nuats.append(nuat)
+        if len(nuats) < len(orig.atoms) and not self.name.endswith('-frag'): # similar code is in chunk, both need improving
+            self.name += '-frag'
+        self.setAtoms(nuats)
+        #e jig classes with atom-specific info would have to do more now... we could call a 2nd method here...
+        # or use list of classnames to search for more and more specific methods to call...
+        # or just let subclasses extend this method in the usual way (maybe not doing those dels above).
+        return
+    
+    # ==
+    
     # josh 10/26 to fix bug 85
     # bruce 050215 added docstring and added removal of self from atm.jigs
     def rematom(self, atm):
@@ -106,7 +175,7 @@ class Jig(Node):
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: ignoring exception in rematom: ")
         # should check and delete the jig if no atoms left
-        if not self.atoms:
+        if not self.atoms and self.needs_atoms_to_survive():
             self.kill()
         return
     
@@ -135,7 +204,7 @@ class Jig(Node):
         """unselect the Jig"""
         if self.picked:
             Node.unpick(self) # bruce 050126 -- required now
-            self.color = self.normcolor
+            self.color = self.normcolor # see also a copy method which has to use the same statement to compensate for this kluge
 
     def move(self, offset):
         #bruce 050208 made this default method. Is it ever called, in any subclasses??
@@ -339,6 +408,15 @@ class Jig(Node):
             glPolygonMode(GL_FRONT, GL_FILL)
             glDisable(GL_LINE_STIPPLE)
         return
+    
+    def edit(self): #bruce 050526 moved this from each subclass into Jig, and let it handle missing cntl
+        if self.cntl is None:
+            #bruce 050526: had to defer this until first needed, so I can let some jigs temporarily be in a state
+            # where it doesn't work, during copy. (The Stat & Thermo controls need the jig to have an atom during their init.)
+            self.set_cntl()
+            assert self.cntl is not None
+        self.cntl.setup()
+        self.cntl.exec_loop()
 
     #e there might be other common methods to pull into here
 
@@ -346,7 +424,27 @@ class Jig(Node):
 
 # == Motors
 
-class RotaryMotor(Jig):
+class Motor(Jig):
+    "superclass for Motor jigs"
+    def own_mutable_copyable_attrs(self): #bruce 050526
+        """[overrides Jig or Node method... is Jig but should be Node, I think #k]
+        Suitable for Motor subclasses -- they should define mutable_attrs
+        [#e this scheme could use some cleanup]
+        """
+        super = Jig
+        super.own_mutable_copyable_attrs( self)
+        for attr in self.mutable_attrs:
+            val = getattr(self, attr)
+            try:
+                val = + val # this happens to be enough for the attr types in the motors...
+            except:
+                print "bug: attrval that didn't like unary + is this: %r" % (val,)
+                raise
+            setattr(self, attr, val)
+        return
+    pass
+
+class RotaryMotor(Motor):
     '''A Rotary Motor has an axis, represented as a point and
        a direction vector, a stall torque, a no-load speed, and
        a set of atoms connected to it
@@ -355,9 +453,13 @@ class RotaryMotor(Jig):
     sym = "Rotary Motor"
     icon_names = ["rmotor.png", "rmotor-hide.png"]
 
+    mutable_attrs = ('center', 'axis')
+    copyable_attrs = Motor.copyable_attrs + ('torque', 'speed', 'length', 'radius', 'sradius') + mutable_attrs
+
     # create a blank Rotary Motor not connected to anything    
-    def __init__(self, assy):
-        Jig.__init__(self, assy, [])
+    def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
+        assert atomlist == [] # whether from default arg value or from caller -- for now
+        Jig.__init__(self, assy, atomlist)
         self.torque = 0.0 # in nN * nm
         self.speed = 0.0 # in gHz
         self.center = V(0,0,0)
@@ -373,7 +475,9 @@ class RotaryMotor(Jig):
         self.sradius = 0.5 #default spoke radius
         # Should self.cancelled be in RotaryMotorProp.setup? - Mark 050109
         self.cancelled = True # We will assume the user will cancel
-        self.cntl = RotaryMotorProp(self, assy.o)
+
+    def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
+        self.cntl = RotaryMotorProp(self, self.assy.o)
 
     # set the properties for a Rotary Motor read from a (MMP) file
     def setProps(self, name, color, torque, speed, center, axis, length, radius, sradius):
@@ -431,10 +535,6 @@ class RotaryMotor(Jig):
         #e maybe return whether we moved??
         return
     
-    def edit(self):
-        self.cntl.setup()
-        self.cntl.exec_loop()
-
     def move(self, offset): #k can this ever be called?
         self.center += offset
 
@@ -614,7 +714,7 @@ def angle(x,y): #bruce 050518; see also atan2 (noticed used in VQT.py) which mig
 
 # ==
 
-class LinearMotor(Jig):
+class LinearMotor(Motor):
     '''A Linear Motor has an axis, represented as a point and
        a direction vector, a force, a stiffness, and
        a set of atoms connected to it
@@ -623,9 +723,13 @@ class LinearMotor(Jig):
     sym = "Linear Motor"
     icon_names = ["lmotor.png", "lmotor-hide.png"]
 
+    mutable_attrs = ('center', 'axis')
+    copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius') + mutable_attrs
+
     # create a blank Linear Motor not connected to anything
-    def __init__(self, assy):
-        Jig.__init__(self, assy, [])
+    def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
+        assert atomlist == [] # whether from default arg value or from caller -- for now
+        Jig.__init__(self, assy, atomlist)
         
         self.force = 0.0
         self.stiffness = 0.0
@@ -636,7 +740,9 @@ class LinearMotor(Jig):
         self.width = 2.0 # default box width
         self.sradius = 0.5 #default spoke radius
         self.cancelled = True # We will assume the user will cancel
-        self.cntl = LinearMotorProp(self, assy.o)
+
+    def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
+        self.cntl = LinearMotorProp(self, self.assy.o)
 
     # set the properties for a Linear Motor read from a (MMP) file
     def setProps(self, name, color, force, stiffness, center, axis, length, width, sradius):
@@ -674,10 +780,6 @@ class LinearMotor(Jig):
             guess = map(lambda x: sign(dot(los,x))*x, guess)
             self.axis=norm(sum(guess))
         self.edit()
-
-    def edit(self):
-        self.cntl.setup()
-        self.cntl.exec_loop()
         
     def move(self, offset):
         self.center += offset
@@ -748,11 +850,9 @@ class Ground(Jig):
         Jig.__init__(self, assy, list)
         self.color = (0.0, 0.0, 0.0)
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
-        self.cntl = GroundProp(self, assy.o)
 
-    def edit(self):
-        self.cntl.setup()
-        self.cntl.exec_loop()
+    def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
+        self.cntl = GroundProp(self, self.assy.o)
 
     # it's drawn as a wire cube around each atom (default color = black)
     def _draw(self, win, dispdef):
@@ -785,6 +885,14 @@ class Ground(Jig):
     def anchors_atom(self, atm): #bruce 050321; revised 050423 (warning: quadratic time for large ground jigs in Minimize)
         "does this jig hold this atom fixed in space? [overrides Jig method]"
         return (atm in self.atoms) and not self.is_disabled()
+
+    def confers_properties_on(self, atom): # Ground method
+        """[overrides Node method]
+        Should this jig be partly copied (even if not selected)
+        when this atom is individually selected and copied?
+        (It's ok to assume without checking that atom is one of this jig's atoms.)
+        """
+        return True
     
     pass # end of class Ground
 
@@ -812,6 +920,18 @@ class Jig_onChunk_by1atom( Jig ):
     (whose atoms always occupy a contiguous range of atnums, since those are remade per writemmp event),
     plus the atnum of their one user-visible atom.
     """
+    def setAtoms(self, atomlist):
+        "[Overrides Jig method; called by Jig.__init__]"
+        # old comment:
+        # ideally len(list) should be 1, but in case code in files_mmp uses more
+        # when supporting old Stat records, all I assert here is that it's at
+        # least 1, but I only store the first atom [bruce 050210]
+        # addendum, bruce 050526: can't assert that anymore due to copying code for this jig.
+        ## assert len(atomlist) >= 1
+        atomlist = atomlist[0:1] # store at most one atom
+        super = Jig
+        super.setAtoms(self, atomlist)
+        
     def atnums_or_None(self, ndix):
         """return list of atnums to write, or None if some atoms not yet written
         [overrides Jig method]
@@ -854,22 +974,18 @@ class Stat( Jig_onChunk_by1atom ):
     sym = "Stat"
     icon_names = ["stat.png", "stat-hide.png"]
 
+    copyable_attrs = Jig_onChunk_by1atom.copyable_attrs + ('temp',)
+    
     # create a blank Stat with the given list of atoms, set to 300K
     def __init__(self, assy, list):
-        # ideally len(list) should be 1, but in case code in files_mmp uses more
-        # when supporting old Stat records, all I assert here is that it's at
-        # least 1, but I only store the first atom [bruce 050210]
-        assert len(list) >= 1
-        list = list[0:1]
-        Jig.__init__(self, assy, list)
+        Jig.__init__(self, assy, list) # note: this calls Jig_onChunk_by1atom.setAtoms method
         # set default color of new stat to blue
         self.color = self.normcolor = (0.0, 0.0, 1.0) 
         self.temp = 300
-        self.cntl = StatProp(self, assy.o)
-    
-    def edit(self):
-        self.cntl.setup()
-        self.cntl.exec_loop()
+
+    def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
+        self.cntl = StatProp(self, self.assy.o)
+        ## self.cntl = None #bruce 050526 do this later since it needs at least one atom to be present
 
     # it's drawn as a wire cube around each atom (default color = blue)
     def _draw(self, win, dispdef):
@@ -917,19 +1033,12 @@ class Thermo(Jig_onChunk_by1atom):
 
     # creates a thermometer for a specific atom. "list" contains only one atom.
     def __init__(self, assy, list):
-        # ideally len(list) should be 1, but in case code in files_mmp uses more
-        # when supporting old Thermo records, all I assert here is that it's at
-        # least 1, but I only store the first atom [bruce 050210]
-        assert len(list) >= 1
-        list = list[0:1]
-        Jig.__init__(self, assy, list)
+        Jig.__init__(self, assy, list) # note: this calls Jig_onChunk_by1atom.setAtoms method
         # set default color of new thermo to dark red
         self.color = self.normcolor = (0.6, 0.0, 0.2) 
-        self.cntl = ThermoProp(self, assy.o)
-    
-    def edit(self):
-        self.cntl.setup()
-        self.cntl.exec_loop()
+
+    def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
+        self.cntl = ThermoProp(self, self.assy.o)
 
     # it's drawn as a wire cube around each atom (default color = purple)
     def _draw(self, win, dispdef):

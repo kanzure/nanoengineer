@@ -865,14 +865,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     def topmost_selected_nodes(self): #e might be needed by some context menus... how should the makers ask for it?
         "return a list of all selected nodes as seen by apply2picked, i.e. without looking inside selected Groups"
-        res = []
-        def func(x):
-            res.append(x)
-        for node in self.topnodes:
-            node.apply2picked(func)
-        return res
+        #bruce 050523 revised this
+        from ops_select import topmost_selected_nodes
+        return topmost_selected_nodes( self.topnodes)
 
-    
     # selection logic
 
     def pick( self, item, group_select_kids = True ):

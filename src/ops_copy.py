@@ -15,9 +15,11 @@ from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from Utility import Group
 from chunk import molecule
+from bonds import bond_copied_atoms
 import platform # for atom_debug
 from debug import print_compact_stack
-from jigs import gensym # [I think this code, when in part.py, was using jigs.gensym rather than chem.gensym [bruce 050507]] 
+from jigs import gensym # [I think this code, when in part.py, was using jigs.gensym rather than chem.gensym [bruce 050507]]
+from ops_select import selection_from_part
 
 class ops_copy_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -37,14 +39,16 @@ class ops_copy_Mixin:
     
     def cut_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         #bruce 050419 renamed this from cut to avoid confusion with Node method and follow new _sel convention
+        part = self
+        history = part.assy.w.history
         eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
         center_these = []
         try:
-            self.w.history.message(greenmsg("Cut:"))
+            history.message(greenmsg("Cut:"))
             if use_selatoms and self.selatoms:
                 #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
                 # changed condition to not use selwhat, since jigs can be selected even in Select Atoms mode
-                self.w.history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
+                history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
                 ## return #bruce 050201-bug370: don't return yet, in case some jigs were selected too.
                 # note: we will check selatoms again, below, to know whether we emitted this message
             new = Group(gensym("Copy"), self.assy, None)
@@ -59,9 +63,9 @@ class ops_copy_Mixin:
                 # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
                 # (No such restriction will be required for assy.copy_sel, even when it copies entire groups.)
                 self.topnode.unpick_top()
-                ## self.w.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
+                ## history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
                 ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
-                self.w.history.message("Can't cut the entire Part; copying its toplevel Group, cutting its members.") #bruce 050201
+                history.message("Can't cut the entire Part; copying its toplevel Group, cutting its members.") #bruce 050201
                 # new code to handle this case [bruce 050201]
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
                 use = new
@@ -111,12 +115,12 @@ class ops_copy_Mixin:
                         center_these.append(ob) ## was: ob.move(-ob.center)
                 ## ob.pick() # bruce 050131 removed this
                 nshelf_after = len(self.shelf.members) #bruce 050201
-                self.w.history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
+                history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
                     ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
             else:
                 if not (use_selatoms and self.selatoms):
                     #bruce 050201-bug370: we don't need this if the message for selatoms already went out
-                    self.w.history.message(redmsg("Nothing to cut.")) #bruce 050201
+                    history.message(redmsg("Nothing to cut.")) #bruce 050201
         finally:
             end_event_handler(eh) # this should fix Part membership of moved nodes, break inter-Part bonds #####@@@@@ doit
             # ... but it doesn't, so instead, do this: ######@@@@@@ and review this situation and clean it up:
@@ -148,51 +152,47 @@ class ops_copy_Mixin:
     #    2. Is it intentional to select only the last item added to the
     #  clipboard? (This will be the topmost selected item, since (at least
     #  for now) the group members are in bottom-to-top order.)
+
+    #e bruce 050523: should revise this to use selection_from_MT object...
     
     def copy_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         #bruce 050419 renamed this from copy
-        self.w.history.message(greenmsg("Copy:"))
-        if use_selatoms and self.selatoms:
-            #bruce 050201-bug370: revised this in same way as for assy.cut_sel (above)
-            self.w.history.message(redmsg("Copying selected atoms is not yet supported.")) #bruce 050131
-            ## return
-        new = Group(gensym("Copy"), self.assy, None)
-            # bruce 050201 comment: this group is always (so far) used only for its members list
-        # x is each node in the tree that is picked. [bruce 050201 comment: it's ok if self.topnode is picked.]
-        # [bruce 050131 comments (not changing it in spite of bugs):
-        #  the x's might be chunks, jigs, groups... but maybe not all are supported for copy.
-        #  In fact, Group.copy returns 0 and Jig.copy returns None, and addchild tolerates that
-        #  and does nothing!!
-        #  About chunk.copy: it sets numol.assy but doesn't add it to assy,
-        #  and it sets numol.dad but doesn't add it to dad's members -- so we do that immediately
-        #  in addchild. So we end up with a members list of copied chunks from assy.tree.]
-        self.topnode.apply2picked(lambda(x): new.addchild(x.copy(None))) #bruce 050215 changed mol.copy arg from new to None
-
-        # unlike for cut_sel, no self.changed() should be needed
-        
-        if new.members:
-            nshelf_before = len(self.shelf.members) #bruce 050201
-            for ob in new.members[:]:
-                # [bruce 050215 copying that members list, to fix bug 360 comment #6 (item 5),
-                # which I introduced in Alpha-2 by making addchild remove ob from its prior home,
-                # thus modifying new.members during this loop]
-                ## no longer needed, 050309:
-                ## self.sanitize_for_clipboard(ob) # not needed on 050131 but might be needed soon, and harmless
-                self.shelf.addchild(ob) # add new member(s) to the clipboard
-                # if the new member is a molecule, move it to the center of its space
-                if isinstance(ob, molecule): ob.move(-ob.center)
-            ## ob.pick() # bruce 050131 removed this
-            nshelf_after = len(self.shelf.members) #bruce 050201
-            self.w.history.message( fix_plurals("Copied %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
-                ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
+        #bruce 050523 new code
+        # 1. what objects is user asking to copy?
+        part = self
+        history = part.assy.w.history
+        sel = selection_from_part(part, use_selatoms = use_selatoms)
+        # 2. prep this for copy by including other required objects, context, etc...
+        # (eg a new group to include it all, new chunks for bare atoms)
+        # and emit message about what we're about to do
+        if "developing": #####@@@@@
+            import ops_copy as hmm
+            reload(hmm)
+            from ops_copy import Copier # use latest code for that class, even if not for this mixin method!
+        copier = Copier(sel) #e sel.copier()?
+        copier.prep_for_copy_to_shelf()
+        if copier.ok():
+            desc = copier.describe_objects_for_history() # e.g. "5 items" ### not sure this is worth it if we have a results msg
+            if desc:
+                text = "Copy %s" % desc
+            else:
+                text = "Copy"
+            history.message(greenmsg(text))
         else:
-            if not (use_selatoms and self.selatoms):
-                #bruce 050201-bug370: we don't need this if the message for selatoms already went out
-                self.w.history.message(redmsg("Nothing to Copy.")) #bruce 050201
-        self.assy.update_parts() # stub, 050308; overkill! should just apply to the new shelf items. ####@@@@ 
+            whynot = copier.whynot()
+            history.message(redmsg("Copy: %s" % whynot))
+            return
+        # 3. do it
+        new = copier.copy_as_node_for_shelf()
+        self.shelf.addchild(new)
+        # 4. clean up
+        self.assy.update_parts()
+            # overkill! should just apply to the new shelf items. [050308] ###@@@
+            # (It might not be that simple -- at one point we needed to scan anything they were jig-connected to as well.
+            #  Probably that's no longer true, but it needs to be checked before this is changed. [050526])
         self.w.win_update()
         return
-    
+
     def paste(self, node):
         pass # to be implemented
 
@@ -207,7 +207,9 @@ class ops_copy_Mixin:
         # from standard meaning of obj.kill() == kill that obj
         #bruce 050201 for Alpha: revised this to fix bug 370
         ## "delete whatever is selected from this assembly " #e use this in the assy version of this method, if we need one
-        self.w.history.message(greenmsg("Delete:"))
+        part = self
+        history = part.assy.w.history
+        history.message(greenmsg("Delete:"))
         ###@@@ #e this also needs a results-message, below.
         if use_selatoms and self.selatoms:
             self.changed()
@@ -230,5 +232,280 @@ class ops_copy_Mixin:
         return
 
     pass # end of class ops_copy_Mixin
+
+# ==
+
+class Copier: #bruce 050523-050526; might need revision for merging with DND copy
+    "Controller for copying selected nodes and/or atoms."
+    def __init__(self, sel):
+        self.sel = sel # a Selection object
+        self.assy = sel.part.assy
+    def prep_for_copy_to_shelf(self):
+        """Figure out whether to make a new toplevel Group,
+        whether to copy any nonselected Groups or Chunks with selected innards, etc.
+        """
+        # Rules: partly copy (just enough to provide a context or container for other copied things):
+        # - any chunk with copied atoms (since atoms can't live outside of chunks),
+        # - certain jigs with copied atoms (those which confer properties on the atoms),
+        # - any Group with some but not all copied things (not counting partly copied jigs?) inside it
+        #   (since it's a useful separator),
+        # - (in future; maybe) any Group which confers properties (eg display modes) being used on copied
+        #   things inside it (but probably just copy the properties actually being used).
+        # Then at the end (these last things might not be done until a later method, not sure):
+        # - if more than topnode is being copied, make a wrapping group around
+        #   everything that gets copied (this is not really a copy of the PartGroup, e.g. its name is unrelated).
+        # - perhaps modify the name of the top node copied (or of the wrapping group) to say it's a copy.
+        # Algorithm: 
+        # we'll make dicts of leafnodes to partly copy, but save most of the work
+        # (including all decisions about groups) for a scan during the actual copy.
+        fullcopy = self.fullcopy = {}
+        atom_chunks = self.atom_chunks = {} # id(chunk) -> chunk, for chunks containing selected atoms
+        atom_chunk_atoms = self.atom_chunk_atoms = {} # id(chunk) -> list of its atoms to copy (if it's not fullcopied) (arb order)
+        atom_jigs = self.atom_jigs = {}
+        sel = self.sel
+        for node in sel.topnodes: # no need to scan selmols too, it's redundant (and in general a subset)
+            # chunks, jigs, Groups -- for efficiency and in case it's a feature,
+            # don't scan jigs of a chunk's atoms like we do for individual atoms;
+            # this decision might be revised, and if so, we'd scan that here when node is a chunk.
+            if node.will_copy_if_selected(sel):
+                # Will this node agree to be copied, if it's selected, given what else is selected?
+                # (Can be false for Jigs whose atoms won't be copied, if they can't exist with no atoms or too few atoms.)
+                # For Groups, no need to recurse here and call this on members,
+                # since we assume the groups themselves always say yes -- #e if that changes,
+                # we might need to recurse on their members here if the groups say no,
+                # unless that 'no' applies to copying the members too.
+                fullcopy[id(node)] = node
+        for atom in sel.selatoms.itervalues():
+            chunk = atom.molecule
+            #e for now we assume that all these chunks will always be partly copied;
+            # if that changes, we'd need to figure out which ones are not copied, but not right here
+            # since this can run many times per chunk.
+            idchunk = id(chunk)
+            atom_chunks[idchunk] = chunk #k might not be needed since redundant with atom_chunk_atoms except for knowing the chunk
+                # some of these might be redundant with fullcopied chunks (at toplevel or lower levels); that's ok
+                # (note: I think none are, for now)
+            atoms = atom_chunk_atoms.setdefault(idchunk, [])
+            atoms.append(atom)
+            for jig in atom.jigs:
+                if jig.confers_properties_on(atom):
+                    # Note: it's intentional that we don't check this for all jigs on all atoms
+                    # copied inside of selected chunks. The real reason is efficiency; the excuse
+                    # is that when selecting chunks, user could do this in MT and choose which jigs
+                    # to select, whereas when selecting atoms, they can't, so we have to do it
+                    # for them (by "when in doubt, copy the jig" and letting them delete the ones
+                    # they didn't want copied).
+                    #  It's also intentional that whether the jig is disabled makes no difference here.
+                    atom_jigs[id(jig)] = jig # ditto (about redundancy)
+                    #e save filtering of jigtypes for later, for efficiency?
+                    # I tried coding that and it seemed less efficient
+                    # (since I'm assuming it can depend on the atom, in general, tho for now, none do).
+        # Now we need to know which atom_jigs will actually agree to be partly copied,
+        # just due to the selatoms inside them. Assume most of them will agree to be copied
+        # (since they said they confer properties that should be copied) (so just delete the other ones).
+        for jig in atom_jigs.values():
+            if not jig.will_partly_copy_due_to_selatoms(sel):
+                del atom_jigs[id(jig)]
+                # This might delete some which should be copied since selected -- that's ok,
+                # they remain in fullcopy then. We're just deleting *this reason* to copy them.
+        # (At this point we assume that all jigs we still know about will agree to be copied,
+        # except perhaps the ones inside fullcopied groups, for which we don't need to know in advance.)
+        self.verytopnode = sel.part.topnode
+        return # from prep_for_copy_to_shelf
+    
+    # the following methods should be called only after some operation has been prepped for
+    # (and usually before it's been done, but that's not required)
+    def ok(self):
+        if self.sel.nonempty():
+            return True
+        self._whynot = "Nothing to copy"
+        return False
+    def describe_objects_for_history(self):
+        return self.sel.describe_objects_for_history()
+    _whynot = ""
+    def whynot(self):
+        return self._whynot or "can't copy those items"
+
+    # this makes the actual copy (into a known destination) using the info computed above
+    def copy_as_node_for_shelf(self):
+        """Create and return a new single node (not yet placed in any Group)
+        which is a copy of our selected objects meant for the Clipboard;
+        or return None (after history message -- would it be better to let caller do that??)
+        if all selected objects refuse to be copied.
+        """
+        # Copy everything we need to (except for extern bonds, and finishing up of jig refs to atoms).
+        self.origid_to_copy = {} # various obj copy methods use/extend this, to map id(orig-obj) to copy-obj for all levels of obj
+        self.extern_atoms_bonds = []
+            # this will get extended when chunks or isolated atoms are copied,
+            # with (orig-atom, orig-bond) pairs for which bond copies are not made
+            # (but atom copies will be made, and recorded in origid_to_copy)
+        self.do_these_at_end = [] #e might change to a dict so it can handle half-copied bonds too, get popped when they pair up
+        self.newstuff = []
+        self.tentative_new_groups = {}
+        self.recurse( self.verytopnode) #e this doesn't need the kluge of verytop always being a group, i think
+
+        # Now handle the bonds that were not made when atoms were copied.
+        # (Someday we might merge this into the "finishing up" (for jigs) that happens
+        #  later. The order of this vs. that vs. group cleanup should not matter.)
+        halfbonds = {}
+        actualbonds = {}
+        origid_to_copy = self.origid_to_copy
+        for atom2, bond in self.extern_atoms_bonds:
+            atom1 = halfbonds.pop(id(bond), None)
+            if atom1 is not None:
+                na1 = origid_to_copy[id(atom1)]
+                na2 = origid_to_copy[id(atom2)]
+                bond_copied_atoms(na1, na2, bond)
+            else:
+                halfbonds[id(bond)] = atom2
+                actualbonds[id(bond)] = bond
+                    #e would it be faster to just use bonds as keys? Probably not! (bond.__getattr__)
+        # Now "break" (in the copied atoms) the still uncopied bonds (those for which only one atom was copied)
+        # (This does not affect original atoms or break any existing bond object, but it acts like
+        #  we copied a bond and then broke that copied bond.)
+        for bondid, atom in halfbonds.items():
+            bond = actualbonds[bondid]
+            nuat = origid_to_copy[id(atom)]
+            nuat.break_unmade_bond(bond, atom)
+                # i.e. add singlets (or do equivalent invals) as if bond was copied onto atom, then broken;
+                # uses original atom so it can find other atom and know bond direction
+                # (it assumes nuat might be translated but not rotated, for now)
+
+        # Do other finishing-up steps as requested by copied items
+        # (e.g. jigs change their atom refs from orig to copied atoms)
+        # (warning: res is still not in any Group, and still has no Part,
+        #  and toplevel group structure might still be revised)
+        # In case this can ever delete nodes or add siblings (though it doesn't do that for now),
+        # we should do it before cleaning up the Group structure.
+        for func in self.do_these_at_end[:]:
+            func() # these should not add further such funcs! #e could check for that, or even handle them if added.
+        del self.do_these_at_end
+
+        # Now clean up the toplevel Group structure of the copy, and return it.
+        newstuff = self.newstuff
+        del self.newstuff
+        assert not newstuff or len(newstuff) == 1
+            # since either verytopnode is a leaf and refused or got copied,
+            # or it's a group and copied as one (or all contents refused -- not sure if it copies then #k)
+            # (this assert is not required by following code, it's just here as a sanity check)
+        # strip off unneeded groups at the top, and return None if nothing got copied
+        while len(newstuff) == 1 and id(newstuff[0]) in self.tentative_new_groups:
+            newstuff = newstuff[0].steal_members()
+        if not newstuff:
+            # everything refused to be copied. Can happen (e.g. for a single selected jig at the top).
+            self.assy.w.history.message( redmsg( "That selection can't be copied by itself." )) ###e improve message
+            return None
+        # wrap or rename result
+        if len(newstuff) > 1:
+            # add wrapping group
+            name = self.assy.name_autogrouped_nodes_for_clipboard( newstuff) #k argument
+            res = Group(name, self.assy, None, newstuff)
+                ###e we ought to also store this name as the name of the new part
+                # (which does not yet exist), like is done in create_new_toplevel_group;
+                # not sure when to do that or how to trigger it; probably could create a
+                # fake old part here just to hold the name...
+        else:
+            res = newstuff[0]
+            # now rename it, like old code would do (in mol.copy), though whether
+            # this is a good idea seems very dubious to me [bruce 050524]
+            if res.name.endswith('-frag'):
+                # kluge - in -frag case it's definitely bad to rename the copy, if this op added that suffix;
+                # we can't tell, but since it's likely and since this is dubious anyway, don't do it in this case.
+                pass
+            else:
+                from chunk import mol_copy_name
+                res.name = mol_copy_name(res.name)
+        #e in future we might also need to store a ref to the top original node, top_orig;
+        # this is problematic when it was made up as a wrapping group,
+        # but if we think of verytopnode as the one, in that case (always a group in that case), then it's probably ok...
+        # for now we don't attempt this, since when we removed useless outer groups we didn't keep track of the original node.
+
+        ##e this is where we'd like to recenter the view (rather than the object, as the old code did for single chunks),
+        # but I'm not sure exactly how, so I'll save this for later. ###@@@
+        
+        return res
+        
+        ##e ideally we'd implem atoms & bonds differently than now, and copy using Numeric, but not for now.
+        
+    def recurse(self, orig): #e rename 
+        "copy whatever is needed from orig and below, but don't fix refs immediately; append new copies to self.newstuff"
+        idorig = id(orig)
+        res = None
+        if idorig in self.fullcopy:
+            res = orig.copy_full_in_mapping(self)
+                # recurses into groups, does atoms, bonds, jigs...
+                # copies jigs leaving refs to orig things but with an at_end fixup method (??)
+                # if refuses, puts None in the mapping as the copy
+        elif idorig in self.atom_chunks:
+            # orig contains some selected atoms (for now, that means it's a chunk)
+            # but is not in fullcopy at any level. (Proof: if it's in fullcopy at toplevel, we handled it
+            # in the 'if' case; if it's in fullcopy at a lower level, this method never recurses into it at all,
+            # instead letting copy_full_in_mapping on the top fullcopied group handle it.)
+            #    Ask it to make a partial copy with only the required atoms (which it should also copy).
+            # It should properly copy those atoms (handling bonds, adding them to mapping if necessary).
+            atoms = self.atom_chunk_atoms.pop(idorig)
+                # the pop is just a space-optim (imperfect since not done for fullcopied chunks)
+            res = orig.copy_in_mapping_with_specified_atoms(self, atoms)
+        elif idorig in self.atom_jigs:
+            # orig is something which confers properties on some selected atoms (but does not contain them);
+            # copy it partially, arrange to fix refs later (since not all those atoms might be copied yet).
+            # Since this only happens for Ground jigs, and the semantics are same as copying them fully,
+            # for now I'll just use the same method... later we can introduce a distinct 'copy_partial_in_mapping'
+            # if there's some reason to do so.
+            res = orig.copy_full_in_mapping(self)
+        elif orig.is_group():
+            save = self.newstuff
+            self.newstuff = []
+            map( self.recurse, orig.members)
+            newstuff = self.newstuff
+            self.newstuff = save
+            if newstuff:
+                # we'll make some sort of Group from it, as a partial copy of orig
+                # (note that orig is a group which was not selected, so is only needed
+                #  to hold copies of selected things inside it, perhaps at lower levels
+                #  than its actual members)
+                if len(newstuff) == 1 and id(newstuff[0]) in self.tentative_new_groups:
+                    # merge names (and someday, pref settings) of orig and newstuff[0]
+                    innergroup = newstuff[0]
+                    name = orig.name + '/' + innergroup.name
+                    newstuff = innergroup.steal_members()
+                        # no need to recurse, since innergroup
+                        # would have merged with its own member if possible
+                else:
+                    name = orig.name
+                res = Group(name, self.assy, None, newstuff) # note, this pulls those members out of innergroup, if still there (slow?)
+                self.tentative_new_groups[id(res)] = res
+                    # mark it as tentative so enclosing-group copies are free to discard it and more directly wrap its contents
+                ## record_copy is probably not needed, but do it anyway just for its assertions, for now:
+                self.record_copy(orig, res)
+            #e else need to record None as result?
+        # else ditto?
+        # now res is the result of that (if anything)
+        if res is not None:
+            self.newstuff.append(res)
+        return # from recurse
+
+    def mapper(self, orig): #k needed?
+        # note: None result is ambiguous -- never copied, or refused?
+        return self.origid_to_copy.get(id(orig))
+
+    def record_copy(self, orig, copy): #k called by some but not all copiers; probably not needed except for certain atoms
+        """Subclass-specific copy methods should call this to record the fact that orig
+        (a node or a component of one, e.g. an atom or perhaps even a bond #k)
+        is being copied as 'copy' in this mapping.
+        (When this is called, copy must of course exist, but need not be "ready for use" --
+         e.g. it's ok if orig's components are not yet copied into copy.)
+        Also asserts orig was not already copied.
+        """
+        assert not self.origid_to_copy.has_key(id(orig))
+        self.origid_to_copy[id(orig)] = copy
+
+    def do_at_end(self, func): #e might change to dict
+        """Node-specific copy methods can call this
+        to request that func be run once when the entire copy operation is finished.
+        Warning: it is run before ###doc.
+        """
+        self.do_these_at_end.append(func)
+    
+    pass # end of class Copier
 
 # end

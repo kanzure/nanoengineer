@@ -280,33 +280,87 @@ class ops_select_Mixin:
 
     # ==
     
-    def selection(self): #bruce 050404 experimental feature for initial use in Minimize Selection
-        "return an object which represents the contents of the current selection, independently of part attrs... how long valid??"
+    def selection_from_glpane(self): #bruce 050404 experimental feature for initial use in Minimize Selection; renamed 050523
+        """Return an object which represents the contents of the current selection,
+        independently of part attrs... how long valid?? Include the data generally used
+        when doing an op on selection from glpane (atoms and chunks); see also selection_from_MT().
+        """
         # the idea is that this is a snapshot of selection even if it changes
         # but it's not clear how valid it is after the part contents itself starts changing...
         # so don't worry about this yet, consider it part of the experiment...
-        return Selection( self, self.selatoms, self.selmols )
+        part = self
+        return selection_from_glpane( part)
 
-    def selection_for_all(self): #bruce 050419 for use in Minimize All
+    def selection_for_all(self): #bruce 050419 for use in Minimize All; revised 050523
         "return a selection object referring to all our atoms (regardless of the current selection, and not changing it)"
-        return Selection( self, {}, self.molecules )
+        return selection_for_entire_part( part)
+
+    def selection_from_MT(self): #bruce 050523; might not yet be used
+        "#doc"
+        part = self
+        return selection_from_MT( part)
 
     pass # end of class ops_select_Mixin (used in class Part)
 
 # ==
 
-class Selection: #bruce 050404 experimental feature for initial use in Minimize Selection
-    def __init__(self, part, selatoms, selmols): #e revise init args
+def topmost_selected_nodes(nodes): #bruce 050523 split this out from the same-named TreeWidget method, and optimized it
+    "return a list of all selected nodes (without looking inside selected Groups) in or under the given list of nodes"
+    res = []
+    func = res.append
+    for node in nodes:
+        node.apply2picked( func)
+    return res
+
+# ==
+
+def selection_from_glpane( part): #bruce 050523 split this out as intermediate helper function; revised 050523
+    return Selection( part, atoms = part.selatoms, chunks = part.selmols )
+
+def selection_from_MT( part): #bruce 050523; might not yet be used
+    return Selection( part, atoms = {}, nodes = topmost_selected_nodes([part.topnode]) )
+
+def selection_from_part( part, use_selatoms = True): #bruce 050523
+    if use_selatoms:
+        atoms = part.selatoms
+    else:
+        atoms = {}
+    return Selection( part, atoms = atoms, nodes = topmost_selected_nodes([part.topnode]) )
+
+def selection_for_entire_part( part): #bruce 050523 split this out, revised it
+    return Selection( part, atoms = {}, chunks = part.molecules )
+
+class Selection: #bruce 050404 experimental feature for initial use in Minimize Selection; revised 050523
+    """Represent a "snapshot-by-reference" of the contents of the current selection.
+    Warning: this is valid if the selection-state changes
+    but might become invalid if the Part contents themselves change in any way!
+    """
+    def __init__(self, part, atoms = {}, chunks = [], nodes = []):
+        "Create a snapshot-by-reference of whatever objects are passed. Objects should not be passed redundantly."
+        # note: topnodes might not always be provided;
+        # when provided it should be a list of nodes in the part compatible with selmols
+        # but containing groups and jigs as well as chunks, and not containing members of groups it contains
+        # (those are implicit)
         self.part = part
-        self.topnode = part.topnode # might change...
-        self.selatoms = dict(selatoms) # copy the dict
-        self.selmols = list(selmols) # copy the list
-        assert not (self.selatoms and self.selmols) #e could this change? try not to depend on it
-        #e jigs?
+        ## I don't think self.topnode is used or needed [bruce 050523]
+        ## self.topnode = part.topnode # might change...
+        self.selatoms = dict(atoms) # copy the dict; it's ok that this does not store atoms inside chunks or nodes
+        # For now, we permit passing chunks or nodes list but not both.
+        if nodes:
+            # nodes were passed -- store them, but let selmols be computed lazily
+            assert not chunks, "don't pass both chunks and nodes arguments to Selection"
+            self.topnodes = list(nodes)
+            # selmols will be computed lazily if needed
+            # (to avoid needlessly computing it, we don't assert not (self.selatoms and self.selmols))
+        else:
+            # chunks (or no chunks and no nodes) were passed -- store as both selmols and topnodes
+            self.selmols = list(chunks) # copy the list
+            self.topnodes = self.selmols
+            assert not (self.selatoms and self.selmols) #e could this change? try not to depend on it
         return
     def nonempty(self): #e make this the object's boolean value too?
         # assume that each selmol has some real atoms, not just singlets! Should always be true.
-        return self.selatoms or self.selmols
+        return self.selatoms or self.topnodes #revised 050523
     def atomslist(self):
         "return a list of all selected real atoms, whether selected as atoms or in selected chunks; no singlets or jigs"
         #e memoize this!
@@ -328,6 +382,46 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
         items = res.items()
         items.sort() # sort by atom key; might not be needed
         return [atom for key, atom in items]
+    def __getattr__(self, attr):
+        if attr == 'selmols':
+            # compute from self.topnodes -- can't assume selection state of self.part
+            # is same as during our init, or even know whether it was relevant then.
+            res = []
+            from chunk import molecule
+            def func(node):
+                if isinstance(node, molecule):
+                    res.append(node)
+                return # from func
+            for node in self.topnodes:
+                node.apply2all(func)
+            self.selmols = res
+            return res
+        elif attr == 'selmols_dict': #bruce 050526
+            res = {}
+            for mol in self.selmols:
+                res[id(mol)] = mol
+            self.selmols_dict = res
+            return res
+        raise AttributeError, attr
+    def picks_atom(self, atom): #bruce 050526
+        "Does this selection include atom, either directly or via its chunk?"
+        return atom.key in self.selatoms or id(atom.molecule) in self.selmols_dict
+    def describe_objects_for_history(self):
+        """Return a string like "5 items" but more explicit if possible, for use in history messages"""
+        from platform import fix_plurals
+        if self.topnodes:
+            res = fix_plurals( "%d item(s)" % len(self.topnodes) )
+            #e could figure out their common class if any (esp. useful for Jig and below); for Groups say what they contain; etc
+        elif self.selmols:
+            res = fix_plurals( "%d chunk(s)" % len(self.selmols) )
+        else:
+            res = ""
+        if self.selatoms:
+            if res:
+                res += " and "
+            res += fix_plurals( "%d atom(s)" % len(self.selatoms) )
+            #e could say "other atoms" if the selected nodes contain any atoms
+        return res
     pass # end of class Selection
 
 # end

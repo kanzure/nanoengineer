@@ -130,6 +130,7 @@ class atom(InvalMixin):
     picked = 0
     display = diDEFAULT # rarely changed for atoms
     _modified_valence = False #bruce 050502
+    info = None #bruce 050524 optim (can remove try/except if all atoms have this)
     ## atomtype -- set when first demanded, or can be explicitly set using set_atomtype or set_atomtype_but_dont_revise_singlets
     def __init__(self, sym, where, mol): #bruce 050511 allow sym to be elt symbol (as before), another atom, or an atomtype
         """Create an atom of element sym (e.g. 'C')
@@ -807,31 +808,40 @@ class atom(InvalMixin):
         [private method, only suitable for use from mol.copy(), since use of
          same .index assumes numol will be given copied curpos/basepos arrays.]
         """
-        nuat = atom(self.element.symbol, 'no', None)
+        nuat = atom(self, 'no', None) #bruce 050524: pass self so its atomtype is copied
         numol.addcopiedatom(nuat)
         ## numol.invalidate_atom_lists() -- done in caller now
         nuat.index = self.index
         nuat.display = self.display #bruce 041109 new feature, seems best
-        try:
-            nuat.info = self.info
-            # bruce 041109, needed by extrude and other future things
-        except AttributeError:
-            pass
+        nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
         return nuat
 
     def copy(self): # bruce 041116, new method (has same name as an older method, now named copy_for_mol_copy)
         """Public method: copy an atom, with no special assumptions;
         new atom is not in any mol but could be added to one using mol.addatom.
         """
-        nuat = atom(self.element.symbol, self.posn(), None)
+        nuat = atom(self, self.posn(), None) #bruce 050524: pass self so its atomtype is copied
         nuat.display = self.display
-        try:
-            nuat.info = self.info
-            # bruce 041109, needed by extrude and other future things
-        except AttributeError:
-            pass
+        nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
         return nuat
 
+    def break_unmade_bond(self, origbond, origatom): #bruce 050524
+        """Add singlets (or do equivalent invals) as if origbond was copied from origatom
+        onto self (a copy of origatom), then broken; uses origatom
+        so it can find the other atom and know bond direction
+        (it assumes self might be translated but not rotated, wrt origatom).
+        For now this works like mol.copy used to, but later it might "inval singlets" instead.
+        """
+        # compare to code in Bond.unbond() (maybe merge it? ####@@@@ need to inval things to redo singlets sometimes?)
+        a = origatom
+        b = origbond
+        numol = self.molecule
+        x = atom('X', b.ubp(a), numol) ###k verify atom.__init__ makes copy of posn, not stores original (tho orig ok if never mods it)
+        na = self ## na = ndix[a.key]
+        from bonds import bond_copied_atoms # can't do at start of module -- recursive import
+        bond_copied_atoms(na, x, origbond) # same properties as origbond... sensible in all cases?? ##k
+        return
+        
     def unbond(self, b):
         """Private method (for use mainly by bonds); remove b from self and
         usually replace it with a singlet (which is returned). Details:
