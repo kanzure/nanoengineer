@@ -1004,6 +1004,17 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.unpickatoms()
         self.place_new_jig(m)
 
+    def makegamess(self):
+        """Makes a GAMESS jig...
+        """
+        # [bruce 050210 modified docstring]
+        if not self.selatoms: return
+        if len(self.selatoms) > 30: return
+        from jig_Gamess import Gamess
+        m = Gamess(self.assy, self.selatoms.values())
+        self.unpickatoms()
+        self.place_new_jig(m)
+        
     def makeground(self):
         """Grounds (anchors) all the selected atoms so that 
         they will not move during a simulation run.
