@@ -997,6 +997,22 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     # Jig Toolbar Slots
     ###################################
 
+    def makeGamess(self):
+        if not self.assy.selatoms:
+            self.history.message(redmsg("GAMESS: You must first select an atom(s) to create a GAMESS jig."))
+            return
+        
+        # Make sure that no more than 30 atoms are selected.
+        nsa = len(self.assy.selatoms)
+        if nsa > 30: 
+            self.history.message(redmsg("GAMESS: " + str(nsa) +" atoms selected.  The limit is 30.  Try again (or make more than one GAMESS jig)."))
+                #bruce 050210 modified message
+            return
+        
+        self.history.message(greenmsg("GAMESS: "))
+        self.assy.makegamess()
+        self.win_update()
+        
     def makeGround(self):
         if not self.assy.selatoms:
             self.history.message(redmsg("Ground: You must first select an atom(s) you want to ground."))
