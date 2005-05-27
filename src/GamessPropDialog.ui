@@ -1,0 +1,1167 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>GamessPropDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>GamessPropDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>475</width>
+            <height>500</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>GAMESS Properties</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout35</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton" row="0" column="2">
+                    <property name="name">
+                        <cstring>atoms_list_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Atom List...</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="0" column="1">
+                    <property name="name">
+                        <cstring>name_linedit</cstring>
+                    </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>The name of the GAMESS jig..</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>The name of the GAMESS jig..</string>
+                    </property>
+                </widget>
+                <widget class="QComboBox" row="1" column="1">
+                    <property name="name">
+                        <cstring>psets_combox</cstring>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="2">
+                    <property name="name">
+                        <cstring>atoms_list_btn_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Edit/Delete...</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>psetslbl</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Parameter Set :</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>namelbl</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Name :</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout25</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>txtlabel4</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Comment :</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit">
+                    <property name="name">
+                        <cstring>comment_linedit</cstring>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="maxLength">
+                        <number>80</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Text placed here is incorporated into the standard GAMESS comment line.</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Text placed here is incorporated into the standard GAMESS comment line.</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox1</cstring>
+            </property>
+            <property name="title">
+                <string>Electronic Structure Properties and Basis Set Selection</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="0" column="1">
+                    <property name="name">
+                        <cstring>layout11</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>gbasis_label</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Basis Set :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <item>
+                                <property name="text">
+                                    <string>AM1</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>PM3</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>STO-3G</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>STO-6G</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>3-21G</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>3-21G*</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-31G</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-31G(d)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-31G(d,p)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-31+G(d)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-31+G(d,p)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-31++G(d)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-31++G(d,p)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-311G</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-311G(d)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-311G(d,p)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-311+G(d,p)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6-311++G(d,p)</string>
+                                </property>
+                            </item>
+                            <property name="name">
+                                <cstring>gbasis_combox</cstring>
+                            </property>
+                            <property name="currentItem">
+                                <number>0</number>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS.</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QButtonGroup" row="0" column="0">
+                    <property name="name">
+                        <cstring>scftyp_btngrp</cstring>
+                    </property>
+                    <property name="title">
+                        <string></string>
+                    </property>
+                    <property name="exclusive">
+                        <bool>true</bool>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget" row="0" column="0">
+                            <property name="name">
+                                <cstring>layout33</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QRadioButton">
+                                    <property name="name">
+                                        <cstring>rhf_radiobtn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>RHF</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="buttonGroupId">
+                                        <number>-1</number>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Restricted Hartree-Fock.  All electrons are paired and each spatial orbital is doubly occupied.  Cannot be used with multiplicities greater than 1.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Restricted Hartree-Fock.  All electrons are paired and each spatial orbital is doubly occupied.  Cannot be used with multiplicities greater than 1.</string>
+                                    </property>
+                                </widget>
+                                <widget class="QRadioButton">
+                                    <property name="name">
+                                        <cstring>uhf_radiobtn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>UHF</string>
+                                    </property>
+                                    <property name="buttonGroupId">
+                                        <number>-1</number>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Unrestricted Hartree-Fock.  All electrons are unpaired and spatial (spin) orbitals are uniquely defined for each electron.  More time consuming, but more accurate, than ROHF.  </string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Unrestricted Hartree-Fock.  All electrons are unpaired and spatial (spin) orbitals are uniquely defined for each electron.  More time consuming, but more accurate, than ROHF.  </string>
+                                    </property>
+                                </widget>
+                                <widget class="QRadioButton">
+                                    <property name="name">
+                                        <cstring>rohf_radiobtn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>ROHF</string>
+                                    </property>
+                                    <property name="buttonGroupId">
+                                        <number>-1</number>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Restricted Open-shell Hartree-Fock.  Spin-paired electrons are assigned to doubly-occupied spatial orbitals, while electrons with unpaired spins are provided unique spatial orbitals.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Restricted Open-shell Hartree-Fock.  Spin-paired electrons are assigned to doubly-occupied spatial orbitals, while electrons with unpaired spins are provided unique spatial orbitals.</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QLayoutWidget" row="1" column="0">
+                    <property name="name">
+                        <cstring>layout23</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_4</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Charge:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>icharg_spinbox</cstring>
+                            </property>
+                            <property name="maxValue">
+                                <number>1</number>
+                            </property>
+                            <property name="minValue">
+                                <number>-1</number>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>The total charge of the structure to be treated quantum mechanically.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>The total charge of the structure to be treated quantum mechanically.</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_2_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Multiplicity:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <item>
+                                <property name="text">
+                                    <string>1</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>2</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>3</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>4</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>5</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>6</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>7</string>
+                                </property>
+                            </item>
+                            <property name="name">
+                                <cstring>multi_combox</cstring>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>N + 1, where N is the number of unpaired electrons.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>N + 1, where N is the number of unpaired electrons.</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox2</cstring>
+            </property>
+            <property name="title">
+                <string>Electron Correlation Method</string>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout31</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QButtonGroup">
+                            <property name="name">
+                                <cstring>mplvl_btngrp</cstring>
+                            </property>
+                            <property name="title">
+                                <string></string>
+                            </property>
+                            <property name="exclusive">
+                                <bool>true</bool>
+                            </property>
+                            <grid>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLayoutWidget" row="0" column="0">
+                                    <property name="name">
+                                        <cstring>layout30</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>none_radiobtn</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>None</string>
+                                            </property>
+                                            <property name="checked">
+                                                <bool>true</bool>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>-1</number>
+                                            </property>
+                                            <property name="toolTip" stdset="0">
+                                                <string>Select this button to neglect electron correlation in the calculation.</string>
+                                            </property>
+                                            <property name="whatsThis" stdset="0">
+                                                <string>Select this button to neglect electron correlation in the calculation.</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>dft_radiobtn</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>DFT</string>
+                                            </property>
+                                            <property name="toolTip" stdset="0">
+                                                <string>Select this button to perform a density functional theory calculation.</string>
+                                            </property>
+                                            <property name="whatsThis" stdset="0">
+                                                <string>Select this button to perform a density functional theory calculation.</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>mp2_radiobtn</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>MP2</string>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>-1</number>
+                                            </property>
+                                            <property name="toolTip" stdset="0">
+                                                <string>Select this button to perform a Second-Order Moeller Plesset calculation.</string>
+                                            </property>
+                                            <property name="whatsThis" stdset="0">
+                                                <string>Select this button to perform a Second-Order Moeller Plesset calculation.</string>
+                                            </property>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                            </grid>
+                        </widget>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>core_electrons_checkbox</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Include core electrons</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Check this box to include both the valence and core electrons in the MP2 calculation.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>Check this box to include both the valence and core electrons in the MP2 calculation.</string>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout32</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout22</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>dfttyp_label</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="text">
+                                        <string>Functional:</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>gridsize_label</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="text">
+                                        <string>Grid Size:</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout23</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>SLATER (E)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>BECKE (E)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>GILL (E)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>PBE (E)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>VWN (C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>LYP (C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>OP (C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>SVWN/LDA (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>SLYP (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>SOP (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>BVWN (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>BLYP (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>BOP (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>GVWN (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>GLYP (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>GOP (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>PBEVWN (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>PBELYP (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>PBEOP (E+C)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>BHHLYP (H)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>B3LYP (H)</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>dfttyp_combox</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Select an available density functional in GAMESS.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Select an available density functional in GAMESS.</string>
+                                    </property>
+                                </widget>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>Coarse</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Default</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Fine</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Army Grade</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>gridsize_combox</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="currentItem">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Select the grid spacing for the DFT calculation.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Select the grid spacing for the DFT calculation.</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox3</cstring>
+            </property>
+            <property name="title">
+                <string>Convergence Criteria and Memory Usage</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout27</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout29</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel5</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Density Convergence :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>Coarse (10E-4)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Default (10E-5)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Fine (10E-6)</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Very Fine (10E-7)</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>density_conv_combox</cstring>
+                                    </property>
+                                    <property name="currentItem">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout26</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2_2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>RAM (MB) :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>Default</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>2000</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>ram_combox</cstring>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Select the amount of system memory to use in the energy calculation.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Select the amount of system memory to use in the energy calculation.</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout54</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout50</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QCheckBox">
+                                    <property name="name">
+                                        <cstring>extrap_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>EXTRAP</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Controls Pople extrapolation of the Fock matrix.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Controls Pople extrapolation of the Fock matrix.</string>
+                                    </property>
+                                </widget>
+                                <widget class="QCheckBox">
+                                    <property name="name">
+                                        <cstring>dirscf_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>DirectSCF</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Check this box to run the calculation in RAM and avoid hard disk usage for integral storage.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Check this box to run the calculation in RAM and avoid hard disk usage for integral storage.</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout51</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QCheckBox">
+                                    <property name="name">
+                                        <cstring>damp_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>DAMP</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Controls Davidson damping of the Fock matrix.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Controls Davidson damping of the Fock matrix.</string>
+                                    </property>
+                                </widget>
+                                <widget class="QCheckBox">
+                                    <property name="name">
+                                        <cstring>diis_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>DIIS</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Controls Pulay's DIIS interpolation.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Controls Pulay's DIIS interpolation.</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout52</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QCheckBox">
+                                    <property name="name">
+                                        <cstring>shift_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>SHIFT</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Controls level shifting of the Fock matrix.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Controls level shifting of the Fock matrix.</string>
+                                    </property>
+                                </widget>
+                                <widget class="QCheckBox">
+                                    <property name="name">
+                                        <cstring>soscf_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>SOSCF</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Controls second order SCF orbital optimization.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Controls second order SCF orbital optimization.</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout53</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QCheckBox">
+                                    <property name="name">
+                                        <cstring>rstrct_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>RSTRCT</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Controls restriction of orbital interchanges.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Controls restriction of orbital interchanges.</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout23</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>save_parms_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Save and Exit</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Save GAMESS parameters only.</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Save GAMESS parameters only.</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>run_gamess_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Save and Run GAMESS</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Save GAMESS parameters and launch job.</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancel_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Closes this window.</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Closes this window.</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<connections>
+    <connection>
+        <sender>cancel_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>mplvl_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>set_mplevel()</slot>
+    </connection>
+    <connection>
+        <sender>save_parms_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>writeinpfile()</slot>
+    </connection>
+    <connection>
+        <sender>atoms_list_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>open_atoms_list_in_editor()</slot>
+    </connection>
+    <connection>
+        <sender>name_linedit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>set_jig_filenames()</slot>
+    </connection>
+    <connection>
+        <sender>run_gamess_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>run_gamess()</slot>
+    </connection>
+    <connection>
+        <sender>multi_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>set_multiplicity()</slot>
+    </connection>
+    <connection>
+        <sender>psets_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>add_pset()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>writeinpfile()</slot>
+    <slot>set_mplevel()</slot>
+    <slot>set_multiplicity()</slot>
+    <slot>open_atoms_list_in_editor()</slot>
+    <slot>set_jig_filenames()</slot>
+    <slot>run_gamess()</slot>
+    <slot>edit_gmshost()</slot>
+    <slot>remove_host()</slot>
+    <slot>add_pset()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
