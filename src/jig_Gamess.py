@@ -103,6 +103,10 @@ class ctlRec:
     def __init__(self, name, parms):
         self.name = name
         self.parms = parms.keys()
+        
+        # WARNING: Bugs will be caused if any of ctlRec's own methods or 
+        # instance variables had the same name as any of the parameter ('k') values.
+
         for k in self.parms:
             self.__dict__[k] = parms[k]
 
