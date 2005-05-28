@@ -17,13 +17,14 @@ ui={'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize
 # These are the GAMESS parms set defaults.
 
 # $ CONTRL group defaults ####################################
+# dfttyp and nrad only legal for PC GAMESS.
 contrl={'runtyp':'ENERGY', 'coord':'UNIQUE', 'scftyp':'RHF', 'icharg':0, 'mult':1, 'mplevl':'0', 'maxit':200,
-        'icut':11, 'inttyp':'HONDO', 'qmttol':'1.0E-6', 'dfttyp':0, 'nprint':9}
+        'icut':11, 'inttyp':'HONDO', 'qmttol':'1.0E-6', 'dfttyp':0, 'nrad':0, 'nprint':9}
         
 scftyp=['RHF', 'UHF', 'ROHF'] # SCFTYP
 mplevl=[ 0, 0, '2'] # MPLEVL: None=0, DFT=0, MP2='2'
-inttyp=['POPLE', 'POPLE', 'HONDO'] # INTTYP: None=POPLE, DFT=POPLE, MP2=HONDO
-nprint=-5,-2,7,8,9 # No currently used.
+inttyp=['POPLE', 'POPLE', 'HONDO'] # Set by EMC, None=POPLE, DFT=POPLE, MP2=HONDO
+nprint=-5,-2,7,8,9 # Not currently used.
 
 # $SCF group defaults ####################################
 scf={'conv':8, 'nconv':8, 'extrap':'.T.','dirscf':'.T.', 'damp':'.F.', 'shift':'.F.', 'diis':'.T.',
@@ -35,35 +36,47 @@ tf='.F.', '.T.' # True/False for SCF parameters
 # $SYSTEM group defaults
 system={'timlim':1000, 'memory':70000000}
 
-
+# The $MP2 group is a bit confusing.  Let me explain.
+# To include core electrons, we add the keyword NCORE=0.
+# To exclude core electrons, we leave NCORE out of the $MP2 group.
+# So, with the checkbox not checked, ncore=0, and it doesn't get written.
+# With the checkbox checked, ncore='0', and it does get written.  Mark 050528.
 mp2={'ncore':0} # Core electrons for MP2
-ncore=[0, '0']
+ncore=[0, '0'] # Core electrons. 
+
 
 ecm=['None', 'DFT', 'MP2'] # Electron Correlation Method
 DFT=1
 MP2=2
 
-dft={'dfttyp':'NONE', 'gridsize':0}
-dfttyp='SLATER','BECKE','GILL','PBE','SVWN','SLYP', 'SOP', 'BVWN', \
-    'BLYP', 'BOP', 'GVWN', 'GLYP', 'GOP', 'PBEVWN', 'PBELYP', \
-    'PBEOP', 'HVWN', 'HLYP', 'HOP', 'BHHLYP', 'B3LYP'
-gridsize= 'NRAD=48 NTHE=12 NPHI=24 SWITCH=1.0E-03', \
+# $DFT group, only written for GAMESS INP file.
+# For PC GAMESS, there is no $DFT group.  Instead, a DFTTYP keyword
+# is supported in the $CONTRL group (look at the contrl dictionary for dfttyp).
+dft={'dfttyp':0, 'gridsize':0}
+
+gms_dfttyp_items='SLATER (E)','BECKE (E)','GILL (E)','PBE (E)','VWN (C)', \
+    'LYP (C)', 'OP (C)', 'SVWN (E+C)', 'SLYP (E+C)', 'SOP (E+C)', 'BVWN (E+C)', \
+    'BLYP (E+C)', 'BOP (E+C)', 'GVWN (E+C)', 'GLYP (E+C)', 'GOP (E+C)', \
+    'PBEVWN (E+C)', 'PBELYP (E+C)', 'PBEOP (E+C)', 'BHHLYP (H)', 'B3LYP (H)'
+
+gms_gridsize= 'NRAD=48 NTHE=12 NPHI=24 SWITCH=1.0E-03', \
                 'NRAD=96 NTHE=12 NPHI=24 SWITCH=3.0E-04', \
                 'NRAD=96 NTHE=24 NPHI=48 SWITCH=3.0E-04', \
                 'NRAD=96 NTHE=36 NPHI=72 SWITCH=3.0E-04'
-
-pcgms_dfttyp = 'SLATER (E)','B88 (E)','GILL96 (E)','XPBE96 (E)','LYP (C)', \
+                
+pcgms_dfttyp_items = 'SLATER (E)','B88 (E)','GILL96 (E)','XPBE96 (E)','LYP (C)', \
     'VWN1RPA (C)','VWN5 (C)','PW91LDA (C)','CPBE96 (C)','CPW91 (C)', \
     'SLYP (E+C)','BLYP (E+C)','GLYP (E+C)','SVWN1RPA (E+C)', \
     'BVWN1RPA (E+C)','VWN5 (E+C)','BVWN5 (E+C)','PBE96 (E+C)', \
     'PBEPW91 (E+C)','B3LYP1 (H)','BELYP5 (H)','BHHLYP (H)','PBE0 (H)', \
     'PBE1PW91 (H)','B3PW91 (H)'
     
-pcgms_gridsize='NRAD=48 LMAX=19', \
-                            'NRAD=63 LMAX=29', \
-                            'NRAD=63 LMAX=53', \
-                            'NRAD=95 LMAX=89', \
-                            'NRAD=128 LMAX=131'
+pcgms_gridsize='=48 LMAX=19', \
+                            '=63 LMAX=29', \
+                            '=63 LMAX=53', \
+                            '=95 LMAX=89', \
+                            '=128 LMAX=131'
+
 
 guess={'guess':'HUCKEL'}
     
@@ -207,7 +220,7 @@ class GamessProp(GamessPropDialog):
         self.ecm_btngrp.setButton(self.pset.ui.ecm) # None, DFT or MP2
         self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
         self.dfttyp_combox.setCurrentItem(self.pset.ui.dfttyp) # DFT Functional
-        self.pset.ui.gridesize = self.gridsize_combox.currentItem() # Grid Size
+        self.gridsize_combox.setCurrentItem(self.pset.ui.gridsize) # Grid Size
         self.core_electrons_checkbox.setChecked(self.pset.ui.ncore) # Include core electrons
             
         # Convergence Criteria and Memory Usage
@@ -272,10 +285,10 @@ class GamessProp(GamessPropDialog):
         '''Load list of DFT function in a combobox widget'''
         self.dfttyp_combox.clear() # Clear all combo box items
         if self.gmsver == GAMESS:
-            for f in dfttyp:
+            for f in gms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
         else:
-            for f in pcgms_dfttyp:
+            for f in pcgms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
                 
     def update_filenames(self):
@@ -365,7 +378,7 @@ class GamessProp(GamessPropDialog):
         self.pset.ui.inttyp = self.ecm_btngrp.selectedId() # INTTYP
         self.pset.ui.gbasis = self.gbasis_combox.currentItem() # Basis Set
         self.pset.ui.dfttyp = self.dfttyp_combox.currentItem() # DFT Functional Type
-        self.pset.ui.gridesize = self.gridsize_combox.currentItem() # Grid Size
+        self.pset.ui.gridsize = self.gridsize_combox.currentItem() # Grid Size
         self.pset.ui.ncore = self.core_electrons_checkbox.isChecked() # Include core electrons
         
         # Convergence Criteria and Memory Usage
@@ -413,9 +426,12 @@ class GamessProp(GamessPropDialog):
         # DFTTYP (PC GAMESS only)
         # The DFT section record is not supported for PC GAMESS.  Instead, the DFTTYP keyword 
         # is included in the CONTRL section.  
+        from string import split
         if self.gmsver == PCGAMESS:
             if ecm[self.pset.ui.ecm] == 'DFT':
-                self.pset.contrl.dfttyp = pcgms_dfttyp[self.pset.ui.dfttyp] # DFTTYP in $CONTRL
+                item = pcgms_dfttyp_items[self.pset.ui.dfttyp] # Item's full text, including the '(xxx)'
+                self.pset.contrl.dfttyp, junk = item.split(' ',1) # DFTTYPE, removing the '(xxx)'.
+                self.pset.contrl.nrad = pcgms_gridsize[self.pset.ui.gridsize] # GRIDSIZE
             else: # None or MP2
                 self.pset.contrl.dfttyp = 0
         
@@ -452,7 +468,17 @@ class GamessProp(GamessPropDialog):
 #            self.pset.mp2.ncore = '0'
         
         # $DFT Section ###########################################
-        
+
+        # The DFT section record is supported in GAMESS only.
+        if self.gmsver == GAMESS:
+            if ecm[self.pset.ui.ecm] == 'DFT':
+                item = gms_dfttyp_items[self.pset.ui.dfttyp]
+                self.pset.dft.dfttyp, junk = item.split(' ',1) # DFTTYP in $CONTRL
+                self.pset.dft.gridsize = gms_gridsize[self.pset.ui.gridsize] # GRIDSIZE
+            else: # None or MP2
+                self.pset.dft.dfttyp = 'NONE'
+                self.pset.dft.gridsize = 0
+                        
 #        self.pset.dft.dfttyp = 'NONE'
 #        self.pset.dft.gridsize = 0
 #        if mplevl[self.ecm_btngrp.selectedId()] == 'DFT':
