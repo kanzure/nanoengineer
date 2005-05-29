@@ -618,12 +618,13 @@ class assembly:
         elif attr == 'part':
             sg = self.current_selgroup() # this fixes it if possible; should always be a node but maybe with no Part during init
             ## return self.parts[node_id(sg)]
-            if 1:
-                # open all containing nodes below assy.root (i.e. the clipboard, if we're a clipboard item)
-                containing_node = sg.dad
-                while containing_node is not None and containing_node is not self.root:
-                    containing_node.open = True
-                    containing_node = containing_node.dad
+#bruce 050528 removing this since it prevents clipboard from opening in MT once it's closed, when displaying a clipboard item!
+##            if 1:
+##                # open all containing nodes below assy.root (i.e. the clipboard, if we're a clipboard item)
+##                containing_node = sg.dad
+##                while containing_node is not None and containing_node is not self.root:
+##                    containing_node.open = True
+##                    containing_node = containing_node.dad
             part = self.selgroup_part(sg)
             if part is None:
                 #e [this IS REDUNDANT with debug prints inside selgroup_part] [which for debugging are now asserts #####@@@@@]
