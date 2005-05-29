@@ -551,6 +551,7 @@ class modelTree(TreeWidget):
         node = nodeset[0]
         assert node.permits_ungrouping() # ditto
         need_update_parts = []
+        pickme = None
         if node.is_top_of_selection_group():
             # this case is harder, since dissolving this node causes its members to become
             # new selection groups. Whether there's one or more members, Part structure needs fixing;
@@ -563,6 +564,9 @@ class modelTree(TreeWidget):
             # Want to retain its name (if group name was automade)? think about this a bit before doing it...
             # maybe fixing bugs for >1 child case will also cover this case. ###e
             #bruce 050420 addendum: I did some things in Part.__init__ which might handle all this well enough. We'll see. ###@@@ #k
+            #bruce 050528 addendum: it's not handled well enough, so try this: hmm, it's not enough! try adding pickme too... ###@@@
+            if len(node.members) == 1 and node.part.topnode is node:
+                node.part.topnode = pickme = node.members[0]
         if node.is_top_of_selection_group() and len(node.members) > 1:
             msg = "splitting %r into %d new clipboard items" % (node.name, len(node.members))
         else:
@@ -573,6 +577,10 @@ class modelTree(TreeWidget):
         # and to be consistent with Group command, and to avoid a glpane redraw.
         # But it's some work to make it pick them now, so for now I'll leave it like that.
         # BTW, if this group is a clipboard item and has >1 member, we couldn't pick all the members anyway!
+        #bruce 050528 addendum: we can do it in this case, temporarily, just to get selgroup changed:
+        if pickme is not None:
+            pickme.pick() # just to change selgroup (too lazy to look up the official way to only do that)
+            pickme.unpick() # then make it look the same as for all other "ungroup" ops
         #e history.message?
         for assy in need_update_parts:
             assy.update_parts() # this should break new inter-part bonds
