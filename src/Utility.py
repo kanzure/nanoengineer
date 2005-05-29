@@ -480,6 +480,8 @@ class Node:
         # wrong if you're dropping on a node. This needs a big cleanup, but for now, use this kluge:
         if not isinstance(self, Group):
             nodes = nodes[::-1] # reverse order if self is a leaf node
+        else:
+            self.open = True # open groups which have nodes dropped on them [bruce 050528 new feature]
         if drag_type == 'move':
             for node in nodes[:]:
                 node.moveto(self) ###k guess/stub; works
