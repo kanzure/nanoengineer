@@ -80,7 +80,7 @@ class gamessParms:
         self.dft = ctlRec('DFT',dft)
         self.guess = ctlRec('GUESS',guess)
         self.statpt = ctlRec('STATPT',statpt)
-        self.force = ctlRec('FORCE',force)
+#        self.force = ctlRec('FORCE',force)
         self.basis = ctlRec('BASIS',basis)
 
     def prin1(self, f=None):
@@ -89,11 +89,7 @@ class gamessParms:
         self.scf.prin1(f)
         self.system.prin1(f)
         self.mp2.prin1(f)
-        # $$$ This needs to be fixed. Wrong conditional.  
-        # Should check a global var for GAMESS version.
-        # PC GAMESS does not support DFT section records. Mark 052105
-        if sys.platform != 'win32': 
-            self.dft.prin1(f)
+        self.dft.prin1(f)
         self.guess.prin1(f)
         self.statpt.prin1(f)
 #        self.force.prin1()
