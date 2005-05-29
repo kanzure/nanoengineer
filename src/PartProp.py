@@ -26,6 +26,7 @@ class PartProp(PartPropDialog):
         self.ngrounds = 0
         self.nstats = 0
         self.nthermos = 0
+        self.ngamess = 0
         self.ngroups = -1 # Must subtract tree group.
 
         # Get statistics of part from tree members.
@@ -40,7 +41,11 @@ class PartProp(PartPropDialog):
         item = QListViewItem(self.statsView,None)
         item.setText(0,"Groups:")
         item.setText(1, str(self.ngroups))
-        
+
+        item = QListViewItem(self.statsView,None)
+        item.setText(0,"Gamess:")
+        item.setText(1, str(self.ngamess))
+                
         item = QListViewItem(self.statsView,None)
         item.setText(0,"Thermometers:")
         item.setText(1, str(self.nthermos))
