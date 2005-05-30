@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Fri May 27 17:38:32 2005
+# Created: Sun May 29 18:57:25 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -286,7 +286,7 @@ class GamessPropDialog(QDialog):
         self.connect(self.ecm_btngrp,SIGNAL("clicked(int)"),self.set_ecmethod)
         self.connect(self.save_parms_btn,SIGNAL("clicked()"),self.writeinpfile)
         self.connect(self.atoms_list_btn,SIGNAL("clicked()"),self.open_atoms_list_in_editor)
-        self.connect(self.name_linedit,SIGNAL("returnPressed()"),self.set_jig_filenames)
+        self.connect(self.name_linedit,SIGNAL("returnPressed()"),self.rename)
         self.connect(self.run_gamess_btn,SIGNAL("clicked()"),self.run_gamess)
         self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
         self.connect(self.psets_combox,SIGNAL("activated(int)"),self.add_pset)
@@ -470,6 +470,9 @@ class GamessPropDialog(QDialog):
 
     def add_pset(self):
         print "GamessPropDialog.add_pset(): Not implemented yet"
+
+    def rename(self):
+        print "GamessPropDialog.rename(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("GamessPropDialog",s,c)

@@ -1109,7 +1109,7 @@
         <sender>name_linedit</sender>
         <signal>returnPressed()</signal>
         <receiver>GamessPropDialog</receiver>
-        <slot>set_jig_filenames()</slot>
+        <slot>rename()</slot>
     </connection>
     <connection>
         <sender>run_gamess_btn</sender>
@@ -1140,6 +1140,7 @@
     <slot>edit_gmshost()</slot>
     <slot>remove_host()</slot>
     <slot>add_pset()</slot>
+    <slot>rename()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

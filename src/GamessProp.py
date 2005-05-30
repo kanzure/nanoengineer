@@ -206,10 +206,12 @@ gbasis='AM1 NGAUSS=0 NDFUNC=0 NPFUNC=0 NFFUNC=0 DIFFSP=.F. DIFFS=.F.', \
 GAMESS = 1 # GAMESS-US (and WinGAMESS)
 PCGAMESS = 2 # PC GAMESS
 
+from debug import print_compact_traceback
 from qt import *
 from GamessPropDialog import *
 import sys, os, time
 from constants import *
+import platform
 
 def get_gamess_info(gms_version):
     if gms_version == PCGAMESS:
@@ -219,55 +221,16 @@ def get_gamess_info(gms_version):
             return "WinGAMESS"
         else:
             return "GAMESS"
-    
-def open_file_in_editor(file):
-    """Opens a file in a standard text editor.
-    """
-    if not os.path.exists(file): #bruce 050326 added this check
-        msg = "File does not exist: " + file
-        print msg
-#        self.history.message(redmsg(msg))
-        return
-        
-    editor = get_text_editor()
-        
-    if os.path.exists(editor):
-        args = [editor, file]
-#        print  "editor = ",editor
-#        print  "Spawnv args are %r" % (args,)
-
-        try:
-            # Spawn the editor.
-            kid = os.spawnv(os.P_NOWAIT, editor, args)
-        except: # We had an exception.
-#            print_compact_traceback("Exception in editor; continuing: ")
-            msg = "Cannot open file " + file + ".  Trouble spawning editor " + editor
-            print msg
-#            self.history.message(redmsg(msg))
-    else:
-        msg = "Cannot open file " + file + ".  Editor " + editor + " not found."
-#        self.history.message(redmsg(msg))
             
-def get_text_editor():
-    """Returns the name of a text editor for this platform.
-    """
-    if sys.platform == 'win32': # Windows
-        editor = "C:/WINDOWS/notepad.exe"
-    elif sys.platform == 'darwin': # MacOSX
-        editor = "/usr/bin/open"
-    else: # Linux
-        editor = "/usr/bin/kwrite"
-            
-    return editor
-
-                
 class GamessProp(GamessPropDialog):
-    def __init__(self, gamess, glpane):
+    '''A GamessProp is a dialog window for creating and editing 
+    GAMESS parameter sets for the Gamess jig and launching them.'''
+       
+    def __init__(self, gamess):
         GamessPropDialog.__init__(self)
         
         self.gamess = gamess
-        self.glpane = glpane
-        self.name =gamess.name # The name of this GAMESS jig
+        self.win = self.gamess.assy.w
         self.inputfile = '' # GAMESS INP filename
         self.outputfile = '' # GAMESS OUT filename (aka log file)
         self.datfile = 'PUNCH' # PC GAMESS only - will need to change this if GAMESS version.
@@ -276,28 +239,37 @@ class GamessProp(GamessPropDialog):
 
         # THESE FIRST 4 VARIABLES SHOULD BE GLOBAL
         # AND CHANGABLE FROM THE USER PREFS AREA.
-        self.gmsver = PCGAMESS # Set this to GAMESS or PCGAMESS
+        #
+        # gmsver = GAMESS or PCGAMESS.  This should be set from the User Prefs dialog.
+        # gmsdir = full path to GAMESS directory.  This should be set from the User Prefs dialog.
+        # gms_program = full path of the GAMESS executable.
+        # gmstmpdir = ~Nanorex/GamessFiless, which is the directory where all the files are written to.
+        
+        self.gmsver = PCGAMESS # Set to GAMESS or PCGAMESS
         
         if self.gmsver == PCGAMESS:
-            self.gmsdir = 'C:/PCGAMESS' # Full path to GAMESS directory
-            self.gmspath = os.path.join(self.gmsdir, 'gamess.exe')  # Full path to PC GAMESS executable
+            self.gmsdir = 'C:/PC GAMESS' # Full path to GAMESS directory
+            self.gms_program = os.path.join(self.gmsdir, 'gamess.exe')  # Full path of PC GAMESS executable
         else:
-            self.gmsdir = 'C:/WinGAMESS' # Full path to GAMESS directory
             if sys.platform == 'win32':
-                self.gmspath = os.path.join(self.gmsdir, 'rungms.bat')  # Full path to WinGAMESS executable
-            else:
-                self.gmspath = os.path.join(self.gmsdir, 'rungms')  # Full path to GAMESS executable (Linux/Mac)
+                self.gmsdir = 'C:/WinGAMESS' # Full path to WinGAMESS directory
+                self.gms_program = os.path.join(self.gmsdir, 'rungms.bat')  # Full path of WinGAMESS executable
+            else: # Linux/Mac
+                self.gmsdir = '/usr/local/gamess' # Full path to GAMESS directory
+                self.gms_program = os.path.join(self.gmsdir, 'rungms')  # Full path to GAMESS executable
         
-        wd = globalParms['WorkingDirectory'] # Get working directory.
-        
-        self.gmstmpdir  = os.path.join(wd,'gamess')
-        if os.path.exists(self.gmstmpdir):
-            print "Gamess tmpdir exists:", self.gmstmpdir
-        else:
+        # Setup the Gamess temporary directory ~Nanorex/GamessFiles.
+        # This should be moved to platform.py and called once be session, not
+        # each time a Gamess jig is created.  I need to talk to Bruce about this first.
+        # Mark 050530.
+        nanorex = platform.find_or_make_Nanorex_prefs_directory()
+        self.gmstmpdir  = os.path.join(nanorex,'GamessFiles')
+#        self.gmstmpdir  = 'C:/GamessFiles'
+        if not os.path.exists(self.gmstmpdir):
             os.mkdir(self.gmstmpdir)
-            print "Created Gamess tmpdir:", self.gmstmpdir
         
-        self.load_dfttyp_combox() # SHOULD LIVE ELSEWHERE. 
+        # Load the combo box with all the valid DFT functions.  
+        self.load_dfttyp_combox()
         
         if self.setup(0): return
         self.exec_loop()
@@ -311,7 +283,7 @@ class GamessProp(GamessPropDialog):
         self.pset = self.gamess.pset_number(pnum)
         
         # Init the top widgets (name, psets drop box, comment)
-        self.name_linedit.setText(self.name)
+        self.name_linedit.setText(self.gamess.name)
         self.load_psets_combox()
         self.psets_combox.setCurrentItem(pnum)
         self.update_comment()
@@ -356,7 +328,7 @@ class GamessProp(GamessPropDialog):
     def rename(self):
         '''Rename the jig.
         '''
-        self.name = str(self.name_linedit.text())
+        self.gamess.name = str(self.name_linedit.text())
         self.update_comment()
 
     def add_pset(self, val):
@@ -405,14 +377,20 @@ class GamessProp(GamessPropDialog):
                 self.dfttyp_combox.insertItem(f)
                 
     def update_filenames(self):
-        self.inputfile = self.name + '.inp'
-        self.outputfile = self.name + '.out'
-        self.atomsfile = self.name + '.xyz'
-        self.gmsbatfile = ''
+        
+#        self.gmsbatfile = ''
+        
+        self.inputfile = os.path.join(self.gmstmpdir, self.gamess.name + '.inp')
+        self.outputfile = os.path.join(self.gmstmpdir, self.gamess.name + '.out')
+        self.atomsfile = os.path.join(self.gmstmpdir, self.gamess.name + '.xyz')
+
+        print self.inputfile
+        print self.outputfile
+        print self.atomsfile
         
     def update_comment(self):
         timestr = "%s" % time.strftime("%Y-%m-%d %H:%M:%S")
-        comment = 'Jig = "' + self.name + '" Parms Set = "' + self.pset.name + '" ' + timestr
+        comment = 'Jig = "' + self.gamess.name + '" Parms Set = "' + self.pset.name + '" ' + timestr
         self.comment_linedit.setText(QString(comment))
         
     def set_ecmethod(self, val):
@@ -516,7 +494,7 @@ class GamessProp(GamessPropDialog):
         # Parms Values
         self.pset.contrl.scftyp = scftyp[self.pset.ui.scftyp] # SCFTYP
         self.pset.contrl.icharg = str(self.pset.ui.icharg) # ICHARG
-        self.pset.contrl.mult = str(self.pset.ui.mult) #MULT
+        self.pset.contrl.mult = str(self.pset.ui.mult + 1) # MULT
         self.pset.contrl.mplevl = mplevl[self.pset.ui.ecm] # MPLEVL
         self.pset.contrl.inttyp = inttyp[self.pset.ui.inttyp] # INTTYP
         
@@ -631,7 +609,7 @@ class GamessProp(GamessPropDialog):
         
         self.close() # Close GAMESS dialog.
         
-        open_file_in_editor(self.inputfile) # Show GAMESS input file for debugging purposes.
+        platform.open_file_in_editor(self.inputfile) # Show GAMESS input file for debugging purposes.
 
     def write_atoms_data(self, f):
         'Write the atoms list data to the DATA section of the GAMESS INP file'
@@ -672,7 +650,7 @@ class GamessProp(GamessPropDialog):
         self.writealistdata(f)
         f.close()
         
-        open_file_in_editor(self.atomsfile)
+        platform.open_file_in_editor(self.atomsfile)
                     
     def writewgmsbatfile(self):
         '''Write a WinGAMESS (not PC GAMESS) BAT file for Windows'''
@@ -714,17 +692,17 @@ class GamessProp(GamessPropDialog):
         
         f.close()
 
-    def run_pcgamess(self):
+    def launch_pcgamess_using_spawnv(self):
         '''Run PC GAMESS (Windows or Linux only).
         PC GAMESS creates 2 output files:
           - the DAT file, called "PUNCH", is written to the directory from which
-            PC GAMESS is started.  This is why we chdir to the gamess temp directory
+            PC GAMESS is started.  This is why we chdir to the Gamess temp directory
             before we run PC GAMESS.
           - the OUT file (aka the log file), which we name jigname.out.
         '''
         # Make sure the PC GAMESS executable exists
-        if not os.path.exists(self.gmspath):
-            msg = "PC GAMESS executable does not exist: " + self.gmspath
+        if not os.path.exists(self.gms_program):
+            msg = "PC GAMESS executable does not exist: " + self.gms_program
             print msg
             return
 
@@ -734,50 +712,132 @@ class GamessProp(GamessPropDialog):
         os.chdir(self.gmstmpdir) # Change directory to the GAMESS temp directory.
 
         self.writeinpfile() # Write INP file with current parms.
-            
-        gmscmd = self.gmspath + " -i " + self.inputfile + " -o " + self.outputfile
-        print "run_pcgamess: PC GAMESS Command: ",gmscmd
-            
+
         if os.path.exists(self.datfile): # Remove any previous DAT (PUNCH) file.
             print "run_pcgamess: Removing DAT file: ", self.datfile
             os.remove(self.datfile)
+        
+        # Hours wasted testing this undocumented tripe.  Here's the deal: When using spawnv
+        # on Windows, any args that might have spaces must be delimited by double quotes.
+        # Mark 050530.
+        program = "\""+self.gms_program+"\""
+        inpfile = "\""+self.inputfile+"\""
+        outfile = "\""+self.outputfile+"\""
+                    
+        args = [program, " -i ",inpfile, " -o ", outfile]
+        
+        # Here's the infuriating part.  The 2nd arg to spawnv cannot have double quotes, but the
+        # first arg in args (the program name) must have the double quotes if there is a space in
+        # self.gms_program.
+        os.spawnv(os.P_WAIT, self.gms_program, args)
+         
+        print  "program = ",self.gms_program
+        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+               
+        os.chdir(oldir)
+        print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
+
+    def launch_pcgamess_using_QProcess(self):
+        '''Run PC GAMESS (Windows or Linux only).
+        PC GAMESS creates 2 output files:
+          - the DAT file, called "PUNCH", is written to the directory from which
+            PC GAMESS is started.  This is why we chdir to the Gamess temp directory
+            before we run PC GAMESS.
+          - the OUT file (aka the log file), which we name jigname.out.
+        '''
+        # Make sure the PC GAMESS executable exists
+        if not os.path.exists(self.gms_program):
+            msg = "PC GAMESS executable does not exist: " + self.gms_program
+            print msg
+            return
+
+        oldir = os.getcwd() # Save current directory
+        print "run_pcgamess: Current dir = ",oldir
+        print "run_pcgamess: Changing to directory ", self.gmstmpdir
+        os.chdir(self.gmstmpdir) # Change directory to the GAMESS temp directory.
+
+        self.writeinpfile() # Write INP file with current parms.
+
+        if os.path.exists(self.datfile): # Remove any previous DAT (PUNCH) file.
+            print "run_pcgamess: Removing DAT file: ", self.datfile
+            os.remove(self.datfile)
+                    
+        args = [self.gms_program, " -i ", self.inputfile, " -o ", self.outputfile]
+        
+        arguments = QStringList()
+        for arg in args:
+            arguments.append(arg)
+         
+        print  "program = ",self.gms_program
+        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+               
+        #Let gmsProcess be instvar so external code can abort it
+        self.gmsProcess = None
+        try:
+            if os.path.exists(self.datfile): # Remove any previous DAT (PUNCH) file.
+                os.remove (self.datfile) # Delete before spawning PC GAMESS.
+            ## Start PC GAMESS in a different process 
+            self.gmsProcess = QProcess()
+            gmsProcess = self.gmsProcess
+            gmsProcess.setArguments(arguments)
+            gmsProcess.start()
             
-        os.system(gmscmd) # Run, baby, run!
+#            self.errcode = self.win.progressbar.launch( 5,
+#                            filename = self.outputfile, 
+#                            caption = "PC GAMESS Progress", 
+#                            message = "PC GAMESS running", 
+#                            show_duration = 1)
+        except: # We had an exception.
+            print_compact_traceback("exception in PC GAMESS; continuing: ")
+            if gmsProcess:
+                #simProcess.tryTerminate()
+                gmsProcess.kill()
+                print "KILLED PC GAMESS PROCESS"
+                gmsProcess = None
+            self.errcode = -1 # simulator failure
             
-        outfile = os.path.join(self.gmstmpdir, self.outputfile)
-        msg = "PC GAMESS launched. Results located in " + outfile
-        self.gamess.assy.w.history.message(msg)
+#        self.win.history.message(msg)
             
         os.chdir(oldir)
         print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
-                            
+
+
+    def launch_wingamess(self):
+        '''Run WinGAMESS (Windows).
+        '''
+        # WinGAMESS
+        # NOT CURRENTLY SUPPORTED. Mark 050525
+        self.writegmsbatfile()
+                
+        gmscmd = self.gmsbatfile
+        print "WinGAMESS not supported yet.  If it was supported, it would generate this command:"
+        print "WinGAMESS Command: ",gmscmd
+                                        
     def run_gamess(self):
-        '''Run GAMESS (Linux or Mac OS X) or WinGAMESS (Windows).
+        '''Main launch method for GAMESS or PC GAMESS.
         '''
         # Make sure the GAMESS executable exists
-        if not os.path.exists(self.gmspath):
-            msg = "GAMESS executable does not exist: " + self.gmspath
+        if not os.path.exists(self.gms_program):
+            msg = "GAMESS executable does not exist: " + self.gms_program
             print msg
             return
             
-        # GAMESS for Linux or Mac OS X
-        if sys.platform != 'win32':
+        # Windows
+        if sys.platform == 'win32':
+            if self.gmsver == PCGAMESS:
+                self.launch_pcgamess_using_spawnv() # PC GAMESS for Windows
+            else:
+                self.launch_wingamess() # WinGAMESS for Windows
+        
+        # Linux or Mac OS X
+        else: 
                 
-            self.gmspath = os.path.join(self.gmsdir, "rungms") # GAMESS Executable
+            self.gms_program = os.path.join(self.gmsdir, "rungms") # GAMESS Executable
                 
-            gmscmd = self.gmspath + " " + self.inputfile + " 1 > " + self.outputfile
+            gmscmd = self.gms_program + " " + self.inputfile + " 1 > " + self.outputfile
             print "Linux/MacOS GAMESS Command: ",gmscmd
                 
             os.system(gmscmd)
-            
-        # WinGAMESS
-        # NOT CURRENTLY SUPPORTED. Mark 050525
-        else:
-            self.writegmsbatfile()
-                
-            gmscmd = self.gmsbatfile
-            print "WinGAMESS not supported yet.  If it was supported, it would generate this command:"
-            print "WinGAMESS Command: ",gmscmd
         
 # Everything below has not been implemented.  Mark 052505
         
