@@ -545,6 +545,49 @@ def load_window_pos_size( win, keyprefix, defaults = None, screen = None, histme
     win.move(px,py)
     return
 
+def open_file_in_editor(file):
+    """Opens a file in a standard text editor.
+    """
+    if not os.path.exists(file): #bruce 050326 added this check
+        msg = "File does not exist: " + file
+        print msg
+#        self.history.message(redmsg(msg))
+        return
+        
+    editor = get_text_editor()
+        
+    if os.path.exists(editor):
+        if sys.platform == "darwin":
+            args = [editor, '-e', file]
+        else:
+            args = [editor, file]
+#        print  "editor = ",editor
+#        print  "Spawnv args are %r" % (args,)
+
+        try:
+            # Spawn the editor.
+            kid = os.spawnv(os.P_NOWAIT, editor, args)
+        except: # We had an exception.
+#            print_compact_traceback("Exception in editor; continuing: ")
+            msg = "Cannot open file " + file + ".  Trouble spawning editor " + editor
+            print msg
+#            self.history.message(redmsg(msg))
+    else:
+        msg = "Cannot open file " + file + ".  Editor " + editor + " not found."
+#        self.history.message(redmsg(msg))
+            
+def get_text_editor():
+    """Returns the name of a text editor for this platform.
+    """
+    if sys.platform == 'win32': # Windows
+        editor = "C:/WINDOWS/notepad.exe"
+    elif sys.platform == 'darwin': # MacOSX
+        editor = "/usr/bin/open"
+    else: # Linux
+        editor = "/usr/bin/kwrite"
+            
+    return editor
+
 # == test code
 
 if __name__ == "__main__":
