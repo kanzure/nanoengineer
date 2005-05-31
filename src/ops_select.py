@@ -293,6 +293,7 @@ class ops_select_Mixin:
 
     def selection_for_all(self): #bruce 050419 for use in Minimize All; revised 050523
         "return a selection object referring to all our atoms (regardless of the current selection, and not changing it)"
+        part = self
         return selection_for_entire_part( part)
 
     def selection_from_MT(self): #bruce 050523; might not yet be used
