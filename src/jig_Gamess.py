@@ -28,16 +28,14 @@ class Gamess(Jig):
         self.cntl = GamessProp(self)
 
     def edit(self):
-        self.cntl.setup(0)
+        self.cntl.setup()
         self.cntl.exec_loop()
         
     def add_pset(self):
         '''Add a new parameter set to this jig.
         '''
         name = "Parameter Set " + str(len(self.psets) + 1)
-#        self.psets.append(gamessParms(name))
         self.psets.insert(0, gamessParms(name))
-#        return self.psets[len(self.psets)-1]
         return self.psets[0]
         
     def get_pset_names(self):
@@ -45,7 +43,6 @@ class Gamess(Jig):
         '''
         names = []
         # I want to talk to Bruce about this reversal thing.  Mark 050530.
-#        for p in self.psets[::-1]:
         for p in self.psets:
             names.append(p.name)
         return names
