@@ -131,6 +131,7 @@ gms_gridsize= '=48 nthe=12 nphi=24 switch=1.0E-03', \
                 '96 nthe=36 nphi=72 switch=3.0E-04', \
                 '96 nthe=36 nphi=72 switch=3.0E-04'
 # Note: the first number is the 'nrad' parm. 'nrad=' is printed by the prin1 method.
+# Also, Damian needs to supply parameters for "Very Fine" (Army Grade used twice).
                 
 # These are the $DFT grid size parameters for PC GAMESS.
 pcgms_gridsize='48 lmax=19', \
@@ -212,6 +213,7 @@ from GamessPropDialog import *
 import sys, os, time
 from constants import *
 import platform
+from HistoryWidget import redmsg
 
 def get_gamess_info(gms_version):
     if gms_version == PCGAMESS:
@@ -235,7 +237,6 @@ class GamessProp(GamessPropDialog):
         self.outputfile = '' # GAMESS OUT filename (aka log file)
         self.datfile = 'PUNCH' # PC GAMESS only - will need to change this if GAMESS version.
         self.atomsfile = '' # Atoms List file containing $DATA info
-        self.gmsbatfile = '' # The WinGAMESS batch filename.  Not implemented.
 
         # THESE FIRST 4 VARIABLES SHOULD BE GLOBAL
         # AND CHANGABLE FROM THE USER PREFS AREA.
@@ -248,23 +249,22 @@ class GamessProp(GamessPropDialog):
         self.gmsver = PCGAMESS # Set to GAMESS or PCGAMESS
         
         if self.gmsver == PCGAMESS:
-            self.gmsdir = 'C:/PC GAMESS' # Full path to GAMESS directory
+            self.gmsdir = 'C:\\PCGAMESS' # Full path to GAMESS directory
             self.gms_program = os.path.join(self.gmsdir, 'gamess.exe')  # Full path of PC GAMESS executable
         else:
             if sys.platform == 'win32':
-                self.gmsdir = 'C:/WinGAMESS' # Full path to WinGAMESS directory
+                self.gmsdir = 'C:\\WinGAMESS' # Full path to WinGAMESS directory
                 self.gms_program = os.path.join(self.gmsdir, 'rungms.bat')  # Full path of WinGAMESS executable
             else: # Linux/Mac
                 self.gmsdir = '/usr/local/gamess' # Full path to GAMESS directory
                 self.gms_program = os.path.join(self.gmsdir, 'rungms')  # Full path to GAMESS executable
         
         # Setup the Gamess temporary directory ~Nanorex/GamessFiles.
-        # This should be moved to platform.py and called once be session, not
+        # This should be moved to platform.py and called once per session, not
         # each time a Gamess jig is created.  I need to talk to Bruce about this first.
         # Mark 050530.
         nanorex = platform.find_or_make_Nanorex_prefs_directory()
         self.gmstmpdir  = os.path.join(nanorex,'GamessFiles')
-#        self.gmstmpdir  = 'C:/GamessFiles'
         if not os.path.exists(self.gmstmpdir):
             os.mkdir(self.gmstmpdir)
         
@@ -330,17 +330,18 @@ class GamessProp(GamessPropDialog):
         '''
         self.gamess.name = str(self.name_linedit.text())
         self.update_comment()
+        self.update_filenames()
 
-    def add_pset(self, val):
+    def add_or_change_pset(self, val):
         '''Add or change a pset from the pset combo box.'''
         # New.. was selected.  Add a new pset.
         if val == self.psets_combox.count()-1:
-            print "add_pset: Adding new pset, val = ", val
+            print "add_or_change_pset: Adding new pset, val = ", val
             self.save_ui_settings() # Save the UI settings, which will also save parms set.
             self.pset = self.gamess.add_pset()
             self.setup(0)
         else: # Change to an existing pset.
-            print "add_pset: Changing to existing pset, val = ", val
+            print "add_or_change_pset: Changing to existing pset, val = ", val
             self.save_ui_settings() # Save the UI settings, which will also save parms set.
             self.pset = self.gamess.pset_number(val)
             self.setup(val)
@@ -351,8 +352,8 @@ class GamessProp(GamessPropDialog):
         # This currently loads 2 items.  It should load the combo box with a list
         # of the defaults or the actual list
         self.psets_combox.clear() # Clear all combo box items
-        for p in self.gamess.psets[::-1]:
-            self.psets_combox.insertItem(p.name)
+        for name in self.gamess.get_pset_names():
+            self.psets_combox.insertItem(name)
         self.psets_combox.insertItem("New...")
         
     def rename_pset(self):
@@ -458,6 +459,8 @@ class GamessProp(GamessPropDialog):
         return
 
     def save_ui_settings(self):
+
+        self.rename()
         
         # Electronic Structure Props and Basis Set section.
         self.pset.ui.scftyp = self.scftyp_btngrp.selectedId() # SCFTYP = RHF, UHF, or ROHF
@@ -624,12 +627,12 @@ class GamessProp(GamessPropDialog):
         f.write("C1\n")
         
         # Write the list of jig atoms for the $DATA group
-        self.writealistdata(f)
+        self.write_atomslist_data(f)
 
         #  $END
         f.write(' $END\n')
 
-    def writealistdata(self, f):
+    def write_atomslist_data(self, f):
         '''Write the list of atoms in $DATA format to a file'''
         
         from jigs import povpoint
@@ -642,18 +645,13 @@ class GamessProp(GamessPropDialog):
 
     def open_atoms_list_in_editor(self):
         'Open Atoms List in text editor'
-
-        # Don't forget to write this file to the project's temp directory.
-        # projtmpdir = ...
-        # os.path.join (projtmpdir, self.atomsfile)
         f = open(self.atomsfile, 'w') # This only occurs when the user selects "Atom List.." in UI.
-        self.writealistdata(f)
+        self.write_atomslist_data(f)
         f.close()
-        
         platform.open_file_in_editor(self.atomsfile)
                     
-    def writewgmsbatfile(self):
-        '''Write a WinGAMESS (not PC GAMESS) BAT file for Windows'''
+    def write_wingamess_batchfile(self):
+        '''Create a WinGAMESS (not PC GAMESS) BAT file for Windows'''
         
         # Example job file for a WinGAMESS BAT for Windows
         #
@@ -668,29 +666,99 @@ class GamessProp(GamessPropDialog):
         # @echo off
         # echo All jobs processed
         
-        self.gmsbatfile = os.path.join(self.gmsdir, 'rungms.bat')
-        wgmstemp = os.path.join(self.gmsdir, 'temp', self.jigname)
-        wgmsscratch = os.path.join(self.gmsdir, 'scratch')
-        wgmsinpfile = os.path.join(wgmstemp, self.inputfile)
+        wingms_batfile = self.gms_program
+        jigname = self.gamess.name
+        wingms_tmpdir = os.path.join(self.gmsdir, 'temp')
+        wingms_scratchfile = os.path.join(self.gmsdir, 'scratch', jigname + ".F05")
+        wingms_inpfile = os.path.join(wingms_tmpdir, self.inputfile)
         
-        if os.path.exists(self.gmsbatfile): # Remove any previous BAT file.
-            os.remove(self.gmsbatfile)
+        print "wingms_tmpdir: ", wingms_tmpdir
+        print "wingms_scratchfile: ", wingms_scratchfile
+        print "wingms_inpfile: ", wingms_inpfile
         
-        if os.path.exists(wgmsinpfile): # Remove any previous INP file.
-            os.remove(wgmsinpfile)
-            
-        f = open(self.gmsbatfile,'w') # Open GAMESS input file.
         
-        f.write('@echo off\n')
-        f.write('echo WinGAMESS started using 1 CPU\n')
-        f.write('del ' + self.gmstempfile + '.*')
+        if os.path.exists(wingms_batfile): # Remove any previous BAT file.
+            os.remove(wingms_batfile)
+        
+        if os.path.exists(wingms_inpfile): # Remove any previous INP file.
+            os.remove(wingms_inpfile)
+        
+        print "opening batch file: ", wingms_batfile
+        f = open(wingms_batfile,'w') # Open GAMESS input file.
+        
+#        f.write('@echo off\n')
+        f.write('echo WinGAMESS started from nanoENGINEER-1 using 1 CPU\n')
         f.write('cd ' + self.gmsdir + '\n')
-        f.write('csh -f runscript.csh GamessJig 04 1 C:\\WinGAMESS DELL8600 5/25/2005 4:11:17 AM > GamessJig.out')
-        f.write('echo WinGAMESS finished.')
-        f.write('@echo off')
-        f.write('echo All jobs processed')
+        f.write('copy \"' + self.inputfile + '\" \"' + wingms_scratchfile+ '\"\n')
+        f.write('csh -f runscript.csh ' + jigname + ' 04 1 C:\\WinGAMESS DELL8600 5/31/2005 12:00:00 AM > ' + self.outputfile + '\n')
+        f.write('echo WinGAMESS finished.\n')
+#        f.write('@echo off\n')
+        f.write('echo All jobs processed\n')
         
         f.close()
+
+    def launch_wingamess(self):
+        '''Launch WinGAMESS (Windows version of GAMESS).
+          WinGAMESS creates ...
+        '''
+        # Important Notes about WinGAMESS from Mark: 050530
+        # This code to create the WinGAMESS batch file and launch is very close to
+        # working.  The problem is that WinGAMESS (VERSION = 22 NOV 2004 (R1) )
+        # will hang on WinXP if the INP file *or* the batch file has any syntactical errors.
+        # This makes development difficult because there is no warning
+        # that the process has hung.  Sometimes it hangs, sometimes it will not hang.
+        # When it hangs, the INP file and/or batchfile are locked by the OS, and nE-1
+        # cannot write any new files until the previous WinGAMESS process is killed.
+        # I could probably get this working with another day of work, but I'll never feel 
+        # comfortable about the stability of WinGAMESS - it will be a support headache.
+        #
+        # There may also be another approach to this that I'm not aware of.  I currently
+        # do the following:
+        # 1) create a batch file called 'rungms.bat' and write it to the WinGAMESS directory.
+        # 2) create the INP file, which is written to ~/Nanorex/GamessFile.  
+        # 3) execute the batch file via spawnv().
+        #
+        # Create WinGAMESS batch file
+        self.write_wingamess_batchfile()
+                
+        # Make sure the WinGAMESS batch file exists
+        if not os.path.exists(self.gms_program):
+            msg = "WinGAMESS executable does not exist: " + self.gms_program
+            print msg
+            return
+
+        oldir = os.getcwd() # Save current directory
+        print "run_wingamess: Current dir = ",oldir
+        print "run_wingamess: Changing to directory ", self.gmsdir
+        os.chdir(self.gmsdir) # Change directory to the GAMESS directory.
+
+        self.writeinpfile() # Write INP file with current parms.
+
+        if os.path.exists(self.datfile): # Remove any previous DAT (PUNCH) file.
+            print "run_pcgamess: Removing DAT file: ", self.datfile
+            os.remove(self.datfile)
+        
+        # Hours wasted testing this undocumented tripe.  Here's the deal: When using spawnv
+        # on Windows, any args that might have spaces must be delimited by double quotes.
+        # Mark 050530.
+        program = "\""+self.gms_program+"\""
+        inpfile = "\""+self.inputfile+"\""
+        outfile = "\""+self.outputfile+"\""
+                    
+        args = [program]
+        
+        # Here's the infuriating part.  The 2nd arg to spawnv cannot have double quotes, but the
+        # first arg in args (the program name) must have the double quotes if there is a space in
+        # self.gms_program.
+        os.spawnv(os.P_WAIT, self.gms_program, args)
+         
+        print  "program = ",self.gms_program
+        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+               
+        os.chdir(oldir)
+        print "run_wingamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
+        
+#        platform.open_file_in_editor(self.gms_program) # Open Batch File
 
     def launch_pcgamess_using_spawnv(self):
         '''Run PC GAMESS (Windows or Linux only).
@@ -702,13 +770,18 @@ class GamessProp(GamessPropDialog):
         '''
         # Make sure the PC GAMESS executable exists
         if not os.path.exists(self.gms_program):
-            msg = "PC GAMESS executable does not exist: " + self.gms_program
-            print msg
+            msg = "The PC GAMESS executable " + self.gms_program + "does not exist."
+            self.win.history.message(redmsg(msg))
+#            print msg
+            msg = "Check the PC GAMESS pathname in the User Preferences to make sure it is set correctly."
+            self.win.history.message(redmsg(msg))
+#            print msg
             return
 
+#        print "run_pcgamess: Current dir = ",oldir
         oldir = os.getcwd() # Save current directory
-        print "run_pcgamess: Current dir = ",oldir
-        print "run_pcgamess: Changing to directory ", self.gmstmpdir
+
+#        print "run_pcgamess: Changing to directory ", self.gmstmpdir
         os.chdir(self.gmstmpdir) # Change directory to the GAMESS temp directory.
 
         self.writeinpfile() # Write INP file with current parms.
@@ -735,7 +808,11 @@ class GamessProp(GamessPropDialog):
         print  "Spawnv args are %r" % (args,) # this %r remains (see above)
                
         os.chdir(oldir)
-        print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
+#        print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
+        
+        # Print msg telling user where the output file is located.
+        msg = "PC GAMESS finished.  Output file: " + self.outputfile
+        self.win.history.message(msg)
 
     def launch_pcgamess_using_QProcess(self):
         '''Run PC GAMESS (Windows or Linux only).
@@ -802,26 +879,10 @@ class GamessProp(GamessPropDialog):
         print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
 
 
-    def launch_wingamess(self):
-        '''Run WinGAMESS (Windows).
-        '''
-        # WinGAMESS
-        # NOT CURRENTLY SUPPORTED. Mark 050525
-        self.writegmsbatfile()
-                
-        gmscmd = self.gmsbatfile
-        print "WinGAMESS not supported yet.  If it was supported, it would generate this command:"
-        print "WinGAMESS Command: ",gmscmd
-                                        
     def run_gamess(self):
         '''Main launch method for GAMESS or PC GAMESS.
         '''
-        # Make sure the GAMESS executable exists
-        if not os.path.exists(self.gms_program):
-            msg = "GAMESS executable does not exist: " + self.gms_program
-            print msg
-            return
-            
+
         # Windows
         if sys.platform == 'win32':
             if self.gmsver == PCGAMESS:
@@ -838,6 +899,8 @@ class GamessProp(GamessPropDialog):
             print "Linux/MacOS GAMESS Command: ",gmscmd
                 
             os.system(gmscmd)
+            
+        self.close()
         
 # Everything below has not been implemented.  Mark 052505
         

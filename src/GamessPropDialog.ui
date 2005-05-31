@@ -1127,7 +1127,7 @@
         <sender>psets_combox</sender>
         <signal>activated(int)</signal>
         <receiver>GamessPropDialog</receiver>
-        <slot>add_pset()</slot>
+        <slot>add_or_change_pset()</slot>
     </connection>
 </connections>
 <slots>
@@ -1139,7 +1139,7 @@
     <slot>run_gamess()</slot>
     <slot>edit_gmshost()</slot>
     <slot>remove_host()</slot>
-    <slot>add_pset()</slot>
+    <slot>add_or_change_pset()</slot>
     <slot>rename()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>

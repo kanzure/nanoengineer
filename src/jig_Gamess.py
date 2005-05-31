@@ -32,9 +32,20 @@ class Gamess(Jig):
         self.cntl.exec_loop()
         
     def add_pset(self):
+        '''Add a new parameter set to this jig.
+        '''
         name = "Parameter Set " + str(len(self.psets) + 1)
         self.psets.append(gamessParms(name))
         return self.psets[len(self.psets)-1]
+        
+    def get_pset_names(self):
+        '''Return a list of the parm set names for this jig.  The list is in reverse order.
+        '''
+        names = []
+        # I want to talk to Bruce about this reversal thing.  Mark 050530.
+        for p in self.psets[::-1]:
+            names.append(p.name)
+        return names
     
     def pset_number(self, i):
 #        npsets = len(self.psets)
@@ -51,7 +62,7 @@ class Gamess(Jig):
     # gamess(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
-        if self.is_disabled(): return #bruce 050421
+        if self.is_disabled(): return
         if self.picked: c = self.normcolor
         else: c = self.color
         for a in self.atoms:
@@ -64,10 +75,6 @@ class Gamess(Jig):
 
     def getstatistics(self, stats):
         stats.ngamess += 1
-
-    mmp_record_name = "gamess"
-    def mmp_record_jigspecific_midpart(self): # see also fake_Ground_mmp_record [bruce 050404]
-        return ""
 
     pass # end of class Gamess
 
