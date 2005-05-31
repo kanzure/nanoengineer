@@ -232,6 +232,7 @@ class GamessProp(GamessPropDialog):
         GamessPropDialog.__init__(self)
         
         self.gamess = gamess
+        self.pset = self.gamess.psets[0]
         self.win = self.gamess.assy.w
         self.inputfile = '' # GAMESS INP filename
         self.outputfile = '' # GAMESS OUT filename (aka log file)
@@ -271,21 +272,18 @@ class GamessProp(GamessPropDialog):
         # Load the combo box with all the valid DFT functions.  
         self.load_dfttyp_combox()
         
-        if self.setup(0): return
+        if self.setup(): return
         self.exec_loop()
 
-    def setup(self, pnum):
+    def setup(self):
         ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
-        print "setup: pset number =", pnum
-        
-        gamess = self.gamess
-        self.pset = self.gamess.pset_number(pnum)
+
+        gamess = self.gamess #  In case we cancel later (not implemented yet)
         
         # Init the top widgets (name, psets drop box, comment)
         self.name_linedit.setText(self.gamess.name)
         self.load_psets_combox()
-        self.psets_combox.setCurrentItem(pnum)
         self.update_comment()
         
         # Electronic Structure Props and Basis Set section.
@@ -334,27 +332,32 @@ class GamessProp(GamessPropDialog):
 
     def add_or_change_pset(self, val):
         '''Add or change a pset from the pset combo box.'''
+        self.save_ui_settings() # Save the UI settings, which will also save parms set.
         # New.. was selected.  Add a new pset.
         if val == self.psets_combox.count()-1:
-            print "add_or_change_pset: Adding new pset, val = ", val
-            self.save_ui_settings() # Save the UI settings, which will also save parms set.
             self.pset = self.gamess.add_pset()
-            self.setup(0)
         else: # Change to an existing pset.
-            print "add_or_change_pset: Changing to existing pset, val = ", val
-            self.save_ui_settings() # Save the UI settings, which will also save parms set.
-            self.pset = self.gamess.pset_number(val)
-            self.setup(val)
+            self.pset = self.gamess.psets[val]
+        self.setup()
 
     def load_psets_combox(self):
-        '''Load list of parms sets in the combobox widget'''
-        
-        # This currently loads 2 items.  It should load the combo box with a list
-        # of the defaults or the actual list
+        '''Load list of parm sets in the combobox widget'''
+
+        num = 0
         self.psets_combox.clear() # Clear all combo box items
         for name in self.gamess.get_pset_names():
             self.psets_combox.insertItem(name)
+            
+            # Find out item number for current parms set.
+            # This will fail if we allow multiple psets to have the same name.
+            # Will need to disallow a pset to have the same name as another.
+            # Mark 050530
+            if name == self.pset.name: 
+                pnum = num
+            else:
+                num += 1
         self.psets_combox.insertItem("New...")
+        self.psets_combox.setCurrentItem(pnum) # Set current item to current parms set.
         
     def rename_pset(self):
         '''Rename the current parms set name.
@@ -378,18 +381,22 @@ class GamessProp(GamessPropDialog):
                 self.dfttyp_combox.insertItem(f)
                 
     def update_filenames(self):
-        
-#        self.gmsbatfile = ''
-        
+        '''Update GAMESS filenames, which is based on the Gamess jig name.
+        '''
+        # INP file that GAMESS runs.
         self.inputfile = os.path.join(self.gmstmpdir, self.gamess.name + '.inp')
+        # OUT file that GAMESS generates.
         self.outputfile = os.path.join(self.gmstmpdir, self.gamess.name + '.out')
+        # XYZ file containing the jig's atom list.
         self.atomsfile = os.path.join(self.gmstmpdir, self.gamess.name + '.xyz')
 
-        print self.inputfile
-        print self.outputfile
-        print self.atomsfile
+#        print self.inputfile
+#        print self.outputfile
+#        print self.atomsfile
         
     def update_comment(self):
+        '''Update the parms set comment line.
+        '''
         timestr = "%s" % time.strftime("%Y-%m-%d %H:%M:%S")
         comment = 'Jig = "' + self.gamess.name + '" Parms Set = "' + self.pset.name + '" ' + timestr
         self.comment_linedit.setText(QString(comment))
@@ -459,6 +466,8 @@ class GamessProp(GamessPropDialog):
         return
 
     def save_ui_settings(self):
+        '''Save the UI settings in the Gamess jig pset.  There is one setting for each pset.
+        '''
 
         self.rename()
         
@@ -490,7 +499,9 @@ class GamessProp(GamessPropDialog):
         self.save_parms() # Now save params.
         
     def save_parms(self):
-        '''Save parameter set.'''
+        '''Save parameter set values.  This is always called by save_ui_settings, 
+        since it depends on the ui setting values.  This should propbably be a private
+        method.'''
         
         # $CONTRL Section ###########################################
         
@@ -592,10 +603,7 @@ class GamessProp(GamessPropDialog):
         
         # Save UI settings
         self.save_ui_settings()
-        
-        # Save parms and write to file
-#        self.save_parms()
-        
+
         f = open(self.inputfile,'w') # Open GAMESS input file.
         
         # Write Header

@@ -35,22 +35,23 @@ class Gamess(Jig):
         '''Add a new parameter set to this jig.
         '''
         name = "Parameter Set " + str(len(self.psets) + 1)
-        self.psets.append(gamessParms(name))
-        return self.psets[len(self.psets)-1]
+#        self.psets.append(gamessParms(name))
+        self.psets.insert(0, gamessParms(name))
+#        return self.psets[len(self.psets)-1]
+        return self.psets[0]
         
     def get_pset_names(self):
         '''Return a list of the parm set names for this jig.  The list is in reverse order.
         '''
         names = []
         # I want to talk to Bruce about this reversal thing.  Mark 050530.
-        for p in self.psets[::-1]:
+#        for p in self.psets[::-1]:
+        for p in self.psets:
             names.append(p.name)
         return names
     
-    def pset_number(self, i):
-#        npsets = len(self.psets)
-#        print "num psets =",npsets, ", pset index =", i, ", returned index = ",npsets - i - 1
-        return self.psets[len(self.psets)-i-1]
+#    def pset_number(self, i):
+#        return self.psets[i]
         
     # it's drawn as a wire cube around each atom (default color = black)
     def _draw(self, win, dispdef):
