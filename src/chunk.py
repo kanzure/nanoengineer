@@ -2028,7 +2028,14 @@ class molecule(Node, InvalMixin):
         #bruce 041124 added "-copy<n>" (or renumbered it, if already in name),
         # similar to Ninad's suggestion for improving bug 163's status message
         # by making it less misleading.
-        numol = molecule(self.assy, newname)
+        numol = molecule(self.assy, "fakename") # name is set below
+        #bruce 050531 kluges to fix bug 660, until we replace or rewrite this method
+        # using one of the newer "copy" methods
+        self.copy_copyable_attrs_to(numol)
+            # copies .name (redundantly), .hidden, .display, .color...
+            # and sets .prior_part, which is what should fix bug 660
+        numol.name = newname
+        #end 050531 kluges
         for a in self.atoms.itervalues():
             na = a.copy_for_mol_copy(numol) # has same .index, meant for new molecule
             pairlis += [(a, na)]
