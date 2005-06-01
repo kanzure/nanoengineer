@@ -109,6 +109,8 @@ class AtomType:
         else:
             return self.element.name
         pass
+    def is_sp2(self): #bruce 050531 #e could optimize by precomputing; could define more directly somehow...
+        return self.name.startswith("sp2")
     pass # end of class AtomType
 
 # end

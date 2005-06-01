@@ -1423,16 +1423,23 @@ class atom(InvalMixin):
             del s1pos # same varname used differently below
             rq = Q(r,atype.base)
             # if the other atom has any other bonds, align 60 deg off them
+            # [new feature, bruce 050531: or 0 degrees, for both atomtypes sp2;
+            #  should also look through sequences of sp atoms, but we don't yet do so]
             # [bruce 041215 comment: might need revision if numbonds > 4]
             a1 = self.bonds[0].other(self) # our real neighbor
             if len(a1.bonds)>1:
-                # don't pick ourself
+                # don't pick ourself as a2
                 if self is a1.bonds[0].other(a1):
-                    a2pos = a1.bonds[1].other(a1).posn()
+                    a2 = a1.bonds[1].other(a1)
                 else:
-                    a2pos = a1.bonds[0].other(a1).posn()
+                    a2 = a1.bonds[0].other(a1)
+                a2pos = a2.posn()
                 s1pos = pos+(rq + atype.quats[0] - rq).rot(r)
-                spin = twistor(r,s1pos-pos, a2pos-a1.posn()) + Q(r, pi/3.0)
+                spin = twistor(r,s1pos-pos, a2pos-a1.posn()) #e need to protect against this failing, for a2 being sp?
+                if atype.is_sp2() and a1.atomtype.is_sp2():
+                    pass # no extra spin
+                else:
+                    spin = spin + Q(r, pi/3.0)
             else: spin = Q(1,0,0,0)
             mol = self.molecule
             for q in atype.quats:
