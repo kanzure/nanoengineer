@@ -345,14 +345,20 @@ class GamessProp(GamessPropDialog):
 
         num = 0
         self.psets_combox.clear() # Clear all combo box items
-        for name in self.gamess.get_pset_names():
-            self.psets_combox.insertItem(name)
-            
+
+#        for name in self.gamess.get_pset_names():
+#            self.psets_combox.insertItem(name)
+#            if name == self.pset.name: 
+      
+        for pset in self.gamess.psets: # Should I call method to return copy of psets?
+            self.psets_combox.insertItem(pset.name)
+            if pset is self.pset:
+
             # Find out item number for current parms set.
             # This will fail if we allow multiple psets to have the same name.
             # Will need to disallow a pset to have the same name as another.
             # Mark 050530
-            if name == self.pset.name: 
+
                 pnum = num
             else:
                 num += 1
@@ -818,10 +824,35 @@ class GamessProp(GamessPropDialog):
         os.chdir(oldir)
 #        print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
         
-        # Print msg telling user where the output file is located.
-        msg = "PC GAMESS finished.  Output file: " + self.outputfile
+        # Print msg telling user the final energy value.
+        final_energy = self.get_energy_from_outputfile()
+        if final_energy:
+            msg = "GAMESS finished.  The final energy is: " + str(final_energy)
+        else:
+            msg = redmsg("Final energy value not found.")
         self.win.history.message(msg)
 
+    def get_energy_from_outputfile(self):
+        '''Returns the final energy value from the PC GAMESS log file.
+        GAMESS is not yet supported, as the line containing the energy
+        value is different from PC GAMESS.
+        '''
+        
+        elist = []
+        
+        lines = open(self.outputfile,"rU").readlines()
+        
+        for line in lines:
+            if not line: 
+                return None # Energy not found in file.
+            elif line.find('FINAL ENERGY IS') >= 0:
+                elist = line.split()
+#                print elist
+                return float(elist[3]) # Return the final energy value.
+            else: continue
+            
+        return None # Just in case (i.e. file doesn't exist).
+        
     def launch_pcgamess_using_QProcess(self):
         '''Run PC GAMESS (Windows or Linux only).
         PC GAMESS creates 2 output files:
