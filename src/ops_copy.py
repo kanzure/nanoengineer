@@ -42,7 +42,7 @@ class ops_copy_Mixin:
         part = self
         history = part.assy.w.history
         eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
-        center_these = []
+##        center_these = []
         try:
             history.message(greenmsg("Cut:"))
             if use_selatoms and self.selatoms:
@@ -111,8 +111,9 @@ class ops_copy_Mixin:
                     # since the better fix is for breaking a bond to not care if its endpoint coords make sense.
                     # (That is, to reposition the singlets from scratch, not based on the existing bond.)
                     # [bruce 050321]
-                    if isinstance(ob, molecule):
-                        center_these.append(ob) ## was: ob.move(-ob.center)
+                    #bruce 050531 no longer do this centering:
+##                    if isinstance(ob, molecule):
+##                        center_these.append(ob) ## was: ob.move(-ob.center)
                 ## ob.pick() # bruce 050131 removed this
                 nshelf_after = len(self.shelf.members) #bruce 050201
                 history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
@@ -125,11 +126,11 @@ class ops_copy_Mixin:
             end_event_handler(eh) # this should fix Part membership of moved nodes, break inter-Part bonds #####@@@@@ doit
             # ... but it doesn't, so instead, do this: ######@@@@@@ and review this situation and clean it up:
             self.assy.update_parts()
-            for ob in center_these: #bruce 050321
-                if ob.is_top_of_selection_group(): # should be always True, but check to be safe
-                    ob.move(-ob.center)
-                elif platform.atom_debug:
-                    print "atom_debug: bug? mol we should center no longer is_top_of_selection_group", ob
+##            for ob in center_these: #bruce 050321
+##                if ob.is_top_of_selection_group(): # should be always True, but check to be safe
+##                    ob.move(-ob.center)
+##                elif platform.atom_debug:
+##                    print "atom_debug: bug? mol we should center no longer is_top_of_selection_group", ob
             self.w.win_update() ###stub of how this relates to ending the handler
         return
 

@@ -1350,7 +1350,8 @@ class depositMode(basicMode):
             # [bruce 050121]
             
             new = self.o.selatom.molecule.copy(None) # None means no dad yet
-            new.move(-new.center) # perhaps no longer needed [bruce 041206]
+            #bruce 050531 removing centering:
+            ## new.move(-new.center) # perhaps no longer needed [bruce 041206]
             #bruce 041124: open clipboard, so user can see new pastable there
             self.w.mt.open_clipboard()
             
