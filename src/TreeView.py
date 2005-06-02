@@ -743,6 +743,7 @@ class TreeView(QListView):
                     item = QListViewItem(parent, after) # effectively done above
                     item = QListViewItem(parent, text) # effectively done below
                 item.setText(0, node.name) # 0 is column number; there is no initializer with both after and text
+                # note: text for other columns, if any, is set separately, below
             except:
                 # only happens on a bug we can't handle, so always print something
                 print "fyi: exception in QListViewItem (or subclass) constructed with this after option:", after
@@ -754,6 +755,14 @@ class TreeView(QListView):
                 print "fyi: exception in QListViewItem (or subclass) constructed with this text:", node.name
                 raise
             ###@@@ revise interface, pass the node, do this function in that init method, don't need this func at all, perhaps.
+        # text for other columns can always be set in the same way [new feature 050531; experimental] #####@@@@@
+        try:
+            t2 = node.__class__.__name__
+        except:
+            t2 = "?"
+        item.setText(1, t2)#####@@@@@
+        item.setText(2, "col3")
+        #
         item.object = node ###@@@ probably still ok to store it like this
         ###@@@ store node.tritem = item here, but in a new way? no, do it in caller.
         ## open = node.open ###@@@temporary [wrong, too -- not defined on leaf nodes]

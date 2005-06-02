@@ -23,6 +23,7 @@ from jigs import Jig
 import platform # for atom_debug
 from HistoryWidget import redmsg, greenmsg, orangemsg # not all used, that's ok
 
+debug_columns = 0 # bruce 050531 experiment (works, disabled now) - multiple columns in MT
 
 # helpers for making context menu commands
 
@@ -76,8 +77,14 @@ def accumulate_stats(node, stats):
 class mt_QListViewItem( QListViewItem):
     "used for nodes with specialize drawing for various purposes (maybe more than one purpose at once)"
     dotcolor = Qt.red # also available: Qt.blue, Qt.green, Qt.black, QColor(128,0,128), QColor(200,100,0)...
-    def setText(self, col, text): # this is called...
-        ## print "setText called in custom item",col,text
+    def setText(self, col, text):
+        # this is called... when the super.paintCell line below runs! which is called by TreeeView's call of QListView.viewportPaintEvent.
+##        if debug_columns:
+##            print "setText called in custom item",col,text
+##            if col:
+##                print_compact_stack("setText col 1: ")
+##                print text, "%r" % (text,), type(text)
+##                pass ## text = QString("colhack")
         ##     # this happens for all nodes after the first in each set of node-kids
         super = QListViewItem
         return super.setText(self, col, text)
@@ -88,6 +95,8 @@ class mt_QListViewItem( QListViewItem):
         ## # paintCell <constants.qt.QPainter object at 0xcf51330> <constants.qt.QColorGroup object at 0xce97120> 0 132 1
         # 0. grab useful values; if this fails use super method
         super = QListViewItem
+        if col != 0: #bruce 050531
+            return super.paintCell(self, p, cg, col, width, align)
         try:
             node = self.object
             assy = node.assy
@@ -144,7 +153,10 @@ class modelTree(TreeWidget):
     def __init__(self, parent, win, name = "modelTreeView", size = (200, 560)):
         """#doc"""
         ###@@@ review all init args & instvars, here vs subclasses
-        TreeWidget.__init__(self, parent, win, name, columns = ["Model Tree"], size = size) # stores self.win
+        columns = ["Model Tree"]
+        if debug_columns:
+            columns.extend( ["Class", "Col3"] )
+        TreeWidget.__init__(self, parent, win, name, columns = columns, size = size) # stores self.win
 
         # debug menu and reload command - inited in superclass ###k ok?
 
