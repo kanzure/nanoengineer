@@ -94,6 +94,11 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.addSeparator()
 
     w.elemChangeComboBox = QComboBox(0,w.depositAtomDashboard, "elemChangeComboBox")
+
+    w.hybridComboBox = QComboBox(0,w.depositAtomDashboard, "hybridComboBox") #bruce 050606 for choice of atomtypes
+    ## not needed, I hope:
+    ## w.connect(w.hybridComboBox,SIGNAL("activated(int)"),w.elemChange_hybrid) #bruce 050606
+    w.hybridComboBox_elem = None
     
     w.modifySetElementAction.addTo(w.depositAtomDashboard)
 
@@ -120,7 +125,7 @@ def do_what_MainWindowUI_should_do(w):
     w.elemChangeComboBox.insertItem("Hydrogen")
     w.elemChangeComboBox.insertItem("Helium")
     w.elemChangeComboBox.insertItem("Boron")
-    w.elemChangeComboBox.insertItem("Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2)
+    w.elemChangeComboBox.insertItem("Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
     w.elemChangeComboBox.insertItem("Nitrogen")
     w.elemChangeComboBox.insertItem("Oxygen")
     w.elemChangeComboBox.insertItem("Fluorine")
@@ -141,6 +146,34 @@ def do_what_MainWindowUI_should_do(w):
     #w.elemChangeComboBox.insertItem("Iodine")
     #w.elemChangeComboBox.insertItem("Xenon")
     w.connect(w.elemChangeComboBox,SIGNAL("activated(int)"),w.elemChange)
+
+def update_hybridComboBox(win, text = None): #bruce 050606
+    "put the names of the current element's hybridization types into win.hybridComboBox; select the specified one if provided"
+    # I'm not preserving current setting, since when user changes C(sp2) to N, they might not want N(sp2).
+    # It might be best to "intelligently modify it", or at least to preserve it when element doesn't change,
+    # but even the latter is not obvious how to do in this code (right here, we don't know the prior element).
+    #e Actually it'd be easy if I stored the element right here, since this is the only place I set the items --
+    # provided this runs often enough (whenever anything changes the current element), which remains to be seen.
+    
+    elem = PeriodicTable.getElement(win.Element) # win.Element is atomic number
+    if text is None and win.hybridComboBox_elem is elem:
+        # Preserve current setting (by name) when possible, and when element is unchanged (not sure if that ever happens).
+        # I'm not preserving it when element changes, since when user changes C(sp2) to N, they might not want N(sp2).
+        # [It might be best to "intelligently modify it" (to the most similar type of the new element) in some sense,
+        #  or it might not (too unpredictable); I won't try this for now.]
+        text = str(win.hybridComboBox.currentText() )
+    win.hybridComboBox.clear()
+    win.hybridComboBox_elem = elem
+    atypes = elem.atomtypes
+    if len(atypes) > 1:
+        for atype in atypes:
+            win.hybridComboBox.insertItem( atype.name)
+            if atype.name == text:
+                win.hybridComboBox.setCurrentItem( win.hybridComboBox.count() - 1 ) #k sticky as more added?
+        win.hybridComboBox.show()
+    else:
+        win.hybridComboBox.hide()
+    return
 
 class depositMode(basicMode):
     """ This class is used to manually add atoms to create any structure.
@@ -220,6 +253,8 @@ class depositMode(basicMode):
         self.w.toolsDepositAtomAction.setOn(1) # turn on the Deposit Atoms icon
 
         self.pastable = None # by bruce 041124, for safety
+
+        update_hybridComboBox(self.w) #bruce 050606; not sure this is the best place for it
 
         # connect signals (these ought to be disconnected in restore_gui ##e)
         self.w.connect(self.w.pasteComboBox,SIGNAL("activated(int)"),
@@ -598,12 +633,24 @@ class depositMode(basicMode):
         current_element = self.pastable_element()
         self._pastable_atomtype = current_element.find_atomtype(name)
             # store entire atomtype object; only used if element remains correct (not an error if it doesn't)
+        # update comboboxes - the element one must be up to date (it controls self.w.Element which our subr above reads)
+        update_hybridComboBox(self.w, self._pastable_atomtype.name )
+            # update of its item list is probably not needed, but this also sets the current one properly
         return
 
     def pastable_atomtype(self): #bruce 050511 ###@@@ use more?
         "return the current pastable atomtype"
         #e we might extend this to remember a current atomtype per element... not sure if useful
         current_element = self.pastable_element()
+        if len(current_element.atomtypes) > 1: #bruce 050606
+            try: 
+                hybname = self.w.hybridComboBox.currentText()
+                atype = current_element.find_atomtype(hybname)
+                if atype is not None:
+                    self._pastable_atomtype = atype
+            except:
+                print_compact_traceback("exception (ignored): ") # error, but continue
+            pass
         if self._pastable_atomtype is not None and self._pastable_atomtype.element is current_element:
             return self._pastable_atomtype
         self._pastable_atomtype = current_element.atomtypes[0]

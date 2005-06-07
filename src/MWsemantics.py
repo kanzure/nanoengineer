@@ -1316,9 +1316,15 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         elementSelectorWin.setDisplay(self.Element)
         elementSelectorWin.show()
         
-        
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]
+        try: #bruce 050606
+            from depositMode import update_hybridComboBox
+            update_hybridComboBox(self)
+        except:
+            if platform.atom_debug:
+                print_compact_traceback( "atom_debug: ignoring exception from update_hybridComboBox: ")
+            pass # might never fail, not sure...
         global elementSelectorWin
         if elementSelectorWin and not elementSelectorWin.isHidden():
            elementSelectorWin.setDisplay(self.Element)     
