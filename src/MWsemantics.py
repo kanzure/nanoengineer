@@ -1260,6 +1260,16 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         simMoviePlayer(self.assy)
         return
 
+    def JobManager(self):
+        """Opens the Job Manager dialog... for details see subroutine's docstring.
+        """
+        from JobManager import JobManager
+        dialog = JobManager()
+        if dialog:
+            self.jobmgrcntl = dialog #probably useless, but done since old code did it;
+                # conceivably, keeping it matters due to its refcount. [bruce 050327]
+        return
+        
     #### Movie Player Dashboard Slots ############
 
     #bruce 050413 moved code for movie player dashboard slots into movieMode.py

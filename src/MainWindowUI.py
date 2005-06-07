@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu May 26 16:25:09 2005
+# Created: Tue Jun 7 15:25:56 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5468,6 +5468,26 @@ image129_data = \
     "\xc8\xc8\x08\xe3\xe3\xe3\x4c\x4f\x4f\xff\xdd\x5f" \
     "\xfc\x5b\xfc\x0b\xab\xe1\x25\xf8\x96\xd1\x59\x9f" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image130_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\xa7\x49\x44\x41\x54\x78\x9c\xed\x92\x4d\x0e\x82" \
+    "\x30\x10\x85\xbf\x1a\x97\xdc\xc2\x2d\xfb\x12\x0f" \
+    "\x62\x0f\xc2\x21\x3c\x0b\xae\x39\x04\xbd\x42\xd9" \
+    "\x42\x26\x71\x85\x0b\x42\x5c\xe1\x42\x44\xc5\x1f" \
+    "\x0c\xe9\xc6\xa4\x2f\x99\x34\x79\x9d\xf9\x3a\x79" \
+    "\x29\x04\x0d\x52\x00\x5a\x67\x7d\x9a\x2a\x44\x04" \
+    "\x11\x59\x0c\x73\xce\x51\xd7\x06\x6b\x8d\x5a\xdf" \
+    "\xcc\xaa\xda\x02\xd0\x75\xe7\xc5\xe0\xa6\x39\x01" \
+    "\x25\x00\x23\x38\xcf\x8f\xb4\x6d\xf9\x33\xa4\x28" \
+    "\x76\x24\xc9\xe1\xe9\x8c\xe3\x3d\x51\xb4\xb9\x37" \
+    "\x69\x9d\xf5\x80\x97\x1a\x58\xac\x1e\x96\x50\xd3" \
+    "\xd2\x3a\x7b\xeb\xcf\xdc\x31\x05\x7b\xd5\xf8\x2b" \
+    "\x7c\x42\xad\x35\xd7\xcd\x3f\x81\xbf\x3d\x38\x37" \
+    "\x13\xa2\x08\x51\xbc\xfa\x7f\x1a\x45\x10\xc0\x05" \
+    "\xb6\xbe\x67\x24\xdd\xfc\xbc\x28\x00\x00\x00\x00" \
+    "\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -5710,6 +5730,8 @@ class MainWindow(QMainWindow):
         self.image128.loadFromData(image128_data,"PNG")
         self.image129 = QPixmap()
         self.image129.loadFromData(image129_data,"PNG")
+        self.image130 = QPixmap()
+        self.image130.loadFromData(image130_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -6138,6 +6160,8 @@ class MainWindow(QMainWindow):
         self.rotateCounterClockwiseAction.setIconSet(QIconSet(self.image128))
         self.jigsGamessAction = QAction(self,"jigsGamessAction")
         self.jigsGamessAction.setIconSet(QIconSet(self.image129))
+        self.simJobManagerAction = QAction(self,"simJobManagerAction")
+        self.simJobManagerAction.setIconSet(QIconSet(self.image130))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6475,6 +6499,7 @@ class MainWindow(QMainWindow):
         self.simSetupAction.addTo(self.Simulator)
         self.simMoviePlayerAction.addTo(self.Simulator)
         self.simPlotToolAction.addTo(self.Simulator)
+        self.simJobManagerAction.addTo(self.Simulator)
         self.MenuBar.insertItem(QString(""),self.Simulator,12)
 
         self.helpMenu = QPopupMenu(self)
@@ -6619,6 +6644,7 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyMinimizeAllAction,SIGNAL("activated()"),self.modifyMinimizeAll)
         self.connect(self.modifyInvertAction,SIGNAL("activated()"),self.modifyInvert)
         self.connect(self.jigsGamessAction,SIGNAL("activated()"),self.makeGamess)
+        self.connect(self.simJobManagerAction,SIGNAL("activated()"),self.JobManager)
 
 
     def languageChange(self):
@@ -7016,6 +7042,7 @@ class MainWindow(QMainWindow):
         self.rotateClockwiseAction.setText(self.__tr("Rotate Clockwise"))
         self.rotateCounterClockwiseAction.setText(self.__tr("Rotate Counter Clockwise"))
         self.jigsGamessAction.setText(self.__tr("Gamess"))
+        self.simJobManagerAction.setText(self.__tr("Job Manager..."))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7553,6 +7580,9 @@ class MainWindow(QMainWindow):
 
     def makeGamess(self):
         print "MainWindow.makeGamess(): Not implemented yet"
+
+    def JobManager(self):
+        print "MainWindow.JobManager(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

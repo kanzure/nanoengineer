@@ -152,6 +152,7 @@
         <action name="simSetupAction"/>
         <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
+        <action name="simJobManagerAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
         <action name="helpAssistantAction"/>
@@ -3652,6 +3653,17 @@
             <string>Gamess</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>simJobManagerAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image130</iconset>
+        </property>
+        <property name="text">
+            <string>Job Manager...</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4043,6 +4055,9 @@
     </image>
     <image name="image129">
         <data format="PNG" length="732">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000002a349444154789ca594bb4b335b14c57f31ce34426286a8d108218daf8892c4c2421b2382606363295682f807585fec2c6c04b1b53222b1b14c080946c107f8407c81c14e64741003432233eedb09f792997c7caef2acbdd759ecbdce813fc4e6e6a6fc692d4053a38262b1287b7b7b52281448a7d3522e97259fcf37bcc4e3446c6c6c483e9f475555aad52ab3b3b3a4d36942a110afafaff87c3e7677771dfb1d1d0f0c0cd0dede8e699af87c3e745dc7b22cdedede88c562d8b6fd778e0152a9942c2c2c90cd66a956ab288ac2eded2dcfcfcf1c1c1c303636e6daef884c2623a3a3a3128d46a5afaf4f82c1a00032313121baaebbced97579aaaa629a26c9649260308861180402015455c5ebf5ba9a7264cbe5b22c2e2e6218065353538442216cdbc6b66dcecfcf11118e8e8efe71ea6f76221445a1bfbf1f4dd3181c1c2497cb717676866ddbb4b5b5e1f7fb5d1dbbe2e5e545969797a5abab4b22918800a2699a5c5d5d35ccb1eb8c3b3b3b3d9148844aa5f213af582cc6f0f070c334347c791f1f1fcccdcdb1b6b686a228d46a35dedfdf7fe718e0f8f898783c4ead56c3e3f170797949a9546ad4e62e7c71712187878784c361babbbb01f8fafa627f7fff77c285420111211008f0f8f88888e0f57a393939e1e1e1c1751c8e715b5a5a92d5d555e6e7e7f9fefee6e9e989542a856559e4723992c96443d775e1f7fb65666646b6b7b7e5e6e646e2f1b800a2288a00d2d4d424894442aeafafeb3aafeb3893c9c8d6d616e17018d33429954a542a15003a3a3a1011a2d1289665392eb2ae706b6b2b777777f4f4f4d0dcdc8caeeb2412097a7b7b01300c83fbfb7b5a5a5a7ecefe0fc7a0afacac88a6699c9e9ef2f9f949369bfd0f3f3939c9fafa3a43434375355c5f90aeebb2b3b343b158fc19c5c8c808e3e3e34c4f4fffdd5ffc5bfc0babe125f896d1599f0000000049454e44ae426082</data>
+    </image>
+    <image name="image130">
+        <data format="PNG" length="224">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000a749444154789ced924d0e82301085bf1a97dcc22dfb120f620fc2213c0bae3904bd42d9422671850b425ce14244c51f0ce9c6a42f9934799df93a7929040d52005a677d9a2a440411590c73ce51d7066b8d5adfccaada02d075e7c5e0a6390125002338cf8fb46df933a4287624c9e1e98ce33d51b4b937699df580971a58ac1e9650d3d23a7bebcfdc31057bd5f82b7c42ad35d7cd3f81bf3d383713a20851bcfa7f1a4510c005b6be6724ddfcbc280000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -4826,6 +4841,12 @@
         <receiver>MainWindow</receiver>
         <slot>makeGamess()</slot>
     </connection>
+    <connection>
+        <sender>simJobManagerAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>JobManager()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -4982,6 +5003,7 @@
     <slot>modifyMinimizeAll()</slot>
     <slot>modifyInvert()</slot>
     <slot>makeGamess()</slot>
+    <slot>JobManager()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
