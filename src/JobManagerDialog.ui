@@ -1,0 +1,283 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>JobManagerDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>JobManagerDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>883</width>
+            <height>252</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>nanoENGINEER-1 Job Manager</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox1</cstring>
+            </property>
+            <property name="title">
+                <string>Jobs</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QTable">
+                    <column>
+                        <property name="text">
+                            <string>Name</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Engine</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Calculation</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Description</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Status</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Server</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Job Id</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Time</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Start Time</string>
+                        </property>
+                    </column>
+                    <property name="name">
+                        <cstring>job_table</cstring>
+                    </property>
+                    <property name="numRows">
+                        <number>1</number>
+                    </property>
+                    <property name="numCols">
+                        <number>9</number>
+                    </property>
+                    <property name="sorting">
+                        <bool>false</bool>
+                    </property>
+                    <property name="selectionMode">
+                        <enum>SingleRow</enum>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout6</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>start_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Start</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>stop_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Stop</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>edit_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Edit</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>view_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>View</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>delete_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Delete</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>move_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Move</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer1</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>280</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout2</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>refresh_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Refresh</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>filter_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Filter...</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>close_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Close</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="224">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000a749444154789ced92310a83301486bf948edea2ab7ba407690ee2217a163b7b087385b82a814e7610e9942e26a568a548bae58347e07fe11b7e1e2466048094952b4b81b5166bed6e993186be5768adc4d1875d7706609a9ebbc5c3f0005a0082b8aeef8c63fbb3a4692e14c5ede3cdf32b59767a7f92b2724094995d1cbcdc39b71829abd57c6be709e2d884ab8829d55a09bc788d6ff9d66ed1716c5215815445e0bf5524005edbf85633ba0452980000000049454e44ae426082</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>close_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>job_table</sender>
+        <signal>clicked(int,int,int,const QPoint&amp;)</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>cell_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>delete_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>delete_job()</slot>
+    </connection>
+    <connection>
+        <sender>refresh_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>refresh_job_table()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>cell_clicked()</slot>
+    <slot>delete_job()</slot>
+    <slot>refresh_job_table()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
