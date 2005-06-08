@@ -6,6 +6,68 @@ $Id$
 '''
 __author__ = "Mark"
 
+import os
+
+def touch_status_file(job_id_dir, Status='Queued'):
+    '''Creates the status file for a given job provided the job_id_dir and status.
+    It will remove any existing status file(s) in the directory.
+    Status must be one of: Queued, Running, Completed, Suspended or Failed.
+    '''
+    # Make sure the directory exists
+    if not os.path.exists(job_id_dir):
+        print "touch_status_file error: The directory ", job_id_dir, " does not exist."
+        return 1
+    
+    # Make sure Status is valid.
+    if Status not in ('Queued', 'Running', 'Completed', 'Suspended', 'Failed'):
+        print "touch_status_file error: Status is invalid: ", Status
+        return 1
+    
+    # Remove any status files (i.e. Status-Running in the directory)
+    import glob
+    wildcard_str = os.path.join(job_id_dir, 'Status-*')
+    status_files = glob.glob(wildcard_str)
+    print "Status Files:", status_files
+    for sfile in status_files:
+        os.remove(sfile)
+    
+    # Write zero length status file.
+    status_file = os.path.join(job_id_dir, 'Status-'+Status)
+    f = open(status_file, 'w')
+    f.close()
+    
+def get_job_manager_job_id_and_dir():
+    '''Returns a unique Job Id number and JobManager subdirectory for this Job Id.  
+    The Job Id is stored in the User Preference db.
+    '''
+    from preferences import prefs_context
+    prefs = prefs_context()
+    job_id = prefs.get('JobId')
+    
+    if not job_id:
+        job_id = 100 # Start with Job Id 100
+    else:
+        job_id += 1 # Increment the Job Id
+    
+    # Create Job Id subdirectory
+    from platform import find_or_make_Nanorex_prefs_directory
+    nanorex = find_or_make_Nanorex_prefs_directory()
+    
+    while 1:
+        
+        # Create Job Id dir (i.e. ~/Nanorex/JobManager/123/)
+        job_id_dir  = os.path.join(nanorex, 'JobManager', str(job_id))
+        
+        # Make sure there isn't already a Job Id subdir in ~/Nanorex/JobManager/
+        if os.path.exists(job_id_dir):
+            job_id += 1 # It is there, so increment the Job Id and try again.
+            
+        else:
+            os.makedirs(job_id_dir) # No Job Id subdir, so let's make it.
+            prefs['JobId'] = job_id # Store the Job Id
+            touch_status_file(job_id_dir)
+            return str(job_id), job_id_dir
+
 # A list as a 2-dimensional array of sub-lists.
 # This is a sample list of 4 jobs for testing purposes.
 jobs = [["Small Bearing.mmp", "GAMESS", "Molecular Energy","Inner Shaft", 
