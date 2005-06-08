@@ -11,7 +11,7 @@ __author__ = "Mark"
 
 # This is the GAMESS UI widget default settings (for energy).
 
-ui={'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize':1, 'ncore':0,
+ui={'comment':'','runtyp':0,'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize':1, 'ncore':0,
         'conv':1, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':1,'soscf':0,'rstrct':0}
 
 # These are the GAMESS parms set defaults (for energy).
@@ -26,11 +26,12 @@ ui={'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize
 #   $END
 #
 # $CONTRL group keywords and their default values.
-contrl={'runtyp':'ENERGY', 'coord':'unique', 'scftyp':'RHF', 'icharg':0, 'mult':1, 'mplevl':'0', 
+contrl={'runtyp':'energy', 'coord':'unique', 'scftyp':'RHF', 'icharg':0, 'mult':1, 'mplevl':'0', 
         'maxit':200, 'icut':11, 'inttyp':'hondo', 'qmttol':'1.0E-6', 'dfttyp':0, 'nprint':9}
 # Note: The 'dfttyp' keyword in the $CONTRL group is only valid for PC GAMESS.
 
 # $CONTRL keywords and their optional values 
+runtyp=['energy', 'optimize'] # RUNTYP
 scftyp=['RHF', 'UHF', 'ROHF'] # SCFTYP
 mplevl=[ 0, 0, '2'] # MPLEVL: None=0, DFT=0, MP2='2'
 inttyp=['pople', 'pople', 'hondo'] # Set by EMC, None=POPLE, DFT=POPLE, MP2=HONDO
@@ -245,7 +246,7 @@ class GamessProp(GamessPropDialog):
         # gmsver = GAMESS or PCGAMESS.  This should be set from the User Prefs dialog.
         # gmsdir = full path to GAMESS directory.  This should be set from the User Prefs dialog.
         # gms_program = full path of the GAMESS executable.
-        # gmstmpdir = ~Nanorex/GamessFiless, which is the directory where all the files are written to.
+        # gmstmpdir = ~Nanorex/GamessFiles, which is the directory where all the files are written to.
         
         self.gmsver = PCGAMESS # Set to GAMESS or PCGAMESS
         
@@ -283,8 +284,13 @@ class GamessProp(GamessPropDialog):
         
         # Init the top widgets (name, psets drop box, comment)
         self.name_linedit.setText(self.gamess.name)
-        self.load_psets_combox()
-        self.update_comment()
+        self.comment_linedit.setText(self.pset.ui.comment)
+        self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
+        
+        # Multiple Parameter Sets have been disabled.
+        # Mark 050607
+#        self.load_psets_combox()
+#        self.update_comment()
         
         # Electronic Structure Props and Basis Set section.
         self.scftyp_btngrp.setButton(self.pset.ui.scftyp) # RHF, UHF, or ROHF
@@ -299,7 +305,7 @@ class GamessProp(GamessPropDialog):
         
         # Electron Correlation Method
         ecm = self.pset.ui.ecm
-        print "Setup: ECM = ",ecm
+#        print "Setup: ECM = ",ecm
         self.ecm_btngrp.setButton(self.pset.ui.ecm) # None, DFT or MP2
         self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
         self.dfttyp_combox.setCurrentItem(self.pset.ui.dfttyp) # DFT Functional
@@ -327,7 +333,7 @@ class GamessProp(GamessPropDialog):
         '''Rename the jig.
         '''
         self.gamess.name = str(self.name_linedit.text())
-        self.update_comment()
+#        self.update_comment()
         self.update_filenames()
 
     def add_or_change_pset(self, val):
@@ -341,14 +347,12 @@ class GamessProp(GamessPropDialog):
         self.setup()
 
     def load_psets_combox(self):
-        '''Load list of parm sets in the combobox widget'''
+        '''Load list of parm sets in the combobox widget.
+        This is not implemeted as 2005-06-07 - Mark
+        '''
 
         num = 0
         self.psets_combox.clear() # Clear all combo box items
-
-#        for name in self.gamess.get_pset_names():
-#            self.psets_combox.insertItem(name)
-#            if name == self.pset.name: 
       
         for pset in self.gamess.psets: # Should I call method to return copy of psets?
             self.psets_combox.insertItem(pset.name)
@@ -367,10 +371,11 @@ class GamessProp(GamessPropDialog):
         
     def rename_pset(self):
         '''Rename the current parms set name.
+        This is not implemeted as 2005-06-07 - Mark
         '''
         self.pset.name = str(self.pset_name_linedit.text())
         self.update_pset_combox_item()
-        self.update_comment()
+#        self.update_comment()
         
     def update_pset_combox_item(self):
         '''Rename the current pset name in the combo box'''
@@ -476,6 +481,8 @@ class GamessProp(GamessPropDialog):
         '''
 
         self.rename()
+        self.pset.ui.comment = str(self.comment_linedit.text())
+        self.pset.ui.runtyp = self.runtyp_combox.currentItem() # RUNTYP = Energy or Optimize
         
         # Electronic Structure Props and Basis Set section.
         self.pset.ui.scftyp = self.scftyp_btngrp.selectedId() # SCFTYP = RHF, UHF, or ROHF
@@ -512,12 +519,12 @@ class GamessProp(GamessPropDialog):
         # $CONTRL Section ###########################################
         
         # Parms Values
+        self.pset.contrl.runtyp = runtyp[self.pset.ui.runtyp] # RUNTYP
         self.pset.contrl.scftyp = scftyp[self.pset.ui.scftyp] # SCFTYP
         self.pset.contrl.icharg = str(self.pset.ui.icharg) # ICHARG
         self.pset.contrl.mult = str(self.pset.ui.mult + 1) # MULT
         self.pset.contrl.mplevl = mplevl[self.pset.ui.ecm] # MPLEVL
         self.pset.contrl.inttyp = inttyp[self.pset.ui.inttyp] # INTTYP
-        
         
         # ICUT and QMTTOL
         s = str(self.gbasis_combox.currentText())
@@ -603,7 +610,42 @@ class GamessProp(GamessPropDialog):
         # $BASIS Section ###########################################
         
         self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem()] # GBASIS
+
+    def queue_job(self):
+        'Queue files for GAMESS run.'
+        
+        # Write INP file
+        self.writeinpfile()
+        
+        # Move file to Job Manager queue
+        # 1. Get Job Id
+#        job_id = get_job_manager_job_id() # To be written.
+        job_id = '4321'
+        
+        # 2. Create Job Id subdirectory
+        nanorex = platform.find_or_make_Nanorex_prefs_directory()
+        job_id_dir  = os.path.join(nanorex, 'JobManager', job_id)
+        if not os.path.exists(job_id_dir):
+            os.makedirs(job_id_dir)
             
+        # 3. Move INP file to Job Id subdirectory
+        job_inputfile = os.path.join(job_id_dir, '20050607-112233.inp')
+        os.rename(self.inputfile, job_inputfile)
+        
+        # 4. Create BAT file in Job Id subdirectory
+        
+        # 5. Open INP file in editor if user checked checkbox.
+        if self.edit_input_file_cbox.isChecked():
+            platform.open_file_in_editor(job_inputfile) # Open GAMESS input file in editor.
+        
+        # 6. Open Job Manager.
+
+    def launch_job(self):
+        'Launch GAMESS with INP file on server'
+        
+        self.queue_job()
+        self.run_gamess()
+           
     def writeinpfile(self):
         'Write GAMESS INP file'
         
@@ -625,8 +667,6 @@ class GamessProp(GamessPropDialog):
         f.close() # Close INP file.
         
         self.close() # Close GAMESS dialog.
-        
-        platform.open_file_in_editor(self.inputfile) # Show GAMESS input file for debugging purposes.
 
     def write_atoms_data(self, f):
         'Write the atoms list data to the DATA section of the GAMESS INP file'
