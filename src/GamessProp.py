@@ -611,39 +611,41 @@ class GamessProp(GamessPropDialog):
         
         self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem()] # GBASIS
 
-    def queue_job(self):
+    def queue_job(self, queued = True):
         'Queue files for GAMESS run.'
         
         # Write INP file
         self.writeinpfile()
         
-        # Move file to Job Manager queue
-        # 1. Get Job Id
-#        job_id = get_job_manager_job_id() # To be written.
-        job_id = '4321'
-        
-        # 2. Create Job Id subdirectory
-        nanorex = platform.find_or_make_Nanorex_prefs_directory()
-        job_id_dir  = os.path.join(nanorex, 'JobManager', job_id)
-        if not os.path.exists(job_id_dir):
-            os.makedirs(job_id_dir)
+        # Get a unique Job Id and the Job Id directory
+        from JobManager import get_job_manager_job_id_and_dir
+        job_id, job_id_dir = get_job_manager_job_id_and_dir()
+        print "GamessProp.queue_job: Job Id = ", job_id
+
+        # Move INP file to Job Id subdirectory
+        job_inputfile = os.path.join(job_id_dir, "j%s.inp" % time.strftime("%Y%m%d-%H%M%S") )
+         
+        if os.path.exists(job_inputfile):
+            os.remove(job_inputfile)
             
-        # 3. Move INP file to Job Id subdirectory
-        job_inputfile = os.path.join(job_id_dir, '20050607-112233.inp')
         os.rename(self.inputfile, job_inputfile)
         
-        # 4. Create BAT file in Job Id subdirectory
+        # Create BAT file in Job Id subdirectory
         
-        # 5. Open INP file in editor if user checked checkbox.
+        # Open INP file in editor if user checked checkbox.
         if self.edit_input_file_cbox.isChecked():
             platform.open_file_in_editor(job_inputfile) # Open GAMESS input file in editor.
         
-        # 6. Open Job Manager.
+        # Open Job Manager (if Queued only).
+        if queued:
+            
+            print "Open Job Manager"
+            self.win.JobManager()
 
     def launch_job(self):
         'Launch GAMESS with INP file on server'
         
-        self.queue_job()
+        self.queue_job(0) # Do not open Job Manager.
         self.run_gamess()
            
     def writeinpfile(self):
