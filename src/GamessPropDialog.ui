@@ -9,11 +9,14 @@
             <x>0</x>
             <y>0</y>
             <width>475</width>
-            <height>498</height>
+            <height>583</height>
         </rect>
     </property>
     <property name="caption">
         <string>GAMESS Properties</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
     </property>
     <vbox>
         <property name="name">
@@ -21,112 +24,143 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout35</cstring>
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QPushButton" row="0" column="2">
-                    <property name="name">
-                        <cstring>atoms_list_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Atom List...</string>
-                    </property>
-                </widget>
-                <widget class="QLineEdit" row="0" column="1">
-                    <property name="name">
-                        <cstring>name_linedit</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>LineEditPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="text">
-                        <string></string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>The name of the GAMESS jig..</string>
-                    </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>The name of the GAMESS jig..</string>
-                    </property>
-                </widget>
-                <widget class="QComboBox" row="1" column="1">
-                    <property name="name">
-                        <cstring>psets_combox</cstring>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="1" column="2">
-                    <property name="name">
-                        <cstring>atoms_list_btn_2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Edit/Delete...</string>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="1" column="0">
-                    <property name="name">
-                        <cstring>psetslbl</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Parameter Set :</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="0" column="0">
-                    <property name="name">
-                        <cstring>namelbl</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Name :</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
-                </widget>
-            </grid>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout25</cstring>
+                <cstring>layout33</cstring>
             </property>
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLabel">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>txtlabel4</cstring>
+                        <cstring>layout29</cstring>
                     </property>
-                    <property name="text">
-                        <string>Comment :</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>namelbl</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Name :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>txtlabel4</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Comment :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>psetslbl_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Calculate :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                    </vbox>
                 </widget>
-                <widget class="QLineEdit">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>comment_linedit</cstring>
+                        <cstring>layout32</cstring>
                     </property>
-                    <property name="text">
-                        <string></string>
-                    </property>
-                    <property name="maxLength">
-                        <number>80</number>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Text placed here is incorporated into the standard GAMESS comment line.</string>
-                    </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Text placed here is incorporated into the standard GAMESS comment line.</string>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>name_linedit</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>LineEditPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>The name of the GAMESS jig.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>The name of the GAMESS jig.</string>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>comment_linedit</cstring>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="maxLength">
+                                <number>80</number>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Text placed here is incorporated into the standard GAMESS comment line.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>Text placed here is incorporated into the standard GAMESS comment line.</string>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout30</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>Molecular Energy</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Optimization</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>runtyp_combox</cstring>
+                                    </property>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer5</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>127</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </hbox>
+                        </widget>
+                    </vbox>
                 </widget>
             </hbox>
         </widget>
@@ -1029,6 +1063,45 @@
                 </widget>
             </vbox>
         </widget>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox7</cstring>
+            </property>
+            <property name="title">
+                <string>Server</string>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QComboBox">
+                    <item>
+                        <property name="text">
+                            <string>My Computer</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>server_combox</cstring>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>server_manager_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Server Manager...</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>edit_input_file_cbox</cstring>
+            </property>
+            <property name="text">
+                <string>Open Input File in Editor after Queuing (and before Launching)</string>
+            </property>
+        </widget>
         <widget class="QLayoutWidget">
             <property name="name">
                 <cstring>layout23</cstring>
@@ -1039,10 +1112,10 @@
                 </property>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>save_parms_btn</cstring>
+                        <cstring>queue_job_btn</cstring>
                     </property>
                     <property name="text">
-                        <string>Save and Exit</string>
+                        <string>Queue Job</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Save GAMESS parameters only.</string>
@@ -1053,10 +1126,10 @@
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>run_gamess_btn</cstring>
+                        <cstring>launch_job_btn</cstring>
                     </property>
                     <property name="text">
-                        <string>Save and Run GAMESS</string>
+                        <string>Launch Job</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Save GAMESS parameters and launch job.</string>
@@ -1080,6 +1153,11 @@
         </widget>
     </vbox>
 </widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="2801">789c8d94495323471046effc0a0579231c3952b75a5287630eec2096016681c1e1432f6a1020c422b139fcdf5ddfeb394cd8785af5b83c32ab2b5595551f565a674707ad950f4b8fb36c362e5ac565f6d05a29e793c9eb1f7f7efc6b69398a5ae1afd3eeb5a2e5df96967dd82a5ad666e0477824f0733c16722bf044e063bc27f0195e08e6a7782988cff14a105f977718780f8f04be8b7705dec6138177f14cf0fd0d3c17c44ff042e0095e097c5bce72ac6fd4137505f11d7c20f0437c24f03579dc11cc7fc1238197784f90bf850f0471be1fa782f827bc10c41d2f055ec9bb6d41fe1e4ec138eb776381731e5d06f3dff044e007784f907f830f047e8ba7827cf6ab9b0be29c67b710f83d5e0afc0aaf047e29e7f8eafda2fe2416c49f710ac4e9b7a42770fa2de90b7c15cf05fe809702e7f72623c17afc9ea412c42772da97fdb40ce7c0887fc719f81dde17f8299e0a3cc673c1f71ee5fd48107fc2bb02ff82f383f0af380b309ffeef3370c33341fe677c24f08e7c9008f2e9b7414fe0dcf7412ac81fe099c0a977900bf2a77825f07d791a09f22f701a9878ed340c4e3fa489209ffad9aeba1ece2fed0b9cfb4479f5fdd8c47381d33f6925f8deb53c6b0be2ec2fcf41fd9ebce2b1209ee33d419cfbc9cfaffbfd0c67e0757e2e70eac94ac1f7b82f592570fa9de7a75e9ffb95c78238ef47de1738fd9733c867bff352e0dcf77c24c8a7ff785eebfb4fbff2bcd5ebf1fe711debfd677f8a4a10efcbcb8e20cefe9491c0b97f5cdf7a3ef7a94c05f347f848e0dfe4a358e0114e43e2f40be5d7e7c77ca6d7bfef1867c88f79af2a46edffc5edbdff1ecfdecbf7cc732fbcf491574df97ee1973ef62bbff61b9ff8ad8f1bf2a77ee7f7fee08f3ef3b93ff973533dfee2affe16ea59f5355ff78dc6fc4ddff26ddff15d1ffa9eef37e61ff8a13ffb273f0a5fbff1e386fa4721fbc43ffb175619fad786fc6f61774efdccbffb79c86e7ba7b19ec863ef7a12b27bde5fe8bc069e869a86e68b9daf9965965b61a58d16caafecc22e6d1cb86aceb76b3fb71b9bd8385474bb40fed48fecceeead083bb4630f0dfb791a7665e2953d86b39a85151abe6f739fdb933d87de1986158661ad177bfdbf7cdfb437bfb3555bb3f5907b621ba12fb67ebe3bffca9f867d8f6dd3b6bcb0ed80ba2ef1e92fead9b5a1ed8555863f98fd5ccdbbfdb06ffb61c641c0ec7091f3fa15cb7fffbef40f8044c392</data>
+    </image>
+</images>
 <connections>
     <connection>
         <sender>cancel_btn</sender>
@@ -1094,16 +1172,10 @@
         <slot>set_ecmethod()</slot>
     </connection>
     <connection>
-        <sender>save_parms_btn</sender>
+        <sender>queue_job_btn</sender>
         <signal>clicked()</signal>
         <receiver>GamessPropDialog</receiver>
-        <slot>writeinpfile()</slot>
-    </connection>
-    <connection>
-        <sender>atoms_list_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>open_atoms_list_in_editor()</slot>
+        <slot>queue_job()</slot>
     </connection>
     <connection>
         <sender>name_linedit</sender>
@@ -1112,10 +1184,10 @@
         <slot>rename()</slot>
     </connection>
     <connection>
-        <sender>run_gamess_btn</sender>
+        <sender>launch_job_btn</sender>
         <signal>clicked()</signal>
         <receiver>GamessPropDialog</receiver>
-        <slot>run_gamess()</slot>
+        <slot>launch_job()</slot>
     </connection>
     <connection>
         <sender>multi_combox</sender>
@@ -1123,20 +1195,14 @@
         <receiver>GamessPropDialog</receiver>
         <slot>set_multiplicity()</slot>
     </connection>
-    <connection>
-        <sender>psets_combox</sender>
-        <signal>activated(int)</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>add_or_change_pset()</slot>
-    </connection>
 </connections>
 <slots>
-    <slot>writeinpfile()</slot>
+    <slot>queue_job()</slot>
     <slot>set_ecmethod()</slot>
     <slot>set_multiplicity()</slot>
     <slot>open_atoms_list_in_editor()</slot>
     <slot>set_jig_filenames()</slot>
-    <slot>run_gamess()</slot>
+    <slot>launch_job()</slot>
     <slot>edit_gmshost()</slot>
     <slot>remove_host()</slot>
     <slot>add_or_change_pset()</slot>

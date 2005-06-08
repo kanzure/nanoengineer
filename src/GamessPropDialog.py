@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Mon May 30 22:28:16 2005
+# Created: Tue Jun 7 21:49:48 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -10,58 +10,188 @@
 
 from qt import *
 
+image0_data = [
+"22 22 106 2",
+".J c #000000",
+".P c #020202",
+".Z c #030303",
+"#c c #050505",
+"#i c #060606",
+"#t c #0c0c0c",
+".9 c #0d0d0d",
+"#u c #0f0f0f",
+".C c #111111",
+".6 c #121212",
+".I c #141414",
+".0 c #151515",
+".4 c #1a1a1a",
+"#D c #1b1b1b",
+".R c #1c1c1c",
+".5 c #1f1f1f",
+".G c #212121",
+"#C c #242424",
+".H c #282828",
+".N c #2e2e2e",
+".B c #313131",
+"#x c #323232",
+"#d c #363636",
+".F c #383838",
+"#H c #393939",
+".O c #3c3c3c",
+"#. c #3d3d3d",
+"#f c #404040",
+".K c #424242",
+".x c #434343",
+".t c #444444",
+"#z c #454545",
+"#M c #464646",
+".l c #484848",
+".n c #494949",
+"#G c #4b4b4b",
+".u c #4c4c4c",
+".q c #4d4d4d",
+".j c #4f4f4f",
+".h c #515151",
+"#K c #535353",
+".w c #545454",
+".c c #565656",
+".i c #575757",
+".A c #5b5b5b",
+".r c #5d5d5d",
+".z c #5e5e5e",
+"#n c #5f5f5f",
+".m c #606060",
+"#a c #636363",
+".Y c #666666",
+".p c #676767",
+".W c #696969",
+".3 c #6b6b6b",
+"#s c #727272",
+".v c #747474",
+".T c #757575",
+".U c #767676",
+"#I c #777777",
+"## c #7a7a7a",
+".S c #7e7e7e",
+".1 c #858585",
+"#F c #868686",
+"#J c #898989",
+".8 c #8a8a8a",
+".s c #8b8b8b",
+"#o c #8f8f8f",
+"#L c #929292",
+".g c #939393",
+"#g c #949494",
+"#q c #959595",
+".# c #969696",
+"#A c #979797",
+"#B c #989898",
+"#E c #9b9b9b",
+"#h c #9f9f9f",
+".k c #a0a0a0",
+"#v c #a1a1a1",
+".y c #a3a3a3",
+"#b c #a6a6a6",
+".d c #a8a8a8",
+".X c #aaaaaa",
+".b c #ababab",
+".E c #adadad",
+"#l c #afafaf",
+"#j c #b1b1b1",
+".M c #b3b3b3",
+"#N c #b7b7b7",
+"#m c #bbbbbb",
+".o c #bdbdbd",
+".f c #bebebe",
+"#p c #c0c0c0",
+".a c #c1c1c1",
+".D c #c4c4c4",
+"#k c #cfcfcf",
+".7 c #d1d1d1",
+"#y c #d2d2d2",
+"#w c #d4d4d4",
+"#r c #d9d9d9",
+".e c #dedede",
+".V c #e3e3e3",
+".2 c #e7e7e7",
+".L c #ebebeb",
+"#e c #ededed",
+".Q c #eeeeee",
+"Qt c #ffffff",
+"QtQtQtQtQtQtQtQtQtQt.#QtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.a.b.c.d.e.fQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQt.g.h.i.j.k.l.m.n.iQtQtQtQtQtQtQt",
+"QtQtQtQtQtQt.o.p.q.r.s.t.u.v.wQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt.x.y.z.c.A.B.C.DQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt.E.F.G.H.I.J.K.LQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt.M.N.w.O.P.C.l.QQtQtQtQtQtQtQt",
+"QtQtQtQtQtQt.e.N.R.S.T.F.G.J.UQtQtQtQtQtQtQt",
+"QtQtQtQtQtQt.V.i.W.X.Y.Z.J.0.1QtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt.2.3.4.5.J.6.7QtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.8.9.R.J#.QtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt###a#b#c#d#eQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt#f#g#h#i#i#jQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt#k.Z#l#m#i.J#nQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt#o.P#p#q#c.Z.H#rQtQtQtQtQtQtQt",
+"QtQtQtQtQtQt.W.6.m.f#s.l.t.J#tQtQtQtQtQtQtQt",
+"QtQtQtQtQtQt#u.u#v#w.B.J#c.J.P#x#yQtQtQtQtQt",
+"QtQtQtQtQt.E#z.p#A#B#C.J.R#D.O.F.#QtQtQtQtQt",
+"QtQtQtQtQt.o.R.3#E#F.c#G#G#H.I.5.oQtQtQtQtQt",
+"QtQtQtQtQtQt#I#J#K#z.J.J.J.J.t#yQtQtQtQtQtQt",
+"QtQtQtQtQtQtQt.L#L#K#M#M###NQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
+]
 
 class GamessPropDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
+        self.image0 = QPixmap(image0_data)
+
         if not name:
             self.setName("GamessPropDialog")
 
+        self.setIcon(self.image0)
 
         GamessPropDialogLayout = QVBoxLayout(self,11,6,"GamessPropDialogLayout")
 
-        layout35 = QGridLayout(None,1,1,0,6,"layout35")
+        layout33 = QHBoxLayout(None,0,6,"layout33")
 
-        self.atoms_list_btn = QPushButton(self,"atoms_list_btn")
+        layout29 = QVBoxLayout(None,0,6,"layout29")
 
-        layout35.addWidget(self.atoms_list_btn,0,2)
+        self.namelbl = QLabel(self,"namelbl")
+        self.namelbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout29.addWidget(self.namelbl)
+
+        self.txtlabel4 = QLabel(self,"txtlabel4")
+        self.txtlabel4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout29.addWidget(self.txtlabel4)
+
+        self.psetslbl_2 = QLabel(self,"psetslbl_2")
+        self.psetslbl_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout29.addWidget(self.psetslbl_2)
+        layout33.addLayout(layout29)
+
+        layout32 = QVBoxLayout(None,0,6,"layout32")
 
         self.name_linedit = QLineEdit(self,"name_linedit")
         self.name_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.name_linedit.setFrameShadow(QLineEdit.Sunken)
-
-        layout35.addWidget(self.name_linedit,0,1)
-
-        self.psets_combox = QComboBox(0,self,"psets_combox")
-
-        layout35.addWidget(self.psets_combox,1,1)
-
-        self.atoms_list_btn_2 = QPushButton(self,"atoms_list_btn_2")
-
-        layout35.addWidget(self.atoms_list_btn_2,1,2)
-
-        self.psetslbl = QLabel(self,"psetslbl")
-        self.psetslbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout35.addWidget(self.psetslbl,1,0)
-
-        self.namelbl = QLabel(self,"namelbl")
-        self.namelbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout35.addWidget(self.namelbl,0,0)
-        GamessPropDialogLayout.addLayout(layout35)
-
-        layout25 = QHBoxLayout(None,0,6,"layout25")
-
-        self.txtlabel4 = QLabel(self,"txtlabel4")
-        self.txtlabel4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout25.addWidget(self.txtlabel4)
+        layout32.addWidget(self.name_linedit)
 
         self.comment_linedit = QLineEdit(self,"comment_linedit")
         self.comment_linedit.setMaxLength(80)
-        layout25.addWidget(self.comment_linedit)
-        GamessPropDialogLayout.addLayout(layout25)
+        layout32.addWidget(self.comment_linedit)
+
+        layout30 = QHBoxLayout(None,0,6,"layout30")
+
+        self.runtyp_combox = QComboBox(0,self,"runtyp_combox")
+        layout30.addWidget(self.runtyp_combox)
+        spacer5 = QSpacerItem(127,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout30.addItem(spacer5)
+        layout32.addLayout(layout30)
+        layout33.addLayout(layout32)
+        GamessPropDialogLayout.addLayout(layout33)
 
         self.groupBox1 = QGroupBox(self,"groupBox1")
         self.groupBox1.setColumnLayout(0,Qt.Vertical)
@@ -89,22 +219,22 @@ class GamessPropDialog(QDialog):
         scftyp_btngrpLayout = QGridLayout(self.scftyp_btngrp.layout())
         scftyp_btngrpLayout.setAlignment(Qt.AlignTop)
 
-        layout33 = QHBoxLayout(None,0,6,"layout33")
+        layout33_2 = QHBoxLayout(None,0,6,"layout33_2")
 
         self.rhf_radiobtn = QRadioButton(self.scftyp_btngrp,"rhf_radiobtn")
         self.rhf_radiobtn.setChecked(1)
         self.scftyp_btngrp.insert( self.rhf_radiobtn,-1)
-        layout33.addWidget(self.rhf_radiobtn)
+        layout33_2.addWidget(self.rhf_radiobtn)
 
         self.uhf_radiobtn = QRadioButton(self.scftyp_btngrp,"uhf_radiobtn")
         self.scftyp_btngrp.insert( self.uhf_radiobtn,-1)
-        layout33.addWidget(self.uhf_radiobtn)
+        layout33_2.addWidget(self.uhf_radiobtn)
 
         self.rohf_radiobtn = QRadioButton(self.scftyp_btngrp,"rohf_radiobtn")
         self.scftyp_btngrp.insert( self.rohf_radiobtn,-1)
-        layout33.addWidget(self.rohf_radiobtn)
+        layout33_2.addWidget(self.rohf_radiobtn)
 
-        scftyp_btngrpLayout.addLayout(layout33,0,0)
+        scftyp_btngrpLayout.addLayout(layout33_2,0,0)
 
         groupBox1Layout.addWidget(self.scftyp_btngrp,0,0)
 
@@ -146,21 +276,21 @@ class GamessPropDialog(QDialog):
         ecm_btngrpLayout = QGridLayout(self.ecm_btngrp.layout())
         ecm_btngrpLayout.setAlignment(Qt.AlignTop)
 
-        layout30 = QHBoxLayout(None,0,6,"layout30")
+        layout30_2 = QHBoxLayout(None,0,6,"layout30_2")
 
         self.none_radiobtn = QRadioButton(self.ecm_btngrp,"none_radiobtn")
         self.none_radiobtn.setChecked(1)
         self.ecm_btngrp.insert( self.none_radiobtn,-1)
-        layout30.addWidget(self.none_radiobtn)
+        layout30_2.addWidget(self.none_radiobtn)
 
         self.dft_radiobtn = QRadioButton(self.ecm_btngrp,"dft_radiobtn")
-        layout30.addWidget(self.dft_radiobtn)
+        layout30_2.addWidget(self.dft_radiobtn)
 
         self.mp2_radiobtn = QRadioButton(self.ecm_btngrp,"mp2_radiobtn")
         self.ecm_btngrp.insert( self.mp2_radiobtn,-1)
-        layout30.addWidget(self.mp2_radiobtn)
+        layout30_2.addWidget(self.mp2_radiobtn)
 
-        ecm_btngrpLayout.addLayout(layout30,0,0)
+        ecm_btngrpLayout.addLayout(layout30_2,0,0)
         layout31.addWidget(self.ecm_btngrp)
 
         self.core_electrons_checkbox = QCheckBox(self.groupBox2,"core_electrons_checkbox")
@@ -168,7 +298,7 @@ class GamessPropDialog(QDialog):
         layout31.addWidget(self.core_electrons_checkbox)
         groupBox2Layout.addLayout(layout31)
 
-        layout32 = QHBoxLayout(None,0,6,"layout32")
+        layout32_2 = QHBoxLayout(None,0,6,"layout32_2")
 
         layout22 = QVBoxLayout(None,0,6,"layout22")
 
@@ -181,7 +311,7 @@ class GamessPropDialog(QDialog):
         self.gridsize_label.setEnabled(0)
         self.gridsize_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout22.addWidget(self.gridsize_label)
-        layout32.addLayout(layout22)
+        layout32_2.addLayout(layout22)
 
         layout23_2 = QVBoxLayout(None,0,6,"layout23_2")
 
@@ -192,8 +322,8 @@ class GamessPropDialog(QDialog):
         self.gridsize_combox = QComboBox(0,self.groupBox2,"gridsize_combox")
         self.gridsize_combox.setEnabled(0)
         layout23_2.addWidget(self.gridsize_combox)
-        layout32.addLayout(layout23_2)
-        groupBox2Layout.addLayout(layout32)
+        layout32_2.addLayout(layout23_2)
+        groupBox2Layout.addLayout(layout32_2)
         GamessPropDialogLayout.addWidget(self.groupBox2)
 
         self.groupBox3 = QGroupBox(self,"groupBox3")
@@ -265,13 +395,30 @@ class GamessPropDialog(QDialog):
         groupBox3Layout.addLayout(layout54)
         GamessPropDialogLayout.addWidget(self.groupBox3)
 
+        self.groupBox7 = QGroupBox(self,"groupBox7")
+        self.groupBox7.setColumnLayout(0,Qt.Vertical)
+        self.groupBox7.layout().setSpacing(6)
+        self.groupBox7.layout().setMargin(11)
+        groupBox7Layout = QHBoxLayout(self.groupBox7.layout())
+        groupBox7Layout.setAlignment(Qt.AlignTop)
+
+        self.server_combox = QComboBox(0,self.groupBox7,"server_combox")
+        groupBox7Layout.addWidget(self.server_combox)
+
+        self.server_manager_btn = QPushButton(self.groupBox7,"server_manager_btn")
+        groupBox7Layout.addWidget(self.server_manager_btn)
+        GamessPropDialogLayout.addWidget(self.groupBox7)
+
+        self.edit_input_file_cbox = QCheckBox(self,"edit_input_file_cbox")
+        GamessPropDialogLayout.addWidget(self.edit_input_file_cbox)
+
         layout23_3 = QHBoxLayout(None,0,6,"layout23_3")
 
-        self.save_parms_btn = QPushButton(self,"save_parms_btn")
-        layout23_3.addWidget(self.save_parms_btn)
+        self.queue_job_btn = QPushButton(self,"queue_job_btn")
+        layout23_3.addWidget(self.queue_job_btn)
 
-        self.run_gamess_btn = QPushButton(self,"run_gamess_btn")
-        layout23_3.addWidget(self.run_gamess_btn)
+        self.launch_job_btn = QPushButton(self,"launch_job_btn")
+        layout23_3.addWidget(self.launch_job_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         layout23_3.addWidget(self.cancel_btn)
@@ -279,32 +426,31 @@ class GamessPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(475,498).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(475,583).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("close()"))
         self.connect(self.ecm_btngrp,SIGNAL("clicked(int)"),self.set_ecmethod)
-        self.connect(self.save_parms_btn,SIGNAL("clicked()"),self.writeinpfile)
-        self.connect(self.atoms_list_btn,SIGNAL("clicked()"),self.open_atoms_list_in_editor)
+        self.connect(self.queue_job_btn,SIGNAL("clicked()"),self.queue_job)
         self.connect(self.name_linedit,SIGNAL("returnPressed()"),self.rename)
-        self.connect(self.run_gamess_btn,SIGNAL("clicked()"),self.run_gamess)
+        self.connect(self.launch_job_btn,SIGNAL("clicked()"),self.launch_job)
         self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
-        self.connect(self.psets_combox,SIGNAL("activated(int)"),self.add_or_change_pset)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("GAMESS Properties"))
-        self.atoms_list_btn.setText(self.__tr("Atom List..."))
-        self.name_linedit.setText(QString.null)
-        QToolTip.add(self.name_linedit,self.__tr("The name of the GAMESS jig.."))
-        QWhatsThis.add(self.name_linedit,self.__tr("The name of the GAMESS jig.."))
-        self.atoms_list_btn_2.setText(self.__tr("Edit/Delete..."))
-        self.psetslbl.setText(self.__tr("Parameter Set :"))
         self.namelbl.setText(self.__tr("Name :"))
         self.txtlabel4.setText(self.__tr("Comment :"))
+        self.psetslbl_2.setText(self.__tr("Calculate :"))
+        self.name_linedit.setText(QString.null)
+        QToolTip.add(self.name_linedit,self.__tr("The name of the GAMESS jig."))
+        QWhatsThis.add(self.name_linedit,self.__tr("The name of the GAMESS jig."))
         self.comment_linedit.setText(QString.null)
         QToolTip.add(self.comment_linedit,self.__tr("Text placed here is incorporated into the standard GAMESS comment line."))
         QWhatsThis.add(self.comment_linedit,self.__tr("Text placed here is incorporated into the standard GAMESS comment line."))
+        self.runtyp_combox.clear()
+        self.runtyp_combox.insertItem(self.__tr("Molecular Energy"))
+        self.runtyp_combox.insertItem(self.__tr("Optimization"))
         self.groupBox1.setTitle(self.__tr("Electronic Structure Properties and Basis Set Selection"))
         self.gbasis_label.setText(self.__tr("Basis Set :"))
         self.gbasis_combox.clear()
@@ -434,18 +580,23 @@ class GamessPropDialog(QDialog):
         self.rstrct_checkbox.setText(self.__tr("RSTRCT"))
         QToolTip.add(self.rstrct_checkbox,self.__tr("Controls restriction of orbital interchanges."))
         QWhatsThis.add(self.rstrct_checkbox,self.__tr("Controls restriction of orbital interchanges."))
-        self.save_parms_btn.setText(self.__tr("Save and Exit"))
-        QToolTip.add(self.save_parms_btn,self.__tr("Save GAMESS parameters only."))
-        QWhatsThis.add(self.save_parms_btn,self.__tr("Save GAMESS parameters only."))
-        self.run_gamess_btn.setText(self.__tr("Save and Run GAMESS"))
-        QToolTip.add(self.run_gamess_btn,self.__tr("Save GAMESS parameters and launch job."))
+        self.groupBox7.setTitle(self.__tr("Server"))
+        self.server_combox.clear()
+        self.server_combox.insertItem(self.__tr("My Computer"))
+        self.server_manager_btn.setText(self.__tr("Server Manager..."))
+        self.edit_input_file_cbox.setText(self.__tr("Open Input File in Editor after Queuing (and before Launching)"))
+        self.queue_job_btn.setText(self.__tr("Queue Job"))
+        QToolTip.add(self.queue_job_btn,self.__tr("Save GAMESS parameters only."))
+        QWhatsThis.add(self.queue_job_btn,self.__tr("Save GAMESS parameters only."))
+        self.launch_job_btn.setText(self.__tr("Launch Job"))
+        QToolTip.add(self.launch_job_btn,self.__tr("Save GAMESS parameters and launch job."))
         self.cancel_btn.setText(self.__tr("Cancel"))
         QToolTip.add(self.cancel_btn,self.__tr("Closes this window."))
         QWhatsThis.add(self.cancel_btn,self.__tr("Closes this window."))
 
 
-    def writeinpfile(self):
-        print "GamessPropDialog.writeinpfile(): Not implemented yet"
+    def queue_job(self):
+        print "GamessPropDialog.queue_job(): Not implemented yet"
 
     def set_ecmethod(self):
         print "GamessPropDialog.set_ecmethod(): Not implemented yet"
@@ -459,8 +610,8 @@ class GamessPropDialog(QDialog):
     def set_jig_filenames(self):
         print "GamessPropDialog.set_jig_filenames(): Not implemented yet"
 
-    def run_gamess(self):
-        print "GamessPropDialog.run_gamess(): Not implemented yet"
+    def launch_job(self):
+        print "GamessPropDialog.launch_job(): Not implemented yet"
 
     def edit_gmshost(self):
         print "GamessPropDialog.edit_gmshost(): Not implemented yet"
