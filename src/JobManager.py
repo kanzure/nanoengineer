@@ -8,20 +8,32 @@ __author__ = "Mark"
 
 import os
 
-def touch_status_file(job_id_dir, Status='Queued'):
-    '''Creates the status file for a given job provided the job_id_dir and status.
+def touch_job_id_status_file(job_id, Status='Queued'):
+    '''Creates the status file for a given job provided the job_id and status.
     It will remove any existing status file(s) in the directory.
     Status must be one of: Queued, Running, Completed, Suspended or Failed.
+    Return values:
+        0 = Status file created in the Job Id directory.
+        1 = Job Id directory did not exists.  Status file was not created.
+        2 = Invalid Status.
     '''
+    
+    # Create Job Id subdirectory
+    from platform import find_or_make_Nanorex_prefs_directory
+    nanorex = find_or_make_Nanorex_prefs_directory()
+    
+    # Job Id dir (i.e. ~/Nanorex/JobManager/123/)
+    job_id_dir  = os.path.join(nanorex, 'JobManager', str(job_id))
+        
     # Make sure the directory exists
     if not os.path.exists(job_id_dir):
-        print "touch_status_file error: The directory ", job_id_dir, " does not exist."
+        print "touch_job_id_status_file error: The directory ", job_id_dir, " does not exist."
         return 1
     
     # Make sure Status is valid.
     if Status not in ('Queued', 'Running', 'Completed', 'Suspended', 'Failed'):
-        print "touch_status_file error: Status is invalid: ", Status
-        return 1
+        print "touch_job_id_status_file error: Status is invalid: ", Status
+        return 2
     
     # Remove any status files (i.e. Status-Running in the directory)
     import glob
@@ -35,6 +47,8 @@ def touch_status_file(job_id_dir, Status='Queued'):
     status_file = os.path.join(job_id_dir, 'Status-'+Status)
     f = open(status_file, 'w')
     f.close()
+    
+    return 0
     
 def get_job_manager_job_id_and_dir():
     '''Returns a unique Job Id number and JobManager subdirectory for this Job Id.  
@@ -65,7 +79,7 @@ def get_job_manager_job_id_and_dir():
         else:
             os.makedirs(job_id_dir) # No Job Id subdir, so let's make it.
             prefs['JobId'] = job_id # Store the Job Id
-            touch_status_file(job_id_dir)
+            touch_job_id_status_file(job_id, 'Queued')
             return str(job_id), job_id_dir
 
 # A list as a 2-dimensional array of sub-lists.
