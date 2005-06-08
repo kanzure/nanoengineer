@@ -18,12 +18,12 @@ def touch_job_id_status_file(job_id, Status='Queued'):
         2 = Invalid Status.
     '''
     
-    # Create Job Id subdirectory
-    from platform import find_or_make_Nanorex_prefs_directory
-    nanorex = find_or_make_Nanorex_prefs_directory()
+    # Get the Job Manager directory
+    from platform import find_or_make_Nanorex_subdir
+    jobdir = find_or_make_Nanorex_subdir('JobManager')
     
     # Job Id dir (i.e. ~/Nanorex/JobManager/123/)
-    job_id_dir  = os.path.join(nanorex, 'JobManager', str(job_id))
+    job_id_dir  = os.path.join(jobdir, str(job_id))
         
     # Make sure the directory exists
     if not os.path.exists(job_id_dir):
@@ -63,22 +63,28 @@ def get_job_manager_job_id_and_dir():
     else:
         job_id += 1 # Increment the Job Id
     
-    # Create Job Id subdirectory
-    from platform import find_or_make_Nanorex_prefs_directory
-    nanorex = find_or_make_Nanorex_prefs_directory()
+    # Get the Job Manager directory
+    from platform import find_or_make_Nanorex_subdir
+    jobdir = find_or_make_Nanorex_subdir('JobManager')
     
     while 1:
         
-        # Create Job Id dir (i.e. ~/Nanorex/JobManager/123/)
-        job_id_dir  = os.path.join(nanorex, 'JobManager', str(job_id))
+        # Create Job Id subdir (i.e. ~/Nanorex/JobManager/123/)
+        job_id_dir  = os.path.join(jobdir, str(job_id))
         
         # Make sure there isn't already a Job Id subdir in ~/Nanorex/JobManager/
         if os.path.exists(job_id_dir):
             job_id += 1 # It is there, so increment the Job Id and try again.
             
         else:
-            os.makedirs(job_id_dir) # No Job Id subdir, so let's make it.
-            prefs['JobId'] = job_id # Store the Job Id
+            from debug import print_compact_traceback
+            try:
+                os.mkdir(job_id_dir)
+            except:
+                print_compact_traceback("exception in creating directory: \"%s\"" % job_id_dir)
+                return -1, 0
+            
+            prefs['JobId'] = job_id # Save the most recent Job Id
             touch_job_id_status_file(job_id, 'Queued')
             return str(job_id), job_id_dir
 

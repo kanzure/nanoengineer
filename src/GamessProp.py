@@ -261,12 +261,11 @@ class GamessProp(GamessPropDialog):
                 self.gmsdir = '/usr/local/gamess' # Full path to GAMESS directory
                 self.gms_program = os.path.join(self.gmsdir, 'rungms')  # Full path to GAMESS executable
         
-        # Setup the Gamess temporary directory ~Nanorex/GamessFiles.
+        # Setup the Gamess directory ~Nanorex/GamessFiles.
         # This should be moved to platform.py and called once per session, not
         # each time a Gamess jig is created.  I need to talk to Bruce about this first.
         # Mark 050530.
-        nanorex = platform.find_or_make_Nanorex_prefs_directory()
-        self.gmstmpdir  = os.path.join(nanorex,'GamessFiles')
+        self.gmstmpdir  = platform.find_or_make_Nanorex_subdir('GamessFiles')
         if not os.path.exists(self.gmstmpdir):
             os.mkdir(self.gmstmpdir)
         

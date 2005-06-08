@@ -267,10 +267,10 @@ def fix_buttons_helper(self, but, when):
 
 _tmpFilePath = None
 
-def find_or_make_Nanorex_prefs_directory():
+def find_or_make_Nanorex_directory():
     """
     Find or make the directory ~/Nanorex, in which we will store
-    preferences, temporary files, etc.
+    important subdirectories such as Preferences, temporary files, etc.
     If it doesn't exist and can't be made, try using /tmp.
     [#e Future: for Windows that backup dir should be something other than /tmp.
      And for all OSes, we should use a more conventional place to store prefs
@@ -279,12 +279,12 @@ def find_or_make_Nanorex_prefs_directory():
     global _tmpFilePath
     if _tmpFilePath:
         return _tmpFilePath # already chosen, always return the same one
-    _tmpFilePath = _find_or_make_prefsdir_0()
+    _tmpFilePath = _find_or_make_nanorex_dir_0()
     assert _tmpFilePath
     return _tmpFilePath
 
-def _find_or_make_prefsdir_0():
-    """private helper function for find_or_make_Nanorex_prefs_directory"""
+def _find_or_make_nanorex_dir_0():
+    """private helper function for find_or_make_Nanorex_directory"""
     
     #Create the temporary file directory if not exist [by huaicai ~041201]
     # bruce 041202 comments about future changes to this code:
@@ -316,6 +316,22 @@ def _find_or_make_prefsdir_0():
     #e now we should create or update a README file in there [bruce 050104]
     return tmpFilePath
 
+def find_or_make_Nanorex_subdir(subdir):
+    """Find or make a subdirectory under ~/Nanorex/.
+    Return the full path of the Nanorex subdirectory whether it already exists or was made here.
+    """
+    nanorex = find_or_make_Nanorex_directory()
+    nanorex_subdir  = os.path.join(nanorex, subdir)
+    
+    if not os.path.exists(nanorex_subdir):
+        from debug import print_compact_traceback
+        try:
+            os.mkdir(nanorex_subdir)
+        except:
+            print_compact_traceback("exception in creating directory: \"%s\"" % nanorex_subdir)
+
+    return nanorex_subdir
+    
 def make_history_filename():
     """[private method for history init code]
     Return a suitable name for a new history file (not an existing filename).
@@ -324,7 +340,7 @@ def make_history_filename():
     This filename could also someday be used as a "process name", valid forever,
     but relative to the local filesystem.
     """
-    prefsdir = find_or_make_Nanorex_prefs_directory()
+    prefsdir = find_or_make_Nanorex_directory()
     tried_already = None
     while 1:
         histfile = os.path.join( prefsdir, "Histories", "h%s.txt" % time.strftime("%Y%m%d-%H%M%S") )

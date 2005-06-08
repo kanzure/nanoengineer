@@ -175,7 +175,7 @@ def _make_prefs_shelf():
     and close the shelf again in case a concurrent process is sharing the same shelf with us.
     """
     global _shelfname, _shelf, _cache
-    nanorex = platform.find_or_make_Nanorex_prefs_directory()
+    nanorex = platform.find_or_make_Nanorex_directory()
     global dbname
     _shelfname = os.path.join( nanorex, "Preferences", "%s-shelf" % dbname )
         # This name should differ when db format differs.

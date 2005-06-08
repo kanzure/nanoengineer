@@ -81,7 +81,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into atom.py at some point)
-        self.tmpFilePath = platform.find_or_make_Nanorex_prefs_directory()
+        self.tmpFilePath = platform.find_or_make_Nanorex_directory()
 
         # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
         import extrudeMode as _extrudeMode
