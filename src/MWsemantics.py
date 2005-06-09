@@ -1264,7 +1264,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         """Opens the Job Manager dialog... for details see subroutine's docstring.
         """
         from JobManager import JobManager
-        dialog = JobManager()
+        dialog = JobManager(self)
         if dialog:
             self.jobmgrcntl = dialog #probably useless, but done since old code did it;
                 # conceivably, keeping it matters due to its refcount. [bruce 050327]

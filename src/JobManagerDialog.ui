@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>JobManagerDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>883</width>
-            <height>252</height>
+            <width>1009</width>
+            <height>255</height>
         </rect>
     </property>
     <property name="caption">
@@ -245,7 +245,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="224">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000a749444154789ced92310a83301486bf948edea2ab7ba407690ee2217a163b7b087385b82a814e7610e9942e26a568a548bae58347e07fe11b7e1e2466048094952b4b81b5166bed6e993186be5768adc4d1875d7706609a9ebbc5c3f0005a0082b8aeef8c63fbb3a4692e14c5ede3cdf32b59767a7f92b2724094995d1cbcdc39b71829abd57c6be709e2d884ab8829d55a09bc788d6ff9d66ed1716c5215815445e0bf5524005edbf85633ba0452980000000049454e44ae426082</data>
+        <data format="XPM.GZ" length="797">789ce5d1dd0a82301c05f07b9f62b83b89cc693a891ea1e832882ee63efc000bca2e227af73c4b094908a2bbce7fe87e1c1c037d8f6c372be2f9ceb9114d29892cc48978ea52d7d7dd7e79735cc648bb8276b913c79d1249d6c783c6be6af77466039620cb58c663908261122622057330621193f65b05ce190634606c62a31428c18463400d72cdb58ec00c4c030c2840610316a0b1b1171ecdd70d15991c46d1aed1da0c93f74d4e5f293065df546fe99b02793ebbd7e76624ff76daeffef67de13c00e3e5b952</data>
     </image>
 </images>
 <connections>
@@ -273,11 +273,25 @@
         <receiver>JobManagerDialog</receiver>
         <slot>refresh_job_table()</slot>
     </connection>
+    <connection>
+        <sender>start_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>startJob()</slot>
+    </connection>
+    <connection>
+        <sender>stop_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>stopJob()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>cell_clicked()</slot>
     <slot>delete_job()</slot>
     <slot>refresh_job_table()</slot>
+    <slot>startJob()</slot>
+    <slot>stopJob()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

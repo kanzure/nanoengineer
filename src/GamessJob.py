@@ -14,13 +14,20 @@ from GamessProp import GamessProp
 
 class GamessJob(SimJob):
     
-    def __init__(self, gamess_jig, job_parms):
+    def __init__(self,  job_parms, **job_prop):
         
         name = "Gamess Job 1"
-        self.gamessJig = gamess_jig
+        [serverParam, self.job_batfile, self.job_outputfile] = job_prop.get('job_of_file', [None, None, None])
+        if self.job_outputfile: self.job_outputfile = self.job_outputfile.strip('"')
+        self.gamessJig = job_prop.get('jig', None)
+        
+        if serverParam:
+            self.server = SimServer(serverParam)
+        
         SimJob.__init__(self, name, job_parms)
         self.edit_cntl = GamessProp()
-        self.server = gamess_jig.server
+        if self.gamessJig:
+            self.server = self.gamessJig.server
         
     def edit(self):
         self.edit_cntl.showDialog(self)
@@ -31,6 +38,7 @@ class GamessJob(SimJob):
         # Get a unique Job Id and the Job Id directory
         from JobManager import get_job_manager_job_id_and_dir
         job_id, job_id_dir = get_job_manager_job_id_and_dir()
+        self.Job_id = job_id
         print "GamessProp.queue_job: Job Id = ", job_id
 
         # GAMESS Job INP, OUT and BAT files.
@@ -59,8 +67,58 @@ class GamessJob(SimJob):
 
     def start_job(self):
         self.starttime = time.time()
-        print "GamessJob.start_job: Engine = ", self.server.engine
         print "Just execute the file:", self.job_batfile
+        self._launch_pcgamess_using_spawnv()
+        
+    def _launch_pcgamess_using_spawnv(self):
+        '''Run PC GAMESS (Windows or Linux only).
+        PC GAMESS creates 2 output files:
+          - the DAT file, called "PUNCH", is written to the directory from which
+            PC GAMESS is started.  This is why we chdir to the Gamess temp directory
+            before we run PC GAMESS.
+          - the OUT file (aka the log file), which we name jigname.out.
+        '''
+        if not os.path.exists(self.server.program):
+            msg = "The PC GAMESS executable " + self.server.program + "does not exist."
+            self.win.history.message(redmsg(msg))
+#            print msg
+            msg = "Check the PC GAMESS pathname in the User Preferences to make sure it is set correctly."
+            self.win.history.message(redmsg(msg))
+#            print msg
+            return
+
+        oldir = os.getcwd() # Save current directory
+        
+        jobDir = os.path.dirname(self.job_batfile)
+        os.chdir(jobDir) # Change directory to the GAMESS temp directory.
+        
+        DATfile = os.path.join(jobDir, "PUNCH")
+        if os.path.exists(DATfile): # Remove any previous DAT (PUNCH) file.
+            print "run_pcgamess: Removing DAT file: ", DATfile
+            os.remove(DATfile)
+        
+        # Hours wasted testing this undocumented tripe.  Here's the deal: When using spawnv
+        # on Windows, any args that might have spaces must be delimited by double quotes.
+        # Mark 050530.
+        
+        program = "\"" + self.job_batfile + "\""
+        args = [program, ]
+        
+        # Here's the infuriating part.  The 2nd arg to spawnv cannot have double quotes, but the
+        # first arg in args (the program name) must have the double quotes if there is a space in
+        # self.gms_program.
+        
+        print  "program = ", program
+        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+        os.spawnv(os.P_WAIT, self.job_batfile, args)
+         
+        
+               
+        os.chdir(oldir)
+#        print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
+        
+        
+
 
 # File Writing Methods.
         

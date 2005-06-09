@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\JobManagerDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\JobManagerDialog.ui'
 #
-# Created: Tue Jun 7 15:25:49 2005
+# Created: Thu Jun 9 15:37:10 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -11,33 +11,50 @@
 from qt import *
 from qttable import QTable
 
-image0_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
-    "\xa7\x49\x44\x41\x54\x78\x9c\xed\x92\x31\x0a\x83" \
-    "\x30\x14\x86\xbf\x94\x8e\xde\xa2\xab\x7b\xa4\x07" \
-    "\x69\x0e\xe2\x21\x7a\x16\x3b\x7b\x08\x73\x85\xb8" \
-    "\x2a\x81\x4e\x76\x10\xe9\x94\x2e\x26\xa5\x68\xa5" \
-    "\x48\xba\xe5\x83\x47\xe0\x7f\xe1\x1b\x7e\x1e\x24" \
-    "\x66\x04\x80\x94\x95\x2b\x4b\x81\xb5\x16\x6b\xed" \
-    "\x6e\x99\x31\x86\xbe\x57\x68\xad\xc4\xd1\x87\x5d" \
-    "\x77\x06\x60\x9a\x9e\xbb\xc5\xc3\xf0\x00\x5a\x00" \
-    "\x82\xb8\xae\xef\x8c\x63\xfb\xb3\xa4\x69\x2e\x14" \
-    "\xc5\xed\xe3\xcd\xf3\x2b\x59\x76\x7a\x7f\x92\xb2" \
-    "\x72\x40\x94\x99\x5d\x1c\xbc\xdc\x39\xb7\x18\x29" \
-    "\xab\xd5\x7c\x6b\xe7\x09\xe2\xd8\x84\xab\x88\x29" \
-    "\xd5\x5a\x09\xbc\x78\x8d\x6f\xf9\xd6\x6e\xd1\x71" \
-    "\x6c\x52\x15\x81\x54\x45\xe0\xbf\x55\x24\x00\x5e" \
-    "\xdb\xf8\x56\x33\xba\x04\x52\x98\x00\x00\x00\x00" \
-    "\x49\x45\x4e\x44\xae\x42\x60\x82"
+image0_data = [
+"22 22 12 1",
+". c None",
+"j c #000000",
+"i c #2b2b86",
+"# c #3737a9",
+"g c #4242ce",
+"d c #525252",
+"f c #6f6fdd",
+"c c #787878",
+"e c #8e8ee4",
+"b c #919191",
+"a c #aaaaaa",
+"h c #ffffff",
+"......................",
+"......................",
+"......................",
+".#abcccccccccccccccd#.",
+".#eefffffffffffffffg#.",
+".#g###########h#h#hi#.",
+".#jjjjjjjjjjjjjjjjjj#.",
+".#hhhhh#hhhhhh#hhhhh#.",
+".#hhhhh#hhhhhh#hhhhh#.",
+".####################.",
+".#hhhhh#hhhhhh#hhhhh#.",
+".#hhhhh#hhhhhh#hhhhh#.",
+".####################.",
+".#hhhhh#hhhhhh#hhhhh#.",
+".#hhhhh#hhhhhh#hhhhh#.",
+".####################.",
+".#hhhhh#hhhhhh#hhhhh#.",
+".#hhhhh#hhhhhh#hhhhh#.",
+".####################.",
+"......................",
+"......................",
+"......................"
+]
 
 class JobManagerDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
-        self.image0 = QPixmap()
-        self.image0.loadFromData(image0_data,"PNG")
+        self.image0 = QPixmap(image0_data)
+
         if not name:
             self.setName("JobManagerDialog")
 
@@ -123,13 +140,15 @@ class JobManagerDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(883,252).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1009,255).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.close_btn,SIGNAL("clicked()"),self,SLOT("close()"))
         self.connect(self.job_table,SIGNAL("clicked(int,int,int,const QPoint&)"),self.cell_clicked)
         self.connect(self.delete_btn,SIGNAL("clicked()"),self.delete_job)
         self.connect(self.refresh_btn,SIGNAL("clicked()"),self.refresh_job_table)
+        self.connect(self.start_btn,SIGNAL("clicked()"),self.startJob)
+        self.connect(self.stop_btn,SIGNAL("clicked()"),self.stopJob)
 
 
     def languageChange(self):
@@ -163,6 +182,12 @@ class JobManagerDialog(QDialog):
 
     def refresh_job_table(self):
         print "JobManagerDialog.refresh_job_table(): Not implemented yet"
+
+    def startJob(self):
+        print "JobManagerDialog.startJob(): Not implemented yet"
+
+    def stopJob(self):
+        print "JobManagerDialog.stopJob(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("JobManagerDialog",s,c)

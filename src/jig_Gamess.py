@@ -14,13 +14,14 @@ from SimServer import SimServer
 
 # Default job parameters for a GAMESS job.
 job_parms = {
-        'engine':'GAMESS',
-        'calculation':'',
-        'description':'',
-        'status':'',
-        'job_id':'',
-        'start_time':'',
-        'end_time':''}
+        'Engine':'GAMESS',
+        'Calculation':'',
+        'Description':'',
+        'Status':'',
+        'Server':'',
+        'Job_id':'',
+        'Start_time':'',
+        'End_time':''}
 
 server_parms = {
         'hostname':'My Computer',
@@ -48,7 +49,7 @@ class Gamess(Jig):
         self.psets = [] # list of parms set objects
         self.psets.append(gamessParms('Parameter Set 1'))
         self.server = SimServer(server_parms)
-        self.gmsjob = GamessJob(self, job_parms)
+        self.gmsjob = GamessJob(job_parms, jig=self)
         self.gmsjob.edit()
 
     def edit(self):

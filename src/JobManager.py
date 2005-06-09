@@ -7,6 +7,7 @@ $Id$
 __author__ = "Mark"
 
 import os
+from HistoryWidget import redmsg
 
 def touch_job_id_status_file(job_id, Status='Queued'):
     '''Creates the status file for a given job provided the job_id and status.
@@ -90,7 +91,7 @@ def get_job_manager_job_id_and_dir():
 
 # A list as a 2-dimensional array of sub-lists.
 # This is a sample list of 4 jobs for testing purposes.
-jobs = [["Small Bearing.mmp", "GAMESS", "Molecular Energy","Inner Shaft", 
+"""jobs = [["Small Bearing.mmp", "GAMESS", "Molecular Energy","Inner Shaft", 
              "Queued", "My Computer", "1234", "", ""],
               ["MarkIIk.mmp", "MD Simulator", "Movie","2000 Frames", 
              "Running", "cluster1.nanorex.com", "1233", "0:15", "6/6/2005 12:00:01"],
@@ -98,7 +99,7 @@ jobs = [["Small Bearing.mmp", "GAMESS", "Molecular Energy","Inner Shaft",
              "Failed", "cluster1.nanorex.com", "1232", "0:25:10", "6/6/2005 10:30:22"],
              ["Small Bearing.mmp", "MD Simulator", "Minimize", "Inner Shaft",
              "Completed", "My Computer", "1231", "1:35:19", "6/6/2005 8:45:41"]]
-
+"""
 # A list as a 2-dimensional array of dictionaries. 
 # This is a sample list of 4 jobs for testing purposes. This is currently not used.
 jobs2 = [{'Part':'Small Bearing1.mmp', 'Engine':'GAMESS', 'Description':'Molecular Energy - Inner Shaft', 
@@ -109,21 +110,23 @@ jobs2 = [{'Part':'Small Bearing1.mmp', 'Engine':'GAMESS', 'Description':'Molecul
              'Status':'Failed', 'Server':'cluster1.nanorex.com', 'JobId':'1232', 'Time':125,'Start Time':'6/6/2005 14:00:01'}]
 
 from JobManagerDialog import JobManagerDialog
+from GamessJob import GamessJob
         
 class JobManager(JobManagerDialog):
-    
-    def __init__(self):
-        JobManagerDialog.__init__(self)
+    jobType = {"GAMESS": GamessJob, "nanoSIM-1": None}#NanoSimJob}   
+    def __init__(self, parent):
+        JobManagerDialog.__init__(self, parent)
         
-        self.job = None # The job object, currently selected in the job table.
+        self.win = parent
+        self.jobs = [] # The job object, currently selected in the job table.
         self.setup()
         self.exec_loop()
 
 
     def setup(self):
-        ''' Setup widgets to default (or default) values. Return true on error (not yet possible).
+        """ Setup widgets to default (or default) values. Return true on error (not yet possible).
         This is not implemented yet.
-        '''
+        """
         self.refresh_job_table() # Rebuild the job table from scratch.
         self.cell_clicked(0,0,1,0) # This selects row no. 1 as the current job.
 
@@ -131,10 +134,11 @@ class JobManager(JobManagerDialog):
         print "row =", row, ", column =", col, ", button =", button
         
         # Get the job info from the row the user clicked on.
-        self.job = Job(jobs[row], row)
-        
+        #self.job = Job(self.jobs[row], row)
+
         # Enable/disable the buttons in the Job Manager based on the Status field.
-        if self.job.status == "Queued":
+        jobStatus = self.jobInfoList[row][0]['Status']
+        if jobStatus == "Queued":
             self.start_btn.setText("Start")
             self.start_btn.setEnabled(1)
             self.stop_btn.setEnabled(0)
@@ -143,7 +147,7 @@ class JobManager(JobManagerDialog):
             self.delete_btn.setEnabled(1)
             self.move_btn.setEnabled(0)
             
-        elif self.job.status == "Running":
+        elif jobStatus == "Running":
             self.start_btn.setText("Start")
             self.start_btn.setEnabled(0)
             self.stop_btn.setEnabled(1)
@@ -152,7 +156,7 @@ class JobManager(JobManagerDialog):
             self.delete_btn.setEnabled(0)
             self.move_btn.setEnabled(0)
             
-        elif self.job.status == "Completed":
+        elif jobStatus == "Completed":
             self.start_btn.setText("Start")
             self.start_btn.setEnabled(0)
             self.stop_btn.setEnabled(0)
@@ -161,7 +165,7 @@ class JobManager(JobManagerDialog):
             self.delete_btn.setEnabled(1)
             self.move_btn.setEnabled(1)
             
-        elif self.job.status == "Failed":
+        elif jobStatus == "Failed":
             self.start_btn.setText("Restart")
             self.start_btn.setEnabled(1)
             self.stop_btn.setEnabled(0)
@@ -170,58 +174,115 @@ class JobManager(JobManagerDialog):
             self.delete_btn.setEnabled(1)
             self.move_btn.setEnabled(0)
         
+        
     def refresh_job_table(self):
-        '''Refreshes the Job Manager table based on the current Job Manager directory.
+        """Refreshes the Job Manager table based on the current Job Manager directory.
         This method removes all rows in the existing table and rebuilds everything from
         scratch by reading the ~/Nanorex/JobManager/ directory.
-        '''
-        
+        """
         # Remove all rows in the job table
         for r in range(self.job_table.numRows()):
             self.job_table.removeRow(0)
         
-        numjobs = len(jobs) # One row for each job.
-        columns = 9 # The number of columns in the job table (change this if you add/remove columns).
+        # BUILD JOB LIST FROM JobManager Directory Structure and Files.
+        self.jobInfoList = self.build_job_list()
+        
+        numjobs = len(self.jobInfoList) # One row for each job.
+        tabTitles = ['Name', 'Engine', 'Calculation', 'Description', 'Status', 'Server', 'Job_id', 'End_time', 'Start_time'] # The number of columns in the job table (change this if you add/remove columns).
 
+        self.jobs = []
         for row in range(numjobs):
             print "JobManager.refresh_job_table: Adding row #", row
             self.job_table.insertRows(row)
-            for col in range(columns):
-                self.job_table.setText(row , col, jobs[row][col])
+            
+            for col in range(len(tabTitles)):
+                self.job_table.setText(row , col, self.jobInfoList[row][0][tabTitles[col]])
+                
+        self.jobs = self.__createJobs(self.jobInfoList)     
+                
         
     def delete_job(self):
-        self.job_table.removeRow(self.job.row)
-                
-#    def get_queued_jobs(self):
-#        '''Returns the info for all queued jobs.
-#        '''
+        self.job_table.removeRow(self.job_table.currentRow())
+    
+    def startJob(self):
+        """ Run current job"""
+        currentJobRow = self.job_table.currentRow()
+        self.jobs[currentJobRow].start_job()
+        # Print msg telling user the final energy value.
         
-#        elist = []
+        final_energy = self.jobs[currentJobRow].get_energy_from_outputfile()
+        if final_energy:
+            msg = "GAMESS finished.  The final energy is: " + str(final_energy)
+        else:
+            msg = redmsg("Final energy value not found.")
+        self.win.history.message(msg)
         
-#        for qfile in list_of_queued_files:
-            
-#            lines = open(qfile,"rU").readlines()
+    
+    def build_job_list(self):
+        """ Scan Job manager directories to find and return all the list of jobs"""
+        import platform
+        import os
         
-#                for line in lines:
-#                    if not line: 
-#                        return None # EOF.
-#                    elif line.find('# Part name:') >= 0:
-#                        elist = line.split()
-#                        print elist
-#                       return float(elist[3]) # Return the final energy value.
-#                    else: continue
-            
-#        return None # Just in case (i.e. file doesn't exist).
+        tmpFilePath = platform.find_or_make_Nanorex_directory()
+        managerDir = os.path.join(tmpFilePath, "JobManager")
+        jobDirs = os.listdir(managerDir)
+        jobs = []
+        
+        try:
+           for dr in jobDirs:
+             jobPath = os.path.join(managerDir, dr)  
+             if os.path.isdir(jobPath):
+                jobParas ={}; serverParas = {}; status = None
+                files = os.listdir(jobPath)
+                for f in files:
+                    if jobParas and serverParas and status: break
+                    if os.path.isfile(os.path.join(jobPath, f)):
+                       if f.startswith("Status"):
+                             status = f.split('-')[1]
+                       elif f.endswith(".bat"):
+                           batFile = os.path.join(jobPath, f)
+                           lines = open(batFile, 'rU').readlines()
+                           for l in lines:
+                               if l.startswith("#") or l.startswith("REM"):
+                                    if l.startswith("#"): commentStr = "#"
+                                    else: commentStr = "REM"
+                                    l = l.lstrip(commentStr)
+                                    if l.strip() == 'Job Parameters':
+                                        onejob = jobParas
+                                    elif l.strip() == 'Server Parameters':
+                                        onejob = serverParas
+                                    value = l.split(': ')
+                                    if len(value) > 1:
+                                        onejob[value[0].strip()] = value[1].strip()
+                               else:
+                                    items = l.split('-o ')
+                                    if len(items) > 1:
+                                        outputFile = items[1].strip()
+                               
+                                        
+                    
+                #if len(onejob) != 8:
+                #     raise ValueError, "Batch file is missed or has wrong format"           
+                jobParas['Status'] = status
+                jobs += [(jobParas, serverParas, batFile, outputFile)]         
+           return jobs                
+        except:
+           print "Exception: build job lists failed. check the directory/files."
+           return None                                
 
-class Job:
-    def __init__(self, jinfo, row):
-        self.name = jinfo[0] # Job Name
-        self.engine = jinfo[1] # Engine (MD Simulator or GAMESS)
-        self.calculation = jinfo[2] # Calculation 
-        self.description = jinfo[3] # From GAMESS: Comment line, from MD Simulator: Description line.
-        self.status = jinfo[4] # The status of the job, gotten from the "Status" file in the job_id subdirectory.
-        self.server = jinfo[5] # The computer
-        self.job_id = jinfo[6] # Job Id, determined by the Job Manager
-        self.time = jinfo[7] # Duration (in seconds), displayed in hh:mm:ss format.
-        self.start_time = jinfo[8] # Time job was started (from the bat filename in job_id subdirectory)
-        self.row = row # The row no. for this job.
+
+    def __createJobs(self, jobInfoList):
+        """Create SimJob objects, return the list of job objects"""
+        jobs = []
+        for j in jobInfoList:
+            if j[0]['Engine'] == 'GAMESS':
+                #Create GamessJob, call GamessJob.readProp()
+                jobs += [GamessJob(j[0], job_of_file =j[1:])]
+            elif j[0]['Engine'] == 'nanoSIM-1':
+                #Create nanoEngineer-1 MD simulator job
+                pass
+                
+        return jobs
+    
+                
+

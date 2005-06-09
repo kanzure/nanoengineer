@@ -26,7 +26,7 @@ class SimJob:
         
         self.name = name
         self.parms = parms.keys()
-        self.parms.sort() # Sort parms.
+        #self.parms.sort() # Sort parms.
         self.edit_cntl = None
         
         # WARNING: Bugs will be caused if any of SimJob's own methods or 
@@ -66,6 +66,7 @@ class SimJob:
         rem = self.server.get_comment_character()
 
         f.write (rem + '\n' + rem +  'Job Parameters\n' + rem + '\n')
+        f.write(rem + "Name: " + self.name + "\n")
         for k in self.parms:
             phrase = rem + k + ': ' + str(self.__dict__[k])
             f.write (phrase + '\n')

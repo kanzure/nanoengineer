@@ -12,7 +12,7 @@ __author__ = "Mark"
 # This is the GAMESS UI widget default settings (for energy).
 
 ui={'comment':'','runtyp':0,'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize':1, 'ncore':0,
-        'conv':1, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':1,'soscf':0,'rstrct':0}
+        'conv':1, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':1,'soscf':0,'rstrct':0,'server':0}
 
 # These are the GAMESS parms set defaults (for energy).
 
@@ -210,7 +210,6 @@ PCGAMESS = 2 # PC GAMESS
 
 from qt import *
 import sys, os, time
-from HistoryWidget import redmsg
 from GamessPropDialog import *
 
 class GamessProp(GamessPropDialog):
@@ -234,7 +233,6 @@ class GamessProp(GamessPropDialog):
     def setup(self):
         ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
-
         gamess = self.gamess #  In case we cancel later (not implemented yet)
         
         # Init the top widgets (name, psets drop box, comment)
@@ -337,10 +335,10 @@ class GamessProp(GamessPropDialog):
     def load_dfttyp_combox(self):
         '''Load list of DFT function in a combobox widget'''
         self.dfttyp_combox.clear() # Clear all combo box items
-        if self.job.engine == 'GAMESS':
+        if self.job.Engine == 'GAMESS':
             for f in gms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
-        elif self.job.engine == 'PC GAMESS':
+        elif self.job.Engine == 'PC GAMESS':
             for f in pcgms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
         else:
@@ -444,8 +442,12 @@ class GamessProp(GamessPropDialog):
         self.pset.ui.shift = self.shift_checkbox.isChecked() # SHIFT
         self.pset.ui.soscf = self.soscf_checkbox.isChecked() # SOSCF
         self.pset.ui.rstrct = self.rstrct_checkbox.isChecked() # RSTRCT
+                
+        # Server
+        self.pset.ui.server = self.server_combox.currentText()
         
         self.save_parms() # Now save params.
+        self.save_job_parms()
         
     def save_parms(self):
         '''Save parameter set values.  This is always called by save_ui_settings, 
@@ -547,10 +549,16 @@ class GamessProp(GamessPropDialog):
         
         self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem()] # GBASIS
 
+    def save_job_parms(self):
+        calculate = ['Molecular Energy', 'Optimization']
+        self.job.Calculation = calculate[self.pset.ui.runtyp]
+        self.job.Description = self.pset.ui.comment
+        self.job.Server = self.pset.ui.server
+        
     def queue_job(self):
         self.job.queue_job()
         self.close() # Close dialog
-        self.win.JobManager() # Open Job Manager.  The queued job should be on row 1.
+        #self.win.JobManager() # Open Job Manager.  The queued job should be on row 1.
         
     def launch_job(self):
         self.job.launch_job()
