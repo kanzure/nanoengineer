@@ -1195,6 +1195,12 @@
         <receiver>GamessPropDialog</receiver>
         <slot>set_multiplicity()</slot>
     </connection>
+    <connection>
+        <sender>server_manager_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>server_manager()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>queue_job()</slot>
@@ -1207,6 +1213,7 @@
     <slot>remove_host()</slot>
     <slot>add_or_change_pset()</slot>
     <slot>rename()</slot>
+    <slot>server_manager()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Tue Jun 7 21:49:48 2005
+# Created: Thu Jun 9 00:44:58 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -435,6 +435,7 @@ class GamessPropDialog(QDialog):
         self.connect(self.name_linedit,SIGNAL("returnPressed()"),self.rename)
         self.connect(self.launch_job_btn,SIGNAL("clicked()"),self.launch_job)
         self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
+        self.connect(self.server_manager_btn,SIGNAL("clicked()"),self.server_manager)
 
 
     def languageChange(self):
@@ -624,6 +625,9 @@ class GamessPropDialog(QDialog):
 
     def rename(self):
         print "GamessPropDialog.rename(): Not implemented yet"
+
+    def server_manager(self):
+        print "GamessPropDialog.server_manager(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("GamessPropDialog",s,c)

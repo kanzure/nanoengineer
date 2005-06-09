@@ -9,6 +9,28 @@ __author__ = "Mark"
 from jigs import Jig
 from drawer import drawwirecube
 from GamessProp import *
+from GamessJob import *
+from SimServer import SimServer
+
+# Default job parameters for a GAMESS job.
+job_parms = {
+        'engine':'GAMESS',
+        'calculation':'',
+        'description':'',
+        'status':'',
+        'job_id':'',
+        'start_time':'',
+        'end_time':''}
+
+server_parms = {
+        'hostname':'My Computer',
+        'ipaddress':'',
+        'engine':'PC GAMESS',
+        'program':'C:\\PCGAMESS\\gamess.exe',
+        'tmpdir':'C:\\PCGAMESS\\',
+        'platform':'win32',
+        'username':'',
+        'password':''}
 
 # == GAMESS
 
@@ -25,11 +47,12 @@ class Gamess(Jig):
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
         self.psets = [] # list of parms set objects
         self.psets.append(gamessParms('Parameter Set 1'))
-        self.cntl = GamessProp(self)
+        self.server = SimServer(server_parms)
+        self.gmsjob = GamessJob(self, job_parms)
+        self.gmsjob.edit()
 
     def edit(self):
-        self.cntl.setup()
-        self.cntl.exec_loop()
+        self.gmsjob.edit()
         
     def add_pset(self):
         '''Add a new parameter set to this jig.

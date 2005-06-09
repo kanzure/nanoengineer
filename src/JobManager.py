@@ -131,7 +131,7 @@ class JobManager(JobManagerDialog):
         print "row =", row, ", column =", col, ", button =", button
         
         # Get the job info from the row the user clicked on.
-        self.job = Job(jobs[row], row) 
+        self.job = Job(jobs[row], row)
         
         # Enable/disable the buttons in the Job Manager based on the Status field.
         if self.job.status == "Queued":
