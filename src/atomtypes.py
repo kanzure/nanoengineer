@@ -41,7 +41,7 @@ class AtomType:
     and might also be kept around by the atom as its way of remembering its own type -- which might change.
     Or an atom might just remember the *name* of its atomtype
     (and grab this object from a list in the element) -- I don't know yet.
-       Note that (as far as is yet known) more than one identical atomtype object might exist -- so the object itself
+        ###obs, probably wrong: Note that (as far as is yet known) more than one identical atomtype object might exist -- so the object itself
     is not an ok place to store definitive mutable per-session info about how to treat that atom type.
        The name of an atomtype might be reused for more than one element (e.g. 'sp2')
     but the atomtype itself is element-specific. (Related atomtype objects might share code or data, of course.)
@@ -111,6 +111,8 @@ class AtomType:
         pass
     def is_sp2(self): #bruce 050531 #e could optimize by precomputing; could define more directly somehow...
         return self.name.startswith("sp2")
+        #e what about sp?
+        #e what about valence > numbonds? not sure this is proper for e.g. triple-bonded N or =O; also requires numbonds > 1 I guess.
     pass # end of class AtomType
 
 # end
