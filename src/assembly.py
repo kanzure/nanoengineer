@@ -225,7 +225,7 @@ class assembly:
         # (namely, as some new mmp record type which the old code would ignore)...
         # or just as a Csys with a name the old code will not store!
         # (This name comes from the argument we pass in.)
-        partnodes = self.shelf.members
+        partnodes = self.shelf.members # would not be correct to use self.topnodes_with_own_parts() here
         grpl1 = list(grpl1) # precaution, not needed for current implem as of 050421
         for i,node in zip(range(len(partnodes)),partnodes):
             ll = node.part.viewdata_members(i+1)
@@ -285,9 +285,37 @@ class assembly:
         return res
     
     # == Parts
+
+    prefs_node = None #bruce 050602; default value of instance variable; experimental
+    
+    def topnode_partmaker_pairs(self): #bruce 050602
+        """Return a list of (node, partclass) pairs,
+        for each node (in the tree of our nodes we'd display in a model tree)
+        which should be at the top of its own Part of the specified Part subclass.
+           The partclass might actually be any Part constructor with similar API
+        to a Part subclass, though as of 050602 it's always a Part subclass.
+           Return value is a mutable list owned by the caller (nothing will modify it
+        unless caller does (more precisely, except via caller's reference to it)).
+           Implem note: we don't ask the nodes themselves for the partclass,
+        since it might depend on their position in the MT rather than on the nodetype.
+        """
+        from part import MainPart, ClipboardItemPart
+        res = [(self.tree, MainPart)]
+        for node in self.shelf.members:
+            res.append(( node, ClipboardItemPart ))
+        if self.prefs_node is not None:
+            from prefsTree import MainPrefsGroupPart # this file might not be committed if this case doesn't run
+            res.append(( self.prefs_node, MainPrefsGroupPart ))
+        return res
+
+    def topnodes_with_own_parts(self): #bruce 050602; should match topnode_partmaker_pairs
+        res = [self.tree] + self.shelf.members
+        if self.prefs_node is not None:
+            res.append( self.prefs_node)
+        return res
     
     def update_parts(self):
-        """For every node in this assy, make sure it's in the correct Part,
+        """For every node in this assy, make sure it's in the correct Part (of the correct kind),
         creating new parts if necessary. [See also checkparts method.] 
         For now [050308], also break inter-Part bonds; later this might be done separately.
         """
@@ -297,14 +325,23 @@ class assembly:
         # and then just call this whenever needed... and it should be ok to add nodes to parts in addmember, when they're new
         # (and when dad has a part); and to do this to kids when groups with no parts are added to nodes with parts.
         # So only for a node-move must we worry and do it later... or so it seems, 050308 806pm.
-        from part import MainPart, ClipboardItemPart
-        for node in [self.tree]:
-            self.ensure_one_part(node, MainPart)
-        for node in list(self.shelf.members): #bruce 050420: copy list as a precaution (probably not needed)
-            self.ensure_one_part(node, ClipboardItemPart)
+
+        #bruce 050602 revised the following:
+        for (node, part_constructor) in self.topnode_partmaker_pairs():
+            self.ensure_one_part( node, part_constructor)
+        
+##        from part import MainPart, ClipboardItemPart
+##        for node in [self.tree]:
+##            self.ensure_one_part(node, MainPart)
+##        for node in list(self.shelf.members): #bruce 050420: copy list as a precaution (probably not needed)
+##            self.ensure_one_part(node, ClipboardItemPart)
+        
         # now all nodes have correct parts, so it's safe to break inter-part bonds.
         # in the future we're likely to do this separately for efficiency (only on nodes that might need it).
-        for node in [self.tree] + self.shelf.members:
+        partnodes = self.topnodes_with_own_parts() # do this again in case the nodes changed (though I doubt that can happen)
+        for node in partnodes:
+            # do this for all parts, even though the experimental prefsnode doesn't need it (as such)
+            # (as a kluge, it might use it for smth else; if so, could #e rename the method and then say this is no longer a kluge)
             node.part.break_interpart_bonds()
             # note: this is not needed when shelf has no members, unless there are bugs its assertions catch.
             # but rather than not do it then, I'll just make it fast, since it should be able to be fast
@@ -321,7 +358,7 @@ class assembly:
         return
 
     def update_bonds(self): #bruce 050519
-        for node in [self.tree] + self.shelf.members:
+        for node in self.topnodes_with_own_parts():
             node.part.update_bonds()
         return
     
@@ -363,7 +400,7 @@ class assembly:
     def checkparts(self):
         "make sure each selgroup has its own Part, and all is correct about them"
         # presumably this is only called when platform.atom_debug, but that's up to the caller
-        for node in [self.tree] + self.shelf.members:
+        for node in self.topnodes_with_own_parts():
             ## print "checking part-related stuff about node:" ,node
             #e print the above in an except clause, so on asfail we'd see it...
             try:
@@ -415,7 +452,7 @@ class assembly:
         if sg.assy is not self: return False
         if not sg.is_top_of_selection_group():
             return False
-        if not self.root.is_ascendant(sg):
+        if not (self.root.is_ascendant(sg) or self.prefs_node is sg): #bruce 050602 kluge: added prefs_node
             return False # can this ever happen??
         # I think we won't check the Part, even though it could, in theory,
         # be present but wrong (in the sense that sg.part.topnode is not sg),
