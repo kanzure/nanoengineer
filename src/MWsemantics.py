@@ -1348,7 +1348,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.Element = elt
         if elementSelectorWin: elementSelectorWin.setDisplay(elt)
         line = eCCBtab2[elt]
-        self.elemChangeComboBox.setCurrentItem(line)
+        self.elemChangeComboBox.setCurrentItem(line) ###k does this send the signal, or not (if not that might cause bug 690)?
 
     def setCarbon(self):
         self.setElement(6) 
