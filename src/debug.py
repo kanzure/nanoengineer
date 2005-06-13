@@ -301,6 +301,11 @@ class DebugMenuMixin:
         res.extend( [
             ('print self', self._debug_printself),
         ] )
+        if platform.atom_debug: # since it's a dangerous command
+            res.extend( [
+                ('debug._widget = this widget', self._debug_set_widget),
+                ('destroy this widget', self._debug_destroy_self),
+            ] )
         return res
 
     def _debug_save_window_layout(self):
@@ -407,6 +412,16 @@ class DebugMenuMixin:
 
     def _debug_printself(self):
         print self
+
+    def _debug_set_widget(self): #bruce 050604
+        import debug
+        debug._widget = self
+        print "set debug._widget to",self
+    
+    def _debug_destroy_self(self): #bruce 050604
+        #e should get user confirmation
+        ## self.destroy() ###k this doesn't seem to work. check method name.
+        self.deleteLater()
 
     def debug_menu_source_name(self): #bruce 050112
         "can be overriden by subclasses" #doc more
