@@ -853,7 +853,12 @@ def reset_grouplist(assy, grouplist):
                 maybe_set_partview(assy, m, "LastView", 'lastCsys')
     return
 
-def maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421
+def maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421; docstring added 050602
+    """[private helper function for reset_grouplist]
+    If csys.name == nameprefix plus a decimal number, store csys as the attr named csysattr
+    of the .part of the clipboard item indexed by that number
+    (starting from 1, using purely positional indices for clipboard items).
+    """
     partnodes = assy.shelf.members
     for i in range(len(partnodes)): #e inefficient if there are a huge number of shelf items...
         if csys.name == nameprefix + "%d" % (i+1):
@@ -917,53 +922,6 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
 def workaround_for_bug_296(assy, onepart = None):
 ##    print "not doing workaround_for_bug_296!"
     return #####@@@@@ 050422 -- SHOULD REMOVE THIS FUNCTION AND ALL CALLS TO IT
-##    """If needed, move jigs in assy.tree and each assy.shelf member to later positions
-##    (and emit appropriate messages about this),
-##    since current mmp file format requires jigs to come after
-##    all chunks whose atoms they connect to.
-##    If onepart is provided, then do this only for the node (if any)
-##    whose part is onepart.
-##    """
-##    # bruce 050111 temp fix for bug 296 (maybe enough for Alpha)
-##    # bruce 050202 adds:
-##    # I developed an extension to this fix for jigs in clipboard items,
-##    # but decided not to commit it for Alpha. It's in a diff -c, mailed to cad
-##    # for inclusion as a bug296 comment, for testing and use after Alpha.
-##    # It might as well be put in as soon as anyone has time, after Alpha goes out.
-##    # bruce 050325: I finally put that in, and then further modified this code,
-##    # e.g. adding onepart option.
-##    def errfunc(msg):
-##        "local function for error message output"
-##        assy.w.history.message( redmsg( msg))
-##    try:
-##        from node_indices import move_jigs_if_needed
-##        count = 0
-##        if onepart == assy.tree.part or not onepart:
-##            count = move_jigs_if_needed(assy.tree, errfunc) # (this does the work)
-##        shelf_extra = ""
-##        try:
-##            #bruce 050202 extension to fix it in shelf too [not committed until 050325]
-##            count2 = 0
-##            for m in assy.shelf.members:
-##                count1 = 0
-##                if onepart == m.part or not onepart:
-##                    count1 = move_jigs_if_needed(m, errfunc)
-##                count += count1 # important to count these now in case of exception in next loop iteration
-##                count2 += count1
-##            if count2:
-##                shelf_extra = "of which %d were in clipboard, " % count2
-##        except:
-##            print_compact_traceback("bug in workaround_for_bug_296 for some shelf item: ")
-##            shelf_extra = ""
-##        if count:
-##            from platform import fix_plurals
-##            movedwhat = fix_plurals( "%d jig(s)" % count)
-##            warning = "Warning: moved %s within model tree, %s" \
-##              "to work around limitation in Alpha mmp file format" % (movedwhat, shelf_extra)
-##            assy.w.history.message( redmsg( warning))
-##    except:
-##        print_compact_traceback("bug in bug-296 bugfix in files_mmp.writemmpfile_assy or _part: ")
-##    return
 
 class writemmp_mapping: #bruce 050322, to help with minimize selection and other things
     """Provides an object for accumulating data while writing an mmp file.
