@@ -53,6 +53,7 @@ import platform # for platform.atom_debug
 from widgets import makemenu_helper
 from debug import DebugMenuMixin, print_compact_traceback
 import preferences
+import globals
 
 
 debug_lighting = False #bruce 050418
@@ -134,8 +135,40 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.win = win
 
         modeMixin._init1(self)
+
+        #bruce 050610 set gl format to request stencil buffer
+        # (needed for mouseover-highlighting of objects of general shape in depositMode.bareMotion)
+        glformat = QGLFormat()
+        glformat.setStencil(True)
         
-        QGLWidget.__init__(self,master,name)
+        QGLWidget.__init__(self, glformat, master, name)
+
+        self.stencilbits = 0 # conservative guess, will be set to true value below
+        
+        if not self.format().stencil():
+            # It's apparently too early to also test "or glGetInteger(GL_STENCIL_BITS) < 1" --
+            # that glGet returns None even when the bits are actually there
+            # (on my system this is 8 when tested later). Guess: this won't work until
+            # the context is initialized.
+            msg = ("Warning: your graphics hardware did not provide an OpenGL stencil buffer.\n"
+                   "This will slow down some graphics operations.")
+            ## assy.w.history.message( regmsg( msg)) -- too early for that to work (need to fix that sometime, to queue the msg)
+            print msg
+            if platform.atom_debug:
+                print "atom_debug: details of lack of stencil bits: " \
+                      "self.format().stencil() = %r, glGetInteger(GL_STENCIL_BITS) = %r" % \
+                      ( self.format().stencil() , glGetInteger(GL_STENCIL_BITS) )
+                      # Warning: these values can be False, None -- I don't know why, since None is not an int!
+                      # But see above for a guess. [bruce 050610]
+            pass
+        else:
+            ## self.stencilbits = int( glGetInteger(GL_STENCIL_BITS) ) -- too early!
+            self.stencilbits = 1 # conservative guess that if we got the buffer, it has at least one bitplane
+                #e could probably be improved by testing this in initializeGL or paintGL (doesn't matter yet)
+##            if platform.atom_debug:
+##                print "atom_debug: glGetInteger(GL_STENCIL_BITS) = %r" % ( glGetInteger(GL_STENCIL_BITS) , )
+            pass
+
         global paneno
         self.name = str(paneno)
         paneno += 1
@@ -156,7 +189,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # But some code might (incorrectly in principle, ok for now)
         # use self.assy.part when it should be using self.part.
         # The only thing we're sure self.part must be used for is to know in which
-        # part the view attributes belong. ###@@@doit
+        # part the view attributes belong.
         self.part = None
         
         # Current view attributes (sometimes saved in or loaded from
@@ -218,10 +251,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.singlet = None
         self.selatom = None # josh 10/11/04 supports depositMode
 
+        # [bruce 050608]
+        self.glselect_dict = {} # only used within individual runs
+            # see also globals.obj_with_glselect_name
+
         self.makeCurrent()
 
         drawer.setup()
-
         self.setAssy(assy)
 
         self.loadLighting() #bruce 050311
@@ -395,6 +431,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         """do whatever updates are needed after self.mode might have changed
         (ok if this is called more than needed, except it might be slower)
         """
+        if self.selatom is not None: #bruce 050612 precaution (scheme could probably be cleaned up #e)
+            if platform.atom_debug:
+                print "atom_debug: update_after_new_mode storing None over self.selatom", self.selatom
+            self.selatom = None
+        if self.selobj is not None: #bruce 050612 bugfix; to try it, in Build drag selatom over Select Atoms toolbutton & press it
+            if platform.atom_debug:
+                print "atom_debug: update_after_new_mode storing None over self.selobj", self.selobj
+            self.set_selobj(None)
         #bruce 050408: change widget's erase color (seen only if it's resized,
         # and only briefly -- unrelated to OpenGL clearColor) to current mode's
         # background color; this fixes the bug in which the glpane or its edges
@@ -961,6 +1005,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             # (via some sort of paintEvent to our superclass)
             # very soon after the current event handler returns
         return
+
+    # default values for instance variables related to glSelectBuffer feature [bruce 050608]
+    ## glselect = 0 # whether we're inside a glSelectBuffer call (not presently needed)
+    glselect_wanted = 0 # whether the next paintGL should start with a glSelectBuffer call [bruce 050608]
+    glselectBufferSize = 10000 # guess, probably overkill, seems to work, no other value was tried
     
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
         """[PRIVATE METHOD -- call gl_update instead!]
@@ -985,45 +1034,334 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
        
         if not self.redrawGL: return
 
-        if not self._needs_repaint: #bruce 050516 experiment
-            # This probably happens fairly often when Qt calls paintGL but our own code
-            # didn't change anything and therefore didn't call gl_update.
-            # The plan is to return in this case, but until I'm sure that's safe
-            # (and/or know what else needs to be checked, like the GLPane widget size in case that changed),
-            # I'll just print a debug message about the missed chance for an optimization.
-            # (Removed message since it happens a lot, mainly when context menu is put up, window goes bg or fg, etc.
-            #  What we need is a debug pref to turn off repainting then, so we can see if it's needed on each platform.
-            #  Even if it is, we might optimize by somehow painting from the existing buffer
-            # without swapping or clearing it. ###@@@)
-            pass
-##            if platform.atom_debug:
-##                print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ")
+##        if not self._needs_repaint: #bruce 050516 experiment
+##            # This probably happens fairly often when Qt calls paintGL but our own code
+##            # didn't change anything and therefore didn't call gl_update.
+##            # The plan is to return in this case, but until I'm sure that's safe
+##            # (and/or know what else needs to be checked, like the GLPane widget size in case that changed),
+##            # I'll just print a debug message about the missed chance for an optimization.
+##            # (Removed message since it happens a lot, mainly when context menu is put up, window goes bg or fg, etc.
+##            #  What we need is a debug pref to turn off repainting then, so we can see if it's needed on each platform.
+##            #  Even if it is, we might optimize by somehow painting from the existing buffer
+##            # without swapping or clearing it. ###@@@)
+##            pass
+####            if platform.atom_debug:
+####                print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ")
         self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
-
+        
+        self._restore_modelview_stack_depth() #bruce 050608 moved this here (was after _setup_lighting ###k verify that)
+        
         if self.need_setup_lighting:
             # I don't know if it matters to avoid calling this every time...
             # in case it's slow, we'll only do it when it might have changed.
             self.need_setup_lighting = False # set to true again if setLighting is called
             self._setup_lighting()
 
-        ###e bruce 040923: I'd like to reset the OpenGL state
+        c = self.mode.backgroundColor
+        glClearColor(c[0], c[1], c[2], 0.0)
+        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
+
+        aspect = (self.width + 0.0)/(self.height + 0.0)
+        vdist = 6.0 * self.scale
+        
+        self._setup_modelview( vdist)
+            #bruce 050608 moved modelview setup here, from just before the mode.Draw call
+
+        # if GL_SELECT pass is needed (for hit test of objects with mouse), do it first.
+        ###e note: if any objects moved since they were last rendered, this hit-test will still work (using their new posns),
+        # but the later depth comparison (below) might not work right. See comments there for details.
+        self.glselect_dict.clear()
+            # this will be filled iff we do a gl_select draw,
+            # then used only in the same paintGL call to alert some objects they might be the one
+        if self.glselect_wanted:
+            wX, wY, self.targetdepth = self.glselect_wanted # wX,wY is the point to do the hit-test at
+                # targetdepth is the depth buffer value to look for at that point, during ordinary drawing phase
+                # (could also be used to set up clipping planes to further restrict hit-test, but this isn't yet done)
+                # (Warning: targetdepth could in theory be out of date, if more events come between bareMotion
+                #  and the one caused by its gl_update, whose paintGL is what's running now, and if those events
+                #  move what's drawn. Maybe that could happen with mousewheel events or (someday) with keypresses
+                #  having a graphical effect. Ideally we'd count intentional redraws, and disable this picking in that case.)
+            self.wX, self.wY = wX,wY
+            self.glselect_wanted = 0
+            self._setup_projection( aspect, vdist, glselect = (wX,wY,3,3) ) # option makes it use gluPickMatrix
+                # replace 3,3 with 1,1? 5,5? not sure whether this will matter... in principle should have no effect except speed
+            glSelectBuffer(self.glselectBufferSize)
+            glRenderMode(GL_SELECT)
+            glInitNames()
+            ## glPushName(0) # this would be ignored if not in GL_SELECT mode, so do it after we enter that! [no longer needed]
+            ## self.glselect = 1
+            glMatrixMode(GL_MODELVIEW)
+            self.mode.Draw() # should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
+                # note: this might call some display lists which, when created, registered namestack names,
+                # so we need to still know those names!
+            ###e On systems with no stencil buffer, I think we'd also need to draw selobj here in highlighted form
+            # (in case that form is bigger than when it's not highlighted), or (easier & faster) just always pretend
+            # it passes the hit test and add it to glselect_dict -- and, make sure to give it "first dibs" for being
+            # the next selobj. I'll implement some of this now (untested when no stencil buffer) but not yet all. [bruce 050612]
+            obj = self.selobj
+            if obj is not None:
+                self.glselect_dict[id(obj)] = obj
+                    ###k unneeded, if the func that looks at this dict always tries selobj first
+                    # (except for a kluge near "if self.glselect_dict", commented on below)
+            ## self.glselect = 0
+            glFlush()
+            hit_records = list(glRenderMode(GL_RENDER))
+            ## print "%d hits" % len(hit_records)
+            for (near,far,names) in hit_records: # see example code, renderpass.py
+                ## print "hit record: near,far,names:",near,far,names
+                    # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
+                    # which proves that near/far are too far apart to give actual depth,
+                    # in spite of the 1-pixel drawing window (presumably they're vertices
+                    # taken from unclipped primitives, not clipped ones).
+                if names:
+                    # for now, len is always 0 or 1, i think; if not, best to use only the last element...
+                    # tho if we ever support "name/subname paths" we'll probably let first name interpret the remaining ones.
+                    obj = globals.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                    self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
+            #e maybe we should now sort glselect_dict by "hit priority" (for depth-tiebreaking), or at least put self.selobj first.
+            # (or this could be done lower down, where it's used.)
+            
+        self._setup_projection( aspect, vdist)
+
+        # In the glselect_wanted case, we now know (in glselect_dict) which objects draw any pixels at the mouse position,
+        # but not which one is in front (the near/far info from GL_SELECT has too wide a range to tell us that).
+        # So we have to get them to tell us their depth at that point (as it was last actually drawn
+            ###@@@dothat for bugfix; also selobj first)
+        # (and how it compares to the prior measured depth-buffer value there, as passed in glselect_wanted,
+        #  if we want to avoid selecting something when it's obscured by non-selectable drawing in front of it).
+        if self.glselect_dict:
+            # kluge: this is always the case if self.glselect_wanted was set and self.selobj was set,
+            # since selobj is always stored in glselect_dict then; if not for that, we might need to reset
+            # selobj to None here for empty glselect_dict -- not sure, not fully analyzed. [bruce 050612]
+            newpicked = self.preDraw_glselect_dict() # retval is new mouseover object, or None ###k verify
+            ###e now tell this obj it's picked (for highlighting), which might affect how the main draw happens.
+            # or, just store it so code knows it's there, and (later) overdraw it for highlighting.
+            self.set_selobj( newpicked, "newpicked")
+            ###e we'll probably need to notify some observers that selobj changed (if in fact it did). ###@@@
+            ## self.win.history.transient_msg("%s" % newpicked) -- messed up by depmode "click to do x" msg
+        
+        # otherwise don't change prior selobj -- we have a separate system to set it back to None when needed
+        # (which has to be implemented in the bareMotion routines of client modes -- would self.bareMotion be better? ###@@@ review)
+        
+        # draw according to mode
+        glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods [bruce 050608 comment]
+        self.mode.Draw()
+
+        # highlight selobj if necessary -- we redraw it now (though it was part of
+        # what was just drawn above) for two reasons:
+        # - it might be in a display list in non-highlighted form (and if so, the above draw used that form);
+        # - we need to draw it into the stencil buffer too, so mode.bareMotion can tell when mouse is still over it.
+        if self.selobj is not None:
+            # draw the selobj as highlighted, and make provisions for fast test
+            # (by external code) of mouse still being over it (using stencil buffer)
+
+            # first gather info needed to know what to do -- highlight color (and whether to draw that at all)
+            # and whether object might be bigger when highlighted (affects whether depth write is needed now).
+            try:
+                hicolor = self.mode.selobj_highlight_color( self.selobj) #e should implem noop version in basicMode
+                # mode can decide whether selobj should be highlighted (return None if not), and if so, in what color
+            except:
+                if platform.atom_debug:
+                    print_compact_traceback("atom_debug: selobj_highlight_color exception for %r: " % self.selobj)
+                hicolor = LEDon #e more correct: basicMode default for that, which is None to avoid showing mouseover objs
+            highlight_might_be_bigger = True # True is always ok; someday we might let some objects tell us this can be False
+
+            # color-writing is needed here, iff the mode asked for it, for this selobj.
+            highlight_into_color = (hicolor is not None)
+
+            if highlight_into_color:
+                # depth-writing is needed here, if highlight might be drawn in front of not-yet-drawn transparent surfaces
+                # (like Build mode water surface) -- otherwise they will look like they're in front of some of the highlighting
+                # even though they're not. (In principle, the preDraw_glselect_dict call above needs to know whether this depth
+                # writing occurred ###doc why. Probably we should store it into the object itself... ###@@@ review, then doit
+                highlight_into_depth = highlight_might_be_bigger
+            else:
+                highlight_into_depth = False ###@@@ might also need to store 0 into obj...see discussion above
+
+            if not highlight_into_depth:
+                glDepthMask(GL_FALSE) # turn off depth writing (but not depth test)
+            if not highlight_into_color:
+                glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # don't draw color pixels
+                        
+            # Note: stencil buffer was cleared earlier in this paintGL call.
+            glStencilFunc(GL_ALWAYS, 1, 1)
+                # These args make sure stencil test always passes, so color is drawn if we want it to be,
+                # and so we can tell whether depth test passes in glStencilOp (even if depth *writing* is disabled ###untested);
+                # this also sets reference value of 1 for use by GL_REPLACE.
+                # (Args are: func to say when drawing-test passes; ref value; comparison mask.
+                #  Warning: Passing -1 for reference value, to get all 1's, does not work -- it makes ref value 0!)
+            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
+                # turn on stencil-buffer writing based on depth test
+                # (args are: what to do on fail, zfail, zpass (see OpenGL "red book" p. 468))
+            glEnable(GL_STENCIL_TEST)
+                # this enables both aspects of the test: effect on drawing, and use of stencil op (I think #k);
+                # apparently they can't be enabled separately
+            ##print glGetIntegerv( GL_STENCIL_REF)
+            
+            # Now "translate the world" slightly closer to the screen,
+            # to ensure depth test passes for appropriate parts of highlight-drawing
+            # even if roundoff errors would make it unreliable to just let equal depths pass the test.
+            # The amount of translation is a guess (ideally it should be just enough to achieve the mentioned purpose).
+            # (Note: In principle, this motion towards the screen needs to be accounted for when testing depths in
+            #  preDraw_glselect_dict (and we might want to store it on the object itself as a reliable record of whether
+            #  it happened and for which object). In practice, as long as the stencil optim works, this isn't needed,
+            #  and it's not yet implemented. This is predicted to result in highlight flickering if no stencil bits are
+            #  available. ###e should fix sometime, if that ever happens.)
+            
+            glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
+            glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
+            glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
+                # (this works, but someday verify sign is correct in theory #k)
+            glMatrixMode(GL_MODELVIEW) # probably required!
+            
+            ####@@@@ TODO -- rename draw_in_abs_coords and make it imply highlighting so obj knows whether to get bigger
+            # (note: having it always draw selatoms bigger, as if highlighted, as it does now, would probably be ok in hit-test,
+            #  since false positives in hit test are ok, but this is not used in hit test; and it's probably wrong in depth-test
+            #  of glselect_dict objs (where it *is* used), resulting in "premonition of bigger size" when hit test passed... ###bug);
+            # make provisions elsewhere for objs "stuck as selobj" even if tests to retain that from stencil are not done
+            # (and as optim, turn off stencil drawing then if you think it probably won't be needed after last draw you'll do)
+            
+            self.selobj.draw_in_abs_coords(self, hicolor or black) ###@@@ test having color writing disabled here, does stencil still happen??
+            
+            # restore gl state (but don't do unneeded OpenGL ops in case that speeds it up somehow)
+            if not highlight_into_depth:
+                glDepthMask(GL_TRUE)
+            if not highlight_into_color:
+                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)                
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
+                # no need to undo glStencilFunc state, I think -- whoever cares will set it up again
+                # when they reenable stenciling.
+            glDisable(GL_STENCIL_TEST)
+            
+            glMatrixMode(GL_PROJECTION)
+            glPopMatrix()
+            glMatrixMode(GL_MODELVIEW) #k maybe not needed
+
+        self.mode.Draw_after_highlighting() # e.g. draws water surface in Build mode
+        
+        # let parts (other than the main part) draw a text label, to warn
+        # the user that the main part is not being shown [bruce 050408]
+        try:
+            self.part.draw_text_label(self)
+        except:
+            if platform.atom_debug:
+                print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
+            pass # if it happens at all, it'll happen too often to bother users with an error message
+
+        # DO THIS AGAIN, see if that fixes my bug - it does, so try not doing it earlier as well
+        # draw coordinate-orientation arrows at upper right corner of glpane
+        if self.drawAxisIcon:
+            self.drawarrow(aspect) #bruce 050608 moved this here, and rewrote it to behave then ###k untested
+        
+        glFlush()
+        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
+        
+        return # from paintGL
+
+    selobj = None #bruce 050609
+
+    def set_selobj(self, selobj, why = "why?"):
+        self.selobj = selobj
+        #e notify some observers?
+        return
+
+    def preDraw_glselect_dict(self): #bruce 050609
+        # We need to draw glselect_dict objects separately, so their drawing code runs now rather than in the past
+        # (when some display list was being compiled), so they can notice they're in that dict.
+        # We also draw them first, so that the nearest one (or one of them, if there's a tie)
+        # is sure to update the depth buffer. (Then we clear it so that this drawing doesn't mess up
+        # later drawing at the same depth.)
+        # (If some mode with special drawing code wants to join this system, it should be refactored
+        #  to store special nodes in the model which can be drawn in the standard way.)
+        glMatrixMode(GL_MODELVIEW)
+        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # optimization -- don't draw color pixels (depth is all we need)
+        newpicked = None # in case of errors, and to record found object
+        ###e here we should sort the objs to check the ones we most want first (esp selobj)... ####@@@@
+        for obj in self.glselect_dict.values():
+            try:
+                method = obj.draw_in_abs_coords
+            except AttributeError:
+                print "bug? ignored: %r has no draw_in_abs_coords method" % (obj,)
+            else:
+                try:
+                    method(self, black) # draw depth info (color doesn't matter since we're not drawing pixels)
+                        ###@@@ in principle, this needs bugfixes; in practice the bugs are tolerable in the short term
+                        # (see longer discussion in other comments):
+                        # - if no one reaches target depth, or more than one does, be smarter about what to do?
+                        # - try current selobj first, or give it priority in comparison - if it passes be sure to pick it
+                        # - be sure to draw each obj in same way it was last drawn, esp if highlighted:
+                        #    maybe drawn bigger (selatom)
+                        #    moved towards screen
+                    newpicked = self.check_target_depth( obj)
+                    if newpicked is not None:
+                        break
+                except:
+                    print_compact_traceback("exception in %r.draw_in_abs_coords ignored: " % (obj,))
+        ##e should check depth here to make sure it's near enough but not too near
+        # (if too near, it means objects moved, and we should cancel this pick)
+        glClear(GL_DEPTH_BUFFER_BIT) # prevent those predraws from messing up the subsequent main draws
+        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+        self.glselect_dict.clear() #k needed? even if not, seems safer this way.
+            # do this now to avoid confusing the main draw methods,
+            # in case they check this dict to decide whether they're
+            # being called by draw_in_abs_coords
+            # [which would be deprecated! but would work, not counting display lists.]
+        return newpicked # might be None in case of errors
+
+    def check_target_depth(self, candidate): #bruce 050609
+        """[private helpder method]
+           WARNING: docstring is obsolete -- no newpicked anymore, retval details differ: ###@@@
+        Candidate is an object which drew at the mouse position during GL_SELECT drawing mode
+        (using the given gl_select name), and which (1) has now noticed this, via its entry in self.glselect_dict
+        (which was made when GL_SELECT mode was exited; as of 050609 this is in the same paintGL call as we're in now),
+        and (2) has already drawn into the depth buffer during normal rendering (or an earlier rendering pass).
+        (It doesn't matter whether it's already drawn into the color buffer when it calls this method.)
+           We should read pixels from the depth buffer (after glFlush)
+        to check whether it has just reached self.targetdepth at the appropriate point,
+        which would mean candidate is the actual newly picked object.
+           If so, record this fact and return True, else return False.
+        We might quickly return False (checking nothing) if we already returned True in the same pass,
+        or we might read pixels anyway for debugging or assertions.
+           It's possible to read a depth even nearer than targetdepth, if the drawing passes round
+        their coordinates differently (as the use of gluPickMatrix for GL_SELECT is likely to do),
+        or if events between the initial targetdepth measurement and this redraw tell any model objects to move.
+        Someday we should check for this.
+        """
+##        if self.newpicked is not None:
+##            return False # already got one
+        glFlush()
+        wX, wY = self.wX, self.wY
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        newdepth = wZ[0][0]
+        targetdepth = self.targetdepth
+        ####@@@@ here we could effectively move selobj forwards... warning: worry about scales of coord systems in doing that...
+        # due to that issue it is probably be easier to fix this when drawing it, instead
+        if newdepth <= targetdepth + 0.000001: # use fudge factor in case of roundoff errors
+            #e could check for newdepth being < targetdepth - 0.002 (error), but best
+            # to just let caller do that (NIM), since we would often not catch this error anyway,
+            # since we're turning into noop on first success
+            # (no choice unless we re-cleared depth buffer now, which btw we could do... #e).
+##            self.newpicked = candidate
+##            return True
+            return candidate
+                # caller should not call us again without clearing depth buffer,
+                # otherwise we'll keep returning every object even if its true depth is too high
+##        return False
+        return None
+
+    def _restore_modelview_stack_depth(self): #bruce 050608 split this out
+        "restore GL_MODELVIEW_STACK_DEPTH to 1, if necessary"
+        #bruce 040923: I'd like to reset the OpenGL state
         # completely, here, incl the stack depths, to mitigate some
         # bugs. How??  Note that there might be some OpenGL init code
         # earlier which I'll have to not mess up. Incl displaylists in
         # drawer.setup.  What I ended up doing is just to measure the
-        # stack depth and pop it 0 or more times to make the depth 1
-        # -- see below.
-        c = self.mode.backgroundColor
-        glClearColor(c[0], c[1], c[2], 0.0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-        glMatrixMode(GL_MODELVIEW)
-
-        # restore GL_MODELVIEW_STACK_DEPTH if necessary [bruce 040923,
-        # to partly mitigate the effect of certain drawing bugs] btw I
-        # don't know for sure whether this causes a significant speed
+        # stack depth and pop it 0 or more times to make the depth 1.
+        #   BTW I don't know for sure whether this causes a significant speed
         # hit for some OpenGL implementations (esp. X windows)...
         # test sometime. #e
+        glMatrixMode(GL_MODELVIEW)
         
         depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
         # this is normally 1
@@ -1037,57 +1375,60 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             newdepth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
             if newdepth != 1:
                     print "hmm, after depth-1 pops we should have reached depth 1, but instead reached depth %r" % newdepth
-            pass    
-    
+            pass
+        return
+
+    def _setup_modelview(self, vdist): #bruce 050608 split this out
+        "set up modelview coordinate system"
+        glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
+        glTranslatef( 0.0, 0.0, - vdist)
+            # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
+            # (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
+            # We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
+            # clipping planes, etc, like we do now for right, up, etc. ###e
+
+        q = self.quat 
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
+        glTranslatef( self.pov[0], self.pov[1], self.pov[2])
+        return
+
+    def _setup_projection(self, aspect, vdist, glselect = False): #bruce 050608 split this out
+        "#doc... glselect is False or a 4-tuple"
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
 
-        aspect = (self.width + 0.0)/(self.height + 0.0)
-        if self.drawAxisIcon: self.drawarrow(aspect)
+        scalezoom = self.scale * self.zoomFactor #bruce 050608 used this to clarify following code
+        near, far = self.near, self.far
+
+        if glselect:
+            x,y,w,h = glselect
+            gluPickMatrix(
+                    x,y,
+                    w,h,
+                    glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
+            )
         
-        vdist = 6.0 * self.scale
-                
         if self.ortho:
-            glOrtho(-self.scale*aspect*self.zoomFactor, self.scale*aspect*self.zoomFactor,
-                    -self.scale*self.zoomFactor, self.scale*self.zoomFactor,
-                    vdist*self.near, vdist*self.far)
+            glOrtho( - scalezoom * aspect, scalezoom * aspect,
+                     - scalezoom,          scalezoom,
+                       vdist * near, vdist * far )
         else:
-            glFrustum(-self.scale*aspect*self.near*self.zoomFactor, self.scale*aspect*self.near*self.zoomFactor,
-                      -self.scale*self.near*self.zoomFactor, self.scale*self.near*self.zoomFactor,
-                      vdist*self.near, vdist*self.far)
-
-        glMatrixMode(GL_MODELVIEW)
-        
-        glTranslatef(0.0, 0.0, - vdist)
-        # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
-        # (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
-        # We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
-        # clipping planes, etc, like we do now for right, up, etc. ###e
-
-        q = self.quat
-        
-        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
-        glTranslatef(self.pov[0], self.pov[1], self.pov[2])
-
-        # draw according to mode
-        self.mode.Draw()
-        
-        # let parts (other than the main part) draw a text label, to warn
-        # the user that the main part is not being shown [bruce 050408]
-        try:
-            self.part.draw_text_label(self)
-        except:
-            if platform.atom_debug:
-                print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
-            pass # if it happens at all, it'll happen too often to bother users with an error message
-        
-        glFlush()  #Tidy up
-        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
-        return # from paintGL       
-
+            glFrustum( - scalezoom * near * aspect, scalezoom * near * aspect,
+                       - scalezoom * near,          scalezoom * near,
+                         vdist * near, vdist * far)
+        return
 
     def drawarrow(self, aspect):
+        """private: assumes called in GL_PROJECTION matrix mode, with identity in both matrices,
+        and does LoadIdentity at the end as well.
+        """ #bruce 050608 added docstring, then added code to try to make it no longer have those problems ###k
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glLoadIdentity()
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        glLoadIdentity() #k needed?
         glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500)
         q = self.quat
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
@@ -1114,17 +1455,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         if True:###sys.platform in ['darwin', 'win32']:
                 glDisable(GL_LIGHTING)
                 glDisable(GL_DEPTH_TEST)
-                glPushMatrix()
+                ## glPushMatrix()
                 font = QFont( QString("Times"), 10)#QFont(QString("Helvetica"), 12, QFont.Normal)
                 self.qglColor(QColor(75, 75, 75))
                 self.renderText(5.3, 0.0, 0.0, QString("x"), font)
                 self.renderText(0.0, 4.8, 0.0, QString("y"), font)
                 self.renderText(0.0, 0.0, 5.0, QString("z"), font)
-                glPopMatrix()
+                ## glPopMatrix()
                 glEnable(GL_DEPTH_TEST)
                 glEnable(GL_LIGHTING)
            
-        glLoadIdentity()
+        glMatrixMode(GL_MODELVIEW)
+        glPopMatrix()
+        glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
         return
            
     def resizeGL(self, width, height):

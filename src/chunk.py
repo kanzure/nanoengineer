@@ -806,6 +806,21 @@ class molecule(Node, InvalMixin):
             disp = glpane.display
         return disp
 
+    def pushMatrix(self): #bruce 050609 duplicated this from some of self.draw()
+        """Do glPushMatrix(), and then trasform from world coords to this chunk's private coords.
+        See also self.popMatrix().
+        Warning: this is partially inlined in self.draw().
+        """
+        glPushMatrix()
+        origin = self.basecenter
+        glTranslatef(origin[0], origin[1], origin[2])
+        q = self.quat
+        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+
+    def popMatrix(self): #bruce 050609
+        "Undo the effect of self.pushMatrix()."
+        glPopMatrix()
+        
     def draw(self, glpane, dispdef):
         """draw all the atoms, using the atom's, molecule's,
         or GLPane's display mode in that order of preference.
@@ -840,6 +855,7 @@ class molecule(Node, InvalMixin):
         glPushMatrix()
 
         try: #bruce 041119: do our glPopMatrix no matter what
+            # (note: as of 050609, this is an inlined version of part of self.pushMatrix())
             origin = self.basecenter
             glTranslatef(origin[0], origin[1], origin[2])
             q = self.quat
@@ -906,18 +922,19 @@ class molecule(Node, InvalMixin):
                 "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)
 
-            # redraw selatom, if it's ours (over the same atom, drawn in the usual way)
-            # (this keeps it from affecting the display list, so depositMode.bareMotion
-            #  can change selatom without havelist=0, for a large speedup [bruce 041206])
-            selatom = glpane.selatom
-            if selatom is not None and selatom.molecule is self:
-                try:
-                    color = self._colorfunc(selatom)
-                except: # no such attr [should not happen after 050524], or it's None [usual case], or it has a bug
-                    color = self.color
-                level = self.assy.drawLevel #e or always use best level??
-                selatom.draw_as_selatom(glpane, disp, color, level)
-                    # (fyi, this doesn't use color arg as of 041206)
+#bruce 050610 zapping this, for testing (maybe permanently now that selobj highlighting is useable for this -- once it works ok)####@@@@
+##            # redraw selatom, if it's ours (over the same atom, drawn in the usual way)
+##            # (this keeps it from affecting the display list, so depositMode.bareMotion
+##            #  can change selatom without havelist=0, for a large speedup [bruce 041206])
+##            selatom = glpane.selatom
+##            if selatom is not None and selatom.molecule is self:
+##                try:
+##                    color = self._colorfunc(selatom)
+##                except: # no such attr [should not happen after 050524], or it's None [usual case], or it has a bug
+##                    color = self.color
+##                level = self.assy.drawLevel #e or always use best level??
+##                selatom.draw_as_selatom(glpane, disp, color, level)
+##                    # (fyi, this doesn't use color arg as of 041206)
             pass
 
             if self.hotspot: # note, as of 050217 that can have side effects in getattr

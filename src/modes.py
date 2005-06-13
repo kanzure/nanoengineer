@@ -103,6 +103,11 @@ class anyMode:
     def get_mode_status_text(self):
         return "(bug: mode status text)"
     # I think this will never be shown [bruce 040927]
+
+    # (default methods that should be noops in both nullMode and basicMode can be put here instead if desired)
+    
+    def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
+        return None
     
     pass
 
@@ -132,6 +137,8 @@ class nullMode(anyMode):
         # "self.start_using_mode( self.default_mode)" below -- that
         # might be the cause.  if so, it's ok that it happens and good
         # that we turn it into a noop. [bruce 040924]
+        pass
+    def Draw_after_highlighting(self):
         pass
     def keyPressEvent(self, e):
         pass
@@ -761,6 +768,18 @@ class basicMode(anyMode):
         # is why we don't turn it on by default for regular users.)
         if platform.atom_debug:
             self.o.assy.checkpicked(always_print = 0)
+        return
+
+    def Draw_after_highlighting(self): #bruce 050610
+        """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
+        Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write
+        (but must restore standard glstate when done, as for mode.Draw() method).
+        Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion
+        (presently only used in depositMode).
+        [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
+         water surface. Could be used for transparent drawing in general.]
+        """
+        return
 
     # left mouse button actions -- overridden in modes that respond to them
     def leftDown(self, event):

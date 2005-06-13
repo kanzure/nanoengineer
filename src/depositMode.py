@@ -22,6 +22,15 @@ import platform
 from debug import print_compact_traceback
 from elements import PeriodicTable
 
+from handles import ave_colors
+
+#e these colors should of course be user-preference items
+HICOLOR_real_atom = ave_colors( 0.8, orange, black)
+HICOLOR_singlet = LEDon
+
+HICOLOR_real_bond = ave_colors( 0.8, blue, black)
+HICOLOR_singlet_bond = ave_colors( 0.5, HICOLOR_singlet, HICOLOR_real_bond) #k
+
 _count = 0
 
 #bruce 050121 split out hotspot helper functions, for slightly more general use
@@ -531,17 +540,199 @@ class depositMode(basicMode):
 
         return p1+k*(p2-p1) # always return a point on the line from p1 to p2
 
-    def bareMotion(self, event): # bruce 050124 split update_selatom from this
+    def bareMotion(self, event): #bruce 050610 revised this
         """called for motion with no button down
-        [should not be called otherwise -- call update_selatom directly instead]
+        [should not be called otherwise -- call update_selatom or update_selobj directly instead]
         """
-        self.update_selatom(event, msg_about_click = True)
+        self.update_selobj(event)
+        # note: this routine no longer updates glpane.selatom.
+
+    def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
+        """[mode API method]
+        If we'd like this selobj to be highlighted on mouseover
+        (whenever it's stored in glpane.selobj), return the desired highlight color.
+        If we'd prefer it not be highlighted (though it will still be stored
+        in glpane.selobj and prevent any other objs it obscures from being stored there
+        or highlighted), return None. (Warning: exceptions are ignored and cause the
+        default highlight color to be used. #e should clean that up sometime)
+        """
+        if isinstance(selobj, Atom):
+            if selobj.is_singlet():
+                return HICOLOR_singlet
+            else:
+                return HICOLOR_real_atom
+        elif isinstance(selobj, Bond):
+            ###@@@ use checkbox to control this; when false, return None
+            if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
+                return HICOLOR_singlet_bond
+            else:
+                return HICOLOR_real_bond
+        else:
+            print "unexpected selobj in depmode.selobj_highlight_color:", selobj
+            return blue
+        
+    def update_selobj(self, event): #bruce 050610
+        """Keep glpane.selobj up-to-date, as object under mouse, or None
+        (whether or not that kind of object should get highlighted).
+           Return True if selobj is already updated when we return, or False if that will not happen until the next paintGL.
+           Warning: if selobj needs to change, this routine does not change it (or even reset it to None);
+        it only sets flags and does gl_update, so that paintGL will run soon and will update it properly,
+        and will highlight it if desired ###@@@ how is that controlled? probably by some statevar in self, passed to gl flag?
+           This means that old code which depends on selatom being up-to-date must do one of two things:
+        - compute selatom from selobj, whenever it's needed;
+        - hope that paintGL runs some callback in this mode when it changes selobj, which updates selatom
+          and outputs whatever statusbar message is appropriate. ####@@@@ doit... this is not yet fully ok.
+        """
+        #e see also the options on update_selatom;
+        # probably update_selatom should still exist, and call this, and provide those opts, and set selatom from this,
+        # but see the docstring issues before doing this ####@@@@
+
+        # bruce 050610 new comments for intended code (#e clean them up and make a docstring):
+        # selobj might be None, or might be in stencil buffer.
+        # Use that and depthbuffer to decide whether redraw is needed to look for a new one.
+        # Details: if selobj none, depth far or under water is fine, any other depth means look for new selobj (set flag, glupdate).
+        # if selobj not none, stencil 1 means still same selobj (if no stencil buffer, have to guess it's 0);
+        # else depth far or underwater means it's now None (repaint needed to make that look right, but no hittest needed)
+        # and another depth means set flag and do repaint (might get same selobj (if no stencil buffer or things moved)
+        #   or none or new one, won't know yet, doesn't matter a lot, not sure we even need to reset it to none here first).
+        # Only goals of this method: maybe glupdate, if so maybe first set flag, and maybe set selobj none, but prob not
+        # (repaint sets new selobj, maybe highlights it).
+        # [some code copied from modifyMode]
+        glpane = self.o
+        wX = event.pos().x()
+        wY = glpane.height - event.pos().y()
+        selobj = orig_selobj = glpane.selobj
+        if selobj is not None:
+            if glpane.stencilbits >= 1:
+                # optimization: fast way to tell if we're still over the same object as last time
+                # (warning: for now glpane.stencilbits is 1 even when true number of bits is higher; easy to fix when needed)
+                stencilbit = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
+                    # Note: if there's no stencil buffer in this OpenGL context, this gets an invalid operation exception from OpenGL.
+                    # And by default there isn't one -- it has to be asked for when the QGLWidget is initialized.
+                # stencilbit tells whether the highlighted drawing of selobj got drawn at this point on the screen
+                # (due to both the shape of selobj, and to the depth buffer contents when it was drawn)
+            else:
+                stencilbit = 0 # the correct value is "don't know"; 0 is conservative
+                #e might collapse this code if stencilbit not used below;
+                #e and/or might need to record whether we used this conservative value
+            if stencilbit:
+                return True # same selobj, no need for gl_update to change highlighting
+        # We get here for no prior selobj,
+        # or for a prior selobj that the mouse has moved off of the visible/highlighted part of,
+        # or for a prior selobj when we don't know whether the mouse moved off of it or not
+        # (due to lack of a stencil buffer, i.e. very limited graphics card or OpenGL implementation).
+        #
+        # We have to figure out selobj afresh from the mouse position (using depth buffer and/or GL_SELECT hit-testing).
+        # It might be the same as before (if we have no stencil buffer, or if it got bigger or moved)
+        # so don't set it to None for now (unless we're sure from the depth that it should end up being None) --
+        # let it remain the old value until the new one (perhaps None) is computed during paintGL.
+        #
+        # Specifically, if this method can figure out the correct new setting of glpane.selobj (None or some object),
+        # it should set it (###@@@ or call a setter? neither -- let end-code do this) and set new_selobj to that
+        # (so code at method-end can repaint if new_selobj is different than orig_selobj);
+        # and if not, it should set new_selobj to instructions for paintGL to find selobj (also handled by code at method-end).
+        ###@@@ if we set it to None, and it wasn't before, we still have to redraw!
+        ###@@@ ###e will need to fix bugs by resetting selobj when it moves or view changes etc (find same code as for selatom).
+            
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
+            # depth (range 0 to 1, 0 is nearest) of most recent drawing at this mouse position
+        new_selobj_unknown = False
+            # following code should either set this True or set new_selobj to correct new value (None or an object)
+        if wZ >= 1.0:
+            # far depth (this happens when no object is touched)
+            new_selobj = None
+        else:
+            # compare to water surface depth
+            cov = - glpane.pov # center_of_view (kluge: we happen to know this is where the water surface is drawn)
+            try:
+                junk, junk, cov_depth = gluProject( cov[0], cov[1], cov[2] )
+            except:
+                print_compact_traceback( "gluProject( cov[0], cov[1], cov[2] ) exception ignored, for cov == %r: " % (cov,) )
+                cov_depth = 2 # too deep to matter (depths range from 0 to 1, 0 is nearest to screen)
+            water_depth = cov_depth
+            if wZ >= water_depth:
+                #print "behind water: %r >= %r" % (wZ , water_depth)
+                new_selobj = None
+                    # btw, in constrast to this condition for a new selobj, an existing one will
+                    # remain selected even when you mouseover the underwater part (that's intentional)
+            else:
+                # depth is in front of water
+                new_selobj_unknown = True
+        if new_selobj_unknown:
+            # Only the next paintGL call can figure out the selobj (in general),
+            # so set glpane.glselect_wanted to the command to do that and the necessary info for doing it.
+            # Note: it might have been set before and not yet used;
+            # if so, it's good to discard that old info, as we do.
+            glpane.glselect_wanted = (wX, wY, wZ) # mouse pos, depth
+                ###e and soon, instructions about whether to highlight selobj based on its type (as predicate on selobj)
+                ###e should also include current count of number of times
+                # glupdate was ever called because model looks different,
+                # and inval these instrs if that happens again before they are used
+                # (since in that case wZ is no longer correct)
+            # don't change glpane.selobj (since it might not even need to change) (ok??#k) -- the next paintGL will do that
+            glpane.gl_update()
+        else:
+            # it's known (to be a specific object or None)
+            if new_selobj is not orig_selobj:
+                # this is the right test even if one or both of those is None.
+                # (Note that we never figure out a specific new_selobj, above,
+                #  except when it's None, but that might change someday
+                #  and this code can already handle that.)
+                glpane.set_selobj( new_selobj, "depmode")
+                    #e use setter func, if anything needs to observe changes to this?
+                    # or let paintGL notice the change (whether it or elseone does it) and report that?
+                    # Probably it's better for paintGL to report it, so it doesn't happen too often or too soon!
+                    # And in the glselect_wanted case, that's the only choice, so we needed code for that anyway.
+                    # Conclusion: no external setter func is required; maybe glpane has an internal one and tracks prior value.
+                glpane.gl_update() # this might or might not highlight that selobj ###e need to tell it how to decide??
+        #####@@@@@ we'll need to do this in a callback when selobj is set:
+        ## self.update_selatom(event, msg_about_click = True)
+        return not new_selobj_unknown # from update_selobj
+
+    def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True): #bruce 050610 rewrote this
+        "keep selatom up-to-date, as atom under mouse; ###@@@ correctness after rewrite not yet proven, due to delay until paintGL"
+        # bruce 050124 split this out of bareMotion so options can vary
+        glpane = self.o
+        if event is None:
+            # event (and thus its x,y position) is not known [bruce 050612 added this possibility]
+            known = False
+        else:
+            known = self.update_selobj(event) # this might do gl_update (but the paintGL triggered by that only happens later!),
+                # and (when it does) might not know the correct obj...
+                # so it returns True iff it did know the correct obj (or None) to store into glpane.selobj, False if not.
+        assert known in [False,True]
+        # If not known, use None or use the prior one? This is up to the caller
+        # since the best policy varies. Default is resort_to_prior = True since some callers need this
+        # and I did not yet scan them all and fix them. ####@@@@ do that
+        selobj = glpane.selobj
+        ## print "known %r, selobj %r" % (known, selobj)
+        if not known:
+            if resort_to_prior:
+                pass # stored one is what this says to use, and is what we'll use
+                ## print "resort_to_prior using",glpane.selobj
+                    # [this is rare, I guess since paintGL usually has time to run after bareMotion before clicks]
+            else:
+                selobj = None
+        oldselatom = glpane.selatom
+        atm = selobj
+        if not isinstance(atm, Atom):
+            atm = None
+        if atm is not None and (atm.element is Singlet or not singOnly):
+            pass # we'll use this atm as the new selatom
+        else:
+            atm = None # otherwise we'll use None
+        glpane.selatom = atm
+        if msg_about_click: # [always do this, since many things can change what it should say]
+            # come up with a status bar message about what we would paste now.
+            # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
+            msg = self.describe_leftDown_action( glpane.selatom)
+            self.w.history.transient_msg( msg) # uses status bar #e rename that method
+        if glpane.selatom is not oldselatom:
+            # update display (probably redundant with side effect of update_selobj; ok if it is, and I'm not sure it always is #k)
+            glpane.gl_update() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
         return
     
-    def update_selatom(self, event, singOnly = False, msg_about_click = False):
-        "keep selatom up-to-date, as atom under mouse"
-        # bruce 050124 split this out of bareMotion so options can vary
-        
+    def OLD_OBS_update_selatom(self, event, singOnly = False, msg_about_click = False): # no longer used as of 050610
         # bruce 041206 optimized redisplay (for some graphics chips)
         # by keeping selatom out of its chunk's display list,
         # so no changeapp is needed when selatom changes.
@@ -551,7 +742,7 @@ class depositMode(basicMode):
         oldselatom = self.o.selatom
         # warning: don't change self.o.selatom yet, since findAtomUnderMouse uses
         # its current value to support hysteresis for its selection radius.
-        atm = self.o.assy.findAtomUnderMouse(event, water_cutoff = True, singlet_ok = True)
+        atm = self.o.assy.findAtomUnderMouse(event, water_cutoff = True, singlet_ok = True) # note, this is not the only call!
         assert oldselatom is self.o.selatom
         if atm is not None and (atm.element is Singlet or not singOnly):
             pass # we'll use this atm as the new selatom
@@ -1201,21 +1392,39 @@ class depositMode(basicMode):
     # utility routines
     ####################
 
-
+    
     def Draw(self):
-        """ Draw a sketch plane to indicate where the new atoms will sit
-	by default
+        """ Draw 
 	"""
 	basicMode.Draw(self)
         if self.line:
             drawline(white, self.line[0], self.line[1])
             ####@@@@ if this is for a higher-valence bond, draw differently
         self.o.assy.draw(self.o)
-        self.surface()
+        #bruce 050610 moved self.surface() call elsewhere
+        return
 
-                           
-    def surface(self):
-        """The water's surface
+    def Draw_after_highlighting(self): #bruce 050610
+        """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
+        Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write.
+        Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion.
+        [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
+         water surface. Could be used for transparent drawing in general.]
+        """
+        glDepthMask(GL_FALSE)
+            # disable writing the depth buffer, so bareMotion selobj check measures depths behind it,
+            # so it can more reliably compare them to water's constant depth. (This way, roundoff errors
+            # only matter where the model hits the water surface, rather than over all the visible
+            # water surface.)
+            # (Note: before bruce 050608, depth buffer remained writable here -- untypical for transparent drawing,
+            #  but ok then, since water was drawn last and bareMotion had no depth-buffer pixel check.)
+        self.surface() 
+        glDepthMask(GL_TRUE)
+        return
+        
+    def surface(self): #bruce 050610 revised docstring
+        """Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
+        which also prevents (some kinds of) selection of objects behind it.
 	"""
 	glDisable(GL_LIGHTING)
 	glColor4fv(self.gridColor + (0.6,))
@@ -1256,6 +1465,9 @@ class depositMode(basicMode):
     call_makeMenus_for_each_event = True #bruce 050416/050420 using new feature for dynamic context menus
     
     def makeMenus(self):
+
+        self.update_selatom( None) # bruce 050612 added this -- not needed before since bareMotion did it (I guess).
+            ##e It might be better to let set_selobj callback (NIM, but needed for sbar messages) keep it updated.
         
         self.Menu_spec = []
         ###e could include disabled chunk & selatom name at the top, whether selatom is singlet, hotspot, etc.
@@ -1483,3 +1695,5 @@ class depositMode(basicMode):
                     print '   ', b
 
     pass # end of class depositMode
+
+# end

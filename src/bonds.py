@@ -59,6 +59,7 @@ from elements import *
 
 from chem import singlet_atom, stringVec, atom
     # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
+import globals
 
 # ==
 
@@ -375,6 +376,7 @@ class Bond:
         ## self.picked = 0 # bruce 041029 removed this since it seems unused
         self.changed_atoms()
         self.invalidate_bonded_mols() #bruce 041109 new feature
+        self.glname = globals.alloc_my_glselect_name( self) #bruce 050610
 
     def set_v6(self, v6): ###@@@ not yet used?? can't be used for illegal valences, as our actual setters need to do...
         assert v6 in BOND_VALENCES
@@ -491,6 +493,9 @@ class Bond:
         at2 = self.atom2
         assert at1 is not at2
         self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key)
+##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since key is not truly unique)
+##        self.atom1.molecule.assy.w.glpane.glselect_objs[self.key] = self #e dict should be stored in assy (or so) instead
+##            ###@@@ not key, use other attr name for that, obj.glname or glselect_name or so...
         #bruce 050317: debug warning for interpart bonds, or bonding killed atoms/chunks,
         # or bonding to chunks not yet added to any Part (but not warning about internal
         # bonds, since mol.copy makes those before a copied chunk is added to any Part).
@@ -803,91 +808,126 @@ class Bond:
         # a1pos, a2pos, c1, c2, as created by self.__setup_update().
         # As of 041109 this is now handled by bond.__getattr__.
         # The attr toolong is new as of 041112.
-        
-        color1 = col or self.atom1.element.color
-        color2 = col or self.atom2.element.color
 
-        disp = max(self.atom1.display, self.atom2.display)
-        if disp == diDEFAULT:
-            disp = dispdef
-        if disp == diLINES:
-            a1pos, c1, center, c2, a2pos, toolong = self.geom
-            if not toolong:
-                drawline(color1, a1pos, center)
-                drawline(color2, a2pos, center)
-            else:
-                drawline(color1, a1pos, c1)
-                drawline(color2, a2pos, c2)
-                drawline(red, c1, c2)
-        elif disp == diCPK:
-            a1pos, c1, center, c2, a2pos, toolong = self.geom #e could be optimized to compute less for this case
-            drawcylinder(col or bondColor, a1pos, a2pos, 0.1)
-        elif disp == diTUBES:
-            a1pos, c1, center, c2, a2pos, toolong = self.geom
-            v1 = self.atom1.display != diINVISIBLE
-            v2 = self.atom2.display != diINVISIBLE
-            ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
-            # to look at each mol's .hidden (but this is purely a guess)
-            ###e bruce 050513 future optim idea: when color1 == color2, draw just
-            # one longer cylinder, then overdraw toolong indicator if needed.
-            # Significant for big parts. BUT, why spend time on this when I
-            # expect we'll do this drawing in C code before too long?
-            if not toolong:
-                if v1 and v2 and (not color1 != color2): # "not !=" is in case colors are Numeric arrays (don't know if possible)
-                    #bruce 050516 optim: draw only one cylinder in this common case
-                    drawcylinder(color1, a1pos, a2pos, TubeRadius)
+        glPushName( self.glname) #bruce 050610
+            # Note: we have to do this all the time, since display lists made outside GL_SELECT mode can be used inside it.
+            # And since that display list might be used arbitrarily far into the future,
+            # self.glname needs to remain the same (and we need to remain registered under it)
+            # as long as we live.
+
+        try: #bruce 050610 to ensure calling glPopName
+        
+            color1 = col or self.atom1.element.color
+            color2 = col or self.atom2.element.color
+
+            disp = max(self.atom1.display, self.atom2.display)
+            if disp == diDEFAULT:
+                disp = dispdef
+            if disp == diLINES:
+                a1pos, c1, center, c2, a2pos, toolong = self.geom
+                if not toolong:
+                    drawline(color1, a1pos, center)
+                    drawline(color2, a2pos, center)
                 else:
+                    drawline(color1, a1pos, c1)
+                    drawline(color2, a2pos, c2)
+                    drawline(red, c1, c2)
+            elif disp == diCPK:
+                a1pos, c1, center, c2, a2pos, toolong = self.geom #e could be optimized to compute less for this case
+                drawcylinder(col or bondColor, a1pos, a2pos, 0.1)
+            elif disp == diTUBES:
+                a1pos, c1, center, c2, a2pos, toolong = self.geom
+                v1 = self.atom1.display != diINVISIBLE
+                v2 = self.atom2.display != diINVISIBLE
+                ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
+                # to look at each mol's .hidden (but this is purely a guess)
+                ###e bruce 050513 future optim idea: when color1 == color2, draw just
+                # one longer cylinder, then overdraw toolong indicator if needed.
+                # Significant for big parts. BUT, why spend time on this when I
+                # expect we'll do this drawing in C code before too long?
+                if not toolong:
+                    if v1 and v2 and (not color1 != color2): # "not !=" is in case colors are Numeric arrays (don't know if possible)
+                        #bruce 050516 optim: draw only one cylinder in this common case
+                        drawcylinder(color1, a1pos, a2pos, TubeRadius)
+                    else:
+                        if v1:
+                            drawcylinder(color1, a1pos, center, TubeRadius)
+                        if v2:
+                            drawcylinder(color2, a2pos, center, TubeRadius)
+                        if not (v1 and v2):
+                            drawsphere(black, center, TubeRadius, level)
+                else:
+                    drawcylinder(red, c1, c2, TubeRadius)
                     if v1:
-                        drawcylinder(color1, a1pos, center, TubeRadius)
+                        drawcylinder(color1, a1pos, c1, TubeRadius)
+                    else:
+                        drawsphere(black, c1, TubeRadius, level)
                     if v2:
-                        drawcylinder(color2, a2pos, center, TubeRadius)
-                    if not (v1 and v2):
-                        drawsphere(black, center, TubeRadius, level)
-            else:
-                drawcylinder(red, c1, c2, TubeRadius)
-                if v1:
-                    drawcylinder(color1, a1pos, c1, TubeRadius)
-                else:
-                    drawsphere(black, c1, TubeRadius, level)
-                if v2:
-                    drawcylinder(color2, a2pos, c2, TubeRadius)
-                else:
-                    drawsphere(black, c2, TubeRadius, level)
-        if self.v6 != V_SINGLE or platform.atom_debug: # debug_bonds #####@@@@@
-            glDisable(GL_LIGHTING)
-            ## glDisable(GL_DEPTH_TEST)
-            glPushMatrix()
-            font = QFont( QString("Times"), 10)
-                # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works in other code for Helvetica
-                ###e should adjust fontsize based on scale, depth...
-                #e could optimize this, keep in glpane
-            ## glpane.qglColor(QColor(75, 75, 75)) # gray
-            ## glpane.qglColor(QColor(200, 40, 140)) # majenta
-            glpane.qglColor(QColor(255, 255, 255)) # white
-            try:
-                glpane_out = glpane.out
-            except AttributeError:
-                glpane_out = V(0.0, 0.0, 1.0) # kluge for Element Selector [bruce 050507 bugfix]
-            p = self.center + glpane_out * 0.6
-                ###WRONG -- depends on rotation when display list is made! But quite useful for now.
-                # Could fix this by having a separate display list, or no display list, for these kinds of things --
-                # would need a separate display list per chunk and per offset.
-            v6 = self.v6
-            try:
-                ltr = BOND_LETTERS[v6]
-                    # includes special case of '0' for v6 == 0,
-                    # which should only show up for transient states that are never drawn, except in case of bugs
-            except IndexError: # should only show up for transient states...
-                if v6 < 0:
-                    ltr = '-'
-                else:
-                    ltr = '+'
-            glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
-            glPopMatrix()
-            ## glEnable(GL_DEPTH_TEST)
-            glEnable(GL_LIGHTING)
+                        drawcylinder(color2, a2pos, c2, TubeRadius)
+                    else:
+                        drawsphere(black, c2, TubeRadius, level)
+            if self.v6 != V_SINGLE: ##  or platform.atom_debug: # debug_bonds #####@@@@@
+                glDisable(GL_LIGHTING)
+                ## glDisable(GL_DEPTH_TEST)
+                glPushMatrix()
+                font = QFont( QString("Times"), 10)
+                    # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works in other code for Helvetica
+                    ###e should adjust fontsize based on scale, depth...
+                    #e could optimize this, keep in glpane
+                ## glpane.qglColor(QColor(75, 75, 75)) # gray
+                ## glpane.qglColor(QColor(200, 40, 140)) # majenta
+                glpane.qglColor(QColor(255, 255, 255)) # white
+                try:
+                    glpane_out = glpane.out
+                except AttributeError:
+                    glpane_out = V(0.0, 0.0, 1.0) # kluge for Element Selector [bruce 050507 bugfix]
+                p = self.center + glpane_out * 0.6
+                    ###WRONG -- depends on rotation when display list is made! But quite useful for now.
+                    # Could fix this by having a separate display list, or no display list, for these kinds of things --
+                    # would need a separate display list per chunk and per offset.
+                v6 = self.v6
+                try:
+                    ltr = BOND_LETTERS[v6]
+                        # includes special case of '0' for v6 == 0,
+                        # which should only show up for transient states that are never drawn, except in case of bugs
+                except IndexError: # should only show up for transient states...
+                    if v6 < 0:
+                        ltr = '-'
+                    else:
+                        ltr = '+'
+                glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
+                glPopMatrix()
+                ## glEnable(GL_DEPTH_TEST)
+                glEnable(GL_LIGHTING)
+            pass
+
+        except:
+            glPopName()
+            print_compact_traceback("ignoring exception when drawing bond %r: " % self)
+        else:
+            glPopName()
+        
         return # from Bond.draw
 
+    def draw_in_abs_coords(self, glpane, color): #bruce 050609
+        """Draw this bond in absolute (world) coordinates (even if it's an internal bond),
+        using the specified color (ignoring the color it would naturally be drawn with).
+        """
+        mol = self.atom1.molecule
+        mol2 = self.atom2.molecule
+        if mol is mol2:
+            # internal bond; geometric info is stored in chunk-relative coords; we need mol's help to use those
+            mol.pushMatrix()
+            self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel)
+                # sorry for all the kluges (e.g. 2 of those args) that beg for refactoring! The info passing in draw methods
+                # is not designed for drawing leaf nodes by themselves in a clean way! (#e should clean up somehow)
+            mol.popMatrix()
+        else:
+            # external bond -- draw it at max dispdef of those from its mols
+            disp = max( mol.get_dispdef(glpane), mol2.get_dispdef(glpane) )
+            self.draw(glpane, disp, color, mol.assy.drawLevel)
+        return
+    
     def writepov(self, file, dispdef, col):
         "Write this bond to a povray file (always using absolute coords, even for internal bonds)."
         ##Huaicai 1/15/05: It seems the attributes from __setup__update() is not correct,

@@ -1,6 +1,6 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 '''
-chem.py -- class atom, for single atoms, and related code
+chem.py -- class Atom, for single atoms, and related code
 
 TEMPORARILY OWNED BY BRUCE AS OF 050502 for introducing higher-valence bonds #####@@@@@
 
@@ -20,6 +20,12 @@ History:
 
 - bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
   for atoms, molecules, elements, parts, assys, atomtypes in many places (not all commented individually); 050513
+
+- bruce 050610 renamed class atom to class Atom; for now, the old name still works.
+  The name should gradually be changed in all code (as of now it is not changed anywhere,
+   not even in this file except for creating the class), and then the old name should be removed. ###@@@
+
+- bruce 050610 changing how atoms are highlighted during Build mode mouseover. ###@@@ might not be done
 
 '''
 __author__ = "Josh"
@@ -54,6 +60,8 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
   # from platform.atom_debug since it can be changed at runtime
 
 from elements import *
+
+import globals
 
 ## from chunk import *
 # -- done at end of file,
@@ -109,7 +117,7 @@ def stringVec(v):
 
 from inval import InvalMixin #bruce 050510
 
-class atom(InvalMixin):
+class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     """An atom instance represents one real atom, or one "singlet"
     (a place near a real atom where another atom could bond to it).
        At any time, each atom has an element, a position in space,
@@ -141,6 +149,7 @@ class atom(InvalMixin):
         """
         # unique key for hashing
         self.key = atKey.next()
+        self.glname = globals.alloc_my_glselect_name( self) #bruce 050610
         # self.element is an Elem object which specifies this atom's element
         # (this will be redundant with self.atomtype when that's set,
         #  but at least for now we keep it as a separate attr,
@@ -381,35 +390,51 @@ class atom(InvalMixin):
         print self.element.name, lis
 
     def draw(self, glpane, dispdef, col, level):
-        """draw the atom depending on whether it is picked
+        """Draw this atom depending on whether it is picked
         and its display mode (possibly inherited from dispdef).
         An atom's display mode overrides the inherited one from
         the molecule or glpane, but a molecule's color overrides the atom's
         element-dependent one. No longer treats glpane.selatom specially
         (caller can draw selatom separately, on top of the regular atom).
+           Also draws picked-atom wireframe, but doesn't draw any bonds.
            Return value gives the display mode we used (our own or inherited).
         """
         assert not self.__killed
-        # note use of basepos (in atom.baseposn) since it's being drawn under
-        # rotation/translation of molecule
-        pos = self.baseposn()
-        disp, drawrad = self.howdraw(dispdef)
-        if disp == diTUBES:
-            pickedrad = drawrad * 1.8
+        disp = default_display_mode # to be returned in case of early exception
+        glPushName( self.glname) #bruce 050610 (for comments, see same code in Bond.draw)
+            # (Note: these names won't be nested, since this method doesn't draw bonds;
+            #  if it did, they would be, and using the last name would be correct,
+            #  which is what's done (in GLPane.py) as of 050610.)
+        try:
+            # note use of basepos (in atom.baseposn) since it's being drawn under
+            # rotation/translation of molecule
+            pos = self.baseposn()
+            disp, drawrad = self.howdraw(dispdef)
+            if disp == diTUBES:
+                pickedrad = drawrad * 1.8
+            else:
+                pickedrad = drawrad * 1.1
+            color = col or self.element.color
+            if disp in [diVDW, diCPK, diTUBES]:
+                drawsphere(color, pos, drawrad, level)
+            if self.picked:
+                #bruce 041217 experiment: show valence errors for picked atoms by
+                # using a different color for the wireframe.
+                # (Since Transmute operates on picked atoms, and leaves them picked,
+                #  this will serve to show whatever valence errors it causes. And
+                #  showing it only for picked atoms makes it not mess up any images,
+                #  even though there's not yet any way to turn this feature off.)
+                if self.bad():
+                    color = ErrorPickedColor
+                else:
+                    color = PickedColor
+                drawwiresphere(color, pos, pickedrad)
+        except:
+            glPopName()
+            print_compact_traceback("ignoring exception when drawing atom %r: " % self)
         else:
-            pickedrad = drawrad * 1.1
-        color = col or self.element.color
-        if disp in [diVDW, diCPK, diTUBES]:
-            drawsphere(color, pos, drawrad, level)
-        if self.picked:
-            #bruce 041217 experiment: show valence errors for picked atoms by
-            # using a different color for the wireframe.
-            # (Since Transmute operates on picked atoms, and leaves them picked,
-            #  this will serve to show whatever valence errors it causes. And
-            #  showing it only for picked atoms makes it not mess up any images,
-            #  even though there's not yet any way to turn this feature off.)
-            color = (self.bad() and ErrorPickedColor) or PickedColor
-            drawwiresphere(color, pos, pickedrad)
+            glPopName()
+        
         return disp # bruce 050513 added retval to help with an optim
 
     def bad(self): #bruce 041217 experiment
@@ -422,12 +447,26 @@ class atom(InvalMixin):
         return numbonds != len(self.bonds) ####@@@@ doesn't check bond valence at all... should it??
 
     def overdraw_with_special_color(self, color, level = None):
-        "Draw this atom slightly larger than usual with the given special color and optional drawlevel."
+        "Draw this atom slightly larger than usual with the given special color and optional drawlevel, in abs coords."
         #bruce 050324; meant for use in Fuse Chunks mode;
         # also could perhaps speed up Extrude's singlet-coloring #e
         if level is None:
             level = self.molecule.assy.drawLevel
         pos = self.posn() # note, unlike for draw_as_selatom, this is in main model coordinates
+        drawrad = self.selatom_radius() # slightly larger than normal drawing radius
+        drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
+        return
+    
+    def draw_in_abs_coords(self, glpane, color): #bruce 050610 ###@@@ needs to be told whether or not to "draw as selatom"; now it does
+        """Draw this atom in absolute (world) coordinates,
+        using the specified color (ignoring the color it would naturally be drawn with).
+        See code comments about radius and display mode (current behavior might not be correct or optimal).
+        """
+        if self.__killed:
+            return # I hope this is always ok...
+        level = self.molecule.assy.drawLevel # this doesn't work if atom has been killed!
+        pos = self.posn()
+        ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
         drawrad = self.selatom_radius() # slightly larger than normal drawing radius
         drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
         return
@@ -1513,6 +1552,8 @@ class atom(InvalMixin):
         return
 
     pass # end of class atom
+
+atom = Atom # old name of that class -- must remain here until all code has been revised [bruce 050610]
 
 def singlet_atom(singlet):
     "return the atom a singlet is bonded to, checking assertions"

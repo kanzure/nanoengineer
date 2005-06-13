@@ -80,7 +80,7 @@ gray =   (0.5, 0.5, 0.5)
 navy =   (0.0, 0.09, 0.44)
 
 LEDoff = (0.8, 0.0, 0.0)
-LEDon =  (1.0, 0.5, 0.5)
+LEDon = pink = (0.8, 0.4, 0.4) ##bruce 050610 darkened this and added another name; old value was (1.0, 0.5, 0.5)
 
 bondColor = (0.25, 0.25, 0.25)
 
