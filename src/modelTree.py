@@ -25,6 +25,8 @@ from HistoryWidget import redmsg, greenmsg, orangemsg # not all used, that's ok
 
 debug_columns = 0 # bruce 050531 experiment (works, disabled now) - multiple columns in MT
 
+debug_preftree = 0 # bruce 050602 experiment; requires new (not yet committed) file when enabled #####@@@@@ DO NOT COMMIT with 1
+
 # helpers for making context menu commands
 
 class statsclass:
@@ -198,11 +200,30 @@ class modelTree(TreeWidget):
             # fixes Group subclasses of assy.shelf and assy.tree, and
             # [not anymore, as of some time before 050417] inserts assy.viewdata.members into assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
-        return [self.assy.tree, self.assy.shelf]
+        topnodes = [self.assy.tree, self.assy.shelf]
+        if debug_preftree: ###IMPLEM #######@@@@@@@ this is where i am, bruce 050602
+            try:
+                from Utility import Node
+                ## print "reloading prefsTree"
+                import prefsTree as _X
+                reload(_X)
+                from prefsTree import prefsTree # constructor for an object which has a tree of nodes and controls them
+                self.pt = prefsTree(self.assy) # guess; guessing it's ok to remake it each time
+                ptnode = self.pt.topnode
+                assert ptnode is not None
+                assert isinstance(ptnode, Node)
+                topnodes.append(ptnode)
+            except:
+                print_compact_traceback("error importing prefsTree or making one: ")
+        return topnodes
 
     def post_update_topitems(self):
-        self.tree_item, self.shelf_item = self.topitems ###k needed??
+        self.tree_item, self.shelf_item = self.topitems[0:2] # ignore 3rd element (prefsTree when that's enabled)
             # the actual items are different each time this is called
+            ###@@@ as of 050602 the only uses of these are:
+            # tree_item, in some debug code in TreeView;
+            # shelf_item, in our open_clipboard method.
+            ##e so I should replace those with something else and remove these.
 
     def QListViewItem_subclass_for_node( self, node, parent, display_prefs, after):
         if node.is_top_of_selection_group() or node.is_disabled():
@@ -363,10 +384,50 @@ class modelTree(TreeWidget):
         ###e Command name should depend on what the thing is, e.g. "Part Properties", "Chunk Properties".
         # Need to add methods to return that "user-visible class name".
         res.append(None) # separator
+
+        if platform.atom_debug and len(nodeset) == 1:
+            res.append(( "debug._node =", self.cm_set_node ))
+        else:
+            res.append(( "debug._nodeset =", self.cm_set_node ))
+        
         if len(nodeset) == 1 and nodeset[0].edit_props_enabled():
             res.append(( 'Properties', self.cm_properties ))
         else:
             res.append(( 'Properties', noop, 'disabled' )) # nim for multiple items
+
+        # submenu for node-class-specific menu items, when exactly one node
+        if len(nodeset) == 1:
+            node = nodeset[0]
+            submenu = []
+            attrs = filter( lambda attr: "__CM_" in attr, dir( node.__class__ )) #e should do in order of superclasses
+            attrs.sort() # ok if empty list
+            for attr in attrs:
+                classname, menutext = attr.split("__CM_",1)
+                boundmethod = getattr( node, attr)
+                if callable(boundmethod):
+                    submenu.append(( menutext.replace('_',' '), boundmethod ))
+                elif boundmethod is None:
+                    # kluge: None means remove any existing menu items (before the submenu) with this menutext!
+                    res = filter( lambda text_cmd: text_cmd and text_cmd[0] != menutext, res ) # text_cmd might be None
+                    while res and res[0] == None:
+                        res = res[1:]
+                    #e should also remove adjacent Nones inside res
+                else:
+                    assert 0, "not a callable or None: %r" % boundmethod
+            if submenu:
+                res.append(( 'other', submenu )) #e improve submenu name, ordering, location
+
+        # Customize command [bruce 050602 experiment]. #####@@@@@
+        # Provide this when all items are in the same group? no, any items could be grouped...
+        # so for initial experiments, always provide it. If it's a submenu, the selected items might affect
+        # what's in it, and some things in it might be already checkmarked if PrefsNodes are above them ... 
+        # for very initial experiment let's provide it only for single items.
+        # Do we ask them what can be customized about them? I guess so.
+##unfinished...
+##        if debug_preftree and len(nodeset) == 1:
+##            mspec = nodeset[0].customize_menuspec()
+##            submenu = []
+            
 
         # Certain classes have specific commands related to changing specific properties...
         # this needs a general interface, but for this first example,
@@ -444,6 +505,17 @@ class modelTree(TreeWidget):
         self.win.history.message("Unhide: %d selected items or groups" % len(self.topmost_selected_nodes()))
         ## self.assy.permit_pick_parts() #e should not be needed here [see same comment above]
         self.assy.Unhide() # includes win_update
+
+    def cm_set_node(self): #bruce 050604, for debugging
+        import debug
+        nodeset = self.topmost_selected_nodes()
+        if len(nodeset) == 1:
+            debug._node = nodeset[0]
+            print "set debug._node to", debug._node
+        else:
+            debug._nodeset = nodeset
+            print "set debug._nodeset to list of %d items" % len(debug._nodeset)
+        return
     
     def cm_properties(self):
         nodeset = self.topmost_selected_nodes()
@@ -681,7 +753,8 @@ class modelTree(TreeWidget):
         self.assy.update_parts()
         self.mt_update()
 
-    def cm_delete_clipboard(self): #bruce 050505
+    def cm_delete_clipboard(self): #bruce 050505; docstring added 050602
+        "Delete all clipboard items"
         ###e get confirmation from user?
         for item in self.assy.shelf.members[:]:
             item.kill() # will this be safe even if one of these is presently displayed? ###k
