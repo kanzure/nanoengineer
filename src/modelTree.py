@@ -385,10 +385,11 @@ class modelTree(TreeWidget):
         # Need to add methods to return that "user-visible class name".
         res.append(None) # separator
 
-        if platform.atom_debug and len(nodeset) == 1:
-            res.append(( "debug._node =", self.cm_set_node ))
-        else:
-            res.append(( "debug._nodeset =", self.cm_set_node ))
+        if platform.atom_debug:
+            if len(nodeset) == 1:
+                res.append(( "debug._node =", self.cm_set_node ))
+            else:
+                res.append(( "debug._nodeset =", self.cm_set_node ))
         
         if len(nodeset) == 1 and nodeset[0].edit_props_enabled():
             res.append(( 'Properties', self.cm_properties ))
