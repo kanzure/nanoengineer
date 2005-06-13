@@ -284,6 +284,9 @@ class Node:
         # But it's wrong for PartGroup itself (thus is overridden by it).
         return self.dad and self.dad.is_selection_group_container()
 
+    no_selgroup_is_ok = False
+        #bruce 050612 class constant, could be overridden in some subclasses [not presently needed, but tested]
+    
     def change_current_selgroup_to_include_self(self): #bruce 050131 for Alpha
         "#doc"
         # This might not be fast enough, so when there's time,
@@ -297,6 +300,8 @@ class Node:
             # this might happen for non-bugs since changed_dad calls it for picked nodes,
             # but it makes sense to skeptically review any way that can happen,
             # so the debug print is good even if it's not always a bug [bruce comment 050310]
+            if self.no_selgroup_is_ok:
+                return #bruce 050602
             if platform.atom_debug:
                 print "atom_debug: bug(?): change_current_selgroup_to_include_self on node with no selgroup; ignored"
             return
