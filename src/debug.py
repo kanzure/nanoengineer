@@ -25,6 +25,8 @@ frame when it's first seen, and perhaps incrementing it each time it's seen).
 import sys, os, time
 from constants import debugButtons, noop
 
+from debug_prefs import debug_prefs_menuspec # bruce 050614
+
 # note: some debug features run user-supplied code in this module's
 # global namespace (on platforms where this is permitted by our licenses).
 
@@ -291,6 +293,8 @@ class DebugMenuMixin:
             res.extend( [
                 ('ATOM_DEBUG', self._debug_enable_atom_debug ),
             ] )
+        if platform.atom_debug:
+            res.append( debug_prefs_menuspec() ) #bruce 050614
         res.extend( [
             ('choose font', self._debug_choose_font),
         ] )

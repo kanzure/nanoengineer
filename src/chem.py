@@ -1446,7 +1446,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                 bond_atoms(self,x) ###@@@ set valence? or update it later?
         return
     
-    def make_singlets_when_1_bond(self):
+    def make_singlets_when_1_bond(self): # by josh, with some comments and mods by bruce
         "[private method; see docstring for make_singlets_when_2_bonds]"
         ## print "what the heck is this global variable named a doing here? %r" % (a,)
         ## its value is 0.85065080835203999; where does it come from? it hide bugs. ###@@@
@@ -1455,10 +1455,13 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         atype = self.atomtype
         if len(atype.quats): #bruce 041119 revised to support "onebond" elements
             # There is at least one other bond we should make (as open bond);
-            # this rotates the atom to match the existing bond
+            # compute rq, which rotates this atom's bonding pattern (base and quats)
+            # to match the existing bond. (If q is a quat that rotates base to another
+            # bond vector (in std position), then rq + q - rq rotates r to another
+            # bond vector in actual position.) [comments revised/extended by bruce 050614]
             pos = self.posn()
             s1pos = self.bonds[0].ubp(self)
-            r = s1pos - pos
+            r = s1pos - pos # this points towards our real neighbor
             del s1pos # same varname used differently below
             rq = Q(r,atype.base)
             # if the other atom has any other bonds, align 60 deg off them
@@ -1467,23 +1470,46 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             # [bruce 041215 comment: might need revision if numbonds > 4]
             a1 = self.bonds[0].other(self) # our real neighbor
             if len(a1.bonds)>1:
-                # don't pick ourself as a2
+                # figure out how to line up one arbitrary bond from each of self and a1.
+                # a2 = a neighbor of a1 other than self
                 if self is a1.bonds[0].other(a1):
                     a2 = a1.bonds[1].other(a1)
                 else:
                     a2 = a1.bonds[0].other(a1)
                 a2pos = a2.posn()
-                s1pos = pos+(rq + atype.quats[0] - rq).rot(r)
-                spin = twistor(r,s1pos-pos, a2pos-a1.posn()) #e need to protect against this failing, for a2 being sp?
+                s1pos = pos+(rq + atype.quats[0] - rq).rot(r) # un-spun posn of one of our new singlets
+                spin = twistor(r,s1pos-pos, a2pos-a1.posn())
+                    # [bruce 050614 comments]
+                    # spin is a quat that says how to twist self along r to line up
+                    # the representative bonds perfectly (as projected into a plane perpendicular to r).
+                    # I believe we'd get the same answer for either r or -r (since it's a quat, not an angle!).
+                    # This won't work if a1 is sp (and a2 therefore projects right on top of a1 as seen along r);
+                    # I don't know if it will have an exception or just give an arbitrary result. ##k
+                    ##e This should be fixed to look through a chain of sp atoms to the next sp2 atom (if it finds one)
+                    # and to know about pi system alignments even if that chain bends
+                    # (though for long chains this won't matter much in practice).
+                    # Note that we presently don't plan to store pi system alignment in the mmp file,
+                    # which means it will be arbitrarily re-guessed for chains of sp atoms as needed.
+                    # (I'm hoping other people will be as annoyed by that as I will be, and come to favor fixing it.)
                 if atype.is_sp2() and a1.atomtype.is_sp2():
                     pass # no extra spin
                 else:
-                    spin = spin + Q(r, pi/3.0)
+                    spin = spin + Q(r, pi/3.0) # 60 degrees of extra spin
             else: spin = Q(1,0,0,0)
             mol = self.molecule
+            if 1: # see comment below
+                from debug_prefs import debug_pref, Choice # bruce 050614
+                spinsign = debug_pref("spinsign", Choice([1,-1]))
             for q in atype.quats:
-                q = rq + q - rq - spin
-                x = atom('X', pos+q.rot(r), mol)
+                # the following old code has the wrong sign on spin, thus causing bug 661: [fixed by bruce 050614]
+                ##  q = rq + q - rq - spin
+                # this would be the correct code:
+                ##  q = rq + q - rq + spin
+                # but as an example of how to use debug_pref, I'll put in code that can do it either way,
+                # with the default pref value giving the correct behavior (moved just above, outside of this loop).
+                q = rq + q - rq + spin * spinsign
+                xpos = pos + q.rot(r)
+                x = atom('X', xpos, mol)
                 bond_atoms(self,x)
         return
         
