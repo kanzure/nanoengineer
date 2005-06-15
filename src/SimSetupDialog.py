@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Sat Mar 12 10:54:58 2005
+# Created: Wed Jun 15 15:34:00 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -10,137 +10,241 @@
 
 from qt import *
 
-image0_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
-    "\x40\x49\x44\x41\x54\x78\x9c\xd5\x95\x31\x4b\xc3" \
-    "\x40\x18\x86\x9f\x4f\x3a\x74\x71\x6a\x71\x75\x74" \
-    "\xea\x2e\x37\xfb\x0f\x1a\x68\x26\x97\x42\x32\x14" \
-    "\x97\xe2\xdc\x21\xe2\x16\xb2\x45\x68\xc0\x41\x07" \
-    "\x89\x12\xc1\x1f\x20\x88\xcb\xe1\x5f\x70\x74\x15" \
-    "\x5a\x10\x97\x6e\xe7\x50\x92\xd4\x26\xb6\x49\xa5" \
-    "\x43\x5f\x38\x72\xf7\x91\x3c\xbc\xbc\xdf\xdd\x45" \
-    "\xb4\xd6\x6c\x43\x7b\x5b\xa1\xee\x24\xb8\x91\x4e" \
-    "\xde\xf4\xb3\x19\x9e\x8f\x36\x06\x05\xbe\xc7\xb1" \
-    "\x3a\x91\x74\x2d\x69\xf3\x94\x52\x26\x89\xc7\x1b" \
-    "\x83\x2d\xdb\x45\x6b\x9d\x81\x1b\xcb\x2f\x74\x7b" \
-    "\x4e\x6d\xe8\xe3\x7d\x54\xa8\xad\xcc\xf8\x96\x6b" \
-    "\xda\x34\x69\xd3\x64\x6a\x3a\x4c\x4d\x07\x11\x81" \
-    "\x28\x62\xf2\xf9\x0e\x90\x3d\x2b\x83\xaf\xbe\x2f" \
-    "\x19\x32\x20\x20\x24\x20\x04\xe0\xe5\xe1\x0c\x80" \
-    "\x8f\xbb\x1b\x5a\x4f\xaf\x00\xb4\x0e\x8e\x4a\xbf" \
-    "\x2f\x44\x91\x3a\x1d\xed\x5f\x10\x10\x72\x4a\x7f" \
-    "\x5e\x94\x3e\x96\x2d\x24\xf1\x98\xc3\x2f\xc0\x75" \
-    "\xe7\x75\xa7\x3c\xba\x52\xc7\x43\x06\x00\x39\x94" \
-    "\x3c\xc7\x6e\xcf\xc9\x61\x29\xbc\x2a\xb8\x4c\x96" \
-    "\xed\x52\x67\xd7\x14\xc0\x22\x30\x91\x19\x13\x99" \
-    "\x21\x42\x36\xc0\x60\xd9\x4e\x5e\xc3\xcc\x87\x14" \
-    "\xa1\xb5\x1c\xd7\x55\xa1\x79\x49\x5c\xdc\x93\xff" \
-    "\x02\x07\xbe\x87\x65\xff\xdd\x8c\x75\x0a\x7c\xef" \
-    "\xd7\x5a\xaa\xdc\xc7\x4a\x29\x93\xce\x17\x8f\xed" \
-    "\x2a\x6d\x2d\xe3\x95\x8e\x17\x9d\x2e\x6b\x9d\xf3" \
-    "\x4a\x51\x6c\xa2\xdd\xfb\x83\xfc\x00\xc2\x71\x5d" \
-    "\x46\x4b\x9b\x9c\x29\x00\x00\x00\x00\x49\x45\x4e" \
-    "\x44\xae\x42\x60\x82"
+image0_data = [
+"20 20 6 1",
+"a c #000000",
+"d c #404040",
+"# c #595a59",
+"c c #82d2b5",
+"b c #9bf5d6",
+". c #ffffff",
+"....................",
+"....................",
+".#a#................",
+"#.bb#...............",
+"abbba...............",
+"#bbc#...............",
+".#a#..d.............",
+"...d.dd..d..........",
+"...dd.d.dd..d.......",
+"...d..dd.d.dd..d....",
+"......d..dd.d.dd....",
+".........d..dd.d....",
+"............d..#a#..",
+"..............#.bb#.",
+"..............abbba.",
+"..............#bbc#.",
+"...............#a#..",
+"....................",
+"....................",
+"...................."
+]
 
 class SimSetupDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
-        self.image0 = QPixmap()
-        self.image0.loadFromData(image0_data,"PNG")
+        self.image0 = QPixmap(image0_data)
+
         if not name:
             self.setName("SimSetupDialog")
 
         self.setIcon(self.image0)
         self.setModal(1)
 
-        SimSetupDialogLayout = QVBoxLayout(self,11,21,"SimSetupDialogLayout")
+        SimSetupDialogLayout = QGridLayout(self,1,1,11,21,"SimSetupDialogLayout")
 
-        layout28 = QGridLayout(None,1,1,0,6,"layout28")
+        layout31 = QHBoxLayout(None,0,6,"layout31")
 
-        self.textLabel5 = QLabel(self,"textLabel5")
+        layout29 = QVBoxLayout(None,0,6,"layout29")
+
+        self.namelbl = QLabel(self,"namelbl")
+        self.namelbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout29.addWidget(self.namelbl)
+
+        self.textLabel1 = QLabel(self,"textLabel1")
+        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout29.addWidget(self.textLabel1)
+
+        self.textLabel1_2 = QLabel(self,"textLabel1_2")
+        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout29.addWidget(self.textLabel1_2)
+        layout31.addLayout(layout29)
+
+        layout30 = QVBoxLayout(None,0,6,"layout30")
+
+        self.name_linedit = QLineEdit(self,"name_linedit")
+        self.name_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.name_linedit.setFrameShadow(QLineEdit.Sunken)
+        layout30.addWidget(self.name_linedit)
+
+        self.description_linedit = QLineEdit(self,"description_linedit")
+        self.description_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.description_linedit.setFrameShadow(QLineEdit.Sunken)
+        self.description_linedit.setMaxLength(80)
+        layout30.addWidget(self.description_linedit)
+
+        layout28 = QHBoxLayout(None,0,6,"layout28")
+
+        self.calculate_combox = QComboBox(0,self,"calculate_combox")
+        layout28.addWidget(self.calculate_combox)
+        spacer3 = QSpacerItem(167,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout28.addItem(spacer3)
+        layout30.addLayout(layout28)
+        layout31.addLayout(layout30)
+
+        SimSetupDialogLayout.addLayout(layout31,0,0)
+
+        self.parms_grpbox = QGroupBox(self,"parms_grpbox")
+        self.parms_grpbox.setColumnLayout(0,Qt.Vertical)
+        self.parms_grpbox.layout().setSpacing(6)
+        self.parms_grpbox.layout().setMargin(11)
+        parms_grpboxLayout = QHBoxLayout(self.parms_grpbox.layout())
+        parms_grpboxLayout.setAlignment(Qt.AlignTop)
+
+        layout27 = QHBoxLayout(None,0,6,"layout27")
+
+        layout24 = QVBoxLayout(None,0,6,"layout24")
+
+        self.textLabel5 = QLabel(self.parms_grpbox,"textLabel5")
         textLabel5_font = QFont(self.textLabel5.font())
         textLabel5_font.setPointSize(9)
-        textLabel5_font.setBold(1)
         self.textLabel5.setFont(textLabel5_font)
+        self.textLabel5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout24.addWidget(self.textLabel5)
 
-        layout28.addWidget(self.textLabel5,0,0)
-
-        self.textLabel2 = QLabel(self,"textLabel2")
+        self.textLabel2 = QLabel(self.parms_grpbox,"textLabel2")
         textLabel2_font = QFont(self.textLabel2.font())
         textLabel2_font.setPointSize(9)
-        textLabel2_font.setBold(1)
         self.textLabel2.setFont(textLabel2_font)
+        self.textLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout24.addWidget(self.textLabel2)
 
-        layout28.addWidget(self.textLabel2,2,0)
+        self.textLabel3 = QLabel(self.parms_grpbox,"textLabel3")
+        textLabel3_font = QFont(self.textLabel3.font())
+        textLabel3_font.setPointSize(9)
+        self.textLabel3.setFont(textLabel3_font)
+        self.textLabel3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout24.addWidget(self.textLabel3)
+        layout27.addLayout(layout24)
 
-        self.nframesSB = QSpinBox(self,"nframesSB")
+        layout25 = QVBoxLayout(None,0,6,"layout25")
+
+        self.nframesSB = QSpinBox(self.parms_grpbox,"nframesSB")
         self.nframesSB.setMaxValue(90000)
         self.nframesSB.setMinValue(1)
         self.nframesSB.setLineStep(15)
         self.nframesSB.setValue(900)
+        layout25.addWidget(self.nframesSB)
 
-        layout28.addWidget(self.nframesSB,1,0)
-
-        self.stepsperSB = QSpinBox(self,"stepsperSB")
+        self.stepsperSB = QSpinBox(self.parms_grpbox,"stepsperSB")
         self.stepsperSB.setMaxValue(99999)
         self.stepsperSB.setMinValue(1)
         self.stepsperSB.setValue(10)
+        layout25.addWidget(self.stepsperSB)
 
-        layout28.addWidget(self.stepsperSB,3,0)
-
-        self.tempSB = QSpinBox(self,"tempSB")
+        self.tempSB = QSpinBox(self.parms_grpbox,"tempSB")
         self.tempSB.setMaxValue(99999)
         self.tempSB.setValue(300)
+        layout25.addWidget(self.tempSB)
+        layout27.addLayout(layout25)
 
-        layout28.addWidget(self.tempSB,5,0)
+        layout26 = QVBoxLayout(None,0,6,"layout26")
+        spacer4 = QSpacerItem(255,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout26.addItem(spacer4)
 
-        self.textLabel3 = QLabel(self,"textLabel3")
-        textLabel3_font = QFont(self.textLabel3.font())
-        textLabel3_font.setPointSize(9)
-        textLabel3_font.setBold(1)
-        self.textLabel3.setFont(textLabel3_font)
+        self.textLabel2_2 = QLabel(self.parms_grpbox,"textLabel2_2")
+        textLabel2_2_font = QFont(self.textLabel2_2.font())
+        textLabel2_2_font.setPointSize(9)
+        self.textLabel2_2.setFont(textLabel2_2_font)
+        layout26.addWidget(self.textLabel2_2)
 
-        layout28.addWidget(self.textLabel3,4,0)
-        SimSetupDialogLayout.addLayout(layout28)
+        self.textLabel3_2 = QLabel(self.parms_grpbox,"textLabel3_2")
+        textLabel3_2_font = QFont(self.textLabel3_2.font())
+        textLabel3_2_font.setPointSize(9)
+        self.textLabel3_2.setFont(textLabel3_2_font)
+        layout26.addWidget(self.textLabel3_2)
+        layout27.addLayout(layout26)
+        parms_grpboxLayout.addLayout(layout27)
 
-        layout27 = QHBoxLayout(None,0,10,"layout27")
+        SimSetupDialogLayout.addWidget(self.parms_grpbox,1,0)
 
-        self.MovieButton = QPushButton(self,"MovieButton")
-        MovieButton_font = QFont(self.MovieButton.font())
-        MovieButton_font.setPointSize(9)
-        MovieButton_font.setBold(1)
-        self.MovieButton.setFont(MovieButton_font)
-        self.MovieButton.setDefault(1)
-        layout27.addWidget(self.MovieButton)
+        self.server_grpbox = QGroupBox(self,"server_grpbox")
+        self.server_grpbox.setColumnLayout(0,Qt.Vertical)
+        self.server_grpbox.layout().setSpacing(6)
+        self.server_grpbox.layout().setMargin(11)
+        server_grpboxLayout = QHBoxLayout(self.server_grpbox.layout())
+        server_grpboxLayout.setAlignment(Qt.AlignTop)
 
-        self.CancelButton = QPushButton(self,"CancelButton")
-        CancelButton_font = QFont(self.CancelButton.font())
-        CancelButton_font.setPointSize(9)
-        CancelButton_font.setBold(1)
-        self.CancelButton.setFont(CancelButton_font)
-        self.CancelButton.setDefault(0)
-        layout27.addWidget(self.CancelButton)
-        SimSetupDialogLayout.addLayout(layout27)
+        self.server_combox = QComboBox(0,self.server_grpbox,"server_combox")
+        server_grpboxLayout.addWidget(self.server_combox)
+
+        self.server_manager_btn = QPushButton(self.server_grpbox,"server_manager_btn")
+        server_grpboxLayout.addWidget(self.server_manager_btn)
+
+        SimSetupDialogLayout.addWidget(self.server_grpbox,2,0)
+
+        layout28_2 = QHBoxLayout(None,0,6,"layout28_2")
+
+        self.queue_job_btn = QPushButton(self,"queue_job_btn")
+        layout28_2.addWidget(self.queue_job_btn)
+
+        self.launch_job_btn = QPushButton(self,"launch_job_btn")
+        launch_job_btn_font = QFont(self.launch_job_btn.font())
+        launch_job_btn_font.setPointSize(9)
+        self.launch_job_btn.setFont(launch_job_btn_font)
+        self.launch_job_btn.setDefault(1)
+        layout28_2.addWidget(self.launch_job_btn)
+
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        cancel_btn_font = QFont(self.cancel_btn.font())
+        cancel_btn_font.setPointSize(9)
+        self.cancel_btn.setFont(cancel_btn_font)
+        self.cancel_btn.setDefault(0)
+        layout28_2.addWidget(self.cancel_btn)
+
+        SimSetupDialogLayout.addLayout(layout28_2,3,0)
 
         self.languageChange()
 
-        self.resize(QSize(272,214).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(366,365).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.MovieButton,SIGNAL("clicked()"),self.createMoviePressed)
-        self.connect(self.CancelButton,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.launch_job_btn,SIGNAL("clicked()"),self.createMoviePressed)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.queue_job_btn,SIGNAL("clicked()"),self.createMoviePressed)
+        self.connect(self.server_manager_btn,SIGNAL("clicked()"),self.serverManager)
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("Simulator Setup"))
-        self.textLabel5.setText(self.__tr("Total frames:"))
-        self.textLabel2.setText(self.__tr("Steps per Frame (0.1 femtosecond):"))
-        self.textLabel3.setText(self.__tr("Temperature (Kelvins):"))
-        self.MovieButton.setText(self.__tr("Run Simulation"))
-        self.CancelButton.setText(self.__tr("Cancel"))
+        self.setCaption(self.__tr("nanoSIM-1 Setup"))
+        self.namelbl.setText(self.__tr("Name :"))
+        self.textLabel1.setText(self.__tr("Description :"))
+        self.textLabel1_2.setText(self.__tr("Calculate :"))
+        self.name_linedit.setText(QString.null)
+        QToolTip.add(self.name_linedit,self.__tr("The name of the GAMESS jig."))
+        QWhatsThis.add(self.name_linedit,self.__tr("The name of the GAMESS jig."))
+        self.description_linedit.setText(QString.null)
+        QToolTip.add(self.description_linedit,self.__tr("Text placed here is incorporated into the standard GAMESS comment line."))
+        QWhatsThis.add(self.description_linedit,self.__tr("Text placed here is incorporated into the standard GAMESS comment line."))
+        self.calculate_combox.clear()
+        self.calculate_combox.insertItem(self.__tr("Trajectory"))
+        self.calculate_combox.insertItem(self.__tr("Optimization"))
+        self.parms_grpbox.setTitle(self.__tr("Parameters"))
+        self.textLabel5.setText(self.__tr("Total Frames:"))
+        self.textLabel2.setText(self.__tr("Steps per Frame :"))
+        self.textLabel3.setText(self.__tr("Temperature :"))
+        self.textLabel2_2.setText(self.__tr("0.1 femtosecond"))
+        self.textLabel3_2.setText(self.__tr("Kelvin"))
+        self.server_grpbox.setTitle(self.__tr("Server"))
+        self.server_combox.clear()
+        self.server_combox.insertItem(self.__tr("My Computer"))
+        self.server_manager_btn.setText(self.__tr("Server Manager..."))
+        self.queue_job_btn.setText(self.__tr("Queue Job"))
+        QToolTip.add(self.queue_job_btn,self.__tr("Save GAMESS parameters only."))
+        QWhatsThis.add(self.queue_job_btn,self.__tr("Save GAMESS parameters only."))
+        self.launch_job_btn.setText(self.__tr("Launch Job"))
+        self.cancel_btn.setText(self.__tr("Cancel"))
 
 
     def NumFramesValueChanged(self,a0):
@@ -160,6 +264,9 @@ class SimSetupDialog(QDialog):
 
     def saveFilePressed(self):
         print "SimSetupDialog.saveFilePressed(): Not implemented yet"
+
+    def serverManager(self):
+        print "SimSetupDialog.serverManager(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("SimSetupDialog",s,c)
