@@ -153,6 +153,7 @@
         <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
         <action name="simJobManagerAction"/>
+        <action name="serverManagerAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
         <action name="helpAssistantAction"/>
@@ -3664,6 +3665,17 @@
             <string>Job Manager...</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>serverManagerAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image131</iconset>
+        </property>
+        <property name="text">
+            <string>Server Manager...</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4000,7 +4012,7 @@
         <data format="PNG" length="222">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000a549444154789cc594d10dc0200844c13815fbe7966877b15f24a4a58a58d3fbd2b43ccf83c8006887ca16ea0c58449a8834bbeffd5fa350001c01aafe8bc2ba2522b2eb25b0a7083c1dc508ce44f468866d54c49dd7d0722f8c66d8ab01c0dba6a26666f44d9653bc0f2b505501c0ab4e55c779344da0ea69163eebdcab65efd99cbd8167c405df0fc9649f1eb7d1ad8660afb991a8a61d7ffa1e674632ec58e10038d2cc0bd7ff7101720688a30000000049454e44ae426082</data>
     </image>
     <image name="image111">
-        <data format="PNG" length="322">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000010949444154789ced93414ac3401486bf2742ba9fe2155cf53406cc09da85b8f108823bc9ae42425dc4854489e00dc463b8742ba41b37ddfd2e62e3d4d034a9d4553f78ccf098ff9f99376f60cfbf115f5f0ad83abef535e6cd55e4c9d6070ba3c98adfe1ef0527a7e3dea64f0f692377d026b8e3962103860c986bc45c23cc0cd294f2e30da01e3b1bdf7c5e71c119315362a600bc3c9e03f07e9fe19e5f017047c71b6fa4224f24499966720a9469269f7a4d9248508d928a3c593e62bbb15320a760c57429f676a9628d716b8d7dc268429fae69189b41690b4a5b60461d20c268fc93435558d3b4d789fbd2e8e3226ff6e49fd8e5976ec31775d2ecacc69b765fdbf41db47b2abe0038ffb5eed482a22d0000000049454e44ae426082</data>
+        <data format="PNG" length="217">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000a049444154789ced93b10dc32010453fb4d92453dc1ab8cf54f4f11a4c4117a50b1350ff34b6459c531430a2f26be00ee97de9c401277bdce40880cbd94f4a923e47fa1cbbc8cd72d2e7b8356f976bf9d684050037b9ad911ecf8ffa30da8c45a4792476bdccf7d90030e99554696d88d59a22c2108229ebda1055bc97b6847c894b496d4813a54444b8d65de45ac8f08d3db45df8b1b1eaaff897e11b7b328637f8af71b1293ad5d70000000049454e44ae426082</data>
     </image>
     <image name="image112">
         <data format="PNG" length="325">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000010c49444154789cd5954d0e82301085df184f003d4259c285f4202eea4aa31b8f811762ab37d07885e7420bfda118101736994c288f6f266f4a2a24f18bb50080aaaa66a72fe606fe1f5815601a2c62be2de0833be02e5928515415e031df538035008024cab2244910f0b30df7b9d318bb77c876549a2b57370c7673cf9ed25ce59af13b72d4f0b6102148b179f3d8d6f7abf82a6b55dbf1ab2b93ccef8e724d9e32c3a0535fef59e17c9cf2fb9419df4bc7e750ef7bec8ac30192c835636062a831382cf08e7650a12ea14f83834e07a13db11c3a06aa407be0ef17c890365cd171b3ffba8512a8c74223b085d97cbbe03c050aa0b3c28501384f81f582a776f6113ce7f5d4348dc8af2ed327e23fb6eae5c8f6100000000049454e44ae426082</data>
@@ -4058,6 +4070,9 @@
     </image>
     <image name="image130">
         <data format="PNG" length="224">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000a749444154789ced924d0e82301085bf1a97dcc22dfb120f620fc2213c0bae3904bd42d9422671850b425ce14244c51f0ce9c6a42f9934799df93a7929040d52005a677d9a2a440411590c73ce51d7066b8d5adfccaada02d075e7c5e0a6390125002338cf8fb46df933a4287624c9e1e98ce33d51b4b937699df580971a58ac1e9650d3d23a7bebcfdc31057bd5f82b7c42ad35d7cd3f81bf3d383713a20851bcfa7f1a4510c005b6be6724ddfcbc280000000049454e44ae426082</data>
+    </image>
+    <image name="image131">
+        <data format="PNG" length="344">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000011f49444154789cb594bd8e4550148597c9e50d44a33e8550e844271295d63b88a7f12ab715bd07d0a9d4844ae2e748662a9a7bf619f79a5989045fd677b6c206fe298a0c3a8ef37d4552d7f58be72193a6690ac33048a16ddb489244c884e2431a862129354d13711c939c9c38cb32b2040041104839297e3e9fd2e211cbb250d7f575f191a228ce7b5dd7e1baeef9cc18435555c2deafe2288a84ef1963689a86ec9162dff7a1ebba90f57d8f3ccfa50391e26559d0b6ad90755d279502c0170538e728cb12dbb6bd5c57424ecc3987e77942d11539295655158a22fee3354dfb5ccc3907e75cc86e4d2c13cff37c4fbcaeab90dd9a78df77ecfb4eb28fc5d334611c4769791806e12e0688457f67c1bf9dab871d394f7cb728cb9f7c09951f184c80dd20d1ae510000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -4847,6 +4862,12 @@
         <receiver>MainWindow</receiver>
         <slot>JobManager()</slot>
     </connection>
+    <connection>
+        <sender>serverManagerAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>serverManager()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5004,6 +5025,7 @@
     <slot>modifyInvert()</slot>
     <slot>makeGamess()</slot>
     <slot>JobManager()</slot>
+    <slot>serverManager()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
