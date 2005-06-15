@@ -1,35 +1,9 @@
-nanoENGINEER-1™ v0.0.5 (Alpha 5)
+nanoENGINEER-1™ v0.0.6 (Alpha 6)
 
 
-Bug Fixes In Alpha 5
+Bug Fixes In Alpha 6
 
-* Bug #281 Cookie Mode: When adding a new layer, there is no visual clue 
-  indicating a new layer has started. (Now, cookie is drawn with a different 
-  color for each layer) 
-
-* Bug #313 Cookie mode sends the objects (origin) deeper into the screen 
-  (graphics area) after exit from that mode. 
-
-* Bug #371 Display bug associated with a cut operation on a chunk (which is 
-  bonded with another chunk). It stretches the inter-chunk bond and keeps 
-  bonded portion of cut chunk visible.
-
-* Bug #395 Movie Player directly jumps to the last frame if you play a movie, 
-  then create a new movie with a fewer number of frames than the original 
-  movie, and then enter the Movie Player to play the new movie.
-
-* Bug #422 Minimize: Large values written to the MMP (or to the XYZ) 
-  file after minimizing a model containing overlapped open bonds or 
-  excessively stretched bonds. 
-
-* Bug # 433 Errors/bugs when a blank PDB file is inserted into any open file 
-  using File->Insert.
-
-* Bug #489 The parameters in the simulator always reset to default rather 
-  than parameters that were used from the last run.
-
-* Bug #507  The lighting settings of the model get modified automatically when
-  opening the Lighting Preferences dialog if the model is not in the Home View.
+* Bug #
 
 
 Unsupported Features:
@@ -38,12 +12,11 @@ Unsupported Features:
 
 2. Points, lines, and planes are not implemented yet. (47) 
 
-3. Simulator will support bonding between elements specified in the element 
-   selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. 
+3. Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. 
 
 4. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading a PDB file and also while writing a PDB or MMP file. Therefore, if you open such a PDB file, do not save it using current nE-1 version (569)
 
-5. The 'Clipboard' is still experimental and has some  bugs related to history messages it emits. 
+5. The 'Clipboard' is still experimental and has some bugs related to history messages it emits. 
 
 6. The symmetry information for a selected chunk cannot be obtained. (261)
 
@@ -60,8 +33,7 @@ Unsupported Features:
 
 Known Bugs (All Platforms)
 
-1. Delete operation cannot be undone. In fact, Undo/Redo are not implemented 
-yet. SAVE YOUR WORK OFTEN!
+1. Delete operation cannot be undone. In fact, Undo/Redo are not implemented yet. SAVE YOUR WORK OFTEN!
 
 2. If you select the part icon (top icon in the model tree) and hit the delete key (or click Delete), the entire part will be deleted without asking the user for confirmation. (147) 
 
@@ -135,7 +107,7 @@ yet. SAVE YOUR WORK OFTEN!
 
 33. Dialogs and Dashboard: Users operating nE-1 with a low screen resolution report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Element Selector need resizing etc. (231, 513, 581)
 
-34. Zoom Tool: It is still experimental. Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+34. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
 
 Windows Only Bugs
@@ -149,11 +121,12 @@ Macintosh Only Bugs
 
 1. Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. 
 
-2. Icon tray/bar redrawing of the icon images will show up overlapped, zig-zagged, cracked, etc. in certain situations. In worst cases, the right-side icon bars will go invisible until the invisible bar is clicked on, which redraws the bar but changes your button. This usually only happens when resizing the main window by dragging its "resize handle" on the lower right of the window frame. The workaround is to resize it to be a bit smaller than you want, and then make it a bit bigger again so that it's the desired size. Some users report that the toolbars always draw wrongly after that initial down-sizing, but then they always draw properly again after that final small up-sizing. 
+2. Icon tray/bar redrawing of the icon images will show up overlapped, zig-zagged, cracked, etc. in certain situations. In worst cases, the right-side icon bars will go invisible until the invisible bar is clicked on, which redraws the bar but changes your button. This usually only happens when resizing the main window by dragging its "resize handle" on the lower right of the window frame. The workaround is to resize it to be a bit smaller than you want, and then make it a bit bigger again so that it's the desired size. Some users report that the toolbars always draw wrongly after that initial down-sizing, but then they always draw properly again after that final small up-sizing.
 
 3. Occasionally, bouncing between programs will lead to the menu (screen top) disappearing, only to re-appear with mouseover (or mouseover+click).
 
 
 Linux Only Bugs
+
 
 1. Opening a plot file from the plot tool dialogs needs ‘kwrite’ editor which is available with only with KDE desktop (434)
