@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Wed Jun 15 15:34:00 2005
+# Created: Wed Jun 15 17:17:17 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -107,23 +107,14 @@ class SimSetupDialog(QDialog):
         layout24 = QVBoxLayout(None,0,6,"layout24")
 
         self.textLabel5 = QLabel(self.parms_grpbox,"textLabel5")
-        textLabel5_font = QFont(self.textLabel5.font())
-        textLabel5_font.setPointSize(9)
-        self.textLabel5.setFont(textLabel5_font)
         self.textLabel5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout24.addWidget(self.textLabel5)
 
         self.textLabel2 = QLabel(self.parms_grpbox,"textLabel2")
-        textLabel2_font = QFont(self.textLabel2.font())
-        textLabel2_font.setPointSize(9)
-        self.textLabel2.setFont(textLabel2_font)
         self.textLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout24.addWidget(self.textLabel2)
 
         self.textLabel3 = QLabel(self.parms_grpbox,"textLabel3")
-        textLabel3_font = QFont(self.textLabel3.font())
-        textLabel3_font.setPointSize(9)
-        self.textLabel3.setFont(textLabel3_font)
         self.textLabel3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout24.addWidget(self.textLabel3)
         layout27.addLayout(layout24)
@@ -154,15 +145,9 @@ class SimSetupDialog(QDialog):
         layout26.addItem(spacer4)
 
         self.textLabel2_2 = QLabel(self.parms_grpbox,"textLabel2_2")
-        textLabel2_2_font = QFont(self.textLabel2_2.font())
-        textLabel2_2_font.setPointSize(9)
-        self.textLabel2_2.setFont(textLabel2_2_font)
         layout26.addWidget(self.textLabel2_2)
 
         self.textLabel3_2 = QLabel(self.parms_grpbox,"textLabel3_2")
-        textLabel3_2_font = QFont(self.textLabel3_2.font())
-        textLabel3_2_font.setPointSize(9)
-        self.textLabel3_2.setFont(textLabel3_2_font)
         layout26.addWidget(self.textLabel3_2)
         layout27.addLayout(layout26)
         parms_grpboxLayout.addLayout(layout27)
@@ -190,16 +175,10 @@ class SimSetupDialog(QDialog):
         layout28_2.addWidget(self.queue_job_btn)
 
         self.launch_job_btn = QPushButton(self,"launch_job_btn")
-        launch_job_btn_font = QFont(self.launch_job_btn.font())
-        launch_job_btn_font.setPointSize(9)
-        self.launch_job_btn.setFont(launch_job_btn_font)
         self.launch_job_btn.setDefault(1)
         layout28_2.addWidget(self.launch_job_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
-        cancel_btn_font = QFont(self.cancel_btn.font())
-        cancel_btn_font.setPointSize(9)
-        self.cancel_btn.setFont(cancel_btn_font)
         self.cancel_btn.setDefault(0)
         layout28_2.addWidget(self.cancel_btn)
 

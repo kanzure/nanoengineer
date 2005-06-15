@@ -207,11 +207,6 @@
                                     <property name="name">
                                         <cstring>textLabel5</cstring>
                                     </property>
-                                    <property name="font">
-                                        <font>
-                                            <pointsize>9</pointsize>
-                                        </font>
-                                    </property>
                                     <property name="text">
                                         <string>Total Frames:</string>
                                     </property>
@@ -223,11 +218,6 @@
                                     <property name="name">
                                         <cstring>textLabel2</cstring>
                                     </property>
-                                    <property name="font">
-                                        <font>
-                                            <pointsize>9</pointsize>
-                                        </font>
-                                    </property>
                                     <property name="text">
                                         <string>Steps per Frame :</string>
                                     </property>
@@ -238,11 +228,6 @@
                                 <widget class="QLabel">
                                     <property name="name">
                                         <cstring>textLabel3</cstring>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                            <pointsize>9</pointsize>
-                                        </font>
                                     </property>
                                     <property name="text">
                                         <string>Temperature :</string>
@@ -334,11 +319,6 @@
                                     <property name="name">
                                         <cstring>textLabel2_2</cstring>
                                     </property>
-                                    <property name="font">
-                                        <font>
-                                            <pointsize>9</pointsize>
-                                        </font>
-                                    </property>
                                     <property name="text">
                                         <string>0.1 femtosecond</string>
                                     </property>
@@ -346,11 +326,6 @@
                                 <widget class="QLabel">
                                     <property name="name">
                                         <cstring>textLabel3_2</cstring>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                            <pointsize>9</pointsize>
-                                        </font>
                                     </property>
                                     <property name="text">
                                         <string>Kelvin</string>
@@ -419,11 +394,6 @@
                     <property name="name">
                         <cstring>launch_job_btn</cstring>
                     </property>
-                    <property name="font">
-                        <font>
-                            <pointsize>9</pointsize>
-                        </font>
-                    </property>
                     <property name="text">
                         <string>Launch Job</string>
                     </property>
@@ -434,11 +404,6 @@
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>cancel_btn</cstring>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <pointsize>9</pointsize>
-                        </font>
                     </property>
                     <property name="text">
                         <string>Cancel</string>
