@@ -10,7 +10,7 @@ $Id$
 '''
 __author__ = "bruce"
 
-from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget, QPopupMenu, QAction, SIGNAL
+from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget, QPopupMenu, QAction, SIGNAL, QPixmap, QIconSet
 
 def is_qt_widget(obj):
     return isinstance(obj, QWidget)
@@ -186,13 +186,54 @@ def makemenu_helper( widget, menu_spec):
                     # (likely to be expanded to support more).
                     # Only used for len(m) > 2, though it presumably works
                     # just as well for len 2 (try it sometime). [bruce 050112]
-                    mitem_id = menu.insertItem( widget.trUtf8(m[0]) )
+                    iconset = None
+                    for option in m[2:]:
+                        # some options have to be processed first
+                        # since they are only usable when the menu item is inserted. [bruce 050614]
+                        if type(option) == type((1,2)):
+                            if option[0] == 'iconset':
+                                # support iconset, pixmap, or pixmap filename [bruce 050614 new feature]
+                                iconset = option[1]
+                                if type(iconset) == type("filename"):
+                                    filename = iconset
+                                    from Utility import imagename_to_pixmap
+                                    iconset = imagename_to_pixmap(filename)
+                                if isinstance(iconset, QPixmap):
+                                    # (this is true for imagename_to_pixmap retval)
+                                    iconset = QIconSet(iconset)
+                    if iconset is not None:
+                        mitem_id = menu.insertItem( iconset, widget.trUtf8(m[0]) ) #bruce 050614
+                            # Will this work with checkmark items? Yes, but it replaces the checkmark --
+                            # instead, the icon looks different for the checked item.
+                            # For the test case of gamess.png on Mac, the 'checked' item's icon
+                            # looked like a 3d-depressed button.
+                            # In the future we can tell the iconset what to display in each case
+                            # (see QIconSet and/or QPopupMenu docs, and helper funcs presently in debug_prefs.py.)
+                    else:
+                        mitem_id = menu.insertItem( widget.trUtf8(m[0]) )
                     menu.connectItem(mitem_id, m[1]) # semi-guess
                     for option in m[2:]:
                         if option == 'checked':
                             menu.setItemChecked(mitem_id, True)
-                        if option == 'disabled':
+                        elif option == 'unchecked': #bruce 050614 -- see what this does visually, if anything ###k untested
+                            menu.setItemChecked(mitem_id, False)
+                        elif option == 'disabled':
                             menu.setItemEnabled(mitem_id, False)
+                        elif type(option) == type((1,2)):
+                            if option[0] == 'sbar': #bruce 050614 experiment; option is ('sbar', "explan for statusbar") ###k untested
+                                menu.setWhatsThis(mitem_id, option[1])
+                            elif option[0] == 'iconset':
+                                pass # this was processed above
+                            else:
+                                if platform.atom_debug:
+                                    print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
+                            pass
+                        elif option is None:
+                            pass # this is explicitly permitted and has no effect
+                        else:
+                            if platform.atom_debug:
+                                print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
+                        pass
                         #e and something to use QMenuData.setAccel
                         #e and something to run whatever func you want on menu and mitem_id
                     pass
@@ -202,5 +243,23 @@ def makemenu_helper( widget, menu_spec):
             print_compact_traceback("exception in makemenu_helper ignored, for %r:\n" % (m,) )
             pass #e could add a fake menu item here as an error message
     return menu
+
+# ==
+
+# bruce 050614 found colorchoose as a method in MWsemantics.py, nowhere used,
+# so I moved it here for possible renovation and use.
+# See also some color utilities in debug_prefs.py.
+# Probably they should all go into a new file specifically for colors. #e
+
+def colorchoose(self, r, g, b):
+    "#doc -- note that the args r,g,b should be ints, but the retval is a 3-tuple of floats. (Sorry, that's how I found it.)"
+    # r, g, b is the default color displayed in the QColorDialog window.
+    from qt import QColorDialog
+    color = QColorDialog.getColor(QColor(r, g, b), self, "choose") #k what does "choose" mean?
+    if color.isValid():
+        return color.red()/255.0, color.green()/255.0, color.blue()/255.0
+    else:
+        return r/255.0, g/255.0, b/255.0 # returning None might be more useful, since it lets callers "not change anything"
+    pass
 
 # end

@@ -1403,16 +1403,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         QMessageBox.information(self, self.name() + " User Notice:",
              "This function is not implemented yet, coming soon...")
 
-
-    # utility functions
-
-    def colorchoose(self, r, g, b): # r, g, b is the default color displayed in the QColorDialog window.
-        color = QColorDialog.getColor(QColor(r, g, b), self, "choose")
-        if color.isValid():
-            return color.red()/255.0, color.green()/255.0, color.blue()/255.0
-        else:
-            return r/255.0, g/255.0, b/255.0
-
     # key event handling revised by bruce 041220 to fix some bugs;
     # see comments in the GLPane methods.
     
