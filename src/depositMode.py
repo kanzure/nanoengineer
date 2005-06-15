@@ -336,7 +336,7 @@ class depositMode(basicMode):
         # needs to do that). This is safe even if called "too early". But if it's
         # already set, don't change it, so callers of UpdateDashboard can set it
         # to the value they want, even if that value is not yet in the spinbox
-        # (see e.g. setHotspot).
+        # (see e.g. setHotSpot_mainPart).
         if not self.pastable:
             self.update_pastable()
         
@@ -1474,7 +1474,7 @@ class depositMode(basicMode):
         
         # figure out which Set Hotspot menu item to include, and whether to disable it or leave it out
         if self.viewing_main_part():
-            text, meth = ('Set Hotspot and Copy', self.setHotSpot)
+            text, meth = ('Set Hotspot and Copy', self.setHotSpot_mainPart)
                 # bruce 050121 renamed this from "Set Hotspot" to "Set Hotspot and Copy as Pastable".
                 # bruce 050511 shortened that to "Set Hotspot and Copy".
                 # If you want the name to be shorter, then change the method
@@ -1589,24 +1589,20 @@ class depositMode(basicMode):
         self.w.setCarbon()
         self.set_pastable_atomtype('sp2')
             
-    def setHotSpot_clipitem(self): #bruce 050416; duplicates some code from setHotSpot
+    def setHotSpot_clipitem(self): #bruce 050416; duplicates some code from setHotSpot_mainPart
+        "set or change hotspot of a chunk in the clipboard"
         if self.o.selatom and self.o.selatom.element is Singlet:
             self.o.selatom.molecule.set_hotspot( self.o.selatom) ###e add history message??
+            self.o.set_selobj(None)  #bruce 050614-b: fix bug703-related older bug (need to move mouse to see new-hotspot color)
+            self.o.gl_update() #bruce 050614-a: fix bug 703 (also required having hotspot-drawing code in chunk.py ignore selatom)
         ###e also set this as the pastable??
         return        
         
-    def setHotSpot(self): #bruce 050121 revised this and renamed its menu item
+    def setHotSpot_mainPart(self): #bruce 050121 revised this and renamed its menu item #bruce 050614 renamed it
+        "set hotspot on a main part chunk and copy it (with that hotspot) into clipboard"
         # revised 041124 to fix bug 169, by mark and then by bruce
-        """if called on a singlet, make that singlet the hotspot for
-        the molecule.  (if there's only one, it's automatically the
-        hotspot) [... and copy mol onto the clipboard...]
-        """
         if self.o.selatom and self.o.selatom.element is Singlet:
             self.o.selatom.molecule.set_hotspot( self.o.selatom)
-            
-            ###e in future, if that mol is on the clipboard, don't copy it there!
-            # but that can't happen until we can display clipboard items in glpane.
-            # [bruce 050121]
             
             new = self.o.selatom.molecule.copy(None) # None means no dad yet
             #bruce 050531 removing centering:
@@ -1645,8 +1641,15 @@ class depositMode(basicMode):
                 #  to Utility.py get committed, i.e. not yet -- bruce 050121)
 
             self.w.mt.mt_update() # since clipboard changed
-            # also update glpane if we show pastable someday; not needed now
-            # [and removed by bruce 050121]
+            #bruce 050614 comment: in spite of bug 703 (fixed in setHotSpot_mainPart),
+            # I don't think we need gl_update now in this method,
+            # since I don't think main glpane shows hotspots and since the user's intention here
+            # is mainly to make one in the clipboard copy, not in the main model;
+            # and in case it's slow, we shouldn't repaint if we don't need to.
+            #   Evidently I thought the same thing in this prior comment, when I removed a glpane update
+            # (this might date from before hotspots were ever visible -- not sure):
+            ## also update glpane if we show pastable someday; not needed now
+            ## [and removed by bruce 050121]
         return
 
     def set_pastable(self, pastable): # no one calls this yet, but they could... [bruce 050121; untested]

@@ -937,7 +937,7 @@ class molecule(Node, InvalMixin):
 ##                    # (fyi, this doesn't use color arg as of 041206)
             pass
 
-            if self.hotspot: # note, as of 050217 that can have side effects in getattr
+            if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
                 if 1: #bruce 050316 always do this; was "if platform.atom_debug:"
                     self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
 
@@ -1020,31 +1020,42 @@ class molecule(Node, InvalMixin):
                     print "Source of current atom:", atom_source
         return # from molecule.draw_displist()
 
-    def overdraw_hotspot(self, glpane, disp):
-        # bruce 050131 [at that time this depended on atom_debug;
-        # sometime later I relaxed that and forgot to mention the date in this comment]:
-        # If this chunk is a (toplevel) clipboard item, display its hotspot
-        # (if there is one), like we do selatom (so no worries about resetting havelist).
+    def overdraw_hotspot(self, glpane, disp): # bruce 050131 (atom_debug only); [unknown later date] now always active
+        """
+        If this chunk is a (toplevel) clipboard item with a hotspot
+        (i.e. if pasting it onto a bond will work and use its hotspot),
+        display its hotspot in a special form.
+        As with selatom, we do this outside of the display list.        
         # bruce 050416 warning: the conditions here need to match those in depositMode's
         # methods for mentioning hotspot in statusbar, and for deciding whether a clipboard
-        # item is pastable. All this duplicated hardcoded conditioning is bad, needs cleanup.
+        # item is pastable. All this duplicated hardcoded conditioning is bad; needs cleanup. #e
+        """
         try:
             # if any of this fails (which is normal), it means don't use this feature for self.
+            # We need these checks because some code removes singlets from a chunk (by move or kill)
+            # without checking whether they are that chunk's hotspot.
             hs = self.hotspot
-            assert hs is not None and hs.is_singlet() and hs.key in self.atoms and hs is not glpane.selatom
+            assert hs is not None and hs.is_singlet() and hs.key in self.atoms
+##            if hs is glpane.selatom and platform.atom_debug:
+##                print "atom_debug: fyi: hs is glpane.selatom"
+# will removing this assert fix bug 703 and not cause trouble? bruce 050614 guess -- seems to work.
+# All selatom code still needs review and cleanup, though, now that it comes from selobj. ####@@@@
+##            assert hs is not glpane.selatom
             assert self in self.assy.shelf.members
         except:
             pass
         else:
             try:
-                color = green
+                from debug_prefs import debug_pref, ColorType #bruce 050614 experimental code, will be revised/renamed
+                color = debug_pref("hotspot color", ColorType(green))
                 level = self.assy.drawLevel #e or always use best level??
                 ## code copied from selatom.draw_as_selatom(glpane, disp, color, level)
                 pos1 = hs.baseposn()
                 drawrad1 = hs.selatom_radius(disp)
                 drawsphere(color, pos1, drawrad1, level) # always draw, regardless of disp
             except:
-                raise # ok since this never happens unless platform.atom_debug
+                if 1 or platform.atom_debug: ###@@@ decide which
+                    print_compact_traceback("atom_debug: ignoring exception in overdraw_hotspot %r, %r: " % (self,hs))
                 pass
             pass
         pass
