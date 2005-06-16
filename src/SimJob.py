@@ -10,6 +10,8 @@ import time
 #from SimServer import SimServer
 
 class SimJob:
+    """The base class for a simulation job"""
+    
     def __init__(self, name, parms):
         
         # The parameters (parms) for the SimJob object are provided in a dictionary in key:value pairs
