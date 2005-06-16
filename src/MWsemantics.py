@@ -1269,6 +1269,11 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             self.jobmgrcntl = dialog #probably useless, but done since old code did it;
                 # conceivably, keeping it matters due to its refcount. [bruce 050327]
         return
+    
+    def serverManager(self):
+        """Opens the server manager dialog. """
+        from ServerManager import ServerManager
+        ServerManager()
         
     #### Movie Player Dashboard Slots ############
 
