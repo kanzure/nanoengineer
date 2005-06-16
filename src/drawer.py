@@ -891,3 +891,23 @@ def drawCubeCell(color):
     glEnd()
     
     glEnable(GL_LIGHTING) 
+
+def drawFullWindow(vtColors):
+    """Draw gradient background color.
+       <vtColors> is a 4 element list specifying colors for the  
+       left-down, right-down, right-up, left-up window corners."""
+    glDisable(GL_LIGHTING)
+    
+    glBegin(GL_QUADS)
+    glColor3fv(vtColors[0])
+    glVertex3f(-1, -1, 0.999)
+    glColor3fv(vtColors[1])	       
+    glVertex3f(1, -1, 0.999)
+    glColor3fv(vtColors[2])
+    glVertex3f(1, 1, 0.999)
+    glColor3fv(vtColors[3])
+    glVertex3f(-1, 1, 0.999)
+    glEnd()
+    
+    glEnable(GL_LIGHTING)
+    
