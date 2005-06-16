@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ServerManagerDialog.ui'
 #
-# Created: Wed Jun 15 15:22:31 2005
+# Created: Thu Jun 16 16:54:59 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -24,7 +24,7 @@ class ServerManagerDialog(QDialog):
         layout7 = QHBoxLayout(None,0,6,"layout7")
 
         self.server_listview = QListView(self,"server_listview")
-        self.server_listview.addColumn(self.__tr("Server"))
+        self.server_listview.addColumn(self.__tr("Server ID"))
         self.server_listview.addColumn(self.__tr("Engine"))
         layout7.addWidget(self.server_listview)
 
@@ -124,7 +124,7 @@ class ServerManagerDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(524,519).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(524,522).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.new_btn,SIGNAL("clicked()"),self.addServer)
@@ -135,13 +135,8 @@ class ServerManagerDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Server Manager"))
-        self.server_listview.header().setLabel(0,self.__tr("Server"))
+        self.server_listview.header().setLabel(0,self.__tr("Server ID"))
         self.server_listview.header().setLabel(1,self.__tr("Engine"))
-        self.server_listview.clear()
-        item = QListViewItem(self.server_listview,None)
-        item.setText(0,self.__tr("localhost"))
-        item.setText(1,self.__tr("PC GAMESS"))
-
         self.textLabel1.setText(self.__tr("Server Name :"))
         self.name_linedit.setText(self.__tr("localhost"))
         self.textLabel1_3.setText(self.__tr("IP Address :"))

@@ -7,7 +7,7 @@ $Id$
 __author__ = "Mark"
 
 import time
-#from SimServer import SimServer
+import sys
 
 class SimJob:
     """The base class for a simulation job"""
@@ -60,16 +60,22 @@ class SimJob:
         
     def edit_job(self):
         pass
-        
+    
+    def get_comment_character(self):
+        if sys.platform == 'win32':
+            return 'REM ' # Batch file comment for Windows
+        else:
+            return '# ' # Script file comment for Linux and Mac    
         
     def write_parms(self, f):
         'Write job parms to file f'
         
-        rem = self.server.get_comment_character()
-
+        rem = self.get_comment_character()
+        
         f.write (rem + '\n' + rem +  'Job Parameters\n' + rem + '\n')
         f.write(rem + "Name: " + self.name + "\n")
         for k in self.parms:
             phrase = rem + k + ': ' + str(self.__dict__[k])
             f.write (phrase + '\n')
         f.write (rem+'\n')
+        

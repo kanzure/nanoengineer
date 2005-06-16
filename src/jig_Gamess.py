@@ -26,10 +26,9 @@ class Gamess(Jig):
         'Calculation':'',
         'Description':'',
         'Status':'',
-        'Server':'',
+        'Server_id':'',
         'Job_id':'',
-        'Start_time':'',
-        'End_time':''}
+        'Time':'0.0'}
 
     # create a blank Gamess jig with the given list of atoms
     def __init__(self, assy, list):

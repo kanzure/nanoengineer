@@ -13,19 +13,24 @@ from SimServer import SimServer
 from GamessProp import GamessProp
 
 class GamessJob(SimJob):
-    
+    """A Gamess job is a setup used to run Gamess simulation. Two ways exist to create a Gamess Job: (1). Create a Gamess Jig. (2). A
+    gamess job coming from a set of existing files in a particular location. 
+     """
     def __init__(self,  job_parms, **job_prop):
-        
+        """To support the 2 ways of  gamess job creation."""
         name = "Gamess Job 1"
-        [serverParam, self.job_batfile, self.job_outputfile] = job_prop.get('job_of_file', [None, None, None])
+        [self.job_batfile, self.job_outputfile] = job_prop.get('job_from_file', [None, None])
         if self.job_outputfile: self.job_outputfile = self.job_outputfile.strip('"')
         self.gamessJig = job_prop.get('jig', None)
         
-        if serverParam:
+        if self.job_batfile:
+            server_id = job_parms['Server_id']
             from ServerManager import ServerManager
-            self.server = ServerManager().getServer(0)  ###Need to fix--Huaicai
+            self.server = ServerManager().getServerById(int(server_id))
+            if not self.server: raise ValueError, "The server of %d can't be found." % server_id  
         
         SimJob.__init__(self, name, job_parms)
+        
         self.edit_cntl = GamessProp()
         
         
@@ -40,9 +45,13 @@ class GamessJob(SimJob):
         job_id, job_id_dir = get_job_manager_job_id_and_dir()
         self.Job_id = job_id
         print "GamessProp.queue_job: Job Id = ", job_id
+        self.Status = 'Queued'
 
         # GAMESS Job INP, OUT and BAT files.
-        self.job_inputfile = os.path.join(job_id_dir, "gamess_job_%s.inp" % job_id)
+        if self.server.engine == 'PC GAMESS':
+            self.job_inputfile = os.path.join(job_id_dir, "gamess_job_%s.inp" % job_id)
+        else:
+            self.job_inputfile = os.path.join(job_id_dir, "gamess_job_%s" % job_id)
         self.job_outputfile = os.path.join(job_id_dir, "gamess_job_%s.out" % job_id)
         self.job_batfile = os.path.join(job_id_dir, "gamess_job_%s.bat" % job_id)
          
@@ -60,10 +69,9 @@ class GamessJob(SimJob):
 
     def launch_job(self):
         'Launch GAMESS with INP file on server'
-        
         self.queue_job() # Do not open Job Manager.
         self.start_job()
-#        self.run_gamess()
+
 
     def start_job(self):
         self.starttime = time.time()
@@ -156,6 +164,7 @@ class GamessJob(SimJob):
         #  $END
         f.write(' $END\n')
 
+
     def write_atomslist_data(self, f):
         '''Write the list of atoms in $DATA format to file f.'''
         
@@ -166,13 +175,14 @@ class GamessJob(SimJob):
             f.write("%2s" % a.element.symbol)
             f.write("%8.1f" % a.element.eltnum)
             f.write("%8.3f%8.3f%8.3f\n" % fpos)
+     
             
     def writebatfile(self, filename):
         'Write PC GAMESS BAT file'
         
         f = open(filename,'w')
         
-        rem = self.server.get_comment_character()
+        rem = self.get_comment_character()
         # Write Header
         f.write (rem + '\n' + rem + 'File created by nanoENGINEER-1 on ')
         timestr = "%s\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
@@ -180,16 +190,12 @@ class GamessJob(SimJob):
         f.write (rem + '\n')
         
         self.write_parms(f)
-        self.server.write_parms(f)
         
-        if self.server.hostname == 'My Computer' and self.server.engine == 'PC GAMESS':
+        if self.server.engine == 'PC GAMESS':
             f.write(self.server.program + ' -i "' + self.job_inputfile + '" -o "' + self.job_outputfile + '"\n')
         else: # GAMESS on other computer.
-            #f.write('cd ' + self.server.tmpdir + '\n')
-            #f.write('copy ' + self.job_inputfile + ' gamess.inp\n')
-            if self.server.method == 'Ssh/scp':
-                f.write('scp %s %s@%s:~/.' %(self.job_inputfile, self.server.username, self.server.ipaddress))
-      
+            f.write(self.server.program + '  "' + self.job_inputfile + '" >& > "' + self.job_outputfile + '"\n')
+            
         f.close() # Close INP file.
 
 
@@ -200,7 +206,6 @@ class GamessJob(SimJob):
         GAMESS is not yet supported, as the line containing the energy
         value is different from PC GAMESS.
         '''
-        
         elist = []
         
         lines = open(self.job_outputfile,"rU").readlines()
@@ -215,3 +220,4 @@ class GamessJob(SimJob):
             else: continue
             
         return None # Just in case (i.e. file doesn't exist).
+        

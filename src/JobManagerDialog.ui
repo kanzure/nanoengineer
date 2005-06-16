@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>1009</width>
-            <height>255</height>
+            <height>258</height>
         </rect>
     </property>
     <property name="caption">
@@ -38,47 +38,74 @@
                         <property name="text">
                             <string>Name</string>
                         </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
                     </column>
                     <column>
                         <property name="text">
                             <string>Engine</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
                         </property>
                     </column>
                     <column>
                         <property name="text">
                             <string>Calculation</string>
                         </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
                     </column>
                     <column>
                         <property name="text">
                             <string>Description</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
                         </property>
                     </column>
                     <column>
                         <property name="text">
                             <string>Status</string>
                         </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
                     </column>
                     <column>
                         <property name="text">
-                            <string>Server</string>
+                            <string>Server Id</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
                         </property>
                     </column>
                     <column>
                         <property name="text">
                             <string>Job Id</string>
                         </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
                     </column>
                     <column>
                         <property name="text">
                             <string>Time</string>
                         </property>
-                    </column>
-                    <column>
-                        <property name="text">
-                            <string>Start Time</string>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
                         </property>
                     </column>
+                    <row>
+                        <property name="text">
+                            <string>1</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </row>
                     <property name="name">
                         <cstring>job_table</cstring>
                     </property>
@@ -86,7 +113,7 @@
                         <number>1</number>
                     </property>
                     <property name="numCols">
-                        <number>9</number>
+                        <number>8</number>
                     </property>
                     <property name="sorting">
                         <bool>false</bool>

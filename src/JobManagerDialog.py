@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\JobManagerDialog.ui'
 #
-# Created: Thu Jun 9 15:37:10 2005
+# Created: Thu Jun 16 18:19:15 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -81,15 +81,15 @@ class JobManagerDialog(QDialog):
         self.job_table.setNumCols(self.job_table.numCols() + 1)
         self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Status"))
         self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Server"))
+        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Server Id"))
         self.job_table.setNumCols(self.job_table.numCols() + 1)
         self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Job Id"))
         self.job_table.setNumCols(self.job_table.numCols() + 1)
         self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Time"))
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Start Time"))
+        self.job_table.setNumRows(self.job_table.numRows() + 1)
+        self.job_table.verticalHeader().setLabel(self.job_table.numRows() - 1,self.__tr("1"))
         self.job_table.setNumRows(1)
-        self.job_table.setNumCols(9)
+        self.job_table.setNumCols(8)
         self.job_table.setSorting(0)
         self.job_table.setSelectionMode(QTable.SingleRow)
         groupBox1Layout.addWidget(self.job_table)
@@ -140,7 +140,7 @@ class JobManagerDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(1009,255).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1009,258).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.close_btn,SIGNAL("clicked()"),self,SLOT("close()"))
@@ -159,10 +159,10 @@ class JobManagerDialog(QDialog):
         self.job_table.horizontalHeader().setLabel(2,self.__tr("Calculation"))
         self.job_table.horizontalHeader().setLabel(3,self.__tr("Description"))
         self.job_table.horizontalHeader().setLabel(4,self.__tr("Status"))
-        self.job_table.horizontalHeader().setLabel(5,self.__tr("Server"))
+        self.job_table.horizontalHeader().setLabel(5,self.__tr("Server Id"))
         self.job_table.horizontalHeader().setLabel(6,self.__tr("Job Id"))
         self.job_table.horizontalHeader().setLabel(7,self.__tr("Time"))
-        self.job_table.horizontalHeader().setLabel(8,self.__tr("Start Time"))
+        self.job_table.verticalHeader().setLabel(0,self.__tr("1"))
         self.start_btn.setText(self.__tr("Start"))
         self.stop_btn.setText(self.__tr("Stop"))
         self.edit_btn.setText(self.__tr("Edit"))

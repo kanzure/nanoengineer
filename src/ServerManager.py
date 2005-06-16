@@ -22,11 +22,15 @@ class ServerManager(ServerManagerDialog):
     
     def __init__(self, selectedItem=0):
         ServerManagerDialog.__init__(self)
+        ## The ordered server list
         self.servers = self._loadServerList()
-    
+        self.selectedItem = selectedItem
+     
+     
     def showDialog(self):
         self.setup()
         self.exec_loop()    
+    
     
     def _fillServerProperties(self, curItem):
         """Display current server properties"""
@@ -41,25 +45,26 @@ class ServerManager(ServerManagerDialog):
         self.username_linedit.setText(s.username)
         self.password_linedit.setText(s.password)
     
+    
     def setup(self):
         self.server_listview.clear()
         self.items = []
         for s in self.servers:
-            self.items += [QListViewItem(self.server_listview, s.hostname, s.engine)]
+            self.items += [QListViewItem(self.server_listview, str(s.server_id), s.engine)]
         
         item = self.server_listview.currentItem()
         self._fillServerProperties(item)
         
         
     def applyChange(self):
+        """Apply server property changes"""
         s = {'hostname':str(self.name_linedit.text()), 'ipaddress':str(self.ipaddress_linedit.text()), 'platform':str(self.platform_combox.currentText()), 'method':str(self.method_combox.currentText()), 'engine':str(self.engine_combox.currentText()), 'program': str(self.program_linedit.text()), 'username':str(self.username_linedit.text()), 'password':str(self.password_linedit.text())}
         
         item = self.server_listview.currentItem()
-        item.setText(0, s['hostname'])
         item.setText(1, s['engine'])
         
-        #self.servers[self.items.index(item)] = SimServer(s)
-        self.servers[self.items.index(item)].set_parms(s)         
+        self.servers[self.items.index(item)].set_parms(s)
+     
                  
     def addServer(self):
         """Add a new server. """
@@ -67,9 +72,11 @@ class ServerManager(ServerManagerDialog):
         self.servers[:0] = [server]
         self.setup()
     
+    
     def changeServer(self, curItem):
         """Select a different server to display"""
         self._fillServerProperties(curItem)
+    
      
     def closeEvent(self, event):
         """This is the closeEvent handler, it's called when press 'X' button on the title bar or 'Esc' key or 'Exit' button in the dialog """ 
@@ -81,20 +88,28 @@ class ServerManager(ServerManagerDialog):
             
         self.accept()
     
-    def getServer(self, indx):
-        """Return the server for <indx>, the index of the server in the 
-        server list. """
-        assert type(indx) in [type(1), type(self)]
-        
-        if (type(indx) == type(1)):
-            assert  indx in range(len(self.servers))
-            return self.servers[indx]
     
+    def getServer(self, indx):
+        """Return the server for <indx>, the index of the server in 
+        the server list. """
+        assert type(indx) == type(1)
+        
+        assert  indx in range(len(self.servers))
+        return self.servers[indx]
+    
+    
+    def getServerById(self, ids):
+        """Return the server with the server_id = ids """
+        for s in self.servers:
+            if s.server_id == ids:
+                return s
+        return None
     
     
     def getServers(self):
         """Return the list of servers."""
         return self.servers
+    
     
     def _loadServerList(self):
         """Return the list of servers available, otherwise, create a default one. """
@@ -114,4 +129,9 @@ class ServerManager(ServerManagerDialog):
         file = open(self.serverFile, "wb")
         pickle.dump(self.servers, file, pickle.HIGHEST_PROTOCOL)
         file.close()
+
+##Test code
+if __name__ == '__main__':
+        from qt import QApplication
+        
         

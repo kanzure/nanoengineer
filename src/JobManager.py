@@ -89,25 +89,6 @@ def get_job_manager_job_id_and_dir():
             touch_job_id_status_file(job_id, 'Queued')
             return str(job_id), job_id_dir
 
-# A list as a 2-dimensional array of sub-lists.
-# This is a sample list of 4 jobs for testing purposes.
-"""jobs = [["Small Bearing.mmp", "GAMESS", "Molecular Energy","Inner Shaft", 
-             "Queued", "My Computer", "1234", "", ""],
-              ["MarkIIk.mmp", "MD Simulator", "Movie","2000 Frames", 
-             "Running", "cluster1.nanorex.com", "1233", "0:15", "6/6/2005 12:00:01"],
-             ["SA1g.mmp", "GAMESS", "Optimize", "Outer Ring",
-             "Failed", "cluster1.nanorex.com", "1232", "0:25:10", "6/6/2005 10:30:22"],
-             ["Small Bearing.mmp", "MD Simulator", "Minimize", "Inner Shaft",
-             "Completed", "My Computer", "1231", "1:35:19", "6/6/2005 8:45:41"]]
-"""
-# A list as a 2-dimensional array of dictionaries. 
-# This is a sample list of 4 jobs for testing purposes. This is currently not used.
-jobs2 = [{'Part':'Small Bearing1.mmp', 'Engine':'GAMESS', 'Description':'Molecular Energy - Inner Shaft', 
-             'Status':'Queued', 'Server':'My Computer', 'JobId':'1234', 'Time':'','Start Time':''},
-            {'Part':'Small Bearing2.mmp', 'Engine':'GAMESS', 'Description':'Molecular Energy - Inner Shaft', 
-             'Status':'Running', 'Server':'cluster1.nanorex.com', 'JobId':'1233', 'Time':15,'Start Time':'6/6/2005 12:00:01'},
-            {'Part':'Small Bearing3.mmp', 'Engine':'GAMESS', 'Description':'Molecular Energy - Inner Shaft', 
-             'Status':'Failed', 'Server':'cluster1.nanorex.com', 'JobId':'1232', 'Time':125,'Start Time':'6/6/2005 14:00:01'}]
 
 from JobManagerDialog import JobManagerDialog
 from GamessJob import GamessJob
@@ -188,11 +169,10 @@ class JobManager(JobManagerDialog):
         self.jobInfoList = self.build_job_list()
         
         numjobs = len(self.jobInfoList) # One row for each job.
-        tabTitles = ['Name', 'Engine', 'Calculation', 'Description', 'Status', 'Server', 'Job_id', 'End_time', 'Start_time'] # The number of columns in the job table (change this if you add/remove columns).
+        tabTitles = ['Name', 'Engine', 'Calculation', 'Description', 'Status', 'Server_id', 'Job_id', 'Time'] # The number of columns in the job table (change this if you add/remove columns).
 
         self.jobs = []
         for row in range(numjobs):
-            print "JobManager.refresh_job_table: Adding row #", row
             self.job_table.insertRows(row)
             
             for col in range(len(tabTitles)):
@@ -204,12 +184,13 @@ class JobManager(JobManagerDialog):
     def delete_job(self):
         self.job_table.removeRow(self.job_table.currentRow())
     
+    
     def startJob(self):
         """ Run current job"""
         currentJobRow = self.job_table.currentRow()
         self.jobs[currentJobRow].start_job()
-        # Print msg telling user the final energy value.
         
+        # Print msg telling user the final energy value.
         final_energy = self.jobs[currentJobRow].get_energy_from_outputfile()
         if final_energy:
             msg = "GAMESS finished.  The final energy is: " + str(final_energy)
@@ -232,10 +213,10 @@ class JobManager(JobManagerDialog):
            for dr in jobDirs:
              jobPath = os.path.join(managerDir, dr)  
              if os.path.isdir(jobPath):
-                jobParas ={}; serverParas = {}; status = None
+                jobParas ={};  status = None
                 files = os.listdir(jobPath)
                 for f in files:
-                    if jobParas and serverParas and status: break
+                    if jobParas and status: break
                     if os.path.isfile(os.path.join(jobPath, f)):
                        if f.startswith("Status"):
                              status = f.split('-')[1]
@@ -249,8 +230,8 @@ class JobManager(JobManagerDialog):
                                     l = l.lstrip(commentStr)
                                     if l.strip() == 'Job Parameters':
                                         onejob = jobParas
-                                    elif l.strip() == 'Server Parameters':
-                                        onejob = serverParas
+                                    #elif l.strip() == 'Server Parameters':
+                                    #    onejob = serverParas
                                     value = l.split(': ')
                                     if len(value) > 1:
                                         onejob[value[0].strip()] = value[1].strip()
@@ -258,13 +239,13 @@ class JobManager(JobManagerDialog):
                                     items = l.split('-o ')
                                     if len(items) > 1:
                                         outputFile = items[1].strip()
-                               
-                                        
-                    
-                #if len(onejob) != 8:
-                #     raise ValueError, "Batch file is missed or has wrong format"           
+                                    else:
+                                        items = l.split('> ')
+                                        if len(items) > 1:
+                                            outputFile = items[1].strip()    
+
                 jobParas['Status'] = status
-                jobs += [(jobParas, serverParas, batFile, outputFile)]         
+                jobs += [(jobParas, batFile, outputFile)]         
            return jobs                
         except:
            print "Exception: build job lists failed. check the directory/files."
@@ -277,7 +258,7 @@ class JobManager(JobManagerDialog):
         for j in jobInfoList:
             if j[0]['Engine'] == 'GAMESS':
                 #Create GamessJob, call GamessJob.readProp()
-                jobs += [GamessJob(j[0], job_of_file =j[1:])]
+                jobs += [GamessJob(j[0], job_from_file =j[1:])]
             elif j[0]['Engine'] == 'nanoSIM-1':
                 #Create nanoEngineer-1 MD simulator job
                 pass

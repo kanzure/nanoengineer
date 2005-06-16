@@ -9,7 +9,7 @@ __author__ = "Mark"
 import sys
 
 class SimServer:
-    '''a SimServer has all the attributes needed to connect to and run a SimJob'''
+    '''a SimServer has all the attributes needed to connect to and run a SimJob. A lot of changes made by Huaicai.'''
     
     server_parms = {
         'hostname':'localhost',
@@ -23,18 +23,13 @@ class SimServer:
         'password':''}
         
     def __init__(self):
-        
-        # The parameters (parms) for the SimServer object are provided in a dictionary in key:value pairs
-        # For the Gamess Jig, the parms are defined in the jig_Gamess.py.
-        #
-        # The parms.keys are:
-        # name: Server name
-        # ipaddress: Server IP Address 
-        # engine: Sim engine (GAMESS, nanoSIM-1)
-        # program: Full path to the engine program
-        # paltform: OS
-        # username: User name
-        # password: Password
+        """Create a server with default parameters. If you want to change properties of the server, call set_parms() instead. """
+        from preferences import prefs_context
+        prefs = prefs_context()
+        self.server_id = prefs.get('server_id')
+        if not self.server_id: self.server_id = 66
+        else: self.server_id += 1
+        prefs['server_id'] = self.server_id
         
         self.parms = SimServer.server_parms
         if sys.platform == 'linux2':
@@ -55,14 +50,19 @@ class SimServer:
     
     def __getstate__(self):
         """Called by pickle """
-        return self.parms, self.edit_cntl
-        
-    
+        return self.server_id, self.parms, self.edit_cntl
+   
     def __setstate__(self, state):
         """Called by unPickle"""
-        self.parms, self.edit_cntl = state
+        self.server_id, self.parms, self.edit_cntl = state
         self.set_parms(self.parms)     
     
+    def set_parms(self, parms):
+        self.parms = parms
+        for k in parms:
+             self.__dict__[k] = parms[k]     
+             
+    ######Note: The following method is deprecated #####  
     def write_parms(self, f):
         'Write server parms to file f'
         
@@ -74,14 +74,4 @@ class SimServer:
             f.write (phrase + '\n')
         f.write (rem+'\n')
     
-    def set_parms(self, parms):
-        self.parms = parms
-        for k in parms:
-             self.__dict__[k] = parms[k]        
-   
-    def get_comment_character(self):
-        if sys.platform == 'win32':
-            return 'REM ' # Batch file comment for Windows
-        else:
-            return '# ' # Script file comment for Linux and Mac
-            
+    ###############################################        

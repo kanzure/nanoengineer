@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>524</width>
-            <height>519</height>
+            <height>522</height>
         </rect>
     </property>
     <property name="caption">
@@ -30,7 +30,7 @@
                 <widget class="QListView">
                     <column>
                         <property name="text">
-                            <string>Server</string>
+                            <string>Server ID</string>
                         </property>
                         <property name="clickable">
                             <bool>true</bool>
@@ -50,20 +50,6 @@
                             <bool>true</bool>
                         </property>
                     </column>
-                <item>
-                    <property name="text">
-                        <string>localhost</string>
-                    </property>
-                    <property name="text">
-                        <string>PC GAMESS</string>
-                    </property>
-                    <property name="pixmap">
-                        <pixmap></pixmap>
-                    </property>
-                    <property name="pixmap">
-                        <pixmap></pixmap>
-                    </property>
-                </item>
                     <property name="name">
                         <cstring>server_listview</cstring>
                     </property>

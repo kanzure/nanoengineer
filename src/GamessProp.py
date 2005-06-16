@@ -290,7 +290,7 @@ class GamessProp(GamessPropDialog):
     def server_manager(self):
         """Pop up ServerManagerDialog to edit the properties of the servers."""
         self.sManager.showDialog()
-        self.servers = sManager.getServers()
+        self.servers = self.sManager.getServers()
         self._reloadServerList()
       
          
@@ -440,7 +440,6 @@ class GamessProp(GamessPropDialog):
     def save_ui_settings(self):
         '''Save the UI settings in the Gamess jig pset.  There is one setting for each pset.
         '''
-
         self.rename()
         self.pset.ui.comment = str(self.comment_linedit.text())
         self.pset.ui.runtyp = self.runtyp_combox.currentItem() # RUNTYP = Energy or Optimize
@@ -580,14 +579,19 @@ class GamessProp(GamessPropDialog):
         calculate = ['Molecular Energy', 'Optimization']
         self.job.Calculation = calculate[self.pset.ui.runtyp]
         self.job.Description = self.pset.ui.comment
-        self.job.Server = self.pset.ui.server
         self.job.server =  self.server
+        ##Copy some  attributes from the server object to job description
+        self.job.Server_id = self.server.server_id
+        self.job.Engine = self.server.engine
+        
         
     def queue_job(self):
+        self.save_ui_settings()
         self.job.queue_job()
         self.close() # Close dialog
-        #self.win.JobManager() # Open Job Manager.  The queued job should be on row 1.
+        
         
     def launch_job(self):
+        self.save_ui_settings()
         self.job.launch_job()
         self.close() # Close dialog
