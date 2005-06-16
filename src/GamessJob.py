@@ -22,12 +22,12 @@ class GamessJob(SimJob):
         self.gamessJig = job_prop.get('jig', None)
         
         if serverParam:
-            self.server = SimServer(serverParam)
+            from ServerManager import ServerManager
+            self.server = ServerManager().getServer(0)  ###Need to fix--Huaicai
         
         SimJob.__init__(self, name, job_parms)
         self.edit_cntl = GamessProp()
-        if self.gamessJig:
-            self.server = self.gamessJig.server
+        
         
     def edit(self):
         self.edit_cntl.showDialog(self)
@@ -111,15 +111,11 @@ class GamessJob(SimJob):
         print  "program = ", program
         print  "Spawnv args are %r" % (args,) # this %r remains (see above)
         os.spawnv(os.P_WAIT, self.job_batfile, args)
-         
         
-               
         os.chdir(oldir)
 #        print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
         
-        
-
-
+    
 # File Writing Methods.
         
     def writeinpfile(self, filename):
@@ -140,6 +136,7 @@ class GamessJob(SimJob):
         self.write_atoms_data(f) # Write DATA section with molecule data.
         
         f.close() # Close INP file.
+
 
     def write_atoms_data(self, f):
         'Write the atoms list data to the DATA group of the GAMESS INP file'
@@ -171,7 +168,7 @@ class GamessJob(SimJob):
             f.write("%8.3f%8.3f%8.3f\n" % fpos)
             
     def writebatfile(self, filename):
-        'Write GAMESS BAT file'
+        'Write PC GAMESS BAT file'
         
         f = open(filename,'w')
         
@@ -187,10 +184,12 @@ class GamessJob(SimJob):
         
         if self.server.hostname == 'My Computer' and self.server.engine == 'PC GAMESS':
             f.write(self.server.program + ' -i "' + self.job_inputfile + '" -o "' + self.job_outputfile + '"\n')
-        else:
-            f.write('cd ' + self.server.tmpdir + '\n')
-            f.write('copy ' + self.job_inputfile + ' gamess.inp\n')
-        
+        else: # GAMESS on other computer.
+            #f.write('cd ' + self.server.tmpdir + '\n')
+            #f.write('copy ' + self.job_inputfile + ' gamess.inp\n')
+            if self.server.method == 'Ssh/scp':
+                f.write('scp %s %s@%s:~/.' %(self.job_inputfile, self.server.username, self.server.ipaddress))
+      
         f.close() # Close INP file.
 
 

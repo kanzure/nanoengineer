@@ -285,4 +285,3 @@ class JobManager(JobManagerDialog):
         return jobs
     
                 
-

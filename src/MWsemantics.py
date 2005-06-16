@@ -1273,7 +1273,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def serverManager(self):
         """Opens the server manager dialog. """
         from ServerManager import ServerManager
-        ServerManager()
+        ServerManager().showDialog()
         
     #### Movie Player Dashboard Slots ############
 

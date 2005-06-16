@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>GamessPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>475</width>
-            <height>583</height>
+            <width>559</width>
+            <height>691</height>
         </rect>
     </property>
     <property name="caption">
@@ -1201,6 +1201,12 @@
         <receiver>GamessPropDialog</receiver>
         <slot>server_manager()</slot>
     </connection>
+    <connection>
+        <sender>server_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>serverChanged(int)</slot>
+    </connection>
 </connections>
 <slots>
     <slot>queue_job()</slot>
@@ -1214,6 +1220,7 @@
     <slot>add_or_change_pset()</slot>
     <slot>rename()</slot>
     <slot>server_manager()</slot>
+    <slot>serverChanged(int)</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -211,19 +211,21 @@ PCGAMESS = 2 # PC GAMESS
 from qt import *
 import sys, os, time
 from GamessPropDialog import *
-
+from ServerManager import ServerManager
+        
 class GamessProp(GamessPropDialog):
     '''A GamessProp is a dialog window for creating and editing 
     GAMESS parameter sets for the Gamess jig and launching them.'''
        
     def __init__(self):
         GamessPropDialog.__init__(self)
+        self.sManager = ServerManager()
         
     def showDialog(self, job):
-
         self.gamess =  job.gamessJig
         self.job = job
-        self.server = job.gamessJig.server
+        self.servers = self.sManager.getServers()
+        self.server = self.servers[0]
         self.pset = self.gamess.psets[0]
         self.win = self.gamess.assy.w
         
@@ -279,8 +281,29 @@ class GamessProp(GamessPropDialog):
         # Load the combo box with all the valid DFT functions.  
         self.load_dfttyp_combox()
         
+        # Load the server combo box
+        self._reloadServerList()
+        
         # If there is an error, return 1. NIY.
         return 0
+    
+    def server_manager(self):
+        """Pop up ServerManagerDialog to edit the properties of the servers."""
+        self.sManager.showDialog()
+        self.servers = sManager.getServers()
+        self._reloadServerList()
+      
+         
+    def _reloadServerList(self):
+        """ Load the server combo box"""
+        self.server_combox.clear()
+        for s in self.servers:
+            self.server_combox.insertItem(s.hostname + "-" + s.engine)
+        if self.server not in self.servers:
+            self.server = self.servers[0]
+        indx = self.servers.index(self.server)
+        self.server_combox.setCurrentItem(indx)    
+               
         
     def rename(self):
         '''Rename the jig.
@@ -301,7 +324,6 @@ class GamessProp(GamessPropDialog):
         '''Load list of parm sets in the combobox widget.
         This is not implemeted as 2005-06-07 - Mark
         '''
-
         num = 0
         self.psets_combox.clear() # Clear all combo box items
       
@@ -376,7 +398,6 @@ class GamessProp(GamessPropDialog):
     def set_multiplicity(self, val):
         '''Enable/disable widgets when user changes Multiplicity.
         '''
-        
         if val != 0:
             if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':
                 self.rhf_radiobtn.setEnabled(0)
@@ -401,6 +422,12 @@ class GamessProp(GamessPropDialog):
         
         elif val == 0:
             self.rhf_radiobtn.setEnabled(1)
+    
+    def serverChanged(self, si):
+        """User has changed server, so update the DFT comboBox"""
+        
+        self.load_dfttyp_combox()
+    
                 
     def restore(self):
         '''Implement a button for Use Defaults or Restore Default Values, if one is added to the UI.
@@ -554,6 +581,7 @@ class GamessProp(GamessPropDialog):
         self.job.Calculation = calculate[self.pset.ui.runtyp]
         self.job.Description = self.pset.ui.comment
         self.job.Server = self.pset.ui.server
+        self.job.server =  self.server
         
     def queue_job(self):
         self.job.queue_job()

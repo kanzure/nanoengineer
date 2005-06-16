@@ -12,8 +12,16 @@ from GamessProp import *
 from GamessJob import *
 from SimServer import SimServer
 
-# Default job parameters for a GAMESS job.
-job_parms = {
+# == GAMESS
+
+class Gamess(Jig):
+    '''A Gamess jig has a list of atoms with one or more parameter sets used to run a GAMESS calcuation.'''
+
+    sym = "Gamess"
+    icon_names = ["gamess.png", "gamess-hide.png"]
+    
+    # Default job parameters for a GAMESS job.
+    job_parms = {
         'Engine':'GAMESS',
         'Calculation':'',
         'Description':'',
@@ -23,24 +31,6 @@ job_parms = {
         'Start_time':'',
         'End_time':''}
 
-server_parms = {
-        'hostname':'My Computer',
-        'ipaddress':'',
-        'engine':'PC GAMESS',
-        'program':'C:\\PCGAMESS\\gamess.exe',
-        'tmpdir':'C:\\PCGAMESS\\',
-        'platform':'win32',
-        'username':'',
-        'password':''}
-
-# == GAMESS
-
-class Gamess(Jig):
-    '''A Gamess jig has a list of atoms with one or more parameter sets used to run a GAMESS calcuation.'''
-
-    sym = "Gamess"
-    icon_names = ["gamess.png", "gamess-hide.png"]
-
     # create a blank Gamess jig with the given list of atoms
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
@@ -48,8 +38,7 @@ class Gamess(Jig):
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
         self.psets = [] # list of parms set objects
         self.psets.append(gamessParms('Parameter Set 1'))
-        self.server = SimServer(server_parms)
-        self.gmsjob = GamessJob(job_parms, jig=self)
+        self.gmsjob = GamessJob(Gamess.job_parms, jig=self)
         self.gmsjob.edit()
 
     def edit(self):

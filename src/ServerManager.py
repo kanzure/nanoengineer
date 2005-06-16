@@ -23,8 +23,10 @@ class ServerManager(ServerManagerDialog):
     def __init__(self, selectedItem=0):
         ServerManagerDialog.__init__(self)
         self.servers = self._loadServerList()
+    
+    def showDialog(self):
         self.setup()
-        self.exec_loop()
+        self.exec_loop()    
     
     def _fillServerProperties(self, curItem):
         """Display current server properties"""
