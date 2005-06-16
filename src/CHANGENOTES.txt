@@ -534,3 +534,10 @@ Summary: fixed bug 703, and related older bug requiring mouse motion to see new-
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 6/15/2005
+Files: depositMode.py
+Summary: fixed bug 264
+
+----------------------------
+

@@ -1428,6 +1428,11 @@ class depositMode(basicMode):
 	"""
 	glDisable(GL_LIGHTING)
 	glColor4fv(self.gridColor + (0.6,))
+            ##e bruce 050615 comment: if this equalled bgcolor, some bugs would go away;
+            # we'd still want to correct the surface-size to properly fit the window (bug 264, just now fixed below),
+            # but the flicker to bgcolor bug (bug number?) would be gone (defined and effective bgcolor would be same).
+            # And that would make sense in principle, too -- the water surface would be like a finite amount of fog,
+            # concentrated into a single plane.
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
@@ -1437,17 +1442,30 @@ class depositMode(basicMode):
 	glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
 	glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
 
-        # The following is wrong for wide windows (bug 264).
-	# To fix it requires looking at how scale is set (differently
-	# and perhaps wrongly (related to bug 239) for tall windows),
-	# so I'll do it later, after fixing bug 239.
-	# Warning: correctness of use of x vs y below has not been verified.
-	# [bruce 041214] ###@@@
-	# ... but for Alpha let's just do a quick fix by replacing 1.5 by 4.0.
-	# This should work except for very wide (or tall??) windows.
-	# [bruce 050120]
+##        # The following is wrong for wide windows (bug 264).
+##	# To fix it requires looking at how scale is set (differently
+##	# and perhaps wrongly (related to bug 239) for tall windows),
+##	# so I'll do it later, after fixing bug 239.
+##	# Warning: correctness of use of x vs y below has not been verified.
+##	# [bruce 041214] ###@@@
+##	# ... but for Alpha let's just do a quick fix by replacing 1.5 by 4.0.
+##	# This should work except for very wide (or tall??) windows.
+##	# [bruce 050120]
+##	
+##        ## x = y = 4.0 * self.o.scale # was 1.5 before bruce 050120; still a kluge
 	
-        x = y = 4.0 * self.o.scale # was 1.5 before bruce 050120; still a kluge
+        #bruce 050615 to fix bug 264 (finally! but it will only last until someone changes what self.o.scale means...):
+	# here are presumably correct values for the screen boundaries in this "plane of center of view":
+        y = self.o.scale # always fits height, regardless of aspect ratio (as of 050615 anyway)
+        x = y * (self.o.width + 0.0) / self.o.height
+        # (#e Ideally these would be glpane attrs so we wouldn't have to know how to compute them here.)
+        # By test, these seem exactly right (tested as above and after x,y *= 0.95),
+        # but for robustness (in case of roundoff errors restoring eyespace matrices)
+        # I'll add an arbitrary fudge factor (both small and overkill at the same time!):
+        x *= 1.1
+        y *= 1.1
+        x += 5
+        y += 5
 	glBegin(GL_QUADS)
         glVertex(-x,-y,0)
         glVertex(x,-y,0)
