@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Wed Jun 15 17:17:17 2005
+# Created: Fri Jun 17 09:54:10 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -201,11 +201,7 @@ class SimSetupDialog(QDialog):
         self.textLabel1.setText(self.__tr("Description :"))
         self.textLabel1_2.setText(self.__tr("Calculate :"))
         self.name_linedit.setText(QString.null)
-        QToolTip.add(self.name_linedit,self.__tr("The name of the GAMESS jig."))
-        QWhatsThis.add(self.name_linedit,self.__tr("The name of the GAMESS jig."))
         self.description_linedit.setText(QString.null)
-        QToolTip.add(self.description_linedit,self.__tr("Text placed here is incorporated into the standard GAMESS comment line."))
-        QWhatsThis.add(self.description_linedit,self.__tr("Text placed here is incorporated into the standard GAMESS comment line."))
         self.calculate_combox.clear()
         self.calculate_combox.insertItem(self.__tr("Trajectory"))
         self.calculate_combox.insertItem(self.__tr("Optimization"))
@@ -220,8 +216,6 @@ class SimSetupDialog(QDialog):
         self.server_combox.insertItem(self.__tr("My Computer"))
         self.server_manager_btn.setText(self.__tr("Server Manager..."))
         self.queue_job_btn.setText(self.__tr("Queue Job"))
-        QToolTip.add(self.queue_job_btn,self.__tr("Save GAMESS parameters only."))
-        QWhatsThis.add(self.queue_job_btn,self.__tr("Save GAMESS parameters only."))
         self.launch_job_btn.setText(self.__tr("Launch Job"))
         self.cancel_btn.setText(self.__tr("Cancel"))
 

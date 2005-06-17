@@ -100,12 +100,6 @@
                             <property name="text">
                                 <string></string>
                             </property>
-                            <property name="toolTip" stdset="0">
-                                <string>The name of the GAMESS jig.</string>
-                            </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>The name of the GAMESS jig.</string>
-                            </property>
                         </widget>
                         <widget class="QLineEdit">
                             <property name="name">
@@ -122,12 +116,6 @@
                             </property>
                             <property name="maxLength">
                                 <number>80</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Text placed here is incorporated into the standard GAMESS comment line.</string>
-                            </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Text placed here is incorporated into the standard GAMESS comment line.</string>
                             </property>
                         </widget>
                         <widget class="QLayoutWidget">
@@ -382,12 +370,6 @@
                     </property>
                     <property name="text">
                         <string>Queue Job</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Save GAMESS parameters only.</string>
-                    </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Save GAMESS parameters only.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
