@@ -580,8 +580,10 @@ class Part( jigmakers_Mixin, InvalMixin,
     
     # ==
     
-    def draw(self, win): ###@@@ win arg, unused, should be renamed or removed
-        self.topnode.draw(self.o, self.o.display)
+    def draw(self, glpane): #bruce 050617 renamed win arg to glpane, and made this method use it for the first time
+        ###e bruce 050617: might revise this to draw "computed topnode for drawing" if that exists and is enabled and updated...
+        #e and it might be that the glpane we're passed is modified or a proxy, and can tell us what to do about this.
+        self.topnode.draw(glpane, glpane.display)
 
     def draw_text_label(self, glpane):
         "#doc; called from GLPane.paintGL just after it calls mode.Draw()"

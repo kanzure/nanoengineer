@@ -418,12 +418,12 @@ class assembly:
 
     # ==
 
-    def draw(self, win): ###@@@ win arg, unused in submethod, should be renamed or removed
+    def draw(self, glpane): #bruce 050617 renamed win arg to glpane, and made submethod use it for the first time
         if platform.atom_debug:
             self.checkparts()
             # if that raises an exception, don't catch it, drawing might not work
         if self.part: #k condition needed??
-            self.part.draw(win)
+            self.part.draw(glpane)
         return
     
     # == current selection group (see it and/or change it)

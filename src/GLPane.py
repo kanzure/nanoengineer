@@ -199,7 +199,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.quat = Q(1, 0, 0, 0)
         # point of view (i.e. negative of center of view)
         self.pov = V(0.0, 0.0, 0.0)
-        # half-height of window in Angstroms
+        # half-height of window in Angstroms (gets reset by certain view-changing operations [bruce 050615 comment])
         self.scale = 10.0
         # zoom factor
         self.zoomFactor = 1.0
@@ -400,10 +400,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         #Recalculate center and bounding box for the current part
         part = self.part
         part.computeBoundingBox()
-        self.scale = part.bbox.scale()
+        self.scale = float( part.bbox.scale() ) #bruce 050616 added float() as a precaution, probably not needed
+            # appropriate height to show everything, for square or wide glpane [bruce 050616 comment]
         aspect = float(self.width) / self.height
         if aspect < 1.0:
-             self.scale /= aspect
+            # tall (narrow) glpane -- need to increase self.scale
+            # (defined in terms of glpane height) so part bbox fits in width
+            # [bruce 050616 comment]
+            self.scale /= aspect
         self.pov = V(-part.center[0], -part.center[1], -part.center[2]) 
         self.setZoomFactor(1.0)
         self.gl_update()
@@ -1010,6 +1014,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
     ## glselect = 0 # whether we're inside a glSelectBuffer call (not presently needed)
     glselect_wanted = 0 # whether the next paintGL should start with a glSelectBuffer call [bruce 050608]
     glselectBufferSize = 10000 # guess, probably overkill, seems to work, no other value was tried
+    current_glselect = False #bruce 050616 #doc; might be approx. same as above commented-out "glselect" attr #k
     
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
         """[PRIVATE METHOD -- call gl_update instead!]
@@ -1048,6 +1053,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 ####            if platform.atom_debug:
 ####                print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ")
         self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
+
+        #k not sure whether next two things are also needed in the split-out standard_repaint [bruce 050617]
         
         self._restore_modelview_stack_depth() #bruce 050608 moved this here (was after _setup_lighting ###k verify that)
         
@@ -1057,13 +1064,46 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             self.need_setup_lighting = False # set to true again if setLighting is called
             self._setup_lighting()
 
+        if 0: # if we're top glpane and doing trans feature [###@@@ bruce 050617 experimental code disabled for commit]
+            part = self.part #e correct? might worry if not same as self.assy.part
+            if platform.atom_debug and part is not self.assy.part:
+                print "atom_debug: glpane redraw sees different self.part %r and self.assy.part %r" % (self.part,self.assy.part)
+            topnode = part.topnode
+            try:
+                import demo_trans
+                reload(demo_trans)
+                rendertop = demo_trans.translate(topnode, self)
+            except:
+                print "glpane redraw: ignoring exception in demo_trans, using untrans form"
+                rendertop = topnode ###k ??
+            self.rendertop = rendertop # the actual nodes to draw... no, not enough, need the modified render loop too... ####e
+                # or can that just be inserted into the nodes for use when you draw them? if so, they also need to encode the
+                # standard render loop! ie a call of standard_repaint (and self's other attrs) need passing in. well we did pass self!
+                # is that enough? if so, then right now, rather than std repaint we would just call rendertop.draw! (when no exc above)
+            self.standard_repaint()
+        else:
+            self.standard_repaint()
+        
+        glFlush()
+        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
+        
+        return # from paintGL
+
+    def standard_repaint(self): #bruce 050617 split this out ###e not sure of name or exact role; might be called on proxy for subrect?
+        """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
+        this routine sets its own matrixmode but depends on other gl state being standard when entered.
+        """
         c = self.mode.backgroundColor
+            ##e [bruce 050615 comment] for modes with transparent surfaces covering screen, this ought to blend that in
+            # (or we could change how they work so the blank areas looked like the specified bgcolor)
         glClearColor(c[0], c[1], c[2], 0.0)
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
+            #e if stencil clear is expensive, we could optim and only do it when needed [bruce ca. 050615]
 
         aspect = (self.width + 0.0)/(self.height + 0.0)
         vdist = 6.0 * self.scale
+        self.vdist = vdist #bruce 050616 new feature (storing vdist in self), not yet used where it ought to be
         
         self._setup_modelview( vdist)
             #bruce 050608 moved modelview setup here, from just before the mode.Draw call
@@ -1084,7 +1124,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 #  having a graphical effect. Ideally we'd count intentional redraws, and disable this picking in that case.)
             self.wX, self.wY = wX,wY
             self.glselect_wanted = 0
-            self._setup_projection( aspect, vdist, glselect = (wX,wY,3,3) ) # option makes it use gluPickMatrix
+            self.current_glselect = (wX,wY,3,3) #bruce 050615 for use by nodes which want to set up their own projection matrix
+            self._setup_projection( aspect, vdist, glselect = self.current_glselect ) # option makes it use gluPickMatrix
                 # replace 3,3 with 1,1? 5,5? not sure whether this will matter... in principle should have no effect except speed
             glSelectBuffer(self.glselectBufferSize)
             glRenderMode(GL_SELECT)
@@ -1092,9 +1133,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             ## glPushName(0) # this would be ignored if not in GL_SELECT mode, so do it after we enter that! [no longer needed]
             ## self.glselect = 1
             glMatrixMode(GL_MODELVIEW)
-            self.mode.Draw() # should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
-                # note: this might call some display lists which, when created, registered namestack names,
-                # so we need to still know those names!
+            try:
+                self.mode.Draw() # should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
+                    # note: this might call some display lists which, when created, registered namestack names,
+                    # so we need to still know those names!
+            except:
+                print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+                glMatrixMode(GL_MODELVIEW)
+                self._setup_modelview( vdist) ###k correctness of this is unreviewed! ####@@@@
+                # now it's important to continue, at least enough to restore other gl state
+            self.current_glselect = False
             ###e On systems with no stencil buffer, I think we'd also need to draw selobj here in highlighted form
             # (in case that form is bigger than when it's not highlighted), or (easier & faster) just always pretend
             # it passes the hit test and add it to glselect_dict -- and, make sure to give it "first dibs" for being
@@ -1117,6 +1165,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 if names:
                     # for now, len is always 0 or 1, i think; if not, best to use only the last element...
                     # tho if we ever support "name/subname paths" we'll probably let first name interpret the remaining ones.
+                    ###e in fact, when nodes change projection or viewport for kids, and/or share their kids, they need to
+                    # put their own names on the stack, so we'll know how to redraw the kids, or which ones are meant when shared.
                     obj = globals.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                     self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
             #e maybe we should now sort glselect_dict by "hit priority" (for depth-tiebreaking), or at least put self.selobj first.
@@ -1239,6 +1289,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             glMatrixMode(GL_MODELVIEW) #k maybe not needed
 
         self.mode.Draw_after_highlighting() # e.g. draws water surface in Build mode
+
+        ###@@@ move remaining items back into caller? sometimes yes sometimes no... need to make them more modular... [bruce 050617]
         
         # let parts (other than the main part) draw a text label, to warn
         # the user that the main part is not being shown [bruce 050408]
@@ -1248,16 +1300,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             if platform.atom_debug:
                 print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
             pass # if it happens at all, it'll happen too often to bother users with an error message
-
-        # DO THIS AGAIN, see if that fixes my bug - it does, so try not doing it earlier as well
+        
         # draw coordinate-orientation arrows at upper right corner of glpane
         if self.drawAxisIcon:
-            self.drawarrow(aspect) #bruce 050608 moved this here, and rewrote it to behave then ###k untested
+            self.drawarrow(aspect) #bruce 050608 moved this here, and rewrote it to behave then
         
-        glFlush()
-        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
-        
-        return # from paintGL
+        return # from standard_repaint (which is the central submethod of paintGL)
 
     selobj = None #bruce 050609
 
@@ -1378,23 +1426,30 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             pass
         return
 
-    def _setup_modelview(self, vdist): #bruce 050608 split this out
+    def _setup_modelview(self, vdist): #bruce 050608 split this out; 050615 added explanatory comments
         "set up modelview coordinate system"
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glTranslatef( 0.0, 0.0, - vdist)
+            # [bruce comment 050615]
+            # translate coords for drawing, away from eye (through sreen and beyond it) by vdist;
+            # this places origin at desired position in eyespace for "center of view" (and for center of trackball rotation).
+            
             # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
             # (e.g. eyeball computations, see bug 30), thus has bugs for aspect < 1.0.
             # We should have glpane attrs for aspect, w_scale, h_scale, eyeball,
             # clipping planes, etc, like we do now for right, up, etc. ###e
 
         q = self.quat 
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
-        glTranslatef( self.pov[0], self.pov[1], self.pov[2])
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) # rotate those coords by the trackball quat
+        glTranslatef( self.pov[0], self.pov[1], self.pov[2]) # and translate them by -cov, to bring cov (center of view) to origin
         return
 
-    def _setup_projection(self, aspect, vdist, glselect = False): #bruce 050608 split this out
-        "#doc... glselect is False or a 4-tuple"
+    def _setup_projection(self, aspect, vdist, glselect = False): #bruce 050608 split this out; 050615 revised docstring
+        """Set up standard projection matrix contents using aspect, vdist, and some attributes of self.
+        (Warning: leaves matrixmode as GL_PROJECTION.)
+        Optional arg glselect should be False (default) or a 4-tuple (to prepare for GL_SELECT picking).
+        """
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
 
@@ -1477,8 +1532,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.width = width
         self.height = height
            
-	glViewport(0, 0, self.width, self.height)
-           
+	## glViewport(10, 15, (self.width-10)/2, (self.height-15)/3)######@@@@@@@@
+        glViewport(0, 0, self.width, self.height)
         if not self.initialised:
             self.initialised = 1
         self.trackball.rescale(width, height)

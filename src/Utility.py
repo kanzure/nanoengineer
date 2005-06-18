@@ -26,6 +26,10 @@ from debug import print_compact_stack, print_compact_traceback
 import platform
 from changes import changed #bruce 050303
 
+permit_rparen_names = 0 ###@@@ DO NOT COMMIT with 1 [bruce 050617 experimental code, disabled for commit]
+    # when 1: temporarily permit node names containing ')'. If this lasts, must encode/decode them in mmp files
+    # and also '%' using the %xx code.
+
 
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
@@ -417,7 +421,8 @@ class Node:
         name = name.strip() # remove whitespace from both ends
         if not name:
             return (False, "blank name is not permitted")
-        if ')' in name:
+
+        if ')' in name and not permit_rparen_names:
             #bruce 050508 bug-mitigation (these names can't yet be properly reloaded from mmp files)
             return (False, "names containing ')' are not yet supported")
         # accept the new name.
@@ -1004,7 +1009,7 @@ class Node:
     def writepov(self, file, dispdef): #bruce 050208 added Node default method
         pass
 
-    def draw(self, o, dispdef):
+    def draw(self, glpane, dispdef):
         pass
         
     def getinfo(self):
@@ -1622,11 +1627,39 @@ class Group(Node):
             if x.dad is not self: print "bad thread:", x, self, x.dad
             x.dumptree(depth+1)
 
-    def draw(self, o, dispdef):
-        if self.hidden: return
-        for ob in self.members:
-            ob.draw(o, dispdef)
-            
+    def draw(self, glpane, dispdef): #bruce 050615 revised this
+        if self.hidden:
+            #k does this ever happen? This state might only be stored on the kids... [bruce 050615 question]
+            return
+        self.draw_begin(glpane, dispdef)
+        try:
+            for ob in self.members[:]:
+                ob.draw(glpane, dispdef)
+            #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
+            #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
+            # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
+            # we have to worry about things which are drawn before or after main drawing loop --
+            # they might need to figure out their dispdef (and coords) specially, or store them during first pass
+            # (like renderpass.py egcode does when it stores modelview matrix for transparent objects).
+            # [bruce 050615 comments]
+        except:
+            print_compact_traceback("exception in drawing some Group member; skipping to end: ")
+        self.draw_end(glpane, dispdef)
+        return
+
+    def draw_begin(self, glpane, dispdef): #bruce 050615
+        "Subclasses can override this to change how their child nodes are drawn."
+        pass
+
+    def draw_end(self, glpane, dispdef): #bruce 050615
+        """Subclasses which override draw_begin should also override draw_end
+        to undo whatever changes were made by draw_begin
+        (preferably by popping stacks, rather than by doing inverse transformations,
+         which only work if nothing was messed up by child nodes or exceptions from them,
+         and which might be subject to numerical errors).
+        """
+        pass
+    
     def getstatistics(self, stats):
         """add group to part stats
         """
