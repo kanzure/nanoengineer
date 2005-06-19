@@ -286,7 +286,7 @@ class Jig(Node):
             # and whether we insist on being invisible to the simulator even if we don't have to be
             # (since all our atoms are visible to it).
             ref_id = mapping.node_ref_id(self) #e should this only be known to a mapping method which gives us the fwdref record??
-            mmprectype_name = "%s (%s)" % (self.mmp_record_name, self.name)
+            mmprectype_name = "%s (%s)" % (self.mmp_record_name, mapping.encode_name(self.name))
             fwd_ref_to_return_now = "forward_ref (%s) # %s\n" % (str(ref_id), mmprectype_name) # the stuff after '#' is just a comment
             after_these = self.node_must_follow_what_nodes()
             assert after_these # but this alone does not assert that they weren't all already written out! The next method should do that.
@@ -299,7 +299,8 @@ class Jig(Node):
         else:
             c = self.color
         color = map(int,A(c)*255)
-        mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, self.name, color[0], color[1], color[2])
+        mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, mapping.encode_name(self.name),
+                                                          color[0], color[1], color[2])
         midpart = self.mmp_record_jigspecific_midpart()
         if not midpart:
             # because '  ' fails where ' ' is required (in the mmp file parser), we have to handle this case specially!

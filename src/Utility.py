@@ -26,11 +26,6 @@ from debug import print_compact_stack, print_compact_traceback
 import platform
 from changes import changed #bruce 050303
 
-permit_rparen_names = 0 ###@@@ DO NOT COMMIT with 1 [bruce 050617 experimental code, disabled for commit]
-    # when 1: temporarily permit node names containing ')'. If this lasts, must encode/decode them in mmp files
-    # and also '%' using the %xx code.
-
-
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
 _pixmap_image_path = None
@@ -422,9 +417,11 @@ class Node:
         if not name:
             return (False, "blank name is not permitted")
 
-        if ')' in name and not permit_rparen_names:
-            #bruce 050508 bug-mitigation (these names can't yet be properly reloaded from mmp files)
-            return (False, "names containing ')' are not yet supported")
+        #bruce 050618 -- names containing ')' work now, so I can remove the ban on them in renaming.
+##        if ')' in name and not permit_rparen_names:
+##            #bruce 050508 bug-mitigation (these names can't yet be properly reloaded from mmp files)
+##            return (False, "names containing ')' are not yet supported")
+        
         # accept the new name.
         self.name = name
         if self.assy:
@@ -1668,7 +1665,7 @@ class Group(Node):
             ob.getstatistics(stats)
   
     def writemmp(self, mapping): #bruce 050322 revised interface
-        mapping.write("group (" + self.name + ")\n")
+        mapping.write("group (" + mapping.encode_name(self.name) + ")\n")
         mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False")) #bruce 050421
             # All "info opengroup" records should be written before we write any of our members.
             # If Group subclasses override this method (and don't call it), they'll need to behave similarly.
@@ -1680,7 +1677,7 @@ class Group(Node):
             # [bruce 050422: ... and this is where we'd write them, to put them after some member leaf or group.]
             for xx in mapping.pop_forwarded_nodes_after_child(x):
                 mapping.write_forwarded_node_for_real(xx)
-        mapping.write("egroup (" + self.name + ")\n")
+        mapping.write("egroup (" + mapping.encode_name(self.name) + ")\n")
         
     def writepov(self, f, dispdef):
         if self.hidden: return
@@ -1749,7 +1746,7 @@ class Csys(DataNode):
     def writemmp(self, mapping):
         v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale,
              self.pov[0], self.pov[1], self.pov[2], self.zoomFactor)
-        mapping.write("csys (" + self.name +
+        mapping.write("csys (" + mapping.encode_name(self.name) +
                 ") (%f, %f, %f, %f) (%f) (%f, %f, %f) (%f)\n" % v)
         self.writemmp_info_leaf(mapping) #bruce 050421 (only matters once these are present in main tree)
 
@@ -1801,7 +1798,7 @@ class Csys(DataNode):
 ##        return False
 ##        
 ##    def writemmp(self, mapping):
-##        mapping.write("datum (" + self.name + ") " +
+##        mapping.write("datum (" + mapping.encode_name(self.name) + ") " +
 ##                "(%d, %d, %d) " % self.rgb +
 ##                self.type + " " +
 ##                "(%f, %f, %f) " % tuple(self.center) +

@@ -1109,7 +1109,7 @@ class molecule(Node, InvalMixin):
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         "[overrides Node.writemmp]"
         disp = mapping.dispname(self.display)
-        mapping.write("mol (" + self.name + ") " + disp + "\n")
+        mapping.write("mol (" + mapping.encode_name(self.name) + ") " + disp + "\n")
         self.writemmp_info_leaf(mapping)
         #bruce 050228: write atoms in the same order they were created in,
         # so as to preserve atom order when an mmp file is read and written

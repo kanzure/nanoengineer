@@ -76,6 +76,15 @@ will seem to have the wrong number of bonds if these are not understood. But sin
 the file would still be usable to old code, and no altered file would be better
 for old code, we call these new records optional.
 
+'050502 required; 050618 preferred' -- bruce, adding url-encoding of '(', ')',
+and '%' in node names (so ')' is legal in them, fixing part of bug 474).
+I'm calling it optional, since old code could read new files with only the
+harmless cosmetic issue of the users seeing the encoded node-names.
+
+I also decided that "preferred" is more understandable than "optional".
+Nothing yet uses that word (except the user who sees this format in the
+Part Properties dialog), so no harm is caused by changing it.
+
 ===
 
 General notes about when to change the mmp format version:
@@ -88,7 +97,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050511 optional'
+MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050618 preferred'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
@@ -229,11 +238,19 @@ class _readmmp_state:
             return linemethod(card)
                 # note: no need to pass 'self', since this is a bound method
         return errmsg
-    
+
+    def decode_name(self, name): #bruce 050618 part of fixing part of bug 474
+        "This should undo what's done by the writer's encode_name method."
+        name = name.replace("%28",'(') # most of these replacements can be done in any order...
+        name = name.replace("%29",')')
+        name = name.replace("%25",'%') # ... but this one must be done last.
+        return name
+        
     def _read_group(self, card): # group: begins a Group (of chunks, jigs, and/or Groups)
         #bruce 050405 revised this; it can be further simplified
         name = getname(card, "Grp")
         assert name is not None #bruce 050405 hope/guess
+        name = self.decode_name(name) #bruce 050618
         old_opengroup = self.groupstack[-1]
         new_opengroup = Group(name, self.assy, old_opengroup)
             # this includes addchild of new group to old_opengroup (so don't call self.addmember)
@@ -243,6 +260,7 @@ class _readmmp_state:
         #bruce 050405 revised this; it can be further simplified
         name = getname(card, "Grp")
         assert name is not None #bruce 050405 hope/guess
+        name = self.decode_name(name) #bruce 050618
         if len(self.groupstack) == 1:
             return "egroup %r when no groups remain unclosed" % (name,)
         curgroup = self.groupstack.pop()
@@ -254,6 +272,7 @@ class _readmmp_state:
     
     def _read_mol(self, card): # mol: start a molecule
         name = getname(card, "Mole")
+        name = self.decode_name(name) #bruce 050618
         mol = molecule(self.assy,  name)
         self.mol = mol # so its atoms, etc, can find it (might not be needed if they'd search for it) [bruce 050405 comment]
             # now that I removed _addMolecule, this is less often reset to None,
@@ -322,6 +341,7 @@ class _readmmp_state:
         if not m: m = old_rmotpat.match(card) # If that didn't work, read card with old format
         ngroups = len(m.groups()) # ngroups = number of fields found (12=old, 15=new)
         name = m.group(1)
+        name = self.decode_name(name) #bruce 050618
         col = map(lambda (x): int(x)/255.0,
                 [m.group(2),m.group(3),m.group(4)])
         torq = float(m.group(5))
@@ -357,6 +377,7 @@ class _readmmp_state:
         if not m: m = old_lmotpat.match(card) # If that didn't work, read card with old format
         ngroups = len(m.groups()) # ngroups = number of fields found (12=old, 15=new)
         name = m.group(1)
+        name = self.decode_name(name) #bruce 050618
         col = map(lambda (x): int(x)/255.0,
                 [m.group(2),m.group(3),m.group(4)])
         force = float(m.group(5))
@@ -381,6 +402,7 @@ class _readmmp_state:
     def _read_ground(self, card):
         m = grdpat.match(card)
         name = m.group(1)
+        name = self.decode_name(name) #bruce 050618
         col = map(lambda (x): int(x)/255.0,
                 [m.group(2),m.group(3),m.group(4)])
 
@@ -400,6 +422,7 @@ class _readmmp_state:
     def _read_stat(self, card):
         m = statpat.match(card)
         name = m.group(1)
+        name = self.decode_name(name) #bruce 050618
         col = map(lambda (x): int(x)/255.0,
                 [m.group(2),m.group(3),m.group(4)])
         temp = m.group(5)
@@ -436,6 +459,7 @@ class _readmmp_state:
     def _read_thermo(self, card):
         m = thermopat.match(card)
         name = m.group(1)
+        name = self.decode_name(name) #bruce 050618
         col = map(lambda (x): int(x)/255.0,
                 [m.group(2),m.group(3),m.group(4)])
 
@@ -477,6 +501,7 @@ class _readmmp_state:
         m = new_csyspat.match(card)
         if m:        
             name = m.group(1)
+            name = self.decode_name(name) #bruce 050618
             wxyz = A(map(float, [m.group(2), m.group(3),
                      m.group(4), m.group(5)]))
             scale = float(m.group(6))
@@ -490,6 +515,7 @@ class _readmmp_state:
             m = old_csyspat.match(card)
             if m:
                 name = m.group(1)
+                name = self.decode_name(name) #bruce 050618
                 wxyz = A(map(float, [m.group(2), m.group(3),
                          m.group(4), m.group(5)]))
                 scale = float(m.group(6))
@@ -518,6 +544,7 @@ class _readmmp_state:
 ##                self.warning("mmp syntax error; ignoring line: %r" % card)
 ##                return
 ##            name = m.group(1)
+##            name = self.decode_name(name) #bruce 050618
 ##            type = m.group(5)
 ##            col = tuple(map(int, [m.group(2), m.group(3), m.group(4)]))
 ##            vec1 = A(map(float, [m.group(6), m.group(7), m.group(8)]))
@@ -954,6 +981,16 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         "write one or more \n-terminates lines (passed as a single string) to our file pointer"
         #e future versions might also hash these lines, to help make a movie id
         self.fp.write(lines)
+    def encode_name(self, name): #bruce 050618 to fix part of bug 474 (by supporting ')' in node names)
+        "encode name suitable for being terminated by ')', as it is in the current mmp format"
+        #e could extend to encode unicode chars as well
+        #e could extend to encode newlines, tho we don't generally want to allow newlines in names anyway
+        # The encoding used is %xx for xx the 2-digit hex ASCII code of the encoded character (like in URLs).
+        # E.g. "%#x" % ord("%") => 0x25
+        name = name.replace('%','%25') # this has to be done first; the other chars can be in any order
+        name = name.replace('(', '%28') # not needed except to let parens in mmp files be balanced (for the sake of text editors)
+        name = name.replace(')', '%29') # needed
+        return name
     def close(self, error = False):
         if error:
             try:

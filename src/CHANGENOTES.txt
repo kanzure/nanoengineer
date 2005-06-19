@@ -541,3 +541,10 @@ Summary: fixed bug 264
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 6/18/2005
+Files: files_mmp.py chunk.py jigs.py Utility.py
+Summary: permit right paren in node names in mmp files (fixes part of bug 474)
+
+----------------------------
+
