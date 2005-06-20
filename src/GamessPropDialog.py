@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Thu Jun 9 00:44:58 2005
+# Created: Mon Jun 20 13:39:48 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -426,7 +426,7 @@ class GamessPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(475,583).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(559,691).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("close()"))
@@ -436,6 +436,7 @@ class GamessPropDialog(QDialog):
         self.connect(self.launch_job_btn,SIGNAL("clicked()"),self.launch_job)
         self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
         self.connect(self.server_manager_btn,SIGNAL("clicked()"),self.server_manager)
+        self.connect(self.server_combox,SIGNAL("activated(int)"),self.serverChanged)
 
 
     def languageChange(self):
@@ -628,6 +629,9 @@ class GamessPropDialog(QDialog):
 
     def server_manager(self):
         print "GamessPropDialog.server_manager(): Not implemented yet"
+
+    def serverChanged(self,a0):
+        print "GamessPropDialog.serverChanged(int): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("GamessPropDialog",s,c)
