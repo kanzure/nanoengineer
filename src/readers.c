@@ -65,13 +65,13 @@ static void makatom(int elem, struct xyz posn) {
 /** an actual bond is ordered so it has a positive type,
     e.g. atom[a].elt <= atom[b].elt */
 /* file format now guarantees no bond before its atoms */
-static void makbond(int a, int b, int ord) {
+static void makbond(int a, int b, char ord) {
     int n, t, typ, ta, tb, a1, a2;
     double bl, sbl;
 
     /*****************************************************************************************************/
     /* Patch to insure that multiple bonds get treated as single bonds until we do the right thing. */
-    ord=1;
+    //ord='1';
     /*****************************************************************************************************/
     
 	
@@ -93,7 +93,7 @@ static void makbond(int a, int b, int ord) {
     bond[n].an1=a;
     bond[n].an2=b;
 	
-    bond[n].type=getBondStretch(ta, tb, '1');
+    bond[n].type=getBondStretch(ta, tb, ord);
 
     a1=bond[n].an1;
     atom[a1].bonds[atom[a1].nbonds++]=n;
@@ -150,7 +150,9 @@ static void maktorq(int center, int a, int b)
 	
   torq[Nextorq].b1=bond+a;
   torq[Nextorq].b2=bond+b;
-  torq[Nextorq].type = getBendData(element_center, element_1, '1', element_2, '1');
+  torq[Nextorq].type = getBendData(element_center,
+                                   element_1, bond[a].order,
+                                   element_2, bond[b].order);
 	
   Nextorq++;
 }
@@ -297,7 +299,8 @@ void filred(char *filnam) {
 	
     FILE *file;
     char buf[256];
-    int i, j, n, m, b, c, ord, lastatom;
+    char ord;
+    int i, j, n, m, b, c, lastatom;
     double stall, speed;
     struct xyz vec1,vec2;
     int a1, a2, ie, ix, iy, iz, ix1, iy1, iz1, iv[NJATOMS];
@@ -338,7 +341,7 @@ void filred(char *filnam) {
 	/* bondO atno atno atno ... (where O is order) */
 	else if (0==strncasecmp("bond",buf,4)) {
 	  DPRINT(D_READER, "%s\n",buf);
-	  sscanf(buf+4, "%d", &ord);
+          ord = buf[4];
 	  j=readshaft(buf+5, iv, atnotab);
 	  DPRINT(D_READER, "j=%d\n",j);
 	  for (i=0; i<j; i++) makbond(lastatom, iv[i], ord);
@@ -536,13 +539,6 @@ void filred(char *filnam) {
 	      makmot2(i);
 	    }
 	}
-
-#ifdef FERDISAFERD
-	/* mol  */
-	else if (0==strncasecmp("mol ",buf,4)) {
-	    PartNo++;
-	}
-#endif
     
 	// kelvin <temperature>
 	else if (0==strncasecmp("kelvin",buf,6)) {

@@ -93,12 +93,12 @@ addBendData(char *bendName, double kb, double theta0)
 }
 
 static void
-addInitialBondStretch(int element1, int element2, double ks, double r0, double de, double beta)
+addInitialBondStretch(int element1, int element2, char order, double ks, double r0, double de, double beta)
 {
   struct bondStretch *stretch;
   char bondName[10]; // expand if atom types become longer than 2 chars
   
-  generateBondName(bondName, element1, element2, '1');
+  generateBondName(bondName, element1, element2, order);
   stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2);
   hashtable_put(bondStretchHashtable, bondName, stretch);
 }
@@ -213,29 +213,29 @@ initializeBondTable()
 
   bondStretchHashtable = hashtable_new(40);
 
-  addInitialBondStretch( 1, 6, 460.0,  111.3, 0.671, 1.851); // H-C
-  addInitialBondStretch( 1, 8, 460.0,   94.2, 0.753, 1.747); // H-O
-  addInitialBondStretch( 1,14, 359.4,  125.6, 0.627, 1.693); // H-Si
-  addInitialBondStretch( 1,16, 360.0,  125.2, 0.606, 1.769); // H-S
-  addInitialBondStretch( 1,17, 380.0,  134.6, 0.716, 1.628); // H-Cl
-  addInitialBondStretch( 6, 6, 440.0,  152.3, 0.556, 1.989); // C-C
-  addInitialBondStretch( 6, 7, 510.0,  143.8, 0.509, 2.238); // C-N
-  addInitialBondStretch( 6, 8, 536.0,  140.2, 0.575, 2.159); // C-O
-  addInitialBondStretch( 6, 9, 510.0,  139.2, 0.887, 1.695); // C-F
-  addInitialBondStretch( 6,14, 297.0,  188.0, 0.624, 1.543); // C-Si
-  addInitialBondStretch( 6,15, 291.0,  185.4, 0.852, 1.306); // C-P
-  addInitialBondStretch( 6,16, 321.3,  181.5, 0.539, 1.726); // C-S
-  addInitialBondStretch( 6,17, 323.0,  179.5, 0.591, 1.653); // C-Cl
-  addInitialBondStretch( 6,35, 230.0,  194.9, 0.488, 1.536); // C-Br
-  addInitialBondStretch( 7, 7, 560.0,  138.1, 0.417, 2.592); // N-N
+  addInitialBondStretch( 1, 6, '1', 460.0,  111.3, 0.671, 1.851); // H-C
+  addInitialBondStretch( 1, 8, '1', 460.0,   94.2, 0.753, 1.747); // H-O
+  addInitialBondStretch( 1,14, '1', 359.4,  125.6, 0.627, 1.693); // H-Si
+  addInitialBondStretch( 1,16, '1', 360.0,  125.2, 0.606, 1.769); // H-S
+  addInitialBondStretch( 1,17, '1', 380.0,  134.6, 0.716, 1.628); // H-Cl
+  addInitialBondStretch( 6, 6, '1', 440.0,  152.3, 0.556, 1.989); // C-C
+  addInitialBondStretch( 6, 7, '1', 510.0,  143.8, 0.509, 2.238); // C-N
+  addInitialBondStretch( 6, 8, '1', 536.0,  140.2, 0.575, 2.159); // C-O
+  addInitialBondStretch( 6, 9, '1', 510.0,  139.2, 0.887, 1.695); // C-F
+  addInitialBondStretch( 6,14, '1', 297.0,  188.0, 0.624, 1.543); // C-Si
+  addInitialBondStretch( 6,15, '1', 291.0,  185.4, 0.852, 1.306); // C-P
+  addInitialBondStretch( 6,16, '1', 321.3,  181.5, 0.539, 1.726); // C-S
+  addInitialBondStretch( 6,17, '1', 323.0,  179.5, 0.591, 1.653); // C-Cl
+  addInitialBondStretch( 6,35, '1', 230.0,  194.9, 0.488, 1.536); // C-Br
+  addInitialBondStretch( 7, 7, '1', 560.0,  138.1, 0.417, 2.592); // N-N
 
-  addInitialBondStretch( 8, 8, 781.0,  147.0, 0.272, 3.789); // O-O
-  addInitialBondStretch( 8,14, 550.0,  162.0, 0.89,  1.757); // O-Si
-  addInitialBondStretch( 8,15, 290.0,  161.5, 0.994, 1.207); // O-P
+  addInitialBondStretch( 8, 8, '1', 781.0,  147.0, 0.272, 3.789); // O-O
+  addInitialBondStretch( 8,14, '1', 550.0,  162.0, 0.89,  1.757); // O-Si
+  addInitialBondStretch( 8,15, '1', 290.0,  161.5, 0.994, 1.207); // O-P
 
-  addInitialBondStretch(14,14, 185.0,  233.2, 0.559, 1.286); // Si-Si
-  addInitialBondStretch(14,16, 219.37, 213.0, 0.58,  1.375); // Si-S
-  addInitialBondStretch(16,16, 310.0,  202  , 0.706, 1.481); // S-S
+  addInitialBondStretch(14,14, '1', 185.0,  233.2, 0.559, 1.286); // Si-Si
+  addInitialBondStretch(14,16, '1', 219.37, 213.0, 0.58,  1.375); // Si-S
+  addInitialBondStretch(16,16, '1', 310.0,  202  , 0.706, 1.481); // S-S
 
   deHashtable = hashtable_new(10);
 
@@ -315,21 +315,24 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
 {
   double ks, r0, de, beta;
 
-  // XXX only correct for bond order 1
-  
-  ks = 0.0;
-  de = getDe(bondName);
-  beta = 0.0;
-
-  r0 = periodicTable[element1].covalentRadius + periodicTable[element2].covalentRadius ;
-  if (r0 > 0) {
-    beta = 0.4 + 125.0 / (r0 * de);
-    ks = 200.0 * de * beta * beta ;
-    if (ks > 1000.0) {
-      ks = 1000.0;
+  switch (bondOrder) {
+  default: // XXX Falls through to single bond case.  WRONG!!!!
+  case '1':
+    ks = 0.0;
+    de = getDe(bondName);
+    beta = 0.0;
+    r0 = periodicTable[element1].covalentRadius + periodicTable[element2].covalentRadius ;
+    if (r0 > 0) {
+      beta = 0.4 + 125.0 / (r0 * de);
+      ks = 200.0 * de * beta * beta ;
+      if (ks > 1000.0) {
+        ks = 1000.0;
+      }
     }
+    // XXX else warn, or maybe die
+    break;
   }
-  // XXX else warn, or maybe die
+  
   return addBondStretch(bondName, ks, r0, de, beta*1e-2);
 }
 
@@ -346,7 +349,7 @@ generateGenericBendData(char *bendName,
   double len;
   double kb, theta0;
 
-  // XXX only correct for bond order 1
+  // XXX only correct for bond order 1 on both bonds  FIX!!!
 
   len = periodicTable[element_center].covalentRadius +
     periodicTable[element1].covalentRadius +

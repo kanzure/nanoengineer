@@ -78,7 +78,7 @@ struct A {
 /* r points from an2 to an1 */
 struct B {
     int an1, an2; // index into atom[]
-    int order;
+    char order;
     double invlen;
     struct bondStretch *type;
     struct xyz r, ru;        /* bond vector, unit version threreof */
