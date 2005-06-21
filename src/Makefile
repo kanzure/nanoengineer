@@ -21,15 +21,27 @@ SUFFIXES: .c .h .o ;
 	$(CC) -c $(CFLAGS) -o $@ $(@:.o=.c)
 
 simulator.o: simulator.h
-tables.o: simulator.h
-lin-alg.o: simulator.h lin-alg.c
+lin-alg.o: lin-alg.h
 readers.o: simulator.h
 printers.o: simulator.h
+hashtable.o: allocate.h hashtable.h
+allocate.o: allocate.h
+newtables.o: simulator.h
+interpolate.o: simulator.h
 
 tables.c: gentab.py
 	python gentab.py > tables.c
 
-SIMOBJS=simulator.o tables.o lin-alg.o readers.o printers.o
+SIMOBJS=\
+	simulator.o \
+	lin-alg.o \
+	readers.o \
+	printers.o \
+	allocate.o \
+	hashtable.o \
+	newtables.o \
+	interpolate.o
+
 all: simulator
 
 noopt:

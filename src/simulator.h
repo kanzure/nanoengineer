@@ -1,24 +1,26 @@
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
 
-#if 0
-#define DBGPRINTF(x...) fprintf(stderr, ## x)
-#else
-#define DBGPRINTF(x...) ((void) 0)
-#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <signal.h>
+#include <time.h>
+#include <stdarg.h>
+#include <errno.h>
+#include <string.h>
 
-extern int debug_flags;
-#define DEBUG(flag) (debug_flags & (flag))
-#define DPRINT(flag, x...) (DEBUG(flag) ? fprintf(stderr, ## x) : (void) 0)
+#include "lin-alg.h"
+#include "allocate.h"
+#include "hashtable.h"
 
-#define D_TABLE_BOUNDS    (1<<0)
-#define D_READER          (1<<1)
-#define D_MINIMIZE        (1<<2)
-
-extern FILE *tracef;
-#define ERROR(s...) (printError(tracef, "Error", 0, ## s))
-#define WARNING(s...) (printError(tracef, "Warning", 0, ## s))
-#define ERROR_ERRNO(s...) (printError(tracef, "Error", 1, ## s))
-#define WARNING_ERRNO(s...) (printError(tracef, "Warning", 1, ## s))
+/* begin tables.h */
+extern struct atomtype element[];
+extern struct bsdata bstab[];
+extern struct angben bendata[];
+extern const int NUMELTS;
+extern const int BSTABSIZE;
+extern const int BENDATASIZE;
+/* end tables.h */
 
 #define NATOMS 100000
 #define NBONDS 12
@@ -35,52 +37,6 @@ extern FILE *tracef;
 /** A space grid for locating non-bonded interactions */
 #define SPWIDTH 128
 #define SPMASK 127
-
-/** vector addition (incremental: add src to dest) */
-#define vadd(dest,src) dest.x+=src.x; dest.y+=src.y; dest.z+=src.z
-/** vector addition (non-incremental) */
-#define vadd2(dest,src1,src2) dest.x=src1.x+src2.x; \
-    dest.y=src1.y+src2.y; dest.z=src1.z+src2.z
-/** vector subtraction (incremental: subtract src from dest) */
-#define vsub(dest,src) dest.x-=src.x; dest.y-=src.y; dest.z-=src.z
-/** vector subtraction (non-incremental) */
-#define vsub2(dest,src1,src2) dest.x=src1.x-src2.x; \
-    dest.y=src1.y-src2.y; dest.z=src1.z-src2.z
-/** */
-#define vmul(dest,src) dest.x*=src.x; dest.y*=src.y; dest.z*=src.z
-/** */
-#define vmul2(dest,src1,src2) dest.x=src1.x*src2.x; \
-    dest.y=src1.y*src2.y; dest.z=src1.z*src2.z
-/** */
-#define vmul2c(dest,src1,src2) dest.x=src1.x*src2; \
-    dest.y=src1.y*src2; dest.z=src1.z*src2
-/** */
-#define vmulc(dest,src) dest.x*=src; dest.y*=src; dest.z*=src
-
-#define vdiv(dest,src) dest.x/=src.x; dest.y/=src.y; dest.z/=src.z
-#define vdiv2(dest,src1,src2) dest.x=src1.x/src2.x; \
-    dest.y=src1.y/src2.y; dest.z=src1.z/src2.z
-
-/** */
-#define vset(dest,src) dest.x=src.x; dest.y=src.y; dest.z=src.z
-/** */
-#define vsetc(dest,src) dest.x=src; dest.y=src; dest.z=src
-/** */
-#define vsetn(dest,src) dest.x= -src.x; dest.y= -src.y; dest.z= -src.z
-
-/** */
-#define vmin(dest,src) dest.x = min(dest.x,src.x); \
-    dest.y = min(dest.y,src.y); dest.z = min(dest.z,src.z);
-/** */
-#define vmax(dest,src) dest.x = max(dest.x,src.x); \
-    dest.y = max(dest.y,src.y); dest.z = max(dest.z,src.z);
-
-/** */
-#define vdot(src1,src2) (src1.x*src2.x+src1.y*src2.y+src1.z*src2.z)
-// cross product
-#define v2x(dest,src1,src2)  dest.x = src1.y * src2.z - src1.z * src2.y;\
-	dest.y = src1.z * src2.x - src1.x * src2.z;\
-	dest.z = src1.x * src2.y - src1.y * src2.x;
 
 /** table length for bond stretch/bending functions */
 #define TABLEN 150
@@ -107,30 +63,24 @@ extern FILE *tracef;
 #define bondrec(a1,a2,ks,len,de,beta) {bontyp(1,a1,a2),\
           1,a1,a2,ks,len,de,beta*1e-2, 0.0, NULL, 0}
 
-/* a 3-vector */
-struct xyz {
-        double x;
-        double y;
-        double z;
-};
-
 /** atoms.  old, new, cur, and force are parallel to atoms */
 struct A {
-        int elt,nbonds;
-        int bonds[NBONDS];
-        int part, disp;         /* which part its in, how to show */
-        double massacc;         /* times force to get acceleration */
-        double energ, vlim;             /* thermostat factors */
-        struct A *next, **bucket;       /* sep chaining for space buckets */
-        struct AXLE *constraint;        /* only one per atom */
+    int elt,nbonds;
+    int bonds[NBONDS]; // index into bond[]
+    //int part, disp;         /* which part its in, how to show */
+    double massacc;         /* times force to get acceleration */
+    double energ, vlim;             /* thermostat factors */
+    struct A *next, **bucket;       /* sep chaining for space buckets */
+    struct AXLE *constraint;        /* only one per atom */
 };
 
 /* a (stretch) bond.   */
 /* r points from an2 to an1 */
 struct B {
-    int an1, an2, order;
+    int an1, an2; // index into atom[]
+    int order;
     double invlen;
-    struct bsdata *type;
+    struct bondStretch *type;
     struct xyz r, ru;        /* bond vector, unit version threreof */
     struct xyz aff;     /* axial force */
     //struct xyz bff;     /* bending force */
@@ -142,73 +92,17 @@ struct B {
 /* a bending bond -- points to two bonds */
 /* dirX is 1 if bX->an1 is the common atom */
 struct Q {
-    struct B *b1, *b2;
+    struct B *b1, *b2; // this torque is made up from two entries in bond[]
     int dir1, dir2;
-    int a1, a2, ac;
+    int a1, a2, ac; // index into atom[]
 
     /** kb in pN/rad */
-    double kb1, kb2;
+    //double kb1, kb2; // should be in type, right?
     /** in radians */
-    double theta0;
+    //double theta0; // should be in type, right?
 
-    struct angben *type;
+    struct bendData *type;
 };
-
-
-/* indexed by element number */
-struct atomtype {
-        /** in 1e-27 kg */
-        double mass;
-        /** in Angstroms */
-        double rvdw;
-        /** in zJ */
-        double evdw;
-        /** number of bonds */
-        int nbonds;
-        /** element's symbol on periodic table */
-        char *symbol;
-};
-
-struct dtab {                   /* two interpolation tables */
-        double  t1[TABLEN], t2[TABLEN];
-};
-
-/* data for a stretch bond type */
-struct bsdata {
-        /** bond type, atom types & order */
-        int typ, ord, a1, a2;
-        /** stiffness N/m */
-        double ks;
-        /** base radius  pm */
-        double r0;
-        /** Morse/Lippincott PE parameters */
-        double de,beta;
-        /** interpolation table stuff */
-        double start;
-        struct dtab *table;
-        int scale;
-};
-
-/* bond angle bending data */
-
-
-
-struct angben {
-        /** bondtypes, negative if bond's a2 is common */
-        int b1typ, b2typ;
-        /** kb in N/m */
-        double kb;
-        /** in radians */
-        double theta0;
-};
-
-/*
-#define benrec(a1,o1,ac,o2,a2,kb,th) {bontyp(o1,ac,a1),bontyp(o2,ac,a2),\
-                                 kb*6.36e-2,  th, 0.0, NULL, NULL, 0}
-*/
-// convert Ktheta from zJ to yJ, see 
-#define benrec(a1,ac,a2,kb,th) {bontyp(1,ac,a1),bontyp(1,ac,a2),\
-                                 kb*1000.0,  th}
 
 /* van der Waals forces */
 
@@ -216,7 +110,7 @@ struct vdWi {
         /** the atoms involved */
         int a1, a2;
         /** the lookup table for the fn */
-        struct vdWtab *table;
+        struct interpolationTable *table;
         struct vdWi *next;
 };
 
@@ -227,11 +121,15 @@ struct vdWbuf {
 };
 struct vdWbuf vanderRoot;
 
-struct vdWtab {
-        double start;
-        int scale;
-        struct dtab table;
+struct interpolationTable {
+    double start;
+    int scale;
+    double t1[TABLEN];
+    double t2[TABLEN];
 };
+
+#include "printers.h"
+#include "newtables.h"
 
 // number of atoms a jig can hold
 #define NJATOMS 30
@@ -294,67 +192,31 @@ struct MOT {
         double moment;
 };
 
-/* command line options */
-
-extern int ToMinimize;
-extern int IterPerFrame;
-extern int NumFrames;
-extern int DumpAsText;
-extern int DumpIntermediateText;
-extern int PrintFrameNums;
-extern int OutputFormat;
-extern int KeyRecordInterval;
-extern char *IDKey;
-
-extern char OutFileName[];
-extern char TraceFileName[];
 
 /* set to 1 when a SIGTERM is caught */
 extern int Interrupted;
-
-/* mol.c */
-extern struct vdWbuf vanderRoot;
 extern int Nexbon;
 extern int Nextorq;
 extern int Nexatom;
-extern double uft1[200];
-extern double uft2[200];
-extern double uffunc(double uf);
-//extern struct xyz f;
 extern struct xyz Force[];
+extern struct xyz OldForce[];
 extern struct xyz AveragePositions[];
 extern struct xyz *OldPositions;
 extern struct xyz *NewPositions;
 extern struct xyz *Positions;
+extern struct xyz *BestPositions;
 extern struct xyz Center;
 extern struct xyz Bbox[2];
-extern struct xyz diam[5];
-extern int PartNo;
-extern int DisplayStyle;
 extern struct A atom[];
 extern struct B bond[];
 extern struct Q torq[];
-// extern char *elname[37];
-extern void pbontyp(FILE *f, struct bsdata *ab);
-extern void printAllAtoms(FILE *f);
-extern void printAllBonds(FILE *f);
-extern void tracon(FILE *f);
 extern int Iteration;
-extern void snapshot(FILE *f, int n);
-extern int minshot(FILE *f, int final, struct xyz *pos, double rms, double hifsq, int frameNumber, char *callLocation);
-extern void bondump(FILE *f);
-extern void pangben(FILE *f, struct angben *ab);
-extern int findbond(int btyp);
-extern int findtorq(int btyp1, int btyp2);
-// extern struct vdWtab vanderTable[(37 * (37 +1))/2];
-extern struct vdWtab vanderTable[];
 extern double RvdW;
 extern double EvdW;
 extern struct vdWbuf *Nexvanbuf;
 extern struct vdWbuf *Dynobuf;
 extern int Dynoix;
-extern struct A *Space[128][128][128];
-extern void orion(struct xyz *position);
+extern struct A *Space[SPWIDTH][SPWIDTH][SPWIDTH];
 extern int Nexcon;
 extern struct AXLE Constraint[100];
 extern int Nexmot;
@@ -378,71 +240,37 @@ extern double totMass;
 extern struct xyz Cog;
 extern struct xyz P;
 extern struct xyz Omega;
-extern void speedump(FILE *f);
-extern void maktab(double *t1, double *t2, double func(double), double start, int length, int scale);
-extern double bender(double rsq);
-extern double hooke(double rsq);
-extern double lippmor(double rsq);
-extern double bucking(double rsq);
-extern double square(double x);
-extern void bondinit(void);
-extern void vdWsetup(void);
+
+
+/* command line options */
+
+extern int ToMinimize;
+extern int IterPerFrame;
+extern int NumFrames;
+extern int DumpAsText;
+extern int DumpIntermediateText;
+extern int PrintFrameNums;
+extern int OutputFormat;
+extern int KeyRecordInterval;
+extern char *IDKey;
+
+extern char OutFileName[];
+extern char TraceFileName[];
+
+extern FILE *outf;
+extern FILE *tracef;
+
+/* XXX are these really needed? */
+extern int PartNo;
+extern int DisplayStyle;
+
+
 extern double gavss(double v);
 extern struct xyz gxyz(double v);
 extern struct xyz sxyz(double *v);
-extern void pv(FILE *f, struct xyz foo);
-extern void pvt(FILE *f, struct xyz foo);
-extern void pa(FILE *f, int i);
-extern void checkatom(FILE *f, int i);
-extern void pb(FILE *f, int i);
-extern void printAllBonds(FILE *f);
-extern void printError(FILE *f, const char *err_or_warn, int doPerror, const char *format, ...);
-extern void doneExit(int exitvalue, FILE *f, const char *format, ...);
-extern void pq(FILE *f, int i);
-extern void pvdw(FILE *f, struct vdWbuf *buf, int n);
-extern void makatom(int elem, struct xyz posn);
-extern void makbon0(int a, int b, int ord);
-extern void makbon1(int n);
-extern void maktorq(int a, int b);
-extern void makvdw(int a1, int a2);
+
 extern int Count;
 extern void findnobo(struct xyz *position, int a1);
-extern void makvander0(int a1, int a2);
-extern void makvander1(struct vdWbuf *buf, int n);
-extern int makcon(int typ, struct MOT *mot, int n, int *atnos);
-extern struct MOT *makmot(double stall, double speed, struct xyz vec1, struct xyz vec2);
-extern void makmot2(int i);
-extern void pcon(FILE *f, int i);
-extern void filred(char *filnam);
-extern void calcloop(int iters);
-extern void minimize(int NumFrames);
-extern void keyboard(unsigned char key, int x, int y);
-extern int main(int argc, char **argv);
-
-/* display.c */
-extern void display(void);
-extern void init(void);
-extern void display_init(int *argc, char *argv[]);
-extern void display_mainloop(void);
-
-/* lin-alg.c */
-extern struct xyz vcon(double x);
-extern struct xyz vsum(struct xyz v, struct xyz w);
-extern struct xyz vdif(struct xyz v, struct xyz w);
-struct xyz vprod(struct xyz v, struct xyz w);
-struct xyz vprodc(struct xyz v, double w);
-extern double vlen(struct xyz v);
-extern struct xyz uvec(struct xyz v);
-extern double vang(struct xyz v, struct xyz w);
-extern struct xyz vx(struct xyz v, struct xyz w);
-
-/* tables */
-extern struct atomtype element[];
-extern struct bsdata bstab[];
-extern struct angben bendata[];
-extern const int NUMELTS;
-extern const int BSTABSIZE;
-extern const int BENDATASIZE;
 
 
 /*

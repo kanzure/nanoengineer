@@ -1,8 +1,4 @@
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <signal.h>
 
 #include "simulator.h"
 
@@ -13,21 +9,13 @@ int Interrupted = 0; /* set to 1 when a SIGTERM is received */
 /** indicate next avail/total number of stretch bonds, bend bonds, and atoms */
 int Nexbon=0, Nextorq=0, Nexatom=0;
 
-/* factor for a unit vector given length squared -- rtned in uf, i is temp */
-/** tables and setup function for same */
-double uft1[UFTLEN], uft2[UFTLEN];
-
-double uffunc(double uf) {
-    return 1.0/sqrt(uf);
-}
-
 /** positions and forces on the atoms */
 // units for positions are 1e-12 meters == picometers
 // units for force are piconewtons
 struct xyz Force[NATOMS];
 struct xyz OldForce[NATOMS]; /* used in minimize */
 struct xyz AveragePositions[NATOMS];
-struct xyz position_arrays[4*NATOMS];
+static struct xyz position_arrays[4*NATOMS];
 struct xyz *OldPositions, *NewPositions, *Positions, *BestPositions; // these point into position_arrays
 
 /* steepest descent terminates when rms_force is below this value (in picoNewtons) */
@@ -46,16 +34,6 @@ static float initial_rms;
 
 struct xyz Center, Bbox[2];
 
-/** data for the 5-carbon test molecule */
-struct xyz diam[5]=
-    {{0.0, 0.0, 0.0},
-     {176.7, 176.7, 0.0},
-     {176.7, 0.0, 176.7},
-     {0.0, 176.7, 176.7},
-     {88.33, 88.33, 88.33}};
-
-int PartNo=0, DisplayStyle=1;	/* 0 nothing, 1 ball/stick, 2 vdW surface */
-
 struct A atom[NATOMS];
 
 struct B bond[4*NATOMS];
@@ -64,36 +42,6 @@ struct Q torq[6*NATOMS];
 
 
 int Iteration=0;
-
-
-int findbond(int btyp) {
-    int i;
-    if (btyp < 0)
-	btyp = -btyp;
-    for (i=0; i < BSTABSIZE; i++)
-	if (bstab[i].typ == btyp)
-	    return i;
-    // fprintf(stderr, "Bond type %d not found\n",btyp);
-    return -1;
-}
-
-int findtorq(int btyp1, int btyp2) {
-    int i;
-    for (i=0; i < BENDATASIZE; i++) {
-		
-	if  (iabs(bendata[i].b1typ) == iabs(btyp1) &&
-	     iabs(bendata[i].b2typ) == iabs(btyp2)) return i;
-	if  (iabs(bendata[i].b1typ) == iabs(btyp2) &&
-	     iabs(bendata[i].b2typ) == iabs(btyp1)) return i;
-    }
-    // fprintf(stderr, "Bend type %d-%d not found\n",btyp1,btyp2);
-    return 0; // the default bend type
-}
-
-/** the force between elt i and elt j (i<=j) is at
-    vanderTable[i*(NUMELTS+1) - i*(i+1)/2 + j-i] */
-// struct vdWtab vanderTable[(NUMELTS * (NUMELTS+1))/2];
-struct vdWtab vanderTable[(50 * 51)/2];
 
 double RvdW, EvdW;
 
@@ -104,7 +52,7 @@ int Dynoix;			/* start of dynamically found vdw's */
 
 struct A *Space[SPWIDTH][SPWIDTH][SPWIDTH];	/*  space buckets */
 
-void orion(struct xyz *position) {            /* atoms in space :-) */
+static void orion(struct xyz *position) {            /* atoms in space :-) */
     int n, i,j,k;
     struct A **pail;
 
@@ -194,239 +142,6 @@ char TraceFileName[1024];
 // for writing the differential position and trace files
 FILE *outf, *tracef;
 
-/* for testing table routines */
-#if 0
-double t1[TABLEN], t2[TABLEN];
-double start=10000.0;
-int scale=30;
-#endif
-
-/* Make a table for interpolating func(x) by doing
-   i=(int)(x-start)/scale;
-   value=t1[i]+x*t2[i]; */
-
-void maktab(double *t1, double *t2, double func(double),
-	    double start, int length, int scale) {
-    int i;
-    double v1, v2, r1, r2, q;
-    double ov1, v3, r5, r15, v5, v15;
-	
-    r2=start;
-    v2=func(r2);
-	
-    for (i=0; i<length; i++) {
-	r1=r2;
-	v1=v2;
-	r2=start+(double)((i+1)*scale);
-	v2=func(r2);
-	/* shift points to minimize excursions above/below func */
-	if (i<length-1) {
-	    r5=(r1+r2)/2.0;
-	    r15=r2+r2-r5;
-	    v5=func(r5);
-	    v15=func(r15);
-	    v3=func(r2+r2-r1);
-	    v2=v2 + 0.25*(v5-(func(r1)+v2)/2.0) + 0.25*(v15-(v2+v3)/2.0);
-	}
-		
-	q=(v2-v1)/(r2-r1);
-	t1[i] = v1 - q*r1;
-	t2[i] = q;
-    }
-}
-
-/* consider atoms a0 and a1 both bonded to atom ac.
-   We are given the length of (a0-ac)+(a1-ac), squared, and
-   desire to calculate a factor which multiplied by (a1-ac)
-   gives the appropriate bending force for a0 */
-
-/* uses globals R0 and R1, the lengths of (a0-ac) & (a1-ac), in pm,
-   Kb, in N/m, and Theta0, the nominal angle, in radians */
-
-double bender(double rSquared) {
-    double theta,f;
-    theta=acos((rSquared-(R0*R0+R1*R1))/(2.0*R0*R1));
-	
-    if (theta < Theta0)
-	f= - Kb*(exp(-2.0*(theta-Theta0)) - exp(-(theta-Theta0)));
-    else f=  Kb*sin(Pi * (theta - Theta0) / (Pi - Theta0))*(Pi - Theta0)/Pi;
-	
-	
-    return R0*f / (R1 * sin(theta));
-}
-
-/** note -- uses global Ks and R0 */
-// a kludge, no coherent units; result will be interpreted as pN
-double hooke(double rSquared) {
-	double r;
-	
-	r=sqrt(rSquared);
-	return 2.0*Ks*(R0/r-1.0);
-	//return Ks*(R0-r);
-}
-
-/* use the Morse potential inside R0, Lippincott outside */
-/* numerically differentiate the resulting potential for force */
-/* uses global De, Beta, Ks and R0 */
-
-// the result is in attoJoules per picometer * 1e6 = picoNewtons
-double lippmor(double rSquared) {
-    double r,y1,y2;
-	
-    r=sqrt(rSquared);
-    r=r+0.5;
-	
-    if (r>=R0)
-	y2=De *(1-exp(- 1e-6 * Ks * R0 * (r - R0)* (r - R0) / (2 *De* r)));
-    else
-	y2=De *(1-exp(- Beta * (r - R0))) *(1-exp(- Beta * (r - R0)));
-	
-    r=r-1.0;
-	
-    if (r>=R0)
-	y1=De *(1-exp(- 1e-6 * Ks * R0 * (r - R0)* (r - R0) / (2 *De* r)));
-    else
-	y1=De *(1-exp(- Beta * (r - R0))) *(1-exp(- Beta * (r - R0)));
-	
-    r=r+0.5;
-	
-    return 1e6*(y1-y2)/r;
-}
-
-/* the Buckingham potential for van der Waals / London force */
-/* uses global EvdW, RvdW */
-double bucking(double rSquared) {
-    double r, y;
-    r=sqrt(rSquared);
-	
-    y= -1e3 * EvdW*(2.48e5 * exp(-12.5*(r/RvdW)) *(-12.5/RvdW)
-		    -1.924*pow(1.0/RvdW, -6.0)*(-6.0)*pow(r,-7.0));
-	
-    return y/r;
-}
-
-double square(double x) {return x*x;}
-
-/* initialize the function tables for each bending and stretching bondtype */
-/* sets global De, Beta, Ks and R0 */
-void bondinit() {
-    int i, j, b1,b2;
-    double end, m, rxsq;
-    struct dtab *tables,*t2;
-	
-    for (i=0; i < BSTABSIZE; i++) {
-		
-	R0 = bstab[i].r0;
-	bstab[i].start = square(R0*0.5);
-	end = square(R0*1.5);
-	bstab[i].scale = (end - bstab[i].start) / TABLEN;
-	Ks = bstab[i].ks;
-	De = bstab[i].de;
-	Beta = bstab[i].beta;
-	tables = malloc(sizeof(struct dtab));
-	//	if (ToMinimize)
-	//    	maktab(tables->t1, tables->t2, hooke,
-	//	       bstab[i].start, TABLEN, bstab[i].scale);
-	//else 
-	maktab(tables->t1, tables->t2, lippmor,
-		    bstab[i].start, TABLEN, bstab[i].scale);
-	bstab[i].table = tables;
-    }
-	
-}
-
-void testInterpolateBondStretch(int ord, int a1, int a2)
-{
-    int i;
-    double start;
-    double scale;
-    double *t1, *t2;
-    double rSquared;
-    double lowR, highR;
-    double lowRSquare;
-    double highRSquare;
-    double epsilon;
-    int steps;
-    int k;
-    double fac;
-    double func;
-    
-    i = findbond(bontyp(ord, a1, a2));
-
-    R0 = bstab[i].r0;
-    Ks = bstab[i].ks;
-    De = bstab[i].de;
-    Beta = bstab[i].beta;
-    printf("# R0: %e Ks: %e De: %e Beta: %e\n", R0, Ks, De, Beta);
-    
-    /* table setup for stretch, to be moved out of loop */
-    start=bstab[i].start;
-    scale=bstab[i].scale;
-    t1=bstab[i].table->t1;
-    t2=bstab[i].table->t2;
-
-    printf("# start: %e scale: %e\n", start, scale);
-
-    lowR = R0 * 0.496;
-    highR = R0 * 1.5;
-    steps = 10000;
-    lowRSquare = lowR * lowR;
-    highRSquare = highR * highR;
-    //highRSquare = TABLEN * scale * 1.5 + start;
-    epsilon = (highRSquare - lowRSquare) / steps ;
-
-    for (rSquared=lowRSquare; rSquared<highRSquare; rSquared += epsilon) {
-        k=(int)(rSquared-start)/scale;
-        if (k<0) {
-            fac=t1[0]+rSquared*t2[0];
-        } else if (k>=TABLEN) {
-            fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*t2[TABLEN-1];
-        } else {
-            fac=t1[k]+rSquared*t2[k];
-        }
-        // table lookup equivalent to: fac=lippmor(rSquared)
-        func = lippmor(rSquared);
-        printf("%e %e %e\n", sqrt(rSquared), fac, func);
-    }
-    exit(0);
-}
-
-void vdWsetup() {
-    int i, j, k, nx, scale;
-    double x, y, start, end;
-	
-    for (i=0; i<NUMELTS; i++)
-	for (j=0; j<NUMELTS; j++)
-	    if (i<=j) {
-		RvdW = 100.0 * (element[i].rvdw + element[j].rvdw);
-		EvdW = (element[i].evdw + element[j].evdw)/2.0;
-				
-		nx = i*(NUMELTS+1) - i*(i+1)/2 + j-i;
-				
-		start= square(RvdW*0.4);
-		end=square(RvdW*1.5);
-		scale = (int)(end - start) / TABLEN;
-				
-		vanderTable[nx].start = start;
-		vanderTable[nx].scale = scale;
-				
-		maktab(vanderTable[nx].table.t1, vanderTable[nx].table.t2,
-		       bucking, start, TABLEN, scale);
-				
-	    }
-	
-    Nexvanbuf = &vanderRoot;
-    Nexvanbuf->fill = 0;
-    Nexvanbuf->next = NULL;
-	
-    /* the space grid */
-    for (i=0;i<SPWIDTH; i++)
-	for (j=0;j<SPWIDTH; j++)
-	    for (k=0;k<SPWIDTH; k++)
-		Space[i][j][k] = NULL;
-	
-}
-
 /** kT @ 300K is 4.14 zJ -- RMS V of carbon is 1117 m/s
     or 645 m/s each dimension, or 0.645 pm/fs  */
 
@@ -456,7 +171,7 @@ struct xyz sxyz(double *v) {
     return g;
 }
 
-int isbonded(int a1, int a2) {
+static int isbonded(int a1, int a2) {
     int j, b, ba;
 	for (j=0; j<atom[a1].nbonds; j++) {
 	    b=atom[a1].bonds[j];
@@ -500,14 +215,14 @@ void findnobo(struct xyz *position, int a1) {
 
 // center of mass
 
-struct xyz CoM(struct xyz *list) {
+static struct xyz CoM(struct xyz *list) {
     int i,j, k;
     double x, y, z;
     struct xyz c, rx;
 
     vsetc(c,0.0);
     for (j=0; j<Nexatom; j++) {
-	rx=vprodc(list[j],element[atom[j].elt].mass);
+	rx=vprodc(list[j],periodicTable[atom[j].elt].mass);
 	vadd(c,rx);
     }
     vmulc(c,Dmass/totMass);
@@ -516,7 +231,7 @@ struct xyz CoM(struct xyz *list) {
 
 
 // total kinetic energy over k
-double totKE() {
+static double totKE() {
     int i,j, k;
     double a,b,c;
     struct xyz f, v1, v2, rx;
@@ -525,7 +240,7 @@ double totKE() {
     for (j=0; j<Nexatom; j++) {
         rx=vdif(Positions[j], OldPositions[j]);
         a=vdot(rx,rx)*Dx*Dx/(Dt*Dt);
-        a *= element[atom[j].elt].mass * 1e-27/ Boltz;
+        a *= periodicTable[atom[j].elt].mass * 1e-27/ Boltz;
         c += a;
     }
     return c;
@@ -544,7 +259,7 @@ double totKE() {
     bond[*].invlen = 1/|r|
     bond[*].ru = unit vector along r
 */
-void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
+static void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
 {
     int j, k;
     struct xyz f;
@@ -596,10 +311,10 @@ void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
         //vsetc(bond[j].bff,0.0);
 				
         /* table setup for stretch, to be moved out of loop */
-        start=bond[j].type->start;
-        scale=bond[j].type->scale;
-        t1=bond[j].type->table->t1;
-        t2=bond[j].type->table->t2;
+        start=bond[j].type->table.start;
+        scale=bond[j].type->table.scale;
+        t1=bond[j].type->table.t1;
+        t2=bond[j].type->table.t2;
 				
         k=(int)(rSquared-start)/scale;
         if (k<0) {
@@ -641,7 +356,7 @@ void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
         else {vset(v2,torq[j].b2->ru);}
 
         z = vdot(v1,v2); // = cos(theta)
-        m = torq[j].kb1 * (torq[j].kb2 - z);
+        m = torq[j].type->kb * (torq[j].type->cosTheta0 - z);
         vmul2c(q1, v1, z);
         vmul2c(q2, v2, z);
         vsub(q1, v2);
@@ -707,8 +422,8 @@ void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
             /* table setup  */
             start=nvb->item[j].table->start;
             scale=nvb->item[j].table->scale;
-            t1=nvb->item[j].table->table.t1;
-            t2=nvb->item[j].table->table.t2;
+            t1=nvb->item[j].table->t1;
+            t2=nvb->item[j].table->t2;
 					
             k=(int)(rSquared-start)/scale;
             if (k<0) {
@@ -734,7 +449,8 @@ void calculateForces(int doOrion, struct xyz *position, struct xyz *force)
     }
 }
 
-void jigMotorPreforce(int j, struct xyz *position, double deltaTframe)
+static void
+jigMotorPreforce(int j, struct xyz *position, double deltaTframe)
 {
     struct MOT *mot;
     int n;
@@ -790,6 +506,7 @@ void jigMotorPreforce(int j, struct xyz *position, double deltaTframe)
     }
 }
 
+static void
 jigGround(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     struct xyz foo, bar;
@@ -818,7 +535,8 @@ jigGround(int j, double deltaTframe, struct xyz *position, struct xyz *new_posit
     }
 }
 
-void jigMotor(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
+static void
+jigMotor(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     struct MOT *mot;
     double sum_torque;
@@ -893,7 +611,8 @@ void jigMotor(int j, double deltaTframe, struct xyz *position, struct xyz *new_p
     }
 }
 
-void jigThermometer(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
+static void
+jigThermometer(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     double z;
     double ff;
@@ -907,14 +626,15 @@ void jigThermometer(int j, double deltaTframe, struct xyz *position, struct xyz 
          a1 <= Constraint[j].atoms[1];
          a1++) {
         f = vdif(position[a1],new_position[a1]);
-        ff += vdot(f, f)*element[atom[a1].elt].mass;
+        ff += vdot(f, f)*periodicTable[atom[a1].elt].mass;
     }
     ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
     Constraint[j].data += ff*z;
 }
 
 // Langevin thermostat
-void jigThermostat(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
+static void
+jigThermostat(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     double z;
     double ke;
@@ -932,23 +652,24 @@ void jigThermostat(int j, double deltaTframe, struct xyz *position, struct xyz *
          a1 <= Constraint[j].atoms[1];
          a1++) {
         therm = sqrt((Boltz*Constraint[j].temp)/
-                     (element[atom[a1].elt].mass * 1e-27))*Dt/Dx;
+                     (periodicTable[atom[a1].elt].mass * 1e-27))*Dt/Dx;
         v1 = vdif(new_position[a1],position[a1]);
-        ff = vdot(v1, v1)*element[atom[a1].elt].mass;
+        ff = vdot(v1, v1)*periodicTable[atom[a1].elt].mass;
         vmulc(v1,1.0-Gamma);
         v2= gxyz(G1*therm);
         vadd(v1, v2);
         vadd2(new_position[a1],position[a1],v1);
 
         // add up the energy
-        ke += vdot(v1, v1)*element[atom[a1].elt].mass - ff;
+        ke += vdot(v1, v1)*periodicTable[atom[a1].elt].mass - ff;
 
     }
     ke *= 0.5 * Dx*Dx/(Dt*Dt) * 1e-27 * 1e18;
     Constraint[j].data += ke;
 }
 
-void jigAngle(int j, struct xyz *new_position)
+static void
+jigAngle(int j, struct xyz *new_position)
 {
     double z;
     struct xyz v1;
@@ -965,7 +686,8 @@ void jigAngle(int j, struct xyz *new_position)
 }
 
 
-void jigRadius(int j, struct xyz *new_position)
+static void
+jigRadius(int j, struct xyz *new_position)
 {
     double z;
     struct xyz v1;
@@ -997,7 +719,8 @@ void jigRadius(int j, struct xyz *new_position)
     AveragePositions[*] = average position across all iterations for this call
     Constraint[*].*
 */
-void calcloop(int iters) {
+static void
+calcloop(int iters) {
     int j;
     int loop;
     double deltaTframe;
@@ -1093,7 +816,8 @@ void calcloop(int iters) {
 
 static int groundExists = 1;
 
-void groundAtoms(struct xyz *oldPosition, struct xyz *newPosition) 
+static void
+groundAtoms(struct xyz *oldPosition, struct xyz *newPosition) 
 {
     int j, k;
     int foundAGround = 0;
@@ -1123,7 +847,7 @@ static float best_max_forceSquared = 1e16;
 #define PTR_BST 3
 
 
-void
+static void
 setupPositionsArrays()
 {
     OldPositions  = position_arrays           ;
@@ -1143,7 +867,7 @@ setupPositionsArrays()
 
    (actually swaps array pointers around instead of copying)
 */
-void
+static void
 updatePositionsArrays(float rms, float max_forceSquared, int best_ptr)
 {
     int i;
@@ -1178,8 +902,8 @@ updatePositionsArrays(float rms, float max_forceSquared, int best_ptr)
 
 
 /* these are shared between minimizeSteepestDescent() and minimizeConjugateGradients() */
-double sum_forceSquared;
-double movcon = 4e-4;
+static double sum_forceSquared;
+static double movcon = 4e-4;
 
 /*
   Minimize via adaptive steepest descent.
@@ -1188,7 +912,7 @@ double movcon = 4e-4;
   if rms_force has dropped below RMS_CUTOVER pN before the iteration limit is
   reached.
 */
-int
+static int
 minimizeSteepestDescent(int steepestDescentFrames,
                         int *frameNumber)
 {
@@ -1288,7 +1012,8 @@ minimizeSteepestDescent(int steepestDescentFrames,
     }
 }
 
-void minimizeConjugateGradients(int numFrames, int *frameNumber)
+static void
+minimizeConjugateGradients(int numFrames, int *frameNumber)
 {
     int i, j, k;
     int interruptionWarning;
@@ -1398,7 +1123,8 @@ void minimizeConjugateGradients(int numFrames, int *frameNumber)
     }
 }
 
-void minimize(int numFrames)
+static void
+minimize(int numFrames)
 {
     int frameNumber;
     int steepestDescentFrames;
@@ -1418,7 +1144,8 @@ void minimize(int numFrames)
              best_rms, sqrt(best_max_forceSquared));
 }
 
-void SIGTERMhandler(int sig) 
+static void
+SIGTERMhandler(int sig) 
 {
     Interrupted = 1;
 }
@@ -1438,7 +1165,8 @@ static void installSIGTERMhandler()
 }
 #endif
 
-static void usage()
+static void
+usage()
 {
                 
     fprintf(stderr, "command line parameters:\n\
@@ -1479,8 +1207,6 @@ main(int argc,char **argv)
         perror("signal(SIGTERM)");
         exit(1);
     }
-
-    maktab(uft1, uft2, uffunc, UFSTART, UFTLEN, UFSCALE);
 
     setupPositionsArrays();
 	
@@ -1617,9 +1343,10 @@ main(int argc,char **argv)
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
 
-    bondinit();
+    initializeBondTable();
     vdWsetup();
     //testInterpolateBondStretch(1, 6, 6);
+    //testNewBondStretchTable();
 
     filred(buf);
     

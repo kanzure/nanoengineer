@@ -34,8 +34,8 @@ class elem:
         # /* mass  rvdw   evdw nbonds symbol */
         # {0.100,  0.5,  0.130, 1, "X"},   /*  0 Singlet */
         evd = evdw.get(self.symbol, 0.3+self.eltnum**2/190.0)
-        lis = self.mass, self.rvdw, evd, self.bonds, self.symbol
-        rec = '   {%7.3f, %5.2f, %6.3f, %d, "%s"},  ' % lis
+        lis = self.mass, self.rvdw, evd, self.bonds, self.rcovalent, self.symbol,
+        rec = '   {%7.3f, %5.2f, %6.3f, %d, %6.3f, "%s"},  ' % lis
         print rec+' //', self.name
         
 

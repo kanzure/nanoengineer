@@ -1,7 +1,4 @@
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 #include "simulator.h"
 
@@ -9,19 +6,19 @@
 
 /** uses global Nexatom, atom, element, positions, old_positions, Dt, Dx, Boltz, and
     Temperature */
-void makatom(int elem, struct xyz posn) {
+static void makatom(int elem, struct xyz posn) {
     struct xyz foo, v, p;
     double mass, therm;
 	
     /* create the data structures */
     atom[Nexatom].elt=elem;
     atom[Nexatom].nbonds=0;
-    atom[Nexatom].part = PartNo;
-    atom[Nexatom].disp = DisplayStyle;
+    //atom[Nexatom].part = PartNo;
+    //atom[Nexatom].disp = DisplayStyle;
     atom[Nexatom].next = NULL;
     atom[Nexatom].bucket = &Space[0][0][0];
 	
-    mass=element[elem].mass * 1e-27;
+    mass=periodicTable[elem].mass * 1e-27;
     atom[Nexatom].massacc= Dt*Dt / mass;
 	
     /* set position and initialize thermal velocity */
@@ -68,7 +65,7 @@ void makatom(int elem, struct xyz posn) {
 /** an actual bond is ordered so it has a positive type,
     e.g. atom[a].elt <= atom[b].elt */
 /* file format now guarantees no bond before its atoms */
-void makbond(int a, int b, int ord) {
+static void makbond(int a, int b, int ord) {
     int n, t, typ, ta, tb, a1, a2;
     double bl, sbl;
 
@@ -96,7 +93,7 @@ void makbond(int a, int b, int ord) {
     bond[n].an1=a;
     bond[n].an2=b;
 	
-    bond[n].type=bstab+findbond(typ);
+    bond[n].type=getBondStretch(ta, tb, '1');
 
     a1=bond[n].an1;
     atom[a1].bonds[atom[a1].nbonds++]=n;
@@ -109,81 +106,59 @@ void makbond(int a, int b, int ord) {
     /*
     if (bl> 1.11*sbl || bl<0.89*sbl)
 	printf("Strained bond: %2f vs %2f  (%s%d-%s%d)\n",bl,sbl,
-		  element[atom[a].elt].symbol, a, element[atom[b].elt].symbol, b);
+		  periodicTable[atom[a].elt].symbol, a, periodicTable[atom[b].elt].symbol, b);
     */
 }
 
 /** torqs are ordered so the bonds match those in bendata */
-void maktorq(int a, int b) {
-    int t, tq;
-    double theta, th0;
-	
-    tq = findtorq(bond[a].type->typ,bond[b].type->typ);
-    if (bendata[tq].b2typ == bond[a].type->typ
-	|| bendata[tq].b2typ == -bond[a].type->typ) {t=a; a=b; b=t;}
-	
-    torq[Nextorq].b1=bond+a;
-    torq[Nextorq].b2=bond+b;
-    torq[Nextorq].type = bendata+tq;
-    torq[Nextorq].theta0 = torq[Nextorq].type->theta0;
-    /*
-    // the kb in the torq record is the torqtype Ktheta / bond's R0
-    torq[Nextorq].kb1 = torq[Nextorq].type->kb/torq[Nextorq].b1->type->r0;
-    torq[Nextorq].kb2 = torq[Nextorq].type->kb/torq[Nextorq].b2->type->r0;
-    */
-    torq[Nextorq].kb1 = torq[Nextorq].type->kb;
-    //torq[Nextorq].kb2 = torq[Nextorq].type->kb * Tq;
-    torq[Nextorq].kb2 = cos(torq[Nextorq].theta0);
+static void maktorq(int center, int a, int b)
+{
+  // center is index into atom[]
+  // a and b are indexes into bond[]
+  int element_center;
+  int element_1;
+  int element_2;
+  
+  element_center = atom[center].elt;
+  torq[Nextorq].ac = center;
 
-    if (bond[a].an1==bond[b].an1) {
-	torq[Nextorq].dir1=1;
-	torq[Nextorq].dir2=1;
-	torq[Nextorq].a1=bond[a].an2;
-	torq[Nextorq].a2=bond[b].an2;
-	torq[Nextorq].ac=bond[a].an1;
-    }
-    else if (bond[a].an2==bond[b].an1) {
-	torq[Nextorq].dir1=0;
-	torq[Nextorq].dir2=1;
-	torq[Nextorq].a1=bond[a].an1;
-	torq[Nextorq].a2=bond[b].an2;
-	torq[Nextorq].ac=bond[a].an2;
-    }
-    else if (bond[a].an1==bond[b].an2) {
-	torq[Nextorq].dir1=1;
-	torq[Nextorq].dir2=0;
-	torq[Nextorq].a1=bond[a].an2;
-	torq[Nextorq].a2=bond[b].an1;
-	torq[Nextorq].ac=bond[a].an1;
-    }
-    else {
-	torq[Nextorq].dir1=0;
-	torq[Nextorq].dir2=0;
-	torq[Nextorq].a1=bond[a].an1;
-	torq[Nextorq].a2=bond[b].an1;
-	torq[Nextorq].ac=bond[a].an2;
-    }
+  if (bond[a].an1 == center) {
+    element_1 = atom[bond[a].an2].elt;
+    torq[Nextorq].dir1=1;
+    torq[Nextorq].a1=bond[a].an2;
+  } else if (bond[a].an2 == center) {
+    element_1 = atom[bond[a].an1].elt;
+    torq[Nextorq].dir1=0;
+    torq[Nextorq].a1=bond[a].an1;
+  } else {
+    // print a better error if it ever happens...
+    fprintf(stderr, "neither end of bond on center!");
+  }
 
-    theta = vang(vdif(Positions[torq[Nextorq].a1],Positions[torq[Nextorq].ac]),
-		 vdif(Positions[torq[Nextorq].a2],Positions[torq[Nextorq].ac]));
-    th0=torq[Nextorq].theta0;
-    /*
-    if (theta> 1.25*th0 || theta<0.75*th0)
-	printf("Strained torq: %.0f vs %.0f  (%s%d-%s%d-%s%d)\n",
-		  (180.0/3.1415)*theta, (180.0/3.1415)*th0,
-		  element[atom[torq[Nextorq].a1].elt].symbol, torq[Nextorq].a1,
-		  element[atom[torq[Nextorq].ac].elt].symbol, torq[Nextorq].ac,
-		  element[atom[torq[Nextorq].a2].elt].symbol, torq[Nextorq].a2);
+  if (bond[b].an1 == center) {
+    element_2 = atom[bond[b].an2].elt;
+    torq[Nextorq].dir2=1;
+    torq[Nextorq].a2=bond[b].an2;
+  } else if (bond[b].an2 == center) {
+    element_2 = atom[bond[b].an1].elt;
+    torq[Nextorq].dir2=0;
+    torq[Nextorq].a2=bond[b].an1;
+  } else {
+    // print a better error if it ever happens...
+    fprintf(stderr, "neither end of bond on center!");
+  }
 	
-    */
+  torq[Nextorq].b1=bond+a;
+  torq[Nextorq].b2=bond+b;
+  torq[Nextorq].type = getBendData(element_center, element_1, '1', element_2, '1');
 	
-    Nextorq++;
+  Nextorq++;
 }
 
 /** make a vdw in one go, in calc loop */
 void makvdw(int a1, int a2) {
     struct vdWbuf *newbuf;
-    int nx, i, j;
+    int i, j;
 	
     if (Nexvanbuf->fill >= VANBUFSIZ) {
 	if (Nexvanbuf->next) {
@@ -204,14 +179,13 @@ void makvdw(int a1, int a2) {
 	
     i = min(atom[a1].elt,atom[a2].elt);
     j = max(atom[a2].elt,atom[a2].elt);
-    nx = i*(NUMELTS+1) - i*(i+1)/2 + j-i;
-    Nexvanbuf->item[Nexvanbuf->fill].table = vanderTable+nx;
+    Nexvanbuf->item[Nexvanbuf->fill].table = getVanDerWaalsTable(i, j);
 	
     Nexvanbuf->fill++;
 }
 
 
-int makcon(int typ, struct MOT *mot, int n, int *atnos) {
+static int makcon(int typ, struct MOT *mot, int n, int *atnos) {
     int i;
 	
     Constraint[Nexcon].type = typ;
@@ -225,8 +199,9 @@ int makcon(int typ, struct MOT *mot, int n, int *atnos) {
     store in pN*pm, rad/Dt
 */
 
-struct MOT * makmot(double stall, double speed,
-		    struct xyz vec1,  struct xyz vec2) {
+static struct MOT *
+makmot(double stall, double speed, struct xyz vec1,  struct xyz vec2)
+{
     int i;
 	
     Motor[Nexmot].center=vec1;
@@ -237,7 +212,7 @@ struct MOT * makmot(double stall, double speed,
     return Motor+Nexmot++;
 }
 
-void makmot2(int i) {
+static void makmot2(int i) {
     struct MOT *mot;
     struct xyz r, q, vrmax;
     int j, *atlis;
@@ -251,7 +226,7 @@ void makmot2(int i) {
 	
     for (j=0;j<Constraint[i].natoms;j++) {
 	/* for each atom connected to the "shaft" */
-	mass = element[atom[atlis[j]].elt].mass * 1e-27;
+	mass = periodicTable[atom[atlis[j]].elt].mass * 1e-27;
 		
 	/* find its projection onto the rotation vector */
 	r=vdif(Positions[atlis[j]],mot->center);
@@ -288,7 +263,7 @@ void makmot2(int i) {
     if (mot->speed==0.0) mot->theta = mot->atang[0];
 }
 
-int readname(char *buf, char **ret) {
+static int readname(char *buf, char **ret) {
 
   char b1[128];
   int j;
@@ -300,7 +275,7 @@ int readname(char *buf, char **ret) {
 
 }
 
-int readshaft(char *buf, int *iv, int *atnotab) {
+static int readshaft(char *buf, int *iv, int *atnotab) {
 
   int i, j;
 	
@@ -561,12 +536,14 @@ void filred(char *filnam) {
 	      makmot2(i);
 	    }
 	}
-		
+
+#ifdef FERDISAFERD
 	/* mol  */
 	else if (0==strncasecmp("mol ",buf,4)) {
 	    PartNo++;
 	}
-		
+#endif
+    
 	// kelvin <temperature>
 	else if (0==strncasecmp("kelvin",buf,6)) {
 	    sscanf(buf+6, "%d", &ix);
@@ -596,12 +573,12 @@ void filred(char *filnam) {
 	
     /* create bending bonds */
     for (i=0; i<Nexatom; i++) {
-	for (m=0; m<atom[i].nbonds-1; m++) {
+      for (m=0; m<atom[i].nbonds-1; m++) {
 	    for (n=m+1; n<atom[i].nbonds; n++) {
-                checkatom(stderr, i); // move outside of m loop?
-		maktorq(atom[i].bonds[m], atom[i].bonds[n]);
+          checkatom(stderr, i); // move outside of m loop?
+          maktorq(i, atom[i].bonds[m], atom[i].bonds[n]);
 	    }
-	}
+      }
     }
 	
     /* find bounding box */

@@ -3,11 +3,11 @@
  * Linear algebra stuff
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+// XXX This stuff could possibly benefit from inlining.  Need to profile.
+
 #include <math.h>
 
-#include "simulator.h"
+#include "lin-alg.h"
 
 struct xyz vcon(double x) {
 	struct xyz u;
