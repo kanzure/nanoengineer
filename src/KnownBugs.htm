@@ -13,17 +13,17 @@ xmlns="http://www.w3.org/TR/REC-html40">
  <o:DocumentProperties>
   <o:Author>Mark Sims</o:Author>
   <o:LastAuthor>Ninad Sathaye</o:LastAuthor>
-  <o:Revision>100</o:Revision>
-  <o:TotalTime>930</o:TotalTime>
+  <o:Revision>107</o:Revision>
+  <o:TotalTime>1300</o:TotalTime>
   <o:Created>2005-03-15T20:53:00Z</o:Created>
-  <o:LastSaved>2005-06-15T22:04:00Z</o:LastSaved>
+  <o:LastSaved>2005-06-21T14:08:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>1240</o:Words>
-  <o:Characters>7070</o:Characters>
+  <o:Words>1259</o:Words>
+  <o:Characters>7180</o:Characters>
   <o:Company> </o:Company>
-  <o:Lines>58</o:Lines>
+  <o:Lines>59</o:Lines>
   <o:Paragraphs>16</o:Paragraphs>
-  <o:CharactersWithSpaces>8294</o:CharactersWithSpaces>
+  <o:CharactersWithSpaces>8423</o:CharactersWithSpaces>
   <o:Version>11.5703</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
@@ -382,7 +382,9 @@ Fixes In Alpha 6<o:p></o:p></span></u></b></p>
 
 <ul style='margin-top:0in' type=disc>
  <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
-     style='font-family:Arial'>Bug #<o:p></o:p></span></li>
+     style='font-family:Arial'>Bug # 474-1: Bugs due to the use of closing
+     parenthesis symbol ‘)’ while naming the objects in the model tree. (part
+     of bug 474 ) <o:p></o:p></span></li>
 </ul>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
@@ -431,8 +433,8 @@ Features:<o:p></o:p></span></u></b></p>
 
 <ol style='margin-top:0in' start=5 type=1>
  <li class=MsoNormal style='mso-list:l3 level1 lfo2;tab-stops:list .5in'><span
-     style='font-family:Arial'>The 'Clipboard' is still experimental and has some
-     bugs related to history messages it emits. <o:p></o:p></span></li>
+     style='font-family:Arial'>The 'Clipboard' is still experimental and has
+     some bugs related to history messages it emits. <o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
@@ -478,8 +480,7 @@ Features:<o:p></o:p></span></u></b></p>
 <ol style='margin-top:0in' start=11 type=1>
  <li class=MsoNormal style='mso-list:l3 level1 lfo2;tab-stops:list .5in'><span
      style='font-family:Arial'>Unicode characters are not supported for naming
-     the items. Also, to avoid some bugs do not use a closing parenthesis
-     symbol ‘)’ while naming the items in nE-1. (474)<o:p></o:p></span></li>
+     the items in the model tree. (474)<o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
@@ -582,17 +583,17 @@ Bugs (All Platforms)<o:p></o:p></span></u></b></p>
 <ol style='margin-top:0in' start=11 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Selection/Jigs: Cannot select a jig (i.e. motor,
-     ground, thermostat or thermometer) in the graphics area. Jigs may only be
-     selected via the model tree. (6) <o:p></o:p></span></li>
+     ground, thermostat or thermometer) in the graphics area. Jigs may only be selected
+     via the model tree. (6) <o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
 <ol style='margin-top:0in' start=12 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
-     style='font-family:Arial'>Selection: Can not select a chunk if cursor is inside
-     the selection polyhedron but not pointing inside perimeter of any of the
-     atoms in that chunk. (11)<o:p></o:p></span></li>
+     style='font-family:Arial'>Selection: Can not select a chunk if cursor is
+     inside the selection polyhedron but not pointing inside perimeter of any
+     of the atoms in that chunk. (11)<o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
@@ -638,8 +639,8 @@ make changes and switch back to the &quot;Ring Mode&quot;. <o:p></o:p></span></p
 
 <p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'>-- Select
-the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
+<p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'>--
+Select the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
@@ -707,16 +708,17 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
      grid using middle mouse drag operation, changes the grid orientation (59)<o:p></o:p></span></li>
 </ol>
 
-<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
 <ol style='margin-top:0in' start=22 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
-     style='font-family:Arial'>Cookie Cutter, <span class=SpellE>Shift+Left</span>
-     Mouse drag only deletes drawing that is outside but doesn't draw inside
-     the lasso/ rectangle (190) <o:p></o:p></span></li>
+     style='font-family:Arial'>Cookie Cutter: the graphics area turns into a
+     black display if you resize the nE-1 window while drawing an auto shape e.g.
+     a circle or a hexagon etc. The original display can be regained by hitting
+     any key. (687)<o:p></o:p></span></li>
 </ol>
 
-<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+<p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
 <ol style='margin-top:0in' start=23 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
@@ -728,7 +730,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=24 type=1>
+<ol style='margin-top:0in' start=1 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Fuse Chunks: Back up button on dashboard to
      delete a bond formed in previous operation deletes the bond, but it
@@ -737,7 +739,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=25 type=1>
+<ol style='margin-top:0in' start=2 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Fuse Chunks: Some history message generated are
      not correct for current version but these will become valid once bond
@@ -747,7 +749,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=26 type=1>
+<ol style='margin-top:0in' start=3 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Naming: When starting a new part or opening a
      new file, the object name indexing is not reset to 1. For example, new
@@ -757,7 +759,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=27 type=1>
+<ol style='margin-top:0in' start=4 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Model Tree: Dragging and dropping objects onto
      the part icon at the top of the list places the items(s) at the bottom of
@@ -768,7 +770,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=28 type=1>
+<ol style='margin-top:0in' start=5 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Align to common axis averages the axis vectors
      of the selected chunks. The resultant vector is (usually) different than
@@ -777,7 +779,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=29 type=1>
+<ol style='margin-top:0in' start=6 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Cursors: Middle mouse button &quot;Hint
      Cursors&quot; can sometimes get stuck on pressing the Shift or <span
@@ -786,7 +788,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=30 type=1>
+<ol style='margin-top:0in' start=7 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Cursors: The skull and crossbones cursor in
      build mode will not display (when pressing Ctrl/<span class=SpellE>Cmd</span>)
@@ -795,7 +797,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=31 type=1>
+<ol style='margin-top:0in' start=8 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Display: Larger atoms can obscure open bonds
      when displayed in <span class=SpellE>VdW</span> mode. (258) <o:p></o:p></span></li>
@@ -803,7 +805,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=32 type=1>
+<ol style='margin-top:0in' start=9 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Display: The front clipping plane will sometimes
      clip objects that should not be clipped.<o:p></o:p></span></li>
@@ -811,7 +813,7 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=33 type=1>
+<ol style='margin-top:0in' start=10 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial'>Dialogs and Dashboard: Users operating nE-1 with
      a low screen resolution report bugs in the dialog boxes and dashboards. In
@@ -822,11 +824,11 @@ the 'Done' button on the dashboard when finished. (155)<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=34 type=1>
+<ol style='margin-top:0in' start=11 type=1>
  <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      class=GramE><span style='font-family:Arial'>Zoom</span></span><span
-     style='font-family:Arial'> Tool: Some Mac users report cosmetic bugs. It
-     is a good idea to save your work before using it.<o:p></o:p></span></li>
+     style='font-family:Arial'> Tool: Some Mac users report cosmetic bugs. It is
+     a good idea to save your work before using it.<o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>

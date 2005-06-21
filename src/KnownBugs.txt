@@ -3,7 +3,7 @@ nanoENGINEER-1™ v0.0.6 (Alpha 6)
 
 Bug Fixes In Alpha 6
 
-* Bug #
+* Bug # 474-1: Bugs due to the use of closing parenthesis symbol ‘)’ while naming the objects in the model tree. (part of bug 474 ) 
 
 
 Unsupported Features:
@@ -28,7 +28,7 @@ Unsupported Features:
 
 10. Linear motors are not supported by the simulator. (393) 
 
-11. Unicode characters are not supported for naming the items. Also, to avoid some bugs do not use a closing parenthesis symbol ‘)’ while naming the items in nE-1. (474)
+11. Unicode characters are not supported for naming the items in the model tree. (474)
 
 
 Known Bugs (All Platforms)
@@ -83,7 +83,7 @@ Known Bugs (All Platforms)
 
 21. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)
 
-22. Cookie Cutter, Shift+Left Mouse drag only deletes drawing that is outside but doesn't draw inside the lasso/ rectangle (190) 
+22. Cookie Cutter: the graphics area turns into a black display if you resize the nE-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687)
 
 23. Fuse Chunks: If the chunks were ‘merged’ in previous operation while bonding them together, ‘Back Up’ button on the dashboard doesn’t ‘unmerge’ them. It only deletes the bond formed in earlier operation. (486-10)
 
