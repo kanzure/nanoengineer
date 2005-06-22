@@ -85,6 +85,18 @@ class Gamess(Jig):
 
     def getstatistics(self, stats):
         stats.ngamess += 1
+        
+    def __CM_Calculate_Energy(self):
+        
+        final_energy = self.gmsjob.get_gamess_energy()
+
+        if final_energy:
+            msg = "GAMESS finished.  The final energy is: " + str(final_energy)
+        else:
+            msg = redmsg("Final energy value not found.")
+        self.assy.w.history.message(msg)
+        
+        return
 
     pass # end of class Gamess
 
