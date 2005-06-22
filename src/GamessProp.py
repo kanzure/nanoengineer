@@ -212,6 +212,7 @@ from qt import *
 import sys, os, time
 from GamessPropDialog import *
 from ServerManager import ServerManager
+from HistoryWidget import redmsg
         
 class GamessProp(GamessPropDialog):
     '''A GamessProp is a dialog window for creating and editing 
@@ -262,6 +263,9 @@ class GamessProp(GamessPropDialog):
 #        print "Setup: ECM = ",ecm
         self.ecm_btngrp.setButton(self.pset.ui.ecm) # None, DFT or MP2
         self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
+        
+        # Load the combo box with all the valid DFT functions.  
+        self.load_dfttyp_combox()
         self.dfttyp_combox.setCurrentItem(self.pset.ui.dfttyp) # DFT Functional
         self.gridsize_combox.setCurrentItem(self.pset.ui.gridsize) # Grid Size
         self.core_electrons_checkbox.setChecked(self.pset.ui.ncore) # Include core electrons
@@ -277,9 +281,6 @@ class GamessProp(GamessPropDialog):
         self.shift_checkbox.setChecked(self.pset.ui.shift) # SHIFT
         self.soscf_checkbox.setChecked(self.pset.ui.soscf) # SOSCF
         self.rstrct_checkbox.setChecked(self.pset.ui.rstrct) # RSTRCT
-        
-        # Load the combo box with all the valid DFT functions.  
-        self.load_dfttyp_combox()
         
         # Load the server combo box
         self._reloadServerList()
@@ -387,14 +388,31 @@ class GamessProp(GamessPropDialog):
             self.gridsize_label.setEnabled(0)
             self.gridsize_combox.setEnabled(0)
             
-        else: #None
+        else: # None = Hartree-Fock
             self.dfttyp_label.setEnabled(0)
             self.dfttyp_combox.setEnabled(0)
             self.gridsize_label.setEnabled(0)
             self.gridsize_combox.setEnabled(0)
             self.core_electrons_checkbox.setChecked(0)
             self.core_electrons_checkbox.setEnabled(0)
-            
+        
+        # AM1 and PM3 are not options for DFT or MP2.
+        # We have to remove or add them from the combo box.
+        self.update_gbasis_list(val)
+        
+    def update_gbasis_list(self, val):
+        
+        print "Number of Basis items: ", self.gbasis_combox.count()
+        if val == DFT or val == MP2:
+            if self.gbasis_combox.count() == 18:
+                print "update_gbasis_list: removing AM1 and PM3"
+                self.gbasis_combox.removeItem(0)
+                self.gbasis_combox.removeItem(0)
+        else:
+            if self.gbasis_combox.count() != 18:
+                self.gbasis_combox.insertItem("PM3",0)
+                self.gbasis_combox.insertItem("AM1",0)
+        
     def set_multiplicity(self, val):
         '''Enable/disable widgets when user changes Multiplicity.
         '''
@@ -573,10 +591,13 @@ class GamessProp(GamessPropDialog):
         
         # $BASIS Section ###########################################
         
-        self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem()] # GBASIS
+        if ecm[self.pset.ui.ecm] == 'None':
+            self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem()] # GBASIS
+        else:
+            self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem() + 2] # GBASIS
 
     def save_job_parms(self):
-        calculate = ['Molecular Energy', 'Optimization']
+        calculate = ['Energy', 'Optimization']
         self.job.Calculation = calculate[self.pset.ui.runtyp]
         self.job.Description = self.pset.ui.comment
         self.job.server =  self.server
@@ -590,8 +611,26 @@ class GamessProp(GamessPropDialog):
         self.job.queue_job()
         self.close() # Close dialog
         
-        
     def launch_job(self):
         self.save_ui_settings()
         self.job.launch_job()
         self.close() # Close dialog
+        
+    def run_job(self):
+        if self.runtyp_combox.currentItem() == 0: #Energy
+            self.get_energy()
+        else:  # Optimize
+            print "run_job: GAMESS Optimize not supported yet."
+                
+    def get_energy(self):
+        self.save_ui_settings()
+        
+        self.close() # Close dialog
+        
+        final_energy = self.job.get_gamess_energy()
+
+        if final_energy:
+            msg = "GAMESS finished.  The final energy is: " + str(final_energy)
+        else:
+            msg = redmsg("Final energy value not found.")
+        self.win.history.message(msg)
