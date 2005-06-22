@@ -895,7 +895,9 @@ def drawCubeCell(color):
 def drawFullWindow(vtColors):
     """Draw gradient background color.
        <vtColors> is a 4 element list specifying colors for the  
-       left-down, right-down, right-up, left-up window corners."""
+       left-down, right-down, right-up, left-up window corners.
+       To draw the full window, the modelview and projection should be set in identity.
+       """
     glDisable(GL_LIGHTING)
     
     glBegin(GL_QUADS)
