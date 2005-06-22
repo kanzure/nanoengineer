@@ -416,7 +416,8 @@ class modelTree(TreeWidget):
                 else:
                     assert 0, "not a callable or None: %r" % boundmethod
             if submenu:
-                res.append(( 'other', submenu )) #e improve submenu name, ordering, location
+                ## res.append(( 'other', submenu )) #e improve submenu name, ordering, location
+                res.extend(submenu) # Mark and Bruce at Retreat 050621
 
         # Customize command [bruce 050602 experiment]. #####@@@@@
         # Provide this when all items are in the same group? no, any items could be grouped...
