@@ -1121,8 +1121,13 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         if not self.selatoms: return
         from jig_Gamess import Gamess
         m = Gamess(self.assy, self.selatoms.values())
+        if m.cancelled: # User hit 'Cancel' button during the jig creation.
+            del m
+            return
+            
         self.unpickatoms()
         self.place_new_jig(m)
+        
         
     def makeground(self):
         """Grounds (anchors) all the selected atoms so that 

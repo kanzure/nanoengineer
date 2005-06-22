@@ -11,6 +11,7 @@ import os, sys, time
 from SimJob import SimJob
 from SimServer import SimServer
 from GamessProp import GamessProp
+from HistoryWidget import redmsg
 
 class GamessJob(SimJob):
     """A Gamess job is a setup used to run Gamess simulation. Two ways exist to create a Gamess Job: (1). Create a Gamess Jig. (2). A
@@ -70,7 +71,7 @@ class GamessJob(SimJob):
     def launch_job(self):
         'Launch GAMESS with INP file on server'
         self.queue_job() # Do not open Job Manager.
-        self.start_job()
+        self._start_job()
 
     def get_gamess_energy(self):
         'Runs a GAMESS energy calculation and returns the energy.'
@@ -82,12 +83,12 @@ class GamessJob(SimJob):
             
         return self.get_energy_from_outputfile()
 
-    def start_job(self):
+    def _start_job(self):
         self.starttime = time.time()
         print "Just execute the file:", self.job_batfile
-        self._launch_pcgamess_using_spawnv()
+        self._launch_gamess()
         
-    def _launch_pcgamess_using_spawnv(self):
+    def _launch_gamess(self):
         '''Run PC GAMESS (Windows or Linux only).
         PC GAMESS creates 2 output files:
           - the DAT file, called "PUNCH", is written to the directory from which
@@ -95,13 +96,12 @@ class GamessJob(SimJob):
             before we run PC GAMESS.
           - the OUT file (aka the log file), which we name jigname.out.
         '''
+        print "server program = ", self.server.program
         if not os.path.exists(self.server.program):
-            msg = "The PC GAMESS executable " + self.server.program + "does not exist."
-            self.win.history.message(redmsg(msg))
-#            print msg
-            msg = "Check the PC GAMESS pathname in the User Preferences to make sure it is set correctly."
-            self.win.history.message(redmsg(msg))
-#            print msg
+            msg = "The GAMESS executable " + self.server.program + "does not exist."
+            self.edit_cntl.win.history.message(redmsg(msg))
+            msg = "Check the GAMESS pathname in the User Preferences to make sure it is set correctly."
+            self.edit_cntl.win.history.message(redmsg(msg))
             return
 
         oldir = os.getcwd() # Save current directory
@@ -139,7 +139,7 @@ class GamessJob(SimJob):
         'Write GAMESS INP file'
         
         # Save UI settings
-        self.edit_cntl.save_ui_settings()
+        ##self.edit_cntl.save_ui_settings()
 
         f = open(filename,'w') # Open GAMESS input file.
         

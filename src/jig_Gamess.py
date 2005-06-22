@@ -24,7 +24,7 @@ class Gamess(Jig):
     job_parms = {
         'Engine':'GAMESS',
         'Calculation':'',
-        'Description':'',
+        'Description':"No comments? How about today's weather?",
         'Status':'',
         'Server_id':'',
         'Job_id':'',
@@ -33,12 +33,14 @@ class Gamess(Jig):
     # create a blank Gamess jig with the given list of atoms
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
+        self.cancelled = False
         self.color = (0.0, 0.0, 0.0)
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
         self.psets = [] # list of parms set objects
         self.psets.append(gamessParms('Parameter Set 1'))
         self.gmsjob = GamessJob(Gamess.job_parms, jig=self)
         self.gmsjob.edit()
+        
 
     def edit(self):
         self.gmsjob.edit()

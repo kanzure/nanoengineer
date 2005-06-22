@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>524</width>
-            <height>522</height>
+            <width>673</width>
+            <height>677</height>
         </rect>
     </property>
     <property name="caption">
@@ -310,7 +310,7 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout30</cstring>
+                <cstring>layout5</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -329,13 +329,10 @@
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>apply_btn</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
+                        <cstring>del_btn</cstring>
                     </property>
                     <property name="text">
-                        <string>Apply</string>
+                        <string>Delete</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -366,12 +363,6 @@
         <slot>addServer()</slot>
     </connection>
     <connection>
-        <sender>apply_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>ServerManagerDialog</receiver>
-        <slot>applyChange()</slot>
-    </connection>
-    <connection>
         <sender>exit_btn</sender>
         <signal>clicked()</signal>
         <receiver>ServerManagerDialog</receiver>
@@ -383,11 +374,24 @@
         <receiver>ServerManagerDialog</receiver>
         <slot>changeServer()</slot>
     </connection>
+    <connection>
+        <sender>engine_combox</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>ServerManagerDialog</receiver>
+        <slot>engineChanged()</slot>
+    </connection>
+    <connection>
+        <sender>del_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ServerManagerDialog</receiver>
+        <slot>deleteServer()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>addServer()</slot>
-    <slot>applyChange()</slot>
     <slot>changeServer()</slot>
+    <slot>deleteServer()</slot>
+    <slot>engineChanged()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

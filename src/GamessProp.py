@@ -221,25 +221,28 @@ class GamessProp(GamessPropDialog):
     def __init__(self):
         GamessPropDialog.__init__(self)
         self.sManager = ServerManager()
-        
-    def showDialog(self, job):
-        self.gamess =  job.gamessJig
-        self.job = job
         self.servers = self.sManager.getServers()
         self.server = self.servers[0]
-        self.pset = self.gamess.psets[0]
-        self.win = self.gamess.assy.w
         
-        if self.setup(): return
+        
+    def showDialog(self, job):
+        self.gamessJig =  job.gamessJig
+        self.job = job
+        self.pset = self.gamessJig.psets[0]
+        self.win = self.gamessJig.assy.w
+        
+        if self._setup(): return
         self.exec_loop()
 
-    def setup(self):
+
+    ######Private or helper methods###################################
+    def _setup(self):
         ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
-        gamess = self.gamess #  In case we cancel later (not implemented yet)
+        gamess = self.gamessJig #  In case we cancel later (not implemented yet)
         
         # Init the top widgets (name, psets drop box, comment)
-        self.name_linedit.setText(self.gamess.name)
+        self.name_linedit.setText(self.gamessJig.name)
         self.comment_linedit.setText(self.pset.ui.comment)
         self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
         
@@ -265,7 +268,7 @@ class GamessProp(GamessPropDialog):
         self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
         
         # Load the combo box with all the valid DFT functions.  
-        self.load_dfttyp_combox()
+        self._load_dfttyp_combox()
         self.dfttyp_combox.setCurrentItem(self.pset.ui.dfttyp) # DFT Functional
         self.gridsize_combox.setCurrentItem(self.pset.ui.gridsize) # Grid Size
         self.core_electrons_checkbox.setChecked(self.pset.ui.ncore) # Include core electrons
@@ -283,18 +286,12 @@ class GamessProp(GamessPropDialog):
         self.rstrct_checkbox.setChecked(self.pset.ui.rstrct) # RSTRCT
         
         # Load the server combo box
-        self._reloadServerList()
+        #self._reloadServerList()
         
         # If there is an error, return 1. NIY.
         return 0
-    
-    def server_manager(self):
-        """Pop up ServerManagerDialog to edit the properties of the servers."""
-        self.sManager.showDialog()
-        self.servers = self.sManager.getServers()
-        self._reloadServerList()
-      
-         
+ 
+ 
     def _reloadServerList(self):
         """ Load the server combo box"""
         self.server_combox.clear()
@@ -306,62 +303,19 @@ class GamessProp(GamessPropDialog):
         self.server_combox.setCurrentItem(indx)    
                
         
-    def rename(self):
+    def _rename(self):
         '''Rename the jig.
         '''
-        self.gamess.name = str(self.name_linedit.text())
+        self.gamessJig.name = str(self.name_linedit.text())
 
-    def add_or_change_pset(self, val):
-        '''Add or change a pset from the pset combo box.'''
-        self.save_ui_settings() # Save the UI settings, which will also save parms set.
-        # New.. was selected.  Add a new pset.
-        if val == self.psets_combox.count()-1:
-            self.pset = self.gamess.add_pset()
-        else: # Change to an existing pset.
-            self.pset = self.gamess.psets[val]
-        self.setup()
 
-    def load_psets_combox(self):
-        '''Load list of parm sets in the combobox widget.
-        This is not implemeted as 2005-06-07 - Mark
-        '''
-        num = 0
-        self.psets_combox.clear() # Clear all combo box items
-      
-        for pset in self.gamess.psets: # Should I call method to return copy of psets?
-            self.psets_combox.insertItem(pset.name)
-            if pset is self.pset:
-
-            # Find out item number for current parms set.
-            # This will fail if we allow multiple psets to have the same name.
-            # Will need to disallow a pset to have the same name as another.
-            # Mark 050530
-
-                pnum = num
-            else:
-                num += 1
-        self.psets_combox.insertItem("New...")
-        self.psets_combox.setCurrentItem(pnum) # Set current item to current parms set.
-        
-    def rename_pset(self):
-        '''Rename the current parms set name.
-        This is not implemeted as 2005-06-07 - Mark
-        '''
-        self.pset.name = str(self.pset_name_linedit.text())
-        self.update_pset_combox_item()
-#        self.update_comment()
-        
-    def update_pset_combox_item(self):
-        '''Rename the current pset name in the combo box'''
-        print 'update_pset_combox_item: Not Implemented Yet'
-
-    def load_dfttyp_combox(self):
+    def _load_dfttyp_combox(self):
         '''Load list of DFT function in a combobox widget'''
         self.dfttyp_combox.clear() # Clear all combo box items
-        if self.job.Engine == 'GAMESS':
+        if self.server.engine == 'GAMESS':
             for f in gms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
-        elif self.job.Engine == 'PC GAMESS':
+        elif self.server.engine == 'PC GAMESS':
             for f in pcgms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
         else:
@@ -369,39 +323,9 @@ class GamessProp(GamessPropDialog):
             for f in gms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
 
-    def set_ecmethod(self, val):
-        '''Enable/disable widgets when user changes Electron Correlation Method.
-        '''
-#        print "set_ecmethod = ", val
-        if val == DFT:
-            self.dfttyp_label.setEnabled(1)
-            self.dfttyp_combox.setEnabled(1)
-            self.gridsize_label.setEnabled(1)
-            self.gridsize_combox.setEnabled(1)
-            self.core_electrons_checkbox.setChecked(0)
-            self.core_electrons_checkbox.setEnabled(0)
-            
-        elif val == MP2:
-            self.core_electrons_checkbox.setEnabled(1)
-            self.dfttyp_label.setEnabled(0)
-            self.dfttyp_combox.setEnabled(0)
-            self.gridsize_label.setEnabled(0)
-            self.gridsize_combox.setEnabled(0)
-            
-        else: # None = Hartree-Fock
-            self.dfttyp_label.setEnabled(0)
-            self.dfttyp_combox.setEnabled(0)
-            self.gridsize_label.setEnabled(0)
-            self.gridsize_combox.setEnabled(0)
-            self.core_electrons_checkbox.setChecked(0)
-            self.core_electrons_checkbox.setEnabled(0)
         
-        # AM1 and PM3 are not options for DFT or MP2.
-        # We have to remove or add them from the combo box.
-        self.update_gbasis_list(val)
-        
-    def update_gbasis_list(self, val):
-        
+    def _update_gbasis_list(self, val):
+        '''Called by set_ecmethod() to update the gbasis list. '''     
         print "Number of Basis items: ", self.gbasis_combox.count()
         if val == DFT or val == MP2:
             if self.gbasis_combox.count() == 18:
@@ -412,53 +336,12 @@ class GamessProp(GamessPropDialog):
             if self.gbasis_combox.count() != 18:
                 self.gbasis_combox.insertItem("PM3",0)
                 self.gbasis_combox.insertItem("AM1",0)
-        
-    def set_multiplicity(self, val):
-        '''Enable/disable widgets when user changes Multiplicity.
-        '''
-        if val != 0:
-            if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':
-                self.rhf_radiobtn.setEnabled(0)
-                return
-            
-            ret = QMessageBox.warning( self, "Multiplicity Conflict",
-                "If Multiplicity is greater than 1, then <b>UHF</b> or <b>ROHF</b> must be selected.\n"
-                "Select Cancel to keep <b>RHF</b>.",
-                "&UHF", "&ROHF", "Cancel",
-                0, 2 )
-            
-            if ret==0: # UHF
-                self.uhf_radiobtn.toggle()
-                self.rhf_radiobtn.setEnabled(0)
-                
-            elif ret==1: # ROHF
-                self.rohf_radiobtn.toggle()
-                self.rhf_radiobtn.setEnabled(0)
-            
-            elif ret==2: # Cancel
-                self.multi_combox.setCurrentItem(0)
-        
-        elif val == 0:
-            self.rhf_radiobtn.setEnabled(1)
     
-    def serverChanged(self, si):
-        """User has changed server, so update the DFT comboBox"""
-        
-        self.load_dfttyp_combox()
-    
-                
-    def restore(self):
-        '''Implement a button for Use Defaults or Restore Default Values, if one is added to the UI.
-        '''
-#        save_params = self.pset # save original params, in case of Cancel after this restore
-#        self.setup() # set widgets to the restored values; also does unwanted set of self.myparms
-#        self.myparms = save_params
-        return
 
-    def save_ui_settings(self):
+    def _save_ui_settings(self):
         '''Save the UI settings in the Gamess jig pset.  There is one setting for each pset.
         '''
-        self.rename()
+        self._rename()
         self.pset.ui.comment = str(self.comment_linedit.text())
         self.pset.ui.runtyp = self.runtyp_combox.currentItem() # RUNTYP = Energy or Optimize
         
@@ -490,10 +373,10 @@ class GamessProp(GamessPropDialog):
         # Server
         self.pset.ui.server = self.server_combox.currentText()
         
-        self.save_parms() # Now save params.
-        self.save_job_parms()
+        self._save_parms() # Now save params.
+        self._save_job_parms()
         
-    def save_parms(self):
+    def _save_parms(self):
         '''Save parameter set values.  This is always called by save_ui_settings, 
         since it depends on the ui setting values.  This should propbably be a private
         method.'''
@@ -596,7 +479,7 @@ class GamessProp(GamessPropDialog):
         else:
             self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem() + 2] # GBASIS
 
-    def save_job_parms(self):
+    def _save_job_parms(self):
         calculate = ['Energy', 'Optimization']
         self.job.Calculation = calculate[self.pset.ui.runtyp]
         self.job.Description = self.pset.ui.comment
@@ -604,27 +487,12 @@ class GamessProp(GamessPropDialog):
         ##Copy some  attributes from the server object to job description
         self.job.Server_id = self.server.server_id
         self.job.Engine = self.server.engine
-        
-        
-    def queue_job(self):
-        self.save_ui_settings()
-        self.job.queue_job()
-        self.close() # Close dialog
-        
-    def launch_job(self):
-        self.save_ui_settings()
-        self.job.launch_job()
-        self.close() # Close dialog
-        
-    def run_job(self):
-        if self.runtyp_combox.currentItem() == 0: #Energy
-            self.get_energy()
-        else:  # Optimize
-            print "run_job: GAMESS Optimize not supported yet."
-                
-    def get_energy(self):
-        self.save_ui_settings()
-        
+    
+    def _get_energy(self):
+        """Private method. """
+        #Ideally, the following 2 statements should be at the top of run_job()
+        #especially when we have GAMESS Optimization working.
+        self._save_ui_settings()
         self.close() # Close dialog
         
         final_energy = self.job.get_gamess_energy()
@@ -634,3 +502,159 @@ class GamessProp(GamessPropDialog):
         else:
             msg = redmsg("Final energy value not found.")
         self.win.history.message(msg)
+    ######End of private or helper methods.########################
+        
+    #######The following methods are currently not used. ###### ######
+    def restore(self):
+        '''Implement a button for Use Defaults or Restore Default Values, if one is added to the UI.
+        '''
+        #save_params = self.pset # save original params, in case of Cancel after this restore
+        #self.setup() # set widgets to the restored values; also does unwanted set of self.myparms
+        #self.myparms = save_params
+        return
+        
+    def add_or_change_pset(self, val):
+        '''Add or change a pset from the pset combo box.'''
+        self._save_ui_settings() # Save the UI settings, which will also save parms set.
+        # New.. was selected.  Add a new pset.
+        if val == self.psets_combox.count()-1:
+            self.pset = self.gamessJig.add_pset()
+        else: # Change to an existing pset.
+            self.pset = self.gamessJig.psets[val]
+        self._setup()
+
+    def load_psets_combox(self):
+        '''Load list of parm sets in the combobox widget.
+        This is not implemeted as 2005-06-07 - Mark
+        '''
+        num = 0
+        self.psets_combox.clear() # Clear all combo box items
+      
+        for pset in self.gamessJig.psets: # Should I call method to return copy of psets?
+            self.psets_combox.insertItem(pset.name)
+            if pset is self.pset:
+
+            # Find out item number for current parms set.
+            # This will fail if we allow multiple psets to have the same name.
+            # Will need to disallow a pset to have the same name as another.
+            # Mark 050530
+
+                pnum = num
+            else:
+                num += 1
+        self.psets_combox.insertItem("New...")
+        self.psets_combox.setCurrentItem(pnum) # Set current item to current parms set.
+        
+    def rename_pset(self):
+        '''Rename the current parms set name.
+        This is not implemeted as 2005-06-07 - Mark
+        '''
+        self.pset.name = str(self.pset_name_linedit.text())
+        self.update_pset_combox_item()
+#        self.update_comment()
+        
+    def update_pset_combox_item(self):
+        '''Rename the current pset name in the combo box'''
+        print 'update_pset_combox_item: Not Implemented Yet'  
+    
+    def queue_job(self):
+        self._save_ui_settings()
+        self.job.queue_job()
+        self.close() # Close dialog
+        
+    def launch_job(self):
+        self._save_ui_settings()
+        self.job.launch_job()
+        self.close() # Close dialog
+    ############### End. ################################### 
+    
+    
+    ##########Slot methods for some GUI controls################   
+    def set_multiplicity(self, val):
+        '''Enable/disable widgets when user changes Multiplicity.
+        '''
+        if val != 0:
+            if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':
+                self.rhf_radiobtn.setEnabled(0)
+                return
+            
+            ret = QMessageBox.warning( self, "Multiplicity Conflict",
+                "If Multiplicity is greater than 1, then <b>UHF</b> or <b>ROHF</b> must be selected.\n"
+                "Select Cancel to keep <b>RHF</b>.",
+                "&UHF", "&ROHF", "Cancel",
+                0, 2 )
+            
+            if ret==0: # UHF
+                self.uhf_radiobtn.toggle()
+                self.rhf_radiobtn.setEnabled(0)
+                
+            elif ret==1: # ROHF
+                self.rohf_radiobtn.toggle()
+                self.rhf_radiobtn.setEnabled(0)
+            
+            elif ret==2: # Cancel
+                self.multi_combox.setCurrentItem(0)
+        
+        elif val == 0:
+            self.rhf_radiobtn.setEnabled(1)
+    
+    def set_ecmethod(self, val):
+        '''Enable/disable widgets when user changes Electron Correlation Method.
+        '''
+#        print "set_ecmethod = ", val
+        if val == DFT:
+            self.dfttyp_label.setEnabled(1)
+            self.dfttyp_combox.setEnabled(1)
+            self.gridsize_label.setEnabled(1)
+            self.gridsize_combox.setEnabled(1)
+            self.core_electrons_checkbox.setChecked(0)
+            self.core_electrons_checkbox.setEnabled(0)
+            
+        elif val == MP2:
+            self.core_electrons_checkbox.setEnabled(1)
+            self.dfttyp_label.setEnabled(0)
+            self.dfttyp_combox.setEnabled(0)
+            self.gridsize_label.setEnabled(0)
+            self.gridsize_combox.setEnabled(0)
+            
+        else: # None = Hartree-Fock
+            self.dfttyp_label.setEnabled(0)
+            self.dfttyp_combox.setEnabled(0)
+            self.gridsize_label.setEnabled(0)
+            self.gridsize_combox.setEnabled(0)
+            self.core_electrons_checkbox.setChecked(0)
+            self.core_electrons_checkbox.setEnabled(0)
+        
+        # AM1 and PM3 are not options for DFT or MP2.
+        # We have to remove or add them from the combo box.
+        self._update_gbasis_list(val)
+    
+    
+    def openServerManager(self):
+        """Pop up ServerManagerDialog to edit the properties of the servers."""
+        self.sManager.showDialog(self.server)
+        self.servers = self.sManager.getServers()
+        self._reloadServerList()
+        
+    def serverChanged(self, si):
+        """User has changed server, so update the DFT comboBox. Currently not used."""
+        self.server = self.servers[si]
+        self._load_dfttyp_combox()
+    
+    def run_job(self):
+        """Slot method for the 'Run' button """
+        if self.runtyp_combox.currentItem() == 0: #Energy
+            self._get_energy()
+        else:  # Optimize
+            print "run_job: GAMESS Optimize not supported yet."
+    
+    def accept(self):
+        """The slot method for the 'Ok' button."""
+        self._save_ui_settings()
+        QDialog.accept(self)
+    
+    def reject(self):
+        """The slot method for the 'Cancel' button."""
+        self.gamessJig.cancelled = True
+        QDialog.reject(self)
+        

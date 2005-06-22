@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>GamessPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>509</width>
-            <height>668</height>
+            <height>673</height>
         </rect>
     </property>
     <property name="caption">
@@ -1321,10 +1321,16 @@
                             <property name="name">
                                 <cstring>server_combox</cstring>
                             </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
                         </widget>
                         <widget class="QPushButton">
                             <property name="name">
                                 <cstring>server_manager_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
                             </property>
                             <property name="text">
                                 <string>Server Manager...</string>
@@ -1344,7 +1350,7 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout23</cstring>
+                <cstring>layout24</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -1359,6 +1365,14 @@
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Save GAMESS parameters and launch job.</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>okButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Ok</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -1389,19 +1403,13 @@
         <sender>cancel_btn</sender>
         <signal>clicked()</signal>
         <receiver>GamessPropDialog</receiver>
-        <slot>close()</slot>
+        <slot>reject()</slot>
     </connection>
     <connection>
         <sender>ecm_btngrp</sender>
         <signal>clicked(int)</signal>
         <receiver>GamessPropDialog</receiver>
         <slot>set_ecmethod()</slot>
-    </connection>
-    <connection>
-        <sender>run_job_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>launch_job()</slot>
     </connection>
     <connection>
         <sender>multi_combox</sender>
@@ -1413,7 +1421,7 @@
         <sender>server_manager_btn</sender>
         <signal>clicked()</signal>
         <receiver>GamessPropDialog</receiver>
-        <slot>server_manager()</slot>
+        <slot>openServerManager()</slot>
     </connection>
     <connection>
         <sender>server_combox</sender>
@@ -1427,6 +1435,12 @@
         <receiver>GamessPropDialog</receiver>
         <slot>run_job()</slot>
     </connection>
+    <connection>
+        <sender>okButton</sender>
+        <signal>clicked()</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>queue_job()</slot>
@@ -1435,13 +1449,11 @@
     <slot>open_atoms_list_in_editor()</slot>
     <slot>set_jig_filenames()</slot>
     <slot>launch_job()</slot>
-    <slot>edit_gmshost()</slot>
-    <slot>remove_host()</slot>
     <slot>add_or_change_pset()</slot>
     <slot>rename()</slot>
-    <slot>server_manager()</slot>
     <slot>serverChanged(int)</slot>
     <slot>run_job()</slot>
+    <slot>openServerManager()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

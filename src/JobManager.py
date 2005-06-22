@@ -61,8 +61,9 @@ def get_job_manager_job_id_and_dir():
     
     if not job_id:
         job_id = 100 # Start with Job Id 100
-    else:
-        job_id += 1 # Increment the Job Id
+    ##Temporarily comment out by Huaicai 6/22/05    
+    #else:
+    #    job_id += 1 # Increment the Job Id
     
     # Get the Job Manager directory
     from platform import find_or_make_Nanorex_subdir
@@ -85,7 +86,7 @@ def get_job_manager_job_id_and_dir():
                 print_compact_traceback("exception in creating directory: \"%s\"" % job_id_dir)
                 return -1, 0
             
-            prefs['JobId'] = job_id # Save the most recent Job Id
+            prefs['JobId'] = 100#job_id # Save the most recent Job Id
             touch_job_id_status_file(job_id, 'Queued')
             return str(job_id), job_id_dir
 
@@ -94,7 +95,7 @@ from JobManagerDialog import JobManagerDialog
 from GamessJob import GamessJob
         
 class JobManager(JobManagerDialog):
-    jobType = {"GAMESS": GamessJob, "nanoSIM-1": None}#NanoSimJob}   
+    jobType = {"GAMESS": GamessJob, "nanoSIM-1": None}
     def __init__(self, parent):
         JobManagerDialog.__init__(self, parent)
         
@@ -114,9 +115,6 @@ class JobManager(JobManagerDialog):
     def cell_clicked(self, row, col, button, mouse):
         print "row =", row, ", column =", col, ", button =", button
         
-        # Get the job info from the row the user clicked on.
-        #self.job = Job(self.jobs[row], row)
-
         # Enable/disable the buttons in the Job Manager based on the Status field.
         jobStatus = self.jobInfoList[row][0]['Status']
         if jobStatus == "Queued":
@@ -256,7 +254,7 @@ class JobManager(JobManagerDialog):
         """Create SimJob objects, return the list of job objects"""
         jobs = []
         for j in jobInfoList:
-            if j[0]['Engine'] == 'GAMESS':
+            if j[0]['Engine'] in ['GAMESS', 'PC GAMESS']:
                 #Create GamessJob, call GamessJob.readProp()
                 jobs += [GamessJob(j[0], job_from_file =j[1:])]
             elif j[0]['Engine'] == 'nanoSIM-1':

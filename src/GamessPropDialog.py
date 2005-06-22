@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Tue Jun 21 20:32:18 2005
+# Created: Wed Jun 22 17:46:21 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -475,9 +475,11 @@ class GamessPropDialog(QDialog):
         layout34 = QHBoxLayout(None,0,6,"layout34")
 
         self.server_combox = QComboBox(0,self.groupBox7,"server_combox")
+        self.server_combox.setEnabled(0)
         layout34.addWidget(self.server_combox)
 
         self.server_manager_btn = QPushButton(self.groupBox7,"server_manager_btn")
+        self.server_manager_btn.setEnabled(0)
         layout34.addWidget(self.server_manager_btn)
 
         groupBox7Layout.addLayout(layout34,0,0)
@@ -486,27 +488,30 @@ class GamessPropDialog(QDialog):
         self.edit_input_file_cbox = QCheckBox(self,"edit_input_file_cbox")
         GamessPropDialogLayout.addWidget(self.edit_input_file_cbox)
 
-        layout23_3 = QHBoxLayout(None,0,6,"layout23_3")
+        layout24_2 = QHBoxLayout(None,0,6,"layout24_2")
 
         self.run_job_btn = QPushButton(self,"run_job_btn")
-        layout23_3.addWidget(self.run_job_btn)
+        layout24_2.addWidget(self.run_job_btn)
+
+        self.okButton = QPushButton(self,"okButton")
+        layout24_2.addWidget(self.okButton)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
-        layout23_3.addWidget(self.cancel_btn)
-        GamessPropDialogLayout.addLayout(layout23_3)
+        layout24_2.addWidget(self.cancel_btn)
+        GamessPropDialogLayout.addLayout(layout24_2)
 
         self.languageChange()
 
-        self.resize(QSize(509,668).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(509,673).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
         self.connect(self.ecm_btngrp,SIGNAL("clicked(int)"),self.set_ecmethod)
-        self.connect(self.run_job_btn,SIGNAL("clicked()"),self.launch_job)
         self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
-        self.connect(self.server_manager_btn,SIGNAL("clicked()"),self.server_manager)
+        self.connect(self.server_manager_btn,SIGNAL("clicked()"),self.openServerManager)
         self.connect(self.server_combox,SIGNAL("activated(int)"),self.serverChanged)
         self.connect(self.run_job_btn,SIGNAL("clicked()"),self.run_job)
+        self.connect(self.okButton,SIGNAL("clicked()"),self,SLOT("accept()"))
 
 
     def languageChange(self):
@@ -683,6 +688,7 @@ class GamessPropDialog(QDialog):
         self.edit_input_file_cbox.setText(self.__tr("Open Input File in Editor after Queuing (and before Launching)"))
         self.run_job_btn.setText(self.__tr("Run"))
         QToolTip.add(self.run_job_btn,self.__tr("Save GAMESS parameters and launch job."))
+        self.okButton.setText(self.__tr("Ok"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         QToolTip.add(self.cancel_btn,self.__tr("Closes this window."))
         QWhatsThis.add(self.cancel_btn,self.__tr("Closes this window."))
@@ -706,26 +712,20 @@ class GamessPropDialog(QDialog):
     def launch_job(self):
         print "GamessPropDialog.launch_job(): Not implemented yet"
 
-    def edit_gmshost(self):
-        print "GamessPropDialog.edit_gmshost(): Not implemented yet"
-
-    def remove_host(self):
-        print "GamessPropDialog.remove_host(): Not implemented yet"
-
     def add_or_change_pset(self):
         print "GamessPropDialog.add_or_change_pset(): Not implemented yet"
 
     def rename(self):
         print "GamessPropDialog.rename(): Not implemented yet"
 
-    def server_manager(self):
-        print "GamessPropDialog.server_manager(): Not implemented yet"
-
     def serverChanged(self,a0):
         print "GamessPropDialog.serverChanged(int): Not implemented yet"
 
     def run_job(self):
         print "GamessPropDialog.run_job(): Not implemented yet"
+
+    def openServerManager(self):
+        print "GamessPropDialog.openServerManager(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("GamessPropDialog",s,c)

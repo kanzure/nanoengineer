@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ServerManagerDialog.ui'
 #
-# Created: Thu Jun 16 16:54:59 2005
+# Created: Mon Jun 20 15:02:03 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -105,32 +105,32 @@ class ServerManagerDialog(QDialog):
         layout7.addWidget(self.frame4)
         ServerManagerDialogLayout.addLayout(layout7)
 
-        layout30 = QHBoxLayout(None,0,6,"layout30")
+        layout5 = QHBoxLayout(None,0,6,"layout5")
 
         self.new_btn = QPushButton(self,"new_btn")
         self.new_btn.setEnabled(1)
-        layout30.addWidget(self.new_btn)
+        layout5.addWidget(self.new_btn)
 
-        self.apply_btn = QPushButton(self,"apply_btn")
-        self.apply_btn.setEnabled(1)
-        layout30.addWidget(self.apply_btn)
+        self.del_btn = QPushButton(self,"del_btn")
+        layout5.addWidget(self.del_btn)
 
         self.test_btn = QPushButton(self,"test_btn")
-        layout30.addWidget(self.test_btn)
+        layout5.addWidget(self.test_btn)
 
         self.exit_btn = QPushButton(self,"exit_btn")
-        layout30.addWidget(self.exit_btn)
-        ServerManagerDialogLayout.addLayout(layout30)
+        layout5.addWidget(self.exit_btn)
+        ServerManagerDialogLayout.addLayout(layout5)
 
         self.languageChange()
 
-        self.resize(QSize(524,522).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(673,677).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.new_btn,SIGNAL("clicked()"),self.addServer)
-        self.connect(self.apply_btn,SIGNAL("clicked()"),self.applyChange)
         self.connect(self.exit_btn,SIGNAL("clicked()"),self,SLOT("close()"))
         self.connect(self.server_listview,SIGNAL("currentChanged(QListViewItem*)"),self.changeServer)
+        self.connect(self.engine_combox,SIGNAL("activated(const QString&)"),self.engineChanged)
+        self.connect(self.del_btn,SIGNAL("clicked()"),self.deleteServer)
 
 
     def languageChange(self):
@@ -164,7 +164,7 @@ class ServerManagerDialog(QDialog):
         self.textLabel1_2_2_2.setText(self.__tr("Password :"))
         self.password_linedit.setText(self.__tr("nanorex"))
         self.new_btn.setText(self.__tr("New"))
-        self.apply_btn.setText(self.__tr("Apply"))
+        self.del_btn.setText(self.__tr("Delete"))
         self.test_btn.setText(self.__tr("Test"))
         self.exit_btn.setText(self.__tr("Exit"))
 
@@ -172,11 +172,14 @@ class ServerManagerDialog(QDialog):
     def addServer(self):
         print "ServerManagerDialog.addServer(): Not implemented yet"
 
-    def applyChange(self):
-        print "ServerManagerDialog.applyChange(): Not implemented yet"
-
     def changeServer(self):
         print "ServerManagerDialog.changeServer(): Not implemented yet"
+
+    def deleteServer(self):
+        print "ServerManagerDialog.deleteServer(): Not implemented yet"
+
+    def engineChanged(self):
+        print "ServerManagerDialog.engineChanged(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("ServerManagerDialog",s,c)
