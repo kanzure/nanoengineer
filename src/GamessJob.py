@@ -72,6 +72,15 @@ class GamessJob(SimJob):
         self.queue_job() # Do not open Job Manager.
         self.start_job()
 
+    def get_gamess_energy(self):
+        'Runs a GAMESS energy calculation and returns the energy.'
+        self.launch_job()
+
+        # Wait for GAMESS output file to be written.
+        while not os.path.exists(self.job_outputfile):
+            time.sleep(0.5)
+            
+        return self.get_energy_from_outputfile()
 
     def start_job(self):
         self.starttime = time.time()
