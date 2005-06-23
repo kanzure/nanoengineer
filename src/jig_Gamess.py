@@ -83,17 +83,50 @@ class Gamess(Jig):
             file.write(grec)
 
     def _getinfo(self):
-        return "[Object: GAMESS] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "]"
+        return "[Object: Gamess Jig] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "] [Parameters: " + self.gms_parms_info() + "]"
 
     def getstatistics(self, stats):
         stats.ngamess += 1
+
+    def gms_parms_info(self):
+        '''Return a GAMESS parms shorthand string.
+        '''
+        # This is something Damian wanted to quickly display the parms set for
+        # a Gamess jig. Mark 050622.
         
+        pset = self.psets[0]
+        
+        # SCFTYP (RHF, UHF, or ROHF)
+        s1 = scftyp[pset.ui.scftyp]
+        
+        # Hartree-Fock (display nothing), DFT (display functional) or MP2
+        if ecm[pset.ui.ecm] == 'DFT':
+            item = gms_dfttyp_items[pset.ui.dfttyp]
+            s2, junk = item.split(' ',1)
+            s2 = '/' + s2
+        elif ecm[pset.ui.ecm] == 'MP2':
+            s2 = '/MP2'
+        else:
+            s2 = ''
+        
+        # Basis Set    
+        s3 = "/" + pset.ui.gbasisname
+        
+        # Charge
+        s4 = "/Ch " + str(pset.ui.icharg)
+        
+        # Multiplicity
+        s5 = "/M " + str(pset.ui.mult + 1)
+
+        return s1 + s2 + s3 + s4 + s5
+                
     def __CM_Calculate_Energy(self):
         
         final_energy = self.gmsjob.get_gamess_energy()
 
         if final_energy:
-            msg = "GAMESS finished.  The final energy is: " + str(final_energy)
+            gmstr = self.gms_parms_info()
+            msg = "GAMESS finished. Parameters: " + gmstr + ".  The final energy is: " + str(final_energy)
         else:
             msg = redmsg("Final energy value not found.")
         self.assy.w.history.message(msg)

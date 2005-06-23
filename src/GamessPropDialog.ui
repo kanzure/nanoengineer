@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>GamessPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>509</width>
-            <height>673</height>
+            <height>643</height>
         </rect>
     </property>
     <property name="caption">
@@ -435,24 +435,24 @@
                 </property>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout47</cstring>
+                        <cstring>layout24</cstring>
                     </property>
-                    <grid>
+                    <hbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLabel" row="0" column="0">
+                        <widget class="QLabel">
                             <property name="name">
-                                <cstring>textLabel5</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
+                                <cstring>textLabel6</cstring>
                             </property>
                             <property name="text">
-                                <string>Theory Ladder :</string>
+                                <string>Final Basis Set :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
                             </property>
                         </widget>
-                        <widget class="QComboBox" row="1" column="1">
+                        <widget class="QComboBox">
                             <item>
                                 <property name="text">
                                     <string>AM1</string>
@@ -556,38 +556,24 @@
                                 <string>Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS.</string>
                             </property>
                         </widget>
-                        <widget class="QLabel" row="0" column="1">
+                        <spacer>
                             <property name="name">
-                                <cstring>textLabel6</cstring>
+                                <cstring>spacer2</cstring>
                             </property>
-                            <property name="text">
-                                <string>Final Basis Set :</string>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
                             </property>
-                        </widget>
-                        <widget class="QComboBox" row="1" column="0">
-                            <item>
-                                <property name="text">
-                                    <string>AM1 -&gt; 3-21G</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>AM1 -&gt; 3-21G -&gt; 6-31G</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>AM1 -&gt; 3-21G -&gt; 6-31G -&gt; 6-31G(d,p)</string>
-                                </property>
-                            </item>
-                            <property name="name">
-                                <cstring>theory_ladder_combox</cstring>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
                             </property>
-                            <property name="enabled">
-                                <bool>false</bool>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
                             </property>
-                        </widget>
-                    </grid>
+                        </spacer>
+                    </hbox>
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
@@ -1090,7 +1076,7 @@
                                         <string>DIIS</string>
                                     </property>
                                     <property name="checked">
-                                        <bool>true</bool>
+                                        <bool>false</bool>
                                     </property>
                                     <property name="toolTip" stdset="0">
                                         <string>Controls Pulay's DIIS interpolation.</string>
@@ -1345,7 +1331,7 @@
                 <cstring>edit_input_file_cbox</cstring>
             </property>
             <property name="text">
-                <string>Open Input File in Editor after Queuing (and before Launching)</string>
+                <string>Open Input File in text editor before running</string>
             </property>
         </widget>
         <widget class="QLayoutWidget">

@@ -12,7 +12,7 @@ __author__ = "Mark"
 # This is the GAMESS UI widget default settings (for energy).
 
 ui={'comment':'','runtyp':0,'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize':1, 'ncore':0,
-        'conv':1, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':1,'soscf':0,'rstrct':0,'server':0}
+        'conv':1, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':0,'soscf':0,'rstrct':0,'server':0, 'gbasisname':'AM1'}
 
 # These are the GAMESS parms set defaults (for energy).
 
@@ -323,21 +323,22 @@ class GamessProp(GamessPropDialog):
             for f in gms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
 
-        
+
     def _update_gbasis_list(self, val):
-        '''Called by set_ecmethod() to update the gbasis list. '''     
-        print "Number of Basis items: ", self.gbasis_combox.count()
+        '''Add/remove AM1 and PM3 to/from the gbasis list. '''
+        citem = self.gbasis_combox.currentItem()
         if val == DFT or val == MP2:
             if self.gbasis_combox.count() == 18:
-                print "update_gbasis_list: removing AM1 and PM3"
                 self.gbasis_combox.removeItem(0)
                 self.gbasis_combox.removeItem(0)
+                self.gbasis_combox.setCurrentItem(max(0, citem-2))
         else:
             if self.gbasis_combox.count() != 18:
                 self.gbasis_combox.insertItem("PM3",0)
                 self.gbasis_combox.insertItem("AM1",0)
-    
+                self.gbasis_combox.setCurrentItem(citem+2)
 
+    
     def _save_ui_settings(self):
         '''Save the UI settings in the Gamess jig pset.  There is one setting for each pset.
         '''
@@ -354,6 +355,7 @@ class GamessProp(GamessPropDialog):
         self.pset.ui.ecm = self.ecm_btngrp.selectedId() # None, DFT or MP2
         self.pset.ui.inttyp = self.ecm_btngrp.selectedId() # INTTYP
         self.pset.ui.gbasis = self.gbasis_combox.currentItem() # Basis Set
+        self.pset.ui.gbasisname = str(self.gbasis_combox.currentText())
         self.pset.ui.dfttyp = self.dfttyp_combox.currentItem() # DFT Functional Type
         self.pset.ui.gridsize = self.gridsize_combox.currentItem() # Grid Size
         self.pset.ui.ncore = self.core_electrons_checkbox.isChecked() # Include core electrons
@@ -498,10 +500,12 @@ class GamessProp(GamessPropDialog):
         final_energy = self.job.get_gamess_energy()
 
         if final_energy:
-            msg = "GAMESS finished.  The final energy is: " + str(final_energy)
+            gmstr = self.gamessJig.gms_parms_info()
+            msg = "GAMESS finished. Parameters: " + gmstr + ".  The final energy is: " + str(final_energy)
         else:
             msg = redmsg("Final energy value not found.")
         self.win.history.message(msg)
+        
     ######End of private or helper methods.########################
         
     #######The following methods are currently not used. ###### ######
@@ -628,7 +632,6 @@ class GamessProp(GamessPropDialog):
         # AM1 and PM3 are not options for DFT or MP2.
         # We have to remove or add them from the combo box.
         self._update_gbasis_list(val)
-    
     
     def openServerManager(self):
         """Pop up ServerManagerDialog to edit the properties of the servers."""

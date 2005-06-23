@@ -76,20 +76,22 @@ class GamessJob(SimJob):
     def get_gamess_energy(self):
         'Runs a GAMESS energy calculation and returns the energy.'
         self.launch_job()
-
-        # Wait for GAMESS output file to be written.
-        while not os.path.exists(self.job_outputfile):
-            time.sleep(0.5)
-            
         return self.get_energy_from_outputfile()
 
     def _start_job(self):
         self.starttime = time.time()
         print "Just execute the file:", self.job_batfile
-        self._launch_gamess()
-        
+
+        if self.server.engine == 'PC GAMESS':
+            self._launch_pcgamess()
+        else:
+            self._launch_gamess()
+    
     def _launch_gamess(self):
-        '''Run PC GAMESS (Windows or Linux only).
+        print "GAMESS not supported on Windows"
+
+    def _launch_pcgamess(self):
+        '''Run PC GAMESS (Windows only).
         PC GAMESS creates 2 output files:
           - the DAT file, called "PUNCH", is written to the directory from which
             PC GAMESS is started.  This is why we chdir to the Gamess temp directory
@@ -147,13 +149,14 @@ class GamessJob(SimJob):
         f.write ('!\n! INP file created by nanoENGINEER-1 on ')
         timestr = "%s\n!\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
         f.write(timestr)
+        gmstr = "! GAMESS parameter summary: " + self.gamessJig.gms_parms_info() + "\n!\n"
+        f.write(gmstr)
         
         self.edit_cntl.pset.prin1(f) # Write GAMESS Jig parameters.
 
         self.write_atoms_data(f) # Write DATA section with molecule data.
         
         f.close() # Close INP file.
-
 
     def write_atoms_data(self, f):
         'Write the atoms list data to the DATA group of the GAMESS INP file'
@@ -215,8 +218,12 @@ class GamessJob(SimJob):
         GAMESS is not yet supported, as the line containing the energy
         value is different from PC GAMESS.
         '''
-        elist = []
         
+        if not os.path.exists(self.job_outputfile):
+            return None
+            
+        elist = []
+                    
         lines = open(self.job_outputfile,"rU").readlines()
         
         for line in lines:
@@ -228,5 +235,4 @@ class GamessJob(SimJob):
                 return float(elist[3]) # Return the final energy value.
             else: continue
             
-        return None # Just in case (i.e. file doesn't exist).
-        
+        return None # Just in case.

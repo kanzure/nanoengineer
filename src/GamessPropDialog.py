@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\GamessPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Wed Jun 22 17:46:21 2005
+# Created: Thu Jun 23 00:23:11 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -276,26 +276,17 @@ class GamessPropDialog(QDialog):
         groupBox2Layout = QVBoxLayout(self.groupBox2.layout())
         groupBox2Layout.setAlignment(Qt.AlignTop)
 
-        layout47 = QGridLayout(None,1,1,0,6,"layout47")
-
-        self.textLabel5 = QLabel(self.groupBox2,"textLabel5")
-        self.textLabel5.setEnabled(0)
-
-        layout47.addWidget(self.textLabel5,0,0)
-
-        self.gbasis_combox = QComboBox(0,self.groupBox2,"gbasis_combox")
-
-        layout47.addWidget(self.gbasis_combox,1,1)
+        layout24 = QHBoxLayout(None,0,6,"layout24")
 
         self.textLabel6 = QLabel(self.groupBox2,"textLabel6")
+        self.textLabel6.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout24.addWidget(self.textLabel6)
 
-        layout47.addWidget(self.textLabel6,0,1)
-
-        self.theory_ladder_combox = QComboBox(0,self.groupBox2,"theory_ladder_combox")
-        self.theory_ladder_combox.setEnabled(0)
-
-        layout47.addWidget(self.theory_ladder_combox,1,0)
-        groupBox2Layout.addLayout(layout47)
+        self.gbasis_combox = QComboBox(0,self.groupBox2,"gbasis_combox")
+        layout24.addWidget(self.gbasis_combox)
+        spacer2 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout24.addItem(spacer2)
+        groupBox2Layout.addLayout(layout24)
 
         layout29 = QHBoxLayout(None,0,6,"layout29")
 
@@ -380,16 +371,16 @@ class GamessPropDialog(QDialog):
 
         layout25 = QHBoxLayout(None,0,6,"layout25")
 
-        layout24 = QHBoxLayout(None,0,6,"layout24")
+        layout24_2 = QHBoxLayout(None,0,6,"layout24_2")
 
         self.textLabel1_2 = QLabel(self.groupBox3,"textLabel1_2")
         self.textLabel1_2.setEnabled(0)
-        layout24.addWidget(self.textLabel1_2)
+        layout24_2.addWidget(self.textLabel1_2)
 
         self.spinBox3 = QSpinBox(self.groupBox3,"spinBox3")
         self.spinBox3.setEnabled(0)
-        layout24.addWidget(self.spinBox3)
-        layout25.addLayout(layout24)
+        layout24_2.addWidget(self.spinBox3)
+        layout25.addLayout(layout24_2)
 
         layout23_2 = QVBoxLayout(None,0,6,"layout23_2")
 
@@ -411,7 +402,7 @@ class GamessPropDialog(QDialog):
 
         self.diis_checkbox = QCheckBox(self.groupBox3,"diis_checkbox")
         self.diis_checkbox.setEnabled(0)
-        self.diis_checkbox.setChecked(1)
+        self.diis_checkbox.setChecked(0)
         layout51.addWidget(self.diis_checkbox)
         layout25.addLayout(layout51)
 
@@ -488,21 +479,21 @@ class GamessPropDialog(QDialog):
         self.edit_input_file_cbox = QCheckBox(self,"edit_input_file_cbox")
         GamessPropDialogLayout.addWidget(self.edit_input_file_cbox)
 
-        layout24_2 = QHBoxLayout(None,0,6,"layout24_2")
+        layout24_3 = QHBoxLayout(None,0,6,"layout24_3")
 
         self.run_job_btn = QPushButton(self,"run_job_btn")
-        layout24_2.addWidget(self.run_job_btn)
+        layout24_3.addWidget(self.run_job_btn)
 
         self.okButton = QPushButton(self,"okButton")
-        layout24_2.addWidget(self.okButton)
+        layout24_3.addWidget(self.okButton)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
-        layout24_2.addWidget(self.cancel_btn)
-        GamessPropDialogLayout.addLayout(layout24_2)
+        layout24_3.addWidget(self.cancel_btn)
+        GamessPropDialogLayout.addLayout(layout24_3)
 
         self.languageChange()
 
-        self.resize(QSize(509,673).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(509,643).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
@@ -558,7 +549,7 @@ class GamessPropDialog(QDialog):
         QToolTip.add(self.dirscf_checkbox,self.__tr("Check this box to run the calculation in RAM and avoid hard disk usage for integral storage."))
         QWhatsThis.add(self.dirscf_checkbox,self.__tr("Check this box to run the calculation in RAM and avoid hard disk usage for integral storage."))
         self.groupBox2.setTitle(self.__tr("Optimization Procedure: Electron Correlation Method For Final Step"))
-        self.textLabel5.setText(self.__tr("Theory Ladder :"))
+        self.textLabel6.setText(self.__tr("Final Basis Set :"))
         self.gbasis_combox.clear()
         self.gbasis_combox.insertItem(self.__tr("AM1"))
         self.gbasis_combox.insertItem(self.__tr("PM3"))
@@ -581,11 +572,6 @@ class GamessPropDialog(QDialog):
         self.gbasis_combox.setCurrentItem(0)
         QToolTip.add(self.gbasis_combox,self.__tr("Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS."))
         QWhatsThis.add(self.gbasis_combox,self.__tr("Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS."))
-        self.textLabel6.setText(self.__tr("Final Basis Set :"))
-        self.theory_ladder_combox.clear()
-        self.theory_ladder_combox.insertItem(self.__tr("AM1 -> 3-21G"))
-        self.theory_ladder_combox.insertItem(self.__tr("AM1 -> 3-21G -> 6-31G"))
-        self.theory_ladder_combox.insertItem(self.__tr("AM1 -> 3-21G -> 6-31G -> 6-31G(d,p)"))
         self.checkBox10_3_2.setText(self.__tr("Read $HESS Group"))
         self.checkBox10_2_2_2.setText(self.__tr("Read $VEC Group"))
         QToolTip.add(self.checkBox10_2_2_2,self.__tr("Only if Hf basis same as CI basis","Only if Hf basis same as CI basis"))
@@ -685,7 +671,7 @@ class GamessPropDialog(QDialog):
         self.server_combox.clear()
         self.server_combox.insertItem(self.__tr("My Computer"))
         self.server_manager_btn.setText(self.__tr("Server Manager..."))
-        self.edit_input_file_cbox.setText(self.__tr("Open Input File in Editor after Queuing (and before Launching)"))
+        self.edit_input_file_cbox.setText(self.__tr("Open Input File in text editor before running"))
         self.run_job_btn.setText(self.__tr("Run"))
         QToolTip.add(self.run_job_btn,self.__tr("Save GAMESS parameters and launch job."))
         self.okButton.setText(self.__tr("Ok"))
