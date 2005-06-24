@@ -87,7 +87,7 @@ def _readgms(assy, filename, isInsert = False):
             
         if countdown:
             countdown -= 1
-            print countdown, card
+#            print countdown, card # for debugging only.
             continue
 
         n = 0
