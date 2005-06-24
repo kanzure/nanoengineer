@@ -23,6 +23,7 @@ from elementColors import elementColors ## bruce 050408 removed: import *
 from elementSelector import elementSelector ## bruce 050408 removed: import *
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
 from files_pdb import readpdb, insertpdb, writepdb
+from files_gms import readgms, insertgms
 from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
 from debug import print_compact_traceback
 
@@ -304,7 +305,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
          
         wd = globalParms['WorkingDirectory']
         fn = QFileDialog.getOpenFileName(wd,
-                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All of the above (*.pdb *.mmp)",
+                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All of the above (*.pdb *.mmp *.out)",
                 self )
                 
         if not fn:
@@ -339,6 +340,16 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                     self.assy.changed() # The file and the part are not the same.
                     self.history.message( "PDB file inserted: " + fn )
             
+            if fn[-3:] in ["out","OUT"]:
+                try:
+                    insertgms(self.assy, fn)
+                except:
+                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting GAMESS OUT file [%s]: " % fn )
+                    self.history.message( redmsg( "Internal error while inserting GAMESS OUT file: " + fn) )
+                else:
+                    self.assy.changed() # The file and the part are not the same.
+                    self.history.message( "GAMESS file inserted: " + fn )
+                    
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
             self.mt.mt_update()
@@ -373,7 +384,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         else: odir = globalParms['WorkingDirectory']
 
         fn = QFileDialog.getOpenFileName(odir,
-                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
+                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out)",
                 self )
                 
         if not fn:
@@ -399,6 +410,10 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 readpdb(self.assy,fn)
                 self.history.message("PDB file opened: [" + fn + "]")
 
+            if fn[-3:] in ["out","OUT"]:
+                readgms(self.assy,fn)
+                self.history.message("GAMESS file opened: [" + fn + "]")
+                
             dir, fil, ext = fileparse(fn)
             self.assy.name = fil
             self.assy.filename = fn
