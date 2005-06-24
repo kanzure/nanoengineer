@@ -213,6 +213,8 @@ import sys, os, time
 from GamessPropDialog import *
 from ServerManager import ServerManager
 from HistoryWidget import redmsg
+from files_gms import insertgms
+from debug import print_compact_traceback
         
 class GamessProp(GamessPropDialog):
     '''The Gamess Jig Properties dialog used for:
@@ -570,8 +572,16 @@ class GamessProp(GamessPropDialog):
         if self.runtyp_combox.currentItem() == 0: #Energy
             self.gamessJig.print_energy()
         else:  # Optimize
-            # Here is where we want to insert the chunk.
-            print "Look at MWsemantics.insertFile for code snippet to insert a chunk from a GAMESS file."
+            fn = self.gamessJig.outputfile
+            try:
+                insertgms(self.gamessJig.assy, fn)
+            except:
+                print_compact_traceback( "GamessProp.run_job(): error inserting GAMESS OUT file [%s]: " % fn )
+                self.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + fn) )
+            else:
+                self.gamessJig.assy.changed() # The file and the part are not the same.
+                self.win.history.message( "GAMESS file inserted: " + fn )
+                    
     
     def accept(self):
         """The slot method for the 'Save' button."""
