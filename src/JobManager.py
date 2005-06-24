@@ -188,14 +188,6 @@ class JobManager(JobManagerDialog):
         currentJobRow = self.job_table.currentRow()
         self.jobs[currentJobRow].start_job()
         
-        # Print msg telling user the final energy value.
-        final_energy = self.jobs[currentJobRow].get_energy_from_outputfile()
-        if final_energy:
-            msg = "GAMESS finished.  The final energy is: " + str(final_energy)
-        else:
-            msg = redmsg("Final energy value not found.")
-        self.win.history.message(msg)
-        
     
     def build_job_list(self):
         """ Scan Job manager directories to find and return all the list of jobs"""

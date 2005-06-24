@@ -1331,7 +1331,7 @@
                 <cstring>edit_input_file_cbox</cstring>
             </property>
             <property name="text">
-                <string>Open Input File in text editor before running</string>
+                <string>Open Input File in text editor</string>
             </property>
         </widget>
         <widget class="QLayoutWidget">
@@ -1347,7 +1347,7 @@
                         <cstring>run_job_btn</cstring>
                     </property>
                     <property name="text">
-                        <string>Run</string>
+                        <string>Save and Run</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Save GAMESS parameters and launch job.</string>
@@ -1355,10 +1355,10 @@
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>okButton</cstring>
+                        <cstring>save_btn</cstring>
                     </property>
                     <property name="text">
-                        <string>Ok</string>
+                        <string>Save</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -1422,21 +1422,15 @@
         <slot>run_job()</slot>
     </connection>
     <connection>
-        <sender>okButton</sender>
+        <sender>save_btn</sender>
         <signal>clicked()</signal>
         <receiver>GamessPropDialog</receiver>
         <slot>accept()</slot>
     </connection>
 </connections>
 <slots>
-    <slot>queue_job()</slot>
     <slot>set_ecmethod()</slot>
     <slot>set_multiplicity()</slot>
-    <slot>open_atoms_list_in_editor()</slot>
-    <slot>set_jig_filenames()</slot>
-    <slot>launch_job()</slot>
-    <slot>add_or_change_pset()</slot>
-    <slot>rename()</slot>
     <slot>serverChanged(int)</slot>
     <slot>run_job()</slot>
     <slot>openServerManager()</slot>

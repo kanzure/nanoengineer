@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Thu Jun 23 00:23:11 2005
+# Created: Fri Jun 24 00:24:19 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -484,8 +484,8 @@ class GamessPropDialog(QDialog):
         self.run_job_btn = QPushButton(self,"run_job_btn")
         layout24_3.addWidget(self.run_job_btn)
 
-        self.okButton = QPushButton(self,"okButton")
-        layout24_3.addWidget(self.okButton)
+        self.save_btn = QPushButton(self,"save_btn")
+        layout24_3.addWidget(self.save_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         layout24_3.addWidget(self.cancel_btn)
@@ -502,7 +502,7 @@ class GamessPropDialog(QDialog):
         self.connect(self.server_manager_btn,SIGNAL("clicked()"),self.openServerManager)
         self.connect(self.server_combox,SIGNAL("activated(int)"),self.serverChanged)
         self.connect(self.run_job_btn,SIGNAL("clicked()"),self.run_job)
-        self.connect(self.okButton,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.save_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
 
 
     def languageChange(self):
@@ -671,38 +671,20 @@ class GamessPropDialog(QDialog):
         self.server_combox.clear()
         self.server_combox.insertItem(self.__tr("My Computer"))
         self.server_manager_btn.setText(self.__tr("Server Manager..."))
-        self.edit_input_file_cbox.setText(self.__tr("Open Input File in text editor before running"))
-        self.run_job_btn.setText(self.__tr("Run"))
+        self.edit_input_file_cbox.setText(self.__tr("Open Input File in text editor"))
+        self.run_job_btn.setText(self.__tr("Save and Run"))
         QToolTip.add(self.run_job_btn,self.__tr("Save GAMESS parameters and launch job."))
-        self.okButton.setText(self.__tr("Ok"))
+        self.save_btn.setText(self.__tr("Save"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         QToolTip.add(self.cancel_btn,self.__tr("Closes this window."))
         QWhatsThis.add(self.cancel_btn,self.__tr("Closes this window."))
 
-
-    def queue_job(self):
-        print "GamessPropDialog.queue_job(): Not implemented yet"
 
     def set_ecmethod(self):
         print "GamessPropDialog.set_ecmethod(): Not implemented yet"
 
     def set_multiplicity(self):
         print "GamessPropDialog.set_multiplicity(): Not implemented yet"
-
-    def open_atoms_list_in_editor(self):
-        print "GamessPropDialog.open_atoms_list_in_editor(): Not implemented yet"
-
-    def set_jig_filenames(self):
-        print "GamessPropDialog.set_jig_filenames(): Not implemented yet"
-
-    def launch_job(self):
-        print "GamessPropDialog.launch_job(): Not implemented yet"
-
-    def add_or_change_pset(self):
-        print "GamessPropDialog.add_or_change_pset(): Not implemented yet"
-
-    def rename(self):
-        print "GamessPropDialog.rename(): Not implemented yet"
 
     def serverChanged(self,a0):
         print "GamessPropDialog.serverChanged(int): Not implemented yet"

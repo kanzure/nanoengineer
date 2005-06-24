@@ -215,8 +215,11 @@ from ServerManager import ServerManager
 from HistoryWidget import redmsg
         
 class GamessProp(GamessPropDialog):
-    '''A GamessProp is a dialog window for creating and editing 
-    GAMESS parameter sets for the Gamess jig and launching them.'''
+    '''The Gamess Jig Properties dialog used for:
+    - running a GAMESS energy calculation on a structure (group of atoms).
+    - running a GAMESS optimization on a structure.
+    - setting and saving the GAMESS parameters used for an energy calculation or optimization.
+    '''
        
     def __init__(self):
         GamessPropDialog.__init__(self)
@@ -226,6 +229,7 @@ class GamessProp(GamessPropDialog):
         
         
     def showDialog(self, job):
+        '''Display the GAMESS Jig Properties dialog'''
         self.gamessJig =  job.gamessJig
         self.job = job
         self.pset = self.gamessJig.psets[0]
@@ -246,10 +250,6 @@ class GamessProp(GamessPropDialog):
         self.comment_linedit.setText(self.pset.ui.comment)
         self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
         
-        # Multiple Parameter Sets have been disabled.
-        # Mark 050607
-#        self.load_psets_combox()
-        
         # Electronic Structure Props and Basis Set section.
         self.scftyp_btngrp.setButton(self.pset.ui.scftyp) # RHF, UHF, or ROHF
         self.gbasis_combox.setCurrentItem(self.pset.ui.gbasis) # Basis set
@@ -263,7 +263,6 @@ class GamessProp(GamessPropDialog):
         
         # Electron Correlation Method
         ecm = self.pset.ui.ecm
-#        print "Setup: ECM = ",ecm
         self.ecm_btngrp.setButton(self.pset.ui.ecm) # None, DFT or MP2
         self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
         
@@ -343,7 +342,7 @@ class GamessProp(GamessPropDialog):
         '''Save the UI settings in the Gamess jig pset.  There is one setting for each pset.
         '''
         self._rename()
-        self.pset.ui.comment = str(self.comment_linedit.text())
+        self.pset.ui.comment = str(self.comment_linedit.text()) # Description
         self.pset.ui.runtyp = self.runtyp_combox.currentItem() # RUNTYP = Energy or Optimize
         
         # Electronic Structure Props and Basis Set section.
@@ -375,7 +374,7 @@ class GamessProp(GamessPropDialog):
         # Server
         self.pset.ui.server = self.server_combox.currentText()
         
-        self._save_parms() # Now save params.
+        self._save_parms() # Save all the parameters in the pset attribute.
         self._save_job_parms()
         
     def _save_parms(self):
@@ -489,90 +488,9 @@ class GamessProp(GamessPropDialog):
         ##Copy some  attributes from the server object to job description
         self.job.Server_id = self.server.server_id
         self.job.Engine = self.server.engine
-    
-    def _get_energy(self):
-        """Private method. """
-        #Ideally, the following 2 statements should be at the top of run_job()
-        #especially when we have GAMESS Optimization working.
-        self._save_ui_settings()
-        self.close() # Close dialog
-        
-        final_energy = self.job.get_gamess_energy()
-
-        if final_energy:
-            gmstr = self.gamessJig.gms_parms_info()
-            msg = "GAMESS finished. Parameters: " + gmstr + ".  The final energy is: " + str(final_energy)
-        else:
-            msg = redmsg("Final energy value not found.")
-        self.win.history.message(msg)
-        
+                
     ######End of private or helper methods.########################
-        
-    #######The following methods are currently not used. ###### ######
-    def restore(self):
-        '''Implement a button for Use Defaults or Restore Default Values, if one is added to the UI.
-        '''
-        #save_params = self.pset # save original params, in case of Cancel after this restore
-        #self.setup() # set widgets to the restored values; also does unwanted set of self.myparms
-        #self.myparms = save_params
-        return
-        
-    def add_or_change_pset(self, val):
-        '''Add or change a pset from the pset combo box.'''
-        self._save_ui_settings() # Save the UI settings, which will also save parms set.
-        # New.. was selected.  Add a new pset.
-        if val == self.psets_combox.count()-1:
-            self.pset = self.gamessJig.add_pset()
-        else: # Change to an existing pset.
-            self.pset = self.gamessJig.psets[val]
-        self._setup()
 
-    def load_psets_combox(self):
-        '''Load list of parm sets in the combobox widget.
-        This is not implemeted as 2005-06-07 - Mark
-        '''
-        num = 0
-        self.psets_combox.clear() # Clear all combo box items
-      
-        for pset in self.gamessJig.psets: # Should I call method to return copy of psets?
-            self.psets_combox.insertItem(pset.name)
-            if pset is self.pset:
-
-            # Find out item number for current parms set.
-            # This will fail if we allow multiple psets to have the same name.
-            # Will need to disallow a pset to have the same name as another.
-            # Mark 050530
-
-                pnum = num
-            else:
-                num += 1
-        self.psets_combox.insertItem("New...")
-        self.psets_combox.setCurrentItem(pnum) # Set current item to current parms set.
-        
-    def rename_pset(self):
-        '''Rename the current parms set name.
-        This is not implemeted as 2005-06-07 - Mark
-        '''
-        self.pset.name = str(self.pset_name_linedit.text())
-        self.update_pset_combox_item()
-#        self.update_comment()
-        
-    def update_pset_combox_item(self):
-        '''Rename the current pset name in the combo box'''
-        print 'update_pset_combox_item: Not Implemented Yet'  
-    
-    def queue_job(self):
-        self._save_ui_settings()
-        self.job.queue_job()
-        self.close() # Close dialog
-        
-    def launch_job(self):
-        self._save_ui_settings()
-        self.job.launch_job()
-        self.close() # Close dialog
-    ############### End. ################################### 
-    
-    
     ##########Slot methods for some GUI controls################   
     def set_multiplicity(self, val):
         '''Enable/disable widgets when user changes Multiplicity.
@@ -645,14 +563,18 @@ class GamessProp(GamessPropDialog):
         self._load_dfttyp_combox()
     
     def run_job(self):
-        """Slot method for the 'Run' button """
+        """Slot method for the 'Save and Run' button """
+        self.accept()
+        self.job.launch_job()
+        
         if self.runtyp_combox.currentItem() == 0: #Energy
-            self._get_energy()
+            self.gamessJig.print_energy()
         else:  # Optimize
-            print "run_job: GAMESS Optimize not supported yet."
+            # Here is where we want to insert the chunk.
+            print "Look at MWsemantics.insertFile for code snippet to insert a chunk from a GAMESS file."
     
     def accept(self):
-        """The slot method for the 'Ok' button."""
+        """The slot method for the 'Save' button."""
         self._save_ui_settings()
         QDialog.accept(self)
     

@@ -11,6 +11,7 @@ from drawer import drawwirecube
 from GamessProp import *
 from GamessJob import *
 from SimServer import SimServer
+from files_gms import get_energy_from_pcgms_outfile
 
 # == GAMESS
 
@@ -40,6 +41,7 @@ class Gamess(Jig):
         self.psets.append(gamessParms('Parameter Set 1'))
         self.gmsjob = GamessJob(Gamess.job_parms, jig=self)
         self.gmsjob.edit()
+        self.outputfile = '' # Name of jig's most recent output file.
         
 
     def edit(self):
@@ -122,7 +124,13 @@ class Gamess(Jig):
                 
     def __CM_Calculate_Energy(self):
         
-        final_energy = self.gmsjob.get_gamess_energy()
+        print "Gamess Jig output file: ", self.outputfile
+        self.gmsjob.launch_job()
+        self.print_energy()
+        
+    def print_energy(self):
+        
+        final_energy = get_energy_from_pcgms_outfile(self.outputfile)
 
         if final_energy:
             gmstr = self.gms_parms_info()
