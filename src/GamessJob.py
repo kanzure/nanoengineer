@@ -54,13 +54,15 @@ class GamessJob(SimJob):
         print "GamessProp.queue_job: Job Id = ", job_id
         self.Status = 'Queued'
 
+        basename = self.gamessJig.name + "-" + self.gamessJig.gms_parms_info('_')
+        
         # GAMESS Job INP, OUT and BAT files.
         if self.server.engine == 'PC GAMESS':
-            self.job_inputfile = os.path.join(job_id_dir, "gamess_job_%s.inp" % job_id)
+            self.job_inputfile = os.path.join(job_id_dir, "%s.inp" % basename)
         else:
-            self.job_inputfile = os.path.join(job_id_dir, "gamess_job_%s" % job_id)
-        self.job_outputfile = os.path.join(job_id_dir, "gamess_job_%s.out" % job_id)
-        self.job_batfile = os.path.join(job_id_dir, "gamess_job_%s.bat" % job_id)
+            self.job_inputfile = os.path.join(job_id_dir, "%s" %  basename)
+        self.job_outputfile = os.path.join(job_id_dir, "%s.out" %  basename)
+        self.job_batfile = os.path.join(job_id_dir, "%s.bat" %  basename)
          
         # Write INP file (in ~/Nanorex/JobManager/Job Id subdirectory)
         writegms_inpfile(self.job_inputfile, self.gamessJig)
