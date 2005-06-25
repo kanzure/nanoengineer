@@ -90,11 +90,16 @@ class Gamess(Jig):
     def getstatistics(self, stats):
         stats.ngamess += 1
 
-    def gms_parms_info(self):
+    def gms_parms_info(self, delimeter='/'):
         '''Return a GAMESS parms shorthand string.
         '''
-        # This is something Damian wanted to quickly display the parms set for
-        # a Gamess jig. Mark 050622.
+        # This is something Damian and I discussed to quickly display the parms set for
+        # a Gamess jig. It is used in the header of the GAMESS INP file and in the naming of
+        # the new chunk made from a GAMESS optimization.  It is also used to display the
+        # parameter info (along with the energy) when doing an energy calculation.
+        # Mark 050625.
+        
+        d = delimeter
         
         pset = self.psets[0]
         
@@ -105,23 +110,23 @@ class Gamess(Jig):
         if ecm[pset.ui.ecm] == 'DFT':
             item = gms_dfttyp_items[pset.ui.dfttyp]
             s2, junk = item.split(' ',1)
-            s2 = '/' + s2
+            s2 = d + s2
         elif ecm[pset.ui.ecm] == 'MP2':
-            s2 = '/MP2'
+            s2 = d + 'MP2'
         else:
             s2 = ''
         
         # Basis Set    
-        s3 = "/" + pset.ui.gbasisname
+        s3 = d + pset.ui.gbasisname
         
         # Charge
-        s4 = "/Ch " + str(pset.ui.icharg)
+        s4 = d + 'Ch' + str(pset.ui.icharg)
         
         # Multiplicity
-        s5 = "/M " + str(pset.ui.mult + 1)
+        s5 = d + 'M' + str(pset.ui.mult + 1)
 
         return s1 + s2 + s3 + s4 + s5
-                
+                        
     def __CM_Calculate_Energy(self):
         
         print "Gamess Jig output file: ", self.outputfile
