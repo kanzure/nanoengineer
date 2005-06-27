@@ -1096,7 +1096,7 @@ class sim_aspect:
                 self.moving_atoms[atm.key] = atm
             # pretend that all singlets of selected atoms were also selected
             # (but were not grounded, even if atm was)
-            for sing in atm.singletNeighbors():
+            for sing in atm.singNeighbors():
                 self.moving_atoms[sing.key] = sing
         del atoms
         # now find the boundary1 of the moving_atoms

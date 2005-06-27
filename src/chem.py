@@ -973,8 +973,6 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """
         return filter(lambda atm: atm.element is Singlet, self.neighbors())
 
-    singletNeighbors = singNeighbors #bruce 050404, soon should just rename it and all the uses ###e ###@@@
-    
     def mvElement(self, elt, atomtype = None): #bruce 050511 added atomtype arg
         """[Public low-level method:]
         Change the element type of this atom to element elt
