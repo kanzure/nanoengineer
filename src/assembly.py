@@ -422,7 +422,10 @@ class assembly:
         if platform.atom_debug:
             self.checkparts()
             # if that raises an exception, don't catch it, drawing might not work
-        if self.part: #k condition needed??
+        if glpane.special_topnode is not None:
+            #bruce 050627 new feature, only used experimentally so far (mainly a kluge for old-mode-API compatibility)
+            glpane.special_topnode.draw(glpane, glpane.display) #k 2nd arg might not be needed someday, but is needed for now
+        elif self.part is not None: #k not None condition needed??
             self.part.draw(glpane)
         return
     

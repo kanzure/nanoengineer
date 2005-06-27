@@ -568,7 +568,7 @@ class depositMode(basicMode):
             else:
                 return HICOLOR_real_bond
         else:
-            print "unexpected selobj in depmode.selobj_highlight_color:", selobj
+            print "unexpected selobj class in depmode.selobj_highlight_color:", selobj
             return blue
         
     def update_selobj(self, event): #bruce 050610

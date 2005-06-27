@@ -469,6 +469,14 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             res = newstuff[0]
             # now rename it, like old code would do (in mol.copy), though whether
             # this is a good idea seems very dubious to me [bruce 050524]
+            try:
+                #bruce 050627 new feature, only used experimentally so far (demo_trans is not yet committed)
+                from demo_trans import special_node_name_q
+            except:
+                pass
+            else:
+                if special_node_name_q(res.name):
+                    return res
             if res.name.endswith('-frag'):
                 # kluge - in -frag case it's definitely bad to rename the copy, if this op added that suffix;
                 # we can't tell, but since it's likely and since this is dubious anyway, don't do it in this case.

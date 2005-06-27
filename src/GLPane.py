@@ -58,6 +58,8 @@ import globals
 
 debug_lighting = False #bruce 050418
 
+trans_feature = False ###@@@ bruce 050627 experimental code disabled for commit [DO NOT COMMIT with true]
+
 
 paneno = 0
 #  ... what a Pane ...
@@ -1064,7 +1066,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             self.need_setup_lighting = False # set to true again if setLighting is called
             self._setup_lighting()
 
-        if 0: # if we're top glpane and doing trans feature [###@@@ bruce 050617 experimental code disabled for commit]
+        if trans_feature: # if we're top glpane and doing trans feature
             part = self.part #e correct? might worry if not same as self.assy.part
             if platform.atom_debug and part is not self.assy.part:
                 print "atom_debug: glpane redraw sees different self.part %r and self.assy.part %r" % (self.part,self.assy.part)
@@ -1074,13 +1076,17 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 reload(demo_trans)
                 rendertop = demo_trans.translate(topnode, self)
             except:
-                print "glpane redraw: ignoring exception in demo_trans, using untrans form"
-                rendertop = topnode ###k ??
-            self.rendertop = rendertop # the actual nodes to draw... no, not enough, need the modified render loop too... ####e
+                print_compact_traceback( "glpane redraw: ignoring exception in demo_trans (using untrans form): ")
+                    #e improve if module missing, or don't commit
+                self.standard_repaint()
+            else:
+                # rendertop is the actual nodes to draw... no, not enough, need the modified render loop too... ####e
                 # or can that just be inserted into the nodes for use when you draw them? if so, they also need to encode the
                 # standard render loop! ie a call of standard_repaint (and self's other attrs) need passing in. well we did pass self!
                 # is that enough? if so, then right now, rather than std repaint we would just call rendertop.draw! (when no exc above)
-            self.standard_repaint()
+                self.rendertop = rendertop # will be needed later for mouse-event processing, maybe more ###@@@
+                rendertop.draw(self, self.display)
+            pass
         else:
             self.standard_repaint()
         
@@ -1089,10 +1095,25 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         
         return # from paintGL
 
-    def standard_repaint(self): #bruce 050617 split this out ###e not sure of name or exact role; might be called on proxy for subrect?
+    special_topnode = None #bruce 050627 only used experimentally so far
+    
+    def standard_repaint(self, special_topnode = None): #bruce 050617 split this out, added arg
+        ###e not sure of name or exact role; might be called on proxy for subrect?
         """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
         this routine sets its own matrixmode but depends on other gl state being standard when entered.
         """
+        self.special_topnode = special_topnode # this will be detected by assy.draw()
+        try:
+            self.standard_repaint_0()
+        except:
+            print_compact_traceback("exception in standard_repaint_0 ignored: ")
+            # we're not restoring stack depths here, so this will mess up callers, so we'll reraise
+            self.special_topnode = None #k or old one??
+            raise
+        self.special_topnode = None #k or old one??
+        return
+
+    def standard_repaint_0(self):
         c = self.mode.backgroundColor
             ##e [bruce 050615 comment] for modes with transparent surfaces covering screen, this ought to blend that in
             # (or we could change how they work so the blank areas looked like the specified bgcolor)
