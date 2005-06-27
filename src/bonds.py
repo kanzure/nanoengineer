@@ -59,7 +59,7 @@ from elements import *
 
 from chem import singlet_atom, stringVec, atom
     # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
-import globals
+import env
 
 # ==
 
@@ -376,7 +376,7 @@ class Bond:
         ## self.picked = 0 # bruce 041029 removed this since it seems unused
         self.changed_atoms()
         self.invalidate_bonded_mols() #bruce 041109 new feature
-        self.glname = globals.alloc_my_glselect_name( self) #bruce 050610
+        self.glname = env.alloc_my_glselect_name( self) #bruce 050610
 
     def set_v6(self, v6): ###@@@ not yet used?? can't be used for illegal valences, as our actual setters need to do...
         assert v6 in BOND_VALENCES

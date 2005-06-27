@@ -61,7 +61,7 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
 
 from elements import *
 
-import globals
+import env
 
 ## from chunk import *
 # -- done at end of file,
@@ -149,7 +149,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """
         # unique key for hashing
         self.key = atKey.next()
-        self.glname = globals.alloc_my_glselect_name( self) #bruce 050610
+        self.glname = env.alloc_my_glselect_name( self) #bruce 050610
         # self.element is an Elem object which specifies this atom's element
         # (this will be redundant with self.atomtype when that's set,
         #  but at least for now we keep it as a separate attr,
@@ -1264,7 +1264,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         assert atom.element is not Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self,atom)
         return atom
 
-    # higher-valence bonds methods [bruce 050502]
+    # higher-valence bonds methods [bruce 050502] [bruce 050627 comment: a lot of this might be obsolete. ###@@@]
     
     def singlet_v6(self):
         assert self.element is Singlet, "%r should be a singlet but is %s" % (self, self.element.name)

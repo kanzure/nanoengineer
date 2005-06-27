@@ -53,7 +53,7 @@ import platform # for platform.atom_debug
 from widgets import makemenu_helper
 from debug import DebugMenuMixin, print_compact_traceback
 import preferences
-import globals
+import env
 
 
 debug_lighting = False #bruce 050418
@@ -255,7 +255,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs
-            # see also globals.obj_with_glselect_name
+            # see also env.obj_with_glselect_name
 
         self.makeCurrent()
 
@@ -1188,7 +1188,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                     # tho if we ever support "name/subname paths" we'll probably let first name interpret the remaining ones.
                     ###e in fact, when nodes change projection or viewport for kids, and/or share their kids, they need to
                     # put their own names on the stack, so we'll know how to redraw the kids, or which ones are meant when shared.
-                    obj = globals.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                    obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                     self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
             #e maybe we should now sort glselect_dict by "hit priority" (for depth-tiebreaking), or at least put self.selobj first.
             # (or this could be done lower down, where it's used.)
