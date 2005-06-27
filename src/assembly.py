@@ -86,10 +86,12 @@ from jig_Gamess import *
 from Utility import *
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
+import platform
+import env
 
 debug_assy_changes = 0 #bruce 050429
 
-from part import Part # this must come after the SELWHAT constants! #e move them into constants.py??
+from part import Part # (this must come after the SELWHAT constants, in constants.py)
 
 assy_number = 0 # count assembly objects [bruce 050429]
 
@@ -354,12 +356,8 @@ class assembly:
         # and make sure selgroup_part finds a part from it, too
         assert self.selgroup_part(sg)
         # 050519 new feature: since bonds might have been broken above (by break_interpart_bonds), do this too:
-        self.update_bonds() #e overkill -- might need to be optimized
-        return
-
-    def update_bonds(self): #bruce 050519
-        for node in self.topnodes_with_own_parts():
-            node.part.update_bonds()
+        ## self.update_bonds() #e overkill -- might need to be optimized
+        env.post_event_updates() #bruce 050627 this replaces update_bonds
         return
     
     def ensure_one_part(self, node, part_constructor): #bruce 050420 revised this to help with bug 556; revised again 050527

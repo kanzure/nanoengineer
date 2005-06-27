@@ -629,15 +629,6 @@ class Part( jigmakers_Mixin, InvalMixin,
         self.topnode.apply2all( lambda node: node.break_interpart_bonds() )
         return
 
-    # ==
-
-    def update_bonds(self): #bruce 050519
-        """Re-estimate bond orders for all bonds in this Part which might need it (based on tracked changes),
-        for purposes of display, mmp bond records for sim, build UI behavior.
-        """
-        pass #NIM - first we have to track the changes which might affect this
-        return
-
     # == these are event handlers which do their own full UI updates at the end
     
     # bruce 050201 for Alpha:

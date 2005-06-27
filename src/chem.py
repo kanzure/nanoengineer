@@ -233,7 +233,8 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
         assert atomtype.element is self.element # [redundant with find_atomtype]
         self.atomtype = atomtype
-        ###e need any invals or updates for this method?? ###@@@
+        self._changed_structure() #bruce 050627
+        ###e need any more invals or updates for this method?? ###@@@
         return
         
     def set_atomtype(self, atomtype, always_remake_singlets = False):
@@ -1017,6 +1018,8 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             b.setup_invalidate()
         self.molecule.changeapp(1)
         # no need to invalidate shakedown-related things, I think [bruce 041112]
+        self._changed_structure() #bruce 050627
+        return
 
     def changed(self): #bruce 050509; perhaps should use more widely
         mol = self.molecule
@@ -1313,6 +1316,19 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         elif platform.atom_debug:
             print "atom_debug: update_valence thinks it doesn't need to update it for",self
         return
+
+    # ==
+
+    def _changed_structure(self): #bruce 050627
+        """[private method]
+           This must be called by all low-level methods which change this atom's or singlet's element, atomtype,
+        or set of bonds. It doesn't need to be called for changes to neighbor atoms, or for position changes,
+        or for changes to chunk membership of this atom, or when this atom is killed. Calling it when not needed
+        is ok, but might slow down later update functions by making them inspect this atom for important changes.
+           All user events which can call this (indirectly) should also call env.post_event_updates() when they're done.
+        """
+        from env import _changed_structure_atoms # a dict
+        _changed_structure_atoms[ id(self) ] = self
     
     # debugging methods (not yet fully tested; use at your own risk)
     

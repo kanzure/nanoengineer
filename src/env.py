@@ -79,4 +79,41 @@ def alloc_my_glselect_name(obj):
     obj_with_glselect_name[name] = obj
     return name
 
+# dict for atoms or singets whose element type, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
+
+_changed_structure_atoms = {} # maps id(atom) to atom, for atoms or singlets
+
+# the beginnings of a general change-handling scheme [bruce 050627]
+
+def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots of places, not just update_parts like now
+    """[public function]
+       This should be called at the end of every user event which might have changed
+    anything in any loaded model which defers some updates to this function.
+    (Someday there will be a general way for models to register their updaters here,
+    so that they are called in the proper order. For now, that's hardcoded.)
+       This can also be called at the beginning of user events, such as redraws or saves,
+    which want to protect themselves from event-processors which should have called this
+    at the end, but forgot to. Those callers should pass warn_if_needed = True, to cause
+    a debug-only warning to be emitted if the call was necessary. (This function is designed
+    to be very fast when called more times than necessary.)
+    """
+    if not _changed_structure_atoms: #e this will be generalized to: if no changes of any kind, since the last call
+        return
+    # some changes occurred, so this function needed to be called (even if they turn out to be trivial)
+    if warn_if_needed and platform.atom_debug:
+        # whichever user event handler made these changes forgot to call this function when it was done!
+        print "atom_debug: post_event_updates should have been called before, but wasn't!" #e use print_compact_stack??
+        pass # (other than printing this, we handle unreported changes normally)
+    # handle and clear all changes since the last call
+    # (in the proper order, when there might be more than one kind of change #nim)
+    if _changed_structure_atoms:
+        import bond_updater
+        reload(bond_updater) # during devel, reload this module every time it's used
+        from bond_updater import update_bonds_after_each_event
+        update_bonds_after_each_event( _changed_structure_atoms)
+            #e not sure if that routine will need to use or change other similar globals in this module;
+            # if it does, passing just that one might be a bit silly (so we could pass none, or all affected ones)
+        _changed_structure_atoms.clear()
+    return
+
 # end
