@@ -411,7 +411,6 @@ class cookieMode(basicMode):
                 self.w.history.transient_msg("Double click to end selection; Press <Esc> key to cancel selection.")
             else:
                 self.w.history.transient_msg("Left click to end selection; Press <Esc> key to cancel selection.")
-            #self.o.gl_update()
             self.pickdraw()
    
     def _afterCookieSelection(self):
@@ -666,8 +665,8 @@ class cookieMode(basicMode):
         basicMode.Draw(self)
         if self.gridShow:    
             self.griddraw()
-        if self.sellist:
-            self.pickdraw()
+        #if self.sellist: ## XOR color operation doesn't request paintGL() call.
+        #    self.pickdraw()
         if self.o.shape: self.o.shape.draw(self.o, self.layerColors)
         if self.showFullModel:
             self.o.assy.draw(self.o)
