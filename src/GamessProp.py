@@ -241,7 +241,7 @@ class GamessProp(GamessPropDialog):
         self.exec_loop()
 
 
-    ######Private or helper methods###################################
+    ######Private or helper methods###############################
     def _setup(self):
         ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
@@ -490,9 +490,10 @@ class GamessProp(GamessPropDialog):
         ##Copy some  attributes from the server object to job description
         self.job.Server_id = self.server.server_id
         self.job.Engine = self.server.engine
-                
-    ######End of private or helper methods.########################
 
+    ######End of private or helper methods.########################
+    
+    
     ##########Slot methods for some GUI controls################   
     def set_multiplicity(self, val):
         '''Enable/disable widgets when user changes Multiplicity.

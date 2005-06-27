@@ -137,7 +137,7 @@ class Gamess(Jig):
         
         final_energy = get_energy_from_pcgms_outfile(self.outputfile)
 
-        if final_energy:
+        if final_energy != None:
             gmstr = self.gms_parms_info()
             msg = "GAMESS finished. Parameters: " + gmstr + ".  The final energy is: " + str(final_energy)
         else:

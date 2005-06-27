@@ -68,7 +68,7 @@ class GamessJob(SimJob):
         writegms_inpfile(self.job_inputfile, self.gamessJig)
         
         # Create BAT file (in ~/Nanorex/JobManager/Job Id subdirectory)
-        writegms_batfile(self.job_batfile, self)
+        #writegms_batfile(self.job_batfile, self)
         
         # Open INP file in editor if user checked checkbox in GAMESS jig properties UI.
         if self.edit_cntl.edit_input_file_cbox.isChecked():
@@ -84,7 +84,7 @@ class GamessJob(SimJob):
     
     def _launch_gamess(self):
         print "GAMESS not supported on Windows"
-
+        
     def _launch_pcgamess(self):
         '''Run PC GAMESS (Windows only).
         PC GAMESS creates 2 output files:
@@ -105,6 +105,7 @@ class GamessJob(SimJob):
         
         jobDir = os.path.dirname(self.job_batfile)
         os.chdir(jobDir) # Change directory to the GAMESS temp directory.
+        print "Current directory is: ", jobDir
         
         DATfile = os.path.join(jobDir, "PUNCH")
         if os.path.exists(DATfile): # Remove any previous DAT (PUNCH) file.
@@ -115,20 +116,75 @@ class GamessJob(SimJob):
         # on Windows, any args that might have spaces must be delimited by double quotes.
         # Mark 050530.
         
-        program = "\"" + self.job_batfile + "\""
-        args = [program, ]
+        #program = "\"" + self.job_batfile + "\""
+        #args = [program, ]
         
         # Here's the infuriating part.  The 2nd arg to spawnv cannot have double quotes, but the
         # first arg in args (the program name) must have the double quotes if there is a space in
         # self.gms_program.
         
-        print  "program = ", program
-        print  "Spawnv args are %r" % (args,) # this %r remains (see above)
-        os.spawnv(os.P_WAIT, self.job_batfile, args)
+        #print  "program = ", program
+        #print  "Spawnv args are %r" % (args,) # this %r remains (see above)
+        #os.spawnv(os.P_WAIT, self.job_batfile, args)
+        
+        #try:
+        if 1:    
+            from qt import QProcess, qApp
+            import time
+            
+            #args = [r'C:\PCGAMESS\gamess.exe',  '-i',  r'C:\Documents and Settings\Huaicai Mo\Nanorex\jobManager\100\gamess_job_100.inp',  '-o',  r'C:\Documents and Settings\Huaicai Mo\Nanorex\JobManager\100\gamess_job_100.out']
+
+            args = [self.server.program, '-i', self.job_inputfile, '-o', self.job_outputfile]
+            
+            process = QProcess()
+            for s in args:
+                process.addArgument(s)
+            if not process.start():
+                print "The process can't be started."
+            progressDialog = self.showProgress()
+            progressDialog.show()
+            i = 55; pInc = True
+            while process.isRunning():
+                qApp.processEvents()
+                if  progressDialog.wasCanceled():
+                    process.kill()
+                    break
+                progressDialog.setProgress(i)
+                if pInc:
+                    if i < 75: i += 1
+                    else: pInc = False
+                else:
+                    if i > 55:  i -= 1
+                    else: pInc = True
+                #Do sth here
+                time.sleep(0.05)
+                if not process.isRunning():
+                     break
+                  
+            progressDialog.setProgress(100)        
+            progressDialog.accept()
+        #except:
+        #    print "Exception: QProcess failed to launch Gamess run "
         
         os.chdir(oldir)
-        
         self.gamessJig.outputfile = self.job_outputfile
         print "GamessJob._launch_pcgamess: self.gamessJig.outputfile: ", self.gamessJig.outputfile
+
+
+    def showProgress(self):
+        '''Open the progress dialog to show the current job progress. '''
+        from qt import QProgressDialog, QProgressBar
         
-#        print "run_pcgamess: Launched PC GAMESS. Changed back to previous dir = ",oldir
+        simProgressDialog = QProgressDialog(self.edit_cntl.win, "progressDialog", True)
+        if self.Calculation == 'Energy':
+            simProgressDialog.setLabelText("Calculating Energy ...")
+        else:
+            simProgressDialog.setLabelText("Optimizing ...")
+        simProgressDialog.setCaption("Please Wait")
+        progBar = QProgressBar(simProgressDialog)
+        progBar.setTotalSteps(0)
+        simProgressDialog.setBar(progBar)
+        simProgressDialog.setAutoReset(False)
+        simProgressDialog.setAutoClose(False)
+        
+        return simProgressDialog

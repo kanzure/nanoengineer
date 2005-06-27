@@ -197,7 +197,7 @@ def writegms_batfile(filename, gamessJob):
     gamessJob.write_parms(f) # write_parms is located in superclass (SimJob)
         
     if gamessJob.server.engine == 'PC GAMESS': # Windows
-        f.write(gamessJob.server.program + ' -i "' + gamessJob.job_inputfile + '" -o "' + gamessJob.job_outputfile + '"\n')
+        f.write(gamessJob.server.program + ' -i ' + gamessJob.job_inputfile + ' -o ' + gamessJob.job_outputfile + '\n')
     else: # GAMESS on Linux/Mac OS
         f.write(gamessJob.server.program + '  "' + gamessJob.job_inputfile + '" >& > "' + gamessJob.job_outputfile + '"\n')
             
