@@ -214,4 +214,8 @@ finish {
   wirebox( pos, rad, col )
 #end
 
+#macro gamess(pos, rad, col)
+  wirebox( pos, rad, col )
+#end
+
 """

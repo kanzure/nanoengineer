@@ -10,6 +10,7 @@ from jigs import Jig
 from drawer import drawwirecube
 from GamessProp import *
 from GamessJob import *
+from povheader import povpoint # Fix for bug 692 Mark 050628
 from SimServer import SimServer
 from files_gms import get_energy_from_pcgms_outfile
 
