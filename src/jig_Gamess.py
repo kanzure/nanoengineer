@@ -38,34 +38,15 @@ class Gamess(Jig):
         self.cancelled = False
         self.color = (0.0, 0.0, 0.0)
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
+        self.history = assy.w.history
         self.psets = [] # list of parms set objects
         self.psets.append(gamessParms('Parameter Set 1'))
         self.gmsjob = GamessJob(Gamess.job_parms, jig=self)
         self.gmsjob.edit()
         self.outputfile = '' # Name of jig's most recent output file.
-        
 
     def edit(self):
         self.gmsjob.edit()
-        
-    def add_pset(self):
-        '''Add a new parameter set to this jig.
-        '''
-        name = "Parameter Set " + str(len(self.psets) + 1)
-        self.psets.insert(0, gamessParms(name))
-        return self.psets[0]
-        
-    def get_pset_names(self):
-        '''Return a list of the parm set names for this jig.  The list is in reverse order.
-        '''
-        names = []
-        # I want to talk to Bruce about this reversal thing.  Mark 050530.
-        for p in self.psets:
-            names.append(p.name)
-        return names
-    
-#    def pset_number(self, i):
-#        return self.psets[i]
         
     # it's drawn as a wire cube around each atom (default color = black)
     def _draw(self, win, dispdef):
@@ -129,10 +110,27 @@ class Gamess(Jig):
         return s1 + s2 + s3 + s4 + s5
                         
     def __CM_Calculate_Energy(self):
+        '''Gamess Jig context menu "Calculate Energy"
+        '''
         
-        print "Gamess Jig output file: ", self.outputfile
-        self.gmsjob.launch_job()
-        self.print_energy()
+        pset = self.psets[0]
+        runtyp = pset.contrl.runtyp # Save runtyp (Calculate) setting to restore it later.
+        pset.contrl.runtyp = 'energy' # Energy calculation
+        
+        # Run GAMESS job.  Return value r:
+        # 0 = success
+        # 1 = job cancelled
+        # 2 = job failed.
+        r = self.gmsjob.launch()
+        
+        pset.contrl.runtyp = runtyp # Restore to original value
+        
+        if r == 0: # Success
+            self.print_energy()
+        elif r==1: # Job was cancelled
+            self.history.message( redmsg( "GAMESS job cancelled."))
+        else: # Job failed.
+            self.history.message( redmsg( "GAMESS job failed."))
         
     def print_energy(self):
         
@@ -140,10 +138,10 @@ class Gamess(Jig):
 
         if final_energy != None:
             gmstr = self.gms_parms_info()
-            msg = "GAMESS finished. Parameters: " + gmstr + ".  The final energy is: " + str(final_energy)
+            msg = "GAMESS finished. Parameters: " + gmstr + ".  The final energy is: " + str(final_energy) + " Hartree"
         else:
             msg = redmsg("Final energy value not found.")
-        self.assy.w.history.message(msg)
+        self.history.message(msg)
         
         return
 
