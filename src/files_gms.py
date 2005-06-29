@@ -132,11 +132,16 @@ def readgms(assy,filename):
     
 # Insert a GAMESS DAT file into a single molecule (chunk).
 def insertgms(assy,filename):
-    '''Reads a GAMESS DAT file and inserts it into the existing model.'''
+    '''Reads a GAMESS DAT file and inserts it into the existing model.
+    Returns: 0 = Success
+                   1 = Failed
+    '''
     mol  = _readgms(assy, filename, isInsert = True)
     if mol is not None:
         assy.addmol(mol)
-    return
+        return 0
+    else:
+        return 1
 
 # File Writing Methods.
         
