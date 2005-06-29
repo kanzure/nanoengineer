@@ -15,6 +15,7 @@ from SimServer import SimServer
 from GamessProp import GamessProp
 from HistoryWidget import redmsg
 from files_gms import writegms_inpfile, writegms_batfile
+from qt import QMessageBox
 
 failpat = re.compile("-ABNORMALLY-")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
@@ -44,23 +45,33 @@ class GamessJob(SimJob):
     def edit(self):
         self.edit_cntl.showDialog(self)
     
-    def launch_job(self):
-        'Launch GAMESS run.'
+    def launch(self):
+        '''Launch GAMESS job.
+        Returns: 0 = Success
+                       1 = Cancelled
+                       2 = Failed
+        '''
 
         # Get a unique Job Id and the Job Id directory for this run.
         from JobManager import get_job_manager_job_id_and_dir
         job_id, job_id_dir = get_job_manager_job_id_and_dir()
         self.Job_id = job_id
-        print "GamessProp.queue_job: Job Id = ", job_id
         self.Status = 'Queued'
 
         basename = self.gamessJig.name + "-" + self.gamessJig.gms_parms_info('_')
         
+        # Do GAMESS and PC GAMESS need different INP filenames?  
+        # Can't GAMESS and PC GAMESS both use *.inp as the filename?
+        # I think so.  I'm commenting out this code and leaving this note here
+        # until I discuss it with Huaicai.  If he agrees, I'm removing all this.
+        # Mark 050628
+#        if self.server.engine == 'PC GAMESS':
+#            self.job_inputfile = os.path.join(job_id_dir, "%s.inp" % basename)
+#        else: 
+#            self.job_inputfile = os.path.join(job_id_dir, "%s" %  basename)
+        
         # GAMESS Job INP, OUT and BAT files.
-        if self.server.engine == 'PC GAMESS':
-            self.job_inputfile = os.path.join(job_id_dir, "%s.inp" % basename)
-        else:
-            self.job_inputfile = os.path.join(job_id_dir, "%s" %  basename)
+        self.job_inputfile = os.path.join(job_id_dir, "%s.inp" % basename)
         self.job_outputfile = os.path.join(job_id_dir, "%s.out" %  basename)
         self.job_batfile = os.path.join(job_id_dir, "%s.bat" %  basename)
          
@@ -77,11 +88,50 @@ class GamessJob(SimJob):
 
         self.starttime = time.time() # Save the start time for this job.
 
-        if self.server.engine == 'PC GAMESS':
-            self._launch_pcgamess()
-        else:
-            self._launch_gamess()
-    
+        if sys.platform == 'win32': # Windows
+            return self._launch_pcgamess()
+        else: # Linux or MacOS
+            return self._launch_gamess()
+
+    def _validate_gamess_program(self):
+        '''Private method:
+        Checks that the GAMESS program path exists in the user pref database
+        and that the file it points to exists.  If the GAMESS path does not exist, the
+        user will be prompted with the file chooser to select the GAMESS executable.
+        This function does not check whether the GAMESS path is actually GAMESS 
+        or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS for Windows).
+        Returns:  0 = Valid
+                        1 = Invalid
+        '''
+        
+        # Get GAMESS executable path from the user preferences
+        from preferences import prefs_context
+        prefs = prefs_context()
+        self.server.program = prefs.get('A6/gmspath')
+        
+        if not self.server.program:
+            
+            # GAMESS Prop Dialog is the parent for messagebox and file chooser.
+            parent = self.edit_cntl 
+            
+            ret = QMessageBox.warning( parent, "GAMESS Executable Path",
+                "The GAMESS executable path is not set.\n"
+                "Please select OK to set the location of GAMESS for this computer.",
+                "&OK", "Cancel", None,
+                0, 1 )
+                
+            if ret==0: # OK
+                from UserPrefs import get_gamess_path
+                self.server.program = get_gamess_path(parent)
+                if not self.server.program:
+                    return 1 # Cancelled from file chooser.
+            
+            elif ret==1: # Cancel
+                return 1
+            
+        print "Server program = ", self.server.program
+        return 0
+        
     def _launch_gamess(self):
         print "GAMESS not supported on Windows"
         
@@ -92,15 +142,17 @@ class GamessJob(SimJob):
             PC GAMESS is started.  This is why we chdir to the Gamess temp directory
             before we run PC GAMESS.
           - the OUT file (aka the log file), which we name jigname.out.
+        Returns: 0 = Success
+                       1 = Cancelled
+                       2 = Failed
         '''
-        print "server program = ", self.server.program
-        if not os.path.exists(self.server.program):
-            msg = "The GAMESS executable " + self.server.program + "does not exist."
-            self.edit_cntl.win.history.message(redmsg(msg))
-            msg = "Check the GAMESS pathname in the User Preferences to make sure it is set correctly."
-            self.edit_cntl.win.history.message(redmsg(msg))
-            return
-
+        
+        # Validate Gamess Program
+        r = self._validate_gamess_program()
+        
+        if r: # Gamess program was not valid.
+            return 1 # Job Cancelled.
+        
         oldir = os.getcwd() # Save current directory
         
         jobDir = os.path.dirname(self.job_batfile)
@@ -148,7 +200,9 @@ class GamessJob(SimJob):
                 qApp.processEvents()
                 if  progressDialog.wasCanceled():
                     process.kill()
-                    break
+                    os.chdir(oldir)
+                    return 1 # Job cancelled.
+                    
                 progressDialog.setProgress(i)
                 if pInc:
                     if i < 75: i += 1
@@ -169,6 +223,8 @@ class GamessJob(SimJob):
         os.chdir(oldir)
         self.gamessJig.outputfile = self.job_outputfile
         print "GamessJob._launch_pcgamess: self.gamessJig.outputfile: ", self.gamessJig.outputfile
+        
+        return 0 # Success
 
 
     def showProgress(self):
