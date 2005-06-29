@@ -66,6 +66,12 @@ paneno = 0
 
 ## normalGridLines = (0.0, 0.0, 0.6) # bruce 050410 removed this, and related code
 
+
+UPPER_RIGHT = 0
+UPPER_LEFT = 1
+LOWER_LEFT = 2
+LOWER_RIGHT = 3
+
 pi2 = pi/2.0
 pi3 = pi/3.0
 pi4 = pi/4.0
@@ -227,11 +233,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # Current coordinates of the mouse.
         self.MousePos = V(0,0)
 
-        # the little corner axis icon
-        self.drawAxisIcon = 1
-
-        # the toggle button state for Csys
-        self.cSysToggleButton = True
+        self.displayCompass = True  # variable that controls the display of the compass
+        self.displayOriginAxis = True # variable that controls the display of the origin axis
+        self.displayPOVAxis = True # variable that control the display of the pov axis
+        self.compassPosition = UPPER_RIGHT
  
         ##Huaicai 2/8/05: If this is true, redraw everything. It's better to split
         ##the paintGL() to several functions, so we may choose to draw 
@@ -1323,8 +1328,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             pass # if it happens at all, it'll happen too often to bother users with an error message
         
         # draw coordinate-orientation arrows at upper right corner of glpane
-        if self.drawAxisIcon:
-            self.drawarrow(aspect) #bruce 050608 moved this here, and rewrote it to behave then
+        if self.displayCompass:
+            self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then
         
         return # from standard_repaint (which is the central submethod of paintGL)
 
@@ -1495,7 +1500,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                          vdist * near, vdist * far)
         return
 
-    def drawarrow(self, aspect):
+    def drawcompass(self, aspect):
         """private: assumes called in GL_PROJECTION matrix mode, with identity in both matrices,
         and does LoadIdentity at the end as well.
         """ #bruce 050608 added docstring, then added code to try to make it no longer have those problems ###k
@@ -1505,7 +1510,17 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity() #k needed?
-        glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500)
+        
+        # Set compass position using glOrtho
+        if self.compassPosition == UPPER_RIGHT:
+            glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -10, 10) # Upper Right
+        elif self.compassPosition == UPPER_LEFT:
+            glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -10, 10) # Upper Left
+        elif self.compassPosition == LOWER_LEFT:
+            glOrtho(-5*aspect, 50.5*aspect, -5, 50.5,  -10, 10) # Lower Left
+        else:
+            glOrtho(-50*aspect, 5.5*aspect, -5, 50.5,  -10, 10) # Lower Right
+        
         q = self.quat
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
         glEnable(GL_COLOR_MATERIAL)
