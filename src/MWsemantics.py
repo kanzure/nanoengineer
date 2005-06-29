@@ -164,6 +164,11 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         # such as minimize, simulator and select doubly.  Mark 050101
         from ProgressBar import ProgressBar
         self.progressbar = ProgressBar()
+        
+        # Create the Preferences dialog widget.
+        # Mark 050628
+        from UserPrefs import UserPrefs
+        self.uprefs = UserPrefs(self.assy)
 
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
@@ -713,6 +718,10 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win_update()
 
+    def editPrefs(self):
+        """ Edit Preferences """
+        self.uprefs.showDialog()
+        
     def editFind(self):
         self.history.message(redmsg("Find: Not implemented yet."))
 
@@ -1447,10 +1456,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
         self.history.message(redmsg("Display Open Bonds: Not implemented yet."))
-
-    def editPrefs(self):
-        """ Edit square grid line distances(dx, dy, dz) in nm/angstroms """
-        self.history.message(redmsg("Edit Preferences: Not implemented yet."))
              
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
