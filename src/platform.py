@@ -604,6 +604,17 @@ def get_text_editor():
             
     return editor
 
+            
+def get_rootdir():
+    """Returns the root directory for this platform.
+    """
+    if sys.platform == 'win32': # Windows
+        rootdir = "C:/"
+    else: # Linux and MacOS
+        rootdir = "/"
+            
+    return rootdir
+    
 # == test code
 
 if __name__ == "__main__":
