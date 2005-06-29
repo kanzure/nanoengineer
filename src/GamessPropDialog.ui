@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>509</width>
-            <height>643</height>
+            <height>514</height>
         </rect>
     </property>
     <property name="caption">
@@ -427,7 +427,7 @@
                 <cstring>groupBox2</cstring>
             </property>
             <property name="title">
-                <string>Optimization Procedure: Electron Correlation Method For Final Step</string>
+                <string>Electron Correlation Method</string>
             </property>
             <vbox>
                 <property name="name">
@@ -446,7 +446,7 @@
                                 <cstring>textLabel6</cstring>
                             </property>
                             <property name="text">
-                                <string>Final Basis Set :</string>
+                                <string>Basis Set :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -577,7 +577,7 @@
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout29</cstring>
+                        <cstring>layout64</cstring>
                     </property>
                     <hbox>
                         <property name="name">
@@ -702,29 +702,12 @@
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>layout26</cstring>
+                                <cstring>layout63</cstring>
                             </property>
                             <vbox>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>core_electrons_checkbox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>Core electrons?</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Check this box to include both the valence and core electrons in the MP2 calculation.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Check this box to include both the valence and core electrons in the MP2 calculation.</string>
-                                    </property>
-                                </widget>
                                 <widget class="QLayoutWidget">
                                     <property name="name">
                                         <cstring>layout32</cstring>
@@ -939,6 +922,23 @@
                                         </widget>
                                     </hbox>
                                 </widget>
+                                <widget class="QCheckBox">
+                                    <property name="name">
+                                        <cstring>core_electrons_checkbox</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="text">
+                                        <string>Core electrons?</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Check this box to include both the valence and core electrons in the MP2 calculation.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>Check this box to include both the valence and core electrons in the MP2 calculation.</string>
+                                    </property>
+                                </widget>
                             </vbox>
                         </widget>
                     </hbox>
@@ -952,198 +952,90 @@
             <property name="title">
                 <string>Convergence Criteria</string>
             </property>
-            <grid>
+            <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLayoutWidget" row="1" column="0">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout25</cstring>
+                        <cstring>layout66</cstring>
                     </property>
-                    <hbox>
+                    <vbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLayoutWidget">
+                        <widget class="QLabel">
                             <property name="name">
-                                <cstring>layout24</cstring>
+                                <cstring>textLabel3</cstring>
                             </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel1_2</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>Iterations :</string>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>spinBox3</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                </widget>
-                            </hbox>
+                            <property name="text">
+                                <string>Energy and Density:</string>
+                            </property>
                         </widget>
-                        <widget class="QLayoutWidget">
+                        <widget class="QComboBox">
+                            <item>
+                                <property name="text">
+                                    <string>Coarse</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Medium</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Fine</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Very Fine</string>
+                                </property>
+                            </item>
                             <property name="name">
-                                <cstring>layout23</cstring>
+                                <cstring>density_conv_combox</cstring>
                             </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>extrap_checkbox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>EXTRAP</string>
-                                    </property>
-                                    <property name="checked">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Controls Pople extrapolation of the Fock matrix.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Controls Pople extrapolation of the Fock matrix.</string>
-                                    </property>
-                                </widget>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>rstrct_checkbox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>RSTRCT</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Controls restriction of orbital interchanges.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Controls restriction of orbital interchanges.</string>
-                                    </property>
-                                </widget>
-                            </vbox>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout51</cstring>
+                            <property name="currentItem">
+                                <number>1</number>
                             </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>damp_checkbox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>DAMP</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Controls Davidson damping of the Fock matrix.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Controls Davidson damping of the Fock matrix.</string>
-                                    </property>
-                                </widget>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>diis_checkbox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>DIIS</string>
-                                    </property>
-                                    <property name="checked">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Controls Pulay's DIIS interpolation.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Controls Pulay's DIIS interpolation.</string>
-                                    </property>
-                                </widget>
-                            </vbox>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout52</cstring>
+                            <property name="toolTip" stdset="0">
+                                <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
                             </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>shift_checkbox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>SHIFT</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Controls level shifting of the Fock matrix.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Controls level shifting of the Fock matrix.</string>
-                                    </property>
-                                </widget>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>soscf_checkbox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>SOSCF</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Controls second order SCF orbital optimization.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Controls second order SCF orbital optimization.</string>
-                                    </property>
-                                </widget>
-                            </vbox>
+                            <property name="whatsThis" stdset="0">
+                                <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
+                            </property>
                         </widget>
-                    </hbox>
+                    </vbox>
                 </widget>
-                <widget class="QLayoutWidget" row="0" column="0">
+                <spacer>
                     <property name="name">
-                        <cstring>layout35</cstring>
+                        <cstring>spacer16</cstring>
                     </property>
-                    <grid>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout67</cstring>
+                    </property>
+                    <vbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLabel" row="0" column="0">
+                        <widget class="QLabel">
                             <property name="name">
-                                <cstring>textLabel2</cstring>
+                                <cstring>rmsd_lbl</cstring>
                             </property>
                             <property name="enabled">
                                 <bool>false</bool>
@@ -1152,15 +1044,7 @@
                                 <string>RMSD:</string>
                             </property>
                         </widget>
-                        <widget class="QLabel" row="0" column="1">
-                            <property name="name">
-                                <cstring>textLabel3</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Density:</string>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox" row="1" column="0">
+                        <widget class="QComboBox">
                             <item>
                                 <property name="text">
                                     <string>Coarse</string>
@@ -1195,136 +1079,75 @@
                                 <number>1</number>
                             </property>
                         </widget>
-                        <widget class="QComboBox" row="1" column="2">
-                            <item>
-                                <property name="text">
-                                    <string>Coarse</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Medium</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Fine</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Very Fine</string>
-                                </property>
-                            </item>
-                            <property name="name">
-                                <cstring>energy_combox</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="currentItem">
-                                <number>1</number>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="0" column="2">
-                            <property name="name">
-                                <cstring>textLabel4</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
-                            <property name="text">
-                                <string>Energy:</string>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox" row="1" column="1">
-                            <item>
-                                <property name="text">
-                                    <string>Coarse</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Medium</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Fine</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Very Fine</string>
-                                </property>
-                            </item>
-                            <property name="name">
-                                <cstring>density_conv_combox</cstring>
-                            </property>
-                            <property name="currentItem">
-                                <number>1</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
-                            </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Selects the accuracy of the electron density convergence for the energy calculation.</string>
-                            </property>
-                        </widget>
-                    </grid>
+                    </vbox>
                 </widget>
-            </grid>
-        </widget>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>groupBox7</cstring>
-            </property>
-            <property name="title">
-                <string>Server</string>
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLayoutWidget" row="0" column="0">
+                <spacer>
                     <property name="name">
-                        <cstring>layout34</cstring>
+                        <cstring>spacer13</cstring>
                     </property>
-                    <hbox>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout47</cstring>
+                    </property>
+                    <vbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QComboBox">
-                            <item>
-                                <property name="text">
-                                    <string>My Computer</string>
-                                </property>
-                            </item>
+                        <widget class="QLabel">
                             <property name="name">
-                                <cstring>server_combox</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>server_manager_btn</cstring>
+                                <cstring>iterations_lbl</cstring>
                             </property>
                             <property name="enabled">
                                 <bool>false</bool>
                             </property>
                             <property name="text">
-                                <string>Server Manager...</string>
+                                <string>Iterations :</string>
                             </property>
                         </widget>
-                    </hbox>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>iterations_spinbox</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="value">
+                                <number>50</number>
+                            </property>
+                        </widget>
+                    </vbox>
                 </widget>
-            </grid>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer13_2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </hbox>
         </widget>
         <widget class="QCheckBox">
             <property name="name">
@@ -1404,18 +1227,6 @@
         <slot>set_multiplicity()</slot>
     </connection>
     <connection>
-        <sender>server_manager_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>openServerManager()</slot>
-    </connection>
-    <connection>
-        <sender>server_combox</sender>
-        <signal>activated(int)</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>serverChanged(int)</slot>
-    </connection>
-    <connection>
         <sender>run_job_btn</sender>
         <signal>clicked()</signal>
         <receiver>GamessPropDialog</receiver>
@@ -1427,6 +1238,12 @@
         <receiver>GamessPropDialog</receiver>
         <slot>accept()</slot>
     </connection>
+    <connection>
+        <sender>runtyp_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>calculate_changed()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>set_ecmethod()</slot>
@@ -1434,6 +1251,8 @@
     <slot>serverChanged(int)</slot>
     <slot>run_job()</slot>
     <slot>openServerManager()</slot>
+    <slot>calculate_changed()</slot>
+    <slot>set_gamess_location()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

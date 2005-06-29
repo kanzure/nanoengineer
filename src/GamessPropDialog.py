@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Fri Jun 24 00:24:19 2005
+# Created: Wed Jun 29 01:14:04 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -288,7 +288,7 @@ class GamessPropDialog(QDialog):
         layout24.addItem(spacer2)
         groupBox2Layout.addLayout(layout24)
 
-        layout29 = QHBoxLayout(None,0,6,"layout29")
+        layout64 = QHBoxLayout(None,0,6,"layout64")
 
         layout27 = QVBoxLayout(None,0,6,"layout27")
 
@@ -303,7 +303,7 @@ class GamessPropDialog(QDialog):
         self.checkBox35 = QCheckBox(self.groupBox2,"checkBox35")
         self.checkBox35.setEnabled(0)
         layout27.addWidget(self.checkBox35)
-        layout29.addLayout(layout27)
+        layout64.addLayout(layout27)
 
         self.ecm_btngrp = QButtonGroup(self.groupBox2,"ecm_btngrp")
         self.ecm_btngrp.setExclusive(1)
@@ -324,13 +324,9 @@ class GamessPropDialog(QDialog):
         self.mp2_radiobtn = QRadioButton(self.ecm_btngrp,"mp2_radiobtn")
         self.ecm_btngrp.insert( self.mp2_radiobtn,2)
         ecm_btngrpLayout.addWidget(self.mp2_radiobtn)
-        layout29.addWidget(self.ecm_btngrp)
+        layout64.addWidget(self.ecm_btngrp)
 
-        layout26 = QVBoxLayout(None,0,6,"layout26")
-
-        self.core_electrons_checkbox = QCheckBox(self.groupBox2,"core_electrons_checkbox")
-        self.core_electrons_checkbox.setEnabled(0)
-        layout26.addWidget(self.core_electrons_checkbox)
+        layout63 = QVBoxLayout(None,0,6,"layout63")
 
         layout32 = QHBoxLayout(None,0,6,"layout32")
 
@@ -357,152 +353,89 @@ class GamessPropDialog(QDialog):
         self.gridsize_combox.setEnabled(0)
         layout23.addWidget(self.gridsize_combox)
         layout32.addLayout(layout23)
-        layout26.addLayout(layout32)
-        layout29.addLayout(layout26)
-        groupBox2Layout.addLayout(layout29)
+        layout63.addLayout(layout32)
+
+        self.core_electrons_checkbox = QCheckBox(self.groupBox2,"core_electrons_checkbox")
+        self.core_electrons_checkbox.setEnabled(0)
+        layout63.addWidget(self.core_electrons_checkbox)
+        layout64.addLayout(layout63)
+        groupBox2Layout.addLayout(layout64)
         GamessPropDialogLayout.addWidget(self.groupBox2)
 
         self.groupBox3 = QGroupBox(self,"groupBox3")
         self.groupBox3.setColumnLayout(0,Qt.Vertical)
         self.groupBox3.layout().setSpacing(6)
         self.groupBox3.layout().setMargin(11)
-        groupBox3Layout = QGridLayout(self.groupBox3.layout())
+        groupBox3Layout = QHBoxLayout(self.groupBox3.layout())
         groupBox3Layout.setAlignment(Qt.AlignTop)
 
-        layout25 = QHBoxLayout(None,0,6,"layout25")
-
-        layout24_2 = QHBoxLayout(None,0,6,"layout24_2")
-
-        self.textLabel1_2 = QLabel(self.groupBox3,"textLabel1_2")
-        self.textLabel1_2.setEnabled(0)
-        layout24_2.addWidget(self.textLabel1_2)
-
-        self.spinBox3 = QSpinBox(self.groupBox3,"spinBox3")
-        self.spinBox3.setEnabled(0)
-        layout24_2.addWidget(self.spinBox3)
-        layout25.addLayout(layout24_2)
-
-        layout23_2 = QVBoxLayout(None,0,6,"layout23_2")
-
-        self.extrap_checkbox = QCheckBox(self.groupBox3,"extrap_checkbox")
-        self.extrap_checkbox.setEnabled(0)
-        self.extrap_checkbox.setChecked(1)
-        layout23_2.addWidget(self.extrap_checkbox)
-
-        self.rstrct_checkbox = QCheckBox(self.groupBox3,"rstrct_checkbox")
-        self.rstrct_checkbox.setEnabled(0)
-        layout23_2.addWidget(self.rstrct_checkbox)
-        layout25.addLayout(layout23_2)
-
-        layout51 = QVBoxLayout(None,0,6,"layout51")
-
-        self.damp_checkbox = QCheckBox(self.groupBox3,"damp_checkbox")
-        self.damp_checkbox.setEnabled(0)
-        layout51.addWidget(self.damp_checkbox)
-
-        self.diis_checkbox = QCheckBox(self.groupBox3,"diis_checkbox")
-        self.diis_checkbox.setEnabled(0)
-        self.diis_checkbox.setChecked(0)
-        layout51.addWidget(self.diis_checkbox)
-        layout25.addLayout(layout51)
-
-        layout52 = QVBoxLayout(None,0,6,"layout52")
-
-        self.shift_checkbox = QCheckBox(self.groupBox3,"shift_checkbox")
-        self.shift_checkbox.setEnabled(0)
-        layout52.addWidget(self.shift_checkbox)
-
-        self.soscf_checkbox = QCheckBox(self.groupBox3,"soscf_checkbox")
-        self.soscf_checkbox.setEnabled(0)
-        layout52.addWidget(self.soscf_checkbox)
-        layout25.addLayout(layout52)
-
-        groupBox3Layout.addLayout(layout25,1,0)
-
-        layout35 = QGridLayout(None,1,1,0,6,"layout35")
-
-        self.textLabel2 = QLabel(self.groupBox3,"textLabel2")
-        self.textLabel2.setEnabled(0)
-
-        layout35.addWidget(self.textLabel2,0,0)
+        layout66 = QVBoxLayout(None,0,6,"layout66")
 
         self.textLabel3 = QLabel(self.groupBox3,"textLabel3")
+        layout66.addWidget(self.textLabel3)
 
-        layout35.addWidget(self.textLabel3,0,1)
+        self.density_conv_combox = QComboBox(0,self.groupBox3,"density_conv_combox")
+        layout66.addWidget(self.density_conv_combox)
+        groupBox3Layout.addLayout(layout66)
+        spacer16 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        groupBox3Layout.addItem(spacer16)
+
+        layout67 = QVBoxLayout(None,0,6,"layout67")
+
+        self.rmsd_lbl = QLabel(self.groupBox3,"rmsd_lbl")
+        self.rmsd_lbl.setEnabled(0)
+        layout67.addWidget(self.rmsd_lbl)
 
         self.rmsd_combox = QComboBox(0,self.groupBox3,"rmsd_combox")
         self.rmsd_combox.setEnabled(0)
         rmsd_combox_font = QFont(self.rmsd_combox.font())
         self.rmsd_combox.setFont(rmsd_combox_font)
+        layout67.addWidget(self.rmsd_combox)
+        groupBox3Layout.addLayout(layout67)
+        spacer13 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        groupBox3Layout.addItem(spacer13)
 
-        layout35.addWidget(self.rmsd_combox,1,0)
+        layout47 = QVBoxLayout(None,0,6,"layout47")
 
-        self.energy_combox = QComboBox(0,self.groupBox3,"energy_combox")
-        self.energy_combox.setEnabled(0)
-        energy_combox_font = QFont(self.energy_combox.font())
-        self.energy_combox.setFont(energy_combox_font)
+        self.iterations_lbl = QLabel(self.groupBox3,"iterations_lbl")
+        self.iterations_lbl.setEnabled(0)
+        layout47.addWidget(self.iterations_lbl)
 
-        layout35.addWidget(self.energy_combox,1,2)
-
-        self.textLabel4 = QLabel(self.groupBox3,"textLabel4")
-        self.textLabel4.setEnabled(0)
-
-        layout35.addWidget(self.textLabel4,0,2)
-
-        self.density_conv_combox = QComboBox(0,self.groupBox3,"density_conv_combox")
-
-        layout35.addWidget(self.density_conv_combox,1,1)
-
-        groupBox3Layout.addLayout(layout35,0,0)
+        self.iterations_spinbox = QSpinBox(self.groupBox3,"iterations_spinbox")
+        self.iterations_spinbox.setEnabled(0)
+        self.iterations_spinbox.setValue(50)
+        layout47.addWidget(self.iterations_spinbox)
+        groupBox3Layout.addLayout(layout47)
+        spacer13_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        groupBox3Layout.addItem(spacer13_2)
         GamessPropDialogLayout.addWidget(self.groupBox3)
-
-        self.groupBox7 = QGroupBox(self,"groupBox7")
-        self.groupBox7.setColumnLayout(0,Qt.Vertical)
-        self.groupBox7.layout().setSpacing(6)
-        self.groupBox7.layout().setMargin(11)
-        groupBox7Layout = QGridLayout(self.groupBox7.layout())
-        groupBox7Layout.setAlignment(Qt.AlignTop)
-
-        layout34 = QHBoxLayout(None,0,6,"layout34")
-
-        self.server_combox = QComboBox(0,self.groupBox7,"server_combox")
-        self.server_combox.setEnabled(0)
-        layout34.addWidget(self.server_combox)
-
-        self.server_manager_btn = QPushButton(self.groupBox7,"server_manager_btn")
-        self.server_manager_btn.setEnabled(0)
-        layout34.addWidget(self.server_manager_btn)
-
-        groupBox7Layout.addLayout(layout34,0,0)
-        GamessPropDialogLayout.addWidget(self.groupBox7)
 
         self.edit_input_file_cbox = QCheckBox(self,"edit_input_file_cbox")
         GamessPropDialogLayout.addWidget(self.edit_input_file_cbox)
 
-        layout24_3 = QHBoxLayout(None,0,6,"layout24_3")
+        layout24_2 = QHBoxLayout(None,0,6,"layout24_2")
 
         self.run_job_btn = QPushButton(self,"run_job_btn")
-        layout24_3.addWidget(self.run_job_btn)
+        layout24_2.addWidget(self.run_job_btn)
 
         self.save_btn = QPushButton(self,"save_btn")
-        layout24_3.addWidget(self.save_btn)
+        layout24_2.addWidget(self.save_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
-        layout24_3.addWidget(self.cancel_btn)
-        GamessPropDialogLayout.addLayout(layout24_3)
+        layout24_2.addWidget(self.cancel_btn)
+        GamessPropDialogLayout.addLayout(layout24_2)
 
         self.languageChange()
 
-        self.resize(QSize(509,643).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(509,514).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
         self.connect(self.ecm_btngrp,SIGNAL("clicked(int)"),self.set_ecmethod)
         self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
-        self.connect(self.server_manager_btn,SIGNAL("clicked()"),self.openServerManager)
-        self.connect(self.server_combox,SIGNAL("activated(int)"),self.serverChanged)
         self.connect(self.run_job_btn,SIGNAL("clicked()"),self.run_job)
         self.connect(self.save_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.runtyp_combox,SIGNAL("activated(int)"),self.calculate_changed)
 
 
     def languageChange(self):
@@ -587,9 +520,6 @@ class GamessPropDialog(QDialog):
         self.mp2_radiobtn.setText(self.__tr("MP2"))
         QToolTip.add(self.mp2_radiobtn,self.__tr("Select this button to perform a Second-Order Moeller Plesset calculation."))
         QWhatsThis.add(self.mp2_radiobtn,self.__tr("Select this button to perform a Second-Order Moeller Plesset calculation."))
-        self.core_electrons_checkbox.setText(self.__tr("Core electrons?"))
-        QToolTip.add(self.core_electrons_checkbox,self.__tr("Check this box to include both the valence and core electrons in the MP2 calculation."))
-        QWhatsThis.add(self.core_electrons_checkbox,self.__tr("Check this box to include both the valence and core electrons in the MP2 calculation."))
         self.dfttyp_label.setText(self.__tr("Functional:"))
         self.gridsize_label.setText(self.__tr("Grid Size:"))
         self.dfttyp_combox.clear()
@@ -624,41 +554,11 @@ class GamessPropDialog(QDialog):
         self.gridsize_combox.setCurrentItem(1)
         QToolTip.add(self.gridsize_combox,self.__tr("Select the grid spacing for the DFT calculation."))
         QWhatsThis.add(self.gridsize_combox,self.__tr("Select the grid spacing for the DFT calculation."))
+        self.core_electrons_checkbox.setText(self.__tr("Core electrons?"))
+        QToolTip.add(self.core_electrons_checkbox,self.__tr("Check this box to include both the valence and core electrons in the MP2 calculation."))
+        QWhatsThis.add(self.core_electrons_checkbox,self.__tr("Check this box to include both the valence and core electrons in the MP2 calculation."))
         self.groupBox3.setTitle(self.__tr("Convergence Criteria"))
-        self.textLabel1_2.setText(self.__tr("Iterations :"))
-        self.extrap_checkbox.setText(self.__tr("EXTRAP"))
-        QToolTip.add(self.extrap_checkbox,self.__tr("Controls Pople extrapolation of the Fock matrix."))
-        QWhatsThis.add(self.extrap_checkbox,self.__tr("Controls Pople extrapolation of the Fock matrix."))
-        self.rstrct_checkbox.setText(self.__tr("RSTRCT"))
-        QToolTip.add(self.rstrct_checkbox,self.__tr("Controls restriction of orbital interchanges."))
-        QWhatsThis.add(self.rstrct_checkbox,self.__tr("Controls restriction of orbital interchanges."))
-        self.damp_checkbox.setText(self.__tr("DAMP"))
-        QToolTip.add(self.damp_checkbox,self.__tr("Controls Davidson damping of the Fock matrix."))
-        QWhatsThis.add(self.damp_checkbox,self.__tr("Controls Davidson damping of the Fock matrix."))
-        self.diis_checkbox.setText(self.__tr("DIIS"))
-        QToolTip.add(self.diis_checkbox,self.__tr("Controls Pulay's DIIS interpolation."))
-        QWhatsThis.add(self.diis_checkbox,self.__tr("Controls Pulay's DIIS interpolation."))
-        self.shift_checkbox.setText(self.__tr("SHIFT"))
-        QToolTip.add(self.shift_checkbox,self.__tr("Controls level shifting of the Fock matrix."))
-        QWhatsThis.add(self.shift_checkbox,self.__tr("Controls level shifting of the Fock matrix."))
-        self.soscf_checkbox.setText(self.__tr("SOSCF"))
-        QToolTip.add(self.soscf_checkbox,self.__tr("Controls second order SCF orbital optimization."))
-        QWhatsThis.add(self.soscf_checkbox,self.__tr("Controls second order SCF orbital optimization."))
-        self.textLabel2.setText(self.__tr("RMSD:"))
-        self.textLabel3.setText(self.__tr("Density:"))
-        self.rmsd_combox.clear()
-        self.rmsd_combox.insertItem(self.__tr("Coarse"))
-        self.rmsd_combox.insertItem(self.__tr("Medium"))
-        self.rmsd_combox.insertItem(self.__tr("Fine"))
-        self.rmsd_combox.insertItem(self.__tr("Very Fine"))
-        self.rmsd_combox.setCurrentItem(1)
-        self.energy_combox.clear()
-        self.energy_combox.insertItem(self.__tr("Coarse"))
-        self.energy_combox.insertItem(self.__tr("Medium"))
-        self.energy_combox.insertItem(self.__tr("Fine"))
-        self.energy_combox.insertItem(self.__tr("Very Fine"))
-        self.energy_combox.setCurrentItem(1)
-        self.textLabel4.setText(self.__tr("Energy:"))
+        self.textLabel3.setText(self.__tr("Energy and Density:"))
         self.density_conv_combox.clear()
         self.density_conv_combox.insertItem(self.__tr("Coarse"))
         self.density_conv_combox.insertItem(self.__tr("Medium"))
@@ -667,10 +567,14 @@ class GamessPropDialog(QDialog):
         self.density_conv_combox.setCurrentItem(1)
         QToolTip.add(self.density_conv_combox,self.__tr("Selects the accuracy of the electron density convergence for the energy calculation."))
         QWhatsThis.add(self.density_conv_combox,self.__tr("Selects the accuracy of the electron density convergence for the energy calculation."))
-        self.groupBox7.setTitle(self.__tr("Server"))
-        self.server_combox.clear()
-        self.server_combox.insertItem(self.__tr("My Computer"))
-        self.server_manager_btn.setText(self.__tr("Server Manager..."))
+        self.rmsd_lbl.setText(self.__tr("RMSD:"))
+        self.rmsd_combox.clear()
+        self.rmsd_combox.insertItem(self.__tr("Coarse"))
+        self.rmsd_combox.insertItem(self.__tr("Medium"))
+        self.rmsd_combox.insertItem(self.__tr("Fine"))
+        self.rmsd_combox.insertItem(self.__tr("Very Fine"))
+        self.rmsd_combox.setCurrentItem(1)
+        self.iterations_lbl.setText(self.__tr("Iterations :"))
         self.edit_input_file_cbox.setText(self.__tr("Open Input File in text editor"))
         self.run_job_btn.setText(self.__tr("Save and Run"))
         QToolTip.add(self.run_job_btn,self.__tr("Save GAMESS parameters and launch job."))
@@ -694,6 +598,12 @@ class GamessPropDialog(QDialog):
 
     def openServerManager(self):
         print "GamessPropDialog.openServerManager(): Not implemented yet"
+
+    def calculate_changed(self):
+        print "GamessPropDialog.calculate_changed(): Not implemented yet"
+
+    def set_gamess_location(self):
+        print "GamessPropDialog.set_gamess_location(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("GamessPropDialog",s,c)
