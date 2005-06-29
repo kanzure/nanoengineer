@@ -12,7 +12,8 @@ __author__ = "Mark"
 # This is the GAMESS UI widget default settings (for energy).
 
 ui={'comment':'','runtyp':0,'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize':1, 'ncore':0,
-        'conv':1, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':0,'soscf':0,'rstrct':0,'server':0, 'gbasisname':'AM1'}
+        'conv':1, 'rmdsconv':1, 'iterations':50, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':0,'soscf':0,'rstrct':0,
+        'server':0, 'gbasisname':'AM1'}
 
 # These are the GAMESS parms set defaults (for energy).
 
@@ -47,7 +48,7 @@ nprint=-5,-2,7,8,9 # Not currently used. nprint is always 9 for now.
 #
 # $SCF group keywords and their default values.
 scf={'conv':5, 'nconv':5, 'extrap':'.T.','dirscf':'.T.', 'damp':'.F.', 'shift':'.F.', 'diis':'.T.',
-     'soscf':'.F.','rstrct':'.F.'}
+     'soscf':'.F.','rstrct':'.F.', 'maxvt':50}
 # Note: Keyword 'conv' is used by GAMESS, 'nconv' is used by PC GAMESS.
 
 # CONV keyword and its optional values
@@ -236,6 +237,7 @@ class GamessProp(GamessPropDialog):
         self.job = job
         self.pset = self.gamessJig.psets[0]
         self.win = self.gamessJig.assy.w
+        self.history = self.gamessJig.assy.w.history
         
         if self._setup(): return
         self.exec_loop()
@@ -249,12 +251,11 @@ class GamessProp(GamessPropDialog):
         
         # Init the top widgets (name, psets drop box, comment)
         self.name_linedit.setText(self.gamessJig.name)
-        self.comment_linedit.setText(self.pset.ui.comment)
         self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
+        self.comment_linedit.setText(self.pset.ui.comment)
         
-        # Electronic Structure Props and Basis Set section.
+        # Electronic Structure Properties section.
         self.scftyp_btngrp.setButton(self.pset.ui.scftyp) # RHF, UHF, or ROHF
-        self.gbasis_combox.setCurrentItem(self.pset.ui.gbasis) # Basis set
         self.icharg_spinbox.setValue(self.pset.ui.icharg) # Charge
         self.multi_combox.setCurrentItem(self.pset.ui.mult) # Multiplicity
         # Disable RHF if multiplicity is not the first item.
@@ -263,10 +264,15 @@ class GamessProp(GamessPropDialog):
         else:
             self.rhf_radiobtn.setEnabled(0) # Disable RHF
         
-        # Electron Correlation Method
+        # System Memory and Usage
+        self.dirscf_checkbox.setChecked(self.pset.ui.dirscf) # DIRSCF
+        self.memory_spinbox.setValue(self.pset.ui.memory) # Memory
+        
+        # Electron Correlation Method and Basis Set
         ecm = self.pset.ui.ecm
         self.ecm_btngrp.setButton(self.pset.ui.ecm) # None, DFT or MP2
         self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
+        self.gbasis_combox.setCurrentItem(self.pset.ui.gbasis) # Basis set
         
         # Load the combo box with all the valid DFT functions.  
         self._load_dfttyp_combox()
@@ -274,20 +280,22 @@ class GamessProp(GamessPropDialog):
         self.gridsize_combox.setCurrentItem(self.pset.ui.gridsize) # Grid Size
         self.core_electrons_checkbox.setChecked(self.pset.ui.ncore) # Include core electrons
             
-        # Convergence Criteria and Memory Usage
-        # Set Density Convergence
-        self.density_conv_combox.setCurrentItem(self.pset.ui.conv)
-        # Set RAM
-        self.extrap_checkbox.setChecked(self.pset.ui.extrap) # EXTRAP
-        self.dirscf_checkbox.setChecked(self.pset.ui.dirscf) # DIRSCF
-        self.damp_checkbox.setChecked(self.pset.ui.damp) # DAMP
-        self.diis_checkbox.setChecked(self.pset.ui.diis) # DIIS
-        self.shift_checkbox.setChecked(self.pset.ui.shift) # SHIFT
-        self.soscf_checkbox.setChecked(self.pset.ui.soscf) # SOSCF
-        self.rstrct_checkbox.setChecked(self.pset.ui.rstrct) # RSTRCT
+        # Convergence Criteria
+        self.density_conv_combox.setCurrentItem(self.pset.ui.conv) # Density Convergence
+        self.rmsd_combox.setCurrentItem(self.pset.ui.rmdsconv) # RMSD Convergence
+        self.iterations_spinbox.setValue(self.pset.ui.iterations) # Iterations
+
+# These have been removed per discussions with Damian.
+# Mark 050628
+#        self.extrap_checkbox.setChecked(self.pset.ui.extrap) # EXTRAP
+#        self.damp_checkbox.setChecked(self.pset.ui.damp) # DAMP
+#        self.diis_checkbox.setChecked(self.pset.ui.diis) # DIIS
+#        self.shift_checkbox.setChecked(self.pset.ui.shift) # SHIFT
+#        self.soscf_checkbox.setChecked(self.pset.ui.soscf) # SOSCF
+#        self.rstrct_checkbox.setChecked(self.pset.ui.rstrct) # RSTRCT
         
         # Load the server combo box
-        #self._reloadServerList()
+        #self._reloadServerList() # Not used in A6.  Mark.
         
         # If there is an error, return 1. NIY.
         return 0
@@ -352,6 +360,10 @@ class GamessProp(GamessPropDialog):
         self.pset.ui.icharg = self.icharg_spinbox.value() # Charge
         self.pset.ui.mult = self.multi_combox.currentItem() # Multiplicity
         
+        # System Memory and Usage
+        self.pset.ui.memory = self.memory_spinbox.value() # Memory
+        self.pset.ui.dirscf = self.dirscf_checkbox.isChecked() # DIRSCF
+        
         # Electron Correlation Method
         self.pset.ui.ecm = self.ecm_btngrp.selectedId() # None, DFT or MP2
         self.pset.ui.inttyp = self.ecm_btngrp.selectedId() # INTTYP
@@ -361,20 +373,20 @@ class GamessProp(GamessPropDialog):
         self.pset.ui.gridsize = self.gridsize_combox.currentItem() # Grid Size
         self.pset.ui.ncore = self.core_electrons_checkbox.isChecked() # Include core electrons
         
-        # Convergence Criteria and Memory Usage
-        
+        # Convergence Criteria
         self.pset.ui.conv = self.density_conv_combox.currentItem() # Density Convergence
-        self.pset.ui.memory = self.memory_spinbox.value() # Memory
-        self.pset.ui.extrap = self.extrap_checkbox.isChecked() # EXTRAP
-        self.pset.ui.dirscf = self.dirscf_checkbox.isChecked() # DIRSCF
-        self.pset.ui.damp = self.damp_checkbox.isChecked() # DAMP
-        self.pset.ui.diis = self.diis_checkbox.isChecked() # DIIS
-        self.pset.ui.shift = self.shift_checkbox.isChecked() # SHIFT
-        self.pset.ui.soscf = self.soscf_checkbox.isChecked() # SOSCF
-        self.pset.ui.rstrct = self.rstrct_checkbox.isChecked() # RSTRCT
+        self.pset.ui.rmsdconv = self.rmsd_combox.currentItem() # RMSD Convergence
+        self.pset.ui.iterations = self.iterations_spinbox.value() # Iterations
+        
+#        self.pset.ui.extrap = self.extrap_checkbox.isChecked() # EXTRAP
+#        self.pset.ui.damp = self.damp_checkbox.isChecked() # DAMP
+#        self.pset.ui.diis = self.diis_checkbox.isChecked() # DIIS
+#        self.pset.ui.shift = self.shift_checkbox.isChecked() # SHIFT
+#        self.pset.ui.soscf = self.soscf_checkbox.isChecked() # SOSCF
+#        self.pset.ui.rstrct = self.rstrct_checkbox.isChecked() # RSTRCT
                 
         # Server
-        self.pset.ui.server = self.server_combox.currentText()
+#        self.pset.ui.server = self.server_combox.currentText() # Not used in A6. Mark
         
         self._save_parms() # Save all the parameters in the pset attribute.
         self._save_job_parms()
@@ -384,7 +396,7 @@ class GamessProp(GamessPropDialog):
         since it depends on the ui setting values.  This should propbably be a private
         method.'''
         
-        # $CONTRL Section ###########################################
+        # $CONTRL group ###########################################
         
         # Parms Values
         self.pset.contrl.runtyp = runtyp[self.pset.ui.runtyp] # RUNTYP
@@ -421,7 +433,7 @@ class GamessProp(GamessPropDialog):
                 self.pset.contrl.dfttyp = 0
                 self.pset.dft.nrad = 0
         
-        # $SCF Section ###########################################
+        # $SCF group ###########################################
         
         self.pset.scf.extrap = tf[self.pset.ui.extrap] # EXTRAP
         self.pset.scf.dirscf = tf[self.pset.ui.dirscf] # DIRSCF
@@ -430,6 +442,8 @@ class GamessProp(GamessPropDialog):
         self.pset.scf.shift = tf[self.pset.ui.shift] # SHIFT
         self.pset.scf.soscf = tf[self.pset.ui.soscf] # SOSCF
         self.pset.scf.rstrct = tf[self.pset.ui.rstrct] # RSTRCT
+        
+        self.pset.scf.maxvt = self.pset.ui.iterations # Iterations
         
         # CONV (GAMESS) or 
         # NCONV (PC GAMESS)
@@ -440,12 +454,12 @@ class GamessProp(GamessPropDialog):
             self.pset.scf.nconv = conv[self.pset.ui.conv] # NCONV (PC GAMESS)
             self.pset.scf.conv = 0 # Turn off CONV
         
-        # $SYSTEM Section ###########################################
+        # $SYSTEM group ###########################################
         
         self.pset.system.timlin = 1000 # Time limit in minutes
         self.pset.system.memory = self.pset.ui.memory * 1000000
         
-        # $MP2 Section ###########################################
+        # $MP2 group ###########################################
         
         self.pset.mp2.ncore = ncore[self.pset.ui.ncore]
         
@@ -453,7 +467,7 @@ class GamessProp(GamessPropDialog):
 #        if self.core_electrons_checkbox.isChecked():
 #            self.pset.mp2.ncore = '0'
         
-        # $DFT Section ###########################################
+        # $DFT group ###########################################
 
         # The DFT section record is supported in GAMESS only.
         if self.server.engine == 'GAMESS':
@@ -471,11 +485,11 @@ class GamessProp(GamessPropDialog):
 #            self.pset.dft.dfttyp = dfttyp[self.dfttyp_combox.currentItem()] # DFTTYP
 #            self.pset.dft.gridsize = gridsize[self.gridsize_combox.currentItem()] # GRIDSIZE
         
-        # $GUESS Section ###########################################
+        # $GUESS group ###########################################
         
-        # $STATPT Section ###########################################
+        # $STATPT group ###########################################
         
-        # $BASIS Section ###########################################
+        # $BASIS group ###########################################
         
         if ecm[self.pset.ui.ecm] == 'None':
             self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem()] # GBASIS
@@ -493,8 +507,49 @@ class GamessProp(GamessPropDialog):
 
     ######End of private or helper methods.########################
     
+    ###### Unused methods ###############   
+    
+    def openServerManager(self):
+        """Pop up ServerManagerDialog to edit the properties of the servers."""
+        self.sManager.showDialog(self.server)
+        self.servers = self.sManager.getServers()
+        self._reloadServerList()
+        
+    def serverChanged(self, si):
+        """User has changed server, so update the DFT comboBox. Currently not used."""
+        self.server = self.servers[si]
+        self._load_dfttyp_combox()
+        
+    ###### End of unused methods ###############  
     
     ##########Slot methods for some GUI controls################   
+
+    def calculate_changed(self, val):
+        '''
+        '''
+        if val == 0: # Energy
+            self.rmsd_lbl.setEnabled(0)
+            self.rmsd_combox.setEnabled(0)
+            self.iterations_lbl.setEnabled(0)
+            self.iterations_spinbox.setEnabled(0)
+#            self.extrap_checkbox.setEnabled(0)
+#            self.rstrct_checkbox.setEnabled(0)
+#            self.damp_checkbox.setEnabled(0)
+#            self.diis_checkbox.setEnabled(0)
+#            self.shift_checkbox.setEnabled(0)
+#            self.soscf_checkbox.setEnabled(0)
+        else: # Optimization
+            self.rmsd_lbl.setEnabled(1)
+            self.rmsd_combox.setEnabled(1)
+            self.iterations_lbl.setEnabled(1)
+            self.iterations_spinbox.setEnabled(1)
+#            self.extrap_checkbox.setEnabled(1)
+#            self.rstrct_checkbox.setEnabled(1)
+#            self.damp_checkbox.setEnabled(1)
+#            self.diis_checkbox.setEnabled(1)
+#            self.shift_checkbox.setEnabled(1)
+#            self.soscf_checkbox.setEnabled(1)
+
     def set_multiplicity(self, val):
         '''Enable/disable widgets when user changes Multiplicity.
         '''
@@ -554,36 +609,42 @@ class GamessProp(GamessPropDialog):
         # We have to remove or add them from the combo box.
         self._update_gbasis_list(val)
     
-    def openServerManager(self):
-        """Pop up ServerManagerDialog to edit the properties of the servers."""
-        self.sManager.showDialog(self.server)
-        self.servers = self.sManager.getServers()
-        self._reloadServerList()
-        
-    def serverChanged(self, si):
-        """User has changed server, so update the DFT comboBox. Currently not used."""
-        self.server = self.servers[si]
-        self._load_dfttyp_combox()
-    
     def run_job(self):
         """Slot method for the 'Save and Run' button """
-        self.accept()
-        self.job.launch_job()
         
-        if self.runtyp_combox.currentItem() == 0: #Energy
+        self.accept()
+        
+        # Run GAMESS job.  Return value r:
+        # 0 = success
+        # 1 = job cancelled
+        # 2 = job failed.
+        r = self.job.launch()
+        
+        if r==1: # Job was cancelled
+            self.history.message( redmsg( "GAMESS job cancelled."))
+            return
+            
+        if r==2: # Job failed.
+            self.history.message( redmsg( "GAMESS job failed."))
+            return
+        
+        # Job success.  Print energy or insert optimized structure from run.
+        if self.pset.ui.runtyp == 0: #Energy
             self.gamessJig.print_energy()
         else:  # Optimize
             fn = self.gamessJig.outputfile
             try:
-                insertgms(self.gamessJig.assy, fn)
+                r = insertgms(self.gamessJig.assy, fn)
             except:
                 print_compact_traceback( "GamessProp.run_job(): error inserting GAMESS OUT file [%s]: " % fn )
                 self.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + fn) )
             else:
-                self.gamessJig.assy.changed() # The file and the part are not the same.
-                self.win.history.message( "GAMESS file inserted: " + fn )
+                if r:
+                    self.history.message( "Geometry not inserted.")
+                else:
+                    self.gamessJig.assy.changed() # The file and the part are not the same.
+                    self.history.message( "GAMESS file inserted: " + fn )
                     
-    
     def accept(self):
         """The slot method for the 'Save' button."""
         self._save_ui_settings()
@@ -593,4 +654,3 @@ class GamessProp(GamessPropDialog):
         """The slot method for the 'Cancel' button."""
         self.gamessJig.cancelled = True
         QDialog.reject(self)
-        
