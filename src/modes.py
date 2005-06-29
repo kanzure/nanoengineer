@@ -754,11 +754,12 @@ class basicMode(anyMode):
            unless they have a good reason not to.
         """
         
-        # Draw the Csys "coloraxes" and the POV "blue" axes
-        # Mark 050131
-        if self.o.cSysToggleButton: 
+        # Draw the Origin axis.
+        if self.o.displayOriginAxis: 
             drawer.drawaxes(5, (0.0,0.0,0.0), coloraxes=True)
-            
+        
+        # Draw the Point of View axis    
+        if self.o.displayPOVAxis:
             # Draw POV axes if not at origin.
             if vlen(self.o.pov): drawer.drawaxes(5, -self.o.pov)
             
