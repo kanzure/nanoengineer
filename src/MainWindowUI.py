@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Jun 15 15:30:38 2005
+# Created: Tue Jun 28 00:40:04 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5888,7 +5888,7 @@ class MainWindow(QMainWindow):
         self.selectConnectedAction.setIconSet(QIconSet(self.image31))
         self.selectDoublyAction = QAction(self,"selectDoublyAction")
         self.selectDoublyAction.setIconSet(QIconSet(self.image32))
-        self.editPreferencesAction = QAction(self,"editPreferencesAction")
+        self.editPrefsAction = QAction(self,"editPrefsAction")
         self.jigsBearingAction = QAction(self,"jigsBearingAction")
         self.jigsBearingAction.setIconSet(QIconSet(self.image33))
         self.jigsSpringAction = QAction(self,"jigsSpringAction")
@@ -6192,6 +6192,7 @@ class MainWindow(QMainWindow):
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.fileToolbar.setEnabled(1)
         self.fileToolbar.setGeometry(QRect(0,0,70,29))
         self.fileOpenAction.addTo(self.fileToolbar)
         self.fileSaveAction.addTo(self.fileToolbar)
@@ -6209,6 +6210,7 @@ class MainWindow(QMainWindow):
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.viewToolbar.setGeometry(QRect(196,0,272,29))
+        self.viewToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -6241,6 +6243,7 @@ class MainWindow(QMainWindow):
 
         self.helpToolbar.setGeometry(QRect(804,0,70,29))
         self.helpToolbar.setPaletteBackgroundColor(QColor(230,231,230))
+        self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.helpAssistantAction.addTo(self.helpToolbar)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
@@ -6272,6 +6275,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setGeometry(QRect(0,29,1036,29))
+        self.moviePlayerDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6324,6 +6328,8 @@ class MainWindow(QMainWindow):
         self.nullAction.addTo(self.selectMolDashboard)
         self.zoomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
+        self.zoomDashboard.setGeometry(QRect(128,58,115,29))
+        self.zoomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
         self.zoomDashboard.addSeparator()
@@ -6341,6 +6347,7 @@ class MainWindow(QMainWindow):
 
         self.rotateDashboard.setGeometry(QRect(347,58,120,29))
         self.rotateDashboard.setPaletteBackgroundColor(QColor(230,231,230))
+        self.rotateDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
         self.rotateDashboard.addSeparator()
@@ -6348,6 +6355,7 @@ class MainWindow(QMainWindow):
         self.fuseChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.fuseChunksDashboard.setEnabled(1)
+        self.fuseChunksDashboard.setGeometry(QRect(467,58,92,29))
 
         self.textLabel1_3 = QLabel(self.fuseChunksDashboard,"textLabel1_3")
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
@@ -6438,6 +6446,8 @@ class MainWindow(QMainWindow):
         self.editCopyAction.addTo(self.editMenu)
         self.editPasteAction.addTo(self.editMenu)
         self.editDeleteAction.addTo(self.editMenu)
+        self.editMenu.insertSeparator()
+        self.editPrefsAction.addTo(self.editMenu)
         self.MenuBar.insertItem(QString(""),self.editMenu,5)
 
         self.unnamed = QPopupMenu(self)
@@ -6525,8 +6535,6 @@ class MainWindow(QMainWindow):
         self.simSetupAction.addTo(self.Simulator)
         self.simMoviePlayerAction.addTo(self.Simulator)
         self.simPlotToolAction.addTo(self.Simulator)
-        self.simJobManagerAction.addTo(self.Simulator)
-        self.serverManagerAction.addTo(self.Simulator)
         self.MenuBar.insertItem(QString(""),self.Simulator,12)
 
         self.helpMenu = QPopupMenu(self)
@@ -6562,7 +6570,7 @@ class MainWindow(QMainWindow):
         self.connect(self.editDeleteAction,SIGNAL("activated()"),self.killDo)
         self.connect(self.editFindAction,SIGNAL("activated()"),self.editFind)
         self.connect(self.editPasteAction,SIGNAL("activated()"),self.editPaste)
-        self.connect(self.editPreferencesAction,SIGNAL("activated()"),self.editPrefs)
+        self.connect(self.editPrefsAction,SIGNAL("activated()"),self.editPrefs)
         self.connect(self.editRedoAction,SIGNAL("activated()"),self.editRedo)
         self.connect(self.editUndoAction,SIGNAL("activated()"),self.editUndo)
         self.connect(self.fileClearAction,SIGNAL("activated()"),self.fileClear)
@@ -6804,8 +6812,8 @@ class MainWindow(QMainWindow):
         self.selectDoublyAction.setMenuText(self.__tr("&Doubly"))
         self.selectDoublyAction.setToolTip(self.__tr("Select Doubly"))
         self.selectDoublyAction.setAccel(self.__tr("Ctrl+Shift+D"))
-        self.editPreferencesAction.setText(self.__tr("Preferences..."))
-        self.editPreferencesAction.setMenuText(self.__tr("P&references..."))
+        self.editPrefsAction.setText(self.__tr("Preferences..."))
+        self.editPrefsAction.setMenuText(self.__tr("P&references..."))
         self.jigsBearingAction.setText(self.__tr("Bearing"))
         self.jigsBearingAction.setMenuText(self.__tr("&Bearing"))
         self.jigsSpringAction.setText(self.__tr("Spring"))

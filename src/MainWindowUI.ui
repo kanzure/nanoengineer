@@ -72,6 +72,8 @@
         <action name="editCopyAction"/>
         <action name="editPasteAction"/>
         <action name="editDeleteAction"/>
+        <separator/>
+        <action name="editPrefsAction"/>
     </item>
     <item text="&amp;View" name="unnamed">
         <action name="setViewHomeAction"/>
@@ -152,8 +154,6 @@
         <action name="simSetupAction"/>
         <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
-        <action name="simJobManagerAction"/>
-        <action name="serverManagerAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
         <action name="helpAssistantAction"/>
@@ -165,6 +165,9 @@
     <toolbar dock="2">
         <property name="name">
             <cstring>fileToolbar</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
         </property>
         <property name="geometry">
             <rect>
@@ -223,6 +226,13 @@
                 <width>272</width>
                 <height>29</height>
             </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -297,6 +307,9 @@
                 <green>231</green>
                 <blue>230</blue>
             </color>
+        </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
         </property>
         <property name="label">
             <string>Help</string>
@@ -514,6 +527,13 @@
                 <height>29</height>
             </rect>
         </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>231</green>
+                <blue>230</blue>
+            </color>
+        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -669,6 +689,17 @@
         <property name="name">
             <cstring>zoomDashboard</cstring>
         </property>
+        <property name="geometry">
+            <rect>
+                <x>128</x>
+                <y>58</y>
+                <width>115</width>
+                <height>29</height>
+            </rect>
+        </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
+        </property>
         <property name="label">
             <string>Zoom Tool</string>
         </property>
@@ -738,6 +769,9 @@
                 <blue>230</blue>
             </color>
         </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
+        </property>
         <property name="label">
             <string>Rotate Tool</string>
         </property>
@@ -758,6 +792,14 @@
         </property>
         <property name="enabled">
             <bool>true</bool>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>467</x>
+                <y>58</y>
+                <width>92</width>
+                <height>29</height>
+            </rect>
         </property>
         <property name="label">
             <string>Fuse Chunks</string>
@@ -1726,7 +1768,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>editPreferencesAction</cstring>
+            <cstring>editPrefsAction</cstring>
         </property>
         <property name="text">
             <string>Preferences...</string>
@@ -4203,7 +4245,7 @@
         <slot>editPaste()</slot>
     </connection>
     <connection>
-        <sender>editPreferencesAction</sender>
+        <sender>editPrefsAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>editPrefs()</slot>
