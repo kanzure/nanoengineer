@@ -354,13 +354,17 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             
             if fn[-3:] in ["out","OUT"]:
                 try:
-                    insertgms(self.assy, fn)
+                    r = insertgms(self.assy, fn)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting GAMESS OUT file [%s]: " % fn )
                     self.history.message( redmsg( "Internal error while inserting GAMESS OUT file: " + fn) )
                 else:
-                    self.assy.changed() # The file and the part are not the same.
-                    self.history.message( "GAMESS file inserted: " + fn )
+                    if r:
+                        self.history.message( redmsg("File not inserted."))
+                    else:
+                        self.assy.changed() # The file and the part are not the same.
+                        self.history.message( "GAMESS file inserted: " + fn )
+                    
                     
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
