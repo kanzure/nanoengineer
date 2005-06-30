@@ -16,6 +16,8 @@ from GamessProp import GamessProp
 from HistoryWidget import redmsg
 from files_gms import writegms_inpfile, writegms_batfile
 from qt import QMessageBox
+import preferences
+from constants import *
 
 failpat = re.compile("-ABNORMALLY-")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
@@ -105,31 +107,33 @@ class GamessJob(SimJob):
         '''
         
         # Get GAMESS executable path from the user preferences
-        from preferences import prefs_context
-        prefs = prefs_context()
-        self.server.program = prefs.get('A6/gmspath')
+        prefs = preferences.prefs_context()
+        self.server.program = prefs.get(gmspath_prefs_key)
         
         if not self.server.program:
+            msg = "The GAMESS executable path is not set.\n"
+        elif os.path.exists(self.server.program):
+            return 0
+        else:
+            msg = self.server.program + " does not exist.\n"
             
-            # GAMESS Prop Dialog is the parent for messagebox and file chooser.
-            parent = self.edit_cntl 
+        # GAMESS Prop Dialog is the parent for messagebox and file chooser.
+        parent = self.edit_cntl 
             
-            ret = QMessageBox.warning( parent, "GAMESS Executable Path",
-                "The GAMESS executable path is not set.\n"
-                "Please select OK to set the location of GAMESS for this computer.",
-                "&OK", "Cancel", None,
-                0, 1 )
+        ret = QMessageBox.warning( parent, "GAMESS Executable Path",
+            msg + "Please select OK to set the location of GAMESS for this computer.",
+            "&OK", "Cancel", None,
+            0, 1 )
                 
-            if ret==0: # OK
-                from UserPrefs import get_gamess_path
-                self.server.program = get_gamess_path(parent)
-                if not self.server.program:
-                    return 1 # Cancelled from file chooser.
+        if ret==0: # OK
+            from UserPrefs import get_gamess_path
+            self.server.program = get_gamess_path(parent)
+            if not self.server.program:
+                return 1 # Cancelled from file chooser.
             
-            elif ret==1: # Cancel
-                return 1
-            
-        print "Server program = ", self.server.program
+        elif ret==1: # Cancel
+            return 1
+
         return 0
         
     def _launch_gamess(self):
