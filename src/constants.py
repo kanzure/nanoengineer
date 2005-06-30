@@ -118,4 +118,12 @@ SELWHAT_ATOMS = 0
 SELWHAT_CHUNKS = 2
 SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"} # for use in messages
 
+# Keys for user preferences for A6 [moved here from UserPrefs.py by Mark 050629]
+
+gmspath_prefs_key = 'A6/GAMESS Path'
+displayCompass_prefs_key = 'A6/Display Compass'
+compassPosition_prefs_key = 'A6/Compass Position'
+displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
+displayPOVAxis_prefs_key = 'A6/Display POV Axis'
+
 # end
