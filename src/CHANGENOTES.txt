@@ -562,3 +562,10 @@ Summary: permit Select Connected and Select Doubly to be used when Selection Fil
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 6/29/2005
+Files: op_select_doubly.py
+Summary: fix bug 725 by making Select Doubly non-recursive (analogous to bug 714)
+
+----------------------------
+
