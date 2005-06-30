@@ -4,7 +4,7 @@ op_select_doubly.py -- workhorse function for the Select Doubly operation.
 
 Needs some comment-cleanup. And some potential optimizations described herein
 are worth doing if this op's speed ever matters. And it should now be allowed
-to coexist with the Selection Filter (but isn't yet so allowed).
+to coexist with the Selection Filter. [That is now allowed as of bruce 050629.]
 
 $Id$
 
@@ -198,7 +198,7 @@ def select_doubly_func(atom):
     return
 
 def select_doubly(atomlist): #e 1st try is slow if you pass it a highly redundant atomlist. Need to track which ones we picked...
-    # don't use real picking, worry about selectionfilter.
+    # don't use real picking, in order to be compatible with Selection Filter.
     map( select_doubly_func, select_doubly_transcloser( atomlist) )
     return
 

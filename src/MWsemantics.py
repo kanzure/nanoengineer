@@ -79,6 +79,13 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         global windowList
 
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
+
+        #bruce 050629 undo some no-longer-desirable actions done by MainWindow.__init__
+        # (since Select Connected and Select Doubly are now compatible with the Selection Filter).
+        # The self.connect() calls that this undoes should be removed from MainWindowUI,
+        # and then this code can be removed from here.
+        self.disconnect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectConnectedAction,SLOT("setDisabled(bool)"))
+        self.disconnect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectDoublyAction,SLOT("setDisabled(bool)"))
         
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into atom.py at some point)

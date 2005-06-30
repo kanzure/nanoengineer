@@ -555,3 +555,10 @@ Summary: fix bug 714 by making Select Connected non-recursive to avoid Python st
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 6/29/2005
+Files: MWsemantics.py
+Summary: permit Select Connected and Select Doubly to be used when Selection Filter is active
+
+----------------------------
+

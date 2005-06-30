@@ -68,7 +68,7 @@ class ops_connected_Mixin:
     
     #bruce 050629 fixing bug 714 by rewriting this to make it non-recursive
     # (tho it's still non-interruptable), and fixing some other bug by making it
-    # use its own dict for intermediate state, rather than atom.picked (so it works with selection filter).
+    # use its own dict for intermediate state, rather than atom.picked (so it works with Selection Filter).
     def marksingle(self):
         "select all atoms connected by a sequence of bonds to an already selected one"
         marked = {} # maps id(atom) -> atom, for processed atoms
@@ -94,7 +94,7 @@ class ops_connected_Mixin:
             todo = newtodo
         for atom in marked.itervalues():
             atom.pick()
-            # note: this doesn't actually select it unless it's not a singlet and it passes the element filter.
+            # note: this doesn't actually select it unless it's not a singlet and its element passes the Selection Filter.
         return
     
     pass # end of class ops_connected_Mixin
