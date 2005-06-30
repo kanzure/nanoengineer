@@ -1505,7 +1505,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                     # Note that we presently don't plan to store pi system alignment in the mmp file,
                     # which means it will be arbitrarily re-guessed for chains of sp atoms as needed.
                     # (I'm hoping other people will be as annoyed by that as I will be, and come to favor fixing it.)
-                if atype.is_sp2() and a1.atomtype.is_sp2():
+                if atype.spX < 3 and a1.atomtype.spX < 3: # for now, same behavior for sp2 or sp atoms [revised 050630]
                     pass # no extra spin
                 else:
                     spin = spin + Q(r, pi/3.0) # 60 degrees of extra spin

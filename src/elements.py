@@ -159,7 +159,7 @@ class ElementPeriodicTable(Singleton):
                         "Se" :  (  1.881,), "Si" :  ( 1.825, [0.4353, 0.3647, 0.5216]),
                         "Ti" :  ( 2.300,)
                      }
-    _mendeleev = [("X",  "Singlet",     0.001,  [[1, 0, None]]),
+    _mendeleev = [("X",  "Singlet",     0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
                   ("H",  "Hydrogen",    1.6737, [[1, 30, onebond]]),
                   ("He", "Helium",      6.646,  None),
                   ("Li", "Lithium",    11.525,  [[1, 152, None]]),
@@ -173,7 +173,7 @@ class ElementPeriodicTable(Singleton):
                                                  # I don't know how it could bond... let's leave it out for now. [bruce 050510]
                                                  ]),
                   ("N",  "Nitrogen",   23.257,  [[3, 70, tetra3, 'sp3'],
-                                                 [2, 62, tetra2, 'sp2'], # sp2??? wrong angles...
+                                                 [2, 62, flat[:2], 'sp2'], # bruce 050630 replaced tetra2 with flat[:2]
                                                      #e note there is also an sp2 with 3 single bonds (graphitic)... how to rep it here?
                                                  [1, 54.5, onebond, 'sp'],
                                                  [3, 62, flat, 'sp2(graphitic)'], # this is just a guess! (for graphitic N) (and the 62 is made up)

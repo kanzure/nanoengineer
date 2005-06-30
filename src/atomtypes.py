@@ -27,6 +27,7 @@ on __xxx__ attrs in python objects.
 
 from VQT import Q
 from HistoryWidget import redmsg, orangemsg
+import platform
 
 class AtomType:
     """An atom type includes an element and its bonding pattern (and maybe more) --
@@ -49,6 +50,7 @@ class AtomType:
     def __init__(self, elem, bn_triple, valence):
         """#doc... Set some public members, including element, name, fullname,
         numbonds, valence, rcovalent, bondvectors, base, and quats.
+        Also spX, openbond.
         """
         self.element = elem
         self.valence = valence
@@ -57,9 +59,22 @@ class AtomType:
             name = None
         else:
             numbonds, rcovalent, bondvectors, name = bn_triple
-        self.name = name or "?"
+        self.name = name = name or "?"
             # default name won't show up except for bugs, provided it's only used for elements with only one atomtype
         self.fullname = elem.name + '/' + self.name #ok? [see also self.fullname_for_msg()]
+        self.openbond = (elem.eltnum == 0)
+        if name.startswith("sp3") or name == "?":
+            spX = 3
+        elif name.startswith("sp2"):
+            spX = 2
+        elif name.startswith("sp") and (name == "sp" or not name[2].isdigit()):
+            spX = 1
+        else:
+            print "warning: bug: atomtype name in %r does not start with sp, sp2, or sp3; assuming sp3 in bonds code" % self.fullname
+            spX = 3
+        self.spX = spX
+        if 0 and platform.atom_debug and (spX != 3 or self.openbond):
+            print "atom_debug: fyi: %r has spX == %d" % (self.fullname, spX)
         # bondvectors might be None or a list of vectors whose length should be numbonds (except for two buggy elements);
         # if None it means the old code would not set self.base and self.quats... not sure all effects or reasons, but imitate for now
         if bondvectors is not None:
@@ -109,10 +124,10 @@ class AtomType:
         else:
             return self.element.name
         pass
-    def is_sp2(self): #bruce 050531 #e could optimize by precomputing; could define more directly somehow...
-        return self.name.startswith("sp2")
-        #e what about sp?
-        #e what about valence > numbonds? not sure this is proper for e.g. triple-bonded N or =O; also requires numbonds > 1 I guess.
+##    def is_sp2(self): #bruce 050531 #e could optimize by precomputing; could define more directly somehow...
+##        return self.name.startswith("sp2")
+##        #e what about sp?
+##        #e what about valence > numbonds? not sure this is proper for e.g. triple-bonded N or =O; also requires numbonds > 1 I guess.
     pass # end of class AtomType
 
 # end
