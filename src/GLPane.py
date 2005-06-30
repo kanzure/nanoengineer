@@ -232,11 +232,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
         # Current coordinates of the mouse.
         self.MousePos = V(0,0)
-
-        self.displayCompass = True  # variable that controls the display of the compass
-        self.displayOriginAxis = True # variable that controls the display of the origin axis
-        self.displayPOVAxis = True # variable that control the display of the pov axis
-        self.compassPosition = UPPER_RIGHT
  
         ##Huaicai 2/8/05: If this is true, redraw everything. It's better to split
         ##the paintGL() to several functions, so we may choose to draw 
@@ -268,6 +263,23 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.setAssy(assy)
 
         self.loadLighting() #bruce 050311
+        
+        ###### User Preference initialization ##############################
+        
+        # Get glpane related settings from prefs db.
+        # If they are not found, set default values here.
+        # The keys are located in constants.py  Maybe Bruce
+        # would like them elsewhere?  Will ask him.
+        # Mark 050629
+        
+        prefs = preferences.prefs_context()
+        
+        self.displayCompass = prefs.get(displayCompass_prefs_key, True)
+        self.compassPosition = prefs.get(compassPosition_prefs_key, UPPER_RIGHT)
+        self.displayOriginAxis = prefs.get(displayOriginAxis_prefs_key, True)
+        self.displayPOVAxis = prefs.get(displayPOVAxis_prefs_key, True)
+        
+        ###### End of User Preference initialization ########################## 
         
         return # from GLPane.__init__        
 
