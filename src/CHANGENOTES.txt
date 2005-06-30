@@ -548,3 +548,10 @@ Summary: permit right paren in node names in mmp files (fixes part of bug 474)
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 6/29/2005
+Files: ops_connected.py
+Summary: fix bug 714 by making Select Connected non-recursive to avoid Python stack overflow
+
+----------------------------
+

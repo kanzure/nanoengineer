@@ -12,7 +12,7 @@ bruce 050520 added new code (mostly in a separate new file) for Select Doubly.
 
 bruce 050629 code cleanup.
 """
-__author__ = "Josh"
+__author__ = ["Josh", "bruce"]
 
 from HistoryWidget import greenmsg, redmsg
 
@@ -26,10 +26,10 @@ class ops_connected_Mixin:
         if not self.selatoms:
             self.w.history.message(redmsg("Select Connected: No atom(s) selected."))
             return
+        self.w.history.message(greenmsg("Select Connected:"))
         
         alreadySelected = len(self.selatoms.values())
         self.marksingle()
-        self.w.history.message(greenmsg("Select Connected:"))
         totalSelected = len(self.selatoms.values())
         self.w.history.message("%d connected atom(s) selected." % totalSelected)
         
@@ -66,21 +66,37 @@ class ops_connected_Mixin:
 
     # == helpers for SelectConnected (for SelectDoubly, see separate file imported above)
     
-    # select all atoms connected by a sequence of bonds to
-    # an already selected one
+    #bruce 050629 fixing bug 714 by rewriting this to make it non-recursive
+    # (tho it's still non-interruptable), and fixing some other bug by making it
+    # use its own dict for intermediate state, rather than atom.picked (so it works with selection filter).
     def marksingle(self):
-        for a in self.selatoms.values():
-            self.conncomp(a, 1)
-       
-    # connected components. DFS is elegant!
-    # This is called with go=1 from eached already picked atom
-    # its only problem is relatively limited stack in Python
-    def conncomp(self, atom, go=0):
-        if go or not atom.picked:
+        "select all atoms connected by a sequence of bonds to an already selected one"
+        marked = {} # maps id(atom) -> atom, for processed atoms
+        todo = self.selatoms.values() # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
+        # from elements import Singlet
+        for atom in todo:
+            marked[id(atom)] = atom # since marked means "it's been appended to the todo list"
+        while todo:
+            newtodo = []
+            for atom in todo:
+                assert id(atom) in marked
+                #e could optim by skipping singlets, here or before appending them.
+                #e in fact, we could skip all univalent atoms here, but (for non-singlets)
+                # only if they were not initially picked, so nevermind that optim for now.
+                for b in atom.bonds:
+                    at1, at2 = b.atom1, b.atom2 # simplest to just process both atoms, rather than computing b.other(atom)
+                    if id(at1) not in marked: #e could also check for singlets here...
+                        marked[id(at1)] = at1
+                        newtodo.append(at1)
+                    if id(at2) not in marked:
+                        marked[id(at2)] = at2
+                        newtodo.append(at2)
+            todo = newtodo
+        for atom in marked.itervalues():
             atom.pick()
-            for a in atom.neighbors():
-                 self.conncomp(a)
-
+            # note: this doesn't actually select it unless it's not a singlet and it passes the element filter.
+        return
+    
     pass # end of class ops_connected_Mixin
 
 # end
