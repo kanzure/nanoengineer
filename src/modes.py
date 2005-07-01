@@ -758,10 +758,14 @@ class basicMode(anyMode):
         if self.o.displayOriginAxis: 
             drawer.drawaxes(5, (0.0,0.0,0.0), coloraxes=True)
         
-        # Draw the Point of View axis    
+        # Draw the Point of View axis unless it is at the origin (0,0,0).
         if self.o.displayPOVAxis:
-            # Draw POV axes if not at origin.
-            if vlen(self.o.pov): drawer.drawaxes(5, -self.o.pov)
+            if vlen(self.o.pov):
+                drawer.drawaxes(5, -self.o.pov)
+            else:
+                # POV is at the origin (0,0,0).  Draw it if the Origin axis is not drawn. Fixes bug 735.
+                if not self.o.displayOriginAxis:
+                    drawer.drawaxes(5, -self.o.pov)
             
         # bruce 040929/041103 debug code -- for developers who enable this
         # feature, check for bugs in atom.picked and mol.picked for everything
