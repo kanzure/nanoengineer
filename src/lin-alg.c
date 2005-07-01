@@ -4,6 +4,9 @@
  */
 
 // XXX This stuff could possibly benefit from inlining.  Need to profile.
+// NB the intent is for the macros to be used where speed is important,
+//   namely inside the calc loop, and these to he used everywhere else,
+//   for perspicuity.
 
 #include <math.h>
 

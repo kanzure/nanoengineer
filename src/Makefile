@@ -1,7 +1,9 @@
 # Makefile for the simulator
 
 CC=gcc
+
 CFLAGS=-O2 -g
+
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
 
@@ -19,6 +21,7 @@ SUFFIXES: .c .h .o ;
 
 .c.o:
 	$(CC) -c $(CFLAGS) -o $@ $(@:.o=.c)
+
 
 simulator.o: simulator.h
 lin-alg.o: lin-alg.h

@@ -16,15 +16,17 @@ struct xyz Force[NATOMS];
 struct xyz OldForce[NATOMS]; /* used in minimize */
 struct xyz AveragePositions[NATOMS];
 static struct xyz position_arrays[4*NATOMS];
-struct xyz *OldPositions, *NewPositions, *Positions, *BestPositions; // these point into position_arrays
 
-/* steepest descent terminates when rms_force is below this value (in picoNewtons) */
+// these point into position_arrays
+struct xyz *OldPositions, *NewPositions, *Positions, *BestPositions; 
+
+// steepest descent terminates when rms_force is below this value (in picoNewtons)
 #define RMS_CUTOVER (50.0)
 /* additionally, sqrt(max_forceSquared) must be less than this: */
 #define MAX_CUTOVER (RMS_CUTOVER * 3.0)
 #define MAX_CUTOVER_SQUARED (MAX_CUTOVER * MAX_CUTOVER)
 
-/* conjugate gradient terminates when rms_force is below this value (in picoNewtons) */
+// conjugate gradient terminates when rms_force is below this value (in picoNewtons)
 #define RMS_FINAL (1.0)
 
 /* we save the rms value from the initialization iterations in minimize() here: */
@@ -121,8 +123,10 @@ struct xyz Cog, P, Omega;
 double totClipped=0.0;  // internal thermostat for numerical stability
 
 double Gamma = 0.01; // for Langevin thermostats
+//double Gamma = 0.1; // for Langevin thermostats
 // double G1=(1.01-0.27*Gamma)*1.4*sqrt(Gamma);
 double G1=(1.01-0.27*0.01)*1.4*0.1;
+//double G1=(1.01-0.27*0.1)*1.4*0.31623;
 
 // definitions for command line args
 
@@ -612,6 +616,44 @@ jigMotor(int j, double deltaTframe, struct xyz *position, struct xyz *new_positi
 }
 
 static void
+jigLinearMotor(int j, struct xyz *position, double deltaTframe)
+{
+    struct MOT *mot;
+    int i, k;
+    int a1;
+    struct xyz r;
+    struct xyz f;
+    double ff, x;
+
+    mot=Constraint[j].motor;
+
+    if (mot->speed == 0.0) {
+	for (i=0;i<Constraint[j].natoms;i++) 
+	    vadd(Force[Constraint[j].atoms[i]], mot->center);
+    }
+    else {
+	r = vcon(0.0);
+	for (i=0;i<Constraint[j].natoms;i++) 
+	    /* for each atom connected to the "shaft" */
+	    r=vsum(r,Positions[Constraint[j].atoms[i]]);
+	
+	r=vprodc(r, 1.0/Constraint[j].natoms);
+    	
+	// x is length of projection of r onto axis
+	x=vdot(r,mot->axis);
+	
+	// note .speed is stiffness
+	// .theta0 is projection dist of r onto axis for 0 force
+	ff = mot->speed * (mot->theta0 - x) / Constraint[j].natoms;
+	f = vprodc(mot->axis, ff);
+
+	for (i=0;i<Constraint[j].natoms;i++) 
+	    vadd(Force[Constraint[j].atoms[i]], f);
+
+    }
+}
+
+static void
 jigThermometer(int j, double deltaTframe, struct xyz *position, struct xyz *new_position)
 {
     double z;
@@ -751,9 +793,14 @@ calcloop(int iters) {
         }
 		
 	// pre-force constraints
-	for (j=0;j<Nexcon;j++) {
-	    if (Constraint[j].type == CODEmotor) {
+	for (j=0;j<Nexcon;j++) {	/* for each constraint */
+            switch (Constraint[j].type) {
+            case CODEmotor:
                 jigMotorPreforce(j, Positions, deltaTframe);
+                break;
+	    case CODElmotor:
+		jigLinearMotor(j, Positions, deltaTframe);
+                break;
 	    }
 	}
 	

@@ -224,7 +224,6 @@ static void makmot2(int i) {
 	
     atlis = Constraint[i].atoms;
     mot = Constraint[i].motor;
-    mot->axis = uvec(mot->axis);
 	
     for (j=0;j<Constraint[i].natoms;j++) {
 	/* for each atom connected to the "shaft" */
@@ -265,6 +264,57 @@ static void makmot2(int i) {
     if (mot->speed==0.0) mot->theta = mot->atang[0];
 }
 
+/** input force in pN,  stiffness in N/m
+    internal units are pN and pm, so no translation necessary
+*/
+
+static struct MOT *
+maklmot(double force, double stiff, struct xyz vec1,  struct xyz vec2)
+{
+    int i;
+	
+    Motor[Nexmot].axis=uvec(vec2);
+    Motor[Nexmot].stall=force;
+    Motor[Nexmot].speed=stiff;
+	
+    return Motor+Nexmot++;
+}
+
+static void maklmot2(int i) {
+    struct MOT *mot;
+    struct xyz r, q, vrmax;
+    int j, *atlis;
+    double x, c;
+	
+    if (Constraint[i].type != CODElmotor) return;
+	
+    atlis = Constraint[i].atoms;
+    mot = Constraint[i].motor;
+
+    // r is average shaft-atom position
+
+    r = vcon(0.0);
+	
+    for (j=0;j<Constraint[i].natoms;j++) 
+      /* for each atom connected to the "shaft" */
+      r=vsum(r,Positions[atlis[j]]);
+    
+    r=vprodc(r, 1.0/Constraint[i].natoms);
+
+    // x is length of projection of r onto axis
+    x=vdot(r,mot->axis);
+
+    // note .stall is force and .speed is stiffness
+    // .theta0 will be projection dist of r onto axis for 0 force
+    if (mot->speed != 0.0) mot->theta0 = x + mot->stall/mot->speed;
+
+    // if constant force, just use this force vector
+    if (mot->speed == 0.0) 
+      mot->center = vprodc(mot->axis,mot->stall/Constraint[i].natoms);
+    
+
+}
+
 static int readname(char *buf, char **ret) {
 
   char b1[128];
@@ -301,7 +351,7 @@ void filred(char *filnam) {
     char buf[256];
     char ord;
     int i, j, n, m, b, c, lastatom;
-    double stall, speed;
+    double stall, speed, force, stiff;
     struct xyz vec1,vec2;
     int a1, a2, ie, ix, iy, iz, ix1, iy1, iz1, iv[NJATOMS];
     int firstatom=1, offset;
@@ -468,13 +518,13 @@ void filred(char *filnam) {
 	}
 		
 	// linear motor
-	/* lmotor <force>, <speed>, (<center>) (<axis>) */
+	/* lmotor (name) (r,g,b) <force> <stiff> (<center>) (<axis>) */
 	else if (0==strncasecmp("lmotor",buf,6)) {
-	  for (i=2,j=7;i;j++) if (buf[j]==')') i--;
-	  sscanf(buf+5, " (%d, %d, %d) %lf, %lf, (%d, %d, %d) (%d, %d, %d",
-		   nambuf, colr, colr+1, colr+2,
-		   &stall, &speed, &ix, &iy, &iz, &ix1, &iy1, &iz1);
-			
+	    j=readname(buf+7,&strg);
+	    sscanf(buf+j+7, " (%[0-9, ]) %lf %lf (%d, %d, %d) (%d, %d, %d",
+		   nambuf, &force, &stiff, &ix, &iy, &iz, &ix1, &iy1, &iz1);
+	    printf( "%s\ngot motor (%s)  %lf %lf (%d, %d, %d) (%d, %d, %d) \n",
+                   buf,strg,force,stiff, ix, iy, iz, ix1, iy1, iz1);
 	    vec1.x=(double)ix *0.1;
 	    vec1.y=(double)iy *0.1;
 	    vec1.z=(double)iz *0.1;
@@ -486,8 +536,8 @@ void filred(char *filnam) {
               fprintf(stderr, "lmotor needs a shaft\n");
             } else {
 	      j=readshaft(buf+5, iv, atnotab);
-	      i=makcon(CODElmotor, makmot(stall, speed, vec1, vec2), j, iv);
-	      makmot2(i);
+	      i=makcon(CODElmotor, maklmot(force, stiff, vec1, vec2), j, iv);
+	      maklmot2(i);
 	    }
 	}
 		
