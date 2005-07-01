@@ -66,7 +66,10 @@ paneno = 0
 
 ## normalGridLines = (0.0, 0.0, 0.6) # bruce 050410 removed this, and related code
 
-
+# Compass position constants.  These are used to preserve the preference value
+# for the compass position and relate directly to the radio button group values for the options 
+# presented in the Prefences/General dialog.  Do not change the value of these 4 constants!
+# Mark 050630.
 UPPER_RIGHT = 0
 UPPER_LEFT = 1
 LOWER_LEFT = 2
