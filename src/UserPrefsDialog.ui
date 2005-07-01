@@ -47,10 +47,10 @@
                             </property>
                             <widget class="QPushButton" row="1" column="2">
                                 <property name="name">
-                                    <cstring>gamess_modify_btn</cstring>
+                                    <cstring>gamess_choose_btn</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>Modify...</string>
+                                    <string>Choose...</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="1" column="0">
@@ -276,10 +276,10 @@
                                             </widget>
                                             <widget class="QPushButton">
                                                 <property name="name">
-                                                    <cstring>color1_btn</cstring>
+                                                    <cstring>choose_color1_btn</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string>Edit...</string>
+                                                    <string>Choose...</string>
                                                 </property>
                                             </widget>
                                         </hbox>
@@ -326,10 +326,10 @@
                                             </widget>
                                             <widget class="QPushButton">
                                                 <property name="name">
-                                                    <cstring>color2_btn</cstring>
+                                                    <cstring>choose_color2_btn</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string>Edit...</string>
+                                                    <string>Choose...</string>
                                                 </property>
                                             </widget>
                                         </hbox>
@@ -515,10 +515,45 @@
                         <property name="sizeHint">
                             <size>
                                 <width>20</width>
-                                <height>16</height>
+                                <height>20</height>
                             </size>
                         </property>
                     </spacer>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout7</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>restore_bgcolor_btn</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Restore Default Color</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer8_4</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
                 </vbox>
             </widget>
         </widget>
@@ -591,7 +626,7 @@
         <slot>set_compass_position()</slot>
     </connection>
     <connection>
-        <sender>gamess_modify_btn</sender>
+        <sender>gamess_choose_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>set_gamess_path()</slot>
@@ -609,10 +644,22 @@
         <slot>mode_changed()</slot>
     </connection>
     <connection>
-        <sender>color1_btn</sender>
+        <sender>choose_color1_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>edit_color1()</slot>
+        <slot>change_bgcolor1()</slot>
+    </connection>
+    <connection>
+        <sender>fill_type_combox</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>fill_type_changed()</slot>
+    </connection>
+    <connection>
+        <sender>restore_bgcolor_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>restore_default_bgcolor()</slot>
     </connection>
 </connections>
 <slots>
@@ -623,7 +670,9 @@
     <slot>set_gamess_path()</slot>
     <slot>setup_current_page()</slot>
     <slot>mode_changed()</slot>
-    <slot>edit_color1()</slot>
+    <slot>change_bgcolor1()</slot>
+    <slot>fill_type_changed()</slot>
+    <slot>restore_default_bgcolor()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

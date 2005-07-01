@@ -12,15 +12,8 @@ import preferences
 import os, sys
 from constants import *
 
+# This list of mode names correspond to the names listed in the modes combo box.
 modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
-default_bgcolor = [ (189/255.0, 228/255.0, 238/255.0), # Select Chunks
-                                (189/255.0, 228/255.0, 238/255.0), # Select Atoms
-                                (254/255.0, 173/255.0, 246/255.0), # Move Chunks
-                                (74/255.0, 186/255.0, 226/255.0), # Build
-                                (103/255.0, 124/255.0, 53/255.0), # Cookie Cutter
-                                (199/255.0, 100/255.0, 100/255.0), # Extrude
-                                (200/255.0, 200/255.0, 200/255.0), # Fuse Chunks
-                                (189/255.0, 228/255.0, 238/255.0)] # Movie Player
 
 def get_gamess_path(parent):
     '''Present user with the Qt file chooser to select the GAMESS executable.
@@ -43,7 +36,45 @@ def get_gamess_path(parent):
     prefs[gmspath_prefs_key] = str(gmspath)
         
     return gmspath
+
+def validate_gamess_path(parent, gmspath):
+    '''Checks that gmspath (GAMESS executable) exists.  If not, the user is asked
+    if they want to use the File Chooser to select the GAMESS executable.
+    This function does not check whether the GAMESS path is actually GAMESS 
+    or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS for Windows).
+    Returns: 
+            - "gmspath" if it is validated or if the user does not want to change it for any reason, or
+            - "new_gmspath" if gmspath is invalid and the user selected a new GAMESS executable.
+    '''
         
+    if not gmspath: # It is OK if gmspath is empty.
+        return ''
+    elif os.path.exists(gmspath):
+        return gmspath
+    else:
+        ret = QMessageBox.warning( parent, "GAMESS Executable Path",
+            gmspath + " does not exist.\nDo you want to use the File Chooser to browse for the GAMESS executable?",
+            "&Yes", "&No", None,
+            0, 1 )
+                
+        if ret==0: # Yes
+            new_gmspath = get_gamess_path(parent)
+            if not new_gmspath:
+                return gmspath # Cancelled from file chooser.  Just return the original gmspath.
+            else:
+                return new_gmspath
+            
+        else: # No
+            return gmspath
+
+def get_rgb_from_bgcolor(bgcolor):
+    "Returns the RGB integer values for bgcolor."
+    r = int (bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
+    g = int (bgcolor[1]*255 + 0.5)
+    b = int (bgcolor[2]*255 + 0.5)
+    return r, g, b
+        
+
 class UserPrefs(UserPrefsDialog):
     '''The User Preferences dialog used for accessing and changing user preferences
     '''
@@ -91,7 +122,13 @@ class UserPrefs(UserPrefsDialog):
     def _setup_background_page(self):
         ''' Setup widgets to initial (default or defined) values on the background page.
         '''
-        self.mode_combox.setCurrentItem(modes.index(self.glpane.mode.modename))
+        # Set the mode drop box to the current mode, 
+        # or "Select Chunks" if the mode is not in the "modes" list.
+        if self.glpane.mode.modename in modes:
+            self.mode_combox.setCurrentItem(modes.index(self.glpane.mode.modename))
+        else:
+            self.mode_combox.setCurrentItem(0) # Set to Select Chunks
+
         self.bg_solid_setup()
                         
     def _update_prefs(self):
@@ -105,6 +142,12 @@ class UserPrefs(UserPrefsDialog):
         # alerted and asked to supply a new path via the file chooser.
         # Mark 050629
         self.gmspath = str(self.gamess_path_linedit.text())
+        
+        # Bruce suggested I validate the gamess path before updating the prefs.  
+        # This works, but it needs more thought.  It will annoy users more than
+        # help them.  I'm leaving this for later until I discuss with Bruce.
+        # Mark 050630.
+#        self.gmspath = validate_gamess_path(self, str(self.gamess_path_linedit.text()))
         
         # General tab prefs
         general_changes = { displayCompass_prefs_key: self.glpane.displayCompass,
@@ -157,65 +200,85 @@ class UserPrefs(UserPrefsDialog):
     ########## Slot methods for "Background" page widgets ################
 
     def mode_changed(self, val):
-        self.bg_solid_setup()
+        '''Slot called when the user changes the mode in the drop box.
+        '''
+        # Gradient option is disabled for A6.  This will alway call bg_solid_setup() until A7.
+        if self.fill_type_combox.currentText() == 'Solid':
+            self.bg_solid_setup()
+        else: # Gradient
+            self.bg_gradient_setup()
+    
+    def fill_type_changed(self, ftype):
+        '''Slot called when the user changes the Fill Type.
+        '''
+        if ftype == 'Solid':
+            self.bg_solid_setup()
+        else:
+            self.bg_gradient_setup()
         
     def bg_solid_setup(self):
         '''Setup the BG color page for a solid fill type.
         '''
         self.color1_lbl.setText("Color :")
-        r, g, b = self.get_mode_backgroundColor(modes[self.mode_combox.currentItem()])
+        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
+        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
+        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor)
         self.color1_frame.setPaletteBackgroundColor(QColor(r, g, b))
         
-        # Hide the gradient widgets - don't know if I'll be able to get "Gradient" backgrounds working by A6.
+        # Hide the gradient widgets
+        # I doubt I'll be able to get "Gradient" backgrounds working by A6.
         # Mark 050630
         self.color2_lbl.hide()
         self.color2_frame.hide()
-        self.color2_btn.hide()
+        self.choose_color2_btn.hide()
         self.gradient_orient_btngrp.hide()
     
-    def get_mode_backgroundColor(self, modename):
-        "Returns the RGB integer values of a mode given a mode name."
-        
-#        print "modename =", modename
-        key = "mode %s backgroundColor" % modename
-        prefs = preferences.prefs_context()
-        
-        # bgcolor is set to the mode's background color if found in the prefs db.
-        # or the mode's default background color if not found in the prefs db.
-        bgcolor = prefs.get( key, default_bgcolor[self.mode_combox.currentItem()] )
-        
-        # Compute r, g, b integer values of mode's background color
-        r = int (bgcolor[0] * 255)
-        g = int (bgcolor[1] * 255)
-        b = int (bgcolor[2] * 255) 
-        return r, g, b
-
-    def edit_color1(self):
-        '''Change "color1" of a mode's background color.  This is the color for solid backgrounds.
-        color1 is the top (vertical) or left (horizontal) color for gradient backgrounds.
+    def bg_gradient_setup(self):
+        '''Setup the Background page for a gradient fill type.
+        This is never called in A6.
         '''
-        # get r, g, b values of current background color
-        r, g, b = self.get_mode_backgroundColor(modes[self.mode_combox.currentItem()])
+        self.color1_lbl.setText("Color 1 :")
+        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
+        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
+        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor)
+        self.color1_frame.setPaletteBackgroundColor(QColor(r, g, b))
+        self.color2_frame.setPaletteBackgroundColor(QColor(r, g, b))
+        
+        # Show the gradient widgets.
+        self.color2_lbl.show()
+        self.color2_frame.show()
+        self.choose_color2_btn.show()
+        self.gradient_orient_btngrp.show()
 
-        # allow user to select a new background color and set it.
-        # bruce 050105: now this new color persists after new files are opened,
-        # and into new sessions as well.
+    def change_bgcolor1(self):
+        '''Change a mode's background color.
+        '''
+        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
+        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
+        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor)
+
+        # Allow user to select a new background color and set it.
         c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
         if c.isValid():
             bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            if self.glpane.mode.modename == modes[self.mode_combox.currentItem()]:
-                self.glpane.mode.set_backgroundColor( bgcolor )
-                self.glpane.gl_update()
-            else:
-                self.set_mode_backgroundColor(modes[self.mode_combox.currentItem()], bgcolor)
+            mode.set_backgroundColor( bgcolor )
             self.color1_frame.setPaletteBackgroundColor(c)
-            
-    def set_mode_backgroundColor(self, modename, bgcolor):
-        key = "mode %s backgroundColor" % modename
-        prefs = preferences.prefs_context()
-        prefs[key] = bgcolor # this stores the new color into a prefs db file
-        return
     
+    def restore_default_bgcolor(self):
+        '''Slot for "Restore Default Color" button, which restores the selected mode's bg color.
+        '''
+        # Get the mode object selected in the combo box.
+        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
+        # Set the background color to the default.
+        mode.set_backgroundColor(mode.__class__.backgroundColor)
+        # Now update the color square (frame).
+        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor)
+        c = QColor(r, g, b)
+        self.color1_frame.setPaletteBackgroundColor(c)
+        # If the selected mode is the current mode, update the glpane to display the new (default) bg color.
+        if mode == self.glpane.mode:
+            self.glpane.gl_update()
+        
     ########## End of slot methods for "Background" page widgets ###########
 
     ########## Slot methods for top level widgets ################
@@ -226,7 +289,7 @@ class UserPrefs(UserPrefsDialog):
         elif pagename == 'Background':
             self._setup_background_page()
         else:
-            print 'Error: Page unknown: ', pagename
+            print 'Error: Preferences page unknown: ', pagename
             
     def accept(self):
         '''The slot method for the 'OK' button.'''

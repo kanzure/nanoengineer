@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Jun 30 04:19:52 2005
+# Created: Fri Jul 1 01:36:28 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,9 +33,9 @@ class UserPrefsDialog(QDialog):
         file_locations_grpLayout = QGridLayout(self.file_locations_grp.layout())
         file_locations_grpLayout.setAlignment(Qt.AlignTop)
 
-        self.gamess_modify_btn = QPushButton(self.file_locations_grp,"gamess_modify_btn")
+        self.gamess_choose_btn = QPushButton(self.file_locations_grp,"gamess_choose_btn")
 
-        file_locations_grpLayout.addWidget(self.gamess_modify_btn,1,2)
+        file_locations_grpLayout.addWidget(self.gamess_choose_btn,1,2)
 
         self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
         self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
@@ -123,8 +123,8 @@ class UserPrefsDialog(QDialog):
         self.color1_frame.setFrameShadow(QFrame.Plain)
         layout37.addWidget(self.color1_frame)
 
-        self.color1_btn = QPushButton(self.TabPage,"color1_btn")
-        layout37.addWidget(self.color1_btn)
+        self.choose_color1_btn = QPushButton(self.TabPage,"choose_color1_btn")
+        layout37.addWidget(self.choose_color1_btn)
 
         layout9.addLayout(layout37,2,1)
 
@@ -142,8 +142,8 @@ class UserPrefsDialog(QDialog):
         self.color2_frame.setFrameShadow(QFrame.Plain)
         layout37_2.addWidget(self.color2_frame)
 
-        self.color2_btn = QPushButton(self.TabPage,"color2_btn")
-        layout37_2.addWidget(self.color2_btn)
+        self.choose_color2_btn = QPushButton(self.TabPage,"choose_color2_btn")
+        layout37_2.addWidget(self.choose_color2_btn)
 
         layout9.addLayout(layout37_2,3,1)
 
@@ -190,8 +190,16 @@ class UserPrefsDialog(QDialog):
         spacer7_2 = QSpacerItem(50,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout11.addItem(spacer7_2)
         TabPageLayout.addLayout(layout11)
-        spacer8_3 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        spacer8_3 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
         TabPageLayout.addItem(spacer8_3)
+
+        layout7 = QHBoxLayout(None,0,6,"layout7")
+
+        self.restore_bgcolor_btn = QPushButton(self.TabPage,"restore_bgcolor_btn")
+        layout7.addWidget(self.restore_bgcolor_btn)
+        spacer8_4 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout7.addItem(spacer8_4)
+        TabPageLayout.addLayout(layout7)
         self.prefs_tab.insertTab(self.TabPage,QString(""))
         UserPrefsDialogLayout.addWidget(self.prefs_tab)
 
@@ -213,16 +221,18 @@ class UserPrefsDialog(QDialog):
         self.connect(self.display_origin_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_origin_axis)
         self.connect(self.display_pov_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_pov_axis)
         self.connect(self.compass_position_btngrp,SIGNAL("clicked(int)"),self.set_compass_position)
-        self.connect(self.gamess_modify_btn,SIGNAL("clicked()"),self.set_gamess_path)
+        self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
-        self.connect(self.color1_btn,SIGNAL("clicked()"),self.edit_color1)
+        self.connect(self.choose_color1_btn,SIGNAL("clicked()"),self.change_bgcolor1)
+        self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.fill_type_changed)
+        self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Preferences"))
         self.file_locations_grp.setTitle(self.__tr("File Locations"))
-        self.gamess_modify_btn.setText(self.__tr("Modify..."))
+        self.gamess_choose_btn.setText(self.__tr("Choose..."))
         self.gamess_lbl.setText(self.__tr("GAMESS :"))
         self.groupBox7_2.setTitle(self.__tr("Compass and Axes"))
         self.display_compass_checkbox.setText(self.__tr("Display Compass"))
@@ -235,9 +245,9 @@ class UserPrefsDialog(QDialog):
         self.lower_right_btn.setText(self.__tr("Lower Right"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
         self.color2_lbl.setText(self.__tr("Color 2 :"))
-        self.color1_btn.setText(self.__tr("Edit..."))
+        self.choose_color1_btn.setText(self.__tr("Choose..."))
         self.fill_type_lbl.setText(self.__tr("Fill Type :"))
-        self.color2_btn.setText(self.__tr("Edit..."))
+        self.choose_color2_btn.setText(self.__tr("Choose..."))
         self.color1_lbl.setText(self.__tr("Color :"))
         self.mode_combox.clear()
         self.mode_combox.insertItem(self.__tr("Select Chunks"))
@@ -255,6 +265,7 @@ class UserPrefsDialog(QDialog):
         self.gradient_orient_btngrp.setTitle(self.__tr("Gradient Orientation"))
         self.vertical_rbtn.setText(self.__tr("Vertical"))
         self.horizontal_rbtn.setText(self.__tr("Horizontal"))
+        self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
         self.prefs_tab.changeTab(self.TabPage,self.__tr("Background"))
         self.ok_btn.setText(self.__tr("OK"))
 
@@ -280,8 +291,14 @@ class UserPrefsDialog(QDialog):
     def mode_changed(self):
         print "UserPrefsDialog.mode_changed(): Not implemented yet"
 
-    def edit_color1(self):
-        print "UserPrefsDialog.edit_color1(): Not implemented yet"
+    def change_bgcolor1(self):
+        print "UserPrefsDialog.change_bgcolor1(): Not implemented yet"
+
+    def fill_type_changed(self):
+        print "UserPrefsDialog.fill_type_changed(): Not implemented yet"
+
+    def restore_default_bgcolor(self):
+        print "UserPrefsDialog.restore_default_bgcolor(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)
