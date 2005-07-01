@@ -225,7 +225,7 @@ class GamessProp(GamessPropDialog):
     '''
        
     def __init__(self):
-        GamessPropDialog.__init__(self)
+        GamessPropDialog.__init__(self, modal=True)
         self.sManager = ServerManager()
         self.servers = self.sManager.getServers()
         self.server = self.servers[0]
@@ -649,6 +649,7 @@ class GamessProp(GamessPropDialog):
         """The slot method for the 'Save' button."""
         self._save_ui_settings()
         QDialog.accept(self)
+        
     
     def reject(self):
         """The slot method for the 'Cancel' button."""

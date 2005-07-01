@@ -8,11 +8,13 @@ __author__ = "Mark"
 
 import time
 import sys
+from qt import QObject
 
-class SimJob:
+class SimJob(QObject):
     """The base class for a simulation job"""
     
     def __init__(self, name, parms):
+        QObject.__init__(self)
         
         # The parameters (parms) for the SimJob object are provided in a dictionary in key:value pairs
         # For the Gamess Jig, the parms are defined in the jig_Gamess.py.

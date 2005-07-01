@@ -15,9 +15,11 @@ from SimServer import SimServer
 from GamessProp import GamessProp
 from HistoryWidget import redmsg
 from files_gms import writegms_inpfile, writegms_batfile
+from qt import * 
 from qt import QMessageBox
 import preferences
 from constants import *
+
 
 failpat = re.compile("-ABNORMALLY-")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
@@ -44,6 +46,7 @@ class GamessJob(SimJob):
         self.edit_cntl = GamessProp()
         
         
+        
     def edit(self):
         self.edit_cntl.showDialog(self)
     
@@ -61,19 +64,11 @@ class GamessJob(SimJob):
         self.Status = 'Queued'
 
         basename = self.gamessJig.name + "-" + self.gamessJig.gms_parms_info('_')
-        
-        # Do GAMESS and PC GAMESS need different INP filenames?  
-        # Can't GAMESS and PC GAMESS both use *.inp as the filename?
-        # I think so.  I'm commenting out this code and leaving this note here
-        # until I discuss it with Huaicai.  If he agrees, I'm removing all this.
-        # Mark 050628
-#        if self.server.engine == 'PC GAMESS':
-#            self.job_inputfile = os.path.join(job_id_dir, "%s.inp" % basename)
-#        else: 
-#            self.job_inputfile = os.path.join(job_id_dir, "%s" %  basename)
-        
+      
         # GAMESS Job INP, OUT and BAT files.
+
         self.job_inputfile = os.path.join(job_id_dir, "%s.inp" % basename)
+
         self.job_outputfile = os.path.join(job_id_dir, "%s.out" %  basename)
         self.job_batfile = os.path.join(job_id_dir, "%s.bat" %  basename)
          
@@ -89,11 +84,23 @@ class GamessJob(SimJob):
             open_file_in_editor(self.job_inputfile)
 
         self.starttime = time.time() # Save the start time for this job.
+        
+        # Validate Gamess Program
+        r = self._validate_gamess_program()
+        
+        if r: # Gamess program was not valid.
+            return 1 # Job Cancelled.
+        
+        from debug import print_compact_traceback    
+        try:
+            if sys.platform == 'win32': # Windows
+                return self._launch_pcgamess()
+            else: # Linux or MacOS
+                return self._launch_gamess()
+        except:
+             print_compact_traceback("Exception happened when run gamess")    
+            
 
-        if sys.platform == 'win32': # Windows
-            return self._launch_pcgamess()
-        else: # Linux or MacOS
-            return self._launch_gamess()
 
     def _validate_gamess_program(self):
         '''Private method:
@@ -135,9 +142,105 @@ class GamessJob(SimJob):
             return 1
 
         return 0
+
+    
+    def _readFromStdout(self):
+        '''Slot method to read stdout of the gamess process '''
+        #while self.process.canReadLineStdout():
+        #    lineStr = str(self.process.readLineStdout()) + '\n'
+        #    self.outputFile.write(lineStr)
+        bytes = self.process.readStdout()
+        self.outputFile.writeBlock(bytes)
+    
+    def startFileWriting(self):
+        self.fwThread.start()
+    
+    
+    def processTimeout(self):
+        if self.process.isRunning():
+            if not self.progressDialog.isShown() or self.progressDialog.Rejected:
+                return
+                
+            msgLabel = self.progressDialog.getMsgLabel()
+            duration = time.time() - self.stime
+            elapmsg = "Elasped Time: " + self.progressDialog.hhmmss_str(int(duration))
+            msgLabel.setText(elapmsg)
+            
+            bytes = self.process.readStdout()
+            if bytes:
+                #self.output.writeBlock(bytes)    
+                #self.fileData += [bytes]
+                self.fwThread.putData(bytes)
+                
+    
+    def processDone(self):
+        self.fwThread.stop()
+        self.jobTimer.stop()
+        #for b in self.fileData:
+        #   self.outputFile.writeBlock(b)     
+        self.progressDialog.accept()
         
+
     def _launch_gamess(self):
-        print "GAMESS not supported on Windows"
+        oldir = os.getcwd() # Save current directory
+        
+        jobDir = os.path.dirname(self.job_batfile)
+        os.chdir(jobDir) # Change directory to the GAMESS temp directory.
+        print "Current directory is: ", jobDir
+        
+        #DATfile = os.path.join(jobDir, "PUNCH")
+        #if os.path.exists(DATfile): # Remove any previous DAT (PUNCH) file.
+        #    print "run_pcgamess: Removing DAT file: ", DATfile
+        #    os.remove(DATfile)
+        self.outputFile = QFile(self.job_outputfile)
+        self.outputFile.open( IO_WriteOnly | IO_Append )
+        #outputFile = open(self.job_outputfile, 'w')
+        #self.fileData = []
+            
+        jobInputfile = os.path.basename(self.job_inputfile)
+        jobInputFile = jobInputfile[:-4]
+            
+            
+        args = [self.server.program, jobInputFile]#, '01', '1']#, '>' + self.job_outputfile]
+        
+            
+        self.process = QProcess()
+        for s in args:
+            self.process.addArgument(s)
+        self.process.setCommunication(QProcess.Stdout)
+            
+        self.fwThread = FileWriting(self.outputFile)
+        self.jobTimer = QTimer(self)
+        
+        self.progressDialog = JobProgressDialog(self.process, self.Calculation)
+        self.connect(self.process, SIGNAL('processExited ()'), self.processDone)
+        
+        #self.connect(self.process, SIGNAL('readyReadStdout()'), self.startFileWriting)
+        self.fwThread.start()   
+        
+        if not self.process.start():
+            print "The process can't be started."
+        
+        self.connect(self.jobTimer, SIGNAL('timeout()'), self.processTimeout)
+        self.stime = time.time()
+        self.jobTimer.start(1)
+        
+        
+        self.progressDialog.exec_loop()
+        #self.jobTimer.stop()
+                      
+        
+        self.fwThread.wait()        
+        
+        self.process = None
+        self.outputFile.close()
+        
+        os.chdir(oldir)
+        self.gamessJig.outputfile = self.job_outputfile
+        #print "GamessJob._launch_pcgamess: self.gamessJig.outputfile: ", self.gamessJig.outputfile
+        
+        return 0
+        
         
     def _launch_pcgamess(self):
         '''Run PC GAMESS (Windows only).
@@ -150,12 +253,6 @@ class GamessJob(SimJob):
                        1 = Cancelled
                        2 = Failed
         '''
-        
-        # Validate Gamess Program
-        r = self._validate_gamess_program()
-        
-        if r: # Gamess program was not valid.
-            return 1 # Job Cancelled.
         
         oldir = os.getcwd() # Save current directory
         
@@ -185,11 +282,6 @@ class GamessJob(SimJob):
         
         #try:
         if 1:    
-            from qt import QProcess, qApp
-            import time
-            
-            #args = [r'C:\PCGAMESS\gamess.exe',  '-i',  r'C:\Documents and Settings\Huaicai Mo\Nanorex\jobManager\100\gamess_job_100.inp',  '-o',  r'C:\Documents and Settings\Huaicai Mo\Nanorex\JobManager\100\gamess_job_100.out']
-
             args = [self.server.program, '-i', self.job_inputfile, '-o', self.job_outputfile]
             
             process = QProcess()
@@ -231,11 +323,10 @@ class GamessJob(SimJob):
         return 0 # Success
 
 
-    def showProgress(self):
+    def showProgress(self, modal = True):
         '''Open the progress dialog to show the current job progress. '''
-        from qt import QProgressDialog, QProgressBar
-        
-        simProgressDialog = QProgressDialog(self.edit_cntl.win, "progressDialog", True)
+                
+        simProgressDialog = QProgressDialog(self.edit_cntl.win, "progressDialog", modal)
         if self.Calculation == 'Energy':
             simProgressDialog.setLabelText("Calculating Energy ...")
         else:
@@ -243,8 +334,134 @@ class GamessJob(SimJob):
         simProgressDialog.setCaption("Please Wait")
         progBar = QProgressBar(simProgressDialog)
         progBar.setTotalSteps(0)
+        progBar.setPercentageVisible(False)
         simProgressDialog.setBar(progBar)
         simProgressDialog.setAutoReset(False)
         simProgressDialog.setAutoClose(False)
         
+        
         return simProgressDialog
+        
+
+class JobProgressDialog(QDialog):
+    
+    def __init__(self, process, calculation):
+        QDialog.__init__(self, None, None,True) 
+        
+        self.process = process
+        
+        self.setCaption("Please Wait")
+        
+        pbVBLayout = QVBoxLayout(self,11,6,"ProgressBarDialogLayout")
+
+        msgLabel = QLabel(self,"msgLabel")
+        msgLabel.setAlignment(QLabel.AlignCenter)
+        
+        
+        if calculation == 'Energy':
+            msgLabel.setText("Calculating Energy ...")
+        else:
+            msgLabel.setText("Optimizing ...")
+        
+        pbVBLayout.addWidget(msgLabel)
+                      
+        self.msgLabel2 = QLabel(self,"msgLabel2")
+        self.msgLabel2.setAlignment(QLabel.AlignCenter)
+        self.msgLabel2.setText('')
+        
+        pbVBLayout.addWidget(self.msgLabel2)
+        
+        cancelButton = QPushButton(self,"canel")
+        cancelButton.setText("Cancel")
+        
+        pbVBLayout.addWidget(cancelButton)
+        
+        self.resize(QSize(248,146).expandedTo(self.minimumSizeHint()))
+        self.connect(cancelButton, SIGNAL("clicked()"), self.reject)
+        
+    def reject(self):
+        if self.process.isRunning():
+            self.process.kill()
+        QDialog.reject(self)
+        
+    def getMsgLabel(self):
+        return self.msgLabel2
+    
+    
+    def launchProgressDialog(self):
+        stime = time.time()
+        
+        self.show()
+        
+        while 1:
+                qApp.processEvents()
+                if self.Rejected:
+                    break
+                
+                duration = time.time() - stime
+                elapmsg = "Elasped Time: " + self.hhmmss_str(int(duration))
+                self.msgLabel2.setText(elapmsg) 
+        
+                time.sleep(0.01)
+        
+
+    def hhmmss_str(self, secs):
+        """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
+        # [bruce 050415 comment: this is sometimes called from external code
+        #  after the progressbar is hidden and our launch method has returned.]
+        # bruce 050415 revising this to use pure int computations (so bugs from
+        #  numeric roundoff can't occur) and to fix a bug when hours > 0 (commented below).
+        secs = int(secs)
+        hours = int(secs/3600) # use int divisor, not float
+            # (btw, the int() wrapper has no effect until python int '/' operator changes to produce nonints)
+        minutes = int(secs/60 - hours*60)
+        seconds = int(secs - minutes*60 - hours*3600) #bruce 050415 fix bug 439: also subtract hours
+        if hours:
+            return '%02d:%02d:%02d' % (hours, minutes, seconds)
+        else:
+            return '%02d:%02d' % (minutes, seconds)
+        pass
+
+
+class FileWriting(QThread):
+    def __init__(self, output):
+        QThread.__init__(self)
+        self.output = output
+        self.end = False
+        self.mutex = QMutex()
+        self.data = None
+    
+    if 0:
+    #def run(self):
+        while not self.end:
+           while self.process.canReadLineStdout():
+              if self.end: break
+              lineStr = str(self.process.readLineStdout()) + '\n'
+              self.output.write(lineStr)             
+           
+           self.sleep(0.01)
+        
+        while self.process.canReadLineStdout():
+            lineStr = str(self.process.readLineStdout()) + '\n'
+            self.output.write(lineStr)
+    
+    def run(self):
+        while not self.end:
+            self.mutex.lock()
+            if self.data:
+                self.output.writeBlock(self.data)
+            self.data = None
+            self.mutex.unlock()
+            
+            self.sleep(0.01)
+    
+    
+    def putData(self, data):
+        self.mutex.lock()
+        self.data = data
+        self.mutex.unlock()
+            
+        
+    def stop(self):
+        self.end = True        
+        

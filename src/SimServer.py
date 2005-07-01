@@ -34,10 +34,12 @@ class SimServer:
         self.parms = SimServer.server_parms
         if sys.platform == 'linux2':
             self.parms['platform'] = 'Linux'
-            self.parms['program'] = '/usr/bin/rumgms'
+            self.parms['program'] = '/home/huaicai/gamess/rungms'
+            self.parms['engine'] = 'GAMESS'
         elif sys.platform == 'darwin':
-            self.parms['program'] = '/usr/bin/rumgms'
+            self.parms['program'] = 'rungms'
             self.parms['platform'] = 'Mac Os'
+            self.parms['engine'] = 'GAMESS'
         
         self.parms.keys().sort() # Sort parms.
             
