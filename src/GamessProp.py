@@ -1,6 +1,6 @@
 # Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
 '''
-runGamess.py
+GamessProp.py
 
 $Id$
 '''
