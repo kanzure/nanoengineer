@@ -64,7 +64,7 @@ class twoconner: #e rename
         return True #e could return i - i1
     
     def traverse_nonrec(self, diredge, i): #bruce 050629, part of fixing bug 725
-        "non-recursive version of traverse method (below)"
+        "non-recursive version of traverse method (see original method below for more extensive comments/docstring)"
         stack = [(0, diredge)] # this stack of partly-done traverse calls replaces the Python stack.
         del diredge
         retval = None
@@ -79,12 +79,13 @@ class twoconner: #e rename
                 ## print "nodenums[%r] is %r, setdefault arg was %r" % (N, num, i)
                 if num < i:
                     retval = num, i
-                    continue
+                    continue #e optim: could have caller do the part up to here
                 assert num == i == self.nodenums[N]
                 Ni = i
                 i += 1
-                itinerary = self.neighbors_except(N, priornode)
-                # order is arbitrary, so it doesn't matter than we'll scan itinerary
+                itinerary = self.neighbors_except(N, priornode) #e could optim when itinerary is empty
+                    ###e or better, could optim by not visiting itinerary elts already with nodenums, just grabbing min of those.
+                # order is arbitrary, so it doesn't matter that we'll scan itinerary
                 # in reverse compared to recursive version; if it did, we'd reverse it here
                 todo = (1, itinerary, N, num, Ni, diredge) # some of this might be redundant, e.g. N and diredge
                 stack.append(todo)
