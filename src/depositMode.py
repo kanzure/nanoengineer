@@ -889,7 +889,7 @@ class depositMode(basicMode):
         atype = self.pastable_atomtype()
         self.modified = 1
         self.o.assy.changed()
-        if a: # if something was "lit up"
+        if a: # if some atom (not bond) was "lit up"
             ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element is Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
@@ -971,6 +971,8 @@ class depositMode(basicMode):
                 # there are 1 or 2 externs it might be better to do pivoting. #e
                 self.dragmol = a.molecule
                 # fall thru
+        elif self.o.selobj is not None: # something other than an atom was lit up
+            pass #bruce 050702 change: don't deposit new atoms when user clicks on a bond
         else:
             # nothing was "lit up" -- we're in empty space;
             # create something and (if an atom) drag it rigidly
