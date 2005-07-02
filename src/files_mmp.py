@@ -85,6 +85,8 @@ I also decided that "preferred" is more understandable than "optional".
 Nothing yet uses that word (except the user who sees this format in the
 Part Properties dialog), so no harm is caused by changing it.
 
+'050502 required; 050701 preferred' -- bruce, adding gamess jig and info gamess records.
+
 ===
 
 General notes about when to change the mmp format version:
@@ -97,7 +99,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050618 preferred'
+MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050701 preferred'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
@@ -149,6 +151,10 @@ statpat = re.compile("stat \((.+)\) \((\d+), (\d+), (\d+)\) \((\d+)\)" )
 
 # thermo (name) (r, g, b) first_atom last_atom boxed_atom
 thermopat = re.compile("thermo \((.+)\) \((\d+), (\d+), (\d+)\)" )
+
+# general jig pattern #bruce 050701
+jigpat = re.compile("\((.+)\) \((\d+), (\d+), (\d+)\)")
+
 
 def getname(str, default):
     x= nampat.search(str)
@@ -416,6 +422,49 @@ class _readmmp_state:
         gr.color = col
         self.addmember(gr)
 
+    # Gamess jig [added by bruce 050701; similar code should be usable for other new jigs as well]
+    prevgamess = None
+    def _read_gamess(self, card):
+        #####@@@@@ DO NOT COMMIT
+        import jig_Gamess
+        reload(jig_Gamess)
+        #####@@@@@ end of what to not commit
+        from jig_Gamess import Gamess
+        constructor = Gamess
+        jig = self.read_new_jig(card, constructor)
+        self.prevgamess = jig # this is needed for interpreting "info gamess" records
+        return
+
+    def read_new_jig(self, card, constructor): #bruce 050701
+        """Read any sort of sufficiently new jig from an mmp file.
+        Args are:
+        card - the mmp file line.
+        constructor - function that takes assy and atomlist and makes a new jig, without putting up any dialog.
+        """
+        # this method will give one place to fix things in the future (for new jig types),
+        # like the max number of atoms per jig.
+        recordname, rest = card.split(None, 1)
+        del recordname
+        card = rest
+        
+        m = jigpat.match(card)
+        name = m.group(1)
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x)/255.0,
+                [m.group(2),m.group(3),m.group(4)])
+
+        # Read in the list of atoms [max number of atoms is limited by max mmp-line length of 511 bytes]
+        card = card[card.index(")")+1:] # skip past the color field
+        list = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        list = map((lambda n: self.ndix[n]), list)
+        
+        jig = constructor(self.assy, list) # create jig and set some properties -- constructor must not put up a dialog
+        jig.name = name
+        jig.color = col
+            # (other properties, if any, should be specified later in the file by some kind of "info" records)
+        self.addmember(jig)
+        return jig
+        
     # Read the MMP record for a Thermostat as:
     # stat (name) (r, g, b) (temp) first_atom last_atom box_atom
             
@@ -602,7 +651,8 @@ class _readmmp_state:
             chunk = self.mol,
             opengroup = self.groupstack[-1], #bruce 050421
             leaf = ([None] + self.groupstack[-1].members)[-1], #bruce 050421
-            atom = self.prevatom #bruce 050511
+            atom = self.prevatom, #bruce 050511
+            gamess = self.prevgamess #bruce 050701, tho clearly we need a better way, so jig types aren't hardcoded into this file
         )
         interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card

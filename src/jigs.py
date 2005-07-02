@@ -1119,6 +1119,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         """
         # [bruce 050210 modified docstring]
         if not self.selatoms: return
+        #####@@@@@ DO NOT COMMIT
+        import jig_Gamess
+        reload(jig_Gamess)
+        #####@@@@@ end of that
         from jig_Gamess import Gamess
         m = Gamess(self.assy, self.selatoms.values())
         if m.cancelled: # User hit 'Cancel' button during the jig creation.
