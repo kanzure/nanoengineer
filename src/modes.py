@@ -106,8 +106,11 @@ class anyMode:
 
     # (default methods that should be noops in both nullMode and basicMode can be put here instead if desired)
     
-    def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
+    def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API; see depositMode version for docstring
         return None
+
+    def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; overridden in basicMode, and docstring is there
+        return True
     
     pass
 
@@ -786,6 +789,21 @@ class basicMode(anyMode):
         """
         return
 
+    def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API
+        """Say whether a highlighted mouseover object from a prior draw (in the same mode) is still ok.
+        Default implem says yes unless it's been killed
+        (assuming selobj provides a .killed() method).
+        [overrides anyMode method; subclasses might want to override this one]
+        """
+        try:
+            return not selobj.killed()
+                #bruce 050702, part of fix 1 of 2 redundant fixes for bug 716 (both fixes are desirable)
+        except:
+            if platform.atom_debug:
+                print_compact_traceback("atom_debug: ignoring exception: ")
+            return True # let the selobj remain
+        pass
+    
     # left mouse button actions -- overridden in modes that respond to them
     def leftDown(self, event):
         pass

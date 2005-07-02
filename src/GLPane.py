@@ -475,6 +475,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # See also bug 141 (black during mode-change), related but different.
         if sys.platform == 'darwin':
             bgcolor = self.mode.backgroundColor
+                ##e [bruce 050615 comment, moved here from a wrong location by bruce 050702:]
+                # for modes with transparent surfaces covering screen, this ought to blend that in
+                # (or we could change how they work so the blank areas looked like the specified bgcolor)
             r = int(bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
             g = int(bgcolor[1]*255 + 0.5)
             b = int(bgcolor[2]*255 + 0.5)
@@ -1135,8 +1138,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
     def standard_repaint_0(self):
         c = self.mode.backgroundColor
-            ##e [bruce 050615 comment] for modes with transparent surfaces covering screen, this ought to blend that in
-            # (or we could change how they work so the blank areas looked like the specified bgcolor)
         glClearColor(c[0], c[1], c[2], 0.0)
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
@@ -1155,6 +1156,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.glselect_dict.clear()
             # this will be filled iff we do a gl_select draw,
             # then used only in the same paintGL call to alert some objects they might be the one
+
+        if self.selobj is not None: #bruce 050702 part of fixing bug 716 (and possibly 715-5, though that's untested)
+            try:
+                # this 'try' might not be needed once the following method is fully implemented,
+                # but it's good anyway for robustness
+                if not self.mode.selobj_still_ok(self.selobj):
+                    self.set_selobj(None)
+            except:
+                # bug, but for now, don't disallow this selobj in this case
+                # (message would be too verbose except for debug version)
+                if platform.atom_debug:
+                    print_compact_traceback("atom_debug: exception ignored: ")
+                pass
+            pass
+        
         if self.glselect_wanted:
             wX, wY, self.targetdepth = self.glselect_wanted # wX,wY is the point to do the hit-test at
                 # targetdepth is the depth buffer value to look for at that point, during ordinary drawing phase

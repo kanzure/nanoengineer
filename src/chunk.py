@@ -175,7 +175,7 @@ class molecule(Node, InvalMixin):
         if hs is None: return None
         if hs.is_singlet() and hs.molecule is self:
             # hs should be a valid hotspot; if you see no bug, return it
-            if hs.killed(): # this also checks whether its key is in self.atoms
+            if hs.killed_with_debug_checks(): # this also checks whether its key is in self.atoms
                 # bug detected
                 if platform.atom_debug:
                     print "_get_hotspot sees killed singlet still claiming to be in this molecule"
@@ -619,7 +619,8 @@ class molecule(Node, InvalMixin):
         ## print "_recompute_atpos on %r" % self
         if self.assy is None:
             if platform.atom_debug:
-                print_compact_stack("fyi, recompute atpos called on killed mol %r: " % self)
+                # [bruce comment 050702: this happens if you delete the chunk while dragging it by selatom in build mode]
+                print_compact_stack("atom_debug: fyi, recompute atpos called on killed mol %r: " % self)
 ##        for attr in ['atpos', 'atlist', 'average_position', 'basepos']:
 ##            ## vq = self.validQ(attr)
 ##            if self.__dict__.has_key(attr):

@@ -1031,10 +1031,17 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
 ##    def invalidate_bonds(self): # also often inlined
 ##        for b in self.bonds:
 ##            b.setup_invalidate()
-        
-    def killed(self): #bruce 041029
+    
+    def killed(self): #bruce 041029; totally revised by bruce 050702
         """(Public method) Report whether an atom has been killed.
-        Details: For an ordinary atom, return False.
+        """
+        return self.__killed
+    
+    def killed_with_debug_checks(self): # renamed by bruce 050702; was called killed(); by bruce 041029
+        """(Public method) Report whether an atom has been killed,
+        but do lots of debug checks and bug-workarounds
+        (whether or not ATOM_DEBUG is set).
+           Details: For an ordinary atom, return False.
         For an atom which has been properly killed, return True.
         For an atom which has something clearly wrong with it,
         print an error message, try to fix the problem,
@@ -1064,7 +1071,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                 print_compact_traceback("fyi: atom.killed: ignoring" \
                     " exception when killing atom %r:\n " % self )
             return True
-        pass # end of atom.killed()
+        pass # end of atom.killed_with_debug_checks()
 
     def kill(self):
         """Public method:

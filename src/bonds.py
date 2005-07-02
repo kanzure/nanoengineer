@@ -717,7 +717,7 @@ class Bond:
         x1 = self.atom1.unbond(self) # does all needed invals
         x2 = self.atom2.unbond(self)
         ###e do we want to also change our atoms and key to None, for safety?
-        ###e check all callers and decide
+        ###e check all callers and decide -- in case some callers reuse the bond or for some reason still need its atoms
         return x1, x2 # retval is new feature, bruce 041222
     
     def rebond(self, old, new):
@@ -913,6 +913,9 @@ class Bond:
         """Draw this bond in absolute (world) coordinates (even if it's an internal bond),
         using the specified color (ignoring the color it would naturally be drawn with).
         """
+        if self.killed():
+            #bruce 050702, part of fix 2 of 2 redundant fixes for bug 716 (both fixes are desirable)
+            return
         mol = self.atom1.molecule
         mol2 = self.atom2.molecule
         if mol is mol2:
@@ -927,6 +930,20 @@ class Bond:
             disp = max( mol.get_dispdef(glpane), mol2.get_dispdef(glpane) )
             self.draw(glpane, disp, color, mol.assy.drawLevel)
         return
+
+    def killed(self): #bruce 050702
+        try:
+            return self.atom1.killed() or self.atom2.killed()
+                # This last condition doesn't yet work right, not sure why:
+                ## ... or not self in atom1.bonds
+                # Problem: without it, this might be wrong if the bond was "busted"
+                # without either atom being killed. For now, just leave it out; fix this sometime. #####@@@@@
+                # Warning: that last condition is slow, too.
+        except:
+            # (if this can happen, it's probably from one of the atoms being None,
+            #  though self.bust() doesn't presently set them to None)
+            return True
+        pass
     
     def writepov(self, file, dispdef, col):
         "Write this bond to a povray file (always using absolute coords, even for internal bonds)."

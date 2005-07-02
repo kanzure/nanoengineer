@@ -1014,7 +1014,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         # terrible hack for singlets in simulator, which treats them as H
         for a in self.alist:
             if a.is_singlet() and a.bonds: # could check a.molecule.part instead, but a.bonds is more to the point and faster
-                #bruce 050428 exclude killed atoms (a.killed() is too slow -- should clean it, make its slow stuff atom_debug-only ###e)
+                #bruce 050428 exclude killed atoms (a.killed() is too slow [not anymore, bruce 050702, but this check is better anyway])
                 a.snuggle() # same code as in moveAtoms() except for killed-atom check
             #e could optimize this (enough to do it continuously) by using Numeric to do them all at once
         for m in self.molecules:
