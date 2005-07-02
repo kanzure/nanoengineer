@@ -425,10 +425,6 @@ class _readmmp_state:
     # Gamess jig [added by bruce 050701; similar code should be usable for other new jigs as well]
     prevgamess = None
     def _read_gamess(self, card):
-        #####@@@@@ DO NOT COMMIT
-        import jig_Gamess
-        reload(jig_Gamess)
-        #####@@@@@ end of what to not commit
         from jig_Gamess import Gamess
         constructor = Gamess
         jig = self.read_new_jig(card, constructor)
@@ -652,7 +648,7 @@ class _readmmp_state:
             opengroup = self.groupstack[-1], #bruce 050421
             leaf = ([None] + self.groupstack[-1].members)[-1], #bruce 050421
             atom = self.prevatom, #bruce 050511
-            gamess = self.prevgamess #bruce 050701, tho clearly we need a better way, so jig types aren't hardcoded into this file
+            gamess = self.prevgamess #bruce 050701
         )
         interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card
@@ -661,7 +657,7 @@ class _readmmp_state:
     def _read_forward_ref(self, card):
         "forward_ref (%s) ..."
         # add a marker which can be used later to insert the target node in the right place,
-        # and also remember the marker here in the mapping (so we can offer that service) ###doc better ###@@@ def & call service
+        # and also remember the marker here in the mapping (so we can offer that service) ###doc better
         lp_id_rp = card.split()[1]
         assert lp_id_rp[0] + lp_id_rp[-1] == "()"
         ref_id = lp_id_rp[1:-1]
@@ -740,6 +736,28 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
             assert 0, "mmp format error: no forward_ref was written for this forwarded node" ###@@@ improve errmsg
         marker.addsibling(node)
         marker.kill()
+    def decode_int(self, val): #bruce 050701; should be used more widely
+        "helper method for parsing info records; returns an int or None; warns of unrecognized values only if ATOM_DEBUG is set"
+        try:
+            assert val.isdigit() or (val[0] == '-' and val[1:].isdigit())
+            return int(val)
+        except:
+            # several kinds of exception are possible here, which are not errors
+            if platform.atom_debug:
+                print "atom_debug: fyi: some info record wants an int val but got this non-int (not an error)" % (val,)
+                # btw, the reason it's not an error is that the mmp file format might be extended to permit it, in that info record.
+            return None
+        pass
+    def decode_bool(self, val): #bruce 050701; should be used more widely
+        "helper method for parsing info records; returns True or False or None; warns of unrecognized values only if ATOM_DEBUG is set"
+        val = val.lower()
+        if val in ['0','no','false']:
+            return False
+        if val in ['1','yes','true']:
+            return True
+        if platform.atom_debug:
+            print "atom_debug: fyi: some info record wants a boolean val but got this instead (not an error)" % (val,)
+        return None
     pass
 
 def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 050511

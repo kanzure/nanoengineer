@@ -1092,9 +1092,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         m = RotaryMotor(self.assy)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
-            del(m) #bruce comment 050223: this statement has no effect.
-                # bruce 050415: I suspect it might cause bugs to not kill the jig now... untested.
-                # [same issue exists for some other jigs too]
+            #bruce 050415/050701: old code had del(m), perhaps hoping to destroy the jig here,
+            # but in fact that statement would do nothing, so I removed it. But it might be good
+            # to actually destroy the jig object here (for all jigs which can be cancelled, not
+            # only this one), to avoid a memory leak. Presently, jigs don't have a destroy method.
             return
         self.unpickatoms()
         self.place_new_jig(m)
@@ -1109,7 +1110,6 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         m = LinearMotor(self.assy)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
-            del(m) #bruce comment 050223: this statement has no effect.
             return
         self.unpickatoms()
         self.place_new_jig(m)
@@ -1119,19 +1119,15 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         """
         # [bruce 050210 modified docstring]
         if not self.selatoms: return
-        #####@@@@@ DO NOT COMMIT
-        import jig_Gamess
-        reload(jig_Gamess)
-        #####@@@@@ end of that
         from jig_Gamess import Gamess
         m = Gamess(self.assy, self.selatoms.values())
-        if m.cancelled: # User hit 'Cancel' button during the jig creation.
-            del m
+        m.edit() #bruce 050701 split edit method out of the constructor,
+            # so the dialog doesn't show up when the jig is read from an mmp file
+        if m.cancelled: # User hit 'Cancel' button in the jig dialog.
+            #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
             return
-            
         self.unpickatoms()
         self.place_new_jig(m)
-        
         
     def makeground(self):
         """Grounds (anchors) all the selected atoms so that 

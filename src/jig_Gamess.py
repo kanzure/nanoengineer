@@ -42,7 +42,7 @@ class Gamess(Jig):
         self.psets = [] # list of parms set objects
         self.psets.append(gamessParms('Parameter Set 1'))
         self.gmsjob = GamessJob(Gamess.job_parms, jig=self)
-        self.gmsjob.edit()
+        ## bruce 050701 removing this: self.gmsjob.edit()
         self.outputfile = '' # Name of jig's most recent output file.
 
     def edit(self):
@@ -147,15 +147,16 @@ class Gamess(Jig):
 
     mmp_record_name = "gamess" #bruce 050701
 
-    def writemmp(self, mapping):
+    def writemmp(self, mapping): #bruce 050701
         "[extends Jig method]"
         super = Jig
         super.writemmp(self, mapping) # this writes the main gamess record, and some general info leaf records valid for all nodes
         pset = self.psets[0]
         pset.writemmp(mapping, 0)
-            # this writes the pset's info, as a series of "info gamess" records which modify the last gamess jig; (or any jig??)###@@@
+            # This writes the pset's info, as a series of "info gamess" records which modify the last gamess jig;
             # in case we ever want to extend this to permit more than one pset per jig in the mmp file,
-            # each of those records has a "pset index" which we pass here as 0 (and which is written using %s).
+            # each of those records has a "pset index" which we pass here as 0 (and which is written using "%s").
+            # So if we wanted to write more psets we could say self.psets[i].writemmp(mapping, i) for each one.
         return
 
     def readmmp_info_gamess_setitem( self, key, val, interp ): #bruce 050701
@@ -225,15 +226,16 @@ class gamessParms:
 #        self.force.prin1()
         self.basis.prin1(f)
 
-    def param_names_and_valstrings(self):
+    def param_names_and_valstrings(self): #bruce 050701; needs to be extended by Mark to return the proper set of params
         """Return a list of pairs of (<param name>, <param value printable by %s>) for all
         gamess params we want to write to an mmp file from this set.
-           These names and value-strings need to be recognized and decoded by the #####@@@@@ method
-        of the jig_Gamess class, and they need to strictly follow certain rules
+           These names and value-strings need to be recognized and decoded by the
+        info_gamess_setitem method of this class, and they need to strictly follow certain rules
         documented in comments in the self.writemmp() method.
            Note: If we implement a "duplicate" context menu command for gamess jigs,
         it should work by generating this same set of items, and feeding them to that
-        same #####@@@@@ method (or an appropriate subroutine it calls) of the new jig being made as a copy.
+        same info_gamess_setitem method (or an appropriate subroutine it calls)
+        of the new jig being made as a copy.
         """
         items = []
         items.append(('param1', 'val1'   ))
@@ -255,17 +257,18 @@ class gamessParms:
             ## info gamess 0 param7 = None
             ## # end of gamess parameter set 0
             
-            ###@@@ replace the above list of items with the actual names and value-strings to write.
+            ###@@@ Mark: you'll need to replace the above list of items with the actual names and value-strings to write.
             # it's ok for the valstrings to be non-strings as long as "%s" will format them correctly
-            # in a way which your #####@@@@@ method can interpret them.
-            # (e.g. ints are ok)
-            ###@@@ see comments in self.writemmp() about the rules those must follow.
+            # in a way which your info_gamess_setitem method can interpret (e.g. ints are ok).
+            # See comments in self.writemmp() about the rules those must follow.
         return items
 
-    def writemmp(self, mapping, pset_index):
+    def writemmp(self, mapping, pset_index): #bruce 050701
         mapping.write("# gamess parameter set %s for preceding jig\n" % pset_index)
             # you can write any comment starting "# " into an mmp file (if length < 512).
             # You always have to explicitly write the newline at the end (when using mapping.write).
+            # But this is not for comments which need to be read back in and shown in the params dialog!
+            # Those need to be string-valued params (and not contain newlines, or encode those if they do).
         items = self.param_names_and_valstrings()
             # Rules for these name/valstring pairs [bruce 050701]: 
             # param names must not contain whitespace.
@@ -280,18 +283,24 @@ class gamessParms:
             assert name and (' ' not in name) and len(name.split()) == 1 and name.strip() == name, "illegal param name %r" % name
                 # some of these checks are redundant
             valstring = "%s" % (valstring,)
+            # the next bit of code is just to work around bugs in valstrings without completely failing to write them.
+            valstring = valstring.strip() # the reader does this, so we might as well not fool ourselves and do it now
+            if '\n' in valstring:
+                print "error: multiline valstring in gamess writemmp. workaround: writing only the first line."
+                valstring = valstring.split('\n',1)[0]
+                valstring = valstring.strip()
             line = "info gamess %s %s = %s\n" % (pset_index, name, valstring)
-            if valstring.strip() != valstring or '\n' in valstring or len(line) > 511:
-                msg = "illegal valstring, can't write this mmp line: " + line
+            if len(line) > 511:
+                msg = "can't write this mmp line (too long for mmp format): " + line
                 print msg
                 history.message( redmsg( "Error: " + msg) )
-                mapping.write("# didn't write illegal valstring for info gamess %s %s = ...\n" % (pset_index, name))
+                mapping.write("# didn't write too-long valstring for info gamess %s %s = ...\n" % (pset_index, name))
             else:
                 mapping.write(line)
         mapping.write("# end of gamess parameter set %s\n" % pset_index)
         return
 
-    def info_gamess_setitem(self, name, val, interp ): #bruce 050701; needs to be extended by Mark to handle the actual params
+    def info_gamess_setitem(self, name, val, interp ): #bruce 050701; needs to be extended by Mark to read and set the actual params
         """This must set the parameter in self with the given name
         to the value encoded by the string val
         (read from an mmp file from which this parameter set and its gamess jig is being read).
@@ -303,20 +312,29 @@ class gamessParms:
            [See also the docstring of Gamess.readmmp_info_gamess_setitem, which calls this.]
         """
         if name == 'param1':
-            self.param1 = val ###@@@ change all this code to properly set this param to val; it has to decode val, which is a string
+            self.param1 = val ###@@@ Mark: you'll need to change all this code to properly set the gamess params to their values;
+                # it has to decode val, which is a string, using the methods below or its own code.
+                # (ask bruce if new general decode methods are needed, e.g. for strings that might contain newlines)
         elif name == 'param2':
             self.param2 = val.split() # always legal for strings
         elif name == 'param3':
-            try:
-                self.param3 = int(val)
-            except:
-                if platform.atom_debug:
-                    print "atom_debug: fyi: info gamess %r with non-int value %r (not an error)" % (name,val)
-                    # btw, the reason it's not an error is that the mmp file format might be extended to permit it.
-                pass
+            p3 = interp.decode_int(val) # use this method for int-valued params
+            if p3 is not None:
+                self.param3 = p3
+            # otherwise it was a val we don't recognize as an int; not an error
+            # (since the mmp file format might be extended to permit it),
+            # but a debug message was printed if atom_debug is set.
+        elif name == 'param4':
+            p4 = interp.decode_bool(val) # use this method for boolean-valued params
+                # (they can be written as 0, 1, False, True, or in a few other forms)
+            if p4 is not None:
+                self.param4 = p4
         else:
             if platform.atom_debug:
                 print "atom_debug: fyi: info gamess with unrecognized parameter name %r (not an error)" % (name,)
+            # this is not an error, since old code might read newer mmp files which know about more gamess params;
+            # it's better (in general) to ignore those than for this to make it impossible to read the mmp file.
+            # If non-debug warnings were added, that might be ok in this case since not many lines per file will trigger them.
         return
 
     pass # end of class gamessParms
