@@ -785,7 +785,7 @@ class Bond:
         # whenever you define __eq__
         return not self.__eq__(ob)
 
-    def draw(self, glpane, dispdef, col, level):
+    def draw(self, glpane, dispdef, col, level, shorten_tubes = False): #bruce 050702 adding shorten_tubes option
         """Draw the bond. Note that for external bonds, this is called twice,
         once for each bonded molecule (in arbitrary order)
         (and is never cached in either mol's display list);
@@ -837,6 +837,11 @@ class Bond:
                 drawcylinder(col or bondColor, a1pos, a2pos, 0.1)
             elif disp == diTUBES:
                 a1pos, c1, center, c2, a2pos, toolong = self.geom
+                if shorten_tubes:
+                    rad = TubeRadius * 1.1 / 1.0 # see Atom.howdraw for tubes; this constant (now 1.0) will need adjusting
+                    vec = norm(center-a1pos)
+                    a1pos = a1pos + vec * rad
+                    a2pos = a2pos - vec * rad
                 v1 = self.atom1.display != diINVISIBLE
                 v2 = self.atom2.display != diINVISIBLE
                 ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
@@ -921,9 +926,12 @@ class Bond:
         if mol is mol2:
             # internal bond; geometric info is stored in chunk-relative coords; we need mol's help to use those
             mol.pushMatrix()
-            self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel)
+            self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel, shorten_tubes = True)
                 # sorry for all the kluges (e.g. 2 of those args) that beg for refactoring! The info passing in draw methods
                 # is not designed for drawing leaf nodes by themselves in a clean way! (#e should clean up somehow)
+                #bruce 050702 using shorten_tubes to help make room to mouseover-highlight the atoms,
+                # when in tubes mode (thus fixing bug 715-1); a remaining bug is that it's sometimes hard to
+                # highlight the tube bonds, apparently due to selatom seeming bigger even when not visible (not sure). ####@@@@ 
             mol.popMatrix()
         else:
             # external bond -- draw it at max dispdef of those from its mols
