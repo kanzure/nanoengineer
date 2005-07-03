@@ -1367,6 +1367,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
     selobj = None #bruce 050609
 
     def set_selobj(self, selobj, why = "why?"):
+        if selobj is not None and selobj is not self.selobj:
+            #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
+            # Temporary fix, since Build mode's messages are better and should be restored.
+            self.win.history.transient_msg("%s" % (selobj,))
         self.selobj = selobj
         #e notify some observers?
         return
