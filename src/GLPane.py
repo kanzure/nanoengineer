@@ -1382,8 +1382,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glMatrixMode(GL_MODELVIEW)
         glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # optimization -- don't draw color pixels (depth is all we need)
         newpicked = None # in case of errors, and to record found object
-        ###e here we should sort the objs to check the ones we most want first (esp selobj)... ####@@@@
-        for obj in self.glselect_dict.values():
+        # here we should sort the objs to check the ones we most want first (esp selobj)...
+        #bruce 050702 try sorting this, see if it helps pick bonds rather than invis selatoms -- it seems to help.
+        # This removes a bad side effect of today's earlier fix of bug 715-1.
+        objects = self.glselect_dict.values()
+        items = [] # (order, obj) pairs, for sorting objects
+        for obj in objects:
+            if obj is self.selobj:
+                order = 0
+            elif obj.__class__ is Bond:
+                order = 1
+            else:
+                order = 2
+            items.append((order, obj))
+        items.sort()
+        for orderjunk, obj in items:
             try:
                 method = obj.draw_in_abs_coords
             except AttributeError:
@@ -1394,7 +1407,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                         ###@@@ in principle, this needs bugfixes; in practice the bugs are tolerable in the short term
                         # (see longer discussion in other comments):
                         # - if no one reaches target depth, or more than one does, be smarter about what to do?
-                        # - try current selobj first, or give it priority in comparison - if it passes be sure to pick it
+                        # - try current selobj first [this is done, as of 050702],
+                        #   or give it priority in comparison - if it passes be sure to pick it
                         # - be sure to draw each obj in same way it was last drawn, esp if highlighted:
                         #    maybe drawn bigger (selatom)
                         #    moved towards screen
@@ -1414,8 +1428,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             # [which would be deprecated! but would work, not counting display lists.]
         return newpicked # might be None in case of errors
 
-    def check_target_depth(self, candidate): #bruce 050609
-        """[private helpder method]
+    def check_target_depth(self, candidate): #bruce 050609; tolerance revised 050702
+        """[private helper method]
            WARNING: docstring is obsolete -- no newpicked anymore, retval details differ: ###@@@
         Candidate is an object which drew at the mouse position during GL_SELECT drawing mode
         (using the given gl_select name), and which (1) has now noticed this, via its entry in self.glselect_dict
@@ -1433,8 +1447,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         or if events between the initial targetdepth measurement and this redraw tell any model objects to move.
         Someday we should check for this.
         """
-##        if self.newpicked is not None:
-##            return False # already got one
         glFlush()
         wX, wY = self.wX, self.wY
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
@@ -1442,17 +1454,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         targetdepth = self.targetdepth
         ####@@@@ here we could effectively move selobj forwards... warning: worry about scales of coord systems in doing that...
         # due to that issue it is probably be easier to fix this when drawing it, instead
-        if newdepth <= targetdepth + 0.000001: # use fudge factor in case of roundoff errors
+        if newdepth <= targetdepth + 0.0001: # use fudge factor in case of roundoff errors
+            # [bruce 050702: 0.000001 was not enough! 0.00003 or more was needed, to properly highlight some bonds
+            #  which became too hard to highlight after today's initial fix of bug 715-1.]
             #e could check for newdepth being < targetdepth - 0.002 (error), but best
             # to just let caller do that (NIM), since we would often not catch this error anyway,
             # since we're turning into noop on first success
             # (no choice unless we re-cleared depth buffer now, which btw we could do... #e).
-##            self.newpicked = candidate
-##            return True
+            ## print "target depth reached by",candidate,newdepth , targetdepth
             return candidate
                 # caller should not call us again without clearing depth buffer,
                 # otherwise we'll keep returning every object even if its true depth is too high
-##        return False
+        ## print "target depth NOT reached by",candidate,newdepth , targetdepth
         return None
 
     def _restore_modelview_stack_depth(self): #bruce 050608 split this out

@@ -59,6 +59,7 @@ from elements import *
 
 from chem import singlet_atom, stringVec, atom
     # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
+from elements import Singlet
 import env
 
 # ==
@@ -815,12 +816,15 @@ class Bond:
             # self.glname needs to remain the same (and we need to remain registered under it)
             # as long as we live.
 
+        atom1 = self.atom1
+        atom2 = self.atom2
+
         try: #bruce 050610 to ensure calling glPopName
         
-            color1 = col or self.atom1.element.color
-            color2 = col or self.atom2.element.color
+            color1 = col or atom1.element.color
+            color2 = col or atom2.element.color
 
-            disp = max(self.atom1.display, self.atom2.display)
+            disp = max(atom1.display, atom2.display)
             if disp == diDEFAULT:
                 disp = dispdef
             if disp == diLINES:
@@ -839,11 +843,13 @@ class Bond:
                 a1pos, c1, center, c2, a2pos, toolong = self.geom
                 if shorten_tubes:
                     rad = TubeRadius * 1.1 / 1.0 # see Atom.howdraw for tubes; this constant (now 1.0) will need adjusting
-                    vec = norm(center-a1pos)
-                    a1pos = a1pos + vec * rad
-                    a2pos = a2pos - vec * rad
-                v1 = self.atom1.display != diINVISIBLE
-                v2 = self.atom2.display != diINVISIBLE
+                    vec = norm(a2pos-a1pos) # warning: if atom1 is a singlet, a1pos == center, so center-a1pos is not good to use here.
+                    if atom1.element is not Singlet:
+                        a1pos = a1pos + vec * rad
+                    if atom2.element is not Singlet:
+                        a2pos = a2pos - vec * rad
+                v1 = atom1.display != diINVISIBLE
+                v2 = atom2.display != diINVISIBLE
                 ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
                 # to look at each mol's .hidden (but this is purely a guess)
                 ###e bruce 050513 future optim idea: when color1 == color2, draw just
@@ -930,8 +936,10 @@ class Bond:
                 # sorry for all the kluges (e.g. 2 of those args) that beg for refactoring! The info passing in draw methods
                 # is not designed for drawing leaf nodes by themselves in a clean way! (#e should clean up somehow)
                 #bruce 050702 using shorten_tubes to help make room to mouseover-highlight the atoms,
-                # when in tubes mode (thus fixing bug 715-1); a remaining bug is that it's sometimes hard to
-                # highlight the tube bonds, apparently due to selatom seeming bigger even when not visible (not sure). ####@@@@ 
+                # when in tubes mode (thus fixing bug 715-1); a remaining bug was that it's sometimes hard to
+                # highlight the tube bonds, apparently due to selatom seeming bigger even when not visible (not sure).
+                # In another commit, same day, GLPane.py (sort selobj candidates) and this file (don't shorten_tubes
+                # next to singlets), this has been fixed.
             mol.popMatrix()
         else:
             # external bond -- draw it at max dispdef of those from its mols
