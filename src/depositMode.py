@@ -1200,14 +1200,14 @@ class depositMode(basicMode):
         # I fixed 121 by doing nothing to already-bonded atoms, but in
         # the future we might want to make a double bond. #e
         if selatom.singlet_neighbor() is dragatom.singlet_neighbor():
-            # this is a bug according to the subroutine, but not to us
+            # this is a bug according to the subroutine [i.e. bond_at_singlets, i later guess], but not to us
             print_error_details = 0
         else:
             # for any other error, let subr print a bug report,
             # since we think we caught them all before calling it
             print_error_details = 1
         flag, status = bond_at_singlets(dragatom, selatom, \
-                         print_error_details = print_error_details, increase_bond_valence = True)
+                         print_error_details = print_error_details, increase_bond_order = True)
         # we ignore flag, which says whether it's ok, warning, or error
         self.w.history.message("%s: %s" % (self.msg_modename, status))
         return
@@ -1401,7 +1401,7 @@ class depositMode(basicMode):
 	basicMode.Draw(self)
         if self.line:
             drawline(white, self.line[0], self.line[1])
-            ####@@@@ if this is for a higher-valence bond, draw differently
+            ####@@@@ if this is for a higher-order bond, draw differently
         self.o.assy.draw(self.o)
         #bruce 050610 moved self.surface() call elsewhere
         return

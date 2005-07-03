@@ -1057,7 +1057,8 @@ def bond_at_singlets(s1, s2, **opts):
        It's an error if s1 == s2, or if they're on the same atom. It's a
     warning (no error, but no bond made) if the real atoms of the singlets
     are already bonded, unless we're able to make the existing bond have
-    higher valence, which we'll only attempt if increase_bond_valence = True.
+    higher valence, which we'll only attempt if increase_bond_order = True,
+    and [bruce 050702] which is only possible if the bonded elements have suitable atomtypes.
     If the singlets are bonded to their base atoms with different valences,
     it's an error if we're unable to adjust those to match... #####@@@@@ #k.
     (We might add more error or warning conditions later.)
@@ -1081,12 +1082,12 @@ class bonder_at_singlets:
     #bruce 050429 plans to permit increasing the valence of an existing bond, #####@@@@@doit
     # and also checking for matched valences of s1 and s2. #####@@@@@doit
     # also changed it from function to class
-    def __init__(self, s1, s2, move = True, print_error_details = True, increase_bond_valence = False):
+    def __init__(self, s1, s2, move = True, print_error_details = True, increase_bond_order = False):
         self.s1 = s1
         self.s2 = s2
         self.move = move
         self.print_error_details = print_error_details
-        self.increase_bond_valence = increase_bond_valence
+        self.increase_bond_order = increase_bond_order
         self.retval = self.main()
         return
     def do_error(self, status, error_details):
@@ -1115,20 +1116,32 @@ class bonder_at_singlets:
               "asked to bond atom %r to itself,\n"
               " from the same singlet %r (passed twice)" % (a1, s1)) # untested formatting
         if a1 is a2: #bruce 041119, part of fix for bug #203
-            #####@@@@@ should we permit this as a way of changing the bonding pattern by summing the valences of these bonds? YES! [doit]
-            return do_error("can't bond an atom (%r) to itself" % a1,
-              "asked to bond atom %r to itself,\n"
-              " from different singlets, %r and %r." % (a1, s1, s2))
+            ###@@@ should we permit this as a way of changing the bonding pattern by summing the valences of these bonds? YES! [doit]
+            # [later comment, 050702:] this is low-priority, since it's difficult to do for a free atom
+            # (the atom tries to rotate to make it impossible) (tho I have to admit, for a bound C(sp3)
+            #  with 2 open bonds left, it's not too hard, due to the arguable-bug in which only one of them moves)
+            # and since the context menu lets you do it more directly. ... even so, let's try it:
+            if self.increase_bond_order and a1.can_reduce_numbonds():
+                return self.merge_open_bonds() #bruce 050702 new feature
+            else:
+                return do_error("can't bond an atom (%r) to itself" % a1,
+                  "asked to bond atom %r to itself,\n"
+                  " from different singlets, %r and %r." % (a1, s1, s2))
         if bonded(a1,a2):
             #bruce 041119, part of fix for bug #121
             # not an error (so arg2 is None)
-            if self.increase_bond_valence:
+            if self.increase_bond_order and a1.can_reduce_numbonds() and a2.can_reduce_numbonds():
                 # we'll try that -- it might or might not work, but it has its own error messages if it fails
+                #bruce 050702 added can_reduce_numbonds conditions, which check whether the atoms can change their atomtypes appropriately
                 return self.upgrade_existing_bond()
             else:
-                return do_error("can't make another bond between atoms %r and %r;" \
-                                " they are already bonded" % (a1,a2), None)
+                if a1.can_reduce_numbonds() and a2.can_reduce_numbonds():
+                    why = "won't"
+                else:
+                    why = "can't"
+                return do_error("%s increase bond order between already-bonded atoms %r and %r" % (why,a1,a2), None)
         #####@@@@@ worry about s1 and s2 valences being different
+            # [much later, 050702: that might be obs, but worrying about their *permitted* valences might not be...]
             # (not sure exactly what we'll do then!
             #  do bonds want to keep track of a range of permissible valences??
             #  it's a real concept (I think) and it's probably expensive to recompute.
@@ -1223,7 +1236,7 @@ class bonder_at_singlets:
         bond = find_bond(a1, a2)
         vdelta_used = bond.increase_valence_noupdate(vdelta) # increases to legal value, returns actual amount of increase (maybe 0)
         if not vdelta_used:
-            return self.do_error("can't increase valence of bond between atoms %r and %r" % (a1,a2), None) #e say existing valence? say why not?
+            return self.do_error("can't increase order of bond between atoms %r and %r" % (a1,a2), None) #e say existing order? say why not?
         s1.singlet_reduce_valence_noupdate(vdelta)
             # this might or might not kill it;
             # it might even reduce valence to 0 but not kill it,
@@ -1237,7 +1250,22 @@ class bonder_at_singlets:
             # when it has a chance and wants to clean up structure, if this can ever be ambiguous
             # later when the current state (including positions of old singlets) is gone.
         a2.update_valence()
-        return (0, "increased bond valence between atoms %r and %r" % (a1,a2)) #e say existing and new valence?
+        return (0, "increased bond order between atoms %r and %r" % (a1,a2)) #e say existing and new order?
+    def merge_open_bonds(self): #bruce 050702 new feature; implem is a guess and might be partly obs when written
+        "Merge the bond-valence of s1 into that of s2"
+        s1, a1 = self.s1, self.a1
+        s2, a2 = self.s2, self.a2
+        v1, v2 = s1.singlet_v6(), s2.singlet_v6()
+        vdelta = v1
+        bond1 = s1.bonds[0]
+        bond2 = s2.bonds[0]
+        #e should following permit illegal values? be a singlet method?
+        vdelta_used = bond2.increase_valence_noupdate(vdelta) # increases to legal value, returns actual amount of increase (maybe 0)
+        if not vdelta_used:
+            return self.do_error("can't merge these two open bonds on atom %r" % (a1,), None) #e say existing orders? say why not?
+        s1.singlet_reduce_valence_noupdate(vdelta)
+        a1.update_valence()
+        return (0, "merged two open bonds on atom %r" % (a1,))
     pass # end of class bonder_at_singlets, the helper for function bond_at_singlets
 
 # ===

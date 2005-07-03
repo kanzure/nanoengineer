@@ -221,12 +221,16 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """
         return self.reguess_atomtype()
 
-    def reguess_atomtype(self):
+    def reguess_atomtype(self): #bruce 050702 revised this
         """Compute and return the best guess for this atom's atomtype
         given its current real bonds and open bond user-assigned types
         (but don't save this, and don't compare it to the current self.atomtype).
         """
-        return self.element.atomtypes[0] ###@@@ stub. when it works, might use it in Transmute or even build_utils.
+        if len(self.bonds) == 0 and platform.atom_debug: #####@@@@@ remove when works
+            print "atom_debug: warning: reguess_atomtype sees %s with no bonds -- is new implem a bug?",self # not for neon...
+        return self.best_atomtype_for_numbonds()
+            #bruce 050702. Let's hope the docstring is correct and this atom already has the right number of bonds!
+        ## return self.element.atomtypes[0] ###@@@ stub. when it works, might use it in Transmute or even build_utils.
 
     def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype*; perhaps use more widely
         "#doc"
@@ -1320,10 +1324,86 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                 print "atom_debug: update_valence %r killed %d zero-valence and %d bad-valence singlets" % \
                       (self, zerokilled, badkilled)
             ###e now fix things up... not sure exactly under what conds, or using what code (but see existing code mentioned above)
+            #bruce 050702 working on bug 121, here is a guess: change atomtype to best match new total number of bonds
+            # (which we might have changed by killing some singlets). But only do this if we did actually kill singlets.
+            if zerokilled or badkilled:
+                self.adjust_atomtype_to_numbonds()
         elif platform.atom_debug:
-            print "atom_debug: update_valence thinks it doesn't need to update it for",self
+            print "atom_debug: update_valence thinks it doesn't need to update it for", self
         return
 
+    def adjust_atomtype_to_numbonds(self): #bruce 050702, part of fixing bug 121 for Alpha6
+        """[Public method, does all needed invals, might emit history messages #k]
+           If this atom's number of bonds (including open bonds) is better matched
+        by some other atomtype of its element than by its current atomtype, then 
+        change to a better atomtype and (I guess #k) emit a history message about this change.
+        The comparison is done by self.best_atomtype_for_numbonds().
+        Also works (with no history msg) if no atomtype is yet set (though it might never be called that way).
+           [See also self.can_reduce_numbonds().]
+        """
+        atype_now = self.atomtype_iff_set()
+        best_atype = self.best_atomtype_for_numbonds(atype_now = atype_now)
+        if best_atype is atype_now:
+            return # never happens if atype_now is None
+        if atype_now is not None:
+            self.molecule.assy.w.history.message("changing %s atomtype from %s to %s" % (self, atype_now.name, best_atype.name))
+            # this will often happen twice, plus a third message from Build that it increased bond order,
+            # so i'm likely to decide not to print it
+        if best_atype.numbonds == len(self.bonds):
+            # right number of open bonds for new atype -- let's move them to better positions when we set it
+            self.set_atomtype( best_atype)
+        else:
+            # wrong number of open bonds -- leave them alone (in number and position)
+            self.set_atomtype_but_dont_revise_singlets( best_atype)
+        return
+
+    def best_atomtype_for_numbonds(self, atype_now = None): #bruce 050702
+        """[Public method]
+           Compute and return the best atomtype for this atom's element and number of bonds (including open bonds),
+        breaking ties by favoring atype_now (if provided), otherwise favoring atomtypes which come earlier
+        in the list of this element's possible atomtypes.
+           For comparing atomtypes which err in different directions (which I doubt can ever matter in
+        practice, since the range of numbonds of an element's atomtypes will be contiguous),
+        we'll say it's better for an atom to have too few bonds than too many.
+        In fact, we'll say any number of bonds too few (on the atom, compared to the atomtype)
+        is better than even one bond too many.
+           This means: the "best" atomtype is the one with the right number of bonds, or the fewest extra bonds,
+        or (if all of them have fewer bonds than this atom) with the least-too-few bonds.
+           (This method is used in Build mode, and might later be used when reading mmp files or pdb files, or in other ways.)
+        [###k Should we also take into account positions of bonds, or their estimated orders, or neighbor elements??]
+        """
+        atomtypes = self.element.atomtypes
+        if len(atomtypes) == 1:
+            return atomtypes[0] # optimization
+        nbonds = len(self.bonds) # the best atomtype has numbonds == nbonds. Next best, nbonds+1, +2, etc. Next best, -1,-2, etc.
+        items = [] 
+        for i, atype in zip(range(len(atomtypes)), atomtypes):
+            if atype is atype_now:
+                i = -1 # best to stay the same (as atype_now), or to be earlier in the list of atomtypes, other things being equal
+            numbonds = atype.numbonds
+            if numbonds < nbonds:
+                order = (1, nbonds - numbonds, i) # higher is worse
+            else:
+                order = (0, numbonds - nbonds, i)
+            items.append((order, atype))
+        items.sort()
+        best_atype = items[0][1]
+        return best_atype # might or might not be the same as atype_now
+
+    def can_reduce_numbonds(self): #bruce 050702, part of fixing bug 121
+        """Say whether this atom's element has any atomtype which would
+        better match this atom if it had one fewer bond.
+        Note that this can be true even if that element has only one atomtype
+        (when the number of bonds is currently incorrect). 
+        """
+        nbonds = len(self.bonds)
+        # if nbonds < 1 (which will never happen based on how we're presently called),
+        # the following code will (correctly) return False, so no special case is needed.
+        for atype in self.element.atomtypes:
+            if atype.numbonds < nbonds:
+                return True
+        return False
+    
     # ==
 
     def _changed_structure(self): #bruce 050627
