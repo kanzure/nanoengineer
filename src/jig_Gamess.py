@@ -90,7 +90,11 @@ class Gamess(Jig):
         
         # Hartree-Fock (display nothing), DFT (display functional) or MP2
         if ecm[pset.ui.ecm] == 'DFT':
-            item = gms_dfttyp_items[pset.ui.dfttyp]
+            if sys.platform == 'win32': # Windows - PC GAMESS
+                item = pcgms_dfttyp_items[pset.ui.dfttyp]
+            else: # Linux or MacOS - GAMESS
+                item = gms_dfttyp_items[pset.ui.dfttyp]
+            
             s2, junk = item.split(' ',1)
             s2 = d + s2
         elif ecm[pset.ui.ecm] == 'MP2':
@@ -201,7 +205,8 @@ class Gamess(Jig):
 
 class gamessParms:
     def __init__(self, name):
-        
+        '''A GAMESS parameter set contains all the parameters for a Gamess Jig.
+        '''
         self.name = name or "" # Parms set name, assumed to be a string by some code
         self.ui = ctlRec('UI', ui)
         self.contrl = ctlRec('CONTRL',contrl)
@@ -211,7 +216,6 @@ class gamessParms:
         self.dft = ctlRec('DFT',dft)
         self.guess = ctlRec('GUESS',guess)
         self.statpt = ctlRec('STATPT',statpt)
-#        self.force = ctlRec('FORCE',force)
         self.basis = ctlRec('BASIS',basis)
 
     def prin1(self, f=None):
@@ -238,29 +242,7 @@ class gamessParms:
         of the new jig being made as a copy.
         """
         items = []
-        items.append(('param1', 'val1'   ))
-        items.append(('param2', 'v2a v2b'))
-        items.append(('param3', 3        ))
-        items.append(('param4', True     ))
-        items.append(('param5', (1,2,3)  ))
-        items.append(('param6', [1,2,3]  ))
-        items.append(('param7', None     ))
-            # that code results in these lines in the mmp file:
-            ## gamess (Gamess.4) (0, 0, 0) 1 6
-            ## # gamess parameter set 0 for preceding jig
-            ## info gamess 0 param1 = val1
-            ## info gamess 0 param2 = v2a v2b
-            ## info gamess 0 param3 = 3
-            ## info gamess 0 param4 = True
-            ## info gamess 0 param5 = (1, 2, 3)
-            ## info gamess 0 param6 = [1, 2, 3]
-            ## info gamess 0 param7 = None
-            ## # end of gamess parameter set 0
-            
-            ###@@@ Mark: you'll need to replace the above list of items with the actual names and value-strings to write.
-            # it's ok for the valstrings to be non-strings as long as "%s" will format them correctly
-            # in a way which your info_gamess_setitem method can interpret (e.g. ints are ok).
-            # See comments in self.writemmp() about the rules those must follow.
+        items = self.ui.get_mmp_parms()
         return items
 
     def writemmp(self, mapping, pset_index): #bruce 050701
@@ -311,10 +293,93 @@ class gamessParms:
         to classify those exceptions as not being bugs (and to only print a message when atom_debug is set).
            [See also the docstring of Gamess.readmmp_info_gamess_setitem, which calls this.]
         """
-        if name == 'param1':
-            self.param1 = val ###@@@ Mark: you'll need to change all this code to properly set the gamess params to their values;
-                # it has to decode val, which is a string, using the methods below or its own code.
-                # (ask bruce if new general decode methods are needed, e.g. for strings that might contain newlines)
+        if name == 'comment':       # Description/Comment
+            self.ui.comment = val
+        elif name == 'conv':            # Density and Energy Convergence (1-4)
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.conv = p
+        elif name == 'damp':            # DAMP
+            p = interp.decode_bool(val) 
+            if p is not None:
+                self.ui.damp = p
+        elif name == 'dfttyp':          # DFT Functional Type
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.dfttyp = p
+        elif name == 'diis':            # DIIS
+            p = interp.decode_bool(val) 
+            if p is not None:
+                self.ui.diis = p
+        elif name == 'dirscf':          # DIRSCF
+            p = interp.decode_bool(val) 
+            if p is not None:
+                self.ui.diis = p
+        elif name == 'ecm':            # emc = None (0), DFT (1) or MP2 (2)
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.ecm = p
+        elif name == 'extrap':          # EXTRAP
+            p = interp.decode_bool(val) 
+            if p is not None:
+                self.ui.diis = p
+        elif name == 'gbasis':            # Basis Set Id
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.gbasis = p
+        elif name == 'gbasisname':      # Basis Set Name
+            self.ui.gbasisname = val
+        elif name == 'gridsize':            # Grid Size
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.gridsize = p
+        elif name == 'icharg':            # Charge
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.icharg = p
+        elif name == 'iterations':            # Iterations
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.iterations = p
+        elif name == 'memory':            # System Memory
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.memory = p
+        elif name == 'mult':            # Multiplicity
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.mult = p
+        elif name == 'ncore':            # Include core electrons
+            p = interp.decode_bool(val)
+            if p is not None:
+                self.ui.ncore = p
+        elif name == 'rmsdconv':            # RMSD convergence (1-4)
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.rmsdconv = p
+        elif name == 'rstrct':          # RSTRCT
+            p = interp.decode_bool(val) 
+            if p is not None:
+                self.ui.rstrct = p
+        elif name == 'runtyp':            # RUNTYP = Energy (0), or Optimize (1)
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.runtyp = p
+        elif name == 'scftyp':            # SCFTYP = RHF (0), UHF (1), or ROHF (2)
+            p = interp.decode_int(val)
+            if p is not None:
+                self.ui.scftyp = p
+        elif name == 'shift':          # SHIFT
+            p = interp.decode_bool(val) 
+            if p is not None:
+                self.ui.shift = p
+        elif name == 'soscf':          # SOSCF
+            p = interp.decode_bool(val) 
+            if p is not None:
+                self.ui.soscf = p
+
+        # Unused - keeping them for examples.
+        # Mark 050603
         elif name == 'param2':
             self.param2 = val.split() # always legal for strings
         elif name == 'param3':
@@ -329,6 +394,7 @@ class gamessParms:
                 # (they can be written as 0, 1, False, True, or in a few other forms)
             if p4 is not None:
                 self.param4 = p4
+                
         else:
             if platform.atom_debug:
                 print "atom_debug: fyi: info gamess with unrecognized parameter name %r (not an error)" % (name,)
@@ -365,7 +431,18 @@ class ctlRec:
             f.write (phrase + ' ')
         f.write('$END\n')
 
+    def get_mmp_parms(self):
+        '''Return a list of all the Gamess jig parms (and their values) to be stored in the 
+        MMP file.
+        '''
+        items = []
+        
+        for p in self.parms:
+            print p, self.__dict__[p]
+            items.append((p, str(self.__dict__[p])))
+      
+        return items
+        
     pass # end of class ctlRec
 
 # end
-
