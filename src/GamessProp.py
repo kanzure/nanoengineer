@@ -28,7 +28,7 @@ ui={'comment':'','runtyp':0,'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':
 #
 # $CONTRL group keywords and their default values.
 contrl={'runtyp':'energy', 'coord':'unique', 'scftyp':'RHF', 'icharg':0, 'mult':1, 'mplevl':'0', 
-        'maxit':200, 'icut':11, 'inttyp':'hondo', 'qmttol':'1.0E-6', 'dfttyp':0, 'nprint':9}
+        'maxit':50, 'icut':11, 'inttyp':'hondo', 'qmttol':'1.0E-6', 'dfttyp':0, 'nprint':9}
 # Note: The 'dfttyp' keyword in the $CONTRL group is only valid for PC GAMESS.
 
 # $CONTRL keywords and their optional values 
@@ -47,8 +47,8 @@ nprint=-5,-2,7,8,9 # Not currently used. nprint is always 9 for now.
 #   $END
 #
 # $SCF group keywords and their default values.
-scf={'conv':5, 'nconv':5, 'extrap':'.T.','dirscf':'.T.', 'damp':'.F.', 'shift':'.F.', 'diis':'.T.',
-     'soscf':'.F.','rstrct':'.F.', 'maxvt':50}
+scf={'conv':1, 'nconv':1, 'extrap':'.T.','dirscf':'.T.', 'damp':'.F.', 'shift':'.F.', 'diis':'.T.',
+     'soscf':'.F.','rstrct':'.F.'}
 # Note: Keyword 'conv' is used by GAMESS, 'nconv' is used by PC GAMESS.
 
 # CONV keyword and its optional values
@@ -168,10 +168,13 @@ guess_keyword=['huckel', 'moread']
 #   $END
 #
 # $STATPT group keywords and their default values.
-statpt={'hess':'guess'}
+statpt={'hess':'guess', 'opttol':1}
 
 # The HESS keyword and its optional values
 hess=['guess', 'read']
+
+# OPTTOL keyword and its optional values
+opttol=[0.0001, 0.00001, 0.000001, 0.0000001] # RMSD Convergence
 
 # $BASIS group section ##############################
 #
@@ -400,6 +403,7 @@ class GamessProp(GamessPropDialog):
         self.pset.contrl.mult = str(self.pset.ui.mult + 1) # MULT
         self.pset.contrl.mplevl = mplevl[self.pset.ui.ecm] # MPLEVL
         self.pset.contrl.inttyp = inttyp[self.pset.ui.inttyp] # INTTYP
+        self.pset.contrl.maxit = self.pset.ui.iterations # Iterations
         
         # ICUT and QMTTOL
         s = str(self.gbasis_combox.currentText())
@@ -438,8 +442,6 @@ class GamessProp(GamessPropDialog):
         self.pset.scf.soscf = tf[self.pset.ui.soscf] # SOSCF
         self.pset.scf.rstrct = tf[self.pset.ui.rstrct] # RSTRCT
         
-        self.pset.scf.maxvt = self.pset.ui.iterations # Iterations
-        
         # CONV (GAMESS) or 
         # NCONV (PC GAMESS)
         if self.server.engine == 'GAMESS':
@@ -473,6 +475,11 @@ class GamessProp(GamessPropDialog):
         # $GUESS group ###########################################
         
         # $STATPT group ###########################################
+        
+        if runtyp[self.pset.ui.runtyp] == 'optimize':
+            self.pset.statpt.opttol = float(opttol[self.pset.ui.rmsdconv])
+        else:
+            self.pset.statpt.opttol = None
         
         # $BASIS group ###########################################
         
@@ -593,7 +600,24 @@ class GamessProp(GamessPropDialog):
         # AM1 and PM3 are not options for DFT or MP2.
         # We have to remove or add them from the combo box.
         self._update_gbasis_list(val)
-    
+
+    def open_tmp_inputfile(self):
+        '''Writes a temporary GAMESS inputfile of the current Gamess jig and opens the
+        file in an editor.
+        '''
+        # Make tmp_inputfile filename (i.e. ~/Nanorex/temp/jigname_parms_info.inp)
+        from platform import find_or_make_Nanorex_subdir
+        tmpdir = find_or_make_Nanorex_subdir('temp')
+        basename = self.gamessJig.name + "-" + self.gamessJig.gms_parms_info('_')
+        tmp_inputfile = os.path.join(tmpdir, "%s.inp" % basename)
+        
+        # Write INP file (in ~/Nanorex/temp subdirectory)
+        from files_gms import writegms_inpfile
+        writegms_inpfile(tmp_inputfile, self.gamessJig)
+        
+        from platform import open_file_in_editor
+        open_file_in_editor(tmp_inputfile)
+                
     def run_job(self):
         """Slot method for the 'Save and Run' button """
         
@@ -634,7 +658,8 @@ class GamessProp(GamessPropDialog):
         """The slot method for the 'Save' button."""
         self._save_ui_settings()
         QDialog.accept(self)
-        
+        if self.edit_input_file_cbox.isChecked():
+            self.open_tmp_inputfile()
     
     def reject(self):
         """The slot method for the 'Cancel' button."""
