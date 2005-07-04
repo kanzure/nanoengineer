@@ -138,11 +138,12 @@ class modifyMode(basicMode):
 #        print "modifyMode: keyRelease, key=", key
         if key == Qt.Key_Shift or key == Qt.Key_Control:
             self.o.setCursor(self.w.MoveSelectCursor)
-        if key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z: 
+        elif key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z: 
             self.w.moveFreeAction.setOn(1) # toggle on the Move Chunks icon
-        if key == Qt.Key_R:
+            self.movingPoint = None # Fixes bugs 583 and 674 along with change in leftDrag().  Mark 050623
+        elif key == Qt.Key_R:
             self.RotationOnly = False # Unconstrain translation.
-        if key == Qt.Key_T:
+        elif key == Qt.Key_T:
             self.TranslationOnly = False # Unconstrain rotation.
             
     def rightShiftDown(self, event):
@@ -208,6 +209,9 @@ class modifyMode(basicMode):
         # obvious reason is leftDown() is not called before the leftDrag()
         # Call. 
         if not self.picking: return
+        
+        # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
+        if not self.movingPoint: self.leftDown(event)
 
         # Move section
         if self.moveOption == 'MOVEDEFAULT':
@@ -475,7 +479,7 @@ class modifyMode(basicMode):
             msg = "Selected chunks moved by offset [X: %.2f] [Y: %.2f] [Z: %.2f]" % (offset[0], offset[1], offset[2])
         self.w.history.message(msg)
         self.o.gl_update()
-
+        
     def changeMoveOption(self, action):
         '''Slot for Move Chunks dashboard's Move Options
         '''
