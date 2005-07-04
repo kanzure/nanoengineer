@@ -604,7 +604,6 @@ def get_text_editor():
             
     return editor
 
-            
 def get_rootdir():
     """Returns the root directory for this platform.
     """
@@ -612,9 +611,19 @@ def get_rootdir():
         rootdir = "C:/"
     else: # Linux and MacOS
         rootdir = "/"
-            
-    return rootdir
     
+    return rootdir
+
+def get_gms_name():
+    '''Returns either GAMESS (Linux or MacOS) or PC GAMESS (Windows). 
+    '''
+    if sys.platform == 'win32': # Windows
+        gms_name = "PC GAMESS"
+    else: # Linux and MacOS
+        gms_name =  "GAMESS"
+    
+    return gms_name
+       
 # == test code
 
 if __name__ == "__main__":
