@@ -12,6 +12,7 @@ import time
 import sys, os, string, linecache
 from HistoryWidget import redmsg, greenmsg
 from movie import find_saved_movie #bruce 050329 fix bug 499
+from platform import open_file_in_editor
 
 class PlotTool(PlotToolDialog):
     def __init__(self, assy, movie): #bruce 050326 added movie arg
@@ -93,7 +94,7 @@ class PlotTool(PlotToolDialog):
         if ncols:
             for i in range(ncols):
                 gname =  traceLines[hloc + i]#linecache.getline(self.traceFile, hloc + 1 + i)
-                self.plotCB.insertItem(gname[2:-1])
+                self.plot_combox.insertItem(gname[2:-1])
         else: # No jigs in the part, so nothing to plot.
             msg = "Plot Tool: No jigs in this part.  Nothing to plot."
             self.history.message(redmsg(msg))
@@ -107,7 +108,7 @@ class PlotTool(PlotToolDialog):
     def genPlot(self):
         """Generates GNUplot plotfile, then calls self.runGNUplot.
         """
-        col = self.plotCB.currentItem() + 2 # Column number to plot
+        col = self.plot_combox.currentItem() + 2 # Column number to plot
 #        print "Selected plot # column =", col, "\n"
         
         # If this plot was the same as the last plot, just run GNUplot on the plotfile.
@@ -119,7 +120,7 @@ class PlotTool(PlotToolDialog):
         else:
             self.lastplot = col
             
-        title = str(self.plotCB.currentText()) # Legend title
+        title = str(self.plot_combox.currentText()) # Plot title
         tlist = string.split(title, ":")
         ytitle = str(tlist[1]) # Y Axis title
         
@@ -129,12 +130,12 @@ class PlotTool(PlotToolDialog):
         if sys.platform == 'darwin': 
             f.write("set terminal aqua\n") # GNUplot for Mac needs this.
             
-        f.write("set title \"Trace file: %s\\n Created: %s\"\n"%(self.traceFile,self.date))
+        f.write("set title \"%s\\n Trace file: %s\\n Created: %s\"\n"%(title, self.traceFile,self.date))
         f.write("set key left box\n")
         f.write("set xlabel \"time  (picoseconds)\"\n")
         f.write("set ylabel \"%s\"\n"%(ytitle))
-        f.write("plot '%s' using 1:%d title \"%s\" with lines lt 2,\\\n"%(self.traceFile,col,title))
-        f.write("       '%s' using 1:%d:(0.5) smooth acsplines title \"%s\" lt 3\n"%(self.traceFile,col,title))
+        f.write("plot '%s' using 1:%d title \"Data Points\" with lines lt 2,\\\n"%(self.traceFile,col))
+        f.write("       '%s' using 1:%d:(0.5) smooth acsplines title \"Average\" lt 3\n"%(self.traceFile,col))
         
         if sys.platform == 'win32': 
             # The plot will stay up until the OK or Cancel button is clicked.
@@ -216,50 +217,12 @@ class PlotTool(PlotToolDialog):
     def openTraceFile(self):
         """Opens the current tracefile in an editor.
         """
-        self.openPlotFile(self.traceFile)
+        open_file_in_editor(self.traceFile)
 
     def openGNUplotFile(self):
         """Opens the current GNUplot file in an editor.
         """
-        self.openPlotFile(self.plotFile)
-
-    def openPlotFile(self, file):
-        """Opens a file in a standard text editor.
-        """
-        if not os.path.exists(file): #bruce 050326 added this check
-            msg = "File does not exist: " + file
-            self.history.message(redmsg(msg))
-            return
-        
-        editor = self.get_text_editor()
-        
-        if os.path.exists(editor):
-            args = [editor, file]
-#            print  "editor = ",editor
-#            print  "Spawnv args are %r" % (args,)
-
-            try:
-                # Spawn the editor.
-                kid = os.spawnv(os.P_NOWAIT, editor, args)
-            except: # We had an exception.
-                print_compact_traceback("Exception in editor; continuing: ")
-                msg = "Cannot open file " + file + ".  Trouble spawning editor " + editor
-                self.history.message(redmsg(msg))
-        else:
-            msg = "Cannot open file " + file + ".  Editor " + editor + " not found."
-            self.history.message(redmsg(msg))
-            
-    def get_text_editor(self):
-        """Returns the name of a text editor for this platform.
-        """
-        if sys.platform == 'win32': # Windows
-            editor = "C:/WINDOWS/notepad.exe"
-        elif sys.platform == 'darwin': # MacOSX
-            editor = "/usr/bin/open" ###e needs -e argument [bruce 050527 comment]
-        else: # Linux
-            editor = "/usr/bin/kwrite"
-            
-        return editor
+        open_file_in_editor(self.plotFile)
 
 # == 
 
