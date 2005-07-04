@@ -45,7 +45,7 @@
                                 </property>
                                 <widget class="QPushButton">
                                     <property name="name">
-                                        <cstring>plotPB</cstring>
+                                        <cstring>plot_btn</cstring>
                                     </property>
                                     <property name="text">
                                         <string>Plot</string>
@@ -53,17 +53,17 @@
                                 </widget>
                                 <widget class="QPushButton">
                                     <property name="name">
-                                        <cstring>quitPB</cstring>
+                                        <cstring>done_btn</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Quit</string>
+                                        <string>Done</string>
                                     </property>
                                 </widget>
                             </hbox>
                         </widget>
                         <widget class="QComboBox" row="1" column="0">
                             <property name="name">
-                                <cstring>plotCB</cstring>
+                                <cstring>plot_combox</cstring>
                             </property>
                         </widget>
                         <widget class="QLabel" row="0" column="0">
@@ -103,7 +103,7 @@
                         </property>
                         <widget class="QPushButton">
                             <property name="name">
-                                <cstring>openTraceFilePB</cstring>
+                                <cstring>open_trace_file_btn</cstring>
                             </property>
                             <property name="text">
                                 <string>Open Trace File</string>
@@ -111,7 +111,7 @@
                         </widget>
                         <widget class="QPushButton">
                             <property name="name">
-                                <cstring>openGNUplotPB</cstring>
+                                <cstring>open_gnuplot_btn</cstring>
                             </property>
                             <property name="text">
                                 <string>Open GNUplot File</string>
@@ -125,25 +125,25 @@
 </widget>
 <connections>
     <connection>
-        <sender>quitPB</sender>
+        <sender>done_btn</sender>
         <signal>clicked()</signal>
         <receiver>PlotToolDialog</receiver>
         <slot>close()</slot>
     </connection>
     <connection>
-        <sender>plotPB</sender>
+        <sender>plot_btn</sender>
         <signal>clicked()</signal>
         <receiver>PlotToolDialog</receiver>
         <slot>genPlot()</slot>
     </connection>
     <connection>
-        <sender>openGNUplotPB</sender>
+        <sender>open_gnuplot_btn</sender>
         <signal>clicked()</signal>
         <receiver>PlotToolDialog</receiver>
         <slot>openGNUplotFile()</slot>
     </connection>
     <connection>
-        <sender>openTraceFilePB</sender>
+        <sender>open_trace_file_btn</sender>
         <signal>clicked()</signal>
         <receiver>PlotToolDialog</receiver>
         <slot>openTraceFile()</slot>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\PlotToolDialog.ui'
 #
-# Created: Thu Mar 10 21:13:09 2005
+# Created: Mon Jul 4 15:46:52 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,17 +27,17 @@ class PlotToolDialog(QDialog):
 
         layout1 = QHBoxLayout(None,0,6,"layout1")
 
-        self.plotPB = QPushButton(self,"plotPB")
-        layout1.addWidget(self.plotPB)
+        self.plot_btn = QPushButton(self,"plot_btn")
+        layout1.addWidget(self.plot_btn)
 
-        self.quitPB = QPushButton(self,"quitPB")
-        layout1.addWidget(self.quitPB)
+        self.done_btn = QPushButton(self,"done_btn")
+        layout1.addWidget(self.done_btn)
 
         layout2.addLayout(layout1,2,0)
 
-        self.plotCB = QComboBox(0,self,"plotCB")
+        self.plot_combox = QComboBox(0,self,"plot_combox")
 
-        layout2.addWidget(self.plotCB,1,0)
+        layout2.addWidget(self.plot_combox,1,0)
 
         self.textLabel1 = QLabel(self,"textLabel1")
 
@@ -48,11 +48,11 @@ class PlotToolDialog(QDialog):
 
         layout6 = QHBoxLayout(None,0,6,"layout6")
 
-        self.openTraceFilePB = QPushButton(self,"openTraceFilePB")
-        layout6.addWidget(self.openTraceFilePB)
+        self.open_trace_file_btn = QPushButton(self,"open_trace_file_btn")
+        layout6.addWidget(self.open_trace_file_btn)
 
-        self.openGNUplotPB = QPushButton(self,"openGNUplotPB")
-        layout6.addWidget(self.openGNUplotPB)
+        self.open_gnuplot_btn = QPushButton(self,"open_gnuplot_btn")
+        layout6.addWidget(self.open_gnuplot_btn)
         layout5.addLayout(layout6)
 
         PlotToolDialogLayout.addLayout(layout5,0,0)
@@ -62,19 +62,19 @@ class PlotToolDialog(QDialog):
         self.resize(QSize(264,148).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.quitPB,SIGNAL("clicked()"),self,SLOT("close()"))
-        self.connect(self.plotPB,SIGNAL("clicked()"),self.genPlot)
-        self.connect(self.openGNUplotPB,SIGNAL("clicked()"),self.openGNUplotFile)
-        self.connect(self.openTraceFilePB,SIGNAL("clicked()"),self.openTraceFile)
+        self.connect(self.done_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.plot_btn,SIGNAL("clicked()"),self.genPlot)
+        self.connect(self.open_gnuplot_btn,SIGNAL("clicked()"),self.openGNUplotFile)
+        self.connect(self.open_trace_file_btn,SIGNAL("clicked()"),self.openTraceFile)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Plot Tool"))
-        self.plotPB.setText(self.__tr("Plot"))
-        self.quitPB.setText(self.__tr("Quit"))
+        self.plot_btn.setText(self.__tr("Plot"))
+        self.done_btn.setText(self.__tr("Done"))
         self.textLabel1.setText(self.__tr("Select Jig to Graph:"))
-        self.openTraceFilePB.setText(self.__tr("Open Trace File"))
-        self.openGNUplotPB.setText(self.__tr("Open GNUplot File"))
+        self.open_trace_file_btn.setText(self.__tr("Open Trace File"))
+        self.open_gnuplot_btn.setText(self.__tr("Open GNUplot File"))
 
 
     def genPlot(self):
