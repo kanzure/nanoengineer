@@ -12,8 +12,8 @@ __author__ = "Mark"
 # This is the GAMESS UI widget default settings (for energy).
 
 ui={'comment':'','runtyp':0,'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':0, 'dfttyp':0, 'gridsize':1, 'ncore':0,
-        'conv':1, 'rmdsconv':1, 'iterations':50, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':0,'soscf':0,'rstrct':0,
-        'server':0, 'gbasisname':'AM1'}
+        'conv':1, 'rmsdconv':1, 'iterations':50, 'memory':70, 'extrap':1, 'dirscf':1, 'damp':0, 'shift':0, 'diis':0,'soscf':0,'rstrct':0,
+        'gbasisname':'AM1'}
 
 # These are the GAMESS parms set defaults (for energy).
 
@@ -206,9 +206,6 @@ gbasis='AM1 NGAUSS=0 NDFUNC=0 NPFUNC=0 NFFUNC=0 DIFFSP=.F. DIFFS=.F.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=0 NFFUNC=0 DIFFSP=.T. DIFFS=.T.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=1 NFFUNC=0 DIFFSP=.T. DIFFS=.T.'
 
-GAMESS = 1 # GAMESS-US (and WinGAMESS)
-PCGAMESS = 2 # PC GAMESS
-
 from qt import *
 import sys, os, time
 from GamessPropDialog import *
@@ -252,6 +249,7 @@ class GamessProp(GamessPropDialog):
         # Init the top widgets (name, psets drop box, comment)
         self.name_linedit.setText(self.gamessJig.name)
         self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
+        self.calculate_changed(self.pset.ui.runtyp)
         self.comment_linedit.setText(self.pset.ui.comment)
         
         # Electronic Structure Properties section.
@@ -282,7 +280,7 @@ class GamessProp(GamessPropDialog):
             
         # Convergence Criteria
         self.density_conv_combox.setCurrentItem(self.pset.ui.conv) # Density Convergence
-        self.rmsd_combox.setCurrentItem(self.pset.ui.rmdsconv) # RMSD Convergence
+        self.rmsd_combox.setCurrentItem(self.pset.ui.rmsdconv) # RMSD Convergence
         self.iterations_spinbox.setValue(self.pset.ui.iterations) # Iterations
 
 # These have been removed per discussions with Damian.
@@ -384,9 +382,6 @@ class GamessProp(GamessPropDialog):
 #        self.pset.ui.shift = self.shift_checkbox.isChecked() # SHIFT
 #        self.pset.ui.soscf = self.soscf_checkbox.isChecked() # SOSCF
 #        self.pset.ui.rstrct = self.rstrct_checkbox.isChecked() # RSTRCT
-                
-        # Server
-#        self.pset.ui.server = self.server_combox.currentText() # Not used in A6. Mark
         
         self._save_parms() # Save all the parameters in the pset attribute.
         self._save_job_parms()
@@ -423,7 +418,7 @@ class GamessProp(GamessPropDialog):
                 self.pset.contrl.qmttol = None # PC GAMESS does not support QMTTOL. Mark 052105
         
         # DFTTYP (PC GAMESS only)
-        # The DFTTYP keyword is included in the CONTRL section, not the $DFT group.
+        # For PC GAMESS, the DFTTYP keyword is included in the CONTRL section, not the $DFT group.
         if self.server.engine == 'PC GAMESS':
             if ecm[self.pset.ui.ecm] == 'DFT':
                 item = pcgms_dfttyp_items[self.pset.ui.dfttyp] # Item's full text, including the '(xxx)'
@@ -463,10 +458,6 @@ class GamessProp(GamessPropDialog):
         
         self.pset.mp2.ncore = ncore[self.pset.ui.ncore]
         
-#        self.pset.mp2.ncore = None
-#        if self.core_electrons_checkbox.isChecked():
-#            self.pset.mp2.ncore = '0'
-        
         # $DFT group ###########################################
 
         # The DFT section record is supported in GAMESS only.
@@ -478,12 +469,6 @@ class GamessProp(GamessPropDialog):
             else: # None or MP2
                 self.pset.dft.dfttyp = 'NONE'
                 self.pset.dft.nrad = 0
-                        
-#        self.pset.dft.dfttyp = 'NONE'
-#        self.pset.dft.gridsize = 0
-#        if mplevl[self.ecm_btngrp.selectedId()] == 'DFT':
-#            self.pset.dft.dfttyp = dfttyp[self.dfttyp_combox.currentItem()] # DFTTYP
-#            self.pset.dft.gridsize = gridsize[self.gridsize_combox.currentItem()] # GRIDSIZE
         
         # $GUESS group ###########################################
         
