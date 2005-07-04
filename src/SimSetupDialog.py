@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Fri Jun 17 09:54:10 2005
+# Created: Sun Jul 3 23:50:27 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -53,47 +53,6 @@ class SimSetupDialog(QDialog):
         self.setModal(1)
 
         SimSetupDialogLayout = QGridLayout(self,1,1,11,21,"SimSetupDialogLayout")
-
-        layout31 = QHBoxLayout(None,0,6,"layout31")
-
-        layout29 = QVBoxLayout(None,0,6,"layout29")
-
-        self.namelbl = QLabel(self,"namelbl")
-        self.namelbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.namelbl)
-
-        self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1)
-
-        self.textLabel1_2 = QLabel(self,"textLabel1_2")
-        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1_2)
-        layout31.addLayout(layout29)
-
-        layout30 = QVBoxLayout(None,0,6,"layout30")
-
-        self.name_linedit = QLineEdit(self,"name_linedit")
-        self.name_linedit.setFrameShape(QLineEdit.LineEditPanel)
-        self.name_linedit.setFrameShadow(QLineEdit.Sunken)
-        layout30.addWidget(self.name_linedit)
-
-        self.description_linedit = QLineEdit(self,"description_linedit")
-        self.description_linedit.setFrameShape(QLineEdit.LineEditPanel)
-        self.description_linedit.setFrameShadow(QLineEdit.Sunken)
-        self.description_linedit.setMaxLength(80)
-        layout30.addWidget(self.description_linedit)
-
-        layout28 = QHBoxLayout(None,0,6,"layout28")
-
-        self.calculate_combox = QComboBox(0,self,"calculate_combox")
-        layout28.addWidget(self.calculate_combox)
-        spacer3 = QSpacerItem(167,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout28.addItem(spacer3)
-        layout30.addLayout(layout28)
-        layout31.addLayout(layout30)
-
-        SimSetupDialogLayout.addLayout(layout31,0,0)
 
         self.parms_grpbox = QGroupBox(self,"parms_grpbox")
         self.parms_grpbox.setColumnLayout(0,Qt.Vertical)
@@ -154,69 +113,36 @@ class SimSetupDialog(QDialog):
 
         SimSetupDialogLayout.addWidget(self.parms_grpbox,1,0)
 
-        self.server_grpbox = QGroupBox(self,"server_grpbox")
-        self.server_grpbox.setColumnLayout(0,Qt.Vertical)
-        self.server_grpbox.layout().setSpacing(6)
-        self.server_grpbox.layout().setMargin(11)
-        server_grpboxLayout = QHBoxLayout(self.server_grpbox.layout())
-        server_grpboxLayout.setAlignment(Qt.AlignTop)
+        layout28 = QHBoxLayout(None,0,6,"layout28")
 
-        self.server_combox = QComboBox(0,self.server_grpbox,"server_combox")
-        server_grpboxLayout.addWidget(self.server_combox)
-
-        self.server_manager_btn = QPushButton(self.server_grpbox,"server_manager_btn")
-        server_grpboxLayout.addWidget(self.server_manager_btn)
-
-        SimSetupDialogLayout.addWidget(self.server_grpbox,2,0)
-
-        layout28_2 = QHBoxLayout(None,0,6,"layout28_2")
-
-        self.queue_job_btn = QPushButton(self,"queue_job_btn")
-        layout28_2.addWidget(self.queue_job_btn)
-
-        self.launch_job_btn = QPushButton(self,"launch_job_btn")
-        self.launch_job_btn.setDefault(1)
-        layout28_2.addWidget(self.launch_job_btn)
+        self.run_sim_btn = QPushButton(self,"run_sim_btn")
+        self.run_sim_btn.setDefault(1)
+        layout28.addWidget(self.run_sim_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         self.cancel_btn.setDefault(0)
-        layout28_2.addWidget(self.cancel_btn)
+        layout28.addWidget(self.cancel_btn)
 
-        SimSetupDialogLayout.addLayout(layout28_2,3,0)
+        SimSetupDialogLayout.addLayout(layout28,2,0)
 
         self.languageChange()
 
-        self.resize(QSize(366,365).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(325,181).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.launch_job_btn,SIGNAL("clicked()"),self.createMoviePressed)
+        self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("close()"))
-        self.connect(self.queue_job_btn,SIGNAL("clicked()"),self.createMoviePressed)
-        self.connect(self.server_manager_btn,SIGNAL("clicked()"),self.serverManager)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("nanoSIM-1 Setup"))
-        self.namelbl.setText(self.__tr("Name :"))
-        self.textLabel1.setText(self.__tr("Description :"))
-        self.textLabel1_2.setText(self.__tr("Calculate :"))
-        self.name_linedit.setText(QString.null)
-        self.description_linedit.setText(QString.null)
-        self.calculate_combox.clear()
-        self.calculate_combox.insertItem(self.__tr("Trajectory"))
-        self.calculate_combox.insertItem(self.__tr("Optimization"))
         self.parms_grpbox.setTitle(self.__tr("Parameters"))
         self.textLabel5.setText(self.__tr("Total Frames:"))
         self.textLabel2.setText(self.__tr("Steps per Frame :"))
         self.textLabel3.setText(self.__tr("Temperature :"))
         self.textLabel2_2.setText(self.__tr("0.1 femtosecond"))
         self.textLabel3_2.setText(self.__tr("Kelvin"))
-        self.server_grpbox.setTitle(self.__tr("Server"))
-        self.server_combox.clear()
-        self.server_combox.insertItem(self.__tr("My Computer"))
-        self.server_manager_btn.setText(self.__tr("Server Manager..."))
-        self.queue_job_btn.setText(self.__tr("Queue Job"))
-        self.launch_job_btn.setText(self.__tr("Launch Job"))
+        self.run_sim_btn.setText(self.__tr("Run Simulation"))
         self.cancel_btn.setText(self.__tr("Cancel"))
 
 
