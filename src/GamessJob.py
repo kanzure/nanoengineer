@@ -79,9 +79,9 @@ class GamessJob(SimJob):
         #writegms_batfile(self.job_batfile, self)
         
         # Open INP file in editor if user checked checkbox in GAMESS jig properties UI.
-        if self.edit_cntl.edit_input_file_cbox.isChecked():
-            from platform import open_file_in_editor
-            open_file_in_editor(self.job_inputfile)
+#        if self.edit_cntl.edit_input_file_cbox.isChecked():
+#            from platform import open_file_in_editor
+#            open_file_in_editor(self.job_inputfile)
 
         self.starttime = time.time() # Save the start time for this job.
         
