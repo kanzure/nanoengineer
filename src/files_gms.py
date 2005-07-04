@@ -15,7 +15,7 @@ from chunk import molecule
 from chem import atom, bond_atoms
 from string import capitalize
 from elements import PeriodicTable, Singlet
-from platform import fix_plurals
+from platform import fix_plurals, get_gms_name
 from HistoryWidget import redmsg, orangemsg
 from VQT import A
 
@@ -158,7 +158,7 @@ def writegms_inpfile(filename, gamessJig):
     f.write ('!\n! INP file created by nanoENGINEER-1 on ')
     timestr = "%s\n!\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
     f.write(timestr)
-    gmstr = "! GAMESS parameter summary: " + gamessJig.gms_parms_info() + "\n!\n"
+    gmstr = "! " + get_gms_name() + " parameter summary: " + gamessJig.gms_parms_info() + "\n!\n"
     f.write(gmstr)
         
     # This method should be moved to the GAMESS Jig.
