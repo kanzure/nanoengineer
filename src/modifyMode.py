@@ -211,7 +211,7 @@ class modifyMode(basicMode):
         if not self.picking: return
         
         # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
-        if not self.movingPoint: self.leftDown(event)
+        if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
 
         # Move section
         if self.moveOption == 'MOVEDEFAULT':
