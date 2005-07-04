@@ -68,7 +68,7 @@ class Jig(Node):
     copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color') # this extends the tuple from Node
         # most Jig subclasses need to extend this further
     
-    def __init__(self, assy, atomlist): # Warning: some Jig subclasses don't accept atomlist arg in __init__
+    def __init__(self, assy, atomlist): # Warning: some Jig subclasses require atomlist in __init__ to equal [] [revised circa 050526]
         "each subclass needs to call this, at least sometime before it's used as a Node"
         Node.__init__(self, assy, gensym("%s." % self.sym))
         self.setAtoms(atomlist) #bruce 050526 revised this; this matters since some subclasses now override setAtoms
@@ -114,12 +114,14 @@ class Jig(Node):
         return False #e need to give a reason why not??
 
     def will_partly_copy_due_to_selatoms(self, sel):
-        return True # at least for jigs that are already known to confer properties on some copied atoms!
+        "[overrides Node method]"
+        return True # this is correct for jigs that say yes to jig.confers_properties_on(atom), and doesn't matter for others.
 
     def copy_full_in_mapping(self, mapping):
         clas = self.__class__
         new = clas(self.assy, []) # don't pass any atoms yet (maybe not all of them are yet copied)
-            # won't work for Motors, they should override this or clean up their init methods to accept atomlist
+            # [Note: as of about 050526, passing atomlist of [] is permitted for motors, but they assert it's [].
+            #  Before that, they didn't even accept the arg.]
         # Now, how to copy all the desired state? We could wait til fixup stage, then use mmp write/read methods!
         # But I'd rather do this cleanly and have the mmp methods use these, instead...
         # by declaring copyable attrs, or so.
@@ -128,6 +130,10 @@ class Jig(Node):
         new.name = "[being copied]" # should never be seen
         mapping.do_at_end( new._copy_fixup_at_end)
         #k any need to call mapping.record_copy??
+        # [bruce comment 050704: if we could easily tell here that none of our atoms would get copied,
+        #  and if self.needs_atoms_to_survive() is true, then we should return None (to fix bug 743) here;
+        #  but since we can't easily tell that, we instead kill the copy
+        #  in _copy_fixup_at_end if it has no atoms when that func is done.]
         return new
 
     def _copy_fixup_at_end(self):
@@ -155,7 +161,11 @@ class Jig(Node):
                 nuats.append(nuat)
         if len(nuats) < len(orig.atoms) and not self.name.endswith('-frag'): # similar code is in chunk, both need improving
             self.name += '-frag'
-        self.setAtoms(nuats)
+        if nuats or not self.needs_atoms_to_survive():
+            self.setAtoms(nuats)
+        else:
+            #bruce 050704 to fix bug 743
+            self.kill()
         #e jig classes with atom-specific info would have to do more now... we could call a 2nd method here...
         # or use list of classnames to search for more and more specific methods to call...
         # or just let subclasses extend this method in the usual way (maybe not doing those dels above).
@@ -428,7 +438,7 @@ class Jig(Node):
 class Motor(Jig):
     "superclass for Motor jigs"
     def own_mutable_copyable_attrs(self): #bruce 050526
-        """[overrides Jig or Node method... is Jig but should be Node, I think #k]
+        """[overrides Node method]
         Suitable for Motor subclasses -- they should define mutable_attrs
         [#e this scheme could use some cleanup]
         """

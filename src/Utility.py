@@ -807,17 +807,19 @@ class Node:
         """
         return False # conservative answer
 
-    def will_partly_copy_due_to_selatoms(self, sel): #bruce 050525
-        """Will this node copy all or part of itself when asked (via ### [#doc which method!])
-        because it confers properties on some selected atoms in sel, which is being copied as a whole?
+    def will_partly_copy_due_to_selatoms(self, sel): #bruce 050525; docstring revised 050704
+        """For nodes which say True to .confers_properties_on(atom) for one or more atoms
+        which are part of a selection being copied, but when this node is not selected,
+        will it nonetheless copy all or part of itself, when its copy_partial_in_mapping
+        method is called, so that the copied atoms still have the property it confers?
         [Node types which implement an appropriate copy method should override this method too.]
         """
         return False # conservative answer
 
-    def confers_properties_on(self, atom): #bruce 050524
-        """Does this Jig (or any node that might appear in atom.jigs)
-        confer a property on atom, so that it should be partly copied
-        (by self.###what??) if atom is?
+    def confers_properties_on(self, atom): #bruce 050524; docstring revised 050704
+        """Does this Jig (or any node of a type that might appear in atom.jigs)
+        confer a property on atom, so that it should be partly copied, if possible
+        (by self.copy_partial_in_mapping) when atom is?
         """
         return False # default value for most jigs and (for now) all other Nodes
         
@@ -838,8 +840,10 @@ class Node:
         """
         return None # conservative version
 
-    def copy_in_mapping_with_specified_atoms(self, mapping, atoms):
-        "#doc; certain subclasses should override"
+    copy_partial_in_mapping = copy_full_in_mapping # equivalent for all jigs which need it, as of 050526 [method name added 050704]
+
+    def copy_in_mapping_with_specified_atoms(self, mapping, atoms): #bruce circa 050525; docstring revised 050704
+        "#doc; certain subclasses should override [e.g. chunk]; for use in copying selected atoms"
         return None
 
     def copy_copyable_attrs_to(self, target): #bruce 050526
@@ -857,7 +861,7 @@ class Node:
             setattr(target, attr, val) # turns some default class attrs into unneeded instance attrs (nevermind for now)
         self.copy_prior_part_to( target)
 
-    def copy_prior_part_to(self, target): #bruce 050527 
+    def copy_prior_part_to(self, target): #bruce 050527
         """If target (presumed to be a Node) has no part or prior_part, set its prior_part from self,
         for sake of initial views of new Parts containing target, if any such new Parts are yet to be made.
         """

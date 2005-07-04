@@ -420,10 +420,11 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         # (e.g. jigs change their atom refs from orig to copied atoms)
         # (warning: res is still not in any Group, and still has no Part,
         #  and toplevel group structure might still be revised)
-        # In case this can ever delete nodes or add siblings (though it doesn't do that for now),
+        # In case this can ever delete nodes or add siblings (though it doesn't do that for now) [now it can, as of bruce 050704],
         # we should do it before cleaning up the Group structure.
         for func in self.do_these_at_end[:]:
             func() # these should not add further such funcs! #e could check for that, or even handle them if added.
+            # [these funcs now sometimes delete just-copied nodes, as of bruce 050704 fixing bug 743.]
         del self.do_these_at_end
 
         # Now clean up the toplevel Group structure of the copy, and return it.
