@@ -438,7 +438,7 @@ class ctlRec:
         items = []
         
         for p in self.parms:
-            print p, self.__dict__[p]
+#            print p, self.__dict__[p]
             items.append((p, str(self.__dict__[p])))
       
         return items
