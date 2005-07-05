@@ -561,48 +561,65 @@ def load_window_pos_size( win, keyprefix, defaults = None, screen = None, histme
     win.move(px,py)
     return
 
-def open_file_in_editor(file):
-    """Opens a file in a standard text editor.
+def open_file_in_editor(file, history = None): #bruce 050704 added history arg 
+    """Opens a file in a standard text editor. If history arg is provided,
+    it should be the history widget, and error messages will be printed there;
+    in all cases, the same error messages are printed to the console.
     """
-    if not os.path.exists(file): #bruce 050326 added this check
+    if history is not None:
+        from HistoryWidget import redmsg
+    
+    if not os.path.exists(file):
         msg = "File does not exist: " + file
         print msg
-#        self.history.message(redmsg(msg))
+        if history is not None:
+            history.message(redmsg(msg))
         return
         
-    editor = get_text_editor()
+    editor_and_args = get_text_editor()
+        # a list of editor name and 0 or more required initial arguments [bruce 050704 revised API]
+    editor = editor_and_args[0]
+    initial_args = list( editor_and_args[1:] )
         
     if os.path.exists(editor):
-        if sys.platform == "darwin":
-            args = [editor, '-e', file]
-        else:
-            args = [editor, file]
+        args = [editor] + initial_args + [file]
 #        print  "editor = ",editor
 #        print  "Spawnv args are %r" % (args,)
 
+        try: #bruce 050704
+            from debug import print_compact_traceback
+        except:
+            def noop(*args): pass
+            print_compact_traceback = noop
         try:
             # Spawn the editor.
             kid = os.spawnv(os.P_NOWAIT, editor, args)
         except: # We had an exception.
-#            print_compact_traceback("Exception in editor; continuing: ")
+            print_compact_traceback("Exception in editor; continuing: ")
             msg = "Cannot open file " + file + ".  Trouble spawning editor " + editor
             print msg
-#            self.history.message(redmsg(msg))
+            if history is not None:
+                history.message(redmsg(msg))
     else:
         msg = "Cannot open file " + file + ".  Editor " + editor + " not found."
-#        self.history.message(redmsg(msg))
+        if history is not None:
+            history.message(redmsg(msg))
+    return
             
-def get_text_editor():
-    """Returns the name of a text editor for this platform.
+def get_text_editor(): #bruce 050704 revised API
+    """Returns a list of the name and required initial shell-command-line arguments (if any) of a text editor for this platform.
+    The editor can be caused to open a file by launching it using these args plus the filename.
     """
+    args = [] # might be modified below
     if sys.platform == 'win32': # Windows
         editor = "C:/WINDOWS/notepad.exe"
     elif sys.platform == 'darwin': # MacOSX
         editor = "/usr/bin/open"
+        args = ['-e']
+        # /usr/bin/open needs -e argument to force treatment of file as text file.
     else: # Linux
         editor = "/usr/bin/kwrite"
-            
-    return editor
+    return [editor] + args
 
 def get_rootdir():
     """Returns the root directory for this platform.
