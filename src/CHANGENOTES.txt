@@ -580,3 +580,10 @@ interface gets redesigned).
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 7/5/2005
+Files: jigs.py
+Summary: implemented "Recenter on atoms" for Linear Motor
+
+----------------------------
+
