@@ -216,7 +216,7 @@ class Gamess(Jig):
                 val = getattr(self, attr)
                 assert type(val) == type([])
                 newval = [item.deepcopy() for item in val]
-                setattr(self, attr, val)
+                setattr(self, attr, newval)
             else:
                 print "bug: don't know how to copy attr %r in %r", attr, self
             pass
@@ -278,7 +278,7 @@ class gamessParms:
             # we're too lazy to also check whether valstring is multiline or too long, like writemmp does;
             # result of this is only that some bugs will show up in writemmp but not in deepcopy (used to copy this kind of jig).
             new.info_gamess_setitem( name, valstring, interp, error_if_name_not_known = True )
-        return
+        return new
 
     def writemmp(self, mapping, pset_index): #bruce 050701
         mapping.write("# gamess parameter set %s for preceding jig\n" % pset_index)
