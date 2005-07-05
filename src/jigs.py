@@ -136,7 +136,7 @@ class Jig(Node):
         #  in _copy_fixup_at_end if it has no atoms when that func is done.]
         return new
 
-    def _copy_fixup_at_end(self):
+    def _copy_fixup_at_end(self): # warning [bruce 050704]: some of this code is copied in jig_Gamess.py's Gamess.cm_duplicate method.
         """[Private method]
         This runs at the end of a copy operation to copy attributes from the old jig
         (which could have been done at the start but might as well be done now for most of them)

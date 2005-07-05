@@ -221,6 +221,36 @@ class Gamess(Jig):
                 print "bug: don't know how to copy attr %r in %r", attr, self
             pass
         return
+
+    def cm_duplicate(self): #bruce 050704.
+        "Make a sibling node in the MT which has the same atoms, and a copy of the params, of this jig."
+            #e Warning: The API (used by modelTree to decide whether to offer this command) is wrong,
+            # and the implem should be generalized (to work on any Node or Group). Specifically,
+            # this should become a Node method which always works (whether or not it's advisable to use it);
+            # then the MT cmenu should dim it if some other method (which might depend on more than just the class)
+            # says it's not advisable to use it.
+            #    I think it's advisable only on a Gamess jig, and on a chunk,
+            # and maybe on a Group -- but what to do about contained jigs in a Group for which
+            # some but not all atoms are being duplicated, or even other jigs in the Group, is a
+            # design question, and it might turn out to be too ambiguous to safely offer it at all
+            # for a Group with jigs in it.
+        # Some code taken from Jig.copy_full_in_mapping and Jig._copy_fixup_at_end.
+        copy = self.__class__( self.assy, self.atoms[:] )
+        orig = self
+        orig.copy_copyable_attrs_to(copy) # replaces .name set by __init__
+        copy.name = copy.name + "-copy" #e could improve
+        copy.own_mutable_copyable_attrs() # eliminate unwanted sharing of mutable copyable_attrs
+        if orig.picked:
+            self.color = self.normcolor
+        orig.addsibling(copy)
+        self.assy.w.history.message( "Made duplicate Gamess jig on same atoms: [%s]" % copy.name )
+            # note: the wire cubes from multiple jigs on the sme atoms get overdrawn,
+            # which will mess up the selection coloring of those wirecubes
+            # since the order of drawing them is unrelated to which one is selected
+            # (and since the OpenGL behavior seems a bit unpredictable anyway).
+            ##e Should fix this to only draw one wirecube, of the "maximal color", I guess...
+        self.assy.w.win_update() # MT and glpane both might need update
+        return
     
     pass # end of class Gamess
 

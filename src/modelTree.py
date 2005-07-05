@@ -396,7 +396,7 @@ class modelTree(TreeWidget):
         else:
             res.append(( 'Properties', noop, 'disabled' )) # nim for multiple items
 
-        # submenu for node-class-specific menu items, when exactly one node
+        # subsection of menu (not a submenu unless they specify one) for node-class-specific menu items, when exactly one node
         if len(nodeset) == 1:
             node = nodeset[0]
             submenu = []
@@ -420,6 +420,8 @@ class modelTree(TreeWidget):
                 res.extend(submenu) # changed append to extend -- Mark and Bruce at Retreat 050621
 
         # Customize command [bruce 050602 experiment -- unfinished and commented out ###@@@]
+        # [later comment, bruce 050704: I think this was intended to suggest PrefsNodes applicable to the selected item or items,
+        #  and to make them and group them with it. Or (later) to put up a dialog whose end result might be to do that.]
         # Provide this when all items are in the same group? no, any items could be grouped...
         # so for initial experiments, always provide it. If it's a submenu, the selected items might affect
         # what's in it, and some things in it might be already checkmarked if PrefsNodes are above them ... 
@@ -431,29 +433,56 @@ class modelTree(TreeWidget):
 ##            submenu = []
             
 
-# bruce 050704 moving cm_recenter_on_atoms to its applicable class (RotaryMotor), where it always belonged
-##        # Certain classes have specific commands related to changing specific properties...
-##        # this needs a general interface, but for this first example,
-##        # this non-general one will be enough [bruce 050519]:
-##        if len(nodeset) == 1:
-##            try:
-##                meth = nodeset[0].recenter_on_atoms
-##            except AttributeError:
-##                pass
-##            else:
-##                #e might be nice to dim it if atoms haven't moved since it was made or recentered
-##                res.append(( 'Recenter on atoms', self.cm_recenter_on_atoms ))
-##            pass
-         
-        # copy, cut, delete, maybe duplicate... #######@@@@@@@ need to not include copy for jigs by themselves, mostly
-        # some of them are not-for-use-in-clipboard [bruce 050131]
+        # copy, cut, delete, maybe duplicate...
+        # bruce 050704 revisions:
+        # - these are probably ok for clipboard items; I'll enable them there and let them be tested there.
+        # - I'll remove Copy when the selection only contains jigs that won't copy themselves
+        #   unless some of their atoms are copied (which for now is true of all jigs).
+        #   More generally (in principle -- the implem is not general), Copy should be removed
+        #   when the selection contains nothing which makes sense to copy on its own,
+        #   only things which make sense to copy only in conjunction with other things.
+        #   I think this is equivalent to whether all the selected things would fail to get copied,
+        #   when the copy command was run.
+        # - I'll add Duplicate for single selected jigs which provide an appropriate method,
+        #   and show it dimmed for those that don't.
+        
         res.append(None) # separator
-        if len(nodeset) >= 1 and nodeset[0].find_selection_group() == self.tree_node:
-            # selection is in the main part
-            res.append(( 'Copy', self.cm_copy )) ###@@@ review or fix for being ok in clipboard?
-            res.append(( 'Cut', self.cm_cut )) ###@@@ ditto
-        res.append(('Delete', self.cm_delete )) # ok for part or clipboard
-        #e duplicate?
+
+        # figure out whether Copy would actually copy anything.
+        part = nodeset[0].part # the same for all nodes in nodeset
+        from ops_select import selection_from_part
+        sel = selection_from_part(part, use_selatoms = False) #k should this be the first code to use selection_from_MT() instead?
+        doit = False
+        for node in nodeset:
+            if node.will_copy_if_selected(sel):
+                # if this test is too slow, could inline it by knowing about Jigs here; but better to speed it up instead!
+                doit = True
+                break
+        if doit:
+            res.append(( 'Copy', self.cm_copy ))
+        # For single items, add a Duplicate command and enable it if they support the method. [bruce 050704 new feature]
+        # For now, hardly anything offers this command, so I'm changing the plan, and removing it (not disabling it)
+        # when not available. This should be reconsidered if more things offer it.
+        if len(nodeset) == 1:
+            node = nodeset[0]
+            try:
+                method = node.cm_duplicate
+                    # Warning 1: different API than self.cm_xxx methods (arg differs)
+                    # or __CM_ methods (disabled rather than missing, if not defined).
+                    # Warning 2: if a class provides it, no way for a subclass to stop
+                    # providing it. This aspect of the API is bad, should be revised.
+                assert callable(method)
+            except:
+                dupok = False
+            else:
+                dupok = True
+            if dupok:
+                res.append(( 'Duplicate', method ))
+            else:
+                pass ## res.append(( 'Duplicate', noop, 'disabled' ))
+        # Cut (unlike Copy), and Delete, should always be ok.
+        res.append(( 'Cut', self.cm_cut ))
+        res.append(( 'Delete', self.cm_delete ))
 
         # add basic info on what's selected at the end (later might turn into commands related to subclasses of nodes)
 
@@ -533,21 +562,6 @@ class modelTree(TreeWidget):
             else:
                 self.win.win_update()
         return
-
-# bruce 050704 moving cm_recenter_on_atoms to its applicable class (RotaryMotor), where it always belonged
-##    def cm_recenter_on_atoms(self): #bruce 050519; sometime figure out how to refile this with the most general class it's for
-##        nodeset = self.topmost_selected_nodes()
-##        if len(nodeset) != 1:
-##            self.win.history.message("error: cm_recenter_on_atoms called on no or multiple items")
-##                # (internal error, not user error)
-##        else:
-##            node = nodeset[0]
-##            self.assy.w.history.message( "Recenter Motor [%s] for current atom positions" % node.name)
-##            node.recenter_on_atoms() # some nodes don't have this method; that's ok since there's
-##                # only one node (so nothing more we needed to do, if this raises an exception)
-##                # (anyway, caller nominally guarantees this node *does* have this method.)
-##            self.win.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
-##        return
 
     def cm_group(self): # bruce 050126 adding comments and changing behavior; 050420 permitting exactly one subtree
         "put the selected subtrees (one or more than one) into a new Group (and update)"
