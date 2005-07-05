@@ -453,7 +453,80 @@ class Motor(Jig):
                 raise
             setattr(self, attr, val)
         return
-    pass
+
+    # == The following methods were moved from RotaryMotor to this class by bruce 050705,
+    # since some were almost identical in LinearMotor (and those were removed from it, as well)
+    # and others are wanted in it in order to implement "Recenter on atoms" in LinearMotor.
+        
+    # for a motor read from a file, the "shaft" record
+    def setShaft(self, shaft):
+        self.setAtoms(shaft) #bruce 041105 code cleanup
+        self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
+    
+    # for a motor created by the UI, center is average point and
+    # axis (kludge) is the average of the cross products of
+    # vectors from the center to successive points
+    # los is line of sight into the screen
+    def findCenter(self, shaft, los):
+        self.setAtoms(shaft) #bruce 041105 code cleanup
+        self.recompute_center_axis(los)
+        self.edit()
+
+    def recompute_center_axis(self, los = None): #bruce 050518 split this out of findCenter, for use in a new cmenu item
+        if los is None:
+            los = self.assy.o.lineOfSight
+        shaft = self.atoms
+        # remaining code is a kluge, according to the comment above findcenter;
+        # note that it depends on order of atoms, presumably initially derived
+        # from the selatoms dict and thus arbitrary (not even related to order
+        # in which user selected them or created them). [bruce 050518 comment]
+        pos=A(map((lambda a: a.posn()), shaft))
+        self.center=sum(pos)/len(pos)
+        relpos=pos-self.center
+        if len(shaft) == 1:
+            self.axis = norm(los)
+        elif len(shaft) == 2:
+            self.axis = norm(cross(relpos[0],cross(relpos[1],los)))
+        else:
+            guess = map(cross, relpos[:-1], relpos[1:])
+            guess = map(lambda x: sign(dot(los,x))*x, guess)
+            self.axis=norm(sum(guess))
+        self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
+        return
+
+    def recenter_on_atoms(self):
+        "called from model tree cmenu command"
+        self.recompute_center_axis()
+        #e maybe return whether we moved??
+        return
+    
+    def __CM_Recenter_on_atoms(self): #bruce 050704 moved this from modelTree.py and made it use newer system for custom cmenu cmds
+        '''Rotary or Linear Motor context menu command: "Recenter on atoms"
+        '''
+        ##e it might be nice to dim this menu item if the atoms haven't moved since this motor was made or recentered;
+        # first we'd need to extend the __CM_ API to make that possible. [bruce 050704]
+        self.assy.w.history.message( "Recenter Motor [%s] for current atom positions" % self.name) #e specify type of motor??
+        self.recenter_on_atoms()
+        self.assy.w.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
+        return
+    
+    def move(self, offset): #k can this ever be called?
+        self.center += offset
+
+    def posn(self):
+        return self.center
+
+    def axen(self):
+        return self.axis
+
+    def rematom(self, *args, **opts): #bruce 050518
+        self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
+        super = Jig
+        return super.rematom(self, *args, **opts)
+
+    pass # end of class Motor
+
+# ==
 
 class RotaryMotor(Motor):
     '''A Rotary Motor has an axis, represented as a point and
@@ -502,80 +575,12 @@ class RotaryMotor(Motor):
         self.length = length
         self.radius = radius
         self.sradius = sradius
-
-    # for a motor read from a file, the "shaft" record
-    def setShaft(self, shft):
-        self.setAtoms(shft) #bruce 041105 code cleanup
-        self._initial_posns = None #bruce 050518
-
-    # for a motor created by the UI, center is average point and
-    # axis (kludge) is the average of the cross products of
-    # vectors from the center to successive points
-    # los is line of sight into the screen
-    def findCenter(self, shft, los):
-        self.setAtoms(shft) #bruce 041105 code cleanup
-        # array of absolute atom positions
-        self.recompute_center_axis(los)
-        self.edit()
-
-    def recompute_center_axis(self, los = None): #bruce 050518 split this out of findCenter, for use in a new cmenu item
-        if los is None:
-            los = self.assy.o.lineOfSight
-        shft = self.atoms
-        # remaining code is a kluge, according to the comment above findcenter;
-        # note that it depends on order of atoms, presumably initially derived
-        # from the selatoms dict and thus arbitrary (not even related to order
-        # in which user selected them or created them). [bruce 050518 comment]
-        pos=A(map((lambda a: a.posn()), shft))
-        self.center=sum(pos)/len(pos)
-        relpos=pos-self.center
-        if len(shft) == 1:
-            self.axis = norm(los)
-        elif len(shft) == 2:
-            self.axis = norm(cross(relpos[0],cross(relpos[1],los)))
-        else:
-            guess = map(cross, relpos[:-1], relpos[1:])
-            guess = map(lambda x: sign(dot(los,x))*x, guess)
-            self.axis=norm(sum(guess))
-        self._initial_posns = None
-        return
-
-    def recenter_on_atoms(self):
-        "called from model tree cmenu command"
-        self.recompute_center_axis()
-        #e maybe return whether we moved??
-        return
-    
-    def __CM_Recenter_on_atoms(self): #bruce 050704 moved this from modelTree.py and made it use newer system for custom cmenu cmds
-        '''Rotary Motor context menu command: "Recenter on atoms"
-        '''
-        #e this is needed for Linear Motor too
-        ##e it might be nice to dim this menu item if the atoms haven't moved since this motor was made or recentered;
-        # first we'd need to extend the __CM_ API to make that possible. [bruce 050704]
-        self.assy.w.history.message( "Recenter Motor [%s] for current atom positions" % self.name)
-        self.recenter_on_atoms()
-        self.assy.w.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
-        return
-    
-    def move(self, offset): #k can this ever be called?
-        self.center += offset
-
-    def posn(self):
-        return self.center
-
-    def axen(self):
-        return self.axis
    
     def _getinfo(self):
         return "[Object: Rotary Motor] [Name: " + str(self.name) + "] [Torque = " + str(self.torque) + "] [Speed = " +str(self.speed) + "]"
         
     def getstatistics(self, stats):
         stats.nrmotors += 1
-
-    def rematom(self, *args, **opts): #bruce 050518
-        self._initial_posns = None
-        super = Jig
-        return super.rematom(self, *args, **opts)
 
     def norm_project_posns(self, posns):
         """[Private helper for getrotation]
@@ -778,40 +783,6 @@ class LinearMotor(Motor):
         self.width = width
         self.sradius = sradius
 
-    # for a linear motor read from a file, the "shaft" record
-    def setShaft(self, shaft):
-        self.setAtoms(shaft) #bruce 041105 code cleanup
- 
-    # for a motor created by the UI, center is average point and
-    # axis (kludge) is the average of the cross products of
-    # vectors from the center to successive points
-    # los is line of sight into the screen
-    def findCenter(self, shft, los):
-        self.setAtoms(shft) #bruce 041105 code cleanup
-        # array of absolute atom positions
-        # can't use xyz, might be from different molecules
-        pos=A(map((lambda a: a.posn()), shft))
-        self.center=sum(pos)/len(pos)
-        relpos=pos-self.center
-        if len(shft) == 1:
-            self.axis = norm(los)
-        elif len(shft) == 2:
-            self.axis = norm(cross(relpos[0],cross(relpos[1],los)))
-        else:
-            guess = map(cross, relpos[:-1], relpos[1:])
-            guess = map(lambda x: sign(dot(los,x))*x, guess)
-            self.axis=norm(sum(guess))
-        self.edit()
-        
-    def move(self, offset):
-        self.center += offset
-
-    def posn(self):
-        return self.center
-
-    def axen(self):
-        return self.axis
-   
     def _getinfo(self):
         return "[Object: Linear Motor] [Name: " + str(self.name) + \
                     "] [Force = " + str(self.force) + \
