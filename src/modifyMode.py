@@ -165,18 +165,18 @@ class modifyMode(basicMode):
         self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
 
         # Move section
-        if self.moveOption == 'MOVEDEFAULT':        
-            wX = event.pos().x()
-            wY = self.o.height - event.pos().y()
-            wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-            if wZ[0][0] >= 1.0: 
-                junk, self.movingPoint = self.o.mousepoints(event)
-            else:
-                self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        if wZ[0][0] >= 1.0: 
+            junk, self.movingPoint = self.o.mousepoints(event)
+        else:
+            self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
         # end of Move section
 
         # Translate section
-        else:
+        if self.moveOption != 'MOVEDEFAULT':
+
             if self.moveOption == 'TRANSX': 
                 ma = V(1,0,0) # X Axis
                 self.axis = 'X'
