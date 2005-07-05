@@ -846,7 +846,7 @@ class Node:
         "#doc; certain subclasses should override [e.g. chunk]; for use in copying selected atoms"
         return None
 
-    def copy_copyable_attrs_to(self, target): #bruce 050526
+    def copy_copyable_attrs_to(self, target): #bruce 050526; docstring revised 050704
         """Copy all copyable attrs (as defined by a subclass-specific constant tuple)
         from self to target (presumably a Node of the same subclass, but this is not checked,
         and violating it might not be an error, in principle).
@@ -854,7 +854,9 @@ class Node:
            Warning: attribute values are not themselves copied (e.g. if any are lists or dicts
         or Numeric arrays, target and self will be sharing the same mutable object).
            This is intended as a private helper method for subclass-specific copy methods,
-        which may need to do further work to make these attribute-copies fully correct.
+        which may need to do further work to make these attribute-copies fully correct --
+        for example, copying some of the mutable copied values so they are no longer shared,
+        or doing appropriate invals or updates in target.
         """
         for attr in self.copyable_attrs:
             val = getattr(self, attr)
@@ -872,8 +874,12 @@ class Node:
                 target.prior_part = self.prior_part
         return
 
-    def own_mutable_copyable_attrs(self): #bruce 050526 #e use more widely?
-        "#doc; some subclasses must extend this"
+    def own_mutable_copyable_attrs(self): #bruce 050526 #e use more widely? 050704: maybe after most uses of copy_copyable_attrs_to??
+        """If any copyable_attrs of self are mutable and might be shared with another copy of self
+        (by self.copy_copyable_attrs_to(target) -- where this method might then be called on self or target or both),
+        replace them with copies so that they are no longer shared and can safely be independently changed.
+        [some subclasses must extend this]
+        """
         pass
     
     def copy(self, dad): # just for backwards compatibility until old code is changed [050527]

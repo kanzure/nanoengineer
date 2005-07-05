@@ -718,6 +718,7 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
     """helps translate object refs in mmp file to their objects, while reading the file
     [compare to class writemmp_mapping, which helps turn objs to their refs while writing the file]
     [but also compare to class _readmmp_state... maybe this should be the same object as that. ###k]
+    [also has decode methods, and some external code makes one of these just to use those (which is a kluge).]
     """
     def __init__(self, ndix, markers):
         self.ndix = ndix # maps atom numbers to atoms (??)
@@ -759,6 +760,10 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
             print "atom_debug: fyi: some info record wants a boolean val but got this instead (not an error)" % (val,)
         return None
     pass
+
+def mmp_interp_just_for_decode_methods(): #bruce 050704
+    "Return an mmp_interp object usable only for its decode methods (kluge)"
+    return mmp_interp("not used", "not used")
 
 def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 050511
     """Handle an info record 'card' being read from an mmp file;

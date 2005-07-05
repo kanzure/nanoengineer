@@ -21,6 +21,10 @@ class Gamess(Jig):
 
     sym = "Gamess"
     icon_names = ["gamess.png", "gamess-hide.png"]
+
+    #bruce 050704 added these attrs and related methods, to make copying of this jig work properly
+    mutable_attrs = ('psets',)
+    copyable_attrs = Jig.copyable_attrs + () + mutable_attrs
     
     # Default job parameters for a GAMESS job.
     job_parms = {
@@ -39,11 +43,11 @@ class Gamess(Jig):
         self.color = (0.0, 0.0, 0.0)
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
         self.history = assy.w.history
-        self.psets = [] # list of parms set objects
+        self.psets = [] # list of parms set objects [as of circa 050704, only the first of these is ever defined (thinks bruce)]
         self.psets.append(gamessParms('Parameter Set 1'))
         self.gmsjob = GamessJob(Gamess.job_parms, jig=self)
         ## bruce 050701 removing this: self.gmsjob.edit()
-        self.outputfile = '' # Name of jig's most recent output file.
+        self.outputfile = '' # Name of jig's most recent output file. [this attr is intentionally not copied -- bruce 050704]
 
     def edit(self):
         self.gmsjob.edit()
@@ -201,6 +205,23 @@ class Gamess(Jig):
             return
         pass
     
+    def own_mutable_copyable_attrs(self): #bruce 050704
+        """[overrides Node method]"""
+        super = Jig
+        super.own_mutable_copyable_attrs( self)
+        for attr in self.mutable_attrs:
+            if attr == 'psets':
+                # special-case code for this attr, a list of gamessParms objects
+                # (those objects, and the list itself, are mutable and need to be de-shared)
+                val = getattr(self, attr)
+                assert type(val) == type([])
+                newval = [item.deepcopy() for item in val]
+                setattr(self, attr, val)
+            else:
+                print "bug: don't know how to copy attr %r in %r", attr, self
+            pass
+        return
+    
     pass # end of class Gamess
 
 class gamessParms:
@@ -230,7 +251,7 @@ class gamessParms:
 #        self.force.prin1()
         self.basis.prin1(f)
 
-    def param_names_and_valstrings(self): #bruce 050701; needs to be extended by Mark to return the proper set of params
+    def param_names_and_valstrings(self): #bruce 050701; extended by Mark 050704 to return the proper set of params
         """Return a list of pairs of (<param name>, <param value printable by %s>) for all
         gamess params we want to write to an mmp file from this set.
            These names and value-strings need to be recognized and decoded by the
@@ -244,6 +265,20 @@ class gamessParms:
         items = []
         items = self.ui.get_mmp_parms()
         return items
+
+    def deepcopy(self): #bruce 050704; don't know whether this is complete [needs review by Mark; is it ok it only sets .ui? #####@@@@@]
+        "Make a copy of self (a gamessParms object), which shares no mutable state with self. (Used to copy a Gamess Jig containing self.)"
+        newname = self.name + " copy" # copy needs a different name #e could improve this -- see the code used to rename chunk copies
+        new = self.__class__(newname)
+        from files_mmp import mmp_interp_just_for_decode_methods
+        interp = mmp_interp_just_for_decode_methods() #kluge
+        for name, valstring in self.param_names_and_valstrings():
+            valstring = "%s" % (valstring,)
+            valstring = valstring.strip()
+            # we're too lazy to also check whether valstring is multiline or too long, like writemmp does;
+            # result of this is only that some bugs will show up in writemmp but not in deepcopy (used to copy this kind of jig).
+            new.info_gamess_setitem( name, valstring, interp, error_if_name_not_known = True )
+        return
 
     def writemmp(self, mapping, pset_index): #bruce 050701
         mapping.write("# gamess parameter set %s for preceding jig\n" % pset_index)
@@ -282,12 +317,14 @@ class gamessParms:
         mapping.write("# end of gamess parameter set %s\n" % pset_index)
         return
 
-    def info_gamess_setitem(self, name, val, interp ): #bruce 050701; needs to be extended by Mark to read and set the actual params
+    def info_gamess_setitem(self, name, val, interp, error_if_name_not_known = False):
+        #bruce 050701; extended by Mark 050704 to read and set the actual params; bruce 050704 added error_if_name_not_known
         """This must set the parameter in self with the given name
         to the value encoded by the string val
         (read from an mmp file from which this parameter set and its gamess jig is being read).
            If it doesn't recognize name or can't parse val,
-        it should do nothing (except possibly print a message if atom_debug is set).
+        it should do nothing (except possibly print a message if atom_debug is set),
+        unless error_if_name_not_known is true, in which case it should print an error message reporting a bug.
            (If it's too tedious to avoid exceptions in parsing val,
         change the caller (which already ignores those exceptions, but always prints a message calling them bugs)
         to classify those exceptions as not being bugs (and to only print a message when atom_debug is set).
@@ -396,12 +433,15 @@ class gamessParms:
                 self.param4 = p4
                 
         else:
-            if platform.atom_debug:
+            if error_if_name_not_known:
+                #bruce 050704, only correct when this method is used internally to copy an object of this class
+                print "error: unrecognized parameter name %r in info_gamess_setitem" % (name,)
+            elif platform.atom_debug:
                 print "atom_debug: fyi: info gamess with unrecognized parameter name %r (not an error)" % (name,)
             # this is not an error, since old code might read newer mmp files which know about more gamess params;
             # it's better (in general) to ignore those than for this to make it impossible to read the mmp file.
             # If non-debug warnings were added, that might be ok in this case since not many lines per file will trigger them.
-        return
+        return # from info_gamess_setitem
 
     pass # end of class gamessParms
 
