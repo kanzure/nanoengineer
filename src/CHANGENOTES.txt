@@ -569,3 +569,14 @@ Summary: fix bug 725 by making Select Doubly non-recursive (analogous to bug 714
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 7/4/2005
+Files: jig_Gamess.py jigs.py modelTree.py
+Summary: Duplicate for Gamess jigs; Copy/Cut in MT cmenu for selections in clipboard
+
+The Duplicate command needs no separate mention in release notes, but needs to be
+mentioned somewhere in the Gamess documentation (if we write any before that entire
+interface gets redesigned).
+
+----------------------------
+
