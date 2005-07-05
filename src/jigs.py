@@ -546,6 +546,17 @@ class RotaryMotor(Motor):
         #e maybe return whether we moved??
         return
     
+    def __CM_Recenter_on_atoms(self): #bruce 050704 moved this from modelTree.py and made it use newer system for custom cmenu cmds
+        '''Rotary Motor context menu command: "Recenter on atoms"
+        '''
+        #e this is needed for Linear Motor too
+        ##e it might be nice to dim this menu item if the atoms haven't moved since this motor was made or recentered;
+        # first we'd need to extend the __CM_ API to make that possible. [bruce 050704]
+        self.assy.w.history.message( "Recenter Motor [%s] for current atom positions" % self.name)
+        self.recenter_on_atoms()
+        self.assy.w.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
+        return
+    
     def move(self, offset): #k can this ever be called?
         self.center += offset
 
