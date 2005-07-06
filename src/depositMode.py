@@ -545,7 +545,7 @@ class depositMode(basicMode):
         [should not be called otherwise -- call update_selatom or update_selobj directly instead]
         """
         self.update_selobj(event)
-        # note: this routine no longer updates glpane.selatom.
+        # note: this routine no longer updates glpane.selatom. For that see self.update_selatom().
 
     def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
         """[mode API method]
@@ -885,6 +885,12 @@ class depositMode(basicMode):
         self.w.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.pivot = self.pivax = self.dragmol = None #bruce 041130 precautions
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
+            # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
+            # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
+            # Therefore, the present value might be out of date -- but it does correspond to whatever
+            # highlighting is on the screen, so whatever it is should not be a surprise to the user,
+            # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
+            # motion before pressing the mouse. [bruce 050705 comment]
         a = self.o.selatom
         atype = self.pastable_atomtype()
         self.modified = 1
@@ -1074,6 +1080,7 @@ class depositMode(basicMode):
         self.baggage = [] #bruce 041130 precaution
         self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
+            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         a = self.o.selatom
         if not a: return
         # now, if something was "lit up"
@@ -1159,6 +1166,7 @@ class depositMode(basicMode):
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
         self.update_selatom(event, singOnly = True) # indicate singlets we might bond to
             #bruce 041130 asks: is it correct to do that when a is real?
+            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         if a.element is Singlet:
             self.line = [a.posn(), px]
         #bruce 041130 added status bar message with new coordinates
@@ -1182,6 +1190,7 @@ class depositMode(basicMode):
         self.baggage = []
         self.line = None
         self.update_selatom(event, singOnly = True)
+            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         if self.dragatom.is_singlet():
             if self.o.selatom and self.o.selatom is not self.dragatom:
                 dragatom = self.dragatom
@@ -1216,6 +1225,7 @@ class depositMode(basicMode):
     def leftCntlDown(self, event):
         self.w.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
+            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         a = self.o.selatom
         if a:
             # this may change hybridization someday
@@ -1483,11 +1493,34 @@ class depositMode(basicMode):
         return self.o.assy.current_selgroup_iff_valid() is self.o.assy.tree
 
     call_makeMenus_for_each_event = True #bruce 050416/050420 using new feature for dynamic context menus
-    
-    def makeMenus(self):
 
-        self.update_selatom( None) # bruce 050612 added this -- not needed before since bareMotion did it (I guess).
+    def update_selatom_and_selobj(self, event = None): #bruce 050705
+        """update_selatom (or cause this to happen with next paintGL);
+        return consistent pair (selatom, selobj);
+        atom_debug warning if inconsistent
+        """
+        #e should either use this more widely, or do it in selatom itself, or convert entirely to using only selobj.
+        self.update_selatom( event) # bruce 050612 added this -- not needed before since bareMotion did it (I guess).
             ##e It might be better to let set_selobj callback (NIM, but needed for sbar messages) keep it updated.
+            #
+            # See warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
+        selatom = self.o.selatom
+        selobj = self.o.selobj #bruce 050705 -- #e it might be better to use selobj alone (selatom should be derived from it)
+        if selatom is not None:
+            if selobj is not selatom:
+                if platform.atom_debug:
+                    print "atom_debug: selobj %r not consistent with selatom %r -- using selobj = selatom" % (selobj, selatom)
+                selobj = selatom # just for our return value, not changed in GLPane (self.o)
+        else:
+            pass #e could check that selobj is reflected in selatom if an atom, but might as well let update_selatom do that,
+                # esp. since it behaves differently for singlets
+        return selatom, selobj
+        
+    def makeMenus(self): #bruce 050705 revised this to support bond menus
+        "#doc"
+        selatom, selobj = self.update_selatom_and_selobj( None)
+            # bruce 050612 added this [as an update_selatom call] -- not needed before since bareMotion did it (I guess).
+            # [replaced with update_selatom_and_selobj, bruce 050705]
         
         self.Menu_spec = []
         ###e could include disabled chunk & selatom name at the top, whether selatom is singlet, hotspot, etc.
@@ -1506,9 +1539,9 @@ class depositMode(basicMode):
             text, meth = ('Set Hotspot of clipboard item', self.setHotSpot_clipitem)
                 ###e could check if it has a hotspot already, if that one is different, etc
                 ###e could include atom name in menu text... Set Hotspot to X13
-        if self.o.selatom and self.o.selatom.is_singlet():
+        if selatom is not None and selatom.is_singlet():
             item = (text, meth)
-        elif self.o.selatom:
+        elif selatom is not None:
             item = (text, meth, 'disabled')
         else:
             item = None
@@ -1516,8 +1549,9 @@ class depositMode(basicMode):
             self.Menu_spec.append(item)
 
         # figure out Select This Chunk item text and whether to include it
-        if self.o.selatom:
-            name = self.o.selatom.molecule.name
+        ##e (should we include it for internal bonds, too? not for now, maybe not ever. [bruce 050705])
+        if selatom is not None:
+            name = selatom.molecule.name
             item = ('Select Chunk %r' % name, self.select)
                 # bruce 050121 changed Select to a more explicit name, Select This Chunk.
                 # bruce 050416 using actual chunk name. (#e Should we worry about it being too long?)
@@ -1525,9 +1559,10 @@ class depositMode(basicMode):
                 #e maybe should disable this or change to checkmark item (with unselect action) if it's already selected??
             self.Menu_spec.append(item)
 
-        # change atom hybridization type [initial kluge]
-        selatom = self.o.selatom
-        atomtypes = (not selatom) and ['fake'] or selatom.element.atomtypes
+        ##e add something similar for bonds, displaying their atoms, and the bonded chunk or chunks?
+
+        # add submenu to change atom hybridization type [initial kluge]
+        atomtypes = (selatom is None) and ['fake'] or selatom.element.atomtypes
             # kluge: ['fake'] is so the idiom "x and y or z" can pick y;
             # otherwise we'd use [] for 'y', but that doesn't work since it's false.
 ##        if selatom is not None and not selatom.is_singlet():
@@ -1536,9 +1571,9 @@ class depositMode(basicMode):
             # make a submenu for the available types, checkmarking the current one, disabling if illegal to change, sbartext for why
             # (this code belongs in some more modular place... where exactly? it's part of an atom-type-editor for use in a menu...
             #  put it with Atom, or with AtomType? ###e)
-            res = []
+            submenu = []
             for atype in atomtypes:
-                res.append(( atype.fullname_for_msg(), lambda arg1=None, arg2=None, atype=atype: atype.apply_to(selatom),
+                submenu.append(( atype.fullname_for_msg(), lambda arg1=None, arg2=None, atype=atype: atype.apply_to(selatom),
                                  # Notes: the atype=atype is required -- otherwise each lambda refers to the same
                                  # localvar 'atype' -- effectively by reference, not by value --
                                  # even though it changes during this loop!
@@ -1547,11 +1582,32 @@ class depositMode(basicMode):
                              (atype is selatom.atomtype) and 'checked' or None,
                              (not atype.ok_to_apply_to(selatom)) and 'disabled' or None
                            ))
-            self.Menu_spec.append(( 'Atom Type: %s' % selatom.atomtype.fullname_for_msg(), res ))
-##            self.Menu_spec.append(( 'Atom Type', res ))
+            self.Menu_spec.append(( 'Atom Type: %s' % selatom.atomtype.fullname_for_msg(), submenu ))
+##            self.Menu_spec.append(( 'Atom Type', submenu ))
 
-        ###e offer to change element, too (or should the same submenu be used? not sure)
+        ###e offer to change element, too (or should the same submenu be used, with a separator? not sure)
 
+        # for a highlighted bond, add submenu to change bond type, if atomtypes would permit that;
+        # or a menu item to just display the type, if not. Also add summary info about the bond...
+        # all this is returned (as a menu_spec sublist) by one external helper method.
+        try:
+            method = selobj.bond_menu_section
+        except AttributeError:
+            # selobj is not a Bond
+            pass
+        else:
+            glpane = self.o
+            quat = glpane.quat
+            try:
+                menu_spec = method(quat = quat) #e pass some options??
+            except:
+                print_compact_traceback("exception in bond_menu_section for %r, ignored: " % (selobj,))
+            else:
+                if menu_spec:
+                    self.Menu_spec.extend(menu_spec)
+                pass
+            pass
+        
         # offer to clean up singlet positions (not sure if this item should be so prominent)
         if selatom is not None and not selatom.is_singlet():
             sings = selatom.singNeighbors()
@@ -1601,6 +1657,8 @@ class depositMode(basicMode):
             ('Hydrogenate', self.o.assy.modifyHydrogenate),
             ('Dehydrogenate', self.o.assy.modifyDehydrogenate) ]
 
+        return # from makeMenus
+
     def setCarbon_sp3(self):
         self.w.setCarbon() # MWsemantics shouldn't really be involved in this at all... at some point this will get revised
         self.set_pastable_atomtype('sp3')
@@ -1611,8 +1669,9 @@ class depositMode(basicMode):
             
     def setHotSpot_clipitem(self): #bruce 050416; duplicates some code from setHotSpot_mainPart
         "set or change hotspot of a chunk in the clipboard"
-        if self.o.selatom and self.o.selatom.element is Singlet:
-            self.o.selatom.molecule.set_hotspot( self.o.selatom) ###e add history message??
+        selatom = self.o.selatom
+        if selatom and selatom.element is Singlet:
+            selatom.molecule.set_hotspot( selatom) ###e add history message??
             self.o.set_selobj(None)  #bruce 050614-b: fix bug703-related older bug (need to move mouse to see new-hotspot color)
             self.o.gl_update() #bruce 050614-a: fix bug 703 (also required having hotspot-drawing code in chunk.py ignore selatom)
         ###e also set this as the pastable??
@@ -1621,10 +1680,11 @@ class depositMode(basicMode):
     def setHotSpot_mainPart(self): #bruce 050121 revised this and renamed its menu item #bruce 050614 renamed it
         "set hotspot on a main part chunk and copy it (with that hotspot) into clipboard"
         # revised 041124 to fix bug 169, by mark and then by bruce
-        if self.o.selatom and self.o.selatom.element is Singlet:
-            self.o.selatom.molecule.set_hotspot( self.o.selatom)
+        selatom = self.o.selatom
+        if selatom and selatom.element is Singlet:
+            selatom.molecule.set_hotspot( selatom)
             
-            new = self.o.selatom.molecule.copy(None) # None means no dad yet
+            new = selatom.molecule.copy(None) # None means no dad yet
             #bruce 050531 removing centering:
             ## new.move(-new.center) # perhaps no longer needed [bruce 041206]
             #bruce 041124: open clipboard, so user can see new pastable there

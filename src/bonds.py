@@ -222,30 +222,103 @@ V_SINGLE = 6 * 1
 V_GRAPHITE = 6 * 4/3  # (this can't be written 6 * (1+1/3) or 6 * (1+1/3.0) - first one is wrong, second one is not an exact int)
 V_AROMATIC = 6 * 3/2
 V_DOUBLE = 6 * 2
+V_CARBOMER = 6 * 5/2 # for the bonds in a carbomer of order 2.5 (which alternate with aromatic bonds); saved as bonda for now [050705]
 V_TRIPLE = 6 * 3
 
-BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_TRIPLE]
-BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bond3']
+BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_CARBOMER, V_TRIPLE]
+BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bonda', 'bond3'] # duplication of bonda is intentional (for now)
     # (Some code might assume these all start with "bond".)
     # (These mmp record names are also hardcoded into mmp-reading code in files_mmp.py.)
-bond_type_names = {V_SINGLE:'single', V_DOUBLE:'double', V_TRIPLE:'triple', V_AROMATIC:'aromatic', V_GRAPHITE:'graphite'}
+bond_type_names = {V_SINGLE:'single', V_DOUBLE:'double', V_TRIPLE:'triple',
+                   V_AROMATIC:'aromatic', V_GRAPHITE:'graphite', V_CARBOMER:'carbomer'}
 
 BOND_VALENCES_HIGHEST_FIRST = list(BOND_VALENCES)
 BOND_VALENCES_HIGHEST_FIRST.reverse()
 
 V_ZERO_VALENCE = 0 # used as a temporary valence by some code
 
-BOND_LETTERS = ['?'] * (V_TRIPLE+1) # modified just below, to become a string; used in initial Bond.draw method
+BOND_LETTERS = ['?'] * (V_TRIPLE+1) # modified just below, to become a string; used in initial Bond.draw method via bond_letter_from_v6
 
 for v6, mmprec in zip( BOND_VALENCES, BOND_MMPRECORDS ):
     BOND_LETTERS[v6] = mmprec[4] # '1','g',etc
     # for this it's useful to also have '?' for in-between values but not for negative or too-high values,
     # so a list or string is more useful than a dict
 
-BOND_LETTERS[0] = '0' # see comment in Bond.draw
+BOND_LETTERS[V_CARBOMER] = 'b' # not 'a'
+
+BOND_LETTERS[0] = '0' # see comment in bond_letter_from_v6
 
 BOND_LETTERS = "".join(BOND_LETTERS)
     ## print "BOND_LETTERS:",BOND_LETTERS # 0?????1?ga??2?????3
+
+def bond_letter_from_v6(v6): #bruce 050705
+    """Return a bond letter summarizing the given v6,
+    which for legal values is one of 1 2 3 a g b,
+    and for illegal values is one of - 0 ? +
+    """
+    try:
+        ltr = BOND_LETTERS[v6]
+            # includes special case of '0' for v6 == 0,
+            # which should only show up for transient states that are never drawn, except in case of bugs
+    except IndexError: # should only show up for transient states...
+        if v6 < 0:
+            ltr = '-'
+        else:
+            ltr = '+'
+    return ltr
+
+def btype_from_v6(v6): #bruce 050705
+    """Given a legal v6, return 'single', 'double', etc.
+    For V_CARBOMER returns 'carbomer', not 'aromatic'.
+    Exception for illegal values, including 0.
+    """
+    try:
+        return bond_type_names[v6]
+    except KeyError:
+        if platform.atom_debug:
+            print "atom_debug: treating illegal bond v6 %r as a single bond" % (v6,)
+        return 'unknown' #e stub for this error return; should it be an error word like this, or single, or closest legal value??
+    pass
+
+def invert_dict(dict1): #bruce 050705
+    res = {}
+    for key, val in dict1.items():
+        res[val] = key
+    return res
+
+bond_type_names_inverted = invert_dict(bond_type_names)
+
+def v6_from_btype(btype): #bruce 050705
+    "Return the v6 corresponding to the given bond-type name ('single', 'double', etc). Exception if name not legal."
+    return bond_type_names_inverted[btype]
+
+def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705
+    """Given a bond, and an optional quat describing the orientation it's shown in,
+    order the atoms left to right based on that quat,
+    and return a text string summarizing the bond
+    in the form C26(sp2) <-2-> C34(sp3) or so.
+    """
+    a1 = bond.atom1
+    a2 = bond.atom2
+    vec = a2.posn() - a1.posn()
+    vec = quat.rot(vec)
+    if vec[0] < 0.0:
+        a1, a2 = a2, a1
+    a1s = describe_atom_and_atomtype(a1)
+    a2s = describe_atom_and_atomtype(a2)
+    bondletter = bond_letter_from_v6(bond.v6)
+    if bondletter == '1':
+        bondletter = ''
+    return "%s <-%s-> %s" % (a1s, bondletter, a2s)
+
+def describe_atom_and_atomtype(atom): #bruce 050705 #e refile
+    """Return a string like C26(sp2) with atom name and type,
+    but only include the type if more than one is possible for the atom's element.
+    """
+    res = str(atom)
+    if len(atom.element.atomtypes) > 1:
+        res += "(%s)" % atom.atomtype.name
+    return res
 
 # == helper functions related to bonding (I might move these lower in the file #e)
 
@@ -897,15 +970,7 @@ class Bond:
                     # Could fix this by having a separate display list, or no display list, for these kinds of things --
                     # would need a separate display list per chunk and per offset.
                 v6 = self.v6
-                try:
-                    ltr = BOND_LETTERS[v6]
-                        # includes special case of '0' for v6 == 0,
-                        # which should only show up for transient states that are never drawn, except in case of bugs
-                except IndexError: # should only show up for transient states...
-                    if v6 < 0:
-                        ltr = '-'
-                    else:
-                        ltr = '+'
+                ltr = bond_letter_from_v6(v6)
                 glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
                 glPopMatrix()
                 ## glEnable(GL_DEPTH_TEST)
@@ -1032,11 +1097,26 @@ class Bond:
                        stringVec(color2) + ")\n")
         return
 
-    def __str__(self):
-        return str(self.atom1) + " <--> " + str(self.atom2)
+    def __str__(self): #bruce 050705 revised this
+        ## return str(self.atom1) + " <--> " + str(self.atom2)
+        return bonded_atoms_summary(self)
+        # no quat is available here; better results if you call that subr directly and pass one
 
     def __repr__(self):
         return str(self.atom1) + "::" + str(self.atom2)
+
+    # ==
+
+    def bond_menu_section(self, quat = Q(1,0,0,0)): #bruce 050705 (#e add options??)
+        """Return a menu_spec subsection for displaying info about a highlighted bond,
+        changing its bond_type, offering commands about it, etc.
+        If given, use the quat describing the rotation used for displaying it
+        to order the atoms in the bond left-to-right (e.g. in text strings).
+        """
+        import bond_utils
+        reload(bond_utils) # at least during development
+        from bond_utils import bond_menu_section
+        return bond_menu_section(self, quat = quat)
 
     pass # end of class Bond
 
