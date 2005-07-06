@@ -196,7 +196,7 @@ def setup():
     global sphereList, rotSignList, linearLineList, linearArrowList
     global circleList, lonsGridList, lonsEdges
 
-    listbase = glGenLists(numSphereSizes + 12)
+    listbase = glGenLists(numSphereSizes + 18)
 
     for i in range(numSphereSizes):
         sphereList += [listbase+i]
@@ -322,7 +322,7 @@ def setup():
     glDisable(GL_LINE_SMOOTH)
     glEndList()
     
-    circleList = glGenLists(1)
+    circleList = linearLineList + 1 #glGenLists(1)
     glNewList(circleList, GL_COMPILE)
     glBegin(GL_LINE_LOOP)
     for ii in range(60):
@@ -334,14 +334,32 @@ def setup():
     
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
-    glPushMatrix()
+    glPushMatrix() ### I suspect this may have caused bug 727--Huaicai
     glColor3fv(color)
     glDisable(GL_LIGHTING)
-    glTranslate(center[0], center[1], center[2])
+    #print "Circle center is: ", center
+    glTranslatef(center[0], center[1], center[2])
     rQ = Q(V(0, 0, 1), normal)
-    glRotatef(rQ.angle*180.0/pi, rQ.x, rQ.y, rQ.z)
-    glScale(radius, radius, 1.0)
+    rotAngle = rQ.angle*180.0/pi
+    
+    if abs(rotAngle) < 0.00005: ## 0 angle rotation around (0, 0, 0)
+       if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
+	   rQ.x = 1.0
+    #print "Cirle rotation parameters: ", rotAngle, rQ.x, rQ.y, rQ.z
+    glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
+    glScalef(radius, radius, 1.0)
     glCallList(circleList)
+    #glBegin(GL_LINE_LOOP)
+    #for ii in range(4):#60):
+    #    x = cos(ii*2.0*pi/4)
+    #    y = sin(ii*2.0*pi/4)
+    # 	print "circle corrds: ", x,y,0.0
+    #    glVertex3f(x, y, 0.0)
+    #glVertex3f(-1, 0, 0)
+    #glVertex3f(0, -1, 0)
+    #glVertex3f(1, 0, 0)
+    #glVertex3f(0, 1, 0)
+    #glEnd()
     glEnable(GL_LIGHTING)
     glPopMatrix()
             
@@ -381,6 +399,8 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, 1.0, l)
         glCallList(linearLineList)
         glPopMatrix()
+	if w < 1.0:
+	    glScale(1.0, w, 1.0)
         drawLinearArrows(l)
         glPopMatrix()
         
@@ -391,6 +411,8 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, 1.0, l)
         glCallList(linearLineList)
         glPopMatrix()
+	if w < 1.0:
+	    glScale(1.0, w, 1.0)
         drawLinearArrows(l)
         glPopMatrix()
         
@@ -401,6 +423,8 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, 1.0, l)
         glCallList(linearLineList)
         glPopMatrix()
+	if w < 1.0:
+	    glScale(1.0, w, 1.0)
         drawLinearArrows(l)
         glPopMatrix()
         
@@ -411,6 +435,8 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, 1.0, l)
         glCallList(linearLineList)
         glPopMatrix()
+	if w < 1.0:
+	    glScale(1.0, w, 1.0)
         drawLinearArrows(l)
         glPopMatrix()
         
