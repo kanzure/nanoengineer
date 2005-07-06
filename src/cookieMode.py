@@ -566,33 +566,27 @@ class cookieMode(basicMode):
         else: self.lastDrawStored = []
         drawer.drawLineLoop(color, pp)        
 
-        #print "Equi-poly, model-view mat:", glGetFloatv(GL_MODELVIEW_MATRIX)
-        
    
     def _centerCircleDraw(self, color, pts, lastDraw):
         """Construct center based hexagon to draw 
         <Param> pts: (the center and a corner point)"""
         pt = pts[2] - pts[0]
         rad = vlen(pt)
-        color = red   #################need to remove
         if not self.lastDrawStored:
             self.lastDrawStored += [rad]
             self.lastDrawStored += [rad]
          
         self.lastDrawStored[0] = self.lastDrawStored[1]
         self.lastDrawStored[1] = rad    
-
-        #print "Circle, initial model-view mat:", glGetFloatv(GL_MODELVIEW_MATRIX)
-                
+        
         if not lastDraw:
             drawer.drawCircle(color, pts[0], self.lastDrawStored[0], self.o.out)
         else:
             self.lastDrawStored = []
         
         drawer.drawCircle(color, pts[0], rad, self.o.out)
+
         
-        #print "Circle, after model-view mat:", glGetFloatv(GL_MODELVIEW_MATRIX)
-    
     def _getXorColor(self, color):
         """Get color for <color>.  When the color is XORed with background color, it will get <color>. If background color is close to <color>
         , we'll use white color. 
@@ -637,9 +631,9 @@ class cookieMode(basicMode):
                     if self.selectionShape in ['RECTANGLE', 'DIAMOND']:
                         self._centerRectDiamDraw(color, self.sellist, self.selectionShape, lastDraw)
                     elif self.selectionShape == 'CIRCLE':
+                        self._centerCircleDraw(color, self.sellist, lastDraw)
                         ###A work around for bug 727
-                        ######self._centerCircleDraw(color, self.sellist, lastDraw)
-                        self._centerEquiPolyDraw(color, 60, self.sellist, lastDraw)
+                        ######self._centerEquiPolyDraw(color, 60, self.sellist, lastDraw)
                     elif self.selectionShape == 'HEXAGON':
                         self._centerEquiPolyDraw(color, 6, self.sellist, lastDraw)
                     elif self.selectionShape == 'SQUARE':

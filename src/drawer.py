@@ -334,32 +334,23 @@ def setup():
     
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
-    glPushMatrix() ### I suspect this may have caused bug 727--Huaicai
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix() 
     glColor3fv(color)
     glDisable(GL_LIGHTING)
-    #print "Circle center is: ", center
+    
     glTranslatef(center[0], center[1], center[2])
     rQ = Q(V(0, 0, 1), normal)
     rotAngle = rQ.angle*180.0/pi
     
-    if abs(rotAngle) < 0.00005: ## 0 angle rotation around (0, 0, 0)
-       if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
-	   rQ.x = 1.0
-    #print "Cirle rotation parameters: ", rotAngle, rQ.x, rQ.y, rQ.z
+    #This may cause problems as proved before in Linear motor display.
+    #rotation around (0, 0, 0)
+    #if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
+    #	   rQ.x = 1.0
+    
     glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
     glScalef(radius, radius, 1.0)
     glCallList(circleList)
-    #glBegin(GL_LINE_LOOP)
-    #for ii in range(4):#60):
-    #    x = cos(ii*2.0*pi/4)
-    #    y = sin(ii*2.0*pi/4)
-    # 	print "circle corrds: ", x,y,0.0
-    #    glVertex3f(x, y, 0.0)
-    #glVertex3f(-1, 0, 0)
-    #glVertex3f(0, -1, 0)
-    #glVertex3f(1, 0, 0)
-    #glVertex3f(0, 1, 0)
-    #glEnd()
     glEnable(GL_LIGHTING)
     glPopMatrix()
             
