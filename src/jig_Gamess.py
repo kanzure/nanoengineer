@@ -381,7 +381,7 @@ class gamessParms:
         elif name == 'dirscf':          # DIRSCF
             p = interp.decode_bool(val) 
             if p is not None:
-                self.ui.diis = p
+                self.ui.dirscf = p
         elif name == 'ecm':            # emc = None (0), DFT (1) or MP2 (2)
             p = interp.decode_int(val)
             if p is not None:
@@ -389,7 +389,7 @@ class gamessParms:
         elif name == 'extrap':          # EXTRAP
             p = interp.decode_bool(val) 
             if p is not None:
-                self.ui.diis = p
+                self.ui.extrap = p
         elif name == 'gbasis':            # Basis Set Id
             p = interp.decode_int(val)
             if p is not None:
