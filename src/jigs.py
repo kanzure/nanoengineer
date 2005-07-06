@@ -816,13 +816,20 @@ class LinearMotor(Motor):
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
     
     # Returns the jig-specific mmp data for the current Linear Motor as:
-    #    stiffness force (cx, cy, cz) (ax, ay, az) length width sradius \n shaft
+    #    force stiffness (cx, cy, cz) (ax, ay, az) length width sradius \n shaft
     mmp_record_name = "lmotor"
     def mmp_record_jigspecific_midpart(self):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
         dataline = "%.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f" % \
-           (self.stiffness, self.force, 
+           (self.force, self.stiffness,
+                #bruce 050705 swapped force & stiffness order here, to fix bug 746;
+                # since linear motors have never worked in sim in a released version,
+                # and since this doesn't change the meaning of existing mmp files
+                # (only the way the setup dialog generates them, making it more correct),
+                # I'm guessing it's ok that this changes the actual mmp file-writing format
+                # (to agree with the documented format and the reading-format)
+                # and I'm guessing that no change to the format's required-date is needed.
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]),
             self.length, self.width, self.sradius    )
