@@ -1389,6 +1389,14 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         if elementSelectorWin: elementSelectorWin.setDisplay(elt)
         line = eCCBtab2[elt]
         self.elemChangeComboBox.setCurrentItem(line) ###k does this send the signal, or not (if not that might cause bug 690)?
+        #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentItem should have called
+        # (not sure in principle that this is always safe or always a complete fix, but it seems to work)
+        self.elemChange(line) #k arg is a guess, but seems to work
+            # (btw if you use keypress to change to the same element you're in, it *doesn't* reset that element
+            #  to its default atomtype (hybridization combobox in build dashboard);
+            #  this is due to a special case in update_hybridComboBox;
+            #  I'm not sure whether this is good or bad. #k [bruce 050706])
+        return
 
     def setCarbon(self):
         self.setElement(6) 
