@@ -821,7 +821,7 @@ class LinearMotor(Motor):
     def mmp_record_jigspecific_midpart(self):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        dataline = "%.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f" % \
+        dataline = "%.6f %.6f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f" % \
            (self.force, self.stiffness,
                 #bruce 050705 swapped force & stiffness order here, to fix bug 746;
                 # since linear motors have never worked in sim in a released version,
@@ -830,6 +830,8 @@ class LinearMotor(Motor):
                 # I'm guessing it's ok that this changes the actual mmp file-writing format
                 # (to agree with the documented format and the reading-format)
                 # and I'm guessing that no change to the format's required-date is needed.
+                #bruce 050706 increased precision of force & stiffness from 0.01 to 0.000001
+                # after email discussion with josh.
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]),
             self.length, self.width, self.sradius    )

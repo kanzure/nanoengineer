@@ -87,6 +87,8 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050502 required; 050701 preferred' -- bruce, adding gamess jig and info gamess records.
 
+'050502 required; 050706 preferred' -- bruce, increased precision of Linear Motor force & stiffness
+
 ===
 
 General notes about when to change the mmp format version:
@@ -99,7 +101,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050701 preferred'
+MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050706 preferred'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
