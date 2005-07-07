@@ -164,7 +164,7 @@ class ElementPeriodicTable(Singleton):
                   ("He", "Helium",      6.646,  None),
                   ("Li", "Lithium",    11.525,  [[1, 152, None]]),
                   ("Be", "Beryllium",  14.964,  [[2, 114, None]]),
-                  ("B",  "Boron",      17.949,  [[3, 90, flat]]),
+                  ("B",  "Boron",      17.949,  [[3, 90, flat, 'sp2']]), #bruce 050706 added 'sp2' name, though all bonds are single
                   ("C",  "Carbon",     19.925,  [[4, 77, tetra4, 'sp3'],
                                                  [3, 71, flat, 'sp2'],
                                                  [2, 66, straight, 'sp'],
@@ -187,7 +187,8 @@ class ElementPeriodicTable(Singleton):
                   ("Al", "Aluminum",   44.7997, [[3, 143, flat]]),
                   ("Si", "Silicon",    46.6245, [[4, 117, tetra4]]),
                   ("P",  "Phosphorus", 51.429,  [[3, 110, tetra3]]),
-                  ("S",  "Sulfur",     53.233,  [[2, 104, tetra2]]),
+                  ("S",  "Sulfur",     53.233,  [[2, 104, tetra2, 'sp3'],
+                                                 [1, 104, onebond, 'sp2']]), #bruce 050706 added this, and both names; length is wrong
                   ("Cl", "Chlorine",   58.867,  [[1, 99, onebond]]),
                   ("Ar", "Argon",      66.33,   None),
                   ("K",  "Potassium",  64.9256, [[1, 231, None]]),
