@@ -161,6 +161,10 @@ class GamessJob(SimJob):
     def startFileWriting(self):
         self.fwThread.start()
     
+    def readOutData(self):
+        bytes = self.process.readStdout()
+        if bytes:
+           self.fwThread.putData(bytes)
     
     def processTimeout(self):
         if self.process.isRunning():
@@ -174,8 +178,6 @@ class GamessJob(SimJob):
             
             bytes = self.process.readStdout()
             if bytes:
-                #self.output.writeBlock(bytes)    
-                #self.fileData += [bytes]
                 self.fwThread.putData(bytes)
                 
     
@@ -207,7 +209,7 @@ class GamessJob(SimJob):
         jobInputFile = jobInputfile[:-4]
             
             
-        args = [self.server.program, jobInputFile]#, '01', '1']#, '>' + self.job_outputfile]
+        args = [self.server.program, jobInputFile]#, '01', '1']
         
             
         self.process = QProcess()
@@ -221,7 +223,7 @@ class GamessJob(SimJob):
         self.progressDialog = JobProgressDialog(self.process, self.Calculation)
         self.connect(self.process, SIGNAL('processExited ()'), self.processDone)
         
-        #self.connect(self.process, SIGNAL('readyReadStdout()'), self.startFileWriting)
+        #self.connect(self.process, SIGNAL('readyReadStdout()'), self.readOutData)
         self.fwThread.start()   
         
         if not self.process.start():
@@ -331,8 +333,10 @@ class GamessJob(SimJob):
 
     def showProgress(self, modal = True):
         '''Open the progress dialog to show the current job progress. '''
-                
-        simProgressDialog = QProgressDialog(self.edit_cntl.win, "progressDialog", modal)
+        #Replace "self.edit_cntl.win" with "None
+        #---Huaicai 7/7/05: To fix bug 751, the "win" may be none.
+        #Feel awkward for the design of our code.        
+        simProgressDialog = QProgressDialog(None, "progressDialog", modal)
         if self.Calculation == 'Energy':
             simProgressDialog.setLabelText("Calculating Energy ...")
         else:
@@ -456,6 +460,7 @@ class FileWriting(QThread):
             self.mutex.lock()
             if self.data:
                 self.output.writeBlock(self.data)
+                self.output.flush()
             self.data = None
             self.mutex.unlock()
             

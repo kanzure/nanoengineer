@@ -229,13 +229,15 @@ def get_energy_from_pcgms_outfile(filename):
     elist = []
                     
     lines = open(filename,"rU").readlines()
+    
+    gamessEnergyStr = re.compile(r'\bFINAL R.+ ENERGY IS')
         
     for line in lines:
         if line.find('FINAL ENERGY IS') >= 0:
             elist = line.split()
 #            print elist
             return float(elist[3]) # Return the final energy value.
-        elif line.find('FINAL R-AM1 ENERGY IS') >= 0: 
+        elif gamessEnergyStr.search(line):#line.find('FINAL R-AM1 ENERGY IS') >= 0: 
             elist = line.split()
 #            print elist
             return float(elist[4]) # Return the final energy value.

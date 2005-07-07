@@ -390,8 +390,11 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, 1.0, l)
         glCallList(linearLineList)
         glPopMatrix()
-	if w < 1.0:
-	    glScale(1.0, w, 1.0)
+        if l < 2.6:
+            sl = l/2.7
+            glScale(1.0, sl, sl)
+        if w < 1.0:
+            glScale(1.0, w, w)
         drawLinearArrows(l)
         glPopMatrix()
         
@@ -402,8 +405,10 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, 1.0, l)
         glCallList(linearLineList)
         glPopMatrix()
-	if w < 1.0:
-	    glScale(1.0, w, 1.0)
+        if l < 2.6:
+            glScale(1.0, sl, sl)
+        if w < 1.0:
+            glScale(1.0, w, w)
         drawLinearArrows(l)
         glPopMatrix()
         
@@ -414,8 +419,10 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, 1.0, l)
         glCallList(linearLineList)
         glPopMatrix()
-	if w < 1.0:
-	    glScale(1.0, w, 1.0)
+        if l < 2.6:
+            glScale(1.0, sl, sl)
+        if w < 1.0:
+            glScale(1.0, w, w)
         drawLinearArrows(l)
         glPopMatrix()
         
@@ -426,8 +433,10 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, 1.0, l)
         glCallList(linearLineList)
         glPopMatrix()
-	if w < 1.0:
-	    glScale(1.0, w, 1.0)
+        if l < 2.6:
+            glScale(1.0, sl, sl)
+        if w < 1.0:
+            glScale(1.0, w, w)
         drawLinearArrows(l)
         glPopMatrix()
         
