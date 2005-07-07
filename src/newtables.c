@@ -213,29 +213,32 @@ initializeBondTable()
 
   bondStretchHashtable = hashtable_new(40);
 
-  addInitialBondStretch( 1, 6, '1', 460.0,  111.3, 0.671, 1.851); // H-C
-  addInitialBondStretch( 1, 8, '1', 460.0,   94.2, 0.753, 1.747); // H-O
-  addInitialBondStretch( 1,14, '1', 359.4,  125.6, 0.627, 1.693); // H-Si
-  addInitialBondStretch( 1,16, '1', 360.0,  125.2, 0.606, 1.769); // H-S
-  addInitialBondStretch( 1,17, '1', 380.0,  134.6, 0.716, 1.628); // H-Cl
-  addInitialBondStretch( 6, 6, '1', 440.0,  152.3, 0.556, 1.989); // C-C
-  addInitialBondStretch( 6, 7, '1', 510.0,  143.8, 0.509, 2.238); // C-N
-  addInitialBondStretch( 6, 8, '1', 536.0,  140.2, 0.575, 2.159); // C-O
-  addInitialBondStretch( 6, 9, '1', 510.0,  139.2, 0.887, 1.695); // C-F
-  addInitialBondStretch( 6,14, '1', 297.0,  188.0, 0.624, 1.543); // C-Si
-  addInitialBondStretch( 6,15, '1', 291.0,  185.4, 0.852, 1.306); // C-P
-  addInitialBondStretch( 6,16, '1', 321.3,  181.5, 0.539, 1.726); // C-S
-  addInitialBondStretch( 6,17, '1', 323.0,  179.5, 0.591, 1.653); // C-Cl
-  addInitialBondStretch( 6,35, '1', 230.0,  194.9, 0.488, 1.536); // C-Br
-  addInitialBondStretch( 7, 7, '1', 560.0,  138.1, 0.417, 2.592); // N-N
+  addInitialBondStretch( 1, 6, '1',  460.0,  111.3, 0.671, 1.851); // H-C
+  addInitialBondStretch( 1, 8, '1',  460.0,   94.2, 0.753, 1.747); // H-O
+  addInitialBondStretch( 1,14, '1',  359.4,  125.6, 0.627, 1.693); // H-Si
+  addInitialBondStretch( 1,16, '1',  360.0,  125.2, 0.606, 1.769); // H-S
+  addInitialBondStretch( 1,17, '1',  380.0,  134.6, 0.716, 1.628); // H-Cl
+  addInitialBondStretch( 6, 6, '1',  440.0,  152.3, 0.556, 1.989); // C-C
+  addInitialBondStretch( 6, 7, '1',  510.0,  143.8, 0.509, 2.238); // C-N
+  addInitialBondStretch( 6, 8, '1',  536.0,  140.2, 0.575, 2.159); // C-O
+  addInitialBondStretch( 6, 9, '1',  510.0,  139.2, 0.887, 1.695); // C-F
+  addInitialBondStretch( 6,14, '1',  297.0,  188.0, 0.624, 1.543); // C-Si
+  addInitialBondStretch( 6,15, '1',  291.0,  185.4, 0.852, 1.306); // C-P
+  addInitialBondStretch( 6,16, '1',  321.3,  181.5, 0.539, 1.726); // C-S
+  addInitialBondStretch( 6,17, '1',  323.0,  179.5, 0.591, 1.653); // C-Cl
+  addInitialBondStretch( 6,35, '1',  230.0,  194.9, 0.488, 1.536); // C-Br
+  addInitialBondStretch( 7, 7, '1',  560.0,  138.1, 0.417, 2.592); // N-N
 
-  addInitialBondStretch( 8, 8, '1', 781.0,  147.0, 0.272, 3.789); // O-O
-  addInitialBondStretch( 8,14, '1', 550.0,  162.0, 0.89,  1.757); // O-Si
-  addInitialBondStretch( 8,15, '1', 290.0,  161.5, 0.994, 1.207); // O-P
+  addInitialBondStretch( 8, 8, '1',  781.0,  147.0, 0.272, 3.789); // O-O
+  addInitialBondStretch( 8,14, '1',  550.0,  162.0, 0.89,  1.757); // O-Si
+  addInitialBondStretch( 8,15, '1',  290.0,  161.5, 0.994, 1.207); // O-P
 
-  addInitialBondStretch(14,14, '1', 185.0,  233.2, 0.559, 1.286); // Si-Si
-  addInitialBondStretch(14,16, '1', 219.37, 213.0, 0.58,  1.375); // Si-S
-  addInitialBondStretch(16,16, '1', 310.0,  202  , 0.706, 1.481); // S-S
+  addInitialBondStretch(14,14, '1',  185.0,  233.2, 0.559, 1.286); // Si-Si
+  addInitialBondStretch(14,16, '1',  219.37, 213.0, 0.58,  1.375); // Si-S
+  addInitialBondStretch(16,16, '1',  310.0,  202  , 0.706, 1.481); // S-S
+
+  addInitialBondStretch( 6, 6, '2',  960.0,  133.7, 1.207, 1.994); // C=C
+  addInitialBondStretch( 6, 6, '3', 1560.0,  121.2, 1.616, 2.198); // C<3>C
 
   deHashtable = hashtable_new(10);
 
@@ -294,6 +297,10 @@ initializeBondTable()
   addInitialBendData("C-1-P-1-C", 576, 1.675);
   addInitialBendData("O-1-P-1-O", 450, 1.736);
   addInitialBendData("O-1-P-1-Si", 450, 1.736); // XXX
+
+  addInitialBendData("C-2-C-1-C", 550, 2.119); 
+  addInitialBendData("C-3-C-1-C", 200, 3.1415926); 
+  addInitialBendData("C-1-C-2-O", 460, 2.138);
 
   vanDerWaalsHashtable = hashtable_new(40);
 }
