@@ -45,6 +45,12 @@ class GamessJob(SimJob):
         
         self.edit_cntl = GamessProp()
         
+        #Huaicai 7/6/05: try to fix the problem when run a gamess jig coming from mmp file 
+        #and without openning the jig property windows and save it.
+        if not self.__dict__.has_key('server'):
+            from ServerManager import ServerManager
+            sManager = ServerManager()
+            self.server = sManager.getServers()[0]
         
         
     def edit(self):
@@ -112,13 +118,7 @@ class GamessJob(SimJob):
         Returns:  0 = Valid
                         1 = Invalid
         '''
-        #Huaicai 7/6/05: try to fix the problem when run a gamess jig coming from mmp file and without
-        #openning the jig property windows and save it.
-        if not self.__dict__.has_key('server'):
-            from ServerManager import ServerManager
-            sManager = ServerManager()
-            self.server = sManager.getServers()[0]
-               
+                       
         # Get GAMESS executable path from the user preferences
         prefs = preferences.prefs_context()
         self.server.program = prefs.get(gmspath_prefs_key)

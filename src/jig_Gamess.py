@@ -200,6 +200,16 @@ class Gamess(Jig):
         # the rest of the work should be done by the pset.
         try:
             pset.info_gamess_setitem( name, val, interp )
+            
+            # Added by Huaicai 7/7/05 to fix bug 758
+            # CONV (GAMESS) or  NCONV (PC GAMESS)
+            if self.gmsjob.server.engine == 'GAMESS':
+                pset.scf.conv = conv[pset.ui.conv] # CONV (GAMESS)
+                pset.scf.nconv = 0 # Turn off NCONV
+            else: # PC GAMESS
+                pset.scf.nconv = conv[pset.ui.conv] # NCONV (PC GAMESS)
+                pset.scf.conv = 0 # Turn off CONV
+            
         except:
             print_compact_traceback("bug: exception (ignored) in pset.info_gamess_setitem( %r, %r, interp ): " % (name,val) )
             return
@@ -444,7 +454,7 @@ class gamessParms:
             p = interp.decode_bool(val) 
             if p is not None:
                 self.ui.soscf = p
-
+        
         # Unused - keeping them for examples.
         # Mark 050603
         elif name == 'param2':
@@ -471,6 +481,7 @@ class gamessParms:
             # this is not an error, since old code might read newer mmp files which know about more gamess params;
             # it's better (in general) to ignore those than for this to make it impossible to read the mmp file.
             # If non-debug warnings were added, that might be ok in this case since not many lines per file will trigger them.
+        
         return # from info_gamess_setitem
 
     pass # end of class gamessParms
