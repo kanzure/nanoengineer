@@ -307,7 +307,8 @@ class _readmmp_state:
             self.guess_sim_input('missing_group_or_chunk')
             self.mol = molecule(self.assy,  "sim chunk")
             self.addmember(self.mol)
-        a = atom(sym, xyz, self.mol)
+        a = atom(sym, xyz, self.mol) # sets default atomtype for the element [behavior of that was revised by bruce 050707]
+        a.unset_atomtype() # let it guess atomtype later from the bonds read from subsequent mmp records [bruce 050707]
         disp = atom2pat.match(card)
         if disp:
             try: a.setDisplay(dispNames.index(disp.group(1)))

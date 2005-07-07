@@ -143,9 +143,9 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
     def __init__(self, sym, where, mol): #bruce 050511 allow sym to be elt symbol (as before), another atom, or an atomtype
         """Create an atom of element sym (e.g. 'C')
         (or, same elt/atomtype as atom sym; or, same atomtype as atomtype sym)
-        at location where (e.g. V(36, 24, 36))
+        at location 'where' (e.g. V(36, 24, 36))
         belonging to molecule mol (can be None).
-        Atom initially has no bonds and default hybridization type.
+        Atom initially has no real or open bonds, and default hybridization type.
         """
         # unique key for hashing
         self.key = atKey.next()
@@ -155,6 +155,17 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         #  but at least for now we keep it as a separate attr,
         #  both because self.atomtype is not always set,
         #  and since a lot of old code wants to use self.element directly)
+
+        # figure out atomtype to assume; atype = None means default atomtype for element will be set.
+        
+        # [bruce 050707 revised this; previously the default behavior was to set no atomtype now
+        #  (picking one when first asked for), not to set the default atomtype now. This worked ok
+        #  when the atomtype guessed later was also the default one, but not once that was changed
+        #  to guess it based on the number of bonds (when first asked for), since some old code
+        #  would ask for it before creating all the bonds on a new atom. Now, the "guessing atomtype
+        #  from bonds" behavior is still needed in some cases, and is best asked for by leaving it unset,
+        #  but that is done by a special method or init arg ###doc, since it should no longer be what this init
+        #  method normally does. BTW the docstring erroneously claimed we were already setting default atomtype.]
         atype = None
         try:
             self.element = sym.element
@@ -170,6 +181,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             except:
                 atype = sym
             assert atype.element is self.element # trivial in one of these cases, should improve #e
+        # this atomtype (or the default one, if atype is None) will be stored at the end of this init method.
         
         # 'where' is atom's absolute location in model space,
         # until replaced with 'no' by shakedown, indicating
@@ -207,37 +219,50 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         # (optional debugging code to show which code creates bad atoms:)
         ## if platform.atom_debug:
         ##     self._source = compact_stack()
-        if atype is not None:
-            self.set_atomtype_but_dont_revise_singlets( atype)
+        self.set_atomtype_but_dont_revise_singlets( atype)
         return # from atom.__init__
 
+    def unset_atomtype(self): #bruce 050707
+        "Unset self.atomtype, so that it will be guessed when next used from the number of bonds at that time."
+        try:
+            del self.atomtype
+        except:
+            # assume already deleted
+            pass
+        return
+    
     def atomtype_iff_set(self):
         return self.__dict__.get('atomtype', None)
     
     _inputs_for_atomtype = []
-    def _recompute_atomtype(self):
+    def _recompute_atomtype(self): # used automatically by __getattr__
         """Something needs this atom's atomtype but it doesn't yet have one.
         Give it our best guess of type, for whatever current bonds it has.
         """
         return self.reguess_atomtype()
 
-    def reguess_atomtype(self): #bruce 050702 revised this
+    def reguess_atomtype(self):
         """Compute and return the best guess for this atom's atomtype
         given its current real bonds and open bond user-assigned types
         (but don't save this, and don't compare it to the current self.atomtype).
+           This is only correct for a new atom if it has already been given all its bonds (real or open).
         """
-        if len(self.bonds) == 0 and platform.atom_debug: #####@@@@@ remove when works
-            print "atom_debug: warning: reguess_atomtype sees %s with no bonds -- is new implem a bug?",self # not for neon...
+        #bruce 050702 revised this; 050707 using it much less often (only on special request ###doc what)
+        ###@@@ Bug: This does not yet [050707] guess correctly for all bond patterns; e.g. it probably never picks N/sp2(graphitic).
+        # That means there is presently no way to save and reload that atomtype in an mmp file, and only a "direct way"
+        # (specifying it as an atomtype, not relying on inferring from bonds) would work unless this bug is fixed here.
+        ###@@@ (need to report this bug)
+        if len(self.bonds) == 0 and platform.atom_debug:
+            if self.element.atomtypes[0].numbonds != 0: # not a bug for noble gases!
+                print_compact_stack( "atom_debug: warning: reguess_atomtype sees %s with no bonds -- probably a bug" % self )
         return self.best_atomtype_for_numbonds()
-            #bruce 050702. Let's hope the docstring is correct and this atom already has the right number of bonds!
-        ## return self.element.atomtypes[0] ###@@@ stub. when it works, might use it in Transmute or even build_utils.
 
-    def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype*; perhaps use more widely
-        "#doc"
+    def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype; perhaps use more widely
+        "#doc; atomtype is None means use default atomtype"
         atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
         assert atomtype.element is self.element # [redundant with find_atomtype]
         self.atomtype = atomtype
-        self._changed_structure() #bruce 050627
+        self._changed_structure() #bruce 050627; note: as of 050707 this is always called during Atom.__init__
         ###e need any more invals or updates for this method?? ###@@@
         return
         
