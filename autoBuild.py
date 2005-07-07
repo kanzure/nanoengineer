@@ -431,6 +431,8 @@ ing assembly.
             isf.write("UninstallDisplayIcon={app}\\uninst.ico\n")
             isf.write("Compression=lzma\n")
             isf.write("SolidCompression=yes\n")
+            isf.write("UsePreviousAppDir=no\n")
+            
 
             isf.write("\n[Files]\n")
 
