@@ -253,6 +253,8 @@ class Gamess(Jig):
         if orig.picked:
             self.color = self.normcolor
         orig.addsibling(copy)
+        if copy.part is None: #bruce 050707 see if this is enough to fix bug 755
+            self.assy.update_parts()
         self.assy.w.history.message( "Made duplicate Gamess jig on same atoms: [%s]" % copy.name )
             # note: the wire cubes from multiple jigs on the sme atoms get overdrawn,
             # which will mess up the selection coloring of those wirecubes
