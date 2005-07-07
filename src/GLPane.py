@@ -1061,7 +1061,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # (Presumably the Qt docs spell this out... find out sometime! #k)
 
         if not self.initialised: return
-       
+
+        #e Future: it might be good to set standard GL state, e.g. matrixmode, before checking self.redrawGL here,
+        # in order to mitigate bugs in other code (re bug 727), but only if the current mode gets to
+        # redefine what "standard GL state" means, since some modes which use this flag to avoid standard
+        # repaints also maintain some GL state in nonstandard forms. [bruce 050707 comment]
+        
         if not self.redrawGL: return
 
 ##        if not self._needs_repaint: #bruce 050516 experiment
@@ -1361,8 +1366,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         # draw coordinate-orientation arrows at upper right corner of glpane
         if self.displayCompass:
             self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then
+
+        glMatrixMode(GL_MODELVIEW) #bruce 050707 precaution in case drawing code outside of paintGL forgets to do this
+            # (see discussion in bug 727, which was caused by that)
+            # (it might also be good to set mode-specific standard GL state before checking self.redrawGL in paintGL #e)
         
-        return # from standard_repaint (which is the central submethod of paintGL)
+        return # from standard_repaint_0 (which is the central submethod of paintGL)
 
     selobj = None #bruce 050609
 
@@ -1553,9 +1562,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         return
 
     def drawcompass(self, aspect):
-        """private: assumes called in GL_PROJECTION matrix mode, with identity in both matrices,
-        and does LoadIdentity at the end as well.
-        """ #bruce 050608 added docstring, then added code to try to make it no longer have those problems ###k
+        """Draw the "compass" (the perpendicular colored arrows showing orientation of model coordinates)
+        in a corner of the GLPane specified by preference variables.
+        No longer assumes a specific glMatrixMode, but sets it to GL_MODELVIEW on exit.
+        No longer trashes either matrix, but does require enough GL_PROJECTION stack depth
+        to do glPushMatrix on it (though the guaranteed depth for that stack is only 2).
+        """
+        #bruce 050608 improved behavior re GL state requirements and side effects; 050707 revised docstring accordingly.
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
@@ -1607,10 +1620,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 ## glPopMatrix()
                 glEnable(GL_DEPTH_TEST)
                 glEnable(GL_LIGHTING)
-           
-        glMatrixMode(GL_MODELVIEW)
-        glPopMatrix()
+
+        #bruce 050707 switched order to leave ending matrixmode in standard state, GL_MODELVIEW
+        # (though it doesn't matter for present calling code; see discussion in bug 727)
         glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
         return
            
