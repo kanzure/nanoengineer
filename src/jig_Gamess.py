@@ -120,10 +120,19 @@ class Gamess(Jig):
     def __CM_Calculate_Energy(self):
         '''Gamess Jig context menu "Calculate Energy"
         '''
-        
         pset = self.psets[0]
         runtyp = pset.contrl.runtyp # Save runtyp (Calculate) setting to restore it later.
         pset.contrl.runtyp = 'energy' # Energy calculation
+        
+        #Added by Huaicai 7/8/05 to fix bug 758 and another similar problem(running the duplicate jig)
+        #CONV (GAMESS) or  NCONV (PC GAMESS)
+        if self.gmsjob.server.engine == 'GAMESS':
+            pset.scf.conv = conv[pset.ui.conv] # CONV (GAMESS)
+            pset.scf.nconv = 0 # Turn off NCONV
+        else: # PC GAMESS
+            pset.scf.nconv = conv[pset.ui.conv] # NCONV (PC GAMESS)
+            pset.scf.conv = 0 # Turn off CONV
+        
         
         # Run GAMESS job.  Return value r:
         # 0 = success
@@ -200,15 +209,6 @@ class Gamess(Jig):
         # the rest of the work should be done by the pset.
         try:
             pset.info_gamess_setitem( name, val, interp )
-            
-            # Added by Huaicai 7/7/05 to fix bug 758
-            # CONV (GAMESS) or  NCONV (PC GAMESS)
-            if self.gmsjob.server.engine == 'GAMESS':
-                pset.scf.conv = conv[pset.ui.conv] # CONV (GAMESS)
-                pset.scf.nconv = 0 # Turn off NCONV
-            else: # PC GAMESS
-                pset.scf.nconv = conv[pset.ui.conv] # NCONV (PC GAMESS)
-                pset.scf.conv = 0 # Turn off CONV
             
         except:
             print_compact_traceback("bug: exception (ignored) in pset.info_gamess_setitem( %r, %r, interp ): " % (name,val) )

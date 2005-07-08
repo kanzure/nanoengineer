@@ -184,8 +184,6 @@ class GamessJob(SimJob):
     def processDone(self):
         self.fwThread.stop()
         self.jobTimer.stop()
-        #for b in self.fileData:
-        #   self.outputFile.writeBlock(b)     
         self.progressDialog.accept()
         
 
@@ -233,13 +231,14 @@ class GamessJob(SimJob):
         self.stime = time.time()
         self.jobTimer.start(1)
         
-        
         self.progressDialog.exec_loop()
-        #self.jobTimer.stop()
-                      
         
         self.fwThread.wait()        
-        
+        bytes = self.process.readStdout()
+        if bytes:
+            self.outputFile.writeBlock(bytes)
+            self.outputFile.flush()
+            
         self.process = None
         self.outputFile.close()
         
