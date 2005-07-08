@@ -432,6 +432,8 @@ ing assembly.
             isf.write("Compression=lzma\n")
             isf.write("SolidCompression=yes\n")
             isf.write("UsePreviousAppDir=no\n")
+            isf.write("DirExistsWarning=yes\n")
+            isf.write("InfoBeforeFile=README.txt")
             
 
             isf.write("\n[Files]\n")
