@@ -1564,6 +1564,11 @@ class depositMode(basicMode):
 
         ##e add something similar for bonds, displaying their atoms, and the bonded chunk or chunks?
 
+        if selatom is not None:
+            is_singlet = selatom.is_singlet() and len(selatom.bonds) == 1 #k is 2nd cond redundant with is_singlet()?
+        else:
+            is_singlet = False
+
         # add submenu to change atom hybridization type [initial kluge]
         atomtypes = (selatom is None) and ['fake'] or selatom.element.atomtypes
             # kluge: ['fake'] is so the idiom "x and y or z" can pick y;
@@ -1593,10 +1598,16 @@ class depositMode(basicMode):
         # for a highlighted bond, add submenu to change bond type, if atomtypes would permit that;
         # or a menu item to just display the type, if not. Also add summary info about the bond...
         # all this is returned (as a menu_spec sublist) by one external helper method.
+        
+        if is_singlet:
+            selbond = selatom.bonds[0]
+        else:
+            selbond = selobj # might not be a Bond (could be an Atom or None)
+        
         try:
-            method = selobj.bond_menu_section
+            method = selbond.bond_menu_section
         except AttributeError:
-            # selobj is not a Bond
+            # selbond is not a Bond
             pass
         else:
             glpane = self.o
