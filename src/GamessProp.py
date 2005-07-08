@@ -235,7 +235,7 @@ class GamessProp(GamessPropDialog):
         '''Display the GAMESS Jig Properties dialog'''
         self.gamessJig =  job.gamessJig
         self.job = job
-        self.pset = self.gamessJig.psets[0]
+        self.pset = self.gamessJig.pset
         self.win = self.gamessJig.assy.w
         self.history = self.gamessJig.assy.w.history
         
@@ -248,8 +248,15 @@ class GamessProp(GamessPropDialog):
         ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
         gamess = self.gamessJig #  In case we cancel later (not implemented yet)
+
+        #To fix bug 684
+        if gamess.is_disabled():
+            self.run_job_btn.setEnabled(False)
+        else:
+            self.run_job_btn.setEnabled(True)
         
-        # Init the top widgets (name, psets drop box, comment)
+        
+        # Init the top widgets (name, runtyp drop box, comment)
         self.name_linedit.setText(self.gamessJig.name)
         self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
         self.calculate_changed(self.pset.ui.runtyp)
@@ -367,7 +374,7 @@ class GamessProp(GamessPropDialog):
         
         # Electron Correlation Method
         self.pset.ui.ecm = self.ecm_btngrp.selectedId() # None, DFT or MP2
-        self.pset.ui.inttyp = self.ecm_btngrp.selectedId() # INTTYP
+        #self.pset.ui.inttyp = self.ecm_btngrp.selectedId() # INTTYP
         self.pset.ui.gbasis = self.gbasis_combox.currentItem() # Basis Set
         self.pset.ui.gbasisname = str(self.gbasis_combox.currentText())
         self.pset.ui.dfttyp = self.dfttyp_combox.currentItem() # DFT Functional Type
@@ -386,10 +393,10 @@ class GamessProp(GamessPropDialog):
 #        self.pset.ui.soscf = self.soscf_checkbox.isChecked() # SOSCF
 #        self.pset.ui.rstrct = self.rstrct_checkbox.isChecked() # RSTRCT
         
-        self._save_parms() # Save all the parameters in the pset attribute.
+        self.gamessJig.save_gamess_parms() # Save all the parameters in the pset attribute.
         self._save_job_parms()
         
-    def _save_parms(self):
+    def save_gamess_parms_obsolete(self):
         '''Save parameter set values.  This is always called by save_ui_settings, 
         since it depends on the ui setting values.  This should propbably be a private
         method.'''
@@ -406,8 +413,8 @@ class GamessProp(GamessPropDialog):
         self.pset.contrl.maxit = self.pset.ui.iterations # Iterations
         
         # ICUT and QMTTOL
-        s = str(self.gbasis_combox.currentText())
-        m = s.count('+') # If there is a plus sign in the basis set name, we have "diffuse orbitals"
+        #s = str(self.gbasis_combox.currentText())
+        m = self.pset.ui.gbasisname.count('+') # If there is a plus sign in the basis set name, we have "diffuse orbitals"
         if m: # We have diffuse orbitals
             self.pset.contrl.icut = 11
             if self.server.engine != 'PC GAMESS': # PC GAMESS does not support QMTTOL. Mark 052105

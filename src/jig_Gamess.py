@@ -23,7 +23,7 @@ class Gamess(Jig):
     icon_names = ["gamess.png", "gamess-hide.png"]
 
     #bruce 050704 added these attrs and related methods, to make copying of this jig work properly
-    mutable_attrs = ('psets',)
+    mutable_attrs = ('pset',)
     copyable_attrs = Jig.copyable_attrs + () + mutable_attrs
     
     # Default job parameters for a GAMESS job.
@@ -43,8 +43,8 @@ class Gamess(Jig):
         self.color = (0.0, 0.0, 0.0)
         self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
         self.history = assy.w.history
-        self.psets = [] # list of parms set objects [as of circa 050704, only the first of these is ever defined (thinks bruce)]
-        self.psets.append(gamessParms('Parameter Set 1'))
+        #self.psets = [] # list of parms set objects [as of circa 050704, only the first of these is ever defined (thinks bruce)]
+        self.pset = gamessParms('Parameter Set 1')
         self.gmsjob = GamessJob(Gamess.job_parms, jig=self)
         ## bruce 050701 removing this: self.gmsjob.edit()
         self.outputfile = '' # Name of jig's most recent output file. [this attr is intentionally not copied -- bruce 050704]
@@ -87,7 +87,7 @@ class Gamess(Jig):
         
         d = delimeter
         
-        pset = self.psets[0]
+        pset = self.pset
         
         # SCFTYP (RHF, UHF, or ROHF)
         s1 = scftyp[pset.ui.scftyp]
@@ -120,18 +120,21 @@ class Gamess(Jig):
     def __CM_Calculate_Energy(self):
         '''Gamess Jig context menu "Calculate Energy"
         '''
-        pset = self.psets[0]
-        runtyp = pset.contrl.runtyp # Save runtyp (Calculate) setting to restore it later.
-        pset.contrl.runtyp = 'energy' # Energy calculation
+        pset = self.pset
+        runtyp = pset.ui.runtyp # Save runtyp (Calculate) setting to restore it later.
+        pset.ui.runtyp = 0 # Energy calculation
+        
+        
+        self.save_gamess_parms()
         
         #Added by Huaicai 7/8/05 to fix bug 758 and another similar problem(running the duplicate jig)
         #CONV (GAMESS) or  NCONV (PC GAMESS)
-        if self.gmsjob.server.engine == 'GAMESS':
-            pset.scf.conv = conv[pset.ui.conv] # CONV (GAMESS)
-            pset.scf.nconv = 0 # Turn off NCONV
-        else: # PC GAMESS
-            pset.scf.nconv = conv[pset.ui.conv] # NCONV (PC GAMESS)
-            pset.scf.conv = 0 # Turn off CONV
+        #if self.gmsjob.server.engine == 'GAMESS':
+        #    pset.scf.conv = conv[pset.ui.conv] # CONV (GAMESS)
+        #    pset.scf.nconv = 0 # Turn off NCONV
+        #else: # PC GAMESS
+        #    pset.scf.nconv = conv[pset.ui.conv] # NCONV (PC GAMESS)
+        #    pset.scf.conv = 0 # Turn off CONV
         
         
         # Run GAMESS job.  Return value r:
@@ -140,7 +143,7 @@ class Gamess(Jig):
         # 2 = job failed.
         r = self.gmsjob.launch()
         
-        pset.contrl.runtyp = runtyp # Restore to original value
+        pset.ui.runtyp = runtyp # Restore to original value
         
         if r == 0: # Success
             self.print_energy()
@@ -168,7 +171,7 @@ class Gamess(Jig):
         "[extends Jig method]"
         super = Jig
         super.writemmp(self, mapping) # this writes the main gamess record, and some general info leaf records valid for all nodes
-        pset = self.psets[0]
+        pset = self.pset
         pset.writemmp(mapping, 0)
             # This writes the pset's info, as a series of "info gamess" records which modify the last gamess jig;
             # in case we ever want to extend this to permit more than one pset per jig in the mmp file,
@@ -200,7 +203,7 @@ class Gamess(Jig):
         pset_index = int(pset_index)
             # pset_index is presently always 0, but this code should work provided self.psets has an element with this index;
         try:
-            pset = self.psets[pset_index]
+            pset = self.pset
         except:
             # not an error -- future mmp formats might use non-existent indices and expect readers to create new psets.
             if platform.atom_debug:
@@ -208,7 +211,7 @@ class Gamess(Jig):
             return
         # the rest of the work should be done by the pset.
         try:
-            pset.info_gamess_setitem( name, val, interp )
+            self.pset.info_gamess_setitem( name, val, interp )
             
         except:
             print_compact_traceback("bug: exception (ignored) in pset.info_gamess_setitem( %r, %r, interp ): " % (name,val) )
@@ -220,12 +223,12 @@ class Gamess(Jig):
         super = Jig
         super.own_mutable_copyable_attrs( self)
         for attr in self.mutable_attrs:
-            if attr == 'psets':
+            if attr == 'pset':
                 # special-case code for this attr, a list of gamessParms objects
                 # (those objects, and the list itself, are mutable and need to be de-shared)
                 val = getattr(self, attr)
-                assert type(val) == type([])
-                newval = [item.deepcopy() for item in val]
+                #assert type(val) == type([])
+                newval = val.deepcopy()#for item in val]
                 setattr(self, attr, newval)
             else:
                 print "bug: don't know how to copy attr %r in %r", attr, self
@@ -263,6 +266,113 @@ class Gamess(Jig):
             ##e Should fix this to only draw one wirecube, of the "maximal color", I guess...
         self.assy.w.win_update() # MT and glpane both might need update
         return
+    
+    
+    def set_disabled_by_user_choice(self, val):
+        """Called when users disable/enable the jig"""
+        self.gmsjob.edit_cntl.run_job_btn.setEnabled(not val)
+        Jig.set_disabled_by_user_choice(self, val)
+        
+        
+    def save_gamess_parms(self):
+        '''Save parameter set values.  This is always called by save_ui_settings, 
+        since it depends on the ui setting values.  This should propbably be a private
+        method.'''
+        
+        # $CONTRL group ###########################################
+        
+        # Parms Values
+        self.pset.contrl.runtyp = runtyp[self.pset.ui.runtyp] # RUNTYP
+        self.pset.contrl.scftyp = scftyp[self.pset.ui.scftyp] # SCFTYP
+        self.pset.contrl.icharg = str(self.pset.ui.icharg) # ICHARG
+        self.pset.contrl.mult = str(self.pset.ui.mult + 1) # MULT
+        self.pset.contrl.mplevl = mplevl[self.pset.ui.ecm] # MPLEVL
+        self.pset.contrl.inttyp = inttyp[self.pset.ui.ecm] # INTTYP
+        self.pset.contrl.maxit = self.pset.ui.iterations # Iterations
+        
+        # ICUT and QMTTOL
+        #s = str(self.gbasis_combox.currentText())
+        m = self.pset.ui.gbasisname.count('+') # If there is a plus sign in the basis set name, we have "diffuse orbitals"
+        if m: # We have diffuse orbitals
+            self.pset.contrl.icut = 11
+            if self.gmsjob.server.engine != 'PC GAMESS': # PC GAMESS does not support QMTTOL. Mark 052105
+                self.pset.contrl.qmttol = '3.0E-6'
+            else:
+                self.pset.contrl.qmttol = None
+        else:  # No diffuse orbitals
+            self.pset.contrl.icut = 9
+            if self.gmsjob.server.engine == 'GAMESS': 
+                self.pset.contrl.qmttol = '1.0E-6'
+            else:
+                self.pset.contrl.qmttol = None # PC GAMESS does not support QMTTOL. Mark 052105
+        
+        # DFTTYP (PC GAMESS only)
+        # For PC GAMESS, the DFTTYP keyword is included in the CONTRL section, not the $DFT group.
+        if self.gmsjob.server.engine == 'PC GAMESS':
+            if ecm[self.pset.ui.ecm] == 'DFT':
+                item = pcgms_dfttyp_items[self.pset.ui.dfttyp] # Item's full text, including the '(xxx)'
+                self.pset.contrl.dfttyp, junk = item.split(' ',1) # DFTTYPE, removing the '(xxx)'.
+                self.pset.dft.nrad = pcgms_gridsize[self.pset.ui.gridsize] # Grid Size parameters
+            else: # None or MP2
+                self.pset.contrl.dfttyp = 0
+                self.pset.dft.nrad = 0
+        
+        # $SCF group ###########################################
+        
+        self.pset.scf.extrap = tf[self.pset.ui.extrap] # EXTRAP
+        self.pset.scf.dirscf = tf[self.pset.ui.dirscf] # DIRSCF
+        self.pset.scf.damp = tf[self.pset.ui.damp] # DAMP
+        self.pset.scf.diis = tf[self.pset.ui.diis] # DIIS
+        self.pset.scf.shift = tf[self.pset.ui.shift] # SHIFT
+        self.pset.scf.soscf = tf[self.pset.ui.soscf] # SOSCF
+        self.pset.scf.rstrct = tf[self.pset.ui.rstrct] # RSTRCT
+        
+        # CONV (GAMESS) or 
+        # NCONV (PC GAMESS)
+        if self.gmsjob.server.engine == 'GAMESS':
+            self.pset.scf.conv = conv[self.pset.ui.conv] # CONV (GAMESS)
+            self.pset.scf.nconv = 0 # Turn off NCONV
+        else: # PC GAMESS
+            self.pset.scf.nconv = conv[self.pset.ui.conv] # NCONV (PC GAMESS)
+            self.pset.scf.conv = 0 # Turn off CONV
+        
+        # $SYSTEM group ###########################################
+        
+        self.pset.system.timlin = 1000 # Time limit in minutes
+        self.pset.system.memory = self.pset.ui.memory * 1000000
+        
+        # $MP2 group ###########################################
+        
+        self.pset.mp2.ncore = ncore[self.pset.ui.ncore]
+        
+        # $DFT group ###########################################
+
+        # The DFT section record is supported in GAMESS only.
+        if self.gmsjob.server.engine == 'GAMESS':
+            if ecm[self.pset.ui.ecm] == 'DFT':
+                item = gms_dfttyp_items[self.pset.ui.dfttyp]
+                self.pset.dft.dfttyp, junk = item.split(' ',1) # DFTTYP in $CONTRL
+                self.pset.dft.nrad = gms_gridsize[self.pset.ui.gridsize] # Grid Size parameters
+            else: # None or MP2
+                self.pset.dft.dfttyp = 'NONE'
+                self.pset.dft.nrad = 0
+        
+        # $GUESS group ###########################################
+        
+        # $STATPT group ###########################################
+        
+        if runtyp[self.pset.ui.runtyp] == 'optimize':
+            self.pset.statpt.opttol = float(opttol[self.pset.ui.rmsdconv])
+        else:
+            self.pset.statpt.opttol = None
+        
+        # $BASIS group ###########################################
+        
+        if ecm[self.pset.ui.ecm] == 'None':
+            self.pset.basis.gbasis = gbasis[self.pset.ui.gbasis] # GBASIS
+        else:
+            self.pset.basis.gbasis = gbasis[self.pset.ui.gbasis + 2] # GBASIS
+
     
     pass # end of class Gamess
 

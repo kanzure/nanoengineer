@@ -148,9 +148,8 @@ def insertgms(assy,filename):
 def writegms_inpfile(filename, gamessJig):
     '''Writes a GAMESS INP file from a GAMESS Jig.'''
 
-    #!!! Should change psets[] list to a single pset attribute everywhere.
-    # Mark 050623 (on the airplane going home).
-    pset = gamessJig.psets[0] 
+    
+    pset = gamessJig.pset
         
     f = open(filename,'w') # Open GAMESS input file.
         
