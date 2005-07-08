@@ -241,9 +241,10 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """
         return self.reguess_atomtype()
 
-    def reguess_atomtype(self):
+    def reguess_atomtype(self, elt = None):
         """Compute and return the best guess for this atom's atomtype
-        given its current real bonds and open bond user-assigned types
+        given its current element (or the passed one),
+        and given its current real bonds and open bond user-assigned types
         (but don't save this, and don't compare it to the current self.atomtype).
            This is only correct for a new atom if it has already been given all its bonds (real or open).
         """
@@ -253,9 +254,10 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         # (specifying it as an atomtype, not relying on inferring from bonds) would work unless this bug is fixed here.
         ###@@@ (need to report this bug)
         if len(self.bonds) == 0 and platform.atom_debug:
-            if self.element.atomtypes[0].numbonds != 0: # not a bug for noble gases!
-                print_compact_stack( "atom_debug: warning: reguess_atomtype sees %s with no bonds -- probably a bug" % self )
-        return self.best_atomtype_for_numbonds()
+            # (I think the following cond (using self.element rather than elt) is correct even when elt is passed -- bruce 050707)
+            if self.element.atomtypes[0].numbonds != 0: # not a bug for noble gases! 
+                print_compact_stack( "atom_debug: warning: reguess_atomtype(%s) sees %s with no bonds -- probably a bug" % (elt,self) )
+        return self.best_atomtype_for_numbonds(elt = elt)
 
     def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype; perhaps use more widely
         "#doc; atomtype is None means use default atomtype"
@@ -1382,11 +1384,14 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             self.set_atomtype_but_dont_revise_singlets( best_atype)
         return
 
-    def best_atomtype_for_numbonds(self, atype_now = None): #bruce 050702
+    def best_atomtype_for_numbonds(self, atype_now = None, elt = None): #bruce 050702; elt arg added 050707
+        """Compute and return the best guess for this atom's atomtype,
+        given its current element (or the passed one),"""
         """[Public method]
-           Compute and return the best atomtype for this atom's element and number of bonds (including open bonds),
+           Compute and return the best atomtype for this atom's element (or the passed one if any)
+        and number of bonds (including open bonds),
         breaking ties by favoring atype_now (if provided), otherwise favoring atomtypes which come earlier
-        in the list of this element's possible atomtypes.
+        in the list of this element's (or elt's) possible atomtypes.
            For comparing atomtypes which err in different directions (which I doubt can ever matter in
         practice, since the range of numbonds of an element's atomtypes will be contiguous),
         we'll say it's better for an atom to have too few bonds than too many.
@@ -1394,16 +1399,19 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         is better than even one bond too many.
            This means: the "best" atomtype is the one with the right number of bonds, or the fewest extra bonds,
         or (if all of them have fewer bonds than this atom) with the least-too-few bonds.
-           (This method is used in Build mode, and might later be used when reading mmp files or pdb files, or in other ways.)
+           (This method is used in Build mode, and might later be used when reading mmp files or pdb files, or in other ways.
+        As of 050707 it's also used in Transmute.)
         [###k Should we also take into account positions of bonds, or their estimated orders, or neighbor elements??]
         """
-        atomtypes = self.element.atomtypes
+        if elt is None:
+            elt = self.element
+        atomtypes = elt.atomtypes
         if len(atomtypes) == 1:
             return atomtypes[0] # optimization
         nbonds = len(self.bonds) # the best atomtype has numbonds == nbonds. Next best, nbonds+1, +2, etc. Next best, -1,-2, etc.
         items = [] 
         for i, atype in zip(range(len(atomtypes)), atomtypes):
-            if atype is atype_now:
+            if atype is atype_now: # (if atype_now is None or is not for elt, this is a legal comparison and is always False)
                 i = -1 # best to stay the same (as atype_now), or to be earlier in the list of atomtypes, other things being equal
             numbonds = atype.numbonds
             if numbonds < nbonds:
@@ -1463,7 +1471,8 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """[Public method, does all needed invalidations:]
         If this is a real atom, change its element type to elt (not Singlet),
         and its atomtype to the atomtype object passed,
-        or if none is passed to elt's default atomtype or self's existing one (not sure which!###@@@),
+        or if none is passed to elt's default atomtype or self's existing one (not sure which!###@@@) --
+        no, to the best one given the number of real bonds, or real and open bonds [maybe? 050707] --
         and replace its singlets (if any) with new ones (if any are needed)
         to match the desired number of bonds for the new element/atomtype.
         [As of 050511 before atomtype arg added, new atom type is old one if elt is same and
@@ -1484,8 +1493,10 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                 ## atomtype = self.atomtype # use current atomtype if we're correct for it now, even if it's not default atomtype
                 return # since elt and desired atomtype are same as now and we're correct
             else:
-                atomtype = elt.atomtypes[0] # use default atomtype of elt
-                ##print "transmute picking this dflt atomtype", atomtype 
+                ## atomtype = elt.atomtypes[0] # use default atomtype of elt
+                ##print "transmute picking this dflt atomtype", atomtype
+                #bruce 050707: use the best atomtype for elt, given the number of real and open bonds
+                atomtype = self.reguess_atomtype(elt)
         assert atomtype.element is elt
         # in case a specific atomtype was passed or the default one was chosen,
         # do another check to return early if requested change is a noop and our bond count is correct

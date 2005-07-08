@@ -13,24 +13,59 @@ created by bruce 050705 to help with higher-order bonds for Alpha6.
 __author__ = "bruce"
 
 
-###e needs cvs add
-
 from VQT import Q
 from constants import noop
-from bonds import bond_type_names, bond_letter_from_v6, v6_from_btype, btype_from_v6, bonded_atoms_summary
+from bond_constants import *
+
+def intersect_sequences(s1, s2):
+    return filter( lambda s: s in s2, s1)
 
 def possible_bond_types(bond):
-    "Return a list of names of possible bond types for the given bond, based on its atomtypes."
-    spX = max( bond.atom1.atomtype.spX, bond.atom2.atomtype.spX )
-        # simplest (max) atomtype determines set of possible bond types
-    if spX == 3:
-        return ['single']
-    elif spX == 2:
-        return ['single', 'double', 'aromatic', 'graphite']
-    elif spX == 1:
-        return ['single', 'double', 'aromatic', 'triple', 'carbomer']
-    assert 0, "spX should be in range 1-3, not %r, for %r" % (spX, bond)
+    """Return a list of names of possible bond types for the given bond,
+    based on its atoms' current elements and atomtypes.
+       This list is never empty since single bonds are always possible
+    (even if they always induce valence errors, e.g. for H bonded to O(sp2) or in O2).
+       For warnings about some choices of bond type (e.g. S=S), see the function bond_type_warning.
+       [###e we might extend this to optionally also permit bonds requiring other atomtypes
+    if those are reachable by altering only open bonds on this bond's actual atoms.]
+       Warning: this ignores geometric issues, so it permits double bonds even if they
+    would be excessively twisted, and it ignores bond length, bond arrangement in space
+    around each atom, etc.
+    """
+    s1 = bond.atom1.atomtype.permitted_v6_list
+    s2 = bond.atom2.atomtype.permitted_v6_list
+    s12 = intersect_sequences( s1, s2 )
+        #e could be faster (since these lists are prefixes of a standard order), but doesn't need to be
+    return map( btype_from_v6, s12)
+    
+#obs, partly:
+#e should we put element rules into the above possible_bond_types, or do them separately?
+# and should bonds they disallow be shown disabled, or not even included in the list?
+# and should "unknown" be explicitly in the list?
 
+def bond_type_warning(bond, btype): # 050707
+    """Return a warning (short text suitable to be added to menu item text), or "" for no warning,
+    about the use of btype (bond type name) for bond.
+    This can be based on its atomtypes or perhaps on more info about the surroundings
+    (#e we might need to add arguments to pass such info).
+       Presently, this only warns about S=S being unstable, and about bonds whose type could not
+    permit both atoms (using their current atomtypes) to have the right valence
+    regardless of their other bonds (which only happens now when they have no other bonds).
+       This might return warnings for illegal btypes, even though it's not presently called
+    for illegal btypes for the given bond. It doesn't need to return any warning for illegal btypes.
+    """
+    atype1 = bond.atom1.atomtype
+    atype2 = bond.atom2.atomtype
+    if btype == 'double' and atype1.is_S_sp2 and atype2.is_S_sp2:
+        return "unstable"
+    elif btype == 'single' and (atype1.bond1_is_bad or atype2.bond1_is_bad):
+        return "bad valence"
+    elif btype != 'triple' and (atype1.is_N_sp or atype2.is_N_sp):
+        return "bad valence"
+    # if there are any other numbonds=1 atoms which show up here, they should be valence-checked too (generalizing the above)
+    # (which might be easiest if atomtype stores a "valence-permitted btypes" when numbonds is 1), but I don't think there are others
+    return ""
+    
 def bond_menu_section(bond, quat = Q(1,0,0,0)):
     """Return a menu_spec subsection for displaying info about a highlighted bond,
     changing its bond_type, offering commands about it, etc.
@@ -48,19 +83,24 @@ def bond_type_submenu_spec(bond): #bruce 050705 (#e add options??)
     """
     v6 = bond.v6
     btype0 = btype_from_v6(v6)
-    poss = possible_bond_types(bond)
+    poss = possible_bond_types(bond) # a list of strings which are bond-type names
+    ##e could put weird ones (graphitic, carbomeric) last and/or in parens, in subtext below
     maintext = 'Bond Type: %s' % btype0
     if btype0 not in poss or len(poss) > 1:
         # use the menu
         submenu = []
         for btype in poss: # don't include current value if it's illegal
             subtext = btype
+            warning = bond_type_warning(bond, btype)
+            if warning:
+                subtext += " (%s)" % warning
             command = ( lambda arg1=None, arg2=None, btype=btype, bond=bond: apply_btype_to_bond(btype, bond) )
             checked = (btype == btype0)
             disabled = False # might change this if some neighbor bonds are locked, or if we want to show non-possible choices
             submenu.append(( subtext, command,
                              disabled and 'disabled' or None,
                              checked and 'checked' or None ))
+        ##e if >1 legal value could add checkmark item to permit "locking" this bond type
         return ( maintext, submenu)
     else:
         # only one value is possible, and it's the current value -- just show it

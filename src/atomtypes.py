@@ -29,6 +29,8 @@ from VQT import Q
 from HistoryWidget import redmsg, orangemsg
 import platform
 
+from bond_constants import *
+
 class AtomType:
     """An atom type includes an element and its bonding pattern (and maybe more) --
     enough info to know how to construct things in Build mode using this element in this bonding pattern,
@@ -106,7 +108,7 @@ class AtomType:
             #e later we'll have some charged atomtypes, but there are some UI issues
             # with how to keep the menus of atomtypes short (separate menus for hybridization and charge), maybe more.
         self._init_electronic_structure() # this uses self.numbonds, so don't call it too early
-
+        self._init_permitted_v6_list()
         return # from __init__
 
     def _init_electronic_structure(self): #bruce 050707
@@ -235,7 +237,90 @@ class AtomType:
         else:
             return self.element.name
         pass
-
+    
+    def permits_v6(self, v6):
+        ###@@@ see also bond_utils.possible_bond_types; maybe they should share some common knowledge
+        """Is it permissible for a bond of the given v6 to connect to this atomtype, ignoring valence issues?
+        Note: this method should be fast -- it's called (at least) for every non-single bond of every changed atom.
+           BTW [#obs, WRONG],
+        an order of bond types from most to least permissible is (ignoring special rules for graphite, and sp2 O or S):
+        single, double, aromatic/graphite, triple, carbomeric. [See also the constant tuple most_permissible_v6_first.]
+        If a type in that list is not permitted for some atomtype, neither are all types beyond it
+        (again excepting special recognition-rules for graphite, and sp2 O or S not permitting single bonds).
+        [This is wrong because for N(sp) we only permit single (bad valence) and triple, not double.
+         That could change if necessary. ###@@@]
+           Note: sp2 O and S disallow single bonds only because they have exactly one bond and a valence requirement of 2
+        (at least that's one way of thinking about it). So this function permits single bonds for them, so that
+        the error in e.g. H-O(sp2) can be considered a valence error on the O rather than a bond-type error.
+        This way, the calling code is simpler, since all bonds have legal types just given the elements/atomtypes on them;
+        valence errors can be handled separately at a later stage.
+           (Similarly, this function would permit both S-S and S=S for diatomic S(sp2), though at later stages,
+         neither is error-free, S-S due to valence errors and S=S due to extreme instability. BTW, for code simplicity
+         I've decided that both those errors are "permitted but with warnings" (and the warnings might be NIM). That has
+         nothing to do with this function specifically, it's just FYI.)
+           If this function is used to populate menus of possible bond types, 'single' should probably be disallowed
+        or deprecated for sp2 O and S (as a special case, or based on some other attr of this atomtype (#e nim)).
+        """
+        return (v6 in self.permitted_v6_list)
+    
+    permitted_v6_list = (V_SINGLE,) # default value of instance attribute; correct value for most atomtypes
+        # permitted_v6_list is a public instance attribute, I guess
+    
+    def _init_permitted_v6_list(self):
+        #e not yet correct for charged atomtypes (which is ok since we don't yet have any)...
+        # the hardcoded element lists would need revision
+        
+        # set some public attrs which help with some warnings by external code;
+        # some of them are because numbonds == 1 means atom valence determines bond order for the only bond
+        self.is_S_sp2 = (self.element.symbol == 'S' and self.spX == 2)
+        self.is_O_sp2 = (self.element.symbol == 'O' and self.spX == 2)
+        self.bond1_is_bad = (self.is_S_sp2 or self.is_O_sp2)
+        self.is_N_sp = (self.element.symbol == 'N' and self.spX == 1) # used for a special case, below
+        
+        spX = self.spX
+        if spX == 3:
+            return # only single bonds are allowed for sp3
+        res = [] # build a list of bond types to allow
+##        if not self.element.symbol in "OS":
+##            res.append(V_SINGLE) ## what about H bonded to O(sp2)? no bond type would be legal... need to treat as valence error...
+        if self.element.symbol in "CNOSX": # (X means open bond)
+            # double bonds are ok for those elements (for either sp or sp2, of the supported atomtypes for them? almost...)
+            if not self.is_N_sp:
+                res.append(V_DOUBLE)
+        if self.element.symbol in "CNX" and spX == 1:
+            res.append(V_TRIPLE)
+        if self.element.symbol in "CNX": ###@@@ and maybe B too? ok for sp or sp2? almost...
+            if not self.is_N_sp:
+                res.append(V_AROMATIC)
+                res.append(V_GRAPHITE)
+        if self.element.symbol in "CX" and spX == 1:
+            res.append(V_CARBOMERIC)
+        if not res:
+            return
+        if 0 and platform.atom_debug:
+            print "atom_debug: (%d) %s permits these v6's besides single==6: %r" % (self.element.eltnum, self.fullname, res)
+        res.append(V_SINGLE)
+            # Note: we do this even for O(sp2) and S(sp2), even though a bond1 as their sole bond is always a valence error.
+            # Valence errors have to be treated separately anyway, so it's probably ok to not catch these special cases here.
+            # See also the docstring for a comment about this. See also the function bond_type_warning.
+        res.sort()
+        self.permitted_v6_list = tuple(res) # in case tuple can be searched faster
+        return
+    
     pass # end of class AtomType
 
 # end
+
+'''
+... the maximal sets of end-elements for A6 will be:
+
+aromatic, graphite: C, N, B (B depends on how Damian answers some Qs)
+
+(carbomeric, if we have it, only C -- probably not for A6;
+if I didn't make it clear, this only exists in chains of C(sp)
+alternating with bonda, where the bond orders are 1.5, 2.5, 1.5, etc)
+
+double: C, N, O, S
+
+triple: C, N
+'''

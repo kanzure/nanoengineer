@@ -1082,6 +1082,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 ##            pass
 ####            if platform.atom_debug:
 ####                print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ")
+        
+        if self._needs_repaint: #bruce 050707 (for bond inference -- easiest place we can be sure to update bonds whenever needed)
+            env.post_event_updates( warn_if_needed = False)
+        
         self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
 
         #k not sure whether next two things are also needed in the split-out standard_repaint [bruce 050617]

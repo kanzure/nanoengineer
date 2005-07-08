@@ -59,6 +59,7 @@ bruce 050627 renamed this module to "env.py", since "globals" is a Python builti
 __author__ = 'bruce'
 
 from constants import *
+import platform
 
 _last_glselect_name = 0
 

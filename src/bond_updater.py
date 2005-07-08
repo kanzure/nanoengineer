@@ -23,10 +23,20 @@ __author__ = 'bruce'
 
 
 import platform
+from debug import print_compact_traceback, print_compact_stack
+
+from bond_constants import *
 
 from op_select_doubly import twoconner
 
+
 def update_bonds_after_each_event( _changed_structure_atoms):
+    ###@@@ so far this is called by update_parts (eg mode chgs),
+    # and near the start of a GLPane repaint event (should be enough),
+    # and only when _changed_structure_atoms is nonempty. #k
+    # It misses hearing about killed atoms or singlets,
+    # but does hear about atoms shown only in the elt selector thumbviews!
+    # I guess the latter is good, since that way it can update the bond orders in those views as well!
     """[should be called only from env.post_event_updates]
        This should be called at the end of every user event which might affect
     the atomtypes or bond-sets of any atoms or singlets, which are passed as the
@@ -47,21 +57,66 @@ def update_bonds_after_each_event( _changed_structure_atoms):
        It will assume that interpart bonds (if any) have already been broken.
     (#e Or we might decide to extend it to break them itself.)
     """
+    bonds_to_fix = {}
     for atm in _changed_structure_atoms.itervalues():
         #e ignore killed atoms
-        # for singlets, just look at their base atoms
-        # when info must be recorded for later, do this per-chunk or per-part.
+        # for singlets, just look at their base atoms [as of 050707 just look at all bonds of all unkilled atoms]
+        #e when info must be recorded for later, do this per-chunk or per-part.
         ##k Do we move existing such info when atoms moved or were killed??
         
-        atype = atm.atomtype
-        
-    if 0 and platform.atom_debug:
-        print "atom_debug: update_bonds_after_each_event NIM; "\
-              "not yet handling %d atoms or singlets in _changed_structure_atoms." % len(_changed_structure_atoms)
+        atype = atm.atomtype # make sure this is defined; also it will tell us the permitted bond orders for any bond on this atom
+        for bond in atm.bonds:
+            v6 = bond.v6
+            if v6 != V_SINGLE: # this test is just an optim
+                if not atype.permits_v6(v6): # this doesn't notice things like S=S (unstable), only the S= and =S parts (ok taken alone)
+                    # doesn't yet catch e.g. S=S... actually we will never worry about that here, it's just a "warning issue"
+                    bonds_to_fix[id(bond)] = bond
+##                elif v6 == V_DOUBLE and atm.element.sym == 'S' and bond.other(atm).atomtype.element.sym == 'S':
+##                    bonds_to_fix[id(bond)] = bond # hardcoded knowledge (for speed): S=S is illegal
+                ###e also check legal endcombos for aromatic, graphite (carbomeric?)
+                ###e also directly check sp-chain-lengths here, infer double bonds when odd length and connected, etc??
+        #e should we also check atypes against numbonds and total bond valence (in case no bonds need fixing or they don't change)?
+        # note: that's the only way we'll ever notice we need to increase any bonds from single, on sp2 atoms!!!
+        # Do we need to separately track needed reductions (from atypes) or certainty-increases (A no longer allowed) or increases
+        # (from atom valence)??
+        # For certainty-increases, should we first figure out the rest before seeing what to change them to? (guess: no, but not sure)
+        # (above cmts are obs, see paper notes about the alg)
+        pass
+
+    if not bonds_to_fix:
+        return # optim
+
+    for bond in bonds_to_fix.itervalues():
+        # every one of these bonds is wrong, in a direct local way (ie due to its atoms)!
+        # figure out what to change it to, and initiate our scan of changes from each end of each bond.
+        new_v6 = best_corrected_v6(bond) ####@@@@ IMPLEM the rest of that... actually this'll all be revised
+
+    
+    if 1 and platform.atom_debug:
+        print_compact_stack( "atom_debug: update_bonds_after_each_event NIM; "\
+              "not yet handling %d atoms or singlets in _changed_structure_atoms." % len(_changed_structure_atoms))
         for atm in _changed_structure_atoms.itervalues():
-            print "eg this one",atm # so far, fails to notice atoms created as part of a cookie.
+            print "eg this one",atm # notices all atoms except killed ones... ok for now
+##            for bond in atm.bonds:
+##                bond.set_v6(12)
+##                ###@@@ this seems to show that the elt selector thumbviews need a separate redraw to show this...
+##                # that's ok, they're only supposed to draw single-bond atypes anyway.
     return
 
+most_permissible_v6_first = ( V_SINGLE, V_DOUBLE, V_AROMATIC, V_GRAPHITE, V_TRIPLE, V_CARBOMERIC ) # not quite true for graphite?
+
+def best_corrected_v6(bond):
+    """This bond has an illegal v6 according to its bonded atomtypes
+    (and I guess the atomtypes are what has just changed?? ###k).
+    Say how we want to fix it (or perhaps fix the atomtypes?? #e).
+    """
+    # Given that the set of permissible bond types (for each atomtype, ignoring S=S prohibition and special graphite rules)
+    # is some prefix of [single, double, aromatic/graphite, triple, carbomeric],
+    # I think it's ok to always take the last permissible element of that list (using relaxed rules for graphite)...
+    # no, it depends on prior bond (presumably one the user likes, or at least consented to),
+    # but clearly we move to the left in that list. Like this: c -> a, 3 -> max in list? or 2? or depends on other bonds/valences?
+    pass # stub... might return a list of legal btypes in order of preference, for inference code (see paper notes)
+    
 def update_bonds_command(part): # for initial test, put this into debug menu (??)
     """Do a full updating of all possibly-pi bonds in the given part.
     Initial implem keeps no history anywhere, just redoes everything from scratch each time.

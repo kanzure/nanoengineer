@@ -21,6 +21,7 @@ History:
 - bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
   for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
 
+- bruce split bond_constants.py into a separate module; 050707
 '''
 __author__ = "Josh"
 
@@ -59,6 +60,9 @@ from elements import *
 
 from chem import singlet_atom, stringVec, atom
     # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
+
+from bond_constants import *
+
 from elements import Singlet
 import env
 
@@ -130,9 +134,9 @@ def bond_atoms_oldversion(at1,at2): #bruce 050502 renamed this from bond_atoms; 
         pass
     return
 
-def bond_atoms_faster(at1, at2, v6): #bruce 050513
+def bond_atoms_faster(at1, at2, v6): #bruce 050513; docstring corrected 050706
     """Bond two atoms, which must not be already bonded (this might not be checked).
-    Return the new bond object (which is given default valence of V_SINGLE).
+    Return the new bond object (which is given the valence v6, which must be specified).
     """
     b = Bond(at1, at2, v6) # (this does all necessary invals, and asserts at1 is not at2)
     at1.bonds.append(b)
@@ -151,175 +155,6 @@ def bond_copied_atoms(at1, at2, oldbond): #bruce 050524
     """
     return bond_atoms_faster(at1, at2, oldbond.v6)
 
-#bruce 050429: preliminary plan for higher-valence bonds (might need a better term for that):
-#
-# - Bond objects continue to compare equal when on same pair of atoms (even if they have a
-# different valence), and (partly by means of this -- probably it's a kluge) they continue
-# to allow only one Bond between any two atoms (two real atoms, or one real atom and one singlet).
-#
-# - I don't think we need to change anything basic about "internal vs external bonds",
-# coordinates, basic inval/draw schemes (except to properly draw new kinds of bonds),
-# etc. (Well, not due to bond valence -- we might change those things for other reasons.)
-#
-# - Each Bond object has a valence. Atoms often sum the valences of their bonds
-# and worry about this, but they no longer "count their bonds" -- at least not as a
-# substitute for summing the valences. (To prevent this from being done by accident,
-# we might even decide that their list of bonds is not really a list, at least temporarily
-# while this is being debugged. #?)
-#
-# This is the first time bonds have any state that needs to be saved,
-# except for their existence between their two atoms. This will affect mmpfile read/write,
-# copying of molecules (which needs rewriting anyway, to copy jigs/groups/atomsets too),
-# lots of things about depositMode, maybe more.
-#
-# - Any bond object can have its valence change over time (just as the coords,
-# elements, or even identities of its atoms can also change). This makes it a lot
-# easier to write code which modifies chemical structures in ways which preserve (some)
-# bonding but with altered valence on some bonds.
-#
-# - Atoms might decide they fit some "bonding pattern" and reorder
-# their list of bonds into a definite order to match that pattern (this is undecided #?).
-# This might mean that code which replaces one bond with a same-valence bond should do it
-# in the same place in the list of bonds (no idea if we even have any such code #k).
-#
-# - We might also need to "invalidate an atom's bonding pattern" when we change anything
-# it might care about, about its bonds or even its neighboring elements (two different flags). #?
-#
-# - We might need to permit atoms to have valence errors, either temporarily or permanently,
-# and keep track of this. We might distinguish between "user-permitted" or even "user-intended"
-# valence errors, vs "transient undesired" valence errors which we intend to automatically
-# quickly get rid of. If valence errors can be long-lasting, we'll want to draw them somehow.
-# 
-# - Singlets still require exactly one bond (unless they've been killed), but it can have
-# any valence. This might affect how they're drawn, how they consider forming new bonds
-# (in extrude, fuse chunks, depositMode, etc), and how they're written into sim-input mmp files.
-#
-# - We represent the bond valence as an integer (6 times the actual valence), since we don't
-# want to worry about roundoff errors when summing and comparing valences. (Nor to pay the speed
-# penalty for using exactly summable python objects that pretend to have the correct numeric value.)
-#
-# An example of what we don't want to have to worry about:
-#
-#   >>> 1/2.0 + 1/3.0 + 1/6.0
-#   0.99999999999999989
-#   >>> _ >= 1.0
-#   False
-#
-# We do guarantee to all code using these bond-valence constants that they can be subtracted
-# and compared as numbers -- i.e. that they are "proportional" to the numeric valence.
-# Some operations transiently create bonds with unsupported values of valence, especially bonds
-# to singlets, and this is later cleaned up by the involved atoms when they update their bonding
-# patterns, before those bonds are ever drawn. Except for bugs or perhaps during debugging,
-# only standard-valence bonds will ever be drawn, or saved in files, or seen by most code.
-
-# ==
-
-# Bond valence constants -- exact ints, 6 times the numeric valence they represent.
-# If these need an order, their standard order is the same as the order of their numeric valences
-# (as in the constant list BOND_VALENCES).
-
-V_SINGLE = 6 * 1
-V_GRAPHITE = 6 * 4/3  # (this can't be written 6 * (1+1/3) or 6 * (1+1/3.0) - first one is wrong, second one is not an exact int)
-V_AROMATIC = 6 * 3/2
-V_DOUBLE = 6 * 2
-V_CARBOMER = 6 * 5/2 # for the bonds in a carbomer of order 2.5 (which alternate with aromatic bonds); saved as bonda for now [050705]
-V_TRIPLE = 6 * 3
-
-BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_CARBOMER, V_TRIPLE]
-BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bonda', 'bond3'] # duplication of bonda is intentional (for now)
-    # (Some code might assume these all start with "bond".)
-    # (These mmp record names are also hardcoded into mmp-reading code in files_mmp.py.)
-bond_type_names = {V_SINGLE:'single', V_DOUBLE:'double', V_TRIPLE:'triple',
-                   V_AROMATIC:'aromatic', V_GRAPHITE:'graphite', V_CARBOMER:'carbomer'}
-
-BOND_VALENCES_HIGHEST_FIRST = list(BOND_VALENCES)
-BOND_VALENCES_HIGHEST_FIRST.reverse()
-
-V_ZERO_VALENCE = 0 # used as a temporary valence by some code
-
-BOND_LETTERS = ['?'] * (V_TRIPLE+1) # modified just below, to become a string; used in initial Bond.draw method via bond_letter_from_v6
-
-for v6, mmprec in zip( BOND_VALENCES, BOND_MMPRECORDS ):
-    BOND_LETTERS[v6] = mmprec[4] # '1','g',etc
-    # for this it's useful to also have '?' for in-between values but not for negative or too-high values,
-    # so a list or string is more useful than a dict
-
-BOND_LETTERS[V_CARBOMER] = 'b' # not 'a'
-
-BOND_LETTERS[0] = '0' # see comment in bond_letter_from_v6
-
-BOND_LETTERS = "".join(BOND_LETTERS)
-    ## print "BOND_LETTERS:",BOND_LETTERS # 0?????1?ga??2?????3
-
-def bond_letter_from_v6(v6): #bruce 050705
-    """Return a bond letter summarizing the given v6,
-    which for legal values is one of 1 2 3 a g b,
-    and for illegal values is one of - 0 ? +
-    """
-    try:
-        ltr = BOND_LETTERS[v6]
-            # includes special case of '0' for v6 == 0,
-            # which should only show up for transient states that are never drawn, except in case of bugs
-    except IndexError: # should only show up for transient states...
-        if v6 < 0:
-            ltr = '-'
-        else:
-            ltr = '+'
-    return ltr
-
-def btype_from_v6(v6): #bruce 050705
-    """Given a legal v6, return 'single', 'double', etc.
-    For V_CARBOMER returns 'carbomer', not 'aromatic'.
-    Exception for illegal values, including 0.
-    """
-    try:
-        return bond_type_names[v6]
-    except KeyError:
-        if platform.atom_debug:
-            print "atom_debug: treating illegal bond v6 %r as a single bond" % (v6,)
-        return 'unknown' #e stub for this error return; should it be an error word like this, or single, or closest legal value??
-    pass
-
-def invert_dict(dict1): #bruce 050705
-    res = {}
-    for key, val in dict1.items():
-        res[val] = key
-    return res
-
-bond_type_names_inverted = invert_dict(bond_type_names)
-
-def v6_from_btype(btype): #bruce 050705
-    "Return the v6 corresponding to the given bond-type name ('single', 'double', etc). Exception if name not legal."
-    return bond_type_names_inverted[btype]
-
-def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705
-    """Given a bond, and an optional quat describing the orientation it's shown in,
-    order the atoms left to right based on that quat,
-    and return a text string summarizing the bond
-    in the form C26(sp2) <-2-> C34(sp3) or so.
-    """
-    a1 = bond.atom1
-    a2 = bond.atom2
-    vec = a2.posn() - a1.posn()
-    vec = quat.rot(vec)
-    if vec[0] < 0.0:
-        a1, a2 = a2, a1
-    a1s = describe_atom_and_atomtype(a1)
-    a2s = describe_atom_and_atomtype(a2)
-    bondletter = bond_letter_from_v6(bond.v6)
-    if bondletter == '1':
-        bondletter = ''
-    return "%s <-%s-> %s" % (a1s, bondletter, a2s)
-
-def describe_atom_and_atomtype(atom): #bruce 050705 #e refile
-    """Return a string like C26(sp2) with atom name and type,
-    but only include the type if more than one is possible for the atom's element.
-    """
-    res = str(atom)
-    if len(atom.element.atomtypes) > 1:
-        res += "(%s)" % atom.atomtype.name
-    return res
-
 # == helper functions related to bonding (I might move these lower in the file #e)
 
 def bonds_mmprecord( valence, atomcodes ):
@@ -336,7 +171,8 @@ def bonds_mmprecord( valence, atomcodes ):
 
 def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False):
     """Bond atoms a1 and a2 by making a new bond of valence vnew (which must be one
-    of the constants in chem.BOND_VALENCES, not a numerically expressed valence).
+    of the constants in chem.BOND_VALENCES, not a numerically expressed valence;
+    for effect of not providing vnew, see below).
     The new bond is returned. If for some reason it can't be made, None is returned
     (but if that can happen, we should revise the API so an error message can be returned).
     Error if these two atoms are already bonded.
@@ -798,7 +634,9 @@ class Bond:
         """Self is a bond between old (typically a singlet) and some atom A;
         replace old with new in this same bond (self),
         so that old no longer bonds to A but new does.
-        Unlike some other bonding methods, the number of bonds on new increases
+           The bond-valence of self is not used or changed, even if it would be
+        incorrect for the new atomtypes used in the bond.
+           Unlike some other bonding methods, the number of bonds on new increases
         by 1, since no singlet on new is removed -- new is intended to be
         a just-created atom, not one with the right number of existing bonds.
         If old is a singlet, then kill it since it now has no bonds.
@@ -970,7 +808,7 @@ class Bond:
                     # Could fix this by having a separate display list, or no display list, for these kinds of things --
                     # would need a separate display list per chunk and per offset.
                 v6 = self.v6
-                ltr = bond_letter_from_v6(v6)
+                ltr = bond_letter_from_v6(v6).upper()
                 glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
                 glPopMatrix()
                 ## glEnable(GL_DEPTH_TEST)
@@ -1286,11 +1124,15 @@ class bonder_at_singlets:
             assert v1 != V_SINGLE or v2 != V_SINGLE # new code needed
         except:
             # old code can be used for now
+            if platform.atom_debug:
+                print "atom_debug: fyi: using OLD code for actually_bond" #####@@@@@
             s1.kill()
             s2.kill()
             bond_atoms(a1,a2)
             return (0, self.status) # effectively from bond_at_singlets
         # new code, handles any valences for s1, s2
+        if platform.atom_debug:
+            print "atom_debug: NEW code used for actually_bond" #####@@@@@
         vnew = min(v1,v2)
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
         # can that fail? I don't think so; if it could, it'd need to have new API and return us an error message explaining why.
