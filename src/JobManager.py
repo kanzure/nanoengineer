@@ -91,10 +91,13 @@ def get_job_manager_job_id_and_dir():
             return str(job_id), job_id_dir
 
 
-from JobManagerDialog import JobManagerDialog
 from GamessJob import GamessJob
-        
-class JobManager(JobManagerDialog):
+
+###Huaicai: Temporary fix the problem of bug 754: an older version of PyQt has problem working with
+###Qt3.3.3 for the QTable class.
+#from JobManagerDialog import JobManagerDialog
+if 0:
+ class JobManager(JobManagerDialog):
     jobType = {"GAMESS": GamessJob, "nanoSIM-1": None}
     def __init__(self, parent):
         JobManagerDialog.__init__(self, parent)
