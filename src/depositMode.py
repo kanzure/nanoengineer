@@ -30,6 +30,8 @@ HICOLOR_singlet = LEDon
 
 HICOLOR_real_bond = ave_colors( 0.8, blue, black)
 HICOLOR_singlet_bond = ave_colors( 0.5, HICOLOR_singlet, HICOLOR_real_bond) #k
+    # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
+
 
 _count = 0
 
@@ -564,6 +566,7 @@ class depositMode(basicMode):
         elif isinstance(selobj, Bond):
             ###@@@ use checkbox to control this; when false, return None
             if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
+                # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
                 return HICOLOR_singlet_bond
             else:
                 return HICOLOR_real_bond

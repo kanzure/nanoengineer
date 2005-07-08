@@ -433,20 +433,23 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """
         assert not self.__killed
         disp = default_display_mode # to be returned in case of early exception
-        glPushName( self.glname) #bruce 050610 (for comments, see same code in Bond.draw)
+
+        # note use of basepos (in atom.baseposn) since it's being drawn under
+        # rotation/translation of molecule
+        pos = self.baseposn()
+        disp, drawrad = self.howdraw(dispdef)
+        if disp == diTUBES:
+            pickedrad = drawrad * 1.8
+        else:
+            pickedrad = drawrad * 1.1
+        color = col or self.element.color
+
+        glname = self.glname
+        glPushName( glname) #bruce 050610 (for comments, see same code in Bond.draw)
             # (Note: these names won't be nested, since this method doesn't draw bonds;
             #  if it did, they would be, and using the last name would be correct,
             #  which is what's done (in GLPane.py) as of 050610.)
         try:
-            # note use of basepos (in atom.baseposn) since it's being drawn under
-            # rotation/translation of molecule
-            pos = self.baseposn()
-            disp, drawrad = self.howdraw(dispdef)
-            if disp == diTUBES:
-                pickedrad = drawrad * 1.8
-            else:
-                pickedrad = drawrad * 1.1
-            color = col or self.element.color
             if disp in [diVDW, diCPK, diTUBES]:
                 drawsphere(color, pos, drawrad, level)
             if self.picked:
@@ -493,6 +496,13 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """Draw this atom in absolute (world) coordinates,
         using the specified color (ignoring the color it would naturally be drawn with).
         See code comments about radius and display mode (current behavior might not be correct or optimal).
+           This is only called for special purposes related to mouseover-highlighting,
+        and should be renamed to reflect that, since its behavior can and should be specialized
+        for that use. (E.g. it doesn't happen inside display lists; and it need not use glName at all.)
+           In this case (Atom) [bruce 050708 new feature], this method (unlike the main draw method) will also
+        draw self's bond, provided self is a singlet with a bond which gets drawn, , so that for an "open bond"
+        it draws the entire thing (bond plus the "open end"). Corresponding to this, the bond will borrow the glname
+        of self whenever it draws itself (with any method). (This only works because bonds have at most one singlet.)
         """
         if self.__killed:
             return # I hope this is always ok...
@@ -501,6 +511,11 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
         drawrad = self.selatom_radius() # slightly larger than normal drawing radius
         drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
+        if len(self.bonds) == 1 and self.element is Singlet: #bruce 050708 new feature
+            dispdef = self.molecule.get_dispdef()
+            disp, drawradjunk = self.howdraw(dispdef) # (this arg is required)
+            if disp in (diCPK, diTUBES):
+                self.bonds[0].draw_in_abs_coords(glpane, color)
         return
     
     def draw_as_selatom(self, glpane, dispdef, color, level):

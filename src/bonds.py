@@ -721,7 +721,17 @@ class Bond:
         # As of 041109 this is now handled by bond.__getattr__.
         # The attr toolong is new as of 041112.
 
-        glPushName( self.glname) #bruce 050610
+        if self.atom1.element is Singlet:
+            #bruce 050708 new feature -- borrow name from our singlet
+            # (only works because we have at most one)
+            # (also required a change in Atom.draw_in_abs_coords)
+            glname = self.atom1.glname
+        elif self.atom2.element is Singlet:
+            glname = self.atom2.glname
+        else:
+            glname = self.glname
+
+        glPushName( glname) #bruce 050610
             # Note: we have to do this all the time, since display lists made outside GL_SELECT mode can be used inside it.
             # And since that display list might be used arbitrarily far into the future,
             # self.glname needs to remain the same (and we need to remain registered under it)
@@ -826,6 +836,9 @@ class Bond:
     def draw_in_abs_coords(self, glpane, color): #bruce 050609
         """Draw this bond in absolute (world) coordinates (even if it's an internal bond),
         using the specified color (ignoring the color it would naturally be drawn with).
+           This is only called for special purposes related to mouseover-highlighting,
+        and should be renamed to reflect that, since its behavior can and should be specialized
+        for that use. (E.g. it doesn't happen inside display lists; and it need not use glName at all.)
         """
         if self.killed():
             #bruce 050702, part of fix 2 of 2 redundant fixes for bug 716 (both fixes are desirable)
