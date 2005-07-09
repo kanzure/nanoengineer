@@ -78,6 +78,7 @@ purple = (1.0, 0.0, 1.0)
 white =  (1.0, 1.0, 1.0)
 gray =   (0.5, 0.5, 0.5)
 navy =   (0.0, 0.09, 0.44)
+darkred = (0.6, 0.0, 0.2) 
 
 LEDoff = (0.8, 0.0, 0.0)
 LEDon = pink = (0.8, 0.4, 0.4) ##bruce 050610 darkened this and added another name; old value was (1.0, 0.5, 0.5)
