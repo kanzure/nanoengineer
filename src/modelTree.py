@@ -402,11 +402,31 @@ class modelTree(TreeWidget):
             submenu = []
             attrs = filter( lambda attr: "__CM_" in attr, dir( node.__class__ )) #e should do in order of superclasses
             attrs.sort() # ok if empty list
-            for attr in attrs:
+            #bruce 050708 -- provide a way for these custom menu items to specify a list of menu_spec options (e.g. 'disabled') --
+            # they should define a method with the same name + "__options" and have it return a list of options, e.g. ['disabled'],
+            # or [] if it doesn't want to provide any options. It will be called again every time the context menu is shown.
+            # If it wants to remove the menu item entirely, it can return the special value (not a list) 'remove'.
+            opts = {}
+            for attr in attrs: # pass 1 - record menu options for certain commands
+                if attr.endswith("__options"):
+                    boundmethod = getattr( node, attr)
+                    try:
+                        lis = boundmethod()
+                        assert type(lis) == type([]) or lis == 'remove'
+                        opts[attr] = lis # for use in pass 2
+                    except:
+                        print_compact_traceback("exception ignored in %r.%s(): " % (node, attr))
+                        pass
+            for attr in attrs: # pass 2
+                if attr.endswith("__options"):
+                    continue
                 classname, menutext = attr.split("__CM_",1)
                 boundmethod = getattr( node, attr)
                 if callable(boundmethod):
-                    submenu.append(( menutext.replace('_',' '), boundmethod ))
+                    lis = opts.get(attr + "__options") or []
+                    if lis != 'remove':
+                        mitem = tuple([menutext.replace('_',' '), boundmethod] + lis)
+                        submenu.append(mitem)
                 elif boundmethod is None:
                     # kluge: None means remove any existing menu items (before the submenu) with this menutext!
                     res = filter( lambda text_cmd: text_cmd and text_cmd[0] != menutext, res ) # text_cmd might be None
