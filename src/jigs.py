@@ -553,7 +553,9 @@ class RotaryMotor(Motor):
             # self.axis from scratch or change the atom list in any way (even reordering it).
             # For now, we do this everywhere it's needed "by hand",
             # rather than in some (not yet existing) systematic and general way.
-        self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
+        # set default color of new rotary motor to gray
+        self.color = gray # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = gray # This is the normal (unselected) color.
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 2.0 # default cylinder radius
         self.sradius = 0.5 #default spoke radius
@@ -762,7 +764,9 @@ class LinearMotor(Motor):
         self.stiffness = 0.0
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
-        self.color = self.normcolor = (0.5, 0.5, 0.5) # default color = gray
+        # set default color of new linear motor to gray
+        self.color = gray # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = gray # This is the normal (unselected) color.
         self.length = 10.0 # default length of Linear Motor box
         self.width = 2.0 # default box width
         self.sradius = 0.5 #default spoke radius
@@ -850,8 +854,9 @@ class Ground(Jig):
     # create a blank Ground with the given list of atoms
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
-        self.color = (0.0, 0.0, 0.0)
-        self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
+        # set default color of new ground to black
+        self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = black # This is the normal (unselected) color.
 
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
         self.cntl = GroundProp(self, self.assy.o)
@@ -982,7 +987,8 @@ class Stat( Jig_onChunk_by1atom ):
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list) # note: this calls Jig_onChunk_by1atom.setAtoms method
         # set default color of new stat to blue
-        self.color = self.normcolor = (0.0, 0.0, 1.0) 
+        self.color = blue # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = blue # This is the normal (unselected) color.
         self.temp = 300
 
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
@@ -1037,7 +1043,8 @@ class Thermo(Jig_onChunk_by1atom):
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list) # note: this calls Jig_onChunk_by1atom.setAtoms method
         # set default color of new thermo to dark red
-        self.color = self.normcolor = (0.6, 0.0, 0.2) 
+        self.color = darkred # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = darkred # This is the normal (unselected) color.
 
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
         self.cntl = ThermoProp(self, self.assy.o)
