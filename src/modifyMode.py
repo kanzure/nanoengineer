@@ -30,14 +30,27 @@ def do_what_MainWindowUI_should_do(w):
     
     w.moveXLabel = QLabel(" X ", w.moveChunksDashboard)
     w.moveXSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveXSpinBox")
-    w.moveXLabel = QLabel(" Y ", w.moveChunksDashboard)
+    w.moveYLabel = QLabel(" Y ", w.moveChunksDashboard)
     w.moveYSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveYSpinBox")
-    w.moveXLabel = QLabel(" Z ", w.moveChunksDashboard)
+    w.moveZLabel = QLabel(" Z ", w.moveChunksDashboard)
     w.moveZSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveZSpinBox")
+    w.moveThetaLabel = QLabel(" Theta ", w.moveChunksDashboard)
+    w.moveThetaSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveThetaSpinBox")
+    
+    w.moveChunksDashboard.addSeparator()
+    
+    movetype_qvbox = QVBox(w.moveChunksDashboard)
+    w.movetype_combox = QComboBox(0,movetype_qvbox,"movetype_combox")
+    w.movetype_combox.insertItem('Translate')
+    w.movetype_combox.insertItem('Rotate X')
+    w.movetype_combox.insertItem('Rotate Y')
+    w.movetype_combox.insertItem('Rotate Z')
     
     w.moveDeltaPlusAction.addTo(w.moveChunksDashboard)
     w.moveDeltaMinusAction.addTo(w.moveChunksDashboard)
     w.moveAbsoluteAction.addTo(w.moveChunksDashboard)
+    w.moveThetaPlusAction.addTo(w.moveChunksDashboard)
+    w.moveThetaMinusAction.addTo(w.moveChunksDashboard)
     
     w.moveChunksDashboard.addSeparator()
     
@@ -94,8 +107,13 @@ class modifyMode(basicMode):
         self.w.connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
         self.w.connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
         self.w.connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
+        self.w.connect(self.w.moveThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
+        self.w.connect(self.w.moveThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
+        self.w.connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
         
-        set_move_xyz(self.w, 0, 0, 0)
+        set_move_xyz(self.w, 0, 0, 0) # Init X, Y, and Z to zero
+        self.w.moveThetaSpinBox.setFloatValue(0) # Init Theta spinbox to zero
+        self.setup_movetype(self.w.movetype_combox.currentText())
 
         # Always reset the dashboard icon to "Move Free" when entering MODIFY mode.
         # Mark 050410
@@ -109,9 +127,13 @@ class modifyMode(basicMode):
         self.w.disconnect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
         self.w.disconnect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
         self.w.disconnect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
+        self.w.disconnect(self.w.moveThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
+        self.w.disconnect(self.w.moveThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
+        self.w.disconnect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
         
     def keyPress(self,key):
         basicMode.keyPress(self, key)
+#        print "modifyMode: keyPress, key=", key
         if key == Qt.Key_Shift:
             self.o.setCursor(self.w.MoveAddCursor)
         elif key == Qt.Key_Control:
@@ -438,6 +460,76 @@ class modifyMode(basicMode):
         for mol in self.o.assy.selmols:
             mol.update_everything()
 
+    def setup_movetype(self, movetype):
+        
+        if movetype == 'Translate':
+            
+            self.w.moveXLabel.show()
+            self.w.moveXSpinBox.show()
+            self.w.moveYLabel.show()
+            self.w.moveYSpinBox.show()
+            self.w.moveZLabel.show()
+            self.w.moveZSpinBox.show()
+            self.w.moveThetaLabel.hide()
+            self.w.moveThetaSpinBox.hide()
+            
+            self.w.moveDeltaPlusAction.setVisible(1)
+            self.w.moveDeltaMinusAction.setVisible(1)
+            self.w.moveAbsoluteAction.setVisible(1)
+            self.w.moveThetaPlusAction.setVisible(0)
+            self.w.moveThetaMinusAction.setVisible(0)
+            
+        else: # Rotate
+            
+            self.w.moveXLabel.hide()
+            self.w.moveXSpinBox.hide()
+            self.w.moveYLabel.hide()
+            self.w.moveYSpinBox.hide()
+            self.w.moveZLabel.hide()
+            self.w.moveZSpinBox.hide()
+            self.w.moveThetaLabel.show()
+            self.w.moveThetaSpinBox.show()
+            
+            self.w.moveDeltaPlusAction.setVisible(0)
+            self.w.moveDeltaMinusAction.setVisible(0)
+            self.w.moveAbsoluteAction.setVisible(0)
+            self.w.moveThetaPlusAction.setVisible(1)
+            self.w.moveThetaMinusAction.setVisible(1)
+
+    def moveThetaPlus(self):
+        "Rotate the selected chunk(s) by theta (plus)"
+        rotype = self.w.movetype_combox.currentText()
+        theta = self.w.moveThetaSpinBox.floatValue()
+        self.moveTheta( rotype, theta)
+        
+    def moveThetaMinus(self):
+        "Rotate the selected chunk(s) by theta (minus)"
+        rotype = self.w.movetype_combox.currentText()
+        theta = self.w.moveThetaSpinBox.floatValue() * -1.0
+        self.moveTheta( rotype, theta)
+                
+    def moveTheta(self, rotype, theta):
+        "Rotate the selected chunk(s) around the specified axis by theta (degrees)"
+        
+        if rotype == 'Rotate X':
+            ma = V(1,0,0) # X Axis
+        elif rotype == 'Rotate Y':
+            ma = V(0,1,0) # Y Axis
+        elif rotype == 'Rotate Z':
+            ma = V(0,0,1) # Z Axis
+        else:
+            print 'modifyMody.moveThetaPlus: Error.  rotype = ', rotype, ', which is undefined.'
+            return
+
+        dy = theta / 180.0 * pi # Convert to radians
+        qrot = Q(ma,dy) # Quat for rotation delta.
+        
+        # Rotate the selected chunks    
+        for mol in self.o.assy.selmols:
+            mol.rot(qrot) # Rotate
+            
+        self.o.gl_update()
+        
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
         if not self.o.assy.selmols: 
