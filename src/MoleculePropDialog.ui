@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>360</width>
-            <height>348</height>
+            <width>243</width>
+            <height>354</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,19 +18,24 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <grid>
+    <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget" row="1" column="0">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout9</cstring>
+                <cstring>layout16</cstring>
             </property>
-            <hbox>
+            <grid>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLayoutWidget">
+                <widget class="QTextBrowser" row="1" column="1">
+                    <property name="name">
+                        <cstring>atomsTextBrowser</cstring>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget" row="1" column="0">
                     <property name="name">
                         <cstring>layout100</cstring>
                     </property>
@@ -68,33 +73,7 @@
                         </spacer>
                     </vbox>
                 </widget>
-                <widget class="QTextBrowser">
-                    <property name="name">
-                        <cstring>atomsTextBrowser</cstring>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget" row="0" column="0">
-            <property name="name">
-                <cstring>layout8</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>textLabel1</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Name:</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
-                </widget>
-                <widget class="QLineEdit">
+                <widget class="QLineEdit" row="0" column="1">
                     <property name="name">
                         <cstring>nameLineEdit</cstring>
                     </property>
@@ -111,19 +90,183 @@
                         <set>AlignLeft</set>
                     </property>
                 </widget>
-            </hbox>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>textLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Name:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+            </grid>
         </widget>
-        <widget class="QLayoutWidget" row="3" column="0">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout7</cstring>
+                <cstring>layout15</cstring>
             </property>
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>colorTextLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Chunk Color:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout8</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>colorPixmapLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>5</hsizetype>
+                                    <vsizetype>5</vsizetype>
+                                    <horstretch>1</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>230</red>
+                                    <green>231</green>
+                                    <blue>230</blue>
+                                </color>
+                            </property>
+                            <property name="frameShape">
+                                <enum>Box</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Plain</enum>
+                            </property>
+                            <property name="scaledContents">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>choose_color_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>true</bool>
+                            </property>
+                            <property name="text">
+                                <string>Choose...</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Change color</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer2</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>40</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>reset_color_btn</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
+            </property>
+            <property name="text">
+                <string>Reset Chunk Color to Default</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>make_atoms_visible_btn</cstring>
+            </property>
+            <property name="enabled">
+                <bool>true</bool>
+            </property>
+            <property name="text">
+                <string>Make Invisible Atoms Visible</string>
+            </property>
+        </widget>
+        <spacer>
+            <property name="name">
+                <cstring>spacer4</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout13</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer3</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>okPushButton</cstring>
+                        <cstring>ok_btn</cstring>
                     </property>
                     <property name="minimumSize">
                         <size>
@@ -146,7 +289,7 @@
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>cancelPushButton</cstring>
+                        <cstring>cancel_btn</cstring>
                     </property>
                     <property name="minimumSize">
                         <size>
@@ -167,197 +310,51 @@
                         <bool>false</bool>
                     </property>
                 </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>applyPushButton</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>0</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string>Apply</string>
-                    </property>
-                    <property name="accel">
-                        <string></string>
-                    </property>
-                </widget>
             </hbox>
         </widget>
-        <widget class="QLayoutWidget" row="2" column="0">
-            <property name="name">
-                <cstring>layout10</cstring>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout9</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout8</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>colorTextLabel</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Chunk Color:</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>colorPixmapLabel</cstring>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>5</hsizetype>
-                                            <vsizetype>5</vsizetype>
-                                            <horstretch>1</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="minimumSize">
-                                        <size>
-                                            <width>30</width>
-                                            <height>0</height>
-                                        </size>
-                                    </property>
-                                    <property name="paletteBackgroundColor">
-                                        <color>
-                                            <red>230</red>
-                                            <green>231</green>
-                                            <blue>230</blue>
-                                        </color>
-                                    </property>
-                                    <property name="frameShape">
-                                        <enum>Box</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                        <enum>Plain</enum>
-                                    </property>
-                                    <property name="scaledContents">
-                                        <bool>true</bool>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>colorSelectorPushButton</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>true</bool>
-                            </property>
-                            <property name="text">
-                                <string>...</string>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Change color</string>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>resetChunkColor</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="text">
-                        <string>Reset Chunk Color to Default</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>makeAtomsVisiblePB</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="text">
-                        <string>Make Invisible Atoms Visible</string>
-                    </property>
-                </widget>
-            </vbox>
-        </widget>
-    </grid>
+    </vbox>
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="477">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001a4494441541895b595c16a1a5114863f1ba9adf3082eb24e3208e205a5340f70c9d2079099e04692e226efe1a28b9499cec565573e83dc205d5ce842284253bb3279846671e5765114536f460bfa2fe7e77c1ccef9ef99c2783ce6107a7510ea21c145df47bbb04e650a630c4208a238a278542c6cf3b676ac32c5f1e5051fbe7ee1f8f20295298220704110389fe793176c8ca1523b0540d405c618a4944829bddecea31042f0f8f317afdfbee1f1f71342087abd1e00fd7e7fc3f3a9e08b9b6f8ee7efcf01d0779a7fbdf02c643a9d1672c1f57add455184b516a514e572d9db11c06c36a3d56ad16eb769341acfc0ab19db85754992382104a55289abebab5c28c0fc614ead5623cb329224717661dd0678d76daf2baf6605de75dbebcaab59a5c297846dcaab592d2f2f092fc99790e52bf4c66d3299b8344d190e87542a9517c1a3d1886eb74b9aa600fe54acebe4f484300c915212c731fa4e3feb328e63aad52a83c180db4fb7349bcd0d86f7e52db7fdeee30df36fdf519f15f73feeff82b5def0763e42be6d6badd15aefff56743a9d65576eafb7e27fefb117bc0f1decd7f407c9622686e6780f760000000049454e44ae426082</data>
+        <data format="PNG" length="300">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000f349444154789ccd94316e84301045ff2e9913b8e010685a244a3a8ec2a1381574b47448a640480830629b8076641c4ca228f98dedb1f5fcec6280ff9e876b8399b73ba0aaaa1e00f0e182e5798e300c2f415996214992636d0199792b8ac2cb2a8e63a4692a6acfefc2a228b260c2f0a76602c8cc5b59965e30004e98306c9ac679685dd763deb62d00402905adb575f669554e120481553b8309c365590000c6189f3b9c86079088c4b8e7fdb97f6bb803f7d195799efd0d89e812388ea3bf2111619aa65b865aeba33108a031067ddf5ffee1beaf94425dd7022680c330a0ebba2f61ef3983019ffdf06eef03700afb95bc002643895fd0f4fbb70000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
     <connection>
-        <sender>okPushButton</sender>
+        <sender>ok_btn</sender>
         <signal>clicked()</signal>
         <receiver>MoleculePropDialog</receiver>
         <slot>accept()</slot>
     </connection>
     <connection>
-        <sender>cancelPushButton</sender>
+        <sender>cancel_btn</sender>
         <signal>clicked()</signal>
         <receiver>MoleculePropDialog</receiver>
         <slot>reject()</slot>
     </connection>
     <connection>
-        <sender>applyPushButton</sender>
+        <sender>reset_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>MoleculePropDialog</receiver>
-        <slot>applyButtonClicked()</slot>
+        <slot>reset_chunk_color()</slot>
     </connection>
     <connection>
-        <sender>nameLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>MoleculePropDialog</receiver>
-        <slot>nameChanged()</slot>
-    </connection>
-    <connection>
-        <sender>resetChunkColor</sender>
+        <sender>choose_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>MoleculePropDialog</receiver>
-        <slot>setMol2ElementColors()</slot>
+        <slot>choose_color()</slot>
     </connection>
     <connection>
-        <sender>colorSelectorPushButton</sender>
+        <sender>make_atoms_visible_btn</sender>
         <signal>clicked()</signal>
         <receiver>MoleculePropDialog</receiver>
-        <slot>changeMolColor()</slot>
-    </connection>
-    <connection>
-        <sender>makeAtomsVisiblePB</sender>
-        <signal>clicked()</signal>
-        <receiver>MoleculePropDialog</receiver>
-        <slot>makeAtomsVisible()</slot>
+        <slot>make_atoms_visible()</slot>
     </connection>
 </connections>
 <slots>
-    <slot>applyButtonClicked()</slot>
-    <slot>nameChanged()</slot>
-    <slot>setMol2ElementColors()</slot>
-    <slot>changeMolColor()</slot>
-    <slot>makeAtomsVisible()</slot>
+    <slot>reset_chunk_color()</slot>
+    <slot>choose_color()</slot>
+    <slot>make_atoms_visible()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

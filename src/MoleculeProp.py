@@ -15,20 +15,23 @@ class MoleculeProp(MoleculePropDialog):
     def __init__(self, mol):
         MoleculePropDialog.__init__(self)
         self.mol = mol
+        self.setup()
+
+    def setup(self):
+        mol = self.mol
+        
+        self.originalColor = mol.color # Save original molecule color in case of cancel
         
         self.nameLineEdit.setText(mol.name)
-        self.applyPushButton.setEnabled(False)
         
-        self.mol.originalColor = self.mol.color # Save original molecule color in case of cancel
-
-        if self.mol.color: # Set colortile to mol color (without border)
+        if mol.color: # Set colortile to mol color (without border)
             self.colorPixmapLabel.setPaletteBackgroundColor(
                 QColor(int(mol.color[0]*255), 
                              int(mol.color[1]*255), 
                              int(mol.color[2]*255)))
             self.colorPixmapLabel.setFrameShape(QFrame.NoFrame)
-        else: # Set the colortile to gray (no color), with a box (border)
-            self.colorPixmapLabel.setPaletteBackgroundColor(nocolor)
+        else: # Set the colortile to the dialog's bg color (no color), with a box (border)
+            self.colorPixmapLabel.setPaletteBackgroundColor(self.paletteBackgroundColor())
             self.colorPixmapLabel.setFrameShape(QFrame.Box)
         
         # Create text for chunk info.
@@ -38,7 +41,7 @@ class MoleculeProp(MoleculePropDialog):
         
         # Determining the number of element types in this molecule.
         ele2Num = {}
-        for a in self.mol.atoms.itervalues():
+        for a in mol.atoms.itervalues():
              if not ele2Num.has_key(a.element.symbol): ele2Num[a.element.symbol] = 1 # New element found
              else: ele2Num[a.element.symbol] += 1 # Increment element
         
@@ -64,14 +67,16 @@ class MoleculeProp(MoleculePropDialog):
     #########################
     # Change molecule color
     #########################
-    def changeMolColor(self):
-        defcolor = (230.0/255.0, 231.0/255.0, 230.0/255.0)
-        if self.mol.color: defcolor = self.mol.color
-        color = QColorDialog.getColor(
-            QColor(int(defcolor[0]*255), 
-                         int(defcolor[1]*255), 
-                         int(defcolor[2]*255)),
-                         self, "ColorDialog")
+    def choose_color(self):
+        
+        if self.mol.color: 
+            color = QColorDialog.getColor(
+                QColor(int(self.mol.color[0]*255), 
+                            int(self.mol.color[1]*255), 
+                            int(self.mol.color[2]*255)),
+                            self, "ColorDialog")
+        else:
+            color = QColorDialog.getColor(self.paletteBackgroundColor(), self, "ColorDialog")
 
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
@@ -80,7 +85,7 @@ class MoleculeProp(MoleculePropDialog):
             self.mol.setcolor(self.mol.color)
             self.mol.glpane.gl_update()
 
-    def setMol2ElementColors(self):
+    def reset_chunk_color(self):
         if not self.mol.color: return
         self.colorPixmapLabel.setPaletteBackgroundColor(nocolor)
         self.colorPixmapLabel.setFrameShape(QFrame.Box)
@@ -88,28 +93,25 @@ class MoleculeProp(MoleculePropDialog):
         self.mol.setcolor(self.mol.color)
         self.mol.glpane.gl_update()
         
-    def makeAtomsVisible(self):
+    def make_atoms_visible(self):
+        '''Makes any atoms in this chunk visible.
+        '''
         self.mol.show_invisible_atoms()
         self.mol.glpane.gl_update()
         
-    def nameChanged(self):
-        self.applyPushButton.setEnabled(True)
-
-    def applyButtonClicked(self):
+    def reject(self):
+        QDialog.reject(self)
+        
+        self.mol.color = self.originalColor
+        self.mol.setcolor(self.mol.color)
+        self.mol.glpane.gl_update()
+        
+    def accept(self):
+        QDialog.accept(self)
+        
         text =  QString(self.nameLineEdit.text())        
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
         if text: self.mol.name = str(text)
-        self.nameLineEdit.setText(self.mol.name)
+        
         self.mol.assy.w.win_update() # Update model tree
         self.mol.assy.changed()
-        self.applyPushButton.setEnabled(False) 
-
-    def accept(self):
-        self.applyButtonClicked()    
-        QDialog.accept(self)
-
-    def reject(self):
-        QDialog.reject(self)
-        self.mol.color = self.mol.originalColor
-        self.mol.setcolor(self.mol.color)
-        self.mol.glpane.gl_update()
