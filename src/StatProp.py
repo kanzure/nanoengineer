@@ -20,8 +20,7 @@ class StatProp(StatPropDialog):
     def setup(self):
         stat = self.stat
         
-        self.newcolor = self.stat.normcolor
-        self.stat.originalColor = self.stat.normcolor
+        self.originalColor = self.stat.normcolor
         
         self.nameLineEdit.setText(stat.name)
         self.molnameLineEdit.setText(stat.atoms[0].molecule.name) #bruce 050210 replaced obs .mol attr
@@ -31,14 +30,8 @@ class StatProp(StatPropDialog):
             QColor(int(stat.normcolor[0]*255), 
                          int(stat.normcolor[1]*255), 
                          int(stat.normcolor[2]*255)))
-
-        self.applyPushButton.setEnabled(False)
         
-
-    #########################
-    # Change linear stat color
-    #########################
-    def changeStatColor(self):
+    def choose_color(self):
 
         color = QColorDialog.getColor(
             QColor(int(self.stat.normcolor[0]*255), 
@@ -48,42 +41,27 @@ class StatProp(StatPropDialog):
                         
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.newcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
-            self.applyPushButton.setEnabled(True)
-
-    #################
-    # OK Button
-    #################
-    def accept(self):
-        self.applyButtonPressed()
-        QDialog.accept(self)
+            self.stat.color = self.stat.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.glpane.gl_update()
 
     #################
     # Cancel Button
     #################
     def reject(self):
 	    QDialog.reject(self)
-	    self.stat.color = self.stat.normcolor = self.stat.originalColor
+	    self.stat.color = self.stat.normcolor = self.originalColor
 	    self.glpane.gl_update()
 
     #################
-    # Apply Button
-    #################	
-    def applyButtonPressed(self):
-
-        self.stat.temp = self.tempSpinBox.value()
+    # OK Button
+    #################
+    def accept(self):
+        QDialog.accept(self)
         
+        self.stat.temp = self.tempSpinBox.value()
         text =  QString(self.nameLineEdit.text())        
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
         if text: self.stat.name = str(text)
-        self.nameLineEdit.setText(self.stat.name)
+        
         self.stat.assy.w.win_update() # Update model tree
         self.stat.assy.changed()
-        
-        self.stat.color = self.stat.normcolor = self.newcolor        
-        self.glpane.gl_update()
-        
-        self.applyPushButton.setEnabled(False)
-	
-    def propertyChanged(self):
-        self.applyPushButton.setEnabled(True)	

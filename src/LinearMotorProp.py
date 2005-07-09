@@ -10,51 +10,34 @@ from LinearMotorPropDialog import *
 from VQT import V
 
 class LinearMotorProp(LinearMotorPropDialog):
-    def __init__(self, linearMotor, glpane):
+    def __init__(self, motor, glpane):
 
         LinearMotorPropDialog.__init__(self)
-        self.motor = linearMotor
+        self.motor = motor
         self.glpane = glpane
         self.setup()
 
     def setup(self):
-        linearMotor = self.motor
+        motor = self.motor
             
-        self.motor.originalColor = self.motor.normcolor
+        self.originalColor = self.motor.normcolor
         
-        self.nameLineEdit.setText(linearMotor.name)
+        self.nameLineEdit.setText(motor.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
-            QColor(int(linearMotor.normcolor[0]*255), 
-                         int(linearMotor.normcolor[1]*255), 
-                         int(linearMotor.normcolor[2]*255)))
+            QColor(int(motor.normcolor[0]*255), 
+                         int(motor.normcolor[1]*255), 
+                         int(motor.normcolor[2]*255)))
                          
-        self.stiffnessLineEdit.setText(str(linearMotor.stiffness))
-        self.forceLineEdit.setText(str(linearMotor.force))
+        self.stiffnessLineEdit.setText(str(motor.stiffness))
+        self.forceLineEdit.setText(str(motor.force))
         
-#        self.axLineEdit.setText(str(linearMotor.axis[0]))
-#        self.ayLineEdit.setText(str(linearMotor.axis[1]))
-#        self.azLineEdit.setText(str(linearMotor.axis[2]))
+        self.lengthLineEdit.setText(str(motor.length)) # motor length
+        self.widthLineEdit.setText(str(motor.width)) # motor width
+        self.sradiusLineEdit.setText(str(motor.sradius)) # spoke radius
 
-#        self.cxLineEdit.setText(str(linearMotor.center[0]))
-#        self.cyLineEdit.setText(str(linearMotor.center[1]))
-#        self.czLineEdit.setText(str(linearMotor.center[2]))
-        
-#        strList = map(lambda i: linearMotor.atoms[i].element.symbol + str(i),
-#                                                range(0, len(linearMotor.atoms)))
-#        self.atomsComboBox.insertStrList(strList, 0)
-        
-        self.lengthLineEdit.setText(str(linearMotor.length)) # motor length
-        self.widthLineEdit.setText(str(linearMotor.width)) # motor width
-        self.sradiusLineEdit.setText(str(linearMotor.sradius)) # spoke radius
 
-        self.applyPushButton.setEnabled(False)
-        
-
-    #########################
-    # Change linear motor color
-    #########################
-    def changeColor(self):
+    def choose_color(self):
 
         color = QColorDialog.getColor(
             QColor(int(self.motor.normcolor[0]*255), 
@@ -67,50 +50,31 @@ class LinearMotorProp(LinearMotorPropDialog):
             self.motor.color = self.motor.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
             self.glpane.gl_update()
 
-
-    #################
-    # OK Button
-    #################
-    def accept(self):
-        self.applyButtonPressed()
-        self.motor.cancelled = False
-        QDialog.accept(self)
-
     #################
     # Cancel Button
     #################
     def reject(self):
-	    QDialog.reject(self)
-	    self.motor.normcolor = self.motor.originalColor
+        QDialog.reject(self)
+        self.motor.color = self.motor.normcolor = self.originalColor
+        self.glpane.gl_update()
         
     #################
-    # Apply Button
-    #################	
-    def applyButtonPressed(self):
+    # OK Button
+    #################
+    def accept(self):
+        QDialog.accept(self)
         
-        self.motor.force = float(str(self.forceLineEdit.text()))
-        self.motor.stiffness = float(str(self.stiffnessLineEdit.text()))
-
-#        self.motor.axis[0] = float(str(self.axLineEdit.text()))
-#        self.motor.axis[1] = float(str(self.ayLineEdit.text()))
-#        self.motor.axis[2] = float(str(self.azLineEdit.text()))
-
-#        self.motor.center[0] = float(str(self.cxLineEdit.text()))
-#        self.motor.center[1] = float(str(self.cyLineEdit.text()))
-#        self.motor.center[2] = float(str(self.czLineEdit.text()))
-      
-        self.motor.length = float(str(self.lengthLineEdit.text())) # motor length
-        self.motor.width = float(str(self.widthLineEdit.text())) # motor width
-        self.motor.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
+        self.motor.cancelled = False
         
         text =  QString(self.nameLineEdit.text())        
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
         if text: self.motor.name = str(text)
-        self.nameLineEdit.setText(self.motor.name)
+        
+        self.motor.force = float(str(self.forceLineEdit.text()))
+        self.motor.stiffness = float(str(self.stiffnessLineEdit.text()))
+        self.motor.length = float(str(self.lengthLineEdit.text())) # motor length
+        self.motor.width = float(str(self.widthLineEdit.text())) # motor width
+        self.motor.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
+        
         self.motor.assy.w.win_update() # Update model tree
         self.motor.assy.changed()
-                        
-        self.applyPushButton.setEnabled(False)
-	
-    def propertyChanged(self):
-        self.applyPushButton.setEnabled(True)	

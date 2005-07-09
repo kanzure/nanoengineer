@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\StatPropDialog.ui'
 #
-# Created: Sat Jan 29 11:04:13 2005
+# Created: Fri Jul 8 23:57:38 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -124,67 +124,57 @@ class StatPropDialog(QDialog):
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
-        StatPropDialogLayout = QGridLayout(self,1,1,11,6,"StatPropDialogLayout")
+        StatPropDialogLayout = QVBoxLayout(self,11,6,"StatPropDialogLayout")
 
-        layout10 = QGridLayout(None,1,1,0,6,"layout10")
+        layout74 = QHBoxLayout(None,0,6,"layout74")
 
-        layout9 = QHBoxLayout(None,0,6,"layout9")
+        layout80 = QVBoxLayout(None,0,6,"layout80")
 
         self.nameTextLabel = QLabel(self,"nameTextLabel")
         self.nameTextLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.nameTextLabel.sizePolicy().hasHeightForWidth()))
-        nameTextLabel_font = QFont(self.nameTextLabel.font())
-        nameTextLabel_font.setPointSize(9)
-        nameTextLabel_font.setBold(1)
-        self.nameTextLabel.setFont(nameTextLabel_font)
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout9.addWidget(self.nameTextLabel)
+        layout80.addWidget(self.nameTextLabel)
+
+        self.nameTextLabel_2 = QLabel(self,"nameTextLabel_2")
+        self.nameTextLabel_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout80.addWidget(self.nameTextLabel_2)
+
+        self.molnameTextLabel = QLabel(self,"molnameTextLabel")
+        self.molnameTextLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
+        self.molnameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout80.addWidget(self.molnameTextLabel)
+
+        self.colorTextLabel = QLabel(self,"colorTextLabel")
+        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout80.addWidget(self.colorTextLabel)
+        layout74.addLayout(layout80)
+
+        layout73 = QVBoxLayout(None,0,6,"layout73")
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
         self.nameLineEdit.setEnabled(1)
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
-        layout9.addWidget(self.nameLineEdit)
+        layout73.addWidget(self.nameLineEdit)
 
-        layout10.addLayout(layout9,0,0)
+        layout101 = QHBoxLayout(None,0,6,"layout101")
 
-        layout11 = QHBoxLayout(None,0,6,"layout11")
+        layout100 = QHBoxLayout(None,0,6,"layout100")
 
-        layout121 = QHBoxLayout(None,0,6,"layout121")
+        self.tempSpinBox = QSpinBox(self,"tempSpinBox")
+        self.tempSpinBox.setSizePolicy(QSizePolicy(1,0,1,0,self.tempSpinBox.sizePolicy().hasHeightForWidth()))
+        self.tempSpinBox.setMaxValue(9999)
+        self.tempSpinBox.setValue(300)
+        layout100.addWidget(self.tempSpinBox)
 
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        colorTextLabel_font = QFont(self.colorTextLabel.font())
-        colorTextLabel_font.setPointSize(9)
-        colorTextLabel_font.setBold(1)
-        self.colorTextLabel.setFont(colorTextLabel_font)
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout121.addWidget(self.colorTextLabel)
-
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setSizePolicy(QSizePolicy(5,5,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
-        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
-        self.colorPixmapLabel.setScaledContents(1)
-        layout121.addWidget(self.colorPixmapLabel)
-        layout11.addLayout(layout121)
-
-        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
-        self.colorSelectorPushButton.setEnabled(1)
-        self.colorSelectorPushButton.setSizePolicy(QSizePolicy(1,0,0,0,self.colorSelectorPushButton.sizePolicy().hasHeightForWidth()))
-        layout11.addWidget(self.colorSelectorPushButton)
-
-        layout10.addLayout(layout11,3,0)
-
-        layout7 = QHBoxLayout(None,0,6,"layout7")
-
-        self.molnameTextLabel = QLabel(self,"molnameTextLabel")
-        self.molnameTextLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
-        molnameTextLabel_font = QFont(self.molnameTextLabel.font())
-        molnameTextLabel_font.setPointSize(9)
-        molnameTextLabel_font.setBold(1)
-        self.molnameTextLabel.setFont(molnameTextLabel_font)
-        self.molnameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout7.addWidget(self.molnameTextLabel)
+        self.textLabel1 = QLabel(self,"textLabel1")
+        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+        layout100.addWidget(self.textLabel1)
+        layout101.addLayout(layout100)
+        spacer16 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout101.addItem(spacer16)
+        layout73.addLayout(layout101)
 
         self.molnameLineEdit = QLineEdit(self,"molnameLineEdit")
         self.molnameLineEdit.setEnabled(1)
@@ -192,102 +182,79 @@ class StatPropDialog(QDialog):
         self.molnameLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.molnameLineEdit.setAlignment(QLineEdit.AlignLeft)
         self.molnameLineEdit.setReadOnly(1)
-        layout7.addWidget(self.molnameLineEdit)
+        layout73.addWidget(self.molnameLineEdit)
 
-        layout10.addLayout(layout7,2,0)
+        layout72 = QHBoxLayout(None,0,6,"layout72")
 
-        layout10_2 = QHBoxLayout(None,0,6,"layout10_2")
+        layout71 = QHBoxLayout(None,0,6,"layout71")
 
-        self.nameTextLabel_2 = QLabel(self,"nameTextLabel_2")
-        nameTextLabel_2_font = QFont(self.nameTextLabel_2.font())
-        nameTextLabel_2_font.setPointSize(9)
-        nameTextLabel_2_font.setBold(1)
-        self.nameTextLabel_2.setFont(nameTextLabel_2_font)
-        self.nameTextLabel_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        layout10_2.addWidget(self.nameTextLabel_2)
+        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
+        self.colorPixmapLabel.setSizePolicy(QSizePolicy(5,5,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
+        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
+        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
+        self.colorPixmapLabel.setScaledContents(1)
+        layout71.addWidget(self.colorPixmapLabel)
 
-        self.tempSpinBox = QSpinBox(self,"tempSpinBox")
-        self.tempSpinBox.setSizePolicy(QSizePolicy(1,0,1,0,self.tempSpinBox.sizePolicy().hasHeightForWidth()))
-        self.tempSpinBox.setMaxValue(1000)
-        self.tempSpinBox.setValue(300)
-        layout10_2.addWidget(self.tempSpinBox)
+        self.choose_color_btn = QPushButton(self,"choose_color_btn")
+        self.choose_color_btn.setEnabled(1)
+        self.choose_color_btn.setSizePolicy(QSizePolicy(1,0,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        layout71.addWidget(self.choose_color_btn)
+        layout72.addLayout(layout71)
+        spacer13 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout72.addItem(spacer13)
+        layout73.addLayout(layout72)
+        layout74.addLayout(layout73)
+        StatPropDialogLayout.addLayout(layout74)
+        spacer16_2 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        StatPropDialogLayout.addItem(spacer16_2)
 
-        layout10.addLayout(layout10_2,1,0)
+        layout59 = QHBoxLayout(None,0,6,"layout59")
+        spacer14 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout59.addItem(spacer14)
 
-        StatPropDialogLayout.addLayout(layout10,0,0)
+        self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setMinimumSize(QSize(0,0))
+        self.ok_btn.setAutoDefault(1)
+        self.ok_btn.setDefault(1)
+        layout59.addWidget(self.ok_btn)
 
-        layout34 = QHBoxLayout(None,0,6,"layout34")
-
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setMinimumSize(QSize(0,0))
-        okPushButton_font = QFont(self.okPushButton.font())
-        okPushButton_font.setPointSize(9)
-        okPushButton_font.setBold(1)
-        self.okPushButton.setFont(okPushButton_font)
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
-        layout34.addWidget(self.okPushButton)
-
-        self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setMinimumSize(QSize(0,0))
-        cancelPushButton_font = QFont(self.cancelPushButton.font())
-        cancelPushButton_font.setPointSize(9)
-        cancelPushButton_font.setBold(1)
-        self.cancelPushButton.setFont(cancelPushButton_font)
-        self.cancelPushButton.setAutoDefault(1)
-        self.cancelPushButton.setDefault(0)
-        layout34.addWidget(self.cancelPushButton)
-
-        self.applyPushButton = QPushButton(self,"applyPushButton")
-        self.applyPushButton.setEnabled(0)
-        self.applyPushButton.setMinimumSize(QSize(0,0))
-        applyPushButton_font = QFont(self.applyPushButton.font())
-        applyPushButton_font.setPointSize(9)
-        applyPushButton_font.setBold(1)
-        self.applyPushButton.setFont(applyPushButton_font)
-        layout34.addWidget(self.applyPushButton)
-
-        StatPropDialogLayout.addLayout(layout34,1,0)
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setMinimumSize(QSize(0,0))
+        self.cancel_btn.setAutoDefault(1)
+        self.cancel_btn.setDefault(0)
+        layout59.addWidget(self.cancel_btn)
+        StatPropDialogLayout.addLayout(layout59)
 
         self.languageChange()
 
-        self.resize(QSize(299,259).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(299,202).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
-        self.connect(self.nameLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
-        self.connect(self.applyPushButton,SIGNAL("clicked()"),self.applyButtonPressed)
-        self.connect(self.colorSelectorPushButton,SIGNAL("clicked()"),self.changeStatColor)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
 
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Stat Properties"))
-        self.nameTextLabel.setText(self.__tr("Name:"))
+        self.nameTextLabel.setText(self.__tr("Name :"))
+        self.nameTextLabel_2.setText(self.__tr("Temperature :"))
+        self.molnameTextLabel.setText(self.__tr("Attached to :"))
+        self.colorTextLabel.setText(self.__tr("Color :"))
         self.nameLineEdit.setText(QString.null)
-        self.colorTextLabel.setText(self.__tr("Color:"))
-        self.colorSelectorPushButton.setText(self.__tr("..."))
-        QToolTip.add(self.colorSelectorPushButton,self.__tr("Change color"))
-        self.molnameTextLabel.setText(self.__tr("Attached to:"))
+        self.textLabel1.setText(self.__tr("Kelvin"))
         self.molnameLineEdit.setText(QString.null)
-        self.nameTextLabel_2.setText(self.__tr("Temperature (K):"))
-        self.okPushButton.setText(self.__tr("&OK"))
-        self.okPushButton.setAccel(self.__tr("Alt+O"))
-        self.cancelPushButton.setText(self.__tr("&Cancel"))
-        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
-        self.applyPushButton.setText(self.__tr("Apply"))
-        self.applyPushButton.setAccel(QString.null)
+        self.choose_color_btn.setText(self.__tr("Choose..."))
+        QToolTip.add(self.choose_color_btn,self.__tr("Change color"))
+        self.ok_btn.setText(self.__tr("&OK"))
+        self.ok_btn.setAccel(self.__tr("Alt+O"))
+        self.cancel_btn.setText(self.__tr("&Cancel"))
+        self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
-    def applyButtonPressed(self):
-        print "StatPropDialog.applyButtonPressed(): Not implemented yet"
-
-    def changeStatColor(self):
-        print "StatPropDialog.changeStatColor(): Not implemented yet"
-
-    def propertyChanged(self):
-        print "StatPropDialog.propertyChanged(): Not implemented yet"
+    def choose_color(self):
+        print "StatPropDialog.choose_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("StatPropDialog",s,c)

@@ -20,22 +20,16 @@ class GroundProp(GroundPropDialog):
     def setup(self):
         ground = self.ground
         
-        self.newcolor = self.ground.normcolor
-        self.ground.originalColor = self.ground.normcolor
-        
-        self.nameLineEdit.setText(ground.name)
+        self.originalColor = self.ground.normcolor
+
+        self.nameLineEdit.setText(self.ground.name)
 
         self.colorPixmapLabel.setPaletteBackgroundColor(
             QColor(int(ground.normcolor[0]*255), 
                          int(ground.normcolor[1]*255), 
                          int(ground.normcolor[2]*255)))
 
-        self.applyPushButton.setEnabled(False)
-        
-    #########################
-    # Change linear ground color
-    #########################
-    def changeGroundColor(self):
+    def choose_color(self):
 
         color = QColorDialog.getColor(
             QColor(int(self.ground.normcolor[0]*255), 
@@ -45,40 +39,26 @@ class GroundProp(GroundPropDialog):
                         
         if color.isValid():
             self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.newcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
-            self.applyPushButton.setEnabled(True)
-
-    #############################
-    # OK Button
-    #################
-    def accept(self):
-        self.applyButtonPressed()
-        QDialog.accept(self)
+            self.ground.color = self.ground.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.glpane.gl_update()
 
     #################
     # Cancel Button
     #################
     def reject(self):
 	    QDialog.reject(self)
-	    self.ground.color = self.ground.normcolor = self.ground.originalColor
+	    self.ground.color = self.ground.normcolor = self.originalColor
 	    self.glpane.gl_update()
 
     #################
-    # Apply Button
-    #################	
-    def applyButtonPressed(self):
+    # OK Button
+    #################
+    def accept(self):
+        QDialog.accept(self)
         
         text =  QString(self.nameLineEdit.text())        
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
         if text: self.ground.name = str(text)
-        self.nameLineEdit.setText(self.ground.name)
+        
         self.ground.assy.w.win_update() # Update model tree
         self.ground.assy.changed()
-
-        self.ground.color = self.ground.normcolor = self.newcolor        
-        self.glpane.gl_update()
-
-        self.applyPushButton.setEnabled(False)
-	
-    def propertyChanged(self):
-        self.applyPushButton.setEnabled(True)	

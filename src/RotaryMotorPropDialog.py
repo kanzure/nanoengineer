@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Tue Mar 22 23:32:52 2005
+# Created: Sat Jul 9 00:00:08 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -98,190 +98,176 @@ class RotaryMotorPropDialog(QDialog):
 
         RotaryMotorPropDialogLayout = QVBoxLayout(self,11,6,"RotaryMotorPropDialogLayout")
 
-        layout37 = QGridLayout(None,1,1,0,6,"layout37")
+        layout82 = QHBoxLayout(None,0,6,"layout82")
+
+        layout27 = QVBoxLayout(None,0,6,"layout27")
 
         self.nameTextLabel = QLabel(self,"nameTextLabel")
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout27.addWidget(self.nameTextLabel)
 
-        layout37.addWidget(self.nameTextLabel,0,0)
+        self.textLabel1 = QLabel(self,"textLabel1")
+        textLabel1_font = QFont(self.textLabel1.font())
+        self.textLabel1.setFont(textLabel1_font)
+        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout27.addWidget(self.textLabel1)
 
-        self.speedLineEdit = QLineEdit(self,"speedLineEdit")
-        self.speedLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.speedLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.speedLineEdit.setAlignment(QLineEdit.AlignLeft)
+        self.textLabel1_2 = QLabel(self,"textLabel1_2")
+        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout27.addWidget(self.textLabel1_2)
 
-        layout37.addWidget(self.speedLineEdit,2,1)
+        self.textLabel1_3 = QLabel(self,"textLabel1_3")
+        self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout27.addWidget(self.textLabel1_3)
+
+        self.textLabel1_2_2 = QLabel(self,"textLabel1_2_2")
+        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout27.addWidget(self.textLabel1_2_2)
+
+        self.textLabel1_2_2_2 = QLabel(self,"textLabel1_2_2_2")
+        self.textLabel1_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout27.addWidget(self.textLabel1_2_2_2)
+
+        self.colorTextLabel = QLabel(self,"colorTextLabel")
+        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout27.addWidget(self.colorTextLabel)
+        layout82.addLayout(layout27)
+
+        layout81 = QVBoxLayout(None,0,6,"layout81")
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
         self.nameLineEdit.setReadOnly(0)
+        layout81.addWidget(self.nameLineEdit)
 
-        layout37.addWidget(self.nameLineEdit,0,1)
-
-        self.textLabel2 = QLabel(self,"textLabel2")
-
-        layout37.addWidget(self.textLabel2,2,2)
+        layout33 = QGridLayout(None,1,1,0,6,"layout33")
 
         self.textLabel1_4 = QLabel(self,"textLabel1_4")
 
-        layout37.addWidget(self.textLabel1_4,1,2)
-
-        self.textLabel1 = QLabel(self,"textLabel1")
-        textLabel1_font = QFont(self.textLabel1.font())
-        self.textLabel1.setFont(textLabel1_font)
-        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout37.addWidget(self.textLabel1,1,0)
-
-        self.textLabel1_2 = QLabel(self,"textLabel1_2")
-        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout37.addWidget(self.textLabel1_2,2,0)
+        layout33.addWidget(self.textLabel1_4,0,1)
 
         self.torqueLineEdit = QLineEdit(self,"torqueLineEdit")
         self.torqueLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout37.addWidget(self.torqueLineEdit,1,1)
+        layout33.addWidget(self.torqueLineEdit,0,0)
 
-        self.textLabel4 = QLabel(self,"textLabel4")
+        self.textLabel3 = QLabel(self,"textLabel3")
 
-        layout37.addWidget(self.textLabel4,0,2)
-        RotaryMotorPropDialogLayout.addLayout(layout37)
-
-        layout38 = QGridLayout(None,1,1,0,6,"layout38")
-
-        self.sradiusLineEdit = QLineEdit(self,"sradiusLineEdit")
-        self.sradiusLineEdit.setAlignment(QLineEdit.AlignLeft)
-
-        layout38.addWidget(self.sradiusLineEdit,2,1)
-
-        self.textLabel3_2 = QLabel(self,"textLabel3_2")
-
-        layout38.addWidget(self.textLabel3_2,1,2)
+        layout33.addWidget(self.textLabel3,2,1)
 
         self.radiusLineEdit = QLineEdit(self,"radiusLineEdit")
         self.radiusLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout38.addWidget(self.radiusLineEdit,1,1)
+        layout33.addWidget(self.radiusLineEdit,3,0)
 
-        self.textLabel1_2_2_2 = QLabel(self,"textLabel1_2_2_2")
-        self.textLabel1_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.textLabel2 = QLabel(self,"textLabel2")
 
-        layout38.addWidget(self.textLabel1_2_2_2,2,0)
+        layout33.addWidget(self.textLabel2,1,1)
 
         self.lengthLineEdit = QLineEdit(self,"lengthLineEdit")
         self.lengthLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.lengthLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.lengthLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout38.addWidget(self.lengthLineEdit,0,1)
+        layout33.addWidget(self.lengthLineEdit,2,0)
 
-        self.textLabel1_2_2 = QLabel(self,"textLabel1_2_2")
-        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.textLabel3_2 = QLabel(self,"textLabel3_2")
 
-        layout38.addWidget(self.textLabel1_2_2,1,0)
+        layout33.addWidget(self.textLabel3_2,3,1)
+
+        self.speedLineEdit = QLineEdit(self,"speedLineEdit")
+        self.speedLineEdit.setFrameShape(QLineEdit.LineEditPanel)
+        self.speedLineEdit.setFrameShadow(QLineEdit.Sunken)
+        self.speedLineEdit.setAlignment(QLineEdit.AlignLeft)
+
+        layout33.addWidget(self.speedLineEdit,1,0)
 
         self.textLabel3_3 = QLabel(self,"textLabel3_3")
 
-        layout38.addWidget(self.textLabel3_3,2,2)
+        layout33.addWidget(self.textLabel3_3,4,1)
 
-        self.textLabel3 = QLabel(self,"textLabel3")
+        self.sradiusLineEdit = QLineEdit(self,"sradiusLineEdit")
+        self.sradiusLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout38.addWidget(self.textLabel3,0,2)
+        layout33.addWidget(self.sradiusLineEdit,4,0)
+        layout81.addLayout(layout33)
 
-        self.textLabel1_3 = QLabel(self,"textLabel1_3")
-        self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout80 = QHBoxLayout(None,0,6,"layout80")
 
-        layout38.addWidget(self.textLabel1_3,0,0)
-        RotaryMotorPropDialogLayout.addLayout(layout38)
-
-        layout39 = QHBoxLayout(None,0,6,"layout39")
-
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout39.addWidget(self.colorTextLabel)
+        layout79 = QHBoxLayout(None,0,6,"layout79")
 
         self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
+        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
         self.colorPixmapLabel.setPaletteBackgroundColor(QColor(175,175,175))
         self.colorPixmapLabel.setScaledContents(1)
-        layout39.addWidget(self.colorPixmapLabel)
+        layout79.addWidget(self.colorPixmapLabel)
 
-        self.colorSelectorPushButton = QPushButton(self,"colorSelectorPushButton")
-        self.colorSelectorPushButton.setEnabled(1)
-        layout39.addWidget(self.colorSelectorPushButton)
-        RotaryMotorPropDialogLayout.addLayout(layout39)
+        self.choose_color_btn = QPushButton(self,"choose_color_btn")
+        self.choose_color_btn.setEnabled(1)
+        layout79.addWidget(self.choose_color_btn)
+        layout80.addLayout(layout79)
+        spacer3 = QSpacerItem(49,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout80.addItem(spacer3)
+        layout81.addLayout(layout80)
+        layout82.addLayout(layout81)
+        RotaryMotorPropDialogLayout.addLayout(layout82)
+        spacer4 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        RotaryMotorPropDialogLayout.addItem(spacer4)
 
-        layout11 = QHBoxLayout(None,0,6,"layout11")
+        layout23 = QHBoxLayout(None,0,6,"layout23")
+        spacer1 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout23.addItem(spacer1)
 
-        self.okPushButton = QPushButton(self,"okPushButton")
-        self.okPushButton.setAutoDefault(1)
-        self.okPushButton.setDefault(1)
-        layout11.addWidget(self.okPushButton)
+        self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setAutoDefault(1)
+        self.ok_btn.setDefault(1)
+        layout23.addWidget(self.ok_btn)
 
-        self.cancelPushButton = QPushButton(self,"cancelPushButton")
-        self.cancelPushButton.setAutoDefault(1)
-        layout11.addWidget(self.cancelPushButton)
-
-        self.applyPushButton = QPushButton(self,"applyPushButton")
-        self.applyPushButton.setEnabled(0)
-        self.applyPushButton.setAutoDefault(1)
-        self.applyPushButton.setDefault(0)
-        layout11.addWidget(self.applyPushButton)
-        RotaryMotorPropDialogLayout.addLayout(layout11)
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setAutoDefault(1)
+        layout23.addWidget(self.cancel_btn)
+        RotaryMotorPropDialogLayout.addLayout(layout23)
 
         self.languageChange()
 
-        self.resize(QSize(338,327).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(309,281).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
-        self.connect(self.applyPushButton,SIGNAL("clicked()"),self.applyButtonPressed)
-        self.connect(self.torqueLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
-        self.connect(self.speedLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
-        self.connect(self.colorSelectorPushButton,SIGNAL("clicked()"),self.changeColor)
-        self.connect(self.nameLineEdit,SIGNAL("textChanged(const QString&)"),self.propertyChanged)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
 
         self.setTabOrder(self.torqueLineEdit,self.speedLineEdit)
-        self.setTabOrder(self.speedLineEdit,self.okPushButton)
-        self.setTabOrder(self.okPushButton,self.cancelPushButton)
+        self.setTabOrder(self.speedLineEdit,self.ok_btn)
+        self.setTabOrder(self.ok_btn,self.cancel_btn)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Rotary Motor Properties"))
         self.nameTextLabel.setText(self.__tr("Name:"))
-        self.nameLineEdit.setText(QString.null)
-        self.textLabel2.setText(self.__tr("GHz"))
-        self.textLabel1_4.setText(self.__tr("nN-nm"))
         self.textLabel1.setText(self.__tr("Torque:"))
         self.textLabel1_2.setText(self.__tr("Speed:"))
-        self.textLabel4.setText(QString.null)
-        self.textLabel3_2.setText(self.__tr("Angstroms"))
-        self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius:"))
-        self.textLabel1_2_2.setText(self.__tr("Motor Radius:"))
-        self.textLabel3_3.setText(self.__tr("Angstroms"))
-        self.textLabel3.setText(self.__tr("Angstroms"))
         self.textLabel1_3.setText(self.__tr("Motor Length:"))
+        self.textLabel1_2_2.setText(self.__tr("Motor Radius:"))
+        self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius:"))
         self.colorTextLabel.setText(self.__tr("Color:"))
-        self.colorSelectorPushButton.setText(self.__tr("..."))
-        self.okPushButton.setText(self.__tr("&OK"))
-        self.okPushButton.setAccel(self.__tr("Alt+O"))
-        self.cancelPushButton.setText(self.__tr("&Cancel"))
-        self.cancelPushButton.setAccel(self.__tr("Alt+C"))
-        self.applyPushButton.setText(self.__tr("&Apply"))
-        self.applyPushButton.setAccel(self.__tr("Alt+A"))
+        self.nameLineEdit.setText(QString.null)
+        self.textLabel1_4.setText(self.__tr("nN-nm"))
+        self.textLabel3.setText(self.__tr("Angstroms"))
+        self.textLabel2.setText(self.__tr("GHz"))
+        self.textLabel3_2.setText(self.__tr("Angstroms"))
+        self.textLabel3_3.setText(self.__tr("Angstroms"))
+        self.choose_color_btn.setText(self.__tr("Choose..."))
+        self.ok_btn.setText(self.__tr("&OK"))
+        self.ok_btn.setAccel(self.__tr("Alt+O"))
+        self.cancel_btn.setText(self.__tr("&Cancel"))
+        self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
-    def applyButtonPressed(self):
-        print "RotaryMotorPropDialog.applyButtonPressed(): Not implemented yet"
-
-    def propertyChanged(self):
-        print "RotaryMotorPropDialog.propertyChanged(): Not implemented yet"
-
-    def changeColor(self):
-        print "RotaryMotorPropDialog.changeColor(): Not implemented yet"
+    def choose_color(self):
+        print "RotaryMotorPropDialog.choose_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("RotaryMotorPropDialog",s,c)
