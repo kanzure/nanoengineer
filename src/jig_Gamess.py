@@ -379,17 +379,32 @@ class Gamess(Jig):
 class gamessParms:
     def __init__(self, name):
         '''A GAMESS parameter set contains all the parameters for a Gamess Jig.
+        
+        The ui ctlRec object is the "master".  From it, all the other ctlRec objects 
+        have their parms set/reset, in GamessProp._save_parms(), each time the user
+        selects "Save and Run" or "Save".  The reason for this has to do with 
+        the fact that there is not a one-to-one relationship between UI settings (in the
+        Gamess Jig Properties dialog) and the parameters written to the GAMESS
+        input file.  There are all sorts of strange combinations and permutations 
+        between the UI settings and what the GAMESS input file parameters end up being.  
+        This is also why it is very difficult (but not impossible) to go from a raw GAMESS 
+        input file to the proper UI settings in the Gamess Jig Properties dialog.
+        
+        Many parameters have a value for the ui object and another value in one of 
+        the other ctlRec objects.  The ui object is used to setup the UI and 
+        read/write parms to/from the MMP file. The values for the other
+        ctlRec objects are set (and only important) when writing the GAMESS input file.
         '''
         self.name = name or "" # Parms set name, assumed to be a string by some code
-        self.ui = ctlRec('UI', ui)
-        self.contrl = ctlRec('CONTRL',contrl)
-        self.scf = ctlRec('SCF',scf)
-        self.system = ctlRec('SYSTEM',system)
-        self.mp2 = ctlRec('MP2',mp2)
-        self.dft = ctlRec('DFT',dft)
-        self.guess = ctlRec('GUESS',guess)
-        self.statpt = ctlRec('STATPT',statpt)
-        self.basis = ctlRec('BASIS',basis)
+        self.ui = ctlRec('UI', ui) # "Master" ui object.
+        self.contrl = ctlRec('CONTRL',contrl) # $CONTRL group object
+        self.scf = ctlRec('SCF',scf) # $SCF group object
+        self.system = ctlRec('SYSTEM',system) # $SYSTEM group object
+        self.mp2 = ctlRec('MP2',mp2) # $MP2 group object
+        self.dft = ctlRec('DFT',dft) # $DFT group object
+        self.guess = ctlRec('GUESS',guess) # $GUESS group object
+        self.statpt = ctlRec('STATPT',statpt) # $STATPT group object
+        self.basis = ctlRec('BASIS',basis) # $BASIS group object
 
     def prin1(self, f=None):
         'Write all parms to input file'
