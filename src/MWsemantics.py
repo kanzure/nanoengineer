@@ -400,7 +400,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         else: odir = globalParms['WorkingDirectory']
 
         fn = QFileDialog.getOpenFileName(odir,
-                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out)",
+                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
                 self )
                 
         if not fn:
@@ -426,10 +426,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 readpdb(self.assy,fn)
                 self.history.message("PDB file opened: [" + fn + "]")
 
-            if fn[-3:] in ["out","OUT"]:
-                readgms(self.assy,fn)
-                self.history.message("GAMESS file opened: [" + fn + "]")
-                
             dir, fil, ext = fileparse(fn)
             self.assy.name = fil
             self.assy.filename = fn
