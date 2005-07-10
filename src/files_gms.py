@@ -124,11 +124,16 @@ def _readgms(assy, filename, isInsert = False):
     
 # Read a GAMESS DAT file into a single molecule (chunk)
 def readgms(assy,filename):
-    '''Reads a GAMESS DAT file.'''
+    '''Reads a GAMESS DAT file.
+    Returns: 0 = Success
+                   1 = Failed
+    '''
     mol  = _readgms(assy, filename, isInsert = False)
     if mol is not None:
         assy.addmol(mol)
-    return
+        return 0
+    else:
+        return 1
     
 # Insert a GAMESS DAT file into a single molecule (chunk).
 def insertgms(assy,filename):
