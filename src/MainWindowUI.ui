@@ -280,6 +280,14 @@
         <property name="name">
             <cstring>selectToolbar</cstring>
         </property>
+        <property name="geometry">
+            <rect>
+                <x>650</x>
+                <y>0</y>
+                <width>154</width>
+                <height>29</height>
+            </rect>
+        </property>
         <property name="label">
             <string>Select</string>
         </property>
@@ -845,6 +853,9 @@
     <toolbar dock="4">
         <property name="name">
             <cstring>cookieSelectDashboard</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
         </property>
         <property name="label">
             <string>Toolbar</string>
@@ -2727,13 +2738,13 @@
                 <iconset>image81</iconset>
             </property>
             <property name="text">
-                <string>X Translation</string>
+                <string>X Transformation</string>
             </property>
             <property name="menuText">
-                <string>X Translation</string>
+                <string>X Transformation</string>
             </property>
             <property name="toolTip">
-                <string>X Translation</string>
+                <string>X Transformation</string>
             </property>
         </action>
         <action>
@@ -2747,13 +2758,13 @@
                 <iconset>image82</iconset>
             </property>
             <property name="text">
-                <string>Y Translation</string>
+                <string>Y Transformation</string>
             </property>
             <property name="menuText">
-                <string>Y Translation</string>
+                <string>Y Transformation</string>
             </property>
             <property name="toolTip">
-                <string>Y Translation</string>
+                <string>Y Transformation</string>
             </property>
         </action>
         <action>
@@ -2767,13 +2778,13 @@
                 <iconset>image83</iconset>
             </property>
             <property name="text">
-                <string>Z Translation</string>
+                <string>Z Transformation</string>
             </property>
             <property name="menuText">
-                <string>Z Translation</string>
+                <string>Z Transformation</string>
             </property>
             <property name="toolTip">
-                <string>Z Translation</string>
+                <string>Z Transformation</string>
             </property>
         </action>
         <action>

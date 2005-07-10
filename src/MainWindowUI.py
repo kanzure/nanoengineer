@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sat Jul 9 13:04:44 2005
+# Created: Sun Jul 10 08:31:03 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6371,6 +6371,7 @@ class MainWindow(QMainWindow):
         self.dispVdWAction.addTo(self.molecularDispToolbar)
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.selectToolbar.setGeometry(QRect(650,0,154,29))
         self.selectAllAction.addTo(self.selectToolbar)
         self.selectNoneAction.addTo(self.selectToolbar)
         self.selectInvertAction.addTo(self.selectToolbar)
@@ -6503,6 +6504,7 @@ class MainWindow(QMainWindow):
         self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.cookieSelectDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
+        self.cookieSelectDashboard.setEnabled(1)
         self.DefaultSelAction.addTo(self.cookieSelectDashboard)
         self.LassoSelAction.addTo(self.cookieSelectDashboard)
         self.RectCornerSelAction.addTo(self.cookieSelectDashboard)
@@ -7086,15 +7088,15 @@ class MainWindow(QMainWindow):
         self.modifyStretchAction.setMenuText(self.__tr("S&tretch"))
         self.MoveOptionsGroup.setText(self.__tr("Move Chunks"))
         self.MoveOptionsGroup.setMenuText(self.__tr("Move Chunks"))
-        self.transXAction.setText(self.__tr("X Translation"))
-        self.transXAction.setMenuText(self.__tr("X Translation"))
-        self.transXAction.setToolTip(self.__tr("X Translation"))
-        self.transYAction.setText(self.__tr("Y Translation"))
-        self.transYAction.setMenuText(self.__tr("Y Translation"))
-        self.transYAction.setToolTip(self.__tr("Y Translation"))
-        self.transZAction.setText(self.__tr("Z Translation"))
-        self.transZAction.setMenuText(self.__tr("Z Translation"))
-        self.transZAction.setToolTip(self.__tr("Z Translation"))
+        self.transXAction.setText(self.__tr("X Transformation"))
+        self.transXAction.setMenuText(self.__tr("X Transformation"))
+        self.transXAction.setToolTip(self.__tr("X Transformation"))
+        self.transYAction.setText(self.__tr("Y Transformation"))
+        self.transYAction.setMenuText(self.__tr("Y Transformation"))
+        self.transYAction.setToolTip(self.__tr("Y Transformation"))
+        self.transZAction.setText(self.__tr("Z Transformation"))
+        self.transZAction.setMenuText(self.__tr("Z Transformation"))
+        self.transZAction.setToolTip(self.__tr("Z Transformation"))
         self.rotXAction.setText(self.__tr("X Rotation"))
         self.rotXAction.setMenuText(self.__tr("X Rotation"))
         self.rotXAction.setToolTip(self.__tr("X Rotation"))
