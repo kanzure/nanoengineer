@@ -996,6 +996,19 @@ def createWhatsThis(self):
 
         self.helpAssistantAction.setWhatsThis( helpAssistantText )
         
+        #### What's This ####
+        
+        helpWhatsThisText = "<u><b>What's This</b></u><br>"\
+                        "<p><img source=\"helpWhatsThis\"><br> "\
+                       "Click this option to invoke a small question mark that is attached to the mouse pointer. "\
+                       "Click on a feature which you would like more information about. "\
+                       "A popup box appears with information about the feature.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "helpWhatsThis",
+                                                       self.helpWhatsThisAction.iconSet().pixmap() )
+
+        self.helpWhatsThisAction.setWhatsThis( helpWhatsThisText )
+        
 
         ##############################################
         # Datum Display Toolbar
