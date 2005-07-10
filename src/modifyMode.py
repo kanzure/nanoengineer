@@ -28,23 +28,27 @@ def do_what_MainWindowUI_should_do(w):
     
     w.moveChunksDashboard.addSeparator()
     
-    w.moveXLabel = QLabel(" X ", w.moveChunksDashboard)
-    w.moveXSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveXSpinBox")
-    w.moveYLabel = QLabel(" Y ", w.moveChunksDashboard)
-    w.moveYSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveYSpinBox")
-    w.moveZLabel = QLabel(" Z ", w.moveChunksDashboard)
-    w.moveZSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveZSpinBox")
-    w.moveThetaLabel = QLabel(" Theta ", w.moveChunksDashboard)
-    w.moveThetaSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveThetaSpinBox")
-    
-    w.moveChunksDashboard.addSeparator()
-    
     movetype_qvbox = QVBox(w.moveChunksDashboard)
     w.movetype_combox = QComboBox(0,movetype_qvbox,"movetype_combox")
     w.movetype_combox.insertItem('Translate')
     w.movetype_combox.insertItem('Rotate X')
     w.movetype_combox.insertItem('Rotate Y')
     w.movetype_combox.insertItem('Rotate Z')
+    
+    w.moveXLabel = QLabel(" X ", w.moveChunksDashboard)
+    w.moveXSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveXSpinBox")
+    QToolTip.add(w.moveXSpinBox,'X delta (Angstroms)')
+    w.moveYLabel = QLabel(" Y ", w.moveChunksDashboard)
+    w.moveYSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveYSpinBox")
+    QToolTip.add(w.moveYSpinBox,'Y delta (Angstroms)')
+    w.moveZLabel = QLabel(" Z ", w.moveChunksDashboard)
+    w.moveZSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveZSpinBox")
+    QToolTip.add(w.moveZSpinBox,'Z delta (Angstroms)')
+    w.moveThetaLabel = QLabel(" Theta ", w.moveChunksDashboard)
+    w.moveThetaSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveThetaSpinBox")
+    QToolTip.add(w.moveThetaSpinBox,'Rotation (Degrees)')
+    w.moveThetaSpinBox.setMaxValue(36000) # Actually 360
+    w.moveThetaSpinBox.setMinValue(-36000) # Actually -360
     
     w.moveDeltaPlusAction.addTo(w.moveChunksDashboard)
     w.moveDeltaMinusAction.addTo(w.moveChunksDashboard)
