@@ -106,10 +106,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         # mark 050428: Added Fuse Chunk dashboard.
         import fusechunksMode as _fusechunksMode
         _fusechunksMode.do_what_MainWindowUI_should_do(self)
-
-        # this got lost in MainWindowUI somehow
-        self.disconnect(self.editCopyAction,SIGNAL("activated()"),self.copyDo)
-        self.connect(self.editCopyAction,SIGNAL("activated()"),self.editCopy)
         
         # Load all the custom cursors
         self.loadCursors()
@@ -189,7 +185,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.setFocusPolicy(QWidget.StrongFocus)
         
         # Create the "What's This?" online help system.
-        self.createWhatsThis()
+        from whatsthis import createWhatsThis
+        createWhatsThis(self)
 
         # Start with Carbon as the default element (for Deposit Mode
         # and the Element Selector)
@@ -1666,13 +1663,5 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
                 self.cookieSelectDashboard]:
                     self.setAppropriate(obj, False)
-
-    # Import code for What's This support
-    # [bruce 050408 comment: from the way this is defined, it looks like the
-    #  function createWhatsThis becomes an attribute of this class,
-    #  so it can be called above as if it was a locally defined method,
-    #  even though it's not. Nonstandard, but ok if it works. I didn't test it
-    #  to confirm this theory.]
-    from whatsthis import createWhatsThis
 
     # end of class MWsemantics

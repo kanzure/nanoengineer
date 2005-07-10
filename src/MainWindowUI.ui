@@ -75,7 +75,7 @@
         <separator/>
         <action name="editPrefsAction"/>
     </item>
-    <item text="&amp;View" name="unnamed">
+    <item text="&amp;View" name="viewMenu">
         <action name="setViewHomeAction"/>
         <action name="setViewHomeToCurrentAction"/>
         <action name="setViewFitToWindowAction"/>
@@ -93,7 +93,7 @@
         <action name="setViewTopAction"/>
         <action name="setViewBottomAction"/>
     </item>
-    <item text="&amp;Display" name="unnamed">
+    <item text="&amp;Display" name="displayMenu">
         <separator/>
         <action name="dispDefaultAction"/>
         <action name="dispInvisAction"/>
@@ -112,14 +112,14 @@
         <action name="dispElementColorSettingsAction"/>
         <action name="dispLightingAction"/>
     </item>
-    <item text="Select" name="Select">
+    <item text="Select" name="selectMenu">
         <action name="selectAllAction"/>
         <action name="selectNoneAction"/>
         <action name="selectInvertAction"/>
         <action name="selectConnectedAction"/>
         <action name="selectDoublyAction"/>
     </item>
-    <item text="&amp;Modify" name="Modify">
+    <item text="&amp;Modify" name="modifyMenu">
         <action name="modifyMinimizeSelAction"/>
         <action name="modifyMinimizeAllAction"/>
         <action name="modifyPassivateAction"/>
@@ -132,7 +132,7 @@
         <action name="modifyInvertAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </item>
-    <item text="&amp;Tools" name="Tools">
+    <item text="&amp;Tools" name="toolsMenu">
         <action name="toolsSelectMoleculesAction"/>
         <action name="toolsSelectAtomsAction"/>
         <separator/>
@@ -142,7 +142,7 @@
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
     </item>
-    <item text="&amp;Jigs" name="Jigs">
+    <item text="&amp;Jigs" name="jigsMenu">
         <action name="jigsMotorAction"/>
         <action name="jigsLinearMotorAction"/>
         <action name="jigsGroundAction"/>
@@ -150,7 +150,7 @@
         <action name="jigsThermoAction"/>
         <action name="jigsGamessAction"/>
     </item>
-    <item text="Simulator" name="Simulator">
+    <item text="Simulator" name="simulatorMenu">
         <action name="simSetupAction"/>
         <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
@@ -4257,7 +4257,7 @@
         <sender>editCopyAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>copyDo()</slot>
+        <slot>editCopy()</slot>
     </connection>
     <connection>
         <sender>editCutAction</sender>
@@ -4971,7 +4971,6 @@
     <slot>toolsDone()</slot>
     <slot>toolsCCAddLayer()</slot>
     <slot>toolsCookieCut()</slot>
-    <slot>copyDo()</slot>
     <slot>dispCPK()</slot>
     <slot>dispObjectColor()</slot>
     <slot>dispDefault()</slot>
