@@ -34,10 +34,10 @@ icosix = ((9, 2, 6), (1, 11, 5), (11, 1, 8), (0, 11, 4), (3, 1, 7),
 # recursively:
 #          /\              /\
 #         /  \            /  \
-#        /    \          /----\
-#       /      \  =>  / \  / \
-#      /        \      /   \/   \
-#      ----------      ----------
+#        /    \          /____\
+#       /      \   =>   /\    /\
+#      /        \      /  \  /  \
+#     /__________\    /____\/____\
 #
 # and normalizing the resulting vectors to the surface of a sphere
 
@@ -58,10 +58,10 @@ def subdivide(tri,deep):
 
 ## Get the specific detail level of triangles approximation of a sphere 
 def getSphereTriangles(level):
-	ocdec=[]
-	for i in icosix:
-	    ocdec+=subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),level)
-	return ocdec
+        ocdec=[]
+        for i in icosix:
+            ocdec+=subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),level)
+        return ocdec
 
 # generate two circles in space as 13-gons,
 # one rotated half a segment with respect to the other
@@ -346,7 +346,7 @@ def drawCircle(color, center, radius, normal):
     #This may cause problems as proved before in Linear motor display.
     #rotation around (0, 0, 0)
     #if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
-    #	   rQ.x = 1.0
+    #      rQ.x = 1.0
     
     glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
     glScalef(radius, radius, 1.0)
@@ -929,7 +929,7 @@ def drawFullWindow(vtColors):
     glBegin(GL_QUADS)
     glColor3fv(vtColors[0])
     glVertex3f(-1, -1, 0.999)
-    glColor3fv(vtColors[1])	       
+    glColor3fv(vtColors[1])            
     glVertex3f(1, -1, 0.999)
     glColor3fv(vtColors[2])
     glVertex3f(1, 1, 0.999)
