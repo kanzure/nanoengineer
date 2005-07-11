@@ -8,6 +8,64 @@ $Id$
 from modes import *
 from chunk import molecule
 
+def do_what_MainWindowUI_should_do(w):
+    '''This creates the Select Atoms (not the Select Chunks) dashboard .
+    '''
+    w.selectAtomsDashboard.clear()
+
+    w.depositAtomLabel = QLabel(w.selectAtomsDashboard,"Select Atoms")
+    w.depositAtomLabel.setText(" Select Atoms ")
+    w.selectAtomsDashboard.addSeparator()
+
+    w.filterCheckBox = QCheckBox(" Filter : ", w.selectAtomsDashboard)
+    
+    w.elemFilterComboBox = QComboBox(0,w.selectAtomsDashboard, "elemFilterComboBox")
+
+    w.modifySetElementAction.addTo(w.selectAtomsDashboard)
+
+    w.selectAtomsDashboard.addSeparator()
+
+    w.selectConnectedAction.addTo(w.selectAtomsDashboard)
+    w.selectDoublyAction.addTo(w.selectAtomsDashboard)
+    
+    w.selectAtomsDashboard.addSeparator()
+    w.toolsDoneAction.addTo(w.selectAtomsDashboard)
+    w.selectAtomsDashboard.setLabel("Select Atoms")
+    w.elemFilterComboBox.clear()
+    # WARNING:
+    # these are identified by *position*, not by their text, using corresponding entries in eCCBtab1;
+    # this is done by win.elemChange even though nothing but depositMode calls that;
+    # the current element is stored in win.Element (as an atomic number ###k).
+    # All this needs cleanup so it's safer to modify this and so atomtype can sometimes be included.
+    # Both eCCBtab1 and eCCBtab2 are set up and used in MWsemantics but should be moved here,
+    # or perhaps with some part moved into elements.py if it ought to share code with elementSelector.py
+    # and elementColors.py (though it doesn't now).
+    w.elemFilterComboBox.insertItem("Hydrogen")
+    w.elemFilterComboBox.insertItem("Helium")
+    w.elemFilterComboBox.insertItem("Boron")
+    w.elemFilterComboBox.insertItem("Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
+    w.elemFilterComboBox.insertItem("Nitrogen")
+    w.elemFilterComboBox.insertItem("Oxygen")
+    w.elemFilterComboBox.insertItem("Fluorine")
+    w.elemFilterComboBox.insertItem("Neon")
+    w.elemFilterComboBox.insertItem("Aluminum")
+    w.elemFilterComboBox.insertItem("Silicon")
+    w.elemFilterComboBox.insertItem("Phosphorus")
+    w.elemFilterComboBox.insertItem("Sulfur")
+    w.elemFilterComboBox.insertItem("Chlorine")
+    w.elemFilterComboBox.insertItem("Argon")
+    w.elemFilterComboBox.insertItem("Germanium")
+    w.elemFilterComboBox.insertItem("Arsenic")
+    w.elemFilterComboBox.insertItem("Selenium")
+    w.elemFilterComboBox.insertItem("Bromine")
+    w.elemFilterComboBox.insertItem("Krypton")
+    #w.elemFilterComboBox.insertItem("Antimony")
+    #w.elemFilterComboBox.insertItem("Tellurium")
+    #w.elemFilterComboBox.insertItem("Iodine")
+    #w.elemFilterComboBox.insertItem("Xenon")
+    w.connect(w.elemFilterComboBox,SIGNAL("activated(int)"),w.elemChange)
+    
+    
 class selectMode(basicMode):
     "the default mode of GLPane"
     
@@ -105,29 +163,50 @@ class selectMode(basicMode):
             ###pickLineLength/scale could still be < 0.03, so we need clean 
             ### sellist[] to release the rubber band selection window. One 
             ###problem is its a single pick not as user expect as area pick 
-            self.sellist = []
-            self.w.win_update()
-            return
-
-        self.sellist += [p1]
-        self.sellist += [self.sellist[0]]
-        self.o.backlist += [p2]
-        self.o.backlist += [self.o.backlist[0]]
-        self.o.shape=SelectionShape(self.o.right, self.o.up, self.o.lineOfSight)
-        eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov        
-        if self.selLassRect:
-            self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,  (not self.o.ortho) and eyeball)
+#            self.sellist = []
+#            self.w.win_update()
+#            return
+        
+        # Realized that the 3 lines above were the same as the last 2 lines of this method,
+        # so I created this else statement and included everything (except the last 2 lines).
+        # This seems better and may be necessary for fixing bug 86 (see more comments below).
+        # Mark 050710
         else:
-            self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
+
+            self.sellist += [p1]
+            self.sellist += [self.sellist[0]]
+            self.o.backlist += [p2]
+            self.o.backlist += [self.o.backlist[0]]
+            self.o.shape=SelectionShape(self.o.right, self.o.up, self.o.lineOfSight)
+            eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov        
+            if self.selLassRect:
+                self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,  (not self.o.ortho) and eyeball)
+            else:
+                self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
                              (not self.o.ortho) and eyeball)
         
-        self.o.shape.select(self.o.assy)
-        self.o.shape = None
-        
+            self.o.shape.select(self.o.assy)
+            self.o.shape = None
+
+        # end else
+                
         self.sellist = []
             # (for debug, it's sometimes useful to not reset sellist here,
             #  so you can see it at the same time as the selection it caused.)
 
+        # This section was added to fix bug 86 and others like it.  I am attempting to 
+        # enable/disable menu and toolbar (action) items based on how many atoms 
+        # are selected.  I have local code (menu_control.py) that works, but I need to 
+        # discuss this with Bruce, after A6. This code works for updating menus/toolbars 
+        # when selecting atoms in the glpane with the mouse, but not for the "Select" 
+        # actions (i.e. Select All) while in Select Atoms mode. There is also something 
+        # to be said about leaving "illegal" action widgets enabled, esp for novice users 
+        # that can benefit from informative history msgs when attempting to do something
+        # they shouldn't.
+        # Mark 050710
+#        from menu_control import update_menus
+#        update_menus(self.w)
+        
         self.w.win_update()
 
     def leftDouble(self, event):
@@ -279,6 +358,7 @@ class selectMolsMode(selectMode):
             basicMode.rightCntlDown(self, event)
             self.o.setCursor(self.w.SelectMolsCursor)
 
+
 class selectAtomsMode(selectMode):
         modename = 'SELECTATOMS'
         default_mode_status_text = "Mode: Select Atoms"
@@ -297,7 +377,7 @@ class selectAtomsMode(selectMode):
             
         def restore_gui(self):
             self.w.selectAtomsDashboard.hide()
-            self.w.SAFilter.setChecked(0)
+            self.w.filterCheckBox.setChecked(0)
             
         def keyPress(self,key):
             basicMode.keyPress(self, key)
@@ -305,6 +385,10 @@ class selectAtomsMode(selectMode):
                 self.o.setCursor(self.w.SelectAtomsAddCursor)
             if key == Qt.Key_Control:
                 self.o.setCursor(self.w.SelectAtomsSubtractCursor)
+            # Shortcut keys for atom type in selection filter.  Bug/NFR 649.  Mark 050711.
+            for sym, code, num in elemKeyTab:
+                if key == code:
+                    self.w.setElement(num)
                                 
         def keyRelease(self,key):
             basicMode.keyRelease(self, key)
