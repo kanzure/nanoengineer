@@ -343,120 +343,6 @@
                 <string>Select Atoms</string>
             </property>
         </widget>
-        <separator/>
-        <widget class="QCheckBox">
-            <property name="name">
-                <cstring>SAFilter</cstring>
-            </property>
-            <property name="text">
-                <string>Filter:</string>
-            </property>
-        </widget>
-        <widget class="QComboBox">
-            <item>
-                <property name="text">
-                    <string>Hydrogen</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Helium</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Boron</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Carbon</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Nitrogen</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Oxygen</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Fluorine</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Neon</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Aluminum</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Silicon</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Phosphorus</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Sulfur</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Chlorine</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Argon</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Germanium</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Arsenic</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Selenium</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Bromine</string>
-                </property>
-            </item>
-            <item>
-                <property name="text">
-                    <string>Krypton</string>
-                </property>
-            </item>
-            <property name="name">
-                <cstring>SAFilterList</cstring>
-            </property>
-            <property name="enabled">
-                <bool>true</bool>
-            </property>
-        </widget>
-        <separator/>
-        <action name="modifySetElementAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -464,10 +350,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>296</x>
+                <x>94</x>
                 <y>0</y>
                 <width>95</width>
-                <height>29</height>
+                <height>19</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -495,10 +381,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>391</x>
+                <x>189</x>
                 <y>0</y>
                 <width>96</width>
-                <height>29</height>
+                <height>19</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -530,8 +416,8 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>29</y>
-                <width>1036</width>
+                <y>19</y>
+                <width>1033</width>
                 <height>29</height>
             </rect>
         </property>
@@ -700,7 +586,7 @@
         <property name="geometry">
             <rect>
                 <x>128</x>
-                <y>58</y>
+                <y>48</y>
                 <width>115</width>
                 <height>29</height>
             </rect>
@@ -729,7 +615,7 @@
         <property name="geometry">
             <rect>
                 <x>243</x>
-                <y>58</y>
+                <y>48</y>
                 <width>104</width>
                 <height>29</height>
             </rect>
@@ -765,7 +651,7 @@
         <property name="geometry">
             <rect>
                 <x>347</x>
-                <y>58</y>
+                <y>48</y>
                 <width>120</width>
                 <height>29</height>
             </rect>
@@ -804,7 +690,7 @@
         <property name="geometry">
             <rect>
                 <x>467</x>
-                <y>58</y>
+                <y>48</y>
                 <width>92</width>
                 <height>29</height>
             </rect>
@@ -831,7 +717,7 @@
         <property name="geometry">
             <rect>
                 <x>559</x>
-                <y>58</y>
+                <y>48</y>
                 <width>19</width>
                 <height>29</height>
             </rect>
@@ -4900,18 +4786,6 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>dispShowInvisAtoms()</slot>
-    </connection>
-    <connection>
-        <sender>SAFilter</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>selectConnectedAction</receiver>
-        <slot>setDisabled(bool)</slot>
-    </connection>
-    <connection>
-        <sender>SAFilter</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>selectDoublyAction</receiver>
-        <slot>setDisabled(bool)</slot>
     </connection>
     <connection>
         <sender>toolsFuseChunksAction</sender>

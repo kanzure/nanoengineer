@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Jul 10 19:07:16 2005
+# Created: Mon Jul 11 01:42:58 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6389,30 +6389,22 @@ class MainWindow(QMainWindow):
         self.selectAtomsDashboard.setEnabled(1)
 
         self.textLabel2_2 = QLabel(self.selectAtomsDashboard,"textLabel2_2")
-        self.selectAtomsDashboard.addSeparator()
-
-        self.SAFilter = QCheckBox(self.selectAtomsDashboard,"SAFilter")
-
-        self.SAFilterList = QComboBox(0,self.selectAtomsDashboard,"SAFilterList")
-        self.SAFilterList.setEnabled(1)
-        self.selectAtomsDashboard.addSeparator()
-        self.modifySetElementAction.addTo(self.selectAtomsDashboard)
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(296,0,95,29))
+        self.cookieCutterDashboard.setGeometry(QRect(94,0,95,19))
         self.cookieCutterDashboard.setPaletteBackgroundColor(QColor(230,231,230))
 
         self.ccLabel = QLabel(self.cookieCutterDashboard,"ccLabel")
         self.moveChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moveChunksDashboard.setGeometry(QRect(391,0,96,29))
+        self.moveChunksDashboard.setGeometry(QRect(189,0,96,19))
         self.moveChunksDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.moveChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1 = QLabel(self.moveChunksDashboard,"textLabel1")
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.moviePlayerDashboard.setGeometry(QRect(0,29,1036,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1033,29))
         self.moviePlayerDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -6466,7 +6458,7 @@ class MainWindow(QMainWindow):
         self.nullAction.addTo(self.selectMolDashboard)
         self.zoomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.zoomDashboard.setGeometry(QRect(128,58,115,29))
+        self.zoomDashboard.setGeometry(QRect(128,48,115,29))
         self.zoomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
@@ -6474,7 +6466,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.zoomDashboard)
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.panDashboard.setGeometry(QRect(243,58,104,29))
+        self.panDashboard.setGeometry(QRect(243,48,104,29))
         self.panDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -6483,7 +6475,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.panDashboard)
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.rotateDashboard.setGeometry(QRect(347,58,120,29))
+        self.rotateDashboard.setGeometry(QRect(347,48,120,29))
         self.rotateDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.rotateDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -6493,13 +6485,13 @@ class MainWindow(QMainWindow):
         self.fuseChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.fuseChunksDashboard.setEnabled(1)
-        self.fuseChunksDashboard.setGeometry(QRect(467,58,92,29))
+        self.fuseChunksDashboard.setGeometry(QRect(467,48,92,29))
 
         self.textLabel1_3 = QLabel(self.fuseChunksDashboard,"textLabel1_3")
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.depositAtomDashboard.setEnabled(1)
-        self.depositAtomDashboard.setGeometry(QRect(559,58,19,29))
+        self.depositAtomDashboard.setGeometry(QRect(559,48,19,29))
         self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.cookieSelectDashboard = QToolBar(QString(""),self,Qt.DockRight)
@@ -6812,8 +6804,6 @@ class MainWindow(QMainWindow):
         self.connect(self.dispLightingAction,SIGNAL("activated()"),self.dispLighting)
         self.connect(self.dispResetAtomsDisplayAction,SIGNAL("activated()"),self.dispResetAtomsDisplay)
         self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
-        self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectConnectedAction,SLOT("setDisabled(bool)"))
-        self.connect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectDoublyAction,SLOT("setDisabled(bool)"))
         self.connect(self.toolsFuseChunksAction,SIGNAL("activated()"),self.toolsFuseChunks)
         self.connect(self.modifyMinimizeAllAction,SIGNAL("activated()"),self.modifyMinimizeAll)
         self.connect(self.modifyInvertAction,SIGNAL("activated()"),self.modifyInvert)
@@ -7229,27 +7219,6 @@ class MainWindow(QMainWindow):
         self.helpToolbar.setLabel(self.__tr("Help"))
         self.selectAtomsDashboard.setLabel(self.__tr("Select Atoms"))
         self.textLabel2_2.setText(self.__tr("Select Atoms"))
-        self.SAFilter.setText(self.__tr("Filter:"))
-        self.SAFilterList.clear()
-        self.SAFilterList.insertItem(self.__tr("Hydrogen"))
-        self.SAFilterList.insertItem(self.__tr("Helium"))
-        self.SAFilterList.insertItem(self.__tr("Boron"))
-        self.SAFilterList.insertItem(self.__tr("Carbon"))
-        self.SAFilterList.insertItem(self.__tr("Nitrogen"))
-        self.SAFilterList.insertItem(self.__tr("Oxygen"))
-        self.SAFilterList.insertItem(self.__tr("Fluorine"))
-        self.SAFilterList.insertItem(self.__tr("Neon"))
-        self.SAFilterList.insertItem(self.__tr("Aluminum"))
-        self.SAFilterList.insertItem(self.__tr("Silicon"))
-        self.SAFilterList.insertItem(self.__tr("Phosphorus"))
-        self.SAFilterList.insertItem(self.__tr("Sulfur"))
-        self.SAFilterList.insertItem(self.__tr("Chlorine"))
-        self.SAFilterList.insertItem(self.__tr("Argon"))
-        self.SAFilterList.insertItem(self.__tr("Germanium"))
-        self.SAFilterList.insertItem(self.__tr("Arsenic"))
-        self.SAFilterList.insertItem(self.__tr("Selenium"))
-        self.SAFilterList.insertItem(self.__tr("Bromine"))
-        self.SAFilterList.insertItem(self.__tr("Krypton"))
         self.cookieCutterDashboard.setLabel(self.__tr("Cookie Cutter"))
         self.ccLabel.setText(self.__tr("Cookie Cutter"))
         self.moveChunksDashboard.setLabel(self.__tr("Move Chunks"))

@@ -80,13 +80,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
 
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
 
-        #bruce 050629 undo some no-longer-desirable actions done by MainWindow.__init__
-        # (since Select Connected and Select Doubly are now compatible with the Selection Filter).
-        # The self.connect() calls that this undoes should be removed from MainWindowUI,
-        # and then this code can be removed from here.
-        self.disconnect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectConnectedAction,SLOT("setDisabled(bool)"))
-        self.disconnect(self.SAFilter,SIGNAL("toggled(bool)"),self.selectDoublyAction,SLOT("setDisabled(bool)"))
-        
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into atom.py at some point)
         self.tmpFilePath = platform.find_or_make_Nanorex_directory()
@@ -99,7 +92,11 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         import depositMode as _depositMode
         _depositMode.do_what_MainWindowUI_should_do(self)
         
-        # mark 050411: Do this here.  We should do this for all dashboards eventually.
+        # mark 050711: Added Select Atoms dashboard.
+        import selectMode as _selectMode
+        _selectMode.do_what_MainWindowUI_should_do(self)
+        
+        # mark 050411: Added Move Mode dashboard.
         import modifyMode as _modifyMode
         _modifyMode.do_what_MainWindowUI_should_do(self)
         
@@ -1384,6 +1381,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.elemChangeComboBox.setCurrentItem(line) ###k does this send the signal, or not (if not that might cause bug 690)?
         #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentItem should have called
         # (not sure in principle that this is always safe or always a complete fix, but it seems to work)
+        self.elemFilterComboBox.setCurrentItem(line)
         self.elemChange(line) #k arg is a guess, but seems to work
             # (btw if you use keypress to change to the same element you're in, it *doesn't* reset that element
             #  to its default atomtype (hybridization combobox in build dashboard);
