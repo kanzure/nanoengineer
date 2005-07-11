@@ -237,6 +237,7 @@ class GamessProp(GamessPropDialog):
         self.job = job
         self.pset = self.gamessJig.pset
         self.win = self.gamessJig.assy.w
+        self.glpane = self.gamessJig.assy.o
         self.history = self.gamessJig.assy.w.history
         
         if self._setup(): return
@@ -248,6 +249,8 @@ class GamessProp(GamessPropDialog):
         ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
         gamess = self.gamessJig #  In case we cancel later (not implemented yet)
+        
+        self.originalColor = self.gamessJig.normcolor
 
         #To fix bug 684
         if gamess.is_disabled():
@@ -255,12 +258,17 @@ class GamessProp(GamessPropDialog):
         else:
             self.run_job_btn.setEnabled(True)
         
-        
         # Init the top widgets (name, runtyp drop box, comment)
-        self.name_linedit.setText(self.gamessJig.name)
+        self.name_linedit.setText(gamess.name)
         self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
         self.calculate_changed(self.pset.ui.runtyp)
         self.comment_linedit.setText(self.pset.ui.comment)
+        
+        # Color chooser.
+        self.colorPixmapLabel.setPaletteBackgroundColor(
+            QColor(int(gamess.normcolor[0]*255), 
+                         int(gamess.normcolor[1]*255), 
+                         int(gamess.normcolor[2]*255)))
         
         # Electronic Structure Properties section.
         self.scftyp_btngrp.setButton(self.pset.ui.scftyp) # RHF, UHF, or ROHF
@@ -663,12 +671,27 @@ class GamessProp(GamessPropDialog):
                     
     def accept(self):
         """The slot method for the 'Save' button."""
-        self._save_ui_settings()
         QDialog.accept(self)
+        self._save_ui_settings()
         if self.edit_input_file_cbox.isChecked():
             self.open_tmp_inputfile()
-    
+
+    def choose_color(self):
+        """The slot method for the 'Choose...' (color) button."""
+        color = QColorDialog.getColor(
+            QColor(int(self.gamessJig.normcolor[0]*255), 
+                         int(self.gamessJig.normcolor[1]*255), 
+                         int(self.gamessJig.normcolor[2]*255)),
+                         self, "ColorDialog")
+                        
+        if color.isValid():
+            self.colorPixmapLabel.setPaletteBackgroundColor(color)
+            self.gamessJig.color = self.gamessJig.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.glpane.gl_update()
+                
     def reject(self):
         """The slot method for the 'Cancel' button."""
-        self.gamessJig.cancelled = True
         QDialog.reject(self)
+        self.gamessJig.color = self.gamessJig.normcolor = self.originalColor
+        self.gamessJig.cancelled = True
+        self.glpane.gl_update()

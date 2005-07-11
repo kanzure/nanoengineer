@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Wed Jun 29 01:14:04 2005
+# Created: Sun Jul 10 19:50:52 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -155,29 +155,33 @@ class GamessPropDialog(QDialog):
 
         GamessPropDialogLayout = QVBoxLayout(self,11,6,"GamessPropDialogLayout")
 
-        layout46 = QHBoxLayout(None,0,6,"layout46")
+        layout32 = QHBoxLayout(None,0,6,"layout32")
 
-        layout118 = QVBoxLayout(None,0,6,"layout118")
+        layout30 = QVBoxLayout(None,0,6,"layout30")
 
         self.psetslbl_2_2 = QLabel(self,"psetslbl_2_2")
         self.psetslbl_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout118.addWidget(self.psetslbl_2_2)
+        layout30.addWidget(self.psetslbl_2_2)
 
         self.textLabel1_2_3 = QLabel(self,"textLabel1_2_3")
         self.textLabel1_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout118.addWidget(self.textLabel1_2_3)
+        layout30.addWidget(self.textLabel1_2_3)
 
         self.textLabel1_3 = QLabel(self,"textLabel1_3")
         self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout118.addWidget(self.textLabel1_3)
-        layout46.addLayout(layout118)
+        layout30.addWidget(self.textLabel1_3)
 
-        layout45 = QVBoxLayout(None,0,6,"layout45")
+        self.textLabel1_3_2 = QLabel(self,"textLabel1_3_2")
+        self.textLabel1_3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout30.addWidget(self.textLabel1_3_2)
+        layout32.addLayout(layout30)
+
+        layout31 = QVBoxLayout(None,0,6,"layout31")
 
         self.name_linedit = QLineEdit(self,"name_linedit")
         self.name_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.name_linedit.setFrameShadow(QLineEdit.Sunken)
-        layout45.addWidget(self.name_linedit)
+        layout31.addWidget(self.name_linedit)
 
         layout28 = QHBoxLayout(None,0,6,"layout28")
 
@@ -185,15 +189,35 @@ class GamessPropDialog(QDialog):
         layout28.addWidget(self.runtyp_combox)
         spacer3 = QSpacerItem(167,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout28.addItem(spacer3)
-        layout45.addLayout(layout28)
+        layout31.addLayout(layout28)
 
         self.comment_linedit = QLineEdit(self,"comment_linedit")
         self.comment_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.comment_linedit.setFrameShadow(QLineEdit.Sunken)
         self.comment_linedit.setMaxLength(80)
-        layout45.addWidget(self.comment_linedit)
-        layout46.addLayout(layout45)
-        GamessPropDialogLayout.addLayout(layout46)
+        layout31.addWidget(self.comment_linedit)
+
+        layout72 = QHBoxLayout(None,0,6,"layout72")
+
+        layout71 = QHBoxLayout(None,0,6,"layout71")
+
+        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
+        self.colorPixmapLabel.setSizePolicy(QSizePolicy(5,5,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
+        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
+        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
+        self.colorPixmapLabel.setScaledContents(1)
+        layout71.addWidget(self.colorPixmapLabel)
+
+        self.choose_color_btn = QPushButton(self,"choose_color_btn")
+        self.choose_color_btn.setEnabled(1)
+        self.choose_color_btn.setSizePolicy(QSizePolicy(1,0,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        layout71.addWidget(self.choose_color_btn)
+        layout72.addLayout(layout71)
+        spacer13_3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout72.addItem(spacer13_3)
+        layout31.addLayout(layout72)
+        layout32.addLayout(layout31)
+        GamessPropDialogLayout.addLayout(layout32)
 
         layout69 = QHBoxLayout(None,0,6,"layout69")
 
@@ -328,7 +352,7 @@ class GamessPropDialog(QDialog):
 
         layout63 = QVBoxLayout(None,0,6,"layout63")
 
-        layout32 = QHBoxLayout(None,0,6,"layout32")
+        layout32_2 = QHBoxLayout(None,0,6,"layout32_2")
 
         layout22_2 = QVBoxLayout(None,0,6,"layout22_2")
 
@@ -341,7 +365,7 @@ class GamessPropDialog(QDialog):
         self.gridsize_label.setEnabled(0)
         self.gridsize_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout22_2.addWidget(self.gridsize_label)
-        layout32.addLayout(layout22_2)
+        layout32_2.addLayout(layout22_2)
 
         layout23 = QVBoxLayout(None,0,6,"layout23")
 
@@ -352,8 +376,8 @@ class GamessPropDialog(QDialog):
         self.gridsize_combox = QComboBox(0,self.groupBox2,"gridsize_combox")
         self.gridsize_combox.setEnabled(0)
         layout23.addWidget(self.gridsize_combox)
-        layout32.addLayout(layout23)
-        layout63.addLayout(layout32)
+        layout32_2.addLayout(layout23)
+        layout63.addLayout(layout32_2)
 
         self.core_electrons_checkbox = QCheckBox(self.groupBox2,"core_electrons_checkbox")
         self.core_electrons_checkbox.setEnabled(0)
@@ -427,7 +451,7 @@ class GamessPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(509,514).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(509,551).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
@@ -436,6 +460,7 @@ class GamessPropDialog(QDialog):
         self.connect(self.run_job_btn,SIGNAL("clicked()"),self.run_job)
         self.connect(self.save_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
         self.connect(self.runtyp_combox,SIGNAL("activated(int)"),self.calculate_changed)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
 
 
     def languageChange(self):
@@ -443,6 +468,7 @@ class GamessPropDialog(QDialog):
         self.psetslbl_2_2.setText(self.__tr("Name :"))
         self.textLabel1_2_3.setText(self.__tr("Calculate :"))
         self.textLabel1_3.setText(self.__tr("Description :"))
+        self.textLabel1_3_2.setText(self.__tr("Color :"))
         self.name_linedit.setText(QString.null)
         QToolTip.add(self.name_linedit,self.__tr("The name of the GAMESS jig."))
         QWhatsThis.add(self.name_linedit,self.__tr("The name of the GAMESS jig."))
@@ -451,6 +477,8 @@ class GamessPropDialog(QDialog):
         self.runtyp_combox.insertItem(self.__tr("Optimization"))
         self.runtyp_combox.setCurrentItem(0)
         self.comment_linedit.setText(QString.null)
+        self.choose_color_btn.setText(self.__tr("Choose..."))
+        QToolTip.add(self.choose_color_btn,self.__tr("Change color"))
         self.scftyp_btngrp.setTitle(self.__tr("Electronic Structure Properties"))
         self.rhf_radiobtn.setText(self.__tr("RHF"))
         QToolTip.add(self.rhf_radiobtn,self.__tr("Restricted Hartree-Fock.  All electrons are paired and each spatial orbital is doubly occupied.  Cannot be used with multiplicities greater than 1."))
@@ -481,8 +509,8 @@ class GamessPropDialog(QDialog):
         self.dirscf_checkbox.setText(self.__tr("DirectSCF"))
         QToolTip.add(self.dirscf_checkbox,self.__tr("Check this box to run the calculation in RAM and avoid hard disk usage for integral storage."))
         QWhatsThis.add(self.dirscf_checkbox,self.__tr("Check this box to run the calculation in RAM and avoid hard disk usage for integral storage."))
-        self.groupBox2.setTitle(self.__tr("Optimization Procedure: Electron Correlation Method For Final Step"))
-        self.textLabel6.setText(self.__tr("Final Basis Set :"))
+        self.groupBox2.setTitle(self.__tr("Electron Correlation Method"))
+        self.textLabel6.setText(self.__tr("Basis Set :"))
         self.gbasis_combox.clear()
         self.gbasis_combox.insertItem(self.__tr("AM1"))
         self.gbasis_combox.insertItem(self.__tr("PM3"))
@@ -604,6 +632,9 @@ class GamessPropDialog(QDialog):
 
     def set_gamess_location(self):
         print "GamessPropDialog.set_gamess_location(): Not implemented yet"
+
+    def choose_color(self):
+        print "GamessPropDialog.choose_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("GamessPropDialog",s,c)

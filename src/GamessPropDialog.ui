@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>509</width>
-            <height>514</height>
+            <height>551</height>
         </rect>
     </property>
     <property name="caption">
@@ -24,7 +24,7 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout46</cstring>
+                <cstring>layout32</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -32,7 +32,7 @@
                 </property>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout118</cstring>
+                        <cstring>layout30</cstring>
                     </property>
                     <vbox>
                         <property name="name">
@@ -71,11 +71,22 @@
                                 <set>AlignVCenter|AlignRight</set>
                             </property>
                         </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_3_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Color :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
                     </vbox>
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout45</cstring>
+                        <cstring>layout31</cstring>
                     </property>
                     <vbox>
                         <property name="name">
@@ -162,6 +173,94 @@
                             <property name="maxLength">
                                 <number>80</number>
                             </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout72</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout71</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>colorPixmapLabel</cstring>
+                                            </property>
+                                            <property name="sizePolicy">
+                                                <sizepolicy>
+                                                    <hsizetype>5</hsizetype>
+                                                    <vsizetype>5</vsizetype>
+                                                    <horstretch>1</horstretch>
+                                                    <verstretch>0</verstretch>
+                                                </sizepolicy>
+                                            </property>
+                                            <property name="minimumSize">
+                                                <size>
+                                                    <width>40</width>
+                                                    <height>0</height>
+                                                </size>
+                                            </property>
+                                            <property name="paletteBackgroundColor">
+                                                <color>
+                                                    <red>0</red>
+                                                    <green>0</green>
+                                                    <blue>0</blue>
+                                                </color>
+                                            </property>
+                                            <property name="scaledContents">
+                                                <bool>true</bool>
+                                            </property>
+                                        </widget>
+                                        <widget class="QPushButton">
+                                            <property name="name">
+                                                <cstring>choose_color_btn</cstring>
+                                            </property>
+                                            <property name="enabled">
+                                                <bool>true</bool>
+                                            </property>
+                                            <property name="sizePolicy">
+                                                <sizepolicy>
+                                                    <hsizetype>1</hsizetype>
+                                                    <vsizetype>0</vsizetype>
+                                                    <horstretch>0</horstretch>
+                                                    <verstretch>0</verstretch>
+                                                </sizepolicy>
+                                            </property>
+                                            <property name="text">
+                                                <string>Choose...</string>
+                                            </property>
+                                            <property name="toolTip" stdset="0">
+                                                <string>Change color</string>
+                                            </property>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer13_3</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>40</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </hbox>
                         </widget>
                     </vbox>
                 </widget>
@@ -1244,6 +1343,12 @@
         <receiver>GamessPropDialog</receiver>
         <slot>calculate_changed()</slot>
     </connection>
+    <connection>
+        <sender>choose_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>GamessPropDialog</receiver>
+        <slot>choose_color()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>set_ecmethod()</slot>
@@ -1253,6 +1358,7 @@
     <slot>openServerManager()</slot>
     <slot>calculate_changed()</slot>
     <slot>set_gamess_location()</slot>
+    <slot>choose_color()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

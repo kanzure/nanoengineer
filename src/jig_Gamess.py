@@ -40,8 +40,9 @@ class Gamess(Jig):
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
         self.cancelled = False
-        self.color = (0.0, 0.0, 0.0)
-        self.normcolor = (0.0, 0.0, 0.0) # set default color of ground to black
+        # set default color of new gamess jig to purple
+        self.color = purple # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = purple # This is the normal (unselected) color.
         self.history = assy.w.history
         #self.psets = [] # list of parms set objects [as of circa 050704, only the first of these is ever defined (thinks bruce)]
         self.pset = gamessParms('Parameter Set 1')
