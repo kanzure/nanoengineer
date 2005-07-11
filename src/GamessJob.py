@@ -184,7 +184,16 @@ class GamessJob(SimJob):
     def processDone(self):
         self.fwThread.stop()
         self.jobTimer.stop()
-        self.progressDialog.accept()
+        
+        if self.process.normalExit():
+            print "The process is done!"
+            self.retValue = 0
+            self.progressDialog.accept()
+        else:
+            print "The process is cancelled!"
+            self.retValue = 1
+            ###Don't know why I can't call reject() here. 
+            self.progressDialog.accept()#reject()
         
 
     def _launch_gamess(self):
@@ -226,12 +235,14 @@ class GamessJob(SimJob):
         
         if not self.process.start():
             print "The process can't be started."
+            return 2
         
         self.connect(self.jobTimer, SIGNAL('timeout()'), self.processTimeout)
         self.stime = time.time()
         self.jobTimer.start(1)
         
         self.progressDialog.exec_loop()
+        retValue = self.retValue
         
         self.fwThread.wait()        
         bytes = self.process.readStdout()
@@ -244,9 +255,8 @@ class GamessJob(SimJob):
         
         os.chdir(oldir)
         self.gamessJig.outputfile = self.job_outputfile
-        #print "GamessJob._launch_pcgamess: self.gamessJig.outputfile: ", self.gamessJig.outputfile
-        
-        return 0
+                
+        return retValue
         
         
     def _launch_pcgamess(self):
@@ -390,8 +400,11 @@ class JobProgressDialog(QDialog):
         
     def reject(self):
         if self.process.isRunning():
-            self.process.kill()
-        QDialog.reject(self)
+            self.process.tryTerminate()
+            QTimer.singleShot( 5000, self.process, SLOT('kill()') )
+            #self.process.kill()
+            print "I asked to kill the process."
+        #QDialog.reject(self)
         
     def getMsgLabel(self):
         return self.msgLabel2
