@@ -253,10 +253,10 @@ class GamessProp(GamessPropDialog):
         self.originalColor = self.gamessJig.normcolor
 
         #To fix bug 684
-        if gamess.is_disabled():
-            self.run_job_btn.setEnabled(False)
-        else:
-            self.run_job_btn.setEnabled(True)
+        #if gamess.is_disabled():
+        #    self.run_job_btn.setEnabled(False)
+        #else:
+        #    self.run_job_btn.setEnabled(True)
         
         # Init the top widgets (name, runtyp drop box, comment)
         self.name_linedit.setText(gamess.name)

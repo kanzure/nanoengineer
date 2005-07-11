@@ -124,19 +124,10 @@ class Gamess(Jig):
         pset = self.pset
         runtyp = pset.ui.runtyp # Save runtyp (Calculate) setting to restore it later.
         pset.ui.runtyp = 0 # Energy calculation
-        
+        origCalType = self.gmsjob.Calculation
+        self.gmsjob.Calculation = 'Energy'
         
         self.save_gamess_parms()
-        
-        #Added by Huaicai 7/8/05 to fix bug 758 and another similar problem(running the duplicate jig)
-        #CONV (GAMESS) or  NCONV (PC GAMESS)
-        #if self.gmsjob.server.engine == 'GAMESS':
-        #    pset.scf.conv = conv[pset.ui.conv] # CONV (GAMESS)
-        #    pset.scf.nconv = 0 # Turn off NCONV
-        #else: # PC GAMESS
-        #    pset.scf.nconv = conv[pset.ui.conv] # NCONV (PC GAMESS)
-        #    pset.scf.conv = 0 # Turn off CONV
-        
         
         # Run GAMESS job.  Return value r:
         # 0 = success
@@ -145,6 +136,7 @@ class Gamess(Jig):
         r = self.gmsjob.launch()
         
         pset.ui.runtyp = runtyp # Restore to original value
+        self.gmsjob.Calculation = origCalType
         
         if r == 0: # Success
             self.print_energy()
@@ -152,7 +144,16 @@ class Gamess(Jig):
             self.history.message( redmsg( "GAMESS job cancelled."))
         else: # Job failed.
             self.history.message( redmsg( "GAMESS job failed."))
+    
+    def __CM_Calculate_Energy__options(self):
+        if Jig.is_disabled(self):
+            return ['disabled']
+        else:
+            return []
+        pass
+
         
+            
     def print_energy(self):
         
         final_energy = get_energy_from_pcgms_outfile(self.outputfile)
@@ -269,11 +270,16 @@ class Gamess(Jig):
         return
     
     
-    def set_disabled_by_user_choice(self, val):
-        """Called when users disable/enable the jig"""
+    #def set_disabled_by_user_choice(self, val):
+    #    """Called when users disable/enable the jig"""
+    #    self.gmsjob.edit_cntl.run_job_btn.setEnabled(not val)
+    #    Jig.set_disabled_by_user_choice(self, val)
+    def is_disabled(self):
+        '''Which is called when model tree is updated? '''
+        val = Jig.is_disabled(self)
         self.gmsjob.edit_cntl.run_job_btn.setEnabled(not val)
-        Jig.set_disabled_by_user_choice(self, val)
-        
+        return val
+   
         
     def save_gamess_parms(self):
         '''Save parameter set values.  This is always called by save_ui_settings, 
