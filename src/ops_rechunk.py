@@ -56,6 +56,7 @@ class ops_rechunk_Mixin:
                     # leave the moved atoms picked, so still visible
                     a.hopmol(numol)
             if numol.atoms:
+                numol.setDisplay(mol.display) # Fixed bug 391.  Mark 050710
                 self.addmol(numol) ###e move it to just after the one it was made from? or, end of same group??
                 numolist+=[numol]
                 if new_old_callback:
