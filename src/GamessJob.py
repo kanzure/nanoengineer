@@ -176,25 +176,21 @@ class GamessJob(SimJob):
             elapmsg = "Elasped Time: " + self.progressDialog.hhmmss_str(int(duration))
             msgLabel.setText(elapmsg)
             
-            bytes = self.process.readStdout()
-            if bytes:
-                self.fwThread.putData(bytes)
+            ####bytes = self.process.readStdout()
+            ####if bytes:
+            ####    self.fwThread.putData(bytes)
                 
     
     def processDone(self):
-        self.fwThread.stop()
+        #self.fwThread.stop()
         self.jobTimer.stop()
         
         if self.process.normalExit():
             print "The process is done!"
-            self.retValue = 0
-            self.progressDialog.accept()
+            QDialog.accept(self.progressDialog)
         else:
             print "The process is cancelled!"
-            self.retValue = 1
-            ###Don't know why I can't call reject() here. 
-            self.progressDialog.accept()#reject()
-        
+            QDialog.reject(self.progressDialog)
 
     def _launch_gamess(self):
         oldir = os.getcwd() # Save current directory
@@ -207,31 +203,30 @@ class GamessJob(SimJob):
         #if os.path.exists(DATfile): # Remove any previous DAT (PUNCH) file.
         #    print "run_pcgamess: Removing DAT file: ", DATfile
         #    os.remove(DATfile)
-        self.outputFile = QFile(self.job_outputfile)
-        self.outputFile.open( IO_WriteOnly | IO_Append )
-        #outputFile = open(self.job_outputfile, 'w')
-        #self.fileData = []
+        ####self.outputFile = QFile(self.job_outputfile)
+        ####self.outputFile.open( IO_WriteOnly | IO_Append )
             
         jobInputfile = os.path.basename(self.job_inputfile)
         jobInputFile = jobInputfile[:-4]
+        jobOutputfile = self.job_outputfile#os.path.basename(self.job_outputfile)    
             
-            
-        args = [self.server.program, jobInputFile]#, '01', '1']
+        args = [self.server.program, jobInputFile, jobOutputfile]#, '01', '1']
         
             
         self.process = QProcess()
         for s in args:
             self.process.addArgument(s)
-        self.process.setCommunication(QProcess.Stdout)
+        ####self.process.setCommunication(QProcess.Stdout)
+        print "The params for the QProcess run are: ", args
             
-        self.fwThread = FileWriting(self.outputFile)
+        ####self.fwThread = FileWriting(self.outputFile)
         self.jobTimer = QTimer(self)
         
         self.progressDialog = JobProgressDialog(self.process, self.Calculation)
         self.connect(self.process, SIGNAL('processExited ()'), self.processDone)
         
         #self.connect(self.process, SIGNAL('readyReadStdout()'), self.readOutData)
-        self.fwThread.start()   
+        ####self.fwThread.start()   
         
         if not self.process.start():
             print "The process can't be started."
@@ -241,17 +236,18 @@ class GamessJob(SimJob):
         self.stime = time.time()
         self.jobTimer.start(1)
         
-        self.progressDialog.exec_loop()
-        retValue = self.retValue
+        ret = self.progressDialog.exec_loop()
+        if ret == QDialog.Accepted: retValue = 0
+        else: retValue = 1
         
-        self.fwThread.wait()        
-        bytes = self.process.readStdout()
-        if bytes:
-            self.outputFile.writeBlock(bytes)
-            self.outputFile.flush()
+        ####self.fwThread.wait()        
+        ####bytes = self.process.readStdout()
+        ####if bytes:
+            #####self.outputFile.writeBlock(bytes)
+            #####self.outputFile.flush()
             
         self.process = None
-        self.outputFile.close()
+        ####self.outputFile.close()
         
         os.chdir(oldir)
         self.gamessJig.outputfile = self.job_outputfile
