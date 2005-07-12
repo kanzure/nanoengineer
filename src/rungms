@@ -1,0 +1,729 @@
+#!/bin/csh
+#
+#   9 Jun 04 - MWS - C-shell script to execute GAMESS
+#
+#  Each user needs an alias to point to this common script,
+#  such as placing this line in their C shell .login file:
+#       alias gms 'nice +15 /u1/mike/gamess/rungms'
+#
+#  The script is executed by any user by typing
+#      /* gms JOB VERNO NCPUS >& JOB.log & */
+#      rungms JOB OUTPUT  VERNO NCPUS
+#
+#  JOB    is the name of the 'JOB.inp' file to be executed,
+#  VERNO  is the number of the executable you chose at 'lked' time,
+#  NCPUS  is the number of processors to be used.
+#
+#  The installer needs to 
+#    a) choose the target for execution from: 
+#           sockets (almost always), or perhaps one of the following
+#              compaq-shmem, cray-t3e, cray-x1, ibm64-sp, sgi64, or mpi
+#           pick mpi only if you have an exotic network adapter like SCI
+#       Select "sockets" if your compile time target was any of these:
+#           amd64, compaq-axp, cray-pvp, fuji-pp, hpux32, hpux64,
+#           ibm32, ibm64, linux-ia64, linux-pc, mac32, macG5, necsx,
+#           sgi32, sun32, sun64
+#       as all of these systems use TCP/IP sockets.
+#    b) choose a directory SCR where large temporary files can reside.
+#       This should be the fastest possible disk access, very spacious,
+#       and almost certainly a local disk.
+#       Translation: do not put these files on a slow network file system!
+#    c) perhaps change the location of the PUNCH and IRCDATA files below,
+#       these along with the standard output should probably be routed to
+#       a central file server (NFS is quite OK for these small files).
+#    d) make sure that the file defined by ERICFMT is on your file
+#       server's disk so that any run can find this Fm(t) table info.
+#    e) customize the execution section for your target below, each has
+#       its own list of further requirements.
+#
+set TARGET=sockets
+#
+set JOB=$1      # name of the input file xxx.inp, give only the xxx part
+set OUTFILE=$2  # name and path of the output file
+set GMSEXE=$3  # The absolute path to the Gamess binary executable
+set NCPUS=$4    # number of compute processes to be run
+
+set GMSPATH=`dirname $GMSEXE`
+
+# provide defaults if last two arguments are not given to this script
+#if (null$VERNO == null) 
+set VERNO=01
+if (null$NCPUS == null) set NCPUS=1
+#
+#  ---- the top third of the script is input and other file assignments ----
+#
+if (null$JOB == null) then
+   echo "You must specify input file to run gamess."
+endif 
+
+if ($JOB:r.inp == $JOB) set JOB=$JOB:r      # strip off possible .inp
+if (null$OUTFILE == null) set OUTFILE=$JOB.out
+#echo The path for the output is `dirname $OUTFILE`
+set SCR=`dirname $OUTFILE`
+
+echo ----- GAMESS execution script -----
+set master=`hostname`
+echo This job is running on host $master
+echo under operating system `uname` at `date`
+echo "Available scratch disk space (Kbyte units) at beginning of the job is"
+df -k $SCR
+
+#  Grab a copy of the input file.
+#  In the case of EXAMnn jobs, this file might be in the "tests" subdirectory.
+
+if (-e $JOB.inp) then
+   set echo
+   cp  $JOB.inp  $SCR/$JOB.F05
+   unset echo
+else
+   echo "Input file $JOB.inp does not exist.  Please fix and resubmit."
+   exit 4
+endif
+
+
+echo The PUNCH file is: $SCR/$JOB.dat 
+
+if (-e  $SCR/$JOB.dat) then
+    echo "Deleting PUNCH file..."
+    set echo
+    rm -f  $SCR/$JOB.dat
+    unset echo
+endif
+echo Temporary directory is on $SCR
+echo The job is $JOB 
+
+
+#  file assignments.
+#
+#  All binary files should be put on a node's local disk ($SCR directory), 
+#  for the highest speed access possible.  These .Fxx files are typically
+#  not saved for the next run, but they may be big and/or I/O intensive.
+#
+#  It is convenient to write both ASCII output files (PUNCH and IRCDATA)
+#  by software such as NFS to the user's permanent disk.  They are small.
+#
+#  The Fm(t) data for ERI computations are read only once, and is ASCII
+#  data so that all brands of computers can read that single file, which
+#  is therefore most suitable to be stored only once, on the file server.
+#
+###set echo
+setenv ERICFMT $GMSPATH/ericfmt.dat
+setenv  EXTBAS /dev/null
+setenv IRCDATA $SCR/$JOB.irc
+setenv   INPUT $SCR/$JOB.F05
+setenv   PUNCH $SCR/$JOB.dat
+setenv  AOINTS $SCR/$JOB.F08
+setenv  MOINTS $SCR/$JOB.F09
+setenv DICTNRY $SCR/$JOB.F10
+setenv DRTFILE $SCR/$JOB.F11
+setenv CIVECTR $SCR/$JOB.F12
+setenv CASINTS $SCR/$JOB.F13
+setenv  CIINTS $SCR/$JOB.F14
+setenv  WORK15 $SCR/$JOB.F15
+setenv  WORK16 $SCR/$JOB.F16
+setenv CSFSAVE $SCR/$JOB.F17
+setenv FOCKDER $SCR/$JOB.F18
+setenv  WORK19 $SCR/$JOB.F19
+setenv  DASORT $SCR/$JOB.F20
+setenv DFTINTS $SCR/$JOB.F21
+setenv DFTGRID $SCR/$JOB.F22
+setenv  JKFILE $SCR/$JOB.F23
+setenv  ORDINT $SCR/$JOB.F24
+setenv  EFPIND $SCR/$JOB.F25
+setenv PCMDATA $SCR/$JOB.F26                                     
+setenv PCMINTS $SCR/$JOB.F27
+setenv  MLTPL  $SCR/$JOB.F28
+setenv  MLTPLT $SCR/$JOB.F29
+setenv  DAFL30 $SCR/$JOB.F30
+setenv  SOINTX $SCR/$JOB.F31
+setenv  SOINTY $SCR/$JOB.F32
+setenv  SOINTZ $SCR/$JOB.F33
+setenv  SORESC $SCR/$JOB.F34
+setenv   SIMEN $SCR/$JOB.simen
+setenv  SIMCOR $SCR/$JOB.simcor
+setenv GCILIST $SCR/$JOB.F37
+setenv HESSIAN $SCR/$JOB.F38
+setenv SOCCDAT $SCR/$JOB.F40
+setenv  AABB41 $SCR/$JOB.F41
+setenv  BBAA42 $SCR/$JOB.F42
+setenv  BBBB43 $SCR/$JOB.F43
+setenv  MCQD50 $SCR/$JOB.F50
+setenv  MCQD51 $SCR/$JOB.F51
+setenv  MCQD52 $SCR/$JOB.F52
+setenv  MCQD53 $SCR/$JOB.F53
+setenv  MCQD54 $SCR/$JOB.F54
+setenv  MCQD55 $SCR/$JOB.F55
+setenv  MCQD56 $SCR/$JOB.F56
+setenv  MCQD57 $SCR/$JOB.F57
+setenv  MCQD58 $SCR/$JOB.F58
+setenv  MCQD59 $SCR/$JOB.F59
+setenv  MCQD60 $SCR/$JOB.F60
+setenv  MCQD61 $SCR/$JOB.F61
+setenv  MCQD62 $SCR/$JOB.F62
+setenv  MCQD63 $SCR/$JOB.F63
+setenv  MCQD64 $SCR/$JOB.F64
+setenv NMRINT1 $SCR/$JOB.F61
+setenv NMRINT2 $SCR/$JOB.F62
+setenv NMRINT3 $SCR/$JOB.F63
+setenv NMRINT4 $SCR/$JOB.F64
+setenv NMRINT5 $SCR/$JOB.F65
+setenv NMRINT6 $SCR/$JOB.F66
+setenv DCPHFH2 $SCR/$JOB.F67
+setenv DCPHF21 $SCR/$JOB.F68
+setenv   GVVPT $SCR/$JOB.F69
+
+#    next files are used only during coupled cluster runs, so let's
+#    display the numerous definitions only if they are to be used.
+unset echo
+set cctyp=`grep -i CCTYP= $SCR/$JOB.F05 | wc -l`
+if ($cctyp > 0) set echo
+setenv  CCREST $SCR/$JOB.F70
+setenv  CCDIIS $SCR/$JOB.F71
+setenv  CCINTS $SCR/$JOB.F72
+setenv CCT1AMP $SCR/$JOB.F73
+setenv CCT2AMP $SCR/$JOB.F74
+setenv CCT3AMP $SCR/$JOB.F75
+setenv    CCVM $SCR/$JOB.F76
+setenv    CCVE $SCR/$JOB.F77
+setenv EOMSTAR $SCR/$JOB.F80
+setenv EOMVEC1 $SCR/$JOB.F81
+setenv EOMVEC2 $SCR/$JOB.F82
+setenv  EOMHC1 $SCR/$JOB.F83
+setenv  EOMHC2 $SCR/$JOB.F84
+setenv EOMHHHH $SCR/$JOB.F85
+setenv EOMPPPP $SCR/$JOB.F86
+setenv EOMRAMP $SCR/$JOB.F87
+setenv EOMRTMP $SCR/$JOB.F88
+setenv EOMDG12 $SCR/$JOB.F89
+setenv    MMPP $SCR/$JOB.F90
+setenv   MMHPP $SCR/$JOB.F91
+setenv MMCIVEC $SCR/$JOB.F92
+setenv MMCIVC1 $SCR/$JOB.F93
+setenv MMCIITR $SCR/$JOB.F94
+setenv  MMNEXM $SCR/$JOB.F95
+setenv  MMNEXE $SCR/$JOB.F96
+setenv MMNREXM $SCR/$JOB.F97
+setenv MMNREXE $SCR/$JOB.F98 
+#
+#     next are for TDHFX code, not used by current GAMESS
+#
+unset echo
+setenv  OLI201 $SCR/$JOB.F201
+setenv  OLI202 $SCR/$JOB.F202
+setenv  OLI203 $SCR/$JOB.F203
+setenv  OLI204 $SCR/$JOB.F204
+setenv  OLI205 $SCR/$JOB.F205
+setenv  OLI206 $SCR/$JOB.F206
+setenv  OLI207 $SCR/$JOB.F207
+setenv  OLI208 $SCR/$JOB.F208
+setenv  OLI209 $SCR/$JOB.F209
+setenv  OLI210 $SCR/$JOB.F210
+setenv  OLI211 $SCR/$JOB.F211
+setenv  OLI212 $SCR/$JOB.F212
+setenv  OLI213 $SCR/$JOB.F213
+setenv  OLI214 $SCR/$JOB.F214
+setenv  OLI215 $SCR/$JOB.F215
+setenv  OLI216 $SCR/$JOB.F216
+setenv  OLI217 $SCR/$JOB.F217
+setenv  OLI218 $SCR/$JOB.F218
+setenv  OLI219 $SCR/$JOB.F219
+setenv  OLI220 $SCR/$JOB.F220
+setenv  OLI221 $SCR/$JOB.F221
+setenv  OLI222 $SCR/$JOB.F222
+setenv  OLI223 $SCR/$JOB.F223
+setenv  OLI224 $SCR/$JOB.F224
+setenv  OLI225 $SCR/$JOB.F225
+setenv  OLI226 $SCR/$JOB.F226
+setenv  OLI227 $SCR/$JOB.F227
+setenv  OLI228 $SCR/$JOB.F228
+setenv  OLI229 $SCR/$JOB.F229
+setenv  OLI230 $SCR/$JOB.F230
+setenv  OLI231 $SCR/$JOB.F231
+setenv  OLI232 $SCR/$JOB.F232
+setenv  OLI233 $SCR/$JOB.F233
+setenv  OLI234 $SCR/$JOB.F234
+setenv  OLI235 $SCR/$JOB.F235
+setenv  OLI236 $SCR/$JOB.F236
+setenv  OLI237 $SCR/$JOB.F237
+setenv  OLI238 $SCR/$JOB.F238
+setenv  OLI239 $SCR/$JOB.F239
+
+if ((-e $PUNCH) || (-e $IRCDATA)) then
+   echo Please rename/erase $PUNCH and/or $IRCDATA, and resubmit
+   exit 4
+endif
+
+#  ---- the middle third of the script is to execute GAMESS ----
+#
+#   Most workstations run DDI over TCP/IP sockets, and therefore execute
+#   according to the following clause.  The installer must
+#      a) Set the path to point to the DDIKICK and GAMESS executables.
+#      b) Build the HOSTLIST variable as a word separated string, i.e. ()'s.
+#         There should be one host name for every compute process that is
+#         to be run.  DDIKICK will automatically generate a set of data
+#         server processes (if required) on the same hosts.
+#   An extended explanation of the arguments to ddikick.x can be found
+#   in the file gamess/ddi/readme.ddi, if you have any trouble executing.
+#
+if ($TARGET == sockets) then
+#
+#        set the path pointing to GAMESS and DDIKICK binaries
+#     At Iowa State, we have many operating systems, and store files
+#     in different partitions according to which system is being used.
+
+# The part to set GMSPATH has been removed by me--Huaicai
+
+#
+#     three of our AXP machines run the ancient OSF/1 V3.2, and therefore
+#     cannot run the modern DDI code.  In fact, this OS even lacks pthreads,
+#     so in order to compile the old DDI code, 
+#     a) delete -ansi_alias flag, b) add -DSKIPTHREADS, c) delete -lpthread
+#     The purpose of DDI_VER is to pick the right ddikick.x command below.
+   set DDI_VER='new'
+   if (`hostname` == au.fi.ameslab.gov) set DDI_VER='old'
+   if (`hostname` == sn.fi.ameslab.gov) set DDI_VER='old'
+   if (`hostname` == in.fi.ameslab.gov) set DDI_VER='old'
+
+#      -- some special settings for certain operating systems --
+
+set os=`uname`
+
+#         IBM's AIX needs special setting if node is more than a 4-way SMP
+   if ($os == AIX) setenv EXTSHM ON
+#         HP's HP-UX uses a nonstandard name for its 'rsh' command
+   if ($os == HP-UX) setenv DDI_RSH /usr/bin/remsh
+#         Fedora Core 1 can't run DDI processes w/o placing a finite
+#         but large limit on the stack size (2**27 bytes seems OK)
+   if ($os == Linux) limit stacksize 131072
+#         In case this Linux system is using Intel's Math Kernel Library
+#         to obtain its BLAS, we insist each process runs single-threaded.
+   if ($os == Linux) setenv MKL_SERIAL YES
+
+#
+#       Five examples of how to build the HOSTLIST are shown....
+#           terminology: CPU= processor, NODE= physical enclosure (box)
+#
+#       1. Sequential execution is sure to be on this very same host
+   if ($NCPUS == 1) then
+      set NNODES=1
+      set HOSTLIST=(`hostname`)
+   endif
+#
+#       2. This is an example of how to run on a 8-way SMP enclosure,
+#          where all CPUs are inside a single NODE.
+   if ((`hostname` == ti.fi.ameslab.gov) && ($NCPUS > 1)) then
+      set NNODES=1
+      if ($NCPUS > 8) set NCPUS=8
+      set HOSTLIST=(ti.fi.ameslab.gov:cpus=$NCPUS)
+   endif
+#          same example, just a different node, which is a 4-way SMP
+   if ((`hostname` == sc.fi.ameslab.gov) && ($NCPUS > 1)) then
+      set NNODES=1
+      if ($NCPUS > 4) set NCPUS=4
+      set HOSTLIST=(sc.fi.ameslab.gov:cpus=$NCPUS)
+   endif
+#          same example, my dual processor G5 Macintosh
+   if ((`hostname` == he.fi.ameslab.gov) && ($NCPUS > 1)) then
+      set NNODES=1
+      if ($NCPUS > 2) set NCPUS=2
+      set HOSTLIST=(he.fi.ameslab.gov:cpus=$NCPUS)
+   endif
+#
+#       3. We use 6 uniprocessor Pentium2 boxes as a 6-way parallel queue.
+#          Because they are uniprocessors, we just set NNODES = NCPUS.
+#          Since their names never change, we just can just specify them.
+#          Note that we can use a short name like 'ga' if the system name
+#          resolution will be able to map it onto the true host name.
+   if (`hostname` == ga.fi.ameslab.gov) then
+      set NNODES=$NCPUS
+      set HOSTLIST=(ga ge as se br sb)
+   endif
+#
+#       4. We use 16 uniprocessor Pentium 2 boxes in a Beowulf-type cluster.
+#          Because they are uniprocessors, we just set NNODES = NCPUS.
+#          Their host names fall into the pattern fly1 to fly16, which we
+#          can turn into a HOSTLIST with a small loop.
+   if (`hostname` == fly1.fi.ameslab.gov) then
+      set NNODES=$NCPUS
+      set HOSTLIST=()
+      set nmax=$NCPUS
+      if ($nmax > 16) set nmax=16
+      @ CPU=1
+      while ($CPU <= $nmax)
+         set HOSTLIST=($HOSTLIST fly$CPU)
+         @ CPU++
+      end
+      unset $CPU
+   endif
+#
+#       5. Scalable Computing Lab's clusters running PBS batch queues.
+#          Here the task is to manipulate the dynamically assigned host
+#          names into the HOSTLIST string for the kickoff program,
+#          and to request the host name of the fast network adapters.
+#
+    if ($?PBS_JOBID) then
+#
+#         The IBM cluster has two Gigabit adapters in each 4-way SMP,
+#         while the AXP cluster is based on a Myrinet network.
+#
+      if (`uname` == AIX)   set NETEXT=".gig,.gig2"
+      if (`uname` == Linux) set NETEXT=".myri"
+#
+#         repeated host names in the PBS host file indicate being assigned
+#         CPUs in the same SMP enclosure, which we must count up correctly.
+#         Fortunately PBS gives duplicate host names in a row, not scrambled.
+#         The number of hosts in the PBS node file (nmax) should equal the
+#         requested processor count, NCPUS.  We need to count duplicates
+#         in order to learn the number of SMP enclosures, NNODES, and how
+#         many CPUs inside each SMP were assigned (NSMPCPU).  For example,
+#         if we are assigned the host names "a a a b b c c c" we must build
+#         the string "a:cpus=3 b:cpus=2 c:cpus=3" so that ddikick.x will
+#         know the SMP structure of the assigned node names.  (C-shell handles
+#         variable substitution followed by colon gracefully by ${HOST}:cpus.)
+#
+      set HOSTLIST=()
+      set nmax=`wc -l $PBS_NODEFILE`
+      set nmax=$nmax[1]
+      if ($nmax != $NCPUS) then
+         echo There is processor count confusion
+         exit
+      endif
+#            1st host in the list is sure to be a new SMP enclosure
+      set MYNODE=`sed -n -e "1 p" $PBS_NODEFILE`
+      set MYNODE=`echo $MYNODE | awk '{split($0,a,"."); print a[1]}'`
+#            IPROC counts assigned processors (up to NCPUS),
+#            NNODES counts number of SMP enclosures.
+#            NSMPCPU counts processors in the current SMP enclosure
+      @ IPROC = 2
+      @ NNODES = 1
+      @ NSMPCPU = 1
+      set spacer1=":cpus="
+      set spacer2=":netext="
+      while($IPROC <= $nmax)
+         set MYPROC=`sed -n -e "$IPROC p" $PBS_NODEFILE`
+         set MYPROC=`echo $MYPROC | awk '{split($0,a,"."); print a[1]}'`
+         if($MYPROC != $MYNODE) then
+            set HOSTLIST = ($HOSTLIST $MYNODE$spacer1$NSMPCPU$spacer2$NETEXT)
+            set MYNODE=$MYPROC
+            @ NSMPCPU = 0
+            @ NNODES++
+         endif
+         @ IPROC++
+         @ NSMPCPU++
+      end
+      set HOSTLIST = ($HOSTLIST $MYNODE$spacer1$NSMPCPU$spacer2$NETEXT)
+   endif
+#
+#        we have now finished setting up a correct HOSTLIST.
+#        uncomment the next two if you are doing script debugging.
+#--echo "The generated host list is"
+#--echo $HOSTLIST
+#
+
+#
+#    If a $GDDI input group is present the calculation will be using
+#    subgroups within DDI.  The master within each group must have a
+#    copy of INPUT, and will create separate PUNCH and OUTPUT files.
+#    Note that this separates the OUTPUT from the normal log file, and
+#    at the end we must take steps to save the files from at least the
+#    master of the first group.  Skip if no $GDDI is found in the input.
+#
+   set ngddi=`grep -i '^ \$GDDI' $SCR/$JOB.F05 | grep -iv 'NGROUP=1 ' | wc -l`
+   if ($ngddi > 0) then
+      set GDDIjob=true
+      echo "This is a GDDI run, keeping output files on local disks"
+      echo "until the very end of the run, when they'll be saved from"
+      echo "the master process in the first group, only."
+      set echo
+      setenv IRCDATA $SCR/$JOB.F04
+      setenv  OUTPUT $SCR/$JOB.F06
+      setenv   PUNCH $SCR/$JOB.F07
+      unset echo
+      @ n=2   # master in master group already did 'cp' above
+      while ($n <= $NNODES)
+         set host=$HOSTLIST[$n]
+         set host=`echo $host | cut -f 1 -d :` # drop anything behind a colon
+         echo rcp $SCR/$JOB.F05 ${host}:$SCR/$JOB.F05
+         rcp $SCR/$JOB.F05 ${host}:$SCR/$JOB.F05
+         @ n++
+      end
+   else
+      set GDDIjob=false
+   endif
+#
+#        Just make sure we have the binaries, before we try to run
+#
+   if ((-x $GMSEXE) && (-x $GMSPATH/ddikick.x)) then
+   else
+      echo The GAMESS executable $GMSEXE or else
+      echo the DDIKICK executable ddikick.x
+      echo could not be found in directory $GMSPATH,
+      echo or else they did not properly link to executable permission.
+      exit 8
+   endif
+#
+#        OK, now we are ready to execute!
+#    The kickoff program initiates GAMESS process(es) on all CPUs/nodes.
+#
+   if ($DDI_VER == new) then
+      set echo
+      $GMSPATH/ddikick.x $GMSEXE $JOB \
+          -ddi $NNODES $NCPUS $HOSTLIST \
+          -scr $SCR < /dev/null \
+          >& $OUTFILE
+      unset echo
+   else
+      set path=($GMSPATH $path)
+      set echo
+      ddikick.x $JOB $GMSPATH $GMSEXE $SCR $NCPUS $HOSTLIST < /dev/null \
+      >& $OUTFILE
+      unset echo
+   endif
+endif
+
+
+
+#   The IBM SP running DDI using mixed LAPI/MPI messaging wants you to
+#      a) set the path to point to the GAMESS executable
+#      b) define hosts in a host file, which are probably defined by
+#         a batch queue system.  An example for LoadLeveler is given.
+#   Please note that most IBM systems schedule their batch jobs with
+#   the LoadLeveler software product.  Please see gamess/misc/llgms for
+#   a "front-end" script that submits this script as a "back-end" job,
+#   with all necessary LL accouterments inserted at the top of the job.
+#
+if ($TARGET == ibm64-sp) then
+#
+#     point this to where your GAMESS executable is located
+   set path=($path /u1/mike/gamess)
+#
+#     error messages defaulted to American English, try C if lacking en_US
+   setenv LOCPATH /usr/lib/nls/loc:/usr/vacpp/bin
+   setenv LANG en_US
+#
+#     this value is picked up inside DDI, then used in a "chdir $SCR"
+   setenv DDI_SCRATCH $SCR
+#
+#     define the name of a host name file.
+#
+   setenv HOSTFILE $SCR/$JOB.poehosts
+   if (-e $HOSTFILE) rm -f $HOSTFILE
+#
+#        If the job was scheduled by LoadLeveler, let LL control everything.
+#
+   if ($?LOADLBATCH) then
+#        just get POE to tell us what nodes we were dynamically assigned to.
+      /usr/bin/poe hostname -stdoutmode ordered > $HOSTFILE
+      set SMP_SIZE = $TPN
+#
+#        Otherwise, if this was not an LoadLeveler job, here's a hack!
+#        It is unlikely this will match your SP's characteristics, as
+#        we just guess its a 4-way node, 4 processors, run interactively.
+#        It is here mainly to illustrate the sort of MP_XXX's you need.
+   else
+      set SMP_SIZE=4
+      set NCPUS=4
+      set NNODES=1
+      echo `hostname`  > $HOSTFILE
+      echo `hostname` >> $HOSTFILE
+      echo `hostname` >> $HOSTFILE
+      echo `hostname` >> $HOSTFILE
+
+      echo "Variables controlling Parallel Environment process kickoff are"
+      set echo
+      setenv MP_NODES          $NNODES
+      setenv MP_PROCS          $NCPUS
+      setenv MP_HOSTFILE       $HOSTFILE
+      setenv MP_CPU_USE        unique
+      setenv MP_ADAPTER_USE    dedicated
+#       GAMESS is implemented using both MPI and LAPI active messages.
+      setenv MP_MSG_API        MPI,LAPI
+      setenv MP_EUILIB         us
+#       SP systems with one switch adapter might use css0, not striping csss
+      setenv MP_EUIDEVICE      csss
+      setenv MP_RESD           no
+      unset echo
+   endif
+
+#       and now we are ready to execute, using poe to kick off the tasks.
+   @ NNODES = ($NCPUS - 1) / $SMP_SIZE + 1
+   echo "Running $NCPUS processes on $NNODES nodes ($SMP_SIZE-way SMP)."
+   set echo
+   /usr/bin/poe gamess.$VERNO.x $JOB -stdinmode none
+   unset echo
+endif
+
+#                        - a MPI example -
+#   The SCL's scink cluster, consisting of dual processor AMD nodes,
+#   using a specialized MPI library on a SCI network.  Since there is
+#   no TCP/IP stack on the SCI card, we are forced to rely on MPI.
+#   Some small control messages pass over the Fast Ethernet, since we
+#   do not use the -netext flag to try to move them to the SCI card.
+#
+#   This system has a PBS batch queue system, to assign host names
+#   dynamically, so we must construct HOSTLIST from the node file.
+#   The first step is to extract unique names, and a count, so that
+#   we can list all compute processes, for example "s6 2 s7 2 s8 2".
+#   The HOSTLIST is doubled at the end, to name the data server hosts.
+#
+#   The 'mpirun' on this system is a shell script, which parses various
+#   options.  Start processes with the 'mpimon' program which is normally
+#   invoked inside 'mpirun', so arguments like -scr will reach the DDI
+#   subroutines, instead of confusing the 'mpirun' script.
+#
+if ($TARGET == mpi) then
+   set NETEXT=".fast"
+   if ($NIC == sci) set NETEXT=".sci"
+   set HOSTLIST=()
+   set nmax=`wc -l $PBS_NODEFILE`
+   set nmax=$nmax[1]
+#            1st host in the list is sure to be a new SMP enclosure
+   set MYNODE=`sed -n -e "1 p" $PBS_NODEFILE`
+   set MYNODE=`echo $MYNODE | awk '{split($0,a,"."); print a[1]}'`
+#            IPROC counts assigned processors (up to NCPUS),
+#            NNODES counts number of SMP enclosures.
+#            NSMPCPU counts processors in the current SMP enclosure
+   @ IPROC = 2
+   @ NNODES = 1
+   @ NSMPCPU = 1
+   while($IPROC <= $nmax)
+      set MYPROC=`sed -n -e "$IPROC p" $PBS_NODEFILE`
+      set MYPROC=`echo $MYPROC | awk '{split($0,a,"."); print a[1]}'`
+      if($MYPROC != $MYNODE) then
+         set HOSTLIST = ($HOSTLIST $MYNODE $NSMPCPU)
+         set MYNODE=$MYPROC
+         @ NSMPCPU = 0
+         @ NNODES++
+      endif
+      @ IPROC++
+      @ NSMPCPU++
+   end
+   set HOSTLIST = ($HOSTLIST $MYNODE $NSMPCPU)
+#
+#        now duplicate the host list, to put all the data servers in
+#
+   set HOSTLIST = ($HOSTLIST $HOSTLIST)
+#
+#        make sure we have the binary, before we try to run
+#
+   set GMSPATH=$EXEPATH
+   if (-x $GMSPATH/gamess.$VERNO.x) then
+      setenv DDI_RSH ssh
+      echo Running $NCPUS compute processes on $NNODES nodes...
+      set echo
+      /opt/scali/bin/mpimon -stdin all $GMSPATH/gamess.$VERNO.x \
+            -scr $SCR -- $HOSTLIST
+      unset echo
+   else
+      echo The GAMESS executable gamess.$VERNO.x
+      echo could not be found in directory $GMSPATH.
+      exit 8
+   endif
+endif
+
+#   NEC SX Series wants you to
+#      a) set the path variable to point to the GAMESS executable
+#   this isn't correct, it uses MPI, but need to save the F_ stuff???
+#
+if ($TARGET == necsx) then
+   set GMSPATH=/u1/mike/gamess
+
+   chdir $SCR
+   setenv F_RECLUNIT BYTE
+   setenv F_ABORT YES
+   setenv F_ERROPT1 252,252,2,2,1,1,2,1
+   setenv F_PROGINF detail
+   setenv F_SETBUF 4096
+   echo Running @NCPUS compute processes and $NCPUS data server processes...
+   @ NPROCS = $NCPUS + $NCPUS
+   set echo
+   #--mpirun -np $NPROCS $GMSPATH/gamess.$VERNO.x $JOB < /dev/null
+   unset echo
+endif
+
+#   in the case of GDDI runs, we save the first group master's files only.
+if ($TARGET != sockets) set GDDIjob=false # just didn't set them up for GDDI
+if ($GDDIjob == true) then
+   cat $OUTPUT
+   cp $SCR/$JOB.F07 ~/scr/$JOB.dat
+   if(-e $JOB.F04) cp $SCR/$JOB.F04 ~/scr/$JOB.irc
+endif
+
+#
+#  ---- the bottom third of the script is to clean up all disk files ----
+#
+echo ----- accounting info -----
+date
+#
+#   Clean up the master's scratch directory.
+#
+echo Files used on the master node $master were:
+ls -lF $SCR/$JOB.*
+rm -f  $SCR/$JOB.F*
+#
+#   Clean up scratch directory of remote nodes.
+#
+#   This may not be necessary, e.g. on a T3E where all files are in the
+#   same directory, and just got cleaned out by the previous 'rm'.  Many
+#   batch queue managers provide cleaning out of scratch directories.
+#   It still may be interesting to the user to see the sizes of files.
+#
+#   The 'lasthost' business prevents multiple cleanup tries on SMP nodes.
+#
+if ($TARGET == sockets) then
+   set nmax=${#HOSTLIST}
+   set lasthost=$master
+   @ n=2   # master already cleaned above
+   while ($n <= $nmax)
+      set host=$HOSTLIST[$n]
+      set host=`echo $host | cut -f 1 -d :`   # drop anything behind a colon
+      if ($host != $lasthost) then
+         echo Files from $host are:
+         rsh $host -l $USER -n "ls -l $SCR/$JOB.*"
+         rsh $host -l $USER -n "rm -f $SCR/$JOB.F*"
+         set lasthost=$host
+      endif
+      @ n++
+   end
+endif
+#
+if ($TARGET == mpi) then
+   set nmax=`wc -l $PBS_NODEFILE`
+   set nmax=$nmax[1]
+   set lasthost=$master
+   @ n=2   # we already cleaned up the master node just above.
+   while ($n <= $nmax)
+      set host=`sed -n -e "$n p" $PBS_NODEFILE`
+      if ($host != $lasthost) then
+         echo Files used on node $host were:
+         ssh $host -l $USER "ls -l $SCR/$JOB.*"
+         ssh $host -l $USER "rm -f $SCR/$JOB.F*"
+         set lasthost=$host
+      endif
+      @ n++
+   end
+endif
+#
+#   IBM SP cleanup code...might need to be something other than 'rsh'.
+#
+if ($TARGET == ibm64-sp) then
+   set lasthost=$master
+   @ n=2   # we already cleaned up the master node just above.
+   @ nmax=$NCPUS
+   while ($n <= $nmax)
+      set host=`sed -n -e "$n p" $HOSTFILE`
+      if ($host != $lasthost) then
+         echo Files used on node $host were:
+         rsh $host "ls -l $SCR/$JOB.*"
+         rsh $host "rm -f $SCR/$JOB.F*"
+         set lasthost=$host
+      endif
+      @ n++
+   end
+   rm -f $HOSTFILE
+endif
+#
+#  and this is the end
+#
+time
+exit

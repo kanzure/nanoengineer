@@ -118,7 +118,6 @@ class GamessJob(SimJob):
         Returns:  0 = Valid
                         1 = Invalid
         '''
-                       
         # Get GAMESS executable path from the user preferences
         prefs = preferences.prefs_context()
         self.server.program = prefs.get(gmspath_prefs_key)
@@ -199,18 +198,19 @@ class GamessJob(SimJob):
         os.chdir(jobDir) # Change directory to the GAMESS temp directory.
         print "Current directory is: ", jobDir
         
-        #DATfile = os.path.join(jobDir, "PUNCH")
-        #if os.path.exists(DATfile): # Remove any previous DAT (PUNCH) file.
-        #    print "run_pcgamess: Removing DAT file: ", DATfile
-        #    os.remove(DATfile)
         ####self.outputFile = QFile(self.job_outputfile)
         ####self.outputFile.open( IO_WriteOnly | IO_Append )
             
         jobInputfile = os.path.basename(self.job_inputfile)
         jobInputFile = jobInputfile[:-4]
-        jobOutputfile = self.job_outputfile#os.path.basename(self.job_outputfile)    
+        jobOutputfile = self.job_outputfile #os.path.basename(self.job_outputfile)    
+        
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        program = os.path.normpath(filePath + '/../bin/rungms')
+        
+        executableFile = self.server.program
             
-        args = [self.server.program, jobInputFile, jobOutputfile]#, '01', '1']
+        args = [program, jobInputFile, jobOutputfile, executableFile]#, '01', '1']
         
             
         self.process = QProcess()
