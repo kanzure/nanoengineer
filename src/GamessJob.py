@@ -194,10 +194,6 @@ class GamessJob(SimJob):
     def _launch_gamess(self):
         oldir = os.getcwd() # Save current directory
         
-        jobDir = os.path.dirname(self.job_batfile)
-        os.chdir(jobDir) # Change directory to the GAMESS temp directory.
-        print "Current directory is: ", jobDir
-        
         ####self.outputFile = QFile(self.job_outputfile)
         ####self.outputFile.open( IO_WriteOnly | IO_Append )
             
@@ -205,8 +201,15 @@ class GamessJob(SimJob):
         jobInputFile = jobInputfile[:-4]
         jobOutputfile = self.job_outputfile #os.path.basename(self.job_outputfile)    
         
+        ### Notes: The following way to get the 'bin' works by assuming user didn't change the
+        ### working directory after the atom runs, otherwise it will get problem.
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         program = os.path.normpath(filePath + '/../bin/rungms')
+        
+        jobDir = os.path.dirname(self.job_batfile)
+        os.chdir(jobDir) # Change directory to the GAMESS temp directory.
+        print "Current directory is: ", jobDir
+        
         
         executableFile = self.server.program
             
