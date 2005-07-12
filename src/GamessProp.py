@@ -400,108 +400,7 @@ class GamessProp(GamessPropDialog):
 #        self.pset.ui.shift = self.shift_checkbox.isChecked() # SHIFT
 #        self.pset.ui.soscf = self.soscf_checkbox.isChecked() # SOSCF
 #        self.pset.ui.rstrct = self.rstrct_checkbox.isChecked() # RSTRCT
-        
-        self.gamessJig.save_gamess_parms() # Save all the parameters in the pset attribute.
-        self._save_job_parms()
-        
-    def save_gamess_parms_obsolete(self):
-        '''Save parameter set values.  This is always called by save_ui_settings, 
-        since it depends on the ui setting values.  This should propbably be a private
-        method.'''
-        
-        # $CONTRL group ###########################################
-        
-        # Parms Values
-        self.pset.contrl.runtyp = runtyp[self.pset.ui.runtyp] # RUNTYP
-        self.pset.contrl.scftyp = scftyp[self.pset.ui.scftyp] # SCFTYP
-        self.pset.contrl.icharg = str(self.pset.ui.icharg) # ICHARG
-        self.pset.contrl.mult = str(self.pset.ui.mult + 1) # MULT
-        self.pset.contrl.mplevl = mplevl[self.pset.ui.ecm] # MPLEVL
-        self.pset.contrl.inttyp = inttyp[self.pset.ui.inttyp] # INTTYP
-        self.pset.contrl.maxit = self.pset.ui.iterations # Iterations
-        
-        # ICUT and QMTTOL
-        #s = str(self.gbasis_combox.currentText())
-        m = self.pset.ui.gbasisname.count('+') # If there is a plus sign in the basis set name, we have "diffuse orbitals"
-        if m: # We have diffuse orbitals
-            self.pset.contrl.icut = 11
-            if self.server.engine != 'PC GAMESS': # PC GAMESS does not support QMTTOL. Mark 052105
-                self.pset.contrl.qmttol = '3.0E-6'
-            else:
-                self.pset.contrl.qmttol = None
-        else:  # No diffuse orbitals
-            self.pset.contrl.icut = 9
-            if self.server.engine == 'GAMESS': 
-                self.pset.contrl.qmttol = '1.0E-6'
-            else:
-                self.pset.contrl.qmttol = None # PC GAMESS does not support QMTTOL. Mark 052105
-        
-        # DFTTYP (PC GAMESS only)
-        # For PC GAMESS, the DFTTYP keyword is included in the CONTRL section, not the $DFT group.
-        if self.server.engine == 'PC GAMESS':
-            if ecm[self.pset.ui.ecm] == 'DFT':
-                item = pcgms_dfttyp_items[self.pset.ui.dfttyp] # Item's full text, including the '(xxx)'
-                self.pset.contrl.dfttyp, junk = item.split(' ',1) # DFTTYPE, removing the '(xxx)'.
-                self.pset.dft.nrad = pcgms_gridsize[self.pset.ui.gridsize] # Grid Size parameters
-            else: # None or MP2
-                self.pset.contrl.dfttyp = 0
-                self.pset.dft.nrad = 0
-        
-        # $SCF group ###########################################
-        
-        self.pset.scf.extrap = tf[self.pset.ui.extrap] # EXTRAP
-        self.pset.scf.dirscf = tf[self.pset.ui.dirscf] # DIRSCF
-        self.pset.scf.damp = tf[self.pset.ui.damp] # DAMP
-        self.pset.scf.diis = tf[self.pset.ui.diis] # DIIS
-        self.pset.scf.shift = tf[self.pset.ui.shift] # SHIFT
-        self.pset.scf.soscf = tf[self.pset.ui.soscf] # SOSCF
-        self.pset.scf.rstrct = tf[self.pset.ui.rstrct] # RSTRCT
-        
-        # CONV (GAMESS) or 
-        # NCONV (PC GAMESS)
-        if self.server.engine == 'GAMESS':
-            self.pset.scf.conv = conv[self.pset.ui.conv] # CONV (GAMESS)
-            self.pset.scf.nconv = 0 # Turn off NCONV
-        else: # PC GAMESS
-            self.pset.scf.nconv = conv[self.pset.ui.conv] # NCONV (PC GAMESS)
-            self.pset.scf.conv = 0 # Turn off CONV
-        
-        # $SYSTEM group ###########################################
-        
-        self.pset.system.timlin = 1000 # Time limit in minutes
-        self.pset.system.memory = self.pset.ui.memory * 1000000
-        
-        # $MP2 group ###########################################
-        
-        self.pset.mp2.ncore = ncore[self.pset.ui.ncore]
-        
-        # $DFT group ###########################################
 
-        # The DFT section record is supported in GAMESS only.
-        if self.server.engine == 'GAMESS':
-            if ecm[self.pset.ui.ecm] == 'DFT':
-                item = gms_dfttyp_items[self.pset.ui.dfttyp]
-                self.pset.dft.dfttyp, junk = item.split(' ',1) # DFTTYP in $CONTRL
-                self.pset.dft.nrad = gms_gridsize[self.pset.ui.gridsize] # Grid Size parameters
-            else: # None or MP2
-                self.pset.dft.dfttyp = 'NONE'
-                self.pset.dft.nrad = 0
-        
-        # $GUESS group ###########################################
-        
-        # $STATPT group ###########################################
-        
-        if runtyp[self.pset.ui.runtyp] == 'optimize':
-            self.pset.statpt.opttol = float(opttol[self.pset.ui.rmsdconv])
-        else:
-            self.pset.statpt.opttol = None
-        
-        # $BASIS group ###########################################
-        
-        if ecm[self.pset.ui.ecm] == 'None':
-            self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem()] # GBASIS
-        else:
-            self.pset.basis.gbasis = gbasis[self.gbasis_combox.currentItem() + 2] # GBASIS
 
     def _save_job_parms(self):
         calculate = ['Energy', 'Optimization']
@@ -673,6 +572,8 @@ class GamessProp(GamessPropDialog):
         """The slot method for the 'Save' button."""
         QDialog.accept(self)
         self._save_ui_settings()
+        self.gamessJig.update_gamess_parms() # Update all the GAMESS parameters.
+        self._save_job_parms()
         if self.edit_input_file_cbox.isChecked():
             self.open_tmp_inputfile()
 
