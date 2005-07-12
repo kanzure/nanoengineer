@@ -18,7 +18,11 @@ struct xyz AveragePositions[NATOMS];
 static struct xyz position_arrays[4*NATOMS];
 
 // these point into position_arrays
-struct xyz *OldPositions, *NewPositions, *Positions, *BestPositions; 
+struct xyz *OldPositions, *NewPositions, *Positions, *BestPositions;
+
+// allocated only if doing structure alignment
+struct xyz *BasePositions;
+struct xyz *InitialPositions;
 
 // steepest descent terminates when rms_force is below this value (in picoNewtons)
 #define RMS_CUTOVER (50.0)
@@ -142,6 +146,8 @@ char *IDKey="";
 
 char OutFileName[1024];
 char TraceFileName[1024];
+
+char *baseFilename;
 
 // for writing the differential position and trace files
 FILE *outf, *tracef;
@@ -628,6 +634,7 @@ jigLinearMotor(int j, struct xyz *position, double deltaTframe)
     mot=Constraint[j].motor;
 
     if (mot->speed == 0.0) {
+        Constraint[j].data = 0.0;
 	for (i=0;i<Constraint[j].natoms;i++) 
 	    vadd(Force[Constraint[j].atoms[i]], mot->center);
     }
@@ -641,6 +648,7 @@ jigLinearMotor(int j, struct xyz *position, double deltaTframe)
     	
 	// x is length of projection of r onto axis
 	x=vdot(r,mot->axis);
+        Constraint[j].data = mot->theta0 - x;
 	
 	// note .speed is stiffness
 	// .theta0 is projection dist of r onto axis for 0 force
@@ -1234,6 +1242,7 @@ usage()
    -o<string>    -- output file name (otherwise same as input)\n\
    -q<string>    -- trace file name (otherwise trace)\n\
    -D<int>       -- turn on a debugging flag (see simulator.h)\n\
+   -B<filename>  -- base XYZ file for position comparison (compared to following file)\n\
    filename      -- if no ., add .mmp to read, .dpb to write\n");
     exit(1);
 }
@@ -1331,6 +1340,9 @@ main(int argc,char **argv)
 	    case 'q':
 		tfilename=argv[i]+2;
 		break;
+            case 'B':
+                baseFilename=argv[i]+2;
+                break;
 	    default:
 		fprintf(stderr, "unknown switch %s\n",argv[i]+1);
 	    }
@@ -1348,10 +1360,31 @@ main(int argc,char **argv)
         usage();
     }
 
+    if (baseFilename != NULL) {
+        int i1;
+        int i2;
+        
+        if (ofilename == NULL) {
+            fprintf(stderr, "need to specify output filename for structure compare\n");
+            exit(1);
+        }
+        BasePositions = readXYZ(baseFilename, &i1);
+        InitialPositions = readXYZ(filename, &i2);
+        if (i1 != i2) {
+            fprintf(stderr, "structures to compare must have same number of atoms\n");
+            exit(1);
+        }
+        strcpy(OutFileName,ofilename);
+        doStructureCompare(i1);
+        exit(0);
+    }
+
     //if (ToMinimize) printf("Minimize\n");
 
     if (strchr(filename, '.')) {
         sprintf(buf, "%s", filename);
+    } else if (baseFilename != NULL) {
+        sprintf(buf, "%s.xyz", filename);
     } else {
         sprintf(buf, "%s.mmp", filename);
     }
@@ -1367,7 +1400,7 @@ main(int argc,char **argv)
     }
     
     if (! strchr(OutFileName, '.')) {
-	if (DumpAsText) {
+	if (DumpAsText || baseFilename != NULL) {
             strcat(OutFileName,".xyz");
         } else {
             strcat(OutFileName,".dpb");

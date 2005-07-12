@@ -30,6 +30,7 @@ printers.o: simulator.h
 hashtable.o: allocate.h hashtable.h
 allocate.o: allocate.h
 newtables.o: simulator.h
+structcompare.o: simulator.h
 interpolate.o: simulator.h
 
 tables.c: gentab.py
@@ -43,6 +44,7 @@ SIMOBJS=\
 	allocate.o \
 	hashtable.o \
 	newtables.o \
+	structcompare.o \
 	interpolate.o
 
 all: simulator
