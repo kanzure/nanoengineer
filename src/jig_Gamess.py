@@ -127,7 +127,7 @@ class Gamess(Jig):
         origCalType = self.gmsjob.Calculation
         self.gmsjob.Calculation = 'Energy'
         
-        self.save_gamess_parms()
+        self.update_gamess_parms()
         
         # Run GAMESS job.  Return value r:
         # 0 = success
@@ -152,20 +152,22 @@ class Gamess(Jig):
             return []
         pass
 
-        
-            
     def print_energy(self):
         
-        final_energy = get_energy_from_pcgms_outfile(self.outputfile)
+        r, final_energy_str = get_energy_from_pcgms_outfile(self.outputfile)
 
-        if final_energy != None:
-            gmstr = self.gms_parms_info()
-            msg = "GAMESS finished. Parameters: " + gmstr + ".  The final energy is: " + str(final_energy) + " Hartree"
-        else:
+        if r: # GAMESS terminated abnormally.
+            if final_energy_str:
+                self.history.message(redmsg(final_energy_str))
             msg = redmsg("Final energy value not found.")
-        self.history.message(msg)
-        
-        return
+            self.history.message(msg)
+            
+        else: # Final energy was found.
+            gmstr = self.gms_parms_info()
+            msg = "GAMESS finished. The output file is located at: " + self.outputfile
+            self.history.message(msg)
+            msg = "Parameters: " + gmstr + ".  The final energy is: " + final_energy_str + " Hartree."
+            self.history.message(msg)
 
     mmp_record_name = "gamess" #bruce 050701
 
@@ -281,10 +283,9 @@ class Gamess(Jig):
         return val
    
         
-    def save_gamess_parms(self):
-        '''Save parameter set values.  This is always called by save_ui_settings, 
-        since it depends on the ui setting values.  This should propbably be a private
-        method.'''
+    def update_gamess_parms(self):
+        '''Update the GAMESS parameter set values using the settings in the UI object.
+        '''
         
         # $CONTRL group ###########################################
         

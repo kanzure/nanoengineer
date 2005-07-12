@@ -19,7 +19,7 @@ from platform import fix_plurals, get_gms_name
 from HistoryWidget import redmsg, orangemsg
 from VQT import A
 
-failpat = re.compile("-ABNORMALLY-")
+failpat = re.compile("ABNORMALLY")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
 
 def _readgms(assy, filename, isInsert = False):
@@ -40,6 +40,7 @@ def _readgms(assy, filename, isInsert = False):
     ndix = {}
     mol = molecule(assy, nodename)
     countdown = 0
+    equilibruim_found = False
     atoms_found = False
     
     for card in lines:
@@ -53,19 +54,13 @@ def _readgms(assy, filename, isInsert = False):
         # we know we have a successfully optimized structure/set of atoms.
         # If this card is not found, the optimization failed for some reason.
         # Atom positions begin soon after this card.
-        # For PC GAMESS (WindowsXP) it is 6 lines after this card.
-        # For GAMESS-US (Linux) it seems to be 3 lines after this card.
-        #!!! This needs to be confirmed and addressed for Linux/GAMESS-US.
-        # 050624 Mark
         if card == "1     ***** EQUILIBRIUM GEOMETRY LOCATED *****\n":
-            atoms_found = True
-            reading_atoms = True
-            countdown = 6 # 6 lines if PC GAMESS, 3 lines if GAMESS-US.
+            equilibruim_found = True
             continue
             
         # The atom positions we want ALWAYS begin 2 lines after this card:
         # " COORDINATES OF ALL ATOMS ARE (ANGS)\n"
-        # which follows the previous card by 4 cards in PC GAMESS.
+        # which follows the previous card.
         # This is one way to fix the problem mentioned above.
         # I've commented the code below out since it needs further work to do what
         # we need, and there is a chance we will not need this if GAMESS-US has
@@ -75,14 +70,15 @@ def _readgms(assy, filename, isInsert = False):
         # can be many of them.  There is only one "EQUILIBRIUM" card, and the
         # good atoms follow that card.
         # 050624 Mark
-                
-#        if card == " COORDINATES OF ALL ATOMS ARE (ANGS)\n":
-#            atoms_found = True
-#            reading_atoms = True
-#            countdown = 2
-#            continue
         
-        if not atoms_found:
+        if equilibruim_found:
+            if card == " COORDINATES OF ALL ATOMS ARE (ANGS)\n":
+                atoms_found = True
+                reading_atoms = True
+                countdown = 2
+                continue
+        
+        if not equilibruim_found or not atoms_found:
             continue
             
         if countdown:
@@ -90,12 +86,14 @@ def _readgms(assy, filename, isInsert = False):
 #            print countdown, card # for debugging only.
             continue
 
+        # The current card contains atom type and position. 
+        
         n = 0
         
         if reading_atoms:
             if len(card)<10: 
                 reading_atoms = False # Finished reading atoms.
-                continue
+                break
             m=irecpat.match(card)
             sym = capitalize(m.group(1))
             try:
@@ -213,20 +211,15 @@ def writegms_batfile(filename, gamessJob):
     f.close() # Close BAT file.
 
 def get_energy_from_pcgms_outfile(filename):
-    '''Returns the final energy value from the PC GAMESS DAT file.
-    GAMESS is not yet supported, as the line containing the energy
-    value may be different from PC GAMESS.
+    '''Returns a string containing the final energy value from a GAMESS OUT file.
+    Works for both PC GAMESS and GAMESS-US.
     '''
+    # This now returns a return code (0=Success, 1=Failed) along with the energy.
+    # The caller checks the return code.  I'd like to ask Bruce if this is a good way to
+    # do this.  It seems there should be a nifty way to do this with a single return value.
+    # One idea is to check the type (float = success, str = failuer) of the return value 
+    # to determine success or failure.
     
-    #!!! This routine can serve for both PC GAMESS and GAMESS if we know the version.
-    # When Huaicai or I start working on Linux, we'll pass the version as an argument.
-    # Something like this:
-    # if gms_version == 'PC GAMESS':
-    #     findstr = 'FINAL ENERGY IS'
-    # else:
-    #     findstr = 'WHATEVER GAMESS FINAL ENERGY IS'
-    # Mark 050624
-        
     if not os.path.exists(filename):
         return None
             
@@ -237,16 +230,21 @@ def get_energy_from_pcgms_outfile(filename):
     gamessEnergyStr = re.compile(r'\bFINAL R.+ ENERGY IS')
         
     for line in lines:
-        if line.find('FINAL ENERGY IS') >= 0:
+        
+        if failpat.search(line): # GAMESS Aborted.  Final energy will not be found.
+            return 1, line
+            break
+            
+        elif line.find('FINAL ENERGY IS') >= 0:
             elist = line.split()
 #            print elist
-            return float(elist[3]) # Return the final energy value.
-        elif gamessEnergyStr.search(line):#line.find('FINAL R-AM1 ENERGY IS') >= 0: 
+            return 0, elist[3] # Return final energy value as a string.
+        elif gamessEnergyStr.search(line):# line.find('FINAL R-AM1 ENERGY IS') >= 0: 
             elist = line.split()
 #            print elist
-            return float(elist[4]) # Return the final energy value.
+            return 0, elist[4] # Return final energy value as a string.
         else: continue
             
-    return None
+    return 1, None
 
 # end
