@@ -455,8 +455,8 @@ ing assembly.
             isf.write('Source: "README.txt"; DestDir: "{app}"; Flags: isreadme\n')
 
             isf.write("\n[Icons]\n")
-            isf.write('Name: "{group}\\%s"; Filename: "{app}\\program\\atom.exe"; WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex.ico"\n' % appName)
-            isf.write('Name: "{userdesktop}\\%s"; Filename: "{app}\\program\\atom.exe"; WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex.ico"\n' % appName)
+            isf.write('Name: "{group}\\%s"; Filename: "{app}\\program\\atom.exe"; WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n' % appName)
+            isf.write('Name: "{userdesktop}\\%s"; Filename: "{app}\\program\\atom.exe"; WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n' % appName)
             isf.write('Name: "{group}\\Uninstall %s"; Filename: "{uninstallexe}"\n' % appName)
 
             isf.write("\n[Languages]\n")
@@ -643,7 +643,7 @@ def main():
     appName = "nanoENGINEER-1"
     rootDir = None
     if sys.platform == 'win32':
-          iconFile = os.path.join(currentDir, 'nanorex.ico')
+          iconFile = os.path.join(currentDir, 'nanorex_48x.ico')
     elif sys.platform == 'darwin':
         iconFile = os.path.join(currentDir, 'nanorex.icns')
     else:
