@@ -12,7 +12,7 @@ from GamessProp import *
 from GamessJob import *
 from povheader import povpoint # Fix for bug 692 Mark 050628
 from SimServer import SimServer
-from files_gms import get_energy_from_pcgms_outfile
+from files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
 
 # == GAMESS
 
@@ -144,6 +144,47 @@ class Gamess(Jig):
             self.history.message( redmsg( "GAMESS job cancelled."))
         else: # Job failed.
             self.history.message( redmsg( "GAMESS job failed."))
+            
+    def __CM_Optimize(self):
+        '''Gamess Jig context menu "Optimize"
+        '''
+        pset = self.pset
+        runtyp = pset.ui.runtyp # Save runtyp (Calculate) setting to restore it later.
+        pset.ui.runtyp = 1 # Optimize
+        origCalType = self.gmsjob.Calculation
+        self.gmsjob.Calculation = 'Optimize'
+        
+        self.update_gamess_parms()
+        
+        # Run GAMESS job.  Return value r:
+        # 0 = success
+        # 1 = job cancelled
+        # 2 = job failed.
+        r = self.gmsjob.launch()
+        
+        pset.ui.runtyp = runtyp # Restore to original value
+        self.gmsjob.Calculation = origCalType
+        
+        if r == 0: # Success
+            try:
+                r2 = self.move_optimized_atoms()
+            except:
+                print_compact_traceback( "GamessProp.run_job(): error reading GAMESS OUT file [%s]: " % \
+                    self.outputfile )
+                self.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + self.outputfile) )
+            else:
+                if r2:
+                    self.history.message(redmsg( "Atoms not adjusted."))
+                else:
+                    self.assy.changed() # The file and the part are not the same.
+                    self.print_energy() # Print the final energy from the optimize OUT file, too.
+                    self.history.message( "Atoms adjusted.")
+                    
+        elif r==1: # Job was cancelled
+            self.history.message( redmsg( "GAMESS job cancelled."))
+            
+        else: # Job failed.
+            self.history.message( redmsg( "GAMESS job failed."))
     
     def __CM_Calculate_Energy__options(self):
         if Jig.is_disabled(self):
@@ -154,7 +195,7 @@ class Gamess(Jig):
 
     def print_energy(self):
         
-        r, final_energy_str = get_energy_from_pcgms_outfile(self.outputfile)
+        r, final_energy_str = get_energy_from_gms_outfile(self.outputfile)
 
         if r: # GAMESS terminated abnormally.
             if final_energy_str:
@@ -171,6 +212,54 @@ class Gamess(Jig):
 
     mmp_record_name = "gamess" #bruce 050701
 
+
+    def move_optimized_atoms(self):
+        
+        newPositions = get_atompos_from_gms_outfile( self.assy, self.outputfile, self.atoms )
+        # retval is either a list of atom posns or an error message string.
+        assert type(newPositions) in [type([]),type("")]
+        if type(newPositions) == type([]):
+            self.move_atoms(newPositions)
+            self.assy.changed()
+            self.assy.o.gl_update()
+            #self.assy.w.win_update()
+            return 0
+        else:
+            self.history.message(redmsg( newPositions))
+            return 1
+                
+    def move_atoms(self, newPositions): # used when reading xyz files
+        """Borrowed from movie.moveAtoms.  Seems like a candidate for a 
+        general method - just supply the args alist and newPositions.
+        Move a list of atoms to newPosition. After 
+        all atoms moving, bond updated, update display once.
+        <parameter>newPosition is a list of atom absolute position,
+        the list order is the same as self.alist
+        """   
+        
+        atomList = self.atoms
+        
+        if len(newPositions) != len(atomList):
+            #bruce 050225 added some parameters to this error message
+            #bruce 050406 comment: but it probably never comes out, since readxyz checks this,
+            # so I won't bother to print it to history here. But leaving it in is good for safety.
+            print "move_atoms: The number of atoms from GAMESS file (%d) is not matching with that of the current model (%d)" % \
+                  (len(newPositions), len(atomList))
+            return
+        for a, newPos in zip(atomList, newPositions):
+            #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
+            # (and therefore have the wrong distance from their base atom).
+            # Rather than needing to know whether or not they were H during the sim,
+            # we can just regularize the singlet-baseatom distance for all singlets.
+            # For now I'll just use setposn to set the direction and snuggle to fix the distance.
+            #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
+            # is wildly wrong, and it should also complain. I won't do this for now.
+            a.setposn_batch(A(newPos)) #bruce 050513 try to optimize this
+            if a.is_singlet(): # same code as in movend()
+                a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
+        self.assy.o.gl_update()
+        return
+                        
     def writemmp(self, mapping): #bruce 050701
         "[extends Jig method]"
         super = Jig

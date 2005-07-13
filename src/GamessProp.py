@@ -551,22 +551,26 @@ class GamessProp(GamessPropDialog):
             self.history.message( redmsg( "GAMESS job failed."))
             return
         
-        # Job success.  Print energy or insert optimized structure from run.
+        # Job success.  
+        fn = self.gamessJig.outputfile
+        
+        # Print energy or move atoms
         if self.pset.ui.runtyp == 0: #Energy
             self.gamessJig.print_energy()
         else:  # Optimize
-            fn = self.gamessJig.outputfile
             try:
-                r = insertgms(self.gamessJig.assy, fn)
+                r = self.gamessJig.move_optimized_atoms()
+                # r = insertgms(self.gamessJig.assy, fn)
             except:
-                print_compact_traceback( "GamessProp.run_job(): error inserting GAMESS OUT file [%s]: " % fn )
+                print_compact_traceback( "GamessProp.run_job(): error reading GAMESS OUT file [%s]: " % fn )
                 self.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + fn) )
             else:
                 if r:
-                    self.history.message( "Geometry not inserted.")
+                    self.history.message(redmsg( "Atoms not adjusted."))
                 else:
                     self.gamessJig.assy.changed() # The file and the part are not the same.
-                    self.history.message( "GAMESS file inserted: " + fn )
+                    self.gamessJig.print_energy() # Print the final energy from the optimize OUT file, too.
+                    self.history.message( "Atoms adjusted.")
                     
     def accept(self):
         """The slot method for the 'Save' button."""
