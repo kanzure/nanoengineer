@@ -91,6 +91,12 @@ o an executable and affiliated files.
             
             # Remove all those 'CVS' directories and their entries.
             self._removeCVSFiles('cad')
+            self._removeCVSFiles('sim')
+           
+            if sys.platform == 'linux2':
+                    os.chdir(self.atomPath)
+                    tarName = self.appName + '-' + self.version + '.' + self.releaseNo + '.tar.gz'
+                    if os.system('tar -czvf %s *' % tarName): raise Exception, "Tar making failed."
            
             os.chdir('sim/src')
             if os.system('make'): raise Exception, "Simulator building failed."
@@ -126,6 +132,10 @@ o an executable and affiliated files.
                         copytree('/Applications/AquaTerm.app',  os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/bin/AquaTerm.app'))
                         copy(os.path.join(self.atomPath, 'sim/src/simulator'), os.path.join(self.buildSourcePath, self.appName + '.app', 'Contents/bin'))
                         copy('/usr/local/bin/gnuplot', os.path.join(self.buildSourcePath, self.appName + '.app', 'Contents/bin'))
+                        
+                        #Copy rungms script into 'bin' directory
+                        copy(os.path.join(self.atomPath,'cad/src/rungms'), os.path.join(self.buildSourcePath, self.appName + '.app', 'Contents/bin'))
+                        
 
                         #Copy OpenGL package into buildSource/program
                         copytree('site-packages', os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/Resources/Python/site-packages'))
@@ -168,7 +178,10 @@ o an executable and affiliated files.
                 copy('/usr/bin/gnuplot', binPath)
                 copy('assistant', binPath)
                 copy(os.path.join(self.atomPath, 'sim/src/simulator'), binPath)
-
+                
+                #copy rungms script
+                copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
+    
                 copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), os.path.join(self.buildSourcePath, 'doc'))
                 copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
                 copy(os.path.join(self.atomPath,'cad/src/LICENSE'), os.path.join(self.buildSourcePath, 'doc'))
@@ -515,7 +528,7 @@ ing assembly.
                 
              
              #Remove the packages in /usr/local
-             ret = os.system("sudo rm -f -d -r %s" % (os.path.join(destDir, self.appName)))
+             ######ret = os.system("sudo rm -f -d -r %s" % (os.path.join(destDir, self.appName)))
 
              print "-------RPM package has been made."
              return True
@@ -539,7 +552,7 @@ ing assembly.
             for name in files:
                 if cleanAll:
                     os.remove(os.path.join(root, name))
-                elif not (name.endswith('w32.exe') or name.endswith('.dmg')):
+                elif not (name.endswith('w32.exe') or name.endswith('.dmg') or name.endswith('.tar.gz')):
                     os.remove(os.path.join(root, name))
                 else:
                     print "Keep file: ", name
@@ -675,8 +688,8 @@ def main():
     builder = NanoBuild(appName, iconFile, rootDir, version, releaseNo, status, cvsTag)
     builder.build()
 
-    if sys.platform == 'linux2':
-        builder.clean(rootDir, cleanAll = True)
+    #if sys.platform == 'linux2':
+    #    builder.clean(rootDir, cleanAll = True)
     #else:
     #    builder.clean()
 
