@@ -186,6 +186,12 @@ class Gamess(Jig):
         else: # Job failed.
             self.history.message( redmsg( "GAMESS job failed."))
     
+    def __CM_Optimize__options(self):
+        if Jig.is_disabled(self):
+            return ['disabled']
+        else:
+            return []
+    
     def __CM_Calculate_Energy__options(self):
         if Jig.is_disabled(self):
             return ['disabled']
