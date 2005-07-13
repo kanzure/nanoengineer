@@ -208,7 +208,7 @@ class GamessJob(SimJob):
         
         jobDir = os.path.dirname(self.job_batfile)
         os.chdir(jobDir) # Change directory to the GAMESS temp directory.
-        print "Current directory is: ", jobDir
+#        print "Current directory is: ", jobDir
         
         
         executableFile = self.server.program
@@ -274,7 +274,7 @@ class GamessJob(SimJob):
         
         jobDir = os.path.dirname(self.job_batfile)
         os.chdir(jobDir) # Change directory to the GAMESS temp directory.
-        print "Current directory is: ", jobDir
+#        print "Current directory is: ", jobDir
         
         DATfile = os.path.join(jobDir, "PUNCH")
         if os.path.exists(DATfile): # Remove any previous DAT (PUNCH) file.
@@ -334,7 +334,7 @@ class GamessJob(SimJob):
         
         os.chdir(oldir)
         self.gamessJig.outputfile = self.job_outputfile
-        print "GamessJob._launch_pcgamess: self.gamessJig.outputfile: ", self.gamessJig.outputfile
+#        print "GamessJob._launch_pcgamess: self.gamessJig.outputfile: ", self.gamessJig.outputfile
         
         return 0 # Success
 
