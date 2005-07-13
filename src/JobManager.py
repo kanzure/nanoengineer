@@ -40,7 +40,7 @@ def touch_job_id_status_file(job_id, Status='Queued'):
     import glob
     wildcard_str = os.path.join(job_id_dir, 'Status-*')
     status_files = glob.glob(wildcard_str)
-    print "Status Files:", status_files
+#    print "Status Files:", status_files # Commented this out for A6.  Mark 050712.
     for sfile in status_files:
         os.remove(sfile)
     
