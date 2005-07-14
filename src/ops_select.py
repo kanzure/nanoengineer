@@ -230,7 +230,6 @@ class ops_select_Mixin:
                 self.w.history.message(atm.molecule.getinfo())
             else:
                 assert self.selwhat == SELWHAT_ATOMS
-                self.unpickparts() # Partial fix for bugs 606 and 365.  Mark 050713.
                 atm.pick()
                 self.w.history.message(atm.getinfo())
         return
