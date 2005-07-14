@@ -479,6 +479,7 @@ class SelectionShape(shape):
             if assy.selwhat:
                 self._chunksSelect(assy)
             else:
+                assy.unpickparts() # Partial fix for bugs 606 and 365.  Mark 050713.
                 self._atomsSelect(assy)   
         
         
