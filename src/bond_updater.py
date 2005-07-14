@@ -90,7 +90,9 @@ def update_bonds_after_each_event( _changed_structure_atoms):
         # every one of these bonds is wrong, in a direct local way (ie due to its atoms)!
         # figure out what to change it to, and initiate our scan of changes from each end of each bond.
         new_v6 = best_corrected_v6(bond) ####@@@@ IMPLEM the rest of that... actually this'll all be revised
-
+        bond.set_v6(new_v6) #####@@@@@ ensure this does changed_structure on both atoms
+            # WARNING: this might add new atoms to our argument dict, _changed_structure_atoms
+            # (and furthermore, we might depend on the fact that it does!)
     
     if 1 and platform.atom_debug:
         print_compact_stack( "atom_debug: update_bonds_after_each_event NIM; "\
@@ -104,6 +106,7 @@ def update_bonds_after_each_event( _changed_structure_atoms):
     return
 
 most_permissible_v6_first = ( V_SINGLE, V_DOUBLE, V_AROMATIC, V_GRAPHITE, V_TRIPLE, V_CARBOMERIC ) # not quite true for graphite?
+    ####@@@@ review this -- all uses should be considered suspicious [050714 comment]
 
 def best_corrected_v6(bond):
     """This bond has an illegal v6 according to its bonded atomtypes
@@ -116,7 +119,29 @@ def best_corrected_v6(bond):
     # no, it depends on prior bond (presumably one the user likes, or at least consented to),
     # but clearly we move to the left in that list. Like this: c -> a, 3 -> max in list? or 2? or depends on other bonds/valences?
     pass # stub... might return a list of legal btypes in order of preference, for inference code (see paper notes)
-    
+    v6 = bond.v6
+    try:
+        lis = corrected_v6_list[v6]
+    except KeyError:
+        # this happens for illegal v6 values
+        return V_SINGLE
+    atype1 = bond.atom1.atomtype # fyi, see also possible_bond_types() for similar code
+    atype2 = bond.atom2.atomtype
+    for v6 in lis:
+        if v6 == V_SINGLE or atype1.permits_v6(v6) and atype2.permits_v6(v6):
+            return v6
+    assert 0, "no legal replacement for v6 = %r in %r" % (v6,self)
+    return V_SINGLE
+
+# map a now-illegal v6 to the list of replacements to try (legal ones only, of course; in the order of preference given by the list)
+corrected_v6_list = {
+    V_DOUBLE: (V_SINGLE,),
+    V_TRIPLE: (V_DOUBLE, V_SINGLE),
+    V_AROMATIC: (V_SINGLE,),
+    V_GRAPHITE: (V_AROMATIC, V_SINGLE),
+    V_CARBOMERIC: (V_AROMATIC, V_DOUBLE, V_SINGLE),
+ }
+
 def update_bonds_command(part): # for initial test, put this into debug menu (??)
     """Do a full updating of all possibly-pi bonds in the given part.
     Initial implem keeps no history anywhere, just redoes everything from scratch each time.
