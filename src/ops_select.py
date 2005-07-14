@@ -243,7 +243,7 @@ class ops_select_Mixin:
             self.unpickparts()
         else:
             assert self.selwhat == SELWHAT_ATOMS
-            self.unpickparts() # Partial fix for bugs 606 and 365.  Mark 050713.
+            self.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
             self.unpickatoms()
         self.pick_at_event(event)
     

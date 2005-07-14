@@ -479,8 +479,8 @@ class SelectionShape(shape):
             if assy.selwhat:
                 self._chunksSelect(assy)
             else:
-                if self.curve.logic == 2: # New selection curve - now consistent with Select Chunks.
-                    assy.unpickparts() # Partial fix for bugs 606 and 365.  Mark 050713.
+                if self.curve.logic == 2: # New selection curve. Consistent with Select Chunks behavior.
+                    assy.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
                 self._atomsSelect(assy)   
         
         
