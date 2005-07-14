@@ -66,11 +66,12 @@ class ops_motion_Mixin:
             self.w.history.message(redmsg("need two or more selected chunks to align")) #bruce 050131
             return
         self.changed() #bruce 050131 bugfix or precaution
-        ax = V(0,0,0)
-        for m in self.selmols:
-            ax += m.getaxis()
-        ax = norm(ax)
-        for m in self.selmols:
+        #ax = V(0,0,0)
+        #for m in self.selmols:
+        #    ax += m.getaxis()
+        #ax = norm(ax)
+        ax = self.selmols[0].getaxis()
+        for m in self.selmols[1:]:
             m.rot(Q(m.getaxis(),ax))
         self.o.gl_update()
 
