@@ -394,7 +394,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         else: odir = globalParms['WorkingDirectory']
 
         fn = QFileDialog.getOpenFileName(odir,
-                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
+                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All Files (*.mmp *.pdb)",
                 self )
                 
         if not fn:
