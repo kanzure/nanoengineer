@@ -269,7 +269,6 @@ class GamessJob(SimJob):
                        1 = Cancelled
                        2 = Failed
         '''
-        
         oldir = os.getcwd() # Save current directory
         
         jobDir = os.path.dirname(self.job_batfile)
@@ -296,19 +295,18 @@ class GamessJob(SimJob):
         #print  "Spawnv args are %r" % (args,) # this %r remains (see above)
         #os.spawnv(os.P_WAIT, self.job_batfile, args)
         
-        #try:
-        if 1:    
-            args = [self.server.program, '-i', self.job_inputfile, '-o', self.job_outputfile]
+        args = [self.server.program, '-i', self.job_inputfile, '-o', self.job_outputfile]
             
-            process = QProcess()
-            for s in args:
+        process = QProcess()
+        for s in args:
                 process.addArgument(s)
-            if not process.start():
+        if not process.start():
                 print "The process can't be started."
-            progressDialog = self.showProgress()
-            progressDialog.show()
-            i = 55; pInc = True
-            while process.isRunning():
+                return 2
+        progressDialog = self.showProgress()
+        progressDialog.show()
+        i = 55; pInc = True
+        while process.isRunning():
                 qApp.processEvents()
                 if  progressDialog.wasCanceled():
                     process.kill()
@@ -327,14 +325,11 @@ class GamessJob(SimJob):
                 if not process.isRunning():
                      break
                   
-            progressDialog.setProgress(100)        
-            progressDialog.accept()
-        #except:
-        #    print "Exception: QProcess failed to launch Gamess run "
+        progressDialog.setProgress(100)        
+        progressDialog.accept()
         
         os.chdir(oldir)
         self.gamessJig.outputfile = self.job_outputfile
-#        print "GamessJob._launch_pcgamess: self.gamessJig.outputfile: ", self.gamessJig.outputfile
         
         return 0 # Success
 
@@ -403,7 +398,7 @@ class JobProgressDialog(QDialog):
             QTimer.singleShot( 5000, self.process, SLOT('kill()') )
             #self.process.kill()
             print "I asked to kill the process."
-        #QDialog.reject(self)
+        
         
     def getMsgLabel(self):
         return self.msgLabel2
@@ -451,20 +446,6 @@ class FileWriting(QThread):
         self.end = False
         self.mutex = QMutex()
         self.data = None
-    
-    if 0:
-    #def run(self):
-        while not self.end:
-           while self.process.canReadLineStdout():
-              if self.end: break
-              lineStr = str(self.process.readLineStdout()) + '\n'
-              self.output.write(lineStr)             
-           
-           self.sleep(0.01)
-        
-        while self.process.canReadLineStdout():
-            lineStr = str(self.process.readLineStdout()) + '\n'
-            self.output.write(lineStr)
     
     def run(self):
         while not self.end:

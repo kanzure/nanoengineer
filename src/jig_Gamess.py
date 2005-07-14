@@ -143,7 +143,7 @@ class Gamess(Jig):
         elif r==1: # Job was cancelled
             self.history.message( redmsg( "GAMESS job cancelled."))
         else: # Job failed.
-            self.history.message( redmsg( "GAMESS job failed."))
+            self.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
             
     def __CM_Optimize(self):
         '''Gamess Jig context menu "Optimize"
@@ -184,7 +184,7 @@ class Gamess(Jig):
             self.history.message( redmsg( "GAMESS job cancelled."))
             
         else: # Job failed.
-            self.history.message( redmsg( "GAMESS job failed."))
+            self.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
     
     def __CM_Optimize__options(self):
         if Jig.is_disabled(self):

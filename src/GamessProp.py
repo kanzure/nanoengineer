@@ -548,7 +548,7 @@ class GamessProp(GamessPropDialog):
             return
             
         if r==2: # Job failed.
-            self.history.message( redmsg( "GAMESS job failed."))
+            self.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
             return
         
         # Job success.  
