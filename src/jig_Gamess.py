@@ -206,8 +206,8 @@ class Gamess(Jig):
         if r: # GAMESS terminated abnormally.
             if final_energy_str:
                 self.history.message(redmsg(final_energy_str))
-            msg = redmsg("Final energy value not found.")
-            self.history.message(msg)
+            msg = "Final energy value not found. The output file is located at: " + self.outputfile
+            self.history.message(redmsg(msg))
             
         else: # Final energy was found.
             gmstr = self.gms_parms_info()
