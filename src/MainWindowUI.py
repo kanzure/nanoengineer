@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jul 14 17:29:41 2005
+# Created: Thu Jul 14 18:50:20 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6728,9 +6728,6 @@ class MainWindow(QMainWindow):
         self.helpAboutAction.addTo(self.helpMenu)
         self.MenuBar.insertItem(QString(""),self.helpMenu,14)
 
-        self.PopupMenuEditor = QPopupMenu(self)
-        self.MenuBar.insertItem(QString(""),self.PopupMenuEditor,15)
-
 
         self.languageChange()
 
@@ -7353,8 +7350,6 @@ class MainWindow(QMainWindow):
             self.MenuBar.findItem(13).setText(self.__tr("Simulator"))
         if self.MenuBar.findItem(14):
             self.MenuBar.findItem(14).setText(self.__tr("&Help"))
-        if self.MenuBar.findItem(15):
-            self.MenuBar.findItem(15).setText(self.__tr("Menu"))
 
 
     def fileNew(self):

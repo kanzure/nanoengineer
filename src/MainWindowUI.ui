@@ -165,8 +165,6 @@
         <separator/>
         <action name="helpAboutAction"/>
     </item>
-    <item text="Menu" name="PopupMenuEditor">
-    </item>
 </menubar>
 <toolbars>
     <toolbar dock="2">
