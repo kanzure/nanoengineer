@@ -394,7 +394,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         else: odir = globalParms['WorkingDirectory']
 
         fn = QFileDialog.getOpenFileName(odir,
-                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All Files (*.mmp *.pdb)",
+                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
                 self )
                 
         if not fn:
@@ -796,6 +796,12 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
 
     def setViewPerspec(self):
         self.glpane.ortho = 0
+        self.glpane.gl_update()
+
+    def setViewOpposite(self):
+        '''Set view to the opposite of current view. '''
+        self.history.message(greenmsg("Current View: Opposite to the previous view."))
+        self.glpane.quat += Q(V(0,1,0), pi)
         self.glpane.gl_update()
 
     def setViewBack(self):
