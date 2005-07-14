@@ -192,8 +192,6 @@ class UserPrefs(UserPrefsDialog):
         self.gmspath = get_gamess_path(self)
         if self.gmspath:
             self.gamess_path_linedit.setText(self.gmspath)
-        else:
-            self.gamess_path_linedit.setText('')
             
     ########## End of slot methods for "General" page widgets ###########
     
