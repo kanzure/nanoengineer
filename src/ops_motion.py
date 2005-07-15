@@ -65,7 +65,6 @@ class ops_motion_Mixin:
             m.stretch(-1.0)
         self.o.gl_update()
         
-        from platform import fix_plurals
         info = fix_plurals( "Inverted %d chunk(s)" % len(self.selmols))
         self.w.history.message( cmd + info)
     
@@ -87,7 +86,6 @@ class ops_motion_Mixin:
             m.rot(Q(m.getaxis(),ax))
         self.o.gl_update()
         
-        from platform import fix_plurals
         info = fix_plurals( "Aligned %d chunk(s) to chunk %s" % (len(self.selmols) - 1, self.selmols[0].name))
         self.w.history.message( cmd + info)
         
