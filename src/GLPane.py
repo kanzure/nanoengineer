@@ -1152,6 +1152,19 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
             #e if stencil clear is expensive, we could optim and only do it when needed [bruce ca. 050615]
 
+        
+        #Huaicai 7/15/05 added this for Mark
+        #The following are used to set the glpane background colors
+        if 0:
+            vtColors = ((0.8, 0.8, 0.8), (0.8, 0.8, 0.8), (0.1, 0.2, 0.8), (0.1, 0.2, 0.8))
+            glMatrixMode(GL_PROJECTION)
+            glLoadIdentity()
+            glMatrixMode(GL_MODELVIEW)
+            glLoadIdentity()
+            drawer.drawFullWindow(vtColors)
+
+
+
         aspect = (self.width + 0.0)/(self.height + 0.0)
         vdist = 6.0 * self.scale
         self.vdist = vdist #bruce 050616 new feature (storing vdist in self), not yet used where it ought to be
