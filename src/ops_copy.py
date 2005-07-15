@@ -39,16 +39,19 @@ class ops_copy_Mixin:
     
     def cut_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         #bruce 050419 renamed this from cut to avoid confusion with Node method and follow new _sel convention
+        
+        cmd = greenmsg("Cut: ")
+        
         part = self
         history = part.assy.w.history
         eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
 ##        center_these = []
         try:
-            history.message(greenmsg("Cut:"))
             if use_selatoms and self.selatoms:
                 #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
                 # changed condition to not use selwhat, since jigs can be selected even in Select Atoms mode
-                history.message(redmsg("Cutting selected atoms is not yet supported.")) #bruce 050201
+                msg = redmsg("Cutting selected atoms is not yet supported.")
+                history.message(cmd + msg) #bruce 050201
                 ## return #bruce 050201-bug370: don't return yet, in case some jigs were selected too.
                 # note: we will check selatoms again, below, to know whether we emitted this message
             new = Group(gensym("Copy"), self.assy, None)
@@ -65,7 +68,8 @@ class ops_copy_Mixin:
                 self.topnode.unpick_top()
                 ## history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
                 ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
-                history.message("Can't cut the entire Part; copying its toplevel Group, cutting its members.") #bruce 050201
+                msg = "Can't cut the entire Part; copying its toplevel Group, cutting its members."
+                history.message(cmd + msg) #bruce 050201
                 # new code to handle this case [bruce 050201]
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
                 use = new
@@ -116,12 +120,13 @@ class ops_copy_Mixin:
 ##                        center_these.append(ob) ## was: ob.move(-ob.center)
                 ## ob.pick() # bruce 050131 removed this
                 nshelf_after = len(self.shelf.members) #bruce 050201
-                history.message( fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." ) #bruce 050201
+                msg = fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." 
+                history.message(cmd + msg) #bruce 050201
                     ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
             else:
                 if not (use_selatoms and self.selatoms):
                     #bruce 050201-bug370: we don't need this if the message for selatoms already went out
-                    history.message(redmsg("Nothing to cut.")) #bruce 050201
+                    history.message(cmd + redmsg("Nothing to cut.")) #bruce 050201
         finally:
             end_event_handler(eh) # this should fix Part membership of moved nodes, break inter-Part bonds #####@@@@@ doit
             # ... but it doesn't, so instead, do this: ######@@@@@@ and review this situation and clean it up:
@@ -160,6 +165,9 @@ class ops_copy_Mixin:
         #bruce 050419 renamed this from copy
         #bruce 050523 new code
         # 1. what objects is user asking to copy?
+        
+        cmd = greenmsg ("Copy: ")
+        
         part = self
         history = part.assy.w.history
         sel = selection_from_part(part, use_selatoms = use_selatoms)
@@ -178,10 +186,10 @@ class ops_copy_Mixin:
                 text = "Copy %s" % desc
             else:
                 text = "Copy"
-            history.message(greenmsg(text))
+            history.message(cmd + text)
         else:
             whynot = copier.whynot()
-            history.message(redmsg("Copy: %s" % whynot))
+            history.message(cmd + redmsg(whynot))
             return
         # 3. do it
         new = copier.copy_as_node_for_shelf()
@@ -208,15 +216,21 @@ class ops_copy_Mixin:
         # from standard meaning of obj.kill() == kill that obj
         #bruce 050201 for Alpha: revised this to fix bug 370
         ## "delete whatever is selected from this assembly " #e use this in the assy version of this method, if we need one
+        
+        cmd = greenmsg("Delete: ")
+        info = ''
+            
         part = self
         history = part.assy.w.history
-        history.message(greenmsg("Delete:"))
         ###@@@ #e this also needs a results-message, below.
         if use_selatoms and self.selatoms:
             self.changed()
+            nsa = len(self.selatoms) # Get the number of selected atoms before it changes
             for a in self.selatoms.values():
                 a.kill()
             self.selatoms = {} # should be redundant
+            
+            info = fix_plurals( "Deleted %d atom(s)" % nsa)
         
         ## bruce 050201 removed the condition "self.selwhat == 2 or self.selmols"
         # (previously used to decide whether to kill all picked nodes in self.topnode)
@@ -229,6 +243,9 @@ class ops_copy_Mixin:
         self.topnode.apply2picked(lambda o: o.kill())
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
         #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
+        
+        self.w.history.message( cmd + info) # Mark 050715
+        
         self.w.win_update()
         return
 

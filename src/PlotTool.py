@@ -14,6 +14,8 @@ from HistoryWidget import redmsg, greenmsg
 from movie import find_saved_movie #bruce 050329 fix bug 499
 from platform import open_file_in_editor
 
+cmd = greenmsg("Plot Tool: ")
+
 class PlotTool(PlotToolDialog):
     def __init__(self, assy, movie): #bruce 050326 added movie arg
         PlotToolDialog.__init__(self)
@@ -39,8 +41,8 @@ class PlotTool(PlotToolDialog):
         
         # Make sure there is a DPB file for the assy. 
         if not self.movie or not self.movie.filename:
-            msg = "Plot Tool: No tracefile exists for this part.  To create one, run a simulation."
-            self.history.message(redmsg(msg))
+            msg = redmsg("No tracefile exists for this part.  To create one, run a simulation.")
+            self.w.history.message(cmd + msg)
             return 1
         
         # Construct the trace file name.
@@ -49,8 +51,8 @@ class PlotTool(PlotToolDialog):
         
         # Make sure the tracefile exists
         if not os.path.exists(self.traceFile):
-            msg = "Plot Tool: Trace file [" + self.traceFile + "] is missing.  Plot aborted."
-            self.history.message(redmsg(msg))
+            msg = redmsg("Trace file [" + self.traceFile + "] is missing.  Plot aborted.")
+            self.history.message(cmd + msg)
             return 1
             
         # Construct the GNUplot filename.
@@ -96,8 +98,8 @@ class PlotTool(PlotToolDialog):
                 gname =  traceLines[hloc + i]#linecache.getline(self.traceFile, hloc + 1 + i)
                 self.plot_combox.insertItem(gname[2:-1])
         else: # No jigs in the part, so nothing to plot.
-            msg = "Plot Tool: No jigs in this part.  Nothing to plot."
-            self.history.message(redmsg(msg))
+            msg = redmsg("No jigs in this part.  Nothing to plot.")
+            self.history.message(cmd + msg)
             return 1
         
         self.lastplot = 0
@@ -157,8 +159,8 @@ class PlotTool(PlotToolDialog):
         
         # Make sure plotfile exists
         if not os.path.exists(plotfile):
-            msg = "Plot Tool: Plotfile [" + program + "] is missing.  Plot aborted."
-            self.history.message(redmsg(msg))
+            msg = redmsg("Plotfile [" + program + "] is missing.  Plot aborted.")
+            self.history.message(cmd + msg)
             return
             
         # filePath = the current directory NE-1 is running from.
@@ -183,8 +185,8 @@ class PlotTool(PlotToolDialog):
 
         # Make sure GNUplot executable exists
         if not os.path.exists(program):
-            msg = "Plot Tool: GNUplot executable [" + program + "] is missing.  Plot aborted."
-            self.history.message(redmsg(msg))
+            msg = redmsg("GNUplot executable [" + program + "] is missing.  Plot aborted.")
+            self.history.message(cmd + msg)
             return
         
         # Create arguments list for plotProcess.
@@ -244,12 +246,6 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
 
     history = assy.w.history
     
-    ## from PlotTool import PlotTool
-##        if not assy.molecules: # No model.
-##            history.message(redmsg("Plot Tool: Need a model."))
-##            return
-    history.message(greenmsg("Plot Tool:")) # do before other messages, tho success is not yet known
-
     if assy.current_movie and assy.current_movie.filename:
         # (bruce 050326 asks: can an existing movie ever not have a filename? Depends on whether stored on error...)
         return PlotTool(assy, assy.current_movie) # Open Plot Tool dialog [and wait until it's dismissed]
@@ -257,10 +253,12 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
         #  but never used. Conceivably, keeping it matters due to its refcount, but I doubt it.]
 
     # no valid current movie, look for saved one with same name as assy
-    history.message("Plot Tool: No simulation has been run yet.")
+    msg = redmsg("No simulation has been run yet.")
+    history.message(cmd + msg)
     if assy.filename:
         if assy.part is not assy.tree.part:
-            history.message("Plot Tool: Warning: Looking for saved movie for main part, not for displayed clipboard item.")
+            msg = redmsg("Warning: Looking for saved movie for main part, not for displayed clipboard item.")
+            history.message(cmd + msg)
         mfile = assy.filename[:-4] + ".dpb"
         movie = find_saved_movie( assy, mfile)
             # just checks existence, not validity for current part or main part
@@ -273,10 +271,12 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
             # No current way to tell how to do that, and this might be done even if it's not valid
             # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
             # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
-            history.message("Plot Tool: using previously saved movie for this part.")
+            msg = "Using previously saved movie for this part."
+            history.message(cmd + msg)
             return PlotTool(assy, movie)
         else:
-            history.message(redmsg("Plot Tool: Can't find previously saved movie for this part."))
+            msg = redmsg("Can't find previously saved movie for this part.")
+            history.message(cmd + msg)
     return
 
 # end

@@ -722,9 +722,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def editPrefs(self):
         """ Edit Preferences """
         self.uprefs.showDialog()
-        
-    def editFind(self):
-        self.history.message(redmsg("Find: Not implemented yet."))
 
     ###################################
     # View Toolbar Slots
@@ -732,23 +729,31 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
 
     def setViewHome(self):
         """Reset view to Home view"""
-        self.history.message(greenmsg("Current View: HOME"))
+        cmd = greenmsg("Current View: ")
+        info = 'Home'
+        self.history.message(cmd + info)
         self.glpane.setViewHome()
 
     def setViewFitToWindow(self):
         """ Fit to Window """
-#        self.history.message(greenmsg("Fit to Window:"))
+        cmd = greenmsg("Fit to Window: ")
+        info = ''
+        self.history.message(cmd + info)
         self.glpane.setViewFitToWindow()
             
     def setViewHomeToCurrent(self): #bruce 050418 revised docstring, and moved bodies of View methods into GLPane
         """Changes Home view of the model to the current view in the glpane."""
-        self.history.message(greenmsg("Set Home View to Current View:"))
+        cmd = greenmsg("Set Home View to Current View: ")
+        info = 'Home'
+        self.history.message(cmd + info)
         self.glpane.setViewHomeToCurrent()
             
     def setViewRecenter(self):
         """Recenter the view around the origin of modeling space.
         """
-        self.history.message(greenmsg("Recenter View:"))
+        cmd = greenmsg("Recenter View: ")
+        info = 'View Recentered'
+        self.history.message(cmd + info)
         self.glpane.setViewRecenter()
                 
     def zoomTool(self):
@@ -800,37 +805,51 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
 
     def setViewOpposite(self):
         '''Set view to the opposite of current view. '''
-        self.history.message(greenmsg("Current View: Opposite to the previous view."))
+        cmd = greenmsg("Opposite View: ")
+        info = 'Current view opposite to the previous view'
+        self.history.message(cmd + info)
         self.glpane.quat += Q(V(0,1,0), pi)
         self.glpane.gl_update()
 
     def setViewBack(self):
-        self.history.message(greenmsg("Current View: BACK"))
+        cmd = greenmsg("Back View: ")
+        info = 'Current view is Back View'
+        self.history.message(cmd + info)
         self.glpane.quat = Q(V(0,1,0),pi)
         self.glpane.gl_update()
 
     def setViewBottom(self):
-        self.history.message(greenmsg("Current View: BOTTOM"))
+        cmd = greenmsg("Bottom View: ")
+        info = 'Current view is Bottom View'
+        self.history.message(cmd + info)
         self.glpane.quat = Q(V(1,0,0),-pi/2)
         self.glpane.gl_update()
 
     def setViewFront(self):
-        self.history.message(greenmsg("Current View: FRONT"))
+        cmd = greenmsg("Front View: ")
+        info = 'Current view is Front View'
+        self.history.message(cmd + info)
         self.glpane.quat = Q(1,0,0,0)
         self.glpane.gl_update()
 
     def setViewLeft(self):
-        self.history.message(greenmsg("Current View: LEFT"))
+        cmd = greenmsg("Left View: ")
+        info = 'Current view is Left View'
+        self.history.message(cmd + info)
         self.glpane.quat = Q(V(0,1,0),pi/2)
         self.glpane.gl_update()
 
     def setViewRight(self):
-        self.history.message(greenmsg("Current View: RIGHT"))
+        cmd = greenmsg("Right View: ")
+        info = 'Current view is Right View'
+        self.history.message(cmd + info)
         self.glpane.quat = Q(V(0,1,0),-pi/2)
         self.glpane.gl_update()
 
     def setViewTop(self):
-        self.history.message(greenmsg("Current View: TOP"))
+        cmd = greenmsg("Top View: ")
+        info = 'Current view is Top View'
+        self.history.message(cmd + info)
         self.glpane.quat = Q(V(1,0,0),pi/2)
         self.glpane.gl_update()
 
@@ -1155,7 +1174,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
              
     def helpWhatsThis(self):
         from qt import QWhatsThis ##bruce 050408
-        self.history.message(greenmsg("What's This:"))
         QWhatsThis.enterWhatsThisMode ()
 
 
