@@ -298,6 +298,18 @@ def createWhatsThis(self):
 
         self.setViewRightAction.setWhatsThis( setViewRightActionText )
         
+        #### Opposite View ####
+        
+        setViewOppositeActionText = "<u><b>Opposite View</b></u><br>"\
+                       "<p><img source=\"setViewOpposite\"><br> "\
+                       "Reorients the model so that it is viewed from the opposite side of the current view."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setViewOpposite",
+                                                       self.setViewOppositeAction.iconSet().pixmap() )
+
+        self.setViewOppositeAction.setWhatsThis( setViewOppositeActionText )
+        
         ##############################################
         # Grids Toolbar
         ##############################################
@@ -657,8 +669,8 @@ def createWhatsThis(self):
 
         modifyAlignCommonAxisActionText = "<u><b>Align To Common Axis</b></u><br>"\
                        "<p><img source=\"modifyAlignCommonAxis\"><br> "\
-                       "Automatically aligns two or more chunks to a common axis. You must first "\
-                       "select two or more chunks before using this feature."\
+                       "Aligns one or more chunks to the axis of the first selected chunk."\
+                       "You must select two or more chunks before using this feature."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifyAlignCommonAxis",
