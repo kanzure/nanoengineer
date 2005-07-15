@@ -758,13 +758,18 @@ class assembly:
             # Emit a history message reminding user about unsaved changes.
             #bruce 050429: along with fixing bug 413 about when this msg comes out,
             # I'm improving its wording (see comments in same bug report, and/or me/Ninad email).
-            try:
-                junk, basename = os.path.split(self.filename)
-                assert basename # it's normal for this to fail, when there is no file yet
-                msg = "The file %r now has unsaved changes." % basename
-            except:
-                msg = "The part now has unsaved changes." # there is no file yet, so we can't say "the file". #e improve?
-            self.w.history.message( msg)
+#            try:
+#                junk, basename = os.path.split(self.filename)
+#                assert basename # it's normal for this to fail, when there is no file yet
+#                msg = "The file %r now has unsaved changes." % basename
+#            except:
+#                msg = "The part now has unsaved changes." # there is no file yet, so we can't say "the file". #e improve?
+#            self.w.history.message( msg)
+
+            # Many programs denote a file change by adding an asterisk to the end of the filename in 
+            # the window caption.  I'd like to try this for awhile and see how we like it.
+            # Mark 050715.
+            self.w.update_mainwindow_caption(Changed = True)
             if debug_assy_changes:
                 import time
                 print time.asctime(), self, self.name

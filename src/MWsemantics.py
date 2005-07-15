@@ -128,7 +128,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         # self.assy.reset_changed() sometime in this method; it's called below.
         
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
-        self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
+#        self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
+        self.update_mainwindow_caption()
 
         # Create the vertical-splitter between history area (at bottom)
         # and main area (mtree and glpane) [history is new as of 041223]
@@ -425,7 +426,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             self.assy.filename = fn
             self.assy.reset_changed() # The file and the part are now the same
 
-            self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+#            self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+            self.update_mainwindow_caption()
 
             if isMMPFile:
                 #bruce 050418 moved this code into a new function in files_mmp.py
@@ -520,7 +522,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 self.assy.filename = safile
                 self.assy.name = fil
                 self.assy.reset_changed() # The file and the part are now the same.
-                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+#                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+                self.update_mainwindow_caption()
                 self.history.message( "PDB file saved: " + self.assy.filename )
                 self.mt.mt_update()
             
@@ -585,7 +588,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 self.assy.filename = safile
                 self.assy.name = fil
                 self.assy.reset_changed() # The file and the part are now the same.
-                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+#                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+                self.update_mainwindow_caption()
                 self.history.message( "MMP file saved: " + self.assy.filename )
                 self.mt.mt_update()
             
@@ -676,7 +680,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def __clear(self):
         # assyList refs deleted by josh 10/4
         self.assy = assembly(self, "Untitled")
-        self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
+#        self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
+        self.update_mainwindow_caption()
         self.glpane.setAssy(self.assy)
         self.assy.mt = self.mt
         
@@ -1612,4 +1617,23 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 self.cookieSelectDashboard]:
                     self.setAppropriate(obj, False)
 
+    def update_mainwindow_caption(self, Changed=False):
+        '''Update the caption at the top of the of the main window. 
+        Example:  nanoENGINEER-1 [part.mmp]
+        Change=True will add an asterisk to the end of the caption denoting the part has been changed.
+        '''
+        
+        if Changed:
+            asterisk = '*' # Add asterisk to denote the part has changed.
+        else:
+            asterisk = ''
+            
+        try:
+            junk, basename = os.path.split(self.assy.filename)
+            assert basename # it's normal for this to fail, when there is no file yet
+#            self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]" + asterisk))
+            self.setCaption(self.trUtf8(self.name() + " - " + "[" + basename + "]" + asterisk))
+        except:
+            self.setCaption(self.trUtf8(self.name() + " - " + "[Untitled]" + asterisk))
+            
     # end of class MWsemantics
