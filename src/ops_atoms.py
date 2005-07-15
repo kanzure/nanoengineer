@@ -25,12 +25,13 @@ class ops_atoms_Mixin:
     def modifyDeleteBonds(self):
         """Delete all bonds between selected and unselected atoms or chunks
         """
-        if not self.selatoms and not self.selmols: # optimization, and different status msg
-            msg = redmsg("Delete Bonds: Nothing selected")
-            self.w.history.message(msg)
-            return
         
-        self.w.history.message(greenmsg("Delete Bonds:"))
+        cmd = greenmsg("Delete Bonds: ")
+        
+        if not self.selatoms and not self.selmols: # optimization, and different status msg
+            msg = redmsg("Nothing selected")
+            self.w.history.message(cmd + msg)
+            return
         
         cutbonds = 0
         
@@ -54,7 +55,7 @@ class ops_atoms_Mixin:
                     cutbonds += 1
                     
         msg = fix_plurals("%d bond(s) deleted" % cutbonds)
-        self.w.history.message(msg)
+        self.w.history.message(cmd + msg)
         
         if self.selatoms and cutbonds:
             self.modifySeparate() # Separate the selected atoms into a new chunk
@@ -66,6 +67,14 @@ class ops_atoms_Mixin:
     # a kludgey hack
     # bruce 041215 added some comments.
     def modifyPassivate(self):
+        
+        cmd = greenmsg("Passivate: ")
+        
+        if not self.selatoms and not self.selmols: # optimization, and different status msg
+            msg = redmsg("Nothing selected")
+            self.w.history.message(cmd + msg)
+            return
+            
         if self.selwhat == SELWHAT_CHUNKS:
             for m in self.selmols:
                 m.Passivate(True) # arg True makes it work on all atoms in m
@@ -86,6 +95,9 @@ class ops_atoms_Mixin:
     def modifyHydrogenate(self):
         """Add hydrogen atoms to open bonds on selected chunks/atoms.
         """
+        
+        cmd = greenmsg("Hydrogenate: ")
+        
         fixmols = {} # helps count modified mols for statusbar
         if self.selmols:
             counta = countm = 0
@@ -132,12 +144,12 @@ class ops_atoms_Mixin:
             else:
                 didwhat = "No open bonds on selected atoms"
         else:
-            didwhat = "Nothing selected"
+            didwhat = redmsg("Nothing selected")
 
         if fixmols:
             self.changed()
             self.w.win_update()
-        self.w.history.message(didwhat)
+        self.w.history.message(cmd + didwhat)
         return
 
     # Remove hydrogen atoms from each selected atom/chunk
@@ -147,6 +159,9 @@ class ops_atoms_Mixin:
     def modifyDehydrogenate(self):
         """Remove hydrogen atoms from selected chunks/atoms.
         """
+        
+        cmd = greenmsg("Dehydrogenate: ")
+        
         fixmols = {} # helps count modified mols for statusbar
         if self.selmols:
             counta = countm = 0
@@ -193,15 +208,14 @@ class ops_atoms_Mixin:
             else:
                 didwhat = "No hydrogens bonded to selected atoms"
         else:
-            didwhat = "Nothing selected"
+            didwhat = redmsg("Nothing selected")
         if fixmols:
             self.changed() #e shouldn't we do this in lower-level methods?
             self.w.win_update()
-        self.w.history.message(didwhat)
+        self.w.history.message(cmd + didwhat)
         return
 
     pass # end of class ops_atoms_Mixin
 
 # end
-
 

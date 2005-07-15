@@ -34,8 +34,12 @@ class ops_motion_Mixin:
 
     #stretch a molecule
     def Stretch(self):
+        
+        cmd = greenmsg("Stretch: ")
+        
         if not self.selmols:
-            self.w.history.message(redmsg("no selected chunks to stretch")) #bruce 050131
+            msg =  redmsg("No selected chunks to stretch")
+            self.w.history.message(cmd + msg)
             return
         self.changed()
         for m in self.selmols:
@@ -43,14 +47,18 @@ class ops_motion_Mixin:
         self.o.gl_update()
         
         # Added history message.  Mark 050413.
-        info = fix_plurals( "stretched %d chunk(s)" % len(self.selmols))
-        self.w.history.message( info)
+        info = fix_plurals( "Stretched %d chunk(s)" % len(self.selmols))
+        self.w.history.message( cmd + info)
 
     #invert a chunk
     def Invert(self):
         '''Invert the atoms of the selected chunk(s)'''
+        
+        cmd = greenmsg("Invert: ")
+        
         if not self.selmols:
-            self.w.history.message(redmsg("no selected chunks to invert"))
+            msg = redmsg("No selected chunks to invert")
+            self.w.history.message(cmd + msg)
             return
         self.changed()
         for m in self.selmols:
@@ -58,23 +66,31 @@ class ops_motion_Mixin:
         self.o.gl_update()
         
         from platform import fix_plurals
-        info = fix_plurals( "inverted %d chunk(s)" % len(self.selmols))
-        self.w.history.message( info)
+        info = fix_plurals( "Inverted %d chunk(s)" % len(self.selmols))
+        self.w.history.message( cmd + info)
     
     def align(self):
+        
+        cmd = greenmsg("Align to Common Axis: ")
+        
         if len(self.selmols) < 2:
-            self.w.history.message(redmsg("need two or more selected chunks to align")) #bruce 050131
+            msg = redmsg("Need two or more selected chunks to align")
+            self.w.history.message(cmd + msg)
             return
         self.changed() #bruce 050131 bugfix or precaution
         #ax = V(0,0,0)
         #for m in self.selmols:
         #    ax += m.getaxis()
         #ax = norm(ax)
-        ax = self.selmols[0].getaxis()
+        ax = self.selmols[0].getaxis() # Axis of first selected chunk
         for m in self.selmols[1:]:
             m.rot(Q(m.getaxis(),ax))
         self.o.gl_update()
-
+        
+        from platform import fix_plurals
+        info = fix_plurals( "Aligned %d chunk(s) to chunk %s" % (len(self.selmols) - 1, self.selmols[0].name))
+        self.w.history.message( cmd + info)
+        
     pass # end of class ops_motion_Mixin
 
 # end

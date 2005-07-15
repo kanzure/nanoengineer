@@ -23,15 +23,21 @@ class ops_connected_Mixin:
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         """ ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
+        
+        cmd = greenmsg("Select Connected: ")
+        
         if not self.selatoms:
-            self.w.history.message(redmsg("Select Connected: No atom(s) selected."))
+            msg =redmsg("No atoms selected")
+            self.w.history.message(cmd + msg)
             return
-        self.w.history.message(greenmsg("Select Connected:"))
         
         alreadySelected = len(self.selatoms.values())
         self.marksingle()
         totalSelected = len(self.selatoms.values())
-        self.w.history.message("%d connected atom(s) selected." % totalSelected)
+        
+        from platform import fix_plurals
+        info = fix_plurals( "%d connected atom(s) selected." % totalSelected)
+        self.w.history.message( cmd + info)
         
         if totalSelected > alreadySelected:
             ## Otherwise, that just means no new atoms selected, so no update necessary    
@@ -44,19 +50,24 @@ class ops_connected_Mixin:
         bonds. Also select atoms that are connected to this group by
         one bond and have no other bonds.
         """ ###@@@ same comment about interspace bonds as in selectConnected
+        
+        cmd = greenmsg("Select Doubly: ")
+        
         if not self.selatoms:
-            self.w.history.message(redmsg("Select Doubly: No atom(s) selected."))
+            msg = redmsg("No atoms selected")
+            self.w.history.message(cmd + msg)
             return
-            
-        self.w.history.message(greenmsg("Select Doubly:"))
         
         alreadySelected = len(self.selatoms.values())
         from op_select_doubly import select_doubly # new code, bruce 050520
         #e could also reload it now to speed devel!
         select_doubly(self.selatoms.values()) #e optim
         totalSelected = len(self.selatoms.values())
-        self.w.history.message("%d new doubly connected atom(s) selected (besides the %d initially selected)." % \
-                               (totalSelected - alreadySelected, alreadySelected) ) ###e improve msg; note (s) is not in fix_plurals
+        
+        from platform import fix_plurals
+        info = fix_plurals("%d new atom(s) selected (besides the %d initially selected)." % \
+                               (totalSelected - alreadySelected, alreadySelected) )
+        self.w.history.message( cmd + info)
                 
         if totalSelected > alreadySelected:
             ## otherwise, means nothing new selected. Am I right? ---Huaicai, not analyze the markdouble() algorithm yet 

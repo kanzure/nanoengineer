@@ -44,9 +44,11 @@ class ops_rechunk_Mixin:
         # Questions: is it good to refrain from merging all moved atoms into one
         # new mol? If not, then if N becomes empty, should we rename N-frag to N?
         
+        cmd = greenmsg("Separate: ")
+        
         if not self.selatoms: # optimization, and different status msg
-            msg = "Separate: no atoms selected"
-            self.w.history.message(msg)
+            msg =  redmsg("No atoms selected")
+            self.w.history.message(cmd + msg)
             return
         numolist=[]
         for mol in self.molecules[:]: # new mols are added during the loop!
@@ -61,8 +63,8 @@ class ops_rechunk_Mixin:
                 numolist+=[numol]
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
-        msg = fix_plurals("Separate created %d new chunk(s)" % len(numolist))
-        self.w.history.message(msg)
+        msg = fix_plurals("Created %d new chunk(s)" % len(numolist))
+        self.w.history.message(cmd + msg)
         self.w.win_update() #e do this in callers instead?
 
     #merge selected molecules together  ###@@@ no update -- does caller do it?? [bruce 050223]
@@ -72,8 +74,12 @@ class ops_rechunk_Mixin:
         # since all selection is now forced to be in the same one;
         # this is mostly academic since there's no pleasing way to use it on them,
         # though it's theoretically possible (since Groups can be cut and maybe copied).
+        
+        cmd = greenmsg("Merge: ")
+        
         if len(self.selmols) < 2:
-            self.w.history.message(redmsg("Need two or more selected chunks to merge")) #bruce 050131
+            msg = redmsg("Need two or more selected chunks to merge")
+            self.w.history.message(cmd + msg)
             return
         self.changed() #bruce 050131 bugfix or precaution
         mol = self.selmols[0]

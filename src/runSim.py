@@ -886,13 +886,15 @@ class Minimize_CommandRun(CommandRun):
 
         # Make sure some chunks are in the part. (Minimize only works with atoms, not jigs (except Grounds), for now...)
         if not self.part.molecules: # Nothing in the part to minimize.
-            self.history.message(redmsg("%s: Nothing to minimize." % cmdname))
+            self.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to minimize."))
+#            self.history.message(redmsg("%s: Nothing to minimize." % cmdname))
             return
 
         if not entire_part:
             selection = self.part.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
-                msg = "Minimize Selection: nothing selected. (Use Minimize All to minimize entire Part.)"
+                msg = greenmsg("Minimize Selection: ") + redmsg("Nothing selected. (Use Minimize All to minimize entire Part.)")
+#                msg = greenmsg("Minimize Selection: nothing selected. (Use Minimize All to minimize entire Part.)"
                 self.history.message( redmsg( msg))
                 return
         else:

@@ -29,7 +29,7 @@ from LinearMotorProp import *
 from GroundProp import *
 from StatProp import *
 from ThermoProp import *
-from HistoryWidget import redmsg
+from HistoryWidget import redmsg, greenmsg
 from povheader import povpoint #bruce 050413
 
 Gno = 0
@@ -1095,8 +1095,19 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         There is a limit of 30 atoms.  Any more will choke the file parser
         in the simulator.
         """
-        if not self.selatoms: return
-        if len(self.selatoms) > 30: return
+                
+        cmd = greenmsg("Rotary Motor: ")
+        
+        if not self.assy.selatoms:
+            self.assy.w.history.message(cmd + redmsg("You must first select an atom(s) to create a motor."))
+            return
+        
+        # Make sure that no more than 30 atoms are selected.
+        nsa = len(self.assy.selatoms)
+        if nsa > 30: 
+            self.assy.w.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+            return
+            
         m = RotaryMotor(self.assy)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
@@ -1104,38 +1115,74 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             # but in fact that statement would do nothing, so I removed it. But it might be good
             # to actually destroy the jig object here (for all jigs which can be cancelled, not
             # only this one), to avoid a memory leak. Presently, jigs don't have a destroy method.
+            self.assy.w.history.message(cmd + "Cancelled")
             return
         self.unpickatoms()
         self.place_new_jig(m)
+        
+        self.assy.w.history.message(cmd + "Motor created")
+        self.assy.w.win_update()
       
     def makeLinearMotor(self, sightline):
         """Creates a Linear Motor connected to the selected atoms.
         There is a limit of 30 atoms.  Any more will choke the file parser
         in the simulator.
         """
-        if not self.selatoms: return
-        if len(self.selatoms) > 30: return
+        
+        cmd = greenmsg("Linear Motor: ")
+        
+        if not self.assy.selatoms:
+            self.assy.w.history.message(cmd + redmsg("You must first select an atom(s) to create a motor."))
+            return
+        
+        # Make sure that no more than 30 atoms are selected.
+        nsa = len(self.assy.selatoms)
+        if nsa > 30: 
+            self.assy.w.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+            return
+        
         m = LinearMotor(self.assy)
         m.findCenter(self.selatoms.values(), sightline)
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
+            self.assy.w.history.message(cmd + "Cancelled")
             return
         self.unpickatoms()
         self.place_new_jig(m)
+        
+        self.assy.w.history.message(cmd + "Motor created")
+        self.assy.w.win_update()
 
     def makegamess(self):
         """Makes a GAMESS jig...
         """
         # [bruce 050210 modified docstring]
-        if not self.selatoms: return
+        
+        cmd = greenmsg("Gamess: ")
+        
+        if not self.assy.selatoms:
+            self.assy.w.history.message(cmd + redmsg("You must first select an atom(s) to create a Gamess Jig."))
+            return
+        
+        # Make sure that no more than 30 atoms are selected.
+        nsa = len(self.assy.selatoms)
+        if nsa > 30: 
+            self.assy.w.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+            return
+        
+        
         from jig_Gamess import Gamess
         m = Gamess(self.assy, self.selatoms.values())
         m.edit() #bruce 050701 split edit method out of the constructor,
             # so the dialog doesn't show up when the jig is read from an mmp file
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
             #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
+            self.assy.w.history.message(cmd + "Cancelled")
             return
         self.unpickatoms()
         self.place_new_jig(m)
+        
+        self.assy.w.history.message(cmd + "Gamess Jig created")
+        self.assy.w.win_update()
         
     def makeground(self):
         """Grounds (anchors) all the selected atoms so that 
@@ -1144,29 +1191,72 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         in the simulator. To work around this, just make more Grounds.
         """
         # [bruce 050210 modified docstring]
-        if not self.selatoms: return
-        if len(self.selatoms) > 30: return
+        
+        cmd = greenmsg("Ground: ")
+        
+        if not self.assy.selatoms:
+            self.assy.w.history.message(cmd + redmsg("You must first select an atom(s) to create a ground."))
+            return
+        
+        # Make sure that no more than 30 atoms are selected.
+        nsa = len(self.assy.selatoms)
+        if nsa > 30: 
+            self.assy.w.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+            return
+        
+        
         m = Ground(self.assy, self.selatoms.values())
         self.unpickatoms()
         self.place_new_jig(m)
+        
+        self.assy.w.history.message(cmd + "Ground created")
+        self.assy.w.win_update()
 
     def makestat(self):
         """Attaches a Langevin thermostat to the single atom selected.
         """
-        if not self.selatoms: return
-        if len(self.selatoms) != 1: return
+        cmd = greenmsg("Thermostat: ")
+        
+        if not self.assy.selatoms:
+            msg = redmsg("You must select an atom on the molecule you want to associate with a thermostat.")
+            self.assy.w.history.message(cmd + msg)
+            return
+        
+        # Make sure only one atom is selected.
+        if len(self.assy.selatoms) != 1: 
+            msg = redmsg("To create a thermostat, only one atom may be selected.  Try again.")
+            self.assy.w.history.message(cmd + msg)
+            return
         m = Stat(self.assy, self.selatoms.values())
         self.unpickatoms()
         self.place_new_jig(m)
         
+        self.assy.w.history.message(cmd + "Thermostat created")
+        self.assy.w.win_update()
+        
     def makethermo(self):
         """Attaches a thermometer to the single atom selected.
         """
-        if not self.selatoms: return
-        if len(self.selatoms) != 1: return
+        
+        cmd = greenmsg("Thermometer: ")
+        
+        if not self.assy.selatoms:
+            msg = redmsg("You must select an atom on the molecule you want to associate with a thermometer.")
+            self.assy.w.history.message(cmd + msg)
+            return
+        
+        # Make sure only one atom is selected.
+        if len(self.assy.selatoms) != 1: 
+            msg = redmsg("To create a thermometer, only one atom may be selected.  Try again.")
+            self.assy.w.history.message(cmd + msg)
+            return
+        
         m = Thermo(self.assy, self.selatoms.values())
         self.unpickatoms()
         self.place_new_jig(m)
+        
+        self.assy.w.history.message(cmd + "Thermometer created")
+        self.assy.w.win_update()
 
     pass # end of class jigmakers_Mixin
     

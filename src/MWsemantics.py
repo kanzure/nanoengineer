@@ -1029,88 +1029,22 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     ###################################
 
     def makeGamess(self):
-        if not self.assy.selatoms:
-            self.history.message(redmsg("GAMESS: You must first select an atom(s) to create a GAMESS jig."))
-            return
-        
-        self.history.message(greenmsg("GAMESS: "))
         self.assy.makegamess()
-        self.win_update()
         
     def makeGround(self):
-        if not self.assy.selatoms:
-            self.history.message(redmsg("Ground: You must first select an atom(s) you want to ground."))
-            return
-        
-        # Make sure that no more than 30 atoms are selected.
-        nsa = len(self.assy.selatoms)
-        if nsa > 30: 
-            self.history.message(redmsg("Ground: " + str(nsa) +" atoms selected.  The limit is 30.  Try again (or make more than one Ground)."))
-                #bruce 050210 modified message
-            return
-        
-        self.history.message(greenmsg("Ground: "))
         self.assy.makeground()
-        self.win_update()
         
     def makeStat(self):
-        if not self.assy.selatoms:
-            self.history.message(redmsg("Thermostat: You must select an atom on the molecule you want to associate with a thermostat."))
-            return
-        
-        # Make sure only one atom is selected.
-        if len(self.assy.selatoms) != 1: 
-            self.history.message(redmsg("Thermostat: To create a Langevin thermostat, only one atom may be selected.  Try again."))
-            return
-            
-        self.history.message(greenmsg("Thermostat: "))
         self.assy.makestat()
-        self.win_update()
 
-        
     def makeThermo(self):
-        if not self.assy.selatoms:
-            self.history.message(redmsg("Thermometer: You must select an atom on the molecule you want to associate with a thermometer."))
-            return
-        
-        # Make sure only one atom is selected.
-        if len(self.assy.selatoms) != 1: 
-            self.history.message(redmsg("Thermometer: To create a thermometer, only one atom may be selected.  Try again."))
-            return
-        
-        self.history.message(greenmsg("Thermometer: "))
         self.assy.makethermo()
-        self.win_update()
         
     def makeMotor(self):
-        if not self.assy.selatoms:
-            self.history.message(redmsg("Rotary Motor: You must first select an atom(s) to create a rotary motor."))
-            return
-        
-        # Make sure that no more than 30 atoms are selected.
-        nsa = len(self.assy.selatoms)
-        if nsa > 30: 
-            self.history.message(redmsg("Rotary Motor: " + str(nsa) + " atoms selected.  The limit is 30.  Try again."))
-            return
-        
-        self.history.message(greenmsg("Rotary Motor: "))
         self.assy.makeRotaryMotor(self.glpane.lineOfSight)
-        self.win_update()
 
     def makeLinearMotor(self):
-        if not self.assy.selatoms:
-            self.history.message(redmsg("Linear Motor: You must first select an atom(s) to create a linear motor."))
-            return
-        
-        # Make sure that no more than 30 atoms are selected.
-        nsa = len(self.assy.selatoms)
-        if nsa > 30: 
-            self.history.message(redmsg("Linear Motor: " + str(nsa) + " atoms selected.  The limit is 30.  Try again."))
-            return
-        
-        self.history.message(greenmsg("Linear Motor: "))
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
-        self.win_update()
 
     ###################################
     # Modify Toolbar Slots
@@ -1140,18 +1074,15 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
   
     def modifyHydrogenate(self):
         """ Add hydrogen atoms to each singlet in the selection """
-        self.history.message(greenmsg("Hydrogenate:"))
         self.assy.modifyHydrogenate()
         
     # remove hydrogen atoms from selected atoms/molecules
     def modifyDehydrogenate(self):
         """ Remove all hydrogen atoms from the selection """
-        self.history.message(greenmsg("Dehydrogenate:"))
         self.assy.modifyDehydrogenate()
         
     def modifyPassivate(self):
         """ Passivate the selection by changing surface atoms to eliminate singlets """
-        self.history.message(greenmsg("Passivate:"))
         self.assy.modifyPassivate()
     
     def modifyDeleteBonds(self):
@@ -1160,28 +1091,23 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             
     def modifyStretch(self):
         """ Stretch/expand the selected chunk(s) """
-        self.history.message(greenmsg("Stretch:"))
         self.assy.Stretch()
         
     def modifySeparate(self):
         """ Form a new chunk from the selected atoms """
-        self.history.message(greenmsg("Separate:"))
         self.assy.modifySeparate()
 
     def modifyMerge(self):
         """ Create a single chunk from two of more selected chunks """
-        self.history.message(greenmsg("Merge:"))
         self.assy.merge()
         self.win_update()
 
     def modifyInvert(self):
         """ Invert the atoms of the selected chunk(s) """
-        self.history.message(greenmsg("Invert:"))
         self.assy.Invert()
 
     def modifyAlignCommonAxis(self):
         """ Align selected chunks by rotating them """
-        self.history.message(greenmsg("Align to Common Axis:"))
         self.assy.align()
         self.win_update()
         
