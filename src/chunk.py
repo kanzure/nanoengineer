@@ -1950,7 +1950,7 @@ class molecule(Node, InvalMixin):
         Given some copied atoms (in a private format in pairlis and ndix),
         ensure their bonds and jigs will be taken care of.
         """
-        from bonds import bond_copied_atoms
+        from bonds import bond_copied_atoms # might be a recursive import if done at toplevel
         origid_to_copy = mapping.origid_to_copy
         extern_atoms_bonds = mapping.extern_atoms_bonds
             #e could be integrated with mapping.do_at_end,
@@ -1967,6 +1967,7 @@ class molecule(Node, InvalMixin):
                     # internal bond - make the analogous one [this should include all bonds to singlets]
                     #bruce 050524 changes: don't do it twice for the same bond;
                     # and use bond_copied_atoms to copy bond state (e.g. bond-order policy and estimate) from old bond.
+                    # [note, this code is being copied into the old .copy() method too, by bruce 050715]
                     if a.key < a2key:
                         # arbitrary condition which is true for exactly one ordering of the atoms;
                         # note both keys are for original atoms (it would also work if both were from
@@ -2056,6 +2057,7 @@ class molecule(Node, InvalMixin):
         # bruce 041116: note: callers seem to be mainly in model tree copy ops
         # and in depositMode.
         # [where do they call addmol? why did extrude's copies break on 041116?]
+        from bonds import bond_copied_atoms # might be a recursive import if done at toplevel
         self.update_curpos()
         pairlis = []
         ndix = {}
@@ -2079,9 +2081,18 @@ class molecule(Node, InvalMixin):
         extern_atoms_bonds = []
         for (a, na) in pairlis:
             for b in a.bonds:
-                if b.other(a).key in ndix:
-                    # internal bond - make the analogous one
-                    numol.bond(na,ndix[b.other(a).key])
+                a2key = b.other(a).key
+                if a2key in ndix:
+                    # internal bond - make the analogous one [this should include all preexisting bonds to singlets]
+                    #bruce 050715 bugfix (copied from 050524 changes to another routine; also done below for extern_atoms_bonds):
+                    # don't do it twice for the same bond (needed by new faster bonding methods),
+                    # and use bond_copied_atoms to copy bond state (e.g. bond-order policy and estimate) from old bond.
+                    if a.key < a2key:
+                        # arbitrary condition which is true for exactly one ordering of the atoms;
+                        # note both keys are for original atoms (it would also work if both were from
+                        # copied atoms, but not if they were mixed)
+                        bond_copied_atoms(na, ndix[a2key], b)
+                    ## pre-050715 code: numol.bond(na,ndix[b.other(a).key])
                 else:
                     # external bond - after loop done, make a singlet in the copy
                     extern_atoms_bonds.append( (a,b) ) # ok if several times for one 'a'
@@ -2102,7 +2113,9 @@ class molecule(Node, InvalMixin):
                 # compare to code in Bond.unbond():
                 x = atom('X', b.ubp(a) + offset, numol)
                 na = ndix[a.key]
-                numol.bond(na, x)
+                #bruce 050715 bugfix: also copy the bond-type (two places in this routine)
+                ## numol.bond(na, x)
+                bond_copied_atoms( na, x, b)
         if copied_hotspot is not None:
             numol.set_hotspot( ndix[copied_hotspot.key])
         #e also copy (but translate by offset) user-specified axis, center, etc,
