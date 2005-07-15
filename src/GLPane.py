@@ -225,13 +225,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                                ## more likely sitting within the view volume
         # start in perspective mode
         self.ortho = 0
-        # default display form for objects in the window
-        # even tho there is only one assembly to a window,
-        # this is here in anticipation of being able to have
-        # multiple windows on the same assembly
-        self.display = default_display_mode #bruce 041129
-        self.win.dispbarLabel.setText( "Default Display: " + dispLabel[self.display] )
-        
 
         # Current coordinates of the mouse.
         self.MousePos = V(0,0)
@@ -281,6 +274,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.compassPosition = prefs.get(compassPosition_prefs_key, UPPER_RIGHT)
         self.displayOriginAxis = prefs.get(displayOriginAxis_prefs_key, True)
         self.displayPOVAxis = prefs.get(displayPOVAxis_prefs_key, True)
+
+        # default display form for objects in the window
+        # even tho there is only one assembly to a window,
+        # this is here in anticipation of being able to have
+        # multiple windows on the same assembly
+        self.display = prefs.get(defaultDisplayMode_prefs_key, diVDW)
+        self.win.dispbarLabel.setText( "Default Display: " + dispLabel[self.display] )
         
         ###### End of User Preference initialization ########################## 
         

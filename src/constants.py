@@ -62,7 +62,7 @@ dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
 dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
 
 # display mode for new glpanes (#e should be a user preference) [bruce 041129]
-default_display_mode = diVDW
+default_display_mode = diVDW # Now in user prefs db, set in GLPane.__init__ [Mark 050715]
 
 TubeRadius = 0.3
 
@@ -126,5 +126,6 @@ displayCompass_prefs_key = 'A6/Display Compass'
 compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
+defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
 
 # end

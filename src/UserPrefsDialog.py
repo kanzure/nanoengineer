@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Fri Jul 1 01:36:28 2005
+# Created: Fri Jul 15 15:21:09 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -201,6 +201,45 @@ class UserPrefsDialog(QDialog):
         layout7.addItem(spacer8_4)
         TabPageLayout.addLayout(layout7)
         self.prefs_tab.insertTab(self.TabPage,QString(""))
+
+        self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
+        TabPageLayout_2 = QVBoxLayout(self.TabPage_2,11,6,"TabPageLayout_2")
+
+        layout8 = QHBoxLayout(None,0,6,"layout8")
+
+        self.default_display_btngrp = QButtonGroup(self.TabPage_2,"default_display_btngrp")
+        self.default_display_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.default_display_btngrp.layout().setSpacing(6)
+        self.default_display_btngrp.layout().setMargin(11)
+        default_display_btngrpLayout = QGridLayout(self.default_display_btngrp.layout())
+        default_display_btngrpLayout.setAlignment(Qt.AlignTop)
+
+        self.vwd_rbtn = QRadioButton(self.default_display_btngrp,"vwd_rbtn")
+        self.default_display_btngrp.insert( self.vwd_rbtn,2)
+
+        default_display_btngrpLayout.addWidget(self.vwd_rbtn,0,0)
+
+        self.cpk_rbtn = QRadioButton(self.default_display_btngrp,"cpk_rbtn")
+        self.default_display_btngrp.insert( self.cpk_rbtn,4)
+
+        default_display_btngrpLayout.addWidget(self.cpk_rbtn,1,0)
+
+        self.lines_rbtn = QRadioButton(self.default_display_btngrp,"lines_rbtn")
+        self.default_display_btngrp.insert( self.lines_rbtn,3)
+
+        default_display_btngrpLayout.addWidget(self.lines_rbtn,3,0)
+
+        self.tubes_rbtn = QRadioButton(self.default_display_btngrp,"tubes_rbtn")
+        self.default_display_btngrp.insert( self.tubes_rbtn,5)
+
+        default_display_btngrpLayout.addWidget(self.tubes_rbtn,2,0)
+        layout8.addWidget(self.default_display_btngrp)
+        spacer9 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout8.addItem(spacer9)
+        TabPageLayout_2.addLayout(layout8)
+        spacer8_5 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_2.addItem(spacer8_5)
+        self.prefs_tab.insertTab(self.TabPage_2,QString(""))
         UserPrefsDialogLayout.addWidget(self.prefs_tab)
 
         layout28 = QHBoxLayout(None,0,6,"layout28")
@@ -227,6 +266,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.choose_color1_btn,SIGNAL("clicked()"),self.change_bgcolor1)
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.fill_type_changed)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
+        self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
 
 
     def languageChange(self):
@@ -267,6 +307,12 @@ class UserPrefsDialog(QDialog):
         self.horizontal_rbtn.setText(self.__tr("Horizontal"))
         self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
         self.prefs_tab.changeTab(self.TabPage,self.__tr("Background"))
+        self.default_display_btngrp.setTitle(self.__tr("Default Display"))
+        self.vwd_rbtn.setText(self.__tr("VdW"))
+        self.cpk_rbtn.setText(self.__tr("CPK"))
+        self.lines_rbtn.setText(self.__tr("Lines"))
+        self.tubes_rbtn.setText(self.__tr("Tubes"))
+        self.prefs_tab.changeTab(self.TabPage_2,self.__tr("Display"))
         self.ok_btn.setText(self.__tr("OK"))
 
 
@@ -299,6 +345,9 @@ class UserPrefsDialog(QDialog):
 
     def restore_default_bgcolor(self):
         print "UserPrefsDialog.restore_default_bgcolor(): Not implemented yet"
+
+    def set_default_display_mode(self):
+        print "UserPrefsDialog.set_default_display_mode(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

@@ -130,7 +130,13 @@ class UserPrefs(UserPrefsDialog):
             self.mode_combox.setCurrentItem(0) # Set to Select Chunks
 
         self.bg_solid_setup()
-                        
+
+    def _setup_display_page(self):
+        ''' Setup widgets to initial (default or defined) values on the display page.
+        '''
+        self.default_display_btngrp.setButton(self.glpane.display)
+
+                                
     def _update_prefs(self):
         '''Update user preferences in the shelf
         '''
@@ -154,7 +160,8 @@ class UserPrefs(UserPrefsDialog):
                             compassPosition_prefs_key: self.glpane.compassPosition,
                             displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
                             displayPOVAxis_prefs_key: self.glpane.displayPOVAxis,
-                            gmspath_prefs_key: self.gmspath }
+                            gmspath_prefs_key: self.gmspath,
+                            defaultDisplayMode_prefs_key: self.glpane.display }
         
         prefs.update(general_changes) # Open prefs db once.
 
@@ -279,6 +286,13 @@ class UserPrefs(UserPrefsDialog):
         
     ########## End of slot methods for "Background" page widgets ###########
 
+
+    def set_default_display_mode(self, val):
+        '''Set default display mode of GLpane.
+        '''
+        self.glpane.setDisplay(val)
+        self.glpane.gl_update()
+
     ########## Slot methods for top level widgets ################
     
     def setup_current_page(self, pagename):
@@ -286,6 +300,8 @@ class UserPrefs(UserPrefsDialog):
             self._setup_general_page()
         elif pagename == 'Background':
             self._setup_background_page()
+        elif pagename == 'Display':
+            self._setup_display_page()
         else:
             print 'Error: Preferences page unknown: ', pagename
             
