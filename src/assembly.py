@@ -643,7 +643,7 @@ class assembly:
 ##        print "dir(Part) = ",dir(Part)
     #####@@@@@ for both of the following:
     part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
-    part_attrs_review = ['ppa2','ppa3']
+    part_attrs_review = ['ppa2','ppa3','ppm']
         ###@@@ bruce 050325 removed 'alist', now all legit uses of that are directly on Part or Movie
         ### similarly removed 'temperature' (now on assy like it was),'waals' (never used)
         #e in future, we'll split out our own methods for some of these, incl .changed

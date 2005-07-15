@@ -1414,6 +1414,9 @@ class molecule(Node, InvalMixin):
         
     def getinfo(self):
         # Return information about the selected moledule for the msgbar [mark 2004-10-14]
+        
+        if self is self.assy.ppm: return
+        
         ele2Num = {}
         
         # Determine the number of element types in this molecule.
@@ -1441,6 +1444,9 @@ class molecule(Node, InvalMixin):
         natoms -= nsinglets   # The real number of atoms in this chunk
 
         minfo =  "Chunk Name: [" + str (self.name) + "]     Total Atoms: " + str(natoms) + " " + einfo
+        
+        # ppm is self for next mol picked.
+        self.assy.ppm = self
                         
         return minfo
 

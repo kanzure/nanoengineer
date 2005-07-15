@@ -158,7 +158,7 @@ class Part( jigmakers_Mixin, InvalMixin,
         ## self.movieID=0
         
         # ppa = previous picked atoms. ###@@@ not sure these are per-part; should reset when change mode or part
-        self.ppa2 = self.ppa3 = None
+        self.ppa2 = self.ppa3 = self.ppm = None
 
         self.alive = True # we're not yet destroyed
 
