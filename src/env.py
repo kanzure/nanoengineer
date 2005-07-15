@@ -108,9 +108,14 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
     # handle and clear all changes since the last call
     # (in the proper order, when there might be more than one kind of change #nim)
     if _changed_structure_atoms:
-        import bond_updater
-        ##Comented out by Huaicai 7/14/05, a potential problem if reload from a zip file.
-        #reload(bond_updater) # during devel, reload this module every time it's used
+        if platform.atom_debug:
+            # during development, reload this module every time it's used
+            # (Huaicai says this should not be done by default in the released version,
+            #  due to potential problems if reloading from a zip file. He commented it
+            #  out completely (7/14/05), and I then replaced it with this debug-only reload.
+            #  [bruce 050715])
+            import bond_updater
+            reload(bond_updater)
         from bond_updater import update_bonds_after_each_event
         update_bonds_after_each_event( _changed_structure_atoms)
             #e not sure if that routine will need to use or change other similar globals in this module;
