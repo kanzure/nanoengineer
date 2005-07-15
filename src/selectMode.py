@@ -7,6 +7,7 @@ $Id$
 
 from modes import *
 from chunk import molecule
+import env
 
 def do_what_MainWindowUI_should_do(w):
     '''This creates the Select Atoms (not the Select Chunks) dashboard .
@@ -155,9 +156,10 @@ class selectMode(basicMode):
 
         if self.pickLineLength/self.o.scale < 0.03:
             # didn't move much, call it a click
-            if selSense == 0: self.o.assy.unpick_at_event(event)
-            if selSense == 1: self.o.assy.pick_at_event(event)
-            if selSense == 2: self.o.assy.onlypick_at_event(event)
+            if not self.jigGLSelect(event):
+                if selSense == 0: self.o.assy.unpick_at_event(event)
+                if selSense == 1: self.o.assy.pick_at_event(event)
+                if selSense == 2: self.o.assy.onlypick_at_event(event)
             ###Huaicai 1/29/05: to fix zoom messing up selection bug
             ###In window zoom mode, even for a big selection window, the 
             ###pickLineLength/scale could still be < 0.03, so we need clean 
@@ -247,7 +249,66 @@ class selectMode(basicMode):
             self.o.gl_update()
         return
        
+    
+    def jigGLSelect(self, event):
+        '''Use the OpenGL picking/selection to select any jigs '''
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        
+        aspect = float(self.o.width)/self.o.height
+        
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        gz = wZ[0][0]
+        
+        pxyz = A(gluUnProject(wX, wY, gz))
+        pn = self.o.out
+        pxyz -= 0.002*pn
+        dp = - dot(pxyz, pn)
+        #print "clip plane: ", pn, dp 
+        #print "Point on plane: ", pxyz
+        
+        current_glselect = (wX,wY,1,1) #bruce 050615 for use by nodes which want to set up their own projection matrix
+        self.o._setup_projection( aspect, self.o.vdist, glselect = current_glselect) 
+        
+        glSelectBuffer(self.o.glselectBufferSize)
+        glRenderMode(GL_SELECT)
+        glInitNames()
+        glMatrixMode(GL_MODELVIEW)
+        try:
+            glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
+            glEnable(GL_CLIP_PLANE0)
+            self.o.assy.draw(self.o)
+            glDisable(GL_CLIP_PLANE0)
+            #self.mode.Draw() # should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
+                # note: this might call some display lists which, when created, registered namestack names,
+                # so we need to still know those names!
+        except:
+            print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+            glMatrixMode(GL_MODELVIEW)
+            self.o._setup_modelview( self.o.vdist) ###k correctness of this is unreviewed! ####@@@@
+            # now it's important to continue, at least enough to restore other gl state
+        
+        glFlush()
+        
+        hit_records = list(glRenderMode(GL_RENDER))
+        print "%d hits" % len(hit_records)
+        for (near,far,names) in hit_records: # see example code, renderpass.py
+            print "hit record: near,far,names:",near,far,names
+                # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
+                # which proves that near/far are too far apart to give actual depth,
+                # in spite of the 1-pixel drawing window (presumably they're vertices
+                # taken from unclipped primitives, not clipped ones).
+            if names:
+                obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
+                if isinstance(obj, Jig):
+                    if obj.picked:
+                        obj.unpick()
+                    else: obj.pick()
+                    return True
+        return  False       
 
+    
     def Draw(self):
         # bruce comment 040922: code is almost identical with modifyMode.Draw;
         # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.

@@ -1163,8 +1163,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             glLoadIdentity()
             drawer.drawFullWindow(vtColors)
 
-
-
         aspect = (self.width + 0.0)/(self.height + 0.0)
         vdist = 6.0 * self.scale
         self.vdist = vdist #bruce 050616 new feature (storing vdist in self), not yet used where it ought to be
@@ -1567,7 +1565,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                     w,h,
                     glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
             )
-        
+         
         if self.ortho:
             glOrtho( - scalezoom * aspect, scalezoom * aspect,
                      - scalezoom,          scalezoom,

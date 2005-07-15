@@ -31,6 +31,7 @@ from StatProp import *
 from ThermoProp import *
 from HistoryWidget import redmsg, greenmsg
 from povheader import povpoint #bruce 050413
+from debug import print_compact_stack, print_compact_traceback
 
 Gno = 0
 def gensym(string):
@@ -80,6 +81,11 @@ class Jig(Node):
         # when one of the atoms move is not yet present. [bruce 041202]
         #e it might make sense to init other attrs here too, like color
         ## this is now the default for all Nodes [050505]: self.disabled_by_user_choice = False #bruce 050421
+
+        # Huaicai 7/15/05: support jig graphically select
+        import env
+        self.glname = env.alloc_my_glselect_name( self) 
+        
         return
 
     def node_icon(self, display_prefs): #bruce 050425 simplified this
@@ -408,11 +414,14 @@ class Jig(Node):
             glDisable(GL_CULL_FACE) # this makes motors look too busy, but without it, they look too weird (which seems worse)
 
         try:
+            glPushName(self.glname)           
             self._draw(win, dispdef)
         except:
-            print_compact_traceback("exception in drawing jig ignored: ") #bruce 050518
-            # this is verbose, but it's a true serious error that needs to be known about
-        
+            glPopName()
+            print_compact_traceback("ignoring exception when drawing Jig %r: " % self)
+        else:
+            glPopName()
+            
         if disabled:
             glEnable(GL_CULL_FACE)
             glEnable(GL_LIGHTING)
@@ -802,7 +811,7 @@ class LinearMotor(Motor):
         drawLinearSign((0,0,0), self.center, self.axis, self.length, self.width, self.width)
         for a in self.atoms:
             drawcylinder(self.color, self.center, a.posn(), self.sradius)
-
+               
             
     # Write "lmotor" and "spoke" records to POV-Ray file in the format:
     # lmotor(<cap-point>, <base-point>, box-width, <r, g, b>)
