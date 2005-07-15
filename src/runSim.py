@@ -28,9 +28,12 @@ from math import sqrt
 from SimSetup import SimSetup
 from qt import QApplication, QCursor, Qt, QStringList, QProcess
 from movie import Movie
+from HistoryWidget import redmsg, greenmsg, orangemsg
 # more imports lower down
 
 debug_sim = 0 # DO NOT COMMIT with 1
+
+cmd = greenmsg("Simulator: ")
 
 class SimRunner:
     "class for running the simulator [subclasses can run it in special ways, maybe]"
@@ -80,8 +83,8 @@ class SimRunner:
             return # success
         history = self.history
         if self.errcode == 1: # User pressed Abort button in progress dialog.
-            msg = redmsg("Simulator: Aborted.")
-            history.message(msg)         
+            msg = redmsg("Aborted.")
+            history.message(cmd + msg)         
             
             ##Tries to terminate the process the nice way first, so the process
             ## can do whatever clean up it requires. If the process
@@ -97,7 +100,7 @@ class SimRunner:
             
         else: # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
-            history.message(msg)
+            history.message(cmd + msg)
         self.said_we_are_done = True # since saying we aborted or had an error is good enough... ###e revise if kill can take time.
         return # caller should look at self.errcode
         # semi-obs comment? [by bruce few days before 050404, partly expresses an intention]
@@ -174,7 +177,7 @@ class SimRunner:
         # Make sure the simulator exists
         if not os.path.exists(program):
             msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
-            self.history.message(msg)
+            self.history.message(cmd + msg)
             return -1
         self.program = program
         
@@ -206,7 +209,7 @@ class SimRunner:
             moviefile = movie.filename
         else:
             msg = redmsg("Can't create movie.  Empty filename.")
-            self.history.message(msg)
+            self.history.message(cmd + msg)
             return -1
             
         # Check that the moviefile has a valid extension.
@@ -214,7 +217,7 @@ class SimRunner:
         if ext not in ['.dpb', '.xyz']:
             # Don't recognize the moviefile extension.
             msg = redmsg("Movie [" + moviefile + "] has unsupported extension.")
-            self.history.message(msg)
+            self.history.message(cmd + msg)
             print "writeMovie: " + msg
             return -1
         movie.filetype = ext #bruce 050404 added this
@@ -494,7 +497,7 @@ class SimRunner:
                 msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
                         + ", Steps per Frame: " + str(movie.stepsper)\
                         + ", Temperature: " + str(movie.temp)
-                self.history.message(msg)
+                self.history.message(cmd + msg)
         #bruce 050415: let caller specify caption via movie object's _cmdname
         # (might not be set, depending on caller) [needs cleanup].
         # For important details see same-dated comment above.
@@ -743,7 +746,6 @@ def readxyz(filename, alist):
 
 # == user-visible commands for running the simulator, for simulate or minimize
 
-from HistoryWidget import redmsg, greenmsg, orangemsg
 from qt import QMimeSourceFactory
 
 class CommandRun: # bruce 050324; mainly a stub for future use when we have a CLI
@@ -772,10 +774,11 @@ class simSetup_CommandRun(CommandRun):
         #bruce 050324 made this method from the body of MWsemantics.simSetup
         # and cleaned it up a bit in terms of how it finds the movie to use.
         if not self.part.molecules: # Nothing in the part to simulate.
-            self.history.message(redmsg("Simulator: Nothing to simulate."))
+            msg = redmsg("Nothing to simulate.")
+            self.history.message(cmd + msg)
             return
         
-        self.history.message(greenmsg("Simulator:"))
+        self.history.message(cmd + "Enter simulation parameters and select <b>Run Simulation.</b>")
 
         ###@@@ we could permit this in movie player mode if we'd now tell that mode to stop any movie it's now playing
         # iff it's the current mode.
@@ -799,7 +802,7 @@ class simSetup_CommandRun(CommandRun):
                     ###e bug in this if too few frames were written; should read and use totalFramesActual
                 estr = self.progressbar.hhmmss_str(self.progressbar.duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
-                self.history.message(msg) 
+                self.history.message(cmd + msg) 
             msg = "Movie written to [" + movie.filename + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon " \
                         "and press Play on the Movie Mode dashboard." #bruce 050510 added note about Play button.
@@ -808,13 +811,13 @@ class simSetup_CommandRun(CommandRun):
             #   If so, make sure it plays the correct one even if new ones have been made since then!)
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.win.simMoviePlayerAction.iconSet().pixmap() )
-            self.history.message(msg)
+            self.history.message(cmd + msg)
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
             self.win.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
         else:
             assert not movie
-            self.history.message("Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
+            self.history.message(cmd + "Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
         return
 
     def makeSimMovie(self, previous_movie): ####@@@@ some of this should be a Movie method since it uses attrs of Movie...
@@ -823,7 +826,8 @@ class simSetup_CommandRun(CommandRun):
         # or if it is, that it's split from the caller at the right boundary.
         suffix = self.part.movie_suffix()
         if suffix is None: #bruce 050316 temporary kluge
-            self.history.message( redmsg( "Simulator is not yet implemented for clipboard items."))
+            msg = redmsg( "Simulator is not yet implemented for clipboard items.")
+            self.history.message(cmd + msg)
             return -1
         ###@@@ else use suffix below!
         
