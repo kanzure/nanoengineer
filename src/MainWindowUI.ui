@@ -228,7 +228,7 @@
             <rect>
                 <x>196</x>
                 <y>0</y>
-                <width>272</width>
+                <width>306</width>
                 <height>29</height>
             </rect>
         </property>
@@ -255,6 +255,8 @@
         <action name="setViewFrontAction"/>
         <action name="setViewTopAction"/>
         <action name="setViewRightAction"/>
+        <separator/>
+        <action name="setViewOppositeAction"/>
     </toolbar>
     <toolbar dock="2">
         <property name="name">
@@ -262,7 +264,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>468</x>
+                <x>502</x>
                 <y>0</y>
                 <width>182</width>
                 <height>29</height>
@@ -294,7 +296,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>650</x>
+                <x>684</x>
                 <y>0</y>
                 <width>154</width>
                 <height>29</height>
@@ -318,7 +320,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>804</x>
+                <x>838</x>
                 <y>0</y>
                 <width>70</width>
                 <height>29</height>
@@ -1947,7 +1949,7 @@
             <string>&amp;Front</string>
         </property>
         <property name="toolTip">
-            <string>Front</string>
+            <string>Front View</string>
         </property>
     </action>
     <action>
@@ -1962,6 +1964,9 @@
         </property>
         <property name="menuText">
             <string>&amp;Back</string>
+        </property>
+        <property name="toolTip">
+            <string>Back View</string>
         </property>
     </action>
     <action>
@@ -1978,7 +1983,7 @@
             <string>&amp;Top</string>
         </property>
         <property name="toolTip">
-            <string>Top</string>
+            <string>Top View</string>
         </property>
     </action>
     <action>
@@ -1997,6 +2002,9 @@
         <property name="menuText">
             <string>Botto&amp;m</string>
         </property>
+        <property name="toolTip">
+            <string>Bottom View</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -2012,7 +2020,10 @@
             <string>&amp;Right</string>
         </property>
         <property name="toolTip">
-            <string>Right</string>
+            <string>Right View</string>
+        </property>
+        <property name="statusTip">
+            <string>Right View</string>
         </property>
     </action>
     <action>
@@ -2029,7 +2040,7 @@
             <string>&amp;Left</string>
         </property>
         <property name="toolTip">
-            <string>Left</string>
+            <string>Left View</string>
         </property>
     </action>
     <action>
@@ -2046,7 +2057,7 @@
             <string>&amp;Home</string>
         </property>
         <property name="toolTip">
-            <string>Home (Home)</string>
+            <string>Home View (Home)</string>
         </property>
         <property name="accel">
             <string>Home</string>
@@ -3829,6 +3840,9 @@
         <property name="name">
             <cstring>setViewOppositeAction</cstring>
         </property>
+        <property name="iconSet">
+            <iconset>image134</iconset>
+        </property>
         <property name="text">
             <string>Opposite</string>
         </property>
@@ -3836,10 +3850,10 @@
             <string>Opposite</string>
         </property>
         <property name="toolTip">
-            <string>Set current view to its opposite.</string>
+            <string>Opposite View</string>
         </property>
         <property name="statusTip">
-            <string>Set current view to its opposite.</string>
+            <string>Opposite View</string>
         </property>
     </action>
 </actions>
@@ -4245,6 +4259,9 @@
     </image>
     <image name="image133">
         <data format="PNG" length="764">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000002c349444154789cb5954f68135110c667369b4dc27643b2a5861249b3781402a5600db190600bdaeac14b0ee249102f1ec452bc2af6d093372f2a1ec5e658102c116a9b08a68a85e24d9ac492160952bbbb499a3fbb6f3cb42b699ac6add0eff47833eff73e8699f79088e034c49ff480a2286e44bc0000502814b244c4bae5a15dc7c96452d8d8d89822a2394110c200808d4623eb72b96672b9dc57ea00d902279349616b6beb1922de5255b5a2ebfa1c0084fbfbfb6f7b3c1e0311673299ccf313831389c49556ab359fcfe74bb55aeddaeeee6e0100c0e7f34dc8b23c1f0c0675b7db9d48a7d379eb0cf72fe8e4e4a4d7308cc7e57299cae5f2ac0505005055f5fdf6f6f69b6ab5da57afd71f2022da06d7ebf504632c582a95364dd37cd71e23226a341a2f8bc52243c4a9783c7ece369888aeaaaadadadbdbcb12d1ef2e29df755dff6118060700a35dc19148e450c1c7c6c6fc8cb1e8cece8e07003e1e73b16e18c6aaa6698c882e5be5e8e998e7f920229ea9542a0000df7aa47e515595078091582cd60770d0159d4e0100d6d7d7717c7c3cd26c365f3b1c8ef3bd0c58628ce54cd39cc866b33a6f4100f64b61ad2d21a2d30ef420f7ef24f71c69d3349b88d8b7b6b6f64b55d5eb44f4e918e0bd5028f4505114268a2203e8a871a75b49923689a8e0f57a5b00307c0c1401e0a2dfef37388efbb0b8b8583d02eed4c2c2428de3b88c2ccb0d0088b50f409b644110464451e41963196bf39f7d0c006f2549122449ba040067bbc48765590e381c8e2a227eb60d1e1818580580d57038ece379fe667b0c11055114ef0f0d0d2122be585a5afa691b9c4aa59a4ea7f391cfe73342a1d0742010b881fb72050281694551e23ccf171963af0e5d6ae77543448cc562771963b3a6694a9aa6ad10915f96e50811150441b8b3bcbcbc7262b0a568341ad634ed09cff3a300609aa6991a1c1c7c9a4ea7d523664eebcfb3d315ffa53f9dab43155f65917e0000000049454e44ae426082</data>
+    </image>
+    <image name="image134">
+        <data format="PNG" length="345">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000012049444154789ccd95b18e445014867f1bccbe8146345a9a29f47a25efe0dd781ab752ab48d48673e56ee5ba96c5ccdacdfc8910f97df91de71cc01f48bf41bc2f5405a9d7da9560decfbc8fdf8201801eebb7bf343130a75e817ddf7faaf88cb1cd70fa77689aa6b02c6b17e6791e9224d9f548b0effb22cbb2c384b66d238aa2439f3e418ba2383403401886a77c32715555f2e6388e188601a6692ecc4dd39c820217b5db96646222826118701c67f595cbb27c7a4c1760d775b5adbe1c860100309dcf48968288c018135383abd344442022745df75a6255c6e75c91beef5f4fcc39c7fd7ed7f41b04efa1a90b85732e0f553f4ddd22711004129ae7b90080388eb53ccf455dd78b87dab6dd8502caae98a06776c511748efdd6bf92ffd21702838a420726bd740000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5191,7 +5208,6 @@
     <slot>makeGamess()</slot>
     <slot>JobManager()</slot>
     <slot>serverManager()</slot>
-    <slot>setViewOpposite()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

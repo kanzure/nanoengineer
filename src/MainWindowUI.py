@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jul 14 18:50:20 2005
+# Created: Thu Jul 14 20:45:33 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5669,6 +5669,36 @@ image133_data = \
     "\xd5\x23\x66\x4e\xeb\xcf\xb3\xd3\x15\xff\xa5\x3f" \
     "\x9d\xab\x43\x15\x5f\x65\x91\x7e\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
+image134_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x20\x49\x44\x41\x54\x78\x9c\xcd\x95\xb1\x8e\x44" \
+    "\x50\x14\x86\x7f\x1b\xcc\xbe\x81\x46\x34\x5a\x9a" \
+    "\x29\xf4\x7a\x25\xef\xe0\xdd\x78\x1a\xb7\x52\xab" \
+    "\x48\xd4\x86\x73\xe5\x6e\xe5\xba\x96\xc5\xcc\xda" \
+    "\xcd\xfc\x89\x10\xf9\x7d\xf9\x1d\xe7\x1c\xc0\x1f" \
+    "\x48\xbf\x41\xbc\x2f\x54\x05\xa9\xd7\xda\x95\x60" \
+    "\xde\xcf\xbc\x8f\xdf\x82\x01\x80\x1e\xeb\xb7\xbf" \
+    "\x34\x31\x30\xa7\x5e\x81\x7d\xdf\x7f\xaa\xf8\x8c" \
+    "\xb1\xcd\x70\xfa\x77\x68\x9a\xa6\xb0\x2c\x6b\x17" \
+    "\xe6\x79\x1e\x92\x24\xd9\xf5\x48\xb0\xef\xfb\x22" \
+    "\xcb\xb2\xc3\x84\xb6\x6d\x23\x8a\xa2\x43\x9f\x3e" \
+    "\x41\x8b\xa2\x38\x34\x03\x40\x18\x86\xa7\x7c\x32" \
+    "\x71\x55\x55\xf2\xe6\x38\x8e\x18\x86\x01\xa6\x69" \
+    "\x2e\xcc\x4d\xd3\x9c\x82\x02\x17\xb5\xdb\x96\x64" \
+    "\x62\x22\x82\x61\x18\x70\x1c\x67\xf5\x95\xcb\xb2" \
+    "\x7c\x7a\x4c\x17\x60\xd7\x75\xb5\xad\xbe\x1c\x86" \
+    "\x01\x00\x30\x9d\xcf\x48\x96\x82\x88\xc0\x18\x13" \
+    "\x53\x83\xab\xd3\x44\x44\x20\x22\x74\x5d\xf7\x5a" \
+    "\x62\x55\xc6\xe7\x5c\x91\xbe\xef\x5f\x4f\xcc\x39" \
+    "\xc7\xfd\x7e\xd7\xf4\x1b\x04\xef\xa1\xa9\x0b\x85" \
+    "\x73\x2e\x0f\x55\x3f\x4d\xdd\x22\x71\x10\x04\x12" \
+    "\x9a\xe7\xb9\x00\x80\x38\x8e\xb5\x3c\xcf\x45\x5d" \
+    "\xd7\x8b\x87\xda\xb6\xdd\x85\x02\xca\xae\x98\xa0" \
+    "\x67\x76\xc5\x11\x74\x8e\xfd\xd6\xbf\x92\xff\xd2" \
+    "\x17\x02\x83\x8a\x42\x07\x26\xbd\x74\x00\x00\x00" \
+    "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -5919,6 +5949,8 @@ class MainWindow(QMainWindow):
         self.image132.loadFromData(image132_data,"PNG")
         self.image133 = QPixmap()
         self.image133.loadFromData(image133_data,"PNG")
+        self.image134 = QPixmap()
+        self.image134.loadFromData(image134_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -6356,6 +6388,7 @@ class MainWindow(QMainWindow):
         self.moveThetaPlusAction = QAction(self,"moveThetaPlusAction")
         self.moveThetaPlusAction.setIconSet(QIconSet(self.image133))
         self.setViewOppositeAction = QAction(self,"setViewOppositeAction")
+        self.setViewOppositeAction.setIconSet(QIconSet(self.image134))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6377,7 +6410,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(196,0,272,29))
+        self.viewToolbar.setGeometry(QRect(196,0,306,29))
         self.viewToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
@@ -6390,9 +6423,11 @@ class MainWindow(QMainWindow):
         self.setViewFrontAction.addTo(self.viewToolbar)
         self.setViewTopAction.addTo(self.viewToolbar)
         self.setViewRightAction.addTo(self.viewToolbar)
+        self.viewToolbar.addSeparator()
+        self.setViewOppositeAction.addTo(self.viewToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.molecularDispToolbar.setGeometry(QRect(468,0,182,29))
+        self.molecularDispToolbar.setGeometry(QRect(502,0,182,29))
         self.molecularDispToolbar.setPaletteBackgroundColor(QColor(236,233,216))
         self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
@@ -6403,7 +6438,7 @@ class MainWindow(QMainWindow):
         self.dispVdWAction.addTo(self.molecularDispToolbar)
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.selectToolbar.setGeometry(QRect(650,0,154,29))
+        self.selectToolbar.setGeometry(QRect(684,0,154,29))
         self.selectAllAction.addTo(self.selectToolbar)
         self.selectNoneAction.addTo(self.selectToolbar)
         self.selectInvertAction.addTo(self.selectToolbar)
@@ -6412,7 +6447,7 @@ class MainWindow(QMainWindow):
         self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.helpToolbar.setEnabled(1)
-        self.helpToolbar.setGeometry(QRect(804,0,70,29))
+        self.helpToolbar.setGeometry(QRect(838,0,70,29))
         self.helpToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.helpAssistantAction.addTo(self.helpToolbar)
@@ -7020,23 +7055,26 @@ class MainWindow(QMainWindow):
         self.orient111Action.setMenuText(self.__tr("Surface 111"))
         self.setViewFrontAction.setText(self.__tr("&Front"))
         self.setViewFrontAction.setMenuText(self.__tr("&Front"))
-        self.setViewFrontAction.setToolTip(self.__tr("Front"))
+        self.setViewFrontAction.setToolTip(self.__tr("Front View"))
         self.setViewBackAction.setText(self.__tr("Back"))
         self.setViewBackAction.setMenuText(self.__tr("&Back"))
+        self.setViewBackAction.setToolTip(self.__tr("Back View"))
         self.setViewTopAction.setText(self.__tr("Top"))
         self.setViewTopAction.setMenuText(self.__tr("&Top"))
-        self.setViewTopAction.setToolTip(self.__tr("Top"))
+        self.setViewTopAction.setToolTip(self.__tr("Top View"))
         self.setViewBottomAction.setText(self.__tr("Bottom"))
         self.setViewBottomAction.setMenuText(self.__tr("Botto&m"))
+        self.setViewBottomAction.setToolTip(self.__tr("Bottom View"))
         self.setViewRightAction.setText(self.__tr("Right"))
         self.setViewRightAction.setMenuText(self.__tr("&Right"))
-        self.setViewRightAction.setToolTip(self.__tr("Right"))
+        self.setViewRightAction.setToolTip(self.__tr("Right View"))
+        self.setViewRightAction.setStatusTip(self.__tr("Right View"))
         self.setViewLeftAction.setText(self.__tr("Left"))
         self.setViewLeftAction.setMenuText(self.__tr("&Left"))
-        self.setViewLeftAction.setToolTip(self.__tr("Left"))
+        self.setViewLeftAction.setToolTip(self.__tr("Left View"))
         self.setViewHomeAction.setText(self.__tr("Home"))
         self.setViewHomeAction.setMenuText(self.__tr("&Home"))
-        self.setViewHomeAction.setToolTip(self.__tr("Home (Home)"))
+        self.setViewHomeAction.setToolTip(self.__tr("Home View (Home)"))
         self.setViewHomeAction.setAccel(self.__tr("Home"))
         self.setViewRecenterAction.setText(self.__tr("Recenter"))
         self.setViewRecenterAction.setMenuText(self.__tr("&Recenter"))
@@ -7295,8 +7333,8 @@ class MainWindow(QMainWindow):
         self.moveThetaPlusAction.setMenuText(self.__tr("Rotate Theta (+)"))
         self.setViewOppositeAction.setText(self.__tr("Opposite"))
         self.setViewOppositeAction.setMenuText(self.__tr("Opposite"))
-        self.setViewOppositeAction.setToolTip(self.__tr("Set current view to its opposite."))
-        self.setViewOppositeAction.setStatusTip(self.__tr("Set current view to its opposite."))
+        self.setViewOppositeAction.setToolTip(self.__tr("Opposite View"))
+        self.setViewOppositeAction.setStatusTip(self.__tr("Opposite View"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7816,9 +7854,6 @@ class MainWindow(QMainWindow):
 
     def serverManager(self):
         print "MainWindow.serverManager(): Not implemented yet"
-
-    def setViewOpposite(self):
-        print "MainWindow.setViewOpposite(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
