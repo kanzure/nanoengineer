@@ -127,5 +127,10 @@ compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
+captionPrefix_prefs_key = 'A6/Caption Prefix'
+captionSuffix_prefs_key = 'A6/Caption Suffix'
+captionFullPath_prefs_key = 'A6/Caption Full Path'
+historyMsgSerialNumber_prefs_key = 'A6/History Message Serial Number'
+historyMsgTimestamp_prefs_key = 'A6/History Message Timestamp'
 
 # end
