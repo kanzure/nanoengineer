@@ -215,6 +215,176 @@
                     <cstring>TabPage</cstring>
                 </property>
                 <attribute name="title">
+                    <string>Display</string>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout10</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QButtonGroup">
+                                <property name="name">
+                                    <cstring>default_display_btngrp</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Default Display</string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QRadioButton" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>vwd_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>VdW</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>2</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>cpk_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>CPK</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>4</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="3" column="0">
+                                        <property name="name">
+                                            <cstring>lines_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Lines</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>3</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="2" column="0">
+                                        <property name="name">
+                                            <cstring>tubes_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Tubes</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>5</number>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <widget class="QGroupBox">
+                                <property name="name">
+                                    <cstring>groupBox3</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Caption Format</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Window Border Caption Format</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Format Prefix and Suffix text the delimits the part name in the caption in window border.</string>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Caption Prefix for Modified File :</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>caption_prefix_linedit</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel2_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Caption Suffix for Modified File :</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>caption_suffix_linedit</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>caption_fullpath_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Display full path of part</string>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer9</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>70</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                    <spacer>
+                        <property name="name">
+                            <cstring>spacer11</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </vbox>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>TabPage</cstring>
+                </property>
+                <attribute name="title">
                     <string>Background</string>
                 </attribute>
                 <vbox>
@@ -561,99 +731,31 @@
                     <cstring>TabPage</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Display</string>
+                    <string>History</string>
                 </attribute>
                 <vbox>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget">
+                    <widget class="QCheckBox">
                         <property name="name">
-                            <cstring>layout8</cstring>
+                            <cstring>msg_serial_number_checkbox</cstring>
                         </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QButtonGroup">
-                                <property name="name">
-                                    <cstring>default_display_btngrp</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Default Display</string>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QRadioButton" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>vwd_rbtn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>VdW</string>
-                                        </property>
-                                        <property name="buttonGroupId">
-                                            <number>2</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>cpk_rbtn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>CPK</string>
-                                        </property>
-                                        <property name="buttonGroupId">
-                                            <number>4</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton" row="3" column="0">
-                                        <property name="name">
-                                            <cstring>lines_rbtn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Lines</string>
-                                        </property>
-                                        <property name="buttonGroupId">
-                                            <number>3</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>tubes_rbtn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Tubes</string>
-                                        </property>
-                                        <property name="buttonGroupId">
-                                            <number>5</number>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer9</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>40</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
+                        <property name="text">
+                            <string>Include message serial number</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>msg_timestamp_checkbox</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Include message timestamp</string>
+                        </property>
                     </widget>
                     <spacer>
                         <property name="name">
-                            <cstring>spacer8_5</cstring>
+                            <cstring>spacer10</cstring>
                         </property>
                         <property name="orientation">
                             <enum>Vertical</enum>
@@ -781,6 +883,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>set_default_display_mode()</slot>
     </connection>
+    <connection>
+        <sender>caption_fullpath_checkbox</sender>
+        <signal>stateChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_caption_fullpath()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>display_compass()</slot>
@@ -794,6 +902,7 @@
     <slot>fill_type_changed()</slot>
     <slot>restore_default_bgcolor()</slot>
     <slot>set_default_display_mode()</slot>
+    <slot>set_caption_fullpath()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

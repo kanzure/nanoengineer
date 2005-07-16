@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Fri Jul 15 15:21:09 2005
+# Created: Sat Jul 16 17:29:38 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -106,108 +106,9 @@ class UserPrefsDialog(QDialog):
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
         TabPageLayout = QVBoxLayout(self.TabPage,11,6,"TabPageLayout")
 
-        layout11 = QHBoxLayout(None,0,6,"layout11")
+        layout10 = QHBoxLayout(None,0,6,"layout10")
 
-        layout9 = QGridLayout(None,1,1,0,6,"layout9")
-
-        self.color2_lbl = QLabel(self.TabPage,"color2_lbl")
-        self.color2_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout9.addWidget(self.color2_lbl,3,0)
-
-        layout37 = QHBoxLayout(None,0,6,"layout37")
-
-        self.color1_frame = QFrame(self.TabPage,"color1_frame")
-        self.color1_frame.setPaletteBackgroundColor(QColor(170,255,255))
-        self.color1_frame.setFrameShape(QFrame.Box)
-        self.color1_frame.setFrameShadow(QFrame.Plain)
-        layout37.addWidget(self.color1_frame)
-
-        self.choose_color1_btn = QPushButton(self.TabPage,"choose_color1_btn")
-        layout37.addWidget(self.choose_color1_btn)
-
-        layout9.addLayout(layout37,2,1)
-
-        self.fill_type_lbl = QLabel(self.TabPage,"fill_type_lbl")
-        self.fill_type_lbl.setEnabled(0)
-        self.fill_type_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout9.addWidget(self.fill_type_lbl,1,0)
-
-        layout37_2 = QHBoxLayout(None,0,6,"layout37_2")
-
-        self.color2_frame = QFrame(self.TabPage,"color2_frame")
-        self.color2_frame.setPaletteBackgroundColor(QColor(0,0,127))
-        self.color2_frame.setFrameShape(QFrame.Box)
-        self.color2_frame.setFrameShadow(QFrame.Plain)
-        layout37_2.addWidget(self.color2_frame)
-
-        self.choose_color2_btn = QPushButton(self.TabPage,"choose_color2_btn")
-        layout37_2.addWidget(self.choose_color2_btn)
-
-        layout9.addLayout(layout37_2,3,1)
-
-        self.color1_lbl = QLabel(self.TabPage,"color1_lbl")
-        self.color1_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout9.addWidget(self.color1_lbl,2,0)
-
-        self.mode_combox = QComboBox(0,self.TabPage,"mode_combox")
-
-        layout9.addWidget(self.mode_combox,0,1)
-
-        self.mode_lbl = QLabel(self.TabPage,"mode_lbl")
-        self.mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout9.addWidget(self.mode_lbl,0,0)
-
-        self.fill_type_combox = QComboBox(0,self.TabPage,"fill_type_combox")
-        self.fill_type_combox.setEnabled(0)
-
-        layout9.addWidget(self.fill_type_combox,1,1)
-        layout11.addLayout(layout9)
-
-        layout10 = QVBoxLayout(None,0,6,"layout10")
-        spacer6 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout10.addItem(spacer6)
-
-        self.gradient_orient_btngrp = QButtonGroup(self.TabPage,"gradient_orient_btngrp")
-        self.gradient_orient_btngrp.setExclusive(1)
-        self.gradient_orient_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.gradient_orient_btngrp.layout().setSpacing(6)
-        self.gradient_orient_btngrp.layout().setMargin(11)
-        gradient_orient_btngrpLayout = QVBoxLayout(self.gradient_orient_btngrp.layout())
-        gradient_orient_btngrpLayout.setAlignment(Qt.AlignTop)
-
-        self.vertical_rbtn = QRadioButton(self.gradient_orient_btngrp,"vertical_rbtn")
-        self.vertical_rbtn.setChecked(1)
-        gradient_orient_btngrpLayout.addWidget(self.vertical_rbtn)
-
-        self.horizontal_rbtn = QRadioButton(self.gradient_orient_btngrp,"horizontal_rbtn")
-        gradient_orient_btngrpLayout.addWidget(self.horizontal_rbtn)
-        layout10.addWidget(self.gradient_orient_btngrp)
-        layout11.addLayout(layout10)
-        spacer7_2 = QSpacerItem(50,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout11.addItem(spacer7_2)
-        TabPageLayout.addLayout(layout11)
-        spacer8_3 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout.addItem(spacer8_3)
-
-        layout7 = QHBoxLayout(None,0,6,"layout7")
-
-        self.restore_bgcolor_btn = QPushButton(self.TabPage,"restore_bgcolor_btn")
-        layout7.addWidget(self.restore_bgcolor_btn)
-        spacer8_4 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout7.addItem(spacer8_4)
-        TabPageLayout.addLayout(layout7)
-        self.prefs_tab.insertTab(self.TabPage,QString(""))
-
-        self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
-        TabPageLayout_2 = QVBoxLayout(self.TabPage_2,11,6,"TabPageLayout_2")
-
-        layout8 = QHBoxLayout(None,0,6,"layout8")
-
-        self.default_display_btngrp = QButtonGroup(self.TabPage_2,"default_display_btngrp")
+        self.default_display_btngrp = QButtonGroup(self.TabPage,"default_display_btngrp")
         self.default_display_btngrp.setColumnLayout(0,Qt.Vertical)
         self.default_display_btngrp.layout().setSpacing(6)
         self.default_display_btngrp.layout().setMargin(11)
@@ -233,13 +134,147 @@ class UserPrefsDialog(QDialog):
         self.default_display_btngrp.insert( self.tubes_rbtn,5)
 
         default_display_btngrpLayout.addWidget(self.tubes_rbtn,2,0)
-        layout8.addWidget(self.default_display_btngrp)
-        spacer9 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout8.addItem(spacer9)
-        TabPageLayout_2.addLayout(layout8)
-        spacer8_5 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_2.addItem(spacer8_5)
+        layout10.addWidget(self.default_display_btngrp)
+
+        self.groupBox3 = QGroupBox(self.TabPage,"groupBox3")
+        self.groupBox3.setColumnLayout(0,Qt.Vertical)
+        self.groupBox3.layout().setSpacing(6)
+        self.groupBox3.layout().setMargin(11)
+        groupBox3Layout = QVBoxLayout(self.groupBox3.layout())
+        groupBox3Layout.setAlignment(Qt.AlignTop)
+
+        self.textLabel2 = QLabel(self.groupBox3,"textLabel2")
+        groupBox3Layout.addWidget(self.textLabel2)
+
+        self.caption_prefix_linedit = QLineEdit(self.groupBox3,"caption_prefix_linedit")
+        groupBox3Layout.addWidget(self.caption_prefix_linedit)
+
+        self.textLabel2_2 = QLabel(self.groupBox3,"textLabel2_2")
+        groupBox3Layout.addWidget(self.textLabel2_2)
+
+        self.caption_suffix_linedit = QLineEdit(self.groupBox3,"caption_suffix_linedit")
+        groupBox3Layout.addWidget(self.caption_suffix_linedit)
+
+        self.caption_fullpath_checkbox = QCheckBox(self.groupBox3,"caption_fullpath_checkbox")
+        groupBox3Layout.addWidget(self.caption_fullpath_checkbox)
+        layout10.addWidget(self.groupBox3)
+        spacer9 = QSpacerItem(70,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout10.addItem(spacer9)
+        TabPageLayout.addLayout(layout10)
+        spacer11 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout.addItem(spacer11)
+        self.prefs_tab.insertTab(self.TabPage,QString(""))
+
+        self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
+        TabPageLayout_2 = QVBoxLayout(self.TabPage_2,11,6,"TabPageLayout_2")
+
+        layout11 = QHBoxLayout(None,0,6,"layout11")
+
+        layout9 = QGridLayout(None,1,1,0,6,"layout9")
+
+        self.color2_lbl = QLabel(self.TabPage_2,"color2_lbl")
+        self.color2_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout9.addWidget(self.color2_lbl,3,0)
+
+        layout37 = QHBoxLayout(None,0,6,"layout37")
+
+        self.color1_frame = QFrame(self.TabPage_2,"color1_frame")
+        self.color1_frame.setPaletteBackgroundColor(QColor(170,255,255))
+        self.color1_frame.setFrameShape(QFrame.Box)
+        self.color1_frame.setFrameShadow(QFrame.Plain)
+        layout37.addWidget(self.color1_frame)
+
+        self.choose_color1_btn = QPushButton(self.TabPage_2,"choose_color1_btn")
+        layout37.addWidget(self.choose_color1_btn)
+
+        layout9.addLayout(layout37,2,1)
+
+        self.fill_type_lbl = QLabel(self.TabPage_2,"fill_type_lbl")
+        self.fill_type_lbl.setEnabled(0)
+        self.fill_type_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout9.addWidget(self.fill_type_lbl,1,0)
+
+        layout37_2 = QHBoxLayout(None,0,6,"layout37_2")
+
+        self.color2_frame = QFrame(self.TabPage_2,"color2_frame")
+        self.color2_frame.setPaletteBackgroundColor(QColor(0,0,127))
+        self.color2_frame.setFrameShape(QFrame.Box)
+        self.color2_frame.setFrameShadow(QFrame.Plain)
+        layout37_2.addWidget(self.color2_frame)
+
+        self.choose_color2_btn = QPushButton(self.TabPage_2,"choose_color2_btn")
+        layout37_2.addWidget(self.choose_color2_btn)
+
+        layout9.addLayout(layout37_2,3,1)
+
+        self.color1_lbl = QLabel(self.TabPage_2,"color1_lbl")
+        self.color1_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout9.addWidget(self.color1_lbl,2,0)
+
+        self.mode_combox = QComboBox(0,self.TabPage_2,"mode_combox")
+
+        layout9.addWidget(self.mode_combox,0,1)
+
+        self.mode_lbl = QLabel(self.TabPage_2,"mode_lbl")
+        self.mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout9.addWidget(self.mode_lbl,0,0)
+
+        self.fill_type_combox = QComboBox(0,self.TabPage_2,"fill_type_combox")
+        self.fill_type_combox.setEnabled(0)
+
+        layout9.addWidget(self.fill_type_combox,1,1)
+        layout11.addLayout(layout9)
+
+        layout10_2 = QVBoxLayout(None,0,6,"layout10_2")
+        spacer6 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout10_2.addItem(spacer6)
+
+        self.gradient_orient_btngrp = QButtonGroup(self.TabPage_2,"gradient_orient_btngrp")
+        self.gradient_orient_btngrp.setExclusive(1)
+        self.gradient_orient_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.gradient_orient_btngrp.layout().setSpacing(6)
+        self.gradient_orient_btngrp.layout().setMargin(11)
+        gradient_orient_btngrpLayout = QVBoxLayout(self.gradient_orient_btngrp.layout())
+        gradient_orient_btngrpLayout.setAlignment(Qt.AlignTop)
+
+        self.vertical_rbtn = QRadioButton(self.gradient_orient_btngrp,"vertical_rbtn")
+        self.vertical_rbtn.setChecked(1)
+        gradient_orient_btngrpLayout.addWidget(self.vertical_rbtn)
+
+        self.horizontal_rbtn = QRadioButton(self.gradient_orient_btngrp,"horizontal_rbtn")
+        gradient_orient_btngrpLayout.addWidget(self.horizontal_rbtn)
+        layout10_2.addWidget(self.gradient_orient_btngrp)
+        layout11.addLayout(layout10_2)
+        spacer7_2 = QSpacerItem(50,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout11.addItem(spacer7_2)
+        TabPageLayout_2.addLayout(layout11)
+        spacer8_3 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_2.addItem(spacer8_3)
+
+        layout7 = QHBoxLayout(None,0,6,"layout7")
+
+        self.restore_bgcolor_btn = QPushButton(self.TabPage_2,"restore_bgcolor_btn")
+        layout7.addWidget(self.restore_bgcolor_btn)
+        spacer8_4 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout7.addItem(spacer8_4)
+        TabPageLayout_2.addLayout(layout7)
         self.prefs_tab.insertTab(self.TabPage_2,QString(""))
+
+        self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
+        TabPageLayout_3 = QVBoxLayout(self.TabPage_3,11,6,"TabPageLayout_3")
+
+        self.msg_serial_number_checkbox = QCheckBox(self.TabPage_3,"msg_serial_number_checkbox")
+        TabPageLayout_3.addWidget(self.msg_serial_number_checkbox)
+
+        self.msg_timestamp_checkbox = QCheckBox(self.TabPage_3,"msg_timestamp_checkbox")
+        TabPageLayout_3.addWidget(self.msg_timestamp_checkbox)
+        spacer10 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_3.addItem(spacer10)
+        self.prefs_tab.insertTab(self.TabPage_3,QString(""))
         UserPrefsDialogLayout.addWidget(self.prefs_tab)
 
         layout28 = QHBoxLayout(None,0,6,"layout28")
@@ -267,6 +302,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.fill_type_changed)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
+        self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
 
 
     def languageChange(self):
@@ -284,6 +320,19 @@ class UserPrefsDialog(QDialog):
         self.lower_left_btn.setText(self.__tr("Lower Left"))
         self.lower_right_btn.setText(self.__tr("Lower Right"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
+        self.default_display_btngrp.setTitle(self.__tr("Default Display"))
+        self.vwd_rbtn.setText(self.__tr("VdW"))
+        self.cpk_rbtn.setText(self.__tr("CPK"))
+        self.lines_rbtn.setText(self.__tr("Lines"))
+        self.tubes_rbtn.setText(self.__tr("Tubes"))
+        self.groupBox3.setTitle(self.__tr("Caption Format"))
+        QToolTip.add(self.groupBox3,self.__tr("Window Border Caption Format"))
+        QWhatsThis.add(self.groupBox3,self.__tr("Format Prefix and Suffix text the delimits the part name in the caption in window border."))
+        self.textLabel2.setText(self.__tr("Caption Prefix for Modified File :"))
+        self.textLabel2_2.setText(self.__tr("Caption Suffix for Modified File :"))
+        self.caption_suffix_linedit.setText(QString.null)
+        self.caption_fullpath_checkbox.setText(self.__tr("Display full path of part"))
+        self.prefs_tab.changeTab(self.TabPage,self.__tr("Display"))
         self.color2_lbl.setText(self.__tr("Color 2 :"))
         self.choose_color1_btn.setText(self.__tr("Choose..."))
         self.fill_type_lbl.setText(self.__tr("Fill Type :"))
@@ -306,13 +355,10 @@ class UserPrefsDialog(QDialog):
         self.vertical_rbtn.setText(self.__tr("Vertical"))
         self.horizontal_rbtn.setText(self.__tr("Horizontal"))
         self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
-        self.prefs_tab.changeTab(self.TabPage,self.__tr("Background"))
-        self.default_display_btngrp.setTitle(self.__tr("Default Display"))
-        self.vwd_rbtn.setText(self.__tr("VdW"))
-        self.cpk_rbtn.setText(self.__tr("CPK"))
-        self.lines_rbtn.setText(self.__tr("Lines"))
-        self.tubes_rbtn.setText(self.__tr("Tubes"))
-        self.prefs_tab.changeTab(self.TabPage_2,self.__tr("Display"))
+        self.prefs_tab.changeTab(self.TabPage_2,self.__tr("Background"))
+        self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
+        self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
+        self.prefs_tab.changeTab(self.TabPage_3,self.__tr("History"))
         self.ok_btn.setText(self.__tr("OK"))
 
 
@@ -348,6 +394,9 @@ class UserPrefsDialog(QDialog):
 
     def set_default_display_mode(self):
         print "UserPrefsDialog.set_default_display_mode(): Not implemented yet"
+
+    def set_caption_fullpath(self):
+        print "UserPrefsDialog.set_caption_fullpath(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

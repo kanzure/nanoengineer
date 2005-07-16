@@ -26,7 +26,8 @@ from qt import *
 import sys, os, time
 import platform # for atom_debug, and more
 from debug import DebugMenuMixin
-from constants import noop
+from constants import noop, historyMsgSerialNumber_prefs_key, historyMsgTimestamp_prefs_key
+import preferences
 
 
 # [formatters by Mark; moved into this file by bruce 050107;
@@ -68,12 +69,21 @@ class message:
             except:
                 serno = -1
         self.serno = serno
+        self.hist = hist
     def timestamp_text(self):
         #e should inherit the method from the display env
-        timetuple = time.localtime(self.time)
-        return time.asctime(timetuple).split()[3] ###stub; i hope this is hh:mm:ss
+        if self.hist.msg_timestamp:
+            timetuple = time.localtime(self.time)
+            return "[%s] " % (time.asctime(timetuple).split()[3]) ###stub; i hope this is hh:mm:ss
+        else:
+            return ''
+    def serial_number_text(self):
+        if self.hist.msg_serial_number:
+            return "%d. " % (self.serno)
+        else:
+            return ''
     def widget_text_header(self):
-        return "%d. [%s] " % (self.serno, self.timestamp_text())
+        return self.serial_number_text() + self.timestamp_text()
     def widget_text(self):
         return self.widget_text_header() + self.text
     def widget_html(self): ###@@@ experimental. This sort of works... 
@@ -159,6 +169,21 @@ class HistoryWidget:
         """###doc this;
         optional arg header_line should be a string, generally not ending in '\n'
         """
+        
+        ###### User Preference initialization ##############################
+        
+        # Get history related settings from prefs db.
+        # If they are not found, set default values here.
+        # The keys are located in constants.py
+        # Mark 050716
+        
+        prefs = preferences.prefs_context()
+        
+        self.msg_serial_number = prefs.get(historyMsgSerialNumber_prefs_key, True)
+        self.msg_timestamp = prefs.get(historyMsgTimestamp_prefs_key, True)
+        
+        ###### End of User Preference initialization ########################## 
+        
         if header_line == None:
             ## header_line_1 = "(running from [%s])" % os.path.dirname(os.path.abspath(sys.argv[0])) #bruce 050516
             ## header_line_2 = "session history, started at: %s" % time.asctime() #stub

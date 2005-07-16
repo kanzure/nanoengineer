@@ -33,6 +33,7 @@ from HistoryWidget import greenmsg, redmsg
 
 from movieMode import movieDashboardSlotsMixin
 from changes import register_postinit_object
+import preferences
 
 helpwindow = None
 elementSelectorWin = None
@@ -194,6 +195,22 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.pasteP = False
         
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
+
+        ###### User Preference initialization ##############################
+        
+        # Get MainWindowUI related settings from prefs db.
+        # If they are not found, set default values here.
+        # The keys are located in constants.py 
+        # Mark 050716
+        
+        prefs = preferences.prefs_context()
+        
+        self.caption_prefix = prefs.get(captionPrefix_prefs_key, '')
+        self.caption_suffix = prefs.get(captionSuffix_prefs_key, '*')
+        self.caption_fullpath = prefs.get(captionFullPath_prefs_key, False)
+        
+        ###### End of User Preference initialization ########################## 
+
 
         self.initialised = 1
 
@@ -1619,21 +1636,28 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
 
     def update_mainwindow_caption(self, Changed=False):
         '''Update the caption at the top of the of the main window. 
-        Example:  nanoENGINEER-1 [part.mmp]
-        Change=True will add an asterisk to the end of the caption denoting the part has been changed.
+        Example:  "nanoENGINEER-1 - [partname.mmp]"
+        Changed=True will add the prefix and suffix to the caption denoting the part has been changed.
         '''
         
         if Changed:
-            asterisk = '*' # Add asterisk to denote the part has changed.
+            prefix = self.caption_prefix
+            suffix = self.caption_suffix + '*'
         else:
-            asterisk = ''
-            
+            prefix = ''
+            suffix = ''
         try:
             junk, basename = os.path.split(self.assy.filename)
             assert basename # it's normal for this to fail, when there is no file yet
-#            self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]" + asterisk))
-            self.setCaption(self.trUtf8(self.name() + " - " + "[" + basename + "]" + asterisk))
+            
+            if self.caption_fullpath:
+                partname = self.assy.filename
+            else:
+                partname = basename
+        
         except:
-            self.setCaption(self.trUtf8(self.name() + " - " + "[Untitled]" + asterisk))
+            partname = 'Untitled'
+        
+        self.setCaption(self.trUtf8(self.name() + " - " + prefix + "[" + partname + "]" + suffix))
             
     # end of class MWsemantics

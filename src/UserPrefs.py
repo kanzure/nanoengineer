@@ -81,6 +81,7 @@ class UserPrefs(UserPrefsDialog):
        
     def __init__(self, assy):
         UserPrefsDialog.__init__(self)
+        self.win = assy.w
         self.history = assy.w.history
         self.glpane = assy.o
         self.gmspath = None
@@ -110,14 +111,13 @@ class UserPrefs(UserPrefsDialog):
 
         # Get GAMESS executable path from prefs db and update the lineEdit widget.
         prefs = preferences.prefs_context()
-        self.gmspath = prefs.get(gmspath_prefs_key)
+        self.gmspath = prefs.get(gmspath_prefs_key, '')
+        self.gamess_path_linedit.setText(self.gmspath)
         
-        if self.gmspath:
-            self.gamess_path_linedit.setText(self.gmspath)
-        else:
-            self.gamess_path_linedit.setText('')
-        
-        return 0
+#        if self.gmspath:
+#            self.gamess_path_linedit.setText(self.gmspath)
+#        else:
+#            self.gamess_path_linedit.setText('')
 
     def _setup_background_page(self):
         ''' Setup widgets to initial (default or defined) values on the background page.
@@ -135,12 +135,22 @@ class UserPrefs(UserPrefsDialog):
         ''' Setup widgets to initial (default or defined) values on the display page.
         '''
         self.default_display_btngrp.setButton(self.glpane.display)
+        self.caption_prefix_linedit.setText(self.win.caption_prefix)
+        self.caption_suffix_linedit.setText(self.win.caption_suffix)
+        self.caption_fullpath_checkbox.setChecked(self.win.caption_fullpath)
 
+    def _setup_history_page(self):
+        ''' Setup widgets to initial (default or defined) values on the display page.
+        '''
+        self.msg_serial_number_checkbox.setChecked(self.history.msg_serial_number)
+        self.msg_timestamp_checkbox.setChecked(self.history.msg_timestamp)
                                 
     def _update_prefs(self):
-        '''Update user preferences in the shelf
+        '''Update user preferences and store them in the shelf.
+        This method has two parts:
+            1. Update the preference variables stored in various objects (i.e. win, assy, history, etc.)
+            2. Save the prefences to the shelf.
         '''
-        prefs = preferences.prefs_context()
         
         # Do this just in case the user typed in the GAMESS executable path by hand.
         # We do not need to check whether the path exists as this is checked
@@ -155,14 +165,46 @@ class UserPrefs(UserPrefsDialog):
         # Mark 050630.
 #        self.gmspath = validate_gamess_path(self, str(self.gamess_path_linedit.text()))
         
+        # Update Caption prefs #########################################
+        # The prefix and suffix updates should be done via slots and include a validator.
+        # Will do later.  Mark 050716.
+        prefix = QString(self.caption_prefix_linedit.text())
+        
+        text = prefix.stripWhiteSpace() # make sure prefix is not just whitespaces
+        if text: 
+            self.win.caption_prefix = str(text) + ' '
+        else:
+            self.win.caption_prefix = ''
+        
+        suffix = QString(self.caption_suffix_linedit.text())
+        
+        text = suffix.stripWhiteSpace() # make sure suffix is not just whitespaces
+        if text: 
+            self.win.caption_suffix = ' ' + str(text)
+        else:
+            self.win.caption_suffix = ''
+            
+        self.win.update_mainwindow_caption(self.win.assy.has_changed())
+        
+        # Update History pref variables
+        self.history.msg_serial_number = self.msg_serial_number_checkbox.isChecked()
+        self.history.msg_timestamp = self.msg_timestamp_checkbox.isChecked()
+        
         # General tab prefs
         general_changes = { displayCompass_prefs_key: self.glpane.displayCompass,
-                            compassPosition_prefs_key: self.glpane.compassPosition,
-                            displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
-                            displayPOVAxis_prefs_key: self.glpane.displayPOVAxis,
-                            gmspath_prefs_key: self.gmspath,
-                            defaultDisplayMode_prefs_key: self.glpane.display }
+                                            compassPosition_prefs_key: self.glpane.compassPosition,
+                                            displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
+                                            displayPOVAxis_prefs_key: self.glpane.displayPOVAxis,
+                                            gmspath_prefs_key: self.gmspath,
+                                            defaultDisplayMode_prefs_key: self.glpane.display,
+                                            captionPrefix_prefs_key: self.win.caption_prefix,
+                                            captionSuffix_prefs_key: self.win.caption_suffix,
+                                            captionFullPath_prefs_key: self.win.caption_fullpath,
+                                            historyMsgSerialNumber_prefs_key: self.history.msg_serial_number,
+                                            historyMsgTimestamp_prefs_key: self.history.msg_timestamp
+                                             }
         
+        prefs = preferences.prefs_context()
         prefs.update(general_changes) # Open prefs db once.
 
     ###### End of private methods. ########################
@@ -268,7 +310,21 @@ class UserPrefs(UserPrefsDialog):
             bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
             mode.set_backgroundColor( bgcolor )
             self.color1_frame.setPaletteBackgroundColor(c)
-    
+
+    def change_bgcolor2(self):
+        '''Change a mode's second background color.
+        '''
+        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
+        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
+        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor2)
+
+        # Allow user to select a new background color and set it.
+        c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
+        if c.isValid():
+            bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            mode.set_backgroundColor2( bgcolor )
+            self.color2_frame.setPaletteBackgroundColor(c)
+                
     def restore_default_bgcolor(self):
         '''Slot for "Restore Default Color" button, which restores the selected mode's bg color.
         '''
@@ -286,12 +342,19 @@ class UserPrefs(UserPrefsDialog):
         
     ########## End of slot methods for "Background" page widgets ###########
 
+    ########## Slot methods for "Display" page widgets ################
 
     def set_default_display_mode(self, val):
         '''Set default display mode of GLpane.
         '''
         self.glpane.setDisplay(val)
         self.glpane.gl_update()
+        
+    def set_caption_fullpath(self, val):
+        self.win.caption_fullpath = val
+        self.win.update_mainwindow_caption(self.win.assy.has_changed())
+        
+    ########## End of slot methods for "Display" page widgets ###########
 
     ########## Slot methods for top level widgets ################
     
@@ -302,6 +365,8 @@ class UserPrefs(UserPrefsDialog):
             self._setup_background_page()
         elif pagename == 'Display':
             self._setup_display_page()
+        elif pagename == 'History':
+            self._setup_history_page()
         else:
             print 'Error: Preferences page unknown: ', pagename
             
