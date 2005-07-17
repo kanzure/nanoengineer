@@ -514,11 +514,37 @@ class Motor(Jig):
         '''
         ##e it might be nice to dim this menu item if the atoms haven't moved since this motor was made or recentered;
         # first we'd need to extend the __CM_ API to make that possible. [bruce 050704]
-        self.assy.w.history.message( "Recenter Motor [%s] for current atom positions" % self.name) #e specify type of motor??
+        
+        cmd = greenmsg("Recenter on Atoms: ")
+        
         self.recenter_on_atoms()
+        info = "Recentered motor [%s] for current atom positions" % self.name 
+        self.assy.w.history.message( cmd + info ) 
         self.assy.w.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
         return
-    
+
+    def __CM_Align_to_chunk(self):
+        '''Rotary or Linear Motor context menu command: "Align to chunk"
+        This uses the chunk connected to the first atom of the motor.
+        '''
+        # I needed this when attempting to simulate the rotation of a long, skinny
+        # chunk.  The axis computed from the attached atoms was not close to the axis
+        # of the chunk.  I figured this would be a common feature that was easy to add.
+        # 
+        ##e it might be nice to dim this menu item if the chunk's axis hasn't moved since this motor was made or recentered;
+        # first we'd need to extend the __CM_ API to make that possible. [mark 050717]
+        
+        cmd = greenmsg("Align to Chunk: ")
+        
+        chunk = self.atoms[0].molecule # Get the chunk attached to the motor's first atom.
+        self.axis = chunk.getaxis()
+        
+        info = "Aligned motor [%s] on chunk [%s]" % (self.name, chunk.name) 
+        self.assy.w.history.message( cmd + info ) 
+        self.assy.w.win_update()
+        
+        return
+            
     def move(self, offset): #k can this ever be called?
         self.center += offset
 
