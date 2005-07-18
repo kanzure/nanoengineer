@@ -3,6 +3,9 @@ nanoENGINEER-1™ v0.0.6 (Alpha 6)
 
 Bug Fixes In Alpha 6
 
+* Bug # 102: ‘Select Doubly’ can often take a long time to complete.
+* Bug # 187: Align to common axis averages the axis vectors of the selected chunks. 
+* Bug # 393 : Linear motors are not supported by the simulator 
 * Bug # 474-1: Bugs due to the use of closing parenthesis symbol ‘)’ while naming the objects in the model tree. (part of bug 474 ) 
 
 
@@ -14,7 +17,7 @@ Unsupported Features:
 
 3. Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. 
 
-4. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading a PDB file and also while writing a PDB or MMP file. Therefore, if you open such a PDB file, do not save it using current nE-1 version (569)
+4. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading from or writing to a PDB file. (569)
 
 5. The 'Clipboard' is still experimental and has some bugs related to history messages it emits. 
 
@@ -26,9 +29,7 @@ Unsupported Features:
 
 9. Bonds are not selectable.
 
-10. Linear motors are not supported by the simulator. (393) 
-
-11. Unicode characters are not supported for naming the items in the model tree. (474)
+10. Unicode characters are not supported for naming the items in the model tree. (474)
 
 
 Known Bugs (All Platforms)
@@ -53,13 +54,9 @@ Known Bugs (All Platforms)
 
 10. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. (168) 
 
-11. Selection/Jigs: Cannot select a jig (i.e. motor, ground, thermostat or thermometer) in the graphics area. Jigs may only be selected via the model tree. (6) 
+11. Selection: Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms or bonds in that chunk. (11)
 
-12. Selection: Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms in that chunk. (11)
-
-13. Selection: ‘Select Doubly’ can often take a long time to complete. (102)
-
-14. Extrude Tool: The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
+12. Extrude Tool: The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
 
 -- Get everything adjusted first in the 'rod mode'.  For example, select the proper bond offset sphere or arrange the copy units such that you can see their open bonds highlighted in a way you would like to bond them. (In general, while in the ring mode, adjustments made from graphics area don’t work)
 
@@ -69,45 +66,45 @@ Known Bugs (All Platforms)
 
 -- Select the 'Done' button on the dashboard when finished. (155)
 
-15. Extrude Tool: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
+13. Extrude Tool: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
 
-16. Extrude Tool: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
+14. Extrude Tool: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
 
-17. Exrude Tool: Extrude’s ring feature doesn’t take the curvature into account for the bonds formed. (494)
+15. Exrude Tool: Extrude’s ring feature doesn’t take the curvature into account for the bonds formed. (494)
 
-18.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode , after adjusting the chunks (to be extruded) as ‘bondables’ with their copy units. (495)
+16.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode , after adjusting the chunks (to be extruded) as ‘bondables’ with their copy units. (495)
 
-19. Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard ‘Part’), then the movie can not be ‘viewed’. But it continues to run. nE-1 doesn’t print a warning message to instruct user to click on the appropriate ‘Part’, for which the movie is created for,  to view the movie. (578-5)
+17. Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard ‘Part’), then the movie can not be ‘viewed’. But it continues to run. nE-1 doesn’t print a warning message to instruct user to click on the appropriate ‘Part’, for which the movie is created for,  to view the movie. (578-5)
 
-20. Cookie Cutter: Large selections can cause response latency. (8)
+18. Cookie Cutter: Large selections can cause response latency. (8)
 
-21. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)
+19. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)
 
-22. Cookie Cutter: the graphics area turns into a black display if you resize the nE-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687)
+20. Cookie Cutter: the graphics area turns into a black display if you resize the nE-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687)
 
-23. Fuse Chunks: If the chunks were ‘merged’ in previous operation while bonding them together, ‘Back Up’ button on the dashboard doesn’t ‘unmerge’ them. It only deletes the bond formed in earlier operation. (486-10)
+21. Fuse Chunks: If the chunks were ‘merged’ in previous operation while bonding them together, ‘Back Up’ button on the dashboard doesn’t ‘unmerge’ them. It only deletes the bond formed in earlier operation. (486-10)
 
-24. Fuse Chunks: Back up button on dashboard to delete a bond formed in previous operation deletes the bond, but it doesn’t restore the previous bond angles. (502-16)
+22. Fuse Chunks: Back up button on dashboard to delete a bond formed in previous operation deletes the bond, but it doesn’t restore the previous bond angles. (502-16)
 
-25. Fuse Chunks: Some history message generated are not correct for current version but these will become valid once bond ontology is implemented in nE-1 because of the same reason the back up button in fuse chunks has a related bug. (580)
+23. Fuse Chunks: Some history message generated are not correct for current version but these will become valid once bond ontology is implemented in nE-1 because of the same reason the back up button in fuse chunks has a related bug. (580)
 
-26. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
+24. Fuse Chunks: operations while in this mode are sluggish if it’s a large model and has large number of open bonds. (689)
 
-27. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
+25. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
 
-28. Align to common axis averages the axis vectors of the selected chunks. The resultant vector is (usually) different than the axis vectors of any of the chunks. (187)
+26. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
 
-29. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
+27. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
 
-30. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
+28. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
 
-31. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+29. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
 
-32. Display: The front clipping plane will sometimes clip objects that should not be clipped.
+30. Display: The front clipping plane will sometimes clip objects that should not be clipped.
 
-33. Dialogs and Dashboard: Users operating nE-1 with a low screen resolution report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Element Selector need resizing etc. (231, 513, 581)
+31. Dialogs and Dashboard: Users operating nE-1 with a low screen resolution report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Element Selector need resizing etc. (231, 513, 581)
 
-34. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+32. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
 
 Windows Only Bugs
